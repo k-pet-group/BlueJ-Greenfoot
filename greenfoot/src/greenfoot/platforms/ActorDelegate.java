@@ -1,4 +1,7 @@
-package greenfoot;
+package greenfoot.platforms;
+
+import greenfoot.GreenfootImage;
+import greenfoot.World;
 
 /**
  * Interface to classes that contain specialized behaviour for the Actors

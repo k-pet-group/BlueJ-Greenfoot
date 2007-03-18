@@ -1,8 +1,8 @@
 package greenfoot;
 
 import greenfoot.collision.ibsp.Rect;
+import greenfoot.platforms.ActorDelegate;
 import greenfoot.util.Circle;
-import greenfoot.util.Version;
 
 /**
  * Class that makes it possible for classes outside the greenfoot package to get
@@ -59,5 +59,11 @@ public class ActorVisitor
     public static GreenfootImage getDisplayImage(Actor actor)
     {
         return actor.getDisplayImage();
+    }
+
+    
+    public static void setDelegate(ActorDelegate instance)
+    {
+        Actor.setDelegate(instance);
     }
 }

@@ -19,6 +19,7 @@ import bluej.debugmgr.MethodDialog;
 import bluej.debugmgr.inspector.InspectorManager;
 import bluej.debugmgr.inspector.ResultInspector;
 import bluej.debugmgr.objectbench.InvokeListener;
+import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
@@ -50,13 +51,12 @@ public class WorldInvokeListener
     private MethodView mv;
     private ConstructorView cv;
     private Class cl;
-    //TODO polle should not store the worldhandler since it is a singleton
-    private WorldHandler worldHandler;
     private InspectorManager inspectorManager;
+    private ObjectBenchInterface objectBench;
     
-    public WorldInvokeListener(Object obj, WorldHandler worldHandler, InspectorManager inspectorManager)
+    public WorldInvokeListener(Object obj, ObjectBenchInterface bench, InspectorManager inspectorManager)
     {
-        this.worldHandler = worldHandler;
+        this.objectBench = bench;
         this.obj = obj;
         this.inspectorManager = inspectorManager;
     }
@@ -110,7 +110,7 @@ public class WorldInvokeListener
             else {
                 CallHistory ch = GreenfootMain.getInstance().getCallHistory();
                 MethodDialog md = new MethodDialog(GreenfootMain.getInstance().getFrame(),
-                        WorldHandler.getInstance(), ch, instanceName, mv, null);
+                        objectBench , ch, instanceName, mv, null);
 
                 md.setWatcher(this);
                 md.setVisible(true);
@@ -165,7 +165,7 @@ public class WorldInvokeListener
         else {
             CallHistory ch = GreenfootMain.getInstance().getCallHistory();
             MethodDialog md = new MethodDialog(GreenfootMain.getInstance().getFrame(),
-                    WorldHandler.getInstance(), ch, "result", cv, null);
+                    objectBench, ch, "result", cv, null);
 
             md.setWatcher(this);
             md.setVisible(true);
@@ -315,6 +315,7 @@ public class WorldInvokeListener
 
     private void update()
     {
+        WorldHandler worldHandler = WorldHandler.getInstance();
         if(worldHandler != null) {
             worldHandler.repaint();
         }

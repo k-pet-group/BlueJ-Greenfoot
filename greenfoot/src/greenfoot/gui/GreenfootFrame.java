@@ -11,6 +11,7 @@ import greenfoot.event.WorldListener;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.SelectionManager;
+import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.sound.SoundPlayer;
 import greenfoot.util.GreenfootUtil;
 
@@ -37,7 +38,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4844 2007-03-16 18:09:38Z polle $
+ * @version $Id: GreenfootFrame.java 4849 2007-03-18 18:04:22Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -235,7 +236,7 @@ public class GreenfootFrame extends JFrame
         worldCanvas = new WorldCanvas(null);
         worldCanvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         
-        WorldHandler.initialise(worldCanvas);
+        WorldHandler.initialise(worldCanvas, new WorldHandlerDelegateIDE());
         worldHandler = WorldHandler.getInstance();
         worldHandler.addWorldListener(this);
         Simulation.initialize(worldHandler);
@@ -263,6 +264,7 @@ public class GreenfootFrame extends JFrame
         worldScrollPane.getViewport().setOpaque(false);
         worldScrollPane.setBorder(null);
         
+       
         worldPanel.add(worldHandler.getWorldTitle(), BorderLayout.NORTH);
         worldPanel.add(worldScrollPane, BorderLayout.CENTER);
 
@@ -441,6 +443,9 @@ public class GreenfootFrame extends JFrame
 //        addMenuItem(new NYIAction("Open Recent...", this), projectMenu, -1, false, -1);
         addMenuItem(CloseProjectAction.getInstance(), projectMenu, KeyEvent.VK_W, false, KeyEvent.VK_C);
         addMenuItem(SaveProjectAction.getInstance(), projectMenu, KeyEvent.VK_S, false, KeyEvent.VK_S);
+        
+    //    addMenuItem(ExportProjectAction.getInstance(), projectMenu, KeyEvent.VK_E, false, KeyEvent.VK_E);
+
 //        addMenuItem(new NYIAction("Save As...", this), projectMenu, KeyEvent.VK_S, true, -1);
 //        projectMenu.addSeparator();
 //        addMenuItem(new NYIAction("Page Setup...", this), projectMenu, KeyEvent.VK_P, true, -1);
@@ -523,6 +528,7 @@ public class GreenfootFrame extends JFrame
         RemoveSelectedClassAction.getInstance().setEnabled(true);
         CompileAllAction.getInstance().setEnabled(true);
         ShowReadMeAction.getInstance().setEnabled(true);
+  //      ExportProjectAction.getInstance().setEnabled(true);
     }
 
     /**

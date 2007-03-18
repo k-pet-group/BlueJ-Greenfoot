@@ -2,7 +2,6 @@ package greenfoot.core;
 
 import greenfoot.Actor;
 import greenfoot.ActorVisitor;
-import greenfoot.ObjectTracker;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.event.WorldEvent;
@@ -11,35 +10,18 @@ import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.DragListener;
 import greenfoot.gui.DropTarget;
 import greenfoot.gui.WorldCanvas;
-import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.SelectionManager;
-import greenfoot.gui.classbrowser.role.GreenfootClassRole;
-import greenfoot.localdebugger.LocalObject;
+import greenfoot.platforms.WorldHandlerDelegate;
 
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Point;
 import java.awt.event.*;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
-
-import rmiextension.wrappers.RObject;
-import bluej.debugger.DebuggerObject;
-import bluej.debugger.gentype.JavaType;
-import bluej.debugmgr.NamedValue;
-import bluej.debugmgr.objectbench.ObjectBenchEvent;
-import bluej.debugmgr.objectbench.ObjectBenchInterface;
-import bluej.debugmgr.objectbench.ObjectBenchListener;
-import bluej.debugmgr.objectbench.ObjectWrapper;
-import bluej.extensions.ClassNotFoundException;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
 
 /**
  * The worldhandler handles the connection between the World and the
@@ -48,14 +30,10 @@ import bluej.extensions.ProjectNotOpenException;
  * @author Poul Henriksen
  * @version $Id$
  */
-public class WorldHandler
-    implements MouseListener, KeyListener, DropTarget, DragListener, ObjectBenchInterface
+public class WorldHandler implements MouseListener, KeyListener, DropTarget, DragListener
 {
     private World world;
     private WorldCanvas worldCanvas;
-    private SelectionManager classSelectionManager;
-    private JLabel worldTitle;
-    private boolean isQuickAddActive;
 
     // where did the the drag/drop operation begin?
     private int dragBeginX;
@@ -67,19 +45,19 @@ public class WorldHandler
      */
     private boolean objectDropped = true; // true if the object was dropped
     
+
     private KeyboardManager keyboardManager;
     private static WorldHandler instance;
-    
-    private GProject project; 
     private EventListenerList listenerList = new EventListenerList();
     private WorldEvent worldEvent;
+    private WorldHandlerDelegate handlerDelegate;
 
     
     
-    public static synchronized void initialise(WorldCanvas worldCanvas) 
+    public static synchronized void initialise(WorldCanvas worldCanvas, WorldHandlerDelegate helper) 
     {
         if(instance == null) {
-            instance = new WorldHandler(worldCanvas);
+            instance = new WorldHandler(worldCanvas, helper);
         } else {
             throw (new IllegalStateException("Can only intiliase this singleton once."));
         }
@@ -98,12 +76,12 @@ public class WorldHandler
     /**
      * Creates a new worldHandler and sets up the connection between worldCanvas
      * and world.
+     * @param handlerDelegate 
      */
-    private WorldHandler(WorldCanvas worldCanvas)
+    private WorldHandler(WorldCanvas worldCanvas, WorldHandlerDelegate handlerDelegate)
     {
-        worldTitle = new JLabel();
-        worldTitle.setBorder(BorderFactory.createEmptyBorder(18, 0, 4, 0));
-        worldTitle.setHorizontalAlignment(SwingConstants.CENTER);
+        this.handlerDelegate = handlerDelegate;
+        this.handlerDelegate.setWorldHandler(this);
 
         this.worldCanvas = worldCanvas;
         worldEvent = new WorldEvent(this);
@@ -116,7 +94,7 @@ public class WorldHandler
         keyboardManager = new KeyboardManager();
         DragGlassPane.getInstance().addKeyListener(this);
     }
-
+    
     /**
      * Sets the selection manager.
      * 
@@ -125,7 +103,7 @@ public class WorldHandler
      */
     public void setSelectionManager(SelectionManager selectionManager)
     {
-        this.classSelectionManager = selectionManager;
+        handlerDelegate.setSelectionManager(selectionManager);
     }
     
     /**
@@ -143,12 +121,7 @@ public class WorldHandler
      */
     public void mouseClicked(MouseEvent e)
     {
-        if (SwingUtilities.isLeftMouseButton(e)) {
-            Actor actor = getObject(e.getX(), e.getY());
-            if (actor != null) {
-                fireObjectEvent(actor);
-            }
-        }
+        handlerDelegate.mouseClicked(e);
     }
 
     /*
@@ -158,7 +131,7 @@ public class WorldHandler
      */
     public void mousePressed(MouseEvent e)
     {
-        maybeShowPopup(e);
+        handlerDelegate.maybeShowPopup(e);
         if (SwingUtilities.isLeftMouseButton(e)) {
             Actor actor = getObject(e.getX(), e.getY());
             if (actor != null) {
@@ -186,97 +159,17 @@ public class WorldHandler
      */
     public void mouseReleased(MouseEvent e)
     {
-        maybeShowPopup(e);
+        handlerDelegate.maybeShowPopup(e);
 
     }
 
-    private boolean maybeShowPopup(MouseEvent e)
-    {
-        if (e.isPopupTrigger()) {
-
-            Actor obj = getObject(e.getX(), e.getY());
-            if (obj != null) {
-                JPopupMenu menu = makePopupMenu(obj);
-                // JPopupMenu menu = new JPopupMenu();
-                // ObjectWrapper.createMenuItems(menu, ...);
-                // new ObjectWrapper();
-                // JPopupMenu menu = ObjectTracker.instance().getJPopupMenu(obj,
-                // e);
-                // menu.setVisible(true);
-                menu.show(worldCanvas, e.getX(), e.getY());
-            }
-            return true;
-
-        }
-        return false;
+    public int getDragBeginX() {
+        return dragBeginX;
     }
 
-    /**
-     * Make a popup menu suitable for calling methods on, inspecting and
-     * removing an object in the world.
-     */
-    private JPopupMenu makePopupMenu(final Actor obj)
-    {
-        JPopupMenu menu = new JPopupMenu();
-        
-        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj, this, project), new LocalObject(obj), null);
-       
-        
-        menu.addSeparator();
-
-        // "inspect" menu item
-        JMenuItem m = getInspectMenuItem(obj);
-        menu.add(m);
-
-        // "remove" menu item
-        m = new JMenuItem("Remove");
-        m.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                world.removeObject(obj);
-                repaint();
-            }
-        });
-        menu.add(m);
-        return menu;
+    public int getDragBeginY() {
+        return dragBeginY;
     }
-
-    /**
-     * Create a menu item to inspect an object.
-     */
-    private JMenuItem getInspectMenuItem(final Object obj)
-    {
-        JMenuItem m = new JMenuItem("Inspect");
-        m.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                JFrame parent = (JFrame) worldCanvas.getTopLevelAncestor();
-                DebuggerObject dObj = new LocalObject(obj);
-                String instanceName = "";
-                try {
-                    RObject rObject = ObjectTracker.getRObject(obj);
-                    instanceName = rObject.getInstanceName();
-                }
-                catch (ProjectNotOpenException e1) {
-                    e1.printStackTrace();
-                }
-                catch (PackageNotFoundException e1) {
-                    e1.printStackTrace();
-                }
-                catch (RemoteException e1) {
-                    e1.printStackTrace();
-                }
-                catch (ClassNotFoundException e1) {
-                    e1.printStackTrace();
-                }
-                project.getInspectorInstance(dObj, instanceName, null, null, parent);
-            }
-        });
-        return m;
-    }
-    
-    
-
     
     /**
      * TODO: this method should be removed when it is posisble to select among
@@ -288,7 +181,7 @@ public class WorldHandler
      * @param y
      * @return
      */
-    private Actor getObject(int x, int y)
+    public Actor getObject(int x, int y)
     {
         if (world == null)
             return null;
@@ -313,7 +206,7 @@ public class WorldHandler
      */
     public void mouseEntered(MouseEvent e)
     {
-        isQuickAddActive = false;
+        handlerDelegate.setQuickAddActive(false);
         worldCanvas.requestFocusInWindow();     
     }
 
@@ -352,44 +245,12 @@ public class WorldHandler
      */
     public void keyPressed(KeyEvent e)
     {
-    	processInputEvent(e);
+    	handlerDelegate.processKeyEvent(e);
         keyboardManager.keyPressed(e);
     }
 
-    private void processInputEvent(KeyEvent e)
-    {        
-        if( ! isQuickAddActive) {
-    		isQuickAddActive = e.isShiftDown();
-            if(isQuickAddActive) {
-                //When shift is pressed any existing drags should be cancelled.
-                //For instance dragging object instantiated via interactively calling the constructor.
-                DragGlassPane.getInstance().cancelDrag();
-            }
-    		quickAddIfActive();
-    	}
-    }
 
-    private void quickAddIfActive()
-    {
-        if (isQuickAddActive) {
-            ClassView cls = (ClassView) classSelectionManager.getSelected();
-            if (cls != null && cls.getRole() instanceof GreenfootClassRole) {
-                GreenfootClassRole role = (GreenfootClassRole) cls.getRole();
-                Object object = role.createObjectDragProxy();//cls.createInstance();
 
-                Actor actor = (Actor) object;
-                int dragOffsetX = 0;
-                int dragOffsetY = 0;
-                objectDropped = false;
-                DragGlassPane.getInstance().startDrag(actor, dragOffsetX, dragOffsetY, this, worldCanvas, false);
-                
-                // On the mac, the glass pane doesn't seem to receive
-                // mouse move events; the shift/move is treated like a drag
-                worldCanvas.addMouseMotionListener(DragGlassPane.getInstance());
-                worldCanvas.addMouseListener(DragGlassPane.getInstance());
-            }
-        }
-    }
 
     /*
      * (non-Javadoc)
@@ -400,19 +261,19 @@ public class WorldHandler
     {
         DragGlassPane.getInstance().cancelDrag(); // dragEnded/dragFinished
         worldCanvas.requestFocus();
-        if (isQuickAddActive) {
-            isQuickAddActive = e.isShiftDown();
-        }
+        
+        handlerDelegate.keyReleased(e);
         keyboardManager.keyReleased(e);
     }
-
     
     /**
-     * Attaches a project to this handler.
+     * Attaches a project to this handler. Must be of type GProject. The
+     * parameter is not of type GProject to make WorldHandler independent of
+     * GProject which is necessary to run scenarios on different platforms.
      */
-    public void attachProject(GProject project)
+    public void attachProject(Object project)
     {
-        this.project = project;
+        handlerDelegate.attachProject(project);
     }
             
     /**
@@ -420,72 +281,23 @@ public class WorldHandler
      */
     public synchronized void setWorld(World world)
     {
-        if (this.world != null) {
-            // Remove the old world and actors from the remote object caches
-            ObjectTracker.forgetRObject(this.world);
-            List<Actor> oldActors = new ArrayList<Actor>(WorldVisitor.getObjectsList(this.world));
-            for (Iterator<Actor> i = oldActors.iterator(); i.hasNext(); ) {
-                Actor oldActor = i.next();
-                ObjectTracker.forgetRObject(oldActor);
-            }
-            
-            EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    fireWorldRemovedEvent();
-                }
-            });
-            Simulation.getInstance().setPaused(true);
-        }
+    
+        handlerDelegate.setWorld(this.world, world);
+        
         this.world = world;
+
+        worldCanvas.setWorld(world);
         
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
-                World world = WorldHandler.this.world;
-                if (world != null) {
-                    worldTitle.setText(world.getClass().getName());
-                }
-                worldCanvas.setWorld(world); // TODO consider removing this and only
-                // rely on observer
-                worldTitle.setEnabled(true);
-                MouseListener listeners[] = worldTitle.getMouseListeners();
-                for (int i = 0; i < listeners.length; i++) {
-                    worldTitle.removeMouseListener(listeners[i]);
-                }
 
-                worldTitle.addMouseListener(new MouseAdapter() {
-                    public void mouseReleased(MouseEvent e)
-                    {
-                        maybeShowPopup(e);
-                    }
-
-                    public void mousePressed(MouseEvent e)
-                    {
-                        maybeShowPopup(e);
-                    }
-
-                    private void maybeShowPopup(MouseEvent e)
-                    {
-                        Object world = WorldHandler.this.world;
-                        if (e.isPopupTrigger() && world != null) {
-                            JPopupMenu menu = new JPopupMenu();
-                            
-                            ObjectWrapper.createMethodMenuItems(menu, world.getClass(), new WorldInvokeListener(world,
-                                    WorldHandler.this, project), new LocalObject(world), null);
-                            menu.addSeparator();
-                            // "inspect" menu item
-                            JMenuItem m = getInspectMenuItem(world);
-                            menu.add(m);
-                            menu.show(worldTitle, e.getX(), e.getY());
-                        }
-                    }
-                });
-                
-                if (world != null) {
+                if (WorldHandler.this.world != null) {
                     fireWorldCreatedEvent();
                 }
             }
         });
+      
     }
 
     /**
@@ -493,7 +305,7 @@ public class WorldHandler
      */
     public Component getWorldTitle()
     {
-        return worldTitle;
+        return handlerDelegate.getWorldTitle();
     }
     
     public World getWorld()
@@ -618,25 +430,8 @@ public class WorldHandler
         worldCanvas.removeMouseListener(drag);
         worldCanvas.removeMouseMotionListener(drag);
 
-        if (!isQuickAddActive) {
-            // re-enable keylistener after object drag
-            worldCanvas.addMouseListener(this);
-            worldCanvas.addKeyListener(this);
-
-            // if the operation was cancelled, add the object back into the
-            // world at its original position
-            if (!objectDropped && o instanceof Actor) {
-                Actor actor = (Actor) o;
-                int x = WorldVisitor.toCellFloor(getWorld(), dragBeginX);
-                int y = WorldVisitor.toCellFloor(getWorld(), dragBeginY);
-                getWorld().addObject(actor, x,y);
-                objectDropped = true;
-            }
-        }
-        else if (objectDropped) {
-            // Quick-add another object
-            quickAddIfActive();
-        }
+        handlerDelegate.dragFinished(o);
+    
     }
 
     /**
@@ -648,12 +443,11 @@ public class WorldHandler
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
-                project.removeAllInspectors();
+                handlerDelegate.reset();
                 setWorld(null);
             }
         });
-    }
-    
+    }    
     
     protected void fireWorldCreatedEvent()
     {
@@ -668,7 +462,7 @@ public class WorldHandler
         }
     }
     
-    protected void fireWorldRemovedEvent()
+    public void fireWorldRemovedEvent()
     {
         // Guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
@@ -702,100 +496,51 @@ public class WorldHandler
         WorldVisitor.startSequence(world);
     }
 
+    
+    
+    public WorldCanvas getWorldCanvas() 
+    {
+        return worldCanvas;
+    }
+    
+    public boolean isObjectDropped() 
+    {
+        return objectDropped;
+    }
+
+
+    public void setObjectDropped(boolean b)
+    {
+        objectDropped = b;
+    }
+
+
+    public EventListenerList getListenerList()
+    {
+        return listenerList;
+    }
+
     /**
-     * Fire an object event for the named object. This will
-     * notify all listeners that have registered interest for
-     * notification on this event type.
+     * Method that cleans up after a drag, and re-enables the worldhandler to
+     * recieve events. It also puts the object back in its original place if it
+     * was not dropped.
+     * 
      */
-    public void fireObjectEvent(Actor actor)
+    public void finishDrag(Object o)
     {
-        class GNamedValue implements NamedValue {
-            private String name;
-            public GNamedValue(String instanceName)
-            {
-                name = instanceName;
-            }
+        // re-enable keylistener after object drag
+        getWorldCanvas().addMouseListener(this);
+        getWorldCanvas().addKeyListener(this);
 
-            public JavaType getGenType()
-            {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            public String getName()
-            {
-                return name;
-            }
-
-            public boolean isFinal()
-            {
-                // TODO Auto-generated method stub
-                return false;
-            }
-
-            public boolean isInitialized()
-            {
-                return true;
-            }            
-        }
-        GNamedValue value =null;
-        try {
-            RObject rObj = ObjectTracker.getRObject(actor);
-            value =  new GNamedValue(rObj.getInstanceName());
-        }
-        catch (RemoteException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (ProjectNotOpenException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (PackageNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } 
-        // guaranteed to return a non-null array
-        Object[] listeners = listenerList.getListenerList();
-        // process the listeners last to first, notifying
-        // those that are interested in this event
-        for (int i = listeners.length-2; i>=0; i-=2) {   // I don't understand this - why step 2? (mik)
-            if (listeners[i] == ObjectBenchListener.class) {
-                ((ObjectBenchListener)listeners[i+1]).objectEvent(
-                        new ObjectBenchEvent(this,
-                                ObjectBenchEvent.OBJECT_SELECTED, value));
-            }
+        // if the operation was cancelled, add the object back into the
+        // world at its original position
+        if (!isObjectDropped() && o instanceof Actor) {
+            Actor actor = (Actor) o;
+            int x = WorldVisitor.toCellFloor(world, getDragBeginX());
+            int y = WorldVisitor.toCellFloor(world, getDragBeginY());
+            world.addObject(actor, x, y);
+            setObjectDropped(true);
         }
     }
-    
-    /**
-     * Add listener to recieve events when objects in the world are clicked.
-     * @param listener
-     */
-    public void addObjectBenchListener(ObjectBenchListener listener)
-    {
-        listenerList.add(ObjectBenchListener.class, listener);
-    }
-    
-    
-    /**
-     * Add listener to recieve events when objects in the world are clicked.
-     * @param listener
-     */
-    public void removeObjectBenchListener(ObjectBenchListener listener)
-    {
-        listenerList.remove(ObjectBenchListener.class, listener);
-    }
-    
-    /* (non-Javadoc)
-     * @see bluej.debugmgr.objectbench.ObjectBenchInterface#hasObject(java.lang.String)
-     */
-    public boolean hasObject(String name)
-    {
-        return false;
-    }
+
 }

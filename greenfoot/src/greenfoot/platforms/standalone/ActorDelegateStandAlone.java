@@ -1,6 +1,11 @@
-package greenfoot;
+package greenfoot.platforms.standalone;
 
+import greenfoot.Actor;
+import greenfoot.ActorVisitor;
+import greenfoot.GreenfootImage;
+import greenfoot.World;
 import greenfoot.core.ProjectProperties;
+import greenfoot.platforms.ActorDelegate;
 import greenfoot.util.GreenfootScenarioViewer;
 
 /**
@@ -23,7 +28,7 @@ public class ActorDelegateStandAlone
      */
     public static void setupAsActorDelegate()
     {
-        Actor.setDelegate(instance);
+        ActorVisitor.setDelegate(instance);
     }
 
     public static void initProperties(ProjectProperties properties)

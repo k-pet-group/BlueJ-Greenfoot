@@ -1,6 +1,5 @@
 package greenfoot.core;
 
-import greenfoot.ActorDelegateIDE;
 import greenfoot.ObjectTracker;
 import greenfoot.WorldVisitor;
 import greenfoot.event.ActorInstantiationListener;
@@ -8,6 +7,7 @@ import greenfoot.event.CompileListener;
 import greenfoot.event.CompileListenerForwarder;
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.MessageDialog;
+import greenfoot.platforms.ide.ActorDelegateIDE;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.util.Version;
 
@@ -42,7 +42,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4844 2007-03-16 18:09:38Z polle $
+ * @version $Id: GreenfootMain.java 4849 2007-03-18 18:04:22Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {

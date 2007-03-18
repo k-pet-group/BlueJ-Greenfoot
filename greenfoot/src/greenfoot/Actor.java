@@ -1,6 +1,7 @@
 package greenfoot;
 
 import greenfoot.collision.ibsp.Rect;
+import greenfoot.platforms.ActorDelegate;
 import greenfoot.util.Circle;
 import greenfoot.util.GreenfootUtil;
 

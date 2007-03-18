@@ -1,7 +1,12 @@
-package greenfoot;
+package greenfoot.platforms.ide;
 
+import greenfoot.Actor;
+import greenfoot.ActorVisitor;
+import greenfoot.GreenfootImage;
+import greenfoot.World;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.WorldHandler;
+import greenfoot.platforms.ActorDelegate;
 
 /**
  * Delegate for the Actor when it is running in the Greenfoot IDE.
@@ -19,7 +24,7 @@ public class ActorDelegateIDE implements ActorDelegate
      */
     public static void setupAsActorDelegate()
     {
-        Actor.setDelegate(instance);
+        ActorVisitor.setDelegate(instance);
     }
     
     public GreenfootImage getImage(String name)

@@ -1,6 +1,5 @@
 package greenfoot.util;
 
-import greenfoot.ActorDelegateStandAlone;
 import greenfoot.World;
 import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
@@ -8,6 +7,8 @@ import greenfoot.core.WorldHandler;
 import greenfoot.gui.ControlPanel;
 import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.WorldCanvas;
+import greenfoot.platforms.standalone.ActorDelegateStandAlone;
+import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
 
 import java.awt.BorderLayout;
 import java.io.File;
@@ -110,7 +111,7 @@ public class GreenfootScenarioViewer
            
             canvas = new WorldCanvas(null);
 
-            WorldHandler.initialise(canvas);
+            WorldHandler.initialise(canvas, new WorldHandlerDelegateStandAlone());
             WorldHandler worldHandler = WorldHandler.getInstance();
             Simulation.initialize(worldHandler);
             sim = Simulation.getInstance();
