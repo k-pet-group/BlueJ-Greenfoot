@@ -16,7 +16,7 @@ import java.util.Map;
  * F1-F12.
  * 
  * @author davmac
- * @version $Id: KeyboardManager.java 4039 2006-04-27 12:31:44Z davmac $
+ * @version $Id: KeyboardManager.java 4851 2007-03-19 04:52:46Z davmac $
  */
 public class KeyboardManager implements KeyListener
 {
@@ -188,6 +188,7 @@ public class KeyboardManager implements KeyListener
             // something of a hack, but it works.
             if (keyId.codePointCount(0, keyId.length()) == 1) {
                 int keyChar = keyId.codePointAt(0);
+                keyChar = Character.toUpperCase(keyChar);
                 return isKeyDown(keyChar);
             }
             return false;
