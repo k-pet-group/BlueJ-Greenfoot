@@ -79,9 +79,9 @@ public class WorldHandlerDelegateIDE
      * 
      * @param selectionManager
      */
-    public void setSelectionManager(SelectionManager selectionManager)
+    public void setSelectionManager(Object selectionManager)
     {
-        this.classSelectionManager = selectionManager;
+        this.classSelectionManager = (SelectionManager) selectionManager;
     }
 
     /**

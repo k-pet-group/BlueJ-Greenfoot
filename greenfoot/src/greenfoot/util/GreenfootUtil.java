@@ -1,5 +1,7 @@
 package greenfoot.util;
 
+import greenfoot.platforms.GreenfootUtilDelegate;
+
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -20,29 +22,29 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Dictionary;
-import java.util.Hashtable;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import bluej.Config;
-import bluej.runtime.ExecServer;
-import bluej.utility.BlueJFileReader;
-import bluej.utility.FileUtility;
 
 /**
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 4826 2007-01-29 10:39:01Z polle $
+ * @version $Id: GreenfootUtil.java 4852 2007-03-19 11:57:09Z polle $
  */
 public class GreenfootUtil
 {
     // constants for use with createSpacer()
     public static final int X_AXIS = 0;
     public static final int Y_AXIS = 1;
+    
+    private static GreenfootUtilDelegate delegate;
+    
+    public static void initialise(GreenfootUtilDelegate newDelegate) {
+        delegate = newDelegate;
+    }
     
     /**
      * Extracts the name of a class from the qualified class name.
@@ -407,7 +409,7 @@ public class GreenfootUtil
      * @return The selected scenario or null if nothing was selected
      */
     public static File getScenarioFromFileBrowser(Component parent) {
-        return FileUtility.getPackageName(parent);
+        return delegate.getScenarioFromFileBrowser(parent);
     }
 
 
@@ -417,7 +419,7 @@ public class GreenfootUtil
      */
     public static String getNewNameFromFileBrowser(Component parent)
     {
-        return FileUtility.getFileName(parent, Config.getString("pkgmgr.newPkg.title"), Config.getString("pkgmgr.newPkg.buttonLabel"), false, null, true);
+        return delegate.getNewNameFromFileBrowser(parent);
     }
     
 
@@ -437,7 +439,7 @@ public class GreenfootUtil
             throw new NullPointerException("Filename must not be null.");
         }
 
-        ClassLoader currentLoader = ExecServer.getCurrentClassLoader();
+        ClassLoader currentLoader = delegate.getCurrentClassLoader();
         
         URL url = null;
         
@@ -500,23 +502,14 @@ public class GreenfootUtil
      * 
      */
     public static void createSkeleton(String className, String superClassName, File file, String templateFileName) throws IOException   {
-        Dictionary<String, String> translations = new Hashtable<String, String>();
-        translations.put("CLASSNAME", className);
-        if(superClassName != null) {
-            translations.put("SUPERCLASSNAME", superClassName);
-        }
-        File libDir = Config.getGreenfootLibDir();
-        File template = new File(libDir, "templates/" +  templateFileName);  
-        BlueJFileReader.translateFile(template, file, translations);
+        delegate.createSkeleton(className, superClassName, file, templateFileName);
     }
 
     /**
-     * Returns a the path to a small version of the greenfoot logo.
+     * Returns the path to a small version of the greenfoot logo.
      */
     public static String getGreenfootLogoPath()
     {        
-        File libDir = Config.getGreenfootLibDir();
-        return libDir.getAbsolutePath() + "/imagelib/other/greenfoot.png";
-        
+        return delegate.getGreenfootLogoPath();
     }
 }

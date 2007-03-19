@@ -10,7 +10,6 @@ import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.DragListener;
 import greenfoot.gui.DropTarget;
 import greenfoot.gui.WorldCanvas;
-import greenfoot.gui.classbrowser.SelectionManager;
 import greenfoot.platforms.WorldHandlerDelegate;
 
 import java.awt.Component;
@@ -101,7 +100,7 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
      * 
      * @param selectionManager
      */
-    public void setSelectionManager(SelectionManager selectionManager)
+    public void setSelectionManager(Object selectionManager)
     {
         handlerDelegate.setSelectionManager(selectionManager);
     }

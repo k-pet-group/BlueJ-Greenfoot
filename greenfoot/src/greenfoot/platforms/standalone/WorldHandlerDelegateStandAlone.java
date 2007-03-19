@@ -2,7 +2,6 @@ package greenfoot.platforms.standalone;
 
 import greenfoot.World;
 import greenfoot.core.WorldHandler;
-import greenfoot.gui.classbrowser.SelectionManager;
 import greenfoot.platforms.WorldHandlerDelegate;
 
 import java.awt.Component;
@@ -67,7 +66,7 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         // Not used in standalone
     }
 
-    public void setSelectionManager(SelectionManager selectionManager)
+    public void setSelectionManager(Object selectionManager)
     {
         // Not used in standalone
     }

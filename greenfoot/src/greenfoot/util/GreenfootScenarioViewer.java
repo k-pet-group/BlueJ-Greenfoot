@@ -8,6 +8,7 @@ import greenfoot.gui.ControlPanel;
 import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.platforms.standalone.ActorDelegateStandAlone;
+import greenfoot.platforms.standalone.GreenfootUtilDelegateStandAlone;
 import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
 
 import java.awt.BorderLayout;
@@ -101,8 +102,9 @@ public class GreenfootScenarioViewer
 
     private void init(String worldClassName)
     {
-        try {            
+        try {           
 
+            GreenfootUtil.initialise(new GreenfootUtilDelegateStandAlone());
             File projectDir = GreenfootUtil.getDirectoryContaining(worldClassName + ".class");
             properties = new ProjectProperties(projectDir);
             

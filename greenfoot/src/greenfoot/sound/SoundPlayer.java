@@ -1,24 +1,17 @@
 package greenfoot.sound;
 
-import greenfoot.event.CompileListener;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.util.GreenfootUtil;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
-
-import rmiextension.wrappers.event.RCompileEvent;
 
 /**
  * Plays sounds from a file or URL. Several sounds can be played at the same
@@ -31,8 +24,7 @@ import rmiextension.wrappers.event.RCompileEvent;
  * @author Poul Henriksen
  * 
  */
-public class SoundPlayer
-    implements SimulationListener, CompileListener
+public class SoundPlayer implements SimulationListener
 {
     /**
      * Holds a list of all sounds currently playing. We use this list to stop
@@ -158,24 +150,4 @@ public class SoundPlayer
             // resume();
         }
     }
-
-    /**
-     * Stop sounds when compiling.
-     */
-    public void compileStarted(RCompileEvent event)
-    {
-        stop();
-    }
-
-    public void compileError(RCompileEvent event)
-    {}
-
-    public void compileWarning(RCompileEvent event)
-    {}
-
-    public void compileSucceeded(RCompileEvent event)
-    {}
-
-    public void compileFailed(RCompileEvent event)
-    {}
 }

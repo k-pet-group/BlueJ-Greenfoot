@@ -2,7 +2,6 @@ package greenfoot.platforms;
 
 import greenfoot.World;
 import greenfoot.core.WorldHandler;
-import greenfoot.gui.classbrowser.SelectionManager;
 
 import java.awt.Component;
 import java.awt.event.KeyEvent;
@@ -23,7 +22,7 @@ public interface WorldHandlerDelegate
      */
     boolean maybeShowPopup(MouseEvent e);
 
-    void setSelectionManager(SelectionManager selectionManager);
+    void setSelectionManager(Object selectionManager);
 
     void mouseClicked(MouseEvent e);
 

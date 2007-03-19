@@ -1,5 +1,6 @@
 package greenfoot.core;
 
+import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 import greenfoot.util.GreenfootUtil;
 
 import java.io.File;
@@ -32,7 +33,7 @@ public class GreenfootLauncherDebugVM
         try {
             File libdir = blueJ.getSystemLibDir();
             Config.initializeVMside(libdir, client);
-            
+            GreenfootUtil.initialise(new GreenfootUtilDelegateIDE());
             
             ImageIcon icon = new ImageIcon(GreenfootUtil.getGreenfootLogoPath());
             BlueJTheme.setIconImage(icon.getImage());
