@@ -49,7 +49,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 4847 2007-03-17 13:17:55Z polle $
+ * @version $Id: Package.java 4853 2007-03-19 15:58:35Z polle $
  */
 public final class Package extends Graph
 {
@@ -1222,15 +1222,15 @@ public final class Package extends Graph
 
         stack.push(t);
         
-        Iterator dependents = t.dependents(); 
-        
-        while (dependents.hasNext()) {
-            Dependency d = (Dependency) dependents.next();
-            if (!(d.getFrom() instanceof ClassTarget))
+        Iterator dependencies = t.dependencies();
+
+        while (dependencies.hasNext()) {
+            Dependency d = (Dependency) dependencies.next();
+            if (!(d.getTo() instanceof ClassTarget))
                 continue;
 
-            ClassTarget to = (ClassTarget) d.getFrom();
-
+            ClassTarget to = (ClassTarget) d.getTo();
+        
             if (to.isQueued()) {
                 if ((to.dfn < t.dfn) && (stack.search(to) != -1))
                     t.link = Math.min(t.link, to.dfn);
