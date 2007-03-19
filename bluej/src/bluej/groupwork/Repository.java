@@ -36,7 +36,7 @@ import bluej.utility.Debug;
  * This class handles communication with the repository.
  *
  * @author fisker
- * @version $Id: Repository.java 4843 2007-03-15 01:20:24Z davmac $
+ * @version $Id: Repository.java 4850 2007-03-19 04:34:02Z davmac $
  */
 public class Repository
 {
@@ -420,7 +420,7 @@ public class Repository
         Client client = getClient();
 
         UpdateCommand updateCommand = new UpdateCommand();
-        UpdateServerResponse updateServerResponse = new UpdateServerResponse(null);
+        UpdateServerResponse updateServerResponse = new UpdateServerResponse(null, null);
         GlobalOptions globalOptions = new GlobalOptions();
 
         updateCommand.setRecursive(true);
@@ -601,7 +601,8 @@ public class Repository
         command.setBuildDirectories(true);
         command.setPruneDirectories(true);
 
-        UpdateServerResponse updateServerResponse = new UpdateServerResponse(listener);
+        UpdateServerResponse updateServerResponse = new UpdateServerResponse(listener,
+                client);
         client.getEventManager().addCVSListener(updateServerResponse);
         client.setLocalPath(projectPath.getAbsolutePath());
         printCommand(command, client);
@@ -617,37 +618,6 @@ public class Repository
         }
 
         updateServerResponse.setConflictMap(client.getConflictFiles());
-        return updateServerResponse;
-    }
-    
-    public synchronized UpdateServerResponse updateAndOverride(File [] files, UpdateListener listener)
-        throws AuthenticationException, CommandAbortedException, InvalidCvsRootException,
-        CommandException
-    {
-        // setupConnection();
-        Client client = getClient();
-
-        UpdateCommand command = new UpdateCommand();
-        command.setFiles(files);
-        command.setCleanCopy(true);
-        //command.setRecursive(true);
-        //command.setBuildDirectories(true);
-        command.setPruneDirectories(false);
-
-        UpdateServerResponse updateServerResponse = new UpdateServerResponse(listener);
-        client.getEventManager().addCVSListener(updateServerResponse);
-        client.setLocalPath(projectPath.getAbsolutePath());
-        printCommand(command, client);
-
-        try {
-            client.executeCommand(command, globalOptions);
-            updateServerResponse.waitForExecutionToFinish();
-        }
-        finally {
-            client.getEventManager().removeCVSListener(updateServerResponse);
-            disconnect(client);
-        }
-        
         return updateServerResponse;
     }
 
@@ -1013,7 +983,7 @@ public class Repository
         checkoutCommand.setPruneDirectories(false);
         globalOptions.setDoNoChanges(true);
 
-        UpdateServerResponse updateServerResponse = new UpdateServerResponse(null);
+        UpdateServerResponse updateServerResponse = new UpdateServerResponse(null, null);
         client.getEventManager().addCVSListener(updateServerResponse);
         client.setLocalPath(projectPath.getAbsolutePath());
         printCommand(checkoutCommand, client);

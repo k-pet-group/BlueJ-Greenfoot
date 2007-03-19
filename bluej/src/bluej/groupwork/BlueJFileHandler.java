@@ -20,6 +20,17 @@ public class BlueJFileHandler extends DefaultFileHandler
     /** Map a file name to it's backed-up local version */
     private Map conflicts = new HashMap();
     
+    private boolean ignoreNextConflict = false;
+    
+    /**
+     * Inform the file handler that the next conflict is a non-binary
+     * conflict (it doesn't need to be tracked).
+     */
+    public void nextConflictNonBinary()
+    {
+        ignoreNextConflict = true;
+    }
+    
     /**
      * Get the conflicts map. This is a map (File to File) which maps the
      * original file name to the backup file name for each file for which
@@ -40,8 +51,12 @@ public class BlueJFileHandler extends DefaultFileHandler
         // The backup shouldn't exist; the cvs library explicitly deletes it if
         // it does, before calling this method. But we'll check for safety.
         if (! backup.exists()) {
-            conflicts.put(path, backup);
+            if (! ignoreNextConflict) {
+                conflicts.put(path, backup);
+            }
             super.renameLocalFile(pathname, newName);
         }
+        
+        ignoreNextConflict = false;
     }
 }

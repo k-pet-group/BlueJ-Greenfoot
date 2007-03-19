@@ -1,11 +1,7 @@
 package bluej.groupwork;
 
 import java.io.File;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.netbeans.lib.cvsclient.event.FileAddedEvent;
 import org.netbeans.lib.cvsclient.event.FileRemovedEvent;
@@ -56,14 +52,24 @@ public class UpdateServerResponse extends BasicServerResponse
     private Map conflictsMap;
     
     /**
+     * Conflicts from a merge are not binary conflicts (binary files can't
+     * be merged). We need to keep track of these so we can remove them from
+     * the set of conflicts at the end.
+     */
+    private Set nonBinaryConflicts = new HashSet();
+    
+    private BlueJCvsClient client;
+    
+    /**
      * Constructor for UpdateServerResponse.
      * 
      * @param listener  The listener to receive notification of file changes.
      *                  May be null.
      */
-    public UpdateServerResponse(UpdateListener listener)
+    public UpdateServerResponse(UpdateListener listener, BlueJCvsClient client)
     {
         this.listener = listener;
+        this.client = client;
     }
     
     /*
@@ -81,6 +87,27 @@ public class UpdateServerResponse extends BasicServerResponse
      * cvs update: warning: Examples/bluej.pkg is not (any longer) pertinent
      */
     
+    /* CVS: RCS file: /home/cvsroot/simple/Alakazam.java,v
+       CVS: retrieving revision 1.6
+       CVS: retrieving revision 1.7
+       CVS: Merging differences between 1.6 and 1.7 into Alakazam.java
+       renameLocalFile, /home/davmac/bluej/examples/simple/Alakazam.java, .#Alakazam.java.1.6
+       CVS: cvs update: Updating .
+       CVS: rcsmerge: warning: conflicts during merge
+       CVS: CVS: cvs update: conflicts found in Alakazam.java
+       CVS: cvs update: Updating +libs
+       CVS tagged: text C 
+       CVS tagged: fname Alakazam.java
+       CVS tagged: newline
+       CVS: C Alakazam.java
+       CVS tagged: text M 
+       CVS tagged: fname bluej.pkg
+       CVS tagged: newline
+       CVS: M bluej.pkg
+       CVS: cvs update: Updating Examples */
+
+    
+    
     /**
      * Called when the server wants to send a message to be displayed to
      * the user. The message is only for information purposes and clients
@@ -93,8 +120,20 @@ public class UpdateServerResponse extends BasicServerResponse
         //System.out.println("UpdateServerResponse parsed: " + e.getMessage() + 
         //		" isTagged: " + e.isTagged()	);
 
-        if (e.isError()){
-        	System.err.println("CVS: " + line);
+        if (e.isTagged())
+        {
+            // System.out.println("CVS tagged: " + e.getMessage());
+            line = MessageEvent.parseTaggedMessage(taggedLine, line);
+            // if we get back a non-null line, we have something
+            // to output. Otherwise, there is more to come and we
+            // should do nothing yet.
+            if (line == null) {
+                return;
+            }
+        }
+        
+        if (e.isError()) {
+        	// System.out.println("CVS err: " + line);
             int offset = 27;
             if (line.startsWith("cvs update: New directory")
                     || line.startsWith("cvs server: New directory")
@@ -110,32 +149,19 @@ public class UpdateServerResponse extends BasicServerResponse
                     newDirectoryNames.add(dirName);
                 }
             }
+            else if (line.equals("rcsmerge: warning: conflicts during merge")) {
+                // We get this message only if the server actually tried to merge the
+                // files, i.e., the files are non-binary. We'll remember that, so that
+                // when we see the conflict we know it's a non-binary conflict.
+                if (client != null) {
+                    client.nextConflictNonBinary();
+                }
+            }
         }
         else {
-            //if (! e.isTagged()) {
-            //    System.out.println("CVS: " + line);
-            //}
+            // System.out.println("CVS: " + line);
         }
-        
-        if (e.isTagged())
-        {
-            line = MessageEvent.parseTaggedMessage(taggedLine, line);
-            // if we get back a non-null line, we have something
-            // to output. Otherwise, there is more to come and we
-            // should do nothing yet.
-            if (line == null) {
-            	return;
-            }
-            else {
-                if (e.isError()) {
-                    System.err.println("CVS: " + line);
-                }
-                //else {
-                //    System.out.println("CVS: " + line);
-                //}
-            }
-        }
-        
+
         try {
 			UpdateResult updateResult = UpdateResult.parse(line);
 			updateResults.add(updateResult);

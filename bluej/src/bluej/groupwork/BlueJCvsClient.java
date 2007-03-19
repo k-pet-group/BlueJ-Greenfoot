@@ -31,4 +31,13 @@ public class BlueJCvsClient extends Client
     {
         return fileHandler.getConflicts();
     }
+    
+    /**
+     * Inform the BlueJCvsClient that the next conflict detected is a non-binary
+     * conflict.
+     */
+    public void nextConflictNonBinary()
+    {
+        fileHandler.nextConflictNonBinary();
+    }
 }
