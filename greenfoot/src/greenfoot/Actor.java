@@ -7,7 +7,6 @@ import greenfoot.util.GreenfootUtil;
 
 import java.util.List;
 
-import bluej.utility.Debug;
 
 /**
  * An Actor is an object that exists in the greenfoot world. 
@@ -72,7 +71,8 @@ public abstract class Actor
         }
         catch(Exception e) {
             // Should not happen unless the greenfoot installation is seriously broken.
-            Debug.reportError("Greenfoot installation is broken - reinstalling Greenfoot might helpl.", e);
+            e.printStackTrace();
+            System.err.println("Greenfoot installation is broken - reinstalling Greenfoot might help.");
         }
     }
     
