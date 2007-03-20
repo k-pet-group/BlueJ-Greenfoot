@@ -476,7 +476,7 @@
         <!-- Control panel icons-->
         <copy file="resources/images/run.png" todir="${standalone.build}"/>    
         <copy file="resources/images/step.png" todir="${standalone.build}"/>   
-        <copy file="resources/images/pause.png" todir="${standalone.build}s"/> 
+        <copy file="resources/images/pause.png" todir="${standalone.build}"/> 
         
                    
     </target>
