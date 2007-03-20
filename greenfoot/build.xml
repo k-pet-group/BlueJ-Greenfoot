@@ -40,11 +40,8 @@
 	<!-- Location of the source files for greenfoot -->
 	<property name="src" location="src"/>
 
-    <!-- Location of the source files for standalone greenfoot -->
-    <property name="standalone.src" location="standalone/src"/>    
-
     <!-- Location of the build dir for standalone greenfoot -->
-    <property name="standalone.build" location="standalone/classes"/>
+    <property name="standalone.build" location="${bluej.lib.greenfoot}/standalone"/>
     
 	<!-- Location of the test source files for greenfoot -->
 	<property name="test.src" location="test/src"/>
@@ -256,19 +253,32 @@
 	
 	<target name="update-images" description="Copies the images from the resource directory out into the various places where the images are required.">
 		<!-- Installer image windows: greenfoot-install.bmp -->
-		<copy file="resources/greenfoot-install.bmp" todir="${bluej.projectdir}/package"/>
+		<copy file="resources/images/greenfoot-install.bmp" todir="${bluej.projectdir}/package"/>
 		<!-- Installer image jar: greenfoot-install.png -->	
-		<copy file="resources/greenfoot-install.png" todir="${bluej.projectdir}/package"/>				
-		<!-- About image: greenfoot-about.png -->
-		<copy file="resources/greenfoot-about.png" todir="images"/>		
+		<copy file="resources/images/greenfoot-install.png" todir="${bluej.projectdir}/package"/>			
 		<!-- Splash image: greenfoot-splash.jpg -->
-		<copy file="resources/greenfootsplash.jpg" todir="${bluej.projectdir}/boot/src/bluej"/>				
+		<copy file="resources/images/greenfootsplash.jpg" todir="${bluej.projectdir}/boot/src/bluej"/>				
 		<!-- Greenfoot icon for classes: greenfoot-16.png -->
-		<copy file="resources/greenfoot-icon-16.png" tofile="imagelib/other/greenfoot.png"/>				
-		<!-- Greenfoot icon for application: greenfoot-16.png -->
-		<copy file="resources/greenfoot-icon-16.png" tofile="images/greenfoot.png"/>	
+		<copy file="resources/images/greenfoot-icon-16.png" tofile="imagelib/other/greenfoot.png"/>				
 	    <!-- Greenfoot icon for application on the mac: greenfoot.icns -->
-	    <copy file="resources/greenfoot.icns" todir="${bluej.projectdir}/package/macfiles/Greenfoot.app/Contents/Resources"/>		
+	    <copy file="resources/images/greenfoot.icns" todir="${bluej.projectdir}/package/macfiles/Greenfoot.app/Contents/Resources"/>		
+        
+        <!-- Greenfoot icon for application: greenfoot-16.png -->
+        <copy file="resources/images/greenfoot-icon-16.png" tofile="images/greenfoot.png"/>   
+        <!-- About image: greenfoot-about.png -->
+        <copy file="resources/images/greenfoot-about.png" todir="images"/>     
+        <!-- Readme label icon -->
+        <copy file="resources/images/readme.png" todir="images"/>    
+        <!-- Empty image - just to force same layout of compile and readme button -->
+        <copy file="resources/images/compile.png" todir="images"/>    
+        <!-- Image used when dragging object over an area where it can not be dropped  -->
+        <copy file="resources/images/noParking.png" todir="images"/>    
+        <!-- Image selection dialog icon -->
+        <copy file="resources/images/openRight.png" todir="images"/>      
+        <!-- Control panel icons-->
+        <copy file="resources/images/run.png" todir="images"/>    
+        <copy file="resources/images/step.png" todir="images"/>   
+        <copy file="resources/images/pause.png" todir="images"/>       
 	</target>		
 
 	<target name="dist" depends="ready-to-run, clean-scenarios, copy-scenarios, copy-tutorial" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
@@ -402,11 +412,7 @@
     <target name="compile-standalone" depends="init" description="Compile the source and run rmic" >
         <delete dir="${standalone.build}"/>
         <mkdir dir="${standalone.build}"/>  
-        
-        <!-- Stupid javac target can't specify to exclude files from a specific source path. Will just temporarily rename them-->
-        <move file="${src}/greenfoot/core/WorldHandler.java" tofile="${src}/greenfoot/core/WorldHandler.javaTMP" preservelastmodified="true" overwrite="false" failonerror="false"/>
-        <move file="${src}/greenfoot/util/GreenfootUtil.java" tofile="${src}/greenfoot/util/GreenfootUtil.javaTMP" preservelastmodified="true" overwrite="false" failonerror="false"/>
-               
+         
         <!-- Compile the java code from ${src} into ${build} -->
         <javac  
                     executable="${build_java_home}/bin/javac" 
@@ -419,14 +425,12 @@
             >
             <compilerarg line="-target 1.5" />   
             <src path="${src}"/>
-            <src path="${standalone.src}"/>
             
             <include name="greenfoot/core/WorldHandler.java"/>
             <include name="greenfoot/util/GreenfootUtil.java"/>
 
             <include name="greenfoot/**.java"/>
             <exclude name="greenfoot/ObjectTracker.java"/>
-            <exclude name="greenfoot/ActorDelegateIDE.java"/>
             
             <include name="greenfoot/actions/PauseSimulationAction.java"/> 
             <include name="greenfoot/actions/RunSimulationAction.java"/> 
@@ -451,15 +455,30 @@
             <include name="greenfoot/gui/DropTarget.java"/>
             <include name="greenfoot/gui/WorldCanvas.java"/>            
 
+            <include name="greenfoot/platforms/*.java"/>   
+            <include name="greenfoot/platforms/standalone/*.java"/>     
+            
             <include name="greenfoot/sound/**/*.java"/>
 
-            <include name="greenfoot/util/**/*.java"/>
-            
-        </javac>
-        <!-- Rename files back. This will not happen if compile fails :-( But if it fails it is assumed that the compile will be fixed, and then it should work again. -->
-        <move file="${src}/greenfoot/core/WorldHandler.javaTMP" tofile="${src}/greenfoot/core/WorldHandler.java" preservelastmodified="true" overwrite="false"/>
-        <move file="${src}/greenfoot/util/GreenfootUtil.javaTMP" tofile="${src}/greenfoot/util/GreenfootUtil.java" preservelastmodified="true" overwrite="false"/>
-                 
+            <include name="greenfoot/util/**/*.java"/>            
+        </javac>        
+        
+        <!-- Greenfoot icon for classes: greenfoot-16.png -->
+        <copy file="resources/images/greenfoot-icon-16.png" tofile="${standalone.build}/greenfoot.png"/>            
+       
+      
+        <!-- Readme label icon -->
+        <copy file="resources/images/readme.png" todir="${standalone.build}"/>    
+        <!-- Image used when dragging object over an area where it can not be dropped  -->
+        <copy file="resources/images/noParking.png" todir="${standalone.build}"/>    
+        <!-- Image selection dialog icon -->
+        <copy file="resources/images/openRight.png" todir="${standalone.build}"/>      
+        <!-- Control panel icons-->
+        <copy file="resources/images/run.png" todir="${standalone.build}"/>    
+        <copy file="resources/images/step.png" todir="${standalone.build}"/>   
+        <copy file="resources/images/pause.png" todir="${standalone.build}s"/> 
+        
+                   
     </target>
     
     <target name="clean-scenarios" description="clean up scenarios (remove doc and greenfoot dir)" >

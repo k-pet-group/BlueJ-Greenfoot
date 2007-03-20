@@ -37,7 +37,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
      */
     public String getGreenfootLogoPath()
     {    
-        return this.getClass().getClassLoader().getResource("images/greenfoot.png").toString();
+        return this.getClass().getClassLoader().getResource("greenfoot.png").toString();
     }
 
 }
