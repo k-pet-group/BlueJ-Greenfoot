@@ -105,8 +105,7 @@ public class GreenfootScenarioViewer
         try {           
 
             GreenfootUtil.initialise(new GreenfootUtilDelegateStandAlone());
-            File projectDir = GreenfootUtil.getDirectoryContaining(worldClassName + ".class");
-            properties = new ProjectProperties(projectDir);
+            properties = new ProjectProperties();
             
             ActorDelegateStandAlone.setupAsActorDelegate();    
             ActorDelegateStandAlone.initProperties(properties);

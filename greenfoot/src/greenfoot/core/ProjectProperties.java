@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -54,6 +55,44 @@ public class ProjectProperties
     {
         properties = new Properties();
         load(projectDir);
+    }
+    
+    /**
+     * Creates a new properties instance with the file loaded from the root of this class loader.
+     * 
+     * @param projectDir
+     */
+    public ProjectProperties()
+    {
+        properties = new Properties();
+        load();
+    }
+
+    /**
+     * Tries to load the project-file with the default class loader.
+     */
+    private void load()
+    {
+        URL probsFile = this.getClass().getResource("/" + GREENFOOT_PKG_NAME);
+        InputStream is = null;
+        try {
+            is = probsFile.openStream();
+            properties.load(is);
+        }
+        catch (IOException ioe) {
+            // if it does not exist, we will create it later if something needs
+            // to be written to it. This makes it work with scenarios created
+            // with earlier versions of greenfoot that does not contain a
+            // greenfoot project properties file.
+        }
+        finally {
+            if (is != null) {
+                try {
+                    is.close();
+                }
+                catch (IOException e) {}
+            }
+        }
     }
 
     /**
