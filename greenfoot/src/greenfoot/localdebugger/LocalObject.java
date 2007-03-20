@@ -21,7 +21,7 @@ import com.sun.jdi.ObjectReference;
  * A class to represent a local object as a DebuggerObject
  *  
  * @author Davin McCall
- * @version $Id: LocalObject.java 4771 2006-12-14 01:25:20Z davmac $
+ * @version $Id: LocalObject.java 4854 2007-03-20 01:16:35Z davmac $
  */
 public class LocalObject extends DebuggerObject
 {
@@ -29,14 +29,80 @@ public class LocalObject extends DebuggerObject
     private static Field [] noFields = new Field[0];
     
     // instance fields
-    private Object object;
+    protected Object object;
     private Map genericParams = null; // Map of parameter names to types
+    
+    
+    public static LocalObject getLocalObject(Object o)
+    {
+        if (o.getClass().isArray()) {
+            if (o instanceof boolean[]) {
+                return new LocalBooleanArray((boolean []) o);
+            }
+            else if (o instanceof byte[]) {
+                return new LocalByteArray((byte []) o);
+            }
+            else if (o instanceof char[]) {
+                return new LocalCharArray((char []) o);
+            }
+            else if (o instanceof int[]) {
+                return new LocalIntArray((int []) o);
+            }
+            else if (o instanceof long[]) {
+                return new LocalLongArray((long []) o);
+            }
+            else if (o instanceof float[]) {
+                return new LocalFloatArray((float []) o);
+            }
+            else if (o instanceof double[]) {
+                return new LocalDoubleArray((double []) o);
+            }
+            
+            return new LocalArray((Object []) o);
+        }
+        else {
+            return new LocalObject(o);
+        }
+    }
+    
+    public static LocalObject getLocalObject(Object o, Map genericParams)
+    {
+        if (o.getClass().isArray()) {
+            if (o instanceof boolean[]) {
+                return new LocalBooleanArray((boolean []) o);
+            }
+            else if (o instanceof byte[]) {
+                return new LocalByteArray((byte []) o);
+            }
+            else if (o instanceof char[]) {
+                return new LocalCharArray((char []) o);
+            }
+            else if (o instanceof int[]) {
+                return new LocalIntArray((int []) o);
+            }
+            else if (o instanceof long[]) {
+                return new LocalLongArray((long []) o);
+            }
+            else if (o instanceof float[]) {
+                return new LocalFloatArray((float []) o);
+            }
+            else if (o instanceof double[]) {
+                return new LocalDoubleArray((double []) o);
+            }
+            
+            // TODO generic arrays
+            return new LocalArray((Object []) o);
+        }
+        else {
+            return new LocalObject(o, genericParams);
+        }
+    }
     
     /**
      * Construct a LocalObject to represent a local object as a DebuggerObject.
      * @param o  The local object to represent
      */
-    public LocalObject(Object o)
+    protected LocalObject(Object o)
     {
         object = o;
     }
@@ -47,7 +113,7 @@ public class LocalObject extends DebuggerObject
      * @param genericParams  The mapping of type parameter names to types
      *                       (String to GenType).
      */
-    public LocalObject(Object o, Map genericParams)
+    protected LocalObject(Object o, Map genericParams)
     {
         object = o;
         this.genericParams = genericParams;
@@ -307,13 +373,13 @@ public class LocalObject extends DebuggerObject
                         expectedType.mapTparsToTypes(genericParams);
                     GenTypeClass g = expectedCtype.mapToDerived(new JavaReflective(c));
                     Map m = g.getMap();
-                    return new LocalObject(o, m);
+                    return getLocalObject(o, m);
                 }
             }
 
             // raw
             Object o = field.get(object);
-            return new LocalObject(o);
+            return getLocalObject(o);
         }
         catch (IllegalAccessException iae) {
             return null;
@@ -327,7 +393,7 @@ public class LocalObject extends DebuggerObject
     {
         Field field = getStaticFieldSlot(slot);
         try {
-            return new LocalObject(field.get(object));
+            return getLocalObject(field.get(object));
         }
         catch (IllegalAccessException iae) {}
         return null;
@@ -340,7 +406,7 @@ public class LocalObject extends DebuggerObject
     {
         Field field = getInstanceFieldSlot(slot);
         try {
-            return new LocalObject(field.get(object));
+            return getLocalObject(field.get(object));
         }
         catch (IllegalAccessException iae) {}
         return null;
@@ -362,7 +428,7 @@ public class LocalObject extends DebuggerObject
     {
         Field field = getAllFields()[slot];
         try {
-            return new LocalObject(field.get(object));
+            return getLocalObject(field.get(object));
         }
         catch (IllegalAccessException iae) {}
         return null;
@@ -384,7 +450,7 @@ public class LocalObject extends DebuggerObject
     {
         try {
             Field field = object.getClass().getField(name);
-            return new LocalObject(field.get(object));
+            return getLocalObject(field.get(object));
         }
         catch (Exception exc) {
             return null;

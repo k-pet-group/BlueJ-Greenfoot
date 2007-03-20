@@ -93,7 +93,7 @@ public class WorldHandlerDelegateIDE
         JPopupMenu menu = new JPopupMenu();
 
         ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj, this, project),
-                new LocalObject(obj), null);
+                LocalObject.getLocalObject(obj), null);
 
         menu.addSeparator();
 
@@ -124,7 +124,7 @@ public class WorldHandlerDelegateIDE
             public void actionPerformed(ActionEvent e)
             {
                 JFrame parent = (JFrame) worldHandler.getWorldCanvas().getTopLevelAncestor();
-                DebuggerObject dObj = new LocalObject(obj);
+                DebuggerObject dObj = LocalObject.getLocalObject(obj);
                 String instanceName = "";
                 try {
                     RObject rObject = ObjectTracker.getRObject(obj);
@@ -275,7 +275,7 @@ public class WorldHandlerDelegateIDE
                                JPopupMenu menu = new JPopupMenu();
                                
                                ObjectWrapper.createMethodMenuItems(menu, newWorld.getClass(), new WorldInvokeListener(newWorld,
-                                       WorldHandlerDelegateIDE.this, project), new LocalObject(newWorld), null);
+                                       WorldHandlerDelegateIDE.this, project), LocalObject.getLocalObject(newWorld), null);
                                menu.addSeparator();
                                // "inspect" menu item
                                JMenuItem m = getInspectMenuItem(newWorld);

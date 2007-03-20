@@ -268,7 +268,7 @@ public class WorldInvokeListener
                                 Object resultw =  ObjectTracker.getRealObject(rresult);
                                 rresult.removeFromBench();
                                 
-                                ResultInspector ri = inspectorManager.getResultInspectorInstance(new LocalObject(resultw), instanceName, null, null, ei, GreenfootMain.getInstance().getFrame());
+                                ResultInspector ri = inspectorManager.getResultInspectorInstance(LocalObject.getLocalObject(resultw), instanceName, null, null, ei, GreenfootMain.getInstance().getFrame());
                                 ri.setVisible(true);
                             }
                             catch (PackageNotFoundException pnfe) {}
@@ -380,6 +380,6 @@ public class WorldInvokeListener
                 Object result = r;
             };
         }
-        return new LocalObject(wrapped);
+        return LocalObject.getLocalObject(wrapped);
     }
 }

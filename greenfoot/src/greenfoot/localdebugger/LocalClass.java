@@ -15,7 +15,7 @@ import bluej.debugger.DebuggerObject;
  * Represent a local class as a DebuggerClass.
  * 
  * @author Davin McCall
- * @version $Id: LocalClass.java 3218 2004-12-06 03:43:52Z davmac $
+ * @version $Id: LocalClass.java 4854 2007-03-20 01:16:35Z davmac $
  */
 public class LocalClass extends DebuggerClass
 {
@@ -69,7 +69,7 @@ public class LocalClass extends DebuggerClass
     {
         Field field = getFields()[slot];
         try {
-            return new LocalObject(field.get(null));
+            return LocalObject.getLocalObject(field.get(null));
         }
         catch (IllegalAccessException iae) {}
         return null;
