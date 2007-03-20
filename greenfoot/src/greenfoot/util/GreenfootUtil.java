@@ -20,7 +20,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 
 import javax.swing.JComponent;
@@ -32,7 +31,7 @@ import javax.swing.JPanel;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 4852 2007-03-19 11:57:09Z polle $
+ * @version $Id: GreenfootUtil.java 4860 2007-03-20 18:40:18Z polle $
  */
 public class GreenfootUtil
 {
@@ -68,28 +67,7 @@ public class GreenfootUtil
             name = qualifiedName.substring(0, index);
         }
         return name;
-    }    
-    
-    /**
-     * Finds the directory that contains the given resource.
-     * 
-     * @param The name of a resource. Typically a class name including the extension.
-     * @return The directory containing the resource or null if it couldn't be found.
-     */
-    public static File getDirectoryContaining(String resName)
-    {
-        URL url = ClassLoader.getSystemResource(resName);
-        if (url != null) {
-            try {
-                return new File(url.toURI()).getParentFile();
-            }
-            catch (URISyntaxException e) {
-                // Should never happen since the url will be valid.
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
+    }   
     
     /**
      * Get a spacer along the specified axis and with the specified width.
