@@ -38,7 +38,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4852 2007-03-19 11:57:09Z polle $
+ * @version $Id: GreenfootFrame.java 4862 2007-03-20 22:32:29Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -464,7 +464,7 @@ public class GreenfootFrame extends JFrame
         addMenuItem(CloseProjectAction.getInstance(), projectMenu, KeyEvent.VK_W, false, KeyEvent.VK_C);
         addMenuItem(SaveProjectAction.getInstance(), projectMenu, KeyEvent.VK_S, false, KeyEvent.VK_S);
         
-    //    addMenuItem(ExportProjectAction.getInstance(), projectMenu, KeyEvent.VK_E, false, KeyEvent.VK_E);
+        addMenuItem(ExportProjectAction.getInstance(), projectMenu, KeyEvent.VK_E, false, KeyEvent.VK_E);
 
 //        addMenuItem(new NYIAction("Save As...", this), projectMenu, KeyEvent.VK_S, true, -1);
 //        projectMenu.addSeparator();
@@ -548,7 +548,7 @@ public class GreenfootFrame extends JFrame
         RemoveSelectedClassAction.getInstance().setEnabled(true);
         CompileAllAction.getInstance().setEnabled(true);
         ShowReadMeAction.getInstance().setEnabled(true);
-  //      ExportProjectAction.getInstance().setEnabled(true);
+        ExportProjectAction.getInstance().setEnabled(true);
     }
 
     /**

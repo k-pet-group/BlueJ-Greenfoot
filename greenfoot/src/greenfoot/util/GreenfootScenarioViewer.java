@@ -1,9 +1,11 @@
 package greenfoot.util;
 
 import greenfoot.World;
+import greenfoot.core.LocationTracker;
 import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
+import greenfoot.event.SimulationEvent;
 import greenfoot.gui.ControlPanel;
 import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.WorldCanvas;
@@ -12,6 +14,7 @@ import greenfoot.platforms.standalone.GreenfootUtilDelegateStandAlone;
 import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -20,7 +23,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
+import javax.swing.JApplet;
 import javax.swing.JFrame;
+import javax.swing.JRootPane;
+import javax.swing.RootPaneContainer;
 
 /**
  * This class can view and run a greenfoot scenario. It is not possible to
@@ -29,35 +35,83 @@ import javax.swing.JFrame;
  * @author Poul Henriksen
  * 
  */
-public class GreenfootScenarioViewer
+public class GreenfootScenarioViewer extends JApplet
 {
 
     private static String frameTitleName;
-    
+
     private ProjectProperties properties;
     private World world;
     private Simulation sim;
     private WorldCanvas canvas;
     private ControlPanel controls;
+    private RootPaneContainer rootPaneContainer;
 
     /**
-     * Start the scenario. <p>
+     * Start the scenario.
+     * <p>
      * 
      * BlueJ and the scenario MUST be on the classpath.
      * 
-     * @param args One argument can be passed to this method. The
-     * first one should be the World to be instantiated. If no arguments
-     * are supplied it will read from the properties file. And if that can't be found either it will use AntWorld.
+     * @param args One argument can be passed to this method. The first one
+     *            should be the World to be instantiated. If no arguments are
+     *            supplied it will read from the properties file. And if that
+     *            can't be found either it will use AntWorld.
      * 
      */
     public static void main(String[] args)
     {
+        JFrame frame = new JFrame(frameTitleName);
+        GreenfootScenarioViewer gs = new GreenfootScenarioViewer(frame);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    public GreenfootScenarioViewer()
+    {
+
+    }
+
+    public GreenfootScenarioViewer(RootPaneContainer rootPane)
+    {
+        rootPaneContainer = rootPane;
+        init();
+    }
+
+    private void buildGUI()
+    {
+        if (rootPaneContainer == null) {
+            // it will be null when running as applet, so set it to the applet.
+            rootPaneContainer = this;
+        }
+
+        rootPaneContainer.setGlassPane(DragGlassPane.getInstance());
+        rootPaneContainer.getContentPane().add(canvas, BorderLayout.CENTER);
+        rootPaneContainer.getContentPane().add(controls, BorderLayout.SOUTH);
+
+    }
+
+    /**
+     * Called by the browser or applet viewer to inform this JApplet that it has
+     * been loaded into the system. It is always called before the first time
+     * that the start method is called.
+     */
+    public void init()
+    {
+        // this is a workaround for a security conflict with some browsers
+        // including some versions of Netscape & Internet Explorer which do
+        // not allow access to the AWT system event queue which JApplets do
+        // on startup to check access. May not be necessary with your browser.
+        JRootPane rootPane = this.getRootPane();
+        rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
+
         String worldClassName = null;
         Properties p = new Properties();
         try {
             ClassLoader loader = GreenfootScenarioViewer.class.getClassLoader();
             InputStream is = loader.getResourceAsStream("standalone.properties");
-            
+
             p.load(is);
             worldClassName = p.getProperty("main.class");
             frameTitleName = p.getProperty("project.name");
@@ -69,64 +123,32 @@ public class GreenfootScenarioViewer
         catch (IOException e) {
             e.printStackTrace();
         }
-
-        if(args.length == 1) {
-            worldClassName = args[0];
-        }
-        
-        if(worldClassName == null) {
-       //     worldClassName = "Breakout";
-        }
-        
-
-        
-        GreenfootScenarioViewer gs = new GreenfootScenarioViewer();
-        gs.init(worldClassName);
-        gs.buildGUI();        
-    }
-    
-    private void buildGUI()
-    {
-        JFrame frame = new JFrame(frameTitleName);
-
-        frame.setGlassPane(DragGlassPane.getInstance());
-        frame.getContentPane().add(canvas, BorderLayout.CENTER);
-
-       
-        frame.getContentPane().add(controls, BorderLayout.SOUTH);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
-
-    }
-
-    private void init(String worldClassName)
-    {
-        try {           
+        try {
 
             GreenfootUtil.initialise(new GreenfootUtilDelegateStandAlone());
             properties = new ProjectProperties();
-            
-            ActorDelegateStandAlone.setupAsActorDelegate();    
+
+            ActorDelegateStandAlone.setupAsActorDelegate();
             ActorDelegateStandAlone.initProperties(properties);
-           
+
             canvas = new WorldCanvas(null);
 
             WorldHandler.initialise(canvas, new WorldHandlerDelegateStandAlone());
             WorldHandler worldHandler = WorldHandler.getInstance();
             Simulation.initialize(worldHandler);
+            LocationTracker.initialize();
             sim = Simulation.getInstance();
-            controls = new ControlPanel(sim);            
+            controls = new ControlPanel(sim);
 
             int initialSpeed = properties.getInt("simulation.speed");
             sim.setSpeed(initialSpeed);
-            
+
             Class worldClass = Class.forName(worldClassName);
             Constructor worldConstructor = worldClass.getConstructor(new Class[]{});
             world = (World) worldConstructor.newInstance(new Object[]{});
 
             ActorDelegateStandAlone.initWorld(world);
-            
+
             worldHandler.setWorld(world);
         }
         catch (ClassNotFoundException e) {
@@ -158,6 +180,77 @@ public class GreenfootScenarioViewer
             e.printStackTrace();
             e.getCause().printStackTrace();
         }
+
+        buildGUI();
+
+    }
+
+    /**
+     * Called by the browser or applet viewer to inform this JApplet that it
+     * should start its execution. It is called after the init method and each
+     * time the JApplet is revisited in a Web page.
+     */
+    public void start()
+    {
+    // provide any code requred to run each time
+    // web page is visited
+    }
+
+    /**
+     * Called by the browser or applet viewer to inform this JApplet that it
+     * should stop its execution. It is called when the Web page that contains
+     * this JApplet has been replaced by another page, and also just before the
+     * JApplet is to be destroyed.
+     */
+    public void stop()
+    {
+    // provide any code that needs to be run when page
+    // is replaced by another page or before JApplet is destroyed
+    }
+
+    /**
+     * Called by the browser or applet viewer to inform this JApplet that it is
+     * being reclaimed and that it should destroy any resources that it has
+     * allocated. The stop method will always be called before destroy.
+     */
+    public void destroy()
+    {
+    // provide code to be run when JApplet is about to be destroyed.
+    }
+
+    /**
+     * Returns information about this applet. An applet should override this
+     * method to return a String containing information about the author,
+     * version, and copyright of the JApplet.
+     * 
+     * @return a String representation of information about this JApplet
+     */
+    public String getAppletInfo()
+    {
+        // provide information about the applet
+        return "Title:   \nAuthor:   \nA simple applet example description. ";
+    }
+
+    /**
+     * Returns parameter information about this JApplet. Returns information
+     * about the parameters than are understood by this JApplet. An applet
+     * should override this method to return an array of Strings describing
+     * these parameters. Each element of the array should be a set of three
+     * Strings containing the name, the type, and a description.
+     * 
+     * @return a String[] representation of parameter information about this
+     *         JApplet
+     */
+    public String[][] getParameterInfo()
+    {
+        // provide parameter information about the applet
+        String paramInfo[][] = {};
+        /*
+         * {"firstParameter", "1-10", "description of first parameter"},
+         * {"status", "boolean", "description of second parameter"}, {"images",
+         * "url", "description of third parameter"} };
+         */
+        return paramInfo;
     }
 
 }

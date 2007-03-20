@@ -59,6 +59,7 @@ public class Simulation extends Thread implements WorldListener
      */
     private Simulation()
     {
+        this.setName("SimulationThread");
         speed = 0;
         delay = calculateDelay(speed);
     }
@@ -66,24 +67,20 @@ public class Simulation extends Thread implements WorldListener
     
     public static void initialize(WorldHandler worldHandler)
     {
-        if (instance == null) {
-            instance = new Simulation();
+        instance = new Simulation();
+        instance.worldHandler = worldHandler;
 
-            instance.worldHandler = worldHandler;
-            
-            instance.startedEvent = new SimulationEvent(instance, SimulationEvent.STARTED);
-            instance.stoppedEvent = new SimulationEvent(instance, SimulationEvent.STOPPED);
-            instance.speedChangeEvent = new SimulationEvent(instance, SimulationEvent.CHANGED_SPEED);
-            instance.disabledEvent = new SimulationEvent(instance, SimulationEvent.DISABLED);
-            instance.setPriority(Thread.MIN_PRIORITY);
-//            instance.setSpeed(50);
-            instance.paused = true;
-            instance.sleeping = true;
-            
-            worldHandler.addWorldListener(instance);
-            
-            instance.start();
-        }
+        instance.startedEvent = new SimulationEvent(instance, SimulationEvent.STARTED);
+        instance.stoppedEvent = new SimulationEvent(instance, SimulationEvent.STOPPED);
+        instance.speedChangeEvent = new SimulationEvent(instance, SimulationEvent.CHANGED_SPEED);
+        instance.disabledEvent = new SimulationEvent(instance, SimulationEvent.DISABLED);
+        instance.setPriority(Thread.MIN_PRIORITY);
+        // instance.setSpeed(50);
+        instance.paused = true;
+        instance.sleeping = true;
+
+        worldHandler.addWorldListener(instance);
+        instance.start();
     }
 
     

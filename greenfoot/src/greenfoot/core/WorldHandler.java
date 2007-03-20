@@ -55,11 +55,7 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
     
     public static synchronized void initialise(WorldCanvas worldCanvas, WorldHandlerDelegate helper) 
     {
-        if(instance == null) {
-            instance = new WorldHandler(worldCanvas, helper);
-        } else {
-            throw (new IllegalStateException("Can only intiliase this singleton once."));
-        }
+        instance = new WorldHandler(worldCanvas, helper);
     }
 
 
@@ -79,6 +75,7 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
      */
     private WorldHandler(WorldCanvas worldCanvas, WorldHandlerDelegate handlerDelegate)
     {
+        instance = this;
         this.handlerDelegate = handlerDelegate;
         this.handlerDelegate.setWorldHandler(this);
 

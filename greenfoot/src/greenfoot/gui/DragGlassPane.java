@@ -5,6 +5,7 @@ import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
 import greenfoot.ImageVisitor;
 import greenfoot.core.LocationTracker;
+import greenfoot.core.WorldHandler;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -24,6 +25,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
+import javax.swing.RootPaneContainer;
 import javax.swing.SwingUtilities;
 
 /**
@@ -48,7 +50,7 @@ import javax.swing.SwingUtilities;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 4285 2006-05-17 10:35:32Z davmac $
+ * @version $Id: DragGlassPane.java 4862 2007-03-20 22:32:29Z polle $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -370,7 +372,7 @@ public class DragGlassPane extends JComponent
 
     private Component getComponentBeneath(MouseEvent e)
     {
-        JFrame frame = (JFrame) SwingUtilities.getRoot(this);
+        RootPaneContainer frame = getRootPaneContainer(this);
         if (frame == null) {
             return null;
         }
@@ -381,14 +383,17 @@ public class DragGlassPane extends JComponent
             glassPane = (Component) e.getSource();
         else
             glassPane = null;
-            
-        JMenuBar menuBar = frame.getJMenuBar();
-
+        
+        int menuBarHeight = 0;
+        if(frame instanceof JFrame) {
+            JMenuBar menuBar = ((JFrame) frame).getJMenuBar();
+            menuBarHeight = menuBar.getHeight();
+        }
         Point glassPanePoint = e.getPoint();
         Container container = contentPane;
         Point containerPoint = SwingUtilities.convertPoint(glassPane, glassPanePoint, contentPane);
         if (containerPoint.y < 0) { //we're not in the content pane
-            if (containerPoint.y + menuBar.getHeight() >= 0) {
+            if (containerPoint.y + menuBarHeight >= 0) {
                 //The mouse event is over the menu bar.
                 //Could handle specially.
             }
@@ -406,6 +411,21 @@ public class DragGlassPane extends JComponent
             return destination;
         }
         return null;
+    }
+
+    /**
+     * Returns the RootPaneContainer from this components parent hierarchy.
+     * @param pane
+     * @return
+     */
+    private RootPaneContainer getRootPaneContainer(Component pane)
+    {
+        Component c = pane;
+        while(c.getParent() != null && !(c instanceof RootPaneContainer)) {
+            c = c.getParent();
+        }
+        
+        return (RootPaneContainer) c;
     }
 
     private void storePosition(MouseEvent e)
