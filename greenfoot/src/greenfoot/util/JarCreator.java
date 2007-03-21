@@ -70,6 +70,7 @@ public class JarCreator
     public JarCreator(File exportDir, String jarName)
     {
         skipDirs.add("CVS");
+        skipDirs.add(exportDir.getAbsolutePath().toString());
         if (!exportDir.canWrite()) {
             throw new IllegalArgumentException("exportDir not writable: " + exportDir);
         }
