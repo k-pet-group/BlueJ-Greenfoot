@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.zip.ZipException;
 
 import bluej.Config;
 import bluej.pkgmgr.Project;
+import bluej.utility.BlueJFileReader;
 import bluej.utility.Debug;
 import bluej.utility.FileUtility;
 
@@ -308,5 +310,45 @@ public class JarCreator
                 in.close();
         }
     }
+    
+    public void generateHTMLSkeleton(File outputFile, String title, int width, int height)
+    {
+        Hashtable<String,String> translations = new Hashtable<String,String>();
 
+        translations.put("TITLE", title);
+       // translations.put("COMMENT", htmlComment);
+        translations.put("CLASSFILE", mainClass + ".class");
+        // whilst it would be nice to be able to have no codebase, it is in the
+        // HTML template file and hence even if we define no CODEBASE here, it
+        // will appear in the resulting HTML anyway (as CODEBASE=$CODEBASE)
+        translations.put("CODEBASE", "");
+        translations.put("APPLETWIDTH", "" + width);
+        translations.put("APPLETHEIGHT", "" + height);
+
+        // add libraries from <project>/+libs/ to archives
+        String archives = jarName;
+        /*try {
+            for (int i = 0; i < libs.length; i++) {
+                if (archives.length() == 0)
+                    archives = libs[i].toURI().toURL().toString();
+                else
+                    archives += "," + libs[i].toURL();
+            }
+        }
+        catch (MalformedURLException e) {}*/
+
+        translations.put("ARCHIVE", archives);
+
+
+        File libDir = Config.getGreenfootLibDir();
+        File template = new File(libDir, "templates/html.tmpl"); 
+        
+        try {
+            BlueJFileReader.translateFile(template, outputFile, translations);
+        }
+        catch (IOException e) {
+            Debug.reportError("Exception during file translation from " + template + " to " + outputFile);
+            e.printStackTrace();
+        }
+    }
 }
