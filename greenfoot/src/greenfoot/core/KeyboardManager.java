@@ -1,5 +1,6 @@
 package greenfoot.core;
 
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.HashMap;
@@ -16,7 +17,7 @@ import java.util.Map;
  * F1-F12.
  * 
  * @author davmac
- * @version $Id: KeyboardManager.java 4851 2007-03-19 04:52:46Z davmac $
+ * @version $Id: KeyboardManager.java 4867 2007-03-21 03:47:36Z davmac $
  */
 public class KeyboardManager implements KeyListener
 {
@@ -36,6 +37,9 @@ public class KeyboardManager implements KeyListener
     private String [] keyNames;
     
     private Map<String,Integer> keyCodeMap;
+    
+    /** Do we think that a numlock key is present? */
+    private boolean hasNumLock = true;
     
     /**
      * Constructor for a KeyboardManager. Key events must be delivered
@@ -203,15 +207,11 @@ public class KeyboardManager implements KeyListener
     public synchronized void keyPressed(KeyEvent event)
     {
         int keyCode = event.getKeyCode();
+        keyCode = numLockTranslate(keyCode);
+        
         checkKeyArrays(keyCode);
         keyLatched[keyCode] = true;
         keyDown[keyCode] = true;
-        if (keyCode < maxNamedKey) {
-            String keyName = keyNames[keyCode];
-            if (keyName != null) {
-                lastKeyTyped = keyName;
-            }
-        }
     }
     
     /* (non-Javadoc)
@@ -220,8 +220,70 @@ public class KeyboardManager implements KeyListener
     public synchronized void keyReleased(KeyEvent event)
     {
         int keyCode = event.getKeyCode();
+        keyCode = numLockTranslate(keyCode);
+        
         checkKeyArrays(keyCode);
         keyDown[keyCode] = false;
+        if (keyCode < maxNamedKey) {
+            String keyName = keyNames[keyCode];
+            if (keyName != null) {
+                lastKeyTyped = keyName;
+            }
+        }
+    }
+    
+    /**
+     * Translate the "key pad" directional keys according to the status of numlock.
+     * 
+     * @param keycode  The original keycode
+     * @return   The translated keycode
+     */
+    private int numLockTranslate(int keycode)
+    {
+        // Seems on linux (at least) we can't get the numlock state (get an
+        // UnsupportedOperationException).
+        boolean numlock = true;
+        if (hasNumLock) {
+            try {
+                numlock = Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_NUM_LOCK);
+            }
+            catch (UnsupportedOperationException usoe) {
+                // Don't try to get numlock status again
+                hasNumLock = false;
+            }
+        }
+
+        if (numlock) {
+            // Translate to digit
+            if (keycode == KeyEvent.VK_KP_UP) {
+                keycode = KeyEvent.VK_8;
+            }
+            else if (keycode == KeyEvent.VK_KP_DOWN) {
+                keycode = KeyEvent.VK_2;
+            }
+            else if (keycode == KeyEvent.VK_KP_LEFT) {
+                keycode = KeyEvent.VK_4;
+            }
+            else if (keycode == KeyEvent.VK_KP_RIGHT) {
+                keycode = KeyEvent.VK_6;
+            }
+        }
+        else {
+            // Translate to direction
+            if (keycode == KeyEvent.VK_KP_UP) {
+                keycode = KeyEvent.VK_UP;
+            }
+            else if (keycode == KeyEvent.VK_KP_DOWN) {
+                keycode = KeyEvent.VK_DOWN;
+            }
+            else if (keycode == KeyEvent.VK_KP_LEFT) {
+                keycode = KeyEvent.VK_LEFT;
+            }
+            else if (keycode == KeyEvent.VK_KP_RIGHT) {
+                keycode = KeyEvent.VK_RIGHT;
+            }
+        }
+        return keycode;
     }
     
     /* (non-Javadoc)
