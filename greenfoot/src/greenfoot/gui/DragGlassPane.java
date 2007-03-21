@@ -5,7 +5,6 @@ import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
 import greenfoot.ImageVisitor;
 import greenfoot.core.LocationTracker;
-import greenfoot.core.WorldHandler;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -50,7 +49,7 @@ import javax.swing.SwingUtilities;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 4862 2007-03-20 22:32:29Z polle $
+ * @version $Id: DragGlassPane.java 4866 2007-03-21 03:13:45Z davmac $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -184,11 +183,16 @@ public class DragGlassPane extends JComponent
      */
     public void startDrag(Actor object, int xOffset, int yOffset, DragListener dl, DropTarget initialDropTarget, boolean forcedDrag)
     {
+        // Save the listener first, so that calls to endDrag() work.
+        dragListener = dl;
+        
         if (object == null) {
+            endDrag();
             return;
         }
         GreenfootImage objectImage = ActorVisitor.getDisplayImage(object);
         if (objectImage == null) {
+            endDrag();
             return;
         }
         this.forcedDrag = forcedDrag;
@@ -198,6 +202,7 @@ public class DragGlassPane extends JComponent
         if(e == null) {
             // This startDrag was probably initiated by a mouse event that was
             // handled before the LocationTracker got a chance to handle it.
+            endDrag();
             return;
         }
         
@@ -208,9 +213,8 @@ public class DragGlassPane extends JComponent
         storePosition(e);
         dragOffsetX = xOffset;
         dragOffsetY = yOffset;
-        dragListener = dl;
+        lastDropTarget = initialDropTarget;
         if(initialDropTarget != null) {
-            lastDropTarget = initialDropTarget;
             //force painting of drag object
             Point p = e.getPoint();
             p.translate(xOffset, yOffset);

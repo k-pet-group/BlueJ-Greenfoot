@@ -85,6 +85,7 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
         worldCanvas.addKeyListener(this);
         worldCanvas.setDropTargetListener(this);
         
+        LocationTracker.initialize();
         LocationTracker.instance().setSourceComponent(worldCanvas);
         
         keyboardManager = new KeyboardManager();
@@ -136,14 +137,15 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
                 int dragOffsetX = dragBeginX - e.getX();
                 int dragOffsetY = dragBeginY - e.getY();
                 objectDropped = false;
-                DragGlassPane.getInstance().startDrag(actor, dragOffsetX, dragOffsetY, this, worldCanvas, false);
-
+                
                 // While the drag is occuring, the world handler no longer
                 // processes mouse/key events
                 worldCanvas.removeMouseListener(this);
                 worldCanvas.removeKeyListener(this);
                 worldCanvas.addMouseMotionListener(DragGlassPane.getInstance());
                 worldCanvas.addMouseListener(DragGlassPane.getInstance());
+
+                DragGlassPane.getInstance().startDrag(actor, dragOffsetX, dragOffsetY, this, worldCanvas, false);
             }
         }
     }
@@ -159,14 +161,6 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
 
     }
 
-    public int getDragBeginX() {
-        return dragBeginX;
-    }
-
-    public int getDragBeginY() {
-        return dragBeginY;
-    }
-    
     /**
      * TODO: this method should be removed when it is posisble to select among
      * multiple objects from a popup menu.
@@ -244,9 +238,6 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
     	handlerDelegate.processKeyEvent(e);
         keyboardManager.keyPressed(e);
     }
-
-
-
 
     /*
      * (non-Javadoc)
@@ -520,7 +511,6 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
      * Method that cleans up after a drag, and re-enables the worldhandler to
      * recieve events. It also puts the object back in its original place if it
      * was not dropped.
-     * 
      */
     public void finishDrag(Object o)
     {
@@ -532,8 +522,8 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
         // world at its original position
         if (!isObjectDropped() && o instanceof Actor) {
             Actor actor = (Actor) o;
-            int x = WorldVisitor.toCellFloor(world, getDragBeginX());
-            int y = WorldVisitor.toCellFloor(world, getDragBeginY());
+            int x = WorldVisitor.toCellFloor(world, dragBeginX);
+            int y = WorldVisitor.toCellFloor(world, dragBeginY);
             world.addObject(actor, x, y);
             setObjectDropped(true);
         }
