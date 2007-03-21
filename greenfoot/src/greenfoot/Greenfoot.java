@@ -33,11 +33,10 @@ import greenfoot.sound.SoundPlayer;
  * 
  * @author Davin McCall
  * @version 1.1.0
- * @cvs-version $Id: Greenfoot.java 4815 2007-01-24 17:28:01Z polle $
+ * @cvs-version $Id: Greenfoot.java 4863 2007-03-21 00:38:12Z polle $
  */
 public class Greenfoot
 {
-    private static KeyboardManager keyboardManager = WorldHandler.getInstance().getKeyboardManager();
     
     private static Random randomGenerator = new Random();
     
@@ -51,7 +50,7 @@ public class Greenfoot
      */
     public static String getKey()
     {
-        return keyboardManager.getKey();
+        return WorldHandler.getInstance().getKeyboardManager().getKey();
     }
     
     /**
@@ -62,7 +61,7 @@ public class Greenfoot
      */
     public static boolean isKeyDown(String keyName)
     {
-        return keyboardManager.isKeyDown(keyName);
+        return WorldHandler.getInstance().getKeyboardManager().isKeyDown(keyName);
     }
     
     /**
