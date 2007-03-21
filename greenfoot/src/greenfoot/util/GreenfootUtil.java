@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.AccessControlException;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -31,7 +32,7 @@ import javax.swing.JPanel;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 4860 2007-03-20 18:40:18Z polle $
+ * @version $Id: GreenfootUtil.java 4869 2007-03-21 16:21:51Z polle $
  */
 public class GreenfootUtil
 {
@@ -430,21 +431,25 @@ public class GreenfootUtil
             // Second, try the project directory
             url = currentLoader.getResource(filename);
         }
-
-        if(url == null) {
-            //Third, try as an absolute file
+        if (url == null) {
+            // Third, try as an absolute file
             File f = new File(filename);
-            if(f.canRead()) {
-                try {
+
+            
+            try {
+                if (f.canRead()) {
                     url = f.toURI().toURL();
                 }
-                catch (MalformedURLException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
             }
+            catch (MalformedURLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (AccessControlException ace) {
+                // Can get this when running in an applet (on Mac, when filename contains whitespace)
+                // Should be safe to ignore, since it will be picked up as an URL below.
+            }        
         }
-        
         if(url == null) {
             // Fourth, try as an absolute  URL.
             InputStream s = null;
