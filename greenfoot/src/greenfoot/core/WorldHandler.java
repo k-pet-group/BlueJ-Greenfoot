@@ -85,7 +85,6 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
         worldCanvas.addKeyListener(this);
         worldCanvas.setDropTargetListener(this);
         
-        LocationTracker.initialize();
         LocationTracker.instance().setSourceComponent(worldCanvas);
         
         keyboardManager = new KeyboardManager();

@@ -75,7 +75,7 @@ public class LocationTracker
                 {
                     MouseEvent me = (MouseEvent) event;
                     if ((event.getID() & AWTEvent.MOUSE_MOTION_EVENT_MASK) != 0) {
-                        LocationTracker.instance().click(me);
+                        LocationTracker.instance().move(me);
                     }
                     if ((event.getID() & AWTEvent.MOUSE_EVENT_MASK) != 0) {
                         LocationTracker.instance().click(me);
