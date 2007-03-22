@@ -4,9 +4,12 @@ import greenfoot.core.GClass;
 import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.WorldHandler;
+import greenfoot.gui.ExportDialog;
+import greenfoot.gui.GreenfootFrame;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.util.JarCreator;
 
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,6 +20,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.jar.JarFile;
@@ -36,12 +40,12 @@ import bluej.utility.Debug;
  * Action to export a project to a standalone program.
  * 
  * @author Poul Henriksen
- * @version $Id: ExportProjectAction.java 4864 2007-03-21 00:42:16Z polle $
+ * @version $Id: ExportProjectAction.java 4872 2007-03-22 22:19:19Z polle $
  */
 public class ExportProjectAction extends AbstractAction
 {
     private static ExportProjectAction instance = new ExportProjectAction();
-
+    
     /**
      * Singleton factory method for action.
      */
@@ -70,7 +74,7 @@ public class ExportProjectAction extends AbstractAction
         String htmlName = project.getName() + ".html";
         String scenarioName = project.getName();
         String worldClass = "";
-        worldClass = getWorldClass();  
+        worldClass = getWorldClasses().get(0);  
         String title = project.getName() + " Applet";
         int width = WorldHandler.getInstance().getWorldCanvas().getWidth();
         int height = WorldHandler.getInstance().getWorldCanvas().getHeight() + 50;  
@@ -147,15 +151,20 @@ public class ExportProjectAction extends AbstractAction
         jarCreator.generateHTMLSkeleton(outputFile, title, width, height);
     }
 
-    private static String getWorldClass()
+    private static List<String> getWorldClasses()
     {
-        String worldClass = "";
+        
+        List<String> worldClasses= new LinkedList<String>();
         try {
             GClass[] classes = GreenfootMain.getInstance().getPackage().getClasses();
             for (int i = 0; i < classes.length; i++) {
                 GClass cls = classes[i];
                 if(cls.isWorldSubclass()) {
-                    worldClass = cls.getName();
+                    Class realClass = cls.getJavaClass();
+                   // if(realClass) {
+                   //     worldClass = cls.getName();
+                   // }
+                    worldClasses.add(cls.getName());
                 }
             }
         }
@@ -171,32 +180,110 @@ public class ExportProjectAction extends AbstractAction
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-        return worldClass;
+        return worldClasses;
     }
 
     
 
-    public void actionPerformed(ActionEvent e)
+    public void actionPerformed(ActionEvent ae)
     {
-    // Essential fucntionality:
-    // Select world if more than one world.
-    // Make sure everything is compiled
-    // What version should it be compiled for? 1.5! (or maybe select?)
+        // TODO: Check whether everything is compiled and show dialog if not.
+        
+        
+        GProject project = GreenfootMain.getInstance().getProject();
+        String jarName = project.getName() + ".jar";
+        String htmlName = project.getName() + ".html";
+        String scenarioName = project.getName();
+        //String worldClass = "";
+      //  worldClass = getWorldClass();  
+        String title = project.getName() + " Applet";
+        int width = WorldHandler.getInstance().getWorldCanvas().getWidth();
+        int height = WorldHandler.getInstance().getWorldCanvas().getHeight() + 50;  
+        
+        File projectDir = null;
+        try {
+            projectDir = project.getDir();
+        }
+        catch (ProjectNotOpenException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        catch (RemoteException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        //File projectDir = new File("/home/polle/workspace/greenfoot/scenarios/ants");        
+        
+        File defaultExportDir = new File(projectDir.getParentFile(), scenarioName + "-export");
 
-    // Later:
-    // Ask what GUI elements should be available (start/stop/slider)
-    // Readme link ?
-    // Option to include sources?
-    // What if jar exists?
+        File libDir = Config.getGreenfootLibDir();
+        
+        File greenfootDir = new File(libDir, "standalone");
+        if (defaultExportDir.exists()) {
+            defaultExportDir.delete();
+        }
+        
+        
+        ExportDialog exportDialog = new ExportDialog(GreenfootMain.getInstance().getFrame(), getWorldClasses(), defaultExportDir);
+        boolean okPressed = exportDialog.display();
+        if(!okPressed) {
+            return;
+        }
+        
+        //TODO SPAWN NEW THREAD ? Or create new dialog that shows "working..."
+        
+        File exportDir = exportDialog.getExportLocation();
+        String worldClass = exportDialog.getWorldClass();
+        
+        //TODO: Should it make dir here? Or should it be forced creationg in dialog?
+        exportDir.mkdir();
+        JarCreator jarCreator = new JarCreator(exportDir, jarName);
+        jarCreator.addDir(projectDir);
 
-    // Find out how to add files to a jar
-    /*
-     * JarFile jar = new JarFile("name"); jar.
-     */
+        jarCreator.addDir(greenfootDir);
 
-    // TODO add userlibs and +libs
-    // jarCreator.addJar(projectDir)
-        test();
+        File standAloneProperties = new File(projectDir, "standalone.properties");
+
+        Properties p = new Properties();
+        p.put("project.name", scenarioName);
+        p.put("main.class", worldClass);
+        OutputStream os = null;
+        try {
+            standAloneProperties.createNewFile();
+            os = new FileOutputStream(standAloneProperties);
+            p.store(os, "Properties for running Greenfoot projects alone.");
+        }
+        catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                os.close();
+            }
+            catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+        jarCreator.addSkipDir(projectDir.getPath() + "/greenfoot");
+        jarCreator.addSkipFile(".cvsignore");
+
+        jarCreator.includeMetaFiles(false);
+        jarCreator.includeSource(false);
+        
+        String mainClass = "greenfoot.util.GreenfootScenarioViewer";
+        jarCreator.setMainClass(mainClass);
+
+        jarCreator.create();
+        standAloneProperties.delete();
+        File outputFile = new File(defaultExportDir, htmlName);
+        jarCreator.generateHTMLSkeleton(outputFile, title, width, height);
     }
 
     private void zip()
