@@ -195,16 +195,18 @@ public class WorldHandlerDelegateIDE
         }
     }
 
-    
+    /**
+     * Do a "quick add" of the currently selected class, *iff* quick-add is "active"
+     * (i.e. if shift is currently pressed).
+     */
     private void quickAddIfActive()
     {
         if (isQuickAddActive) {
             ClassView cls = (ClassView) classSelectionManager.getSelected();
             if (cls != null && cls.getRole() instanceof GreenfootClassRole) {
                 GreenfootClassRole role = (GreenfootClassRole) cls.getRole();
-                Object object = role.createObjectDragProxy();// cls.createInstance();
+                Actor actor = role.createObjectDragProxy();// cls.createInstance();
 
-                Actor actor = (Actor) object;
                 int dragOffsetX = 0;
                 int dragOffsetY = 0;
                 worldHandler.setObjectDropped(false);

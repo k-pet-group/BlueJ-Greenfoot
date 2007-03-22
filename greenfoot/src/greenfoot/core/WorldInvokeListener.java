@@ -5,10 +5,13 @@ import greenfoot.event.ActorInstantiationListener;
 import greenfoot.localdebugger.LocalObject;
 
 import java.awt.EventQueue;
+import java.awt.event.MouseEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
+import java.util.HashMap;
+import java.util.Map;
 
 import rmiextension.wrappers.RObject;
 import bluej.debugmgr.CallDialog;
@@ -53,6 +56,9 @@ public class WorldInvokeListener
     private Class cl;
     private InspectorManager inspectorManager;
     private ObjectBenchInterface objectBench;
+    
+    /** A map which tells us which construction location applies to each dialog */
+    private Map dialogToLocationMap = new HashMap();
     
     public WorldInvokeListener(Object obj, ObjectBenchInterface bench, InspectorManager inspectorManager)
     {
@@ -135,6 +141,12 @@ public class WorldInvokeListener
         }
     }
     
+    /**
+     * Interactively call a constructor. If necessary, a dialog is presented to ask for
+     * parameters; then the object is constructed. The ActorInstantiationListener is
+     * notified if an object is created successfully; for an actor, this will result in
+     * the actor being inserted into the world.
+     */
     public void callConstructor(ConstructorView cv)
     {
         this.cv = cv;
@@ -149,7 +161,7 @@ public class WorldInvokeListener
                         c.setAccessible(true);
                         Object o = c.newInstance((Object[]) null);
                         ActorInstantiationListener invocListener = GreenfootMain.getInstance().getInvocationListener();
-                        invocListener.localObjectCreated(o);
+                        invocListener.localObjectCreated(o, LocationTracker.instance().getMouseButtonEvent());
                     }
                     catch (NoSuchMethodException nsme) {}
                     catch (IllegalAccessException iae) {}
@@ -163,10 +175,13 @@ public class WorldInvokeListener
             }.start();
         }
         else {
+            // Parameters are required for this call, so we need to use a call dialog.
             CallHistory ch = GreenfootMain.getInstance().getCallHistory();
             MethodDialog md = new MethodDialog(GreenfootMain.getInstance().getFrame(),
                     objectBench, ch, "result", cv, null);
 
+            dialogToLocationMap.put(md, LocationTracker.instance().getMouseButtonEvent());
+            
             md.setWatcher(this);
             md.setVisible(true);
             
@@ -181,6 +196,7 @@ public class WorldInvokeListener
         if (event == CallDialog.CANCEL) {
             dlg.setVisible(false);
             dlg.dispose(); // must dispose to prevent leaks
+            dialogToLocationMap.remove(dlg);
         }
         else if (event == CallDialog.OK) {
             MethodDialog mdlg = (MethodDialog) dlg;
@@ -283,6 +299,7 @@ public class WorldInvokeListener
             }
             else if (cv != null) {
                 // Constructor call
+                                
                 try {
                     String resultName = pkg.invokeConstructor(cl.getName(), params, mdlg.getArgs());
                     if (resultName != null && resultName.charAt(0) == '!') {
@@ -294,12 +311,13 @@ public class WorldInvokeListener
                     else {
                         // Construction went ok (or there was a runtime error).
                         mdlg.setVisible(false);
+                        MouseEvent location = (MouseEvent) dialogToLocationMap.remove(mdlg);
                         if (resultName != null) {
                             RObject rresult = pkg.getObject(resultName);
                             Object resultw =  ObjectTracker.getRealObject(rresult);
                             rresult.removeFromBench();
                             ActorInstantiationListener invocListener = GreenfootMain.getInstance().getInvocationListener();
-                            invocListener.localObjectCreated(resultw);
+                            invocListener.localObjectCreated(resultw, location);
                         }
                     }
                 }

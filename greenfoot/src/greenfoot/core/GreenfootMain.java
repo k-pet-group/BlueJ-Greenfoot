@@ -42,7 +42,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4849 2007-03-18 18:04:22Z polle $
+ * @version $Id: GreenfootMain.java 4871 2007-03-22 03:58:03Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -195,7 +195,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     Utility.bringToFront();
 
                     instantiationListener = new ActorInstantiationListener(WorldHandler.getInstance());
-                    GreenfootMain.this.rBlueJ.addInvocationListener(instantiationListener);
                     compileListenerForwarder = new CompileListenerForwarder(compileListeners);
                     GreenfootMain.this.rBlueJ.addCompileListener(compileListenerForwarder, pkg.getProject().getName());
                     
@@ -317,7 +316,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         try {
             if(!isStartupProject()) {
                 rBlueJ.removeCompileListener(compileListenerForwarder);
-                rBlueJ.removeInvocationListener(instantiationListener);
                 rBlueJ.removeClassListener(classStateManager);
                 storeFrameState();
                 for (RInvocationListener element : invocationListeners) {

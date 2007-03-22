@@ -13,7 +13,6 @@ import javax.swing.JPopupMenu;
 
 import bluej.debugmgr.ConstructAction;
 import bluej.utility.Debug;
-import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.View;
 import bluej.views.ViewFilter;
@@ -21,7 +20,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 4823 2007-01-25 17:03:30Z polle $
+ * @version $Id: ClassRole.java 4871 2007-03-22 03:58:03Z davmac $
  */
 public abstract class ClassRole
 {
@@ -46,8 +45,7 @@ public abstract class ClassRole
 
         for (int i = 0; i < constructors.length; i++) {
             try {
-
-                CallableView m = constructors[constructors.length - i - 1];
+                ConstructorView m = constructors[constructors.length - i - 1];
 
                 ViewFilter filter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
                 if (!filter.accept(m))
@@ -56,7 +54,7 @@ public abstract class ClassRole
                 WorldInvokeListener invocListener = new WorldInvokeListener(realClass);
 
                 String prefix = "new ";
-                Action callAction = new ConstructAction((ConstructorView) m, invocListener, prefix + m.getLongDesc());
+                Action callAction = new ConstructAction(m, invocListener, prefix + m.getLongDesc());
 
                 if (callAction != null) {
                     actions.add(callAction);

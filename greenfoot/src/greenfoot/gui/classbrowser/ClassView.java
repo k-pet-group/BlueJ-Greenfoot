@@ -6,6 +6,7 @@ import greenfoot.actions.RemoveClassAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
 import greenfoot.core.GreenfootMain;
+import greenfoot.core.LocationTracker;
 import greenfoot.core.WorldInvokeListener;
 import greenfoot.event.ActorInstantiationListener;
 import greenfoot.gui.classbrowser.role.ClassRole;
@@ -49,7 +50,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4844 2007-03-16 18:09:38Z polle $
+ * @version $Id: ClassView.java 4871 2007-03-22 03:58:03Z davmac $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -455,12 +456,13 @@ public class ClassView extends JToggleButton
             Object newObject = constructor.newInstance(new Object[]{});
             ActorInstantiationListener invocationListener = GreenfootMain.getInstance().getInvocationListener();
             if(invocationListener != null) {
-                invocationListener.localObjectCreated(newObject);
+                invocationListener.localObjectCreated(newObject, LocationTracker.instance().getMouseButtonEvent());
             }
             return newObject;
         }
         catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            // This might happen if there is no default constructor
+            // e.printStackTrace();
         }
         catch (IllegalArgumentException e) {
             e.printStackTrace();
