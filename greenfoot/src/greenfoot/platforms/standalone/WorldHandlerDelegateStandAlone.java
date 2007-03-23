@@ -3,6 +3,7 @@ package greenfoot.platforms.standalone;
 import greenfoot.World;
 import greenfoot.core.WorldHandler;
 import greenfoot.platforms.WorldHandlerDelegate;
+import greenfoot.util.GreenfootScenarioViewer;
 
 import java.awt.Component;
 import java.awt.event.KeyEvent;
@@ -18,6 +19,12 @@ import java.awt.event.MouseEvent;
 public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
 {    
     private WorldHandler worldHandler;
+    private GreenfootScenarioViewer viewer;
+    
+    public WorldHandlerDelegateStandAlone (GreenfootScenarioViewer viewer) 
+    {
+        this.viewer = viewer;
+    }
     
     public void attachProject(Object project)
     {
@@ -71,14 +78,19 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         // Not used in standalone
     }
 
-    public void setWorld(World world, World world2)
+    public void setWorld(final World oldWorld, final World newWorld)
     {
-        // Not used in standalone
+        ActorDelegateStandAlone.initWorld(newWorld);
     }
 
     public void setWorldHandler(WorldHandler handler)
     {
         this.worldHandler = handler;
+    }
+
+    public World instantiateNewWorld()
+    {
+        return viewer.instantiateNewWorld();
     }
 
 }

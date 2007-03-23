@@ -22,6 +22,7 @@ import java.util.Iterator;
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 
+
 /**
  * The worldhandler handles the connection between the World and the
  * WorldCanvas.
@@ -261,7 +262,17 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
     {
         handlerDelegate.attachProject(project);
     }
-            
+        
+
+    /**
+     * Instantiate a new world and do any initialisation needed to activate that world.
+     * @return The new World or null if an error occured
+     */
+    public World instantiateNewWorld() {
+        return handlerDelegate.instantiateNewWorld();
+    }
+    
+    
     /**
      * Sets a new world.
      */
@@ -460,7 +471,7 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
             }
         }
     }
-
+    
     /**
      * Add a worldListener to listen for when a worlds are created and removed.
      * Events will be delivered on the GUI event thread.
@@ -527,5 +538,8 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
             setObjectDropped(true);
         }
     }
+
+
+
 
 }

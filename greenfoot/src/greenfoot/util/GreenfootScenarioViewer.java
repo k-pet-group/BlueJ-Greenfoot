@@ -6,6 +6,7 @@ import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.SimulationEvent;
+import greenfoot.event.WorldEvent;
 import greenfoot.gui.ControlPanel;
 import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.WorldCanvas;
@@ -38,14 +39,15 @@ import javax.swing.RootPaneContainer;
 public class GreenfootScenarioViewer extends JApplet
 {
 
-    private static String frameTitleName;
+    private static String scenarioName;
 
     private ProjectProperties properties;
-    private World world;
     private Simulation sim;
     private WorldCanvas canvas;
     private ControlPanel controls;
     private RootPaneContainer rootPaneContainer;
+
+    private Constructor worldConstructor;
 
     /**
      * Start the scenario.
@@ -61,7 +63,7 @@ public class GreenfootScenarioViewer extends JApplet
      */
     public static void main(String[] args)
     {
-        JFrame frame = new JFrame(frameTitleName);
+        JFrame frame = new JFrame(scenarioName);
         GreenfootScenarioViewer gs = new GreenfootScenarioViewer(frame);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
@@ -114,7 +116,7 @@ public class GreenfootScenarioViewer extends JApplet
 
             p.load(is);
             worldClassName = p.getProperty("main.class");
-            frameTitleName = p.getProperty("project.name");
+            scenarioName = p.getProperty("project.name");
             is.close();
         }
         catch (FileNotFoundException e) {
@@ -133,23 +135,17 @@ public class GreenfootScenarioViewer extends JApplet
 
             canvas = new WorldCanvas(null);
 
-            WorldHandler.initialise(canvas, new WorldHandlerDelegateStandAlone());
+            WorldHandler.initialise(canvas, new WorldHandlerDelegateStandAlone(this));
             WorldHandler worldHandler = WorldHandler.getInstance();
             Simulation.initialize(worldHandler);
             LocationTracker.initialize();
             sim = Simulation.getInstance();
             controls = new ControlPanel(sim);
-
             int initialSpeed = properties.getInt("simulation.speed");
             sim.setSpeed(initialSpeed);
-
-            Class worldClass = Class.forName(worldClassName);
-            Constructor worldConstructor = worldClass.getConstructor(new Class[]{});
-            world = (World) worldConstructor.newInstance(new Object[]{});
-
-            ActorDelegateStandAlone.initWorld(world);
-
-            worldHandler.setWorld(world);
+            Class<?> worldClass = Class.forName(worldClassName);
+            worldConstructor = worldClass.getConstructor(new Class[]{});
+            instantiateNewWorld();
         }
         catch (ClassNotFoundException e) {
             // TODO Auto-generated catch block
@@ -167,23 +163,12 @@ public class GreenfootScenarioViewer extends JApplet
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        catch (InstantiationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (InvocationTargetException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            e.getCause().printStackTrace();
-        }
+    
 
         buildGUI();
 
     }
+
 
     /**
      * Called by the browser or applet viewer to inform this JApplet that it
@@ -228,7 +213,7 @@ public class GreenfootScenarioViewer extends JApplet
     public String getAppletInfo()
     {
         // provide information about the applet
-        return "Title:   \nAuthor:   \nA simple applet example description. ";
+        return "Applet generated with Greenfoot (www.greenfoot.org). Scenario name: " + scenarioName; //"Title:   \nAuthor:   \nA simple applet example description. ";
     }
 
     /**
@@ -251,6 +236,38 @@ public class GreenfootScenarioViewer extends JApplet
          * "url", "description of third parameter"} };
          */
         return paramInfo;
+    }
+
+    
+    /**
+     * Creates a new instance of the world. And initialises with that world.
+     * @return The new world or null if failed to create new world. 
+     */
+    public World instantiateNewWorld() 
+    {
+        World world = null;
+        try {
+            world = (World) worldConstructor.newInstance(new Object[]{});            
+            WorldHandler.getInstance().setWorld(world);
+        }
+        catch (IllegalArgumentException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (InstantiationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (IllegalAccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (InvocationTargetException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            e.getCause().printStackTrace();
+        }
+        return world;
     }
 
 }

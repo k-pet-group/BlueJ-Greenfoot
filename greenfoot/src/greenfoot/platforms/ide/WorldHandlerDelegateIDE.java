@@ -5,6 +5,7 @@ import greenfoot.ObjectTracker;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.core.GProject;
+import greenfoot.core.GreenfootMain;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.core.WorldInvokeListener;
@@ -55,7 +56,7 @@ import bluej.extensions.ProjectNotOpenException;
  *
  */
 public class WorldHandlerDelegateIDE
-    implements WorldHandlerDelegate, ObjectBenchInterface 
+    implements WorldHandlerDelegate, ObjectBenchInterface
 {
     private SelectionManager classSelectionManager;
 
@@ -430,6 +431,11 @@ public class WorldHandlerDelegateIDE
     public void setWorldHandler(WorldHandler handler)
     {
         this.worldHandler = handler;
+    }
+
+    public World instantiateNewWorld()
+    {
+        return GreenfootMain.getInstance().instantiateNewWorld();
     }
 
 }

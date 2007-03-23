@@ -1,6 +1,7 @@
 package greenfoot.gui;
 
 import greenfoot.actions.PauseSimulationAction;
+import greenfoot.actions.ResetWorldAction;
 import greenfoot.actions.RunOnceSimulationAction;
 import greenfoot.actions.RunSimulationAction;
 import greenfoot.core.Simulation;
@@ -27,7 +28,7 @@ import javax.swing.event.EventListenerList;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 4793 2007-01-16 17:48:21Z polle $
+ * @version $Id: ControlPanel.java 4874 2007-03-23 17:14:25Z polle $
  */
 public class ControlPanel extends Box
     implements ChangeListener, SimulationListener
@@ -35,6 +36,8 @@ public class ControlPanel extends Box
     private RunSimulationAction runSimulationAction;
     private PauseSimulationAction pauseSimulationAction;
     private RunOnceSimulationAction runOnceSimulationAction;
+
+    private ResetWorldAction resetWorldAction ;
     private JSlider speedSlider;
 
     protected EventListenerList listenerList = new EventListenerList();
@@ -92,6 +95,15 @@ public class ControlPanel extends Box
         runpauseContainer.add(new JButton(runSimulationAction), "run");
         runpauseContainer.add(new JButton(pauseSimulationAction), "pause");
         buttonPanel.add(runpauseContainer);
+        
+        
+        resetWorldAction = ResetWorldAction.getInstance();
+        resetWorldAction.putValue(Action.LONG_DESCRIPTION, "Instantiates a new world.");
+        resetWorldAction.putValue(Action.SHORT_DESCRIPTION, "Instantiates a new world.");
+        resetWorldAction.attachSimulation(simulation);
+        resetWorldAction.setEnabled(false);
+        AbstractButton resetButton = new JButton(resetWorldAction);
+        buttonPanel.add(resetButton);
         
         return buttonPanel;
     }
@@ -152,5 +164,6 @@ public class ControlPanel extends Box
     {
         simulation.setSpeed(speedSlider.getValue());
     }
+
 
 }

@@ -34,7 +34,7 @@ public interface WorldHandlerDelegate
 
     void attachProject(Object project);
 
-    void setWorld(World world, World world2);
+    void setWorld(World oldWorld, World newWorld);
 
     Component getWorldTitle();
 
@@ -43,4 +43,10 @@ public interface WorldHandlerDelegate
     void reset();
 
     void setWorldHandler(WorldHandler handler);
+    
+    /**
+     * Instantiate a new world and do any initialisation needed to activate that world.
+     * @return The new World or null if an error occured
+     */
+    World instantiateNewWorld();
 }

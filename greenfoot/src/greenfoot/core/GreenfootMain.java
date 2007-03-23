@@ -1,6 +1,7 @@
 package greenfoot.core;
 
 import greenfoot.ObjectTracker;
+import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.event.ActorInstantiationListener;
 import greenfoot.event.CompileListener;
@@ -42,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4871 2007-03-22 03:58:03Z davmac $
+ * @version $Id: GreenfootMain.java 4874 2007-03-23 17:14:25Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -326,6 +327,15 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         catch (RemoteException re) {
             re.printStackTrace();
         }
+    }
+    
+    /**
+     * Instantiates a new world
+     *
+     */
+    public World instantiateNewWorld()
+    {
+       return frame.instantiateNewWorld();
     }
     
     /**
@@ -692,6 +702,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     public void compileSucceeded(RCompileEvent event)
     {
         checkClassLoader();
+        
     }
     
     public void compileFailed(RCompileEvent event)
@@ -702,4 +713,5 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     public void compileError(RCompileEvent event) {}
 
     public void compileWarning(RCompileEvent event){}
+
 }

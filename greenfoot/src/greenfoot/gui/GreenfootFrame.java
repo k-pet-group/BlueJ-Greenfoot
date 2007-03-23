@@ -38,7 +38,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4862 2007-03-20 22:32:29Z polle $
+ * @version $Id: GreenfootFrame.java 4874 2007-03-23 17:14:25Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -203,7 +203,7 @@ public class GreenfootFrame extends JFrame
                 setTitle("Greenfoot: " + project.getName());
                 populateClassBrowser(classBrowser, project);
                 enableProjectActions();
-                instantiateNewWorld(classBrowser);
+                instantiateNewWorld();
                 if(needsResize()) {
                     pack();
                 }
@@ -379,8 +379,10 @@ public class GreenfootFrame extends JFrame
      * Tries to instantiate a new world. This may fail (if, for example, the
      * world is not compiled. If multiple world classes exist, a random one
      * will be instantiated.
+     * 
+     * @return The new World object, or null if unsuccessful
      */
-    private void instantiateNewWorld(ClassBrowser classBrowser) {
+    public World instantiateNewWorld() {
 		// init a random world
 		Iterator worldClasses = classBrowser.getWorldClasses();
 		while (worldClasses.hasNext()) {
@@ -393,11 +395,11 @@ public class GreenfootFrame extends JFrame
 				int modifiers = classView.getRealClass().getModifiers();
 				boolean canBeInstantiated = (0x0600 & modifiers) == 0x0000;
 				if (canBeInstantiated) {
-					classView.createInstance();
-					break;
+					return (World) classView.createInstance();
 				}
 			}
 		}
+        return null;
 	}
 
 
@@ -617,7 +619,7 @@ public class GreenfootFrame extends JFrame
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
-                instantiateNewWorld(classBrowser);
+                instantiateNewWorld();
                 classBrowser.repaint();
                 CompileAllAction.getInstance().setEnabled(true);
             }
@@ -652,7 +654,7 @@ public class GreenfootFrame extends JFrame
     {
         // Nothing needs doing.
     }
-    
+
     // ------------- end of WorldListener interface ------------
     
     /**
