@@ -38,7 +38,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4875 2007-03-23 18:01:44Z polle $
+ * @version $Id: GreenfootFrame.java 4876 2007-03-23 18:32:51Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -388,15 +388,10 @@ public class GreenfootFrame extends JFrame
 		while (worldClasses.hasNext()) {
 			ClassView classView = (ClassView) worldClasses.next();
 			classView.updateView();
-			if (!classView.getClassName().equals("World") && classView.getRealClass() != null) {				
-				// ACC_INTERFACE 0x0200 Is an interface, not a class.
-				// ACC_ABSTRACT 0x0400 Declared abstract; may not be
-				// instantiated.
-				int modifiers = classView.getRealClass().getModifiers();
-				boolean canBeInstantiated = (0x0600 & modifiers) == 0x0000;
-				if (canBeInstantiated) {
-					return (World) classView.createInstance();
-				}
+			if (!classView.getClassName().equals("World") && classView.getRealClass() != null) {	
+                if (GreenfootUtil.canBeInstantiated(classView.getRealClass())) {
+                    return (World) classView.createInstance();
+                }
 			}
 		}
         return null;

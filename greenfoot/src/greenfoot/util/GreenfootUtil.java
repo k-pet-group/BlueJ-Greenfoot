@@ -1,5 +1,6 @@
 package greenfoot.util;
 
+import greenfoot.World;
 import greenfoot.platforms.GreenfootUtilDelegate;
 
 import java.awt.Component;
@@ -32,7 +33,7 @@ import javax.swing.JPanel;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 4869 2007-03-21 16:21:51Z polle $
+ * @version $Id: GreenfootUtil.java 4876 2007-03-23 18:32:51Z polle $
  */
 public class GreenfootUtil
 {
@@ -494,5 +495,13 @@ public class GreenfootUtil
     public static String getGreenfootLogoPath()
     {        
         return delegate.getGreenfootLogoPath();
+    }
+    
+    public static boolean canBeInstantiated(Class cls) {
+        // ACC_INTERFACE 0x0200 Is an interface, not a class.
+        // ACC_ABSTRACT 0x0400 Declared abstract; may not be
+        // instantiated.
+        int modifiers = cls.getModifiers();
+        return ( (0x0600 & modifiers) == 0x0000);
     }
 }

@@ -40,7 +40,7 @@ import bluej.utility.Debug;
  * Action to export a project to a standalone program.
  * 
  * @author Poul Henriksen
- * @version $Id: ExportProjectAction.java 4875 2007-03-23 18:01:44Z polle $
+ * @version $Id: ExportProjectAction.java 4876 2007-03-23 18:32:51Z polle $
  */
 public class ExportProjectAction extends AbstractAction
 {
@@ -68,11 +68,10 @@ public class ExportProjectAction extends AbstractAction
             for (int i = 0; i < classes.length; i++) {
                 GClass cls = classes[i];
                 if(cls.isWorldSubclass()) {
-                    Class realClass = cls.getJavaClass();
-                   // if(realClass) {
-                   //     worldClass = cls.getName();
-                   // }
-                    worldClasses.add(cls.getName());
+                    Class realClass = cls.getJavaClass();   
+                    if (GreenfootUtil.canBeInstantiated(realClass)) {                  
+                        worldClasses.add(cls.getName());
+                    }                    
                 }
             }
         }

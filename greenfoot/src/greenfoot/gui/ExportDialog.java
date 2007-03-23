@@ -104,6 +104,7 @@ public class ExportDialog extends EscapeDialog
     private void doOK()
     {
         worldClass = (String) worldSelect.getSelectedItem();
+       
         ok = true;
         
         //TODO check if selection is valid? Or only allow selection via browse button
@@ -152,12 +153,16 @@ public class ExportDialog extends EscapeDialog
 
                 JPanel mainClassPanel = new JPanel();
                 {
-                    JLabel classLabel = new JLabel(worldSelectLabelText);
-                    mainClassPanel.add(classLabel);
 
                     worldSelect = makeWorldClassPopup(worlds);
-                    mainClassPanel.add(worldSelect);
                     
+                    if (worlds.size() > 1) {
+                        JLabel classLabel = new JLabel(worldSelectLabelText);
+                        mainClassPanel.add(classLabel);
+
+                        mainClassPanel.add(worldSelect);                        
+                    }
+
                 }
                 mainClassPanel.setAlignmentX(LEFT_ALIGNMENT);
                 inputPanel.add(mainClassPanel);
@@ -235,10 +240,8 @@ public class ExportDialog extends EscapeDialog
 
         popup.setFont(PrefMgr.getPopupMenuFont());
 
-        Collections.sort(worlds);
         for (Iterator classes = worlds.iterator(); classes.hasNext();)
             popup.addItem(classes.next());
-        
         
         return popup;
     }
