@@ -3,6 +3,7 @@ package greenfoot.gui;
 import greenfoot.core.GreenfootMain;
 import greenfoot.util.GreenfootUtil;
 
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Frame;
@@ -56,7 +57,7 @@ public class ExportDialog extends EscapeDialog
     public ExportDialog(Frame parent, List<String> worlds, File defaultExportDir)
     {
         super(parent, dialogTitle, true);
-        exportField = new JTextField(defaultExportDir.toString());
+        exportField = new JTextField(defaultExportDir.toString(), 20);
         exportField.setEditable(false);
         makeDialog(worlds);
     }
@@ -150,10 +151,9 @@ public class ExportDialog extends EscapeDialog
             {
                 inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
                 inputPanel.setAlignmentX(LEFT_ALIGNMENT);
-
-                JPanel mainClassPanel = new JPanel();
+                
+                JPanel mainClassPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
                 {
-
                     worldSelect = makeWorldClassPopup(worlds);
                     
                     if (worlds.size() > 1) {
@@ -168,12 +168,12 @@ public class ExportDialog extends EscapeDialog
                 inputPanel.add(mainClassPanel);
                 inputPanel.add(Box.createVerticalStrut(5));
               
-                JPanel exportLocationPanel = new JPanel();
+                JPanel exportLocationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
                 {
                     JLabel exportLocationLabel = new JLabel(exportLcoationLabelText);
                     exportLocationPanel.add(exportLocationLabel);
 
-                    exportLocationPanel.add(exportField);;
+                    exportLocationPanel.add(exportField);
                     
                     JButton browse = new JButton("Browse");
                     exportLocationPanel.add(browse);
