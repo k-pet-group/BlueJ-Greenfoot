@@ -38,7 +38,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4874 2007-03-23 17:14:25Z polle $
+ * @version $Id: GreenfootFrame.java 4875 2007-03-23 18:01:44Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -292,7 +292,7 @@ public class GreenfootFrame extends JFrame
         
         // the control panel
         
-        controlPanel = new ControlPanel(sim);
+        controlPanel = new ControlPanel(sim, true);
         controlPanel.setBorder(BorderFactory.createEtchedBorder());
 
         centrePanel.add(controlPanel, BorderLayout.SOUTH);

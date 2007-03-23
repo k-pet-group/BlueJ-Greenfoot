@@ -43,7 +43,7 @@ public class ExportDialog extends EscapeDialog
     private static final String worldSelectLabelText = "World Class: ";
 
     private static final String exportLcoationLabelText = "Export location: ";
-    private static final String extraControlsLabelText = "Allow speed change and 'act'";
+    private static final String extraControlsLabelText = "Allow speed change and 'Act'";
     private String mainClassName = "";
 
     private JCheckBox extraControls;

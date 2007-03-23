@@ -40,7 +40,7 @@ import bluej.utility.Debug;
  * Action to export a project to a standalone program.
  * 
  * @author Poul Henriksen
- * @version $Id: ExportProjectAction.java 4872 2007-03-22 22:19:19Z polle $
+ * @version $Id: ExportProjectAction.java 4875 2007-03-23 18:01:44Z polle $
  */
 public class ExportProjectAction extends AbstractAction
 {
@@ -60,100 +60,8 @@ public class ExportProjectAction extends AbstractAction
         setEnabled(false);
     }
 
-    public static void main(String[] args)
-    {
-
-        test();
-
-    }
-
-    private static void test()
-    {
-        GProject project = GreenfootMain.getInstance().getProject();
-        String jarName = project.getName() + ".jar";
-        String htmlName = project.getName() + ".html";
-        String scenarioName = project.getName();
-        String worldClass = "";
-        worldClass = getWorldClasses().get(0);  
-        String title = project.getName() + " Applet";
-        int width = WorldHandler.getInstance().getWorldCanvas().getWidth();
-        int height = WorldHandler.getInstance().getWorldCanvas().getHeight() + 50;  
-        
-        File projectDir = null;
-        try {
-            projectDir = project.getDir();
-        }
-        catch (ProjectNotOpenException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        catch (RemoteException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        //File projectDir = new File("/home/polle/workspace/greenfoot/scenarios/ants");        
-        
-        File exportDir = new File(projectDir, "export");
-
-        File libDir = Config.getGreenfootLibDir();
-        
-        File greenfootDir = new File(libDir, "standalone");
-        if (exportDir.exists()) {
-            exportDir.delete();
-        }
-        exportDir.mkdir();
-        JarCreator jarCreator = new JarCreator(exportDir, jarName);
-        jarCreator.addDir(projectDir);
-
-        jarCreator.addDir(greenfootDir);
-
-        File standAloneProperties = new File(projectDir, "standalone.properties");
-
-        Properties p = new Properties();
-        p.put("project.name", scenarioName);
-        p.put("main.class", worldClass);
-        OutputStream os = null;
-        try {
-            standAloneProperties.createNewFile();
-            os = new FileOutputStream(standAloneProperties);
-            p.store(os, "Properties for running Greenfoot projects alone.");
-        }
-        catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        finally {
-            try {
-                os.close();
-            }
-            catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-
-        jarCreator.addSkipDir(projectDir.getPath() + "/greenfoot");
-        jarCreator.addSkipFile(".cvsignore");
-
-        jarCreator.includeMetaFiles(false);
-        jarCreator.includeSource(false);
-        
-        String mainClass = "greenfoot.util.GreenfootScenarioViewer";
-        jarCreator.setMainClass(mainClass);
-
-        jarCreator.create();
-        standAloneProperties.delete();
-        File outputFile = new File(exportDir, htmlName);
-        jarCreator.generateHTMLSkeleton(outputFile, title, width, height);
-    }
-
     private static List<String> getWorldClasses()
     {
-        
         List<String> worldClasses= new LinkedList<String>();
         try {
             GClass[] classes = GreenfootMain.getInstance().getPackage().getClasses();
@@ -234,6 +142,7 @@ public class ExportProjectAction extends AbstractAction
         
         File exportDir = exportDialog.getExportLocation();
         String worldClass = exportDialog.getWorldClass();
+        boolean  includeExtraControls = exportDialog.includeExtraControls();
         
         //TODO: Should it make dir here? Or should it be forced creationg in dialog?
         exportDir.mkdir();
@@ -247,6 +156,7 @@ public class ExportProjectAction extends AbstractAction
         Properties p = new Properties();
         p.put("project.name", scenarioName);
         p.put("main.class", worldClass);
+        p.put("controls.extra", "" + includeExtraControls);
         OutputStream os = null;
         try {
             standAloneProperties.createNewFile();

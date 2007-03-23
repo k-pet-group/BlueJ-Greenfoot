@@ -108,7 +108,8 @@ public class GreenfootScenarioViewer extends JApplet
         JRootPane rootPane = this.getRootPane();
         rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
 
-        String worldClassName = null;
+        String worldClassName = null; 
+        boolean includeExtraControls = false;
         Properties p = new Properties();
         try {
             ClassLoader loader = GreenfootScenarioViewer.class.getClassLoader();
@@ -117,6 +118,7 @@ public class GreenfootScenarioViewer extends JApplet
             p.load(is);
             worldClassName = p.getProperty("main.class");
             scenarioName = p.getProperty("project.name");
+            includeExtraControls = Boolean.parseBoolean(p.getProperty("controls.extra"));
             is.close();
         }
         catch (FileNotFoundException e) {
@@ -140,7 +142,7 @@ public class GreenfootScenarioViewer extends JApplet
             Simulation.initialize(worldHandler);
             LocationTracker.initialize();
             sim = Simulation.getInstance();
-            controls = new ControlPanel(sim);
+            controls = new ControlPanel(sim, includeExtraControls);
             int initialSpeed = properties.getInt("simulation.speed");
             sim.setSpeed(initialSpeed);
             Class<?> worldClass = Class.forName(worldClassName);

@@ -28,7 +28,7 @@ import javax.swing.event.EventListenerList;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 4874 2007-03-23 17:14:25Z polle $
+ * @version $Id: ControlPanel.java 4875 2007-03-23 18:01:44Z polle $
  */
 public class ControlPanel extends Box
     implements ChangeListener, SimulationListener
@@ -47,30 +47,40 @@ public class ControlPanel extends Box
     
     private Simulation simulation;
     
-    public ControlPanel(Simulation simulation)
+    /**
+     * 
+     * @param simulation
+     * @param includeAllControls If false, the act-button and speedslider will be excluded.
+     */
+    public ControlPanel(Simulation simulation, boolean includeAllControls)
     {
         super(BoxLayout.X_AXIS);
         
         this.simulation = simulation;
         
-        add(createButtonPanel(simulation));
-        add(createSpeedSlider());
+        add(createButtonPanel(simulation, includeAllControls));
 
+        if (includeAllControls) {
+            add(createSpeedSlider());
+        }
         simulation.addSimulationListener(this);
+
     }
 
-    private JPanel createButtonPanel(Simulation simulation)
+    private JPanel createButtonPanel(Simulation simulation, boolean includeAllControls)
     {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         
-        runOnceSimulationAction = RunOnceSimulationAction.getInstance();
-        runOnceSimulationAction.attachSimulation(simulation);
-        runOnceSimulationAction.putValue(Action.LONG_DESCRIPTION, "Makes one run of the simulation loop.");
-        runOnceSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Makes one run of the simulation loop.");
-        runOnceSimulationAction.setEnabled(false);
-        AbstractButton stepButton = new JButton(runOnceSimulationAction);
+        if (includeAllControls) {
+            runOnceSimulationAction = RunOnceSimulationAction.getInstance();
+            runOnceSimulationAction.attachSimulation(simulation);
+            runOnceSimulationAction.putValue(Action.LONG_DESCRIPTION, "Makes one run of the simulation loop.");
+            runOnceSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Makes one run of the simulation loop.");
+            runOnceSimulationAction.setEnabled(false);
+            AbstractButton stepButton = new JButton(runOnceSimulationAction);
 
-        buttonPanel.add(stepButton);
+            buttonPanel.add(stepButton);
+        }
 
         runSimulationAction = RunSimulationAction.getInstance();
         runSimulationAction.attachSimulation(simulation);
@@ -138,22 +148,30 @@ public class ControlPanel extends Box
     {
         int etype = e.getType();
         if (etype == SimulationEvent.STARTED) {
-            speedSlider.setEnabled(true);
+            if(speedSlider != null) {
+                speedSlider.setEnabled(true);
+            }
             runpauseLayout.show(runpauseContainer, "pause");
         }
         else if (etype == SimulationEvent.STOPPED) {
-            speedSlider.setEnabled(true);
+            if(speedSlider != null) {
+                speedSlider.setEnabled(true);
+            }
             runpauseLayout.show(runpauseContainer, "run");
         }
         else if (etype == SimulationEvent.CHANGED_SPEED) {
-            speedSlider.setEnabled(true);
-            int newSpeed = simulation.getSpeed();
-            if (newSpeed != speedSlider.getValue()) {
-                speedSlider.setValue(newSpeed);
+            if(speedSlider != null) {
+                speedSlider.setEnabled(true);            
+                int newSpeed = simulation.getSpeed();
+                if (newSpeed != speedSlider.getValue()) {
+                    speedSlider.setValue(newSpeed);
+                }
             }
         } 
         else if(etype == SimulationEvent.DISABLED) {
-            speedSlider.setEnabled(false);
+            if(speedSlider != null) {
+                speedSlider.setEnabled(false);
+            }
         }
     }
     
