@@ -186,15 +186,15 @@ editor.go-to-lineLabel = Go to line...
 editor.replaceLabel = Replace...
 editor.compileLabel = Compile
 editor.toggle-breakpointLabel = Set/Clear Breakpoint
-editor.toggle-interface-viewLabel = Toggle Interface View
+editor.toggle-interface-viewLabel = Toggle Documentation View
 
 editor.go-to-lineLabel = Go to line...
 editor.gotoline.title = Go to line
 editor.gotoline.label = Enter line number
 editor.gotoline.notNumericMessage = Input must be numeric
 
-editor.implementationLabel = Implementation
-editor.interfaceLabel = Interface
+editor.implementationLabel = Source Code
+editor.interfaceLabel = Documentation
 
 editor.state.readOnly = read-only
 editor.state.saved = saved
