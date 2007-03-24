@@ -43,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4874 2007-03-23 17:14:25Z polle $
+ * @version $Id: GreenfootMain.java 4878 2007-03-24 12:16:47Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -443,7 +443,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      */
     public void newProject()
     {
-        String newname = GreenfootUtil.getNewNameFromFileBrowser(frame);
+        String newname = GreenfootUtil.getNewProjectName(frame);
         if (newname != null) {
             try {
                 File f = new File(newname);

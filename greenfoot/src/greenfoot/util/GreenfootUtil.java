@@ -1,6 +1,5 @@
 package greenfoot.util;
 
-import greenfoot.World;
 import greenfoot.platforms.GreenfootUtilDelegate;
 
 import java.awt.Component;
@@ -33,7 +32,7 @@ import javax.swing.JPanel;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 4876 2007-03-23 18:32:51Z polle $
+ * @version $Id: GreenfootUtil.java 4878 2007-03-24 12:16:47Z polle $
  */
 public class GreenfootUtil
 {
@@ -397,9 +396,9 @@ public class GreenfootUtil
      *  Get a file name from the user, using a file selection dialogue.
      *  If cancelled or an invalid name was specified, return null.
      */
-    public static String getNewNameFromFileBrowser(Component parent)
+    public static String getNewProjectName(Component parent)
     {
-        return delegate.getNewNameFromFileBrowser(parent);
+        return delegate.getNewProjectName(parent);
     }
     
 

@@ -40,7 +40,7 @@ import bluej.utility.Debug;
  * Action to export a project to a standalone program.
  * 
  * @author Poul Henriksen
- * @version $Id: ExportProjectAction.java 4876 2007-03-23 18:32:51Z polle $
+ * @version $Id: ExportProjectAction.java 4878 2007-03-24 12:16:47Z polle $
  */
 public class ExportProjectAction extends AbstractAction
 {
@@ -53,6 +53,8 @@ public class ExportProjectAction extends AbstractAction
     {
         return instance;
     }
+
+    private ExportDialog exportDialog;
 
     private ExportProjectAction()
     {
@@ -130,8 +132,9 @@ public class ExportProjectAction extends AbstractAction
             defaultExportDir.delete();
         }
         
-        
-        ExportDialog exportDialog = new ExportDialog(GreenfootMain.getInstance().getFrame(), getWorldClasses(), defaultExportDir);
+        if(exportDialog == null) {
+            exportDialog = new ExportDialog(GreenfootMain.getInstance().getFrame(), getWorldClasses(), defaultExportDir);
+        }
         boolean okPressed = exportDialog.display();
         if(!okPressed) {
             return;
@@ -191,7 +194,7 @@ public class ExportProjectAction extends AbstractAction
 
         jarCreator.create();
         standAloneProperties.delete();
-        File outputFile = new File(defaultExportDir, htmlName);
+        File outputFile = new File(exportDir, htmlName);
         jarCreator.generateHTMLSkeleton(outputFile, title, width, height);
     }
 

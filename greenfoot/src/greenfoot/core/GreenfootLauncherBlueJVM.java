@@ -191,7 +191,7 @@ public class GreenfootLauncherBlueJVM
      */    
     private void createScenario()
     {
-        String newName = GreenfootUtil.getNewNameFromFileBrowser(null);
+        String newName = GreenfootUtil.getNewProjectName(null);
         File newDir = new File(newName);
         extension.newProject(newDir);
     }

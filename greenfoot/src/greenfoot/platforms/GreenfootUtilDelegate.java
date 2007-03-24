@@ -17,7 +17,7 @@ public interface GreenfootUtilDelegate
 
     public File getScenarioFromFileBrowser(Component parent);
     
-    public String getNewNameFromFileBrowser(Component parent);
+    public String getNewProjectName(Component parent);
 
     public ClassLoader getCurrentClassLoader();  
 

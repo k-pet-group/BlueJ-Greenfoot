@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 
+
 import greenfoot.platforms.GreenfootUtilDelegate;
 
 public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
@@ -20,7 +21,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         return this.getClass().getClassLoader();
     }
 
-    public String getNewNameFromFileBrowser(Component parent)
+    public String getNewProjectName(Component parent)
     {
         // Not needed in stand alone
         return null;

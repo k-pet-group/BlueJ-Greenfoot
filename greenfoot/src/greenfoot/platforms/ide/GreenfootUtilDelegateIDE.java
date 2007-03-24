@@ -5,6 +5,7 @@ import greenfoot.util.GreenfootUtil;
 
 import java.awt.Component;
 import java.io.File;
+import javax.swing.filechooser.FileFilter;
 import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -38,11 +39,11 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     }
     
     
-    public String getNewNameFromFileBrowser(Component parent)
+    public String getNewProjectName(Component parent)
     {
         return FileUtility.getFileName(parent, Config.getString("pkgmgr.newPkg.title"), Config.getString("pkgmgr.newPkg.buttonLabel"), false, null, true);
     }
-    
+
 
     public ClassLoader getCurrentClassLoader() 
     {
@@ -57,4 +58,6 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         File libDir = Config.getGreenfootLibDir();
         return libDir.getAbsolutePath() + "/imagelib/other/greenfoot.png";        
     }
+
+
 }

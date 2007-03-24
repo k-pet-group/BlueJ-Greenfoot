@@ -19,6 +19,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -53,6 +54,7 @@ public class ExportDialog extends EscapeDialog
     private String worldClass;
     private JComboBox worldSelect;
     private JTextField exportField;
+    private JFileChooser fileChooser;
 
     public ExportDialog(Frame parent, List<String> worlds, File defaultExportDir)
     {
@@ -174,19 +176,24 @@ public class ExportDialog extends EscapeDialog
                     exportLocationPanel.add(exportLocationLabel);
 
                     exportLocationPanel.add(exportField);
-                    
+
                     JButton browse = new JButton("Browse");
                     exportLocationPanel.add(browse);
                     browse.addActionListener(new ActionListener() {
-
                         public void actionPerformed(ActionEvent e)
                         {
-                           /* String file = GreenfootUtil.getNewNameFromFileBrowser(GreenfootMain.getInstance().getFrame());
-                            if(file!= null) {
-                                exportField.setText(file);
-                            }*/
-                        }});
-                    
+                            if (fileChooser == null) {
+                                fileChooser = new JFileChooser();
+                                fileChooser.setDialogTitle("Choose Export Directory");
+                                fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                            }
+                            int result = fileChooser.showDialog(ExportDialog.this, "Choose");
+
+                            if (result == JFileChooser.APPROVE_OPTION) {
+                                exportField.setText(fileChooser.getSelectedFile().getPath());
+                            }
+                        }
+                    });                    
                 }
                 exportLocationPanel.setAlignmentX(LEFT_ALIGNMENT);
                 inputPanel.add(exportLocationPanel);
