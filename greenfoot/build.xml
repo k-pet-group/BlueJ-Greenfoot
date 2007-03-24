@@ -278,7 +278,8 @@
         <!-- Control panel icons-->
         <copy file="resources/images/run.png" todir="images"/>    
         <copy file="resources/images/step.png" todir="images"/>   
-        <copy file="resources/images/pause.png" todir="images"/>       
+        <copy file="resources/images/pause.png" todir="images"/>  
+        <copy file="resources/images/reset.png" todir="images"/>       
 	</target>		
 
 	<target name="dist" depends="ready-to-run, clean-scenarios, copy-scenarios, copy-tutorial" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
@@ -478,7 +479,8 @@
         <copy file="resources/images/run.png" todir="${standalone.build}"/>    
         <copy file="resources/images/step.png" todir="${standalone.build}"/>   
         <copy file="resources/images/pause.png" todir="${standalone.build}"/> 
-        
+        <copy file="resources/images/reset.png" todir="${standalone.build}"/> 
+                
                    
     </target>
     

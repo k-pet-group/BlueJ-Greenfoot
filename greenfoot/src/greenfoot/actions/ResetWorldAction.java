@@ -9,15 +9,15 @@ import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 
 
 public class ResetWorldAction extends AbstractAction implements SimulationListener
 {
 
-    private static final String iconFile = "step.png";
     private static ResetWorldAction instance = new ResetWorldAction();
 
-    private Simulation simulation;
+    private static final String iconFile = "reset.png";
     
     /**
      * Singleton factory method for action.
@@ -26,11 +26,10 @@ public class ResetWorldAction extends AbstractAction implements SimulationListen
     {
         return instance;
     }
-
     
     private ResetWorldAction()
     {
-        super("Reset"); //, new ImageIcon(RunOnceSimulationAction.class.getClassLoader().getResource(iconFile)));
+        super("Reset", new ImageIcon(ResetWorldAction.class.getClassLoader().getResource(iconFile)));
     }
 
     /**
@@ -38,7 +37,6 @@ public class ResetWorldAction extends AbstractAction implements SimulationListen
      */
     public void attachSimulation(Simulation simulation)
     {
-        this.simulation = simulation;
         simulation.addSimulationListener(this);
     }
     
