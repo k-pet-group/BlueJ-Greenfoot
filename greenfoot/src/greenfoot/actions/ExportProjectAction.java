@@ -6,42 +6,31 @@ import greenfoot.core.GreenfootMain;
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.ExportCompileDialog;
 import greenfoot.gui.ExportDialog;
-import greenfoot.gui.GreenfootFrame;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.util.JarCreator;
 
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.rmi.RemoteException;
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
 
 import javax.swing.AbstractAction;
 
 import bluej.Config;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
-import bluej.utility.BlueJFileReader;
-import bluej.utility.Debug;
 
 /**
  * Action to export a project to a standalone program.
  * 
  * @author Poul Henriksen
- * @version $Id: ExportProjectAction.java 4879 2007-03-24 13:01:44Z polle $
+ * @version $Id: ExportProjectAction.java 4880 2007-03-24 13:05:55Z polle $
  */
 public class ExportProjectAction extends AbstractAction
 {

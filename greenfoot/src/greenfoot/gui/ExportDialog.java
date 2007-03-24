@@ -1,16 +1,11 @@
 package greenfoot.gui;
 
-import greenfoot.core.GreenfootMain;
-import greenfoot.util.GreenfootUtil;
-
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 

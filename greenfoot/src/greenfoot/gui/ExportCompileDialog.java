@@ -5,26 +5,17 @@ import greenfoot.core.GProject;
 import greenfoot.event.CompileListener;
 
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
 import rmiextension.wrappers.event.RCompileEvent;
-
 import bluej.BlueJTheme;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
@@ -38,7 +29,7 @@ import bluej.utility.EscapeDialog;
  */
 public class ExportCompileDialog extends EscapeDialog implements CompileListener
 {
-    private String helpLine = "Not all the classes in the project are compiled. To export, all classes must be compiled. To continue with the export, compile the classes now.";
+    private String helpLine = "Not all the classes in the project are compiled. To continue with the export, compile the classes now.";
     private boolean ok;
     private GProject project;
     
