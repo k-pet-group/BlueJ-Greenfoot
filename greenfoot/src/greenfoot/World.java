@@ -182,8 +182,7 @@ public abstract class World
         ensureWithinYBounds(y);       
         
         int xPixel = (int) Math.floor(getCellCenter(x));
-        int yPixel = (int) Math.floor(getCellCenter(y));
-        
+        int yPixel = (int) Math.floor(getCellCenter(y));        
         
         // Take tiling into account
         if(isTiled()) {
@@ -264,8 +263,6 @@ public abstract class World
             return;
         }
 
-        ensureWithinXBounds(x);
-        ensureWithinYBounds(y);
         object.addToWorld(x, y, this);
 
         collisionChecker.addObject(object);
@@ -477,7 +474,6 @@ public abstract class World
 
     void updateObjectLocation(Actor object, int oldX, int oldY)
     {
-        ensureWithinBounds(object);
         collisionChecker.updateObjectLocation(object, oldX, oldY);
     }
 
@@ -492,18 +488,7 @@ public abstract class World
     //
     // =================================================
 
-    /**
-     * Methods that throws an exception if the location of the object is out of
-     * bounds.
-     * 
-     * @throws IndexOutOfBoundsException
-     */
-    private void ensureWithinBounds(Actor object)
-        throws IndexOutOfBoundsException
-    {
-        ensureWithinXBounds(object.getX());
-        ensureWithinYBounds(object.getY());
-    }
+
 
     /**
      * Methods that throws an exception if the location is out of bounds.

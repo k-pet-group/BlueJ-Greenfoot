@@ -223,12 +223,28 @@ public abstract class Actor
         failIfNotInWorld();
         int oldX = this.x;
         int oldY = this.y;
-
-        boundsCheck(x, y);
+        
+        x = limitValue(x, world.getWidth());
+        y = limitValue(y, world.getHeight());
 
         this.x = x;
         this.y = y;
         locationChanged(oldX, oldY);
+    }
+
+    /**
+     * Limits the value v to be less than limit and large or equal to zero.
+     * @return
+     */
+    private int limitValue(int v, int limit)
+    {
+        if (v < 0) {
+            v = 0;
+        }
+        if (limit <= v) {
+            v = limit - 1;
+        }
+        return v;
     }
 
     /**
@@ -326,7 +342,6 @@ public abstract class Actor
             return;
         }
 
-        boundsCheck(xCell, yCell);
         setLocation(xCell, yCell);
     }
 
@@ -348,8 +363,8 @@ public abstract class Actor
      */
     void addToWorld(int x, int y, World world)
     {
-        this.x = x;
-        this.y = y;
+        this.x = limitValue(x, world.getWidth());
+        this.y = limitValue(y, world.getHeight());
         this.world = world; // can only set location if world is set.
         this.setLocation(x, y);
         this.setWorld(world);
@@ -606,23 +621,7 @@ public abstract class Actor
         }
     }
 
-    /**
-     * Checks if the coordinates are within the bounds of the world. Throws an
-     * exception if they are not within bounds.
-     * 
-     * @param x
-     * @param y
-     */
-    private void boundsCheck(int x, int y)
-    {
-        failIfNotInWorld();
-        if (world.getWidth() <= x || x < 0) {
-            throw new IndexOutOfBoundsException("x(" + x + ") is out of bounds(" + world.getWidth() + ")");
-        }
-        if (world.getHeight() <= y || y < 0) {
-            throw new IndexOutOfBoundsException("y(" + y + ") is out of bounds(" + world.getHeight() + ")");
-        }
-    }
+   
 
     // ============================
     //
