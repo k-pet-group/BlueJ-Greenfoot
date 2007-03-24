@@ -49,18 +49,6 @@ public class Plane extends Actor
         double angle = Math.toRadians(getRotation());
         int x = (int) Math.round(getX() + Math.cos(angle) * SPEED);
         int y = (int) Math.round(getY() + Math.sin(angle) * SPEED);
-        if(x >= getWorld().getWidth()) {
-            x = getWorld().getWidth() - 1;
-        }
-        if(x < 0) {
-            x = 0;
-        }
-        if(y >= getWorld().getHeight()) {
-            y = getWorld().getHeight() - 1;
-        }
-        if(y < 0) {
-            y = 0;
-        }
         setLocation(x, y);
     }
                       
