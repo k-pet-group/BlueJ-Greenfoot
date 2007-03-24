@@ -387,4 +387,27 @@ public class GProject extends RProjectListenerImpl
     {
         GreenfootMain.getInstance().projectClosing();
     }
+    
+    /**
+     * Checks whether every class in this project is compiled.
+     * @return True is all classes are compiled, false otherwise
+     */
+    public boolean isCompiled()
+    {
+        try {
+            GClass[] classes = getDefaultPackage().getClasses();
+            for (int i = 0; i < classes.length; i++) {
+                GClass cls = classes[i];
+                if(!cls.isCompiled())  {
+                    return false;
+                }
+            }
+        }
+        catch (Exception e2) {
+            e2.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
 }

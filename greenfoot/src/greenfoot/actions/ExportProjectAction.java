@@ -4,6 +4,7 @@ import greenfoot.core.GClass;
 import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.WorldHandler;
+import greenfoot.gui.ExportCompileDialog;
 import greenfoot.gui.ExportDialog;
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.util.GreenfootUtil;
@@ -40,7 +41,7 @@ import bluej.utility.Debug;
  * Action to export a project to a standalone program.
  * 
  * @author Poul Henriksen
- * @version $Id: ExportProjectAction.java 4878 2007-03-24 12:16:47Z polle $
+ * @version $Id: ExportProjectAction.java 4879 2007-03-24 13:01:44Z polle $
  */
 public class ExportProjectAction extends AbstractAction
 {
@@ -96,15 +97,22 @@ public class ExportProjectAction extends AbstractAction
 
     public void actionPerformed(ActionEvent ae)
     {
-        // TODO: Check whether everything is compiled and show dialog if not.
         
         
         GProject project = GreenfootMain.getInstance().getProject();
+        
+        if(!project.isCompiled())  {
+            boolean isCompiled = showCompileDialog(project);
+            if(!isCompiled) {               
+                //Cancel export
+                return;
+            }
+        }
+        
         String jarName = project.getName() + ".jar";
         String htmlName = project.getName() + ".html";
         String scenarioName = project.getName();
-        //String worldClass = "";
-      //  worldClass = getWorldClass();  
+
         String title = project.getName() + " Applet";
         int width = WorldHandler.getInstance().getWorldCanvas().getWidth();
         int height = WorldHandler.getInstance().getWorldCanvas().getHeight() + 50;  
@@ -120,8 +128,7 @@ public class ExportProjectAction extends AbstractAction
         catch (RemoteException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
-        }
-        //File projectDir = new File("/home/polle/workspace/greenfoot/scenarios/ants");        
+        }       
         
         File defaultExportDir = new File(projectDir.getParentFile(), scenarioName + "-export");
 
@@ -139,14 +146,11 @@ public class ExportProjectAction extends AbstractAction
         if(!okPressed) {
             return;
         }
-        
-        //TODO SPAWN NEW THREAD ? Or create new dialog that shows "working..."
-        
+                
         File exportDir = exportDialog.getExportLocation();
         String worldClass = exportDialog.getWorldClass();
         boolean  includeExtraControls = exportDialog.includeExtraControls();
         
-        //TODO: Should it make dir here? Or should it be forced creationg in dialog?
         exportDir.mkdir();
         JarCreator jarCreator = new JarCreator(exportDir, jarName);
         jarCreator.addDir(projectDir);
@@ -198,99 +202,16 @@ public class ExportProjectAction extends AbstractAction
         jarCreator.generateHTMLSkeleton(outputFile, title, width, height);
     }
 
-    private void zip()
+
+    private boolean showCompileDialog(GProject project)
     {
-        String[] filenames = getFilesInProject();
-
-        // Create a buffer for reading the files
-        byte[] buf = new byte[1024];
-
-        try {
-            // Create the ZIP file
-            String outFilename = "outfile.zip";
-            ZipOutputStream out = new ZipOutputStream(new FileOutputStream(outFilename));
-
-            // Compress the files
-            for (int i = 0; i < filenames.length; i++) {
-                FileInputStream in = new FileInputStream(filenames[i]);
-
-                // Add ZIP entry to output stream.
-                out.putNextEntry(new ZipEntry(filenames[i]));
-
-                // Transfer bytes from the file to the ZIP file
-                int len;
-                while ((len = in.read(buf)) > 0) {
-                    out.write(buf, 0, len);
-                }
-
-                // Complete the entry
-                out.closeEntry();
-                in.close();
-            }
-
-            // Complete the ZIP file
-            out.close();
-        }
-        catch (IOException e) {}
+        ExportCompileDialog d = new ExportCompileDialog(GreenfootMain.getInstance().getFrame(), project);
+        GreenfootMain.getInstance().addCompileListener(d);
+        boolean compiled = d.display();
+        GreenfootMain.getInstance().removeCompileListener(d);
+        return compiled;
     }
+   
 
-    private String[] getFilesInProject()
-    {
-        // Should include everything from the project except *.class files and
-        // *.jar and greenfoot/**
-        // These are the files to include in the ZIP file
-
-        try {
-            File projectDir = GreenfootMain.getInstance().getProject().getDir();
-
-        }
-        catch (ProjectNotOpenException e) {
-            e.printStackTrace();
-        }
-        catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        return null;
-
-    }
-
-    public void addFilesInDir(File dir, List fileList)
-    {
-        try {
-
-            // get a listing of the directory content
-            String[] dirList = dir.list();
-            // loop through dirList, and zip the files
-            for (int i = 0; i < dirList.length; i++) {
-                File f = new File(dir, dirList[i]);
-                if (ignore(f)) {
-                    continue;
-                }
-                if (f.isDirectory()) {
-                    // if the File object is a directory, call this
-                    // function again to add its content recursively
-                    addFilesInDir(f, fileList);
-                    // loop again
-                    continue;
-                }
-
-                fileList.add(f);
-            }
-        }
-        catch (Exception e) {
-            // handle exception
-        }
-    }
-
-    private boolean ignore(File f)
-    {
-        /*
-         * String fileName = f.getName(); if(f.isDirectory() &&
-         * fileName=="greenfoot") { return true; } fileName.indexOf(".") String
-         * suffix = if(f.isFile() &&
-         * fileName.substring(-4).equalsIgnoreCase(".jar") )) { return true; }
-         */
-        return false;
-
-    }
+  
 }
