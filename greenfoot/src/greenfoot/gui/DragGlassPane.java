@@ -49,7 +49,7 @@ import javax.swing.SwingUtilities;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 4866 2007-03-21 03:13:45Z davmac $
+ * @version $Id: DragGlassPane.java 4894 2007-03-25 13:08:57Z polle $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -391,7 +391,9 @@ public class DragGlassPane extends JComponent
         int menuBarHeight = 0;
         if(frame instanceof JFrame) {
             JMenuBar menuBar = ((JFrame) frame).getJMenuBar();
-            menuBarHeight = menuBar.getHeight();
+            if(menuBar != null) {
+                menuBarHeight = menuBar.getHeight();
+            }
         }
         Point glassPanePoint = e.getPoint();
         Container container = contentPane;
