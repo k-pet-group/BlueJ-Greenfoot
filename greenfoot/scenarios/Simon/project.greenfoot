@@ -1,0 +1,19 @@
+#Greenfoot properties
+#Sat Mar 24 17:50:46 GMT 2007
+class.Blue.superclass=SimonColor
+simulation.speed=90
+class.AnimatedImage.superclass=
+mainWindow.width=713
+class.SimonColor.superclass=greenfoot.Actor
+version=1.1.0
+class.Color.superclass=greenfoot.Actor
+class.Yellow.superclass=SimonColor
+class.Game.superclass=greenfoot.World
+class.Red.image=greenfoot.png
+class.ColorHandler.superclass=greenfoot.Actor
+mainWindow.y=128
+mainWindow.x=52
+class.Red.superclass=SimonColor
+mainWindow.height=683
+class.ColorHandler.image=greenfoot.png
+class.Green.superclass=SimonColor
