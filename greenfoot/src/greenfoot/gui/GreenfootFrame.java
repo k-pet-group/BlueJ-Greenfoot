@@ -38,7 +38,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4876 2007-03-23 18:32:51Z polle $
+ * @version $Id: GreenfootFrame.java 4891 2007-03-25 11:29:16Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -460,7 +460,7 @@ public class GreenfootFrame extends JFrame
 //        addMenuItem(new NYIAction("Open Recent...", this), projectMenu, -1, false, -1);
         addMenuItem(CloseProjectAction.getInstance(), projectMenu, KeyEvent.VK_W, false, KeyEvent.VK_C);
         addMenuItem(SaveProjectAction.getInstance(), projectMenu, KeyEvent.VK_S, false, KeyEvent.VK_S);
-        
+        projectMenu.addSeparator();
         addMenuItem(ExportProjectAction.getInstance(), projectMenu, KeyEvent.VK_E, false, KeyEvent.VK_E);
 
 //        addMenuItem(new NYIAction("Save As...", this), projectMenu, KeyEvent.VK_S, true, -1);
