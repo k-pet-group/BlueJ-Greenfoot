@@ -6,6 +6,7 @@ import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.SimulationEvent;
+import greenfoot.event.SimulationListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.gui.ControlPanel;
 import greenfoot.gui.DragGlassPane;
@@ -16,6 +17,7 @@ import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.FocusTraversalPolicy;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -145,6 +147,19 @@ public class GreenfootScenarioViewer extends JApplet
             LocationTracker.initialize();
             sim = Simulation.getInstance();
             controls = new ControlPanel(sim, includeExtraControls);
+
+            sim.addSimulationListener(new SimulationListener() {
+                public void simulationChanged(SimulationEvent e)
+                {
+                    // If the simulation starts, try to transfer keyboard
+                    // focus to the world canvas to allow control of Actors
+                    // via the keyboard
+                    if (e.getType() == SimulationEvent.STARTED) {
+                        canvas.requestFocusInWindow();
+                    }
+                }
+            });
+            
             int initialSpeed = properties.getInt("simulation.speed");
             sim.setSpeed(initialSpeed);
             Class<?> worldClass = Class.forName(worldClassName);
