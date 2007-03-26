@@ -30,7 +30,7 @@ import bluej.extensions.ProjectNotOpenException;
  * Action to export a project to a standalone program.
  * 
  * @author Poul Henriksen
- * @version $Id: ExportProjectAction.java 4898 2007-03-26 09:24:36Z mik $
+ * @version $Id: ExportProjectAction.java 4903 2007-03-26 10:11:59Z mik $
  */
 public class ExportProjectAction extends AbstractAction
 {
@@ -102,7 +102,7 @@ public class ExportProjectAction extends AbstractAction
         String htmlName = project.getName() + ".html";
         String scenarioName = project.getName();
 
-        String title = project.getName() + " Applet";
+        String title = project.getName();
         int width = WorldHandler.getInstance().getWorldCanvas().getWidth();
         int height = WorldHandler.getInstance().getWorldCanvas().getHeight() + 50;  
         
