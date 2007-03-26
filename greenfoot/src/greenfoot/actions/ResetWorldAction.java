@@ -11,10 +11,12 @@ import greenfoot.event.SimulationListener;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
+import bluej.utility.Debug;
 
 public class ResetWorldAction extends AbstractAction implements SimulationListener
 {
 
+    private Simulation simulation;
     private static ResetWorldAction instance = new ResetWorldAction();
 
     private static final String iconFile = "reset.png";
@@ -37,11 +39,16 @@ public class ResetWorldAction extends AbstractAction implements SimulationListen
      */
     public void attachSimulation(Simulation simulation)
     {
+        this.simulation = simulation;
         simulation.addSimulationListener(this);
     }
     
     public void actionPerformed(ActionEvent e)
     {
+        if(simulation == null)
+            Debug.reportError("attempt to reset a simulation while none exists.");
+        else
+            simulation.setPaused(true);
         WorldHandler.getInstance().instantiateNewWorld();
     }
 
