@@ -28,7 +28,7 @@ import javax.swing.event.EventListenerList;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 4875 2007-03-23 18:01:44Z polle $
+ * @version $Id: ControlPanel.java 4900 2007-03-26 09:52:16Z mik $
  */
 public class ControlPanel extends Box
     implements ChangeListener, SimulationListener
@@ -74,8 +74,8 @@ public class ControlPanel extends Box
         if (includeAllControls) {
             runOnceSimulationAction = RunOnceSimulationAction.getInstance();
             runOnceSimulationAction.attachSimulation(simulation);
-            runOnceSimulationAction.putValue(Action.LONG_DESCRIPTION, "Makes one run of the simulation loop.");
-            runOnceSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Makes one run of the simulation loop.");
+            runOnceSimulationAction.putValue(Action.LONG_DESCRIPTION, "Call 'act' once for every actor.");
+            runOnceSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Call 'act' once for every actor.");
             runOnceSimulationAction.setEnabled(false);
             AbstractButton stepButton = new JButton(runOnceSimulationAction);
 
@@ -84,16 +84,20 @@ public class ControlPanel extends Box
 
         runSimulationAction = RunSimulationAction.getInstance();
         runSimulationAction.attachSimulation(simulation);
-        runSimulationAction.putValue(Action.LONG_DESCRIPTION, "Runs the simulation until stopped.");
-        runSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Runs the simulation.");
+        runSimulationAction.putValue(Action.LONG_DESCRIPTION, "Run the simulation until stopped.");
+        runSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Run the simulation.");
         runSimulationAction.setEnabled(false);
+        JButton runButton = new JButton(runSimulationAction);
+        runButton.setFocusable(false);
 
         pauseSimulationAction = PauseSimulationAction.getInstance();
         pauseSimulationAction.attachSimulation(simulation);
         pauseSimulationAction.putValue(Action.LONG_DESCRIPTION,
-                "Pauses the simulation, leaving it in the current state.");
-        pauseSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Pauses the simulation.");
+                "Pause the simulation, leaving it in the current state.");
+        pauseSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Pause the simulation.");
         pauseSimulationAction.setEnabled(false);
+        JButton pauseButton = new JButton(pauseSimulationAction);
+        pauseButton.setFocusable(false);
         
         runpauseLayout = new CardLayout();
         runpauseContainer = new JPanel(runpauseLayout) {
@@ -102,17 +106,18 @@ public class ControlPanel extends Box
                 return true;
             }
         };
-        runpauseContainer.add(new JButton(runSimulationAction), "run");
-        runpauseContainer.add(new JButton(pauseSimulationAction), "pause");
+        runpauseContainer.add(runButton, "run");
+        runpauseContainer.add(pauseButton, "pause");
         buttonPanel.add(runpauseContainer);
         
         
         resetWorldAction = ResetWorldAction.getInstance();
-        resetWorldAction.putValue(Action.LONG_DESCRIPTION, "Instantiates a new world.");
-        resetWorldAction.putValue(Action.SHORT_DESCRIPTION, "Instantiates a new world.");
+        resetWorldAction.putValue(Action.LONG_DESCRIPTION, "Instantiate a new world.");
+        resetWorldAction.putValue(Action.SHORT_DESCRIPTION, "Instantiate a new world.");
         resetWorldAction.attachSimulation(simulation);
         resetWorldAction.setEnabled(false);
         AbstractButton resetButton = new JButton(resetWorldAction);
+        resetButton.setFocusable(false);
         buttonPanel.add(resetButton);
         
         return buttonPanel;
