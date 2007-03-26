@@ -14,7 +14,7 @@ import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen
- * @version $Id: RunSimulationAction.java 4165 2006-05-09 14:28:54Z davmac $
+ * @version $Id: RunSimulationAction.java 4899 2007-03-26 09:51:48Z mik $
  */
 public class RunSimulationAction extends AbstractAction
     implements SimulationListener
@@ -50,7 +50,7 @@ public class RunSimulationAction extends AbstractAction
     public void actionPerformed(ActionEvent e)
     {
         if(simulation == null) {
-            Debug.reportError("attempt to pause a simulation while none exists.");
+            Debug.reportError("attempt to run a simulation while none exists.");
             return;
         }
         //	We don't want to block!
