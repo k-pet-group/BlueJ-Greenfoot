@@ -30,7 +30,7 @@ import bluej.extensions.ProjectNotOpenException;
  * Action to export a project to a standalone program.
  * 
  * @author Poul Henriksen
- * @version $Id: ExportProjectAction.java 4880 2007-03-24 13:05:55Z polle $
+ * @version $Id: ExportProjectAction.java 4898 2007-03-26 09:24:36Z mik $
  */
 public class ExportProjectAction extends AbstractAction
 {
@@ -48,7 +48,7 @@ public class ExportProjectAction extends AbstractAction
 
     private ExportProjectAction()
     {
-        super("Export");
+        super("Export...");
         setEnabled(false);
     }
 
