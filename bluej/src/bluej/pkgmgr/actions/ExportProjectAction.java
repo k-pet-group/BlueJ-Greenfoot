@@ -7,25 +7,11 @@ import bluej.pkgmgr.PkgMgrFrame;
  * directory structure or Jar file.
  * 
  * @author Davin McCall
- * @version $Id: ExportProjectAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: ExportProjectAction.java 4905 2007-03-29 06:06:30Z davmac $
  */
-final public class ExportProjectAction extends PkgMgrAction {
-    
-    static private ExportProjectAction instance = null;
-    
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public ExportProjectAction getInstance()
-    {
-        if(instance == null)
-            instance = new ExportProjectAction();
-        return instance;
-    }
-        
-    private ExportProjectAction()
+final public class ExportProjectAction extends PkgMgrAction
+{
+    public ExportProjectAction()
     {
         super("menu.package.export");
     }

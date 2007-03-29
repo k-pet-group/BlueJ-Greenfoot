@@ -9,27 +9,12 @@ import bluej.pkgmgr.PkgMgrFrame;
  * which can be tied to a check-box.
  * 
  * @author Davin McCall
- * @version $Id: ShowTerminalAction.java 2571 2004-06-03 13:35:37Z fisker $
+ * @version $Id: ShowTerminalAction.java 4905 2007-03-29 06:06:30Z davmac $
  */
 
 final public class ShowTerminalAction extends PkgMgrAction
 {
-    
-    static private ShowTerminalAction instance = null;
-    
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public ShowTerminalAction getInstance()
-    {
-        if(instance == null)
-            instance = new ShowTerminalAction();
-        return instance;
-    }
-    
-    private ShowTerminalAction()
+    public ShowTerminalAction()
     {
         super("menu.view.showTerminal");
     }

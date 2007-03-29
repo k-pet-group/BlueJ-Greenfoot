@@ -58,7 +58,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 4806 2007-01-22 14:41:29Z polle $
+ * @version $Id: PkgMgrFrame.java 4905 2007-03-29 06:06:30Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -127,6 +127,32 @@ public class PkgMgrFrame extends JFrame
     private List actionsToDisable;
     private List testItems;
     private MachineIcon machineIcon;
+    
+    /* UI actions */
+    private Action closeProjectAction = new CloseProjectAction();
+    private Action saveProjectAction = new SaveProjectAction();
+    private Action saveProjectAsAction = new SaveProjectAsAction();
+    private Action importProjectAction = new ImportProjectAction();
+    private Action exportProjectAction = new ExportProjectAction();
+    private Action pageSetupAction = new PageSetupAction();
+    private Action printAction = new PrintAction();
+    private Action newClassAction = new NewClassAction();
+    private Action newPackageAction = new NewPackageAction();
+    private Action addClassAction = new AddClassAction();
+    private Action removeAction = new RemoveAction();
+    private Action newUsesAction = new NewUsesAction();
+    private Action newInheritsAction = new NewInheritsAction();
+    private Action compileAction = new CompileAction();
+    private Action compileSelectedAction = new CompileSelectedAction();
+    private Action rebuildAction = new RebuildAction();
+    private Action useLibraryAction = new UseLibraryAction();
+    private Action generateDocsAction = new GenerateDocsAction();
+    private PkgMgrAction showUsesAction = new ShowUsesAction();
+    private PkgMgrAction showInheritsAction = new ShowInheritsAction();
+    private PkgMgrAction showDebuggerAction = new ShowDebuggerAction();
+    private PkgMgrAction showTerminalAction = new ShowTerminalAction();
+    private PkgMgrAction showTextEvalAction = new ShowTextEvalAction();
+    private Action runTestsAction = new RunTestsAction();
 
     /* The scroller which holds the PackageEditor we use to edit packages */
     private JScrollPane classScroller = null;
@@ -523,7 +549,7 @@ public class PkgMgrFrame extends JFrame
         this.pkg = pkg;
 
         if(! Config.isGreenfoot()) {
-            this.editor = new PackageEditor(pkg);
+            this.editor = new PackageEditor(pkg, this);
             editor.setFocusable(true);
             editor.addMouseListener(this); // This mouse listener MUST be before
             editor.addFocusListener(this); //  the editor's listener itself!
@@ -531,7 +557,6 @@ public class PkgMgrFrame extends JFrame
             pkg.setEditor(this.editor);
             
             classScroller.setViewportView(editor);
-            editor.addPackageEditorListener(this);
             
             // fetch some properties from the package that interest us
             Properties p = pkg.getLastSavedProperties();
@@ -617,13 +642,12 @@ public class PkgMgrFrame extends JFrame
     {
         if (isEmptyFrame())
             return;
-
+        
         extMgr.packageClosing(pkg);
 
         if(! Config.isGreenfoot()) {
             classScroller.setViewportView(null);
             classScroller.setBorder(Config.normalBorder);
-            editor.removePackageEditorListener(this);
             editor.removeMouseListener(this);
             editor.removeFocusListener(this);
             this.menuManager.setAttachedObject(pkg);
@@ -1271,6 +1295,7 @@ public class PkgMgrFrame extends JFrame
 
         if (frameCount() == 1) {
             if (keepLastFrame && !Config.isGreenfoot()) { // close package, leave frame, but not for greenfoot
+                testRecordingEnded(); // disable test controls
                 closePackage();
                 
                 updateWindowTitle();
@@ -2048,7 +2073,10 @@ public class PkgMgrFrame extends JFrame
         cancelTestButton.setEnabled(false);
         cancelTestMenuItem.setEnabled(false);
 
-        getProject().setTestMode(false);
+        Project proj = getProject();
+        if (proj != null) {
+            proj.setTestMode(false);
+        }
     }
 
     /**
@@ -2389,23 +2417,19 @@ public class PkgMgrFrame extends JFrame
                 buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
                 buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
 
-                action = NewClassAction.getInstance();
-                AbstractButton button = createButton(action, false, false, 4, 4);
+                AbstractButton button = createButton(newClassAction, false, false, 4, 4);
                 buttonPanel.add(button);
                 buttonPanel.add(Box.createVerticalStrut(3));
 
-                action = NewUsesAction.getInstance();
-                imgDependsButton = createButton(action, true, false, 4, 4);
+                imgDependsButton = createButton(newUsesAction, true, false, 4, 4);
                 buttonPanel.add(imgDependsButton);
                 buttonPanel.add(Box.createVerticalStrut(3));
 
-                action = NewInheritsAction.getInstance();
-                imgExtendsButton = createButton(action, true, false, 4, 4);
+                imgExtendsButton = createButton(newInheritsAction, true, false, 4, 4);
                 buttonPanel.add(imgExtendsButton);
                 buttonPanel.add(Box.createVerticalStrut(3));
 
-                action = CompileAction.getInstance();
-                button = createButton(action, false, false, 4, 4);
+                button = createButton(compileAction, false, false, 4, 4);
                 buttonPanel.add(button);
                 buttonPanel.add(Box.createVerticalStrut(3));
 
@@ -2418,8 +2442,7 @@ public class PkgMgrFrame extends JFrame
 
                 testPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 14, 5));
 
-                action = RunTestsAction.getInstance();
-                runButton = createButton(action, false, false, 2, 4);
+                runButton = createButton(runTestsAction, false, false, 2, 4);
                 runButton.setText(Config.getString("pkgmgr.test.run"));
                 runButton.setAlignmentX(0.15f);
                 testPanel.add(runButton);
@@ -2560,8 +2583,9 @@ public class PkgMgrFrame extends JFrame
         });
 
         // grey out certain functions if package not open.
-        if (isEmptyFrame())
+        if (isEmptyFrame()) {
             enableFunctions(false);
+        }
     }
 
     /**
@@ -2625,7 +2649,7 @@ public class PkgMgrFrame extends JFrame
         }
         button.setFont(PkgMgrFont);
         button.putClientProperty("JButton.buttonType", "toolbar"); // "icon"
-        button.setFocusable(false); //bottons shouldn't get focus
+        button.setFocusable(false); // buttons shouldn't get focus
 
         if (notext)
             button.setText(null);
@@ -2656,17 +2680,17 @@ public class PkgMgrFrame extends JFrame
             recentProjectsMenu = new JMenu(Config.getString("menu.package.openRecent"));
             menu.add(recentProjectsMenu);
             createMenuItem(OpenNonBlueJAction.getInstance(), menu);
-            createMenuItem(CloseProjectAction.getInstance(), menu);
-            createMenuItem(SaveProjectAction.getInstance(), menu);
-            createMenuItem(SaveProjectAsAction.getInstance(), menu);
+            createMenuItem(closeProjectAction, menu);
+            createMenuItem(saveProjectAction, menu);
+            createMenuItem(saveProjectAsAction, menu);
             menu.addSeparator();
 
-            createMenuItem(ImportProjectAction.getInstance(), menu);
-            createMenuItem(ExportProjectAction.getInstance(), menu);
+            createMenuItem(importProjectAction, menu);
+            createMenuItem(exportProjectAction, menu);
             menu.addSeparator();
 
-            createMenuItem(PageSetupAction.getInstance(), menu);
-            createMenuItem(PrintAction.getInstance(), menu);
+            createMenuItem(pageSetupAction, menu);
+            createMenuItem(printAction, menu);
 
             if (!Config.usingMacScreenMenubar()) { // no "Quit" here for Mac
                 menu.addSeparator();
@@ -2678,32 +2702,32 @@ public class PkgMgrFrame extends JFrame
         menu.setMnemonic(Config.getMnemonicKey("menu.edit"));
         menubar.add(menu);
         {
-            createMenuItem(NewClassAction.getInstance(), menu);
-            createMenuItem(NewPackageAction.getInstance(), menu);
-            createMenuItem(AddClassAction.getInstance(), menu);
-            createMenuItem(RemoveAction.getInstance(), menu);
+            createMenuItem(newClassAction, menu);
+            createMenuItem(newPackageAction, menu);
+            createMenuItem(addClassAction, menu);
+            createMenuItem(removeAction, menu);
             menu.addSeparator();
 
-            createMenuItem(NewUsesAction.getInstance(), menu);
-            createMenuItem(NewInheritsAction.getInstance(), menu);
+            createMenuItem(newUsesAction, menu);
+            createMenuItem(newInheritsAction, menu);
         }
 
         menu = new JMenu(Config.getString("menu.tools"));
         menu.setMnemonic(Config.getMnemonicKey("menu.tools"));
         menubar.add(menu);
         {
-            createMenuItem(CompileAction.getInstance(), menu);
-            createMenuItem(CompileSelectedAction.getInstance(), menu);
-            createMenuItem(RebuildAction.getInstance(), menu);
+            createMenuItem(compileAction, menu);
+            createMenuItem(compileSelectedAction, menu);
+            createMenuItem(rebuildAction, menu);
             menu.addSeparator();
 
-            createMenuItem(UseLibraryAction.getInstance(), menu);
-            createMenuItem(GenerateDocsAction.getInstance(), menu);
+            createMenuItem(useLibraryAction, menu);
+            createMenuItem(generateDocsAction, menu);
 
             testingMenu = new JMenu(Config.getString("menu.tools.testing"));
             testingMenu.setMnemonic(Config.getMnemonicKey("menu.tools"));
             {
-                createMenuItem(RunTestsAction.getInstance(), testingMenu);
+                createMenuItem(runTestsAction, testingMenu);
                 endTestMenuItem = createMenuItem(EndTestRecordAction.getInstance(), testingMenu);
                 cancelTestMenuItem = createMenuItem(CancelTestRecordAction.getInstance(), testingMenu);
                 endTestMenuItem.setEnabled(false);
@@ -2749,13 +2773,13 @@ public class PkgMgrFrame extends JFrame
         menu.setMnemonic(Config.getMnemonicKey("menu.view"));
         menubar.add(menu);
         {
-            showUsesMenuItem = createCheckboxMenuItem(ShowUsesAction.getInstance(), menu, true);
-            showExtendsMenuItem = createCheckboxMenuItem(ShowInheritsAction.getInstance(), menu, true);
+            showUsesMenuItem = createCheckboxMenuItem(showUsesAction, menu, true);
+            showExtendsMenuItem = createCheckboxMenuItem(showInheritsAction, menu, true);
             menu.addSeparator();
 
-            createCheckboxMenuItem(ShowDebuggerAction.getInstance(), menu, false);
-            createCheckboxMenuItem(ShowTerminalAction.getInstance(), menu, false);
-            createCheckboxMenuItem(ShowTextEvalAction.getInstance(), menu, false);
+            createCheckboxMenuItem(showDebuggerAction, menu, false);
+            createCheckboxMenuItem(showTerminalAction, menu, false);
+            createCheckboxMenuItem(showTextEvalAction, menu, false);
             JSeparator testSeparator = new JSeparator();
             testItems.add(testSeparator);
             menu.add(testSeparator);
@@ -2846,30 +2870,30 @@ public class PkgMgrFrame extends JFrame
     private void setupActionDisableSet()
     {
         actionsToDisable = new ArrayList();
-        actionsToDisable.add(CloseProjectAction.getInstance());
-        actionsToDisable.add(SaveProjectAction.getInstance());
-        actionsToDisable.add(SaveProjectAsAction.getInstance());
-        actionsToDisable.add(ImportProjectAction.getInstance());
-        actionsToDisable.add(ExportProjectAction.getInstance());
-        actionsToDisable.add(PageSetupAction.getInstance());
-        actionsToDisable.add(PrintAction.getInstance());
-        actionsToDisable.add(NewClassAction.getInstance());
-        actionsToDisable.add(NewPackageAction.getInstance());
-        actionsToDisable.add(AddClassAction.getInstance());
-        actionsToDisable.add(RemoveAction.getInstance());
-        actionsToDisable.add(NewUsesAction.getInstance());
-        actionsToDisable.add(NewInheritsAction.getInstance());
-        actionsToDisable.add(CompileAction.getInstance());
-        actionsToDisable.add(CompileSelectedAction.getInstance());
-        actionsToDisable.add(RebuildAction.getInstance());
-        actionsToDisable.add(UseLibraryAction.getInstance());
-        actionsToDisable.add(GenerateDocsAction.getInstance());
-        actionsToDisable.add(ShowUsesAction.getInstance());
-        actionsToDisable.add(ShowInheritsAction.getInstance());
-        actionsToDisable.add(ShowDebuggerAction.getInstance());
-        actionsToDisable.add(ShowTerminalAction.getInstance());
-        actionsToDisable.add(ShowTextEvalAction.getInstance());
-        actionsToDisable.add(RunTestsAction.getInstance());
+        actionsToDisable.add(closeProjectAction);
+        actionsToDisable.add(saveProjectAction);
+        actionsToDisable.add(saveProjectAsAction);
+        actionsToDisable.add(importProjectAction);
+        actionsToDisable.add(exportProjectAction);
+        actionsToDisable.add(pageSetupAction);
+        actionsToDisable.add(printAction);
+        actionsToDisable.add(newClassAction);
+        actionsToDisable.add(newPackageAction);
+        actionsToDisable.add(addClassAction);
+        actionsToDisable.add(removeAction);
+        actionsToDisable.add(newUsesAction);
+        actionsToDisable.add(newInheritsAction);
+        actionsToDisable.add(compileAction);
+        actionsToDisable.add(compileSelectedAction);
+        actionsToDisable.add(rebuildAction);
+        actionsToDisable.add(useLibraryAction);
+        actionsToDisable.add(generateDocsAction);
+        actionsToDisable.add(showUsesAction);
+        actionsToDisable.add(showInheritsAction);
+        actionsToDisable.add(showDebuggerAction);
+        actionsToDisable.add(showTerminalAction);
+        actionsToDisable.add(showTextEvalAction);
+        actionsToDisable.add(runTestsAction);
     }
 
     /**
@@ -2919,6 +2943,10 @@ public class PkgMgrFrame extends JFrame
      */
     protected void enableFunctions(boolean enable)
     {
+        if (! enable) {
+            teamActions.setAllDisabled();
+        }
+        
         for (Iterator it = itemsToDisable.iterator(); it.hasNext();) {
             JComponent component = (JComponent) it.next();
             component.setEnabled(enable);

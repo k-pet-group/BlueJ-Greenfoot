@@ -7,25 +7,11 @@ import bluej.pkgmgr.PkgMgrFrame;
  * specified name.
  * 
  * @author Davin McCall
- * @version $Id: NewPackageAction.java 2873 2004-08-16 05:50:32Z davmac $
+ * @version $Id: NewPackageAction.java 4905 2007-03-29 06:06:30Z davmac $
  */
-final public class NewPackageAction extends PkgMgrAction {
-    
-    static private NewPackageAction instance = null;
-    
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public NewPackageAction getInstance()
-    {
-        if(instance == null)
-            instance = new NewPackageAction();
-        return instance;
-    }
-    
-    private NewPackageAction()
+final public class NewPackageAction extends PkgMgrAction
+{
+    public NewPackageAction()
     {
         super("menu.edit.newPackage");
     }

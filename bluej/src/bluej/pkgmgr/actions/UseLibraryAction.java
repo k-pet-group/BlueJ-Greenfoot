@@ -7,25 +7,11 @@ import bluej.pkgmgr.PkgMgrFrame;
  * from the standard library onto the object bench.
  * 
  * @author Davin McCall
- * @version $Id: UseLibraryAction.java 2571 2004-06-03 13:35:37Z fisker $
+ * @version $Id: UseLibraryAction.java 4905 2007-03-29 06:06:30Z davmac $
  */
-public class UseLibraryAction extends PkgMgrAction {
-    
-    static private UseLibraryAction instance = null;
-    
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public UseLibraryAction getInstance()
-    {
-        if(instance == null)
-            instance = new UseLibraryAction();
-        return instance;
-    }
-    
-    private UseLibraryAction()
+public class UseLibraryAction extends PkgMgrAction
+{
+    public UseLibraryAction()
     {
         super("menu.tools.callLibrary");
     }

@@ -6,25 +6,11 @@ import bluej.pkgmgr.PkgMgrFrame;
  * Action to toggle display of "extends" relationships in the graph window.
  * 
  * @author Davin McCall
- * @version $Id: ShowInheritsAction.java 2571 2004-06-03 13:35:37Z fisker $
+ * @version $Id: ShowInheritsAction.java 4905 2007-03-29 06:06:30Z davmac $
  */
-final public class ShowInheritsAction extends PkgMgrAction {
-    
-    static private ShowInheritsAction instance = null;
-    
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public ShowInheritsAction getInstance()
-    {
-        if(instance == null)
-            instance = new ShowInheritsAction();
-        return instance;
-    }
-    
-    private ShowInheritsAction()
+final public class ShowInheritsAction extends PkgMgrAction
+{
+    public ShowInheritsAction()
     {
         super("menu.view.showInherits");
     }

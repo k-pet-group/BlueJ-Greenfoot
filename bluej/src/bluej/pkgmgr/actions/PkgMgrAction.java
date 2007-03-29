@@ -17,7 +17,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * It can also set-up an accelerator key.
  * 
  * @author Davin McCall
- * @version $Id: PkgMgrAction.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: PkgMgrAction.java 4905 2007-03-29 06:06:30Z davmac $
  */
 public abstract class PkgMgrAction extends AbstractAction {
         
@@ -44,13 +44,16 @@ public abstract class PkgMgrAction extends AbstractAction {
              //System.out.println("hello " + jc.getClass().getName());
              //System.out.flush();
             
-            if( jc instanceof PkgMgrFrame )
+            if( jc instanceof PkgMgrFrame ) {
                 break;
+            }
             
-            if( jc instanceof JPopupMenu )
-                jc = (JComponent)((JPopupMenu)jc).getInvoker();
-            else
+            if( jc instanceof JPopupMenu ) {
+                jc = ((JPopupMenu)jc).getInvoker();
+            }
+            else {
                 jc = jc.getParent();
+            }
         }                
         return (PkgMgrFrame)jc;
     }

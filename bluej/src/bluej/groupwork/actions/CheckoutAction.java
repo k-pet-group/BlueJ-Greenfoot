@@ -11,6 +11,7 @@ import bluej.groupwork.BasicServerResponse;
 import bluej.groupwork.InvalidCvsRootException;
 import bluej.groupwork.Repository;
 import bluej.groupwork.TeamSettingsController;
+import bluej.groupwork.TeamUtils;
 import bluej.groupwork.ui.ModuleSelectDialog;
 import bluej.groupwork.ui.TeamSettingsDialog;
 import bluej.pkgmgr.Import;
@@ -28,7 +29,7 @@ import bluej.utility.SwingWorker;
  * project.
  * 
  * @author Kasper
- * @version $Id: CheckoutAction.java 4838 2007-02-07 01:01:21Z davmac $
+ * @version $Id: CheckoutAction.java 4905 2007-03-29 06:06:30Z davmac $
  */
 public class CheckoutAction extends TeamAction
 {
@@ -189,7 +190,7 @@ public class CheckoutAction extends TeamAction
                 newFrame.setEnabled(true);
             }
             else {
-                handleServerResponse(response);
+                TeamUtils.handleServerResponse(response, newFrame);
                 cleanup();
             }
         }

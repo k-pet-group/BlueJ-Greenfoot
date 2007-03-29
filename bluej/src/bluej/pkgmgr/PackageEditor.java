@@ -2,10 +2,17 @@ package bluej.pkgmgr;
 
 import java.awt.Component;
 
+import javax.swing.Action;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.graph.GraphEditor;
+import bluej.pkgmgr.actions.NewClassAction;
+import bluej.pkgmgr.actions.NewPackageAction;
 import bluej.pkgmgr.target.Target;
+import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.views.CallableView;
 
@@ -13,41 +20,24 @@ import bluej.views.CallableView;
  * Canvas to allow editing of packages
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditor.java 4345 2006-06-08 06:33:46Z davmac $
+ * @version $Id: PackageEditor.java 4905 2007-03-29 06:06:30Z davmac $
  */
 public final class PackageEditor extends GraphEditor
 {
-    public PackageEditor(Package pkg)
+    private PackageEditorListener listener;
+    
+    public PackageEditor(Package pkg, PackageEditorListener listener)
     {
         super(pkg);
-    }
-
-    /**
-     * This component will raise PackageEditorEvents when things
-     * happen with regards editing. The following functions handle
-     * this.
-     */
-
-    public void addPackageEditorListener(PackageEditorListener l) {
-        listenerList.add(PackageEditorListener.class, l);
-    }
-
-    public void removePackageEditorListener(PackageEditorListener l) {
-        listenerList.remove(PackageEditorListener.class, l);
+        this.listener = listener;
     }
 
     // notify all listeners that have registered interest for
     // notification on this event type.
     protected void fireTargetEvent(PackageEditorEvent e)
     {
-        // Guaranteed to return a non-null array
-        Object[] listeners = listenerList.getListenerList();
-        // Process the listeners last to first, notifying
-        // those that are interested in this event
-        for (int i = listeners.length-2; i>=0; i-=2) {
-            if (listeners[i] == PackageEditorListener.class) {
-                ((PackageEditorListener)listeners[i+1]).targetEvent(e);
-            }
+        if (listener != null) {
+            listener.targetEvent(e);
         }
     }
 
@@ -106,5 +96,28 @@ public final class PackageEditor extends GraphEditor
     {
         fireTargetEvent(
             new PackageEditorEvent(src, PackageEditorEvent.OBJECT_PUTONBENCH, obj, iType, ir));
+    }
+    
+    public void popupMenu(int x, int y)
+    {
+        JPopupMenu menu = createMenu();
+        menu.show(this, x, y);
+    }
+
+    private JPopupMenu createMenu()
+    {
+       JPopupMenu menu = new JPopupMenu();
+       Action newClassAction = new NewClassAction();
+       addMenuItem(menu, newClassAction);
+       Action newPackageAction = new NewPackageAction();
+       addMenuItem(menu, newPackageAction);
+       return menu;
+    }
+    
+    private void addMenuItem(JPopupMenu menu, Action action)
+    {
+        JMenuItem item = menu.add(action);
+        item.setFont(PrefMgr.getPopupMenuFont());
+        item.setForeground(envOpColour);
     }
 }

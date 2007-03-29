@@ -9,25 +9,11 @@ import bluej.pkgmgr.PkgMgrFrame;
  * applet, etc)
  * 
  * @author Davin McCall
- * @version $Id: NewClassAction.java 2571 2004-06-03 13:35:37Z fisker $
+ * @version $Id: NewClassAction.java 4905 2007-03-29 06:06:30Z davmac $
  */
-final public class NewClassAction extends PkgMgrAction {
-    
-    static private NewClassAction instance = null;
-    
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public NewClassAction getInstance()
-    {
-        if(instance == null)
-            instance = new NewClassAction();
-        return instance;
-    }
-    
-    private NewClassAction()
+final public class NewClassAction extends PkgMgrAction
+{
+    public NewClassAction()
     {
         super("menu.edit.newClass");
         putValue(SHORT_DESCRIPTION, Config.getString("tooltip.newClass"));

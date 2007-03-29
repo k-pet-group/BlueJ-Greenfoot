@@ -1,6 +1,3 @@
-/*
- * Created on 19/04/2004
- */
 package bluej.pkgmgr.actions;
 
 import bluej.Config;
@@ -11,25 +8,11 @@ import bluej.pkgmgr.PkgMgrFrame;
  * be compiled.
  * 
  * @author Davin McCall
- * @version $Id: CompileAction.java 2571 2004-06-03 13:35:37Z fisker $
+ * @version $Id: CompileAction.java 4905 2007-03-29 06:06:30Z davmac $
  */
-final public class CompileAction extends PkgMgrAction {
-    
-    static private CompileAction instance = null;
-    
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public CompileAction getInstance()
-    {
-        if(instance == null)
-            instance = new CompileAction();
-        return instance;
-    }
-    
-    private CompileAction()
+final public class CompileAction extends PkgMgrAction
+{
+    public CompileAction()
     {
         super("menu.tools.compile");
         putValue(SHORT_DESCRIPTION, Config.getString("tooltip.compile"));

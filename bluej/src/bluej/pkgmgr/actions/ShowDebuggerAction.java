@@ -9,26 +9,11 @@ import bluej.pkgmgr.PkgMgrFrame;
  * so that it can be tied to a check-box.
  * 
  * @author Davin McCall
- * @version $Id: ShowDebuggerAction.java 2571 2004-06-03 13:35:37Z fisker $
+ * @version $Id: ShowDebuggerAction.java 4905 2007-03-29 06:06:30Z davmac $
  */
 final public class ShowDebuggerAction extends PkgMgrAction
 {
-    
-    static private ShowDebuggerAction instance = null;
-
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public ShowDebuggerAction getInstance()
-    {
-        if(instance == null)
-            instance = new ShowDebuggerAction();
-        return instance;
-    }
-    
-    private ShowDebuggerAction()
+    public ShowDebuggerAction()
     {
         super("menu.view.showExecControls");
     }

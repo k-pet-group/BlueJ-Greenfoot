@@ -1,25 +1,20 @@
 package bluej.graph;
 
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 
-import javax.swing.Action;
 import javax.swing.JComponent;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
 
 import bluej.Config;
-import bluej.pkgmgr.actions.NewClassAction;
-import bluej.pkgmgr.actions.NewPackageAction;
 import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
-import bluej.prefmgr.PrefMgr;
 
 /**
  * Component to allow editing of general graphs.
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: GraphEditor.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: GraphEditor.java 4905 2007-03-29 06:06:30Z davmac $
  */
 public class GraphEditor extends JComponent
     implements MouseMotionListener, GraphListener
@@ -198,38 +193,11 @@ public class GraphEditor extends JComponent
         return graph;
     }
 
-    /**
-     * @param x
-     * @param y
-     */
     public void popupMenu(int x, int y)
     {
-        JPopupMenu menu = createMenu();
-        if (menu != null)
-            menu.show(this, x, y);
-        
+        // by default, do nothing
     }
 
-    /**
-     * @return
-     */
-    private JPopupMenu createMenu()
-    {
-       JPopupMenu menu = new JPopupMenu();
-       Action newClassAction = NewClassAction.getInstance();
-       addMenuItem(menu, newClassAction);
-       Action newPackageAction = NewPackageAction.getInstance();
-       addMenuItem(menu, newPackageAction);
-       return menu;
-    }
-    
-    private void addMenuItem(JPopupMenu menu, Action action)
-    {
-        JMenuItem item = menu.add(action);
-        item.setFont(PrefMgr.getPopupMenuFont());
-        item.setForeground(envOpColour);
-    }
-    
     private boolean hasFocus;
     
     public boolean hasFocus(){

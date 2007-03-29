@@ -8,25 +8,11 @@ import bluej.pkgmgr.PkgMgrFrame;
  * relation, modify the source to reflect the change.
  * 
  * @author Davin McCall.
- * @version $Id: RemoveAction.java 2571 2004-06-03 13:35:37Z fisker $
+ * @version $Id: RemoveAction.java 4905 2007-03-29 06:06:30Z davmac $
  */
-final public class RemoveAction extends PkgMgrAction {
-    
-    static private RemoveAction instance = null;
-    
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public RemoveAction getInstance()
-    {
-        if(instance == null)
-            instance = new RemoveAction();
-        return instance;
-    }
-    
-    private RemoveAction()
+final public class RemoveAction extends PkgMgrAction
+{
+    public RemoveAction()
     {
         super("menu.edit.remove");
     }

@@ -7,25 +7,11 @@ import bluej.pkgmgr.PkgMgrFrame;
  * different name, to make a backup etc.
  * 
  * @author Davin McCall
- * @version $Id: SaveProjectAsAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: SaveProjectAsAction.java 4905 2007-03-29 06:06:30Z davmac $
  */
-final public class SaveProjectAsAction extends PkgMgrAction {
-    
-    static private SaveProjectAsAction instance = null;
-    
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public SaveProjectAsAction getInstance()
-    {
-        if(instance == null)
-            instance = new SaveProjectAsAction();
-        return instance;
-    }
-    
-    private SaveProjectAsAction()
+final public class SaveProjectAsAction extends PkgMgrAction
+{
+    public SaveProjectAsAction()
     {
         super("menu.package.saveAs");
     }

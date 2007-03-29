@@ -1,6 +1,3 @@
-/*
- * Created on 19/04/2004
- */
 package bluej.pkgmgr.actions;
 
 import bluej.pkgmgr.PkgMgrFrame;
@@ -11,25 +8,11 @@ import bluej.pkgmgr.PkgMgrFrame;
  * the window regardless.
  * 
  * @author Davin McCall
- * @version $Id: CloseProjectAction.java 2571 2004-06-03 13:35:37Z fisker $
+ * @version $Id: CloseProjectAction.java 4905 2007-03-29 06:06:30Z davmac $
  */
-final public class CloseProjectAction extends PkgMgrAction {
-
-    static private CloseProjectAction instance = null;
-    
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public CloseProjectAction getInstance()
-    {
-        if(instance == null)
-            instance = new CloseProjectAction();
-        return instance;
-    }
-    
-    private CloseProjectAction()
+final public class CloseProjectAction extends PkgMgrAction
+{
+    public CloseProjectAction()
     {
         super("menu.package.close");
     }

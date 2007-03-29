@@ -8,25 +8,11 @@ import bluej.pkgmgr.PkgMgrFrame;
  * been created in this project. Displays the results.
  * 
  * @author Davin McCall
- * @version $Id: RunTestsAction.java 2594 2004-06-11 18:36:53Z fisker $
+ * @version $Id: RunTestsAction.java 4905 2007-03-29 06:06:30Z davmac $
  */
 final public class RunTestsAction extends PkgMgrAction
 {
-    static private RunTestsAction instance = null;
-    
-    /**
-     * Factory method. This is the way to retrieve an instance of the class,
-     * as the constructor is private.
-     * @return an instance of the class.
-     */
-    static public RunTestsAction getInstance()
-    {
-        if(instance == null)
-            instance = new RunTestsAction();
-        return instance;
-    }
-    
-    private RunTestsAction()
+    public RunTestsAction()
     {
         super("menu.tools.run");
         putValue(SHORT_DESCRIPTION, Config.getString("tooltip.test"));
