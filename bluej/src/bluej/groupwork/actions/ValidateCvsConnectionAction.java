@@ -6,7 +6,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 
-import bluej.groupwork.Repository;
+import bluej.groupwork.cvs.CvsRepository;
 import bluej.groupwork.ui.TeamSettingsPanel;
 import bluej.utility.Debug;
 
@@ -51,7 +51,7 @@ public class ValidateCvsConnectionAction extends AbstractAction
     {
         String cvsRoot = makeCvsRoot();
         try {
-            String result = (Repository.validateConnection(cvsRoot) ? "Connection is ok" : "Could not connect to server");
+            String result = (CvsRepository.validateConnection(cvsRoot) ? "Connection is ok" : "Could not connect to server");
             JOptionPane.showMessageDialog(teamSettingsPanel,result);
         } catch (Exception ee) {
             // experimental BQ

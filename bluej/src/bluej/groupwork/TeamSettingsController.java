@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import bluej.Config;
+import bluej.groupwork.cvs.CvsRepository;
 import bluej.groupwork.ui.TeamSettingsDialog;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
@@ -16,7 +17,7 @@ import bluej.utility.filefilter.DirectoryFilter;
  * the top-level folder of a team project, and the bluej.properties
  *
  * @author fisker
- * @version $Id: TeamSettingsController.java 4836 2007-02-05 00:52:34Z davmac $
+ * @version $Id: TeamSettingsController.java 4906 2007-04-03 03:09:48Z davmac $
  */
 public class TeamSettingsController
 {
@@ -40,7 +41,7 @@ public class TeamSettingsController
     private File teamdefs;
     
     // repository
-    private Repository repository;
+    private CvsRepository repository;
 
     /**
      * Construct a team settings controller for the given project.
@@ -88,7 +89,7 @@ public class TeamSettingsController
         if (repository == null) {
             String cvsroot = getCvsRoot();
             if (cvsroot != null) {
-                repository = new Repository(projectDir, cvsroot, getAdminHandler());
+                repository = new CvsRepository(projectDir, cvsroot, getAdminHandler());
             }
         }
         
