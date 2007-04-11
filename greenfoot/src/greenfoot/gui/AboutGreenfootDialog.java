@@ -27,7 +27,7 @@ import bluej.utility.MultiLineLabel;
  * The BlueJ about box.
  * 
  * @author Poul Henriksen
- * @version $Id: AboutGreenfootDialog.java 4909 2007-04-11 09:05:04Z mik $
+ * @version $Id: AboutGreenfootDialog.java 4914 2007-04-11 15:00:00Z mik $
  */
 public class AboutGreenfootDialog extends JDialog
 {
@@ -52,10 +52,10 @@ public class AboutGreenfootDialog extends JDialog
         // Create Text Panel
         MultiLineLabel text = new MultiLineLabel(LEFT_ALIGNMENT, 6);
         text.setBackground(Color.white);
-        text.addText("The greenfoot team:" + "\n ", false, true);
-        text.addText("      Poul Henriksen,\n");
-        text.addText("      Michael K\u00F6lling,\n");
-        text.addText("      Davin McCall,\n");
+        text.addText("The Greenfoot team:" + "\n ", false, true);
+        text.addText("      Poul Henriksen\n");
+        text.addText("      Michael K\u00F6lling\n");
+        text.addText("      Davin McCall\n");
         text.addText("      Bruce Quig\n");
 
         aboutPanel.add(text, BorderLayout.CENTER);
@@ -64,7 +64,7 @@ public class AboutGreenfootDialog extends JDialog
         MultiLineLabel bottomtext = new MultiLineLabel(LEFT_ALIGNMENT);
         bottomtext.setBackground(Color.white);
         bottomtext.addText(" ");
-        bottomtext.addText("Greenfoot version " + " " + version + "  (" + Config.getString("about.java.version") + " "
+        bottomtext.addText("Greenfoot version " + version + "  (" + Config.getString("about.java.version") + " "
                 + System.getProperty("java.version") + ")", true, false);
         bottomtext.addText(" ");
         bottomtext.addText(Config.getString("about.vm") + " " + System.getProperty("java.vm.name") + " "
