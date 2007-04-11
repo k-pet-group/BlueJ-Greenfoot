@@ -27,14 +27,15 @@ import bluej.utility.MultiLineLabel;
  * The BlueJ about box.
  * 
  * @author Poul Henriksen
- * @version $Id: AboutGreenfootDialog.java 4184 2006-05-10 13:30:06Z polle $
+ * @version $Id: AboutGreenfootDialog.java 4909 2007-04-11 09:05:04Z mik $
  */
 public class AboutGreenfootDialog extends JDialog
 {
+    private static final String dialogTitle ="About Greenfoot";
 
     public AboutGreenfootDialog(JFrame parent, String version)
     {
-        super(parent, Config.getString("menu.help.about"), true);
+        super(parent, dialogTitle, true);
 
         // Create About box text
         JPanel aboutPanel = new JPanel();
