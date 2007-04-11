@@ -35,7 +35,7 @@ import bluej.utility.EscapeDialog;
 public class ExportDialog extends EscapeDialog
 {
     // Internationalisation
-    private static final String dialogTitle ="Export";
+    private static final String dialogTitle ="Greenfoot: Export";
     private static final String helpLine1 = "Create a stand alone version of this scenario that can be run outside of Greenfoot.";
     private static final String worldSelectLabelText = "World Class: ";
 
