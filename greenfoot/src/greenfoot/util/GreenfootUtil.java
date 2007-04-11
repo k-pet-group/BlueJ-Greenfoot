@@ -32,7 +32,7 @@ import javax.swing.JPanel;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 4878 2007-03-24 12:16:47Z polle $
+ * @version $Id: GreenfootUtil.java 4907 2007-04-11 08:45:00Z mik $
  */
 public class GreenfootUtil
 {
@@ -423,7 +423,7 @@ public class GreenfootUtil
         URL url = null;
         
         if(dir != null) {
-            // First, try the project's images dir
+            // First, try the specified dir
             url = currentLoader.getResource(dir + "/" + filename);
         }
         

@@ -33,7 +33,7 @@ public abstract class Sound
      * @throws LineUnavailableException
      */
     public abstract void play();
-    
+
     /**
      * Converts format to a compatible format.
      * <p>
@@ -42,14 +42,15 @@ public abstract class Sound
      * @param format Original format
      * @return New compatible format.
      */
-	protected AudioFormat getCompatibleFormat(AudioFormat format) {
-          /*		AudioFormat tmp = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-				format.getSampleRate(), format.getSampleSizeInBits() * 2,
-				format.getChannels(), format.getFrameSize() * 2, format
-						.getFrameRate(), true);*/
-          //    AudioFormat supportedFormat = new AudioFormat(format.getSampleRate(), format.getSampleSizeInBits(), format.getChannels(), true, false);
 
-		return new AudioFormat(format.getSampleRate(), format.getSampleSizeInBits(), format.getChannels(), true, false);
-	}
+    protected AudioFormat getCompatibleFormat(AudioFormat format) {
+      /*		AudioFormat tmp = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
+                                format.getSampleRate(), format.getSampleSizeInBits() * 2,
+                                format.getChannels(), format.getFrameSize() * 2, format
+                                                .getFrameRate(), true);*/
+        //    AudioFormat supportedFormat = new AudioFormat(format.getSampleRate(), format.getSampleSizeInBits(), format.getChannels(), true, false);
+        
+        return new AudioFormat(format.getSampleRate(), format.getSampleSizeInBits(), format.getChannels(), true, false);
+    }
     
 }

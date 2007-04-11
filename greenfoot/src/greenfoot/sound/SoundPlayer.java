@@ -30,18 +30,22 @@ public class SoundPlayer implements SimulationListener
      * Holds a list of all sounds currently playing. We use this list to stop
      * the sounds.
      */
-    private List sounds = new ArrayList();
+    private List<Sound> playingSounds = new ArrayList<Sound>();
 
     /** singleton */
     private static SoundPlayer instance;
-
+    
+    private SoundCache soundCache;
+    
     /**
      * Only use clips when the size of the clip is below this value.
      */
-    private static int maxClipSize = 500 * 1000;
+    private static final int maxClipSize = 500 * 1000;
 
     private SoundPlayer()
-    {}
+    {
+        soundCache = new SoundCache();
+    }
 
     public synchronized static SoundPlayer getInstance()
     {
@@ -58,11 +62,10 @@ public class SoundPlayer implements SimulationListener
      */
     public synchronized void stop()
     {
-        for (Iterator iter = sounds.iterator(); iter.hasNext();) {
-            Sound element = (Sound) iter.next();
-            element.stop();
+        for (Sound sound : playingSounds) {
+            sound.stop();
         }
-        sounds.clear();
+        playingSounds.clear();
     }
 
     /**
@@ -71,9 +74,8 @@ public class SoundPlayer implements SimulationListener
      */
     public synchronized void pause()
     {
-        for (Iterator iter = sounds.iterator(); iter.hasNext();) {
-            Sound element = (Sound) iter.next();
-            element.pause();
+        for (Sound sound : playingSounds) {
+            sound.pause();
         }
     }
 
@@ -83,9 +85,8 @@ public class SoundPlayer implements SimulationListener
      */
     public synchronized void resume()
     {
-        for (Iterator iter = sounds.iterator(); iter.hasNext();) {
-            Sound element = (Sound) iter.next();
-            element.resume();
+        for (Sound sound : playingSounds) {
+            sound.resume();
         }
     }
 
@@ -100,30 +101,36 @@ public class SoundPlayer implements SimulationListener
     public void play(final String file)
         throws IOException, UnsupportedAudioFileException, LineUnavailableException
     {
-
-        // First, determine the size of the sound, if possible
-        URL url = GreenfootUtil.getURL(file, "sounds");
-        int size = url.openConnection().getContentLength();
-
-        if (size == -1 || size > maxClipSize) {
-            // If we can not get the size, or if it is a big file we stream it
-            // in a thread.
-            final Sound sound = new SoundStream(url, SoundPlayer.this);
-            sounds.add(sound);
-            Thread t = new Thread() {
-                public void run()
-                {
-                    sound.play();
-                }
-            };
-            t.start();
-        }
-        else {
-            // The sound is small enough to be loaded into memory as a clip.
-            Sound sound = new SoundClip(url, SoundPlayer.this);
-            sounds.add(sound);
+        SoundClip sound = soundCache.get(file);
+        if(sound != null) {
+            playingSounds.add(sound);
             sound.play();
+        }
+        else {  // not in cache
+            // First, determine the size of the sound, if possible
+            URL url = GreenfootUtil.getURL(file, "sounds");
+            int size = url.openConnection().getContentLength();
 
+            if (size == -1 || size > maxClipSize) {
+                // If we can not get the size, or if it is a big file we stream it
+                // in a thread.
+                final Sound soundStream = new SoundStream(url, SoundPlayer.this);
+                playingSounds.add(soundStream);
+                Thread t = new Thread() {
+                    public void run()
+                    {
+                        soundStream.play();
+                    }
+                };
+                t.start();
+            }
+            else {
+                // The sound is small enough to be loaded into memory as a clip.
+                sound = new SoundClip(file, url, SoundPlayer.this);
+                soundCache.put(sound);
+                playingSounds.add(sound);
+                sound.play();
+            }
         }
     }
 
@@ -132,7 +139,7 @@ public class SoundPlayer implements SimulationListener
      */
     synchronized void soundFinished(Sound s)
     {
-        sounds.remove(s);
+        playingSounds.remove(s);
     }
 
     /**

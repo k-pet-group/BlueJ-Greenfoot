@@ -24,18 +24,18 @@ public class SoundClip extends Sound
     implements LineListener
 {
     private Clip soundClip;
-
     private SoundPlayer player;
-
+    private String name;
     private URL url;
+    private boolean isPlaying;
 
-    private boolean hasPlayed;
-
-    public SoundClip(URL url, SoundPlayer player)
+    public SoundClip(String name, URL url, SoundPlayer player)
         throws LineUnavailableException, IOException, UnsupportedAudioFileException
     {
+        this.name = name;
         this.player = player;
         this.url = url;
+        isPlaying = false;
         open();
     }
 
@@ -73,10 +73,11 @@ public class SoundClip extends Sound
     {
         soundClip.stop();
         soundClip.setMicrosecondPosition(0);
+        isPlaying = false;
     }
 
     /**
-     * Pause the song. Paused sounds can be resumed.
+     * Pause the clip. Paused sounds can be resumed.
      * 
      */
     public void pause()
@@ -85,7 +86,7 @@ public class SoundClip extends Sound
     }
 
     /**
-     * Resume a paused sound.
+     * Resume a paused clip.
      * 
      */
     public void resume()
@@ -98,17 +99,39 @@ public class SoundClip extends Sound
      */
     public void play()
     {
-        if(hasPlayed) {
-            throw new IllegalStateException("This sound has already been played.");
-        }
-        hasPlayed = true;
+//        if(hasPlayed) {
+//            throw new IllegalStateException("This sound has already been played.");
+//        }
+//   polle: WHY was this here? (mik)
+        isPlaying = true;
         soundClip.setMicrosecondPosition(0);
         soundClip.start();
     }
 
+    /**
+     * Get a name for this sound. The name should uniquely identify 
+     * the sound clip.
+     */
+    public String getName()
+    {
+        return name;
+    }
+
+    /**
+     * True if the sound is currently playing.
+     */
+    public boolean isPlaying()
+    {
+        return isPlaying;
+    }
+
+    /**
+     * Listener method to pick up end of play.
+     */
     public void update(LineEvent event)
     {
         if (event.getType() == LineEvent.Type.STOP) {
+            isPlaying = false;
             player.soundFinished(this);
         }
     }
