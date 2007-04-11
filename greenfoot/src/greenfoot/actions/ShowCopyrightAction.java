@@ -42,7 +42,7 @@ public class ShowCopyrightAction extends AbstractAction
     public void actionPerformed(ActionEvent e)
     {
             JOptionPane.showMessageDialog(parent, new String[]{
-                "Greenfoot \u00a9 2005-2006 Michael K\u00F6lling, Poul Henriksen.", " ",
+                "Greenfoot \u00a9 2005-2007 Michael K\u00F6lling, Poul Henriksen.", " ",
                 "Greenfoot is available 'as is' free of charge for use and non-commercial", 
                 "redistribution. Disassembly of the system is prohibited.",
                 "This software may not be sold for profit or included in other", 
