@@ -37,7 +37,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 4836 2007-02-05 00:52:34Z davmac $
+ * @version $Id: Config.java 4911 2007-04-11 14:32:08Z mik $
  */
 
 public final class Config
@@ -78,6 +78,7 @@ public final class Config
     public static String debugLogName = bluejDebugLogName;
     
     private static boolean initialised = false;
+    private static boolean isGreenfoot;
     
     /** name of the icons file for the VM on Mac */
     private static String vmIconsFile;
@@ -112,12 +113,15 @@ public final class Config
      * 
      * See also initializeVMside().
      */
-    public static void initialise(File bluejLibDir, Properties tempCommandLineProps)
+    public static void initialise(File bluejLibDir, Properties tempCommandLineProps,
+                                  boolean bootingGreenfoot)
     {
         if(initialised)
             return;
 
         initialised = true;
+
+        isGreenfoot = bootingGreenfoot;
 
         screenBounds = calculateScreenBounds();
 
@@ -159,7 +163,7 @@ public final class Config
         loadProperties("bluej", user_props);
 
         // set a new name for the log file if we are running in greenfoot mode
-        if(isGreenfoot()) {
+        if(isGreenfoot) {
             debugLogName = greenfootDebugLogName;
         }
         
@@ -369,7 +373,7 @@ public final class Config
     private static String getBlueJPrefDirName()
     {
         String programName = "bluej";
-        if(isGreenfoot()) {
+        if(isGreenfoot) {
             programName = "greenfoot";
         }
         if(isMacOS()) {
@@ -380,6 +384,19 @@ public final class Config
         }
         else {
             return "." + programName;
+        }
+    }
+    
+    /**
+     * Tell us whether we are using a Mac screen menubar
+     */
+    public static String getApplicationName()
+    {
+        if(isGreenfoot) {
+            return "Greenfoot";
+        }
+        else {
+            return "BlueJ";
         }
     }
     
@@ -1256,6 +1273,6 @@ public final class Config
      */
     public static boolean isGreenfoot()
     {
-        return getPropBoolean("greenfoot");
+        return isGreenfoot;
     }
 }

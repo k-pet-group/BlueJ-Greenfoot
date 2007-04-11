@@ -24,12 +24,12 @@ import bluej.utility.FileUtility;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 4611 2006-09-25 11:38:27Z polle $
+ * @version $Id: Terminal.java 4911 2007-04-11 14:32:08Z mik $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
 {
-    private static final String WINDOWTITLE = Config.getString("terminal.title");
+    private static final String WINDOWTITLE = Config.getApplicationName() + ": " + Config.getString("terminal.title");
     private static final int windowHeight =
         Config.getPropInteger("bluej.terminal.height", 22);
     private static final int windowWidth =

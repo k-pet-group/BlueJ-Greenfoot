@@ -21,7 +21,7 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 4885 2007-03-24 15:08:12Z polle $
+ * @version $Id: Boot.java 4911 2007-04-11 14:32:08Z mik $
  */
 public class Boot
 {
@@ -183,6 +183,15 @@ public static final int BLUEJ_VERSION_MAJOR = 2;
     public String[] getArgs()
     {
         return args;
+    }
+
+
+    /**
+     * Return true if we are booting Greenfoot.
+     */
+    public boolean isGreenfoot()
+    {
+        return isGreenfoot;
     }
 
 

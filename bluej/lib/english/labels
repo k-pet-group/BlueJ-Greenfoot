@@ -471,7 +471,7 @@ dialogmgr.message = BlueJ:  Message
 
 #Terminal Window
 terminal.options = Options
-terminal.title = BlueJ:  Terminal Window
+terminal.title = Terminal Window
 terminal.clear = Clear
 terminal.copy = Copy
 terminal.save = Save to file...

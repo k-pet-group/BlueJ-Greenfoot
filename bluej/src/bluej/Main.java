@@ -18,7 +18,7 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 4737 2006-12-04 05:20:57Z davmac $
+ * @version $Id: Main.java 4911 2007-04-11 14:32:08Z mik $
  */
 public class Main
 {
@@ -34,9 +34,9 @@ public class Main
         Boot boot = Boot.getInstance();
         String [] args = boot.getArgs();
         Properties commandLineProps = boot.getCommandLineProperties();
-		File bluejLibDir = boot.getBluejLibDir();
+        File bluejLibDir = boot.getBluejLibDir();
 
-        Config.initialise(bluejLibDir, commandLineProps);
+        Config.initialise(bluejLibDir, commandLineProps, boot.isGreenfoot());
         if (! Config.isGreenfoot()) {
             Config.setVMIconsName("vm.icns");
             Config.setVMDockName("BlueJ Virtual Machine");
