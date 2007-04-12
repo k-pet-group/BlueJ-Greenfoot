@@ -14,7 +14,7 @@ import bluej.utility.DialogManager;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 4921 2007-04-12 16:17:19Z mik $
+ * @version $Id: MiscPrefPanel.java 4923 2007-04-12 16:22:44Z mik $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -86,29 +86,17 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
             {
                 testPanel.setBorder(BorderFactory.createCompoundBorder(
                                               BorderFactory.createTitledBorder(
-                                                     Config.getString("prefmgr.misc.testing.title")),
+                                                     Config.getString("prefmgr.misc.tools.title")),
                                               BlueJTheme.generalBorder));
                 testPanel.setAlignmentX(LEFT_ALIGNMENT);
 
                 showTestBox = new JCheckBox(Config.getString("prefmgr.misc.showTesting"));
                 testPanel.add(showTestBox);
-            }
-            add(testPanel);
-
-            add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-
-            JPanel teamPanel = new JPanel(new GridLayout(0,1,0,0));
-            {
-                teamPanel.setBorder(BorderFactory.createCompoundBorder(
-                                              BorderFactory.createTitledBorder(
-                                                     Config.getString("prefmgr.misc.team.title")),
-                                              BlueJTheme.generalBorder));
-                teamPanel.setAlignmentX(LEFT_ALIGNMENT);
 
                 showTeamBox = new JCheckBox(Config.getString("prefmgr.misc.showTeam"));
-                teamPanel.add(showTeamBox);
+                testPanel.add(showTeamBox);
             }
-            add(teamPanel);
+            add(testPanel);
 
             add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
 
