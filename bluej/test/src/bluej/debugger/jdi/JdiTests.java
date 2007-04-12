@@ -28,7 +28,7 @@ import bluej.views.View;
  * Tests for the debugger.
  *  
  * @author Davin McCall
- * @version $Id: JdiTests.java 4345 2006-06-08 06:33:46Z davmac $
+ * @version $Id: JdiTests.java 4915 2007-04-12 03:55:45Z davmac $
  */
 public class JdiTests extends TestCase
 {
@@ -61,7 +61,7 @@ public class JdiTests extends TestCase
             // initialize Config
             Properties tempProps = new Properties();
             tempProps.setProperty("bluej.debug", "true");
-            Config.initialise(Boot.getInstance().getBluejLibDir(), tempProps);
+            Config.initialise(Boot.getInstance().getBluejLibDir(), tempProps, false);
 
         }
         catch(Throwable t) {
