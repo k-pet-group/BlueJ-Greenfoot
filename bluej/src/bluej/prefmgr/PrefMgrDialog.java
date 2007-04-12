@@ -23,7 +23,7 @@ import bluej.groupwork.ui.TeamSettingsPanel;
  *
  * @author  Andrew Patterson
  * @author  Michael Kolling
- * @version $Id: PrefMgrDialog.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: PrefMgrDialog.java 4921 2007-04-12 16:17:19Z mik $
  */
 public class PrefMgrDialog extends JFrame
 {
@@ -116,8 +116,10 @@ public class PrefMgrDialog extends JFrame
         add(panel2, Config.getString("prefmgr.misc.prefpaneltitle"), panel2);
         userConfigLibPanel = new ClassMgrPrefPanel();
         add(userConfigLibPanel, Config.getString("classmgr.prefpaneltitle"), userConfigLibPanel);
-        ExtensionPrefManager mgr = ExtensionsManager.getInstance().getPrefManager();
-        add(mgr.getPanel(), Config.getString("extmgr.extensions"), mgr);
+        if(!Config.isGreenfoot()) {
+            ExtensionPrefManager mgr = ExtensionsManager.getInstance().getPrefManager();
+            add(mgr.getPanel(), Config.getString("extmgr.extensions"), mgr);
+        }
     }
     
     /**
@@ -161,7 +163,7 @@ public class PrefMgrDialog extends JFrame
     private void makeDialog()
     {
         setIconImage(BlueJTheme.getIconImage());
-        setTitle(Config.getString("prefmgr.title"));
+        setTitle(Config.getApplicationName() + ": " + Config.getString("prefmgr.title"));
 
         tabbedPane = new JTabbedPane();
 

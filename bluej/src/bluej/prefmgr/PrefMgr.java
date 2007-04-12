@@ -14,7 +14,7 @@ import bluej.Config;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 4738 2006-12-05 05:19:12Z davmac $
+ * @version $Id: PrefMgr.java 4921 2007-04-12 16:17:19Z mik $
  */
 public class PrefMgr
 {
@@ -28,7 +28,6 @@ public class PrefMgr
     public static final String SHOW_TEST_TOOLS = "bluej.testing.showtools";
     public static final String SHOW_TEAM_TOOLS = "bluej.teamwork.showtools";
     public static final String SHOW_TEXT_EVAL = "bluej.startWithTextEval";
-    public static final String OPTIMISE_VM = "bluej.vm.optimize";
     public static final String SHOW_UNCHECKED = "bluej.compiler.showunchecked";
     
     public static final String USE_THEMES = "bluej.useTheme";
@@ -124,7 +123,6 @@ public class PrefMgr
         flags.put(SHOW_TEST_TOOLS, Config.getPropString(SHOW_TEST_TOOLS, "false"));
         flags.put(SHOW_TEAM_TOOLS, Config.getPropString(SHOW_TEAM_TOOLS, "false"));
         flags.put(SHOW_TEXT_EVAL, Config.getPropString(SHOW_TEXT_EVAL, "false"));
-        flags.put(OPTIMISE_VM, Config.getPropString(OPTIMISE_VM, "false"));
         flags.put(SHOW_UNCHECKED, Config.getPropString(SHOW_UNCHECKED, "true"));
     }
 

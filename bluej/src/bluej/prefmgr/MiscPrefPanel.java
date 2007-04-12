@@ -14,7 +14,7 @@ import bluej.utility.DialogManager;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 4737 2006-12-04 05:20:57Z davmac $
+ * @version $Id: MiscPrefPanel.java 4921 2007-04-12 16:17:19Z mik $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -22,13 +22,10 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 
     private JTextField jdkURLField;
     private JCheckBox linkToLibBox;
-    private JCheckBox optimiseBox;
     private JCheckBox showUncheckedBox; // show "unchecked" compiler warning
     private JCheckBox showTestBox;
     private JCheckBox showTeamBox;
      
-    private boolean optimiseMessageShown = false;
-    
     /**
      * Setup the UI for the dialog and event handlers for the buttons.
      */
@@ -82,60 +79,55 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         }
         add(docPanel);
 
-        add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
+        if(true){//!Config.isGreenfoot()) {
+            add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
 
-        JPanel testPanel = new JPanel(new GridLayout(0,1,0,0));
-        {
-            testPanel.setBorder(BorderFactory.createCompoundBorder(
-                                          BorderFactory.createTitledBorder(
-                                                 Config.getString("prefmgr.misc.testing.title")),
-                                          BlueJTheme.generalBorder));
-            testPanel.setAlignmentX(LEFT_ALIGNMENT);
+            JPanel testPanel = new JPanel(new GridLayout(0,1,0,0));
+            {
+                testPanel.setBorder(BorderFactory.createCompoundBorder(
+                                              BorderFactory.createTitledBorder(
+                                                     Config.getString("prefmgr.misc.testing.title")),
+                                              BlueJTheme.generalBorder));
+                testPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-            showTestBox = new JCheckBox(Config.getString("prefmgr.misc.showTesting"));
-            testPanel.add(showTestBox);
-        }
-        add(testPanel);
-
-        add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-        
-        JPanel teamPanel = new JPanel(new GridLayout(0,1,0,0));
-        {
-            teamPanel.setBorder(BorderFactory.createCompoundBorder(
-                                          BorderFactory.createTitledBorder(
-                                                 Config.getString("prefmgr.misc.team.title")),
-                                          BlueJTheme.generalBorder));
-            teamPanel.setAlignmentX(LEFT_ALIGNMENT);
-
-            showTeamBox = new JCheckBox(Config.getString("prefmgr.misc.showTeam"));
-            teamPanel.add(showTeamBox);
-        }
-        add(teamPanel);
-
-        add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-
-        JPanel vmPanel = new JPanel(new GridLayout(0,1,0,0));
-        {
-            vmPanel.setBorder(BorderFactory.createCompoundBorder(
-                                          BorderFactory.createTitledBorder(
-                                                 Config.getString("prefmgr.misc.vm.title")),
-                                          BlueJTheme.generalBorder));
-            vmPanel.setAlignmentX(LEFT_ALIGNMENT);
-
-            optimiseBox = new JCheckBox(Config.getString("prefmgr.misc.optimiseVM"));
-            optimiseBox.addActionListener(new ActionListener() {
-                                                public void actionPerformed(ActionEvent e) {
-                                                    optimiseToggled();
-                                                }
-                                          });
-            showUncheckedBox = new JCheckBox(Config.getString("prefmgr.misc.showUnchecked"));
-            vmPanel.add(optimiseBox);
-            if (Config.isJava15()) {
-                // "unchecked" warnings only occur in Java 5.
-                vmPanel.add(showUncheckedBox);
+                showTestBox = new JCheckBox(Config.getString("prefmgr.misc.showTesting"));
+                testPanel.add(showTestBox);
             }
+            add(testPanel);
+
+            add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
+
+            JPanel teamPanel = new JPanel(new GridLayout(0,1,0,0));
+            {
+                teamPanel.setBorder(BorderFactory.createCompoundBorder(
+                                              BorderFactory.createTitledBorder(
+                                                     Config.getString("prefmgr.misc.team.title")),
+                                              BlueJTheme.generalBorder));
+                teamPanel.setAlignmentX(LEFT_ALIGNMENT);
+
+                showTeamBox = new JCheckBox(Config.getString("prefmgr.misc.showTeam"));
+                teamPanel.add(showTeamBox);
+            }
+            add(teamPanel);
+
+            add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
+
+            JPanel vmPanel = new JPanel(new GridLayout(0,1,0,0));
+            {
+                vmPanel.setBorder(BorderFactory.createCompoundBorder(
+                                              BorderFactory.createTitledBorder(
+                                                     Config.getString("prefmgr.misc.vm.title")),
+                                              BlueJTheme.generalBorder));
+                vmPanel.setAlignmentX(LEFT_ALIGNMENT);
+
+                showUncheckedBox = new JCheckBox(Config.getString("prefmgr.misc.showUnchecked"));
+                if (Config.isJava15()) {
+                    // "unchecked" warnings only occur in Java 5.
+                    vmPanel.add(showUncheckedBox);
+                }
+            }
+            add(vmPanel);
         }
-        add(vmPanel);
 
         add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
 
@@ -148,7 +140,6 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         jdkURLField.setText(Config.getPropString(jdkURLPropertyName));
         showTestBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS));
         showTeamBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_TEAM_TOOLS));
-        optimiseBox.setSelected(PrefMgr.getFlag(PrefMgr.OPTIMISE_VM));
         showUncheckedBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED));
     }
 
@@ -161,7 +152,6 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
         PrefMgr.setFlag(PrefMgr.LINK_LIB, linkToLibBox.isSelected());
         PrefMgr.setFlag(PrefMgr.SHOW_TEST_TOOLS, showTestBox.isSelected());
         PrefMgr.setFlag(PrefMgr.SHOW_TEAM_TOOLS, showTeamBox.isSelected());
-        PrefMgr.setFlag(PrefMgr.OPTIMISE_VM, optimiseBox.isSelected());
         PrefMgr.setFlag(PrefMgr.SHOW_UNCHECKED, showUncheckedBox.isSelected());
 
         PkgMgrFrame.updateTestingStatus();
@@ -171,13 +161,4 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
 
         Config.putPropString(jdkURLPropertyName, jdkURL);
     }
-
-    private void optimiseToggled() 
-    {
-        if(!optimiseMessageShown) {  // show only once per session
-            DialogManager.showMessage(this, "pref-optimise-no-effect");
-            optimiseMessageShown = true;
-        }
-    }
-
 }
