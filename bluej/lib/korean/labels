@@ -91,7 +91,7 @@ classmgr.error.missingclasspath=\uc790\ubc14 \ud074\ub798\uc2a4 \uacbd\ub85c\uac
 classmgr.error.missingbootclasspath=Sun \ud604\uc7ac \ub514\ub809\ud1a0\ub9ac\uc5d0 \uc788\ub294 \ud074\ub798\uc2a4\uac00 \uc9c0\uc815\ub418\uc5b4 \uc788\uc9c0 \uc54a\uc73c\ubbc0\ub85c \ud074\ub798\uc2a4\ub97c \ub85c\ub529\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4\ubd80\ud2b8 \ud074\ub798\uc2a4 \uacbd\ub85c\uac00 \uc9c0\uc815\ub418\uc5b4 \uc788\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4. BlueJ \ub294 JDK 1.2 \uc774\ud558\uc758 \ud658\uacbd\uc5d0\uc11c \ub3d9\uc791\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.
 
 # Preferences Manager user interface elements and error messages
-prefmgr.title=BlueJ:  Preferences
+prefmgr.title=Preferences
 
 # Miscellaneous Preferences panel
 prefmgr.misc.prefpaneltitle=\uc635\uc158

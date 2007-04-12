@@ -101,7 +101,7 @@ classmgr.error.missingclasspath=Java\u306e\u30af\u30e9\u30b9\u30d1\u30b9\u304c\u
 classmgr.error.missingbootclasspath=Sun\u306e\u30d6\u30fc\u30c8\u30af\u30e9\u30b9\u30d1\u30b9\u304c\u3042\u308a\u307e\u305b\u3093\u3002BlueJ\u306fJDK1.2\u3088\u308a\u524d\u306e\u74b0\u5883\u3067\u5b9f\u884c\u3055\u308c\u308b\u3079\u304d\u3067\u306f\u3042\u308a\u307e\u305b\u3093\u3002
 
 # Preferences Manager user interface elements and error messages
-prefmgr.title=BlueJ:  \u30ab\u30b9\u30bf\u30de\u30a4\u30ba
+prefmgr.title=\u30ab\u30b9\u30bf\u30de\u30a4\u30ba
 
 # Miscellaneous Preferences panel
 prefmgr.misc.prefpaneltitle=Miscellaneous

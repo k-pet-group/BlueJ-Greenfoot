@@ -83,7 +83,7 @@ classmgr.error.missingclasspath=No Java classpath. Class loading behaviour may b
 classmgr.error.missingbootclasspath=No Sun boot classpath. BlueJ should not be run on a pre JDK 1.2 environment.
 
 # Preferences Manager user interface elements and error messages
-prefmgr.title=BlueJ:  Preferences
+prefmgr.title=Preferences
 
 # Miscellaneous Preferences panel
 prefmgr.misc.prefpaneltitle=Miscellaneous

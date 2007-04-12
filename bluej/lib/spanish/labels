@@ -71,7 +71,7 @@ browser.menu.library.refresh=Refrescar
 browser.menu.library.close=Cerrar
 
 # Preferences Manager user interface elements and error messages
-prefmgr.title=BlueJ:  Preferencias
+prefmgr.title=Preferencias
 
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Librerías

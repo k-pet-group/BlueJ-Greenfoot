@@ -81,7 +81,7 @@ classmgr.error.missingclasspath=\u65e0Java\u7684classpath. \u7c7b\u88c5\u8f7d\u6
 classmgr.error.missingbootclasspath=\u65e0Sun boot classpath. BlueJ \u4e0d\u80fd\u5728\u65e9\u4e8eJDK 1.2\u7684\u73af\u5883\u4e0b\u8fd0\u884c.
 
 # Preferences Manager user interface elements and error messages
-prefmgr.title=BlueJ: \u53c2\u6570\u8bbe\u7f6e
+prefmgr.title=\u53c2\u6570\u8bbe\u7f6e
 
 # Miscellaneous Preferences panel
 prefmgr.misc.prefpaneltitle=\u6742\u9879
