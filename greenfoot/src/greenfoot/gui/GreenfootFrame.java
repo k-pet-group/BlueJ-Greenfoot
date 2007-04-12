@@ -38,7 +38,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4895 2007-03-25 13:10:13Z polle $
+ * @version $Id: GreenfootFrame.java 4919 2007-04-12 15:50:21Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -496,12 +496,12 @@ public class GreenfootFrame extends JFrame
         }
         addMenuItem(ShowCopyrightAction.getInstance(this), helpMenu, -1, false, -1);
         helpMenu.addSeparator();
-        addMenuItem(new ShowWebsiteAction("Greenfoot Class Documentation", "http://www.greenfoot.org/doc/javadoc/"), helpMenu, -1, false, -1);
-        addMenuItem(new ShowWebsiteAction("Java Library Documentation", "http://java.sun.com/j2se/1.4.2/docs/api/index.html"), helpMenu, -1, false, -1);
+        addMenuItem(new ShowWebsiteAction("Greenfoot Class Documentation", Config.getPropString("greenfoot.url.javadoc")), helpMenu, -1, false, -1);
+        addMenuItem(new ShowWebsiteAction("Java Library Documentation", Config.getPropString("greenfoot.url.javaStdLib")), helpMenu, -1, false, -1);
         helpMenu.addSeparator();
-        addMenuItem(new ShowWebsiteAction("Greenfoot Tutorial", "http://www.greenfoot.org/doc/tutorial.html"), helpMenu, -1, false, -1);
-        addMenuItem(new ShowWebsiteAction("Greenfoot Web Site", "http://www.greenfoot.org"), helpMenu, -1, false, -1);
-        addMenuItem(new ShowWebsiteAction("Get more scenarios", "http://www.greenfoot.org/scenarios/index.html"), helpMenu, -1, false, -1);
+        addMenuItem(new ShowWebsiteAction("Greenfoot Tutorial", Config.getPropString("greenfoot.url.tutorial")), helpMenu, -1, false, -1);
+        addMenuItem(new ShowWebsiteAction("Greenfoot Web Site", Config.getPropString("greenfoot.url.greenfoot")), helpMenu, -1, false, -1);
+        addMenuItem(new ShowWebsiteAction("Get more scenarios", Config.getPropString("greenfoot.url.scenarios")), helpMenu, -1, false, -1);
         
         return menuBar;
     }
