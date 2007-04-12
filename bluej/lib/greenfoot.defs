@@ -1,0 +1,39 @@
+####################################################################
+##               Greenfoot properties default values
+#####################################################################
+##
+## All settings in this file may be changed to configure Greenfoot.
+## Settings in this file are system wide and apply to all users.
+##
+## Greenfoot property settings may also be specified on a per-user 
+## basis in the user property file. The user property file is in
+##
+##    <USER_HOME>/.bluej/bluej.properties                     (Unix)
+##    C:\Winnt\profiles\<USER_NAME>\bluej\bluej.properties    (WinNT)
+##    C:\<JDK_HOME>\bluej\bluej.properties                    (Win9x)
+##
+## Each of the properties in this file may be copied to the user
+## properties file. Settings in the user file override the system
+## wide settings here.
+##
+#####################################################################
+
+
+
+#####################################################################
+## URLs for the Greenfoot manuals and documentation. If you have the
+## documents installed locally and want to use your local version,
+## edit these URLs.
+#####################################################################
+
+greenfoot.url.greenfoot=http://www.greenfoot.org
+greenfoot.url.tutorial=http://www.greenfoot.org/doc/tutorial.html
+greenfoot.url.javadoc=http://www.greenfoot.org/doc/javadoc/
+greenfoot.url.scenarios=http://www.greenfoot.org/scenarios/index.html
+
+# The URL for the Java API documentation can be specified here, however
+# this will only apply the first time you use Greenfoot. After that, the
+# setting is saved in the user preferences file (and the setting here
+# is ignored). You can adjust the user preferences via the preferences
+# dialog in Greenfoot.
+greenfoot.url.javaStdLib=http://java.sun.com/j2se/1.5/docs/api/index.html
