@@ -14,7 +14,7 @@ import bluej.utility.DialogManager;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 4923 2007-04-12 16:22:44Z mik $
+ * @version $Id: MiscPrefPanel.java 4925 2007-04-12 16:43:17Z mik $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -31,11 +31,13 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
      */
     public MiscPrefPanel()
     {
-
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        JPanel box = new JPanel();
+        box.setLayout(new BoxLayout(box, BoxLayout.Y_AXIS));
+        add(box);
+        
         setBorder(BlueJTheme.generalBorder);
 
-        add(Box.createVerticalGlue());
+        box.add(Box.createVerticalGlue());
 
         JPanel docPanel = new JPanel();
         {
@@ -77,10 +79,10 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
             linkToLibNoteLine2.setAlignmentX(LEFT_ALIGNMENT);
             docPanel.add(linkToLibNoteLine2);
         }
-        add(docPanel);
+        box.add(docPanel);
 
-        if(true){//!Config.isGreenfoot()) {
-            add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
+        if(!Config.isGreenfoot()) {
+            box.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
 
             JPanel testPanel = new JPanel(new GridLayout(0,1,0,0));
             {
@@ -96,9 +98,9 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
                 showTeamBox = new JCheckBox(Config.getString("prefmgr.misc.showTeam"));
                 testPanel.add(showTeamBox);
             }
-            add(testPanel);
+            box.add(testPanel);
 
-            add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
+            box.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
 
             JPanel vmPanel = new JPanel(new GridLayout(0,1,0,0));
             {
@@ -114,21 +116,21 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
                     vmPanel.add(showUncheckedBox);
                 }
             }
-            add(vmPanel);
+            box.add(vmPanel);
         }
 
-        add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-
-        add(Box.createVerticalGlue());
+        box.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
     }
 
     public void beginEditing()
     {
         linkToLibBox.setSelected(PrefMgr.getFlag(PrefMgr.LINK_LIB));
         jdkURLField.setText(Config.getPropString(jdkURLPropertyName));
-        showTestBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS));
-        showTeamBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_TEAM_TOOLS));
-        showUncheckedBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED));
+        if(!Config.isGreenfoot()) {
+            showTestBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_TEST_TOOLS));
+            showTeamBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_TEAM_TOOLS));
+            showUncheckedBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED));
+        }
     }
 
     public void revertEditing()
@@ -138,15 +140,16 @@ public class MiscPrefPanel extends JPanel implements PrefPanelListener
     public void commitEditing()
     {
         PrefMgr.setFlag(PrefMgr.LINK_LIB, linkToLibBox.isSelected());
-        PrefMgr.setFlag(PrefMgr.SHOW_TEST_TOOLS, showTestBox.isSelected());
-        PrefMgr.setFlag(PrefMgr.SHOW_TEAM_TOOLS, showTeamBox.isSelected());
-        PrefMgr.setFlag(PrefMgr.SHOW_UNCHECKED, showUncheckedBox.isSelected());
+        if(!Config.isGreenfoot()) {
+            PrefMgr.setFlag(PrefMgr.SHOW_TEST_TOOLS, showTestBox.isSelected());
+            PrefMgr.setFlag(PrefMgr.SHOW_TEAM_TOOLS, showTeamBox.isSelected());
+            PrefMgr.setFlag(PrefMgr.SHOW_UNCHECKED, showUncheckedBox.isSelected());
 
-        PkgMgrFrame.updateTestingStatus();
-        PkgMgrFrame.updateTeamStatus();
-
+            PkgMgrFrame.updateTestingStatus();
+            PkgMgrFrame.updateTeamStatus();
+        }
+        
         String jdkURL = jdkURLField.getText();
-
         Config.putPropString(jdkURLPropertyName, jdkURL);
     }
 }
