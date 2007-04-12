@@ -1,7 +1,6 @@
 package bluej.groupwork.ui;
 
 import java.awt.Container;
-import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,23 +15,20 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.netbeans.lib.cvsclient.command.CommandAbortedException;
-import org.netbeans.lib.cvsclient.command.CommandException;
-import org.netbeans.lib.cvsclient.connection.AuthenticationException;
-
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.groupwork.InvalidCvsRootException;
 import bluej.groupwork.Repository;
 import bluej.groupwork.TeamUtils;
-import bluej.groupwork.UpdateServerResponse;
+import bluej.groupwork.TeamworkCommand;
+import bluej.groupwork.TeamworkCommandResult;
 import bluej.utility.EscapeDialog;
+import bluej.utility.SwingWorker;
 
 /**
  * A dialog for selecting a module to checkout.
  * 
  * @author Davin McCall
- * @version $Id: ModuleSelectDialog.java 4838 2007-02-07 01:01:21Z davmac $
+ * @version $Id: ModuleSelectDialog.java 4916 2007-04-12 03:57:23Z davmac $
  */
 public class ModuleSelectDialog extends EscapeDialog implements ListSelectionListener
 {
@@ -42,6 +38,7 @@ public class ModuleSelectDialog extends EscapeDialog implements ListSelectionLis
     private JTextField moduleField;
     private JButton okButton;
     private JList moduleList;
+    private ModuleListerThread worker;
     
     private boolean wasOk;
     
@@ -162,7 +159,8 @@ public class ModuleSelectDialog extends EscapeDialog implements ListSelectionLis
             {
                 listButton.setEnabled(false);
                 startProgressBar();
-                new ModuleListerThread(repository, ModuleSelectDialog.this).start();
+                worker = new ModuleListerThread(repository);
+                worker.start();
             }
         });
         listButton.setAlignmentY(0f);
@@ -199,6 +197,9 @@ public class ModuleSelectDialog extends EscapeDialog implements ListSelectionLis
         cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
+                if (worker != null) {
+                    worker.cancel();
+                }
                 dispose();
             }
         });
@@ -229,58 +230,45 @@ public class ModuleSelectDialog extends EscapeDialog implements ListSelectionLis
      * 
      * @author Davin McCall
      */
-    private class ModuleListerThread extends Thread
+    private class ModuleListerThread extends SwingWorker
     {
         private Repository repository;
-        private ModuleSelectDialog moduleDialog;
+        private TeamworkCommand command;
+        private TeamworkCommandResult result;
+        private List modules;
         
-        private UpdateServerResponse response;
-        
-        public ModuleListerThread(Repository repository, ModuleSelectDialog moduleDialog)
+        public ModuleListerThread(Repository repository)
         {
             this.repository = repository;
-            this.moduleDialog = moduleDialog;
+            modules = new ArrayList();
+            command = repository.getModules(modules);
         }
         
-        public void run()
+        public Object construct()
         {
-            final List modules = new ArrayList();
-            final UpdateServerResponse response = getResponse(modules);
-            
-            EventQueue.invokeLater(new Runnable() {
-                public void run()
-                {
-                    if (response != null && ! response.isError()) {
-                        moduleDialog.setModuleList(modules);
-                    }
-                    else {
-                        TeamUtils.handleServerResponse(response, moduleDialog);
-                    }
+            result = command.getResult();
+            return result;
+        }
+        
+        public void finished()
+        {
+            stopProgressBar();
+            if (command != null) {
+                if (result != null && ! result.isError()) {
+                    setModuleList(modules);
                 }
-            });
+                else {
+                    TeamUtils.handleServerResponse(result, ModuleSelectDialog.this);
+                }
+            }
         }
         
-        public UpdateServerResponse getResponse(List modules)
+        public void cancel()
         {
-            try {
-                response = repository.getModules(modules);
-                stopProgressBar();
-                return response;
-            } catch (CommandAbortedException e) {
-                e.printStackTrace();
-                stopProgressBar();
-            } catch (CommandException e) {
-                e.printStackTrace();
-                stopProgressBar();
-            } catch (AuthenticationException e) {
-                stopProgressBar();
-                TeamUtils.handleAuthenticationException(moduleDialog);
-            } catch (InvalidCvsRootException e) {
-                stopProgressBar();
-                TeamUtils.handleInvalidCvsRootException(moduleDialog);
+            if (command != null) {
+                command.cancel();
+                command = null;
             }
-            
-            return response;
         }
     }
 }

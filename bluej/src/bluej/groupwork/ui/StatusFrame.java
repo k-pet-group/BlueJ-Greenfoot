@@ -14,19 +14,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import org.netbeans.lib.cvsclient.command.CommandAbortedException;
-import org.netbeans.lib.cvsclient.command.CommandException;
-import org.netbeans.lib.cvsclient.connection.AuthenticationException;
-
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.groupwork.InvalidCvsRootException;
-import bluej.groupwork.Repository;
-import bluej.groupwork.TeamStatusInfo;
-import bluej.groupwork.TeamUtils;
-import bluej.pkgmgr.PkgMgrFrame;
+import bluej.groupwork.*;
 import bluej.pkgmgr.Project;
-import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
 import bluej.utility.SwingWorker;
 
@@ -34,7 +25,7 @@ import bluej.utility.SwingWorker;
  * Main frame for CVS Status Dialog
  *
  * @author bquig
- * @version $Id: StatusFrame.java 4780 2006-12-22 04:14:21Z bquig $
+ * @version $Id: StatusFrame.java 4916 2007-04-12 03:57:23Z davmac $
  */
 public class StatusFrame extends EscapeDialog
 {
@@ -49,25 +40,8 @@ public class StatusFrame extends EscapeDialog
     
     private Repository repository;
     
-    static final int MAX_ENTRIES = 20; 
+    private static final int MAX_ENTRIES = 20; 
     
-    // store and map BlueJ PkgMgrFrames and associated cvs status dialog windows
-   // private static Map statusFrames = new HashMap();
-    
-    /**
-     * Factory method to get a status window.
-     * Generally you should call update() on the window after retrieving it. 
-     */
-   // public static StatusFrame getStatusWindow(PkgMgrFrame pmf)
-   // {
-   //     StatusFrame window = (StatusFrame)statusFrames.get(pmf);
-   //     if(window == null) {
-   //         window = new StatusFrame(pmf);
-   //         statusFrames.put(pmf, window);
-   //     }
-   //     return window;
-   // }
-
     /** 
      * Creates a new instance of StatusFrame. Called via factory method
      * getStatusWindow. 
@@ -207,97 +181,66 @@ public class StatusFrame extends EscapeDialog
      * Inner class to do the actual cvs status call to ensure that the UI is not 
      * blocked during remote call
      */
-    class StatusWorker extends SwingWorker
+    class StatusWorker extends SwingWorker implements StatusListener
     {
-          List resources;
-          boolean aborted;
-          
-          public void abort()
-          {
-              aborted = true;
-              interrupt();
-          }
-          
-          public Object construct() 
-          {
-              resources = getStatusAsList();
-              return resources;
-          }
-             
-          public void finished() 
-          {
-              if (! aborted) {
-                  if (resources != null) {
-                      
-                      Collections.sort(resources, new Comparator() {
-                          public int compare(Object arg0, Object arg1)
-                          {
-                              TeamStatusInfo tsi0 = (TeamStatusInfo) arg0;
-                              TeamStatusInfo tsi1 = (TeamStatusInfo) arg1;
-                              
-                              return tsi1.getStatus() - tsi0.getStatus();
-                          }
-                      });
-                      
-                      statusModel = new StatusTableModel(resources);
-                      statusTable.setModel(statusModel);
-                      //statusModel.setStatusData(resources);
-                      refreshButton.setEnabled(true);
-                  }
-                  else {
-                      setVisible(false);
-                  }
-              }
-          }
-          
-          /**
-           * Get the list of status information.
-           * This is called on a non-GUI thread.
-           */
-          private List getStatusAsList()
-          {
-              List resourceStatus = null;
+        List resources;
+        TeamworkCommand command;
+        TeamworkCommandResult result;
+        boolean aborted;
+        FilenameFilter filter = project.getTeamSettingsController().getFileFilter(true);
 
-              try {
-                  Set files = project.getTeamSettingsController().getProjectFiles(project.getTeamSettingsController().includeLayout());
-                  
-                  Set remoteDirs = new HashSet();
-                  List remoteFiles = repository.getRemoteFiles(remoteDirs);
-                  FilenameFilter filter = project.getTeamSettingsController().getFileFilter(true);
-                  for (Iterator i = remoteFiles.iterator(); i.hasNext(); ) {
-                      File remoteFile = (File) i.next();
-                      File parentDir = remoteFile.getParentFile();
-                      // We might not be interested in this file...
-                      if (! filter.accept(parentDir, remoteFile.getName())) {
-                          i.remove();
-                      }
-                  }
-                  
-                  files.addAll(remoteFiles);
-                  try {
-                      resourceStatus = repository.getStatus(files, remoteDirs);
-                  }
-                  finally {
-                      progressBar.setRunning(false);
-                  }
-                  
-              } catch (CommandAbortedException e) {
-                  // e.printStackTrace();
-                  // This is ok - the command might be aborted by us
-              } catch (CommandException e) {
-                  e.printStackTrace();
-              } catch (AuthenticationException e) {
-                  TeamUtils.handleAuthenticationException(StatusFrame.this);
-              } catch (InvalidCvsRootException e) {
-                  TeamUtils.handleInvalidCvsRootException(StatusFrame.this);
-                  e.printStackTrace();
-              }
+        public StatusWorker()
+        {
+            super();
+            resources = new ArrayList();
+            Set files = project.getTeamSettingsController().getProjectFiles(project.getTeamSettingsController().includeLayout());
+            command = repository.getStatus(this, files, true);
+        }
 
-              if (resourceStatus != null) {
-                  filterStatusInformation(resourceStatus);
-              }
-              return resourceStatus;
-          }
+        public void abort()
+        {
+            command.cancel();
+            aborted = true;
+        }
+
+        public Object construct() 
+        {
+            result = command.getResult();
+            return resources;
+        }
+
+        public void gotStatus(TeamStatusInfo info)
+        {
+            File infoFile = info.getFile();
+            if (filter.accept(infoFile.getParentFile(), infoFile.getName())) {
+                resources.add(info);
+            }
+        }
+
+        public void finished() 
+        {
+            progressBar.setRunning(false);
+            if (! aborted) {
+                if (result.isError()) {
+                    TeamUtils.handleServerResponse(result, StatusFrame.this);
+                }
+                else {
+                    Collections.sort(resources, new Comparator() {
+                        public int compare(Object arg0, Object arg1)
+                        {
+                            TeamStatusInfo tsi0 = (TeamStatusInfo) arg0;
+                            TeamStatusInfo tsi1 = (TeamStatusInfo) arg1;
+
+                            return tsi1.getStatus() - tsi0.getStatus();
+                        }
+                    });
+
+                    statusModel = new StatusTableModel(resources);
+                    statusTable.setModel(statusModel);
+                    //statusModel.setStatusData(resources);
+                }
+                refreshButton.setEnabled(true);
+            }
+        }
     }
-    
 }

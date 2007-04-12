@@ -1,6 +1,5 @@
 package bluej.groupwork.ui;
 
-import bluej.utility.DBoxLayout;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -8,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -15,23 +15,16 @@ import java.util.Set;
 
 import javax.swing.*;
 
-import org.netbeans.lib.cvsclient.command.CommandAbortedException;
-import org.netbeans.lib.cvsclient.command.CommandException;
-import org.netbeans.lib.cvsclient.connection.AuthenticationException;
-
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.groupwork.InvalidCvsRootException;
-import bluej.groupwork.Repository;
-import bluej.groupwork.StatusFilter;
-import bluej.groupwork.TeamStatusInfo;
-import bluej.groupwork.TeamUtils;
+import bluej.groupwork.*;
 import bluej.groupwork.actions.CommitAction;
 import bluej.pkgmgr.Project;
 import bluej.utility.DBox;
+import bluej.utility.DBoxLayout;
 import bluej.utility.DialogManager;
-import bluej.utility.SwingWorker;
 import bluej.utility.EscapeDialog;
+import bluej.utility.SwingWorker;
 
 
 /**
@@ -279,35 +272,8 @@ public class CommitCommentsFrame extends EscapeDialog
     {
         return includeLayout != null && includeLayout.isSelected();
     }
-
-    private List initCommitFiles()
-    {
-        List statusServerResponse = null;
-
-        try {
-            // Always include the bluej.pkg files - they will be filtered later.
-            // We don't want to filter them here because we need to always commit
-            // new bluej.pkg files to the repository.
-            Set files = project.getTeamSettingsController().getProjectFiles(true);
-            
-            Set remoteDirs = repository.getRemoteDirs();
-            
-            statusServerResponse = repository.getStatus(files, remoteDirs);
-
-        } catch (CommandAbortedException e) {
-            e.printStackTrace();
-        } catch (CommandException e) {
-            e.printStackTrace();
-        } catch (AuthenticationException e) {
-            TeamUtils.handleAuthenticationException(this);
-        } catch (InvalidCvsRootException e) {
-            TeamUtils.handleInvalidCvsRootException(this);
-        }
-
-        return statusServerResponse;
-    }
     
-      /**
+    /**
      * Start the activity indicator.
      */
     public void startProgress()
@@ -337,13 +303,31 @@ public class CommitCommentsFrame extends EscapeDialog
     * Inner class to do the actual cvs status check to populate commit dialog
     * to ensure that the UI is not blocked during remote call
     */
-    class CommitWorker extends SwingWorker
+    class CommitWorker extends SwingWorker implements StatusListener
     {
         List response;
+        TeamworkCommand command;
+        TeamworkCommandResult result;
 
+        public CommitWorker()
+        {
+            super();
+            response = new ArrayList();
+            Set files = project.getTeamSettingsController().getProjectFiles(true);
+            command = repository.getStatus(this, files, false);
+        }
+        
+        /* (non-Javadoc)
+         * @see bluej.groupwork.StatusListener#gotStatus(bluej.groupwork.TeamStatusInfo)
+         */
+        public void gotStatus(TeamStatusInfo info)
+        {
+            response.add(info);
+        }
+        
         public Object construct()
         {
-            response = initCommitFiles();
+            result = command.getResult();
             return response;
         }
 

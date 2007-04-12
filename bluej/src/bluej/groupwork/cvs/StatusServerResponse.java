@@ -1,6 +1,5 @@
-package bluej.groupwork;
+package bluej.groupwork.cvs;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,11 +8,12 @@ import org.netbeans.lib.cvsclient.command.status.StatusInformation;
 import org.netbeans.lib.cvsclient.event.FileInfoEvent;
 
 
+
 /**
  * This class is used for registering and storing cvs status request information. 
  *
  * @author bquig
- * @version $Id: StatusServerResponse.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: StatusServerResponse.java 4916 2007-04-12 03:57:23Z davmac $
  */
 public class StatusServerResponse extends BasicServerResponse
 {
@@ -36,7 +36,7 @@ public class StatusServerResponse extends BasicServerResponse
         //StatusInformation statusInfo;
 
         if (info instanceof StatusInformation) {
-            File rfile = info.getFile();
+            //File rfile = info.getFile();
             infoEvents.add(info);
             //statusInfo = (StatusInformation) info;
             //Debug.message("StatusInformation = " + statusInfo);

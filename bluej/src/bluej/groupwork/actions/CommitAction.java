@@ -1,21 +1,18 @@
 package bluej.groupwork.actions;
 
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.util.Set;
+
 import javax.swing.AbstractAction;
 
-import org.netbeans.lib.cvsclient.command.CommandAbortedException;
-import org.netbeans.lib.cvsclient.command.CommandException;
-import org.netbeans.lib.cvsclient.connection.AuthenticationException;
-
-import bluej.groupwork.BasicServerResponse;
-import bluej.groupwork.InvalidCvsRootException;
-import bluej.groupwork.ui.CommitCommentsFrame;
-import bluej.pkgmgr.Project;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.Config;
 import bluej.groupwork.TeamUtils;
-import java.awt.EventQueue;
+import bluej.groupwork.TeamworkCommand;
+import bluej.groupwork.TeamworkCommandResult;
+import bluej.groupwork.ui.CommitCommentsFrame;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
 
 
 /**
@@ -23,7 +20,7 @@ import java.awt.EventQueue;
  * committing and have the commit comments.
  * 
  * @author Kasper
- * @version $Id: CommitAction.java 4840 2007-03-01 03:12:00Z davmac $
+ * @version $Id: CommitAction.java 4916 2007-04-12 03:57:23Z davmac $
  */
 public class CommitAction extends AbstractAction
 {
@@ -95,37 +92,29 @@ public class CommitAction extends AbstractAction
     {
         Thread thread = new Thread() {
             
-                BasicServerResponse basicServerResponse = null;
+                TeamworkCommandResult result = null;
             
                 public void run()
                 {
-                    try {
-                        String comment = commitCommentsFrame.getComment();
-                        
-                        //last step before committing is to add in modified diagram 
-                        //layouts if selected in commit comments dialog
-                        if(commitCommentsFrame.includeLayout()) {
-                            files.addAll(commitCommentsFrame.getChangedLayoutFiles());
-                        }
-                        
-                        Set binFiles = TeamUtils.extractBinaryFilesFromSet(newFiles);
-                        
-                        // Note, getRepository() cannot return null here - otherwise
-                        // the commit dialog was cancelled (and we'd never get here)
-                        basicServerResponse = project.getRepository().commitAll(newFiles, binFiles, 
-                                deletedFiles, files, comment);
-                    } catch (CommandAbortedException e) {
-                        e.printStackTrace();
-                    } catch (CommandException e) {
-                        e.printStackTrace();
-                    } catch (AuthenticationException e) {
-                        TeamUtils.handleAuthenticationException(commitCommentsFrame);
-                    } catch (InvalidCvsRootException e) {
-                        TeamUtils.handleInvalidCvsRootException(commitCommentsFrame);
+                    String comment = commitCommentsFrame.getComment();
+
+                    //last step before committing is to add in modified diagram 
+                    //layouts if selected in commit comments dialog
+                    if(commitCommentsFrame.includeLayout()) {
+                        files.addAll(commitCommentsFrame.getChangedLayoutFiles());
                     }
 
+                    Set binFiles = TeamUtils.extractBinaryFilesFromSet(newFiles);
+
+                    // Note, getRepository() cannot return null here - otherwise
+                    // the commit dialog was cancelled (and we'd never get here)
+                    TeamworkCommand command = project.getRepository().commitAll(newFiles, binFiles, 
+                            deletedFiles, files, comment);
+
+                    result = command.getResult();
                     commitCommentsFrame.stopProgress();
-                    if (basicServerResponse != null && ! basicServerResponse.isError()) {
+
+                    if (! result.isError() && ! result.wasAborted()) {
                         EventQueue.invokeLater(new Runnable() {
                             public void run() {
                                 PkgMgrFrame.displayMessage(project, Config.getString("team.commit.statusDone"));
@@ -135,7 +124,7 @@ public class CommitAction extends AbstractAction
                   
                     EventQueue.invokeLater(new Runnable() {
                         public void run() {
-                            TeamUtils.handleServerResponse(basicServerResponse, commitCommentsFrame);
+                            TeamUtils.handleServerResponse(result, commitCommentsFrame);
                             setEnabled(true);
                             commitCommentsFrame.setVisible(false);
                         }

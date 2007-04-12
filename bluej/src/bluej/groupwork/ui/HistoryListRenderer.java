@@ -1,7 +1,6 @@
 package bluej.groupwork.ui;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Rectangle;
@@ -16,8 +15,12 @@ import bluej.utility.MultiWrapLabel;
 /**
  * Renderer for cells in the log/history list.
  * 
+ * <p>This is a little complicated because the renderer wraps text at the width
+ * of the list. This means that the preferred height of a cell is dependent on the
+ * width.
+ * 
  * @author Davin McCall
- * @version $Id: HistoryListRenderer.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: HistoryListRenderer.java 4916 2007-04-12 03:57:23Z davmac $
  */
 public class HistoryListRenderer extends Box implements ListCellRenderer
 {
@@ -117,22 +120,20 @@ public class HistoryListRenderer extends Box implements ListCellRenderer
             listWidth -= getInsets().left + getInsets().right;
             
             commentArea.setWrapWidth(listWidth);
-//            commentArea.setPreferredSize(null);
-//            Dimension preferred = commentArea.getPreferredSize();
-//            commentArea.setMaximumSize(preferred);
-//            preferred.width = 1;
-//            commentArea.setPreferredSize(preferred);
             commentArea.invalidate();
         }
 
-        // We need to validate to ensure that we get the correct preferred
-        // size
+        // We need to validate to ensure that we have the correct preferred
+        // size.
         validate();
         
         // Inform the model of our desired height. If this has changed, the model
         // fires a "cell changed" event so that the list will detect the change.
         model.setCellHeight(index, this.getPreferredSize().height);
         this.index = index;
+        
+        // Once we return, the list should ask what our preferred size is; it
+        // will then call setBounds to set a size.
         return this;
     }
     

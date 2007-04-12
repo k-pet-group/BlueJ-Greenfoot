@@ -2,16 +2,8 @@ package bluej.groupwork.actions;
 
 import java.io.File;
 
-import org.netbeans.lib.cvsclient.command.CommandAbortedException;
-import org.netbeans.lib.cvsclient.command.CommandException;
-import org.netbeans.lib.cvsclient.connection.AuthenticationException;
-
 import bluej.Config;
-import bluej.groupwork.BasicServerResponse;
-import bluej.groupwork.InvalidCvsRootException;
-import bluej.groupwork.Repository;
-import bluej.groupwork.TeamSettingsController;
-import bluej.groupwork.TeamUtils;
+import bluej.groupwork.*;
 import bluej.groupwork.ui.ModuleSelectDialog;
 import bluej.groupwork.ui.TeamSettingsDialog;
 import bluej.pkgmgr.Import;
@@ -29,7 +21,7 @@ import bluej.utility.SwingWorker;
  * project.
  * 
  * @author Kasper
- * @version $Id: CheckoutAction.java 4905 2007-03-29 06:06:30Z davmac $
+ * @version $Id: CheckoutAction.java 4916 2007-04-12 03:57:23Z davmac $
  */
 public class CheckoutAction extends TeamAction
 {
@@ -119,7 +111,7 @@ public class CheckoutAction extends TeamAction
         private File projDir;
         private TeamSettingsController tsc;
         
-        private BasicServerResponse response;
+        private TeamworkCommandResult response;
         private boolean failed = true;
         
         public CheckoutWorker(PkgMgrFrame newFrame, Repository repository, File projDir, TeamSettingsController tsc)
@@ -136,30 +128,16 @@ public class CheckoutAction extends TeamAction
          */
         public Object construct()
         {
-            try {
-                newFrame.setStatus(Config.getString("team.checkingout"));
-                newFrame.startProgress();
-                response = repository.checkout(projDir);
-                failed = false;
-                
-                newFrame.stopProgress();
-                if (response != null && ! response.isError()) {
-                    newFrame.setStatus(Config.getString("team.checkedout"));
-                }
-            }
-            catch (CommandAbortedException e) {
-                e.printStackTrace();
-                stopProgressBar();
-            }
-            catch (CommandException e) {
-                e.printStackTrace();
-                stopProgressBar();
-            }
-            catch (AuthenticationException e) {
-                handleAuthenticationException(e);
-            }
-            catch (InvalidCvsRootException e) {
-                handleInvalidCvsRootException(e);
+            newFrame.setStatus(Config.getString("team.checkingout"));
+            newFrame.startProgress();
+            TeamworkCommand checkoutCmd = repository.checkout(projDir);
+            response = checkoutCmd.getResult();
+
+            failed = response.isError();
+
+            newFrame.stopProgress();
+            if (! failed) {
+                newFrame.setStatus(Config.getString("team.checkedout"));
             }
 
             newFrame.stopProgress();
@@ -173,7 +151,7 @@ public class CheckoutAction extends TeamAction
          */
         public void finished()
         {
-            if (! failed && response != null && ! response.isError()) {
+            if (! failed) {
                 if (! Project.isBlueJProject(projDir.toString())) {
                     // Try and convert it to a project
                     if (! Import.convertNonBlueJ(newFrame, projDir)) {

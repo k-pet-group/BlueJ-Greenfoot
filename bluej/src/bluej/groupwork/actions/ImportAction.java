@@ -5,16 +5,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.netbeans.lib.cvsclient.command.CommandAbortedException;
-import org.netbeans.lib.cvsclient.command.CommandException;
-import org.netbeans.lib.cvsclient.connection.AuthenticationException;
-
 import bluej.Config;
-import bluej.groupwork.BasicServerResponse;
-import bluej.groupwork.InvalidCvsRootException;
-import bluej.groupwork.Repository;
-import bluej.groupwork.TeamSettingsController;
-import bluej.groupwork.TeamUtils;
+import bluej.groupwork.*;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 
@@ -22,7 +14,7 @@ import bluej.pkgmgr.Project;
  * An action to perform an import into a repository, i.e. to share a project.
  * 
  * @author Kasper
- * @version $Id: ImportAction.java 4840 2007-03-01 03:12:00Z davmac $
+ * @version $Id: ImportAction.java 4916 2007-04-12 03:57:23Z davmac $
  */
 public class ImportAction extends TeamAction 
 {
@@ -62,42 +54,30 @@ public class ImportAction extends TeamAction
         
         Thread thread = new Thread() {
             
-            BasicServerResponse basicServerResponse = null;
+            TeamworkCommandResult result = null;
             
             public void run()
             {
                 // boolean resetStatus = true;
-                try {
-                    basicServerResponse = repository.shareProject();
-                    if (basicServerResponse != null && ! basicServerResponse.isError()) {
-                        project.setTeamSettingsController(tsc);
-                        Set files = tsc.getProjectFiles(true);
-                        Set newFiles = new HashSet(files);
-                        Set binFiles = TeamUtils.extractBinaryFilesFromSet(newFiles);
-                        basicServerResponse = repository.commitAll(newFiles, binFiles, Collections.EMPTY_SET, files, Config.getString("team.import.initialMessage"));
-                    }
-                    
-                    stopProgressBar();
+                TeamworkCommand command = repository.shareProject();
+                result = command.getResult();
+
+                if (! result.isError()) {
+                    project.setTeamSettingsController(tsc);
+                    Set files = tsc.getProjectFiles(true);
+                    Set newFiles = new HashSet(files);
+                    Set binFiles = TeamUtils.extractBinaryFilesFromSet(newFiles);
+                    command = repository.commitAll(newFiles, binFiles, Collections.EMPTY_SET, files, Config.getString("team.import.initialMessage"));
+                    result = command.getResult();
                 }
-                catch (CommandAbortedException e) {
-                    stopProgressBar();
-                }
-                catch (CommandException e) {
-                    stopProgressBar();
-                    e.printStackTrace();
-                }
-                catch (AuthenticationException e) {
-                    handleAuthenticationException(e);
-                }
-                catch (InvalidCvsRootException e) {
-                    handleInvalidCvsRootException(e);
-                }
-                                
+
+                stopProgressBar();
+
                 EventQueue.invokeLater(new Runnable() {
                     public void run()
                     {
-                        handleServerResponse(basicServerResponse);
-                        if(! basicServerResponse.isError()) {
+                        handleServerResponse(result);
+                        if(! result.isError()) {
                             setStatus(Config.getString("team.shared"));
                         }
                         else {

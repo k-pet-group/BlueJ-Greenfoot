@@ -1,4 +1,4 @@
-package bluej.groupwork;
+package bluej.groupwork.cvs;
 
 import java.io.File;
 import java.util.*;
@@ -7,6 +7,11 @@ import org.netbeans.lib.cvsclient.event.FileAddedEvent;
 import org.netbeans.lib.cvsclient.event.FileRemovedEvent;
 import org.netbeans.lib.cvsclient.event.FileUpdatedEvent;
 import org.netbeans.lib.cvsclient.event.MessageEvent;
+
+import bluej.groupwork.BlueJCvsClient;
+import bluej.groupwork.UnableToParseInputException;
+import bluej.groupwork.UpdateListener;
+import bluej.groupwork.UpdateResults;
 
 
 /**
@@ -24,7 +29,7 @@ import org.netbeans.lib.cvsclient.event.MessageEvent;
  * @author fisker
  * 
  */
-public class UpdateServerResponse extends BasicServerResponse
+public class UpdateServerResponse extends BasicServerResponse implements UpdateResults
 {
 	/**
      * Stores a tagged line
@@ -163,7 +168,7 @@ public class UpdateServerResponse extends BasicServerResponse
         }
 
         try {
-			UpdateResult updateResult = UpdateResult.parse(line);
+			CvsUpdateResult updateResult = CvsUpdateResult.parse(line);
 			updateResults.add(updateResult);
 		} catch (UnableToParseInputException e1) {
 			//e1.printStackTrace();
@@ -198,7 +203,7 @@ public class UpdateServerResponse extends BasicServerResponse
     {
     	List results = new LinkedList();
     	for (Iterator i = updateResults.iterator(); i.hasNext();) {
-			UpdateResult updateResult = (UpdateResult) i.next();
+			CvsUpdateResult updateResult = (CvsUpdateResult) i.next();
 			if (updateResult.getStatusCode()== type) {
 				results.add(updateResult);
 			}
@@ -206,17 +211,6 @@ public class UpdateServerResponse extends BasicServerResponse
     	return results;
     }
     
-    /**
-     * Get the list of UpdateResults. This method will block until the 
-     * UpdateCommand we are listening for has terminated.
-     * @return List of UpdateResults
-     */
-    public List getUpdateResults()
-    {
-    	waitForExecutionToFinish();
-    	return updateResults;
-    }
-   
     /**
      * Get a list of UpdateResults that represents conflicts. 
      * This method will block until the UpdateCommand we are listening for has
@@ -226,19 +220,7 @@ public class UpdateServerResponse extends BasicServerResponse
     public List getConflicts()
     {
     	waitForExecutionToFinish();
-    	return getUpdateResultsOfType(UpdateResult.CONFLICT);
-    }
-    
-    /**
-     * Get a list of UpdateResults that represents unknowns. 
-     * This method will block until the UpdateCommand we are listening for has
-     * terminated.
-     * @return List of UpdateResults which represents unknowns
-     */
-    public List getUnknown()
-    {
-    	waitForExecutionToFinish();
-    	return getUpdateResultsOfType(UpdateResult.UNKNOWN);
+    	return getUpdateResultsOfType(CvsUpdateResult.CONFLICT);
     }
     
     /**
@@ -250,7 +232,7 @@ public class UpdateServerResponse extends BasicServerResponse
     public List getUpdated()
     {
     	waitForExecutionToFinish();
-    	return getUpdateResultsOfType(UpdateResult.UPDATED);
+    	return getUpdateResultsOfType(CvsUpdateResult.UPDATED);
     }
     
     /**
@@ -296,7 +278,7 @@ public class UpdateServerResponse extends BasicServerResponse
      *               local version. (For any file not in the set, the local version
      *               is retained). 
      */
-    public BasicServerResponse overrideFiles(Set files)
+    public void overrideFiles(Set files)
     {
         // First delete backups of files which are to be overridden
         for (Iterator i = files.iterator(); i.hasNext(); ) {
@@ -316,11 +298,5 @@ public class UpdateServerResponse extends BasicServerResponse
             f.delete();
             backupFile.renameTo(f);
         }
-        
-        // For CVS, no communication with the server was really necessary,
-        // because the files were already downloaded. Use a dummy result.
-        BasicServerResponse result = new BasicServerResponse();
-        result.commandTerminated(null);
-        return result;
     }
 }

@@ -1,7 +1,6 @@
-package bluej.groupwork;
+package bluej.groupwork.cvs;
 
 import bluej.Config;
-import java.io.File;
 import org.netbeans.lib.cvsclient.CVSRoot;
 
 /**
@@ -9,7 +8,7 @@ import org.netbeans.lib.cvsclient.CVSRoot;
  * to the actual protocol String.
  * 
  * @author Bruce Quig
- * @version $Id: ProtocolMapper.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: ProtocolMapper.java 4916 2007-04-12 03:57:23Z davmac $
  */
 public class ProtocolMapper
 {

@@ -5,12 +5,9 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 
-import org.netbeans.lib.cvsclient.connection.AuthenticationException;
-
 import bluej.Config;
-import bluej.groupwork.BasicServerResponse;
-import bluej.groupwork.InvalidCvsRootException;
 import bluej.groupwork.TeamUtils;
+import bluej.groupwork.TeamworkCommandResult;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.actions.PkgMgrAction;
 
@@ -19,7 +16,7 @@ import bluej.pkgmgr.actions.PkgMgrAction;
  * An abstract class for team actions. 
  * 
  * @author fisker
- * @version $Id: TeamAction.java 4780 2006-12-22 04:14:21Z bquig $
+ * @version $Id: TeamAction.java 4916 2007-04-12 03:57:23Z davmac $
  */
 public abstract class TeamAction extends AbstractAction
 {
@@ -68,33 +65,9 @@ public abstract class TeamAction extends AbstractAction
      * 
      * @param basicServerResponse  The response to handle
      */
-    protected void handleServerResponse(BasicServerResponse basicServerResponse)
+    protected void handleServerResponse(TeamworkCommandResult result)
     {
-        TeamUtils.handleServerResponse(basicServerResponse, pkgMgrFrame);
-    }
-
-    /**
-     * Handle an authentication exception. This must NOT be called from the
-     * Swing event thread.
-     * 
-     * @param e  The authentication exception
-     */
-    protected void handleAuthenticationException(AuthenticationException e)
-    {
-        stopProgressBar();
-        TeamUtils.handleAuthenticationException(pkgMgrFrame);
-    }
-
-    /**
-     * Handle an invalid CVS root exception. This must NOT be called from the
-     * Swing event thread.
-     * 
-     * @param e  The exception
-     */
-    protected void handleInvalidCvsRootException(InvalidCvsRootException e)
-    {
-        stopProgressBar();
-        TeamUtils.handleInvalidCvsRootException(pkgMgrFrame);
+        TeamUtils.handleServerResponse(result, pkgMgrFrame);
     }
 
     /**

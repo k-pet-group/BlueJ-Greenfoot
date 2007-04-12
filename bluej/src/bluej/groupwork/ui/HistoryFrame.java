@@ -7,19 +7,9 @@ import java.util.*;
 
 import javax.swing.*;
 
-import org.netbeans.lib.cvsclient.command.CommandAbortedException;
-import org.netbeans.lib.cvsclient.command.CommandException;
-import org.netbeans.lib.cvsclient.command.log.LogInformation;
-import org.netbeans.lib.cvsclient.command.log.LogInformation.Revision;
-import org.netbeans.lib.cvsclient.connection.AuthenticationException;
-
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.groupwork.HistoryInfo;
-import bluej.groupwork.InvalidCvsRootException;
-import bluej.groupwork.LogServerResponse;
-import bluej.groupwork.Repository;
-import bluej.groupwork.TeamUtils;
+import bluej.groupwork.*;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.DBox;
@@ -31,7 +21,7 @@ import bluej.utility.SwingWorker;
  * and commit comments.
  * 
  * @author Davin McCall
- * @version $Id: HistoryFrame.java 4768 2006-12-13 02:51:24Z davmac $
+ * @version $Id: HistoryFrame.java 4916 2007-04-12 03:57:23Z davmac $
  */
 public class HistoryFrame extends JFrame
 {
@@ -84,6 +74,7 @@ public class HistoryFrame extends JFrame
         historyList.setCellRenderer(renderer);
         historyPane = new JScrollPane(historyList);
         historyPane.setAlignmentX(0f);
+        historyPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         contentPane.add(historyPane);
         
         // Find a suitable size for the history list
@@ -137,6 +128,9 @@ public class HistoryFrame extends JFrame
         closeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
+                if (worker != null) {
+                    worker.cancel();
+                }
                 dispose();
             }
         });
@@ -248,55 +242,46 @@ public class HistoryFrame extends JFrame
      * A worker class to fetch the required information from the repository
      * in the background.
      */
-    private class HistoryWorker extends SwingWorker
+    private class HistoryWorker extends SwingWorker implements LogHistoryListener
     {
         private Repository repository;
-        private LogServerResponse response;
+        private List responseList;
+        private TeamworkCommand command;
+        private TeamworkCommandResult response;
         
         public HistoryWorker(Repository repository)
         {
             this.repository = repository;
+            this.responseList = new ArrayList();
+            
+            command = repository.getLogHistory(this);
         }
         
         public Object construct()
         {
-            List resourceStatus = null;
-
-            try {
-                try {
-                    response = repository.getLogHistory();
-                }
-                finally {
-                    activityBar.setRunning(false);
-                }
-            } catch (CommandAbortedException e) {
-                // e.printStackTrace();
-                // This is ok - the command might be aborted by us
-            } catch (CommandException e) {
-                e.printStackTrace();
-            } catch (AuthenticationException e) {
-                TeamUtils.handleAuthenticationException(HistoryFrame.this);
-            } catch (InvalidCvsRootException e) {
-                TeamUtils.handleInvalidCvsRootException(HistoryFrame.this);
-                e.printStackTrace();
-            }
-
-            return resourceStatus;
+            response = command.getResult();
+            return response;
+        }
+        
+        public void logInfoAvailable(LogInformation logInfo)
+        {
+            responseList.add(logInfo);
         }
         
         public void finished()
         {
-            if (response != null) {
+            if (command != null) {
+                activityBar.setRunning(false);
+                command = null; // marks the command as finished
                 if (response.isError()) {
                     TeamUtils.handleServerResponse(response, HistoryFrame.this);
                 }
                 else {
-                    List reponseList = response.getInfoList();
                     List modelList = new ArrayList();
                     
                     // Convert the list of LogInformation into a list of
                     // HistoryInfo
-                    for (Iterator i = reponseList.iterator(); i.hasNext(); ) {
+                    for (Iterator i = responseList.iterator(); i.hasNext(); ) {
                         LogInformation logInfo = (LogInformation) i.next();
                         String file = logInfo.getFile().getPath();
                         String projectPath = project.getProjectDir().getPath();
@@ -316,12 +301,26 @@ public class HistoryFrame extends JFrame
                     }
                     
                     Collections.sort(modelList, new DateCompare());
+                    
+                    // Make the history list forget the preferred size that was forced
+                    // upon it when we built the frame.
+                    historyList.setPreferredSize(null);
+                    
                     renderer.setWrapMode(historyPane);
                     listModel.setListData(modelList);
                     historyInfoList = modelList;
                     
                     resetFilterBoxes();
                 }
+            }
+        }
+        
+        public void cancel()
+        {
+            if (command != null) {
+                activityBar.setRunning(false);
+                command.cancel();
+                command = null;
             }
         }
     }

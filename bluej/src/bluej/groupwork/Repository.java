@@ -5,23 +5,18 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import org.netbeans.lib.cvsclient.command.CommandAbortedException;
-import org.netbeans.lib.cvsclient.command.CommandException;
-import org.netbeans.lib.cvsclient.connection.AuthenticationException;
-
+/**
+ * A version control repository, which comprises a remote repository together with a
+ * local copy.
+ * 
+ * @author Davin McCall
+ */
 public interface Repository
 {
     /**
      * Checkout project from repostitory to local project.
-     *
-     * @throws CommandException
-     * @throws CommandAbortedException
-     * @throws AuthenticationException
-     * @throws InvalidCvsRootException
      */
-    public BasicServerResponse checkout(File projectPath)
-        throws CommandException, CommandAbortedException, 
-        AuthenticationException, InvalidCvsRootException;
+    public TeamworkCommand checkout(File projectPath);
 
     /**
      * Commits the files and directories in the project. If files or dirs need
@@ -40,100 +35,41 @@ public interface Repository
      * @param files  All files to be committed (including all in newFiles, binaryNewFiles,
      *               and deletedFiles, as well as any other files to be committed)
      * @param commitComment  The comment for this commit
-     *
-     * @throws CommandAbortedException
-     * @throws CommandException
-     * @throws AuthenticationException
-     * @throws InvalidCvsRootException
      */
-    public BasicServerResponse commitAll(Set newFiles, Set binaryNewFiles,
-            Set deletedFiles, Set files, String commitComment)
-        throws CommandAbortedException, CommandException, 
-            AuthenticationException, InvalidCvsRootException;
+    public TeamworkCommand commitAll(Set newFiles, Set binaryNewFiles,
+            Set deletedFiles, Set files, String commitComment);
     
     /**
      * Get all changes from repository except the pkg files that determine the
      * layout of the graph.
      *
-     * @param includeGraphLayout should the update include the pkg files.
-     *
-     * @return UpdateServerResponse if an update was performed
-     *
-     * @throws CommandAbortedException
-     * @throws CommandException
-     * @throws AuthenticationException
-     * @throws InvalidCvsRootException
+     * @param listener  a listener to be notified of files being added/updated/removed
+     *                  during the update, and to be notified of conflicts.
      */
-    public UpdateServerResponse updateAll(UpdateListener listener)
-        throws CommandAbortedException, CommandException, 
-            AuthenticationException, InvalidCvsRootException;
+    public TeamworkCommand updateAll(UpdateListener listener);
     
     /**
-     * Put the project in the repository and make local copy a sandbox
-     *
-     * @throws CommandAbortedException
-     * @throws CommandException
-     * @throws AuthenticationException
-     * @throws InvalidCvsRootException
+     * Put the project in the repository
      */
-    public BasicServerResponse shareProject()
-        throws CommandAbortedException, CommandException, 
-            AuthenticationException, InvalidCvsRootException;
+    public TeamworkCommand shareProject();
 
-    /**
-     * Get a list of files which are in the repository, but which are
-     * not in the local project. This includes both files which have been
-     * locally deleted, and files which have been added to the repository
-     * from another location.
-     * 
-     * @param remoteDirs  This set will have all remote directories which
-     *                    are found added to it.
-     * 
-     * @throws InvalidCvsRootException
-     * @throws AuthenticationException
-     * @throws CommandException
-     */
-    public List getRemoteFiles(Set remoteDirs) throws InvalidCvsRootException,
-        AuthenticationException, CommandException;
-    
-    /**
-     * Find the remote directories which also exist locally, but are not
-     * locally under version control.
-     */
-    public Set getRemoteDirs() throws InvalidCvsRootException,
-        AuthenticationException, CommandException;
-    
     /**
      * Get status of all the given files.
      * Returns a List of TeamStatusInfo.
-     * 
+     *
+     * @param listener  A listener to be notified of the status of each requested file
      * @param files  The files whose status to retrieve
-     * @param remoteDirs  These are the directories which we know are in the
-     *                    repository. Any file in the files list which does not
-     *                    exist locally but for which the containing directory is
-     *                    in the repository,  should have that directory listed here.
-     * 
-     * @throws CommandAbortedException
-     * @throws CommandException
-     * @throws AuthenticationException
-     * @throws InvalidCvsRootException
+     * @param includeRemote  Whether to include remote files (files which do not exist
+     *                       locally, but which do exist in the repository), regardless of
+     *                       whether they are listed in the files argument.
      */
-    public List getStatus(Set files, Set remoteDirs)
-        throws CommandAbortedException, CommandException, 
-            AuthenticationException, InvalidCvsRootException;
+    public TeamworkCommand getStatus(StatusListener listener, Set files, boolean includeRemote);
     
     /**
-     * Get a list of modules in the repository. The module list is returned as
-     * an UpdateServerResponse - use getNewDirectories() to get the list of module
-     * names.
-     * 
-     * @throws InvalidCvsRootException
-     * @throws AuthenticationException
-     * @throws CommandAbortedException
-     * @throws CommandException
+     * Get a list of modules in the repository. The module names (String) are added
+     * to the supplied list before the command terminates.
      */
-    public UpdateServerResponse getModules(List modules) throws InvalidCvsRootException, AuthenticationException,
-            CommandAbortedException, CommandException;
+    public TeamworkCommand getModules(List modules);
     
     /**
      * Get the locally deleted files (files which are under version control,
@@ -150,13 +86,6 @@ public interface Repository
     /**
      * Get the history of the repository - all commits, including file, date,
      * revision, user, and comment.
-     * 
-     * @throws AuthenticationException
-     * @throws InvalidCvsRootException
-     * @throws CommandAbortedException
-     * @throws CommandException
      */
-    public LogServerResponse getLogHistory()
-        throws AuthenticationException, InvalidCvsRootException, CommandAbortedException,
-        CommandException;
+    public TeamworkCommand getLogHistory(LogHistoryListener listener);
 }
