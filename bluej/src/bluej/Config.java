@@ -37,7 +37,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 4911 2007-04-11 14:32:08Z mik $
+ * @version $Id: Config.java 4918 2007-04-12 15:49:32Z mik $
  */
 
 public final class Config
@@ -47,14 +47,15 @@ public final class Config
     // bluej configuration properties heirarchy
     // (command overrides user which overrides system)
     
-    private static Properties system_props;  // bluej.defs
-    private static Properties user_props;    // <user home>/bluej.properties
-    private static Properties command_props; // specified on the command line
+    private static Properties systemProps;      // bluej.defs
+    private static Properties userProps;        // <user home>/bluej.properties
+    private static Properties greenfootProps;   // greenfoot.defs
+    private static Properties commandProps;     // specified on the command line
     
-    public static Properties moe_system_props;  // moe (editor) properties
-    public static Properties moe_user_props;    // moe (editor) properties
+    public static Properties moeSystemProps;  // moe (editor) properties
+    public static Properties moeUserProps;    // moe (editor) properties
     
-    private static Properties lang_props;	// international labels
+    private static Properties langProps;	// international labels
 
     private static BlueJPropStringSource propSource; // source for properties
 
@@ -132,18 +133,25 @@ public final class Config
         // setup our heirarchy of property objects
         
         // top level is the system properties loaded from bluej.defs
-        system_props = loadDefs("bluej.defs");
+        systemProps = loadDefs("bluej.defs", System.getProperties());
         
-        // next level is the user propeties (not loaded yet)
-        user_props = new Properties(system_props);
+        // next level is the greenfoot propeties (if we are running greenfoot)
+        // and then the user propeties (not loaded yet)
+        if(isGreenfoot()) {
+            greenfootProps = loadDefs("greenfoot.defs", systemProps);
+            userProps = new Properties(greenfootProps);
+        }
+        else {
+            userProps = new Properties(systemProps);
+        }
         
         // then there is the command line properties
-        command_props = new Properties(user_props);
+        commandProps = new Properties(userProps);
         
         // copy in all our command line properties (done first
         // incase the bluej.userHome property is one specified)
-        command_props.putAll(tempCommandLineProps);
-        command_props.setProperty("bluej.libdir", bluejLibDir.getAbsolutePath());
+        commandProps.putAll(tempCommandLineProps);
+        commandProps.setProperty("bluej.libdir", bluejLibDir.getAbsolutePath());
         
         // get user home directory
         {
@@ -160,7 +168,7 @@ public final class Config
         }
 
         // add user specific definitions
-        loadProperties("bluej", user_props);
+        loadProperties("bluej", userProps);
 
         // set a new name for the log file if we are running in greenfoot mode
         if(isGreenfoot) {
@@ -170,12 +178,12 @@ public final class Config
         checkDebug(userPrefDir);
         
         // find our language (but default to english if none found)
-        language = command_props.getProperty("bluej.language", DEFAULT_LANGUAGE);
-        lang_props = loadLanguageLabels(language);
+        language = commandProps.getProperty("bluej.language", DEFAULT_LANGUAGE);
+        langProps = loadLanguageLabels(language);
 
-        moe_system_props = loadDefs("moe.defs");
-        moe_user_props = new Properties(moe_system_props);
-        loadProperties("moe", moe_user_props);  // add user specific editor definitions
+        moeSystemProps = loadDefs("moe.defs", System.getProperties());
+        moeUserProps = new Properties(moeSystemProps);
+        loadProperties("moe", moeUserProps);  // add user specific editor definitions
 
         compilertype = Config.getPropString("bluej.compiler.type");
         if(compilertype.equals("internal")) {
@@ -203,7 +211,7 @@ public final class Config
         
         // Create a property containing the BlueJ version string
         // put it in command_props so it won't be saved to a file
-        command_props.setProperty("bluej.version", Boot.BLUEJ_VERSION);
+        commandProps.setProperty("bluej.version", Boot.BLUEJ_VERSION);
     } // initialise
 
     /**
@@ -221,7 +229,7 @@ public final class Config
         Config.propSource = propSource;
         screenBounds = calculateScreenBounds();
         
-        system_props = new Properties() {
+        systemProps = new Properties() {
           public String getProperty(String key)
           {
               return Config.propSource.getBlueJPropertyString(key, null);
@@ -232,16 +240,16 @@ public final class Config
               return Config.propSource.getBlueJPropertyString(key, def);
           }
         };
-        user_props = new Properties(system_props) {
+        userProps = new Properties(systemProps) {
             public Object setProperty(String key, String val) {
                 String rval = getProperty(key);
                 Config.propSource.setUserProperty(key, val);
                 return rval;
             }
         };
-        command_props = new Properties(user_props);
+        commandProps = new Properties(userProps);
         
-        lang_props =  new Properties() {
+        langProps =  new Properties() {
             public String getProperty(String key)
             {
                 return Config.propSource.getLabel(key);
@@ -256,7 +264,7 @@ public final class Config
         // get user home directory
         {
             File userHome;
-            String homeDir = command_props.getProperty("bluej.userHome", null);
+            String homeDir = commandProps.getProperty("bluej.userHome", null);
             if(homeDir == null)
                 userHome = new File(System.getProperty("user.home"));
             else
@@ -423,7 +431,7 @@ public final class Config
      */
     private static void checkDebug(File userdir)
     {
-        if (!"true".equals(command_props.getProperty("bluej.debug"))) {
+        if (!"true".equals(commandProps.getProperty("bluej.debug"))) {
             File debugLogFile = new File(userdir, debugLogName);
             // simple diversion of output stream to a log file
             try {
@@ -455,8 +463,8 @@ public final class Config
      */
     public static void handleExit()
     {
-        saveProperties("bluej", "properties.heading.bluej", user_props);
-        saveProperties("moe", "properties.heading.moe", moe_user_props);
+        saveProperties("bluej", "properties.heading.bluej", userProps);
+        saveProperties("moe", "properties.heading.moe", moeUserProps);
     }
 
     /**
@@ -467,10 +475,10 @@ public final class Config
      *
      * @param filename  the properties file
      */
-    private static Properties loadDefs(String filename)
+    private static Properties loadDefs(String filename, Properties parentProperties)
     {
         File propsFile = new File(bluejLibDir, filename);
-        Properties defs = new Properties(System.getProperties());
+        Properties defs = new Properties(parentProperties);
 
         try {
             defs.load(new FileInputStream(propsFile));
@@ -490,7 +498,7 @@ public final class Config
     private static Properties loadLanguageLabels(String language)
     {
         // add the defaults (English)
-        Properties labels = loadDefs(DEFAULT_LANGUAGE + File.separator + "labels");
+        Properties labels = loadDefs(DEFAULT_LANGUAGE + File.separator + "labels", System.getProperties());
         // add localised labels if necessary...
         if(!DEFAULT_LANGUAGE.equals(language)) {
             String languageFileName = language + File.separator + "labels";
@@ -541,7 +549,7 @@ public final class Config
      */
     public static Properties getMoeHelp()
     {
-        return loadDefs(language + File.separator + "moe.help");
+        return loadDefs(language + File.separator + "moe.help", System.getProperties());
     }
     
     /**
@@ -560,7 +568,7 @@ public final class Config
     public static String getString(String strname, String def)
     {
         int index;
-        String str = lang_props.getProperty(strname, def);
+        String str = langProps.getProperty(strname, def);
         // remove all underscores
         while( (index = str.indexOf('_')) != -1){
             str = str.substring(0, index) + str.substring(index+1);
@@ -583,7 +591,7 @@ public final class Config
     public static int getMnemonicKey(String strname)
     {
         int mnemonic;
-        String str = lang_props.getProperty(strname, strname);
+        String str = langProps.getProperty(strname, strname);
         int index = str.indexOf('_');
         if (index == -1 || (index + 1) >= str.length()) {
             mnemonic = KeyEvent.VK_UNDEFINED;
@@ -602,7 +610,7 @@ public final class Config
      */
     public static boolean hasAcceleratorKey(String strname)
     {
-        return lang_props.getProperty(strname, strname).indexOf('@') != -1;
+        return langProps.getProperty(strname, strname).indexOf('@') != -1;
     }    
     
     /**
@@ -615,7 +623,7 @@ public final class Config
     {
         int index;
         int modifiers = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-        String str = lang_props.getProperty(strname, strname);
+        String str = langProps.getProperty(strname, strname);
         String keyString;
         index = str.indexOf('@');
         index++;
@@ -698,11 +706,11 @@ public final class Config
         }
 
         // try to find it using the sysId prefix
-        String value = command_props.getProperty(sysID + propName);
+        String value = commandProps.getProperty(sysID + propName);
 
         // if that failed, just look for the plain property value
         if(value == null) {
-            value = command_props.getProperty(propName);
+            value = commandProps.getProperty(propName);
         }
 
         return value;
@@ -732,7 +740,7 @@ public final class Config
      */
     public static String getPropString(String strname, String def)
     {
-        return getPropString(strname, def, command_props);
+        return getPropString(strname, def, commandProps);
     }
     
     /**
@@ -766,7 +774,7 @@ public final class Config
      */
     public static String getDefaultPropString(String strname, String def)
     {
-        return system_props.getProperty(strname, def);
+        return systemProps.getProperty(strname, def);
     }
 
     /**
@@ -812,7 +820,7 @@ public final class Config
      */
     public static String removeProperty(String propertyName)
     {
-        return (String)(user_props.remove(propertyName));
+        return (String)(userProps.remove(propertyName));
     }
 
     /**
@@ -949,7 +957,7 @@ public final class Config
      */
     public static File getClassTemplateDir()
     {
-        String path = command_props.getProperty("bluej.templatePath" , "");
+        String path = commandProps.getProperty("bluej.templatePath" , "");
         if(path.length() == 0)
             return getLanguageFile("templates/newclass");
         else
@@ -1079,16 +1087,16 @@ public final class Config
      */
     public static void putPropInteger(String intname, int value)
     {
-        String defVal = system_props.getProperty(intname);
+        String defVal = systemProps.getProperty(intname);
         if (defVal != null) {
             try {
                 if (value == Integer.valueOf(defVal).intValue()) {
-                    user_props.remove(intname);
+                    userProps.remove(intname);
                 }
             }
             catch (NumberFormatException nfe) { }
         }
-        user_props.setProperty(intname, Integer.toString(value));
+        userProps.setProperty(intname, Integer.toString(value));
     }
 
     /**
@@ -1096,12 +1104,12 @@ public final class Config
      */
     public static void putPropString(String strname, String value)
     {
-        String defVal = system_props.getProperty(strname);
+        String defVal = systemProps.getProperty(strname);
         if (defVal == null || ! defVal.equals(value)) {
-            user_props.setProperty(strname, value);
+            userProps.setProperty(strname, value);
         }
         else {
-            user_props.remove(strname);
+            userProps.remove(strname);
         }
     }
     
@@ -1110,12 +1118,12 @@ public final class Config
      */
     public static void putPropBoolean(String propname, boolean value)
     {
-        String sysval = system_props.getProperty(propname);
+        String sysval = systemProps.getProperty(propname);
         if (Boolean.valueOf(sysval).booleanValue() == value) {
-            user_props.remove(propname);
+            userProps.remove(propname);
         }
         else {
-            user_props.setProperty(propname, String.valueOf(value));
+            userProps.setProperty(propname, String.valueOf(value));
         }
     }
     
@@ -1271,7 +1279,7 @@ public final class Config
      * This can be done by starting BlueJ with this command line argument
      * -greenfoot=true
      */
-    public static boolean isGreenfoot()
+    public static final boolean isGreenfoot()
     {
         return isGreenfoot;
     }
