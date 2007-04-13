@@ -37,7 +37,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 4931 2007-04-13 10:04:19Z mik $
+ * @version $Id: Config.java 4933 2007-04-13 10:12:29Z mik $
  */
 
 public final class Config
@@ -464,7 +464,15 @@ public final class Config
     public static void handleExit()
     {
         final String name = getApplicationName().toLowerCase();
-        saveProperties(name, "properties.heading." + name, userProps);
+        // The following can be used once we have i18n labels for Greenfoot:
+        //   saveProperties(name, "properties.heading." + name, userProps);
+        // unitl then:
+        if(isGreenfoot()) {
+            saveProperties(name, "Greenfoot properties. Settings in this file override \"bluej.defs\" and \"greenfoot.defs\"", userProps);
+        }
+        else {
+            saveProperties(name, "properties.heading." + name, userProps);            
+        }
         saveProperties("moe", "properties.heading.moe", moeUserProps);
     }
 
