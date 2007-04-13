@@ -66,4 +66,9 @@ public class ActorVisitor
     {
         Actor.setDelegate(instance);
     }
+    
+    public static int getSequenceNumber(Actor actor)
+    {
+        return actor.getSequenceNumber();
+    }
 }

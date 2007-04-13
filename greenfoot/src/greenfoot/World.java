@@ -1,8 +1,8 @@
 package greenfoot;
 
 
-import greenfoot.collision.BVHInsChecker;
 import greenfoot.collision.CollisionChecker;
+import greenfoot.collision.ibsp.IBSPColChecker;
 import greenfoot.core.WorldHandler;
 import greenfoot.util.Version;
 
@@ -67,15 +67,16 @@ public abstract class World
         }
     }
     // private CollisionChecker collisionChecker = new GridCollisionChecker();
-    private CollisionChecker collisionChecker = new BVHInsChecker();
-    // private CollisionChecker collisionChecker = new IBSPColChecker();
+    // private CollisionChecker collisionChecker = new BVHInsChecker();
+    private CollisionChecker collisionChecker = new IBSPColChecker();
     
     //{
     //    collisionChecker = new CollisionProfiler(collisionChecker);
     //}
 
     /** All the objects currently in the world */
-    private List objects = Collections.synchronizedList(new ArrayList());
+    //private List objects = Collections.synchronizedList(new ArrayList());
+    private ActorSet objects = new ActorSet();
 
     /** The size of the cell in pixels. */
     private int cellSize = 1;
@@ -551,7 +552,7 @@ public abstract class World
      * should be synchronized on itself or the World to avoid concurrent
      * modifactions.
      */
-    List<Actor> getObjectsList()
+    ActorSet getObjectsList()
     {
         return objects;
     }

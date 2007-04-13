@@ -4,7 +4,6 @@ import greenfoot.util.Version;
 
 import java.awt.Graphics;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Class that makes it possible for classes outside the greenfoot package to get
@@ -13,7 +12,7 @@ import java.util.List;
  * in the public interface visible to users.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldVisitor.java 4665 2006-10-27 11:30:39Z polle $
+ * @version $Id: WorldVisitor.java 4927 2007-04-13 02:57:12Z davmac $
  */
 public class WorldVisitor
 {
@@ -73,7 +72,7 @@ public class WorldVisitor
      * should be synchronized on itself or the World to avoid concurrent
      * modifactions.
      */
-    public static List<Actor> getObjectsList(World world)
+    public static ActorSet getObjectsList(World world)
     {
         return world.getObjectsList(); 
     }

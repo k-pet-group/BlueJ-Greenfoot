@@ -35,6 +35,9 @@ public abstract class Actor
     /** Error message to display when trying to use methods that requires the actor be in a world. */
     private static final String ACTOR_NOT_IN_WORLD = "The actor has not been inserted into a world so it has no location yet. You might want to look at the method addedToWorld on the Actor class.";
     
+    /** Counter of number of actors constructed, used as a hash value */
+    static int sequenceNumber = 0;
+    
     /**
      * x-coordinate of the object's location in the world. The object is
      * centered around this location.
@@ -46,6 +49,11 @@ public abstract class Actor
      * centered aroudn this location.
      */
     int y;
+    
+    /**
+     * Sequence number of this actor
+     */
+    int mySequenceNumber;
 
     /** Rotation in degrees (0-359) */
     private int rotation = 0;
@@ -89,6 +97,7 @@ public abstract class Actor
     {
         // Use the class image, if one is defined, as the default image, or the
         // greenfoot logo image otherwise
+        mySequenceNumber = sequenceNumber++;
         GreenfootImage image = getClassImage();
         if (image == null) {
             image = greenfootImage;
@@ -858,6 +867,15 @@ public abstract class Actor
         return false;
     } 
     
+    /**
+     * Get the sequence number of this actor. This can be used as a
+     * hash value, which is not overridable by the user.
+     */
+    int getSequenceNumber()
+    {
+        return mySequenceNumber;
+    }
+
     // ============================================================================
     //  
     // Methods below here are delegated to different objects depending on how
@@ -891,7 +909,7 @@ public abstract class Actor
     {
         return delegate.getWorld(); //WorldHandler.getInstance().getWorld();
     }
-   
+       
     //============================================================================
     //  
     //  Object Transporting - between the two VMs
@@ -918,5 +936,5 @@ public abstract class Actor
     static void setTransportField(Object obj)
     {
         transportField = obj;
-    }   
+    }       
 }

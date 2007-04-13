@@ -14,7 +14,7 @@ import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen
- * @version $Id: RunSimulationAction.java 4899 2007-03-26 09:51:48Z mik $
+ * @version $Id: RunSimulationAction.java 4927 2007-04-13 02:57:12Z davmac $
  */
 public class RunSimulationAction extends AbstractAction
     implements SimulationListener
@@ -53,18 +53,8 @@ public class RunSimulationAction extends AbstractAction
             Debug.reportError("attempt to run a simulation while none exists.");
             return;
         }
-        //	We don't want to block!
-        new Thread() {
-            public void run()
-            {
-                if (simulation.isAlive()) {
-                    simulation.setPaused(false);
-                }
-                else {
-                    simulation.start();
-                }
-            }
-        }.start();
+        
+        simulation.setPaused(false);
     }
 
     /**

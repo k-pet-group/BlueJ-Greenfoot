@@ -1,21 +1,11 @@
 package greenfoot.gui;
 
-import greenfoot.Actor;
-import greenfoot.ActorVisitor;
-import greenfoot.ImageVisitor;
-import greenfoot.World;
-import greenfoot.WorldVisitor;
-import greenfoot.GreenfootImage;
+import greenfoot.*;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.util.Iterator;
-import java.util.List;
+
 import javax.swing.JPanel;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
@@ -24,7 +14,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 4665 2006-10-27 11:30:39Z polle $
+ * @version $Id: WorldCanvas.java 4927 2007-04-13 02:57:12Z davmac $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -44,7 +34,7 @@ public class WorldCanvas extends JPanel
      * 
      * @param world
      */
-    public void setWorld(World world)
+    public synchronized void setWorld(World world)
     {
         this.world = world;
         if (world != null) {
@@ -60,9 +50,7 @@ public class WorldCanvas extends JPanel
     }
 
     /**
-     * Paints all the objects
-     * 
-     * @param g
+     * Paints all the objects; must be called from a synchronized context.
      */
     private void paintObjects(Graphics g)
     {
@@ -70,8 +58,8 @@ public class WorldCanvas extends JPanel
             return;
         }
         //we need to sync, so that objects are not added and removed when we traverse the list.
-        List objects = WorldVisitor.getObjectsList(world);
-        synchronized (objects) {
+        synchronized (world) {
+            ActorSet objects = WorldVisitor.getObjectsList(world);
             for (Iterator iter = objects.iterator(); iter.hasNext();) {
                 Actor thing = (Actor) iter.next();
                 int cellSize = WorldVisitor.getCellSize(world);
@@ -100,7 +88,7 @@ public class WorldCanvas extends JPanel
      * TODO optimize performance... double buffering?
      * 
      */
-    public void paintComponent(Graphics g)
+    public synchronized void paintComponent(Graphics g)
     {
         super.paintComponent(g);
         if (world == null) {
@@ -116,6 +104,7 @@ public class WorldCanvas extends JPanel
     /**
      * Paint the world background. This takes tiling into account: the
      * world image is painted either once or tiled onto this component.
+     * Must be called from a synchronized context.
      */
     private void paintBackground(Graphics g)
     {
@@ -259,13 +248,11 @@ public class WorldCanvas extends JPanel
 
     public boolean getScrollableTracksViewportWidth()
     {
-        // TODO Auto-generated method stub
         return false;
     }
 
     public boolean getScrollableTracksViewportHeight()
     {
-        // TODO Auto-generated method stub
         return false;
     }
 
