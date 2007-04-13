@@ -1,4 +1,4 @@
-package bluej.groupwork.cvs;
+package bluej.groupwork.cvsnb;
 
 import bluej.groupwork.UnableToParseInputException;
 import bluej.groupwork.UpdateResult;

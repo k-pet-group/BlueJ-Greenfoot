@@ -1,4 +1,4 @@
-package bluej.groupwork.cvs;
+package bluej.groupwork.cvsnb;
 
 import org.netbeans.lib.cvsclient.command.CommandAbortedException;
 import org.netbeans.lib.cvsclient.command.CommandException;

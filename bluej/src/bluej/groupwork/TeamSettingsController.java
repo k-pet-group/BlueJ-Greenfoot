@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import bluej.Config;
-import bluej.groupwork.cvs.CvsRepository;
+import bluej.groupwork.cvsnb.CvsRepository;
 import bluej.groupwork.ui.TeamSettingsDialog;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
@@ -17,7 +17,7 @@ import bluej.utility.filefilter.DirectoryFilter;
  * the top-level folder of a team project, and the bluej.properties
  *
  * @author fisker
- * @version $Id: TeamSettingsController.java 4906 2007-04-03 03:09:48Z davmac $
+ * @version $Id: TeamSettingsController.java 4926 2007-04-13 02:28:18Z davmac $
  */
 public class TeamSettingsController
 {
@@ -98,7 +98,8 @@ public class TeamSettingsController
     
     /**
      * Get a list of files in the project which should be under version
-     * control management.
+     * control management. This includes files which have been locally deleted
+     * since the last commit.
      * 
      * @param includeLayout  indicates whether to include the layout (bluej.pkg) files.
      */

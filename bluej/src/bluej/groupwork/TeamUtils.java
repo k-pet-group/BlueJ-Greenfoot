@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import bluej.groupwork.cvs.CvsServerMessageTranslator;
+import bluej.groupwork.cvsnb.CvsServerMessageTranslator;
 import bluej.utility.DialogManager;
 
 public class TeamUtils

@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.groupwork.TeamSettingsController;
-import bluej.groupwork.cvs.ProtocolMapper;
+import bluej.groupwork.cvsnb.ProtocolMapper;
 import bluej.utility.EscapeDialog;
 
 /**
@@ -19,7 +19,7 @@ import bluej.utility.EscapeDialog;
  *
  * @author fisker
  * @author bquig
- * @version $Id: TeamSettingsDialog.java 4916 2007-04-12 03:57:23Z davmac $
+ * @version $Id: TeamSettingsDialog.java 4926 2007-04-13 02:28:18Z davmac $
  */
 public class TeamSettingsDialog extends EscapeDialog
 {

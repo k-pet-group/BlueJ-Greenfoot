@@ -1,4 +1,4 @@
-package bluej.groupwork.cvs;
+package bluej.groupwork.cvsnb;
 
 import java.io.File;
 import java.util.Collection;

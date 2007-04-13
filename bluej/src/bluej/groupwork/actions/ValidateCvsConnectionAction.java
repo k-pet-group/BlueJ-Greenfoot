@@ -5,8 +5,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 
-import bluej.groupwork.cvs.CvsRepository;
-import bluej.groupwork.cvs.ProtocolMapper;
+import bluej.groupwork.cvsnb.CvsRepository;
+import bluej.groupwork.cvsnb.ProtocolMapper;
 import bluej.groupwork.ui.TeamSettingsPanel;
 import bluej.utility.Debug;
 

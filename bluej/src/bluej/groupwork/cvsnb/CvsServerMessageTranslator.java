@@ -1,11 +1,11 @@
-package bluej.groupwork.cvs;
+package bluej.groupwork.cvsnb;
 
 /**
  * This class takes strings that represent messages from the CVS server and
  * returns strings that are easier to understand.
  * 
  * @author fisker
- * @version $Id: CvsServerMessageTranslator.java 4916 2007-04-12 03:57:23Z davmac $
+ * @version $Id: CvsServerMessageTranslator.java 4926 2007-04-13 02:28:18Z davmac $
  */
 public class CvsServerMessageTranslator
 {

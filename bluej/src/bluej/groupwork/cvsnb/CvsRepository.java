@@ -1,4 +1,4 @@
-package bluej.groupwork.cvs;
+package bluej.groupwork.cvsnb;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +35,7 @@ import bluej.utility.Debug;
  * This class handles communication with the repository.
  *
  * @author fisker
- * @version $Id: CvsRepository.java 4916 2007-04-12 03:57:23Z davmac $
+ * @version $Id: CvsRepository.java 4926 2007-04-13 02:28:18Z davmac $
  */
 public class CvsRepository implements Repository
 {

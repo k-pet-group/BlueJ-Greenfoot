@@ -1,4 +1,4 @@
-package bluej.groupwork.cvs;
+package bluej.groupwork.cvsnb;
 
 import org.netbeans.lib.cvsclient.event.BinaryMessageEvent;
 import org.netbeans.lib.cvsclient.event.CVSListener;
