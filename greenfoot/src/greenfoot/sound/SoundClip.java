@@ -99,10 +99,6 @@ public class SoundClip extends Sound
      */
     public void play()
     {
-//        if(hasPlayed) {
-//            throw new IllegalStateException("This sound has already been played.");
-//        }
-//   polle: WHY was this here? (mik)
         isPlaying = true;
         soundClip.setMicrosecondPosition(0);
         soundClip.start();
