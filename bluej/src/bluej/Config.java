@@ -37,7 +37,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 4918 2007-04-12 15:49:32Z mik $
+ * @version $Id: Config.java 4931 2007-04-13 10:04:19Z mik $
  */
 
 public final class Config
@@ -167,8 +167,8 @@ public final class Config
             }
         }
 
-        // add user specific definitions
-        loadProperties("bluej", userProps);
+        // add user specific definitions (bluej.properties or greenfoot.properties)
+        loadProperties(getApplicationName().toLowerCase(), userProps);
 
         // set a new name for the log file if we are running in greenfoot mode
         if(isGreenfoot) {
@@ -463,7 +463,8 @@ public final class Config
      */
     public static void handleExit()
     {
-        saveProperties("bluej", "properties.heading.bluej", userProps);
+        final String name = getApplicationName().toLowerCase();
+        saveProperties(name, "properties.heading." + name, userProps);
         saveProperties("moe", "properties.heading.moe", moeUserProps);
     }
 
