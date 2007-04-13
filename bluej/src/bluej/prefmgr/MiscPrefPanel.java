@@ -14,23 +14,31 @@ import bluej.utility.DialogManager;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 4925 2007-04-12 16:43:17Z mik $
+ * @version $Id: MiscPrefPanel.java 4929 2007-04-13 09:49:20Z mik $
  */
 public class MiscPrefPanel extends JPanel implements PrefPanelListener
 {
-    static final String jdkURLPropertyName = "bluej.url.javaStdLib";
+    private static final String bluejJdkURL = "bluej.url.javaStdLib";
+    private static final String greenfootJdkURL = "greenfoot.url.javaStdLib";
 
     private JTextField jdkURLField;
     private JCheckBox linkToLibBox;
     private JCheckBox showUncheckedBox; // show "unchecked" compiler warning
     private JCheckBox showTestBox;
     private JCheckBox showTeamBox;
+    private String jdkURLPropertyName;
      
     /**
      * Setup the UI for the dialog and event handlers for the buttons.
      */
     public MiscPrefPanel()
     {
+        if(Config.isGreenfoot()) {
+            jdkURLPropertyName = greenfootJdkURL;
+        }
+        else {
+            jdkURLPropertyName = bluejJdkURL;
+        }
         JPanel box = new JPanel();
         box.setLayout(new BoxLayout(box, BoxLayout.Y_AXIS));
         add(box);
