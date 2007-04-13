@@ -76,7 +76,7 @@ public abstract class World
 
     /** All the objects currently in the world */
     //private List objects = Collections.synchronizedList(new ArrayList());
-    private ActorSet objects = new ActorSet();
+    private TreeActorSet objects = new TreeActorSet();
 
     /** The size of the cell in pixels. */
     private int cellSize = 1;
@@ -248,6 +248,26 @@ public abstract class World
         return cellSize;
     }
 
+    /**
+     * Sets the paint order of objects in the world according to their class.
+     * Objects of the first class given will be painted last, so they will
+     * appear on top of all other objects; objects of the second class given
+     * will be painted second last, and so on.
+     * <p>
+     * Objects not belonging to any of the given classes will appear underneath
+     * all other objects.
+     * 
+     * @param classes  The classes in desired paint order
+     */
+    public void setPaintOrder(Class ... classes)
+    {
+        if (classes == null) {
+            // Allow null as an argument, to specify no paint order
+            classes = new Class[0];
+        }
+        objects.setClassOrder(classes);
+    }
+    
     /**
      * Add an Actor to the world (at the object's specified location).
      * 
@@ -552,7 +572,7 @@ public abstract class World
      * should be synchronized on itself or the World to avoid concurrent
      * modifactions.
      */
-    ActorSet getObjectsList()
+    TreeActorSet getObjectsList()
     {
         return objects;
     }

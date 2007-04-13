@@ -5,6 +5,7 @@ import greenfoot.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.swing.JPanel;
 import javax.swing.Scrollable;
@@ -14,7 +15,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 4927 2007-04-13 02:57:12Z davmac $
+ * @version $Id: WorldCanvas.java 4928 2007-04-13 06:21:45Z davmac $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -59,7 +60,7 @@ public class WorldCanvas extends JPanel
         }
         //we need to sync, so that objects are not added and removed when we traverse the list.
         synchronized (world) {
-            ActorSet objects = WorldVisitor.getObjectsList(world);
+            Set<Actor> objects = WorldVisitor.getObjectsList(world);
             for (Iterator iter = objects.iterator(); iter.hasNext();) {
                 Actor thing = (Actor) iter.next();
                 int cellSize = WorldVisitor.getCellSize(world);

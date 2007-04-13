@@ -12,7 +12,7 @@ import java.util.Collection;
  * in the public interface visible to users.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldVisitor.java 4927 2007-04-13 02:57:12Z davmac $
+ * @version $Id: WorldVisitor.java 4928 2007-04-13 06:21:45Z davmac $
  */
 public class WorldVisitor
 {
@@ -72,7 +72,7 @@ public class WorldVisitor
      * should be synchronized on itself or the World to avoid concurrent
      * modifactions.
      */
-    public static ActorSet getObjectsList(World world)
+    public static TreeActorSet getObjectsList(World world)
     {
         return world.getObjectsList(); 
     }
