@@ -33,12 +33,15 @@ import greenfoot.sound.SoundPlayer;
  * 
  * @author Davin McCall
  * @version 1.2.0
- * @cvs-version $Id: Greenfoot.java 4885 2007-03-24 15:08:12Z polle $
+ * @cvs-version $Id: Greenfoot.java 4947 2007-04-16 18:13:24Z polle $
  */
 public class Greenfoot
 {
     
     private static Random randomGenerator = new Random();
+    
+    // Whether we have handled a LineUnavailableException
+    private static boolean lineUnavailableHandled = false;
     
     /**
      * Get the most recently pressed key, since the last time this method was
@@ -67,7 +70,7 @@ public class Greenfoot
     /**
      * This method will delay the current execution by the time specified
      * by the Greenfoot environment (the speed slider).
-     * 
+     * false
      * @see #setSimulationSpeed(int)
      */
     public static void delay()
@@ -134,9 +137,14 @@ public class Greenfoot
             throw new IllegalArgumentException("Format of sound file not supported: " + soundFile, e);
         }
         catch (LineUnavailableException e) {
-            throw new IllegalArgumentException("Can not get access to the sound card. "
-                    + "Check your system settings, "
-                    + "and close down any other programs that might be using the sound card.", e);
+            // We only want to print this error message once.
+            if(! lineUnavailableHandled) {
+                System.err.println("Can not get access to the sound card. "
+                    + "If you have a sound card, check your system settings, "
+                    + "and close down any other programs that might be using the sound card.");
+                e.printStackTrace();
+                lineUnavailableHandled = true;
+            }
         }
     }
 }
