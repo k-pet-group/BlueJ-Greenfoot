@@ -3,6 +3,7 @@ package greenfoot.core;
 import java.rmi.RemoteException;
 
 import rmiextension.wrappers.RClass;
+import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RClassEvent;
 import rmiextension.wrappers.event.RClassListenerImpl;
 import bluej.extensions.PackageNotFoundException;
@@ -15,7 +16,7 @@ import bluej.extensions.event.ClassEvent;
  * for each GClass to be a ClassListener.
  * 
  * @author Davin McCall
- * @version $Id: ClassStateManager.java 4356 2006-06-13 05:20:11Z davmac $
+ * @version $Id: ClassStateManager.java 4944 2007-04-16 17:28:55Z polle $
  */
 public class ClassStateManager extends RClassListenerImpl
 {
@@ -37,7 +38,14 @@ public class ClassStateManager extends RClassListenerImpl
         int eventId = event.getEventId();
         
         try {
-            GProject project = GreenfootMain.getInstance().getProject();
+            GProject project = GreenfootMain.getInstance().getProject();            
+            RProject eventProject = eventClass.getPackage().getProject();
+            if(! project.getRProject().equals(eventProject)) {
+                // BlueJ sends out events from all projects to all other projects
+                // For greenfoot we ignore events not belonging to this project.
+                return;
+            }            
+            
             GPackage pkg = project.getPackage(eventClass.getPackage());
             GClass gClass = pkg.getGClass(eventClass);
             
