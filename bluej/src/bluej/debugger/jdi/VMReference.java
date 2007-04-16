@@ -32,7 +32,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 4738 2006-12-05 05:19:12Z davmac $
+ * @version $Id: VMReference.java 4938 2007-04-16 14:30:37Z polle $
  * 
  * The startup process is as follows:
  * 
@@ -159,8 +159,6 @@ class VMReference
         paramList.add(allClassPath);
         paramList.add("-Xdebug");
         paramList.add("-Xnoagent");
-        if (!PrefMgr.getFlag(PrefMgr.OPTIMISE_VM))
-            paramList.add("-Xint");
         if (Config.isMacOS()) {
             paramList.add("-Xdock:icon=" + Config.getBlueJIconPath() + "/" + Config.getVMIconsName());
             paramList.add("-Xdock:name=" + Config.getVMDockName());
