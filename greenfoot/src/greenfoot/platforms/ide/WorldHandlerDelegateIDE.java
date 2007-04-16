@@ -16,6 +16,7 @@ import greenfoot.gui.classbrowser.role.GreenfootClassRole;
 import greenfoot.localdebugger.LocalObject;
 import greenfoot.platforms.WorldHandlerDelegate;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
@@ -38,6 +39,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import rmiextension.wrappers.RObject;
+import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.NamedValue;
@@ -47,6 +49,7 @@ import bluej.debugmgr.objectbench.ObjectBenchListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.prefmgr.PrefMgr;
 
 
 /**
@@ -58,6 +61,8 @@ import bluej.extensions.ProjectNotOpenException;
 public class WorldHandlerDelegateIDE
     implements WorldHandlerDelegate, ObjectBenchInterface
 {
+    protected final Color envOpColour = Config.getItemColour("colour.menu.environOp");
+
     private SelectionManager classSelectionManager;
 
     private boolean isQuickAddActive;
@@ -100,6 +105,8 @@ public class WorldHandlerDelegateIDE
 
         // "inspect" menu item
         JMenuItem m = getInspectMenuItem(obj);
+        m.setFont(PrefMgr.getStandoutMenuFont());
+        m.setForeground(envOpColour);
         menu.add(m);
 
         // "remove" menu item
@@ -111,6 +118,8 @@ public class WorldHandlerDelegateIDE
                 worldHandler.repaint();
             }
         });
+        m.setFont(PrefMgr.getStandoutMenuFont());
+        m.setForeground(envOpColour);
         menu.add(m);
         return menu;
     }
