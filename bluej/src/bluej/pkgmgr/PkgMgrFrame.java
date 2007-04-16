@@ -58,7 +58,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 4905 2007-03-29 06:06:30Z davmac $
+ * @version $Id: PkgMgrFrame.java 4941 2007-04-16 15:49:40Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1421,27 +1421,23 @@ public class PkgMgrFrame extends JFrame
     {
         if (isEmptyFrame())
             return;
-
-        if(Config.isGreenfoot()) {
-            return;
-        }
         
         // store the current editor size in the bluej.pkg file
         Properties p = new Properties();
-
-        Dimension d = classScroller.getSize(null);
-
-        p.put("package.editor.width", Integer.toString(d.width));
-        p.put("package.editor.height", Integer.toString(d.height));
-
-        Point point = getLocation();
-
-        p.put("package.editor.x", Integer.toString(point.x));
-        p.put("package.editor.y", Integer.toString(point.y));
-
-        p.put("package.showUses", new Boolean(isShowUses()).toString());
-        p.put("package.showExtends", new Boolean(isShowExtends()).toString());
-
+        if(!Config.isGreenfoot()) {
+            Dimension d = classScroller.getSize(null);
+    
+            p.put("package.editor.width", Integer.toString(d.width));
+            p.put("package.editor.height", Integer.toString(d.height));
+    
+            Point point = getLocation();
+    
+            p.put("package.editor.x", Integer.toString(point.x));
+            p.put("package.editor.y", Integer.toString(point.y));
+    
+            p.put("package.showUses", new Boolean(isShowUses()).toString());
+            p.put("package.showExtends", new Boolean(isShowExtends()).toString());
+        }
         pkg.save(p);
 
         setStatus(Config.getString("pkgmgr.packageSaved"));
