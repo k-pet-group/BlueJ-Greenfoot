@@ -49,7 +49,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 4853 2007-03-19 15:58:35Z polle $
+ * @version $Id: Package.java 4935 2007-04-16 05:36:01Z davmac $
  */
 public final class Package extends Graph
 {
@@ -808,6 +808,26 @@ public final class Package extends Graph
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
                 ct.analyseSource();
+            }
+        }
+        
+        //Update class roles, and their state
+        for (Iterator it = targets.iterator(); it.hasNext();) {
+            Target target = (Target) it.next();
+
+            if (target instanceof ClassTarget) {
+                ClassTarget ct = (ClassTarget) target;
+
+                Class cl = loadClass(ct.getQualifiedName());
+                if (cl != null) {
+                    ct.determineRole(cl);
+                    if (ct.upToDate()) {
+                        ct.setState(ClassTarget.S_NORMAL);
+                    }
+                    else {
+                        ct.setState(ClassTarget.S_INVALID);
+                    }
+                }
             }
         }
 

@@ -60,7 +60,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 4848 2007-03-18 15:46:23Z polle $
+ * @version $Id: ClassTarget.java 4935 2007-04-16 05:36:01Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -486,10 +486,10 @@ public class ClassTarget extends DependentTarget
     
     /**
      * Check if the compiled class and the source are up to date.
-     * (Specifically, check if a recompilation is needed. This will
-     * always be false if the target has no source).
+     * (Specifically, check if recompilation is not needed. This will
+     * always be considered true if the target has no source).
      * 
-     * @return true if they are in sync otherwise false.
+     * @return true if they are in sync (or there is no source); otherwise false.
      */
     public boolean upToDate()
     {
@@ -940,6 +940,11 @@ public class ClassTarget extends DependentTarget
 
     /**
      * Analyse the source code, and save retrieived information.
+     * This includes comments and parameter names for methods/constructors,
+     * class name, type parameters, etc.
+     * <p>
+     * Also causes the class role (normal class, unit test, etc) to be
+     * guessed based on the source.
      */
     public ClassInfo analyseSource()
     {
