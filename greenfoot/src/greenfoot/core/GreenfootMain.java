@@ -43,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4936 2007-04-16 05:42:17Z davmac $
+ * @version $Id: GreenfootMain.java 4945 2007-04-16 17:31:09Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -576,7 +576,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         if (projectVersion == Version.NO_VERSION) {
             String message = "The project that you are trying to open appears to be an old greenfoot project (before greenfoot version 0.5). This will most likely result in some errors that will have to be fixed manually.";
             JButton continueButton = new JButton("Continue");
-            MessageDialog dialog = new MessageDialog(parent, message, "Versions does not match", 50,
+            MessageDialog dialog = new MessageDialog(parent, message, "Versions do not match", 50,
                     new JButton[]{continueButton});
             dialog.displayModal();
             System.out.println(message);
@@ -588,7 +588,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     + "). The project will be updated to the current version (API version " + apiVersion
                     + "), but it might require some manual fixing of errors due to API changes.";
             JButton continueButton = new JButton("Continue");
-            MessageDialog dialog = new MessageDialog(parent, message, "Versions does not match", 50,
+            MessageDialog dialog = new MessageDialog(parent, message, "Versions do not match", 50,
                     new JButton[]{continueButton});
             dialog.displayModal();
             GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties);
@@ -603,7 +603,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
             JButton cancelButton = new JButton("Cancel");
             JButton continueButton = new JButton("Continue");
-            MessageDialog dialog = new MessageDialog(parent, message, "Versions does not match", 50, new JButton[]{
+            MessageDialog dialog = new MessageDialog(parent, message, "Versions do not match", 50, new JButton[]{
                     continueButton, cancelButton});
             JButton pressed = dialog.displayModal();
             if (pressed == cancelButton) {
@@ -617,7 +617,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         else {
             String message = "This is not a Greenfoot project: " + projectDir;
             JButton continueButton = new JButton("Continue");
-            MessageDialog dialog = new MessageDialog(parent, message, "Versions does not match", 50,
+            MessageDialog dialog = new MessageDialog(parent, message, "Versions do not match", 50,
                     new JButton[]{continueButton});
             dialog.displayModal();
             return VERSION_BAD;
