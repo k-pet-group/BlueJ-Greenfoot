@@ -139,7 +139,7 @@ public class MoeSyntaxDocument extends SyntaxDocument
      */
     private static int getPropHexInt(String propName, int def)
     {
-        String strVal = Config.getPropString(propName, null, Config.moe_user_props);
+        String strVal = Config.getPropString(propName, null, Config.moeUserProps);
         try {
             return Integer.parseInt(strVal, 16);
         }

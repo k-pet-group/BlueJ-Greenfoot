@@ -52,7 +52,7 @@ public final class MoeEditorManager
         showToolBar = true;
         showLineNum = false;
 
-        resources = Config.moe_user_props;
+        resources = Config.moeUserProps;
 
         editorManager = this;	// make this object publicly available
     }
