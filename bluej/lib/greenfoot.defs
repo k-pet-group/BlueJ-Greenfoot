@@ -37,3 +37,6 @@ greenfoot.url.scenarios=http://www.greenfoot.org/scenarios/index.html
 # is ignored). You can adjust the user preferences via the preferences
 # dialog in Greenfoot.
 greenfoot.url.javaStdLib=http://java.sun.com/j2se/1.5/docs/api/index.html
+
+# file chooser
+image.filechooser.packageIcon=greenfoot-package.png
