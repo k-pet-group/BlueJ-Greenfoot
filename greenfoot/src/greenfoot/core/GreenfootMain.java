@@ -43,10 +43,18 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4878 2007-03-24 12:16:47Z polle $
+ * @version $Id: GreenfootMain.java 4936 2007-04-16 05:42:17Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
+    /* Constants for return from updateApi method */
+    /** The project API version matches the greenfoot API version */
+    public static final int VERSION_OK = 0;
+    /** The project API version was different, and has been updated */
+    public static final int VERSION_UPDATED = 1;
+    /** The project was not a greenfoot project, or the user chose to cancel the open */
+    public static final int VERSION_BAD = 2;
+    
     /** Greenfoot is a singleton - this is the instance. */
     private static GreenfootMain instance;
 
@@ -241,7 +249,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     private void openProject(String projectDir)
         throws RemoteException
     {
-        boolean doOpen = GreenfootMain.updateApi(new File(projectDir), frame);
+        int versionStatus = GreenfootMain.updateApi(new File(projectDir), frame);
+        boolean doOpen = versionStatus != VERSION_BAD;
         if (doOpen) {
             rBlueJ.openProject(projectDir);
 
@@ -539,10 +548,10 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      * 
      * @param project The project in question.
      * @param parent Frame that should be used to place dialogs.
-     * @return True If we should try to open the project.
+     * @return One of VERSION_OK, VERSION_UPDATED or VERSION_BAD
      * @throws RemoteException
      */
-    public static boolean updateApi(File projectDir, Frame parent)
+    public static int updateApi(File projectDir, Frame parent)
     {
         File greenfootLibDir = Config.getGreenfootLibDir();
         ProjectProperties newProperties = new ProjectProperties(projectDir);
@@ -561,7 +570,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             if(! greenfootDir.exists()) {
                 GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties);
             }
-            return true;
+            return VERSION_OK;
         }
 
         if (projectVersion == Version.NO_VERSION) {
@@ -572,7 +581,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             dialog.displayModal();
             System.out.println(message);
             GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties);
-            return true;
+            return VERSION_UPDATED;
         }
         else if (projectVersion.compareTo(apiVersion) < 0) {
             String message = "The project that you are trying to open appears to be an old greenfoot project (API version " + projectVersion
@@ -583,7 +592,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     new JButton[]{continueButton});
             dialog.displayModal();
             GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties);
-            return true;
+            return VERSION_UPDATED;
         }
         else if (projectVersion.compareTo(apiVersion) > 0) { //
             String message = "The project that you are trying to open appears to be a greenfoot project created with"
@@ -598,11 +607,11 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     continueButton, cancelButton});
             JButton pressed = dialog.displayModal();
             if (pressed == cancelButton) {
-                return false;
+                return VERSION_BAD;
             }
             else {
                 prepareGreenfootProject(greenfootLibDir, projectDir, newProperties);
-                return true;
+                return VERSION_UPDATED;
             }
         }
         else {
@@ -611,7 +620,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             MessageDialog dialog = new MessageDialog(parent, message, "Versions does not match", 50,
                     new JButton[]{continueButton});
             dialog.displayModal();
-            return false;
+            return VERSION_BAD;
         }
 
     }

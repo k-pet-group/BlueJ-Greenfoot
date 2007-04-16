@@ -22,7 +22,7 @@ import bluej.utility.Debug;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 4751 2006-12-07 15:48:11Z polle $
+ * @version $Id: ProjectManager.java 4936 2007-04-16 05:42:17Z davmac $
  */
 public class ProjectManager
     implements PackageListener
@@ -77,9 +77,12 @@ public class ProjectManager
     {
         if (!ProjectManager.instance().isProjectOpen(project)) {
             File projectDir = new File(project.getDir());
-            boolean versionOK = checkVersion(projectDir);
-            if (versionOK) {
+            int versionOK = checkVersion(projectDir);
+            if (versionOK != GreenfootMain.VERSION_BAD) {
                 try {
+                    if (versionOK == GreenfootMain.VERSION_UPDATED) {
+                        project.getPackage().getProject().getPackage("").reload();
+                    }
                     ObjectBench.createObject(project, launchClass, launcherName, new String[]{project.getDir(),
                             project.getName(), BlueJRMIServer.getBlueJService()});
                 }
@@ -107,9 +110,9 @@ public class ProjectManager
      * project has to be updated.
      * 
      * @param projectDir Directory of the project.
-     * @return true if the project can be opened.
+     * @return one of GreenfootMain.VERSION_OK, VERSION_UPDATED or VERSION_BAD
      */
-    private boolean checkVersion(File projectDir)
+    private int checkVersion(File projectDir)
     {
         if(isNewProject(projectDir)) {
             ProjectProperties newProperties = new ProjectProperties(projectDir);
