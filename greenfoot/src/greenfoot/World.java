@@ -278,9 +278,8 @@ public abstract class World
     public synchronized void addObject(Actor object, int x, int y)
         throws IndexOutOfBoundsException
     {
-        // TODO bad performance when using a List for the objects. But if we
-        // want to have paint order, a List is necessary.
-        if (objects.contains(object)) {
+        if (! objects.add(object)) {
+            // Actor is already in the world
             return;
         }
 

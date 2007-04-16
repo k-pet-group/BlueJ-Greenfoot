@@ -233,11 +233,9 @@ public abstract class Actor
         int oldX = this.x;
         int oldY = this.y;
         
-        x = limitValue(x, world.getWidth());
-        y = limitValue(y, world.getHeight());
+        this.x = limitValue(x, world.getWidth());
+        this.y = limitValue(y, world.getHeight());
 
-        this.x = x;
-        this.y = y;
         locationChanged(oldX, oldY);
     }
 
@@ -374,9 +372,13 @@ public abstract class Actor
     {
         this.x = limitValue(x, world.getWidth());
         this.y = limitValue(y, world.getHeight());
-        this.world = world; // can only set location if world is set.
-        this.setLocation(x, y);
+
         this.setWorld(world);
+
+        // This call is not necessary, however setLocation may be overriden
+        // so it must still be called. (Asteroids scenario relies on setLocation
+        // being called when the object is added to the world...)
+        this.setLocation(x, y);
     }
     
     /**
