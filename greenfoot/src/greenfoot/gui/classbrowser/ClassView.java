@@ -50,7 +50,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4871 2007-03-22 03:58:03Z davmac $
+ * @version $Id: ClassView.java 4948 2007-04-17 03:45:00Z davmac $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -459,6 +459,10 @@ public class ClassView extends JToggleButton
                 invocationListener.localObjectCreated(newObject, LocationTracker.instance().getMouseButtonEvent());
             }
             return newObject;
+        }
+        catch (LinkageError le) {
+            // This could be NoClassDefFound or similar. It really means the
+            // class needs to be recompiled.
         }
         catch (NoSuchMethodException e) {
             // This might happen if there is no default constructor
