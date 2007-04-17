@@ -29,7 +29,7 @@ import bluej.utility.EscapeDialog;
  */
 public class ExportCompileDialog extends EscapeDialog implements CompileListener
 {
-    private String helpLine = "Not all the classes in the project are compiled. To continue with the export, compile the classes now.";
+    private String helpLine = "Not all the classes in the scenario are compiled. To continue with the export, compile the classes now.";
     private boolean ok;
     private GProject project;
     

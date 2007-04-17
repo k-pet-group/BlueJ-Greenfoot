@@ -38,7 +38,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4949 2007-04-17 11:32:32Z polle $
+ * @version $Id: GreenfootFrame.java 4950 2007-04-17 11:43:33Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -442,7 +442,7 @@ public class GreenfootFrame extends JFrame
             classBrowser.updateLayout();
         }
         catch (Exception exc) {
-            Debug.reportError("Could not open classes in project", exc);
+            Debug.reportError("Could not open classes in scenario", exc);
         }
     }
 

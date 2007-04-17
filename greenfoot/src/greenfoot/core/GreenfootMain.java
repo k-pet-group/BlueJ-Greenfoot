@@ -43,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4949 2007-04-17 11:32:32Z polle $
+ * @version $Id: GreenfootMain.java 4950 2007-04-17 11:43:33Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -211,7 +211,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     rBlueJ.addClassListener(classStateManager);
                 }
                 catch (Exception exc) {
-                    Debug.reportError("failed to open project", exc);
+                    Debug.reportError("failed to open scenario", exc);
                 }
             }
             else {
@@ -442,7 +442,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             pkg.compileAll(false);
         }
         catch (Exception exc) {
-            Debug.reportError("Compile greenfoot project failed", exc);
+            Debug.reportError("Compile greenfoot scenario failed", exc);
             exc.printStackTrace();
         }
     }
@@ -466,7 +466,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 }
             }
             catch (Exception exc) {
-                Debug.reportError("Problems when trying to create new project...", exc);
+                Debug.reportError("Problems when trying to create new scenario...", exc);
             }
         }
     }
@@ -574,7 +574,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         }
 
         if (projectVersion == Version.NO_VERSION) {
-            String message = "The project that you are trying to open appears to be an old greenfoot project (before greenfoot version 0.5). This will most likely result in some errors that will have to be fixed manually.";
+            String message = "The scenario that you are trying to open appears to be an old greenfoot scenario (before greenfoot version 0.5). This will most likely result in some errors that will have to be fixed manually.";
             JButton continueButton = new JButton("Continue");
             MessageDialog dialog = new MessageDialog(parent, message, "Versions do not match", 50,
                     new JButton[]{continueButton});
@@ -584,8 +584,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             return VERSION_UPDATED;
         }
         else if (projectVersion.compareTo(apiVersion) < 0) {
-            String message = "The project that you are trying to open appears to be an old greenfoot project (API version " + projectVersion
-                    + "). The project will be updated to the current version (API version " + apiVersion
+            String message = "The scenario that you are trying to open appears to be an old greenfoot scenario (API version " + projectVersion
+                    + "). The scenario will be updated to the current version (API version " + apiVersion
                     + "), but it might require some manual fixing of errors due to API changes.";
             JButton continueButton = new JButton("Continue");
             MessageDialog dialog = new MessageDialog(parent, message, "Versions do not match", 50,
@@ -595,11 +595,11 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             return VERSION_UPDATED;
         }
         else if (projectVersion.compareTo(apiVersion) > 0) { //
-            String message = "The project that you are trying to open appears to be a greenfoot project created with"
+            String message = "The scenario that you are trying to open appears to be a greenfoot scenario created with"
                     + "a newer version of the Greenfoot API (version " + projectVersion + ")."
-                    + "Opening the project with this version might result in"
+                    + "Opening the scenario with this version might result in"
                     + "some errors that will have to be fixed manually." + "\n \n"
-                    + "Do you want to continue opening the project?";
+                    + "Do you want to continue opening the scenario?";
 
             JButton cancelButton = new JButton("Cancel");
             JButton continueButton = new JButton("Continue");
@@ -615,7 +615,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             }
         }
         else {
-            String message = "This is not a Greenfoot project: " + projectDir;
+            String message = "This is not a Greenfoot scenario: " + projectDir;
             JButton continueButton = new JButton("Continue");
             MessageDialog dialog = new MessageDialog(parent, message, "Versions do not match", 50,
                     new JButton[]{continueButton});

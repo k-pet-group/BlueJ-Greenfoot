@@ -17,7 +17,7 @@ import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RProjectImpl.java 4350 2006-06-12 03:56:19Z davmac $
+ * @version $Id: RProjectImpl.java 4950 2007-04-17 11:43:33Z polle $
  */
 public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     implements RProject
@@ -71,7 +71,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
                 listener.projectClosing();
             }
             catch (RemoteException re) {
-                Debug.reportError("Error when project closing: ", re);
+                Debug.reportError("Error when scenario closing: ", re);
             }
         }
     }

@@ -39,10 +39,10 @@ public class SaveProjectAction extends AbstractAction
             GreenfootMain.getInstance().getProject().save();
         }
         catch (ProjectNotOpenException e1) {
-            Debug.reportError("Could not save project because it is not open.");
+            Debug.reportError("Could not save scenario because it is not open.");
         }
         catch (RemoteException e1) {
-            Debug.reportError("Could not save project because of a remote exception.");
+            Debug.reportError("Could not save scenario because of a remote exception.");
             e1.printStackTrace();
         }
     }

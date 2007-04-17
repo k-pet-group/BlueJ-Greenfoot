@@ -22,7 +22,7 @@ import bluej.utility.Debug;
  * This is the starting point of greenfoot as a BlueJ Extension.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RMIExtension.java 4889 2007-03-24 16:32:53Z polle $
+ * @version $Id: RMIExtension.java 4950 2007-04-17 11:43:33Z polle $
  */
 public class RMIExtension extends Extension
 {
@@ -78,7 +78,7 @@ public class RMIExtension extends Extension
     {
         BProject project = theBlueJ.openProject(projectPath);
         if (project == null) {
-            Debug.reportError("Could not open project: " + projectPath);
+            Debug.reportError("Could not open scenario: " + projectPath);
         }
     }
 
@@ -92,7 +92,7 @@ public class RMIExtension extends Extension
         ProjectManager.instance().addNewProject(projectPath);
         BProject project = theBlueJ.newProject(projectPath);
         if (project == null) {
-            Debug.reportError("Could not open project: " + projectPath);
+            Debug.reportError("Could not open scenario: " + projectPath);
         }
         ProjectManager.instance().removeNewProject(projectPath);
 

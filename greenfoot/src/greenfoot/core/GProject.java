@@ -64,7 +64,7 @@ public class GProject extends RProjectListenerImpl
             projectProperties = new ProjectProperties(getDir());
         }
         catch (Exception exc) {
-            Debug.reportError("Could not open greenfoot project properties");
+            Debug.reportError("Could not open greenfoot scenario properties");
             exc.printStackTrace();
         }
     }
