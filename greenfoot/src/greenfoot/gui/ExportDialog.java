@@ -1,5 +1,7 @@
 package greenfoot.gui;
 
+import greenfoot.util.FileChoosers;
+
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Frame;
@@ -177,15 +179,9 @@ public class ExportDialog extends EscapeDialog
                     browse.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e)
                         {
-                            if (fileChooser == null) {
-                                fileChooser = new JFileChooser();
-                                fileChooser.setDialogTitle("Choose Export Directory");
-                                fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                            }
-                            int result = fileChooser.showDialog(ExportDialog.this, "Choose");
-
-                            if (result == JFileChooser.APPROVE_OPTION) {
-                                exportField.setText(fileChooser.getSelectedFile().getPath());
+                            File file = FileChoosers.getExportFile(ExportDialog.this);
+                            if(file != null) {
+                                exportField.setText(file.getPath());
                             }
                         }
                     });                    

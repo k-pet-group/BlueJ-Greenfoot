@@ -1,10 +1,14 @@
 package greenfoot.platforms.ide;
 
+import greenfoot.gui.ExportDialog;
 import greenfoot.platforms.GreenfootUtilDelegate;
+import greenfoot.util.FileChoosers;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Component;
 import java.io.File;
+
+import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import java.io.IOException;
 import java.util.Dictionary;
@@ -33,15 +37,18 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         BlueJFileReader.translateFile(template, file, translations);
     }
     
-    
+    /**
+     * Brings up a file browser that lets the suer select an existing Greenfoot scenario.
+     * 
+     * @return Returns a File pointing to the scenario directory, or null if none selected.
+     */
     public File getScenarioFromFileBrowser(Component parent) {
-        return FileUtility.getPackageName(parent);
-    }
-    
+       return FileChoosers.getScenario(parent);
+    }    
     
     public String getNewProjectName(Component parent)
     {
-        return FileUtility.getFileName(parent, Config.getString("pkgmgr.newPkg.title"), Config.getString("pkgmgr.newPkg.buttonLabel"), false, null, true);
+        return FileUtility.getFileName(parent, "New Scenario", Config.getString("pkgmgr.newPkg.buttonLabel"), false, null, true);
     }
 
 

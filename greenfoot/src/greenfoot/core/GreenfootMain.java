@@ -43,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4945 2007-04-16 17:31:09Z polle $
+ * @version $Id: GreenfootMain.java 4949 2007-04-17 11:32:32Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -274,7 +274,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 openProject(dirName.getAbsolutePath());
             }
             catch (Exception exc) {
-                Debug.reportError("Could not open project", exc);
+                Debug.reportError("Could not open scenario", exc);
             }
         }
     }

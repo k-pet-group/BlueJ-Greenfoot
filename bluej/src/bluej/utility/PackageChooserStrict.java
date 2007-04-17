@@ -16,9 +16,9 @@ import java.io.File;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Markus Ostman
- * @version $Id: PackageChooserStrict.java 4602 2006-09-07 04:31:33Z davmac $
+ * @version $Id: PackageChooserStrict.java 4949 2007-04-17 11:32:32Z polle $
  */
-class PackageChooserStrict extends PackageChooser
+public class PackageChooserStrict extends PackageChooser
 {
     /**
      * Create a new strict PackageChooser.

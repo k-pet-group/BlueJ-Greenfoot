@@ -38,7 +38,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4919 2007-04-12 15:50:21Z mik $
+ * @version $Id: GreenfootFrame.java 4949 2007-04-17 11:32:32Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -453,7 +453,7 @@ public class GreenfootFrame extends JFrame
     {
         JMenuBar menuBar = new JMenuBar();
 
-        JMenu projectMenu = addMenu("Project", menuBar, 'p');
+        JMenu projectMenu = addMenu("Scenario", menuBar, 's');
         
         addMenuItem(NewProjectAction.getInstance(), projectMenu, -1, false, KeyEvent.VK_N);
         addMenuItem(OpenProjectAction.getInstance(), projectMenu, KeyEvent.VK_O, false, KeyEvent.VK_O);
