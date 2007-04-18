@@ -30,7 +30,7 @@ import bluej.extensions.ProjectNotOpenException;
  * Action to export a project to a standalone program.
  * 
  * @author Poul Henriksen
- * @version $Id: ExportProjectAction.java 4950 2007-04-17 11:43:33Z polle $
+ * @version $Id: ExportProjectAction.java 4958 2007-04-18 16:28:13Z polle $
  */
 public class ExportProjectAction extends AbstractAction
 {
@@ -175,8 +175,7 @@ public class ExportProjectAction extends AbstractAction
                 e.printStackTrace();
             }
         }
-
-        jarCreator.addSkipDir(projectDir.getPath() + "/greenfoot");
+        jarCreator.addSkipDir(projectDir.getPath() + System.getProperty("file.separator") + "greenfoot");
         jarCreator.addSkipFile(".cvsignore");
 
         jarCreator.includeMetaFiles(false);
