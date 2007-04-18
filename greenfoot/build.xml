@@ -10,7 +10,7 @@
 	<property file="build.properties"/>
 
     <!-- Greenfoot Version Number -->
-    <property name="greenfoot.version" value="1.2.0"/>
+    <property name="greenfoot.version" value="1.2.1"/>
     <property name="greenfoot.apiversion" value="1.2.0"/>
     
 	<!-- Location of the bluej lib dir -->
