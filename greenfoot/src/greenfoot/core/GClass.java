@@ -4,18 +4,15 @@ import greenfoot.event.CompileListener;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.util.GreenfootUtil;
 
+import java.awt.EventQueue;
 import java.rmi.RemoteException;
 
 import rmiextension.wrappers.RClass;
 import rmiextension.wrappers.RConstructor;
 import rmiextension.wrappers.RField;
 import rmiextension.wrappers.event.RCompileEvent;
-import bluej.extensions.BField;
-import bluej.extensions.BMethod;
+import bluej.extensions.*;
 import bluej.extensions.ClassNotFoundException;
-import bluej.extensions.CompilationNotStartedException;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
 import bluej.runtime.ExecServer;
@@ -90,10 +87,31 @@ public class GClass implements CompileListener
     /**
      * Notify this class that its name has been changed.
      */
-    public void nameChanged(String oldName)
+    public void nameChanged(final String oldName)
     {
+        try {
+            ProjectProperties props = pkg.getProject().getProjectProperties();
+            String superClass = props.removeProperty("class." + oldName + ".superclass");
+            String classImage = props.removeProperty("class." + oldName + ".image");
+            props.removeCachedImage(oldName);
+            
+            setClassProperty("superclass", superClass);
+            setClassProperty("image", classImage);
+        }
+        catch (RemoteException re) {
+            re.printStackTrace();
+        }
+        catch (ProjectNotOpenException pnoe) {
+            // can't happen
+        }
+        
         if(classView != null) {
-            classView.nameChanged(oldName);
+            EventQueue.invokeLater(new Runnable() {
+                public void run()
+                {
+                    classView.nameChanged(oldName);
+                }
+            });
         }
     }
     
