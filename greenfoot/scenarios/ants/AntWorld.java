@@ -29,6 +29,7 @@ public class AntWorld extends World
     {
         super(SIZE / RESOLUTION, SIZE / RESOLUTION, RESOLUTION);
         setBackground("sand.jpg");
+        setPaintOrder(Ant.class, Counter.class, Food.class, AntHill.class, Pheromone.class);
         scenario3();
     }
 
