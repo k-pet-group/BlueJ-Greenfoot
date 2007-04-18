@@ -50,7 +50,7 @@ import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4948 2007-04-17 03:45:00Z davmac $
+ * @version $Id: ClassView.java 4952 2007-04-18 03:02:25Z davmac $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -535,15 +535,22 @@ public class ClassView extends JToggleButton
     
     /**
      * Updates this class view by rereading the underlying class' properties.
-     *
      */
     public void updateView()
     {
         createPopupMenu();
         update();
     }
-
-   
+    
+    /**
+     * Notify the class view that the underlying class has changed name.
+     * @param oldName  The original name of the class
+     */
+    public void nameChanged(String oldName)
+    {
+        updateView();
+        classBrowser.renameClass(this, oldName);
+    }
 
     // ----- MouseListener interface -----
     

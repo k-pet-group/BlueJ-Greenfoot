@@ -90,10 +90,10 @@ public class GClass implements CompileListener
     /**
      * Notify this class that its name has been changed.
      */
-    public void nameChanged()
+    public void nameChanged(String oldName)
     {
         if(classView != null) {
-            classView.updateView();
+            classView.nameChanged(oldName);
         }
     }
     

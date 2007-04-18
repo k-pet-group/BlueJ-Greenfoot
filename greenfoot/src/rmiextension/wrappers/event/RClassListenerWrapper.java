@@ -5,6 +5,9 @@ import java.rmi.RemoteException;
 import bluej.extensions.event.ClassEvent;
 import bluej.extensions.event.ClassListener;
 
+/**
+ * Wraps a remote class listener (RClassListener) as a local listener.
+ */
 public class RClassListenerWrapper implements ClassListener
 {
     private RClassListener remoteListener;

@@ -16,7 +16,7 @@ import bluej.extensions.event.ClassEvent;
  * for each GClass to be a ClassListener.
  * 
  * @author Davin McCall
- * @version $Id: ClassStateManager.java 4944 2007-04-16 17:28:55Z polle $
+ * @version $Id: ClassStateManager.java 4952 2007-04-18 03:02:25Z davmac $
  */
 public class ClassStateManager extends RClassListenerImpl
 {
@@ -54,7 +54,7 @@ public class ClassStateManager extends RClassListenerImpl
                 gClass.setCompiledState(compiled);
             }
             else if (eventId == ClassEvent.CHANGED_NAME) {
-                gClass.nameChanged();
+                gClass.nameChanged(event.getOldName());
             }
         }
         catch (PackageNotFoundException pnfe) {}

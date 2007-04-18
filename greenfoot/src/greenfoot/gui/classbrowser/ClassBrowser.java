@@ -1,6 +1,5 @@
 package greenfoot.gui.classbrowser;
 
-import greenfoot.core.GreenfootMain;
 import greenfoot.gui.classbrowser.role.GreenfootClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
 
@@ -25,7 +24,7 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 4684 2006-11-03 13:53:14Z polle $
+ * @version $Id: ClassBrowser.java 4952 2007-04-18 03:02:25Z davmac $
  */
 public class ClassBrowser extends JPanel
 {
@@ -103,7 +102,19 @@ public class ClassBrowser extends JPanel
         classView.removeSelectionChangeListener(selectionManager);
         updateLayout();
     }
-
+    
+    /**
+     * Notify the class browser that a class has changed name
+     * @param classView  The classView of the class which name has named
+     * @param oldName    The original name of the class
+     */
+    public void renameClass(ClassView classView, String oldName)
+    {
+        greenfootClasses.rename(classView, oldName);
+        worldClasses.rename(classView, oldName);
+        otherClasses.rename(classView, oldName);
+    }
+    
     /**
      * Arrange and show the class views on screen.
      * Call only from the Swing event thread.
