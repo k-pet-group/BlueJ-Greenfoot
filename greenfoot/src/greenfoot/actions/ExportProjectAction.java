@@ -30,7 +30,7 @@ import bluej.extensions.ProjectNotOpenException;
  * Action to export a project to a standalone program.
  * 
  * @author Poul Henriksen
- * @version $Id: ExportProjectAction.java 4958 2007-04-18 16:28:13Z polle $
+ * @version $Id: ExportProjectAction.java 4960 2007-04-18 17:06:54Z polle $
  */
 public class ExportProjectAction extends AbstractAction
 {
@@ -183,7 +183,15 @@ public class ExportProjectAction extends AbstractAction
         
         String mainClass = "greenfoot.util.GreenfootScenarioViewer";
         jarCreator.setMainClass(mainClass);
-
+        
+        //Extra entries for the manifest
+        jarCreator.putManifestEntry("short-description", "a one-line description (optional)");
+        jarCreator.putManifestEntry("description", "a paragraph (even more optional)");
+        jarCreator.putManifestEntry("url", "a url back to wherever the user would like to link to (like  their blog or home page) (also optional)");
+        jarCreator.putManifestEntry("width", "" + width);
+        jarCreator.putManifestEntry("height","" + height);
+        jarCreator.putManifestEntry("args", "an argument string that is currently unused for applets, but  will be used for JNLP launching (not implemented completely yet!)");
+        
         jarCreator.create();
         standAloneProperties.delete();
         File outputFile = new File(exportDir, htmlName);

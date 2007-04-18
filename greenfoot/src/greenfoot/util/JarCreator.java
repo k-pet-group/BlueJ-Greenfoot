@@ -59,6 +59,10 @@ public class JarCreator
 
     /** array of file names not to be included in jar file * */
     private List<String> skipFiles = new LinkedList<String>();
+    
+    /** The maninfest */ 
+    private Manifest manifest = new Manifest();
+    
 
     /**
      * Prepares a new jar creator. Once everything is set up, call create()
@@ -94,7 +98,7 @@ public class JarCreator
         JarOutputStream jStream = null;
 
         try {
-            Manifest manifest = createManifest();
+            createManifest();
 
             // create jar file
             oStream = new FileOutputStream(jarFile);
@@ -121,7 +125,18 @@ public class JarCreator
 
     }
 
-    private Manifest createManifest()
+    /**
+     * Puts an entry into to the manifest file.
+     * 
+     * @param key The key 
+     * @param value The value
+     */
+    public void putManifestEntry(String key, String value) {
+        Attributes attr = manifest.getMainAttributes();
+        attr.put(new Attributes.Name(key), value);
+    }
+    
+    private void createManifest()
     {
         // Construct classpath with used library jars
         String classpath = "";
@@ -131,13 +146,10 @@ public class JarCreator
             classpath += " " + it.next().getName();
         }
         
-        // create manifest
-        Manifest manifest = new Manifest();
         Attributes attr = manifest.getMainAttributes();
         attr.put(Attributes.Name.MANIFEST_VERSION, "1.0");
         attr.put(Attributes.Name.MAIN_CLASS, mainClass);
         attr.put(Attributes.Name.CLASS_PATH, classpath);
-        return manifest;
     }
 
     /**
