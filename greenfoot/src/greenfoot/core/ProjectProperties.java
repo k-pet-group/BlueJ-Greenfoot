@@ -215,7 +215,12 @@ public class ProjectProperties
             else {
                 String imageName = getString("class." + className + ".image");
                 if (imageName != null) {
-                    image = new GreenfootImage("images/" + imageName);
+                    try {
+                        image = new GreenfootImage("images/" + imageName);
+                    }
+                    catch (IllegalArgumentException iae) {
+                        // This occurs if the image file doesn't exist anymore
+                    }
                 }
             }
             
