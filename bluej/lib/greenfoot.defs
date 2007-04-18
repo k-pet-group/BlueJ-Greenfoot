@@ -40,3 +40,6 @@ greenfoot.url.javaStdLib=http://java.sun.com/j2se/1.5/docs/api/index.html
 
 # file chooser
 image.filechooser.packageIcon=greenfoot-package.png
+
+# Options for the generation of the JavaDoc shown in the documentation view of the editor.
+doctool.options=-author -version -nodeprecated -protected
