@@ -192,6 +192,14 @@ public class ProjectProperties
         return Integer.parseInt(number);
     }
 
+    /**
+     * Remove a property; return its old value.
+     * @param key  The property name
+     */
+    public String removeProperty(String key)
+    {
+        return (String) properties.remove(key);
+    }
 
     /**
      * Gets an image for the given class. The images are cached to avoid loading
@@ -205,30 +213,33 @@ public class ProjectProperties
     public GreenfootImage getImage(String className)
     {
         className = GreenfootUtil.extractClassName(className);
-        GreenfootImage image = classImages.get(className);
+        
+        synchronized (classImages) {
+            GreenfootImage image = classImages.get(className);
 
-        if (image == null) {
-            // If it is the Actor class the image is always the same:
-            if (className.equals("Actor")) {
-                image = new GreenfootImage(GreenfootUtil.getGreenfootLogoPath().toString());
-            }
-            else {
-                String imageName = getString("class." + className + ".image");
-                if (imageName != null) {
-                    try {
-                        image = new GreenfootImage("images/" + imageName);
-                    }
-                    catch (IllegalArgumentException iae) {
-                        // This occurs if the image file doesn't exist anymore
+            if (image == null) {
+                // If it is the Actor class the image is always the same:
+                if (className.equals("Actor")) {
+                    image = new GreenfootImage(GreenfootUtil.getGreenfootLogoPath().toString());
+                }
+                else {
+                    String imageName = getString("class." + className + ".image");
+                    if (imageName != null) {
+                        try {
+                            image = new GreenfootImage("images/" + imageName);
+                        }
+                        catch (IllegalArgumentException iae) {
+                            // This occurs if the image file doesn't exist anymore
+                        }
                     }
                 }
+
+                if (image != null) {
+                    classImages.put(className, image);
+                }
             }
-            
-            if (image != null) {
-                classImages.put(className, image);
-            }
+            return image;
         }
-        return image;
     }
 
 
@@ -238,7 +249,9 @@ public class ProjectProperties
      */
     public void removeCachedImage(String className)
     {
-        classImages.remove(className);
+        synchronized (classImages) {
+            classImages.remove(className);
+        }
     }
 
 
