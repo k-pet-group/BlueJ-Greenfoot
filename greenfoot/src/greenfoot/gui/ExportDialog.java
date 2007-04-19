@@ -1,6 +1,7 @@
 package greenfoot.gui;
 
 import greenfoot.util.FileChoosers;
+import java.awt.BorderLayout;
 
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -128,6 +129,14 @@ public class ExportDialog extends EscapeDialog
     private void makeDialog(List<String> worlds)
     {
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        
+        JPanel contentPane = (JPanel) getContentPane();
+        
+        contentPane.setLayout(new BorderLayout());
+        contentPane.setBorder(null);
+        
+        JPanel togglePane = new TabbedIconPane();
+        contentPane.add(togglePane, BorderLayout.NORTH);
 
         JPanel mainPanel = new JPanel();
         {
@@ -143,7 +152,6 @@ public class ExportDialog extends EscapeDialog
 
             mainPanel.add(Box.createVerticalStrut(5));
 
-            mainPanel.add(new JSeparator());
             mainPanel.add(Box.createVerticalStrut(5));
 
             JPanel inputPanel = new JPanel();
@@ -151,22 +159,19 @@ public class ExportDialog extends EscapeDialog
                 inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
                 inputPanel.setAlignmentX(LEFT_ALIGNMENT);
                 
-                JPanel mainClassPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-                {
-                    worldSelect = makeWorldClassPopup(worlds);
-                    
-                    if (worlds.size() > 1) {
+                if (worlds.size() > 1) {  // only if there is more than one world
+                    JPanel mainClassPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+                    {
+                        worldSelect = makeWorldClassPopup(worlds);
                         JLabel classLabel = new JLabel(worldSelectLabelText);
                         mainClassPanel.add(classLabel);
-
                         mainClassPanel.add(worldSelect);                        
                     }
-
+                    mainClassPanel.setAlignmentX(LEFT_ALIGNMENT);
+                    inputPanel.add(mainClassPanel);
                 }
-                mainClassPanel.setAlignmentX(LEFT_ALIGNMENT);
-                inputPanel.add(mainClassPanel);
                 inputPanel.add(Box.createVerticalStrut(5));
-              
+                
                 JPanel exportLocationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
                 {
                     JLabel exportLocationLabel = new JLabel(exportLcoationLabelText);
@@ -200,35 +205,41 @@ public class ExportDialog extends EscapeDialog
             mainPanel.add(inputPanel);
             mainPanel.add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical));
 
-            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-            {
-                buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
+        }
+        
+        contentPane.add(mainPanel, BorderLayout.CENTER);
 
-                JButton continueButton = new JButton("Export");
-                continueButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent evt) { doOK(); }                
-                });
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        {
+            buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
+            buttonPanel.setBorder(BlueJTheme.dialogBorder);
 
-                JButton cancelButton = BlueJTheme.getCancelButton();
-                cancelButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent evt) { doCancel(); }                
-                });
+            JButton continueButton = new JButton("Export");
+            continueButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent evt) { doOK(); }                
+            });
 
-                buttonPanel.add(continueButton);
-                buttonPanel.add(cancelButton);
+            JButton cancelButton = BlueJTheme.getCancelButton();
+            cancelButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent evt) { doCancel(); }                
+            });
 
-                getRootPane().setDefaultButton(continueButton);
-            }
+            buttonPanel.add(continueButton);
+            buttonPanel.add(cancelButton);
 
-            mainPanel.add(buttonPanel);
+            getRootPane().setDefaultButton(continueButton);
         }
 
-        getContentPane().add(mainPanel);
+        contentPane.add(buttonPanel, BorderLayout.SOUTH);
+        
         pack();
 
         DialogManager.centreDialog(this);
     }
 
+    
+
+    
     /**
      * Fill the world class popup selector with all the worlds in the list.
      */

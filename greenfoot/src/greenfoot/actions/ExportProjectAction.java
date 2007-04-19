@@ -29,8 +29,8 @@ import bluej.extensions.ProjectNotOpenException;
 /**
  * Action to export a project to a standalone program.
  * 
- * @author Poul Henriksen
- * @version $Id: ExportProjectAction.java 4970 2007-04-19 15:00:43Z polle $
+ * @author Poul Henriksen, Michael Kolling
+ * @version $Id: ExportProjectAction.java 4974 2007-04-19 16:25:35Z mik $
  */
 public class ExportProjectAction extends AbstractAction
 {
@@ -86,8 +86,6 @@ public class ExportProjectAction extends AbstractAction
 
     public void actionPerformed(ActionEvent ae)
     {
-        
-        
         GProject project = GreenfootMain.getInstance().getProject();
         
         if(!project.isCompiled())  {
