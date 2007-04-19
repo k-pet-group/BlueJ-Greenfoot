@@ -24,7 +24,7 @@ public class Space extends World
         for(int i=0; i < number; i++) {            
              int x = (int) (Math.random() * getWidth());          
              int y = (int) (Math.random() * getHeight());
-             int color = 255 - (int) (Math.random() * 220);
+             int color = 100 - (int) (Math.random() * 80);
              background.setColor(new Color(color,color,color));
              background.fillOval(x,y,1,1);
         }
