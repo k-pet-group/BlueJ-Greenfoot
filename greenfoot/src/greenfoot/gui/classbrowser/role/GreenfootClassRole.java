@@ -28,7 +28,7 @@ import bluej.prefmgr.PrefMgr;
 /**
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 4823 2007-01-25 17:03:30Z polle $
+ * @version $Id: GreenfootClassRole.java 4961 2007-04-19 06:19:04Z davmac $
  * 
  */
 public class GreenfootClassRole extends ClassRole
@@ -99,7 +99,7 @@ public class GreenfootClassRole extends ClassRole
      * 
      * @return The image, or null if no image can be found
      */
-    public Image getImage()
+    private Image getImage()
     {
         GreenfootImage gfImage = getGreenfootImage();
         if (gfImage != null) {

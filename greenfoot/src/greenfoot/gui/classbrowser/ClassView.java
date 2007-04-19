@@ -1,13 +1,9 @@
 package greenfoot.gui.classbrowser;
 
-import greenfoot.actions.EditClassAction;
-import greenfoot.actions.NewSubclassAction;
-import greenfoot.actions.RemoveClassAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.LocationTracker;
-import greenfoot.core.WorldInvokeListener;
 import greenfoot.event.ActorInstantiationListener;
 import greenfoot.gui.classbrowser.role.ClassRole;
 import greenfoot.gui.classbrowser.role.GreenfootClassRole;
@@ -27,38 +23,27 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
-import java.util.Iterator;
-import java.util.List;
 
-import javax.swing.Action;
 import javax.swing.BorderFactory;
-import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JRootPane;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 
-import bluej.Config;
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
-import bluej.prefmgr.PrefMgr;
 import bluej.utility.Utility;
-import bluej.views.MethodView;
-import bluej.views.View;
-import bluej.views.ViewFilter;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4952 2007-04-18 03:02:25Z davmac $
+ * @version $Id: ClassView.java 4961 2007-04-19 06:19:04Z davmac $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
 {
     private final Color classColour = new Color(245, 204, 155);
     private static final Color stripeColor = new Color(152,152,152);
-
-    private final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
     public static final Color[] shadowColours = { new Color(242, 242, 242), 
                                                   new Color(211, 211, 211),
@@ -194,62 +179,9 @@ public class ClassView extends JToggleButton
 
     private void createPopupMenu()
     {
-        if (popupMenu != null) {
-            remove(popupMenu);
-        }
-        // popupMenu = menu.getPopupMenu();
-        popupMenu = new JPopupMenu();
-
-        Class realClass = gClass.getJavaClass();
-        if (realClass != null) {
-
-            if (!java.lang.reflect.Modifier.isAbstract(realClass.getModifiers())) {
-                List constructorItems = role.createConstructorActions(realClass);
-
-                boolean hasEntries = false;
-                for (Iterator iter = constructorItems.iterator(); iter.hasNext();) {
-                    Action callAction = (Action) iter.next();
-                    JMenuItem item = popupMenu.add(callAction);
-                    item.setFont(PrefMgr.getPopupMenuFont());
-                    hasEntries = true;
-                }
-
-                if (hasEntries) {
-                    popupMenu.addSeparator();
-                }
-            }
-
-            ViewFilter filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
-            View view = View.getView(realClass);
-            MethodView[] allMethods = view.getAllMethods();
-            WorldInvokeListener invocListener = new WorldInvokeListener(realClass);
-            if (bluej.pkgmgr.target.role.ClassRole.createMenuItems(popupMenu, allMethods, filter, 0, allMethods.length, "", invocListener))
-                popupMenu.addSeparator();
-        }
-
+        popupMenu = role.createPopupMenu(classBrowser, this);
         popupMenu.setInvoker(this);
-
-        JMenuItem item;
-        item = new JMenuItem(new EditClassAction(gClass));
-        item.setFont(PrefMgr.getPopupMenuFont());
-        item.setForeground(envOpColour);
-        popupMenu.add(item);
-
-        role.addPopupMenuItems(popupMenu);
-
-        item = new JMenuItem(new RemoveClassAction(this));
-        item.setFont(PrefMgr.getPopupMenuFont());
-        item.setForeground(envOpColour);
-        popupMenu.add(item);
-
-        popupMenu.addSeparator();
-
-        item = new JMenuItem(new NewSubclassAction(this, classBrowser));
-        item.setFont(PrefMgr.getPopupMenuFont());
-        item.setForeground(envOpColour);
-        popupMenu.add(item);
     }
-
 
     /**
      * Sets the role of this ClassLabel. Does not update UI.
