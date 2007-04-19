@@ -4,8 +4,8 @@ import greenfoot.core.GClass;
 import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.WorldHandler;
-import greenfoot.gui.ExportCompileDialog;
-import greenfoot.gui.ExportDialog;
+import greenfoot.gui.export.ExportCompileDialog;
+import greenfoot.gui.export.ExportDialog;
 import greenfoot.publish.JarCreator;
 import greenfoot.util.GreenfootUtil;
 
@@ -30,7 +30,7 @@ import bluej.extensions.ProjectNotOpenException;
  * Action to export a project to a standalone program.
  * 
  * @author Poul Henriksen, Michael Kolling
- * @version $Id: ExportProjectAction.java 4974 2007-04-19 16:25:35Z mik $
+ * @version $Id: ExportProjectAction.java 4975 2007-04-19 17:00:57Z mik $
  */
 public class ExportProjectAction extends AbstractAction
 {

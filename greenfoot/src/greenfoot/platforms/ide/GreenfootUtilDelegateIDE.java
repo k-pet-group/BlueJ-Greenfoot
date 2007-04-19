@@ -1,6 +1,6 @@
 package greenfoot.platforms.ide;
 
-import greenfoot.gui.ExportDialog;
+import greenfoot.gui.export.ExportDialog;
 import greenfoot.platforms.GreenfootUtilDelegate;
 import greenfoot.util.FileChoosers;
 import greenfoot.util.GreenfootUtil;

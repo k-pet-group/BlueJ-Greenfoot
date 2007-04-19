@@ -1,5 +1,6 @@
-package greenfoot.gui;
+package greenfoot.gui.export;
 
+import greenfoot.gui.*;
 import greenfoot.util.FileChoosers;
 import java.awt.BorderLayout;
 

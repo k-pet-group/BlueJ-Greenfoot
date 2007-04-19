@@ -8,7 +8,7 @@
  * @version 1.0
  */
 
-package greenfoot.gui;
+package greenfoot.gui.export;
 
 import bluej.Config;
 import java.awt.Color;

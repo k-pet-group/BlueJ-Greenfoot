@@ -1,8 +1,9 @@
-package greenfoot.gui;
+package greenfoot.gui.export;
 
 import greenfoot.actions.CompileAllAction;
 import greenfoot.core.GProject;
 import greenfoot.event.CompileListener;
+import greenfoot.gui.*;
 
 import java.awt.FlowLayout;
 import java.awt.Frame;
