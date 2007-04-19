@@ -32,6 +32,8 @@
     <property name="test.src" value="test/src"/>
     <property name="test.build" value="test/classes"/>
     <property name="test.report" value="test/report"/>
+    
+    <property name="extensions.lib"  location="${bluej_home}/lib/extensions"/>
 
     <property name="boot.jar" value="${bluej_home}/lib/bluej.jar"/>
     <property name="core.jar" value="${bluej_home}/lib/bluejcore.jar"/>
@@ -196,6 +198,8 @@
     </target>
 
     <target name="run">
+        <!-- delete the greenfoot jar (if it exists) since it screws up BlueJ -->
+        <delete quiet="true" file="${extensions.lib}/greenfoot.jar"/>
         <!-- run the java code built into the jar files -->
         <java classname="bluej.Boot" fork="yes" jvm="${run_java_home}/bin/java">        
             <classpath>
