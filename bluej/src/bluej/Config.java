@@ -37,7 +37,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 4933 2007-04-13 10:12:29Z mik $
+ * @version $Id: Config.java 4972 2007-04-19 16:22:35Z mik $
  */
 
 public final class Config
@@ -847,12 +847,30 @@ public final class Config
     }
 
     /**
-     * Find and return the icon for an image.
+     * Find and return the icon for an image, using the definitions in the 
+     * properties files to find the actual image.
      */
     public static ImageIcon getImageAsIcon(String propname)
     {
         try {
             java.net.URL u = getImageFile(propname).toURI().toURL();
+
+            return new ImageIcon(u);
+        }
+        catch (java.net.MalformedURLException mue) { }
+        catch (NullPointerException npe) { }
+        return null;
+    }
+    
+    /**
+     * Find and return the icon for an image, without using the properties
+     * (the name provided is the actual file name in ../lib/images).
+     */
+    public static ImageIcon getHardImageAsIcon(String filename)
+    {
+        try {
+            File imgFile = new File(bluejLibDir, "images" + File.separator + filename);
+            java.net.URL u = imgFile.toURI().toURL();
 
             return new ImageIcon(u);
         }
