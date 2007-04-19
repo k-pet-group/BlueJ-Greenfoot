@@ -23,7 +23,7 @@ import bluej.groupwork.ui.TeamSettingsPanel;
  *
  * @author  Andrew Patterson
  * @author  Michael Kolling
- * @version $Id: PrefMgrDialog.java 4921 2007-04-12 16:17:19Z mik $
+ * @version $Id: PrefMgrDialog.java 4964 2007-04-19 09:44:30Z mik $
  */
 public class PrefMgrDialog extends JFrame
 {
@@ -41,7 +41,7 @@ public class PrefMgrDialog extends JFrame
      * @param comp the parent component for the dialog.
      */
     public static void showDialog() {
-        dialog.prepareDialog();
+        getInstance().prepareDialog();
         dialog.setVisible(true);
     }
     
@@ -65,9 +65,6 @@ public class PrefMgrDialog extends JFrame
      */
     private synchronized void prepareDialog() {
         if (!prepared) {
-            if (dialog == null) {
-                dialog = new PrefMgrDialog();
-            }
             makeDialog();
             prepared = true;
         }
