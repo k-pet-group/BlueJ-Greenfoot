@@ -2,7 +2,7 @@
  * ExportWebPagePane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportWebPagePane.java 4980 2007-04-19 20:43:26Z mik $
+ * @version $Id: ExportWebPagePane.java 4981 2007-04-19 22:21:31Z mik $
  */
 
 package greenfoot.gui.export;
@@ -25,7 +25,7 @@ import javax.swing.JTextField;
 
 public class ExportWebPagePane extends ExportPane
 {
-    public static final String NAME = "WEB";
+    public static final String FUNCTION = "WEB";
     
     private static final String helpLine1 = "Create a web page with an applet.";
     private static final String exportLcoationLabelText = "Export location: ";

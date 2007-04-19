@@ -2,7 +2,7 @@
  * ExportPublishPane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 4980 2007-04-19 20:43:26Z mik $
+ * @version $Id: ExportPublishPane.java 4981 2007-04-19 22:21:31Z mik $
  */
 
 package greenfoot.gui.export;
@@ -24,7 +24,7 @@ import javax.swing.JTextField;
 
 public class ExportPublishPane extends ExportPane
 {
-    public static final String NAME = "PUBLISH";
+    public static final String FUNCTION = "PUBLISH";
     
     private static final String helpLine1 = "Publish the scenario to mygame.java.sum.com.";
     

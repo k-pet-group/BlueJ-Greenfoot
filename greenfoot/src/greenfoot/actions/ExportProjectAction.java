@@ -25,16 +25,22 @@ import javax.swing.AbstractAction;
 import bluej.Config;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import greenfoot.gui.export.ExportAppPane;
+import greenfoot.gui.export.ExportPane;
+import greenfoot.gui.export.ExportPublishPane;
+import greenfoot.gui.export.ExportWebPagePane;
 
 /**
  * Action to export a project to a standalone program.
  * 
  * @author Poul Henriksen, Michael Kolling
- * @version $Id: ExportProjectAction.java 4975 2007-04-19 17:00:57Z mik $
+ * @version $Id: ExportProjectAction.java 4981 2007-04-19 22:21:31Z mik $
  */
 public class ExportProjectAction extends AbstractAction
 {
     private static ExportProjectAction instance = new ExportProjectAction();
+    private GProject project;
+    private File projectDir = null;
     
     /**
      * Singleton factory method for action.
@@ -86,7 +92,7 @@ public class ExportProjectAction extends AbstractAction
 
     public void actionPerformed(ActionEvent ae)
     {
-        GProject project = GreenfootMain.getInstance().getProject();
+        project = GreenfootMain.getInstance().getProject();
         
         if(!project.isCompiled())  {
             boolean isCompiled = showCompileDialog(project);
@@ -96,15 +102,8 @@ public class ExportProjectAction extends AbstractAction
             }
         }
         
-        String jarName = project.getName() + ".jar";
-        String htmlName = project.getName() + ".html";
         String scenarioName = project.getName();
 
-        String title = project.getName();
-        int width = WorldHandler.getInstance().getWorldCanvas().getWidth();
-        int height = WorldHandler.getInstance().getWorldCanvas().getHeight() + 50;  
-        
-        File projectDir = null;
         try {
             projectDir = project.getDir();
         }
@@ -119,9 +118,6 @@ public class ExportProjectAction extends AbstractAction
         
         File defaultExportDir = new File(projectDir.getParentFile(), scenarioName + "-export");
 
-        File libDir = Config.getGreenfootLibDir();
-        
-        File greenfootDir = new File(libDir, "standalone");
         if (defaultExportDir.exists()) {
             defaultExportDir.delete();
         }
@@ -133,21 +129,72 @@ public class ExportProjectAction extends AbstractAction
         if(!okPressed) {
             return;
         }
+        
+        String function = exportDialog.getSelectedFunction();
+        ExportPane pane = exportDialog.getSelectedPane();
+        
+        if(function.equals(ExportPublishPane.FUNCTION)) {
+            doPublish((ExportPublishPane)pane);
+        }
+        if(function.equals(ExportWebPagePane.FUNCTION)) {
+            doWebPage((ExportWebPagePane)pane);
+        }
+        if(function.equals(ExportAppPane.FUNCTION)) {
+            doApplication((ExportAppPane)pane);
+        }
+    }
+
+    /**
+     * Publish this scenario to the web server.
+     */
+    private void doPublish(ExportPublishPane pane)
+    {
+        System.out.println("publishing...");
+    }
+        
+    /**
+     * Publish this scenario to the web server.
+     */
+    private void doWebPage(ExportWebPagePane pane)
+    {
+        File exportDir = new File(pane.getExportLocation());
+        String worldClass = pane.getWorldClassName();
+        boolean  includeControls = pane.includeExtraControls();
+        createJar(exportDir, worldClass, includeControls, true);
+    }
+        
+    /**
+     * Publish this scenario to the web server.
+     */
+    private void doApplication(ExportAppPane pane)
+    {
+        File exportDir = new File(pane.getExportLocation());
+        String worldClass = pane.getWorldClassName();
+        boolean  includeControls = pane.includeExtraControls();
+        createJar(exportDir, worldClass, includeControls, false);
+    }
+        
                 
-        File exportDir = exportDialog.getExportLocation();
-        String worldClass = exportDialog.getWorldClass();
-        boolean  includeExtraControls = exportDialog.includeExtraControls();
+    /**
+     * .
+     */
+    private void createJar(File exportDir, String worldClass, boolean includeExtraControls,
+                           boolean writeWebPage)
+    {
+        String jarName = project.getName() + ".jar";
         
         exportDir.mkdir();
         JarCreator jarCreator = new JarCreator(exportDir, jarName);
         jarCreator.addDir(projectDir);
 
+        File libDir = Config.getGreenfootLibDir();        
+        File greenfootDir = new File(libDir, "standalone");
         jarCreator.addDir(greenfootDir);
 
         File standAloneProperties = new File(projectDir, "standalone.properties");
 
         Properties p = new Properties();
-        p.put("project.name", scenarioName);
+        p.put("project.name", project.getName());
         p.put("main.class", worldClass);
         p.put("controls.extra", "" + includeExtraControls);
         OutputStream os = null;
@@ -183,6 +230,9 @@ public class ExportProjectAction extends AbstractAction
         jarCreator.setMainClass(mainClass);
         
         //Extra entries for the manifest
+        int width = WorldHandler.getInstance().getWorldCanvas().getWidth();
+        int height = WorldHandler.getInstance().getWorldCanvas().getHeight() + 50;  
+
         jarCreator.putManifestEntry("short-description", "a one-line description (optional)");
         jarCreator.putManifestEntry("description", "a paragraph (even more optional)");
         jarCreator.putManifestEntry("url", "a url back to wherever the user would like to link to (like  their blog or home page) (also optional)");
@@ -192,8 +242,13 @@ public class ExportProjectAction extends AbstractAction
         
         jarCreator.create();
         standAloneProperties.delete();
-        File outputFile = new File(exportDir, htmlName);
-        jarCreator.generateHTMLSkeleton(outputFile, title, width, height);
+
+        if(writeWebPage) {
+            String htmlName = project.getName() + ".html";
+            String title = project.getName();
+            File outputFile = new File(exportDir, htmlName);
+            jarCreator.generateHTMLSkeleton(outputFile, title, width, height);
+        }
     }
 
 
@@ -205,7 +260,4 @@ public class ExportProjectAction extends AbstractAction
         GreenfootMain.getInstance().removeCompileListener(d);
         return compiled;
     }
-   
-
-  
 }

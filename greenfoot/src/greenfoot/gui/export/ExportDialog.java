@@ -28,15 +28,16 @@ public class ExportDialog extends EscapeDialog
     private boolean ok;
     private HashMap<String, ExportPane> panes;
     private ExportPane selectedPane;
+    private String selectedFunction;
 
     public ExportDialog(Frame parent, List<String> worlds, File defaultExportDir)
     {
         super(parent, dialogTitle, true);
         
         panes = new HashMap<String, ExportPane>();
-        panes.put(ExportPublishPane.NAME, new ExportPublishPane(worlds));
-        panes.put(ExportWebPagePane.NAME, new ExportWebPagePane(worlds, defaultExportDir));
-        panes.put(ExportAppPane.NAME, new ExportAppPane(worlds, defaultExportDir));
+        panes.put(ExportPublishPane.FUNCTION, new ExportPublishPane(worlds));
+        panes.put(ExportWebPagePane.FUNCTION, new ExportWebPagePane(worlds, defaultExportDir));
+        panes.put(ExportAppPane.FUNCTION, new ExportAppPane(worlds, defaultExportDir));
         
         fixSizes(panes);
 
@@ -55,28 +56,19 @@ public class ExportDialog extends EscapeDialog
     }
 
     /**
-     * Return the directory where the scenario should be exported.
+     * Return the identifier for the specific export function selected.
      */
-    public File getExportLocation()
+    public String getSelectedFunction()
     {
-        return new File(((ExportWebPagePane)selectedPane).getExportLocation());
+        return selectedFunction;
     }
 
     /**
-     * Return the name of the world class that should be instantiated.
+     * Return the identifier for the specific export function selected.
      */
-    public String getWorldClass()
+    public ExportPane getSelectedPane()
     {
-        return selectedPane.getWorldClassName();
-    }
-
-  
-    /**
-     * Return true if user wants to include the source.
-     */
-    public boolean includeExtraControls()
-    {
-        return selectedPane.includeExtraControls();
+        return selectedPane;
     }
     
     
@@ -105,9 +97,9 @@ public class ExportDialog extends EscapeDialog
     /** 
      * Called when the selection of the tabs changes.
      */
-    public void tabSelected(String name)
+    public void tabSelected(String function)
     {
-        showPane(name);
+        showPane(function);
     }
 
     // === end of TabbedIconListener interface ===
@@ -115,14 +107,15 @@ public class ExportDialog extends EscapeDialog
     /** 
      * Called when the selection of the tabs changes.
      */
-    public void showPane(String name)
+    public void showPane(String function)
     {
-        ExportPane chosenPane = panes.get(name);
+        ExportPane chosenPane = panes.get(function);
         if(chosenPane != selectedPane) {
             if(selectedPane != null)
                 contentPane.remove(selectedPane);
             contentPane.add(chosenPane, BorderLayout.CENTER);
             selectedPane = chosenPane;
+            selectedFunction = function;
         }
         pack();
     }
@@ -168,11 +161,14 @@ public class ExportDialog extends EscapeDialog
 
         contentPane.add(buttonPanel, BorderLayout.SOUTH);
         
-        showPane(ExportPublishPane.NAME);
+        showPane(ExportPublishPane.FUNCTION);
 
         DialogManager.centreDialog(this);
     }
 
+    /**
+     * Set the preferred width for all tabs to the widest of the tabs.
+     */
     private void fixSizes(HashMap<String, ExportPane> panes) 
     {
         int maxWidth = 0;

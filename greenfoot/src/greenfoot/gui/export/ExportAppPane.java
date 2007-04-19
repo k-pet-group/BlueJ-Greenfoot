@@ -7,7 +7,7 @@
  * and open the template in the editor.
 
  * @author Michael Kolling
- * @version $Id: ExportAppPane.java 4980 2007-04-19 20:43:26Z mik $
+ * @version $Id: ExportAppPane.java 4981 2007-04-19 22:21:31Z mik $
  */
 
 package greenfoot.gui.export;
@@ -30,7 +30,7 @@ import javax.swing.JTextField;
 
 public class ExportAppPane extends ExportPane
 {
-    public static final String NAME = "APP";
+    public static final String FUNCTION = "APP";
     
     private static final String helpLine1 = "Create an executable jar file that can be run on its own.";
     private static final String exportLcoationLabelText = "Export location: ";
