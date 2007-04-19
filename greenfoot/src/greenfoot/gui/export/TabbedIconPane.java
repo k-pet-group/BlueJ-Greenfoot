@@ -1,3 +1,5 @@
+package greenfoot.gui.export;
+
 /*
  * Class TabbedIconPane is a component that holds a few mutually exclusive
  * selectable icons - a bit like a JTabbedPane.
@@ -5,10 +7,8 @@
  * Currently hardcoded for one set of icons. Could be generalised if needed.
  *
  * @author Michael Kolling
- * @version 1.0
+ * @version $Id: TabbedIconPane.java 4976 2007-04-19 17:08:46Z mik $
  */
-
-package greenfoot.gui.export;
 
 import bluej.Config;
 import java.awt.Color;
@@ -118,30 +118,5 @@ public class TabbedIconPane extends JPanel
         JPanel parent = (JPanel)button.getParent();
         parent.setBackground(backgroundColor);
         parent.setBorder(emptyBorder);
-    }
-    
-    
-    
-    /**
-     * Custom Border class to draw just the left and right sides of a lin border.
-     */
-    static class LeftRightBorder extends LineBorder
-    {
-        public LeftRightBorder(Color col)
-        {
-            super(col);
-        }
-        
-        /**
-         * Paints the border only on the left and right sides.
-         */
-        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-            Color oldColor = g.getColor();
-
-            g.setColor(lineColor);
-            g.drawLine(x, y, x, height-1);
-            g.drawLine(width-1, y, width-1, height-1);
-            g.setColor(oldColor);
-        }
     }
 }
