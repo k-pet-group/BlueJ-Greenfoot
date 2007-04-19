@@ -38,7 +38,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4950 2007-04-17 11:43:33Z polle $
+ * @version $Id: GreenfootFrame.java 4965 2007-04-19 09:46:30Z mik $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -176,8 +176,8 @@ public class GreenfootFrame extends JFrame
 
             public void handlePreferences(ApplicationEvent e)
             {
-               // PreferencesAction.getInstance().actionPerformed(getMostRecent());
-               // e.setHandled(true);
+               PreferencesAction.getInstance().actionPerformed(null);
+               e.setHandled(true);
             }
 
             public void handleQuit(ApplicationEvent e)
