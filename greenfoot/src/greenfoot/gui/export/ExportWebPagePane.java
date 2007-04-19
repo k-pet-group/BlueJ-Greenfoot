@@ -2,13 +2,12 @@
  * ExportWebPagePane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportWebPagePane.java 4978 2007-04-19 18:56:45Z mik $
+ * @version $Id: ExportWebPagePane.java 4980 2007-04-19 20:43:26Z mik $
  */
 
 package greenfoot.gui.export;
 
 import bluej.BlueJTheme;
-import bluej.prefmgr.PrefMgr;
 import greenfoot.util.FileChoosers;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -19,8 +18,6 @@ import java.util.List;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -28,8 +25,9 @@ import javax.swing.JTextField;
 
 public class ExportWebPagePane extends ExportPane
 {
-    private static final String helpLine1 = "Create a stand alone version of this scenario that can be run outside of Greenfoot.";
-
+    public static final String NAME = "WEB";
+    
+    private static final String helpLine1 = "Create a web page with an applet.";
     private static final String exportLcoationLabelText = "Export location: ";
 
     private JFileChooser fileChooser;
@@ -70,9 +68,7 @@ public class ExportWebPagePane extends ExportPane
         Font smallFont = helpText1.getFont().deriveFont(Font.ITALIC, 11.0f);
         helpText1.setFont(smallFont);
 
-        add(Box.createVerticalStrut(5));
-
-        add(Box.createVerticalStrut(5));
+        add(Box.createVerticalStrut(10));
 
         JPanel inputPanel = new JPanel();
         {
@@ -105,13 +101,11 @@ public class ExportWebPagePane extends ExportPane
             }
             exportLocationPanel.setAlignmentX(LEFT_ALIGNMENT);
             inputPanel.add(exportLocationPanel);
-            inputPanel.add(Box.createVerticalStrut(5));
+            inputPanel.add(Box.createVerticalStrut(4));
 
             inputPanel.add(extraControls);
-            inputPanel.add(Box.createVerticalStrut(5));
         }
 
         add(inputPanel);
-        add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical));
     }
 }

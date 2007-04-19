@@ -7,7 +7,7 @@ package greenfoot.gui.export;
  * Currently hardcoded for one set of icons. Could be generalised if needed.
  *
  * @author Michael Kolling
- * @version $Id: TabbedIconPane.java 4976 2007-04-19 17:08:46Z mik $
+ * @version $Id: TabbedIconPane.java 4980 2007-04-19 20:43:26Z mik $
  */
 
 import bluej.Config;
@@ -39,6 +39,7 @@ public class TabbedIconPane extends JPanel
                                                     new EmptyBorder(3, 9, 3, 9));
                 
     private JRadioButton selected;
+    private TabbedIconPaneListener listener;
     
     /**
      * Creates a new instance of TabbedIconPane.
@@ -49,6 +50,14 @@ public class TabbedIconPane extends JPanel
         this.setBackground(backgroundColor);
         add(makeButttonRow());
         add(new JSeparator());
+    }
+    
+    /**
+     * Attach a (single) listener to this pane.
+     */
+    public void setListener(TabbedIconPaneListener listener)
+    {
+        this.listener = listener;
     }
     
     /**
@@ -63,9 +72,9 @@ public class TabbedIconPane extends JPanel
 
         ButtonGroup group = new ButtonGroup();
 
-        JRadioButton toggle1 = makeButton("Publish", "export-publish", group, panel);
-        JRadioButton toggle2 = makeButton("Webpage", "export-webpage", group, panel);
-        JRadioButton toggle3 = makeButton("Application", "export-app", group, panel);
+        JRadioButton toggle1 = makeButton("Publish", "export-publish", ExportPublishPane.NAME, group, panel);
+        JRadioButton toggle2 = makeButton("Webpage", "export-webpage", ExportWebPagePane.NAME, group, panel);
+        JRadioButton toggle3 = makeButton("Application", "export-app", ExportAppPane.NAME, group, panel);
 
         toggle1.setSelected(true);
         select(toggle1);
@@ -76,11 +85,13 @@ public class TabbedIconPane extends JPanel
     /**
      * Make one of the buttons to go into this component.
      */
-    private JRadioButton makeButton(String text, String iconName, ButtonGroup group, JPanel parent)
+    private JRadioButton makeButton(String text, String iconName, String command, 
+                                    ButtonGroup group, JPanel parent)
     {
         JRadioButton toggle = new JRadioButton(text, Config.getHardImageAsIcon(iconName + ".png"));
         toggle.setHorizontalTextPosition(SwingConstants.CENTER);
         toggle.setVerticalTextPosition(SwingConstants.BOTTOM);
+        toggle.setActionCommand(command);
         toggle.addActionListener(this);
         toggle.setOpaque(false);
 
@@ -93,10 +104,15 @@ public class TabbedIconPane extends JPanel
         return toggle;
     }
     
-    public void actionPerformed(ActionEvent e) {
+    /**
+     * A tab in this tabbed pane has been selected.
+     */
+    public void actionPerformed(ActionEvent e) 
+    {
         deselect(selected);
         JRadioButton button = (JRadioButton)e.getSource();
         select(button);
+        listener.tabSelected(e.getActionCommand());
     }
 
     /**

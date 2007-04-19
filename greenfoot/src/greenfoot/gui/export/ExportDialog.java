@@ -15,24 +15,30 @@ import javax.swing.WindowConstants;
 import bluej.BlueJTheme;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
+import java.awt.Dimension;
+import java.util.HashMap;
 
 public class ExportDialog extends EscapeDialog
+        implements TabbedIconPaneListener
 {
     // Internationalisation
     private static final String dialogTitle ="Greenfoot: Export";
 
+    private JPanel contentPane;
     private boolean ok;
-    private ExportPane[] panes;
-    private int selectedPane;
+    private HashMap<String, ExportPane> panes;
+    private ExportPane selectedPane;
 
     public ExportDialog(Frame parent, List<String> worlds, File defaultExportDir)
     {
         super(parent, dialogTitle, true);
         
-        panes = new ExportPane[3];
-        panes[0] = new ExportPublishPane(worlds);
-        panes[1] = new ExportWebPagePane(worlds, defaultExportDir);
-        panes[2] = new ExportAppPane(worlds, defaultExportDir);
+        panes = new HashMap<String, ExportPane>();
+        panes.put(ExportPublishPane.NAME, new ExportPublishPane(worlds));
+        panes.put(ExportWebPagePane.NAME, new ExportWebPagePane(worlds, defaultExportDir));
+        panes.put(ExportAppPane.NAME, new ExportAppPane(worlds, defaultExportDir));
+        
+        fixSizes(panes);
 
         makeDialog(worlds);
     }
@@ -53,7 +59,7 @@ public class ExportDialog extends EscapeDialog
      */
     public File getExportLocation()
     {
-        return new File(((ExportWebPagePane)panes[selectedPane]).getExportLocation());
+        return new File(((ExportWebPagePane)selectedPane).getExportLocation());
     }
 
     /**
@@ -61,7 +67,7 @@ public class ExportDialog extends EscapeDialog
      */
     public String getWorldClass()
     {
-        return panes[selectedPane].getWorldClassName();
+        return selectedPane.getWorldClassName();
     }
 
   
@@ -70,7 +76,7 @@ public class ExportDialog extends EscapeDialog
      */
     public boolean includeExtraControls()
     {
-        return panes[selectedPane].includeExtraControls();
+        return selectedPane.includeExtraControls();
     }
     
     
@@ -94,6 +100,33 @@ public class ExportDialog extends EscapeDialog
         setVisible(false);
     }
 
+    // === TabbedIconPaneListener interface ===
+    
+    /** 
+     * Called when the selection of the tabs changes.
+     */
+    public void tabSelected(String name)
+    {
+        showPane(name);
+    }
+
+    // === end of TabbedIconListener interface ===
+
+    /** 
+     * Called when the selection of the tabs changes.
+     */
+    public void showPane(String name)
+    {
+        ExportPane chosenPane = panes.get(name);
+        if(chosenPane != selectedPane) {
+            if(selectedPane != null)
+                contentPane.remove(selectedPane);
+            contentPane.add(chosenPane, BorderLayout.CENTER);
+            selectedPane = chosenPane;
+        }
+        pack();
+    }
+    
     /**
      * Create the dialog interface.
      * @param defaultExportDir The default place to export to.
@@ -103,16 +136,14 @@ public class ExportDialog extends EscapeDialog
     {
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         
-        JPanel contentPane = (JPanel) getContentPane();
+        contentPane = (JPanel) getContentPane();
         
         contentPane.setLayout(new BorderLayout());
         contentPane.setBorder(null);
         
-        JPanel togglePane = new TabbedIconPane();
-        contentPane.add(togglePane, BorderLayout.NORTH);
-
-        contentPane.add(panes[1], BorderLayout.CENTER);
-        selectedPane = 1;
+        TabbedIconPane tabbedPane = new TabbedIconPane();
+        tabbedPane.setListener(this);
+        contentPane.add(tabbedPane, BorderLayout.NORTH);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         {
@@ -137,9 +168,24 @@ public class ExportDialog extends EscapeDialog
 
         contentPane.add(buttonPanel, BorderLayout.SOUTH);
         
-        pack();
+        showPane(ExportPublishPane.NAME);
 
         DialogManager.centreDialog(this);
     }
 
+    private void fixSizes(HashMap<String, ExportPane> panes) 
+    {
+        int maxWidth = 0;
+        
+        for(ExportPane pane : panes.values()) {
+            Dimension size = pane.getPreferredSize();
+            maxWidth = Math.max(size.width, maxWidth);
+        }
+        
+        for(ExportPane pane : panes.values()) {
+            Dimension size = pane.getPreferredSize();
+            size.width = maxWidth;
+            pane.setPreferredSize(size);
+        }
+    }
 }
