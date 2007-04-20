@@ -34,7 +34,7 @@ import greenfoot.gui.export.ExportWebPagePane;
  * Action to export a project to a standalone program.
  * 
  * @author Poul Henriksen, Michael Kolling
- * @version $Id: ExportProjectAction.java 4984 2007-04-20 09:26:46Z mik $
+ * @version $Id: ExportProjectAction.java 4985 2007-04-20 13:14:34Z polle $
  */
 public class ExportProjectAction extends AbstractAction
 {
@@ -178,57 +178,16 @@ public class ExportProjectAction extends AbstractAction
      */
     private void createJar(File exportDir, String jarName, String worldClass, 
                            boolean includeExtraControls, boolean writeWebPage)
-    {
-        
-        JarCreator jarCreator = new JarCreator(exportDir, jarName);
-        jarCreator.addDir(projectDir);
+    {        
+        JarCreator jarCreator = null;
+        jarCreator = new JarCreator(project, exportDir, jarName, worldClass, includeExtraControls);            
 
-        File libDir = Config.getGreenfootLibDir();        
-        File greenfootDir = new File(libDir, "standalone");
-        jarCreator.addDir(greenfootDir);
-
-        File standAloneProperties = new File(projectDir, "standalone.properties");
-
-        Properties p = new Properties();
-        p.put("project.name", project.getName());
-        p.put("main.class", worldClass);
-        p.put("controls.extra", "" + includeExtraControls);
-        OutputStream os = null;
-        try {
-            standAloneProperties.createNewFile();
-            os = new FileOutputStream(standAloneProperties);
-            p.store(os, "Properties for running Greenfoot scenarios alone.");
-        }
-        catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        finally {
-            try {
-                os.close();
-            }
-            catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        jarCreator.addSkipDir(projectDir.getPath() + System.getProperty("file.separator") + "greenfoot");
-        jarCreator.addSkipFile(".cvsignore");
-
-        jarCreator.includeMetaFiles(false);
+        // do not include source
         jarCreator.includeSource(false);
         
-        String mainClass = "greenfoot.util.GreenfootScenarioViewer";
-        jarCreator.setMainClass(mainClass);
-        
-        //Extra entries for the manifest
+        //Extra entries for the manifest - used when publishing to stompt.org
         int width = WorldHandler.getInstance().getWorldCanvas().getWidth();
         int height = WorldHandler.getInstance().getWorldCanvas().getHeight() + 50;  
-
         jarCreator.putManifestEntry("short-description", "a one-line description (optional)");
         jarCreator.putManifestEntry("description", "a paragraph (even more optional)");
         jarCreator.putManifestEntry("url", "a url back to wherever the user would like to link to (like  their blog or home page) (also optional)");
@@ -237,7 +196,6 @@ public class ExportProjectAction extends AbstractAction
         jarCreator.putManifestEntry("args", "an argument string that is currently unused for applets, but  will be used for JNLP launching (not implemented completely yet!)");
         
         jarCreator.create();
-        standAloneProperties.delete();
 
         if(writeWebPage) {
             String htmlName = project.getName() + ".html";

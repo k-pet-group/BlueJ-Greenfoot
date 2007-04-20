@@ -1,15 +1,20 @@
 package greenfoot.publish;
 
+import greenfoot.core.GProject;
+
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
@@ -17,6 +22,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 
 import bluej.Config;
+import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.Project;
 import bluej.utility.BlueJFileReader;
 import bluej.utility.Debug;
@@ -30,28 +36,26 @@ import bluej.utility.FileUtility;
  */
 public class JarCreator
 {
-
-    //private static final String specifyJar = Config.getString("pkgmgr.export.specifyJar");
-   // private static final String createJarText = Config.getString("pkgmgr.export.createJarText");
-
-    private static final String sourceSuffix = ".java";
-    private static final String contextSuffix = ".ctxt";
-    private static final String packageFilePrefix = "bluej.pk";
-    private static final String packageFileBackup = "bluej.pkh";
+    private static final String SOURCE_SUFFIX = ".java";    
 
     /** Should source files be included in the jar? */
     private boolean includeSource;
 
-    /** Whether the main class is an applet */
-    private boolean createApplet;
-
-    /** The main class attribute for the JAR */
+    /** The main class attribute for the JAR. */
     private String mainClass;
+    
+    /** Directory where the jar is exported to. */
     private File exportDir;
+    
+    /** Directory to be exported. */
+    private File projectDir;
+    
+    /** Name of the jaf file that will be created. */
     private String jarName;
+    
+    /** List of extra jars that should be put in the same dir as the created jar (the exportDir)*/
     private List<File> extraJars = new LinkedList<File>();
-    private File jarFile;
-    private boolean includeMetaFiles;
+    
     private List<File> dirs = new LinkedList<File>();
 
     /** array of directory names not to be included in jar file * */
@@ -63,6 +67,8 @@ public class JarCreator
     /** The maninfest */ 
     private Manifest manifest = new Manifest();
     
+    /** Properties that contains information read by the GreenfootScnearioViewer */
+    private Properties properties;
 
     /**
      * Prepares a new jar creator. Once everything is set up, call create()
@@ -73,34 +79,94 @@ public class JarCreator
      */
     public JarCreator(File exportDir, String jarName)
     {
-        skipDirs.add("CVS");
-        skipDirs.add(exportDir.getAbsolutePath().toString());
+
         if (!exportDir.canWrite()) {
             throw new IllegalArgumentException("exportDir not writable: " + exportDir);
         }
         this.exportDir = exportDir;
         this.jarName = jarName;
+        properties = new Properties();
     }
 
+    /**
+     * Convenience constructor that includes settings that are common for all projects and export types. This will exclude BlueJ metafiles.
+     *
+     * @param project The project to be exported.
+     * @param exportDir The directory to export to.
+     * @param jarName Name of the jar file that should be created.
+     * @param worldClass Name of the main class.
+     * @param includeExtraControls Should the exported scenario include 'act' and speedslider.
+     */
+    public JarCreator(GProject project, File exportDir, String jarName, String worldClass, boolean includeExtraControls) 
+    {   
+        this(exportDir, jarName);
+        
+        // get the project directory        
+        try {
+            projectDir = project.getDir();
+        }
+        catch (ProjectNotOpenException e) {
+            e.printStackTrace();
+        }
+        catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        
+        String scenarioName = project.getName();
+        
+        addDir(projectDir);
+
+        // Add the Greenfoot standalone classes
+        File libDir = Config.getGreenfootLibDir();        
+        File greenfootDir = new File(libDir, "standalone");        
+        addDir(greenfootDir);
+        
+        // skip CVS stuff
+        addSkipDir("CVS");
+        addSkipFile(".cvsignore");
+        
+        // skip the export dir (in case it is in the projectDir)
+        addSkipDir(exportDir.getAbsolutePath().toString());
+        
+        // skip the greenfoot subdir that are in the projects
+        addSkipDir(projectDir.getPath() + System.getProperty("file.separator") + "greenfoot");
+        
+        // skip BlueJ files
+        addSkipFile(".ctxt");
+        addSkipFile("bluej.pkg");
+        addSkipFile("bluej.pkh");   
+        addSkipDir(Project.projectLibDirName);
+        
+        // Set the main class
+        String mainClass = "greenfoot.util.GreenfootScenarioViewer";
+        setMainClass(mainClass);
+        
+        // Add the properties read by the GreenfootScenarioViewer
+        properties.put("project.name", scenarioName);
+        properties.put("main.class", worldClass);
+        properties.put("controls.extra", "" + includeExtraControls);
+    }
+    
     /**
      * Creates the jar file with the current settings.
      * 
      */
     public void create()
     {
-
+        File propertiesFile = new File(projectDir, "standalone.properties");
+        writePropertiesFile(propertiesFile);        
+        
         // create the jar file
         if (!jarName.endsWith(".jar"))
             jarName = jarName + ".jar";
-        jarFile = new File(exportDir, jarName);
+        File jarFile = new File(exportDir, jarName);
 
         OutputStream oStream = null;
         JarOutputStream jStream = null;
 
         try {
-            createManifest();
+            writeManifest();
 
-            // create jar file
             oStream = new FileOutputStream(jarFile);
             jStream = new JarOutputStream(oStream, manifest);
 
@@ -109,8 +175,7 @@ public class JarCreator
                 writeDirToJar(dir, "", jStream, jarFile.getCanonicalFile());
             }
             
-            copyLibsToJar(extraJars, exportDir);
-            
+            copyLibsToJar(extraJars, exportDir);            
         }
         catch (IOException exc) {
             Debug.reportError("problen writing jar file: " + exc);
@@ -121,8 +186,40 @@ public class JarCreator
                     jStream.close();
             }
             catch (IOException e) {}
+            propertiesFile.delete();
         }
 
+    }
+
+    
+    /**
+     * Writes the properties to the given file.
+     */
+    private void writePropertiesFile(File file)
+    {
+        OutputStream os = null;
+        try {
+            file.createNewFile();
+            os = new FileOutputStream(file);
+            properties.store(os, "Properties for running Greenfoot scenarios alone.");
+        }
+        catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                os.close();
+            }
+            catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -136,7 +233,11 @@ public class JarCreator
         attr.put(new Attributes.Name(key), value);
     }
     
-    private void createManifest()
+    /**
+     * Writes entries to the manifest file.
+     *
+     */
+    private void writeManifest()
     {
         // Construct classpath with used library jars
         String classpath = "";
@@ -161,14 +262,6 @@ public class JarCreator
     }
     
     /**
-     * Whether to include project files like project.greenfoot etc.
-     */
-    public void includeMetaFiles(boolean b)
-    {
-        includeMetaFiles = b;
-    }
-
-    /**
      * Sets the main class for this JAR. The class that contains the main method
      * or Applet class.
      * 
@@ -177,15 +270,6 @@ public class JarCreator
     public void setMainClass(String mainClass)
     {
         this.mainClass = mainClass;
-    }
-
-    /**
-     * 
-     * @param b
-     */
-    public void setApplet(boolean b)
-    {
-        this.createApplet = b;
     }
 
     /**
@@ -202,24 +286,34 @@ public class JarCreator
         extraJars.add(jar);
     }
 
+    /**
+     * Directory to include in export.
+     * 
+     * @param dir
+     */
     public void addDir(File dir)
     {
         dirs.add(dir);
     }
+    
     /**
      * All dirs that end with the specified string will be skipped.
-     * TODO: platform dependent file separators?
-     * @param dir
+     * Be aware of platform dependent file separators.
      */
     public void addSkipDir(String dir) {
         skipDirs.add(dir);
     }
 
 
+    /**
+     * All files that end with the specified string will be skipped.
+     * Be aware of platform dependent file separators.
+     */
     public void addSkipFile(String file)
     {
         skipFiles.add(file);
     }
+    
     /**
      * Write the contents of a directory to a jar stream. Recursively called for
      * subdirectories. outputFile should be the canonical file representation of
@@ -265,8 +359,6 @@ public class JarCreator
      */
     private boolean skipDir(File dir) throws IOException
     {
-        if (dir.getName().equals(Project.projectLibDirName))
-            return !includeMetaFiles;
 
         Iterator<String> it = skipDirs.iterator();
         while(it.hasNext()) {
@@ -278,25 +370,19 @@ public class JarCreator
     }
 
     /**
-     * Checks whether a file should be skipped during a copy operation. BlueJ
-     * specific files (bluej.pkg and *.ctxt) and - optionally - Java source
-     * files are skipped.
+     * Checks whether a file should be skipped during a copy operation. 
      */
     private boolean skipFile(String fileName, boolean skipSource)
     {
-        if (fileName.equals(packageFileBackup))
-            return true;
 
         for(String skipFile : skipFiles) {
             if (fileName.endsWith(skipFile))
                 return true;            
         }
         
-        if (fileName.endsWith(sourceSuffix))
+        if (fileName.endsWith(SOURCE_SUFFIX))
             return !includeSource;
 
-        if (fileName.startsWith(packageFilePrefix) || fileName.endsWith(contextSuffix))
-            return !includeMetaFiles;
 
         return false;
     }
