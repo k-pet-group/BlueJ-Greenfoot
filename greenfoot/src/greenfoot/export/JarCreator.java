@@ -1,4 +1,4 @@
-package greenfoot.publish;
+package greenfoot.export;
 
 import greenfoot.core.GProject;
 
