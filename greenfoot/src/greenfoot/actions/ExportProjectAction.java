@@ -7,6 +7,7 @@ import greenfoot.event.PublishEvent;
 import greenfoot.event.PublishListener;
 import greenfoot.export.JarCreator;
 import greenfoot.export.WebPublisher;
+import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.export.ExportAppPane;
 import greenfoot.gui.export.ExportCompileDialog;
 import greenfoot.gui.export.ExportDialog;
@@ -14,6 +15,7 @@ import greenfoot.gui.export.ExportPane;
 import greenfoot.gui.export.ExportPublishPane;
 import greenfoot.gui.export.ExportWebPagePane;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +30,7 @@ import bluej.extensions.ProjectNotOpenException;
  * Action to export a project to a standalone program.
  * 
  * @author Poul Henriksen, Michael Kolling
- * @version $Id: ExportProjectAction.java 4988 2007-04-20 14:12:08Z polle $
+ * @version $Id: ExportProjectAction.java 4990 2007-04-20 16:08:02Z polle $
  */
 public class ExportProjectAction extends AbstractAction implements PublishListener
 {
@@ -137,10 +139,10 @@ public class ExportProjectAction extends AbstractAction implements PublishListen
         jarCreator.putManifestEntry("description", "a paragraph (even more optional)");
         jarCreator.putManifestEntry("url", "a url back to wherever the user would like to link to (like  their blog or home page) (also optional)");
         jarCreator.putManifestEntry("args", "an argument string that is currently unused for applets, but  will be used for JNLP launching (not implemented completely yet!)");
-        int width = WorldHandler.getInstance().getWorldCanvas().getWidth();
-        int height = WorldHandler.getInstance().getWorldCanvas().getHeight() + 50; 
-        jarCreator.putManifestEntry("width", "" + width);
-        jarCreator.putManifestEntry("height","" + height);
+
+        Dimension size = getSize(includeControls);
+        jarCreator.putManifestEntry("width", "" + size.width);
+        jarCreator.putManifestEntry("height","" + size.height);
         
         jarCreator.create();
         
@@ -158,6 +160,31 @@ public class ExportProjectAction extends AbstractAction implements PublishListen
      //   System.out.println(login + ",  " + password + ",  " + scenarioName + ",  " + tmpJarFile.getAbsolutePath());
       /*  publisher.submit("polle","polle123","forrest-fire on"+new java.util.Date(),
                 "/home/polle/workspace/greenfoot/scenarios/forrest-fire-export/forrest-fire.jar");*/
+    }
+
+    /**
+     * Get the size needed to display the application and control panel.
+     * @return
+     */
+    private Dimension getSize(boolean includeControls)
+    {
+        //The control panel size is hard coded for now, since it has different sizes on different platforms. 
+        //It is bigger on windows than most other platforms, so this is the size that is used.
+        //Will be even more problematic once we get i18n!
+        Dimension controlPanelSize = null; 
+        if(includeControls) {
+            controlPanelSize = new Dimension(560, 47);
+        }
+        else {   
+            controlPanelSize = new Dimension(410, 46);
+        }
+        
+        WorldCanvas canvas = WorldHandler.getInstance().getWorldCanvas();
+        Dimension size = new Dimension(canvas.getWidth(), WorldHandler.getInstance().getWorldCanvas().getHeight() + canvas.getHeight());
+        if(size.getWidth() < controlPanelSize.getWidth()) {
+            size.width = controlPanelSize.width;
+        }
+        return size;
     }
         
     /**

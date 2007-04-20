@@ -8,6 +8,7 @@ import greenfoot.core.WorldHandler;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.event.WorldEvent;
+import greenfoot.gui.CenterLayout;
 import greenfoot.gui.ControlPanel;
 import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.WorldCanvas;
@@ -29,6 +30,7 @@ import java.util.Properties;
 
 import javax.swing.JApplet;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.RootPaneContainer;
 
@@ -94,8 +96,9 @@ public class GreenfootScenarioViewer extends JApplet
         }
 
         rootPaneContainer.setGlassPane(DragGlassPane.getInstance());
-        rootPaneContainer.getContentPane().setLayout(new BorderLayout());
-        rootPaneContainer.getContentPane().add(canvas, BorderLayout.CENTER);
+        JPanel centerPanel = new JPanel(new CenterLayout());
+        centerPanel.add(canvas);
+        rootPaneContainer.getContentPane().add(centerPanel, BorderLayout.CENTER);
         rootPaneContainer.getContentPane().add(controls, BorderLayout.SOUTH);
 
     }
