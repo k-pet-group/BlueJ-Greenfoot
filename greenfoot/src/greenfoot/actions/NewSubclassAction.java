@@ -5,7 +5,7 @@ import greenfoot.gui.ImageLibFrame;
 import greenfoot.gui.NewClassDialog;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
-import greenfoot.gui.classbrowser.role.GreenfootClassRole;
+import greenfoot.gui.classbrowser.role.ActorClassRole;
 
 import java.awt.event.ActionEvent;
 
@@ -16,7 +16,7 @@ import javax.swing.SwingUtilities;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NewSubclassAction.java 4674 2006-10-30 11:38:31Z polle $
+ * @version $Id: NewSubclassAction.java 4982 2007-04-20 05:45:52Z davmac $
  */
 public class NewSubclassAction extends AbstractAction
 {
@@ -63,7 +63,7 @@ public class NewSubclassAction extends AbstractAction
         ClassView classView = new ClassView(gClass);
         
         SelectImageAction.setClassImage(classView,
-                (GreenfootClassRole) classView.getRole(),
+                (ActorClassRole) classView.getRole(),
                 dialog.getSelectedImageFile());
 
         classBrowser.addClass(classView);

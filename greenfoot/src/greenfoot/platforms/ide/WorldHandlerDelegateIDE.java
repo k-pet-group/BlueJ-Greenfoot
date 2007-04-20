@@ -12,7 +12,7 @@ import greenfoot.core.WorldInvokeListener;
 import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.SelectionManager;
-import greenfoot.gui.classbrowser.role.GreenfootClassRole;
+import greenfoot.gui.classbrowser.role.ActorClassRole;
 import greenfoot.localdebugger.LocalObject;
 import greenfoot.platforms.WorldHandlerDelegate;
 
@@ -213,8 +213,8 @@ public class WorldHandlerDelegateIDE
     {
         if (isQuickAddActive) {
             ClassView cls = (ClassView) classSelectionManager.getSelected();
-            if (cls != null && cls.getRole() instanceof GreenfootClassRole) {
-                GreenfootClassRole role = (GreenfootClassRole) cls.getRole();
+            if (cls != null && cls.getRole() instanceof ActorClassRole) {
+                ActorClassRole role = (ActorClassRole) cls.getRole();
                 Actor actor = role.createObjectDragProxy();// cls.createInstance();
 
                 int dragOffsetX = 0;

@@ -6,7 +6,7 @@ import greenfoot.core.GreenfootMain;
 import greenfoot.core.LocationTracker;
 import greenfoot.event.ActorInstantiationListener;
 import greenfoot.gui.classbrowser.role.ClassRole;
-import greenfoot.gui.classbrowser.role.GreenfootClassRole;
+import greenfoot.gui.classbrowser.role.ActorClassRole;
 import greenfoot.gui.classbrowser.role.NormalClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
 import greenfoot.util.GreenfootUtil;
@@ -37,7 +37,7 @@ import bluej.utility.Utility;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4961 2007-04-19 06:19:04Z davmac $
+ * @version $Id: ClassView.java 4982 2007-04-20 05:45:52Z davmac $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -60,13 +60,37 @@ public class ClassView extends JToggleButton
     private ClassBrowser classBrowser;
     private JPopupMenu popupMenu;
     private String superclass; //Holds the current superclass. Used to determine wether the superclass has changed.
-
+    
+    /** Whether this class is a "core" class (can't be removed or have image set) */
+    private boolean coreClass;
+    
     /**
      * Creates a new ClassView with the role determined from gClass.
-     * @param gClass
      */
-    public ClassView(GClass gClass) {
+    public ClassView(GClass gClass)
+    {
+        coreClass = false;
         init(gClass);
+    }
+    
+    /**
+     * Creates a new ClassView with the role determined from gClass. The
+     * ClassView optionally represents a "core" class which can't be removed
+     * from the project.
+     */
+    public ClassView(GClass gClass, boolean coreClass)
+    {
+        this.coreClass = coreClass;
+        init(gClass);
+    }
+    
+    /**
+     * Check whether this class is a core class (can't be removed or have
+     * image set).
+     */
+    public boolean isCoreClass()
+    {
+        return coreClass;
     }
     
     /**
@@ -117,13 +141,13 @@ public class ClassView extends JToggleButton
     {
         ClassRole classRole = null;
         if (gClass.isActorClass()) {
-            classRole = new GreenfootClassRole();
+            classRole = new ActorClassRole();
         }
         else if (gClass.isWorldClass()) {
             classRole = new WorldClassRole();
         }
         else if (gClass.isActorSubclass()) {
-            classRole = new GreenfootClassRole();
+            classRole = new ActorClassRole();
         }
         else if (gClass.isWorldSubclass()) {
             classRole = new WorldClassRole();

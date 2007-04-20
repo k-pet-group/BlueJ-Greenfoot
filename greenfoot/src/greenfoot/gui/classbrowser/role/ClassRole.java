@@ -32,7 +32,7 @@ import bluej.views.ViewFilter;
  * "normal" classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 4961 2007-04-19 06:19:04Z davmac $
+ * @version $Id: ClassRole.java 4982 2007-04-20 05:45:52Z davmac $
  */
 public abstract class ClassRole
 {
@@ -121,9 +121,11 @@ public abstract class ClassRole
 
         popupMenu.add(createMenuItem(new EditClassAction(gClass)));
 
-        addPopupMenuItems(popupMenu);
+        addPopupMenuItems(popupMenu, classView.isCoreClass());
 
-        popupMenu.add(createMenuItem(new RemoveClassAction(classView)));
+        if (! classView.isCoreClass()) {
+            popupMenu.add(createMenuItem(new RemoveClassAction(classView)));
+        }
         popupMenu.addSeparator();
         popupMenu.add(createMenuItem(new NewSubclassAction(classView, classBrowser)));
 
@@ -140,8 +142,10 @@ public abstract class ClassRole
     
     /**
      * Add any role-specific menu items to the given popup menu
+     * @param menu  The meny to add the menu items to
+     * @param coreClass  Whether the class is a "core" class (Actor, World) or not
      */
-    public void addPopupMenuItems(JPopupMenu menu)
+    public void addPopupMenuItems(JPopupMenu menu, boolean coreClass)
     {
         // default implementation does nothing
     }

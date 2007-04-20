@@ -19,19 +19,17 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
-import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import bluej.Config;
-import bluej.prefmgr.PrefMgr;
 
 /**
+ * A role for Actor classes 
  * 
  * @author Poul Henriksen
- * @version $Id: GreenfootClassRole.java 4961 2007-04-19 06:19:04Z davmac $
- * 
+ * @version $Id: ActorClassRole.java 4982 2007-04-20 05:45:52Z davmac $
  */
-public class GreenfootClassRole extends ClassRole
+public class ActorClassRole extends ClassRole
 {
     private final static Dimension iconSize = new Dimension(16, 16);
     protected final Color envOpColour = Config.getItemColour("colour.menu.environOp");
@@ -144,12 +142,14 @@ public class GreenfootClassRole extends ClassRole
         return new DragProxyAction(greenfootImage, realAction);
     }
     
-    public void addPopupMenuItems(JPopupMenu menu)
+    /* (non-Javadoc)
+     * @see greenfoot.gui.classbrowser.role.ClassRole#addPopupMenuItems(javax.swing.JPopupMenu, boolean)
+     */
+    public void addPopupMenuItems(JPopupMenu menu, boolean coreClass)
     {
-        JMenuItem item = new JMenuItem(new SelectImageAction(classView, this));
-        item.setFont(PrefMgr.getPopupMenuFont());
-        item.setForeground(envOpColour);
-        menu.add(item);
+        if (! coreClass) {
+            menu.add(createMenuItem(new SelectImageAction(classView, this)));
+        }
     }
 
     @Override

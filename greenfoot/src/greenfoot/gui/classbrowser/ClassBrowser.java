@@ -1,6 +1,6 @@
 package greenfoot.gui.classbrowser;
 
-import greenfoot.gui.classbrowser.role.GreenfootClassRole;
+import greenfoot.gui.classbrowser.role.ActorClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
 
 import java.awt.BorderLayout;
@@ -24,7 +24,7 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 4952 2007-04-18 03:02:25Z davmac $
+ * @version $Id: ClassBrowser.java 4982 2007-04-20 05:45:52Z davmac $
  */
 public class ClassBrowser extends JPanel
 {
@@ -56,7 +56,7 @@ public class ClassBrowser extends JPanel
     public void quickAddClass(ClassView classView)
     {
 
-        if (classView.getRole() instanceof GreenfootClassRole) {
+        if (classView.getRole() instanceof ActorClassRole) {
             greenfootClasses.add(classView);
         }
         else if (classView.getRole() instanceof WorldClassRole) {           
@@ -303,7 +303,7 @@ public class ClassBrowser extends JPanel
                 found = otherClasses.remove(classView);
 
             // Add it to the right forest.
-            if (classView.getRole() instanceof GreenfootClassRole) {
+            if (classView.getRole() instanceof ActorClassRole) {
                 greenfootClasses.add(classView);
             }
             else if (classView.getRole() instanceof WorldClassRole) {
