@@ -19,17 +19,19 @@ public class FileChoosers
 {
     private static JFileChooser  exportFileChooser;
     private static JFileChooser  scenarioFileChooser;
+    private static JFileChooser  newFileChooser;
     
     /**
-     * Select a directory to export to.
+     * Let the user specify a new file name.
      * 
      *  @return Returns a File pointing to the export directory, or null if none selected.
      */
-    public static File getExportFile(Component parent) {
+    public static File getExportDir(Component parent, File defaultFile, String title) {
         if (exportFileChooser == null) {
             exportFileChooser = new JFileChooser();
-            exportFileChooser.setDialogTitle("Choose Export Directory");
-            exportFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            exportFileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
+            exportFileChooser.setDialogTitle(title);
+            exportFileChooser.setSelectedFile(defaultFile);
         }
         int result = exportFileChooser.showDialog(parent, "Choose");
         
@@ -37,6 +39,26 @@ public class FileChoosers
            return null;
         }
         return exportFileChooser.getSelectedFile();
+    }
+
+    /**
+     * Let the user specify a new file name.
+     * 
+     *  @return Returns a File pointing to the export directory, or null if none selected.
+     */
+    public static File getFileName(Component parent, File defaultFile, String title) {
+        if (newFileChooser == null) {
+            newFileChooser = new JFileChooser();
+            newFileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
+            newFileChooser.setDialogTitle(title);
+            newFileChooser.setSelectedFile(defaultFile);
+        }
+        int result = newFileChooser.showDialog(parent, "Choose");
+        
+        if (result != JFileChooser.APPROVE_OPTION) {
+           return null;
+        }
+        return newFileChooser.getSelectedFile();
     }
     
     /**

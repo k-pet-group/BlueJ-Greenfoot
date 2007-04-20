@@ -30,14 +30,14 @@ public class ExportDialog extends EscapeDialog
     private ExportPane selectedPane;
     private String selectedFunction;
 
-    public ExportDialog(Frame parent, List<String> worlds, File defaultExportDir)
+    public ExportDialog(Frame parent, String scenarioName, List<String> worlds, File defaultExportDir)
     {
         super(parent, dialogTitle, true);
         
         panes = new HashMap<String, ExportPane>();
-        panes.put(ExportPublishPane.FUNCTION, new ExportPublishPane(worlds));
-        panes.put(ExportWebPagePane.FUNCTION, new ExportWebPagePane(worlds, defaultExportDir));
-        panes.put(ExportAppPane.FUNCTION, new ExportAppPane(worlds, defaultExportDir));
+        panes.put(ExportPublishPane.FUNCTION, new ExportPublishPane(worlds, scenarioName));
+        panes.put(ExportWebPagePane.FUNCTION, new ExportWebPagePane(worlds, scenarioName, defaultExportDir));
+        panes.put(ExportAppPane.FUNCTION, new ExportAppPane(worlds, scenarioName, defaultExportDir));
         
         fixSizes(panes);
 

@@ -2,7 +2,7 @@
  * ExportWebPagePane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportWebPagePane.java 4981 2007-04-19 22:21:31Z mik $
+ * @version $Id: ExportWebPagePane.java 4984 2007-04-20 09:26:46Z mik $
  */
 
 package greenfoot.gui.export;
@@ -36,10 +36,16 @@ public class ExportWebPagePane extends ExportPane
     /** 
      * Create a an export pane for export to web pages.
      */
-    public ExportWebPagePane(List<String> worlds, File defaultExportDir) 
+    public ExportWebPagePane(List<String> worlds, String scenarioName, File defaultExportDir) 
     {
         super(worlds);
-        makePane(worlds, defaultExportDir);
+        File exportDir = new File(defaultExportDir, scenarioName + "-export");
+
+        if (exportDir.exists()) {
+            exportDir.delete();
+        }
+        
+        makePane(worlds, exportDir);
     }
     
     /**
@@ -53,12 +59,12 @@ public class ExportWebPagePane extends ExportPane
     /**
      * Build the component.
      */
-    private void makePane(List<String> worlds, File defaultExportDir)
+    private void makePane(List<String> worlds, final File defaultDir)
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BlueJTheme.dialogBorder);
 
-        targetDirField = new JTextField(defaultExportDir.toString(), 20);
+        targetDirField = new JTextField(defaultDir.toString(), 20);
         targetDirField.setEditable(false);
 
         JLabel helpText1 = new JLabel(helpLine1);
@@ -92,7 +98,8 @@ public class ExportWebPagePane extends ExportPane
                 browse.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e)
                     {
-                        File file = FileChoosers.getExportFile(ExportWebPagePane.this);
+                        File file = FileChoosers.getExportDir(ExportWebPagePane.this, defaultDir,
+                                                              "Choose Export Directory Name");
                         if(file != null) {
                             targetDirField.setText(file.getPath());
                         }

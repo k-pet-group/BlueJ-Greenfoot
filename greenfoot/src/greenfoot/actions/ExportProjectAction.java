@@ -34,7 +34,7 @@ import greenfoot.gui.export.ExportWebPagePane;
  * Action to export a project to a standalone program.
  * 
  * @author Poul Henriksen, Michael Kolling
- * @version $Id: ExportProjectAction.java 4981 2007-04-19 22:21:31Z mik $
+ * @version $Id: ExportProjectAction.java 4984 2007-04-20 09:26:46Z mik $
  */
 public class ExportProjectAction extends AbstractAction
 {
@@ -116,14 +116,8 @@ public class ExportProjectAction extends AbstractAction
             e1.printStackTrace();
         }       
         
-        File defaultExportDir = new File(projectDir.getParentFile(), scenarioName + "-export");
-
-        if (defaultExportDir.exists()) {
-            defaultExportDir.delete();
-        }
-        
         if(exportDialog == null) {
-            exportDialog = new ExportDialog(GreenfootMain.getInstance().getFrame(), getWorldClasses(), defaultExportDir);
+            exportDialog = new ExportDialog(GreenfootMain.getInstance().getFrame(), scenarioName, getWorldClasses(), projectDir.getParentFile());
         }
         boolean okPressed = exportDialog.display();
         if(!okPressed) {
@@ -158,9 +152,11 @@ public class ExportProjectAction extends AbstractAction
     private void doWebPage(ExportWebPagePane pane)
     {
         File exportDir = new File(pane.getExportLocation());
+        exportDir.mkdir();
         String worldClass = pane.getWorldClassName();
         boolean  includeControls = pane.includeExtraControls();
-        createJar(exportDir, worldClass, includeControls, true);
+        String jarName = project.getName() + ".jar";
+        createJar(exportDir, jarName, worldClass, includeControls, true);
     }
         
     /**
@@ -168,22 +164,22 @@ public class ExportProjectAction extends AbstractAction
      */
     private void doApplication(ExportAppPane pane)
     {
-        File exportDir = new File(pane.getExportLocation());
+        File exportFile = new File(pane.getExportName());
+        File exportDir = exportFile.getParentFile();
+        String jarName = exportFile.getName();
         String worldClass = pane.getWorldClassName();
         boolean  includeControls = pane.includeExtraControls();
-        createJar(exportDir, worldClass, includeControls, false);
+        createJar(exportDir, jarName, worldClass, includeControls, false);
     }
         
                 
     /**
      * .
      */
-    private void createJar(File exportDir, String worldClass, boolean includeExtraControls,
-                           boolean writeWebPage)
+    private void createJar(File exportDir, String jarName, String worldClass, 
+                           boolean includeExtraControls, boolean writeWebPage)
     {
-        String jarName = project.getName() + ".jar";
         
-        exportDir.mkdir();
         JarCreator jarCreator = new JarCreator(exportDir, jarName);
         jarCreator.addDir(projectDir);
 

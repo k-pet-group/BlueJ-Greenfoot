@@ -7,7 +7,7 @@
  * and open the template in the editor.
 
  * @author Michael Kolling
- * @version $Id: ExportAppPane.java 4981 2007-04-19 22:21:31Z mik $
+ * @version $Id: ExportAppPane.java 4984 2007-04-20 09:26:46Z mik $
  */
 
 package greenfoot.gui.export;
@@ -33,22 +33,23 @@ public class ExportAppPane extends ExportPane
     public static final String FUNCTION = "APP";
     
     private static final String helpLine1 = "Create an executable jar file that can be run on its own.";
-    private static final String exportLcoationLabelText = "Export location: ";
+    private static final String exportLcoationLabelText = "Save to: ";
 
     private JFileChooser fileChooser;
     private JTextField targetDirField;
     
     /** Creates a new instance of ExportAppPane */
-    public ExportAppPane(List<String> worlds, File defaultExportDir) 
+    public ExportAppPane(List<String> worlds, String scenarioName, File defaultExportDir) 
     {
         super(worlds);
-        makePane(worlds, defaultExportDir);
+        File targetFile = new File(defaultExportDir, scenarioName + ".jar");
+        makePane(worlds, targetFile);
     }
     
     /**
      * Return the directory where the scenario should be exported.
      */
-    public String getExportLocation()
+    public String getExportName()
     {
         return targetDirField.getText();
     }
@@ -56,12 +57,12 @@ public class ExportAppPane extends ExportPane
     /**
      * Build the component.
      */
-    private void makePane(List<String> worlds, File defaultExportDir)
+    private void makePane(List<String> worlds, final File targetFile)
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BlueJTheme.dialogBorder);
 
-        targetDirField = new JTextField(defaultExportDir.toString(), 20);
+        targetDirField = new JTextField(targetFile.toString(), 20);
         targetDirField.setEditable(false);
 
         JLabel helpText1 = new JLabel(helpLine1);
@@ -95,9 +96,14 @@ public class ExportAppPane extends ExportPane
                 browse.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e)
                     {
-                        File file = FileChoosers.getExportFile(ExportAppPane.this);
+                        File file = FileChoosers.getFileName(ExportAppPane.this, targetFile,
+                                                             "Save executable jar file");
                         if(file != null) {
-                            targetDirField.setText(file.getPath());
+                            String newName = file.getPath();
+                            if(!newName.endsWith(".jar")) {
+                                newName += ".jar";
+                            }
+                            targetDirField.setText(newName);
                         }
                     }
                 });                    

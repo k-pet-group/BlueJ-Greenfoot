@@ -2,7 +2,7 @@
  * ExportPublishPane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 4981 2007-04-19 22:21:31Z mik $
+ * @version $Id: ExportPublishPane.java 4984 2007-04-20 09:26:46Z mik $
  */
 
 package greenfoot.gui.export;
@@ -29,7 +29,7 @@ public class ExportPublishPane extends ExportPane
     private static final String helpLine1 = "Publish the scenario to mygame.java.sum.com.";
     
     /** Creates a new instance of ExportPublishPane */
-    public ExportPublishPane(List<String> worlds) 
+    public ExportPublishPane(List<String> worlds, String scenarioName) 
     {
         super(worlds);
         makePane(worlds);
