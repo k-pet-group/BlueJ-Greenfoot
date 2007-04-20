@@ -1,8 +1,12 @@
 package greenfoot.core;
 
+import greenfoot.util.GreenfootUtil;
+
 import java.io.File;
 import java.rmi.RemoteException;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import rmiextension.wrappers.RClass;
@@ -224,6 +228,41 @@ public class GPackage
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+
+    /** 
+     * Returns all the world sub-classes in this package that can be instantiated.
+     * 
+     * @return
+     */
+    public List<String> getWorldClasses()
+    {
+        List<String> worldClasses= new LinkedList<String>();
+        try {
+            GClass[] classes = getClasses();
+            for (int i = 0; i < classes.length; i++) {
+                GClass cls = classes[i];
+                if(cls.isWorldSubclass()) {
+                    Class realClass = cls.getJavaClass();   
+                    if (GreenfootUtil.canBeInstantiated(realClass)) {                  
+                        worldClasses.add(cls.getName());
+                    }                    
+                }
+            }
+        }
+        catch (ProjectNotOpenException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        catch (PackageNotFoundException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        catch (RemoteException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        return worldClasses;
     }
 
 }

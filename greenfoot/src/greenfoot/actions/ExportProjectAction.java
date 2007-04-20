@@ -1,6 +1,7 @@
 package greenfoot.actions;
 
 import greenfoot.core.GClass;
+import greenfoot.core.GPackage;
 import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.WorldHandler;
@@ -34,7 +35,7 @@ import greenfoot.gui.export.ExportWebPagePane;
  * Action to export a project to a standalone program.
  * 
  * @author Poul Henriksen, Michael Kolling
- * @version $Id: ExportProjectAction.java 4985 2007-04-20 13:14:34Z polle $
+ * @version $Id: ExportProjectAction.java 4986 2007-04-20 13:24:49Z polle $
  */
 public class ExportProjectAction extends AbstractAction
 {
@@ -57,38 +58,6 @@ public class ExportProjectAction extends AbstractAction
         super("Export...");
         setEnabled(false);
     }
-
-    private static List<String> getWorldClasses()
-    {
-        List<String> worldClasses= new LinkedList<String>();
-        try {
-            GClass[] classes = GreenfootMain.getInstance().getPackage().getClasses();
-            for (int i = 0; i < classes.length; i++) {
-                GClass cls = classes[i];
-                if(cls.isWorldSubclass()) {
-                    Class realClass = cls.getJavaClass();   
-                    if (GreenfootUtil.canBeInstantiated(realClass)) {                  
-                        worldClasses.add(cls.getName());
-                    }                    
-                }
-            }
-        }
-        catch (ProjectNotOpenException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        catch (PackageNotFoundException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        catch (RemoteException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        return worldClasses;
-    }
-
-    
 
     public void actionPerformed(ActionEvent ae)
     {
@@ -116,8 +85,9 @@ public class ExportProjectAction extends AbstractAction
             e1.printStackTrace();
         }       
         
+        List<String> worldClasses = GreenfootMain.getInstance().getPackage().getWorldClasses();
         if(exportDialog == null) {
-            exportDialog = new ExportDialog(GreenfootMain.getInstance().getFrame(), scenarioName, getWorldClasses(), projectDir.getParentFile());
+            exportDialog = new ExportDialog(GreenfootMain.getInstance().getFrame(), scenarioName, worldClasses, projectDir.getParentFile());
         }
         boolean okPressed = exportDialog.display();
         if(!okPressed) {

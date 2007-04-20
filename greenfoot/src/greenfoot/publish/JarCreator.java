@@ -425,8 +425,8 @@ public class JarCreator
         translations.put("APPLETHEIGHT", "" + height);
 
         // add libraries from <project>/+libs/ to archives
-        String archives = jarName;
-        /*try {
+        /*String archives = jarName;
+        try {
             for (int i = 0; i < libs.length; i++) {
                 if (archives.length() == 0)
                     archives = libs[i].toURI().toURL().toString();
@@ -436,7 +436,7 @@ public class JarCreator
         }
         catch (MalformedURLException e) {}*/
 
-        translations.put("ARCHIVE", archives);
+        translations.put("ARCHIVE", jarName);
 
 
         File libDir = Config.getGreenfootLibDir();
