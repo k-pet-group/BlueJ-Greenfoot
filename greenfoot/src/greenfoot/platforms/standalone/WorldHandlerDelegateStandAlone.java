@@ -2,8 +2,8 @@ package greenfoot.platforms.standalone;
 
 import greenfoot.World;
 import greenfoot.core.WorldHandler;
+import greenfoot.export.GreenfootScenarioViewer;
 import greenfoot.platforms.WorldHandlerDelegate;
-import greenfoot.util.GreenfootScenarioViewer;
 
 import java.awt.Component;
 import java.awt.event.KeyEvent;

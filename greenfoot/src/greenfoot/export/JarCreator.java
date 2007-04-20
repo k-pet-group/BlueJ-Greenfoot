@@ -138,7 +138,7 @@ public class JarCreator
         addSkipDir(Project.projectLibDirName);
         
         // Set the main class
-        String mainClass = "greenfoot.util.GreenfootScenarioViewer";
+        String mainClass = "greenfoot.export.GreenfootScenarioViewer";
         setMainClass(mainClass);
         
         // Add the properties read by the GreenfootScenarioViewer

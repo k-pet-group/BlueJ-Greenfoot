@@ -352,7 +352,7 @@
     
     <target name="run-scenario-viewer"  depends="ready-to-run,compile-scenarios">
         <!-- run the java code built into the jar files -->
-        <java classname="greenfoot.util.GreenfootScenarioViewer" fork="yes" jvm="${build_java_home}/bin/java">        
+        <java classname="greenfoot.export.GreenfootScenarioViewer" fork="yes" jvm="${build_java_home}/bin/java">        
             <classpath>
                 <!--path refid="bluej.class.path"/>
                 <pathelement location="${build_java_home}/lib/tools.jar"/>
@@ -385,7 +385,7 @@
         </nbprofiledirect>
     
         <!-- run the java code built into the jar files -->
-        <java classname="greenfoot.util.GreenfootScenarioViewer" fork="yes" jvm="${build_java_home}/bin/java">        
+        <java classname="greenfoot.export.GreenfootScenarioViewer" fork="yes" jvm="${build_java_home}/bin/java">        
             <classpath>
                 <pathelement location="${build}"/>
                 <pathelement location="scenarios/ants/"/>
@@ -404,7 +404,7 @@
         </copy>
         <jar jarfile="standalone.jar" basedir="${standalone.build}">
             <manifest>
-                <attribute name="Main-Class" value="greenfoot.util.GreenfootScenarioViewer" />
+                <attribute name="Main-Class" value="greenfoot.export.GreenfootScenarioViewer" />
                 <attribute name="Class-Path" value="." />
             </manifest>
         </jar>
@@ -451,6 +451,8 @@
             <include name="greenfoot/event/WorldListener.java"/> 
             <include name="greenfoot/event/WorldEvent.java"/> 
             
+            <include name="greenfoot/export/GreenfootScenarioViewer.java"/>      
+        	
             <include name="greenfoot/gui/ControlPanel.java"/>
             <include name="greenfoot/gui/DragGlassPane.java"/>
             <include name="greenfoot/gui/DragListener.java"/>

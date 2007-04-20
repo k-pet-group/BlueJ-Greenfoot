@@ -1,4 +1,4 @@
-package greenfoot.util;
+package greenfoot.export;
 
 import greenfoot.World;
 import greenfoot.core.LocationTracker;
@@ -14,6 +14,7 @@ import greenfoot.gui.WorldCanvas;
 import greenfoot.platforms.standalone.ActorDelegateStandAlone;
 import greenfoot.platforms.standalone.GreenfootUtilDelegateStandAlone;
 import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
+import greenfoot.util.GreenfootUtil;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -93,6 +94,7 @@ public class GreenfootScenarioViewer extends JApplet
         }
 
         rootPaneContainer.setGlassPane(DragGlassPane.getInstance());
+        rootPaneContainer.getContentPane().setLayout(new BorderLayout());
         rootPaneContainer.getContentPane().add(canvas, BorderLayout.CENTER);
         rootPaneContainer.getContentPane().add(controls, BorderLayout.SOUTH);
 
