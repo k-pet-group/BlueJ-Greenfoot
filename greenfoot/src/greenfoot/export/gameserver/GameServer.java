@@ -2,6 +2,7 @@
 
 package greenfoot.export.gameserver;
 import java.io.*;
+import java.net.UnknownHostException;
 
 /**
  * ease-of-use class to use to submit games to the game server.
@@ -15,22 +16,10 @@ import java.io.*;
  */
 public class GameServer {
     
-    public static void main(String[]args) {
-        new GameServer().
-            submit("jag","greenfoot","Asteroids on"+new java.util.Date(),
-                "/Users/jag/aster2.jar");
-        System.err.println("Submitted, waiting...");
-        try {
-            // Status reports and errors get reported asyncronously
-            // just waiting in this program to give them time to trickle in
-            // 
-            Thread.currentThread().sleep(5000);
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
-    }
-    private ClientEnd server = new ClientEnd("mygame.java.sun.com");
-    public final GameServer submit(String uid, String password, String gameName, String fileName) {
+    private ClientEnd server; // = new ClientEnd("bluej.org"); //"mygame.java.sun.com");
+    
+    public final GameServer submit(String host, String uid, String password, String gameName, String fileName) throws UnknownHostException {
+        server = new ClientEnd(host);
         try {
             server.getOut()
                 .writeln("t","submit",uid,password,gameName,
@@ -58,20 +47,28 @@ public class GameServer {
         return this;
     }
     public class ClientEnd extends Endpoint {
-        public ClientEnd(String host) {
+        public ClientEnd(String host) throws UnknownHostException {
             super(host,4235,false,null);
         }
         public void hello(UTCL utcl) {
-            System.err.println("***Hello from the client!  "+utcl);
+            //System.err.println("***Hello from the client!  "+utcl);
         }
         public void answer(UTCL utcl) {
-            System.err.println("***Answer received by the client!  "+utcl);
+            //System.err.println("***Answer received by the client!  "+utcl);
         }
         public void status(UTCL utcl) {
             GameServer.this.status(utcl.getArg(0,"status reply without message"));
         }
         public void error(UTCL utcl) {
             GameServer.this.error(utcl.getArg(0,"error without message"));
+        }
+        /**
+         * will be called if something goes wrong when connection to the server.
+         */
+        @Override
+        public void error(String s)
+        {
+            GameServer.this.error(s);
         }
     }
     /** Override this to get error messages */

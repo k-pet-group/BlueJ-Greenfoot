@@ -10,53 +10,36 @@ import greenfoot.export.gameserver.GameServer;
 
 /**
  * Class to publish scenarios to a website. 
+ * 
  * @author Poul Henriksen
  *
  */
 public class WebPublisher extends GameServer
 {
-   
-    public static void main(String[]args) {
-       
-        
-        WebPublisher publisher = new WebPublisher();
-        publisher.addPublishListener(new PublishListener() {
-            public void errorRecieved(PublishEvent event)
-            {
-                System.out.println("Recieved error event: " + event.getMessage());
-            }
-
-            public void statusRecieved(PublishEvent event)
-            {
-                System.out.println("Recieved status event: " + event.getMessage());                
-            }});
-        
-        
-        publisher.submit("polle","polle123","forrest-fire on"+new java.util.Date(),
-                "/home/polle/workspace/greenfoot/scenarios/forrest-fire-export/forrest-fire.jar");
-        System.err.println("Submitted, waiting...");
-        try {
-            // Status reports and errors get reported asyncronously
-            // just waiting in this program to give them time to trickle in
-            // 
-            Thread.currentThread().sleep(5000);
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
-    }
-    
-    
-    
     private EventListenerList listenerList = new EventListenerList();
         
+    /**
+     * Create a new webpublisher. 
+     * @see greenfoot.export.gameserver.GameServer#submit(String, String, String, String, String)
+     */
     public WebPublisher() {
 
     }
-        
+       
+    /**
+     * Do not call this method. Use the listener interface instead.
+     * 
+     * @see #addPublishListener(PublishListener)
+     */
     public void error(String s) {
         firePublishEvent(new PublishEvent(s, PublishEvent.ERROR));
     }
 
+    /**
+     * Do not call this method. Use the listener interface instead.
+     * 
+     * @see #addPublishListener(PublishListener)
+     */
     public void status(String s) {
         firePublishEvent(new PublishEvent(s, PublishEvent.STATUS));
     }

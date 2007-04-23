@@ -72,7 +72,7 @@ public class UTCL {
         }
     }
     public void execute() {
-        System.err.println("Exec "+this);
+        //System.err.println("Exec "+this);
         if(size>0)
         if("*".equals(things[0])) {
             for(Target t:targets.values())

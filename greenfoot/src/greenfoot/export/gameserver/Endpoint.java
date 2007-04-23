@@ -8,7 +8,7 @@ import java.net.*;
  * @author James Gosling
  * @created March 22, 2006
  */
-public class Endpoint {
+public abstract class Endpoint {
     public final UTCL utcl;
     private StreamOfThingsWriter out;
     private IOException lastError = null;
@@ -26,7 +26,7 @@ public class Endpoint {
         this(target);
         connect(sock);
     }
-    public Endpoint(String host, int port, boolean persist, Object target) {
+    public Endpoint(String host, int port, boolean persist, Object target) throws UnknownHostException {
         this(target);
         connect(host, port, persist);
     }
@@ -145,9 +145,9 @@ public class Endpoint {
     private String chost;
     private int cport;
     private boolean bePersistant;
-    public synchronized void connect(String host, final int port, final boolean persist) {
+    public synchronized void connect(String host, final int port, final boolean persist) throws UnknownHostException {
         if(host==null) host = System.getenv("TARGETHOST");
-        try {
+       
             chost = host; cport = port; bePersistant = persist;
             closed = false;
             lastError = null;
@@ -159,54 +159,49 @@ public class Endpoint {
             new Thread() {
                 public void run() {
                     setName("connect "+addr);
-                    connectLoop(addr,port);
+                    try {
+                        connectLoop(addr,port);
+                    }
+                    catch (IOException e) {
+                       // lastError = e;
+                        //setState(e,"connect error");
+                        error("Cannot connect to server. Cause: " + e.getMessage());
+                    }
                 }
             }.start();
-        } catch(java.net.UnknownHostException unh) {
-            Object message;
-            try {
-                new java.net.Socket(java.net.InetAddress.getByName("sunweb.central.sun.com"),80).close();
-                message = new String[] {
-                    "This program cannot be run from inside",
-                    "Sun's Wide Area Network (SWAN).  It must",
-                    "be run outside in order to reach the game",
-                    "management server.  You can do this from",
-                    "inside the Sun campus by (for example)",
-                    "working from a laptop connected via a WiFi",
-                    "connection to the 'rover' network"
-                };
-            } catch(IOException ioe) {
-                message = "Can't find the server that\nmanages the race\n(race.java.sun.com)";
-            }
-            if (System.getProperty("netbeans.home") == null) {
-                javax.swing.JOptionPane.showMessageDialog(null, message, "Can't find server", javax.swing.JOptionPane.ERROR_MESSAGE);
-                System.exit(-1);
-            }
-        }
+        
     }
     static final long initialRetryWait = 1000;
     static final long maxRetryWait = 5000;//5*60*1000;
     static final double retryExponential = 1.5;
-    private synchronized final void connectLoop(InetAddress addr, int port) {
+    
+    private synchronized final void connectLoop(InetAddress addr, int port) throws IOException 
+    {
         long retrywait = initialRetryWait;
-        while(true) try {
-            connect(new Socket(addr,port));
-            break;  //TODO make persist work
-        } catch(IOException ioe) {
-            System.err.println("***Can't connect to server: "+ioe+"\n\tRetrying "+retrywait);
-            try {
-                Thread.currentThread().sleep(retrywait);
-                retrywait = retrywait<(int)(maxRetryWait/retryExponential)
-                    ? (int)(retrywait*retryExponential)
-                    : maxRetryWait;
-            }
-            catch(Throwable t) {}
-        }
+        //while (true)
+           // try {
+                connect(new Socket(addr, port));
+               // break; // TODO make persist work
+           /* }
+            catch (IOException ioe) {
+                System.err.println("***Can't connect to server: " + ioe + "\n\tRetrying " + retrywait);
+                try {
+                    Thread.currentThread().sleep(retrywait);
+                    retrywait = retrywait < (int) (maxRetryWait / retryExponential)
+                            ? (int) (retrywait * retryExponential)
+                            : maxRetryWait;
+                }
+                catch (Throwable t) {}
+            }*/
     }
-    public void reconnect() {
-        if(out==null) {
-            connect(chost,cport,bePersistant);
+
+    public void reconnect() throws UnknownHostException
+    {
+        if (out == null) {
+            connect(chost, cport, bePersistant);
             onReconnect();
         }
     }
+    
+    public abstract void error(String s);
 }

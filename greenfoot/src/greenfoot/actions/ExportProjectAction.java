@@ -19,6 +19,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.util.List;
 
@@ -30,7 +31,7 @@ import bluej.extensions.ProjectNotOpenException;
  * Action to export a project to a standalone program.
  * 
  * @author Poul Henriksen, Michael Kolling
- * @version $Id: ExportProjectAction.java 4990 2007-04-20 16:08:02Z polle $
+ * @version $Id: ExportProjectAction.java 4994 2007-04-23 12:45:46Z polle $
  */
 public class ExportProjectAction extends AbstractAction implements PublishListener
 {
@@ -150,16 +151,20 @@ public class ExportProjectAction extends AbstractAction implements PublishListen
         String login = "polle";
         String password = "polle123";
         String scenarioName = project.getName();        
-        
+        String host = "mygame.java.sun.com";
         if(webPublisher == null) {
             webPublisher = new WebPublisher();
             webPublisher.addPublishListener(this);
         }
-        webPublisher.submit(login, password, scenarioName, tmpJarFile.getAbsolutePath()); //TODO change so that it takes a File instead of String for the filename.
         
-     //   System.out.println(login + ",  " + password + ",  " + scenarioName + ",  " + tmpJarFile.getAbsolutePath());
-      /*  publisher.submit("polle","polle123","forrest-fire on"+new java.util.Date(),
-                "/home/polle/workspace/greenfoot/scenarios/forrest-fire-export/forrest-fire.jar");*/
+        try {
+            webPublisher.submit(host, login, password, scenarioName, tmpJarFile.getAbsolutePath());//TODO change so that it takes a File instead of String for the filename.
+        }
+        catch (UnknownHostException e) {
+            // TODO Handle this!
+            e.printStackTrace();
+        } 
+        
     }
 
     /**
@@ -180,7 +185,7 @@ public class ExportProjectAction extends AbstractAction implements PublishListen
         }
         
         WorldCanvas canvas = WorldHandler.getInstance().getWorldCanvas();
-        Dimension size = new Dimension(canvas.getWidth(), WorldHandler.getInstance().getWorldCanvas().getHeight() + canvas.getHeight());
+        Dimension size = new Dimension(canvas.getWidth(), (int) controlPanelSize.getHeight() + canvas.getHeight());
         if(size.getWidth() < controlPanelSize.getWidth()) {
             size.width = controlPanelSize.width;
         }
@@ -247,6 +252,7 @@ public class ExportProjectAction extends AbstractAction implements PublishListen
     {
         tmpJarFile.delete();
         // TODO Handle error
+        System.out.println("Error: " + event);
         
     }
 
@@ -257,6 +263,8 @@ public class ExportProjectAction extends AbstractAction implements PublishListen
     {
         tmpJarFile.delete();
         // TODO Display success - close dialog?
+
+        System.out.println("Success: " + event);
         
     }
 }
