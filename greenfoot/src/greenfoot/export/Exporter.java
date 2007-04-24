@@ -5,7 +5,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 4997 2007-04-24 09:09:48Z mik $
+ * @version $Id: Exporter.java 4999 2007-04-24 16:53:15Z mik $
  */
 
 package greenfoot.export;
@@ -90,8 +90,8 @@ public class Exporter
         
 
         //TODO: get these from the pane?
-        String login = "polle";
-        String password = "polle123";
+        String login = "mkolling";
+        String password = "brem4game";
         String scenarioName = project.getName();        
         String host = "mygame.java.sun.com";
         if(webPublisher == null) {

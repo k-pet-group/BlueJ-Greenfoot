@@ -80,6 +80,8 @@ public class ExportDialog extends EscapeDialog
         }
 
         List<String> worlds = GreenfootMain.getInstance().getPackage().getWorldClasses();
+        String worldClass = worlds.get(0);
+        
         updatePanes(panes, worlds);
         clearStatus();
         setVisible(true);  // returns after OK or Cancel, which set 'ok'
