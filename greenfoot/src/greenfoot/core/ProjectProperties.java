@@ -155,8 +155,7 @@ public class ProjectProperties
 
 
     /**
-     * Sets a property as in Java's Properties class. It also immediately writes
-     * the property to the file.
+     * Sets a property as in Java's Properties class. 
      */
     public void setString(String key, String value)
     {
@@ -174,8 +173,7 @@ public class ProjectProperties
 
 
     /**
-     * Sets an int property as in Java's Properties class. It also immediately writes
-     * the property to the file.
+     * Sets an int property as in Java's Properties class. 
      */
     public void setInt(String key, int value)
     {

@@ -4,9 +4,11 @@ import greenfoot.Actor;
 import greenfoot.ObjectTracker;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
+import greenfoot.core.GClass;
 import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.LocationTracker;
+import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.core.WorldInvokeListener;
@@ -75,7 +77,7 @@ public class WorldHandlerDelegateIDE
 
     private JLabel worldTitle;
 
-    private Class<? extends World> lastWorldClass; 
+    private Class lastWorldClass; 
     
     public WorldHandlerDelegateIDE()
     {
@@ -432,6 +434,22 @@ public class WorldHandlerDelegateIDE
     public void attachProject(Object project)
     {
         this.project = (GProject) project;
+
+        ProjectProperties probs = this.project.getProjectProperties();
+        String lastWorld = probs.getString("world.lastInstantiated");
+
+        if (lastWorld != null) {
+            try {
+                GClass gCls = this.project.getDefaultPackage().getClass(lastWorld);
+                if(gCls != null) {
+                    lastWorldClass = gCls.getJavaClass();
+                }
+            }
+            catch (ProjectNotOpenException e) {
+            }
+            catch (RemoteException e) {
+            }
+        }
     }
 
     public void reset()

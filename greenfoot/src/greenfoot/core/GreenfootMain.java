@@ -43,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 5004 2007-04-24 18:35:23Z polle $
+ * @version $Id: GreenfootMain.java 5005 2007-04-24 18:59:55Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -365,6 +365,11 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         projectProperties.setInt("mainWindow.y", loc.y);
 
         projectProperties.setInt("simulation.speed", Simulation.getInstance().getSpeed());
+        
+        Class cls = WorldHandler.getInstance().getLastWorldClass();
+        if(cls != null) {
+            projectProperties.setString("world.lastInstantiated", WorldHandler.getInstance().getLastWorldClass().getName());
+        }
         
         projectProperties.save();
     }
