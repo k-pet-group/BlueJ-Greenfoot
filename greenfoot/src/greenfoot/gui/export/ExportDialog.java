@@ -79,10 +79,6 @@ public class ExportDialog extends EscapeDialog
             }
         }
 
-        List<String> worlds = GreenfootMain.getInstance().getPackage().getWorldClasses();
-        String worldClass = worlds.get(0);
-        
-        updatePanes(panes, worlds);
         clearStatus();
         setVisible(true);  // returns after OK or Cancel, which set 'ok'
     }
@@ -240,21 +236,6 @@ public class ExportDialog extends EscapeDialog
         panes.put(ExportAppPane.FUNCTION, new ExportAppPane(scenarioName, defaultExportDir));
         
         fixSizes(panes);
-    }
-
-    /**
-     * Set the preferred width for all tabs to the widest of the tabs.
-     */
-    private void updatePanes(HashMap<String, ExportPane> panes, List<String> worlds) 
-    {
-        boolean sizeChange = false;
-        for(ExportPane pane : panes.values()) {
-            sizeChange = pane.updatePane(worlds) || sizeChange;
-        }
-        if(sizeChange) {
-            fixSizes(panes);
-            pack();
-        }
     }
 
     /**

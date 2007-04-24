@@ -2,7 +2,7 @@
  * ExportWebPagePane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportWebPagePane.java 4998 2007-04-24 11:39:23Z mik $
+ * @version $Id: ExportWebPagePane.java 5000 2007-04-24 17:04:35Z mik $
  */
 
 package greenfoot.gui.export;
@@ -81,7 +81,6 @@ public class ExportWebPagePane extends ExportPane
             inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
             inputPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-            inputPanel.add(worldClassPanel);    // invisible if only one world
             inputPanel.add(Box.createVerticalStrut(5));
 
             JPanel exportLocationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));

@@ -2,7 +2,7 @@
  * ExportPublishPane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 4998 2007-04-24 11:39:23Z mik $
+ * @version $Id: ExportPublishPane.java 5000 2007-04-24 17:04:35Z mik $
  */
 
 package greenfoot.gui.export;
@@ -57,7 +57,6 @@ public class ExportPublishPane extends ExportPane
             inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
             inputPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-            inputPanel.add(worldClassPanel);    // invisible if only one world
             inputPanel.add(Box.createVerticalStrut(5));
             
             inputPanel.add(extraControls);

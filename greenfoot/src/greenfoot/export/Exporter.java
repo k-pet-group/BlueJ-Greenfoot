@@ -5,12 +5,13 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 4999 2007-04-24 16:53:15Z mik $
+ * @version $Id: Exporter.java 5000 2007-04-24 17:04:35Z mik $
  */
 
 package greenfoot.export;
 
 import greenfoot.core.GProject;
+import greenfoot.core.GreenfootMain;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.PublishEvent;
 import greenfoot.event.PublishListener;
@@ -23,6 +24,7 @@ import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.List;
 
 public class Exporter 
         implements PublishListener
@@ -66,7 +68,10 @@ public class Exporter
         File exportDir = tmpJarFile.getParentFile();
         String jarName = tmpJarFile.getName();           
 
-        String worldClass = pane.getWorldClassName();
+        // TODO: get default world from package instead.
+        List<String> worlds = GreenfootMain.getInstance().getPackage().getWorldClasses();
+        String worldClass = worlds.get(0);
+        
         boolean  includeControls = pane.includeExtraControls();
         
         JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, includeControls);            
@@ -118,7 +123,11 @@ public class Exporter
         dlg.setProgress(true, "Writing web page...");
         File exportDir = new File(pane.getExportLocation());
         exportDir.mkdir();
-        String worldClass = pane.getWorldClassName();
+
+        // TODO: get default world from package instead.
+        List<String> worlds = GreenfootMain.getInstance().getPackage().getWorldClasses();
+        String worldClass = worlds.get(0);
+        
         boolean  includeControls = pane.includeExtraControls();
         String jarName = project.getName() + ".jar";
         JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, includeControls);            
@@ -147,7 +156,11 @@ public class Exporter
         File exportFile = new File(pane.getExportName());
         File exportDir = exportFile.getParentFile();
         String jarName = exportFile.getName();
-        String worldClass = pane.getWorldClassName();
+
+        // TODO: get default world from package instead.
+        List<String> worlds = GreenfootMain.getInstance().getPackage().getWorldClasses();
+        String worldClass = worlds.get(0);
+        
         boolean  includeControls = pane.includeExtraControls();
         
         JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, includeControls); 
