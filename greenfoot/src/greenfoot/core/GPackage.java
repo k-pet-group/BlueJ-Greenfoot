@@ -235,9 +235,9 @@ public class GPackage
      * 
      * @return
      */
-    public List<String> getWorldClasses()
+    public List<Class> getWorldClasses()
     {
-        List<String> worldClasses= new LinkedList<String>();
+        List<Class> worldClasses= new LinkedList<Class>();
         try {
             GClass[] classes = getClasses();
             for (int i = 0; i < classes.length; i++) {
@@ -245,7 +245,7 @@ public class GPackage
                 if(cls.isWorldSubclass()) {
                     Class realClass = cls.getJavaClass();   
                     if (GreenfootUtil.canBeInstantiated(realClass)) {                  
-                        worldClasses.add(cls.getName());
+                        worldClasses.add(realClass);
                     }                    
                 }
             }

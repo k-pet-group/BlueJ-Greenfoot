@@ -43,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 4950 2007-04-17 11:43:33Z polle $
+ * @version $Id: GreenfootMain.java 5004 2007-04-24 18:35:23Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -337,16 +337,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             re.printStackTrace();
         }
     }
-    
-    /**
-     * Instantiates a new world
-     *
-     */
-    public World instantiateNewWorld()
-    {
-       return frame.instantiateNewWorld();
-    }
-    
+        
     /**
      * Close all open Greenfoot project instances, i.e. exit the application.
      */

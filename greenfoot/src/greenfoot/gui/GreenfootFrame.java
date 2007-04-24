@@ -38,7 +38,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 4982 2007-04-20 05:45:52Z davmac $
+ * @version $Id: GreenfootFrame.java 5004 2007-04-24 18:35:23Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -203,7 +203,7 @@ public class GreenfootFrame extends JFrame
                 setTitle("Greenfoot: " + project.getName());
                 populateClassBrowser(classBrowser, project);
                 enableProjectActions();
-                instantiateNewWorld();
+                WorldHandler.getInstance().instantiateNewWorld();
                 if(needsResize()) {
                     pack();
                 }
@@ -374,29 +374,6 @@ public class GreenfootFrame extends JFrame
         dim.setSize(dim.width + WORLD_MARGIN, dim.height + WORLD_MARGIN);
         return dim;
     }
-
-    /**
-     * Tries to instantiate a new world. This may fail (if, for example, the
-     * world is not compiled. If multiple world classes exist, a random one
-     * will be instantiated.
-     * 
-     * @return The new World object, or null if unsuccessful
-     */
-    public World instantiateNewWorld() {
-		// init a random world
-		Iterator worldClasses = classBrowser.getWorldClasses();
-		while (worldClasses.hasNext()) {
-			ClassView classView = (ClassView) worldClasses.next();
-			classView.updateView();
-			if (!classView.getClassName().equals("World") && classView.getRealClass() != null) {	
-                if (GreenfootUtil.canBeInstantiated(classView.getRealClass())) {
-                    return (World) classView.createInstance();
-                }
-			}
-		}
-        return null;
-	}
-
 
     /**
 	 * Build the class browser.
@@ -615,7 +592,7 @@ public class GreenfootFrame extends JFrame
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
-                instantiateNewWorld();
+                WorldHandler.getInstance().instantiateNewWorld();
                 classBrowser.repaint();
                 CompileAllAction.getInstance().setEnabled(true);
             }

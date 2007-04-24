@@ -6,9 +6,11 @@ import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
+import greenfoot.core.LocationTracker;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.core.WorldInvokeListener;
+import greenfoot.event.ActorInstantiationListener;
 import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.SelectionManager;
@@ -77,9 +79,9 @@ public class WorldHandlerDelegateIDE
     
     public WorldHandlerDelegateIDE()
     {
-         worldTitle = new JLabel();
-         worldTitle.setBorder(BorderFactory.createEmptyBorder(18, 0, 4, 0));
-         worldTitle.setHorizontalAlignment(SwingConstants.CENTER);
+        worldTitle = new JLabel();
+        worldTitle.setBorder(BorderFactory.createEmptyBorder(18, 0, 4, 0));
+        worldTitle.setHorizontalAlignment(SwingConstants.CENTER);
     }
 
     /**
@@ -240,70 +242,70 @@ public class WorldHandlerDelegateIDE
     }
 
     public void setWorld(final World oldWorld, final World newWorld)
-    {        
-        if(newWorld != null) {
-            this.lastWorldClass = newWorld.getClass();
+    {
+        if (newWorld != null) {
+            lastWorldClass = newWorld.getClass();
         }
-           if (oldWorld != null) {
-               // Remove the old world and actors from the remote object caches
-               ObjectTracker.forgetRObject(oldWorld);
-               List<Actor> oldActors = new ArrayList<Actor>(WorldVisitor.getObjectsList(oldWorld));
-               for (Iterator<Actor> i = oldActors.iterator(); i.hasNext(); ) {
-                   Actor oldActor = i.next();
-                   ObjectTracker.forgetRObject(oldActor);
-               }
-               
-               EventQueue.invokeLater(new Runnable() {
-                   public void run() {
-                       worldHandler.fireWorldRemovedEvent();
-                   }
-               });
-               Simulation.getInstance().setPaused(true);
-           }
-           
-           EventQueue.invokeLater(new Runnable() {
-               public void run()
-               {
-                   if (newWorld != null) {
-                       worldTitle.setText(newWorld.getClass().getName());
-                   }
-                   worldHandler.getWorldCanvas().setWorld(newWorld); // TODO consider removing this and only
-                   // rely on observer
-                   worldTitle.setEnabled(true);
-                   MouseListener listeners[] = worldTitle.getMouseListeners();
-                   for (int i = 0; i < listeners.length; i++) {
-                       worldTitle.removeMouseListener(listeners[i]);
-                   }
+        if (oldWorld != null) {
+            // Remove the old world and actors from the remote object caches
+            ObjectTracker.forgetRObject(oldWorld);
+            List<Actor> oldActors = new ArrayList<Actor>(WorldVisitor.getObjectsList(oldWorld));
+            for (Iterator<Actor> i = oldActors.iterator(); i.hasNext();) {
+                Actor oldActor = i.next();
+                ObjectTracker.forgetRObject(oldActor);
+            }
 
-                   worldTitle.addMouseListener(new MouseAdapter() {
-                       public void mouseReleased(MouseEvent e)
-                       {
-                           maybeShowPopup(e);
-                       }
+            EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    worldHandler.fireWorldRemovedEvent();
+                }
+            });
+            Simulation.getInstance().setPaused(true);
+        }
 
-                       public void mousePressed(MouseEvent e)
-                       {
-                           maybeShowPopup(e);
-                       }
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                if (newWorld != null) {
+                    worldTitle.setText(newWorld.getClass().getName());
+                }
+                worldHandler.getWorldCanvas().setWorld(newWorld); // TODO consider removing this and only rely on server
+                worldTitle.setEnabled(true);
+                MouseListener listeners[] = worldTitle.getMouseListeners();
+                for (int i = 0; i < listeners.length; i++) {
+                    worldTitle.removeMouseListener(listeners[i]);
+                }
 
-                       private void maybeShowPopup(MouseEvent e)
-                       {
-                           if (e.isPopupTrigger() && worldHandler.getWorld() != null) {
-                               JPopupMenu menu = new JPopupMenu();
-                               
-                               ObjectWrapper.createMethodMenuItems(menu, newWorld.getClass(), new WorldInvokeListener(newWorld,
-                                       WorldHandlerDelegateIDE.this, project), LocalObject.getLocalObject(newWorld), null);
-                               menu.addSeparator();
-                               // "inspect" menu item
-                               JMenuItem m = getInspectMenuItem(newWorld);
-                               menu.add(m);
-                               menu.show(worldTitle, e.getX(), e.getY());
-                           }
-                       }
-                   });
-                   
-               }
-           });
+                worldTitle.addMouseListener(new MouseAdapter() {
+                    public void mouseReleased(MouseEvent e)
+                    {
+                        maybeShowPopup(e);
+                    }
+
+                    public void mousePressed(MouseEvent e)
+                    {
+                        maybeShowPopup(e);
+                    }
+
+                    private void maybeShowPopup(MouseEvent e)
+                    {
+                        if (e.isPopupTrigger() && worldHandler.getWorld() != null) {
+                            JPopupMenu menu = new JPopupMenu();
+
+                            ObjectWrapper.createMethodMenuItems(menu, newWorld.getClass(), new WorldInvokeListener(
+                                    newWorld, WorldHandlerDelegateIDE.this, project), LocalObject
+                                    .getLocalObject(newWorld), null);
+                            menu.addSeparator();
+                            // "inspect" menu item
+                            JMenuItem m = getInspectMenuItem(newWorld);
+                            menu.add(m);
+                            menu.show(worldTitle, e.getX(), e.getY());
+                        }
+                    }
+                });
+
+            }
+        });
     }
 
     public void dragFinished(Object o)
@@ -449,17 +451,44 @@ public class WorldHandlerDelegateIDE
 
     public World instantiateNewWorld()
     {
-        return GreenfootMain.getInstance().instantiateNewWorld();
+        Class cls = getLastWorldClass();
+        if(cls == null) {
+            List<Class> worldClasses = GreenfootMain.getInstance().getPackage().getWorldClasses();
+            if(worldClasses.isEmpty() ) {
+                return null;
+            }
+            cls = worldClasses.get(0);
+        }
+        
+        try {
+            World w = (World) cls.newInstance();            
+            ActorInstantiationListener invocationListener = GreenfootMain.getInstance().getInvocationListener();
+            if(invocationListener != null) {
+                invocationListener.localObjectCreated(w, LocationTracker.instance().getMouseButtonEvent());
+            }
+            return w;
+        }
+        catch (InstantiationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (IllegalAccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public Class getLastWorldClass()
     {
-        String lastName = lastWorldClass.getName();
-        List<String> worldClasses = GreenfootMain.getInstance().getPackage().getWorldClasses();
+        if(lastWorldClass == null) {
+            return null;
+        }
+        List<Class> worldClasses = GreenfootMain.getInstance().getPackage().getWorldClasses();
         
         //Has to be one of the currently instantiable world classes.
-        for (String string : worldClasses) {
-            if(string.equals(lastName)) {
+        for (Class worldClass : worldClasses) {
+            if(worldClass.getName().equals(lastWorldClass.getName())) {
                 return lastWorldClass;
             }                
         }        
