@@ -31,6 +31,7 @@ public class ExportDialog extends EscapeDialog
     // Internationalisation
     private static final String dialogTitle ="Greenfoot: Export";
 
+    private Frame parent;
     private GProject project;
     private JPanel contentPane;
     private final JProgressBar progressBar = new JProgressBar();
@@ -44,6 +45,7 @@ public class ExportDialog extends EscapeDialog
     public ExportDialog(Frame parent)
     {
         super(parent, dialogTitle, false);
+        this.parent = parent;
         
         project = GreenfootMain.getInstance().getProject();
         
@@ -60,10 +62,8 @@ public class ExportDialog extends EscapeDialog
             e1.printStackTrace();
         }
         
-        List<String> worlds = GreenfootMain.getInstance().getPackage().getWorldClasses();
-
-        createPanes(worlds, project.getName(), projectDir.getParentFile());
-        makeDialog(worlds);
+        createPanes(project.getName(), projectDir.getParentFile());
+        makeDialog();
     }
 
     /**
@@ -72,6 +72,15 @@ public class ExportDialog extends EscapeDialog
      */
     public void display()
     {
+        if(!project.isCompiled())  {
+            boolean isCompiled = showCompileDialog(project);
+            if(!isCompiled) {               
+                return;         // Cancel export
+            }
+        }
+
+        List<String> worlds = GreenfootMain.getInstance().getPackage().getWorldClasses();
+        updatePanes(panes, worlds);
         clearStatus();
         setVisible(true);  // returns after OK or Cancel, which set 'ok'
     }
@@ -221,22 +230,36 @@ public class ExportDialog extends EscapeDialog
     /**
      * Create all the panes that should appear as part of this dialogue.
      */
-    private void createPanes(List<String> worlds, String scenarioName, File defaultExportDir)
+    private void createPanes(String scenarioName, File defaultExportDir)
     {
         panes = new HashMap<String, ExportPane>();
-        panes.put(ExportPublishPane.FUNCTION, new ExportPublishPane(worlds, scenarioName));
-        panes.put(ExportWebPagePane.FUNCTION, new ExportWebPagePane(worlds, scenarioName, defaultExportDir));
-        panes.put(ExportAppPane.FUNCTION, new ExportAppPane(worlds, scenarioName, defaultExportDir));
+        panes.put(ExportPublishPane.FUNCTION, new ExportPublishPane(scenarioName));
+        panes.put(ExportWebPagePane.FUNCTION, new ExportWebPagePane(scenarioName, defaultExportDir));
+        panes.put(ExportAppPane.FUNCTION, new ExportAppPane(scenarioName, defaultExportDir));
         
         fixSizes(panes);
     }
-        
+
+    /**
+     * Set the preferred width for all tabs to the widest of the tabs.
+     */
+    private void updatePanes(HashMap<String, ExportPane> panes, List<String> worlds) 
+    {
+        boolean sizeChange = false;
+        for(ExportPane pane : panes.values()) {
+            sizeChange = pane.updatePane(worlds) || sizeChange;
+        }
+        if(sizeChange) {
+            fixSizes(panes);
+            pack();
+        }
+    }
+
     /**
      * Create the dialog interface.
      * @param defaultExportDir The default place to export to.
-     * @param worlds List of possible worlds that can be instantiated.
      */
-    private void makeDialog(List<String> worlds)
+    private void makeDialog()
     {
         contentPane = (JPanel) getContentPane();
         
@@ -311,10 +334,16 @@ public class ExportDialog extends EscapeDialog
 
     private boolean showCompileDialog(GProject project)
     {
-        ExportCompileDialog d = new ExportCompileDialog(this, project);
-        GreenfootMain.getInstance().addCompileListener(d);
-        boolean compiled = d.display();
-        GreenfootMain.getInstance().removeCompileListener(d);
+        ExportCompileDialog dlg; 
+        if(this.isVisible()) 
+           dlg = new ExportCompileDialog(this, project);
+        else
+            dlg = new ExportCompileDialog(parent, project);
+        
+        GreenfootMain.getInstance().addCompileListener(dlg);
+        boolean compiled = dlg.display();
+        GreenfootMain.getInstance().removeCompileListener(dlg);
+        
         return compiled;
     }
 }

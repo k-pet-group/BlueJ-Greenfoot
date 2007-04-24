@@ -20,6 +20,7 @@ import bluej.BlueJTheme;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
 import java.awt.Dialog;
+import java.awt.Frame;
 
 /**
  * Dialog to be used when the project is not compiled and an export is
@@ -28,7 +29,8 @@ import java.awt.Dialog;
  * @author Poul Henriksen
  * 
  */
-public class ExportCompileDialog extends EscapeDialog implements CompileListener
+public class ExportCompileDialog extends EscapeDialog 
+        implements CompileListener
 {
     private String helpLine = "Not all the classes in the scenario are compiled. To continue with the export, compile the classes now.";
     private boolean ok;
@@ -36,14 +38,23 @@ public class ExportCompileDialog extends EscapeDialog implements CompileListener
     
     /**
      * Creates a new dialog. This dialog should listen for compile events.
-     * @param parent
-     * @param project
      */
     public ExportCompileDialog(Dialog parent, GProject project)
     {
         super(parent, "Project not compiled.", true);
-        makeDialog();
         this.project = project;
+        makeDialog();
+    }
+    
+
+    /**
+     * Creates a new dialog. This dialog should listen for compile events.
+     */
+    public ExportCompileDialog(Frame parent, GProject project)
+    {
+        super(parent, "Project not compiled.", true);
+        this.project = project;
+        makeDialog();
     }
     
 

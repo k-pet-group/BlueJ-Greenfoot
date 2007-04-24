@@ -3,7 +3,7 @@
  * in the Export dialogue.
  *
  * @author Michael Kolling
- * @version $Id: ExportPane.java 4978 2007-04-19 18:56:45Z mik $
+ * @version $Id: ExportPane.java 4998 2007-04-24 11:39:23Z mik $
  */
 
 package greenfoot.gui.export;
@@ -21,22 +21,24 @@ public abstract class ExportPane extends JPanel
     private static final String extraControlsLabelText = "Allow speed change and 'Act'";
     private static final String worldSelectLabelText = "World Class: ";
 
-    protected JCheckBox extraControls;    
-    protected JComboBox worldSelectComboBox;
-    protected JPanel mainClassPanel;
-    
+    protected JCheckBox extraControls;
+    protected JPanel worldClassPanel;
+    protected JComboBox worldClassPopup;
+        
     /** 
      * Create a an export pane for export to web pages.
      */
-    public ExportPane(List<String> worlds) 
+    public ExportPane() 
     {
-        mainClassPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        worldClassPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         {
-            worldSelectComboBox = makeWorldClassPopup(worlds);
+            worldClassPopup = new JComboBox();
+            worldClassPopup.setFont(PrefMgr.getPopupMenuFont());
             JLabel classLabel = new JLabel(worldSelectLabelText);
-            mainClassPanel.add(classLabel);
-            mainClassPanel.add(worldSelectComboBox);
-            mainClassPanel.setAlignmentX(LEFT_ALIGNMENT);
+            worldClassPanel.add(classLabel);
+            worldClassPanel.add(worldClassPopup);
+            worldClassPanel.setAlignmentX(LEFT_ALIGNMENT);
+//            worldClassPanel.setVisible(false);
         }
 
         extraControls = new JCheckBox(extraControlsLabelText, false);
@@ -49,10 +51,26 @@ public abstract class ExportPane extends JPanel
      */
     public String getWorldClassName()
     {
-        return (String) worldSelectComboBox.getSelectedItem();
+        System.out.println("selected: " + (String) worldClassPopup.getSelectedItem());
+        return (String) worldClassPopup.getSelectedItem();
     }
 
-  
+    /**
+     * Update the pane to reflect the current project state.
+     * Return true if the components in the pane have changed.
+     */
+    public boolean updatePane(List<String> worlds)
+    {
+        boolean makeVisible = worlds.size() > 1;
+        boolean changed = worldClassPanel.isVisible() != makeVisible;
+        
+        updateWorldClassPopup(worlds);
+        if (changed) {
+            worldClassPanel.setVisible(makeVisible);
+        }
+        return changed;
+    }
+
     /**
      * Return true if user wants to include the source.
      */
@@ -62,17 +80,12 @@ public abstract class ExportPane extends JPanel
     }
 
     /**
-     * Fill the world class popup selector with all the worlds in the list.
+     * Update the world classes in the class popup.
      */
-    private JComboBox makeWorldClassPopup(List<String> worlds)
+    protected void updateWorldClassPopup(List<String> worlds)
     {
-        JComboBox popup = new JComboBox();
-
-        popup.setFont(PrefMgr.getPopupMenuFont());
-
+        worldClassPopup.removeAllItems();
         for (String world : worlds)
-            popup.addItem(world);
-        
-        return popup;
+            worldClassPopup.addItem(world);
     }
 }

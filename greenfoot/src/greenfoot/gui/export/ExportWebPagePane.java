@@ -2,7 +2,7 @@
  * ExportWebPagePane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportWebPagePane.java 4984 2007-04-20 09:26:46Z mik $
+ * @version $Id: ExportWebPagePane.java 4998 2007-04-24 11:39:23Z mik $
  */
 
 package greenfoot.gui.export;
@@ -36,16 +36,16 @@ public class ExportWebPagePane extends ExportPane
     /** 
      * Create a an export pane for export to web pages.
      */
-    public ExportWebPagePane(List<String> worlds, String scenarioName, File defaultExportDir) 
+    public ExportWebPagePane(String scenarioName, File defaultExportDir) 
     {
-        super(worlds);
+        super();
         File exportDir = new File(defaultExportDir, scenarioName + "-export");
 
         if (exportDir.exists()) {
             exportDir.delete();
         }
         
-        makePane(worlds, exportDir);
+        makePane(exportDir);
     }
     
     /**
@@ -59,7 +59,7 @@ public class ExportWebPagePane extends ExportPane
     /**
      * Build the component.
      */
-    private void makePane(List<String> worlds, final File defaultDir)
+    private void makePane(final File defaultDir)
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BlueJTheme.dialogBorder);
@@ -81,9 +81,7 @@ public class ExportWebPagePane extends ExportPane
             inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
             inputPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-            if (worlds.size() > 1) {  // only if there is more than one world
-                inputPanel.add(mainClassPanel);
-            }
+            inputPanel.add(worldClassPanel);    // invisible if only one world
             inputPanel.add(Box.createVerticalStrut(5));
 
             JPanel exportLocationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));

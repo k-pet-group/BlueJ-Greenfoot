@@ -2,7 +2,7 @@
  * ExportPublishPane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 4984 2007-04-20 09:26:46Z mik $
+ * @version $Id: ExportPublishPane.java 4998 2007-04-24 11:39:23Z mik $
  */
 
 package greenfoot.gui.export;
@@ -29,16 +29,16 @@ public class ExportPublishPane extends ExportPane
     private static final String helpLine1 = "Publish the scenario to mygame.java.sum.com.";
     
     /** Creates a new instance of ExportPublishPane */
-    public ExportPublishPane(List<String> worlds, String scenarioName) 
+    public ExportPublishPane(String scenarioName) 
     {
-        super(worlds);
-        makePane(worlds);
+        super();
+        makePane();
     }
     
     /**
      * Build the component.
      */
-    private void makePane(List<String> worlds)
+    private void makePane()
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BlueJTheme.dialogBorder);
@@ -57,10 +57,9 @@ public class ExportPublishPane extends ExportPane
             inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
             inputPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-            if (worlds.size() > 1) {  // only if there is more than one world
-                inputPanel.add(mainClassPanel);
-            }
+            inputPanel.add(worldClassPanel);    // invisible if only one world
             inputPanel.add(Box.createVerticalStrut(5));
+            
             inputPanel.add(extraControls);
         }
 

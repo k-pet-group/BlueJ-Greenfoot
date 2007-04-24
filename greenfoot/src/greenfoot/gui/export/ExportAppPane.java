@@ -7,7 +7,7 @@
  * and open the template in the editor.
 
  * @author Michael Kolling
- * @version $Id: ExportAppPane.java 4984 2007-04-20 09:26:46Z mik $
+ * @version $Id: ExportAppPane.java 4998 2007-04-24 11:39:23Z mik $
  */
 
 package greenfoot.gui.export;
@@ -39,11 +39,11 @@ public class ExportAppPane extends ExportPane
     private JTextField targetDirField;
     
     /** Creates a new instance of ExportAppPane */
-    public ExportAppPane(List<String> worlds, String scenarioName, File defaultExportDir) 
+    public ExportAppPane(String scenarioName, File defaultExportDir) 
     {
-        super(worlds);
+        super();
         File targetFile = new File(defaultExportDir, scenarioName + ".jar");
-        makePane(worlds, targetFile);
+        makePane(targetFile);
     }
     
     /**
@@ -53,11 +53,11 @@ public class ExportAppPane extends ExportPane
     {
         return targetDirField.getText();
     }
-
+    
     /**
      * Build the component.
      */
-    private void makePane(List<String> worlds, final File targetFile)
+    private void makePane(final File targetFile)
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BlueJTheme.dialogBorder);
@@ -79,9 +79,7 @@ public class ExportAppPane extends ExportPane
             inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
             inputPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-            if (worlds.size() > 1) {  // only if there is more than one world
-                inputPanel.add(mainClassPanel);
-            }
+            inputPanel.add(worldClassPanel);
             inputPanel.add(Box.createVerticalStrut(5));
 
             JPanel exportLocationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -94,18 +92,7 @@ public class ExportAppPane extends ExportPane
                 JButton browse = new JButton("Browse");
                 exportLocationPanel.add(browse);
                 browse.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        File file = FileChoosers.getFileName(ExportAppPane.this, targetFile,
-                                                             "Save executable jar file");
-                        if(file != null) {
-                            String newName = file.getPath();
-                            if(!newName.endsWith(".jar")) {
-                                newName += ".jar";
-                            }
-                            targetDirField.setText(newName);
-                        }
-                    }
+                    public void actionPerformed(ActionEvent e) { getFileName(targetFile); }
                 });                    
             }
             exportLocationPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -116,5 +103,22 @@ public class ExportAppPane extends ExportPane
         }
 
         add(inputPanel);
+    }
+    
+    /**
+     * Get a user-chosen file name via a file system browser.
+     * Set the pane's text field to the selected file.
+     */
+    private void getFileName(File targetFile)
+    {
+        File file = FileChoosers.getFileName(this, targetFile,
+                                             "Save executable jar file");
+        if(file != null) {
+            String newName = file.getPath();
+            if(!newName.endsWith(".jar")) {
+                newName += ".jar";
+            }
+            targetDirField.setText(newName);
+        }
     }
 }
