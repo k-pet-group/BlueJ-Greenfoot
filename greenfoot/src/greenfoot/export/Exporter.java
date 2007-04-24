@@ -5,7 +5,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5001 2007-04-24 17:21:12Z polle $
+ * @version $Id: Exporter.java 5006 2007-04-24 21:31:11Z mik $
  */
 
 package greenfoot.export;
@@ -80,10 +80,10 @@ public class Exporter
         
         // Extra entries for the manifest - used when publishing to stompt.org 
         // TODO: get these from the pane?
-        jarCreator.putManifestEntry("short-description", "a one-line description (optional)");
-        jarCreator.putManifestEntry("description", "a paragraph (even more optional)");
-        jarCreator.putManifestEntry("url", "a url back to wherever the user would like to link to (like  their blog or home page) (also optional)");
-        jarCreator.putManifestEntry("args", "an argument string that is currently unused for applets, but  will be used for JNLP launching (not implemented completely yet!)");
+        jarCreator.putManifestEntry("short-description", pane.getShortDescription());
+        jarCreator.putManifestEntry("description", pane.getDescription());
+        jarCreator.putManifestEntry("url", pane.getURL());
+        jarCreator.putManifestEntry("args", "currently unused");
 
         Dimension size = getSize(includeControls);
         jarCreator.putManifestEntry("width", "" + size.width);
@@ -93,8 +93,8 @@ public class Exporter
         
 
         //TODO: get these from the pane?
-        String login = "mkolling";
-        String password = "brem4game";
+        String login = pane.getUserName();
+        String password = pane.getPassword();
         String scenarioName = project.getName();        
         String host = "mygame.java.sun.com";
         if(webPublisher == null) {

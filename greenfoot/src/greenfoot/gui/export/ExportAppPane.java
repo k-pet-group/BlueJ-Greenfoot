@@ -7,7 +7,7 @@
  * and open the template in the editor.
 
  * @author Michael Kolling
- * @version $Id: ExportAppPane.java 5000 2007-04-24 17:04:35Z mik $
+ * @version $Id: ExportAppPane.java 5006 2007-04-24 21:31:11Z mik $
  */
 
 package greenfoot.gui.export;
@@ -67,10 +67,6 @@ public class ExportAppPane extends ExportPane
 
         JLabel helpText1 = new JLabel(helpLine1);
         add(helpText1);
-
-
-        Font smallFont = helpText1.getFont().deriveFont(Font.ITALIC, 11.0f);
-        helpText1.setFont(smallFont);
 
         add(Box.createVerticalStrut(10));
 
