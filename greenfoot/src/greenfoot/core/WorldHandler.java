@@ -11,6 +11,7 @@ import greenfoot.gui.DragListener;
 import greenfoot.gui.DropTarget;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.platforms.WorldHandlerDelegate;
+import greenfoot.util.GreenfootUtil;
 
 import java.awt.Component;
 import java.awt.EventQueue;
@@ -18,6 +19,7 @@ import java.awt.Point;
 import java.awt.event.*;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -51,6 +53,7 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
     private EventListenerList listenerList = new EventListenerList();
     private WorldEvent worldEvent;
     private WorldHandlerDelegate handlerDelegate;
+    private Class<? extends World> lastWorldClass;
 
     
     
@@ -278,11 +281,12 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
      */
     public synchronized void setWorld(World world)
     {
-    
         handlerDelegate.setWorld(this.world, world);
-        
         this.world = world;
-
+        
+        if(world != null) {
+            this.lastWorldClass = world.getClass();
+        }
         worldCanvas.setWorld(world);
         
         EventQueue.invokeLater(new Runnable() {
@@ -303,6 +307,28 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
     public Component getWorldTitle()
     {
         return handlerDelegate.getWorldTitle();
+    }
+    
+    /**
+     * Returns the world-class that has been instantiated last. This is the
+     * class of the current world, if there is a world currently instantiated.
+     * 
+     * @return The world. Will return 'null' if no world has ever been
+     *         instantiated in this project, or the world can no longer be
+     *         instantiated.
+     */
+    public Class getLastWorldClass()
+    {
+        String lastName = lastWorldClass.getName();
+        List<String> worldClasses = GreenfootMain.getInstance().getPackage().getWorldClasses();
+        
+        //Has to be one of the currently instantiable world classes.
+        for (String string : worldClasses) {
+            if(string.equals(lastName)) {
+                return lastWorldClass;
+            }                
+        }        
+        return null;
     }
     
     public World getWorld()

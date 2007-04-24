@@ -5,7 +5,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5000 2007-04-24 17:04:35Z mik $
+ * @version $Id: Exporter.java 5001 2007-04-24 17:21:12Z polle $
  */
 
 package greenfoot.export;
@@ -68,9 +68,7 @@ public class Exporter
         File exportDir = tmpJarFile.getParentFile();
         String jarName = tmpJarFile.getName();           
 
-        // TODO: get default world from package instead.
-        List<String> worlds = GreenfootMain.getInstance().getPackage().getWorldClasses();
-        String worldClass = worlds.get(0);
+        String worldClass = WorldHandler.getInstance().getLastWorldClass().getName();
         
         boolean  includeControls = pane.includeExtraControls();
         
@@ -124,9 +122,7 @@ public class Exporter
         File exportDir = new File(pane.getExportLocation());
         exportDir.mkdir();
 
-        // TODO: get default world from package instead.
-        List<String> worlds = GreenfootMain.getInstance().getPackage().getWorldClasses();
-        String worldClass = worlds.get(0);
+        String worldClass = WorldHandler.getInstance().getLastWorldClass().getName();
         
         boolean  includeControls = pane.includeExtraControls();
         String jarName = project.getName() + ".jar";
@@ -157,9 +153,7 @@ public class Exporter
         File exportDir = exportFile.getParentFile();
         String jarName = exportFile.getName();
 
-        // TODO: get default world from package instead.
-        List<String> worlds = GreenfootMain.getInstance().getPackage().getWorldClasses();
-        String worldClass = worlds.get(0);
+        String worldClass = WorldHandler.getInstance().getLastWorldClass().getName();
         
         boolean  includeControls = pane.includeExtraControls();
         
