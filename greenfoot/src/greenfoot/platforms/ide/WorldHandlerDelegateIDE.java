@@ -71,7 +71,9 @@ public class WorldHandlerDelegateIDE
 
     private GProject project;
 
-    private JLabel worldTitle; 
+    private JLabel worldTitle;
+
+    private Class<? extends World> lastWorldClass; 
     
     public WorldHandlerDelegateIDE()
     {
@@ -238,7 +240,10 @@ public class WorldHandlerDelegateIDE
     }
 
     public void setWorld(final World oldWorld, final World newWorld)
-    {
+    {        
+        if(newWorld != null) {
+            this.lastWorldClass = newWorld.getClass();
+        }
            if (oldWorld != null) {
                // Remove the old world and actors from the remote object caches
                ObjectTracker.forgetRObject(oldWorld);
@@ -445,6 +450,20 @@ public class WorldHandlerDelegateIDE
     public World instantiateNewWorld()
     {
         return GreenfootMain.getInstance().instantiateNewWorld();
+    }
+
+    public Class getLastWorldClass()
+    {
+        String lastName = lastWorldClass.getName();
+        List<String> worldClasses = GreenfootMain.getInstance().getPackage().getWorldClasses();
+        
+        //Has to be one of the currently instantiable world classes.
+        for (String string : worldClasses) {
+            if(string.equals(lastName)) {
+                return lastWorldClass;
+            }                
+        }        
+        return null;
     }
 
 }

@@ -53,9 +53,6 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
     private EventListenerList listenerList = new EventListenerList();
     private WorldEvent worldEvent;
     private WorldHandlerDelegate handlerDelegate;
-    private Class<? extends World> lastWorldClass;
-
-    
     
     public static synchronized void initialise(WorldCanvas worldCanvas, WorldHandlerDelegate helper) 
     {
@@ -283,10 +280,6 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
     {
         handlerDelegate.setWorld(this.world, world);
         this.world = world;
-        
-        if(world != null) {
-            this.lastWorldClass = world.getClass();
-        }
         worldCanvas.setWorld(world);
         
         EventQueue.invokeLater(new Runnable() {
@@ -319,18 +312,9 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
      */
     public Class getLastWorldClass()
     {
-        String lastName = lastWorldClass.getName();
-        List<String> worldClasses = GreenfootMain.getInstance().getPackage().getWorldClasses();
-        
-        //Has to be one of the currently instantiable world classes.
-        for (String string : worldClasses) {
-            if(string.equals(lastName)) {
-                return lastWorldClass;
-            }                
-        }        
-        return null;
+        return handlerDelegate.getLastWorldClass();
     }
-    
+        
     public World getWorld()
     {
         return world;

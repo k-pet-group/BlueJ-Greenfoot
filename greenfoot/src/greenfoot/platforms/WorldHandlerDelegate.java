@@ -49,4 +49,6 @@ public interface WorldHandlerDelegate
      * @return The new World or null if an error occured
      */
     World instantiateNewWorld();
+
+    Class getLastWorldClass();
 }

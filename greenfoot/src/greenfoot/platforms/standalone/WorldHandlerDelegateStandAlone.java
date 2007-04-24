@@ -93,4 +93,10 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         return viewer.instantiateNewWorld();
     }
 
+    public Class getLastWorldClass()
+    {
+        // Not used in standalone
+        return null;
+    }
+
 }
