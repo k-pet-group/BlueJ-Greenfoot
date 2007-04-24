@@ -7,11 +7,11 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import bluej.BlueJTheme;
+import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
@@ -222,6 +222,7 @@ public class ExportDialog extends EscapeDialog
             selectedFunction = function;
             clearStatus();
             pack();
+            Config.putPropString("greenfoot.lastExportPane", function);
         }
     }
     
@@ -244,12 +245,15 @@ public class ExportDialog extends EscapeDialog
      */
     private void makeDialog()
     {
+        String preferredPane = Config.getPropString("greenfoot.lastExportPane",
+                                                    ExportPublishPane.FUNCTION);
+
         contentPane = (JPanel) getContentPane();
         
         contentPane.setLayout(new BorderLayout());
         contentPane.setBorder(null);
         
-        TabbedIconPane tabbedPane = new TabbedIconPane();
+        TabbedIconPane tabbedPane = new TabbedIconPane(preferredPane);
         tabbedPane.setListener(this);
         contentPane.add(tabbedPane, BorderLayout.NORTH);
 
@@ -291,7 +295,7 @@ public class ExportDialog extends EscapeDialog
 
         contentPane.add(bottomPanel, BorderLayout.SOUTH);
         
-        showPane(ExportPublishPane.FUNCTION);
+        showPane(preferredPane);
 
         DialogManager.centreDialog(this);
     }
