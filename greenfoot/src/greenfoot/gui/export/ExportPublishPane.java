@@ -2,7 +2,7 @@
  * ExportPublishPane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 5006 2007-04-24 21:31:11Z mik $
+ * @version $Id: ExportPublishPane.java 5007 2007-04-24 22:25:52Z mik $
  */
 
 package greenfoot.gui.export;
@@ -172,6 +172,7 @@ public class ExportPublishPane extends ExportPane
 
                 JPanel flowPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
                 {
+                    flowPanel.setAlignmentX(LEFT_ALIGNMENT);
                     flowPanel.setBackground(background);
                     flowPanel.add(new JLabel("Username:"));
                     userNameField = new JTextField(12);
