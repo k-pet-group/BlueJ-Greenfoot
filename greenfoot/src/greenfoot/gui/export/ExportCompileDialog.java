@@ -6,7 +6,6 @@ import greenfoot.event.CompileListener;
 import greenfoot.gui.*;
 
 import java.awt.FlowLayout;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -20,6 +19,7 @@ import rmiextension.wrappers.event.RCompileEvent;
 import bluej.BlueJTheme;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
+import java.awt.Dialog;
 
 /**
  * Dialog to be used when the project is not compiled and an export is
@@ -39,7 +39,7 @@ public class ExportCompileDialog extends EscapeDialog implements CompileListener
      * @param parent
      * @param project
      */
-    public ExportCompileDialog(Frame parent, GProject project)
+    public ExportCompileDialog(Dialog parent, GProject project)
     {
         super(parent, "Project not compiled.", true);
         makeDialog();

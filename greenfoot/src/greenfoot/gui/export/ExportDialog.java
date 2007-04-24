@@ -10,13 +10,20 @@ import java.io.File;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.WindowConstants;
 
 import bluej.BlueJTheme;
+import bluej.extensions.ProjectNotOpenException;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
+import greenfoot.core.GProject;
+import greenfoot.core.GreenfootMain;
+import greenfoot.export.Exporter;
 import java.awt.Dimension;
+import java.rmi.RemoteException;
 import java.util.HashMap;
+import javax.swing.JLabel;
+import javax.swing.JProgressBar;
+import javax.swing.SwingUtilities;
 
 public class ExportDialog extends EscapeDialog
         implements TabbedIconPaneListener
@@ -24,23 +31,38 @@ public class ExportDialog extends EscapeDialog
     // Internationalisation
     private static final String dialogTitle ="Greenfoot: Export";
 
+    private GProject project;
     private JPanel contentPane;
-    private boolean ok;
+    private final JProgressBar progressBar = new JProgressBar();
+    private final JLabel progressLabel = new JLabel();
+    private JButton continueButton;
+    private JButton closeButton;
     private HashMap<String, ExportPane> panes;
     private ExportPane selectedPane;
     private String selectedFunction;
 
-    public ExportDialog(Frame parent, String scenarioName, List<String> worlds, File defaultExportDir)
+    public ExportDialog(Frame parent)
     {
-        super(parent, dialogTitle, true);
+        super(parent, dialogTitle, false);
         
-        panes = new HashMap<String, ExportPane>();
-        panes.put(ExportPublishPane.FUNCTION, new ExportPublishPane(worlds, scenarioName));
-        panes.put(ExportWebPagePane.FUNCTION, new ExportWebPagePane(worlds, scenarioName, defaultExportDir));
-        panes.put(ExportAppPane.FUNCTION, new ExportAppPane(worlds, scenarioName, defaultExportDir));
+        project = GreenfootMain.getInstance().getProject();
         
-        fixSizes(panes);
+        File projectDir = null;
+        try {
+            projectDir = project.getDir();
+        }
+        catch (ProjectNotOpenException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        catch (RemoteException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+        
+        List<String> worlds = GreenfootMain.getInstance().getPackage().getWorldClasses();
 
+        createPanes(worlds, project.getName(), projectDir.getParentFile());
         makeDialog(worlds);
     }
 
@@ -48,11 +70,10 @@ public class ExportDialog extends EscapeDialog
      * Show this dialog and return true if "OK" was pressed, false if
      * cancelled.
      */
-    public boolean display()
+    public void display()
     {
-        ok = false;
+        clearStatus();
         setVisible(true);  // returns after OK or Cancel, which set 'ok'
-        return ok;
     }
 
     /**
@@ -71,27 +92,105 @@ public class ExportDialog extends EscapeDialog
         return selectedPane;
     }
     
-    
     /**
      * Close action when OK is pressed.
      */
     private void doOK()
     {
-        ok = true;
-        
-        //TODO check if selection is valid? Or only allow selection via browse button
-        setVisible(false);
+        if(!project.isCompiled())  {
+            boolean isCompiled = showCompileDialog(project);
+            if(!isCompiled) {               
+                return;         // Cancel export
+            }
+        }
+        doExport();
     }
 
     /**
      * Close action when Cancel is pressed.
      */
-    private void doCancel()
+    private void doClose()
     {
-        ok = false;
         setVisible(false);
     }
 
+    /**
+     * The export button was pressed. Do the exporting now.
+     */
+    private void doExport()
+    {
+        ExportThread expThread = new ExportThread();
+        expThread.start();
+    }
+
+    /**
+     * A sepatrate thread to execute the actual axporting.
+     */
+    class ExportThread extends Thread {
+        public void run() 
+        {
+            setProgress(true, "Exporting...");
+            enableButtons(false);
+            
+            String function = getSelectedFunction();
+            ExportPane pane = getSelectedPane();
+
+            Exporter exporter = Exporter.getInstance();
+
+            if(function.equals(ExportPublishPane.FUNCTION)) {
+                exporter.publishToWebServer(project, (ExportPublishPane)pane);
+            }
+            if(function.equals(ExportWebPagePane.FUNCTION)) {
+                exporter.makeWebPage(project, (ExportWebPagePane)pane);
+            }
+            if(function.equals(ExportAppPane.FUNCTION)) {
+                exporter.makeApplication(project, (ExportAppPane)pane);
+            }
+            setProgress(false, "Export complete."); 
+            enableButtons(true);
+        }
+    }
+
+    /**
+     * Display or hide the progress bar and status text. If 'showProgress' is 
+     * true, an indeterminite progress bar is shown, otherwise hidden. 
+     * If 'text' is null, the text is hidden, otherwise shown.
+     *
+     * setProgress can be invoked from a worker thread.
+     */
+    private void setProgress(final boolean showProgress, final String text)
+    {
+        SwingUtilities.invokeLater(new Runnable() { public void run() { 
+            progressBar.setVisible(showProgress);
+            if(text == null) {
+                progressLabel.setVisible(false);
+            }
+            else {
+                progressLabel.setText(text);
+                progressLabel.setVisible(true);
+            }
+        }});
+    }
+
+    /**
+     * Clear the status text, but only if we are not in the middle of a task.
+     */
+    private void clearStatus()
+    {
+        if(!progressBar.isVisible()) {
+            progressLabel.setVisible(false);
+        }
+    }
+    
+    /**
+     * Enable or disable the dialogue buttons.
+     */
+    private void enableButtons(boolean enable)
+    {
+        continueButton.setEnabled(enable);
+        closeButton.setEnabled(enable);
+    }
+    
     // === TabbedIconPaneListener interface ===
     
     /** 
@@ -116,10 +215,24 @@ public class ExportDialog extends EscapeDialog
             contentPane.add(chosenPane, BorderLayout.CENTER);
             selectedPane = chosenPane;
             selectedFunction = function;
+            clearStatus();
+            pack();
         }
-        pack();
     }
     
+    /**
+     * Create all the panes that should appear as part of this dialogue.
+     */
+    private void createPanes(List<String> worlds, String scenarioName, File defaultExportDir)
+    {
+        panes = new HashMap<String, ExportPane>();
+        panes.put(ExportPublishPane.FUNCTION, new ExportPublishPane(worlds, scenarioName));
+        panes.put(ExportWebPagePane.FUNCTION, new ExportWebPagePane(worlds, scenarioName, defaultExportDir));
+        panes.put(ExportAppPane.FUNCTION, new ExportAppPane(worlds, scenarioName, defaultExportDir));
+        
+        fixSizes(panes);
+    }
+        
     /**
      * Create the dialog interface.
      * @param defaultExportDir The default place to export to.
@@ -127,8 +240,6 @@ public class ExportDialog extends EscapeDialog
      */
     private void makeDialog(List<String> worlds)
     {
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        
         contentPane = (JPanel) getContentPane();
         
         contentPane.setLayout(new BorderLayout());
@@ -138,28 +249,40 @@ public class ExportDialog extends EscapeDialog
         tabbedPane.setListener(this);
         contentPane.add(tabbedPane, BorderLayout.NORTH);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel bottomPanel = new JPanel(new BorderLayout(12, 12));
         {
-            buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
-            buttonPanel.setBorder(BlueJTheme.dialogBorder);
+            bottomPanel.setBorder(BlueJTheme.dialogBorder);
+            
+            progressBar.setIndeterminate(true);
+            progressBar.setVisible(false);
+            bottomPanel.add(progressBar, BorderLayout.WEST);
+            
+            progressLabel.setVisible(false);
+            bottomPanel.add(progressLabel, BorderLayout.CENTER);
+            
+            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            {
+                buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-            JButton continueButton = new JButton("Export");
-            continueButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent evt) { doOK(); }                
-            });
+                continueButton = new JButton("Export");
+                continueButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent evt) { doOK(); }                
+                });
 
-            JButton cancelButton = BlueJTheme.getCancelButton();
-            cancelButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent evt) { doCancel(); }                
-            });
+                closeButton = BlueJTheme.getCloseButton();
+                closeButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent evt) { doClose(); }                
+                });
 
-            buttonPanel.add(continueButton);
-            buttonPanel.add(cancelButton);
+                buttonPanel.add(continueButton);
+                buttonPanel.add(closeButton);
 
-            getRootPane().setDefaultButton(continueButton);
+                getRootPane().setDefaultButton(continueButton);
+            }
+            bottomPanel.add(buttonPanel, BorderLayout.EAST);
         }
 
-        contentPane.add(buttonPanel, BorderLayout.SOUTH);
+        contentPane.add(bottomPanel, BorderLayout.SOUTH);
         
         showPane(ExportPublishPane.FUNCTION);
 
@@ -183,5 +306,14 @@ public class ExportDialog extends EscapeDialog
             size.width = maxWidth;
             pane.setPreferredSize(size);
         }
+    }
+
+    private boolean showCompileDialog(GProject project)
+    {
+        ExportCompileDialog d = new ExportCompileDialog(this, project);
+        GreenfootMain.getInstance().addCompileListener(d);
+        boolean compiled = d.display();
+        GreenfootMain.getInstance().removeCompileListener(d);
+        return compiled;
     }
 }
