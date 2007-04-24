@@ -5,7 +5,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 4995 2007-04-24 08:45:04Z mik $
+ * @version $Id: Exporter.java 4997 2007-04-24 09:09:48Z mik $
  */
 
 package greenfoot.export;
@@ -16,6 +16,7 @@ import greenfoot.event.PublishEvent;
 import greenfoot.event.PublishListener;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.export.ExportAppPane;
+import greenfoot.gui.export.ExportDialog;
 import greenfoot.gui.export.ExportPublishPane;
 import greenfoot.gui.export.ExportWebPagePane;
 import java.awt.Dimension;
@@ -26,7 +27,6 @@ import java.net.UnknownHostException;
 public class Exporter 
         implements PublishListener
 {
-    
     private static Exporter instance;
     
     public static synchronized Exporter getInstance()
@@ -49,9 +49,9 @@ public class Exporter
    /**
      * Publish this scenario to the web server.
      */
-    public void publishToWebServer(GProject project, ExportPublishPane pane)
+    public void publishToWebServer(GProject project, ExportPublishPane pane, ExportDialog dlg)
     {
-        System.out.println("publishing...");
+        dlg.setProgress(true, "Bundling scenario...");
         
         //Create temporary jar        
         try {
@@ -88,6 +88,7 @@ public class Exporter
         
         jarCreator.create();
         
+
         //TODO: get these from the pane?
         String login = "polle";
         String password = "polle123";
@@ -98,21 +99,23 @@ public class Exporter
             webPublisher.addPublishListener(this);
         }
         
+        dlg.setProgress(true, "Publishing...");
         try {
             webPublisher.submit(host, login, password, scenarioName, tmpJarFile.getAbsolutePath());//TODO change so that it takes a File instead of String for the filename.
         }
         catch (UnknownHostException e) {
             // TODO Handle this!
             e.printStackTrace();
-        } 
-        
+        }
+        dlg.setProgress(false, "Publish complete."); 
     }
 
     /**
      * Create a web page and jar-file.
      */
-    public void makeWebPage(GProject project, ExportWebPagePane pane)
+    public void makeWebPage(GProject project, ExportWebPagePane pane, ExportDialog dlg)
     {
+        dlg.setProgress(true, "Writing web page...");
         File exportDir = new File(pane.getExportLocation());
         exportDir.mkdir();
         String worldClass = pane.getWorldClassName();
@@ -132,13 +135,15 @@ public class Exporter
         String title = project.getName();
         File outputFile = new File(exportDir, htmlName);
         jarCreator.generateHTMLSkeleton(outputFile, title, width, height);
+        dlg.setProgress(false, "Export complete."); 
     }
         
     /**
      * Create an application (jar-file)
      */
-    public void makeApplication(GProject project, ExportAppPane pane)
+    public void makeApplication(GProject project, ExportAppPane pane, ExportDialog dlg)
     {
+        dlg.setProgress(true, "Writing jar file...");
         File exportFile = new File(pane.getExportName());
         File exportDir = exportFile.getParentFile();
         String jarName = exportFile.getName();
@@ -149,6 +154,7 @@ public class Exporter
         // do not include source
         jarCreator.includeSource(false);  
         jarCreator.create();
+        dlg.setProgress(false, "Export complete."); 
     }
 
     /**

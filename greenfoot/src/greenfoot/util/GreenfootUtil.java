@@ -32,7 +32,7 @@ import javax.swing.JPanel;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 4907 2007-04-11 08:45:00Z mik $
+ * @version $Id: GreenfootUtil.java 4997 2007-04-24 09:09:48Z mik $
  */
 public class GreenfootUtil
 {
@@ -500,6 +500,8 @@ public class GreenfootUtil
         // ACC_INTERFACE 0x0200 Is an interface, not a class.
         // ACC_ABSTRACT 0x0400 Declared abstract; may not be
         // instantiated.
+        if(cls == null)
+            return false;
         int modifiers = cls.getModifiers();
         return ( (0x0600 & modifiers) == 0x0000);
     }

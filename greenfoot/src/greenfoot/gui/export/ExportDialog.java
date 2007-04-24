@@ -77,21 +77,26 @@ public class ExportDialog extends EscapeDialog
     }
 
     /**
-     * Return the identifier for the specific export function selected.
+     * Display or hide the progress bar and status text. If 'showProgress' is 
+     * true, an indeterminite progress bar is shown, otherwise hidden. 
+     * If 'text' is null, the text is hidden, otherwise shown.
+     *
+     * setProgress can be invoked from a worker thread.
      */
-    public String getSelectedFunction()
+    public void setProgress(final boolean showProgress, final String text)
     {
-        return selectedFunction;
+        SwingUtilities.invokeLater(new Runnable() { public void run() { 
+            progressBar.setVisible(showProgress);
+            if(text == null) {
+                progressLabel.setVisible(false);
+            }
+            else {
+                progressLabel.setText(text);
+                progressLabel.setVisible(true);
+            }
+        }});
     }
 
-    /**
-     * Return the identifier for the specific export function selected.
-     */
-    public ExportPane getSelectedPane()
-    {
-        return selectedPane;
-    }
-    
     /**
      * Close action when OK is pressed.
      */
@@ -129,7 +134,6 @@ public class ExportDialog extends EscapeDialog
     class ExportThread extends Thread {
         public void run() 
         {
-            setProgress(true, "Exporting...");
             enableButtons(false);
             
             String function = getSelectedFunction();
@@ -138,38 +142,16 @@ public class ExportDialog extends EscapeDialog
             Exporter exporter = Exporter.getInstance();
 
             if(function.equals(ExportPublishPane.FUNCTION)) {
-                exporter.publishToWebServer(project, (ExportPublishPane)pane);
+                exporter.publishToWebServer(project, (ExportPublishPane)pane, ExportDialog.this);
             }
             if(function.equals(ExportWebPagePane.FUNCTION)) {
-                exporter.makeWebPage(project, (ExportWebPagePane)pane);
+                exporter.makeWebPage(project, (ExportWebPagePane)pane, ExportDialog.this);
             }
             if(function.equals(ExportAppPane.FUNCTION)) {
-                exporter.makeApplication(project, (ExportAppPane)pane);
+                exporter.makeApplication(project, (ExportAppPane)pane, ExportDialog.this);
             }
-            setProgress(false, "Export complete."); 
             enableButtons(true);
         }
-    }
-
-    /**
-     * Display or hide the progress bar and status text. If 'showProgress' is 
-     * true, an indeterminite progress bar is shown, otherwise hidden. 
-     * If 'text' is null, the text is hidden, otherwise shown.
-     *
-     * setProgress can be invoked from a worker thread.
-     */
-    private void setProgress(final boolean showProgress, final String text)
-    {
-        SwingUtilities.invokeLater(new Runnable() { public void run() { 
-            progressBar.setVisible(showProgress);
-            if(text == null) {
-                progressLabel.setVisible(false);
-            }
-            else {
-                progressLabel.setText(text);
-                progressLabel.setVisible(true);
-            }
-        }});
     }
 
     /**
@@ -180,6 +162,22 @@ public class ExportDialog extends EscapeDialog
         if(!progressBar.isVisible()) {
             progressLabel.setVisible(false);
         }
+    }
+    
+    /**
+     * Return the identifier for the specific export function selected.
+     */
+    private String getSelectedFunction()
+    {
+        return selectedFunction;
+    }
+
+    /**
+     * Return the identifier for the specific export function selected.
+     */
+    private ExportPane getSelectedPane()
+    {
+        return selectedPane;
     }
     
     /**
@@ -255,6 +253,9 @@ public class ExportDialog extends EscapeDialog
             
             progressBar.setIndeterminate(true);
             progressBar.setVisible(false);
+            Dimension size = progressBar.getPreferredSize();
+            size.width = 100;
+            progressBar.setPreferredSize(size);
             bottomPanel.add(progressBar, BorderLayout.WEST);
             
             progressLabel.setVisible(false);
