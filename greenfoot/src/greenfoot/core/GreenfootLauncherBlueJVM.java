@@ -205,7 +205,6 @@ public class GreenfootLauncherBlueJVM
     {
         Thread t = new Thread() {
             public void run()  {
-                Debug.message("Greenfoot version: " + Boot.GREENFOOT_VERSION);
                 extension.waitUntilBlueJStarted();
                 // If no project is open now, we might want to open the startup project
                 File blueJLibDir = Config.getBlueJLibDir();

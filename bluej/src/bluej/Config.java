@@ -37,7 +37,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 4972 2007-04-19 16:22:35Z mik $
+ * @version $Id: Config.java 5017 2007-04-25 22:10:22Z mik $
  */
 
 public final class Config
@@ -439,9 +439,12 @@ public final class Config
                     new PrintStream(new FileOutputStream(debugLogFile));
                 System.setOut(outStream);
                 System.setErr(outStream);
-                Debug.message("BlueJ run started: " + new Date());
-                Debug.message("BlueJ version " + Boot.BLUEJ_VERSION + "    Java version " + 
-                                    System.getProperty("java.version"));
+                Debug.message(getApplicationName() + " run started: " + new Date());
+                if(isGreenfoot())
+                    Debug.message("Greenfoot version: " + Boot.GREENFOOT_VERSION);
+                else
+                    Debug.message("BlueJ version " + Boot.BLUEJ_VERSION);
+                Debug.message("Java version " + System.getProperty("java.version"));
                 Debug.message("Virtual machine: " +
                                     System.getProperty("java.vm.name") + " " +
                                     System.getProperty("java.vm.version") +
