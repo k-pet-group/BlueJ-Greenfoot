@@ -4,7 +4,6 @@ import greenfoot.Actor;
 import greenfoot.ObjectTracker;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
-import greenfoot.core.GClass;
 import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.LocationTracker;
@@ -436,20 +435,7 @@ public class WorldHandlerDelegateIDE
         this.project = (GProject) project;
 
         ProjectProperties probs = this.project.getProjectProperties();
-        String lastWorld = probs.getString("world.lastInstantiated");
-
-        if (lastWorld != null) {
-            try {
-                GClass gCls = this.project.getDefaultPackage().getClass(lastWorld);
-                if(gCls != null) {
-                    lastWorldClass = gCls.getJavaClass().getName();
-                }
-            }
-            catch (ProjectNotOpenException e) {
-            }
-            catch (RemoteException e) {
-            }
-        }
+        lastWorldClass = probs.getString("world.lastInstantiated");
     }
 
     public void reset()
