@@ -5,7 +5,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5006 2007-04-24 21:31:11Z mik $
+ * @version $Id: Exporter.java 5008 2007-04-25 08:55:19Z mik $
  */
 
 package greenfoot.export;
@@ -41,6 +41,7 @@ public class Exporter
     
     private File tmpJarFile;
     private WebPublisher webPublisher;
+    private ExportDialog dlg;
     
     /**
      * Creates a new instance of Exporter.
@@ -53,6 +54,7 @@ public class Exporter
      */
     public void publishToWebServer(GProject project, ExportPublishPane pane, ExportDialog dlg)
     {
+        this.dlg = dlg;
         dlg.setProgress(true, "Bundling scenario...");
         
         //Create temporary jar        
@@ -107,10 +109,10 @@ public class Exporter
             webPublisher.submit(host, login, password, scenarioName, tmpJarFile.getAbsolutePath());//TODO change so that it takes a File instead of String for the filename.
         }
         catch (UnknownHostException e) {
-            // TODO Handle this!
-            e.printStackTrace();
+            dlg.setProgress(false, "Publish failed: Unknown host (" + e.getMessage() + ")");
+            return;
         }
-        dlg.setProgress(false, "Publish complete."); 
+        dlg.setProgress(false, "Export complete."); 
     }
 
     /**
@@ -118,6 +120,7 @@ public class Exporter
      */
     public void makeWebPage(GProject project, ExportWebPagePane pane, ExportDialog dlg)
     {
+        this.dlg = dlg;
         dlg.setProgress(true, "Writing web page...");
         File exportDir = new File(pane.getExportLocation());
         exportDir.mkdir();
@@ -195,8 +198,7 @@ public class Exporter
     public void errorRecieved(PublishEvent event)
     {
         tmpJarFile.delete();
-        // TODO Handle error
-        System.out.println("Error: " + event);
+        dlg.setProgress(false, "Publish failed: " + event.getMessage());
     }
 
     /**
@@ -205,10 +207,7 @@ public class Exporter
     public void statusRecieved(PublishEvent event)
     {
         tmpJarFile.delete();
-        // TODO Display success - close dialog?
-
-        System.out.println("Success: " + event);
-        
+        dlg.setProgress(false, "Publish complete.");
     }
     
 }
