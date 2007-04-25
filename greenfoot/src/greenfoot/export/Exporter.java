@@ -5,7 +5,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5008 2007-04-25 08:55:19Z mik $
+ * @version $Id: Exporter.java 5013 2007-04-25 13:54:26Z polle $
  */
 
 package greenfoot.export;
@@ -133,16 +133,15 @@ public class Exporter
         
         // do not include source
         jarCreator.includeSource(false);
-        
-        int width = WorldHandler.getInstance().getWorldCanvas().getWidth();
-        int height = WorldHandler.getInstance().getWorldCanvas().getHeight() + 50;  
+
+        Dimension size = getSize(includeControls);
         
         jarCreator.create();
     
         String htmlName = project.getName() + ".html";
         String title = project.getName();
         File outputFile = new File(exportDir, htmlName);
-        jarCreator.generateHTMLSkeleton(outputFile, title, width, height);
+        jarCreator.generateHTMLSkeleton(outputFile, title, size.width, size.height);
         dlg.setProgress(false, "Export complete."); 
     }
         
@@ -172,20 +171,22 @@ public class Exporter
      * @return
      */
     private Dimension getSize(boolean includeControls)
-    {
+    {     
         //The control panel size is hard coded for now, since it has different sizes on different platforms. 
         //It is bigger on windows than most other platforms, so this is the size that is used.
         //Will be even more problematic once we get i18n!
-        Dimension controlPanelSize = null; 
+        Dimension controlPanelSize = null;  
+        Dimension border = GreenfootScenarioViewer.getControlsBorderSize();        
         if(includeControls) {
-            controlPanelSize = new Dimension(560, 47);
+            controlPanelSize = new Dimension(560 + border.width , 46 + border.height);
         }
         else {   
-            controlPanelSize = new Dimension(410, 46);
+            controlPanelSize = new Dimension(410 + border.width, 46 + border.height);
         }
         
         WorldCanvas canvas = WorldHandler.getInstance().getWorldCanvas();
-        Dimension size = new Dimension(canvas.getWidth(), (int) controlPanelSize.getHeight() + canvas.getHeight());
+        border = GreenfootScenarioViewer.getControlsBorderSize();        
+        Dimension size = new Dimension(canvas.getWidth() + border.width, (int) controlPanelSize.getHeight() + canvas.getHeight() + border.height);
         if(size.getWidth() < controlPanelSize.getWidth()) {
             size.width = controlPanelSize.width;
         }

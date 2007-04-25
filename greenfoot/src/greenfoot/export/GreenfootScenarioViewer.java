@@ -18,7 +18,9 @@ import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.FocusTraversalPolicy;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,6 +30,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
+import javax.swing.BorderFactory;
 import javax.swing.JApplet;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -43,6 +46,8 @@ import javax.swing.RootPaneContainer;
  */
 public class GreenfootScenarioViewer extends JApplet
 {
+
+    private static final int EMPTY_BORDER_SIZE = 5;
 
     private static String scenarioName;
 
@@ -88,6 +93,21 @@ public class GreenfootScenarioViewer extends JApplet
         init();
     }
 
+    /**
+     * Returns the size of the borders around the controls.
+     * 
+     */
+    public static Dimension getControlsBorderSize() {
+        return new Dimension((EMPTY_BORDER_SIZE ) * 2, (EMPTY_BORDER_SIZE ) * 2);
+    } 
+    /**
+     * Returns the size of the borders around the world panel.
+     * 
+     */
+    public static Dimension getWorldBorderSize() {
+        return new Dimension((EMPTY_BORDER_SIZE + 1) * 2, EMPTY_BORDER_SIZE + 1 * 2);
+    }
+    
     private void buildGUI()
     {
         if (rootPaneContainer == null) {
@@ -98,6 +118,10 @@ public class GreenfootScenarioViewer extends JApplet
         rootPaneContainer.setGlassPane(DragGlassPane.getInstance());
         JPanel centerPanel = new JPanel(new CenterLayout());
         centerPanel.add(canvas);
+        canvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        
+        centerPanel.setBorder( BorderFactory.createEmptyBorder(EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE)); 
+        controls.setBorder(BorderFactory.createCompoundBorder( BorderFactory.createEmptyBorder(0,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE), BorderFactory.createEtchedBorder()));
         rootPaneContainer.getContentPane().add(centerPanel, BorderLayout.CENTER);
         rootPaneContainer.getContentPane().add(controls, BorderLayout.SOUTH);
 
