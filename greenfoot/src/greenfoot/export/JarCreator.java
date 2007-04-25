@@ -230,9 +230,24 @@ public class JarCreator
      */
     public void putManifestEntry(String key, String value) {
         Attributes attr = manifest.getMainAttributes();
+        value = fixNewlines(value);
         attr.put(new Attributes.Name(key), value);
     }
     
+    private String fixNewlines(String value)
+    {
+        StringBuffer buffer = new StringBuffer(value.length());
+        String[] lines = value.split(System.getProperty("line.separator"));
+        for (int i = 0; i < lines.length; i++) {
+            String string = lines[i];
+            if(i!=0) {
+                buffer.append("<br>");
+            }
+            buffer.append(string);
+        }
+        return buffer.toString();
+    }
+
     /**
      * Writes entries to the manifest file.
      *
