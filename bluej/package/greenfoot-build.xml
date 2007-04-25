@@ -11,6 +11,7 @@
         <include name="lib/junit.jar" />
         <include name="lib/MRJ141Stubs.jar" />
         <include name="lib/bluej.defs" />
+        <include name="lib/greenfoot.defs" />
         <include name="lib/moe.defs" />
         <include name="lib/userlib/README.TXT" />
     </patternset>
@@ -18,6 +19,7 @@
     <patternset id="bluej.libdirs">
         <exclude name="**/.#*" />
         <include name="lib/images/*.gif" />
+        <include name="lib/images/*.png" />
         <include name="lib/images/*.jpg" />
         <include name="lib/images/*.icns" />
         <include name="lib/afrikaans/" />
