@@ -279,7 +279,11 @@
         <copy file="resources/images/run.png" todir="images"/>    
         <copy file="resources/images/step.png" todir="images"/>   
         <copy file="resources/images/pause.png" todir="images"/>  
-        <copy file="resources/images/reset.png" todir="images"/>       
+        <copy file="resources/images/reset.png" todir="images"/>  
+        <!-- Export icons -->
+        <copy file="resources/images/export-app.png" todir="images"/>   
+        <copy file="resources/images/export-publish.png" todir="images"/>    
+        <copy file="resources/images/export-webpage.png" todir="images"/>     
 	</target>		
 
 	<target name="dist" depends="ready-to-run, clean-scenarios, copy-scenarios, copy-tutorial, compile-standalone" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
@@ -396,18 +400,6 @@
             </classpath>        
             <jvmarg value="${profiler.info.jvmargs.agent}"/>
         </java>
-    </target>
-    
-    <target name="build-standalone-jar" depends="compile-standalone" description="Builds a jar file with all the classes and files needed for stand alone execution of Greenfoot projects.">
-        <copy  todir="${standalone.build}">
-            <fileset dir="${images}"/>
-        </copy>
-        <jar jarfile="standalone.jar" basedir="${standalone.build}">
-            <manifest>
-                <attribute name="Main-Class" value="greenfoot.export.GreenfootScenarioViewer" />
-                <attribute name="Class-Path" value="." />
-            </manifest>
-        </jar>
     </target>
     
     <target name="compile-standalone" depends="init" description="Compile the source and run rmic" >

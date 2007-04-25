@@ -7,7 +7,7 @@ package greenfoot.gui.export;
  * Currently hardcoded for one set of icons. Could be generalised if needed.
  *
  * @author Michael Kolling
- * @version $Id: TabbedIconPane.java 5003 2007-04-24 18:29:01Z mik $
+ * @version $Id: TabbedIconPane.java 5015 2007-04-25 14:59:02Z polle $
  */
 
 import bluej.Config;
@@ -17,8 +17,11 @@ import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
+
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
@@ -85,7 +88,12 @@ public class TabbedIconPane extends JPanel
     private JRadioButton makeButton(String text, String iconName, String command, 
                                     String selectCommand, ButtonGroup group, JPanel parent)
     {
-        JRadioButton toggle = new JRadioButton(text, Config.getHardImageAsIcon(iconName + ".png"));
+        URL iconFile = this.getClass().getClassLoader().getResource(iconName + ".png");
+        ImageIcon icon = null;
+        if(iconFile != null) {
+            icon = new ImageIcon(iconFile);
+        }
+        JRadioButton toggle = new JRadioButton(text, icon);
         toggle.setHorizontalTextPosition(SwingConstants.CENTER);
         toggle.setVerticalTextPosition(SwingConstants.BOTTOM);
         toggle.setActionCommand(command);
