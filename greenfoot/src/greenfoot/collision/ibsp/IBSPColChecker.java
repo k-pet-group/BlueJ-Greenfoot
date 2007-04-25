@@ -27,6 +27,7 @@ public class IBSPColChecker implements CollisionChecker
     private GOCollisionQuery actorQuery = new GOCollisionQuery();
     private NeighbourCollisionQuery neighbourQuery = new NeighbourCollisionQuery();
     private PointCollisionQuery pointQuery = new PointCollisionQuery();
+    private InRangeQuery inRangeQuery = new InRangeQuery();
     
     private int cellSize;
     
@@ -943,10 +944,24 @@ public class IBSPColChecker implements CollisionChecker
                 (y - r) * cellSize + halfCell,
                 size,
                 size);
+        
+        List<T> result;
         synchronized (actorQuery) {
             actorQuery.init(cls, null);
-            return (List<T>) getIntersectingObjects(rect, actorQuery);
+            result = (List<T>) getIntersectingObjects(rect, actorQuery);
         }
+        
+        Iterator<T> i = result.iterator();
+        synchronized (inRangeQuery) {
+            inRangeQuery.init(x * cellSize + halfCell , y * cellSize + halfCell, r * cellSize);
+            while (i.hasNext()) {
+                if (! inRangeQuery.checkCollision(i.next())) {
+                    i.remove();
+                }
+            }
+        }
+        
+        return result;
     }
 
     public <T extends Actor> List<T> getNeighbours(Actor actor, int distance,
