@@ -77,7 +77,7 @@ public class WorldHandlerDelegateIDE
 
     private JLabel worldTitle;
 
-    private Class lastWorldClass; 
+    private String lastWorldClass; 
     
     public WorldHandlerDelegateIDE()
     {
@@ -246,7 +246,7 @@ public class WorldHandlerDelegateIDE
     public void setWorld(final World oldWorld, final World newWorld)
     {
         if (newWorld != null) {
-            lastWorldClass = newWorld.getClass();
+            lastWorldClass = newWorld.getClass().getName();
         }
         if (oldWorld != null) {
             // Remove the old world and actors from the remote object caches
@@ -442,7 +442,7 @@ public class WorldHandlerDelegateIDE
             try {
                 GClass gCls = this.project.getDefaultPackage().getClass(lastWorld);
                 if(gCls != null) {
-                    lastWorldClass = gCls.getJavaClass();
+                    lastWorldClass = gCls.getJavaClass().getName();
                 }
             }
             catch (ProjectNotOpenException e) {
@@ -506,8 +506,8 @@ public class WorldHandlerDelegateIDE
         
         //Has to be one of the currently instantiable world classes.
         for (Class worldClass : worldClasses) {
-            if(worldClass.getName().equals(lastWorldClass.getName())) {
-                return lastWorldClass;
+            if(worldClass.getName().equals(lastWorldClass)) {
+                return worldClass;
             }                
         }        
         return null;
