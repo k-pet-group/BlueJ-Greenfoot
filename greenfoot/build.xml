@@ -10,8 +10,13 @@
 	<property file="build.properties"/>
 
     <!-- Greenfoot Version Number -->
-    <property name="greenfoot.version" value="1.2.1"/>
+    <property name="greenfoot.version.major" value="1"/>
+    <property name="greenfoot.version.minor" value="2"/>
+    <property name="greenfoot.version.micro" value="1"/>     
     <property name="greenfoot.apiversion" value="1.2.0"/>
+    
+    <property name="greenfoot.version" value="${greenfoot.version.major}.${greenfoot.version.minor}.${greenfoot.version.micro}"/>
+    <property name="greenfoot.version.nodots" value="${greenfoot.version.major}${greenfoot.version.minor}${greenfoot.version.micro}"/>   
     
 	<!-- Location of the bluej lib dir -->
 	<property name="bluej.lib.greenfoot"  location="${bluej.projectdir}/lib/greenfoot"/>
@@ -290,13 +295,13 @@
 		<!-- Run the BlueJ dist-->
 		<ant dir="${bluej.projectdir}" target="dist-greenfoot" />
 
-		<move file="${bluej.installer.jar}" tofile="${package}/greenfoot-installer-${greenfoot.version}.jar"/>
-		<move file="${bluej.dist.jar}" tofile="${package}/greenfoot-dist-${greenfoot.version}.jar"/>
-		<move file="${bluej.dist.mac}" tofile="${package}/Greenfoot-${greenfoot.version}.zip"/>
+		<move file="${bluej.installer.jar}" tofile="${package}/greenfoot-installer-${greenfoot.version.nodots}.jar"/>
+		<move file="${bluej.dist.jar}" tofile="${package}/greenfoot-dist-${greenfoot.version.nodots}.jar"/>
+		<move file="${bluej.dist.mac}" tofile="${package}/Greenfoot-${greenfoot.version.nodots}.zip"/>
 		
-		<echo message="The greenfoot dist-jar (used to build windows installer)s is in ${package}/greenfoot-dist-${greenfoot.version}.jar"/>
-		<echo message="The greenfoot jar-installer is in ${package}/greenfoot-installer-${greenfoot.version}.jar"/>
-		<echo message="The greenfoot Mac-installer is in ${package}/Greenfoot-${greenfoot.version}.zip"/>
+		<echo message="The greenfoot dist-jar (used to build windows installer)s is in ${package}/greenfoot-dist-${greenfoot.version.nodots}.jar"/>
+		<echo message="The greenfoot jar-installer is in ${package}/greenfoot-installer-${greenfoot.version.nodots}.jar"/>
+		<echo message="The greenfoot Mac-installer is in ${package}/Greenfoot-${greenfoot.version.nodots}.zip"/>
 	</target>
 
 	<target name="clean" description="clean up" >
