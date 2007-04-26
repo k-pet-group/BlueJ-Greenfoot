@@ -189,8 +189,12 @@ public class GreenfootScenarioViewer extends JApplet
                 }
             });
             
-            int initialSpeed = properties.getInt("simulation.speed");
-            sim.setSpeed(initialSpeed);
+            try {
+                int initialSpeed = properties.getInt("simulation.speed");
+                sim.setSpeed(initialSpeed);
+            } catch (NumberFormatException nfe) {
+                // If there is no speed info in the properties we don't care...
+            }
             Class<?> worldClass = Class.forName(worldClassName);
             worldConstructor = worldClass.getConstructor(new Class[]{});
             instantiateNewWorld();
