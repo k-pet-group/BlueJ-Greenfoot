@@ -7,7 +7,7 @@
  * and open the template in the editor.
 
  * @author Michael Kolling
- * @version $Id: ExportAppPane.java 5006 2007-04-24 21:31:11Z mik $
+ * @version $Id: ExportAppPane.java 5027 2007-04-26 14:50:15Z mik $
  */
 
 package greenfoot.gui.export;
@@ -62,7 +62,7 @@ public class ExportAppPane extends ExportPane
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BlueJTheme.dialogBorder);
 
-        targetDirField = new JTextField(targetFile.toString(), 20);
+        targetDirField = new JTextField(targetFile.toString(), 26);
         targetDirField.setEditable(false);
 
         JLabel helpText1 = new JLabel(helpLine1);

@@ -2,14 +2,17 @@
  * ExportPublishPane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 5021 2007-04-26 10:14:40Z mik $
+ * @version $Id: ExportPublishPane.java 5027 2007-04-26 14:50:15Z mik $
  */
 
 package greenfoot.gui.export;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.groupwork.ui.MiksGridLayout;
+import bluej.utility.MultiLineLabel;
 import bluej.utility.Utility;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
@@ -114,99 +117,100 @@ public class ExportPublishPane extends ExportPane
 
         Font smallFont = helpText1.getFont().deriveFont(Font.ITALIC, 11.0f);
 
-        add(Box.createVerticalStrut(5));
+        add(Box.createVerticalStrut(12));
 
-        JPanel inputPanel = new JPanel();
+        JPanel infoPanel = new JPanel(new BorderLayout(0, 8));
         {
-            inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
-            inputPanel.add(Box.createVerticalStrut(5));
+            infoPanel.setAlignmentX(LEFT_ALIGNMENT);
+            infoPanel.setBackground(background);
 
-            JPanel infoPanel = new JPanel();
-            {
-                infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-                infoPanel.setAlignmentX(LEFT_ALIGNMENT);
-                infoPanel.setBackground(background);
-
-                Border border = BorderFactory.createCompoundBorder(
-                                    BorderFactory.createLoweredBevelBorder(),
-                                    BorderFactory.createEmptyBorder(12, 12, 12, 12));
-                infoPanel.setBorder(border);
+            Border border = BorderFactory.createCompoundBorder(
+                                BorderFactory.createLoweredBevelBorder(),
+                                BorderFactory.createEmptyBorder(12, 12, 12, 12));
+            infoPanel.setBorder(border);
                 
-                JLabel text = new JLabel("Information for display on MyGame (optional).");
-                text.setForeground(headingColor);
-                infoPanel.add(text);                
-                infoPanel.add(Box.createVerticalStrut(5));
+            JLabel text = new JLabel("Information for display on MyGame (optional)");
+            text.setForeground(headingColor);
+            infoPanel.add(text, BorderLayout.NORTH); 
 
-                text = new JLabel("A one-line scenario description:");
+            JPanel dataPanel = new JPanel(new MiksGridLayout(3, 2, 8, 8));
+            {
+                dataPanel.setBackground(background);
+                text = new JLabel("A one-line scenario description:", SwingConstants.TRAILING);
                 text.setFont(smallFont);
-                infoPanel.add(text);
-                infoPanel.add(Box.createVerticalStrut(5));
+                dataPanel.add(text);
 
                 shortDescriptionField = new JTextField();
-                shortDescriptionField.setAlignmentX(LEFT_ALIGNMENT);
-                infoPanel.add(shortDescriptionField);
-                infoPanel.add(Box.createVerticalStrut(16));
+                dataPanel.add(shortDescriptionField);
 
-                text = new JLabel("A slightly longer scenario description:");
+                text = new JLabel("A slightly longer scenario description:", SwingConstants.TRAILING);
+                text.setVerticalAlignment(SwingConstants.TOP);
                 text.setFont(smallFont);
-                infoPanel.add(text);
-                infoPanel.add(Box.createVerticalStrut(5));
+                dataPanel.add(text);
 
                 descriptionArea = new JTextArea();
                 descriptionArea.setRows(3);
                 JScrollPane description = new JScrollPane(descriptionArea);
-                description.setAlignmentX(LEFT_ALIGNMENT);
-                infoPanel.add(description);
-                infoPanel.add(Box.createVerticalStrut(16));
+                dataPanel.add(description);
 
-                text = new JLabel("Your own web page (a URL):");
+                text = new JLabel("Your own web page (a URL):", SwingConstants.TRAILING);
                 text.setFont(smallFont);
-                infoPanel.add(text);
-                infoPanel.add(Box.createVerticalStrut(5));
+                dataPanel.add(text);
 
                 URLField = new JTextField("http://");
-                URLField.setAlignmentX(LEFT_ALIGNMENT);
-                infoPanel.add(URLField);
+                dataPanel.add(URLField);
             }
-            inputPanel.add(infoPanel);
-            inputPanel.add(Box.createVerticalStrut(16));
+            infoPanel.add(dataPanel, BorderLayout.CENTER);
+        }
 
-            JPanel loginPanel = new JPanel();
-            {
-                loginPanel.setLayout(new BoxLayout(loginPanel, BoxLayout.Y_AXIS));
-                loginPanel.setAlignmentX(LEFT_ALIGNMENT);
-                loginPanel.setBackground(background);
+        add(infoPanel);
+        add(Box.createVerticalStrut(16));
+
+        JPanel loginPanel = new JPanel(new BorderLayout(30, 0));
+        {
+            loginPanel.setAlignmentX(LEFT_ALIGNMENT);
+            loginPanel.setBackground(background);
                 
-                Border border = BorderFactory.createCompoundBorder(
-                                    BorderFactory.createLoweredBevelBorder(),
-                                    BorderFactory.createEmptyBorder(12, 12, 12, 12));
-                loginPanel.setBorder(border);
+            Border border = BorderFactory.createCompoundBorder(
+                                BorderFactory.createLoweredBevelBorder(),
+                                BorderFactory.createEmptyBorder(12, 12, 12, 12));
+            loginPanel.setBorder(border);
 
-                JLabel text = new JLabel("Login information. To create an account, go to MyGame.");
-                text.setAlignmentX(LEFT_ALIGNMENT);
-                text.setForeground(headingColor);
-                loginPanel.add(text);                
-                loginPanel.add(Box.createVerticalStrut(5));
+            JLabel text = new JLabel("Login information");
+            text.setForeground(headingColor);
+            text.setVerticalAlignment(SwingConstants.TOP);
+            loginPanel.add(text, BorderLayout.WEST); 
 
-                JPanel flowPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-                {
-                    flowPanel.setAlignmentX(LEFT_ALIGNMENT);
-                    flowPanel.setBackground(background);
-                    flowPanel.add(new JLabel("Username:"));
-                    userNameField = new JTextField(10);
-                    flowPanel.add(userNameField);
-                    flowPanel.add(new JLabel("   Password:"));
-                    passwordField = new JPasswordField(10);
-                    flowPanel.add(passwordField);
-                }
-                loginPanel.add(flowPanel);
+            JPanel dataPanel = new JPanel(new MiksGridLayout(2, 2, 8, 8));
+            {
+                dataPanel.setBackground(background);
+                text = new JLabel("Username:", SwingConstants.TRAILING);
+                text.setFont(smallFont);
+                dataPanel.add(text);
+                userNameField = new JTextField(10);
+                dataPanel.add(userNameField);
+                text = new JLabel("Password:", SwingConstants.TRAILING);
+                text.setFont(smallFont);
+                dataPanel.add(text);
+                passwordField = new JPasswordField(10);
+                dataPanel.add(passwordField);
             }
-            inputPanel.add(loginPanel);
-            inputPanel.add(Box.createVerticalStrut(20));
-            
-            inputPanel.add(extraControls);
-            inputPanel.add(Box.createVerticalStrut(5));            
-            
+            loginPanel.add(dataPanel, BorderLayout.CENTER);
+                
+            MultiLineLabel helptext = new MultiLineLabel("To create an account,");
+            helptext.setBackground(background);
+            helptext.addText("go to MyGame.");
+            helptext.setForeground(headingColor);
+            loginPanel.add(helptext, BorderLayout.EAST);     
+        }
+        add(loginPanel);
+        add(Box.createVerticalStrut(20));
+        
+        JPanel extraPanel = new JPanel(new BorderLayout(20, 0));
+        {
+            extraPanel.setAlignmentX(LEFT_ALIGNMENT);
+            extraPanel.add(extraControls, BorderLayout.WEST);
+
             JPanel urlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             {
                 urlPanel.add(new JLabel("Go to"));
@@ -222,9 +226,8 @@ public class ExportPublishPane extends ExportPane
                 urlPanel.add(urlLabel);
                 urlPanel.setAlignmentX(LEFT_ALIGNMENT);
             }
-            inputPanel.add(urlPanel);
+            extraPanel.add(urlPanel, BorderLayout.EAST);
         }
-
-        add(inputPanel);
+        add(extraPanel);
     }
 }

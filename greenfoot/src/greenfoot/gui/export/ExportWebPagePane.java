@@ -2,7 +2,7 @@
  * ExportWebPagePane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportWebPagePane.java 5006 2007-04-24 21:31:11Z mik $
+ * @version $Id: ExportWebPagePane.java 5027 2007-04-26 14:50:15Z mik $
  */
 
 package greenfoot.gui.export;
@@ -64,7 +64,7 @@ public class ExportWebPagePane extends ExportPane
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BlueJTheme.dialogBorder);
 
-        targetDirField = new JTextField(defaultDir.toString(), 20);
+        targetDirField = new JTextField(defaultDir.toString(), 24);
         targetDirField.setEditable(false);
 
         JLabel helpText1 = new JLabel(helpLine1);
