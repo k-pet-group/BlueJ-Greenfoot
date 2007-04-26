@@ -30,7 +30,7 @@ import junit.framework.TestSuite;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 4725 2006-11-29 23:58:01Z davmac $
+ * @version $Id: ExecServer.java 5025 2007-04-26 11:25:18Z davmac $
  */
 public class ExecServer
 {
@@ -271,28 +271,14 @@ public class ExecServer
      */
     static Map getScope(String scopeId)
     {
-        Map m = (Map) objectMaps.get(scopeId);
-        if (m == null) {
-            m = new HashMap();
-            objectMaps.put(scopeId, m);
+        synchronized (objectMaps) {
+            Map m = (Map) objectMaps.get(scopeId);
+            if (m == null) {
+                m = new HashMap();
+                objectMaps.put(scopeId, m);
+            }
+            return m;
         }
-        return m;
-
-//    	BeanShell    
-        //Map hashMap = new HashMap();
-        //String varNames[] = interpreter.getNameSpace().getVariableNames();
-        //
-        //try {
-        //    for (int i=0; i<varNames.length; i++) {
-        //        if (varNames[i].equals("bsh"))
-        //            continue;
-        //        hashMap.put(varNames[i], interpreter.getNameSpace().getVariable(varNames[i]));
-        //    }
-        //}
-        //catch(UtilEvalError uee) {
-        //    uee.printStackTrace();    
-        //}
-        //return hashMap;
     }
 
     // -- methods called by reflection from JdiDebugger --
@@ -323,38 +309,11 @@ public class ExecServer
             System.err.println("ExecServer.newLoader() Malformed URL=" + splits[index]);
         }
         
-        // For greenfoot we need to use the greenfootLoader as parent for all
-        // class loaders.
-        //        if (currentLoader != null && Config.isInitialised() && Config.isGreenfoot()) {
-        //            currentLoader = new GreenfootClassLoader(urls, greenfootLoader);
-        //        }
-        //        else {
-        //For BlueJ and the first time we create classloader for greenfoot
-        
-        //greenfootLoader = new DebugClassLoader(urls);
-        //greenfootLoader = new URLClassLoader(urls);
-        //currentLoader = greenfootLoader;
         currentLoader = new URLClassLoader(urls);
         
-        //        }
-        
-        objectMaps.clear();
-        
-//      BeanShell    
-        //if (classPath.equals("."))
-        //    return currentLoader;
-        
-        ////interpreter.setClassLoader(currentLoader);
-        //interpreter.getNameSpace().clear();
-        //try {
-        //    URL url = new File(classPath).toURL();
-        //    interpreter.getNameSpace().getClassManager().addClassPath(url);
-        //    //addClassPath ();"); 
-        //    interpreter.eval("import *;");
-        //    //interpreter.eval("setAccessibility(true);");
-        //}
-        //catch (EvalError ee) { ee.printStackTrace(); }
-        //catch (Exception e) { e.printStackTrace(); }
+        synchronized (objectMaps) {
+            objectMaps.clear();
+        }
         
         return currentLoader;
     }
@@ -489,48 +448,11 @@ public class ExecServer
     {
         // Debug.message("[VM] addObject: " + instanceName + " " + value);
         Map scope = getScope(scopeId);
-        scope.put(instanceName, value);
-//    	BeanShell    
-        //try {
-        //    interpreter.set(instanceName, value);           
-        //}
-        //catch (EvalError ee) {
-        //    ee.printStackTrace();    
-        //}
+        synchronized (scope) {
+            scope.put(instanceName, value);
+            scope.notify(); // in case Greenfoot is waiting for this object
+        }
     }
-
-//    /**
-//     * Get all objects in this machine
-//     */
-//    private static Object[] getObjects()
-//    {
-//        try {
-//            Map map = getScope();
-//            //String varNames[] = interpreter.getNameSpace().getVariableNames();
-//            Object obs[] = new Object[map.size()*2];
-//
-//            Iterator keyIterator = map.keySet().iterator();      
-//            
-//            try {
-//                int i = 0;
-//                
-//                while(keyIterator.hasNext()) {
-//                    String aKey = (String) keyIterator.next();
-//                    // fill in the return array in the format
-//                    // name, object, name, object
-//                    obs[i*2] = aKey;
-//                    obs[i*2+1] = interpreter.getNameSpace().getVariable(aKey);
-//                    i++;
-//                }
-//                return obs;
-//            }
-//            catch(UtilEvalError uee) { }
-//
-//            
-//        } catch(Exception e) { e.printStackTrace(); }
-//        
-//        return new Object[0];    
-//    }
     
     /**
      * Execute a JUnit test case setUp method.
@@ -774,12 +696,9 @@ public class ExecServer
     {
         //Debug.message("[VM] removeObject: " + instanceName);
         Map scope = getScope(scopeId);
-        scope.remove(instanceName);
-//		BeanShell
-        //try {
-        //    interpreter.unset(instanceName);
-        //}
-        //catch (EvalError ee) { }
+        synchronized (scope) {
+            scope.remove(instanceName);
+        }
     }
 
     /**
@@ -986,7 +905,24 @@ public class ExecServer
      * @return The object
      */
     public static Object getObject(String instanceName) {
-        return getScope(scopeId).get(instanceName);
+        Map m = getScope(scopeId);
+        Object rval = null;
+        
+        try {
+            synchronized (m) {
+                rval = m.get(instanceName);
+                // Sometimes the object isn't available yet - the worker thread
+                // hasn't stored it in the map yet. In that case we'll wait to
+                // be notified that an object has been stored.
+                if (rval == null) {
+                    m.wait();
+                    rval = m.get(instanceName);
+                }
+            }
+        }
+        catch (InterruptedException ie) {}
+        
+        return rval;
     }
     
     /**
