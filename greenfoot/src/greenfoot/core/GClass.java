@@ -96,7 +96,9 @@ public class GClass implements CompileListener
             props.removeCachedImage(oldName);
             
             setClassProperty("superclass", superClass);
-            setClassProperty("image", classImage);
+            if(classImage != null ) {
+                setClassProperty("image", classImage);
+            }
         }
         catch (RemoteException re) {
             re.printStackTrace();
@@ -146,6 +148,7 @@ public class GClass implements CompileListener
             pkg.getProject().getProjectProperties().setString("class." + getName() + "." + propertyName, value);
         }
         catch (Exception exc) {
+            exc.printStackTrace();
             Debug.reportError("Greenfoot: Could not set class property: " + getName() + "." + propertyName);
         }
     }
