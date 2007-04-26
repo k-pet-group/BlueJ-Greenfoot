@@ -4,7 +4,7 @@ import java.awt.*;
 /**
  * MiksGridLayout - a grid layout with non-homogenous column widths.
  * 
- * @version $Id: MiksGridLayout.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: MiksGridLayout.java 5026 2007-04-26 14:46:17Z mik $
  */
 public class MiksGridLayout extends GridLayout
 {
@@ -45,31 +45,33 @@ public class MiksGridLayout extends GridLayout
             }
 
             int[] colWidth = new int[ncols];
-            int w = 0;
-            int h = 0;
+            int[] rowHeight = new int[nrows];
 
-            for(int col = 0; col < ncols; col++) {
-                w = 0;
-                for (int i = col ; i < ncomponents ; i+=ncols) {
-                    Component comp = parent.getComponent(i);
-                    Dimension d = comp.getPreferredSize();
-                    if (w < d.width) {
-                        w = d.width;
-                    }
-                    if (h < d.height) {
-                        h = d.height;
-                    }
+            for(int i = 0; i < ncomponents; i++) {
+                Component comp = parent.getComponent(i);
+                Dimension d = comp.getPreferredSize();
+                int row = i / ncols;
+                int col = i % ncols;
+                if (rowHeight[row] < d.height) {
+                    rowHeight[row] = d.height;
                 }
-                colWidth[col] = w;
-            }
+                if (colWidth[col] < d.width) {
+                    colWidth[col] = d.width;
+                }
+            }            
             
             int allColWidth = 0;
             for(int col = 0; col < ncols; col++) {
                 allColWidth += colWidth[col];
             }
             
+            int allRowHeight = 0;
+            for(int row = 0; row < nrows; row++) {
+                allRowHeight += rowHeight[row];
+            }
+            
             return new Dimension(insets.left + insets.right + allColWidth + (ncols-1)*getHgap(), 
-                         insets.top + insets.bottom + nrows*h + (nrows-1)*getVgap());
+                         insets.top + insets.bottom + allRowHeight + (nrows-1)*getVgap());
         }
     }
 
@@ -82,37 +84,43 @@ public class MiksGridLayout extends GridLayout
         synchronized (parent.getTreeLock()) {
             Insets insets = parent.getInsets();
             int ncomponents = parent.getComponentCount();
-                    int nrows = getRows();
-                    int ncols = getColumns();
-        
+            int nrows = getRows();
+            int ncols = getColumns();
+            
             if (nrows > 0) {
                 ncols = (ncomponents + nrows - 1) / nrows;
             } else {
                 nrows = (ncomponents + ncols - 1) / ncols;
             }
-            
-            int[] colWidth = new int[ncols];
-            int h = 0;
-            int allColWidth = 0;
-            
-            for(int col = 0; col < ncols; col++) {
-                int w = 0;
-                for (int i = col ; i < ncomponents ; i+=ncols) {
-                    Component comp = parent.getComponent(i);
-                    Dimension d = comp.getMinimumSize();
-                    if (w < d.width) {
-                        w = d.width;
-                    }
-                    if (h < d.height) {
-                        h = d.height;
-                    }
-                }
-                colWidth[col] = w;
-                allColWidth += w;
-            }
 
+            int[] colWidth = new int[ncols];
+            int[] rowHeight = new int[nrows];
+
+            for(int i = 0; i < ncomponents; i++) {
+                Component comp = parent.getComponent(i);
+                Dimension d = comp.getMinimumSize();
+                int row = i / ncols;
+                int col = i % ncols;
+                if (rowHeight[row] < d.height) {
+                    rowHeight[row] = d.height;
+                }
+                if (colWidth[col] < d.width) {
+                    colWidth[col] = d.width;
+                }
+            }            
+            
+            int allColWidth = 0;
+            for(int col = 0; col < ncols; col++) {
+                allColWidth += colWidth[col];
+            }
+            
+            int allRowHeight = 0;
+            for(int row = 0; row < nrows; row++) {
+                allRowHeight += rowHeight[row];
+            }
+            
             return new Dimension(insets.left + insets.right + allColWidth + (ncols-1)*getHgap(), 
-                         insets.top + insets.bottom + nrows*h + (nrows-1)*getVgap());
+                         insets.top + insets.bottom + allRowHeight + (nrows-1)*getVgap());
         }
     }
 
@@ -129,6 +137,9 @@ public class MiksGridLayout extends GridLayout
             int hgap = getHgap();
             int vgap = getVgap();
             boolean ltr = parent.getComponentOrientation().isLeftToRight();
+            
+            if(!ltr)
+                throw new IllegalArgumentException("Orientation oher than left-to-right not supported");
         
             if (ncomponents == 0) {
                 return;
@@ -139,6 +150,8 @@ public class MiksGridLayout extends GridLayout
                 nrows = (ncomponents + ncols - 1) / ncols;
             }
             
+            // compute the width of each column (max width of component in column)
+
             int[] colWidth = new int[ncols];
 
             for(int col = 0; col < ncols; col++) {
@@ -158,34 +171,49 @@ public class MiksGridLayout extends GridLayout
                 colSum += colWidth[col];
             }
 
-            int w = parent.getWidth() - (insets.left + insets.right);
-            int h = parent.getHeight() - (insets.top + insets.bottom);
-            h = (h - (nrows - 1) * vgap) / nrows;
-            colWidth[ncols-1] = (w - (ncols - 1) * hgap) - colSum;
+            int[] rowHeight = new int[nrows];
+            int rowSum = 0;
+            
+            // compute the height of each row (max width of component in row)
+
+            for(int row = 0; row < nrows; row++) {
+                int h = 0;
+                for (int i = row*ncols ; (i < (row+1)*ncols) && (i < ncomponents) ; i++) {
+                    Component comp = parent.getComponent(i);
+                    Dimension d = comp.getPreferredSize();
+                    if (h < d.height) {
+                        h = d.height;
+                    }
+                }
+                rowHeight[row] = h;
+            }
+
+            rowSum = 0;     // all columns except last one
+            for(int row = 0; row < nrows-1; row++) {
+                rowSum += rowHeight[row];
+            }
+
+            int parentWidth = parent.getWidth() - (insets.left + insets.right);
+            int parentHeight = parent.getHeight() - (insets.top + insets.bottom);
+            
+            // set width of last column to take all the remaining space
+            colWidth[ncols-1] = (parentWidth - (ncols - 1) * hgap) - colSum;
             if(colWidth[ncols-1] < 0)
                 colWidth[ncols-1] = 0;
                 
-            if (ltr) {
-                for (int r = 0, y = insets.top ; r < nrows ; r++, y += h + vgap) {
-                    int x = insets.left;
-                    for (int c = 0; c < ncols ; c++) {
-                        int i = r * ncols + c;
-                        if (i < ncomponents) {
-                            parent.getComponent(i).setBounds(x, y, colWidth[c], h);
-                        }
-                        x += colWidth[c] + hgap;
+            // set height of last row to take all the remaining space
+            rowHeight[nrows-1] = (parentHeight - (nrows - 1) * vgap) - rowSum;
+            if(rowHeight[nrows-1] < 0)
+                rowHeight[nrows-1] = 0;
+            
+            for (int r = 0, y = insets.top ; r < nrows ; y += rowHeight[r] + vgap, r++) {
+                int x = insets.left;
+                for (int c = 0; c < ncols ; c++) {
+                    int i = r * ncols + c;
+                    if (i < ncomponents) {
+                        parent.getComponent(i).setBounds(x, y, colWidth[c], rowHeight[r]);
                     }
-                }
-            } else {
-                for (int r = 0, y = insets.top ; r < nrows ; r++, y += h + vgap) {
-                    int x = parent.getWidth() - insets.right - colWidth[0];
-                    for (int c = 0; c < ncols ; c++) {
-                        int i = r * ncols + c;
-                        if (i < ncomponents) {
-                            parent.getComponent(i).setBounds(x, y, w, h);
-                        }
-                        x -= colWidth[c] + hgap;
-                    }
+                    x += colWidth[c] + hgap;
                 }
             }
         }
