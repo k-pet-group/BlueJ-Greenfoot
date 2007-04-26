@@ -5,7 +5,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5013 2007-04-25 13:54:26Z polle $
+ * @version $Id: Exporter.java 5024 2007-04-26 11:10:43Z polle $
  */
 
 package greenfoot.export;
@@ -90,6 +90,9 @@ public class Exporter
         Dimension size = getSize(includeControls);
         jarCreator.putManifestEntry("width", "" + size.width);
         jarCreator.putManifestEntry("height","" + size.height);
+
+        // Make sure the current properties are saved before they are exported.
+        project.getProjectProperties().save();
         
         jarCreator.create();
         
@@ -135,6 +138,9 @@ public class Exporter
         jarCreator.includeSource(false);
 
         Dimension size = getSize(includeControls);
+
+        // Make sure the current properties are saved before they are exported.
+        project.getProjectProperties().save();
         
         jarCreator.create();
     
@@ -162,6 +168,10 @@ public class Exporter
         JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, includeControls); 
         // do not include source
         jarCreator.includeSource(false);  
+
+        // Make sure the current properties are saved before they are exported.
+        project.getProjectProperties().save();
+        
         jarCreator.create();
         dlg.setProgress(false, "Export complete."); 
     }
