@@ -2,15 +2,20 @@
  * ExportPublishPane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 5007 2007-04-24 22:25:52Z mik $
+ * @version $Id: ExportPublishPane.java 5021 2007-04-26 10:14:40Z mik $
  */
 
 package greenfoot.gui.export;
 
 import bluej.BlueJTheme;
+import bluej.Config;
+import bluej.utility.Utility;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -20,12 +25,17 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
 public class ExportPublishPane extends ExportPane
 {
     public static final String FUNCTION = "PUBLISH";
-    public static final Color background = new Color(166, 188, 202);
+    private static final Color background = new Color(166, 188, 202);
+    private static final Color urlColor = new Color(0, 90, 200);
+    private static final Color headingColor = new Color(40, 75, 125);
+    private static final String serverURL = Config.getPropString("greenfoot.gameserver.address", "http://stompt.org");
+    private static final String serverName = Config.getPropString("greenfoot.gameserver.name", "stompt.org");
     
     private static final String helpLine1 = "Publish the scenario to MyGame (mygame.java.sun.com).";
     
@@ -84,6 +94,14 @@ public class ExportPublishPane extends ExportPane
     }
 
     /**
+     * Open the games server in a web browser.
+     */
+    private void openServerPage()
+    {
+        Utility.openWebBrowser(serverURL);
+    }
+    
+    /**
      * Build the component.
      */
     private void makePane()
@@ -114,8 +132,8 @@ public class ExportPublishPane extends ExportPane
                                     BorderFactory.createEmptyBorder(12, 12, 12, 12));
                 infoPanel.setBorder(border);
                 
-                JLabel text = new JLabel("Information for display on MyGame");
-                text.setForeground(Color.GRAY);
+                JLabel text = new JLabel("Information for display on MyGame (optional).");
+                text.setForeground(headingColor);
                 infoPanel.add(text);                
                 infoPanel.add(Box.createVerticalStrut(5));
 
@@ -146,7 +164,7 @@ public class ExportPublishPane extends ExportPane
                 infoPanel.add(text);
                 infoPanel.add(Box.createVerticalStrut(5));
 
-                URLField = new JTextField();
+                URLField = new JTextField("http://");
                 URLField.setAlignmentX(LEFT_ALIGNMENT);
                 infoPanel.add(URLField);
             }
@@ -164,9 +182,9 @@ public class ExportPublishPane extends ExportPane
                                     BorderFactory.createEmptyBorder(12, 12, 12, 12));
                 loginPanel.setBorder(border);
 
-                JLabel text = new JLabel("Login information. Create you account at MyGame.");
+                JLabel text = new JLabel("Login information. To create an account, go to MyGame.");
                 text.setAlignmentX(LEFT_ALIGNMENT);
-                text.setForeground(Color.GRAY);
+                text.setForeground(headingColor);
                 loginPanel.add(text);                
                 loginPanel.add(Box.createVerticalStrut(5));
 
@@ -175,23 +193,38 @@ public class ExportPublishPane extends ExportPane
                     flowPanel.setAlignmentX(LEFT_ALIGNMENT);
                     flowPanel.setBackground(background);
                     flowPanel.add(new JLabel("Username:"));
-                    userNameField = new JTextField(12);
+                    userNameField = new JTextField(10);
                     flowPanel.add(userNameField);
                     flowPanel.add(new JLabel("   Password:"));
-                    passwordField = new JPasswordField(12);
+                    passwordField = new JPasswordField(10);
                     flowPanel.add(passwordField);
                 }
                 loginPanel.add(flowPanel);
             }
             inputPanel.add(loginPanel);
-            inputPanel.add(Box.createVerticalStrut(16));
-            
-            inputPanel.add(Box.createVerticalStrut(5));
+            inputPanel.add(Box.createVerticalStrut(20));
             
             inputPanel.add(extraControls);
+            inputPanel.add(Box.createVerticalStrut(5));            
+            
+            JPanel urlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            {
+                urlPanel.add(new JLabel("Go to"));
+                JLabel urlLabel = new JLabel(serverName);
+                {
+                    urlLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                    urlLabel.setForeground(urlColor);
+                    urlLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+                    urlLabel.addMouseListener(new MouseAdapter() {
+                        public void mouseClicked(MouseEvent e) { openServerPage(); }
+                    });
+                }
+                urlPanel.add(urlLabel);
+                urlPanel.setAlignmentX(LEFT_ALIGNMENT);
+            }
+            inputPanel.add(urlPanel);
         }
 
         add(inputPanel);
-        add(Box.createVerticalStrut(BlueJTheme.dialogCommandButtonsVertical));
     }
 }
