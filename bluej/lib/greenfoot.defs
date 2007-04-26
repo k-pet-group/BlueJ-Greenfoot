@@ -43,3 +43,11 @@ image.filechooser.packageIcon=greenfoot-package.png
 
 # Options for the generation of the JavaDoc shown in the documentation view of the editor.
 doctool.options=-author -version -nodeprecated -protected
+
+#####################################################################
+## Information about the game server to publish to via the 'Export'
+## function
+#####################################################################
+
+greenfoot.gameserver.name=mygame.java.sun.com
+greenfoot.gameserver.address=http://mygame.java.sun.com/MyGame/
