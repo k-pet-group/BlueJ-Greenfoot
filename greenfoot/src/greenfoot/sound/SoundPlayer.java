@@ -94,12 +94,15 @@ public class SoundPlayer implements SimulationListener
      * Plays the sound from file.
      * 
      * @param file Name of a file or an url
-     * @throws IOException
-     * @throws UnsupportedAudioFileException
-     * @throws LineUnavailableException
+     * 
+     * @throws LineUnavailableException if a matching line is not available due to resource restrictions
+     * @throws IOException if an I/O exception occurs
+     * @throws SecurityException if a matching line is not available due to security restrictions
+     * @throws UnsupportedAudioFileException if the URL does not point to valid audio file data
+     * @throws IllegalArgumentException if the system does not support at least one line matching the specified Line.Info object through any installed mixer
      */
     public void play(final String file)
-        throws IOException, UnsupportedAudioFileException, LineUnavailableException
+        throws IOException, UnsupportedAudioFileException, LineUnavailableException, SecurityException, IllegalArgumentException
     {
         SoundClip sound = soundCache.get(file);
         if(sound != null) {

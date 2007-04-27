@@ -33,7 +33,7 @@ import greenfoot.sound.SoundPlayer;
  * 
  * @author Davin McCall
  * @version 1.2.0
- * @cvs-version $Id: Greenfoot.java 4947 2007-04-16 18:13:24Z polle $
+ * @cvs-version $Id: Greenfoot.java 5031 2007-04-27 16:32:17Z polle $
  */
 public class Greenfoot
 {
@@ -42,6 +42,10 @@ public class Greenfoot
     
     // Whether we have handled a LineUnavailableException
     private static boolean lineUnavailableHandled = false;
+
+    private static boolean illegalArgumentHandled;
+
+    private static boolean securityHandled;
     
     /**
      * Get the most recently pressed key, since the last time this method was
@@ -136,11 +140,29 @@ public class Greenfoot
         catch (UnsupportedAudioFileException e) {
             throw new IllegalArgumentException("Format of sound file not supported: " + soundFile, e);
         }
+        catch (SecurityException e) {
+            // We only want to print this error message once.
+            if(! securityHandled) {
+                System.err.println("Could not play sound file due to security restrictions: " + soundFile); 
+                System.err.println("If you have a sound card installed, check your system settings.");
+                e.printStackTrace();
+                securityHandled = true;
+            }
+        }
+        catch (IllegalArgumentException e) {
+            // We only want to print this error message once.
+            if(! illegalArgumentHandled) {
+                System.err.println("Could not play sound file: " + soundFile); 
+                System.err.println("If you have a sound card installed, check your system settings.");
+                e.printStackTrace();
+                illegalArgumentHandled = true;
+            }
+        }
         catch (LineUnavailableException e) {
             // We only want to print this error message once.
             if(! lineUnavailableHandled) {
                 System.err.println("Can not get access to the sound card. "
-                    + "If you have a sound card, check your system settings, "
+                    + "If you have a sound card installed, check your system settings, "
                     + "and close down any other programs that might be using the sound card.");
                 e.printStackTrace();
                 lineUnavailableHandled = true;

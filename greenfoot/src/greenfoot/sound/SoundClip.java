@@ -29,8 +29,17 @@ public class SoundClip extends Sound
     private URL url;
     private boolean isPlaying;
 
+    /**
+     * Creates a new sound clip
+     * 
+     * @throws LineUnavailableException if a matching line is not available due to resource restrictions
+     * @throws IOException if an I/O exception occurs
+     * @throws SecurityException if a matching line is not available due to security restrictions
+     * @throws UnsupportedAudioFileException if the URL does not point to valid audio file data
+     * @throws IllegalArgumentException if the system does not support at least one line matching the specified Line.Info object through any installed mixer
+     */
     public SoundClip(String name, URL url, SoundPlayer player)
-        throws LineUnavailableException, IOException, UnsupportedAudioFileException
+        throws LineUnavailableException, IOException, UnsupportedAudioFileException, SecurityException, IllegalArgumentException
     {
         this.name = name;
         this.player = player;
@@ -42,12 +51,14 @@ public class SoundClip extends Sound
     /**
      * Load the sound file supplied by the parameter into this sound engine.
      * 
-     * @throws LineUnavailableException
-     * @throws IOException
-     * @throws UnsupportedAudioFileException
-     */
+     * @throws LineUnavailableException if a matching line is not available due to resource restrictions
+     * @throws IOException if an I/O exception occurs
+     * @throws SecurityException if a matching line is not available due to security restrictions
+     * @throws UnsupportedAudioFileException if the URL does not point to valid audio file data
+     * @throws IllegalArgumentException if the system does not support at least one line matching the specified Line.Info object through any installed mixer
+     */    
     private void open()
-        throws LineUnavailableException, IOException, UnsupportedAudioFileException
+        throws LineUnavailableException, IOException, UnsupportedAudioFileException, IllegalArgumentException, SecurityException
     {
         AudioInputStream stream = AudioSystem.getAudioInputStream(url);
         AudioFormat format = stream.getFormat();
