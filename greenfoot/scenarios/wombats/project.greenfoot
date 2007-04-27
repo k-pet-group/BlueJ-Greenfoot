@@ -3,11 +3,11 @@
 class.Leaf.image=leaf.gif
 class.Wombat.image=wombat.gif
 simulation.speed=52
-mainWindow.width=756
+
 class.Wombat.superclass=greenfoot.Actor
 version=1.2.0
-mainWindow.y=246
-mainWindow.x=16
+
+
 class.Leaf.superclass=greenfoot.Actor
 class.WombatWorld.superclass=greenfoot.World
-mainWindow.height=654
+
