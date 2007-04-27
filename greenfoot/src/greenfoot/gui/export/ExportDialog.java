@@ -142,22 +142,25 @@ public class ExportDialog extends EscapeDialog
         public void run() 
         {
             enableButtons(false);
-            
-            String function = getSelectedFunction();
-            ExportPane pane = getSelectedPane();
+            try {
+                String function = getSelectedFunction();
+                ExportPane pane = getSelectedPane();
 
-            Exporter exporter = Exporter.getInstance();
+                Exporter exporter = Exporter.getInstance();
 
-            if(function.equals(ExportPublishPane.FUNCTION)) {
-                exporter.publishToWebServer(project, (ExportPublishPane)pane, ExportDialog.this);
+                if(function.equals(ExportPublishPane.FUNCTION)) {
+                    exporter.publishToWebServer(project, (ExportPublishPane)pane, ExportDialog.this);
+                }
+                if(function.equals(ExportWebPagePane.FUNCTION)) {
+                    exporter.makeWebPage(project, (ExportWebPagePane)pane, ExportDialog.this);
+                }
+                if(function.equals(ExportAppPane.FUNCTION)) {
+                    exporter.makeApplication(project, (ExportAppPane)pane, ExportDialog.this);
+                }
             }
-            if(function.equals(ExportWebPagePane.FUNCTION)) {
-                exporter.makeWebPage(project, (ExportWebPagePane)pane, ExportDialog.this);
+            finally {
+                enableButtons(true);
             }
-            if(function.equals(ExportAppPane.FUNCTION)) {
-                exporter.makeApplication(project, (ExportAppPane)pane, ExportDialog.this);
-            }
-            enableButtons(true);
         }
     }
 

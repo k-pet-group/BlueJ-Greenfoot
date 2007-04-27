@@ -2,7 +2,7 @@
  * ExportPublishPane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 5027 2007-04-26 14:50:15Z mik $
+ * @version $Id: ExportPublishPane.java 5029 2007-04-27 13:47:36Z mik $
  */
 
 package greenfoot.gui.export;
@@ -149,7 +149,7 @@ public class ExportPublishPane extends ExportPane
                 dataPanel.add(text);
 
                 descriptionArea = new JTextArea();
-                descriptionArea.setRows(3);
+                descriptionArea.setRows(4);
                 JScrollPane description = new JScrollPane(descriptionArea);
                 dataPanel.add(description);
 
@@ -157,7 +157,7 @@ public class ExportPublishPane extends ExportPane
                 text.setFont(smallFont);
                 dataPanel.add(text);
 
-                URLField = new JTextField("http://");
+                URLField = new JTextField();
                 dataPanel.add(URLField);
             }
             infoPanel.add(dataPanel, BorderLayout.CENTER);
@@ -166,7 +166,7 @@ public class ExportPublishPane extends ExportPane
         add(infoPanel);
         add(Box.createVerticalStrut(16));
 
-        JPanel loginPanel = new JPanel(new BorderLayout(30, 0));
+        JPanel loginPanel = new JPanel(new BorderLayout(40, 0));
         {
             loginPanel.setAlignmentX(LEFT_ALIGNMENT);
             loginPanel.setBackground(background);
