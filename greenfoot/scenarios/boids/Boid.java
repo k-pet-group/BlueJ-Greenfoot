@@ -23,11 +23,11 @@ public class Boid extends SmoothActor
     private final static int SPEED_DIVIDER = 15; 
      
     /** Distance from which repulsion from other objects start working.*/
-    private final static int REPULSE_DIST = 30;   
+    private final static int REPULSE_DIST = 40;   
     /** Distance from which alignment with other boids start working. */ 
-    private final static int ALIGN_DIST = 300;    
+    private final static int ALIGN_DIST = 150;    
     /** Distance from which attraction to other boids start working. */ 
-    private final static int ATTRACT_DIST = 300;
+    private final static int ATTRACT_DIST = 150;
     
     /**
      * Creates a new boid with minimum speed in a random direction.
@@ -58,7 +58,7 @@ public class Boid extends SmoothActor
      */
     private void acc() {
         Vector acc = new Vector(0,0);
-        acc.add(getFlockAttraction(ATTRACT_DIST).divide(7.5));       
+        acc.add(getFlockAttraction(ATTRACT_DIST).divide(7.5));     
         acc.add(getFlockRepulsion(REPULSE_DIST).multiply(1));
         acc.add(getFlockAlignment(ALIGN_DIST).divide(8));
         acc.add(getWallForce());
@@ -111,7 +111,7 @@ public class Boid extends SmoothActor
             Boid b = (Boid) o;
             centre.add(b.getLocation());
         }
-        return centre.divide(neighbours.size());
+        return centre.divide(neighbours.size()); 
     }
 
     /**
@@ -133,7 +133,11 @@ public class Boid extends SmoothActor
         for(Object o : neighbours) {            
             SmoothActor other = (SmoothActor) o;
             //dist to other actor
-            Vector dist = getLocation().subtract(other.getLocation());            
+            Vector dist = getLocation().subtract(other.getLocation());
+            if(dist.getLength() > distance) {
+                // Make sure we are looking at the logical distance.
+                continue;
+            }
             repulse.add(dist.setLength(distance - dist.getLength()));
         }
         return repulse;        
