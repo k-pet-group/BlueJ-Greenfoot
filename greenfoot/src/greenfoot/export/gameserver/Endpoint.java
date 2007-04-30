@@ -75,7 +75,6 @@ public abstract class Endpoint {
                         setState(null,"closed");
                     } catch (IOException ex) {
                         lastError = ex;
-//                        ex.printStackTrace();
                         setState(ex,"read error");
                     }
                 }
@@ -163,9 +162,8 @@ public abstract class Endpoint {
                         connectLoop(addr,port);
                     }
                     catch (IOException e) {
-                       // lastError = e;
-                        //setState(e,"connect error");
-                        error("Cannot connect to server. Cause: " + e.getMessage());
+                        lastError = e;
+                        setState(e,"connect error");
                     }
                 }
             }.start();
@@ -203,5 +201,4 @@ public abstract class Endpoint {
         }
     }
     
-    public abstract void error(String s);
 }

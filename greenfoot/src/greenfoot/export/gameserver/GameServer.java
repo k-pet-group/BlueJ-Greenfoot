@@ -18,16 +18,15 @@ public class GameServer {
     
     private ClientEnd server; // = new ClientEnd("bluej.org"); //"mygame.java.sun.com");
     
-    public final GameServer submit(String host, String uid, String password, String gameName, String fileName) throws UnknownHostException {
+    /**
+     * Submit a file to the server.
+     * 
+     * @throws UnknownHostException If the host can't be found.
+     * @throws IOException If there was an error connecting to the host.
+     */
+    public final GameServer submit(String host, String uid, String password, String gameName, String fileName) throws UnknownHostException, IOException {
         server = new ClientEnd(host);
-        try {
-            server.getOut()
-                .writeln("t","submit",uid,password,gameName,
-                    getfile(fileName))
-                .flush();
-        } catch(IOException ioe) {
-            ioe.printStackTrace();
-        }
+        server.getOut().writeln("t", "submit", uid, password, gameName, getfile(fileName)).flush();        
         return this;
     }
     public final void close() {
@@ -61,14 +60,6 @@ public class GameServer {
         }
         public void error(UTCL utcl) {
             GameServer.this.error(utcl.getArg(0,"error without message"));
-        }
-        /**
-         * will be called if something goes wrong when connection to the server.
-         */
-        @Override
-        public void error(String s)
-        {
-            GameServer.this.error(s);
         }
     }
     /** Override this to get error messages */

@@ -5,7 +5,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5024 2007-04-26 11:10:43Z polle $
+ * @version $Id: Exporter.java 5032 2007-04-30 12:32:22Z polle $
  */
 
 package greenfoot.export;
@@ -115,7 +115,10 @@ public class Exporter
             dlg.setProgress(false, "Publish failed: Unknown host (" + e.getMessage() + ")");
             return;
         }
-        dlg.setProgress(false, "Export complete."); 
+        catch (IOException e) {
+            dlg.setProgress(false, "Publish failed: " + e.getMessage());
+            return;
+        }
     }
 
     /**
