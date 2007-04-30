@@ -7,7 +7,6 @@ import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
-import greenfoot.event.WorldEvent;
 import greenfoot.gui.CenterLayout;
 import greenfoot.gui.ControlPanel;
 import greenfoot.gui.DragGlassPane;
@@ -19,10 +18,9 @@ import greenfoot.util.GreenfootUtil;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FocusTraversalPolicy;
-import java.io.File;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -75,6 +73,7 @@ public class GreenfootScenarioViewer extends JApplet
     {
         System.setProperty("apple.laf.useScreenMenuBar", "true");
         JFrame frame = new JFrame(scenarioName);
+
         GreenfootScenarioViewer gs = new GreenfootScenarioViewer(frame);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setTitle(scenarioName);
@@ -122,8 +121,12 @@ public class GreenfootScenarioViewer extends JApplet
         
         centerPanel.setBorder( BorderFactory.createEmptyBorder(EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE)); 
         controls.setBorder(BorderFactory.createCompoundBorder( BorderFactory.createEmptyBorder(0,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE), BorderFactory.createEtchedBorder()));
+        
+       
+              
         rootPaneContainer.getContentPane().add(centerPanel, BorderLayout.CENTER);
         rootPaneContainer.getContentPane().add(controls, BorderLayout.SOUTH);
+        
 
     }
 
@@ -134,13 +137,15 @@ public class GreenfootScenarioViewer extends JApplet
      */
     public void init()
     {
+        
+        
         // this is a workaround for a security conflict with some browsers
         // including some versions of Netscape & Internet Explorer which do
         // not allow access to the AWT system event queue which JApplets do
         // on startup to check access. May not be necessary with your browser.
         JRootPane rootPane = this.getRootPane();
         rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
-
+        
         String worldClassName = null; 
         boolean includeExtraControls = false;
         Properties p = new Properties();
@@ -169,7 +174,10 @@ public class GreenfootScenarioViewer extends JApplet
             ActorDelegateStandAlone.initProperties(properties);
 
             canvas = new WorldCanvas(null);
-
+            
+            
+            
+            
             WorldHandler.initialise(canvas, new WorldHandlerDelegateStandAlone(this));
             WorldHandler worldHandler = WorldHandler.getInstance();
             Simulation.initialize(worldHandler);
@@ -185,6 +193,10 @@ public class GreenfootScenarioViewer extends JApplet
                     // via the keyboard
                     if (e.getType() == SimulationEvent.STARTED) {
                         canvas.requestFocusInWindow();
+                        // Have to use requestFocus, since it is the only way to
+                        // make it work in some browsers: (Ubuntu's Firefox 1.5
+                        // and 2.0)
+                        canvas.requestFocus();
                     }
                 }
             });
@@ -231,6 +243,16 @@ public class GreenfootScenarioViewer extends JApplet
     {
     // provide any code requred to run each time
     // web page is visited
+
+        canvas.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e)
+            {
+                canvas.requestFocusInWindow();
+                // Have to use requestFocus, since it is the only way to
+                // make it work in some browsers (Ubuntu's Firefox 1.5
+                // and 2.0)
+                canvas.requestFocus();
+            }});
     }
 
     /**
@@ -321,5 +343,6 @@ public class GreenfootScenarioViewer extends JApplet
         }
         return world;
     }
+
 
 }
