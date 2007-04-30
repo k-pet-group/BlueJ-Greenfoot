@@ -1,10 +1,16 @@
 #Greenfoot properties
-#Mon Jan 29 11:44:28 GMT 2007
-simulation.speed=96
-version=1.1.0
+#Mon Apr 30 13:20:38 GMT 2007
+class.Boid.superclass=SmoothActor
+simulation.speed=87
+class.SmoothActor.superclass=greenfoot.Actor
+class.Obstacle.superclass=greenfoot.Actor
+class.Sky2.superclass=greenfoot.World
+mainWindow.width=1084
+class.Vector.superclass=
+version=1.2.0
 class.Boid.image=bird.png
-class.Naive.superclass=Boid
+world.lastInstantiated=Sky
+mainWindow.y=-8
 class.Sky.superclass=greenfoot.World
-class.Hunter.superclass=Boid
-class.Boid.superclass=greenfoot.Actor
-class.Social.superclass=Boid
+mainWindow.x=314
+mainWindow.height=1000

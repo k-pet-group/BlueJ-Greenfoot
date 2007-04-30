@@ -1,40 +1,34 @@
-import greenfoot.World;
-import greenfoot.Actor;
+import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
+import java.awt.Color;
 
-import java.awt.*;
-
+/**
+ * A world for the boids.
+ * 
+ * @author Poul Henriksen 
+ * @version 2.0
+ */
 public class Sky extends World
 {
-    private static int WIDTH = 800;
-    private static int HEIGHT = 600;
-    
-   
-    public Sky() {
-        super(WIDTH,HEIGHT,1);
-        getBackground().setColor(new Color(128,164,255));
-        getBackground().fill();
-        populateNaive(20);
-      
-      /*  Cohesion c = new Cohesion();
-        c.setLocation(0,HEIGHT-1);
-        addObject(c);
-        Alignment a = new Alignment();
-        a.setLocation(32,HEIGHT-1);
-        addObject(a);
-        Separation s = new Separation();
-        s.setLocation(64,HEIGHT-1);
 
-        addObject(s);*/
+    /**
+     * Constructor for objects of class Sky.
+     * 
+     */
+    public Sky()
+    {    
+        super(800, 800, 1);
+        getBackground().setColor(new Color(188,164,255));
+        getBackground().fill();
+        
+        populate(50);
     }
     
-    public void populateNaive(int number) {
-        for(int i=0; i < number; i++) {
-            
+     public void populate(int number) {
+        for(int i=0; i < number; i++) {            
              int x = (int) (Math.random() * getWidth());          
              int y = (int) (Math.random() * getHeight());
-             Boid b = new Naive();
+             Boid b = new Boid();
              addObject(b, x, y);
         }
     }
-    
 }

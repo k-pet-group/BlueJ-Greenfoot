@@ -1,351 +1,165 @@
-import greenfoot.World;
-import greenfoot.Actor;
+import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
+import java.util.*;
 
-import java.util.Iterator;
-import java.util.List;
-
-import java.util.Collection;
-import java.util.ArrayList;
-import java.awt.Point;
-
-public abstract class Boid extends Actor
+/**
+ * A boid is an object that is part of a flock. 
+ * The boid follows a few simple rules that gives emergent behaviour when lots of boids are placed in the world.
+ * 
+ * @author Poul Henriksen 
+ * @version 2.0
+ */
+public class Boid extends SmoothActor
 {
-    private double startSpeed = 1.0;
-    private double x, y;
+    /** Distance the wall-force will start working from.  */
+    private final static int WALL_DIST = 50;    
+    /** The size of wall force when it is at max. */
+    private final static int WALL_FORCE = 200;
     
-    private boolean initialised = false;
-    
-    private Vector vector = new Vector((Math.random()-0.5)*startSpeed  ,(Math.random()-0.5)*startSpeed );
-  
-    protected Vector vectorPlan = (Vector) vector.clone();
-    
-    private boolean planning = true;
-
-    
-    public class Vector {
-        private double x;
-        private double y;
-        
-        public Vector(double x, double y) {
-            this.x = x;
-            this.y = y;
-        }
-        
-        public void setX(double x) {
-            this.x = x;
-        }
-        
-        
-        public void setY(double y) {
-            this.y = y;
-        }
-        
-        public void setDirection(double angle) {
-            double len = getLength();
-            x = Math.cos(angle) * len;
-            y = Math.sin(angle) * len ;
-        }
-        
-        public double getX() {
-            return x;
-        }
-        public double getY() {
-            return y;
-        }
-        
-        /**
-         * Returns the direction. thisis a value between -Pi and Pi
-         */
-        public double getDirection() {
-             return Math.atan2(y,x);
-        }
-        
-        public double getLength() {
-            if(x==0  || y==0) {
-                return 0;
-            }
-            return Math.sqrt(x*x+y*y);   
-        }
-        
-        public void add(Vector other) {
-            this.x += other.getX();
-            this.y += other.getY();
-        }
-        
-        public void add(double dx, double dy) {
-            this.x += dx;
-            this.y += dy;
-        }
-        
-        public void shorten(double factor) {
-            if(factor != 0) {
-                x = x/ factor;
-                y = y/ factor;
-            }
-        }
-        
-        public void enlarge(double factor) {
-            x = x * factor;
-            y = y * factor;
-        }
-        
-       
-        
-        public Object clone() {
-            return new Vector(x,y);
-        }
-        
-        public String toString() {
-            return "" + x + "," +y;
-        }
-            
-    }
-    
-    
-    public Boid()  {
-        setRotation((int) (90 + 180 * getVector().getDirection() / Math.PI));
-    }
-    
-    public abstract void doStuff();
-    
-    public void act()
-    {   
-        if(!initialised) {
-            x = getX();
-            y = getY();
-            initialised = true;
-        }
-        
-         
-       // Vector flockVector = getFlockVector(flock);
-       // double flockDirection  = getFlockDirection(flock);
+    /**  Maximum speed of the boid. */
+    private final static int MAX_SPEED = 200;
+    /**  Minimum speed of the boid. */
+    private final static int MIN_SPEED = 50;
+    /** The speed is divided by this. */
+    private final static int SPEED_DIVIDER = 15; 
      
-        if(planning) {
-            doStuff();   
-            planning = false;
-        }
-        else {
-            vector.setX(vectorPlan.getX());            
-            vector.setY(vectorPlan.getY());
-            
-            setRotation((int) (90 + 180 * getVector().getDirection() / Math.PI));
-            moveForward();
-            planning = true;
-        }
-      
-    }
+    /** Distance from which repulsion from other objects start working.*/
+    private final static int REPULSE_DIST = 30;   
+    /** Distance from which alignment with other boids start working. */ 
+    private final static int ALIGN_DIST = 300;    
+    /** Distance from which attraction to other boids start working. */ 
+    private final static int ATTRACT_DIST = 300;
     
-    
-    private void moveForward() {
-        double speed = getVector().getLength();     
+    /**
+     * Creates a new boid with minimum speed in a random direction.
+     */
+    public Boid()
+    { 
+        setMaximumSpeed(MAX_SPEED);
+        setMinimumSpeed(MIN_SPEED);
+        setSpeedDivider(SPEED_DIVIDER);
         
-        if(speed > 0) {
-            x += getVector().getX() ;
-            y += getVector().getY() ;  
-        }
-        limit();
-        
-    //    System.out.println("" + x + " , " + y + " rot: " + getRotation());
-        
-        setLocation(x, y);
-    }
-    
-    public void setLocation(double x, double y) {
-        this.x = x;
-        this.y = y;
-        super.setLocation((int) Math.floor(x), (int) Math.floor(y));
+        Vector vel = new Vector();
+        vel.setDirection((Math.random())*360);
+        vel.setLength(MIN_SPEED);
+        setVelocity(vel);
     }
     
     /**
-     * We need to override this method, so we can interactively move objects.
+     * Flock!
      */
-    public void setLocation(int x, int y) {
-        this.x = x;
-        this.y = y;
-        super.setLocation(x,y);
+    public void act() 
+    {      
+        acc();
+        super.act();
+    }    
+    
+    /**
+     * Calculate accelaration by appling the boid rules
+     */
+    private void acc() {
+        Vector acc = new Vector(0,0);
+        acc.add(getFlockAttraction(ATTRACT_DIST).divide(7.5));       
+        acc.add(getFlockRepulsion(REPULSE_DIST).multiply(1));
+        acc.add(getFlockAlignment(ALIGN_DIST).divide(8));
+        acc.add(getWallForce());
+        setAccelaration(acc);
+    }
+    
+    /**
+     * Get the size of the wall force on this boid. Will make the boid avoid the world boundaries.
+     */    
+    public Vector getWallForce() {
+        Vector location = getLocation();
+        //Special border repulse rules:
+        Vector wallForce = new Vector(0,0);
+        if(location.getX() <= WALL_DIST) {
+            double distFactor = (WALL_DIST - location.getX()) / WALL_DIST;
+            wallForce.add(new Vector(WALL_FORCE * distFactor, 0));
+        }
+        if( (getWorld().getWidth() - location.getX()) <= WALL_DIST) {
+            double distFactor = (WALL_DIST - (getWorld().getWidth() - location.getX())) / WALL_DIST;
+            wallForce.subtract(new Vector(WALL_FORCE * distFactor, 0));
+        }
+        if(location.getY() <= WALL_DIST) {
+            double distFactor = (WALL_DIST - location.getY()) / WALL_DIST;
+            wallForce.add(new Vector(0, WALL_FORCE * distFactor));
+        }
+        if(getWorld().getHeight() - location.getY() <=  WALL_DIST) {
+            double distFactor = (WALL_DIST - (getWorld().getHeight() - location.getY())) / WALL_DIST;
+            wallForce.subtract(new Vector(0, WALL_FORCE * distFactor));
+        }
+        return wallForce;
+    }
+    
+    /**
+     * Get the other objects that are within the given distance.
+     */
+    private List getNeighbours(int distance, Class cls) {
+        return getObjectsInRange(distance, cls);
+    }
+    
+    /**
+     * Get the center of all the boids within the given distance. 
+     * That is, the average of all the positions of the other boids.
+     */
+    public Vector getCentreOfMass(int distance) {
+        List neighbours = getNeighbours(distance, Boid.class);
+        //add me
+        neighbours.add(this);
+        Vector centre = new Vector();
+        for(Object o : neighbours) {
+            Boid b = (Boid) o;
+            centre.add(b.getLocation());
+        }
+        return centre.divide(neighbours.size());
     }
 
-    
-    public void avoidBorders() {
-         //if we see a border, we mo
-         if(x<=20) {
-             vectorPlan.getDirection();
-         //  vectorPlan.setX(10);// -10 * vectorPlan.getX());
-           x=0;
-        }
-        if(x>=getWorld().getWidth()) {
-         //  vectorPlan.setX(-10) ;//-10 * vectorPlan.getX());
-           x=getWorld().getWidth()-2;
-        }
-        if(y<=0) {
-            //vectorPlan.setY(10);//-10 * vectorPlan.getY());                
-            y=0;
-        }
-        if(y>=getWorld().getHeight()) {
-          //  vectorPlan.setY(-10);//-10 * vectorPlan.getY());                
-            y=getWorld().getHeight() -2 ;
-        }
-    }
-    
-    private void limit() {
-        if(x<=0) {
-         //  vectorPlan.setX(10);// -10 * vectorPlan.getX());
-           x=getWorld().getWidth()-2;
-        }
-        if(x>=getWorld().getWidth()) {
-         //  vectorPlan.setX(-10) ;//-10 * vectorPlan.getX());
-           x=0;
-        }
-        if(y<=0) {
-            //vectorPlan.setY(10);//-10 * vectorPlan.getY());                
-            y=getWorld().getHeight() -2 ;
-        }
-        if(y>=getWorld().getHeight()) {
-          //  vectorPlan.setY(-10);//-10 * vectorPlan.getY());                
-            y=0;
-        }
-        
-    }
-    
-   /* public static void setSeparationFactor(double factor) {
-        separationFactor = factor;
-    }
-    
-    public static void setCohesionFactor(double factor) {
-        cohesionFactor = factor;
-    }
-        
-    public static void setAlignmentFactor(double factor) {
-        alignmentFactor = factor;
-    }
-    
-    public static double getSeparationFactor() {
-        return separationFactor;
-    }
-    
-    public static double getCohesionFactor() {
-        return cohesionFactor;
-    }
-        
-    public static double getAlignmentFactor() {
-        return alignmentFactor;
-    }*/
-    
-    
-    public Vector getVector() {
-        return vector;
-    }
-    
-    public Vector getFlockRepulsion(int distance) {
-        Iterator flock = getNeighbours(distance).iterator();       
-        int nBirds = 0;
-        
-        Vector flockVector = new Vector(0,0);
-        while(flock.hasNext()) {
-             Boid other = (Boid) flock.next();
-             if(other != this) {
-                 double dx = getX() - other.getX();
-                 if(dx!=0) {
-                     dx = distance/dx;        
-                 } else {
-                     dx = distance;
-                 }
-                 double dy = getY() - other.getY();                 
-                 if(dy!=0) {
-                     dy = distance/dy;        
-                 } else {
-                     dy = distance;
-                 }   
-                 
-                 flockVector.add(dx , dy);
-                 nBirds++;
-             }
-        }
-        flockVector.shorten(nBirds); 
-        return flockVector;
-    }
-   
     /**
-     * Borders are considered obstacles, and exerts a very strong force when a boid is getting close to a border.
-     * This should be used to avoid getting stuck at the borders
+     * Get the attraction from the other boids within the given distance.
      */
-  /*  public Vector getObstacleRepulsion() {
-        
-    }*/
-    
-   
     public Vector getFlockAttraction(int distance) {
-        Iterator flock = getNeighbours(distance).iterator();
-       
-        int nBirds = 1; //this bird is the first one
-        double xCenter = x;        
-        double yCenter = y;
-        
-        while(flock.hasNext()) {
-             Boid other = (Boid) flock.next();
-             if(other != this) {
-                xCenter += other.getX();
-                yCenter += other.getY();
-                nBirds++;
-             }
+        Vector com = getCentreOfMass(distance);
+        //distance to the centre of mass
+        Vector distCom = getCentreOfMass(distance).subtract(getLocation());
+        return distCom;        
+    }
+    
+    /**
+     * Get the repulsion from the other boids within the given distance.
+     */
+    public Vector getFlockRepulsion(int distance) {
+        Vector repulse = new Vector();
+        List neighbours = getNeighbours(distance, SmoothActor.class);
+        for(Object o : neighbours) {            
+            SmoothActor other = (SmoothActor) o;
+            //dist to other actor
+            Vector dist = getLocation().subtract(other.getLocation());            
+            repulse.add(dist.setLength(distance - dist.getLength()));
         }
-       
-        xCenter /= nBirds;        
-        yCenter /= nBirds;
-        
-        Vector attraction = new Vector(xCenter - getX(), yCenter -getY());    
-        attraction.shorten(distance);
-        return attraction;
+        return repulse;        
     }
     
-    
-    public Vector getFlockDirection(int distance) {
-        Iterator flock = getNeighbours(distance).iterator();
-       
-        int nBirds = 1;
-        Vector flockDirection = (Vector) getVector().clone();
-         
-        while(flock.hasNext()) {
-             Boid other = (Boid) flock.next();
-             if(other != this) {
-                flockDirection.add(other.getVector());
-                nBirds++;
-             }
+    /**
+     * Get the average velocity of all boids within the given distance.
+     */
+    private Vector getAverageVelocity(int distance) {
+        List neighbours = getNeighbours(distance, Boid.class);
+        //add me
+        neighbours.add(this);
+        Vector avg = new Vector();
+        for(Object o : neighbours) {
+            Boid b = (Boid) o;
+            avg.add(b.getVelocity());
         }
-        flockDirection.shorten(nBirds);
-        return flockDirection;
+        return avg.divide(neighbours.size());
     }
     
- 
-    private Collection getNeighbours(int distance) {
-        return getObjectsInRange(distance, Boid.class);
-        //TODO for greenfoot it would be nice to be able to get obecjts within a certain radius
-        //TODO and to get all obejcts of a certain type in the world.
-      /*  Iterator objects = getWorld().getObjects();
-         
-
-        List neighbours = new ArrayList();
-        while(objects.hasNext()) {
-            Object o = objects.next();
-            if(o instanceof Boid && o != this) {
-                Boid b = (Boid) o;
-                if(distance(b) < distance) {
-                    neighbours.add(b);
-                }
-            }
-        }
-        return neighbours;*/
-
+    /**
+     * Get the relative direction this boid should be facing to match the average direction of the flock.
+     */
+    private Vector getFlockAlignment(int distance) {
+        Vector avgVel = getAverageVelocity(distance);
+        avgVel.subtract(getVelocity());
+        return avgVel;
     }
-    
-    
-    
-    private double distance(Boid other) {
-        int dx = other.getX() - getX();
-        int dy = other.getY() - getY();
-        return Math.sqrt(dx*dx+dy*dy);
-       
-    }
-
-
 }
