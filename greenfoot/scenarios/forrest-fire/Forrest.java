@@ -5,8 +5,8 @@ import java.util.Random;
 
 public class Forrest extends World
 {
-    private final static int WIDTH = 150;
-    private final static int HEIGHT = 150;
+    private final static int WIDTH = 60;
+    private final static int HEIGHT = 60;
     
     private Random random;
     
@@ -15,12 +15,27 @@ public class Forrest extends World
      * with a cell size of 50x50 pixels
      */
     public Forrest() {
-        super(WIDTH, HEIGHT, 5);
+        super(WIDTH, HEIGHT, Tree.SIZE);
         random = new Random();
         getBackground().setColor(java.awt.Color.WHITE);
         getBackground().fill();
+        populate(50);
+        Tree tree = (Tree) getObjects(Tree.class).get(0);
+        tree.burn();
     }
      
+    public void fill() {
+         long t1 = System.currentTimeMillis();
+         for(int i=0; i < WIDTH; i+=1) {
+            for(int j=0; j < HEIGHT; j+=1) {
+                    Tree tree = new Tree();                    
+                    addObject(tree, i, j);      
+            }
+        }
+        long t2 = System.currentTimeMillis();                  
+       // System.out.println("Populated with " + WIDTH*HEIGHT + " trees in: " + (t2-t1));   
+    }
+    
     /**
      * Populate the forrest with some trees.
      */

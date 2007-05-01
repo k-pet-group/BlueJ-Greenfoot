@@ -11,7 +11,7 @@ import java.util.*;
 
 public class Tree extends Actor
 {
-    private final static int SIZE = 5;
+    public final static int SIZE = 8;
     private final static int BURN_RADIUS = 1;
 
     private static final Color green = new Color(12, 130, 2);
@@ -75,7 +75,7 @@ public class Tree extends Actor
      }
 
     public Collection getNeighbors() {
-        return getNeighbours(2,true,Tree.class);
+        return getNeighbours(BURN_RADIUS,true,Tree.class);
     }
  
  
