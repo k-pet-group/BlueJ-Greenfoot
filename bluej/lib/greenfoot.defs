@@ -60,4 +60,4 @@ greenfoot.gameserver.address=http://mygame.java.sun.com/MyGame/
 ## Normally it should not be necessary to change this.
 ##
 #####################################################################
-bluej.compiler.options=-target 1.5
+bluej.compiler.options=-source 1.5 -target 1.5
