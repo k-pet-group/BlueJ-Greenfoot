@@ -30,6 +30,11 @@ public class CvsCommitAllCommand extends CvsCommand
             Set deletedFiles, Set files, String commitComment)
     {
         super(repository);
+        this.newFiles = newFiles;
+        this.binaryNewFiles = binaryNewFiles;
+        this.deletedFiles = deletedFiles;
+        this.files = files;
+        this.commitComment = commitComment;
     }
     
     protected BasicServerResponse doCommand()
