@@ -51,3 +51,13 @@ doctool.options=-author -version -nodeprecated -protected
 
 greenfoot.gameserver.name=mygame.java.sun.com
 greenfoot.gameserver.address=http://mygame.java.sun.com/MyGame/
+
+#####################################################################
+## Compiler options. 
+## 
+## Here, you can add compile options for the Java compiler. 
+## 
+## Normally it should not be necessary to change this.
+##
+#####################################################################
+bluej.compiler.options=-target 1.5
