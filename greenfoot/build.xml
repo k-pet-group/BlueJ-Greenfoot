@@ -503,7 +503,26 @@
     	    <regexp pattern="package.editor.*"/>
     	    <substitution expression=""/>
     	    <fileset dir="scenarios" includes="**/bluej.pkg"/>
-    	</replaceregexp>
+    	</replaceregexp>        
+        <replaceregexp byline="true" >
+            <regexp pattern="target.*editor.*"/>
+            <substitution expression=""/>
+            <fileset dir="scenarios" includes="**/bluej.pkg"/>
+        </replaceregexp>
+        
+        <!-- Remove empty lines from bluej.pkg -->
+        <replaceregexp byline="false" flags="g">
+            <regexp pattern="\n\n"/>
+            <substitution expression=""/>
+            <fileset dir="scenarios" includes="**/bluej.pkg"/>
+        </replaceregexp>        
+        
+        <!-- Remove empty lines from project.greenfoot -->
+        <replaceregexp byline="false" flags="g">
+            <regexp pattern="\n\n"/>
+            <substitution expression=""/>
+            <fileset dir="scenarios" includes="**/project.greenfoot"/>
+        </replaceregexp>
     </target>
 	
     <target name="update-version-number" description="updates the version number in all files where it appears" >
