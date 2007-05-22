@@ -17,7 +17,7 @@ public class StatusAction extends TeamAction
     /** Creates a new instance of StatusAction */
     public StatusAction()
     {
-        super("team.status", true);
+        super("team.status", false);
         putValue(SHORT_DESCRIPTION, Config.getString("tooltip.status"));
     }
 
