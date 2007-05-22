@@ -16,7 +16,7 @@ import bluej.pkgmgr.actions.PkgMgrAction;
  * An abstract class for team actions. 
  * 
  * @author fisker
- * @version $Id: TeamAction.java 5044 2007-05-22 01:55:58Z davmac $
+ * @version $Id: TeamAction.java 5050 2007-05-22 09:25:25Z bquig $
  */
 public abstract class TeamAction extends AbstractAction
 {
@@ -29,7 +29,7 @@ public abstract class TeamAction extends AbstractAction
      */
     public TeamAction(String name)
     {
-        super(Config.getString(name));
+        this(Config.getString(name), false);
     }
     
     /**
@@ -42,6 +42,13 @@ public abstract class TeamAction extends AbstractAction
     public TeamAction(String name, boolean showsDialog)
     {
         super(showsDialog ? Config.getString(name) + "..." : Config.getString(name));
+        if (!Config.isMacOS()){
+        	// Mnemonic keys are against the apple gui guidelines.
+        	putValue(MNEMONIC_KEY, new Integer(Config.getMnemonicKey(name)));
+        }
+        if (Config.hasAcceleratorKey(name)){
+            putValue(ACCELERATOR_KEY, Config.getAcceleratorKey(name));
+        }
     }
 
     /**

@@ -58,7 +58,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 5045 2007-05-22 04:38:16Z bquig $
+ * @version $Id: PkgMgrFrame.java 5050 2007-05-22 09:25:25Z bquig $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -2468,7 +2468,7 @@ public class PkgMgrFrame extends JFrame
 
                 teamPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 14, 5));
                 
-                updateButton = createButton(teamActions.getUpdateAction(), false, false, 2, 4);
+                updateButton = createButton(teamActions.getUpdateAction(), false, false, 2, 4);                
                 updateButton.setAlignmentX(0.15f);
                 teamPanel.add(updateButton);
                 teamPanel.add(Box.createVerticalStrut(3));
