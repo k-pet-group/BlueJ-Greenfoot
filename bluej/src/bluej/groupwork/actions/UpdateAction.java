@@ -11,6 +11,7 @@ import javax.swing.SwingUtilities;
 import bluej.Config;
 import bluej.groupwork.*;
 import bluej.groupwork.ui.ConflictsDialog;
+import bluej.groupwork.ui.UpdateFilesFrame;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
@@ -27,20 +28,22 @@ import bluej.utility.SwingWorker;
  * Action to update out-of-date files.
  * 
  * @author fisker
- * @version $Id: UpdateAction.java 5046 2007-05-22 05:00:26Z bquig $
+ * @version $Id: UpdateAction.java 5048 2007-05-22 06:03:32Z davmac $
  */
 public class UpdateAction extends TeamAction
 {
     private Project project;
     private boolean includeLayout;
+    private UpdateFilesFrame updateFrame;
     
     /** A list of packages whose bluej.pkg file has been removed */
     private List removedPackages;
     
-    public UpdateAction()
+    public UpdateAction(UpdateFilesFrame updateFrame)
     {
-        super("team.update", true);
+        super("team.update");
         putValue(SHORT_DESCRIPTION, Config.getString("tooltip.update"));
+        this.updateFrame = updateFrame;
     }
 
     /* (non-Javadoc)
@@ -54,7 +57,7 @@ public class UpdateAction extends TeamAction
         if (project != null) {
             project.saveAllEditors();
             // doUpdate(project);
-            startProgressBar();
+            updateFrame.startProgress();
             setStatus(Config.getString("team.update.statusMessage"));
             new UpdateWorker(project).start();
         }
@@ -366,7 +369,7 @@ public class UpdateAction extends TeamAction
         public void finished()
         {
             handleRemovedPkgs();
-            stopProgressBar();
+            updateFrame.stopProgress();
 
             if (! result.isError()) {
                 setStatus(Config.getString("team.update.statusDone"));

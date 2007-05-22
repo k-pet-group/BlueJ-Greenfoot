@@ -14,7 +14,7 @@ import javax.swing.JTextArea;
 import javax.swing.UIManager;
 
 import bluej.BlueJTheme;
-import bluej.groupwork.actions.UpdateAction;
+import bluej.groupwork.actions.UpdateDialogAction;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.Config;
 import bluej.groupwork.actions.CommitCommentAction;
@@ -36,7 +36,7 @@ public class TeamControlsPanel extends JPanel
     private JPanel helpPanel = null;
     
     private CommitCommentAction commitCommentAction;
-    private UpdateAction updateAction;
+    private UpdateDialogAction updateAction;
     
     /**
      * Create a TeamControlsPanel with a reference to the PkgMgrFrame holding the
@@ -47,7 +47,7 @@ public class TeamControlsPanel extends JPanel
     public TeamControlsPanel(PkgMgrFrame pmf)
     {
         this.pmf = pmf;
-        updateAction = new UpdateAction();
+        updateAction = new UpdateDialogAction();
        
         commitCommentAction = new CommitCommentAction();
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));

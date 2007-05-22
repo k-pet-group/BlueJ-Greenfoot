@@ -8,12 +8,12 @@ import bluej.pkgmgr.actions.PkgMgrAction;
  * of the actions.
  * 
  * @author Davin McCall
- * @version $Id: TeamActionGroup.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: TeamActionGroup.java 5048 2007-05-22 06:03:32Z davmac $
  */
 public class TeamActionGroup
 {
     private StatusAction statusAction = new StatusAction();
-    private UpdateAction updateAction = new UpdateAction();
+    private UpdateDialogAction updateAction = new UpdateDialogAction();
     private TeamSettingsAction teamSettingsAction = new TeamSettingsAction();
     private CommitCommentAction commitCommentAction = new CommitCommentAction();
     private ImportAction importAction = new ImportAction();
@@ -34,7 +34,7 @@ public class TeamActionGroup
         return statusAction;
     }
     
-    public UpdateAction getUpdateAction()
+    public UpdateDialogAction getUpdateAction()
     {
         return updateAction;
     }
