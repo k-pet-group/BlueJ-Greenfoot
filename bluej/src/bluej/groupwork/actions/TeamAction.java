@@ -16,7 +16,7 @@ import bluej.pkgmgr.actions.PkgMgrAction;
  * An abstract class for team actions. 
  * 
  * @author fisker
- * @version $Id: TeamAction.java 4916 2007-04-12 03:57:23Z davmac $
+ * @version $Id: TeamAction.java 5044 2007-05-22 01:55:58Z davmac $
  */
 public abstract class TeamAction extends AbstractAction
 {
@@ -30,6 +30,18 @@ public abstract class TeamAction extends AbstractAction
     public TeamAction(String name)
     {
         super(Config.getString(name));
+    }
+    
+    /**
+     * Constructor for a team action which shows a dialog. An ellipsis
+     * is added to the action text.
+     * 
+     * @param name   The key for action text
+     * @param showsDialog  True if an ellipsis should be appended
+     */
+    public TeamAction(String name, boolean showsDialog)
+    {
+        super(showsDialog ? Config.getString(name) + "..." : Config.getString(name));
     }
 
     /**

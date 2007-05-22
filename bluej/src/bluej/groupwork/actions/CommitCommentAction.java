@@ -19,7 +19,7 @@ public class CommitCommentAction extends TeamAction
 {
     public CommitCommentAction()
     {
-        super("team.commit");
+        super("team.commit", true);
         putValue(SHORT_DESCRIPTION, Config.getString("tooltip.commit"));
     }
     
