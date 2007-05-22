@@ -58,7 +58,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 4968 2007-04-19 10:04:27Z mik $
+ * @version $Id: PkgMgrFrame.java 5045 2007-05-22 04:38:16Z bquig $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -116,7 +116,6 @@ public class PkgMgrFrame extends JFrame
     private AbstractButton commitButton;
     private AbstractButton teamStatusButton;
     private List teamItems;
-    private JCheckBoxMenuItem includeLayoutMenuItem;
   
     // these should probably be transferred to having static getInstance methods
     //like PkgMgrActions
@@ -631,7 +630,6 @@ public class PkgMgrFrame extends JFrame
         teamSettingsMenuItem.setAction(teamActions.getTeamSettingsAction());
         commitButton.setAction(teamActions.getCommitCommentAction());
         shareProjectMenuItem.setAction(teamActions.getImportAction());
-        includeLayoutMenuItem.setAction(teamActions.getIncludeLayoutAction());
         showLogMenuItem.setAction(teamActions.getShowLogAction());
     }
 
@@ -1555,17 +1553,6 @@ public class PkgMgrFrame extends JFrame
     {
         if (pageFormat == null) {
             pageFormat = PrinterJob.getPrinterJob().defaultPage();
-            //            double x = Config.getPropDouble("bluej.printer.paper.x", 0);
-            //            double y = Config.getPropDouble("bluej.printer.paper.y", 0);
-            //            double width = Config.getPropDouble("bluej.printer.paper.width",
-            // 0);
-            //            double height =
-            // Config.getPropDouble("bluej.printer.paper.height", 0);
-            //            Debug.message("making paper: " + x + ", " + y + ", " + width + ",
-            // " + height);
-            //            Paper paper = pageFormat.getPaper();
-            //            paper.setImageableArea(x, y, width, height);
-            //            pageFormat.setPaper(paper);
 
         }
         return pageFormat;
@@ -2738,14 +2725,18 @@ public class PkgMgrFrame extends JFrame
             {
                 Action checkoutAction = CheckoutAction.getInstance();
                 createMenuItem(checkoutAction , teamMenu);
-                
                 shareProjectMenuItem = createMenuItem(teamActions.getImportAction(), teamMenu);               
                 
-                includeLayoutMenuItem = createCheckboxMenuItem(teamActions.getIncludeLayoutAction(), teamMenu, false);
+                teamMenu.addSeparator();
+                
+                createMenuItem(teamActions.getUpdateAction(), teamMenu);
+                createMenuItem(teamActions.getCommitCommentAction(), teamMenu);
+                createMenuItem(teamActions.getStatusAction(), teamMenu);
+                showLogMenuItem = createMenuItem(teamActions.getShowLogAction(), teamMenu);
+                
+                teamMenu.addSeparator();
                 
                 teamSettingsMenuItem = createMenuItem(teamActions.getTeamSettingsAction(), teamMenu);
-                
-                showLogMenuItem = createMenuItem(teamActions.getShowLogAction(), teamMenu);
             }
             teamItems.add(teamMenu);
             menu.add(teamMenu);
