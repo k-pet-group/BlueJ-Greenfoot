@@ -27,7 +27,7 @@ import bluej.utility.SwingWorker;
  * Action to update out-of-date files.
  * 
  * @author fisker
- * @version $Id: UpdateAction.java 4916 2007-04-12 03:57:23Z davmac $
+ * @version $Id: UpdateAction.java 5046 2007-05-22 05:00:26Z bquig $
  */
 public class UpdateAction extends TeamAction
 {
@@ -39,7 +39,7 @@ public class UpdateAction extends TeamAction
     
     public UpdateAction()
     {
-        super("team.update");
+        super("team.update", true);
         putValue(SHORT_DESCRIPTION, Config.getString("tooltip.update"));
     }
 
