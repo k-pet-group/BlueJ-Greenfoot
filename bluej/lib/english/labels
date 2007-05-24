@@ -581,6 +581,9 @@ team.commit.comment=Commit comment
 team.commit.layout=(Diagram Layout)
 team.commit.statusMessage=Committing project into repository...
 team.commit.statusDone=Committing project into repository... Done.
+team.update.title=Update Files from Repository
+team.update.includelayout=Update diagram layout
+team.update.files=Files to be updated
 team.checkout=Checkout Project
 team.checkout.statusMessage=Checking out Shared Project
 team.history=Project History
@@ -602,6 +605,7 @@ team.status.refresh=Refresh
 team.status.delete=delete from repository
 
 team.nocommitfiles=No files to commit
+team.noupdatefiles=No files to update
 
 team.statusinfo.upToDate=Up-to-date
 team.statusinfo.needsCheckout=New in repository

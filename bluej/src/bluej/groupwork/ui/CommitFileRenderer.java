@@ -5,7 +5,6 @@ import bluej.groupwork.TeamStatusInfo;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import java.awt.Component;
-import java.io.IOException;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -15,7 +14,7 @@ import javax.swing.JList;
  * 
  * @author Bruce Quig
  * @author Davin McCall
- * @version $Id: CommitFileRenderer.java 4780 2006-12-22 04:14:21Z bquig $
+ * @version $Id: CommitFileRenderer.java 5051 2007-05-24 03:35:15Z davmac $
  */
 public class CommitFileRenderer extends DefaultListCellRenderer
 {

@@ -1,7 +1,6 @@
 package bluej.groupwork.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -28,29 +27,29 @@ import bluej.utility.SwingWorker;
 
 
 /**
- * A Swing based user interface to add commit comments.
+ * A Swing based user interface for showing files to be updated
  * @author Bruce Quig
- * @version $Id: UpdateFilesFrame.java 5048 2007-05-22 06:03:32Z davmac $
+ * @author Davin McCall
+ * @version $Id: UpdateFilesFrame.java 5051 2007-05-24 03:35:15Z davmac $
  */
 public class UpdateFilesFrame extends EscapeDialog
 {
-    private JList commitFiles;
+    private JList updateFiles;
     private JPanel topPanel;
     private JPanel bottomPanel;
-    private JTextArea commitText;
-    private JButton commitButton;
+    private JButton updateButton;
     private JCheckBox includeLayout;
     private ActivityIndicator progressBar;
-    private UpdateAction commitAction;
+    private UpdateAction updateAction;
 
     private Project project;
     
     private Repository repository;
-    private DefaultListModel commitListModel;
+    private DefaultListModel updateListModel;
     
     private Set changedLayoutFiles;
     
-    private static String noFilesToCommit = Config.getString("team.nocommitfiles"); 
+    private static String noFilesToCommit = Config.getString("team.noupdatefiles"); 
 
     public UpdateFilesFrame(Project proj)
     {
@@ -64,14 +63,13 @@ public class UpdateFilesFrame extends EscapeDialog
     {
         super.setVisible(show);
         if (show) {
-            // we want to set comments and commit action to disabled
-            // until we know there is something to commit
-            commitAction.setEnabled(false);
-            commitText.setEnabled(false);
+            // we want to set update action disabled until we know that
+            // there's something to update
+            updateAction.setEnabled(false);
             includeLayout.setSelected(false);
             includeLayout.setEnabled(false);
             changedLayoutFiles.clear();
-            commitListModel.removeAllElements();
+            updateListModel.removeAllElements();
             
             repository = project.getRepository();
             
@@ -79,7 +77,7 @@ public class UpdateFilesFrame extends EscapeDialog
                 project.saveAllEditors();
                 project.saveAllGraphLayout();
                 startProgress();
-                new CommitWorker().start();
+                new UpdateWorker().start();
             }
             else {
                 super.setVisible(false);
@@ -92,23 +90,19 @@ public class UpdateFilesFrame extends EscapeDialog
      */
     protected void createUI()
     {
-        setTitle(Config.getString("team.commit.title"));
-        commitListModel = new DefaultListModel();
+        setTitle(Config.getString("team.update.title"));
+        updateListModel = new DefaultListModel();
         
         //setIconImage(BlueJTheme.getIconImage());
-        setLocation(Config.getLocation("bluej.commitdisplay"));
+        setLocation(Config.getLocation("bluej.updatedisplay"));
 
         // save position when window is moved
         addComponentListener(new ComponentAdapter() {
                 public void componentMoved(ComponentEvent event)
                 {
-                    Config.putLocation("bluej.commitdisplay", getLocation());
+                    Config.putLocation("bluej.updatedisplay", getLocation());
                 }
             });
-
-        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setBorder(BlueJTheme.generalBorderWithStatusBar);
-        splitPane.setResizeWeight(0.5);
 
         topPanel = new JPanel();
 
@@ -118,46 +112,27 @@ public class UpdateFilesFrame extends EscapeDialog
             topPanel.setLayout(new BorderLayout());
 
             JLabel commitFilesLabel = new JLabel(Config.getString(
-                        "team.commit.files"));
+                        "team.update.files"));
             commitFilesLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
             topPanel.add(commitFilesLabel, BorderLayout.NORTH);
 
-            commitFiles = new JList(commitListModel);
-            commitFiles.setCellRenderer(new CommitFileRenderer(project));
-            commitFiles.setEnabled(false);
-            commitFileScrollPane.setViewportView(commitFiles);
+            updateFiles = new JList(updateListModel);
+            updateFiles.setCellRenderer(new CommitFileRenderer(project));
+            updateFiles.setEnabled(false);
+            commitFileScrollPane.setViewportView(updateFiles);
             
             topPanel.add(commitFileScrollPane, BorderLayout.CENTER);
         }
-
-        splitPane.setTopComponent(topPanel);
 
         bottomPanel = new JPanel();
 
         {
             bottomPanel.setLayout(new BorderLayout());
 
-            JLabel commentLabel = new JLabel(Config.getString(
-                        "team.commit.comment"));
-            commentLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
-            bottomPanel.add(commentLabel, BorderLayout.NORTH);
-
-            commitText = new JTextArea("");
-            commitText.setRows(6);
-            commitText.setColumns(42);
-
-            Dimension size = commitText.getPreferredSize();
-            size.width = commitText.getMinimumSize().width;
-            commitText.setMinimumSize(size);
-
-            JScrollPane commitTextScrollPane = new JScrollPane(commitText);
-            commitTextScrollPane.setMinimumSize(size);
-            bottomPanel.add(commitTextScrollPane, BorderLayout.CENTER);
-
-            commitAction = new UpdateAction(this);
-            commitButton = BlueJTheme.getOkButton();
-            commitButton.setAction(commitAction);
-            getRootPane().setDefaultButton(commitButton);
+            updateAction = new UpdateAction(this);
+            updateButton = BlueJTheme.getOkButton();
+            updateButton.setAction(updateAction);
+            getRootPane().setDefaultButton(updateButton);
 
             JButton closeButton = BlueJTheme.getCancelButton();
             closeButton.addActionListener(new ActionListener() {
@@ -174,8 +149,7 @@ public class UpdateFilesFrame extends EscapeDialog
             progressBar.setRunning(false);
             
             DBox checkBoxPanel = new DBox(DBoxLayout.Y_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
-            // TODO add label
-            includeLayout = new JCheckBox("Commit Diagram Layout");
+            includeLayout = new JCheckBox(Config.getString("team.update.includelayout"));
             includeLayout.setEnabled(false);
             includeLayout.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
@@ -183,14 +157,14 @@ public class UpdateFilesFrame extends EscapeDialog
                     JCheckBox layoutCheck = (JCheckBox)e.getSource();
                     if(layoutCheck.isSelected()) {
                         addModifiedLayouts();
-                        if(!commitButton.isEnabled())
-                            commitAction.setEnabled(true);
+                        if(!updateButton.isEnabled())
+                            updateAction.setEnabled(true);
                     }
                     // unselected
                     else {
                         removeModifiedLayouts();
                         if(isCommitListEmpty())
-                            commitAction.setEnabled(false);
+                            updateAction.setEnabled(false);
                     }
                 }
             });
@@ -199,59 +173,49 @@ public class UpdateFilesFrame extends EscapeDialog
             checkBoxPanel.add(buttonPanel);
             
             buttonPanel.add(progressBar);
-            buttonPanel.add(commitButton);
+            buttonPanel.add(updateButton);
             buttonPanel.add(closeButton);
             bottomPanel.add(checkBoxPanel, BorderLayout.SOUTH);
         }
 
-        splitPane.setBottomComponent(bottomPanel);
-
-        getContentPane().add(splitPane);
+        DBox mainPanel = new DBox(DBox.Y_AXIS, 0.5f);
+        mainPanel.setBorder(BlueJTheme.dialogBorder);
+        mainPanel.add(topPanel);
+        mainPanel.add(bottomPanel);
+        getContentPane().add(mainPanel);
+        
         pack();
-    }
-
-    public String getComment()
-    {
-        return commitText.getText();
-    }
-
-    public void setComment(String newComment)
-    {
-        commitText.setText(newComment);
     }
 
     public void reset()
     {
-        commitListModel.clear();
-        setComment("");
+        updateListModel.clear();
     }
     
     private void removeModifiedLayouts()
     {
         // remove modified layouts from list of files shown for commit
         for(Iterator it = changedLayoutFiles.iterator();it.hasNext();) {
-            commitListModel.removeElement(it.next());
+            updateListModel.removeElement(it.next());
         }
-        if(commitListModel.isEmpty()) {
-            commitListModel.addElement(noFilesToCommit);
-            commitText.setEnabled(false);
+        if(updateListModel.isEmpty()) {
+            updateListModel.addElement(noFilesToCommit);
         }
     }
     
     private boolean isCommitListEmpty()
     {
-        return commitListModel.isEmpty() || commitListModel.contains(noFilesToCommit);
+        return updateListModel.isEmpty() || updateListModel.contains(noFilesToCommit);
     }
     
     private void addModifiedLayouts()
     {
-        if(commitListModel.contains(noFilesToCommit)) {
-            commitListModel.removeElement(noFilesToCommit);
-            commitText.setEnabled(true);
+        if(updateListModel.contains(noFilesToCommit)) {
+            updateListModel.removeElement(noFilesToCommit);
         }
         // add diagram layout files to list of files to be committed
         for(Iterator it = changedLayoutFiles.iterator(); it.hasNext(); ) {
-            commitListModel.addElement(it.next());
+            updateListModel.addElement(it.next());
         }
     }
     
@@ -303,13 +267,13 @@ public class UpdateFilesFrame extends EscapeDialog
     * Inner class to do the actual cvs status check to populate commit dialog
     * to ensure that the UI is not blocked during remote call
     */
-    class CommitWorker extends SwingWorker implements StatusListener
+    class UpdateWorker extends SwingWorker implements StatusListener
     {
         List response;
         TeamworkCommand command;
         TeamworkCommandResult result;
 
-        public CommitWorker()
+        public UpdateWorker()
         {
             super();
             response = new ArrayList();
@@ -366,16 +330,13 @@ public class UpdateFilesFrame extends EscapeDialog
                 //commitAction.setDeletedFiles(filesToDelete);
             }
              
-            if(commitListModel.isEmpty()) {
-                commitListModel.addElement(noFilesToCommit);
-               
+            if(updateListModel.isEmpty()) {
+                updateListModel.addElement(noFilesToCommit);
             }
             else {
                 //this should be conditional upon a need to commit
                 // this should be re-enabled when we fully handle diagram layout change detection
-                commitText.setEnabled(true);
-                commitAction.setEnabled(true);
-                
+                updateAction.setEnabled(true);
             }
             
             stopProgress();
@@ -407,7 +368,7 @@ public class UpdateFilesFrame extends EscapeDialog
                             || status == TeamStatusInfo.STATUS_NEEDSADD 
                             || status == TeamStatusInfo.STATUS_DELETED ) {
                         
-                        commitListModel.addElement(statusInfo);
+                        updateListModel.addElement(statusInfo);
                         filesToCommit.add(statusInfo.getFile());
                     }
                     
