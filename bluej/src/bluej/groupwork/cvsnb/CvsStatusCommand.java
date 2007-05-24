@@ -145,8 +145,6 @@ public class CvsStatusCommand extends CvsCommand
             File file;
             String reposName = sinfo.getRepositoryFileName();
             if (reposName != null) {
-                // DAV !
-                System.out.println("Repos name: " + reposName);
                 if (reposName.endsWith(",v")) {
                     reposName = reposName.substring(0, reposName.length() - 2);
                 }
@@ -165,8 +163,6 @@ public class CvsStatusCommand extends CvsCommand
             }
             
             if (files.remove(file)) {
-                // DAV !
-                System.out.println("Got status for: " + file);
                 TeamStatusInfo teamInfo = new TeamStatusInfo(file,
                         workingRev,
                         sinfo.getRepositoryRevision(),
