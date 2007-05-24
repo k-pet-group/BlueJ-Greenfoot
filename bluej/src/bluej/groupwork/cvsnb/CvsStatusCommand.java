@@ -1,12 +1,16 @@
 package bluej.groupwork.cvsnb;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.netbeans.lib.cvsclient.Client;
+import org.netbeans.lib.cvsclient.admin.AdminHandler;
+import org.netbeans.lib.cvsclient.admin.Entry;
 import org.netbeans.lib.cvsclient.command.CommandAbortedException;
 import org.netbeans.lib.cvsclient.command.CommandException;
 import org.netbeans.lib.cvsclient.command.status.StatusInformation;
@@ -42,15 +46,19 @@ public class CvsStatusCommand extends CvsCommand
         File projectPath = repository.getProjectPath();
         Set remoteDirs;
         
+        Client client = getClient();
+        AdminHandler adminHandler = client.getAdminHandler();
+        
         // First we need to figure out remote directories
         if (includeRemote) {
             remoteDirs = new HashSet();
-            List remoteFiles = repository.getRemoteFiles(getClient(), remoteDirs);
+            List remoteFiles = repository.getRemoteFiles(client, remoteDirs);
             files.addAll(remoteFiles);
         }
         else {
-            remoteDirs = repository.getRemoteDirs(getClient());
+            remoteDirs = repository.getRemoteDirs(client);
         }
+        client = null;
         
         // First, it's necessary to filter out files which are in
         // directories not in the repository. Otherwise the
@@ -71,7 +79,6 @@ public class CvsStatusCommand extends CvsCommand
         
         StatusServerResponse statusServerResponse =
             repository.getStatus(getClient(), files, remoteDirs);
-        
         
         List statusInfo = statusServerResponse.getStatusInformation();
         for (Iterator i = statusInfo.iterator(); i.hasNext(); ) {
@@ -138,6 +145,8 @@ public class CvsStatusCommand extends CvsCommand
             File file;
             String reposName = sinfo.getRepositoryFileName();
             if (reposName != null) {
+                // DAV !
+                System.out.println("Repos name: " + reposName);
                 if (reposName.endsWith(",v")) {
                     reposName = reposName.substring(0, reposName.length() - 2);
                 }
@@ -155,22 +164,43 @@ public class CvsStatusCommand extends CvsCommand
                 file = sinfo.getFile();
             }
             
-            files.remove(file);
-            TeamStatusInfo teamInfo = new TeamStatusInfo(file,
-                    workingRev,
-                    sinfo.getRepositoryRevision(),
-                    status);
-            returnInfo.add(teamInfo);
+            if (files.remove(file)) {
+                // DAV !
+                System.out.println("Got status for: " + file);
+                TeamStatusInfo teamInfo = new TeamStatusInfo(file,
+                        workingRev,
+                        sinfo.getRepositoryRevision(),
+                        status);
+                returnInfo.add(teamInfo);
+            }
         }
         
         // Now we may have some local files left which cvs hasn't given any
         // status for...
         for (Iterator i = files.iterator(); i.hasNext(); ) {
             File file = (File) i.next();
+
+            // See if there's an entry for this file in the metadata
+            Entry entry = null;
+            try {
+                entry = adminHandler.getEntry(file);
+            }
+            catch (IOException ioe) {
+                // Assume no entry
+            }
+            
+            // If there's a metadata entry, it means the file was removed in the
+            // repository; otherwise, it has been added locally. We need to check
+            // this as if a file was added which previously existed in the repository,
+            // the response from CVS won't be recognized in the above code (because
+            // the file is in the Attic).
+            int status = entry == null ? TeamStatusInfo.STATUS_NEEDSADD :
+                TeamStatusInfo.STATUS_REMOVED;
+            
             TeamStatusInfo teamInfo = new TeamStatusInfo(file,
                     "",
                     null,
-                    TeamStatusInfo.STATUS_REMOVED);
+                    status);
             returnInfo.add(teamInfo);
         }
 
