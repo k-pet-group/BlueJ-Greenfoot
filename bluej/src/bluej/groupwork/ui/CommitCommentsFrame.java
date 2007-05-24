@@ -397,7 +397,7 @@ public class CommitCommentsFrame extends EscapeDialog
         {
             //boolean includeLayout = project.getTeamSettingsController().includeLayout();
             
-            StatusFilter filter = new StatusFilter(project.getTeamSettingsController());
+            CommitFilter filter = new CommitFilter();
 
             for (Iterator it = info.iterator(); it.hasNext();) {
                 TeamStatusInfo statusInfo = (TeamStatusInfo) it.next();

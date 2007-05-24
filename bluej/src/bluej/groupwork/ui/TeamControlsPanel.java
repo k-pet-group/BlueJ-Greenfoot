@@ -128,7 +128,7 @@ public class TeamControlsPanel extends JPanel
         }
         
         //everything is good. Show no help and show all buttons
-        if (pmf.getProject().isTeamProject() && pmf.getProject().isInCVS())
+        if (pmf.getProject().isTeamProject())
         {
             if (helpPanel != null)
             {

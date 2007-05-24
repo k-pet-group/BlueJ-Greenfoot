@@ -55,7 +55,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 4843 2007-03-15 01:20:24Z davmac $
+ * @version $Id: Project.java 5052 2007-05-24 05:28:07Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -1618,24 +1618,6 @@ public class Project implements DebuggerListener, InspectorManager
 		return teamSettingsController;
 	}
 	
-        
-	/**
-	 * Get an array of Files containing the directories that exist in the 
-	 * project which has not been added to CVS.
-	 * @return array of Files
-	 */
-	public List getDirsInProjectWhichNeedToBeAdded() 
-    {
-		List files = new LinkedList();
-		traverseDirsForDirs(files, projectDir);
-		return files;
-	}
-	
-	public boolean isInCVS()
-    {
-		return isDirInCVS(getProjectDir());
-	}
-	
 	/**
 	 * Traverse the directory tree starting in dir an add all the encountered 
 	 * files to the List allFiles. The parameter includePkgFiles determine 
@@ -1659,45 +1641,6 @@ public class Project implements DebuggerListener, InspectorManager
 		}
 	}
 	
-	/**
-	 * Traverses a directory tree and records the directories it encounters.
-	 * Directories named 'CVSROOT' or 'CVS' are ignored along with directories
-	 * already in CVS.
-	 * @param allDirs a List to which the method will add the dirs it meets.
-	 * @param dir the directory the search starts from.
-	 */
-	private static void traverseDirsForDirs(List allDirs, File dir)
-    {
-		File[] files = dir.listFiles();
-		boolean ok = false;
-		if (files == null){
-			return;
-		}
-		for(int i=0; i< files.length; i++ ){
-			ok = !files[i].getName().equals("CVSROOT") &&
-				 !files[i].getName().equals("CVS") && !isDirInCVS(files[i]);
-			if (files[i].isDirectory()){
-				if (ok) {
-					allDirs.add(files[i]);
-				}
-				traverseDirsForDirs(allDirs, files[i]);
-			}
-		}
-	}
-	
-	/**
-	 * Determine if a directory is in CVS. The method looks for a subfolder
-	 * named 'CVS'
-	 * @param dir the directory
-	 * @return true if directory is in CVS.
-	 */
-	private static boolean isDirInCVS(File dir)
-    {
-		char s = File.separatorChar;
-		File cvsDir = new File(dir.getAbsolutePath() + s + "CVS");
-		return cvsDir.exists();
-	}
-
     /**
      * Get the team settings dialog for this project. Only call this if the
      * project is a shared project.
@@ -1707,12 +1650,12 @@ public class Project implements DebuggerListener, InspectorManager
         return getTeamSettingsController().getTeamSettingsDialog();
     }
     
+    /**
+     * Get the commit dialog for this project
+     */
     public CommitCommentsFrame getCommitCommentsDialog()
     {
-        // if the commit comments dialog is null or has been associated with a different
-        // PkgMgrFrame we need to recreate with appropriate parent. this method is used
-        // by CommitCommentAction for centreing and by CommitAction for gaining 
-        // commit comment etc.
+        // lazy instantiation of commit comments frame
         if(commitCommentsFrame == null) {
             commitCommentsFrame = new CommitCommentsFrame(this);
         }

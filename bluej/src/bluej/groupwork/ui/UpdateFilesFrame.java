@@ -30,7 +30,7 @@ import bluej.utility.SwingWorker;
  * A Swing based user interface for showing files to be updated
  * @author Bruce Quig
  * @author Davin McCall
- * @version $Id: UpdateFilesFrame.java 5051 2007-05-24 03:35:15Z davmac $
+ * @version $Id: UpdateFilesFrame.java 5052 2007-05-24 05:28:07Z davmac $
  */
 public class UpdateFilesFrame extends EscapeDialog
 {
@@ -132,12 +132,19 @@ public class UpdateFilesFrame extends EscapeDialog
             updateAction = new UpdateAction(this);
             updateButton = BlueJTheme.getOkButton();
             updateButton.setAction(updateAction);
+            updateButton.addActionListener(new ActionListener() {
+               public void actionPerformed(ActionEvent e)
+                {
+                   includeLayout.setEnabled(false);
+                } 
+            });
             getRootPane().setDefaultButton(updateButton);
 
             JButton closeButton = BlueJTheme.getCancelButton();
             closeButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e)
                     {
+                        updateAction.cancel();
                         setVisible(false);
                     }
                 });
@@ -278,7 +285,7 @@ public class UpdateFilesFrame extends EscapeDialog
             super();
             response = new ArrayList();
             Set files = project.getTeamSettingsController().getProjectFiles(true);
-            command = repository.getStatus(this, files, false);
+            command = repository.getStatus(this, files, true);
         }
         
         /* (non-Javadoc)
@@ -298,14 +305,12 @@ public class UpdateFilesFrame extends EscapeDialog
         public void finished()
         {
             if (response != null) {
-                Set filesToCommit = new HashSet();
-                Set filesToAdd = new HashSet();
-                Set filesToDelete = new HashSet();
+                Set filesToUpdate = new HashSet();
                 Set conflicts = new HashSet();
                 Set modifiedLayoutFiles = new HashSet();
                 
                 List info = response;
-                getCommitFileSets(info, filesToCommit, filesToAdd, filesToDelete, conflicts, modifiedLayoutFiles);
+                getUpdateFileSet(info, filesToUpdate, conflicts, modifiedLayoutFiles);
                 
                 if (conflicts.size() != 0) {
                     String filesList = "";
@@ -320,7 +325,7 @@ public class UpdateFilesFrame extends EscapeDialog
                     }
                     
                     stopProgress();
-                    DialogManager.showMessageWithText(UpdateFilesFrame.this, "team-update-first", filesList);
+                    DialogManager.showMessageWithText(UpdateFilesFrame.this, "team-unresolved-conflicts", filesList);
                     UpdateFilesFrame.this.setVisible(false);
                     return;
                 }
@@ -334,8 +339,6 @@ public class UpdateFilesFrame extends EscapeDialog
                 updateListModel.addElement(noFilesToCommit);
             }
             else {
-                //this should be conditional upon a need to commit
-                // this should be re-enabled when we fully handle diagram layout change detection
                 updateAction.setEnabled(true);
             }
             
@@ -353,32 +356,19 @@ public class UpdateFilesFrame extends EscapeDialog
          * @param filesToRemove  The set to store the files to be removed in
          * @param conflicts      The set to store unresolved conflicts in
          */
-        private void getCommitFileSets(List info, Set filesToCommit, Set filesToAdd,
-                Set filesToRemove, Set conflicts, Set modifiedLayoutFiles)
+        private void getUpdateFileSet(List info, Set filesToUpdate, Set conflicts, Set modifiedLayoutFiles)
         {
-            //boolean includeLayout = project.getTeamSettingsController().includeLayout();
-            
-            StatusFilter filter = new StatusFilter(project.getTeamSettingsController());
+            UpdateFilter filter = new UpdateFilter();
 
             for (Iterator it = info.iterator(); it.hasNext();) {
                 TeamStatusInfo statusInfo = (TeamStatusInfo) it.next();
                 int status = statusInfo.getStatus();
                 if(filter.accept(statusInfo)) {
-                    if (!statusInfo.getFile().getName().equals("bluej.pkg") 
-                            || status == TeamStatusInfo.STATUS_NEEDSADD 
-                            || status == TeamStatusInfo.STATUS_DELETED ) {
-                        
+                    if (!statusInfo.getFile().getName().equals("bluej.pkg")) { 
                         updateListModel.addElement(statusInfo);
-                        filesToCommit.add(statusInfo.getFile());
+                        filesToUpdate.add(statusInfo.getFile());
                     }
-                    
-                    if (status == TeamStatusInfo.STATUS_NEEDSADD) {
-                        filesToAdd.add(statusInfo.getFile());
-                    }
-                    else if (status == TeamStatusInfo.STATUS_DELETED) {
-                        filesToRemove.add(statusInfo.getFile());
-                    }
-                    else if(statusInfo.getFile().getName().equals("bluej.pkg")){
+                    else {
                         // add file to list of files that may be added to commit
                         modifiedLayoutFiles.add(statusInfo.getFile());
                         // keep track of StatusInfo objects representing changed diagrams
@@ -388,16 +378,19 @@ public class UpdateFilesFrame extends EscapeDialog
                     }
                 }
                 else {
-                    if (status == TeamStatusInfo.STATUS_HASCONFLICTS
-                                || status == TeamStatusInfo.STATUS_NEEDSMERGE
-                                || status == TeamStatusInfo.STATUS_UNRESOLVED) {
-                        if(!statusInfo.getFile().getName().equals("bluej.pkg") || includeLayout())
+                    if (status == TeamStatusInfo.STATUS_UNRESOLVED) {
+                        if(!statusInfo.getFile().getName().equals("bluej.pkg")) {
                             conflicts.add(statusInfo.getFile());
+                        }
+                        else {
+                            // bluej.pkg will be force-updated
+                            modifiedLayoutFiles.add(statusInfo.getFile());
+                            changedLayoutFiles.add(statusInfo);
+                            setLayoutChanged(true);
+                        }
                     }
                 }
             }
         }
-        
     }
-   
 }

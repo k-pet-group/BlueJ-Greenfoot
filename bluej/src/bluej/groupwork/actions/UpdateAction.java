@@ -1,11 +1,13 @@
 package bluej.groupwork.actions;
 
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+import javax.swing.AbstractAction;
 import javax.swing.SwingUtilities;
 
 import bluej.Config;
@@ -28,20 +30,21 @@ import bluej.utility.SwingWorker;
  * Action to update out-of-date files.
  * 
  * @author fisker
- * @version $Id: UpdateAction.java 5048 2007-05-22 06:03:32Z davmac $
+ * @version $Id: UpdateAction.java 5052 2007-05-24 05:28:07Z davmac $
  */
-public class UpdateAction extends TeamAction
+public class UpdateAction extends AbstractAction
 {
     private Project project;
     private boolean includeLayout;
     private UpdateFilesFrame updateFrame;
+    private UpdateWorker worker;
     
     /** A list of packages whose bluej.pkg file has been removed */
     private List removedPackages;
     
     public UpdateAction(UpdateFilesFrame updateFrame)
     {
-        super("team.update");
+        super(Config.getString("team.update"));
         putValue(SHORT_DESCRIPTION, Config.getString("tooltip.update"));
         this.updateFrame = updateFrame;
     }
@@ -49,20 +52,32 @@ public class UpdateAction extends TeamAction
     /* (non-Javadoc)
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
-    public void actionPerformed(PkgMgrFrame pmf)
+    public void actionPerformed(ActionEvent event)
     {
-        project = pmf.getProject();
+        project = updateFrame.getProject();
         includeLayout = project.getTeamSettingsController().includeLayout();
         
         if (project != null) {
             project.saveAllEditors();
             // doUpdate(project);
             updateFrame.startProgress();
-            setStatus(Config.getString("team.update.statusMessage"));
-            new UpdateWorker(project).start();
+            PkgMgrFrame.displayMessage(project, Config.getString("team.update.statusMessage"));
+            
+            worker = new UpdateWorker(project);
+            worker.start();
         }
     }
 
+    /**
+     * Cancel the update, if it is presently running.
+     */
+    public void cancel()
+    {
+        if (worker != null) {
+            worker.abort();
+        }
+    }
+    
     private class UpdateWorker extends SwingWorker implements UpdateListener
     {
         private Repository repository;
@@ -366,17 +381,30 @@ public class UpdateAction extends TeamAction
             }
         }
         
+        public void abort()
+        {
+            command.cancel();
+            updateFrame = null;
+        }
+        
         public void finished()
         {
             handleRemovedPkgs();
-            updateFrame.stopProgress();
+            if (updateFrame != null) {
+                updateFrame.stopProgress();
+            }
 
             if (! result.isError()) {
-                setStatus(Config.getString("team.update.statusDone"));
+                PkgMgrFrame.displayMessage(project, Config.getString("team.update.statusDone"));
             }
             else {
-                clearStatus();
-                handleServerResponse(result);
+                PkgMgrFrame.displayMessage(project, "");
+                TeamUtils.handleServerResponse(result, updateFrame);
+            }
+            
+            if (updateFrame != null) {
+                updateFrame.setVisible(false);
+                updateFrame.dispose();
             }
         }
         

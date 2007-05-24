@@ -25,7 +25,7 @@ public class TeamUtils
             if (result.wasAuthFailure()) {
                 DialogManager.showError(window, "team-authentication-problem");
             }
-            else if (result.isError()) {
+            else if (result.isError() && ! result.wasAborted()) {
                 String message = result.getErrorMessage();
                 String translatedMessage = CvsServerMessageTranslator.translate(message);
                 if (translatedMessage != null) {

@@ -435,6 +435,10 @@ team-update-first
 There are conflicts with the following files. You cannot perform a
 commit operation until these conflicts are resolved:
 
+team-unresolved-conflicts
+There are unresolved conflicts with the following files. You will
+have to delete the files locally to resolve the conflict:
+
 team-uptodate-failed
 Your local copy is out of date. Update from repository
 before committing your local changes.
