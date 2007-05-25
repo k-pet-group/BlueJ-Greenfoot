@@ -123,7 +123,7 @@ public class CommitCommentsFrame extends EscapeDialog
             topPanel.add(commitFilesLabel, BorderLayout.NORTH);
 
             commitFiles = new JList(commitListModel);
-            commitFiles.setCellRenderer(new CommitFileRenderer(project));
+            commitFiles.setCellRenderer(new FileRenderer(project));
             commitFiles.setEnabled(false);
             commitFileScrollPane.setViewportView(commitFiles);
             

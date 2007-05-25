@@ -30,7 +30,7 @@ import bluej.utility.SwingWorker;
  * A Swing based user interface for showing files to be updated
  * @author Bruce Quig
  * @author Davin McCall
- * @version $Id: UpdateFilesFrame.java 5052 2007-05-24 05:28:07Z davmac $
+ * @version $Id: UpdateFilesFrame.java 5058 2007-05-25 04:40:45Z davmac $
  */
 public class UpdateFilesFrame extends EscapeDialog
 {
@@ -49,7 +49,7 @@ public class UpdateFilesFrame extends EscapeDialog
     
     private Set changedLayoutFiles;
     
-    private static String noFilesToCommit = Config.getString("team.noupdatefiles"); 
+    private static String noFilesToUpdate = Config.getString("team.noupdatefiles"); 
 
     public UpdateFilesFrame(Project proj)
     {
@@ -106,22 +106,23 @@ public class UpdateFilesFrame extends EscapeDialog
 
         topPanel = new JPanel();
 
-        JScrollPane commitFileScrollPane = new JScrollPane();
+        JScrollPane updateFileScrollPane = new JScrollPane();
 
         {
             topPanel.setLayout(new BorderLayout());
 
-            JLabel commitFilesLabel = new JLabel(Config.getString(
+            JLabel updateFilesLabel = new JLabel(Config.getString(
                         "team.update.files"));
-            commitFilesLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
-            topPanel.add(commitFilesLabel, BorderLayout.NORTH);
+            updateFilesLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+            topPanel.add(updateFilesLabel, BorderLayout.NORTH);
 
             updateFiles = new JList(updateListModel);
-            updateFiles.setCellRenderer(new CommitFileRenderer(project));
+            // DAV need an UpdateFileRenderer for next line
+            updateFiles.setCellRenderer(new FileRenderer(project));
             updateFiles.setEnabled(false);
-            commitFileScrollPane.setViewportView(updateFiles);
+            updateFileScrollPane.setViewportView(updateFiles);
             
-            topPanel.add(commitFileScrollPane, BorderLayout.CENTER);
+            topPanel.add(updateFileScrollPane, BorderLayout.CENTER);
         }
 
         bottomPanel = new JPanel();
@@ -170,8 +171,9 @@ public class UpdateFilesFrame extends EscapeDialog
                     // unselected
                     else {
                         removeModifiedLayouts();
-                        if(isCommitListEmpty())
+                        if(isUpdateListEmpty()) {
                             updateAction.setEnabled(false);
+                        }
                     }
                 }
             });
@@ -206,19 +208,19 @@ public class UpdateFilesFrame extends EscapeDialog
             updateListModel.removeElement(it.next());
         }
         if(updateListModel.isEmpty()) {
-            updateListModel.addElement(noFilesToCommit);
+            updateListModel.addElement(noFilesToUpdate);
         }
     }
     
-    private boolean isCommitListEmpty()
+    private boolean isUpdateListEmpty()
     {
-        return updateListModel.isEmpty() || updateListModel.contains(noFilesToCommit);
+        return updateListModel.isEmpty() || updateListModel.contains(noFilesToUpdate);
     }
     
     private void addModifiedLayouts()
     {
-        if(updateListModel.contains(noFilesToCommit)) {
-            updateListModel.removeElement(noFilesToCommit);
+        if(updateListModel.contains(noFilesToUpdate)) {
+            updateListModel.removeElement(noFilesToUpdate);
         }
         // add diagram layout files to list of files to be committed
         for(Iterator it = changedLayoutFiles.iterator(); it.hasNext(); ) {
@@ -227,7 +229,7 @@ public class UpdateFilesFrame extends EscapeDialog
     }
     
     /**
-     *
+     * Get a set (of File) containing the layout files which need to be updated.
      */
     public Set getChangedLayoutFiles()
     {
@@ -330,13 +332,17 @@ public class UpdateFilesFrame extends EscapeDialog
                     return;
                 }
                 
+                // DAV set the files for the update action, and modify the update
+                // action to use the provided list.
+                // Update of layouts should be forced.
+                
                 //commitAction.setFiles(filesToCommit);
                 //commitAction.setNewFiles(filesToAdd);
                 //commitAction.setDeletedFiles(filesToDelete);
             }
              
             if(updateListModel.isEmpty()) {
-                updateListModel.addElement(noFilesToCommit);
+                updateListModel.addElement(noFilesToUpdate);
             }
             else {
                 updateAction.setEnabled(true);

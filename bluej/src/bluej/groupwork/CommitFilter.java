@@ -1,12 +1,12 @@
 package bluej.groupwork;
 
 /**
- * Class to filter CVS StatusInformation to calculate thos classes that will 
+ * Class to filter CVS StatusInformation to calculate those classes that will 
  * be changed when we next commit. It should include files that are locally 
  * modified, remotely modified, locally deleted and remotely removed.
  *
  * @author bquig
- * @version $Id: CommitFilter.java 5052 2007-05-24 05:28:07Z davmac $
+ * @version $Id: CommitFilter.java 5058 2007-05-25 04:40:45Z davmac $
  */
 public class CommitFilter
 {

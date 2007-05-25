@@ -10,17 +10,18 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 
 /**
- * Class to display files to be committed in a list for the CommitCommentsDialog
+ * Class to display files to be committed in a list for the CommitCommentsFrame
+ * or UpdateFilesFrame
  * 
  * @author Bruce Quig
  * @author Davin McCall
- * @version $Id: CommitFileRenderer.java 5051 2007-05-24 03:35:15Z davmac $
+ * @version $Id: FileRenderer.java 5058 2007-05-25 04:40:45Z davmac $
  */
-public class CommitFileRenderer extends DefaultListCellRenderer
+public class FileRenderer extends DefaultListCellRenderer
 {
     private Project project;
     
-    public CommitFileRenderer(Project proj)
+    public FileRenderer(Project proj)
     {
         project = proj;
     }
@@ -34,6 +35,19 @@ public class CommitFileRenderer extends DefaultListCellRenderer
             if(info.getStatus() == TeamStatusInfo.STATUS_DELETED) {
                 status += " (" + Config.getString("team.status.delete") + ")";
             }
+            else if (info.getStatus() == TeamStatusInfo.STATUS_NEEDSADD) {
+                status += " (" + Config.getString("team.status.add") + ")";
+            }
+            else if (info.getStatus() == TeamStatusInfo.STATUS_NEEDSCHECKOUT) {
+                status += " (" + Config.getString("team.status.new") + ")";
+            }
+            else if (info.getStatus() == TeamStatusInfo.STATUS_REMOVED) {
+                status += " (" + Config.getString("team.status.removed") + ")";
+            }
+            else if (info.getStatus() == TeamStatusInfo.STATUS_NEEDSMERGE) {
+                status += " (" + Config.getString("team.status.needsmerge") + ")";
+            }
+            
             // bluej.pkg file description
             else if(info.getFile().getName().equals(Package.pkgfileName)) {
                 status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());

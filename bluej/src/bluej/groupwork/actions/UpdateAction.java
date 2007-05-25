@@ -30,7 +30,7 @@ import bluej.utility.SwingWorker;
  * Action to update out-of-date files.
  * 
  * @author fisker
- * @version $Id: UpdateAction.java 5052 2007-05-24 05:28:07Z davmac $
+ * @version $Id: UpdateAction.java 5058 2007-05-25 04:40:45Z davmac $
  */
 public class UpdateAction extends AbstractAction
 {
@@ -76,6 +76,7 @@ public class UpdateAction extends AbstractAction
         if (worker != null) {
             worker.abort();
         }
+        setEnabled(true);
     }
     
     private class UpdateWorker extends SwingWorker implements UpdateListener
@@ -406,6 +407,8 @@ public class UpdateAction extends AbstractAction
                 updateFrame.setVisible(false);
                 updateFrame.dispose();
             }
+            
+            setEnabled(true);
         }
         
         /**
