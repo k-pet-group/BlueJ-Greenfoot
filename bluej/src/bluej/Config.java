@@ -5,7 +5,6 @@ import java.awt.event.KeyEvent;
 import java.io.*;
 import java.util.List;
 import java.util.*;
-import java.util.StringTokenizer;
 
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
@@ -37,7 +36,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 5017 2007-04-25 22:10:22Z mik $
+ * @version $Id: Config.java 5060 2007-05-25 14:06:49Z polle $
  */
 
 public final class Config
@@ -810,8 +809,8 @@ public final class Config
      */
     public static boolean getPropBoolean(String propname)
     {
-        return Boolean.parseBoolean(getPropString(propname, null));
-    }
+        return parseBoolean(getPropString(propname, null));
+    }    
     
     /**
      * Get a boolean value from the BlueJ properties, with the specified default.
@@ -823,8 +822,22 @@ public final class Config
             return def;
         }
         else {
-            return Boolean.parseBoolean(propval);
+            return parseBoolean(propval);
         }
+    }
+    
+    /**
+     * Parses the string argument as a boolean.  The <code>boolean</code> 
+     * returned represents the value <code>true</code> if the string argument 
+     * is not <code>null</code> and is equal, ignoring case, to the string 
+     * <code>"true"</code>.
+     *
+     * @param      s   the <code>String</code> containing the boolean
+     *                 representation to be parsed
+     * @return     the boolean represented by the string argument
+     */
+    private static boolean parseBoolean(String s) {
+        return ((s != null) && s.equalsIgnoreCase("true"));
     }
     
     /**
