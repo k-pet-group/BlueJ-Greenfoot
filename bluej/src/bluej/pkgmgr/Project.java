@@ -55,7 +55,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 5052 2007-05-24 05:28:07Z davmac $
+ * @version $Id: Project.java 5055 2007-05-25 02:41:10Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -156,7 +156,7 @@ public class Project implements DebuggerListener, InspectorManager
         debugger.launch();
 
         docuGenerator = new DocuGenerator(this);
-        
+
         // Check whether this is a shared project
         String cfgFilePath = projectDir.getAbsolutePath() + "/team.defs";
         File cfgFile = new File(cfgFilePath);
@@ -1584,63 +1584,63 @@ public class Project implements DebuggerListener, InspectorManager
     }
     
     /**
-	 * Determine if project is a team project. 
-	 * The method will look for the existence of the team configuration file
-	 * team.defs
-	 * @return true if the project is a team project
-	 */
-	public boolean isTeamProject()
+     * Determine if project is a team project. 
+     * The method will look for the existence of the team configuration file
+     * team.defs
+     * @return true if the project is a team project
+     */
+    public boolean isTeamProject()
     {
-		return isSharedProject;
-	}
-	
-	/**
-	 * Get an array of Files that resides in the project folders.
-	 * @param project the project
-	 * @return List of Files 
-	 */
-	public Set getFilesInProject(boolean includePkgFiles)
+        return isSharedProject;
+    }
+
+    /**
+     * Get an array of Files that resides in the project folders.
+     * @param project the project
+     * @return List of Files 
+     */
+    public Set getFilesInProject(boolean includePkgFiles)
     {
-		Set files = new HashSet();
-		traverseDirsForFiles(files, projectDir, includePkgFiles);
-		return files;
-	}
-	
+        Set files = new HashSet();
+        traverseDirsForFiles(files, projectDir, includePkgFiles);
+        return files;
+    }
+
     /**
      * Get the teams settings controller for this project. Returns null
      * if this is not a shared project.
      */
-	public TeamSettingsController getTeamSettingsController()
+    public TeamSettingsController getTeamSettingsController()
     {
         if(teamSettingsController == null && isSharedProject) {
             teamSettingsController = new TeamSettingsController(this);
         }
-		return teamSettingsController;
-	}
-	
-	/**
-	 * Traverse the directory tree starting in dir an add all the encountered 
-	 * files to the List allFiles. The parameter includePkgFiles determine 
-	 * whether bluej.pkg files should be added to allFiles as well.
-	 * @param allFiles a List to which the method will add the files it meets.
-	 * @param dir the directory the search starts from
-	 * @param includePkgFiles if true, bluej.pkg files are included as well.
-	 */
-	private void traverseDirsForFiles(Set allFiles, File dir, boolean includePkgFiles)
+        return teamSettingsController;
+    }
+
+    /**
+     * Traverse the directory tree starting in dir an add all the encountered 
+     * files to the List allFiles. The parameter includePkgFiles determine 
+     * whether bluej.pkg files should be added to allFiles as well.
+     * @param allFiles a List to which the method will add the files it meets.
+     * @param dir the directory the search starts from
+     * @param includePkgFiles if true, bluej.pkg files are included as well.
+     */
+    private void traverseDirsForFiles(Set allFiles, File dir, boolean includePkgFiles)
     {
-		File[] files = dir.listFiles(new CodeFileFilter(getTeamSettingsController().getIgnoreFiles(),includePkgFiles));
-		if (files==null){
-			return;
-		}
-		for(int i=0; i< files.length; i++ ){
-			if (files[i].isFile()){
-				allFiles.add(files[i]);
-			}else{
-				traverseDirsForFiles(allFiles, files[i], includePkgFiles);
-			}
-		}
-	}
-	
+        File[] files = dir.listFiles(new CodeFileFilter(getTeamSettingsController().getIgnoreFiles(),includePkgFiles));
+        if (files==null){
+            return;
+        }
+        for(int i=0; i< files.length; i++ ){
+            if (files[i].isFile()){
+                allFiles.add(files[i]);
+            }else{
+                traverseDirsForFiles(allFiles, files[i], includePkgFiles);
+            }
+        }
+    }
+
     /**
      * Get the team settings dialog for this project. Only call this if the
      * project is a shared project.
