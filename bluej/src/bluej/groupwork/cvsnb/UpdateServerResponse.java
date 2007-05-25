@@ -56,13 +56,6 @@ public class UpdateServerResponse extends BasicServerResponse implements UpdateR
      */
     private Map conflictsMap;
     
-    /**
-     * Conflicts from a merge are not binary conflicts (binary files can't
-     * be merged). We need to keep track of these so we can remove them from
-     * the set of conflicts at the end.
-     */
-    private Set nonBinaryConflicts = new HashSet();
-    
     private BlueJCvsClient client;
     
     /**
@@ -138,7 +131,7 @@ public class UpdateServerResponse extends BasicServerResponse implements UpdateR
         }
         
         if (e.isError()) {
-        	// System.out.println("CVS err: " + line);
+            // System.out.println("CVS err: " + line);
             int offset = 27;
             if (line.startsWith("cvs update: New directory")
                     || line.startsWith("cvs server: New directory")
