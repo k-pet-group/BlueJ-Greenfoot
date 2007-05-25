@@ -163,6 +163,7 @@ public class CommitCommentsFrame extends EscapeDialog
             closeButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e)
                     {
+                        commitAction.cancel();
                         setVisible(false);
                     }
                 });
@@ -174,8 +175,7 @@ public class CommitCommentsFrame extends EscapeDialog
             progressBar.setRunning(false);
             
             DBox checkBoxPanel = new DBox(DBoxLayout.Y_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
-            // TODO add label
-            includeLayout = new JCheckBox("Commit Diagram Layout");
+            includeLayout = new JCheckBox(Config.getString("team.commit.includelayout"));
             includeLayout.setEnabled(false);
             includeLayout.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
@@ -256,7 +256,7 @@ public class CommitCommentsFrame extends EscapeDialog
     }
     
     /**
-     *
+     * Get a list of the layout files to be committed
      */
     public Set getChangedLayoutFiles()
     {
