@@ -35,7 +35,7 @@ import bluej.utility.Debug;
  * This class handles communication with the repository.
  *
  * @author fisker
- * @version $Id: CvsRepository.java 4926 2007-04-13 02:28:18Z davmac $
+ * @version $Id: CvsRepository.java 5059 2007-05-25 05:47:11Z davmac $
  */
 public class CvsRepository implements Repository
 {
@@ -93,7 +93,7 @@ public class CvsRepository implements Repository
      *
      * @param fileList
      */
-    private static File[] listToFileArray(Collection fileList)
+    static File[] listToFileArray(Collection fileList)
     {
         File[] files = new File[fileList.size()];
         int j = 0;
@@ -490,18 +490,15 @@ public class CvsRepository implements Repository
     }
 
     /* (non-Javadoc)
-     * @see bluej.groupwork.Repository#updateAll(bluej.groupwork.UpdateListener)
+     * @see bluej.groupwork.Repository#updateFiles(bluej.groupwork.UpdateListener, java.util.Set, java.util.Set)
      */
-    public TeamworkCommand updateAll(UpdateListener listener)
+    public TeamworkCommand updateFiles(UpdateListener listener, Set theFiles, Set forceFiles)
     {
-        return new CvsUpdateCommand(this, listener);
+        return new CvsUpdateCommand(this, listener, theFiles, forceFiles);
     }
     
     /**
-     * Get all changes from repository except the pkg files that determine the
-     * layout of the graph.
-     *
-     * @param includeGraphLayout should the update include the pkg files.
+     * Get all changes from repository
      *
      * @return UpdateServerResponse if an update was performed
      *
@@ -510,7 +507,7 @@ public class CvsRepository implements Repository
      * @throws AuthenticationException
      * @throws InvalidCvsRootException
      */
-    public synchronized UpdateServerResponse doUpdateAll(BlueJCvsClient client,
+    synchronized UpdateServerResponse doUpdateAll(BlueJCvsClient client,
             UpdateListener listener)
         throws CommandAbortedException, CommandException, 
             AuthenticationException
@@ -520,6 +517,55 @@ public class CvsRepository implements Repository
         UpdateCommand command = new UpdateCommand();
         command.setCleanCopy(false);
         command.setRecursive(true);
+        command.setBuildDirectories(true);
+        command.setPruneDirectories(true);
+
+        UpdateServerResponse updateServerResponse = new UpdateServerResponse(listener,
+                client);
+        client.getEventManager().addCVSListener(updateServerResponse);
+        client.setLocalPath(projectPath.getAbsolutePath());
+        printCommand(command, client);
+
+        try {
+            client.executeCommand(command, globalOptions);
+            updateServerResponse.waitForExecutionToFinish();
+        }
+        finally {
+            // restore previous excludes setting
+            client.getEventManager().removeCVSListener(updateServerResponse);
+            disconnect(client);
+        }
+
+        updateServerResponse.setConflictMap(client.getConflictFiles());
+        return updateServerResponse;
+    }
+    
+   /**
+    * Update the listed files from the repository
+    *
+    * @param client  The client to use to perform the update with
+    * @param listener  The listener to receive notifications of updated files
+    * @param theFiles  The set of files to update
+    * @param force  Whether to do a forced "clean copy" update (override
+    *           local changes)
+    *
+    * @return UpdateServerResponse with information about the update
+    *
+    * @throws CommandAbortedException
+    * @throws CommandException
+    * @throws AuthenticationException
+    * @throws InvalidCvsRootException
+    */
+    synchronized UpdateServerResponse doUpdateFiles(BlueJCvsClient client,
+            UpdateListener listener, Set theFiles, boolean force)
+        throws CommandAbortedException, CommandException, 
+            AuthenticationException
+    {
+        UpdateCommand command = new UpdateCommand();
+        command.setFiles(listToFileArray(theFiles));
+        
+        command.setCleanCopy(force);
+        command.setRecursive(false);
         command.setBuildDirectories(true);
         command.setPruneDirectories(true);
 

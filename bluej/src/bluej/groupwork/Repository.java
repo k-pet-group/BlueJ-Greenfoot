@@ -40,13 +40,15 @@ public interface Repository
             Set deletedFiles, Set files, String commitComment);
     
     /**
-     * Get all changes from repository except the pkg files that determine the
-     * layout of the graph.
-     *
-     * @param listener  a listener to be notified of files being added/updated/removed
-     *                  during the update, and to be notified of conflicts.
+     * Update local files with changes from the repository
+     * 
+     * @param listener  A listener to be notified of files being added/updated/removed
+     *                  during the update, and of conflicts.
+     * @param theFiles     The files to be updated (excluding forceFiles)
+     * @param forceFiles   Files to be updated "forcefully", i.e. get a clean copy of the
+     *                     file from the repository rather than attempting a merge
      */
-    public TeamworkCommand updateAll(UpdateListener listener);
+    public TeamworkCommand updateFiles(UpdateListener listener, Set theFiles, Set forceFiles);
     
     /**
      * Put the project in the repository

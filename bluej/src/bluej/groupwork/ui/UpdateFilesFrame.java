@@ -6,11 +6,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.swing.*;
 
@@ -30,7 +26,7 @@ import bluej.utility.SwingWorker;
  * A Swing based user interface for showing files to be updated
  * @author Bruce Quig
  * @author Davin McCall
- * @version $Id: UpdateFilesFrame.java 5058 2007-05-25 04:40:45Z davmac $
+ * @version $Id: UpdateFilesFrame.java 5059 2007-05-25 05:47:11Z davmac $
  */
 public class UpdateFilesFrame extends EscapeDialog
 {
@@ -117,7 +113,6 @@ public class UpdateFilesFrame extends EscapeDialog
             topPanel.add(updateFilesLabel, BorderLayout.NORTH);
 
             updateFiles = new JList(updateListModel);
-            // DAV need an UpdateFileRenderer for next line
             updateFiles.setCellRenderer(new FileRenderer(project));
             updateFiles.setEnabled(false);
             updateFileScrollPane.setViewportView(updateFiles);
@@ -165,12 +160,15 @@ public class UpdateFilesFrame extends EscapeDialog
                     JCheckBox layoutCheck = (JCheckBox)e.getSource();
                     if(layoutCheck.isSelected()) {
                         addModifiedLayouts();
-                        if(!updateButton.isEnabled())
+                        updateAction.setFilesToForceUpdate(getChangedLayoutFiles());
+                        if(!updateButton.isEnabled()) {
                             updateAction.setEnabled(true);
+                        }
                     }
                     // unselected
                     else {
                         removeModifiedLayouts();
+                        updateAction.setFilesToForceUpdate(Collections.EMPTY_SET);
                         if(isUpdateListEmpty()) {
                             updateAction.setEnabled(false);
                         }
@@ -332,13 +330,8 @@ public class UpdateFilesFrame extends EscapeDialog
                     return;
                 }
                 
-                // DAV set the files for the update action, and modify the update
-                // action to use the provided list.
-                // Update of layouts should be forced.
-                
-                //commitAction.setFiles(filesToCommit);
-                //commitAction.setNewFiles(filesToAdd);
-                //commitAction.setDeletedFiles(filesToDelete);
+                updateAction.setFilesToUpdate(filesToUpdate);
+                updateAction.setFilesToForceUpdate(Collections.EMPTY_SET);
             }
              
             if(updateListModel.isEmpty()) {

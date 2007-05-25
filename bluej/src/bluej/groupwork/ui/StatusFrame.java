@@ -25,7 +25,7 @@ import bluej.utility.SwingWorker;
  * Main frame for CVS Status Dialog
  *
  * @author bquig
- * @version $Id: StatusFrame.java 4916 2007-04-12 03:57:23Z davmac $
+ * @version $Id: StatusFrame.java 5059 2007-05-25 05:47:11Z davmac $
  */
 public class StatusFrame extends EscapeDialog
 {
@@ -131,7 +131,7 @@ public class StatusFrame extends EscapeDialog
     private int estimateInitialEntries()
     {
         // Use number of targets + README.TXT
-        int initialEntries = project.getFilesInProject(project.getTeamSettingsController().includeLayout()).size() + 1;
+        int initialEntries = project.getFilesInProject(true).size() + 1;
         // may need to include diagram layout
         //if(project.includeLayout())
         //    initialEntries++;
@@ -153,8 +153,8 @@ public class StatusFrame extends EscapeDialog
             String fileName = file.getName();
             //File dir = file.getParentFile();
                 
-            if(!project.getTeamSettingsController().includeLayout() && fileName.equals("bluej.pkg"))
-                it.remove();        
+            //if(!project.getTeamSettingsController().includeLayout() && fileName.equals("bluej.pkg"))
+            //    it.remove();        
         }
     }
 
@@ -193,7 +193,7 @@ public class StatusFrame extends EscapeDialog
         {
             super();
             resources = new ArrayList();
-            Set files = project.getTeamSettingsController().getProjectFiles(project.getTeamSettingsController().includeLayout());
+            Set files = project.getTeamSettingsController().getProjectFiles(true);
             command = repository.getStatus(this, files, true);
         }
 

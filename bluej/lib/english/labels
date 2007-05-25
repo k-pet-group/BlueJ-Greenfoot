@@ -579,8 +579,12 @@ team.commit.title=Commit Files to Repository
 team.commit.files=Files to be committed
 team.commit.comment=Commit comment
 team.commit.layout=(Diagram Layout)
+team.commit.includelayout=Commit diagram layout
 team.commit.statusMessage=Committing project into repository...
 team.commit.statusDone=Committing project into repository... Done.
+team.update=Update@M
+team.update.statusMessage=Updating project...
+team.update.statusDone=Updating project... Done.
 team.update.title=Update Files from Repository
 team.update.includelayout=Update diagram layout
 team.update.files=Files to be updated
@@ -594,15 +598,19 @@ team.import=Share this Project
 team.import.statusMessage=Sharing this Project
 team.includeLayout=Include Diagram Layout
 team.settings=Teamwork Settings
-team.update=Update@M
-team.update.statusMessage=Updating project...
-team.update.statusDone=Updating project... Done.
 team.status=Status
 team.status.status=Teamwork status
 team.status.resource=Team resources
 team.status.version=Revision
 team.status.refresh=Refresh
+
+# The following appear in brackets after a filename, in the
+# update/commit dialogs.
 team.status.delete=delete from repository
+team.status.add=add to repository
+team.status.new=new file
+team.status.removed=delete
+team.status.needsmerge=merge updates
 
 team.nocommitfiles=No files to commit
 team.noupdatefiles=No files to update

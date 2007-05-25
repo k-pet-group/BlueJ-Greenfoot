@@ -30,14 +30,17 @@ import bluej.utility.SwingWorker;
  * Action to update out-of-date files.
  * 
  * @author fisker
- * @version $Id: UpdateAction.java 5058 2007-05-25 04:40:45Z davmac $
+ * @version $Id: UpdateAction.java 5059 2007-05-25 05:47:11Z davmac $
  */
 public class UpdateAction extends AbstractAction
 {
     private Project project;
-    private boolean includeLayout;
+    private boolean includeLayout = true;
     private UpdateFilesFrame updateFrame;
     private UpdateWorker worker;
+    
+    private Set filesToUpdate;
+    private Set filesToForceUpdate;
     
     /** A list of packages whose bluej.pkg file has been removed */
     private List removedPackages;
@@ -49,13 +52,30 @@ public class UpdateAction extends AbstractAction
         this.updateFrame = updateFrame;
     }
 
+    /**
+     * Set the files to be updated (changes merged if necessary)
+     * @files a Set of File
+     */
+    public void setFilesToUpdate(Set files)
+    {
+        filesToUpdate = files;
+    }
+    
+    /**
+     * Set the files to be updated with a clean copy of the repository
+     * @files a Set of File
+     */
+    public void setFilesToForceUpdate(Set files)
+    {
+        filesToForceUpdate = files;
+    }
+    
     /* (non-Javadoc)
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent event)
     {
         project = updateFrame.getProject();
-        includeLayout = project.getTeamSettingsController().includeLayout();
         
         if (project != null) {
             project.saveAllEditors();
@@ -63,7 +83,7 @@ public class UpdateAction extends AbstractAction
             updateFrame.startProgress();
             PkgMgrFrame.displayMessage(project, Config.getString("team.update.statusMessage"));
             
-            worker = new UpdateWorker(project);
+            worker = new UpdateWorker(project, filesToUpdate, filesToForceUpdate);
             worker.start();
         }
     }
@@ -85,11 +105,11 @@ public class UpdateAction extends AbstractAction
         private TeamworkCommand command;
         private TeamworkCommandResult result;
         
-        public UpdateWorker(Project project)
+        public UpdateWorker(Project project, Set filesToUpdate, Set filesToForceUpdate)
         {
             repository = project.getRepository();
             if (repository != null) {
-                command = repository.updateAll(this);
+                command = repository.updateFiles(this, filesToUpdate, filesToForceUpdate);
             }
         }
         
