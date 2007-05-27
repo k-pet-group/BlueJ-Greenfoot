@@ -17,7 +17,7 @@ import bluej.utility.filefilter.DirectoryFilter;
  * the top-level folder of a team project, and the bluej.properties
  *
  * @author fisker
- * @version $Id: TeamSettingsController.java 5059 2007-05-25 05:47:11Z davmac $
+ * @version $Id: TeamSettingsController.java 5063 2007-05-27 15:00:52Z bquig $
  */
 public class TeamSettingsController
 {
@@ -332,6 +332,7 @@ public class TeamSettingsController
         teamProperties.put("bluej.teamsettings.cvs.ignore5", ".*\\~");
         teamProperties.put("bluej.teamsettings.cvs.ignore6", ".*\\#");
         teamProperties.put("bluej.teamsettings.cvs.ignore7", ".*\\#backup");
+        teamProperties.put("bluej.teamsettings.cvs.ignore7", "\\.DS_Store");
     }
 
     /**
