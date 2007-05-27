@@ -58,7 +58,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 5050 2007-05-22 09:25:25Z bquig $
+ * @version $Id: PkgMgrFrame.java 5062 2007-05-27 14:56:31Z bquig $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -112,6 +112,9 @@ public class PkgMgrFrame extends JFrame
     private JMenuItem shareProjectMenuItem;
     private JMenuItem teamSettingsMenuItem;
     private JMenuItem showLogMenuItem;
+    private JMenuItem updateMenuItem;
+    private JMenuItem commitMenuItem;
+    private JMenuItem statusMenuItem;
     private AbstractButton updateButton;
     private AbstractButton commitButton;
     private AbstractButton teamStatusButton;
@@ -630,6 +633,12 @@ public class PkgMgrFrame extends JFrame
         teamSettingsMenuItem.setAction(teamActions.getTeamSettingsAction());
         commitButton.setAction(teamActions.getCommitCommentAction());
         shareProjectMenuItem.setAction(teamActions.getImportAction());
+        statusMenuItem.setAction(teamActions.getStatusAction());
+        commitMenuItem.setAction(teamActions.getCommitCommentAction());
+        updateMenuItem.setAction(teamActions.getUpdateAction());
+        
+        
+        
         showLogMenuItem.setAction(teamActions.getShowLogAction());
     }
 
@@ -2467,7 +2476,6 @@ public class PkgMgrFrame extends JFrame
                 teamPanel.setLayout(new BoxLayout(teamPanel, BoxLayout.Y_AXIS));
 
                 teamPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 14, 5));
-                
                 updateButton = createButton(teamActions.getUpdateAction(), false, false, 2, 4);                
                 updateButton.setAlignmentX(0.15f);
                 teamPanel.add(updateButton);
@@ -2729,9 +2737,9 @@ public class PkgMgrFrame extends JFrame
                 
                 teamMenu.addSeparator();
                 
-                createMenuItem(teamActions.getUpdateAction(), teamMenu);
-                createMenuItem(teamActions.getCommitCommentAction(), teamMenu);
-                createMenuItem(teamActions.getStatusAction(), teamMenu);
+                updateMenuItem = createMenuItem(teamActions.getUpdateAction(), teamMenu);
+                commitMenuItem = createMenuItem(teamActions.getCommitCommentAction(), teamMenu);
+                statusMenuItem = createMenuItem(teamActions.getStatusAction(), teamMenu);
                 showLogMenuItem = createMenuItem(teamActions.getShowLogAction(), teamMenu);
                 
                 teamMenu.addSeparator();
