@@ -7,7 +7,7 @@ import java.io.File;
  * Team status information for a file
  * 
  * @author Davin McCall
- * @version $Id: TeamStatusInfo.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: TeamStatusInfo.java 5068 2007-05-28 04:17:10Z bquig $
  */
 public class TeamStatusInfo
 {
@@ -100,12 +100,6 @@ public class TeamStatusInfo
         return remoteVersion;
     }
     
-    public String getStatusString()
-    {
-        if(status == STATUS_BLANK)
-            return "";
-        return Config.getString(statusStrings[status]);
-    }
     
     public int getStatus()
     {
@@ -116,4 +110,12 @@ public class TeamStatusInfo
     {
         return getFile().getName();
     }
+    
+    public static String getStatusString(int status)
+    {
+        if(status == STATUS_BLANK)
+            return "";
+        return Config.getString(statusStrings[status]);
+    }
+    
 }
