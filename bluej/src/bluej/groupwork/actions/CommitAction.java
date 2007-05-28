@@ -22,7 +22,7 @@ import bluej.utility.SwingWorker;
  * committing and have the commit comments.
  * 
  * @author Kasper
- * @version $Id: CommitAction.java 5056 2007-05-25 04:13:12Z davmac $
+ * @version $Id: CommitAction.java 5067 2007-05-28 04:15:57Z bquig $
  */
 public class CommitAction extends AbstractAction
 {
@@ -100,7 +100,10 @@ public class CommitAction extends AbstractAction
     public void cancel()
     {
         setEnabled(true);
-        worker.abort();
+        if(worker != null) {
+            worker.abort();
+            worker = null;
+        }
     }
 
     /**
