@@ -94,7 +94,6 @@ public class CodeFileFilter implements FilenameFilter {
 			result = false;
 		}
         if (name.equals(".DS_Store")){
-            System.out.println("ds store detected");
 			result = false;
 		}
 		if (getFileType(name).equals("ctxt")){
