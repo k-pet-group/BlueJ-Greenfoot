@@ -15,7 +15,7 @@ import java.io.File;
  * 
  * 
  * @author Bruce Quig
- * @cvs $Id: StatusTableModel.java 4704 2006-11-27 00:07:19Z bquig $
+ * @cvs $Id: StatusTableModel.java 5066 2007-05-28 04:15:04Z bquig $
  */
 public class StatusTableModel extends AbstractTableModel
 {
@@ -99,7 +99,7 @@ public class StatusTableModel extends AbstractTableModel
         else if (col == 1)
             return info.getLocalVersion(); 
         else if (col == 2)
-            return info.getStatusString();
+            return Integer.valueOf(info.getStatus());
 
         return null;
     }

@@ -1,5 +1,6 @@
 package bluej.groupwork.ui;
 
+import bluej.utility.Debug;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -20,12 +21,14 @@ import bluej.groupwork.*;
 import bluej.pkgmgr.Project;
 import bluej.utility.EscapeDialog;
 import bluej.utility.SwingWorker;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 /**
  * Main frame for CVS Status Dialog
  *
  * @author bquig
- * @version $Id: StatusFrame.java 5059 2007-05-25 05:47:11Z davmac $
+ * @version $Id: StatusFrame.java 5066 2007-05-28 04:15:04Z bquig $
  */
 public class StatusFrame extends EscapeDialog
 {
@@ -35,6 +38,7 @@ public class StatusFrame extends EscapeDialog
     private JScrollPane statusScroller;
     private JButton refreshButton;
     private ActivityIndicator progressBar;
+    private StatusMessageCellRenderer statusRenderer;
     
     private StatusWorker worker;
     
@@ -48,7 +52,6 @@ public class StatusFrame extends EscapeDialog
      */
     public StatusFrame(Project proj)
     {
-        //super(proj);
         project = proj;
         makeWindow();
         //DialogManager.tileWindow(this, proj);
@@ -62,12 +65,15 @@ public class StatusFrame extends EscapeDialog
         statusModel = new StatusTableModel(estimateInitialEntries());
         statusTable = new JTable(statusModel);
         statusTable.getTableHeader().setReorderingAllowed(false);
-        statusScroller = new JScrollPane(statusTable);
-               
+        //set up custom renderer to colour code status message field
+        statusRenderer = new StatusMessageCellRenderer();
+        TableColumn tc = statusTable.getColumn(statusModel.statusLabel);
+        tc.setCellRenderer(statusRenderer);
+        
+        statusScroller = new JScrollPane(statusTable);               
         statusScroller.setBorder(BlueJTheme.generalBorderWithStatusBar);
         Dimension prefSize = statusTable.getMaximumSize();
         Dimension scrollPrefSize =  statusTable.getPreferredScrollableViewportSize();
-        
         
         Dimension best = new Dimension(scrollPrefSize.width, prefSize.height + 30);
         statusScroller.setPreferredSize(best);
@@ -165,8 +171,9 @@ public class StatusFrame extends EscapeDialog
     {
         repository = project.getRepository();
         if (repository != null) {
-            statusTable.setModel(new StatusTableModel(statusModel.getRowCount()));
-            //statusModel.clear();
+            //statusTable.setModel(new StatusTableModel(statusModel.getRowCount()));
+            //statusModel.setStatusData()
+            
             progressBar.setRunning(true);
             refreshButton.setEnabled(false);
             worker = new StatusWorker();
@@ -235,8 +242,9 @@ public class StatusFrame extends EscapeDialog
                         }
                     });
 
-                    statusModel = new StatusTableModel(resources);
-                    statusTable.setModel(statusModel);
+                    statusModel.setStatusData(resources);
+                    //statusModel = new StatusTableModel(resources);
+                    //statusTable.setModel(statusModel);
                     //statusModel.setStatusData(resources);
                 }
                 refreshButton.setEnabled(true);
