@@ -105,7 +105,13 @@ public class CvsStatusCommand extends CvsCommand
             else if (fstatus == FileStatus.NEEDS_MERGE) {
                 status = TeamStatusInfo.STATUS_NEEDSMERGE;
             }
-            else if (fstatus == FileStatus.MODIFIED) {
+            else if (fstatus == FileStatus.MODIFIED || fstatus == FileStatus.ADDED) {
+                // We only get status "ADDED" if a commit was cancelled
+                // (after the "cvs add", but before "cvs commit"). It's easiest
+                // in that case to pretend that the file is actually in the
+                // repository (otherwise we'd need to special case the commit handling,
+                // to prevent attempting to "cvs add" a file which had already been
+                // added)
                 status = TeamStatusInfo.STATUS_NEEDSCOMMIT;
             }
             else if (fstatus == FileStatus.UNKNOWN) {

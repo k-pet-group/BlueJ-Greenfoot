@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import bluej.Config;
+import bluej.groupwork.cvsnb.BlueJAdminHandler;
 import bluej.groupwork.cvsnb.CvsRepository;
 import bluej.groupwork.ui.TeamSettingsDialog;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -17,7 +18,7 @@ import bluej.utility.filefilter.DirectoryFilter;
  * the top-level folder of a team project, and the bluej.properties
  *
  * @author fisker
- * @version $Id: TeamSettingsController.java 5063 2007-05-27 15:00:52Z bquig $
+ * @version $Id: TeamSettingsController.java 5069 2007-05-28 05:18:17Z davmac $
  */
 public class TeamSettingsController
 {

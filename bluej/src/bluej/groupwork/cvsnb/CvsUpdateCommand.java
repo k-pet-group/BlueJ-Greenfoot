@@ -6,7 +6,6 @@ import org.netbeans.lib.cvsclient.command.CommandAbortedException;
 import org.netbeans.lib.cvsclient.command.CommandException;
 import org.netbeans.lib.cvsclient.connection.AuthenticationException;
 
-import bluej.groupwork.BlueJCvsClient;
 import bluej.groupwork.UpdateListener;
 
 /**

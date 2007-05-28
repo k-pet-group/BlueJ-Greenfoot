@@ -1,4 +1,4 @@
-package bluej.groupwork;
+package bluej.groupwork.cvsnb;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +15,7 @@ import org.netbeans.lib.cvsclient.command.GlobalOptions;
  * An admin handler which pretends that nothing exists.
  * 
  * @author Davin McCall
- * @version $Id: EmptyAdminHandler.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: EmptyAdminHandler.java 5069 2007-05-28 05:18:17Z davmac $
  */
 public class EmptyAdminHandler
     implements AdminHandler

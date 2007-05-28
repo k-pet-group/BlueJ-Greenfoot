@@ -8,7 +8,6 @@ import org.netbeans.lib.cvsclient.event.FileRemovedEvent;
 import org.netbeans.lib.cvsclient.event.FileUpdatedEvent;
 import org.netbeans.lib.cvsclient.event.MessageEvent;
 
-import bluej.groupwork.BlueJCvsClient;
 import bluej.groupwork.UnableToParseInputException;
 import bluej.groupwork.UpdateListener;
 import bluej.groupwork.UpdateResults;

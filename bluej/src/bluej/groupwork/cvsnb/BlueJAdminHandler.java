@@ -1,4 +1,4 @@
-package bluej.groupwork;
+package bluej.groupwork.cvsnb;
 
 import java.io.File;
 import java.io.IOException;
