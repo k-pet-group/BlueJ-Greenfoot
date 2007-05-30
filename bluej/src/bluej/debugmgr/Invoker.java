@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 4725 2006-11-29 23:58:01Z davmac $
+ * @version $Id: Invoker.java 5071 2007-05-30 02:19:05Z davmac $
  */
 
 public class Invoker
@@ -483,7 +483,7 @@ public class Invoker
             // actualArgString + ");";
         }
 
-        if (constructing && numArgs == 0 && (typeParams == null || typeParams.length == 0)) {
+        if (constructing && member.getParameterCount() == 0 && (typeParams == null || typeParams.length == 0)) {
             // Special case for construction of a class using the default constructor.
             // We can do this without writing and compiling a shell file.
             
