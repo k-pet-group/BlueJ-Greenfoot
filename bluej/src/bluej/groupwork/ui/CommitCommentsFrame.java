@@ -42,6 +42,7 @@ public class CommitCommentsFrame extends EscapeDialog
     private JCheckBox includeLayout;
     private ActivityIndicator progressBar;
     private CommitAction commitAction;
+    private CommitWorker commitWorker;
 
     private Project project;
     
@@ -79,7 +80,8 @@ public class CommitCommentsFrame extends EscapeDialog
                 project.saveAllEditors();
                 project.saveAllGraphLayout();
                 startProgress();
-                new CommitWorker().start();
+                commitWorker = new CommitWorker();
+                commitWorker.start();
             }
             else {
                 super.setVisible(false);
@@ -163,6 +165,7 @@ public class CommitCommentsFrame extends EscapeDialog
             closeButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e)
                     {
+                        commitWorker.abort();
                         commitAction.cancel();
                         setVisible(false);
                     }
@@ -308,6 +311,7 @@ public class CommitCommentsFrame extends EscapeDialog
         List response;
         TeamworkCommand command;
         TeamworkCommandResult result;
+        private boolean aborted;
 
         public CommitWorker()
         {
@@ -330,52 +334,64 @@ public class CommitCommentsFrame extends EscapeDialog
             result = command.getResult();
             return response;
         }
+        
+        public void abort()
+        {
+            command.cancel();
+            aborted = true;
+        }
 
         public void finished()
         {
-            if (response != null) {
-                Set filesToCommit = new HashSet();
-                Set filesToAdd = new HashSet();
-                Set filesToDelete = new HashSet();
-                Set conflicts = new HashSet();
-                Set modifiedLayoutFiles = new HashSet();
-                
-                List info = response;
-                getCommitFileSets(info, filesToCommit, filesToAdd, filesToDelete, conflicts, modifiedLayoutFiles);
-                
-                if (conflicts.size() != 0) {
-                    String filesList = "";
-                    Iterator i = conflicts.iterator();
-                    for (int j = 0; j < 10 && i.hasNext(); j++) {
-                        File conflictFile = (File) i.next();
-                        filesList += "    " + conflictFile.getName() + "\n";
-                    }
-                    
-                    if (i.hasNext()) {
-                        filesList += "    (and more - check status)";
-                    }
-                    
-                    stopProgress();
-                    DialogManager.showMessageWithText(CommitCommentsFrame.this, "team-update-first", filesList);
-                    CommitCommentsFrame.this.setVisible(false);
-                    return;
+            if (! aborted) {
+                if (result.isError()) {
+                    TeamUtils.handleServerResponse(result, CommitCommentsFrame.this);
+                    setVisible(false);
                 }
-                
-                commitAction.setFiles(filesToCommit);
-                commitAction.setNewFiles(filesToAdd);
-                commitAction.setDeletedFiles(filesToDelete);
-            }
-             
-            if(commitListModel.isEmpty()) {
-                commitListModel.addElement(noFilesToCommit);
-               
-            }
-            else {
-                //this should be conditional upon a need to commit
-                // this should be re-enabled when we fully handle diagram layout change detection
-                commitText.setEnabled(true);
-                commitAction.setEnabled(true);
-                
+                else if (response != null) {
+                    Set filesToCommit = new HashSet();
+                    Set filesToAdd = new HashSet();
+                    Set filesToDelete = new HashSet();
+                    Set conflicts = new HashSet();
+                    Set modifiedLayoutFiles = new HashSet();
+
+                    List info = response;
+                    getCommitFileSets(info, filesToCommit, filesToAdd, filesToDelete, conflicts, modifiedLayoutFiles);
+
+                    if (conflicts.size() != 0) {
+                        String filesList = "";
+                        Iterator i = conflicts.iterator();
+                        for (int j = 0; j < 10 && i.hasNext(); j++) {
+                            File conflictFile = (File) i.next();
+                            filesList += "    " + conflictFile.getName() + "\n";
+                        }
+
+                        if (i.hasNext()) {
+                            filesList += "    (and more - check status)";
+                        }
+
+                        stopProgress();
+                        DialogManager.showMessageWithText(CommitCommentsFrame.this, "team-update-first", filesList);
+                        CommitCommentsFrame.this.setVisible(false);
+                        return;
+                    }
+
+                    commitAction.setFiles(filesToCommit);
+                    commitAction.setNewFiles(filesToAdd);
+                    commitAction.setDeletedFiles(filesToDelete);
+                }
+
+                if(commitListModel.isEmpty()) {
+                    commitListModel.addElement(noFilesToCommit);
+
+                }
+                else {
+                    //this should be conditional upon a need to commit
+                    // this should be re-enabled when we fully handle diagram layout change detection
+                    commitText.setEnabled(true);
+                    commitAction.setEnabled(true);
+
+                }
             }
             
             stopProgress();
