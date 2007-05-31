@@ -35,7 +35,7 @@ import bluej.utility.Debug;
  * This class handles communication with the repository.
  *
  * @author fisker
- * @version $Id: CvsRepository.java 5059 2007-05-25 05:47:11Z davmac $
+ * @version $Id: CvsRepository.java 5073 2007-05-31 04:53:52Z davmac $
  */
 public class CvsRepository implements Repository
 {
@@ -798,11 +798,10 @@ public class CvsRepository implements Repository
         
         try {
             client.executeCommand(statusCommand, globalOptions);
+            statusServerResponse.waitForExecutionToFinish();
         }
         finally {
             adminHandler.setMildManneredMode(false);
-            
-            statusServerResponse.waitForExecutionToFinish();
             client.getEventManager().removeCVSListener(statusServerResponse);
             disconnect(client);
         }
