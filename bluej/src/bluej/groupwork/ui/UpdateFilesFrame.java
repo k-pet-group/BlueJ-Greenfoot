@@ -26,7 +26,7 @@ import bluej.utility.SwingWorker;
  * A Swing based user interface for showing files to be updated
  * @author Bruce Quig
  * @author Davin McCall
- * @version $Id: UpdateFilesFrame.java 5059 2007-05-25 05:47:11Z davmac $
+ * @version $Id: UpdateFilesFrame.java 5075 2007-05-31 05:00:56Z davmac $
  */
 public class UpdateFilesFrame extends EscapeDialog
 {
@@ -34,9 +34,10 @@ public class UpdateFilesFrame extends EscapeDialog
     private JPanel topPanel;
     private JPanel bottomPanel;
     private JButton updateButton;
-    private JCheckBox includeLayout;
+    private JCheckBox includeLayoutCheckbox;
     private ActivityIndicator progressBar;
     private UpdateAction updateAction;
+    private UpdateWorker updateWorker;
 
     private Project project;
     
@@ -44,6 +45,7 @@ public class UpdateFilesFrame extends EscapeDialog
     private DefaultListModel updateListModel;
     
     private Set changedLayoutFiles;
+    private boolean includeLayout = true;
     
     private static String noFilesToUpdate = Config.getString("team.noupdatefiles"); 
 
@@ -62,8 +64,8 @@ public class UpdateFilesFrame extends EscapeDialog
             // we want to set update action disabled until we know that
             // there's something to update
             updateAction.setEnabled(false);
-            includeLayout.setSelected(false);
-            includeLayout.setEnabled(false);
+            includeLayoutCheckbox.setSelected(false);
+            includeLayoutCheckbox.setEnabled(false);
             changedLayoutFiles.clear();
             updateListModel.removeAllElements();
             
@@ -73,7 +75,8 @@ public class UpdateFilesFrame extends EscapeDialog
                 project.saveAllEditors();
                 project.saveAllGraphLayout();
                 startProgress();
-                new UpdateWorker().start();
+                updateWorker = new UpdateWorker();
+                updateWorker.start();
             }
             else {
                 super.setVisible(false);
@@ -131,7 +134,7 @@ public class UpdateFilesFrame extends EscapeDialog
             updateButton.addActionListener(new ActionListener() {
                public void actionPerformed(ActionEvent e)
                 {
-                   includeLayout.setEnabled(false);
+                   includeLayoutCheckbox.setEnabled(false);
                 } 
             });
             getRootPane().setDefaultButton(updateButton);
@@ -141,6 +144,7 @@ public class UpdateFilesFrame extends EscapeDialog
                     public void actionPerformed(ActionEvent e)
                     {
                         updateAction.cancel();
+                        updateWorker.abort();
                         setVisible(false);
                     }
                 });
@@ -152,13 +156,14 @@ public class UpdateFilesFrame extends EscapeDialog
             progressBar.setRunning(false);
             
             DBox checkBoxPanel = new DBox(DBoxLayout.Y_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
-            includeLayout = new JCheckBox(Config.getString("team.update.includelayout"));
-            includeLayout.setEnabled(false);
-            includeLayout.addActionListener(new ActionListener() {
+            includeLayoutCheckbox = new JCheckBox(Config.getString("team.update.includelayout"));
+            includeLayoutCheckbox.setEnabled(false);
+            includeLayoutCheckbox.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
                     JCheckBox layoutCheck = (JCheckBox)e.getSource();
-                    if(layoutCheck.isSelected()) {
+                    includeLayout = layoutCheck.isSelected();
+                    if (includeLayout) {
                         addModifiedLayouts();
                         updateAction.setFilesToForceUpdate(getChangedLayoutFiles());
                         if(!updateButton.isEnabled()) {
@@ -176,7 +181,7 @@ public class UpdateFilesFrame extends EscapeDialog
                 }
             });
 
-            checkBoxPanel.add(includeLayout);
+            checkBoxPanel.add(includeLayoutCheckbox);
             checkBoxPanel.add(buttonPanel);
             
             buttonPanel.add(progressBar);
@@ -202,7 +207,7 @@ public class UpdateFilesFrame extends EscapeDialog
     private void removeModifiedLayouts()
     {
         // remove modified layouts from list of files shown for commit
-        for(Iterator it = changedLayoutFiles.iterator();it.hasNext();) {
+        for(Iterator it = changedLayoutFiles.iterator(); it.hasNext();) {
             updateListModel.removeElement(it.next());
         }
         if(updateListModel.isEmpty()) {
@@ -215,6 +220,9 @@ public class UpdateFilesFrame extends EscapeDialog
         return updateListModel.isEmpty() || updateListModel.contains(noFilesToUpdate);
     }
     
+    /**
+     * Add the modified layouts to the displayed list of files to be updated.
+     */
     private void addModifiedLayouts()
     {
         if(updateListModel.contains(noFilesToUpdate)) {
@@ -241,7 +249,7 @@ public class UpdateFilesFrame extends EscapeDialog
     
     public boolean includeLayout()
     {
-        return includeLayout != null && includeLayout.isSelected();
+        return includeLayoutCheckbox != null && includeLayoutCheckbox.isSelected();
     }
     
     /**
@@ -265,9 +273,17 @@ public class UpdateFilesFrame extends EscapeDialog
         return project;
     }
     
-    private void setLayoutChanged(boolean hasChanged)
+    /**
+     * The layout has changed. Enable the "include layout" checkbox, etc.
+     */
+    private void setLayoutChanged()
     {
-        includeLayout.setEnabled(hasChanged);
+        includeLayoutCheckbox.setEnabled(true);
+        includeLayoutCheckbox.setSelected(includeLayout);
+        if (includeLayout) {
+            addModifiedLayouts();
+            updateAction.setFilesToForceUpdate(getChangedLayoutFiles());
+        }
     }
 
     /**
@@ -279,6 +295,7 @@ public class UpdateFilesFrame extends EscapeDialog
         List response;
         TeamworkCommand command;
         TeamworkCommandResult result;
+        private boolean aborted;
 
         public UpdateWorker()
         {
@@ -298,13 +315,23 @@ public class UpdateFilesFrame extends EscapeDialog
         
         public Object construct()
         {
+            // DAV !
+            System.out.println("UpdateFilesFrame, command.getResult...");
             result = command.getResult();
+            // DAV !
+            System.out.println("UpdateFilesFrame, command.getResult done.");
             return response;
+        }
+        
+        public void abort()
+        {
+            command.cancel();
+            aborted = true;
         }
 
         public void finished()
         {
-            if (response != null) {
+            if (! aborted) {
                 Set filesToUpdate = new HashSet();
                 Set conflicts = new HashSet();
                 Set modifiedLayoutFiles = new HashSet();
@@ -320,6 +347,8 @@ public class UpdateFilesFrame extends EscapeDialog
                         filesList += "    " + conflictFile.getName() + "\n";
                     }
                     
+                    // If there are more than 10 conflicts, we won't list them
+                    // all in the dialog
                     if (i.hasNext()) {
                         filesList += "    (and more - check status)";
                     }
@@ -329,19 +358,19 @@ public class UpdateFilesFrame extends EscapeDialog
                     UpdateFilesFrame.this.setVisible(false);
                     return;
                 }
-                
+
                 updateAction.setFilesToUpdate(filesToUpdate);
                 updateAction.setFilesToForceUpdate(Collections.EMPTY_SET);
+
+                if(updateListModel.isEmpty()) {
+                    updateListModel.addElement(noFilesToUpdate);
+                }
+                else {
+                    updateAction.setEnabled(true);
+                }
+
+                stopProgress();
             }
-             
-            if(updateListModel.isEmpty()) {
-                updateListModel.addElement(noFilesToUpdate);
-            }
-            else {
-                updateAction.setEnabled(true);
-            }
-            
-            stopProgress();
         }
         
         /**
@@ -372,8 +401,6 @@ public class UpdateFilesFrame extends EscapeDialog
                         modifiedLayoutFiles.add(statusInfo.getFile());
                         // keep track of StatusInfo objects representing changed diagrams
                         changedLayoutFiles.add(statusInfo);
-                       
-                        setLayoutChanged(true);
                     }
                 }
                 else {
@@ -385,10 +412,13 @@ public class UpdateFilesFrame extends EscapeDialog
                             // bluej.pkg will be force-updated
                             modifiedLayoutFiles.add(statusInfo.getFile());
                             changedLayoutFiles.add(statusInfo);
-                            setLayoutChanged(true);
                         }
                     }
                 }
+            }
+            
+            if (! changedLayoutFiles.isEmpty()) {
+                setLayoutChanged();
             }
         }
     }
