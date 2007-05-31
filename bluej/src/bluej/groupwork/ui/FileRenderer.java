@@ -15,7 +15,7 @@ import javax.swing.JList;
  * 
  * @author Bruce Quig
  * @author Davin McCall
- * @version $Id: FileRenderer.java 5058 2007-05-25 04:40:45Z davmac $
+ * @version $Id: FileRenderer.java 5074 2007-05-31 04:59:43Z davmac $
  */
 public class FileRenderer extends DefaultListCellRenderer
 {
@@ -31,6 +31,12 @@ public class FileRenderer extends DefaultListCellRenderer
         String status = value.toString();
         if(value instanceof TeamStatusInfo) {
             TeamStatusInfo info = (TeamStatusInfo)value;
+            boolean isPkgFile = info.getFile().getName().equals(Package.pkgfileName);
+            
+            if (isPkgFile) {
+                status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());
+            }
+            
             // file has been deleted
             if(info.getStatus() == TeamStatusInfo.STATUS_DELETED) {
                 status += " (" + Config.getString("team.status.delete") + ")";
@@ -45,13 +51,10 @@ public class FileRenderer extends DefaultListCellRenderer
                 status += " (" + Config.getString("team.status.removed") + ")";
             }
             else if (info.getStatus() == TeamStatusInfo.STATUS_NEEDSMERGE) {
-                status += " (" + Config.getString("team.status.needsmerge") + ")";
+                if (! isPkgFile) {
+                    status += " (" + Config.getString("team.status.needsmerge") + ")";
+                }
             }
-            
-            // bluej.pkg file description
-            else if(info.getFile().getName().equals(Package.pkgfileName)) {
-                status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());
-           }
         }
        
         JLabel label = new JLabel(status);
