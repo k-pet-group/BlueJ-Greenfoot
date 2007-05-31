@@ -26,7 +26,7 @@ import bluej.utility.SwingWorker;
  * A Swing based user interface for showing files to be updated
  * @author Bruce Quig
  * @author Davin McCall
- * @version $Id: UpdateFilesFrame.java 5076 2007-05-31 05:24:10Z davmac $
+ * @version $Id: UpdateFilesFrame.java 5077 2007-05-31 05:47:05Z davmac $
  */
 public class UpdateFilesFrame extends EscapeDialog
 {
@@ -280,10 +280,6 @@ public class UpdateFilesFrame extends EscapeDialog
     {
         includeLayoutCheckbox.setEnabled(true);
         includeLayoutCheckbox.setSelected(includeLayout);
-        if (includeLayout) {
-            addModifiedLayouts();
-            updateAction.setFilesToForceUpdate(getChangedLayoutFiles());
-        }
     }
 
     /**
@@ -358,6 +354,11 @@ public class UpdateFilesFrame extends EscapeDialog
                 updateAction.setFilesToUpdate(filesToUpdate);
                 updateAction.setFilesToForceUpdate(Collections.EMPTY_SET);
 
+                if (includeLayout && ! changedLayoutFiles.isEmpty()) {
+                    addModifiedLayouts();
+                    updateAction.setFilesToForceUpdate(getChangedLayoutFiles());
+                }
+                
                 if(updateListModel.isEmpty()) {
                     updateListModel.addElement(noFilesToUpdate);
                 }
