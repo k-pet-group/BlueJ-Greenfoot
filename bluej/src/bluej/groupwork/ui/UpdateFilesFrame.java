@@ -26,7 +26,7 @@ import bluej.utility.SwingWorker;
  * A Swing based user interface for showing files to be updated
  * @author Bruce Quig
  * @author Davin McCall
- * @version $Id: UpdateFilesFrame.java 5077 2007-05-31 05:47:05Z davmac $
+ * @version $Id: UpdateFilesFrame.java 5078 2007-05-31 05:52:04Z davmac $
  */
 public class UpdateFilesFrame extends EscapeDialog
 {
@@ -324,49 +324,55 @@ public class UpdateFilesFrame extends EscapeDialog
         public void finished()
         {
             if (! aborted) {
-                Set filesToUpdate = new HashSet();
-                Set conflicts = new HashSet();
-                Set modifiedLayoutFiles = new HashSet();
-                
-                List info = response;
-                getUpdateFileSet(info, filesToUpdate, conflicts, modifiedLayoutFiles);
-                
-                if (conflicts.size() != 0) {
-                    String filesList = "";
-                    Iterator i = conflicts.iterator();
-                    for (int j = 0; j < 10 && i.hasNext(); j++) {
-                        File conflictFile = (File) i.next();
-                        filesList += "    " + conflictFile.getName() + "\n";
-                    }
-                    
-                    // If there are more than 10 conflicts, we won't list them
-                    // all in the dialog
-                    if (i.hasNext()) {
-                        filesList += "    (and more - check status)";
-                    }
-                    
-                    stopProgress();
-                    DialogManager.showMessageWithText(UpdateFilesFrame.this, "team-unresolved-conflicts", filesList);
-                    UpdateFilesFrame.this.setVisible(false);
-                    return;
-                }
-
-                updateAction.setFilesToUpdate(filesToUpdate);
-                updateAction.setFilesToForceUpdate(Collections.EMPTY_SET);
-
-                if (includeLayout && ! changedLayoutFiles.isEmpty()) {
-                    addModifiedLayouts();
-                    updateAction.setFilesToForceUpdate(getChangedLayoutFiles());
-                }
-                
-                if(updateListModel.isEmpty()) {
-                    updateListModel.addElement(noFilesToUpdate);
+                if (result.isError()) {
+                    TeamUtils.handleServerResponse(result, UpdateFilesFrame.this);
+                    setVisible(false);
                 }
                 else {
-                    updateAction.setEnabled(true);
-                }
+                    Set filesToUpdate = new HashSet();
+                    Set conflicts = new HashSet();
+                    Set modifiedLayoutFiles = new HashSet();
 
-                stopProgress();
+                    List info = response;
+                    getUpdateFileSet(info, filesToUpdate, conflicts, modifiedLayoutFiles);
+
+                    if (conflicts.size() != 0) {
+                        String filesList = "";
+                        Iterator i = conflicts.iterator();
+                        for (int j = 0; j < 10 && i.hasNext(); j++) {
+                            File conflictFile = (File) i.next();
+                            filesList += "    " + conflictFile.getName() + "\n";
+                        }
+
+                        // If there are more than 10 conflicts, we won't list them
+                        // all in the dialog
+                        if (i.hasNext()) {
+                            filesList += "    (and more - check status)";
+                        }
+
+                        stopProgress();
+                        DialogManager.showMessageWithText(UpdateFilesFrame.this, "team-unresolved-conflicts", filesList);
+                        UpdateFilesFrame.this.setVisible(false);
+                        return;
+                    }
+
+                    updateAction.setFilesToUpdate(filesToUpdate);
+                    updateAction.setFilesToForceUpdate(Collections.EMPTY_SET);
+
+                    if (includeLayout && ! changedLayoutFiles.isEmpty()) {
+                        addModifiedLayouts();
+                        updateAction.setFilesToForceUpdate(getChangedLayoutFiles());
+                    }
+
+                    if(updateListModel.isEmpty()) {
+                        updateListModel.addElement(noFilesToUpdate);
+                    }
+                    else {
+                        updateAction.setEnabled(true);
+                    }
+
+                    stopProgress();
+                }
             }
         }
         
