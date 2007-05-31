@@ -26,7 +26,7 @@ import bluej.utility.SwingWorker;
  * A Swing based user interface for showing files to be updated
  * @author Bruce Quig
  * @author Davin McCall
- * @version $Id: UpdateFilesFrame.java 5075 2007-05-31 05:00:56Z davmac $
+ * @version $Id: UpdateFilesFrame.java 5076 2007-05-31 05:24:10Z davmac $
  */
 public class UpdateFilesFrame extends EscapeDialog
 {
@@ -315,11 +315,7 @@ public class UpdateFilesFrame extends EscapeDialog
         
         public Object construct()
         {
-            // DAV !
-            System.out.println("UpdateFilesFrame, command.getResult...");
             result = command.getResult();
-            // DAV !
-            System.out.println("UpdateFilesFrame, command.getResult done.");
             return response;
         }
         

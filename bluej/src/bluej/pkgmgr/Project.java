@@ -33,6 +33,7 @@ import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.actions.TeamActionGroup;
 import bluej.groupwork.ui.CommitCommentsFrame;
 import bluej.groupwork.ui.TeamSettingsDialog;
+import bluej.groupwork.ui.UpdateFilesFrame;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.prefmgr.PrefMgr;
@@ -55,7 +56,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 5055 2007-05-25 02:41:10Z davmac $
+ * @version $Id: Project.java 5076 2007-05-31 05:24:10Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -118,6 +119,7 @@ public class Project implements DebuggerListener, InspectorManager
     private TeamSettingsController teamSettingsController = null;
     
     private CommitCommentsFrame commitCommentsFrame = null;
+    private UpdateFilesFrame updateFilesFrame = null;
     private StatusFrame statusFrame = null;
         
     private boolean isSharedProject;
@@ -1660,6 +1662,17 @@ public class Project implements DebuggerListener, InspectorManager
             commitCommentsFrame = new CommitCommentsFrame(this);
         }
         return commitCommentsFrame;
+    }
+    
+    /**
+     * Get the update dialog for this project
+     */
+    public UpdateFilesFrame getUpdateDialog()
+    {
+        if (updateFilesFrame == null) {
+            updateFilesFrame = new UpdateFilesFrame(this);
+        }
+        return updateFilesFrame;
     }
         
     /**
