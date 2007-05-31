@@ -17,7 +17,7 @@ import bluej.groupwork.actions.ValidateCvsConnectionAction;
  * A panel for team settings.
  * 
  * @author fisker
- * @version $Id: TeamSettingsPanel.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: TeamSettingsPanel.java 5079 2007-05-31 06:48:07Z davmac $
  */
 public class TeamSettingsPanel extends JPanel 
 {
@@ -60,7 +60,8 @@ public class TeamSettingsPanel extends JPanel
         useAsDefault = new JCheckBox(Config.getString("team.settings.rememberSettings"));
         add(useAsDefault);
         add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-        validateButton = new JButton(new ValidateCvsConnectionAction(Config.getString("team.settings.checkConnection"), this));
+        validateButton = new JButton(new ValidateCvsConnectionAction(
+                Config.getString("team.settings.checkConnection"), this, dialog));
         add(validateButton);
         
         DocumentListener changeListener = new DocumentListener() {

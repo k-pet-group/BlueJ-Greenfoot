@@ -656,6 +656,10 @@ team.import.initialMessage=Initial sharing of project
 team.sharing=Sharing project...
 team.shared=Sharing project... Done.
 
+team.checkconn.checking=Checking connection...
+team.checkconn.ok=Connection is ok
+team.checkconn.bad=Could not connect to server
+
 menu.help=_Help
 menu.help.about=_About BlueJ
 menu.help.extensions=Installed E_xtensions

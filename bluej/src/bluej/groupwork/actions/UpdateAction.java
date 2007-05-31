@@ -30,7 +30,7 @@ import bluej.utility.SwingWorker;
  * Action to update out-of-date files.
  * 
  * @author fisker
- * @version $Id: UpdateAction.java 5059 2007-05-25 05:47:11Z davmac $
+ * @version $Id: UpdateAction.java 5079 2007-05-31 06:48:07Z davmac $
  */
 public class UpdateAction extends AbstractAction
 {
@@ -104,6 +104,7 @@ public class UpdateAction extends AbstractAction
         private Repository repository;
         private TeamworkCommand command;
         private TeamworkCommandResult result;
+        private boolean aborted;
         
         public UpdateWorker(Project project, Set filesToUpdate, Set filesToForceUpdate)
         {
@@ -405,17 +406,15 @@ public class UpdateAction extends AbstractAction
         public void abort()
         {
             command.cancel();
-            updateFrame = null;
+            aborted = true;
         }
         
         public void finished()
         {
             handleRemovedPkgs();
-            if (updateFrame != null) {
-                updateFrame.stopProgress();
-            }
+            updateFrame.stopProgress();
 
-            if (! result.isError()) {
+            if (! result.isError() && ! aborted) {
                 PkgMgrFrame.displayMessage(project, Config.getString("team.update.statusDone"));
             }
             else {
@@ -423,12 +422,11 @@ public class UpdateAction extends AbstractAction
                 TeamUtils.handleServerResponse(result, updateFrame);
             }
             
-            if (updateFrame != null) {
+            if (! aborted) {
                 updateFrame.setVisible(false);
                 updateFrame.dispose();
+                setEnabled(true);
             }
-            
-            setEnabled(true);
         }
         
         /**

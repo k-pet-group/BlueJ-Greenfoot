@@ -1,39 +1,38 @@
 package bluej.groupwork.actions;
 
+import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.JOptionPane;
 
-import bluej.groupwork.cvsnb.CvsRepository;
 import bluej.groupwork.cvsnb.ProtocolMapper;
+import bluej.groupwork.ui.CheckConnectionDialog;
 import bluej.groupwork.ui.TeamSettingsPanel;
-import bluej.utility.Debug;
 
 /**
+ * Test the username, password, host, etc. settings to make sure they are valid
+ * 
  * @author fisker
- *
-
  */
 public class ValidateCvsConnectionAction extends AbstractAction
 {
-
     private TeamSettingsPanel teamSettingsPanel;
-    /**
-     * 
-     */
-    public ValidateCvsConnectionAction(String name, TeamSettingsPanel teamSettingsPanel)
+    private Dialog owner;
+    
+    public ValidateCvsConnectionAction(String name, TeamSettingsPanel teamSettingsPanel,
+            Dialog owner)
     {
         super(name);
         this.teamSettingsPanel = teamSettingsPanel;
-        
+        this.owner = owner;
     }
     
     /**
      * Extra information from teamSettingsPanel and build a cvsroot string
      * @return
      */
-    private String makeCvsRoot(){
+    private String makeCvsRoot()
+    {
         String protocol = ProtocolMapper.getProtocol(teamSettingsPanel.getProtocol());
 		String user = teamSettingsPanel.getUser();
 		String password = teamSettingsPanel.getPassword();
@@ -50,16 +49,6 @@ public class ValidateCvsConnectionAction extends AbstractAction
     public void actionPerformed(ActionEvent e)
     {
         String cvsRoot = makeCvsRoot();
-        try {
-            String result = (CvsRepository.validateConnection(cvsRoot) ? "Connection is ok" : "Could not connect to server");
-            JOptionPane.showMessageDialog(teamSettingsPanel,result);
-        } catch (Exception ee) {
-            // experimental BQ
-            Debug.reportError("SSH exception");
-            
-        }
-        
-
+        new CheckConnectionDialog(owner, cvsRoot).setVisible(true);
     }
-
 }
