@@ -26,7 +26,7 @@ import bluej.utility.SwingWorker;
  * A Swing based user interface for showing files to be updated
  * @author Bruce Quig
  * @author Davin McCall
- * @version $Id: UpdateFilesFrame.java 5078 2007-05-31 05:52:04Z davmac $
+ * @version $Id: UpdateFilesFrame.java 5086 2007-06-04 05:15:53Z bquig $
  */
 public class UpdateFilesFrame extends EscapeDialog
 {
@@ -323,6 +323,7 @@ public class UpdateFilesFrame extends EscapeDialog
 
         public void finished()
         {
+            stopProgress();
             if (! aborted) {
                 if (result.isError()) {
                     TeamUtils.handleServerResponse(result, UpdateFilesFrame.this);
@@ -350,7 +351,6 @@ public class UpdateFilesFrame extends EscapeDialog
                             filesList += "    (and more - check status)";
                         }
 
-                        stopProgress();
                         DialogManager.showMessageWithText(UpdateFilesFrame.this, "team-unresolved-conflicts", filesList);
                         UpdateFilesFrame.this.setVisible(false);
                         return;
@@ -370,8 +370,6 @@ public class UpdateFilesFrame extends EscapeDialog
                     else {
                         updateAction.setEnabled(true);
                     }
-
-                    stopProgress();
                 }
             }
         }

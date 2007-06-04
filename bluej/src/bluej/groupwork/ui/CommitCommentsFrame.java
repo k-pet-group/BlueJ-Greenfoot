@@ -343,6 +343,7 @@ public class CommitCommentsFrame extends EscapeDialog
 
         public void finished()
         {
+            stopProgress();
             if (! aborted) {
                 if (result.isError()) {
                     TeamUtils.handleServerResponse(result, CommitCommentsFrame.this);
@@ -394,7 +395,6 @@ public class CommitCommentsFrame extends EscapeDialog
                 }
             }
             
-            stopProgress();
         }
         
         /**
