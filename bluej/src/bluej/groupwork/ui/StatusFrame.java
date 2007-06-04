@@ -28,7 +28,7 @@ import javax.swing.table.TableColumnModel;
  * Main frame for CVS Status Dialog
  *
  * @author bquig
- * @version $Id: StatusFrame.java 5070 2007-05-28 07:19:09Z bquig $
+ * @version $Id: StatusFrame.java 5082 2007-06-04 04:29:25Z bquig $
  */
 public class StatusFrame extends EscapeDialog
 {
@@ -62,12 +62,12 @@ public class StatusFrame extends EscapeDialog
         setTitle(Config.getString("team.status.status"));
         // try and set up a reasonable default amount of entries that avoids resizing
         // and scrolling once we get info back from repository
-        statusModel = new StatusTableModel(estimateInitialEntries());
+        statusModel = new StatusTableModel(project, estimateInitialEntries());
         statusTable = new JTable(statusModel);
         statusTable.getTableHeader().setReorderingAllowed(false);
         
         //set up custom renderer to colour code status message field
-        statusRenderer = new StatusMessageCellRenderer();
+        statusRenderer = new StatusMessageCellRenderer(project);
         statusTable.setDefaultRenderer(java.lang.Object.class, statusRenderer);
         
         statusScroller = new JScrollPane(statusTable);               
