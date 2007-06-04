@@ -28,7 +28,7 @@ import javax.swing.table.TableColumnModel;
  * Main frame for CVS Status Dialog
  *
  * @author bquig
- * @version $Id: StatusFrame.java 5082 2007-06-04 04:29:25Z bquig $
+ * @version $Id: StatusFrame.java 5084 2007-06-04 04:44:56Z bquig $
  */
 public class StatusFrame extends EscapeDialog
 {
@@ -146,23 +146,6 @@ public class StatusFrame extends EscapeDialog
             initialEntries = MAX_ENTRIES;
         return initialEntries;
     }
-    
-    /**
-     * Simple attempt at information filtering, should later be expanded
-     */
-    private void filterStatusInformation(List info)
-    {
-        for(Iterator it = info.iterator(); it.hasNext(); ) {
-            TeamStatusInfo statusInfo = (TeamStatusInfo) it.next();
-            
-            File file = statusInfo.getFile();
-            String fileName = file.getName();
-            //File dir = file.getParentFile();
-                
-            //if(!project.getTeamSettingsController().includeLayout() && fileName.equals("bluej.pkg"))
-            //    it.remove();        
-        }
-    }
 
     /**
      * Refresh the status window.
@@ -171,9 +154,6 @@ public class StatusFrame extends EscapeDialog
     {
         repository = project.getRepository();
         if (repository != null) {
-            //statusTable.setModel(new StatusTableModel(statusModel.getRowCount()));
-            //statusModel.setStatusData()
-            
             progressBar.setRunning(true);
             refreshButton.setEnabled(false);
             worker = new StatusWorker();
@@ -243,9 +223,6 @@ public class StatusFrame extends EscapeDialog
                     });
 
                     statusModel.setStatusData(resources);
-                    //statusModel = new StatusTableModel(resources);
-                    //statusTable.setModel(statusModel);
-                    //statusModel.setStatusData(resources);
                 }
                 refreshButton.setEnabled(true);
             }
