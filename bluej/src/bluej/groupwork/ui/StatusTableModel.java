@@ -7,7 +7,7 @@ import javax.swing.table.AbstractTableModel;
 
 import bluej.Config;
 import bluej.groupwork.TeamStatusInfo;
-import java.io.File;
+import bluej.pkgmgr.Project;
 
 /**
  * Given a list of StatusEntry(s) returns a table model which allows them to
@@ -15,7 +15,7 @@ import java.io.File;
  * 
  * 
  * @author Bruce Quig
- * @cvs $Id: StatusTableModel.java 5066 2007-05-28 04:15:04Z bquig $
+ * @cvs $Id: StatusTableModel.java 5081 2007-06-04 04:27:50Z bquig $
  */
 public class StatusTableModel extends AbstractTableModel
 {
@@ -23,13 +23,15 @@ public class StatusTableModel extends AbstractTableModel
     static final String statusLabel = Config.getString("team.status.status");
     static final String versionLabel = Config.getString("team.status.version");
  
+    private Project project;
     private List resources;
     
     /**
      *
      */
-    public StatusTableModel(int initialRows)
+    public StatusTableModel(Project project, int initialRows)
     {
+        this.project = project;
         resources = new ArrayList();
         for(int i = 0; i < initialRows; i++) {
             resources.add(new TeamStatusInfo());
@@ -38,7 +40,7 @@ public class StatusTableModel extends AbstractTableModel
     
     /**
      * Construct a table model
-     *
+     * TODO this may now be redundant
      */
     public StatusTableModel(List teamResources)
     {
@@ -95,7 +97,7 @@ public class StatusTableModel extends AbstractTableModel
         TeamStatusInfo info = (TeamStatusInfo) resources.get(row);
         
         if (col == 0)
-            return info.getFile().getName();
+            return ResourceDescriptor.getResource(project, info, false);
         else if (col == 1)
             return info.getLocalVersion(); 
         else if (col == 2)

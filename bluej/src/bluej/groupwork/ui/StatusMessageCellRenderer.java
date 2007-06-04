@@ -3,6 +3,7 @@ package bluej.groupwork.ui;
 
 import bluej.groupwork.TeamStatusInfo;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.Project;
 import java.awt.Color;
 import java.awt.Component;
 import javax.swing.JTable;
@@ -12,26 +13,36 @@ import javax.swing.table.DefaultTableCellRenderer;
  * StatusCellRenderer.java
  * Renderer to add colour to the status message of resources inside a StatusFrame
  * @author Bruce Quig
- * @cvs $Id: StatusMessageCellRenderer.java 5070 2007-05-28 07:19:09Z bquig $
+ * @cvs $Id: StatusMessageCellRenderer.java 5081 2007-06-04 04:27:50Z bquig $
  */
 public class StatusMessageCellRenderer extends DefaultTableCellRenderer 
 {
+    final static Color DARKER_GREEN = Color.GREEN.darker().darker();
     
     final static Color UPTODATE = Color.BLACK;
-    final static Color NEEDSCHECKOUT = Color.GREEN;
+    final static Color NEEDSCHECKOUT = DARKER_GREEN;
     final static Color DELETED = Color.GRAY;
     final static Color NEEDSUPDATE = Color.BLUE;
     final static Color NEEDSCOMMIT = Color.BLUE;
     final static Color NEEDSMERGE = Color.BLACK;
-    final static Color NEEDSADD = Color.GREEN.darker().darker();
+    final static Color NEEDSADD = DARKER_GREEN;
     final static Color REMOVED = Color.GRAY;
+
+    Project project;
     
+    public StatusMessageCellRenderer(Project project)
+    {
+        super();
+        this.project = project;
+    }
+    
+   
     /**
      * Over-ridden from super class. Get the status message string and appropriate colour
      * for the status. Render using these values.
      */
-    public Component getTableCellRendererComponent(JTable jTable, Object object, 
-        boolean isSelected, boolean hasFocus , int row, int column)
+    public Component getTableCellRendererComponent(JTable jTable, Object object,
+        boolean isSelected, boolean hasFocus , int row, int column) 
     {
         super.getTableCellRendererComponent(jTable, object, isSelected, hasFocus, row, column);
         
@@ -40,11 +51,11 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
         String statusLabel = getStatusString(object, status, row, column);
         setText(statusLabel);
         setForeground(getStatusColour(status));
-          
+        
         return this;
     }
     
-    private int getStatus(JTable table, int row)
+    private int getStatus(JTable table, int row) 
     {
         int status = 0;
         Object val = table.getModel().getValueAt(row, 2);
@@ -56,27 +67,20 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
     
     /**
      * get the String value of the statis ID
-     */            
-    private String getStatusString(Object value, int statusValue, int row, int col)
+     */
+    private String getStatusString(Object value, int statusValue, int row, int col) 
     {
         // TODO, change to use column names for ID
-        if(col == 0) {
-            if(Package.pkgfileName.equals(value.toString()))
-                return "Diagram Layout";
+        if(col == 0 || col == 1) {
             return value.toString();
-        }
-        else if (col == 1) {
-            return value.toString();
-        }
-        //else if (column == 2) {
-           
+        }        
         return TeamStatusInfo.getStatusString(statusValue);
     }
     
     /**
      * get the colour for the given status ID value
      */
-    private Color getStatusColour(int statusValue)
+    private Color getStatusColour(int statusValue) 
     {
         Color color = Color.BLACK;
         
@@ -94,9 +98,9 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
             color = NEEDSMERGE;
         else if(statusValue == TeamStatusInfo.STATUS_NEEDSADD)
             color = NEEDSADD;
-         else if(statusValue == TeamStatusInfo.STATUS_REMOVED)
+        else if(statusValue == TeamStatusInfo.STATUS_REMOVED)
             color = REMOVED;
         
         return color;
-    }    
+    }
 }
