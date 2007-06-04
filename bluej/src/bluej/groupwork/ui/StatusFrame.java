@@ -28,7 +28,7 @@ import javax.swing.table.TableColumnModel;
  * Main frame for CVS Status Dialog
  *
  * @author bquig
- * @version $Id: StatusFrame.java 5084 2007-06-04 04:44:56Z bquig $
+ * @version $Id: StatusFrame.java 5085 2007-06-04 05:05:06Z bquig $
  */
 public class StatusFrame extends EscapeDialog
 {
@@ -210,6 +210,7 @@ public class StatusFrame extends EscapeDialog
             if (! aborted) {
                 if (result.isError()) {
                     TeamUtils.handleServerResponse(result, StatusFrame.this);
+                    setVisible(false);
                 }
                 else {
                     Collections.sort(resources, new Comparator() {
