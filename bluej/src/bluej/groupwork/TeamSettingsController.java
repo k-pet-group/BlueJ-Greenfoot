@@ -18,7 +18,7 @@ import bluej.utility.filefilter.DirectoryFilter;
  * the top-level folder of a team project, and the bluej.properties
  *
  * @author fisker
- * @version $Id: TeamSettingsController.java 5087 2007-06-05 02:39:33Z davmac $
+ * @version $Id: TeamSettingsController.java 5088 2007-06-05 04:03:10Z davmac $
  */
 public class TeamSettingsController
 {
@@ -255,7 +255,14 @@ public class TeamSettingsController
         String groupname = getPropString("bluej.teamsettings.groupname");
 
         if (! repositoryPrefix.endsWith("/") && groupname.length() != 0) {
+            // There must be a slash between the repository prefix and the
+            // group name, if there is a group name
             repositoryPrefix = repositoryPrefix + "/";
+        }
+        else if (repositoryPrefix.endsWith("/") && groupname.length() == 0) {
+            // The final repository prefix should not have a trailing slash
+            int nlen = repositoryPrefix.length();
+            repositoryPrefix = repositoryPrefix.substring(0, nlen - 1);
         }
         
         String cvsRoot = ":" + protocol + ":" + user + ":" + password + "@" +
