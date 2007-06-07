@@ -1,16 +1,18 @@
 package bluej.extensions;
 
-import bluej.pkgmgr.Project;
-import bluej.pkgmgr.Package;
-
-import java.io.*;
+import java.io.File;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.List;
+import java.util.ListIterator;
+
+import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
 
 /**
  * A wrapper for a BlueJ project.
  *
- * @version $Id: BProject.java 3542 2005-08-24 10:22:28Z damiano $
+ * @version $Id: BProject.java 5089 2007-06-07 02:19:17Z davmac $
  */
 
 /*
@@ -73,7 +75,7 @@ public class BProject
         Project thisProject = projectId.getBluejProject();
 
         thisProject.saveAll();
-        Project.closeProject (thisProject);
+        PkgMgrFrame.closeProject (thisProject);
     }
     
     /**

@@ -58,7 +58,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 5062 2007-05-27 14:56:31Z bquig $
+ * @version $Id: PkgMgrFrame.java 5089 2007-06-07 02:19:17Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -599,20 +599,10 @@ public class PkgMgrFrame extends JFrame
             editor.revalidate();
             editor.requestFocus();
             
-            // we have had trouble with BlueJ freezing when
-            // the enable/disable GUI code was run off a menu
-            // item. This code will delay the menu disable
-            // until after menu processing has finished
-            Runnable enableUI = new Runnable() {
-                public void run() {
-                    enableFunctions(true); // changes menu items
-                    updateWindowTitle();
-                    setVisible(true);
-                }
-            };
-            
-            SwingUtilities.invokeLater(enableUI);
-            
+            enableFunctions(true); // changes menu items
+            updateWindowTitle();
+            setVisible(true);
+                    
             this.menuManager.setAttachedObject(pkg);
             this.menuManager.addExtensionMenu(pkg.getProject());
         
@@ -628,6 +618,12 @@ public class PkgMgrFrame extends JFrame
      */
     private void resetTeamActions()
     {
+        // The reason this is necessary is because team actions are tied to
+        // a project, not to a PkgMgrFrame. However, a PkgMgrFrame may be
+        // empty and not associated with a project - in that case it has its
+        // own TeamActionGroup. When a project is opened, the actions from
+        // the project then need to be associated with the appropriate controls.
+        
         teamStatusButton.setAction(teamActions.getStatusAction());
         updateButton.setAction(teamActions.getUpdateAction());
         teamSettingsMenuItem.setAction(teamActions.getTeamSettingsAction());
@@ -636,9 +632,6 @@ public class PkgMgrFrame extends JFrame
         statusMenuItem.setAction(teamActions.getStatusAction());
         commitMenuItem.setAction(teamActions.getCommitCommentAction());
         updateMenuItem.setAction(teamActions.getUpdateAction());
-        
-        
-        
         showLogMenuItem.setAction(teamActions.getShowLogAction());
     }
 
@@ -647,8 +640,9 @@ public class PkgMgrFrame extends JFrame
      */
     public void closePackage()
     {
-        if (isEmptyFrame())
+        if (isEmptyFrame()) {
             return;
+        }
         
         extMgr.packageClosing(pkg);
 
@@ -670,11 +664,11 @@ public class PkgMgrFrame extends JFrame
         editor = null;
         pkg = null;
 
-
         // if there are no other frames editing this project, we close
         // the project
-        if (PkgMgrFrame.getAllProjectFrames(proj) == null)
+        if (PkgMgrFrame.getAllProjectFrames(proj) == null) {
             Project.cleanUp(proj);
+        }
     }
 
     /**
@@ -1284,7 +1278,22 @@ public class PkgMgrFrame extends JFrame
         
         return prefixFolder;
     }
-       
+    
+    /**
+     * Close all frames which show packages from the specified project. This
+     * causes the project itself to close.
+     */
+    public static void closeProject(Project project) 
+    {
+        PkgMgrFrame[] frames = getAllProjectFrames(project);
+
+        if (frames != null) {
+            for (int i = 0; i < frames.length; i++) {
+                frames[i].doClose(true);
+            }
+        }
+    }
+    
     /**
      * Perform a user initiated close of this frame/package.
      * 
@@ -1307,19 +1316,9 @@ public class PkgMgrFrame extends JFrame
                 
                 updateWindowTitle();
                 updateRecentProjects();
-                // we have had trouble with BlueJ freezing when
-                // the enable/disable GUI code was run off a menu
-                // item. This code will delay the menu disable
-                // until after menu processing has finished
-                Runnable disableUI = new Runnable() {
-                    public void run()
-                    {
-                        enableFunctions(false); // changes menu items
-                        updateWindowTitle();
-                        menuManager.addExtensionMenu(null);
-                    }
-                };
-                SwingUtilities.invokeLater(disableUI);
+                enableFunctions(false); // changes menu items
+                updateWindowTitle();
+                menuManager.addExtensionMenu(null);
             }
             else { // all frames gone, lets quit
                 doQuit();

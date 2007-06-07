@@ -27,7 +27,6 @@ import bluej.editor.Editor;
 import bluej.extensions.BProject;
 import bluej.extensions.ExtensionBridge;
 import bluej.extmgr.ExtensionsManager;
-import bluej.groupwork.CodeFileFilter;
 import bluej.groupwork.Repository;
 import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.actions.TeamActionGroup;
@@ -42,7 +41,6 @@ import bluej.terminal.Terminal;
 import bluej.testmgr.record.ClassInspectInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
-import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
@@ -56,7 +54,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 5076 2007-05-31 05:24:10Z davmac $
+ * @version $Id: Project.java 5089 2007-06-07 02:19:17Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -160,9 +158,8 @@ public class Project implements DebuggerListener, InspectorManager
         docuGenerator = new DocuGenerator(this);
 
         // Check whether this is a shared project
-        String cfgFilePath = projectDir.getAbsolutePath() + "/team.defs";
-        File cfgFile = new File(cfgFilePath);
-        isSharedProject = cfgFile.isFile();
+        File ccfFile = new File(projectDir.getAbsoluteFile(), "team.defs");
+        isSharedProject = ccfFile.isFile();
         teamActions = new TeamActionGroup(isSharedProject);
     }
 
@@ -295,22 +292,6 @@ public class Project implements DebuggerListener, InspectorManager
         ExtensionsManager.getInstance().projectOpening(proj);
 
         return proj;
-    }
-
-    /**
-     * Remove a project from the collection of currently open projects.
-     */
-    public static void closeProject(Project project) 
-    {
-        PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(project);
-
-        if (frames != null) {
-            for (int i = 0; i < frames.length; i++) {
-                frames[i].doClose(true);
-            }
-        }
-
-        // closing the last frame will cause a call to 'cleanUp'
     }
 
     /**
@@ -685,8 +666,8 @@ public class Project implements DebuggerListener, InspectorManager
     }
 
     /**
-     * The name of the package within the project directory where we first opened
-     * this project.
+     * Get the name of the package represented by the directory which was specified
+     * as the directory to open when this project was opened.
      */
     public String getInitialPackageName() 
     {
@@ -699,13 +680,16 @@ public class Project implements DebuggerListener, InspectorManager
      * the way to the root of the package tree will also be constructed.
      * 
      * @param qualifiedName package name ie java.util or "" for unnamed package
-     * @returns  the package, or null if the package doesn't exist
+     * @returns  the package, or null if the package doesn't exist (directory
+     *           doesn't exist, or doesn't contain bluej.pkg file)
      */
     public Package getPackage(String qualifiedName)
     {
         Package existing = (Package) packages.get(qualifiedName);
 
         if (existing != null) {
+            // The unnamed package is always already open, so that case is
+            // handled here.
             return existing;
         }
 
@@ -1088,54 +1072,6 @@ public class Project implements DebuggerListener, InspectorManager
     }
     
     /**
-     * Implementation of the "Save As.." user function.
-     */
-    public void saveAs(PkgMgrFrame frame) {
-        // get a file name to save under
-        String newName = FileUtility.getFileName(frame,
-                Config.getString("pkgmgr.saveAs.title"),
-                Config.getString("pkgmgr.saveAs.buttonLabel"), true, null, true);
-
-        if (newName != null) {
-            saveAll();
-
-            int result = FileUtility.copyDirectory(getProjectDir().getPath(),
-                    newName);
-
-            switch (result) {
-            case FileUtility.NO_ERROR:
-                break;
-
-            case FileUtility.DEST_EXISTS:
-                DialogManager.showError(frame, "directory-exists");
-
-                return;
-
-            case FileUtility.SRC_NOT_DIRECTORY:
-            case FileUtility.COPY_ERROR:
-                DialogManager.showError(frame, "cannot-copy-package");
-
-                return;
-            }
-
-            closeProject(this);
-
-            // open new project
-            Project openProj = openProject(newName);
-
-            if (openProj != null) {
-                // This is a wizard get 311003 Damiano
-                Package pkg = openProj.getPackage(openProj.getInitialPackageName());
-
-                PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
-                pmf.setVisible(true);
-            } else {
-                Debug.message("could not open package under new name");
-            }
-        }
-    }
-
-    /**
      * Explicitly restart the remote debug VM. The VM first gets shut down, and then
      * freshly restarted.
      */
@@ -1282,11 +1218,13 @@ public class Project implements DebuggerListener, InspectorManager
         }
     }
 
-    public boolean inTestMode() {
+    public boolean inTestMode()
+    {
         return inTestMode;
     }
 
-    public void setTestMode(boolean mode) {
+    public void setTestMode(boolean mode)
+    {
         inTestMode = mode;
     }
 
@@ -1630,14 +1568,14 @@ public class Project implements DebuggerListener, InspectorManager
      */
     private void traverseDirsForFiles(Set allFiles, File dir, boolean includePkgFiles)
     {
-        File[] files = dir.listFiles(new CodeFileFilter(getTeamSettingsController().getIgnoreFiles(),includePkgFiles));
+        File[] files = dir.listFiles(getTeamSettingsController().getFileFilter(includePkgFiles));
         if (files==null){
             return;
         }
         for(int i=0; i< files.length; i++ ){
-            if (files[i].isFile()){
+            if (files[i].isFile()) {
                 allFiles.add(files[i]);
-            }else{
+            } else {
                 traverseDirsForFiles(allFiles, files[i], includePkgFiles);
             }
         }

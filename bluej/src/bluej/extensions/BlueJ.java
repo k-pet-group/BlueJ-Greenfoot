@@ -10,7 +10,6 @@ import bluej.pkgmgr.target.*;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
-import java.util.List;
 import javax.swing.*;
 
 /**
@@ -47,7 +46,7 @@ import javax.swing.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 4271 2006-05-15 17:23:11Z davmac $
+ * @version    $Id: BlueJ.java 5089 2007-06-07 02:19:17Z davmac $
  */
 
 /*

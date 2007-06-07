@@ -16,7 +16,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: FileUtility.java 5089 2007-06-07 02:19:17Z davmac $
  */
 public class FileUtility
 {
@@ -104,8 +104,9 @@ public class FileUtility
             }
             return newChooser.getSelectedFile().getPath();
         }
-        else if (result == JFileChooser.CANCEL_OPTION)
+        else if (result == JFileChooser.CANCEL_OPTION) {
             return null;
+        }
         else {
             DialogManager.showError(parent, "error-no-name");
             return null;
@@ -306,11 +307,8 @@ public class FileUtility
     public static final int SRC_NOT_DIRECTORY = 2;
     public static final int COPY_ERROR = 3;
 
-    public static int copyDirectory(String source, String dest)
+    public static int copyDirectory(File srcFile, File destFile)
     {
-        File srcFile = new File(source);
-        File destFile = new File(dest);
-
         if(!srcFile.isDirectory())
             return SRC_NOT_DIRECTORY;
 
@@ -322,14 +320,14 @@ public class FileUtility
 
         String[] dir = srcFile.list();
         for(int i=0; i<dir.length; i++) {
-            String srcName = source + File.separator + dir[i];
-            File file = new File(srcName);
+            //String srcName = source + File.separator + dir[i];
+            File file = new File(srcFile, dir[i]);
             if(file.isDirectory()) {
-                if(copyDirectory(srcName, dest + File.separator + dir[i]) != NO_ERROR)
+                if(copyDirectory(file, new File(destFile, dir[i])) != NO_ERROR)
                     return COPY_ERROR;
             }
             else {
-                File file2 = new File(dest, dir[i]);
+                File file2 = new File(destFile, dir[i]);
                 if(!copyFile(file, file2))
                     return COPY_ERROR;
             }
