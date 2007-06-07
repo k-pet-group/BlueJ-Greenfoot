@@ -21,7 +21,7 @@ import bluej.utility.SwingWorker;
  * and commit comments.
  * 
  * @author Davin McCall
- * @version $Id: HistoryFrame.java 4916 2007-04-12 03:57:23Z davmac $
+ * @version $Id: HistoryFrame.java 5091 2007-06-07 02:43:07Z bquig $
  */
 public class HistoryFrame extends JFrame
 {
@@ -275,6 +275,7 @@ public class HistoryFrame extends JFrame
                 command = null; // marks the command as finished
                 if (response.isError()) {
                     TeamUtils.handleServerResponse(response, HistoryFrame.this);
+                    setVisible(false);
                 }
                 else {
                     List modelList = new ArrayList();
