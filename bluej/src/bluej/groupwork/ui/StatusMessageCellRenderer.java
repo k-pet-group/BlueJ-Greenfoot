@@ -13,20 +13,20 @@ import javax.swing.table.DefaultTableCellRenderer;
  * StatusCellRenderer.java
  * Renderer to add colour to the status message of resources inside a StatusFrame
  * @author Bruce Quig
- * @cvs $Id: StatusMessageCellRenderer.java 5081 2007-06-04 04:27:50Z bquig $
+ * @cvs $Id: StatusMessageCellRenderer.java 5093 2007-06-14 15:11:31Z mik $
  */
 public class StatusMessageCellRenderer extends DefaultTableCellRenderer 
 {
-    final static Color DARKER_GREEN = Color.GREEN.darker().darker();
+    private final static Color DARKER_GREEN = Color.GREEN.darker().darker();
     
-    final static Color UPTODATE = Color.BLACK;
-    final static Color NEEDSCHECKOUT = DARKER_GREEN;
-    final static Color DELETED = Color.GRAY;
-    final static Color NEEDSUPDATE = Color.BLUE;
-    final static Color NEEDSCOMMIT = Color.BLUE;
-    final static Color NEEDSMERGE = Color.BLACK;
-    final static Color NEEDSADD = DARKER_GREEN;
-    final static Color REMOVED = Color.GRAY;
+    private final static Color UPTODATE = Color.BLACK;
+    private final static Color NEEDSUPDATE = new Color(11,57,120);  // blue
+    private final static Color NEEDSCHECKOUT = NEEDSUPDATE;
+    private final static Color REMOVED = new Color(135,150,170);     // grey-blue
+    private final static Color NEEDSMERGE = new Color(137,13,19);   // red
+    private final static Color NEEDSCOMMIT = new Color(10,85,15);   // green
+    private final static Color NEEDSADD = NEEDSCOMMIT;
+    private final static Color DELETED = new Color(122,143,123);      // grey-green
 
     Project project;
     
