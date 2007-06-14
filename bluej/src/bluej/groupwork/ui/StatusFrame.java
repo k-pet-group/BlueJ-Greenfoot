@@ -28,7 +28,7 @@ import javax.swing.table.TableColumnModel;
  * Main frame for CVS Status Dialog
  *
  * @author bquig
- * @version $Id: StatusFrame.java 5085 2007-06-04 05:05:06Z bquig $
+ * @version $Id: StatusFrame.java 5092 2007-06-14 15:11:09Z mik $
  */
 public class StatusFrame extends EscapeDialog
 {
@@ -66,6 +66,11 @@ public class StatusFrame extends EscapeDialog
         statusTable = new JTable(statusModel);
         statusTable.getTableHeader().setReorderingAllowed(false);
         
+        // set relative column widths
+        statusTable.getColumnModel().getColumn(0).setPreferredWidth(80);
+        statusTable.getColumnModel().getColumn(1).setPreferredWidth(30);
+        statusTable.getColumnModel().getColumn(2).setPreferredWidth(120);
+        
         //set up custom renderer to colour code status message field
         statusRenderer = new StatusMessageCellRenderer(project);
         statusTable.setDefaultRenderer(java.lang.Object.class, statusRenderer);
@@ -75,7 +80,7 @@ public class StatusFrame extends EscapeDialog
         Dimension prefSize = statusTable.getMaximumSize();
         Dimension scrollPrefSize =  statusTable.getPreferredScrollableViewportSize();
         
-        Dimension best = new Dimension(scrollPrefSize.width, prefSize.height + 30);
+        Dimension best = new Dimension(scrollPrefSize.width + 50, prefSize.height + 30);
         statusScroller.setPreferredSize(best);
         getContentPane().add(statusScroller, BorderLayout.CENTER);
         getContentPane().add(makeButtonPanel(), BorderLayout.SOUTH);
