@@ -9,9 +9,9 @@ A
 B
 C
 D   show debugger
-E   scratchpad
-F
-G
+E   show codepad
+F   team:update
+G   team:commit
 H   <MacOS: Hide>
 I   show inheritance
 J   generate doc
