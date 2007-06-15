@@ -626,6 +626,9 @@ team.statusinfo.needsMerge=Modified locally and in repository
 team.statusinfo.unresolved=Unresolved conflict
 team.statusinfo.hasConflicts=Has conflicts
 team.statusinfo.weird=???
+team.statusinfo.conflictAdd=Added locally and in repository (conflict)
+team.statusinfo.conflictLMRD=Modified locally and removed from repository (conflict)
+team.statusinfo.conflictLDRM=Removed locally and modified in repository (conflict)
 
 team.settings.title = Team Settings
 team.settings.personal=Personal
