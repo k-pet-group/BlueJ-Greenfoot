@@ -445,7 +445,10 @@ public class CommitCommentsFrame extends EscapeDialog
                 else {
                     if (status == TeamStatusInfo.STATUS_HASCONFLICTS
                                 || status == TeamStatusInfo.STATUS_NEEDSMERGE
-                                || status == TeamStatusInfo.STATUS_UNRESOLVED) {
+                                || status == TeamStatusInfo.STATUS_UNRESOLVED
+                                || status == TeamStatusInfo.STATUS_CONFLICT_ADD
+                                || status == TeamStatusInfo.STATUS_CONFLICT_LDRM
+                                || status == TeamStatusInfo.STATUS_CONFLICT_LMRD) {
                         if(!statusInfo.getFile().getName().equals("bluej.pkg") || includeLayout())
                             conflicts.add(statusInfo.getFile());
                     }

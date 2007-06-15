@@ -7,7 +7,7 @@ import java.io.File;
  * Team status information for a file
  * 
  * @author Davin McCall
- * @version $Id: TeamStatusInfo.java 5068 2007-05-28 04:17:10Z bquig $
+ * @version $Id: TeamStatusInfo.java 5096 2007-06-15 05:04:26Z davmac $
  */
 public class TeamStatusInfo
 {
@@ -33,10 +33,13 @@ public class TeamStatusInfo
     /** The file exists locally, but has been removed in the repository */
     public final static int STATUS_REMOVED = 7;
     /**
-     * An unresolved conflict. This can happen when the file has been removed
-     * from the repository, but local changes have been made. Or when a file
-     * has been locally added, but has been added to the repository by someone
-     * else. Or when two binary files have been modified maybe? 
+     * An unresolved conflict. This can happen when either:<ul>
+     * <li>the file has been removed from the repository, but local changes have been made
+     * <li>the file has been locally removed, but modified in the repository
+     * <li>a file has been locally added, but has been added to the repository by someone
+     *   else
+     * <li>when two binary files have been modified maybe?
+     * </ul><p> 
      * 
      * The only way out is to either delete the file locally, or do a forced
      * commit or a forced update.
@@ -50,6 +53,20 @@ public class TeamStatusInfo
     public final static int STATUS_HASCONFLICTS = 9;
     /** Unknown */
     public final static int STATUS_WEIRD = 10;
+    /**
+     * The file has been created locally, but a file with the same name has been
+     * added in the repository. This is a conflict.
+     */
+    public final static int STATUS_CONFLICT_ADD = 12;
+    /**
+     * Locally modified, but deleted in repository (conflict)
+     */
+    public final static int STATUS_CONFLICT_LMRD = 13;
+    /**
+     * Locally deleted, but modified in repository (conflict)
+     */
+    public final static int STATUS_CONFLICT_LDRM = 14;
+    
     
     /* It has no status, only used for default constructor while waiting for cvs */
     public final static int STATUS_BLANK = 11;
@@ -65,7 +82,11 @@ public class TeamStatusInfo
         "team.statusinfo.removed",
         "team.statusinfo.unresolved",
         "team.statusinfo.hasConflicts",
-        "team.statusinfo.weird"
+        "team.statusinfo.weird",
+        "",
+        "team.statusinfo.conflictAdd",  // DAV these need to be added in labels
+        "team.statusinfo.conflictLMRD",
+        "team.statusinfo.conflictLDRM"
     };
     
     /**

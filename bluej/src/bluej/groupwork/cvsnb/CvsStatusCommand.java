@@ -1,7 +1,6 @@
 package bluej.groupwork.cvsnb;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -9,8 +8,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.netbeans.lib.cvsclient.Client;
-import org.netbeans.lib.cvsclient.admin.AdminHandler;
-import org.netbeans.lib.cvsclient.admin.Entry;
 import org.netbeans.lib.cvsclient.command.CommandAbortedException;
 import org.netbeans.lib.cvsclient.command.CommandException;
 import org.netbeans.lib.cvsclient.command.status.StatusInformation;
@@ -47,7 +44,6 @@ public class CvsStatusCommand extends CvsCommand
         Set remoteDirs;
         
         Client client = getClient();
-        AdminHandler adminHandler = client.getAdminHandler();
         
         // First we need to figure out remote directories
         if (includeRemote) {
@@ -83,17 +79,57 @@ public class CvsStatusCommand extends CvsCommand
         List statusInfo = statusServerResponse.getStatusInformation();
         for (Iterator i = statusInfo.iterator(); i.hasNext(); ) {
             StatusInformation sinfo = (StatusInformation) i.next();
-            
             int status;
+            boolean deletedInRepos = false;
+            
             FileStatus fstatus = sinfo.getStatus();
             String workingRev = sinfo.getWorkingRevision();
             if (workingRev == null || workingRev.startsWith("No entry")) {
                 workingRev = "";
             }
             
+            // There's a bug in the netbeans CVS library which can cause files
+            // with the same base name (eg. multiple "bluej.pkg" files) to sometimes
+            // get mixed up. However the repository file name will always
+            // be correct, so we'll use that instead.
+            File file;
+            String reposName = sinfo.getRepositoryFileName();
+            if (reposName != null) {
+                if (reposName.endsWith(",v")) {
+                    reposName = reposName.substring(0, reposName.length() - 2);
+                }
+                String reposRoot = repository.getRepositoryRoot();
+                if (! reposRoot.endsWith("/")) {
+                    reposRoot += "/";
+                }
+                reposRoot += projectPath.getName() + "/";
+                String fname = reposName.substring(reposRoot.length());
+                
+                file = new File(projectPath, fname);
+
+                // Files are in "Attic" if they were deleted in the repository
+                File parentDir = file.getParentFile();
+                if (parentDir.getName().equals("Attic")) {
+                    file = new File(parentDir.getParentFile(), file.getName());
+                    deletedInRepos = true;
+                }
+            }
+            else {
+                // Of course, for files not in the repository, no repository
+                // version is available.
+                file = sinfo.getFile();
+            }
+            
             if (fstatus == FileStatus.NEEDS_CHECKOUT) {
                 if (workingRev.length() > 0) {
-                    status = TeamStatusInfo.STATUS_DELETED;
+                    String reposRev = sinfo.getRepositoryRevision();
+                    if (workingRev.equals(reposRev)) {
+                        status = TeamStatusInfo.STATUS_DELETED;
+                    }
+                    else {
+                        // Not up-to-date, but locally deleted
+                        status = TeamStatusInfo.STATUS_CONFLICT_LDRM;
+                    }
                 }
                 else {
                     status = TeamStatusInfo.STATUS_NEEDSCHECKOUT;
@@ -125,9 +161,21 @@ public class CvsStatusCommand extends CvsCommand
                 status = TeamStatusInfo.STATUS_REMOVED;
             }
             else if (fstatus == FileStatus.UNRESOLVED_CONFLICT) {
-                // This seems to indicate that there's been a local modification,
-                // but the file has been removed in the repository
-                status = TeamStatusInfo.STATUS_UNRESOLVED;
+                if (deletedInRepos) {
+                    // There's been a local modification, but the file has been
+                    // removed in the repository
+                    status = TeamStatusInfo.STATUS_CONFLICT_LMRD;
+                }
+                else {
+                    if (workingRev.length() == 0) {
+                        // File has been added locally. This can only be a conflict
+                        // if the file has also been added in the repository.
+                        status = TeamStatusInfo.STATUS_CONFLICT_ADD;
+                    }
+                    else {
+                        status = TeamStatusInfo.STATUS_UNRESOLVED;
+                    }
+                }
             }
             else if (fstatus == FileStatus.HAS_CONFLICTS) {
                 // The local file still has conflicts in it from the last update.
@@ -144,29 +192,6 @@ public class CvsStatusCommand extends CvsCommand
                 status = TeamStatusInfo.STATUS_WEIRD;
             }
             
-            // There's a bug in the netbeans CVS library which can cause files
-            // with the same base name (eg. multiple "bluej.pkg" files) to sometimes
-            // get mixed up. However the repository file name will always
-            // be correct, so we'll use that instead.
-            File file;
-            String reposName = sinfo.getRepositoryFileName();
-            if (reposName != null) {
-                if (reposName.endsWith(",v")) {
-                    reposName = reposName.substring(0, reposName.length() - 2);
-                }
-                String reposRoot = repository.getRepositoryRoot();
-                if (! reposRoot.endsWith("/")) {
-                    reposRoot += "/";
-                }
-                reposRoot += projectPath.getName() + "/";
-                String fname = reposName.substring(reposRoot.length());
-                file = new File(projectPath, fname);
-            }
-            else {
-                // Of course, for files not in the repository, no repository
-                // version is available.
-                file = sinfo.getFile();
-            }
             
             if (files.remove(file)) {
                 TeamStatusInfo teamInfo = new TeamStatusInfo(file,
@@ -181,28 +206,10 @@ public class CvsStatusCommand extends CvsCommand
         // status for...
         for (Iterator i = files.iterator(); i.hasNext(); ) {
             File file = (File) i.next();
-
-            // See if there's an entry for this file in the metadata
-            Entry entry = null;
-            try {
-                entry = adminHandler.getEntry(file);
-            }
-            catch (IOException ioe) {
-                // Assume no entry
-            }
-            
-            // If there's a metadata entry, it means the file was removed in the
-            // repository; otherwise, it has been added locally. We need to check
-            // this as if a file was added which previously existed in the repository,
-            // the response from CVS won't be recognized in the above code (because
-            // the file is in the Attic).
-            int status = entry == null ? TeamStatusInfo.STATUS_NEEDSADD :
-                TeamStatusInfo.STATUS_REMOVED;
-            
             TeamStatusInfo teamInfo = new TeamStatusInfo(file,
                     "",
                     null,
-                    status);
+                    TeamStatusInfo.STATUS_NEEDSADD);
             returnInfo.add(teamInfo);
         }
 

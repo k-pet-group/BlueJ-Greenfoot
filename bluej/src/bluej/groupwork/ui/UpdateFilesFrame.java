@@ -26,7 +26,7 @@ import bluej.utility.SwingWorker;
  * A Swing based user interface for showing files to be updated
  * @author Bruce Quig
  * @author Davin McCall
- * @version $Id: UpdateFilesFrame.java 5086 2007-06-04 05:15:53Z bquig $
+ * @version $Id: UpdateFilesFrame.java 5096 2007-06-15 05:04:26Z davmac $
  */
 public class UpdateFilesFrame extends EscapeDialog
 {
@@ -384,6 +384,7 @@ public class UpdateFilesFrame extends EscapeDialog
          * @param filesToAdd     The set to store the files to be added in
          * @param filesToRemove  The set to store the files to be removed in
          * @param conflicts      The set to store unresolved conflicts in
+         *                       (any files in this set prevent update from occurring)
          */
         private void getUpdateFileSet(List info, Set filesToUpdate, Set conflicts, Set modifiedLayoutFiles)
         {
@@ -405,7 +406,11 @@ public class UpdateFilesFrame extends EscapeDialog
                     }
                 }
                 else {
-                    if (status == TeamStatusInfo.STATUS_UNRESOLVED) {
+                    boolean conflict;
+                    conflict = status == TeamStatusInfo.STATUS_UNRESOLVED;
+                    conflict |= status == TeamStatusInfo.STATUS_CONFLICT_ADD;
+                    conflict |= status == TeamStatusInfo.STATUS_CONFLICT_LMRD;
+                    if (conflict) {
                         if(!statusInfo.getFile().getName().equals("bluej.pkg")) {
                             conflicts.add(statusInfo.getFile());
                         }
