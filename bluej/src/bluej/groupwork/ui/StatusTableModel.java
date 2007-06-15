@@ -15,7 +15,7 @@ import bluej.pkgmgr.Project;
  * 
  * 
  * @author Bruce Quig
- * @cvs $Id: StatusTableModel.java 5081 2007-06-04 04:27:50Z bquig $
+ * @cvs $Id: StatusTableModel.java 5098 2007-06-15 08:49:21Z polle $
  */
 public class StatusTableModel extends AbstractTableModel
 {
@@ -101,7 +101,7 @@ public class StatusTableModel extends AbstractTableModel
         else if (col == 1)
             return info.getLocalVersion(); 
         else if (col == 2)
-            return Integer.valueOf(info.getStatus());
+            return new Integer(info.getStatus());
 
         return null;
     }
