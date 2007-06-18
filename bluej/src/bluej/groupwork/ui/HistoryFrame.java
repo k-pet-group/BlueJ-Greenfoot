@@ -23,7 +23,7 @@ import bluej.utility.SwingWorker;
  * and commit comments.
  * 
  * @author Davin McCall
- * @version $Id: HistoryFrame.java 5100 2007-06-18 01:00:19Z davmac $
+ * @version $Id: HistoryFrame.java 5104 2007-06-18 04:37:37Z davmac $
  */
 public class HistoryFrame extends EscapeDialog
 {
@@ -346,6 +346,6 @@ class DateCompare implements Comparator
         HistoryInfo hi0 = (HistoryInfo) arg0;
         HistoryInfo hi1 = (HistoryInfo) arg1;
         
-        return hi0.getDate().compareTo(hi1.getDate());
+        return hi1.getDate().compareTo(hi0.getDate());
     }
 }
