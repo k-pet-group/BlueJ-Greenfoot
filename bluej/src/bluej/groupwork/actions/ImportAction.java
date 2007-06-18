@@ -14,7 +14,7 @@ import bluej.pkgmgr.Project;
  * An action to perform an import into a repository, i.e. to share a project.
  * 
  * @author Kasper
- * @version $Id: ImportAction.java 4916 2007-04-12 03:57:23Z davmac $
+ * @version $Id: ImportAction.java 5101 2007-06-18 01:16:24Z davmac $
  */
 public class ImportAction extends TeamAction 
 {
@@ -49,6 +49,7 @@ public class ImportAction extends TeamAction
             return;
         }
 
+        project.saveAllGraphLayout();
         setStatus(Config.getString("team.sharing"));
         startProgressBar(); 
         
