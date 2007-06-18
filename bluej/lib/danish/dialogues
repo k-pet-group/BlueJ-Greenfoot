@@ -1,0 +1,435 @@
+compile-while-executing
+Du kan ikke kompilere mens maskinen
+k\u00F8rer. Dette kan for\u00E5rsage underlige
+problemer!
+
+exception-thrown
+En undtagelse opstod:
+
+break-no-source
+Breakpoint ramt i en fil, men kildekoden
+kan ikke findes.  Filnavn:
+
+error-in-file
+En fejl opstod i en fil, men kildekoden
+kan ikke findes.
+klasse: kildekode linienummer:
+
+system-exit
+Metoden sluttede ved en eksplicit
+"exit" instruktion. Intet resultat
+returneret. Exit koden er:
+
+no-help
+Ingen hj\u00E6lp tilg\u00E6ngelig for denne besked.
+Send venligst fejl-teksten p\u00E5 mail
+til mik@bluej.org - vi vil derefter
+tilf\u00F8je en hj\u00E6lpetekst til vores hj\u00E6lp-database. Tak.
+
+editor-crashed
+Det ser ud til at BlueJ gik ned da den skrev denne klasse
+til disk sidste gang. Kildekoden kan mangle, eller v\u00E6re 
+ukomplet. Der burde v\u00E6re en backup af denne klasse 
+i projekt mappen. Hvis denne klasse virker beskadiget,
+   1 - afslut BlueJ
+   2 - tag backup af projekt mappen (for en sikkerheds skyld)
+   3 - kig i projekt mappen efter en backup af
+       denne java fil. omd\u00F8b den til det oprindelige
+       filnavn (med '.java' suffix)
+
+cannot-run-compiler
+Kan ikke k\u00F8re compiler. Er
+programmet i din sti?
+Navn p\u00E5 compiler:
+
+compiler-error
+Compiler fejl:
+
+stream-incomplete
+Compiler fejl. Fejl str\u00F8m ukomplet.
+
+out-of-bounds
+Specificerede element er ikke
+inden for array gr\u00E6nserne.
+
+cannot-access-element
+Kan ikke tilg\u00E5 det specificerede
+array element.
+
+appletviewer-error
+Fejl ved k\u00F8rsel af applet i appletviewer.
+
+error-no-name
+Du skal angive et navn.
+
+error-save-file
+En fejl opstod under fors\u00F8g p\u00E5 at gemme
+filen. Filen blev ikke gemt.
+
+cannot-save-keys
+En fejl opstod under fors\u00F8g p\u00E5 at gemme
+tastatur bindingerne. Bindingerne blev ikke
+gemt.
+
+error-no-templates
+Den specificerede skabelon-mappe (mappen hvor
+BlueJ finder klasse skabelonerne) eksisterer ikke. Den
+defineres med egenskaben "bluej.templatePath" i
+<bluej-home>/lib/bluej.defs. Check og ret denne egenskab.
+
+skeleton-error
+Standard skelettet for klassen kunne ikke
+genereres. Det kan v\u00E6re p\u00E5 grund af konfigurations
+fejl i ops\u00E6tningen af BlueJ, eller p\u00E5 grund af fil-
+system adgangs-problemer.
+
+error-open-source
+Kan ikke \u00E5bne kildekoden
+for denne klasse.
+
+error-writing-readme
+README filen for dette projekt kunne ikke
+opdateres for at tilf\u00F8je hoved-klasse information.
+Der opstod en fejl ved \u00E6ndring af denne fil.
+
+error-writing-jar
+jar filen kunne ikke skrives korrekt.
+(Check fil-systemet for adgangs-rettigheder og
+tilg\u00E6ngelig disk plads.)
+
+error-jar-exists
+Filen du har vlagt eksisterer allerede.
+Vil du overskrive den?
+Overskriv
+Fortryd
+null
+
+invalid-class-name
+Ugyldigt klasse navn.
+
+invalid-package-name
+Ugyldigt pakke navn.
+
+must-be-identifier
+Navnet er ikke gyldigt. Det
+skal v\u00E6re en gyldig Java identifier.
+
+directory-exists
+En fil eller mappe med dette
+navn eksisterer allerede.
+
+cannot-copy-package
+Der var et problem ved kopiering af
+pakke filerne. Pakken blev ikke
+skrevet, eller den var ukomplet.
+
+file-does-not-exist
+Den specificerede fil
+eksisterer ikke.
+
+cannot-import
+Kan ikke importere filen. Filen skal
+v\u00E6re en Java kildekode fil (dens navn
+skal ende med ".java").
+
+docdir-blocked-by-file
+Mappen til dokumentation kunne
+ikke oprettes i projekt mappen
+fordi der er en fil med samme navn.
+
+docdir-not-created
+Mappen til dokumentation kunne
+ikke oprettes i projekt mappen.
+
+no-permission-for-docdir
+Mappen til dokumentation kunne
+ikke oprettes i projekt mappen
+p\u00E5 grund af manglende rettigheder.
+
+show-or-generate
+Vil du vise den dokumentation der blev
+genereret tidligere, eller vil du
+regenerere hele dokumentationen?
+Vis kun
+Regenerer
+Fortryd
+
+doctool-error
+Javadoc meldte en fejl. Der kan v\u00E6re en syntaks fejl
+i en af de filer du pr\u00F8vede at generere
+dokumentation til. Det kan ogs\u00E5 v\u00E6re at JDK
+dokumentations-URL'en specificeret i indtsillingerne er ukorrekt.
+Du skal sikre dig at alle dine Java filer er kompileret og
+dokumentations-URL'en er tilg\u00E6ngelig eller sl\u00E5et fra. Pr\u00F8v s\u00E5 igen.
+Hvis denne besked fremkommer igen, skal du checke log filen
+med fejl-beskeden fra Javadoc:
+
+severe-doc-trouble
+En undtagelse opstod under kaldet til det
+eksterne dokumentations-v\u00E6rkt\u00F8j.
+
+no-java-sources-found
+Ingen Java kildekode filer
+fundet i denne mappe.
+
+duplicate-name
+En klasse eller en pakke med dette navn eksisterer
+allerede i dette projekt. Du kan ikke have to
+klasser eller pakker med samme navn.
+
+error-in-import
+En fejl opstod under fors\u00F8get p\u00E5 at
+importere filen. Check adgangs rettigheder og
+disk-plads.
+
+no-class-selected-compile
+Ingen klasse valgt til kompilering.
+V\u00E6lg en klasse ved at klikke p\u00E5
+den f\u00F8r kompilering.
+
+no-class-selected
+Intet valgt til sletning.
+V\u00E6lg en klasse, pil eller pakke ved at klikke p\u00E5
+den f\u00F8r sletning.
+
+really-remove-class
+Sletning af klasser vil permanent
+slette deres kildekode fil(er).
+Vil du forts\u00E6tte?
+Slet
+Fortryd
+null
+
+really-remove-package
+Sletning af denne pakke vil permanent
+slette pakke-mappen (inklusive ALT
+indhold i mappen).
+Vil du forts\u00E6tte?
+Slet
+Fortryd
+null
+
+remove-package-open
+Pakken du har valgt til sletning
+har nogle under-pakker \u00E5bnede
+i BlueJ. Du skal lukke disse
+pakker f\u00F8r du kan
+slette denne pakke.
+
+package-does-not-exist
+Fejl ved \u00E5bning af pakken.
+Pakken eksisterer ikke:
+
+no-bluej-package
+Fejl ved \u00E5bning af pakken.
+Filen/mappen er ikke
+en BlueJ pakke:
+
+applet-height-width
+Applet h\u00F8jde og bredde
+skal angives.
+
+cannot-read-help
+Kan ikke l\u00E6se hj\u00E6lpe-fil:
+
+not-yet-implemented
+Ikke implementeret endnu - desv\u00E6rre.
+
+quit-all
+Luk alle \u00E5bne projekter?
+Luk alle
+Fortryd
+null
+
+really-reload
+Genindl\u00E6sning smider \u00E6ndringer siden sidste redigering v\u00E6k.
+Er du sikker?
+Genindl\u00E6s
+Fortryd
+null
+
+really-print
+Teksten er bredere end papiret. Lange linier
+sk\u00E6res af. Du kan undg\u00E5 dette ved at \u00E6ndre st\u00E5rrelsen
+af editor vinduet, og g\u00F8re det smallere. Vil du
+udskrive alligevel?
+Udskriv
+Fortryd
+null
+
+open-non-bluej-already-bluej
+Mappen du har valgt er allerede
+et BlueJ projekt.
+
+open-non-bluej-no-java
+Ingen Java kildekode filer blev
+fundet i denne mappe.
+
+open-non-bluej-invalid
+Du har angivet at du vil \u00E5bne denne
+mappe som et BlueJ projekt, men en fil
+blev fundet med en pakke-statement der ikke
+er kompatibel med den nuv\u00E6rende mappe-
+struktur. (For eksempel, hvis Java klassen
+Shape har en pakke linie med: com.aa, s\u00E5
+skal filen Shape.java v\u00E6re i en mappe aa
+som igen er i en mappe com. Denne com
+mappe skal s\u00E5 v\u00E6re i en anden mappe
+som er mappen du skal v\u00E6lge i BlueJ
+n\u00E5r du fors\u00F8ger at \u00E5bne den).
+
+import-into-current
+Du har i \u00F8jeblikket en pakke \u00E5ben i dette vindue.
+Vil du importere til den nuv\u00E6rende pakke
+eller vil du oprette et nyt projekt og
+importere til det?
+Nuv\u00E6rende
+Nyt projekt
+Fortryd
+
+package-name-invalid
+Du har \u00E6ndret pakke-statement
+til en pakke som ikke eksisterer i dette projekt.
+Hvis du vil flytte klassen til en anden
+pakke, skal du f\u00F8rst oprette destinations-
+pakken. Pakke-statement er \u00E6ndret tilbage til
+original form.
+
+package-name-clash
+Du har \u00E6ndret pakke-statement til 
+en pakke der allerede har en klasse eller pakke
+med dette navn. Hvis klassen flyttes, vil den
+eksisterende klasse eller pakke overskrives,
+s\u00E5 pakke-statement er \u00E6ndret tilbage
+til original form.
+
+package-name-changed
+Du har \u00E6ndret pakke-statement der
+fort\u00E6ller Java hvilken pakke denne klasse er i. Vil du
+flytte denne klasse til den indikerede pakke
+eller vil du lade klasse v\u00E6re hvor den er
+(pakke-statement bliver \u00E6ndret tilbage til
+original form)?
+Flyt
+\u00C6ndre tilbage
+null
+
+ask-index
+Indtast array element indeks [...]
+Array Inspektion
+null
+
+classmgr-changes-no-effect
+De \u00E6ndringer du har lavet i klasse bibliotekerne
+vil ingen effekt have f\u00F8r n\u00E6ste gang du
+starter BlueJ.
+
+pref-optimise-no-effect
+De \u00E6ndringer du laver i virtual machine indstillingerne vil
+f\u00F8rst tr\u00E6de i kraft for projekter du \u00E5bner efter denne \u00E6ndring
+(eller hvis du genstarter virtual machine).
+
+unittest-new-test-method
+Angiv et navn til denne test.
+Optagelse vil s\u00E5 starte.
+Ny Test Metode
+null
+
+getobject-new-name
+Indtast navnet p\u00E5 det nye objekt i
+objekt b\u00E6nken.
+Nyt Objekt Navn
+null
+
+unittest-fixture-present
+Denne unit test klasse har allerede en fixture erkl\u00E6ret
+i sig. Hvis du forts\u00E6tter, vil definitionen af denne
+fixture erstattes.
+Vil du forts\u00E6tte?
+Erstat
+Fortryd
+null
+
+unittest-method-present
+Denne unit test klasse har allerede en test metode erkl\u00E6ret
+i sig med samme navn. Hvis du forts\u00E6tter, vil
+definitionen af metoden erstattes.
+Vil du forts\u00E6tte?
+Erstat
+Fortryd
+null
+
+no-search-string
+Ingen s\u00F8ge-streng defineret.
+(Marker noget tekst eller brug 'Find' f\u00F8rst.)
+
+default-keys
+Vil du virkelig smide alle dine tastatur-
+bindinger v\u00E6k og v\u00E6lge standard
+bindingerne?
+S\u00E6t standarder
+Fortryd
+null
+
+error-create-vm
+BlueJ var ikke i stand til at lave en virtual machine (VM) til k\u00F8rsel af projekter.
+Dette er et alvorligt problem - du vil ikke v\u00E6re i stand til at lave objekter 
+eller kalde metoder uden at l\u00F8se det.
+Som regel opst\u00E5r dette problem som f\u00F8lge af specifikke netv\u00E6rksindstillinger p\u00E5 din
+maskine. BlueJ bruger TCP/IP og sockets til at opn\u00E5 oprettelse af VM. 
+Den mest almindelige \u00E5rsag til dette er en for restriktiv firewall der
+ikke tillader forbindelser fra din lokale maskine. Sl\u00E5 firewall'en fra
+(hvis du har en) for at teste dette. Hvis det l\u00F8ser problemet s\u00E5 pr\u00F8v at finde 
+en firewall indstilling der tillader forbindelser fra den lokale maskine.
+Andre mulige \u00E5rsager er ukorrekte netv\u00E6rksindstillinger. Check at TCP/IP
+er opsat korrekt, og check andre netv\u00E6rksparametre.
+Hvis problemet forts\u00E6tter, bed om hj\u00E6lp (se http://www.bluej.org/help/ask-help.html).
+
+project-is-readonly
+Projektet er skrivebeskyttet. Du kan ikke lave objekter eller
+kalde metoder.
+Enten er projektets adgangsrettigheder sat til 
+'skrivebeskyttet' for dig, eller ogs\u00E5 er hele filsystemet ikke skrivbart
+(er det en CD?).
+For at bruge dette projekt fuldt ud, skal du sikre dig at det er p\u00E5 et skrivbart
+fil-system (Som regel din harddisk), og at du har skrive- 
+tilladelse i projekt-mappen og hver fil inden i den.
+
+could-not-write-shell-file
+K\u00F8rsel fejlede fordi projekt-mappen ikke er skrivbar.
+For at lave objekter eller kalde metoder, skal du kunn skrive 
+til projekt-mappen. Check at dit projekt er p\u00E5 et skrivbart 
+fil-system (ikke en CD!) og at du har skrive-tilladelse i
+projekt-mappen og alle filer i den.
+
+jar-output-dir-exists
+Output mappen for arkivet der udpakkes eksisterer allerede.
+Du skal fjerne den eksisterende mappe f\u00F8r du kan
+udpakke arkivet.
+
+jar-extraction-error
+En fejl opstod ved udpakning af arkivets indhold. Debug
+loggen kan indholde mere information.
+
+team-update-first
+Der er konflikter med f\u00F8lgende filer. Du kan ikke udf\u00F8re en
+commit operation f\u00F8r disse konflikter er l\u00F8st:
+
+team-uptodate-failed
+Din lokale kopi er for gammel. Opdater fra repository
+f\u00F8r du commit'er lokale \u00E6ndringer.
+
+team-cant-find-module
+Projektet er ikke i repository. Et projekt skal deles (l\u00E6gges 
+i repository) f\u00F8r du kan checke det ud.
+
+team-empty-message
+En ukendt fejl opstod. Check team-indstillinger for at sikre dig
+at repository indstillingerne er korrekte.
+
+team-invalid-cvsroot
+Invalid CVS rod - check dine team-indstillinger.
+
+team-authentication-problem
+Serveren kunne ikke logge dig p\u00E5 - check dit brugernavn/kodeord og
+repository i team-indstillinger.

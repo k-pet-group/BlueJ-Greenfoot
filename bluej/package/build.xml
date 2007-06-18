@@ -33,9 +33,10 @@
         <include name="lib/images/*.icns" />
         <include name="lib/afrikaans/" />
     	<include name="lib/catalan/" />
-        <include name="lib/dutch/" />
         <include name="lib/chinese/" />
         <include name="lib/czech/" />
+        <include name="lib/danish/" />
+        <include name="lib/dutch/" />
         <include name="lib/english/" />
         <include name="lib/french/" />
         <include name="lib/german/" />
