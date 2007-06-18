@@ -1,6 +1,7 @@
 package bluej.groupwork.ui;
 
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
@@ -14,6 +15,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.DBox;
 import bluej.utility.DBoxLayout;
+import bluej.utility.EscapeDialog;
 import bluej.utility.SwingWorker;
 
 /**
@@ -21,9 +23,9 @@ import bluej.utility.SwingWorker;
  * and commit comments.
  * 
  * @author Davin McCall
- * @version $Id: HistoryFrame.java 5091 2007-06-07 02:43:07Z bquig $
+ * @version $Id: HistoryFrame.java 5100 2007-06-18 01:00:19Z davmac $
  */
-public class HistoryFrame extends JFrame
+public class HistoryFrame extends EscapeDialog
 {
     Project project;
     ActivityIndicator activityBar;
@@ -45,7 +47,7 @@ public class HistoryFrame extends JFrame
      */
     public HistoryFrame(PkgMgrFrame pmf)
     {
-        super(Config.getString("team.history.title"));
+        super((Frame) null, Config.getString("team.history.title"));
         project = pmf.getProject();
         buildUI();
         pack();
@@ -88,7 +90,7 @@ public class HistoryFrame extends JFrame
         listModel.setListData(Collections.EMPTY_LIST);
         historyList.setPreferredSize(size);
         
-        // contentPane.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
+        contentPane.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
         
         // File and user filter boxes
         DBox filterBox = new DBox(DBox.X_AXIS, 0, BlueJTheme.componentSpacingLarge, 0.5f);
@@ -153,6 +155,11 @@ public class HistoryFrame extends JFrame
                 worker = new HistoryWorker(repository);
                 worker.start();
                 activityBar.setRunning(true);
+            }
+        }
+        else {
+            if (worker != null) {
+                worker.cancel();
             }
         }
     }
