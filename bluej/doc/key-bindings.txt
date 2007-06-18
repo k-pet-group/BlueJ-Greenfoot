@@ -10,14 +10,14 @@ B
 C
 D   show debugger
 E   show codepad
-F   team:update
-G   team:commit
+F   
+G   
 H   <MacOS: Hide>
-I   show inheritance
+I   
 J   generate doc
 K   compile             compile selected
 L   use library
-M
+M   
 N   new class
 O   open project
 P   print               page setup
@@ -25,11 +25,11 @@ Q   quit
 R   new package
 S   save
 T   show terminal
-U   show uses
+U   team:update
 V   check version
 W   close
 X
-Y
+Y   team:commit
 Z
 <BS> remove
 , 	preferences
