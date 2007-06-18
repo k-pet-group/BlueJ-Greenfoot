@@ -376,17 +376,13 @@ public class CommitCommentsFrame extends EscapeDialog
 
                 if(commitListModel.isEmpty()) {
                     commitListModel.addElement(noFilesToCommit);
-
                 }
                 else {
-                    //this should be conditional upon a need to commit
-                    // this should be re-enabled when we fully handle diagram layout change detection
                     commitText.setEnabled(true);
+                    commitText.requestFocusInWindow();
                     commitAction.setEnabled(true);
-
                 }
             }
-            
         }
         
         private void handleConflicts(Set mergeConflicts, Set deleteConflicts,
