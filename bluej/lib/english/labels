@@ -582,6 +582,7 @@ team.commit.layout=(Diagram Layout)
 team.commit.includelayout=Commit diagram layout
 team.commit.statusMessage=Committing project into repository...
 team.commit.statusDone=Committing project into repository... Done.
+team.commit.moreFiles=(and more - check status)
 team.update=Update@M
 team.update.statusMessage=Updating project...
 team.update.statusDone=Updating project... Done.

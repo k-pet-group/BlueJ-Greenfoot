@@ -353,27 +353,19 @@ public class CommitCommentsFrame extends EscapeDialog
                     Set filesToCommit = new HashSet();
                     Set filesToAdd = new HashSet();
                     Set filesToDelete = new HashSet();
-                    Set conflicts = new HashSet();
+                    Set mergeConflicts = new HashSet();
+                    Set deleteConflicts = new HashSet();
+                    Set otherConflicts = new HashSet();
                     Set modifiedLayoutFiles = new HashSet();
 
                     List info = response;
-                    getCommitFileSets(info, filesToCommit, filesToAdd, filesToDelete, conflicts, modifiedLayoutFiles);
+                    getCommitFileSets(info, filesToCommit, filesToAdd, filesToDelete,
+                            mergeConflicts, deleteConflicts, otherConflicts, modifiedLayoutFiles);
 
-                    if (conflicts.size() != 0) {
-                        String filesList = "";
-                        Iterator i = conflicts.iterator();
-                        for (int j = 0; j < 10 && i.hasNext(); j++) {
-                            File conflictFile = (File) i.next();
-                            filesList += "    " + conflictFile.getName() + "\n";
-                        }
+                    if (!mergeConflicts.isEmpty() || !deleteConflicts.isEmpty()
+                            || !otherConflicts.isEmpty()) {
 
-                        if (i.hasNext()) {
-                            filesList += "    (and more - check status)";
-                        }
-
-                        stopProgress();
-                        DialogManager.showMessageWithText(CommitCommentsFrame.this, "team-update-first", filesList);
-                        CommitCommentsFrame.this.setVisible(false);
+                        handleConflicts(mergeConflicts, deleteConflicts, otherConflicts);
                         return;
                     }
 
@@ -397,6 +389,52 @@ public class CommitCommentsFrame extends EscapeDialog
             
         }
         
+        private void handleConflicts(Set mergeConflicts, Set deleteConflicts,
+                Set otherConflicts)
+        {
+            String dlgLabel;
+            String filesList;
+            
+            // If there are merge conflicts, handle those first
+            if (! mergeConflicts.isEmpty()) {
+                dlgLabel = "team-resolve-merge-conflicts";
+                filesList = buildConflictsList(mergeConflicts);
+            }
+            else if (! deleteConflicts.isEmpty()) {
+                dlgLabel = "team-resolve-conflicts-delete";
+                filesList = buildConflictsList(deleteConflicts);
+            }
+            else {
+                dlgLabel = "team-update-first";
+                filesList = buildConflictsList(otherConflicts);
+            }
+
+            stopProgress();
+            DialogManager.showMessageWithText(CommitCommentsFrame.this, dlgLabel, filesList);
+            CommitCommentsFrame.this.setVisible(false);
+        }
+        
+        /**
+         * Buid a list of files, max out at 10 files.
+         * @param conflicts
+         * @return
+         */
+        private String buildConflictsList(Set conflicts)
+        {
+            String filesList = "";
+            Iterator i = conflicts.iterator();
+            for (int j = 0; j < 10 && i.hasNext(); j++) {
+                File conflictFile = (File) i.next();
+                filesList += "    " + conflictFile.getName() + "\n";
+            }
+
+            if (i.hasNext()) {
+                filesList += "    " + Config.getString("team.commit.moreFiles");
+            }
+            
+            return filesList;
+        }
+        
         /**
          * Go through the status list, and figure out which files to commit, and
          * of those which are to be added (i.e. which aren't in the repository) and
@@ -406,10 +444,16 @@ public class CommitCommentsFrame extends EscapeDialog
          * @param filesToCommit  The set to store the files to commit in
          * @param filesToAdd     The set to store the files to be added in
          * @param filesToRemove  The set to store the files to be removed in
+         * @param mergeConflicts The set to store files with merge conflicts in.
+         * @param deleteConflicts The set to store files with conflicts in, which
+         *                        need to be resolved by first deleting the local file
+         * @param otherConflicts  The set to store files with "locally deleted" conflicts
+         *                        (locally deleted, remotely modified).
          * @param conflicts      The set to store unresolved conflicts in
          */
         private void getCommitFileSets(List info, Set filesToCommit, Set filesToAdd,
-                Set filesToRemove, Set conflicts, Set modifiedLayoutFiles)
+                Set filesToRemove, Set mergeConflicts, Set deleteConflicts,
+                Set otherConflicts, Set modifiedLayoutFiles)
         {
             //boolean includeLayout = project.getTeamSettingsController().includeLayout();
             
@@ -443,19 +487,21 @@ public class CommitCommentsFrame extends EscapeDialog
                     }
                 }
                 else {
-                    if (status == TeamStatusInfo.STATUS_HASCONFLICTS
-                                || status == TeamStatusInfo.STATUS_NEEDSMERGE
-                                || status == TeamStatusInfo.STATUS_UNRESOLVED
+                    if(!statusInfo.getFile().getName().equals("bluej.pkg") || includeLayout()) {
+                        if (status == TeamStatusInfo.STATUS_HASCONFLICTS) {
+                            mergeConflicts.add(statusInfo.getFile());
+                        }
+                        if (status == TeamStatusInfo.STATUS_UNRESOLVED
                                 || status == TeamStatusInfo.STATUS_CONFLICT_ADD
-                                || status == TeamStatusInfo.STATUS_CONFLICT_LDRM
                                 || status == TeamStatusInfo.STATUS_CONFLICT_LMRD) {
-                        if(!statusInfo.getFile().getName().equals("bluej.pkg") || includeLayout())
-                            conflicts.add(statusInfo.getFile());
+                            deleteConflicts.add(statusInfo.getFile());
+                        }
+                        if (status == TeamStatusInfo.STATUS_CONFLICT_LDRM) {
+                            otherConflicts.add(statusInfo.getFile());
+                        }
                     }
                 }
             }
         }
-        
     }
-   
 }

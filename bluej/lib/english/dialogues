@@ -432,8 +432,21 @@ Continue
 null
 
 team-update-first
-There are conflicts with the following files. You cannot perform a
-commit operation until these conflicts are resolved:
+There have been changes made to files in the repository, but the files
+have been deleted in your working copy. This is a conflict. Before you can
+do a commit, you need to perform an update, which will restore the
+repository versions. The following files are affected:
+
+team-resolve-conflicts-delete
+There are conflicts with some files, which have been modified in the
+repository as well as in your working copy. You need to delete your versions
+of the following files and then perform an update in order to resolve the
+conflict:
+
+team-resolve-merge-conflicts
+During a previous update, there were merge conflicts in some files. You need
+to edit the following files and resolve the conflicts before you can perform
+a commit:
 
 team-unresolved-conflicts
 There are unresolved conflicts with the following files. You will
