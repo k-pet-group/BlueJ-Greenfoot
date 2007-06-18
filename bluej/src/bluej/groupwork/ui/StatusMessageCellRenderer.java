@@ -2,7 +2,6 @@
 package bluej.groupwork.ui;
 
 import bluej.groupwork.TeamStatusInfo;
-import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import java.awt.Color;
 import java.awt.Component;
@@ -13,12 +12,10 @@ import javax.swing.table.DefaultTableCellRenderer;
  * StatusCellRenderer.java
  * Renderer to add colour to the status message of resources inside a StatusFrame
  * @author Bruce Quig
- * @cvs $Id: StatusMessageCellRenderer.java 5093 2007-06-14 15:11:31Z mik $
+ * @cvs $Id: StatusMessageCellRenderer.java 5103 2007-06-18 04:24:29Z davmac $
  */
 public class StatusMessageCellRenderer extends DefaultTableCellRenderer 
 {
-    private final static Color DARKER_GREEN = Color.GREEN.darker().darker();
-    
     private final static Color UPTODATE = Color.BLACK;
     private final static Color NEEDSUPDATE = new Color(11,57,120);  // blue
     private final static Color NEEDSCHECKOUT = NEEDSUPDATE;
@@ -27,6 +24,7 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
     private final static Color NEEDSCOMMIT = new Color(10,85,15);   // green
     private final static Color NEEDSADD = NEEDSCOMMIT;
     private final static Color DELETED = new Color(122,143,123);      // grey-green
+    private final static Color CONFLICT = NEEDSMERGE;   // darker red
 
     Project project;
     
@@ -84,22 +82,33 @@ public class StatusMessageCellRenderer extends DefaultTableCellRenderer
     {
         Color color = Color.BLACK;
         
-        if(statusValue == TeamStatusInfo.STATUS_UPTODATE)
+        if (statusValue == TeamStatusInfo.STATUS_UPTODATE) {
             color = UPTODATE;
-        else if(statusValue == TeamStatusInfo.STATUS_NEEDSCHECKOUT)
+        }
+        else if (statusValue == TeamStatusInfo.STATUS_NEEDSCHECKOUT) {
             color = NEEDSCHECKOUT;
-        else if(statusValue == TeamStatusInfo.STATUS_DELETED)
+        }
+        else if (statusValue == TeamStatusInfo.STATUS_DELETED) {
             color = DELETED;
-        else if(statusValue == TeamStatusInfo.STATUS_NEEDSUPDATE)
+        }
+        else if (statusValue == TeamStatusInfo.STATUS_NEEDSUPDATE) {
             color = NEEDSUPDATE;
-        else if(statusValue == TeamStatusInfo.STATUS_NEEDSCOMMIT)
+        }
+        else if (statusValue == TeamStatusInfo.STATUS_NEEDSCOMMIT) {
             color = NEEDSCOMMIT;
-        else if(statusValue == TeamStatusInfo.STATUS_NEEDSMERGE)
+        }
+        else if (statusValue == TeamStatusInfo.STATUS_NEEDSMERGE) {
             color = NEEDSMERGE;
-        else if(statusValue == TeamStatusInfo.STATUS_NEEDSADD)
+        }
+        else if (statusValue == TeamStatusInfo.STATUS_NEEDSADD) {
             color = NEEDSADD;
-        else if(statusValue == TeamStatusInfo.STATUS_REMOVED)
+        }
+        else if (statusValue == TeamStatusInfo.STATUS_REMOVED) {
             color = REMOVED;
+        }
+        else {
+            color = CONFLICT;
+        }
         
         return color;
     }
