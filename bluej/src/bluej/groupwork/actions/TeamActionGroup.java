@@ -1,6 +1,5 @@
 package bluej.groupwork.actions;
 
-import bluej.pkgmgr.actions.IncludeLayoutAction;
 import bluej.pkgmgr.actions.PkgMgrAction;
 
 /**
@@ -8,7 +7,7 @@ import bluej.pkgmgr.actions.PkgMgrAction;
  * of the actions.
  * 
  * @author Davin McCall
- * @version $Id: TeamActionGroup.java 5048 2007-05-22 06:03:32Z davmac $
+ * @version $Id: TeamActionGroup.java 5107 2007-06-19 04:28:41Z bquig $
  */
 public class TeamActionGroup
 {
@@ -17,7 +16,6 @@ public class TeamActionGroup
     private TeamSettingsAction teamSettingsAction = new TeamSettingsAction();
     private CommitCommentAction commitCommentAction = new CommitCommentAction();
     private ImportAction importAction = new ImportAction();
-    private IncludeLayoutAction includeLayoutAction = new IncludeLayoutAction();
     private ShowLogAction showLogAction = new ShowLogAction();
     
     /**
@@ -65,7 +63,6 @@ public class TeamActionGroup
         updateAction.setEnabled(enabled);
         teamSettingsAction.setEnabled(enabled);
         commitCommentAction.setEnabled(enabled);
-        includeLayoutAction.setEnabled(enabled);
         showLogAction.setEnabled(enabled);
         
         // import is allowed if we are not already shared
@@ -79,12 +76,7 @@ public class TeamActionGroup
         teamSettingsAction.setEnabled(false);
         commitCommentAction.setEnabled(false);
         importAction.setEnabled(false);
-        includeLayoutAction.setEnabled(false);
         showLogAction.setEnabled(false);
     }
 
-    public PkgMgrAction getIncludeLayoutAction()
-    {
-        return includeLayoutAction;
-    }
 }

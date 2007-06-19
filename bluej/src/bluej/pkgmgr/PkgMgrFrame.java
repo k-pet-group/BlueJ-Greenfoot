@@ -58,7 +58,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 5089 2007-06-07 02:19:17Z davmac $
+ * @version $Id: PkgMgrFrame.java 5107 2007-06-19 04:28:41Z bquig $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -631,7 +631,9 @@ public class PkgMgrFrame extends JFrame
         shareProjectMenuItem.setAction(teamActions.getImportAction());
         statusMenuItem.setAction(teamActions.getStatusAction());
         commitMenuItem.setAction(teamActions.getCommitCommentAction());
+        commitMenuItem.setText(Config.getString("team.menu.commit"));
         updateMenuItem.setAction(teamActions.getUpdateAction());
+        updateMenuItem.setText(Config.getString("team.menu.update"));
         showLogMenuItem.setAction(teamActions.getShowLogAction());
     }
 
@@ -2737,7 +2739,9 @@ public class PkgMgrFrame extends JFrame
                 teamMenu.addSeparator();
                 
                 updateMenuItem = createMenuItem(teamActions.getUpdateAction(), teamMenu);
+                updateMenuItem.setText(Config.getString("team.menu.update"));
                 commitMenuItem = createMenuItem(teamActions.getCommitCommentAction(), teamMenu);
+                commitMenuItem.setText(Config.getString("team.menu.commit"));
                 statusMenuItem = createMenuItem(teamActions.getStatusAction(), teamMenu);
                 showLogMenuItem = createMenuItem(teamActions.getShowLogAction(), teamMenu);
                 
