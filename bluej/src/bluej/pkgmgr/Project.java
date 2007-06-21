@@ -54,7 +54,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 5089 2007-06-07 02:19:17Z davmac $
+ * @version $Id: Project.java 5110 2007-06-21 01:51:58Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -940,19 +940,6 @@ public class Project implements DebuggerListener, InspectorManager
         while(i.hasNext()) {
             Package pkg = (Package) i.next();
 				pkg.save(null);
-        }
-    }
-    
-    /**
-     * Make all the Packages in this project, make their editors reload
-     * the files they are editing.
-     */
-    public void reloadFilesInEditors(){
-    	Iterator i = packages.values().iterator();
-
-        while(i.hasNext()) {
-            Package pkg = (Package) i.next();
-				pkg.reloadFilesInEditors();
         }
     }
     

@@ -49,7 +49,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 4935 2007-04-16 05:36:01Z davmac $
+ * @version $Id: Package.java 5110 2007-06-21 01:51:58Z davmac $
  */
 public final class Package extends Graph
 {
@@ -1179,22 +1179,6 @@ public final class Package extends Graph
         }
     }
 
-    /**
-     * Have all editors in this package reload the file the are showing.
-     * Called when doing an update from repository
-     */
-    public void reloadFilesInEditors(){
-    	 for (Iterator it = targets.iterator(); it.hasNext();) {
-            Target target = (Target) it.next();
-            if (target instanceof ClassTarget) {
-                ClassTarget ct = (ClassTarget) target;
-                Editor ed = ct.getEditor();
-                if(ed != null)
-                    ed.reloadFile();
-            }
-    	 }
-    }
-    
     /**
      * Have all editors in this package save the file the are showing.
      * Called when doing a cvs operation
