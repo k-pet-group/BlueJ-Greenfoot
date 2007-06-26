@@ -356,16 +356,19 @@ public class CommitCommentsFrame extends EscapeDialog
                     Set mergeConflicts = new HashSet();
                     Set deleteConflicts = new HashSet();
                     Set otherConflicts = new HashSet();
+                    Set needsMerge = new HashSet();
                     Set modifiedLayoutFiles = new HashSet();
 
                     List info = response;
                     getCommitFileSets(info, filesToCommit, filesToAdd, filesToDelete,
-                            mergeConflicts, deleteConflicts, otherConflicts, modifiedLayoutFiles);
+                            mergeConflicts, deleteConflicts, otherConflicts,
+                            needsMerge, modifiedLayoutFiles);
 
                     if (!mergeConflicts.isEmpty() || !deleteConflicts.isEmpty()
-                            || !otherConflicts.isEmpty()) {
+                            || !otherConflicts.isEmpty() || !needsMerge.isEmpty()) {
 
-                        handleConflicts(mergeConflicts, deleteConflicts, otherConflicts);
+                        handleConflicts(mergeConflicts, deleteConflicts,
+                                otherConflicts, needsMerge);
                         return;
                     }
 
@@ -386,7 +389,7 @@ public class CommitCommentsFrame extends EscapeDialog
         }
         
         private void handleConflicts(Set mergeConflicts, Set deleteConflicts,
-                Set otherConflicts)
+                Set otherConflicts, Set needsMerge)
         {
             String dlgLabel;
             String filesList;
@@ -400,9 +403,15 @@ public class CommitCommentsFrame extends EscapeDialog
                 dlgLabel = "team-resolve-conflicts-delete";
                 filesList = buildConflictsList(deleteConflicts);
             }
-            else {
+            else if (! otherConflicts.isEmpty()) {
                 dlgLabel = "team-update-first";
                 filesList = buildConflictsList(otherConflicts);
+            }
+            else {
+                stopProgress();
+                DialogManager.showMessage(CommitCommentsFrame.this, "team-uptodate-failed");
+                CommitCommentsFrame.this.setVisible(false);
+                return;
             }
 
             stopProgress();
@@ -445,11 +454,13 @@ public class CommitCommentsFrame extends EscapeDialog
          *                        need to be resolved by first deleting the local file
          * @param otherConflicts  The set to store files with "locally deleted" conflicts
          *                        (locally deleted, remotely modified).
+         * @param needsMerge     The set of files which are updated locally as
+         *                       well as in the repository (required merging).
          * @param conflicts      The set to store unresolved conflicts in
          */
         private void getCommitFileSets(List info, Set filesToCommit, Set filesToAdd,
                 Set filesToRemove, Set mergeConflicts, Set deleteConflicts,
-                Set otherConflicts, Set modifiedLayoutFiles)
+                Set otherConflicts, Set needsMerge, Set modifiedLayoutFiles)
         {
             //boolean includeLayout = project.getTeamSettingsController().includeLayout();
             
@@ -494,6 +505,9 @@ public class CommitCommentsFrame extends EscapeDialog
                         }
                         if (status == TeamStatusInfo.STATUS_CONFLICT_LDRM) {
                             otherConflicts.add(statusInfo.getFile());
+                        }
+                        if (status == TeamStatusInfo.STATUS_NEEDSMERGE) {
+                            needsMerge.add(statusInfo.getFile());
                         }
                     }
                 }

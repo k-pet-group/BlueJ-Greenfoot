@@ -51,7 +51,7 @@ public class BasicServerResponse implements CVSListener
             // to output. Otherwise, there is more to come and we
             // should do nothing yet.
             if (message != null) {
-                this.message.append(message);
+                // this.message.append(message);
                 if (e.isError()) {
                     System.err.println("CVS: " + message);
                 }
@@ -60,9 +60,9 @@ public class BasicServerResponse implements CVSListener
                 //}
             }
         } else {
-            message.append(line + newline);
             if (e.isError()) {
                 System.err.println("CVS: " + line);
+                message.append(line + newline);
             }
             //else {
             //    System.out.println("CVS: " + line);
