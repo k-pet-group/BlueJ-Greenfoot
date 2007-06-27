@@ -100,7 +100,7 @@ find-next= Hvis der er valgt noget, s\u00E5 find n\u00E6ste forekomst af det val
 find-next-backward=\n Som find-next, men s\u00F8ger op, i stedet for ned.
 replace=\n Erstat en tekst-streng med en anden.
 
-compile=\n Kompiler nuv\u00E6rende klasse. Klassen gemmes automatisk\n f\u00F8r den kompileres.
+compile=\n Overs\u00E6t nuv\u00E6rende klasse. Klassen gemmes automatisk\n f\u00F8r den overs\u00E6ttes.
 toggle-interface-view=\n Skift visning mellem interface og kildekode.\n Interface-visning viser klasse-interface i Javadoc format.
 toggle-breakpoint=\n S\u00E6t eller slet et breakpoint p\u00E5 den nuv\u00E6rende linie.
 

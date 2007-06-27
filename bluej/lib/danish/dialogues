@@ -1,5 +1,5 @@
 compile-while-executing
-Du kan ikke kompilere mens maskinen
+Du kan ikke overs\u00E6tte mens maskinen
 k\u00F8rer. Dette kan for\u00E5rsage underlige
 problemer!
 
@@ -29,32 +29,32 @@ tilf\u00F8je en hj\u00E6lpetekst til vores hj\u00E6lp-database. Tak.
 editor-crashed
 Det ser ud til at BlueJ gik ned da den skrev denne klasse
 til disk sidste gang. Kildekoden kan mangle, eller v\u00E6re 
-ukomplet. Der burde v\u00E6re en backup af denne klasse 
-i projekt mappen. Hvis denne klasse virker beskadiget,
+ukomplet. Der burde v\u00E6re en sikkerhedskopi af denne klasse 
+i projekt-mappen. Hvis denne klasse virker beskadiget:
    1 - afslut BlueJ
-   2 - tag backup af projekt mappen (for en sikkerheds skyld)
-   3 - kig i projekt mappen efter en backup af
-       denne java fil. omd\u00F8b den til det oprindelige
+   2 - tag sikkerhedskopi af projekt-mappen (for en sikkerheds skyld)
+   3 - kig i projekt-mappen efter en sikkerhedskopi af
+       denne java fil. Omd\u00F8b den til det oprindelige
        filnavn (med '.java' suffix)
 
 cannot-run-compiler
-Kan ikke k\u00F8re compiler. Er
+Kan ikke k\u00F8re overs\u00E6tter. Er
 programmet i din sti?
-Navn p\u00E5 compiler:
+Navn p\u00E5 overs\u00E6tter:
 
 compiler-error
-Compiler fejl:
+Overs\u00E6tter fejl:
 
 stream-incomplete
-Compiler fejl. Fejl str\u00F8m ukomplet.
+Overs\u00E6tter fejl. Fejlstr\u00F8m ukomplet.
 
 out-of-bounds
 Specificerede element er ikke
-inden for array gr\u00E6nserne.
+inden for liste-gr\u00E6nserne.
 
 cannot-access-element
 Kan ikke tilg\u00E5 det specificerede
-array element.
+liste-element.
 
 appletviewer-error
 Fejl ved k\u00F8rsel af applet i appletviewer.
@@ -68,18 +68,18 @@ filen. Filen blev ikke gemt.
 
 cannot-save-keys
 En fejl opstod under fors\u00F8g p\u00E5 at gemme
-tastatur bindingerne. Bindingerne blev ikke
+tastatur-bindingerne. Bindingerne blev ikke
 gemt.
 
 error-no-templates
 Den specificerede skabelon-mappe (mappen hvor
-BlueJ finder klasse skabelonerne) eksisterer ikke. Den
+BlueJ finder klasse-skabelonerne) eksisterer ikke. Den
 defineres med egenskaben "bluej.templatePath" i
 <bluej-home>/lib/bluej.defs. Check og ret denne egenskab.
 
 skeleton-error
 Standard skelettet for klassen kunne ikke
-genereres. Det kan v\u00E6re p\u00E5 grund af konfigurations
+genereres. Det kan v\u00E6re p\u00E5 grund af konfigurations-
 fejl i ops\u00E6tningen af BlueJ, eller p\u00E5 grund af fil-
 system adgangs-problemer.
 
@@ -95,24 +95,24 @@ Der opstod en fejl ved \u00E6ndring af denne fil.
 error-writing-jar
 jar filen kunne ikke skrives korrekt.
 (Check fil-systemet for adgangs-rettigheder og
-tilg\u00E6ngelig disk plads.)
+tilg\u00E6ngelig diskplads.)
 
 error-jar-exists
-Filen du har vlagt eksisterer allerede.
+Filen du har valgt eksisterer allerede.
 Vil du overskrive den?
 Overskriv
 Fortryd
 null
 
 invalid-class-name
-Ugyldigt klasse navn.
+Ugyldigt klasse-navn.
 
 invalid-package-name
-Ugyldigt pakke navn.
+Ugyldigt pakke-navn.
 
 must-be-identifier
 Navnet er ikke gyldigt. Det
-skal v\u00E6re en gyldig Java identifier.
+skal v\u00E6re en gyldig Java identifikator.
 
 directory-exists
 En fil eller mappe med dette
@@ -120,7 +120,7 @@ navn eksisterer allerede.
 
 cannot-copy-package
 Der var et problem ved kopiering af
-pakke filerne. Pakken blev ikke
+pakke-filerne. Pakken blev ikke
 skrevet, eller den var ukomplet.
 
 file-does-not-exist
@@ -134,16 +134,16 @@ skal ende med ".java").
 
 docdir-blocked-by-file
 Mappen til dokumentation kunne
-ikke oprettes i projekt mappen
+ikke oprettes i projektmappen,
 fordi der er en fil med samme navn.
 
 docdir-not-created
 Mappen til dokumentation kunne
-ikke oprettes i projekt mappen.
+ikke oprettes i projektmappen.
 
 no-permission-for-docdir
 Mappen til dokumentation kunne
-ikke oprettes i projekt mappen
+ikke oprettes i projektmappen
 p\u00E5 grund af manglende rettigheder.
 
 show-or-generate
@@ -151,25 +151,25 @@ Vil du vise den dokumentation der blev
 genereret tidligere, eller vil du
 regenerere hele dokumentationen?
 Vis kun
-Regenerer
+Regener\u00E9r
 Fortryd
 
 doctool-error
-Javadoc meldte en fejl. Der kan v\u00E6re en syntaks fejl
+Javadoc meldte en fejl. Der kan v\u00E6re en syntaks-fejl
 i en af de filer du pr\u00F8vede at generere
 dokumentation til. Det kan ogs\u00E5 v\u00E6re at JDK
-dokumentations-URL'en specificeret i indtsillingerne er ukorrekt.
-Du skal sikre dig at alle dine Java filer er kompileret og
+dokumentations-URL'en specificeret i indstillingerne er ukorrekt.
+Du skal sikre dig at alle dine Java filer er oversat og
 dokumentations-URL'en er tilg\u00E6ngelig eller sl\u00E5et fra. Pr\u00F8v s\u00E5 igen.
-Hvis denne besked fremkommer igen, skal du checke log filen
-med fejl-beskeden fra Javadoc:
+Hvis denne besked fremkommer igen, skal du checke log-filen
+med fejlbeskeden fra Javadoc:
 
 severe-doc-trouble
 En undtagelse opstod under kaldet til det
 eksterne dokumentations-v\u00E6rkt\u00F8j.
 
 no-java-sources-found
-Ingen Java kildekode filer
+Ingen Java kildekode-filer
 fundet i denne mappe.
 
 duplicate-name
@@ -179,13 +179,13 @@ klasser eller pakker med samme navn.
 
 error-in-import
 En fejl opstod under fors\u00F8get p\u00E5 at
-importere filen. Check adgangs rettigheder og
+importere filen. Check adgangs-rettigheder og
 disk-plads.
 
 no-class-selected-compile
-Ingen klasse valgt til kompilering.
+Ingen klasse valgt til overs\u00E6ttelse.
 V\u00E6lg en klasse ved at klikke p\u00E5
-den f\u00F8r kompilering.
+den f\u00F8r overs\u00E6ttelse.
 
 no-class-selected
 Intet valgt til sletning.
@@ -194,7 +194,7 @@ den f\u00F8r sletning.
 
 really-remove-class
 Sletning af klasser vil permanent
-slette deres kildekode fil(er).
+slette deres kildekode-fil(er).
 Vil du forts\u00E6tte?
 Slet
 Fortryd
@@ -211,7 +211,7 @@ null
 
 remove-package-open
 Pakken du har valgt til sletning
-har nogle under-pakker \u00E5bnede
+har nogle under-pakker \u00E5bnet
 i BlueJ. Du skal lukke disse
 pakker f\u00F8r du kan
 slette denne pakke.
@@ -242,16 +242,24 @@ Fortryd
 null
 
 really-reload
-Genindl\u00E6sning smider \u00E6ndringer siden sidste redigering v\u00E6k.
+Genindl\u00E6sning smider \u00E6ndringer, siden sidste redigering, v\u00E6k.
 Er du sikker?
+Genindl\u00E6s
+Fortryd
+null
+
+changed-on-disk
+Kildekode-filen er \u00E6ndret p\u00E5 disken. Vil du
+genindl\u00E6se den fra disk? Dette vil smide \u00E6ndringer bort
+her i editoren.
 Genindl\u00E6s
 Fortryd
 null
 
 really-print
 Teksten er bredere end papiret. Lange linier
-sk\u00E6res af. Du kan undg\u00E5 dette ved at \u00E6ndre st\u00E5rrelsen
-af editor vinduet, og g\u00F8re det smallere. Vil du
+sk\u00E6res af. Du kan undg\u00E5 dette ved at \u00E6ndre st\u00F8rrelsen
+af editor-vinduet, og g\u00F8re det smallere. Vil du
 udskrive alligevel?
 Udskriv
 Fortryd
@@ -268,10 +276,10 @@ fundet i denne mappe.
 open-non-bluej-invalid
 Du har angivet at du vil \u00E5bne denne
 mappe som et BlueJ projekt, men en fil
-blev fundet med en pakke-statement der ikke
+blev fundet med en pakke-s\u00E6tning der ikke
 er kompatibel med den nuv\u00E6rende mappe-
 struktur. (For eksempel, hvis Java klassen
-Shape har en pakke linie med: com.aa, s\u00E5
+Shape har en pakke-linie med: com.aa, s\u00E5
 skal filen Shape.java v\u00E6re i en mappe aa
 som igen er i en mappe com. Denne com
 mappe skal s\u00E5 v\u00E6re i en anden mappe
@@ -288,46 +296,41 @@ Nyt projekt
 Fortryd
 
 package-name-invalid
-Du har \u00E6ndret pakke-statement
+Du har \u00E6ndret pakke-s\u00E6tningen
 til en pakke som ikke eksisterer i dette projekt.
 Hvis du vil flytte klassen til en anden
 pakke, skal du f\u00F8rst oprette destinations-
-pakken. Pakke-statement er \u00E6ndret tilbage til
+pakken. Pakke-s\u00E6tningen er \u00E6ndret tilbage til
 original form.
 
 package-name-clash
-Du har \u00E6ndret pakke-statement til 
+Du har \u00E6ndret pakke-s\u00E6tningen til 
 en pakke der allerede har en klasse eller pakke
 med dette navn. Hvis klassen flyttes, vil den
 eksisterende klasse eller pakke overskrives,
-s\u00E5 pakke-statement er \u00E6ndret tilbage
+s\u00E5 pakke-s\u00E6tningen er \u00E6ndret tilbage
 til original form.
 
 package-name-changed
-Du har \u00E6ndret pakke-statement der
+Du har \u00E6ndret pakke-s\u00E6tningen der
 fort\u00E6ller Java hvilken pakke denne klasse er i. Vil du
-flytte denne klasse til den indikerede pakke
-eller vil du lade klasse v\u00E6re hvor den er
-(pakke-statement bliver \u00E6ndret tilbage til
+flytte denne klasse til den angivne pakke
+eller vil du lade klassen v\u00E6re hvor den er
+(pakke-s\u00E6tningen bliver \u00E6ndret tilbage til
 original form)?
 Flyt
 \u00C6ndre tilbage
 null
 
 ask-index
-Indtast array element indeks [...]
+Indtast array element-indeks [...]
 Array Inspektion
 null
 
 classmgr-changes-no-effect
-De \u00E6ndringer du har lavet i klasse bibliotekerne
+De \u00E6ndringer du har lavet i klasse-bibliotekerne
 vil ingen effekt have f\u00F8r n\u00E6ste gang du
 starter BlueJ.
-
-pref-optimise-no-effect
-De \u00E6ndringer du laver i virtual machine indstillingerne vil
-f\u00F8rst tr\u00E6de i kraft for projekter du \u00E5bner efter denne \u00E6ndring
-(eller hvis du genstarter virtual machine).
 
 unittest-new-test-method
 Angiv et navn til denne test.
@@ -337,21 +340,21 @@ null
 
 getobject-new-name
 Indtast navnet p\u00E5 det nye objekt i
-objekt b\u00E6nken.
+objekt-b\u00E6nken.
 Nyt Objekt Navn
 null
 
 unittest-fixture-present
-Denne unit test klasse har allerede en fixture erkl\u00E6ret
+Denne enheds-test klasse har allerede en fikstur erkl\u00E6ret
 i sig. Hvis du forts\u00E6tter, vil definitionen af denne
-fixture erstattes.
+fikstur erstattes.
 Vil du forts\u00E6tte?
 Erstat
 Fortryd
 null
 
 unittest-method-present
-Denne unit test klasse har allerede en test metode erkl\u00E6ret
+Denne enheds-test klasse har allerede en test metode erkl\u00E6ret
 i sig med samme navn. Hvis du forts\u00E6tter, vil
 definitionen af metoden erstattes.
 Vil du forts\u00E6tte?
@@ -380,10 +383,10 @@ maskine. BlueJ bruger TCP/IP og sockets til at opn\u00E5 oprettelse af VM.
 Den mest almindelige \u00E5rsag til dette er en for restriktiv firewall der
 ikke tillader forbindelser fra din lokale maskine. Sl\u00E5 firewall'en fra
 (hvis du har en) for at teste dette. Hvis det l\u00F8ser problemet s\u00E5 pr\u00F8v at finde 
-en firewall indstilling der tillader forbindelser fra den lokale maskine.
+en firewall-indstilling der tillader forbindelser fra den lokale maskine.
 Andre mulige \u00E5rsager er ukorrekte netv\u00E6rksindstillinger. Check at TCP/IP
 er opsat korrekt, og check andre netv\u00E6rksparametre.
-Hvis problemet forts\u00E6tter, bed om hj\u00E6lp (se http://www.bluej.org/help/ask-help.html).
+Hvis problemet forts\u00E6tter, s\u00E5 bed om hj\u00E6lp (se http://www.bluej.org/help/ask-help.html).
 
 project-is-readonly
 Projektet er skrivebeskyttet. Du kan ikke lave objekter eller
@@ -394,16 +397,18 @@ Enten er projektets adgangsrettigheder sat til
 For at bruge dette projekt fuldt ud, skal du sikre dig at det er p\u00E5 et skrivbart
 fil-system (Som regel din harddisk), og at du har skrive- 
 tilladelse i projekt-mappen og hver fil inden i den.
+Dette kan ofte opn\u00E5s ved at v\u00E6lge "gem som" fra
+Projekt-menuen efter du har lukket denne dialog.
 
 could-not-write-shell-file
 K\u00F8rsel fejlede fordi projekt-mappen ikke er skrivbar.
-For at lave objekter eller kalde metoder, skal du kunn skrive 
+For at lave objekter eller kalde metoder, skal du kunne skrive
 til projekt-mappen. Check at dit projekt er p\u00E5 et skrivbart 
 fil-system (ikke en CD!) og at du har skrive-tilladelse i
 projekt-mappen og alle filer i den.
 
 jar-output-dir-exists
-Output mappen for arkivet der udpakkes eksisterer allerede.
+Output-mappen for arkivet der udpakkes eksisterer allerede.
 Du skal fjerne den eksisterende mappe f\u00F8r du kan
 udpakke arkivet.
 
@@ -411,13 +416,45 @@ jar-extraction-error
 En fejl opstod ved udpakning af arkivets indhold. Debug
 loggen kan indholde mere information.
 
+file-save-error-before-compile
+En eller flere filer kunne ikke gemmes, s\u00E5 overs\u00E6ttelsen blev afbrudt.
+
+generic-file-save-error
+Der opstod en fejl under fors\u00F8get p\u00E5 at gemme en fil.
+
+empty-assertion-text
+Du har ikke indtastet et forventet resultat for dette metode-kald.
+Uden dette resultat er din test ukomplet, og din test-klasse vil
+ikke overs\u00E6ttes. Er du sikker p\u00E5 at du vil forts\u00E6tte uden at indtaste
+en resultat-v\u00E6rdi? 
+Tilbage
+Forts\u00E6t
+null
+
 team-update-first
-Der er konflikter med f\u00F8lgende filer. Du kan ikke udf\u00F8re en
-commit operation f\u00F8r disse konflikter er l\u00F8st:
+Der er foretaget \u00E6ndringer i filer i repository, men filerne er blevet
+slettet i din arbejds-kopi. Dette er en konflikt. F\u00F8r du kan 
+udf\u00F8re en aflevering, skal du lave en opdatering, som vil genskabe
+repository-versionerne. F\u00F8lgende filer er p\u00E5virket:
+
+team-resolve-conflicts-delete
+Der er konflikter med nogle filer som er blevet \u00E6ndret i
+repository s\u00E5vel som i din arbejds-kopi. Du skal slette dine versioner
+af f\u00F8lgende filer og udf\u00F8re en opdatering for at l\u00F8se
+konflikterne:
+
+team-resolve-merge-conflicts
+Under en tidligere opdatering var der fletnings-konflikter i nogle filer. Du skal 
+redigere f\u00F8lgende filer og l\u00F8se konflikterne f\u00F8r du kan udf\u00F8re
+en aflevering:
+
+team-unresolved-conflicts
+Der er ul\u00F8ste konflikter med f\u00F8lgende filer. Du skal
+slette filerne lokalt for at l\u00F8se konflikten:
 
 team-uptodate-failed
-Din lokale kopi er for gammel. Opdater fra repository
-f\u00F8r du commit'er lokale \u00E6ndringer.
+Din lokale kopi er for gammel. Opdat\u00E9r fra repository
+f\u00F8r du afleverer lokale \u00E6ndringer.
 
 team-cant-find-module
 Projektet er ikke i repository. Et projekt skal deles (l\u00E6gges 
@@ -428,8 +465,17 @@ En ukendt fejl opstod. Check team-indstillinger for at sikre dig
 at repository indstillingerne er korrekte.
 
 team-invalid-cvsroot
-Invalid CVS rod - check dine team-indstillinger.
+Ugyldig CVS rod - check dine team-indstillinger.
 
 team-authentication-problem
 Serveren kunne ikke logge dig p\u00E5 - check dit brugernavn/kodeord og
 repository i team-indstillinger.
+
+team-binary-conflict
+En konflikt blev detekteret under fors\u00F8g p\u00E5 at opdatere filen:
+    $
+Filen er \u00E6ndret lokalt, men der er ogs\u00E5 \u00E6ndringer i
+repository.
+Behold min version
+Brug repository-versionen
+null

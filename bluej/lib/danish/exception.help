@@ -1,15 +1,15 @@
 NullPointerException*
-Du pr\u00F8vede at tilg\u00E5 et objektt (enten et felt
+Du pr\u00F8vede at tilg\u00E5 et objekt (enten et felt
 i et objekt eller en metode p\u00E5 et objekt). Dette
-virkede ikke fordi objekte referencen du brugte
+virkede ikke fordi objekt-referencen du brugte
 til at tilg\u00E5 objektet var 'null'. For
-eksempele: Du skrev "ting.print()", og "ting"
+eksempel: Du skrev "ting.print()", og "ting"
 var null p\u00E5 det tidspunkt.
 
 ArithmeticException*
 Noget gik galt under en aritmetisk
 beregning, s\u00E5som en division med 0 eller
-noget lignende.
+lignende.
 
 StringIndexOutOfBoundsException*
 Du har pr\u00F8vet at tilg\u00E5 en karakter eller en substreng
@@ -34,17 +34,17 @@ objektet du cast'er er af typen T eller en af dens
 subtyper. Det var den ikke i dit tilf\u00E6lde.
 
 IndexOutOfBoundsException*
-Et indeks af en slags (s\u00E5som til et array, til en streng,
-eller til en cektor) er udenfor tilladt omr\u00E5de. "Udenfor tilladt 
-omr\u00E5de" betyder at indekset ikke eksisterer i array'et eller lignende
+Et indeks af en slags (s\u00E5som til en liste, til en streng,
+eller til en vektor) er udenfor tilladt omr\u00E5de. "Udenfor tilladt 
+omr\u00E5de" betyder at indekset ikke eksisterer i listen eller lignende
 samling (f.eks. du pr\u00F8vede at tilg\u00E5 element 5, men der var
 kun tre elementer).
 
 ArrayIndexOutOfBoundsException*
-Et array indeks er udenfor tilladt omr\u00E5de. "Udenfor tilladt omr\u00E5de" 
-betyder at indekset ikke eksisterer i array'et (f.eks. du
+Et liste-indeks er udenfor tilladt omr\u00E5de. "Udenfor tilladt omr\u00E5de" 
+betyder at indekset ikke eksisterer i listen (f.eks. du
 pr\u00F8vede at tilg\u00E5 element 5, men der var kun tre
-elementer). Det lovlige indeks-omr\u00E5de er 0..arrayL\u00E6ngde-1.
+elementer). Det lovlige indeks-omr\u00E5de er 0..listeL\u00E6ngde-1.
 
 ConcurrentModificationException*
 Du itererer over en samling her.
@@ -58,11 +58,11 @@ med iteratorens 'remove' metode (IKKE 'remove' i selve
 samlingen).
 
 AssertionError*
-En foruds\u00E6tning fejlede. Dette betyder at udtrykket
-inden i assert s\u00E6tningen
-    assert(assertion-expression)
-blev evalueret til falsk. Foruds\u00E6tningen blev h\u00F8jst
-sandsynligt sat der for at sikre at foruds\u00E6tningen er sand p\u00E5 dette
+En antagelse fejlede. Dette betyder at udtrykket
+inden i 'assert' s\u00E6tningen
+    assert(antagelses-udtryk)
+blev evalueret til falsk. Antagelsen blev h\u00F8jst
+sandsynligt sat der for at sikre at antagelsen er sand p\u00E5 dette
 tidspunkt, og at den er falsk indikerer en fejl af en slags.
 Den eksakte betydning af denne fejl afh\u00E6nger af programmet.
 Du b\u00F8r unders\u00F8ge hvorfor dette udtryk var falsk.
@@ -70,7 +70,7 @@ Du b\u00F8r unders\u00F8ge hvorfor dette udtryk var falsk.
 ClassNotFoundException*
 En klasse der var behov for, for at k\u00F8re denne applikation
 blev ikke fundet. Det ser ud til at den blev fundet da
-applikationen blev kompileret, men nu er den v\u00E6k.
+applikationen blev oversat, men nu er den v\u00E6k.
 Mulige \u00E5rsager kan v\u00E6re at dit Java system ikke
 er opsat korrekt (hvis den omtalte klasse er en 
 system klasse) eller at dit projekt er beskadiget (nogle
@@ -81,7 +81,7 @@ mere end et projekt, kan du v\u00E6re n\u00F8dt til at
 reinstallere JDK.
 
 StackOverflowError*
-Fejlen indikerer at du l\u00F8b t\u00F8r for Stak hukommelse.
+Fejlen indikerer at du l\u00F8b t\u00F8r for Stak-hukommelse.
 Dette sker typisk n\u00E5r dit program har en specifik form
 for programmerings-fejl, kaldet "uendelig rekursion".
 Rekursion betyder at en metode kalder sig selv. Uendelig

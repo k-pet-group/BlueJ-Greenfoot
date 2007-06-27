@@ -10,7 +10,7 @@ Ingen tilg\u00E6ngelig hj\u00E6lp.
 * is abstract; cannot be instantiated
 Klassen er erkl\u00E6ret som "abstrakt". Det betyder at
 den indeholder nogle metoder for hvilke den ikke
-leverer en implementation ("abstrakte metoder").
+lev\u00E9rer en implementation ("abstrakte metoder").
 Du kan ikke lave objekter af abstrakte klasser.
 Du skal finde eller skrive en subklasse af den
 abstrakte klasse der implementerer alle abstrakte 
@@ -41,17 +41,17 @@ Ingen tilg\u00E6ngelig hj\u00E6lp
 
 array required, but *
 Du bruger en syntaks her, der tyder p\u00E5 at du 
-pr\u00F8ver at tilg\u00E5 et array element. Variablen, du
-refererer til er ikke et array.
+pr\u00F8ver at tilg\u00E5 et liste-element. Variablen, du
+refererer til er ikke en liste.
 
 break outside switch or loop
 "break" s\u00E6tningen bryder ud af en blok,
-s\u00E5som en "switch" s\u00E6tning eller en l\u00F8kke 
+s\u00E5som en "switch"-s\u00E6tning eller en l\u00F8kke 
 ("for", "while" eller "do" l\u00F8kke). Den kan ikke 
 bruges udenfor s\u00E5dan en blok.
 
 * must be first statement in constructor
-Som det f\u00F8rste i hver klasser der har en 
+Som det f\u00F8rste i hver klasse, der har en 
 superklasse, skal du kalde superklassen's 
 konstrukt\u00F8r. Du g\u00F8r dette ved at tilf\u00F8je
     super(...);
@@ -133,7 +133,7 @@ constant expression required
 Du har brugt en variabel eller et udtryk her, men
 det er ikke tilladt. Du kan kun bruge konstanter her.
 Konstanter er tal (s\u00E5som 42) eller 
-navne erkl\u00E6ret som "final".
+identifikatorer erkl\u00E6ret som "final".
 
 continue outside of loop
 "continue" s\u00E6tningen bruges til at 
@@ -143,11 +143,11 @@ en l\u00F8kke. Den kan kun bruges indenfor
 en "for", "while" eller "do" l\u00F8kke.
 
 cyclic inheritance involving *
-Du pr\u00F8ver at arve fra en klasse her. men
+Du pr\u00F8ver at arve fra en klasse her, men
 den klasse har allerede erkl\u00E6ret at den
 arver fra din! Tjah, det dur ikke!
-Du skal beslutte hvilken er  
-superklassen, og hvilken er subklassen.
+Du skal beslutte hvilken der er  
+superklassen, og hvilken der er subklassen.
 
 * does not exist
 Det navn du brugte her (det kan v\u00E6re et fors\u00F8g p\u00E5 at
@@ -168,7 +168,7 @@ Du har skrevet "default" to gange i den samme "switch"
 s\u00E6tning. Det kan du ikke - en gang er nok.
 
 'else' without 'if'
-Et 'else' n\u00F8gleord kan kune v\u00E6re en del af en 'if'
+Et 'else' n\u00F8gleord kan kun v\u00E6re en del af en 'if'
 s\u00E6tning, p\u00E5 formen
    if (condition)
      s\u00E6tning;
@@ -192,7 +192,7 @@ Du har skrevet en karakter der er tom.
 Du kan ikke skrive ''.  En karakter-konstant er en enkelt 
 karakter omsluttet af apostrof'er, for eksempel 'a'. 
 For det meste kan der kun v\u00E6re en enkelt karakter 
-mellem apostroférne. Den eneste undtagelse er hvis den f\u00F8rste  
+mellem apostrof'erne. Den eneste undtagelse er hvis den f\u00F8rste  
 karakter er "backslash" (kaldet "escape karakteren") 
 til at specificere specielle karakterer f.eks. '\n' or '\t'.  
 
@@ -265,7 +265,7 @@ illegal initializer for *
 Ingen tilg\u00E6ngelig hj\u00E6lp
 
 illegal line end in character literal
-Du har et linieskift hvor der burde v\u00E6re en specificeret
+Du har et linieskift hvor der burde v\u00E6re specificeret
 en karakter. Det kan du ikke g\u00F8re. Hvis du vil specificere
 karakteren for et linieskift ("newline"), s\u00E5 skriv det som '\n'.
 
@@ -300,12 +300,12 @@ internal error; cannot instantiate *
 Ingen tilg\u00E6ngelig hj\u00E6lp
 
 * but with different return type
-Du er sikkert i gang med at kombinere to metoder der er ens,
+Du er sikkert i gang med at kombinere to metoder der er ens
 p\u00E5n\u00E6r typen af det, der returneres.  Dette er ikke tilladt.
 Sandsynligvis sker dette fordi din klasse implementerer
 to interfaces. Hvert interface har en metode med samme navn
 og samme parametre, med forskellig retur-type. Du kan ikke 
-implementere begge disse interfaces med mindre du \u00E6ndrer det ene 
+implementere begge disse interfaces medmindre du \u00E6ndrer det ene 
 for at undg\u00E5 dette. Omd\u00F8b enten metoden, eller g\u00F8r retur-typen 
 ens.
 
@@ -353,13 +353,13 @@ variablen "final" - s\u00E5 kan du tilg\u00E5 den.
 malformed floating point literal
 Du har lavet en fejl da du skrev et
 komma-tal. (Et komma-tal er et tal
-med decimal-separator i.) Eksempler p\u00E5 korrekt 
+med decimal-separator i) Eksempler p\u00E5 korrekt 
 skrevne decimal-tal er
 18.0      18.     1.8e1     .18E2
 
 missing method body, or declare abstract
 Metoder skal enten have en krop, eller v\u00E6re abstrakte. En
-metode krop er blokken i kr\u00F8lle-parenteser { } der 
+metode-krop er blokken i kr\u00F8lle-parenteser { } der 
 f\u00F8lger efter metode-hovedet og indeholder s\u00E6tninger.
 Hvis en metode ikke har en krop, skal den have
 n\u00F8gleordet "abstract" i dens hovede. For eksempel:
@@ -422,7 +422,7 @@ Ingen tilg\u00E6ngelig hj\u00E6lp
 
 * cannot be accessed from outside package
 Klassen du pr\u00F8ver at bruge her, er ikke en "public" klasse.
-Dvs.: den definition starter ikke med
+Dvs.: dens definition starter ikke med
    public class ...
 Hvis en klasse ikke er "public", kan den ikke bruges udenfor
 dens egen pakke. Hvis du virkelig har brug for at bruge klassen, skal
@@ -442,7 +442,7 @@ hel s\u00E6tning. Overvej igen hvad du ville g\u00F8re,
 og hvordan du vil g\u00F8re det.
 
 not an enclosing class:*
-Du har pr\u00F8vet at tilg\u00E5 den nuv\u00E6rende-objekt-pegepind ('this')
+Du har pr\u00F8vet at tilg\u00E5  "nuv\u00E6rende-objekt-pegepind" ('this')
 fra en anden klasse uden for din egen. Dette er kun tilladt 
 hvis den anden klasse er udenom den nuv\u00E6rende
 (med andre ord: i en indre klasse, kan du tilg\u00E5 den ydre
@@ -487,7 +487,7 @@ d\u00E5rlig er min hukommelse ikke!
 
 repeated modifier
 I denne erkl\u00E6ring har du skrevet den samme
-"modifier" to gange. En "modifier" er et n\u00F8gleord s\u00E5som
+modifikator to gange. En modifikator er et n\u00F8gleord s\u00E5som
 final, static, public, private, volatile, ...
 
 {0} has {1} access in {2}
@@ -511,7 +511,7 @@ definerer metoder uden at angive implementationen.
 Denne klasse definerer ikke implementationer for 
 alle de metoder der stadig mangler implementationer,
 s\u00E5 denne klasse er selv abstrakt endnu (det betyder
-at den stadig her metoder uden implementationer).
+at den stadig har metoder uden implementationer).
 Du skal enten erkl\u00E6re denne klasse som v\u00E6rende abstrakt  
 ved at starte den med
    public abstract class ...
@@ -527,7 +527,7 @@ definerer metoder uden at angive implementationen.
 Denne klasse definerer ikke implementationer for 
 alle de metoder der stadig mangler implementationer,
 s\u00E5 denne klasse er selv abstrakt endnu (det betyder
-at den stadig her metoder uden implementationer).
+at den stadig har metoder uden implementationer).
 Du skal enten erkl\u00E6re denne klasse som v\u00E6rende abstrakt  
 ved at starte den med
    public abstract class ...
@@ -630,19 +630,19 @@ erkl\u00E6ringen
 ind i hovedet p\u00E5 din metode.
 
 'void' type not allowed here
-Typen 'void kan ikke bruges i denne kontekst. Det er
+Typen 'void' kan ikke bruges i denne kontekst. Det er
 en speciel type der bruges til at indikere at der ikke returneres 
 noget fra  metoder.  Den kan ikke bruges som en variabel-type.
 
 * not allowed here
-Du har anvendt en adgangs-"modifier" (s\u00E5som "private", 
+Du har anvendt en adgangs-modifikator (s\u00E5som "private", 
 "protected", osv.). Dette er ikke tilladt 
 her.
 
 * might already have been assigned to
 En "final" variabel kan kun tildeles en gang. (Din variabel
-her, er final.) Du har to tildelinger til denne
-variabel i din kode, og compileren tror at det kan ske, 
+her er final.) Du har to tildelinger til denne
+variabel i din kode, og overs\u00E6tteren tror at det kan ske, 
 at begge tildelinger k\u00F8res.
 
 * might not have been initialized
@@ -696,7 +696,7 @@ Ingen tilg\u00E6ngelig hj\u00E6lp
 
 '(' or '[' expected
 Det ser ud til at der er et ulige antal parenteser
-i din kode der forvirrer compileren. Kig n\u00F8je
+i din kode der forvirrer overs\u00E6tteren. Kig n\u00F8je
 din kode igennem for matchende \u00E5ben- og 
 luk-parenteser.
 
@@ -755,16 +755,16 @@ til kaldet).
 
 cannot find symbol*
 Du bruger et symbol her (et navn p\u00E5 en variabel,
-en metode, eller en klasse) der ikke er erkl\u00E6ret i
-et tilg\u00E6ngeligt scope. Check hvordan du staver navnet -
+en metode, eller en klasse) der ikke er erkl\u00E6ret et
+tilg\u00E6ngeligt sted. Check hvordan du staver navnet -
 skrev du forkert? Eller har du glemt at erkl\u00E6re navnet?
 Eller m\u00E5ske har du erkl\u00E6ret det, men det er ikke synligt
 herfra.
 
 cannot resolve symbol*
 Du bruger et symbol her (et navn p\u00E5 en variabel,
-en metode, eller en klasse) der ikke er erkl\u00E6ret i
-et tilg\u00E6ngeligt scope. Check hvordan du staver navnet -
+en metode, eller en klasse) der ikke er erkl\u00E6ret et
+tilg\u00E6ngeligt sted. Check hvordan du staver navnet -
 skrev du forkert? Eller har du glemt at erkl\u00E6re navnet?
 Eller m\u00E5ske har du erkl\u00E6ret det, men det er ikke synligt
 herfra.
