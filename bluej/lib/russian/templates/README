@@ -1,0 +1,12 @@
+This directory contains some templates used by BlueJ to generate files.
+These templates may be edited to change the default content of generated
+files.
+
+ - The readme and readmeexp templates may be freely edited.
+ - The html template should be edited with care - things may not work 
+   if it is broken.
+ - The shell template should probably NOT be edited (unless you REALLY
+   know what you're doing).
+
+The subdirectory "newclass" contains templates for classes generated
+via the "New Class" function in BlueJ.
