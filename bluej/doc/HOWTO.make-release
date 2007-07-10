@@ -57,9 +57,15 @@ How to make a BlueJ release                    (last update 05.01.2006, iau)
 
 11. In the bugs database, change status of all "RESOLVED" bugs to "CLOSED".
     When doing this, write "closed in version XXX" into status whitebord.
+    
+12. Also in the bugs database, add the new version so that bugs can be reported against
+    it.
+    
+13. Update the support form at http://www.bluej.org/help/supportform.html - the drop-down
+    version field should have the new version added as an option.
 
-12. Send a mail message to bluej-announce@bluej.org, announcing the
+14. Send a mail message to bluej-announce@bluej.org, announcing the
     release.
 
-13. More public announcements. See HOWTO.announce-release.
+15. More public announcements. See HOWTO.announce-release.
 
