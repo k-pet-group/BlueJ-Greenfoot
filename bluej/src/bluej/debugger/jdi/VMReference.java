@@ -9,7 +9,6 @@ import bluej.Config;
 import bluej.classmgr.BPClassLoader;
 import bluej.debugger.*;
 import bluej.debugger.gentype.GenTypeClass;
-import bluej.prefmgr.PrefMgr;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
 
@@ -32,7 +31,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 4938 2007-04-16 14:30:37Z polle $
+ * @version $Id: VMReference.java 5124 2007-07-10 10:45:06Z bquig $
  * 
  * The startup process is as follows:
  * 
