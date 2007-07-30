@@ -36,7 +36,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 5060 2007-05-25 14:06:49Z polle $
+ * @version $Id: Config.java 5134 2007-07-30 10:53:41Z bquig $
  */
 
 public final class Config
@@ -226,6 +226,10 @@ public final class Config
         Config.bluejLibDir = bluejLibDir;
         Config.greenfootLibDir = new File(bluejLibDir, "greenfoot");
         Config.propSource = propSource;
+        // Initialise on debug vm to show its part of greenfoot
+        // This method is only used in Greenfoot
+        Config.isGreenfoot = true;
+        
         screenBounds = calculateScreenBounds();
         
         systemProps = new Properties() {
