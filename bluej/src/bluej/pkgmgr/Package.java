@@ -49,7 +49,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 5110 2007-06-21 01:51:58Z davmac $
+ * @version $Id: Package.java 5135 2007-07-31 03:09:07Z bquig $
  */
 public final class Package extends Graph
 {
@@ -67,8 +67,9 @@ public final class Package extends Graph
      * information about the package and its targets.
      */
     public static final String pkgfileName = "bluej.pkg";
-    /** the name of the backup file of the package file */
-
+    /** Greenfoot project file name */
+    public static final String greenfootProjectFile = "project.greenfoot";
+    /** Readme file name */
     public static final String readmeName = "README.TXT";
 
     /** error code */
@@ -1871,7 +1872,16 @@ public final class Package extends Graph
         if (!f.isDirectory())
             return false;
 
-        File packageFile = new File(f, pkgfileName);
+        File packageFile = null;
+        
+        // If it is Greenfoot the project file is different (project.greenfoot)
+        if (Config.isGreenfoot()){
+            packageFile = new File(f, greenfootProjectFile);
+        }
+        else { 
+        // It is BlueJ, package/project file is bluej.pkg
+            packageFile = new File(f, pkgfileName);
+        }
         return (packageFile.exists());
     }
 
