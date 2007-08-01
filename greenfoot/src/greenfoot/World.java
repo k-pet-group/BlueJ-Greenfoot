@@ -346,13 +346,24 @@ public abstract class World
     
     /**
      * Repaints the world. 
-     *
      */
     public void repaint() 
     {
         WorldHandler.getInstance().repaint();
     }
     
+    /**
+     * Act method for world. The act method is called by the greenfoot framework
+     * at each action step in the environment. The world's act method is called
+     * before the act method of any objects in the world.<p>
+     * 
+     * This method does nothing. It should be overridden in subclasses to
+     * implement an world's action.
+     */
+    public void act()
+    {
+        // by default, do nothing
+    }
 
     // =================================================
     //

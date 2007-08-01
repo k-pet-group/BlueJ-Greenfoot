@@ -106,7 +106,7 @@ public class Simulation extends Thread implements WorldListener
             World world = worldHandler.getWorld();
             if (world != null) {
                 WorldVisitor.startSequence(world);
-            runOneLoop();
+                runOneLoop();
             }
             delay();
         }
@@ -155,8 +155,10 @@ public class Simulation extends Thread implements WorldListener
             List<? extends Actor> objects = null;
 
             // We need to sync, so that the collection is not changed while
-            // copying it ( to avoid ConcurrentModificationException)
+            // copying it (to avoid ConcurrentModificationException)
             synchronized (world) {
+                world.act();
+                
                 // We need to copy it, to avoid ConcurrentModificationException
                 objects = new ArrayList<Actor>(WorldVisitor.getObjectsList(world));
 
