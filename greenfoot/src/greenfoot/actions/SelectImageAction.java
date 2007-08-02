@@ -4,7 +4,7 @@ import greenfoot.core.GClass;
 import greenfoot.core.GreenfootMain;
 import greenfoot.gui.ImageLibFrame;
 import greenfoot.gui.classbrowser.ClassView;
-import greenfoot.gui.classbrowser.role.ActorClassRole;
+import greenfoot.gui.classbrowser.role.ImageClassRole;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -19,14 +19,14 @@ import bluej.utility.FileUtility;
  * Action to select an image for a class.
  * 
  * @author Davin McCall
- * @version $Id: SelectImageAction.java 4982 2007-04-20 05:45:52Z davmac $
+ * @version $Id: SelectImageAction.java 5139 2007-08-02 06:37:21Z davmac $
  */
 public class SelectImageAction extends ClassAction
 {
     private ClassView classView;
-    private ActorClassRole gclassRole;
+    private ImageClassRole gclassRole;
     
-    public SelectImageAction(ClassView classView, ActorClassRole gcr)
+    public SelectImageAction(ClassView classView, ImageClassRole gcr)
     {
         super("Set image...");
         this.classView = classView;
@@ -43,7 +43,7 @@ public class SelectImageAction extends ClassAction
         setClassImage(classView, gclassRole, currentImageFile);
     }
 
-    public static void setClassImage(ClassView classView, ActorClassRole gclassRole, File imageFile)
+    public static void setClassImage(ClassView classView, ImageClassRole gclassRole, File imageFile)
     {
         GreenfootMain greenfootInstance = GreenfootMain.getInstance();
         

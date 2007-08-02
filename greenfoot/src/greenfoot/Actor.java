@@ -856,6 +856,11 @@ public abstract class Actor
         delegate = d;
     }
     
+    static ActorDelegate getDelegate()
+    {
+        return delegate;
+    }
+    
     /**
      * Get the default image for objects of this class. May return null.
      */

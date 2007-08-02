@@ -8,6 +8,7 @@ import greenfoot.util.Version;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -103,6 +104,13 @@ public abstract class World
     public World(int worldWidth, int worldHeight, int cellSize)
     {
         initialize(worldWidth, worldHeight, cellSize);
+        
+        GreenfootImage image = getClassImage();
+        if (image != null) {
+            // Make the image "copy-on-write".
+            image = new GreenfootImage((BufferedImage) image.getAwtImage());
+            setBackground(image);
+        }
     }
 
     /**
@@ -519,7 +527,28 @@ public abstract class World
     //
     // =================================================
 
+    /**
+     * Get the default image for objects of this class. May return null.
+     */
+    private GreenfootImage getClassImage()
+    {
+        Class clazz = getClass();
+        while (clazz != null) {
+            GreenfootImage image = null;
+            try {
+                image = Actor.getDelegate().getImage(clazz.getName());
+            }
+            catch (Throwable e) {
+                // Ignore exception and continue looking for images
+            }
+            if (image != null) {
+                return image;
+            }
+            clazz = clazz.getSuperclass();
+        }
 
+        return null;
+    }
 
     /**
      * Methods that throws an exception if the location is out of bounds.

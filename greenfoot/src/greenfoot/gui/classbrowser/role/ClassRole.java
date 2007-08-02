@@ -9,6 +9,7 @@ import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -32,10 +33,12 @@ import bluej.views.ViewFilter;
  * "normal" classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 4982 2007-04-20 05:45:52Z davmac $
+ * @version $Id: ClassRole.java 5139 2007-08-02 06:37:21Z davmac $
  */
 public abstract class ClassRole
 {
+    protected final static Dimension iconSize = new Dimension(16, 16);
+    
     private final Color envOpColour = Config.getItemColour("colour.menu.environOp");
     
     /**
