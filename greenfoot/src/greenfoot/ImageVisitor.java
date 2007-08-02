@@ -11,12 +11,17 @@ import java.awt.image.ImageObserver;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ImageVisitor.java 4015 2006-04-25 16:18:13Z mik $
+ * @version $Id: ImageVisitor.java 5137 2007-08-02 06:04:42Z davmac $
  */
 public class ImageVisitor
 {
     public static void drawImage(GreenfootImage image, Graphics g, int x, int y, ImageObserver observer)
     {
         image.drawImage(g, x, y, observer);
+    }
+    
+    public static boolean equal(GreenfootImage image1, GreenfootImage image2)
+    {
+        return GreenfootImage.equal(image1, image2);
     }
 }

@@ -25,16 +25,17 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 1.2.0
- * @cvs-version $Id: GreenfootImage.java 4885 2007-03-24 15:08:12Z polle $
+ * @cvs-version $Id: GreenfootImage.java 5137 2007-08-02 06:04:42Z davmac $
  */
 public class GreenfootImage
 {
     private static final Color DEFAULT_BACKGROUND = new Color(0, 0, 0, 0);
     /** The image name is primarily use for debuging. */
     private String imageFileName;
-    private Image image;
+    private BufferedImage image;
     private Graphics2D graphics;
     private static MediaTracker tracker;
+    private boolean copyOnWrite = false;
 
     /**
      * Create an image from an image file. Supported file formats are JPEG, GIF
@@ -71,8 +72,27 @@ public class GreenfootImage
     public GreenfootImage(GreenfootImage image)
         throws IllegalArgumentException
     {
-        this(image.getWidth(), image.getHeight());
-        drawImage(image, 0, 0);
+        if (! image.copyOnWrite) {
+            setImage(new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB));
+            drawImage(image, 0, 0);
+        }
+        else {
+            // If the source image is a copy-on-write image, we can easily
+            // make this a copy-on-write image as well.
+            this.image = image.image;
+            copyOnWrite = true;
+        }
+    }
+    
+    /**
+     * Create a copy-on-write image based on the given BufferedImage.
+     * If the GreenfootImage is modified, the original BufferedImage will
+     * not be affected.
+     */
+    GreenfootImage(BufferedImage image)
+    {
+        this.image = image;
+        copyOnWrite = true;
     }
 
     private void loadURL(URL imageURL)
@@ -119,8 +139,8 @@ public class GreenfootImage
         if (image == null) {
             throw new IllegalArgumentException("Image must not be null.");
         }
-        this.image = image;
-        initGraphics();
+        this.image = getBufferedImage(image);
+        copyOnWrite = false;
     }
 
 
@@ -133,24 +153,22 @@ public class GreenfootImage
      */
     public Image getAwtImage()
     {
+        ensureWritableImage();
         return image;
-    }
-
-    private void initGraphics()
-    {
-        try {
-            graphics = (Graphics2D) image.getGraphics();
-        }
-        catch (Throwable e) {
-            // we MUST be able to get the graphics!
-            image = getBufferedImage();
-            graphics = (Graphics2D) image.getGraphics();
-        }
-        graphics.setBackground(DEFAULT_BACKGROUND);
     }
 
     private Graphics2D getGraphics()
     {
+        if (graphics == null) {
+            if (copyOnWrite) {
+                // this also sets graphics
+                ensureWritableImage();
+            }
+            else {
+                graphics = (Graphics2D) image.createGraphics();
+                graphics.setBackground(DEFAULT_BACKGROUND);
+            }
+        }
         return graphics;
     }
 
@@ -185,7 +203,7 @@ public class GreenfootImage
         AffineTransform tx = AffineTransform.getRotateInstance(Math.toRadians(degrees), getWidth()/2., getHeight()/2.);
         AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
         BufferedImage newImage = new BufferedImage(getWidth(), getHeight(),  BufferedImage.TYPE_INT_ARGB);
-        setImage(op.filter(getBufferedImage(), newImage));
+        setImage(op.filter(image, newImage));
     }
 
     /**
@@ -196,8 +214,7 @@ public class GreenfootImage
      */
     public void scale(int width, int height)
     {
-        image = image.getScaledInstance(width, height, Image.SCALE_AREA_AVERAGING);
-        waitForImageLoad();
+        setImage(image.getScaledInstance(width, height, Image.SCALE_AREA_AVERAGING));
     }
 
     /**
@@ -209,7 +226,7 @@ public class GreenfootImage
         AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
         tx.translate(0, -image.getHeight(null));
         AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-        setImage(op.filter(getBufferedImage(), null));
+        setImage(op.filter(image, null));
     }
 
     /**
@@ -221,7 +238,7 @@ public class GreenfootImage
         AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
         tx.translate(-image.getWidth(null), 0);
         AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-        setImage(op.filter(getBufferedImage(), null));
+        setImage(op.filter(image, null));
     }
 
     /**
@@ -312,7 +329,8 @@ public class GreenfootImage
         setRGBAt(x, y, color.getRGB());
     }
     
-    private int getRGBAt(int x, int y) {
+    private int getRGBAt(int x, int y)
+    {
         if (x >= getWidth()) {
             throw new IndexOutOfBoundsException("X is out of bounds. It was: " + x
                     + " and it should have been smaller than: " + getWidth());
@@ -330,11 +348,11 @@ public class GreenfootImage
                     + " and it should have been at least: 0");
         }
 
-        BufferedImage bImage = getBufferedImage();
-        return bImage.getRGB(x,y);
+        return image.getRGB(x,y);
     }
     
-    private void setRGBAt(int x, int y, int rgb) {
+    private void setRGBAt(int x, int y, int rgb)
+    {
         if (x >= getWidth()) {
             throw new IndexOutOfBoundsException("X is out of bounds. It was: " + x
                     + " and it should have been smaller than: " + getWidth());
@@ -352,8 +370,8 @@ public class GreenfootImage
                     + " and it should have been at least: 0");
         }
 
-        BufferedImage bImage = getBufferedImage();
-        bImage.setRGB(x,y,rgb);
+        ensureWritableImage();
+        image.setRGB(x,y,rgb);
     }
  
     /**
@@ -523,34 +541,59 @@ public class GreenfootImage
         }
     }
     
+    static boolean equal(GreenfootImage image1, GreenfootImage image2)
+    {
+        if (image1 == null || image2 == null) {
+            return image1 == image2;
+        }
+        else {
+            return (image1.image == image2.image || image1.equals(image2));
+        }
+    }
+
+    /**
+     * Ensure we have an image which we are allowed to write to. If we are
+     * a copy-on-write image, create a copy of the image (and set up the
+     * graphics2d object) before returning.
+     */
+    private void ensureWritableImage()
+    {
+        if (copyOnWrite) {
+            BufferedImage bImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+            graphics = bImage.createGraphics();
+            graphics.setBackground(DEFAULT_BACKGROUND);
+            graphics.drawImage(image, 0, 0, null);
+            image = bImage;
+            copyOnWrite = false;
+        }
+    }
+    
     /**
      * Gets a BufferedImage of the AWT Image that this GreenfootImage
      * represents. We need this for some of the image manipulation methods.
-     * 
-     * 
      */
-    private BufferedImage getBufferedImage()
+    private static BufferedImage getBufferedImage(Image image)
     {
         if (image instanceof BufferedImage) {}
         else if (image instanceof VolatileImage) {
             image = ((VolatileImage) image).getSnapshot();
-            waitForImageLoad();
+            waitForImageLoad(image);
         }
         else {
-            BufferedImage bImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+            waitForImageLoad(image);
+            BufferedImage bImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
             Graphics g = bImage.getGraphics();
             g.drawImage(image, 0, 0, null);
             image = bImage;
-            waitForImageLoad();
         }
         return (BufferedImage) image;
     }
-    
+        
     /**
      * Wait until the iamge is fully loaded and then init the graphics.
      * 
      */
-    private void waitForImageLoad()
+    private static void waitForImageLoad(Image image)
     {
         if (tracker == null) {
             tracker = new MediaTracker(new Component() {});
@@ -563,6 +606,5 @@ public class GreenfootImage
         catch (InterruptedException e) {
             e.printStackTrace();
         }
-        initGraphics();
     }
 }

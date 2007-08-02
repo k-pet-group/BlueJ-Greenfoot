@@ -5,6 +5,7 @@ import greenfoot.platforms.ActorDelegate;
 import greenfoot.util.Circle;
 import greenfoot.util.GreenfootUtil;
 
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 
@@ -84,10 +85,6 @@ public abstract class Actor
         }
     }
     
-    private boolean usingClassImage;
-
-    private boolean  copyClassImage = true;
-
     /**
      * Construct an Actor.
      * The object will have a default image.
@@ -102,8 +99,11 @@ public abstract class Actor
         if (image == null) {
             image = greenfootImage;
         }
+        
+        // Make the image "copy-on-write".
+        image = new GreenfootImage((BufferedImage) image.getAwtImage());
+        
         setImage(image);
-        usingClassImage = true;
     }
 
     /**
@@ -279,21 +279,11 @@ public abstract class Actor
     /**
      * Returns the image used to represent this Actor. This image can be 
      * modified to change the object's appearance. 
-     * <p>
-     * 
-     * If you override this method, you should call super.getImage() before doing anything else.
      * 
      * @return The object's image.
      */
     public GreenfootImage getImage()
     {
-        if (usingClassImage && copyClassImage) {
-            // If this actor is using the class image, make a copy of it before
-            // returning it. Otherwise modifications will affect the class image.
-            image = new GreenfootImage(image);
-            usingClassImage = false;
-        }
-        
         return image;
     }
 
@@ -308,7 +298,6 @@ public abstract class Actor
     public void setImage(String filename) throws IllegalArgumentException
     {
         image = new GreenfootImage(filename);
-        usingClassImage = false;
         sizeChanged();
     }
 
@@ -382,25 +371,6 @@ public abstract class Actor
     }
     
     /**
-     * Get the image to use when displaying this actor. This should be whatever
-     * was set using setImage(). The returned image should not be modified as it
-     * may be the original class image.
-     * 
-     * @return The image to use to display the actor
-     */
-    GreenfootImage getDisplayImage()
-    {
-        // When calling getImage, we do not want it to copy the class image -
-        // for performance reasons.
-        // We have to use getImage() though, if we want the user to be able to
-        // override it.
-        copyClassImage = false;
-        GreenfootImage img = getImage();
-        copyClassImage = true;
-        return img;
-    }
-    
-    /**
      * Get the bounding circle of the object. Taking into consideration that the
      * object can rotate.
      * 
@@ -433,18 +403,8 @@ public abstract class Actor
     Object getData() {
         return data;
     }
-    
-    /**
-     * Check whether the object is using the class image. This is true until
-     * getImage() is called, when a copy of the image is made.
-     * (package-private method). 
-     */
-    boolean isUsingClassImage()
-    {
-        return usingClassImage;
-    }
-    
 
+    
     // ============================
     //
     // Private methods

@@ -58,7 +58,7 @@ public class ActorVisitor
      */
     public static GreenfootImage getDisplayImage(Actor actor)
     {
-        return actor.getDisplayImage();
+        return actor.getImage();
     }
 
     
