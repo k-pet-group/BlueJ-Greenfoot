@@ -1,7 +1,6 @@
 package greenfoot.core;
 
 import greenfoot.ObjectTracker;
-import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.event.ActorInstantiationListener;
 import greenfoot.event.CompileListener;
@@ -43,7 +42,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 5005 2007-04-24 18:59:55Z polle $
+ * @version $Id: GreenfootMain.java 5140 2007-08-03 03:14:12Z bquig $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -246,7 +245,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     /**
      * Opens the project in the given directory.
      */
-    private void openProject(String projectDir)
+    public void openProject(String projectDir)
         throws RemoteException
     {
         int versionStatus = GreenfootMain.updateApi(new File(projectDir), frame);
@@ -261,7 +260,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         }
 
     }
-
+    
     /**
      * Opens a file browser to find a greenfoot project
      */
@@ -303,20 +302,25 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     {
         try {
             if (rBlueJ.getOpenProjects().length <= 1) {
-                // Close everything
-                // TODO maybe open dummy project instead
-
-                // And then exit greenfoot
-                rBlueJ.exit();
-            }
-            else {
+                if (isStartupProject()) {
+                    bluej.utility.Debug.message("Is startup project so we will exit");
+                    rBlueJ.exit();
+                } else {
+                        //rBlueJ.
+                        frame.closeProject();
+                        //getInstance().openProject(startupProject.getPath());
+                        
+                        //project.close();
+                   }
+            } else {
                 project.close();
             }
-        }
-        catch (RemoteException e) {
-            e.printStackTrace();
+        } catch (RemoteException re) {
+            re.printStackTrace();
+            
         }
     }
+
     
     /* (non-Javadoc)
      * @see rmiextension.wrappers.event.RProjectListener#projectClosing()
