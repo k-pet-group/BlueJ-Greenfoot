@@ -166,12 +166,12 @@
 						<include name="images/**" />
 					</fileset>
 				</copy>		
-				<javac srcdir="scenarios/@{scenario}" debug="true">
+				<javac srcdir="scenarios/@{scenario}" debug="true"
+				target="1.5">
 				    <classpath>
 				      <path refid="greenfoot.class.path"/>
 					  <path refid="bluej.class.path"/>
 				    </classpath>
-                    <compilerarg line="-target 1.5" />               
 				</javac>
 			</sequential>
 		</macrodef>
@@ -420,8 +420,8 @@
             classpathref="bluej.class.path" 
                     debug="true"
                     sourcepath=""            
+                    target="1.5"
             >
-            <compilerarg line="-target 1.5" />   
             <src path="${src}"/>
             
             <include name="greenfoot/core/WorldHandler.java"/>
