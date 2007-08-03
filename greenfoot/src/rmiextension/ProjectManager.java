@@ -22,7 +22,7 @@ import bluej.utility.Debug;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 4936 2007-04-16 05:42:17Z davmac $
+ * @version $Id: ProjectManager.java 5144 2007-08-03 06:15:53Z davmac $
  */
 public class ProjectManager
     implements PackageListener
@@ -90,6 +90,7 @@ public class ProjectManager
                     Debug.reportError("Could not create greenfoot launcher.", e);
                     e.printStackTrace();
                     // This is bad, lets exit.
+                    // TODO should display a dialog first
                     System.exit(1);
                 }
             }
@@ -116,7 +117,7 @@ public class ProjectManager
     {
         if(isNewProject(projectDir)) {
             ProjectProperties newProperties = new ProjectProperties(projectDir);
-            newProperties.setApiVersion();
+            newProperties.setApiVersion(GreenfootMain.getAPIVersion().toString());
             newProperties.save();
         }        
         return GreenfootMain.updateApi(projectDir, null); 

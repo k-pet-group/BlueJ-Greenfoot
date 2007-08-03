@@ -1,7 +1,6 @@
 package greenfoot.core;
 
 import greenfoot.ObjectTracker;
-import greenfoot.WorldVisitor;
 import greenfoot.event.ActorInstantiationListener;
 import greenfoot.event.CompileListener;
 import greenfoot.event.CompileListenerForwarder;
@@ -15,6 +14,7 @@ import java.awt.Frame;
 import java.awt.Point;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.lang.reflect.Field;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -42,7 +42,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 5140 2007-08-03 03:14:12Z bquig $
+ * @version $Id: GreenfootMain.java 5144 2007-08-03 06:15:53Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -132,16 +132,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             }
         }
     }
-    
-    /**
-     * Initializes the singleton for the stand alone Greenfoot Viewer. This can only be done once - subsequent calls
-     * will have no effect.
-     */
-    public static void initialize(ProjectProperties p)
-    {
-        projectProperties = p;
-    }
-
 
     /**
      * Gets the singleton.
@@ -151,7 +141,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     {
         return instance;
     }
-
 
     /**
      * Gets the properties for the greenfoot project run on this copy of 
@@ -243,7 +232,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     }
     
     /**
-     * Opens the project in the given directory.
+     * Opens the project in the given directory. The project launches in a
+     * new VM.
      */
     public void openProject(String projectDir)
         throws RemoteException
@@ -306,12 +296,12 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     bluej.utility.Debug.message("Is startup project so we will exit");
                     rBlueJ.exit();
                 } else {
-                        //rBlueJ.
-                        frame.closeProject();
-                        //getInstance().openProject(startupProject.getPath());
-                        
-                        //project.close();
-                   }
+                    //rBlueJ.
+                    //frame.closeProject();
+                    //getInstance().openProject(startupProject.getPath());
+                                
+                    //project.close();
+                }
             } else {
                 project.close();
             }
@@ -514,7 +504,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         
         touchApiClasses(dst);
         
-        p.setApiVersion();
+        p.setApiVersion(getAPIVersion().toString());
         p.save();
     }
     
@@ -671,6 +661,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         return false;
     }
 
+    private static Version VERSION = null;
+    
     /**
      * Gets the version number of the greenfoot API.
      * 
@@ -678,7 +670,36 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      */
     public static Version getAPIVersion()
     {
-        return WorldVisitor.getApiVersion();
+        if (VERSION == null) {
+            try{
+                Class bootCls = Class.forName("bluej.Boot");
+                Field field = bootCls.getField("GREENFOOT_API_VERSION");
+                String versionStr = (String) field.get(null);
+                VERSION = new Version(versionStr);
+            }
+            catch (ClassNotFoundException e) {
+                VERSION = new Version("0");
+                //It's fine - running in standalone.
+            }
+            catch (SecurityException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (NoSuchFieldException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (IllegalArgumentException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (IllegalAccessException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+        return VERSION;
     }
     
     public static Class loadAndInitClass(String name)

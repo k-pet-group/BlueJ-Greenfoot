@@ -4,12 +4,10 @@ package greenfoot;
 import greenfoot.collision.CollisionChecker;
 import greenfoot.collision.ibsp.IBSPColChecker;
 import greenfoot.core.WorldHandler;
-import greenfoot.util.Version;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.lang.reflect.Field;
 import java.util.*;
 
 
@@ -36,37 +34,6 @@ import java.util.*;
  */
 public abstract class World
 {    
-
-    /** Version number of the Greenfoot API. Must load the class dynamically to have it work with standalone execution*/
-    static Version VERSION;
-    static {
-        try{
-            Class bootCls = Class.forName("bluej.Boot");
-            Field field = bootCls.getField("GREENFOOT_API_VERSION");
-            String versionStr = (String) field.get(null);
-            VERSION = new Version(versionStr);
-        }
-        catch (ClassNotFoundException e) {
-            VERSION = new Version("0");
-            //It's fine - running in standalone.
-        }
-        catch (SecurityException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (NoSuchFieldException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
     // private CollisionChecker collisionChecker = new GridCollisionChecker();
     // private CollisionChecker collisionChecker = new BVHInsChecker();
     private CollisionChecker collisionChecker = new IBSPColChecker();

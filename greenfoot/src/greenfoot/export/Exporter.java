@@ -5,13 +5,12 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5032 2007-04-30 12:32:22Z polle $
+ * @version $Id: Exporter.java 5144 2007-08-03 06:15:53Z davmac $
  */
 
 package greenfoot.export;
 
 import greenfoot.core.GProject;
-import greenfoot.core.GreenfootMain;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.PublishEvent;
 import greenfoot.event.PublishListener;
@@ -24,7 +23,6 @@ import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.List;
 
 public class Exporter 
         implements PublishListener
