@@ -15,22 +15,24 @@ import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.sound.SoundPlayer;
 import greenfoot.util.GreenfootUtil;
 
+import java.util.List;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.util.Iterator;
 
 import javax.swing.*;
 
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.event.RCompileEvent;
 import bluej.Config;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 
 import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationAdapter;
 import com.apple.eawt.ApplicationEvent;
+import java.util.Iterator;
 
 /**
  * The main frame for a Greenfoot project (one per project)
@@ -38,7 +40,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5004 2007-04-24 18:35:23Z polle $
+ * @version $Id: GreenfootFrame.java 5141 2007-08-03 04:32:22Z bquig $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -55,6 +57,8 @@ public class GreenfootFrame extends JFrame
     private Dimension worldDimensions;
     private ClassBrowser classBrowser;
     private ControlPanel controlPanel;
+    
+    private JMenu recentProjectsMenu;
     
     /**
      * Indicate whether we want to resize. 
@@ -202,7 +206,7 @@ public class GreenfootFrame extends JFrame
             {
                 setTitle("Greenfoot: " + project.getName());
                 populateClassBrowser(classBrowser, project);
-                enableProjectActions();
+                enableProjectActions(true);
                 WorldHandler.getInstance().instantiateNewWorld();
                 if(needsResize()) {
                     pack();
@@ -210,6 +214,17 @@ public class GreenfootFrame extends JFrame
             }
         });
     }    
+    
+ /*   public void closeProject()
+    {
+        setTitle("Greenfoot: ");
+        worldCanvas.setVisible(false);
+        classBrowser.setVisible(false);
+        enableProjectActions(false);
+        repaint();
+        
+    }
+ */   
     
     /**
      * Create the GUI components for this project in the top level frame.
@@ -434,7 +449,11 @@ public class GreenfootFrame extends JFrame
         
         addMenuItem(NewProjectAction.getInstance(), projectMenu, -1, false, KeyEvent.VK_N);
         addMenuItem(OpenProjectAction.getInstance(), projectMenu, KeyEvent.VK_O, false, KeyEvent.VK_O);
-//        addMenuItem(new NYIAction("Open Recent...", this), projectMenu, -1, false, -1);
+        
+        recentProjectsMenu = new JMenu("Open recent");
+        projectMenu.add(recentProjectsMenu);
+        updateRecentProjects();
+        
         addMenuItem(CloseProjectAction.getInstance(), projectMenu, KeyEvent.VK_W, false, KeyEvent.VK_C);
         addMenuItem(SaveProjectAction.getInstance(), projectMenu, KeyEvent.VK_S, false, KeyEvent.VK_S);
         projectMenu.addSeparator();
@@ -510,20 +529,35 @@ public class GreenfootFrame extends JFrame
             action.putValue(Action.MNEMONIC_KEY, new Integer(mnemonicKey));
         menu.add(action);
     }
+    
+    /**
+     * Update the 'Open Recent' menu
+     */
+    private void updateRecentProjects()
+    {
+       
+        List projects = PrefMgr.getRecentProjects();
+        for (Iterator it = projects.iterator(); it.hasNext();) {
+            JMenuItem item = new JMenuItem((String)it.next());
+            item.addActionListener(OpenRecentProjectAction.getInstance());
+            recentProjectsMenu.add(item);
+ 
+        }
+    }
 
 
     /**
      * Enable the actions that were disabled when no project is open.
      */
-    private void enableProjectActions() 
+    private void enableProjectActions(boolean state) 
     {
-        CloseProjectAction.getInstance().setEnabled(true);
-        SaveProjectAction.getInstance().setEnabled(true);
-        NewClassAction.getInstance().setEnabled(true);
-        RemoveSelectedClassAction.getInstance().setEnabled(true);
-        CompileAllAction.getInstance().setEnabled(true);
-        ShowReadMeAction.getInstance().setEnabled(true);
-        ExportProjectAction.getInstance().setEnabled(true);
+        CloseProjectAction.getInstance().setEnabled(state);
+        SaveProjectAction.getInstance().setEnabled(state);
+        NewClassAction.getInstance().setEnabled(state);
+        RemoveSelectedClassAction.getInstance().setEnabled(state);
+        CompileAllAction.getInstance().setEnabled(state);
+        ShowReadMeAction.getInstance().setEnabled(state);
+        ExportProjectAction.getInstance().setEnabled(state);
     }
 
     /**
