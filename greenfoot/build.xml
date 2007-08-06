@@ -8,6 +8,9 @@
 
 	<!-- user specific properties that are edited to match local build environment-->
 	<property file="build.properties"/>
+	
+	<!-- get java version to build with from the build.properties file used for BlueJ -->
+	<property file="${bluej.projectdir}/build.properties"/>
 
     <!-- Greenfoot Version Number -->
     <property name="greenfoot.version.major" value="1"/>
@@ -341,11 +344,12 @@
         <!-- run the java code built into the jar files -->
         <java classname="bluej.Boot" fork="yes" jvm="${build_java_home}/bin/java">        
             <classpath>
-                <path refid="bluej.class.path"/>
-                <path refid="bluej.src.path"/>
+            	<pathelement location="${bluej.projectdir}/boot/classes" />
+                <!-- <path refid="bluej.class.path"/> -->
+                <!-- <path refid="bluej.src.path"/> -->
                 <pathelement location="${build_java_home}/lib/tools.jar"/>
                 <pathelement location="/System/Library/Java"/>
-                <pathelement location="${build}"/>                
+                <!-- <pathelement location="${build}"/> -->
             </classpath>        
             
             <arg value="-bluej.debug=true"></arg>
@@ -512,15 +516,15 @@
         
         <!-- Remove empty lines from bluej.pkg -->
         <replaceregexp byline="false" flags="g">
-            <regexp pattern="\n\n"/>
-            <substitution expression=""/>
+            <regexp pattern="(\n)\n+"/>
+            <substitution expression="\1"/>
             <fileset dir="scenarios" includes="**/bluej.pkg"/>
         </replaceregexp>        
         
         <!-- Remove empty lines from project.greenfoot -->
         <replaceregexp byline="false" flags="g">
-            <regexp pattern="\n\n"/>
-            <substitution expression=""/>
+            <regexp pattern="(\n)\n+"/>
+            <substitution expression="\1"/>
             <fileset dir="scenarios" includes="**/project.greenfoot"/>
         </replaceregexp>
     </target>

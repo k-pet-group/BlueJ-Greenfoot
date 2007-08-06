@@ -1,8 +1,6 @@
 package rmiextension;
 
 import greenfoot.core.GreenfootLauncherBlueJVM;
-import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
-import greenfoot.util.GreenfootUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +20,7 @@ import bluej.utility.Debug;
  * This is the starting point of greenfoot as a BlueJ Extension.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RMIExtension.java 4950 2007-04-17 11:43:33Z polle $
+ * @version $Id: RMIExtension.java 5148 2007-08-06 08:35:21Z davmac $
  */
 public class RMIExtension extends Extension
 {
@@ -35,7 +33,8 @@ public class RMIExtension extends Extension
     public void startup(BlueJ bluej)
     {
         theBlueJ = bluej;
-        GreenfootUtil.initialise(new GreenfootUtilDelegateIDE());
+        // GreenfootUtil.initialise(new GreenfootUtilDelegateIDE());
+        // Above is not necessary
         // theBlueJ.addPackageListener(ProjectLauncher.instance());
         ProjectManager.init(bluej);
 

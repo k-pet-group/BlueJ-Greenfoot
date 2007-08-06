@@ -5,7 +5,7 @@ import java.net.ServerSocket;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
+import java.security.Permission;
 
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.RBlueJImpl;
@@ -21,7 +21,7 @@ import bluej.utility.Debug;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: BlueJRMIServer.java 4751 2006-12-07 15:48:11Z polle $
+ * @version $Id: BlueJRMIServer.java 5148 2007-08-06 08:35:21Z davmac $
  */
 public class BlueJRMIServer
 {
@@ -59,6 +59,23 @@ public class BlueJRMIServer
     public BlueJRMIServer(BlueJ blueJ)
         throws IOException
     {
+    	if (System.getSecurityManager() == null) {
+    		// If there's no security manager, the registry will
+    		// (stupidly) refuse to load classes from the class path
+    		// that aren't visible to the system class loader.
+    		System.setSecurityManager(new SecurityManager() {
+    			public void checkPermission(Permission perm) {
+    				// super.checkPermission(perm);
+    				return;
+    			}
+
+    			public void checkPermission(Permission perm, Object context) {
+    				// super.checkPermission(perm, context);
+    				return;
+    			}
+    		});
+    	}
+    	
         startRegistry();
         blueJ.addPackageListener(ProjectManager.instance());
         RBlueJ rBlueJ = new RBlueJImpl(blueJ);
@@ -88,7 +105,7 @@ public class BlueJRMIServer
             }
 
             try {
-                Registry reg = LocateRegistry.createRegistry(port);
+                LocateRegistry.createRegistry(port);
                 success = true;
             }
             catch (RemoteException re) {
