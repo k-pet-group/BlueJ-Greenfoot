@@ -8,6 +8,7 @@
 
     <!-- user specific properties that are edited to match local build environment-->
     <property file="build.properties"/>
+	<property name="bluej_home" value="${basedir}" />
 
     <!-- 
      This is the only place you need to change the version number.
@@ -204,7 +205,7 @@
         <java classname="bluej.Boot" fork="yes" jvm="${run_java_home}/bin/java">        
             <classpath>
                 <pathelement location="${boot.jar}"/>
-                <pathelement location="${build_java_home}/lib/tools.jar"/>
+                <pathelement location="${run_java_home}/lib/tools.jar"/>
                 <pathelement location="/System/Library/Java"/>
             </classpath>                	
         </java>
