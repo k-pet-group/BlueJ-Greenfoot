@@ -21,7 +21,7 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 5145 2007-08-06 05:45:05Z davmac $
+ * @version $Id: Boot.java 5146 2007-08-06 05:46:33Z davmac $
  */
 public class Boot
 {
@@ -138,6 +138,7 @@ public static final int BLUEJ_VERSION_MAJOR = 2;
         	instance.bootBluej();
         }
         catch (Throwable t) {
+        	t.printStackTrace();
         	System.exit(1);
         }
         
