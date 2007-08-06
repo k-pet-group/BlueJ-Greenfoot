@@ -31,6 +31,6 @@ public class CloseProjectAction extends AbstractAction
     
     public void actionPerformed(ActionEvent e)
     {
-        GreenfootMain.getInstance().closeThisInstance();
+        GreenfootMain.getInstance().closeThisInstance(false);
     }
 }

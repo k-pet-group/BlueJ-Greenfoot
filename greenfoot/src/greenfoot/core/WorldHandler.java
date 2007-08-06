@@ -11,7 +11,6 @@ import greenfoot.gui.DragListener;
 import greenfoot.gui.DropTarget;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.platforms.WorldHandlerDelegate;
-import greenfoot.util.GreenfootUtil;
 
 import java.awt.Component;
 import java.awt.EventQueue;
@@ -19,7 +18,6 @@ import java.awt.Point;
 import java.awt.event.*;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -268,7 +266,8 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
      * Instantiate a new world and do any initialisation needed to activate that world.
      * @return The new World or null if an error occured
      */
-    public World instantiateNewWorld() {
+    public World instantiateNewWorld()
+    {
         return handlerDelegate.instantiateNewWorld();
     }
     
@@ -285,7 +284,6 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
-
                 if (WorldHandler.this.world != null) {
                     fireWorldCreatedEvent();
                 }
@@ -442,8 +440,7 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
     }
 
     /**
-     * Resets the world.
-     *
+     * Removes the world.
      */
     public void reset()
     {

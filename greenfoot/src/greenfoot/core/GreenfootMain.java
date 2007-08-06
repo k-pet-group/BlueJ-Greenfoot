@@ -10,6 +10,7 @@ import greenfoot.platforms.ide.ActorDelegateIDE;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.util.Version;
 
+import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.Point;
 import java.io.File;
@@ -42,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 5144 2007-08-03 06:15:53Z davmac $
+ * @version $Id: GreenfootMain.java 5149 2007-08-06 13:28:16Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -181,30 +182,35 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             this.project = new GProject(proj);
             this.pkg = project.getDefaultPackage();
 
-            frame = GreenfootFrame.getGreenfootFrame(rBlueJ);
+            EventQueue.invokeLater(new Runnable() {
+            	public void run() {
+                    frame = GreenfootFrame.getGreenfootFrame(rBlueJ);
 
-            // Config is initialized in GreenfootLauncherDebugVM
+                    // Config is initialized in GreenfootLauncherDebugVM
 
-            if(!isStartupProject()) {
-                try {
-                    WorldHandler.getInstance().attachProject(project);
-                    frame.openProject(project);
-                    Utility.bringToFront();
+                    if(!isStartupProject()) {
+                        try {
+                            WorldHandler.getInstance().attachProject(project);
+                            instantiationListener = new ActorInstantiationListener(WorldHandler.getInstance());
 
-                    instantiationListener = new ActorInstantiationListener(WorldHandler.getInstance());
-                    compileListenerForwarder = new CompileListenerForwarder(compileListeners);
-                    GreenfootMain.this.rBlueJ.addCompileListener(compileListenerForwarder, pkg.getProject().getName());
-                    
-                    classStateManager = new ClassStateManager();
-                    rBlueJ.addClassListener(classStateManager);
-                }
-                catch (Exception exc) {
-                    Debug.reportError("failed to open scenario", exc);
-                }
-            }
-            else {
-                Utility.bringToFront();
-            }
+                            frame.openProject(project);
+                            Utility.bringToFront();
+
+                            compileListenerForwarder = new CompileListenerForwarder(compileListeners);
+                            GreenfootMain.this.rBlueJ.addCompileListener(compileListenerForwarder, pkg.getProject().getName());
+                            
+                            classStateManager = new ClassStateManager();
+                            rBlueJ.addClassListener(classStateManager);
+                        }
+                        catch (Exception exc) {
+                            Debug.reportError("failed to open scenario", exc);
+                        }
+                    }
+                    else {
+                        Utility.bringToFront();
+                    }
+            	}
+            });
         }
         catch (Exception exc) {
             Debug.reportError("could not create greenfoot main", exc);
@@ -238,6 +244,17 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     public void openProject(String projectDir)
         throws RemoteException
     {
+    	try {
+    		// It's possible that the user re-opened a project which they previously closed,
+    		// resulting in an empty frame (because no other open projects). In that case the
+    		// project is actually still running, behind the scenes; so just re-display it.
+    		if (project.getDir().equals(new File(projectDir))) {
+    			frame.openProject(project);
+    			return;
+    		}
+    	}
+    	catch (ProjectNotOpenException pnoe) {}
+    	
         int versionStatus = GreenfootMain.updateApi(new File(projectDir), frame);
         boolean doOpen = versionStatus != VERSION_BAD;
         if (doOpen) {
@@ -248,7 +265,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 project.close();
             }
         }
-
     }
     
     /**
@@ -286,20 +302,21 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     }
 
     /**
-     * Closes this greenfoot frame
+     * Closes this greenfoot frame, or handle it closing.
+     * 
+     * If this is called with the windowClosign parameter false, and there is only one project open,
+     * then the frame won't be closed but will instead be turned into an empty frame.
      */
-    public void closeThisInstance()
+    public void closeThisInstance(boolean windowClosing)
     {
         try {
             if (rBlueJ.getOpenProjects().length <= 1) {
-                if (isStartupProject()) {
-                    bluej.utility.Debug.message("Is startup project so we will exit");
+                if (windowClosing) {
+                	// This happens to be the only way the startup project can be closed
                     rBlueJ.exit();
                 } else {
-                    //rBlueJ.
-                    //frame.closeProject();
+                    frame.closeProject();
                     //getInstance().openProject(startupProject.getPath());
-                                
                     //project.close();
                 }
             } else {
@@ -307,10 +324,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             }
         } catch (RemoteException re) {
             re.printStackTrace();
-            
         }
     }
-
     
     /* (non-Javadoc)
      * @see rmiextension.wrappers.event.RProjectListener#projectClosing()

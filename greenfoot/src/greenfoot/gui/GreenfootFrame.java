@@ -40,7 +40,7 @@ import java.util.Iterator;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5141 2007-08-03 04:32:22Z bquig $
+ * @version $Id: GreenfootFrame.java 5149 2007-08-06 13:28:16Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -61,6 +61,12 @@ public class GreenfootFrame extends JFrame
     private JMenu recentProjectsMenu;
     
     /**
+     * Specifies whether the project has been closed and only the empty frame is showing.
+     * (Behind the scenes, the project is actually still open).
+     */
+    private boolean isClosedProject = true;
+    
+    /**
      * Indicate whether we want to resize. 
      * 
      * @see #setResizeWhenPossible(boolean)
@@ -72,19 +78,8 @@ public class GreenfootFrame extends JFrame
     
     public static GreenfootFrame getGreenfootFrame(final RBlueJ blueJ)
     {
-        try {
-            EventQueue.invokeAndWait(new Runnable() {
-                public void run()
-                {
-                    instance = new GreenfootFrame(blueJ);                        
-                }
-            });
-            return instance;
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    	instance = new GreenfootFrame(blueJ);                        
+        return instance;
     }
     
     /**
@@ -197,34 +192,37 @@ public class GreenfootFrame extends JFrame
     
     /**
      * Open a given project into this frame.
-     * 
      */
     public void openProject(final GProject project)
     {
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                setTitle("Greenfoot: " + project.getName());
-                populateClassBrowser(classBrowser, project);
-                enableProjectActions(true);
-                WorldHandler.getInstance().instantiateNewWorld();
-                if(needsResize()) {
-                    pack();
-                }
-            }
-        });
+    	if (isClosedProject) {
+    		setTitle("Greenfoot: " + project.getName());
+    		populateClassBrowser(classBrowser, project);
+    		enableProjectActions(true);
+    		
+    		worldCanvas.setVisible(true);
+    		classBrowser.setVisible(true);
+    		
+    		WorldHandler.getInstance().instantiateNewWorld();
+    		if(needsResize()) {
+    			pack();
+    		}
+    		isClosedProject = false;
+    	}
     }    
     
- /*   public void closeProject()
+    /**
+     * Calling this will make the current frame an empty frame.
+     */
+    public void closeProject()
     {
         setTitle("Greenfoot: ");
         worldCanvas.setVisible(false);
         classBrowser.setVisible(false);
         enableProjectActions(false);
         repaint();
-        
+        isClosedProject = true;
     }
- */   
     
     /**
      * Create the GUI components for this project in the top level frame.
@@ -541,7 +539,6 @@ public class GreenfootFrame extends JFrame
             JMenuItem item = new JMenuItem((String)it.next());
             item.addActionListener(OpenRecentProjectAction.getInstance());
             recentProjectsMenu.add(item);
- 
         }
     }
 
@@ -558,6 +555,11 @@ public class GreenfootFrame extends JFrame
         CompileAllAction.getInstance().setEnabled(state);
         ShowReadMeAction.getInstance().setEnabled(state);
         ExportProjectAction.getInstance().setEnabled(state);
+        
+        // Disable simulation buttons
+        if (state == false) {
+        	WorldHandler.getInstance().setWorld(null);
+        }
     }
 
     /**
@@ -570,7 +572,6 @@ public class GreenfootFrame extends JFrame
     }
 
     /**
-     * 
      * This frame should never be disposed (at least not until the program is
      * closed). BlueJ disposes all windows when compiling, so dispose is
      * overridden to avoid it for this frame. Be aware of this when it should
@@ -591,7 +592,7 @@ public class GreenfootFrame extends JFrame
 
     public void windowClosing(WindowEvent e)
     {
-        GreenfootMain.getInstance().closeThisInstance();
+        GreenfootMain.getInstance().closeThisInstance(true);
     }
 
     public void windowClosed(WindowEvent e) {}
@@ -642,7 +643,6 @@ public class GreenfootFrame extends JFrame
             }
         });
     }
-
     
     // ----------- end of WindowListener interface -----------
     
