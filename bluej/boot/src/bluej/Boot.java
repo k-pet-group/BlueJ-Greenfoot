@@ -21,7 +21,7 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 5109 2007-06-20 03:01:40Z bquig $
+ * @version $Id: Boot.java 5145 2007-08-06 05:45:05Z davmac $
  */
 public class Boot
 {
@@ -133,8 +133,14 @@ public static final int BLUEJ_VERSION_MAJOR = 2;
         
         Frame splash = new SplashWindow(image);
         
-        instance = new Boot(args, commandLineProps);
-        instance.bootBluej();
+        try {
+        	instance = new Boot(args, commandLineProps);
+        	instance.bootBluej();
+        }
+        catch (Throwable t) {
+        	System.exit(1);
+        }
+        
         splash.dispose();
     }
 
