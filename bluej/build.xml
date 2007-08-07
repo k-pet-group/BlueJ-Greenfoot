@@ -93,6 +93,8 @@
         <javac
                 executable="${build_java_home}/bin/javac"
                 fork="yes"
+                source="1.4"
+                target="1.4"
                 srcdir="${core.src}"
                 destdir="${core.build}"
                 debug="on"
@@ -110,7 +112,6 @@
         	        bluej/utility/JavaUtils15.java,
         	        bluej/utility/JavaArrayReflective.java">-->
 
-        	<compilerarg line="-source 1.4"/>
             <classpath>
                 <path refid="bluej.class.path"/>
                 <pathelement location="${boot.jar}"/>
@@ -229,7 +230,7 @@
         <ant dir="package" target="windows-dist"/>
     </target>
     
-    <target name ="mac-dist">
+    <target name="mac-dist">
         <jarbundler dir="package"
             name="BlueJ"
             mainclass="bluej.Boot"
