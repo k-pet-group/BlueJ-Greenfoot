@@ -23,9 +23,6 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.rmi.RemoteException;
 
 import javax.imageio.ImageIO;
@@ -62,7 +59,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 5137 2007-08-02 06:04:42Z davmac $
+ * @version $Id: ImageLibFrame.java 5150 2007-08-07 04:44:10Z davmac $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -544,39 +541,12 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             return null;
         }
         try {
-            Constructor constructor = cls.getConstructor(new Class<?>[]{});
-
-            if (!Modifier.isAbstract(cls.getModifiers())) {
-                object =  constructor.newInstance((Object []) null);
-            }
+            object = cls.newInstance();
         }
-        catch (SecurityException e2) {
-            // TODO Auto-generated catch block
-            e2.printStackTrace();
-        }
-        catch (NoSuchMethodException e2) {
-            // TODO Auto-generated catch block
-            e2.printStackTrace();
-        }
-        catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        catch (LinkageError le) { }
         catch (InstantiationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (InvocationTargetException e) {
-            // TODO Auto-generated catch block
-            if(e.getCause() instanceof IllegalArgumentException) {
-                //The image couldn't be generated - we just ignore that error.
-            } else {
-                e.printStackTrace();
-            }
+            // No default constructor, or abstract class, or
+            // other instantiation failure
         }
         catch (Throwable t) {
             // *Whatever* is thrown by user code, we want to catch it.
