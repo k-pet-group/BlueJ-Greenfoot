@@ -40,7 +40,7 @@ import java.util.Iterator;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5149 2007-08-06 13:28:16Z davmac $
+ * @version $Id: GreenfootFrame.java 5152 2007-08-08 03:35:15Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener
@@ -204,6 +204,7 @@ public class GreenfootFrame extends JFrame
     		classBrowser.setVisible(true);
     		
     		WorldHandler.getInstance().instantiateNewWorld();
+            WorldHandler.getInstance().getWorldTitle().setVisible(true);
     		if(needsResize()) {
     			pack();
     		}
@@ -219,6 +220,7 @@ public class GreenfootFrame extends JFrame
         setTitle("Greenfoot: ");
         worldCanvas.setVisible(false);
         classBrowser.setVisible(false);
+        WorldHandler.getInstance().getWorldTitle().setVisible(false);
         enableProjectActions(false);
         repaint();
         isClosedProject = true;
