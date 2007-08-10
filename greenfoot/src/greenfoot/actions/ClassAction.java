@@ -1,9 +1,8 @@
 package greenfoot.actions;
 
-import greenfoot.core.GClass;
+import greenfoot.gui.GreenfootFrame;
+import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
-import greenfoot.gui.classbrowser.Selectable;
-import greenfoot.gui.classbrowser.SelectionListener;
 
 import javax.swing.AbstractAction;
 
@@ -12,43 +11,27 @@ import javax.swing.AbstractAction;
  * Superclass for actions that depends on the selected class.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassAction.java 4017 2006-04-25 17:51:23Z davmac $
+ * @version $Id: ClassAction.java 5154 2007-08-10 07:02:51Z davmac $
  */
 public abstract class ClassAction extends AbstractAction
-    implements SelectionListener
 {
-    protected GClass selectedClass;
-    protected ClassView selectedClassView;
+    private GreenfootFrame gfFrame;
 
-    public ClassAction(String name)
+    public ClassAction(String name, GreenfootFrame gfFrame)
     {
         super(name);
+        this.gfFrame = gfFrame;
     }
-
-    public void selectionChange(Selectable source)
+    
+    protected ClassView getSelectedClassView()
     {
-        if (source == null) {
-            selectedClassView = null;
-            selectedClass = null;
-        }
-        else if (source instanceof ClassView) {
-            ClassView classLabel = (ClassView) source;
-            GClass gClass = classLabel.getGClass();
-            if (classLabel.isSelected()) {
-                selectedClassView = classLabel;
-                selectedClass = gClass;
-            }
-            else {
-                selectedClassView = null;
-                selectedClass = null;
-            }
-        }
-
-        if (selectedClass == null) {
-            setEnabled(false);
-        }
-        else {
-            setEnabled(true);
-        }
+    	ClassBrowser classBrowser = gfFrame.getClassBrowser();
+    	Object selected = classBrowser.getSelectionManager().getSelected();
+    	if (selected instanceof ClassView) {
+    		return (ClassView) selected;
+    	}
+    	else {
+    		return null;
+    	}
     }
 }

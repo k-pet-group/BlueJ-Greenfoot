@@ -1,6 +1,7 @@
 package greenfoot.actions;
 
 import greenfoot.core.GClass;
+import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
 import greenfoot.gui.ImageLibFrame;
 import greenfoot.gui.classbrowser.ClassView;
@@ -10,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.rmi.RemoteException;
 
+import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 
 import bluej.extensions.ProjectNotOpenException;
@@ -19,9 +21,9 @@ import bluej.utility.FileUtility;
  * Action to select an image for a class.
  * 
  * @author Davin McCall
- * @version $Id: SelectImageAction.java 5139 2007-08-02 06:37:21Z davmac $
+ * @version $Id: SelectImageAction.java 5154 2007-08-10 07:02:51Z davmac $
  */
-public class SelectImageAction extends ClassAction
+public class SelectImageAction extends AbstractAction
 {
     private ClassView classView;
     private ImageClassRole gclassRole;
@@ -45,10 +47,9 @@ public class SelectImageAction extends ClassAction
 
     public static void setClassImage(ClassView classView, ImageClassRole gclassRole, File imageFile)
     {
-        GreenfootMain greenfootInstance = GreenfootMain.getInstance();
-        
         try {
-            File projDir = greenfootInstance.getProject().getDir().getAbsoluteFile();
+        	GProject project = classView.getGClass().getPackage().getProject();
+            File projDir = project.getDir().getAbsoluteFile();
             File projImagesDir = new File(projDir, "images");
             
             if (imageFile != null) {
@@ -65,7 +66,9 @@ public class SelectImageAction extends ClassAction
                 gclassRole.changeImage();
             }
         }
-        catch (RemoteException re) {}
+        catch (RemoteException re) {
+        	re.printStackTrace();
+        }
         catch (ProjectNotOpenException pnoe) {}
     }
 }

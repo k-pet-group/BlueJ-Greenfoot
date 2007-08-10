@@ -1,41 +1,31 @@
 package greenfoot.actions;
 
 import greenfoot.core.GClass;
+import greenfoot.gui.classbrowser.ClassBrowser;
+import greenfoot.gui.classbrowser.ClassView;
 
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
+
+import javax.swing.AbstractAction;
 
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: EditClassAction.java 3890 2006-03-27 16:04:42Z mik $
+ * @version $Id: EditClassAction.java 5154 2007-08-10 07:02:51Z davmac $
  */
-public class EditClassAction extends ClassAction
+public class EditClassAction extends AbstractAction
 {
-    private static EditClassAction instance = new EditClassAction();
-    
-    /**
-     * Singleton factory method for action.
-     */
-    public static EditClassAction getInstance()
-    {
-        return instance;
-    }
-
-    
-    private EditClassAction()
+	private ClassBrowser classBrowser;
+	
+    public EditClassAction(ClassBrowser classBrowser)
     {
         super("Open editor");
+        this.classBrowser = classBrowser;
     }
     
-    public EditClassAction(GClass cls)
-    {
-        super("Open editor");
-        selectedClass = cls;
-    }
-
     /**
      * Edits the currently selected class. If no class is selected it does
      * nothing.
@@ -44,6 +34,9 @@ public class EditClassAction extends ClassAction
      */
     public void actionPerformed(ActionEvent e)
     {
+    	ClassView selectedView = (ClassView) classBrowser.getSelectionManager().getSelected();
+    	GClass selectedClass = selectedView.getGClass();
+    	
         try {
             if (selectedClass != null) {
                 selectedClass.edit();

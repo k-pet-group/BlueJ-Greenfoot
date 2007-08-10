@@ -2,11 +2,12 @@ package greenfoot.gui.classbrowser;
 
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
+import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.LocationTracker;
 import greenfoot.event.ActorInstantiationListener;
-import greenfoot.gui.classbrowser.role.ClassRole;
 import greenfoot.gui.classbrowser.role.ActorClassRole;
+import greenfoot.gui.classbrowser.role.ClassRole;
 import greenfoot.gui.classbrowser.role.NormalClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
 import greenfoot.util.GreenfootUtil;
@@ -18,7 +19,6 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -37,7 +37,7 @@ import bluej.utility.Utility;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 4982 2007-04-20 05:45:52Z davmac $
+ * @version $Id: ClassView.java 5154 2007-08-10 07:02:51Z davmac $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -111,8 +111,12 @@ public class ClassView extends JToggleButton
             superclass = gClass.getSuperclassGuess();
         }
 
-        ClassRole newRole = determineRole();
-        setRole(newRole);
+        try {
+        	ClassRole newRole = determineRole(gClass.getPackage().getProject());
+        	setRole(newRole);
+        }
+        catch (ProjectNotOpenException pnoe) {}
+        catch (RemoteException re) { re.printStackTrace(); }
 
         if (classBrowser != null) {
             // If we are in a classBrowser, tell it to update this
@@ -137,20 +141,20 @@ public class ClassView extends JToggleButton
      * @param gClass
      * @return
      */
-    private ClassRole determineRole()
+    private ClassRole determineRole(GProject project)
     {
         ClassRole classRole = null;
         if (gClass.isActorClass()) {
-            classRole = new ActorClassRole();
+            classRole = new ActorClassRole(project);
         }
         else if (gClass.isWorldClass()) {
-            classRole = new WorldClassRole();
+            classRole = new WorldClassRole(project);
         }
         else if (gClass.isActorSubclass()) {
-            classRole = new ActorClassRole();
+            classRole = new ActorClassRole(project);
         }
         else if (gClass.isWorldSubclass()) {
-            classRole = new WorldClassRole();
+            classRole = new WorldClassRole(project);
         }
         else {
             // everything else
@@ -175,10 +179,13 @@ public class ClassView extends JToggleButton
 
         setContentAreaFilled(false);
         setFocusPainted(false);
-
         
-        setRole(determineRole());
-        update();
+        try {
+        	setRole(determineRole(gClass.getPackage().getProject()));
+        	update();
+        }
+        catch (ProjectNotOpenException pnoe) {}
+        catch (RemoteException re) { re.printStackTrace(); }
     }
 
         
@@ -353,7 +360,8 @@ public class ClassView extends JToggleButton
     public boolean deselect()
     {
         if (isSelected()) {
-            setSelected(false);
+        	setSelected(false);
+            fireSelectionChangeEvent();
             return true;
         }
         return false;
@@ -402,7 +410,7 @@ public class ClassView extends JToggleButton
      */
     public Object createInstance()
     {
-        Class realClass = getRealClass();
+        Class<?> realClass = getRealClass();
         try {
             if (realClass == null) {
                 return null;
@@ -459,7 +467,6 @@ public class ClassView extends JToggleButton
 
     public GClass createSubclass(String className)
     {
-        FileWriter writer = null;
         try {
             //get the default package which is the one containing the user
             // code.

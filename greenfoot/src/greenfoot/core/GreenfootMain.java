@@ -43,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 5149 2007-08-06 13:28:16Z davmac $
+ * @version $Id: GreenfootMain.java 5154 2007-08-10 07:02:51Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -102,10 +102,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             return name.toLowerCase().endsWith(".class");
         }
     };
-
-
-    /** Only used for the standalone Greenfoot program viewer*/
-    private static ProjectProperties projectProperties;
     
     private ClassLoader currentLoader;
 
@@ -136,29 +132,11 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
     /**
      * Gets the singleton.
-     * 
      */
     public static GreenfootMain getInstance()
     {
         return instance;
     }
-
-    /**
-     * Gets the properties for the greenfoot project run on this copy of 
-     * greenfoot.
-     */
-    public static ProjectProperties getProjectProperties()
-    {
-        if(projectProperties == null) {
-            return instance.getProject().getProjectProperties();
-        }
-        else {
-            // Return the projecProperties if available. Will only be available
-            // if running with the greenfoot viewer.
-            return projectProperties;
-        }
-    }
-
 
     // ----------- instance methods ------------
 
@@ -172,15 +150,15 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         this.rBlueJ = rBlueJ;
         currentLoader = ExecServer.getCurrentClassLoader();
         addCompileListener(this);
-        ActorDelegateIDE.setupAsActorDelegate();
         try {
             // determine the path of the startup project
             File startupProj = rBlueJ.getSystemLibDir();
             startupProj = new File(startupProj, "greenfoot");
             startupProject = new File(startupProj, "startupProject");
-            
+
             this.project = new GProject(proj);
             this.pkg = project.getDefaultPackage();
+            ActorDelegateIDE.setupAsActorDelegate(project);
 
             EventQueue.invokeLater(new Runnable() {
             	public void run() {
@@ -199,7 +177,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                             compileListenerForwarder = new CompileListenerForwarder(compileListeners);
                             GreenfootMain.this.rBlueJ.addCompileListener(compileListenerForwarder, pkg.getProject().getName());
                             
-                            classStateManager = new ClassStateManager();
+                            classStateManager = new ClassStateManager(project);
                             rBlueJ.addClassListener(classStateManager);
                         }
                         catch (Exception exc) {
@@ -285,14 +263,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     }
 
     /**
-     * Gets the default package for this greenfoot instance.
-     */
-    public GPackage getPackage()
-    {
-        return pkg;
-    }
-
-    /**
      * Get the project for this greenfoot instance.
      * @return
      */
@@ -307,7 +277,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      * If this is called with the windowClosign parameter false, and there is only one project open,
      * then the frame won't be closed but will instead be turned into an empty frame.
      */
-    public void closeThisInstance(boolean windowClosing)
+    private void closeThisInstance(boolean windowClosing)
     {
         try {
             if (rBlueJ.getOpenProjects().length <= 1) {
@@ -325,6 +295,16 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         } catch (RemoteException re) {
             re.printStackTrace();
         }
+    }
+    
+    /**
+     * Close the project in the given frame. This will also close the frame, or (if
+     * the windowClosing parameter is false, and no other projects are open) make it
+     * empty.
+     */
+    public static void closeProject(GreenfootFrame frame, boolean windowClosing)
+    {
+    	instance.closeThisInstance(windowClosing);
     }
     
     /* (non-Javadoc)
@@ -365,7 +345,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      */
     private void storeFrameState()
     {
-        ProjectProperties projectProperties = getProject().getProjectProperties();
+        ProjectProperties projectProperties = project.getProjectProperties();
         
         projectProperties.setInt("mainWindow.width", frame.getWidth());
         projectProperties.setInt("mainWindow.height", frame.getHeight());
@@ -434,22 +414,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     {
         invocationListeners.add(listener);
         rBlueJ.addInvocationListener(listener);
-    }
-
-    /**
-     * Compiles all files
-     */
-    public void compileAll()
-    {
-        try {
-            // we recompile all files in ccase something has been modified
-            // externally and the isCompiled state is no longer up-to-date.
-            pkg.compileAll(false);
-        }
-        catch (Exception exc) {
-            Debug.reportError("Compile greenfoot scenario failed", exc);
-            exc.printStackTrace();
-        }
     }
 
     /**

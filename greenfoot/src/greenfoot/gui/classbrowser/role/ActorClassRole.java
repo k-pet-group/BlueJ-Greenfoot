@@ -1,6 +1,7 @@
 package greenfoot.gui.classbrowser.role;
 
 import greenfoot.actions.SelectImageAction;
+import greenfoot.core.GProject;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import bluej.Config;
  * A role for Actor classes 
  * 
  * @author Poul Henriksen
- * @version $Id: ActorClassRole.java 5139 2007-08-02 06:37:21Z davmac $
+ * @version $Id: ActorClassRole.java 5154 2007-08-10 07:02:51Z davmac $
  */
 public class ActorClassRole extends ImageClassRole
 {
@@ -27,7 +28,11 @@ public class ActorClassRole extends ImageClassRole
     private static final String newline = System.getProperty("line.separator");
     public static final String imports = "import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)" + newline;
     
-
+    public ActorClassRole(GProject project)
+    {
+    	super(project);
+    }
+    
     /**
      * Need to overide this method in order to delay the invocation of the
      * constructor until the object is placed into the world.

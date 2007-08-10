@@ -10,11 +10,6 @@ public class Rect
         this.y = y;
         this.width = width;
         this.height = height;
-        
-        // DAV
-        if (width < 0 || height < 0) {
-            throw new IllegalArgumentException();
-        }
     }
     
     public String toString()

@@ -33,7 +33,7 @@ import bluej.views.ViewFilter;
  * "normal" classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 5139 2007-08-02 06:37:21Z davmac $
+ * @version $Id: ClassRole.java 5154 2007-08-10 07:02:51Z davmac $
  */
 public abstract class ClassRole
 {
@@ -122,7 +122,7 @@ public abstract class ClassRole
                 popupMenu.addSeparator();
         }
 
-        popupMenu.add(createMenuItem(new EditClassAction(gClass)));
+        popupMenu.add(createMenuItem(new EditClassAction(classBrowser)));
 
         addPopupMenuItems(popupMenu, classView.isCoreClass());
 

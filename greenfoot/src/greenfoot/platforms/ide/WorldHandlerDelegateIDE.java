@@ -457,11 +457,20 @@ public class WorldHandlerDelegateIDE
     {
         Class cls = getLastWorldClass();
         if(cls == null) {
-            List<Class> worldClasses = GreenfootMain.getInstance().getPackage().getWorldClasses();
-            if(worldClasses.isEmpty() ) {
-                return null;
+            try {
+            	List<Class> worldClasses = project.getDefaultPackage().getWorldClasses();
+            	if(worldClasses.isEmpty() ) {
+            		return null;
+            	}
+            	cls = worldClasses.get(0);
             }
-            cls = worldClasses.get(0);
+            catch (ProjectNotOpenException pnoe) {
+            	return null;
+            }
+            catch (RemoteException re) {
+            	re.printStackTrace();
+            	return null;
+            }
         }
         
         try {
@@ -472,6 +481,7 @@ public class WorldHandlerDelegateIDE
             }
             return w;
         }
+        catch (LinkageError e) { }
         catch (InstantiationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -488,14 +498,22 @@ public class WorldHandlerDelegateIDE
         if(lastWorldClass == null) {
             return null;
         }
-        List<Class> worldClasses = GreenfootMain.getInstance().getPackage().getWorldClasses();
         
-        //Has to be one of the currently instantiable world classes.
-        for (Class worldClass : worldClasses) {
-            if(worldClass.getName().equals(lastWorldClass)) {
-                return worldClass;
-            }                
-        }        
+        try {
+        	List<Class> worldClasses = project.getDefaultPackage().getWorldClasses();
+
+        	//Has to be one of the currently instantiable world classes.
+        	for (Class worldClass : worldClasses) {
+        		if(worldClass.getName().equals(lastWorldClass)) {
+        			return worldClass;
+        		}                
+        	}
+        }
+        catch (ProjectNotOpenException pnoe) {}
+        catch (RemoteException re) {
+        	re.printStackTrace();
+        }
+        
         return null;
     }
 

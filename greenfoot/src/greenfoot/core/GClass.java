@@ -494,6 +494,8 @@ public class GClass implements CompileListener
         return false;
     }   
 
+    // ------------- CompileListener interface ----------------
+    
     public void compileError(RCompileEvent event)
     {
         guessSuperclass();
@@ -532,6 +534,8 @@ public class GClass implements CompileListener
     public void compileStarted(RCompileEvent event)
     {   
     }
+
+    // ------------- end of CompileListener interface ---------
 
     /**
      * Try and load the "real" (java.lang.Class) class represented by this

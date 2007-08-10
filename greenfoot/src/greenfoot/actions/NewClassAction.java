@@ -2,7 +2,7 @@ package greenfoot.actions;
 
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
-import greenfoot.core.GreenfootMain;
+import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.NewClassDialog;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
@@ -16,58 +16,30 @@ import java.rmi.RemoteException;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 
 import bluej.extensions.ProjectNotOpenException;
-import bluej.utility.Debug;
 
 /**
  * An action for creating a new (non-Actor, non-World) class.
  * 
  * @author dam
- * @version $Id: NewClassAction.java 4823 2007-01-25 17:03:30Z polle $
+ * @version $Id: NewClassAction.java 5154 2007-08-10 07:02:51Z davmac $
  */
-public class NewClassAction extends AbstractAction {
+public class NewClassAction extends AbstractAction
+{
+    //private ClassBrowser classBrowser;
+    private GreenfootFrame gfFrame;
 
-    private static NewClassAction instance;
-    
-    /**
-     * Singleton factory method for action.
-     */
-    public static synchronized NewClassAction getInstance(ClassBrowser classBrowser)
-    {
-        if(instance == null) {
-            instance = new NewClassAction(classBrowser);
-        }
-        return instance;
-    }
-
-
-    /**
-     * Singleton accessor method. The action must already be initialised before
-     * using this method.
-     */
-    public static NewClassAction getInstance()
-    {
-        if(instance == null) {
-            Debug.reportError("Attempt to access uninitialised NewClassAction");
-        }
-        return instance;
-    }
-
-
-    private ClassBrowser classBrowser;
-    
-    private NewClassAction(ClassBrowser classBrowser)
+    public NewClassAction(GreenfootFrame gfFrame)
     {
         super("New Class...");
         setEnabled(false);
-        this.classBrowser = classBrowser;
+        this.gfFrame = gfFrame;
     }
 	
     public void actionPerformed(ActionEvent arg0)
     {
-        JFrame f = (JFrame) SwingUtilities.getWindowAncestor(classBrowser);
+        JFrame f = gfFrame;
         NewClassDialog dialog = new NewClassDialog(f);
         dialog.setVisible(true);
         if (!dialog.okPressed()) {
@@ -78,7 +50,8 @@ public class NewClassAction extends AbstractAction {
         //GClass gClass = superclass.createSubclass(className);        
         
         try {
-            GPackage pkg = GreenfootMain.getInstance().getProject().getDefaultPackage();
+        	ClassBrowser classBrowser = gfFrame.getClassBrowser();
+            GPackage pkg = classBrowser.getProject().getDefaultPackage();
             
             File dir = pkg.getProject().getDir();
             File newJavaFile = new File(dir, className + ".java");

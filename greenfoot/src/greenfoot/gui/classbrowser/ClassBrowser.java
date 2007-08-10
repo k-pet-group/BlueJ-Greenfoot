@@ -1,5 +1,6 @@
 package greenfoot.gui.classbrowser;
 
+import greenfoot.core.GProject;
 import greenfoot.gui.classbrowser.role.ActorClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
 
@@ -15,6 +16,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JRootPane;
 import javax.swing.border.TitledBorder;
 
 /**
@@ -24,7 +26,7 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 4982 2007-04-20 05:45:52Z davmac $
+ * @version $Id: ClassBrowser.java 5154 2007-08-10 07:02:51Z davmac $
  */
 public class ClassBrowser extends JPanel
 {
@@ -36,9 +38,13 @@ public class ClassBrowser extends JPanel
     private ClassForest worldClasses = new ClassForest();
     private ClassForest greenfootClasses = new ClassForest();
     private ClassForest otherClasses = new ClassForest();
+    
+    private GProject project;
 
-    public ClassBrowser()
+    public ClassBrowser(GProject project)
     {
+    	this.project = project;
+    	
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         setBackground(Color.WHITE);
@@ -91,14 +97,17 @@ public class ClassBrowser extends JPanel
      */
     public void removeClass(ClassView classView) 
     {
-        boolean found = greenfootClasses.remove(classView);        
+    	// We have to remove the class view from the button group first;
+    	// otherwise it's deselecting the button doesn't work.
+        buttonGroup.remove(classView);
+        classView.deselect();
+
+    	boolean found = greenfootClasses.remove(classView);        
         if(!found)
             found = worldClasses.remove(classView);
         if(!found)
             found = otherClasses.remove(classView);
-                
-        buttonGroup.remove(classView);
-
+        
         classView.removeSelectionChangeListener(selectionManager);
         updateLayout();
     }
@@ -177,7 +186,10 @@ public class ClassBrowser extends JPanel
         // the class browser. But that is the only way to make it resize the
         // class browser if a longer class name has been added.
         // Poul 30/10/2006
-        getRootPane().revalidate();
+        JRootPane rootPane = getRootPane();
+        if (rootPane != null) {
+        	getRootPane().revalidate();
+        }
     }
 
 
@@ -316,4 +328,8 @@ public class ClassBrowser extends JPanel
         }                
     }
     
+    public GProject getProject()
+    {
+    	return project;
+    }
 }

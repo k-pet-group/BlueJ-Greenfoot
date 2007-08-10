@@ -6,7 +6,7 @@ import greenfoot.GreenfootImage;
 import greenfoot.ImageVisitor;
 import greenfoot.World;
 import greenfoot.core.GClass;
-import greenfoot.core.GreenfootMain;
+import greenfoot.core.GProject;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.util.GreenfootUtil;
 
@@ -59,7 +59,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 5150 2007-08-07 04:44:10Z davmac $
+ * @version $Id: ImageLibFrame.java 5154 2007-08-10 07:02:51Z davmac $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -111,7 +111,13 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             defaultIcon = getPreviewIcon(new File(GreenfootUtil.getGreenfootLogoPath()));
         }
         
-        buildUI(false);
+        try {
+        	buildUI(classView.getGClass().getPackage().getProject(), false);
+        }
+        catch (ProjectNotOpenException pnoe) {}
+        catch (RemoteException re) {
+        	re.printStackTrace();
+        }
     }
     
     /**
@@ -128,10 +134,16 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         showingGeneratedImage = false;
         
         // this.classView = new ClassView()
-        buildUI(true);
+        try {
+        	buildUI(superClass.getPackage().getProject(), true);
+        }
+        catch (ProjectNotOpenException pnoe) {}
+        catch (RemoteException re) {
+        	re.printStackTrace();
+        }
     }
     
-    private void buildUI(boolean includeClassNameField)
+    private void buildUI(GProject project, boolean includeClassNameField)
     {
         JPanel contentPane = new JPanel();
         this.setContentPane(contentPane);
@@ -163,8 +175,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 JScrollPane jsp = new JScrollPane();
                 
                 try {
-                    GreenfootMain greenfootInstance = GreenfootMain.getInstance();
-                    File projDir = greenfootInstance.getProject().getDir();
+                    File projDir = project.getDir();
                     projImagesDir = new File(projDir, "images");
                     projImageList = new ImageLibList(projImagesDir);
                     jsp.getViewport().setView(projImageList);
@@ -584,14 +595,21 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                     world.removeObject(so);
                 } 
 
-                GreenfootImage classImage = GreenfootMain.getProjectProperties().getImage(gclass.getQualifiedName());
-                if (ImageVisitor.equal(classImage, image)) {
-                    // "generated" image is actually just the class image
-                    return null;
+                try {
+                	GProject project = gclass.getPackage().getProject();
+                	GreenfootImage classImage = project.getProjectProperties().getImage(gclass.getQualifiedName());
+                	if (ImageVisitor.equal(classImage, image)) {
+                		// "generated" image is actually just the class image
+                		return null;
+                	}
+                	else {
+                		return image.getAwtImage();
+                	}
                 }
-                else {
-                    return image.getAwtImage();
+                catch (RemoteException re) {
+                	re.printStackTrace();
                 }
+                catch (ProjectNotOpenException pnoe) {}
             }
         }
         return null;

@@ -1,29 +1,31 @@
 package greenfoot.gui.export;
 
-import java.awt.BorderLayout;
+import greenfoot.core.GProject;
+import greenfoot.core.GreenfootMain;
+import greenfoot.export.Exporter;
+import greenfoot.gui.GreenfootFrame;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.rmi.RemoteException;
+import java.util.HashMap;
+
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.SwingUtilities;
 
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
-import greenfoot.core.GProject;
-import greenfoot.core.GreenfootMain;
-import greenfoot.export.Exporter;
-import java.awt.Dimension;
-import java.rmi.RemoteException;
-import java.util.HashMap;
-import javax.swing.JLabel;
-import javax.swing.JProgressBar;
-import javax.swing.SwingUtilities;
 
 public class ExportDialog extends EscapeDialog
         implements TabbedIconPaneListener
@@ -42,12 +44,12 @@ public class ExportDialog extends EscapeDialog
     private ExportPane selectedPane;
     private String selectedFunction;
 
-    public ExportDialog(Frame parent)
+    public ExportDialog(GreenfootFrame parent)
     {
         super(parent, dialogTitle, false);
         this.parent = parent;
         
-        project = GreenfootMain.getInstance().getProject();
+        project = parent.getProject();
         
         File projectDir = null;
         try {

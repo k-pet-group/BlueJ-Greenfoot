@@ -91,7 +91,7 @@ public class ExportCompileDialog extends EscapeDialog
             {
                 buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-                JButton compileButton = new JButton(CompileAllAction.getInstance());
+                JButton compileButton = new JButton(new CompileAllAction(project));
 
                 JButton cancelButton = BlueJTheme.getCancelButton();
                 cancelButton.addActionListener(new ActionListener() {

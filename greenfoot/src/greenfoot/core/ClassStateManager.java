@@ -16,17 +16,20 @@ import bluej.extensions.event.ClassEvent;
  * for each GClass to be a ClassListener.
  * 
  * @author Davin McCall
- * @version $Id: ClassStateManager.java 4952 2007-04-18 03:02:25Z davmac $
+ * @version $Id: ClassStateManager.java 5154 2007-08-10 07:02:51Z davmac $
  */
 public class ClassStateManager extends RClassListenerImpl
 {
+	private GProject project;
+	
     /**
      * Construct a ClassStateManager.
      * @throws RemoteException
      */
-    public ClassStateManager() throws RemoteException
+    public ClassStateManager(GProject project) throws RemoteException
     {
         super();
+        this.project = project;
     }
     
     /* (non-Javadoc)
@@ -38,7 +41,6 @@ public class ClassStateManager extends RClassListenerImpl
         int eventId = event.getEventId();
         
         try {
-            GProject project = GreenfootMain.getInstance().getProject();            
             RProject eventProject = eventClass.getPackage().getProject();
             if(! project.getRProject().equals(eventProject)) {
                 // BlueJ sends out events from all projects to all other projects

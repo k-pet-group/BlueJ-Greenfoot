@@ -1,10 +1,9 @@
 package greenfoot.platforms.ide;
 
-import greenfoot.Actor;
 import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
 import greenfoot.World;
-import greenfoot.core.GreenfootMain;
+import greenfoot.core.GProject;
 import greenfoot.core.WorldHandler;
 import greenfoot.platforms.ActorDelegate;
 
@@ -16,20 +15,24 @@ import greenfoot.platforms.ActorDelegate;
  */
 public class ActorDelegateIDE implements ActorDelegate
 {
-    private static ActorDelegateIDE  instance = new  ActorDelegateIDE();   
+    private GProject project;
+    
+    private ActorDelegateIDE(GProject project)
+    {
+    	this.project = project;
+    }
     
     /**
      * Register this class as the delegate for Actor.
-     *
      */
-    public static void setupAsActorDelegate()
+    public static void setupAsActorDelegate(GProject project)
     {
-        ActorVisitor.setDelegate(instance);
+        ActorVisitor.setDelegate(new ActorDelegateIDE(project));
     }
     
     public GreenfootImage getImage(String name)
     {
-        return GreenfootMain.getProjectProperties().getImage(name);
+        return project.getProjectProperties().getImage(name);
     }
 
     public World getWorld()

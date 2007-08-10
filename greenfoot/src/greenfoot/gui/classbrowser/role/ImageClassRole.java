@@ -1,18 +1,21 @@
 package greenfoot.gui.classbrowser.role;
 
+import greenfoot.GreenfootImage;
+import greenfoot.actions.DragProxyAction;
+import greenfoot.core.GClass;
+import greenfoot.core.GProject;
+import greenfoot.core.ObjectDragProxy;
+import greenfoot.gui.classbrowser.ClassView;
+import greenfoot.util.GreenfootUtil;
+
 import java.awt.Image;
+import java.rmi.RemoteException;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 
-import greenfoot.GreenfootImage;
-import greenfoot.actions.DragProxyAction;
-import greenfoot.core.GClass;
-import greenfoot.core.GreenfootMain;
-import greenfoot.core.ObjectDragProxy;
-import greenfoot.gui.classbrowser.ClassView;
-import greenfoot.util.GreenfootUtil;
+import bluej.extensions.ProjectNotOpenException;
 
 /**
  * Base class for class roles with associated images.
@@ -23,6 +26,12 @@ public abstract class ImageClassRole extends ClassRole
 {
     protected GClass gClass;
     protected ClassView classView;
+    protected GProject project;
+    
+    public ImageClassRole(GProject project)
+    {
+    	this.project = project;
+    }
     
     @Override
     public void buildUI(ClassView classView, GClass gClass)
@@ -67,8 +76,14 @@ public abstract class ImageClassRole extends ClassRole
             String className = gclass.getQualifiedName();
             GreenfootImage gfImage = null;
             try {
-                gfImage = GreenfootMain.getProjectProperties().getImage(className);
-            } catch (IllegalArgumentException e) {
+            	GProject project = gclass.getPackage().getProject();
+                gfImage = project.getProjectProperties().getImage(className);
+            }
+            catch (ProjectNotOpenException pnoe) {}
+            catch (RemoteException re) {
+            	re.printStackTrace();
+            }
+        	catch (IllegalArgumentException e) {
                 e.printStackTrace();
             }
             if (gfImage != null) {
@@ -102,7 +117,7 @@ public abstract class ImageClassRole extends ClassRole
      */
     public void changeImage()
     {
-        GreenfootMain.getProjectProperties().removeCachedImage(classView.getClassName());
+        project.getProjectProperties().removeCachedImage(classView.getClassName());
         Image image = getImage(gClass);
         if (image != null) {
             Image scaledImage = GreenfootUtil.getScaledImage(image, iconSize.width, iconSize.height);

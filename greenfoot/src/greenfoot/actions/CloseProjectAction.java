@@ -1,6 +1,7 @@
 package greenfoot.actions;
 
 import greenfoot.core.GreenfootMain;
+import greenfoot.gui.GreenfootFrame;
 
 import java.awt.event.ActionEvent;
 
@@ -12,25 +13,17 @@ import javax.swing.AbstractAction;
  */
 public class CloseProjectAction extends AbstractAction
 {
-    private static CloseProjectAction instance = new CloseProjectAction();
+	private GreenfootFrame gfFrame;
     
-    /**
-     * Singleton factory method for action.
-     */
-    public static CloseProjectAction getInstance()
-    {
-        return instance;
-    }
-
-    
-    private CloseProjectAction()
+    public CloseProjectAction(GreenfootFrame gfFrame)
     {
         super("Close");
+        this.gfFrame = gfFrame;
         setEnabled(false);
     }
     
     public void actionPerformed(ActionEvent e)
     {
-        GreenfootMain.getInstance().closeThisInstance(false);
+        GreenfootMain.closeProject(gfFrame, false);
     }
 }

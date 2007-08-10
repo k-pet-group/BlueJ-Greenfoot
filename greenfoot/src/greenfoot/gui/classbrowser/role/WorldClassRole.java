@@ -1,25 +1,23 @@
 package greenfoot.gui.classbrowser.role;
 
-import java.awt.Image;
-
-import javax.swing.ImageIcon;
-import javax.swing.JPopupMenu;
-
-import greenfoot.GreenfootImage;
 import greenfoot.actions.SelectImageAction;
-import greenfoot.core.GClass;
-import greenfoot.core.GreenfootMain;
-import greenfoot.gui.classbrowser.ClassView;
-import greenfoot.util.GreenfootUtil;
+import greenfoot.core.GProject;
+
+import javax.swing.JPopupMenu;
 
 /**
  * @author Poul Henriksen
- * @version $Id: WorldClassRole.java 5139 2007-08-02 06:37:21Z davmac $
+ * @version $Id: WorldClassRole.java 5154 2007-08-10 07:02:51Z davmac $
  */
 public class WorldClassRole extends ImageClassRole
 {
     private String template = "worldclass.tmpl";
 
+    public WorldClassRole(GProject project)
+    {
+    	super(project);
+    }
+    
     @Override
     public String getTemplateFileName()
     {

@@ -1,6 +1,8 @@
 package greenfoot.actions;
 
+import greenfoot.core.GClass;
 import greenfoot.core.Simulation;
+import greenfoot.gui.GreenfootFrame;
 
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
@@ -11,24 +13,13 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: CompileClassAction.java 3890 2006-03-27 16:04:42Z mik $
+ * @version $Id: CompileClassAction.java 5154 2007-08-10 07:02:51Z davmac $
  */
 public class CompileClassAction extends ClassAction
 {
-    private static CompileClassAction instance = new CompileClassAction();
-    
-    /**
-     * Singleton factory method for action.
-     */
-    public static CompileClassAction getInstance()
+    public CompileClassAction(GreenfootFrame gfFrame)
     {
-        return instance;
-    }
-
-    
-    private CompileClassAction()
-    {
-        super("Compile");
+        super("Compile", gfFrame);
     }
 
     /**
@@ -39,6 +30,8 @@ public class CompileClassAction extends ClassAction
      */
     public void actionPerformed(ActionEvent e)
     {
+    	GClass selectedClass = getSelectedClassView().getGClass();
+    	
         Simulation.getInstance().setPaused(true);
         try {
             if (selectedClass != null) {

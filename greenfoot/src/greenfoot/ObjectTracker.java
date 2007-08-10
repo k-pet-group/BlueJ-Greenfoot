@@ -17,18 +17,15 @@ import bluej.utility.Debug;
 /**
  * Class that can be used to get the remote version of an object and vice versa.
  * 
- * 
  * @author Poul Henriksen
  * @version $Id$
  */
 public class ObjectTracker
 {
-    
-
     /** Lock to ensure that we only have one remoteObjectTracker */
     private static  Object lock = new Object();
     //TODO The cached objects should be cleared at recompile.
-    private  static Hashtable cachedObjects = new Hashtable();
+    private  static Hashtable<Object,RObject> cachedObjects = new Hashtable<Object,RObject>();
 
     /**
      * Gets the remote reference to the obj.
@@ -44,7 +41,7 @@ public class ObjectTracker
     public static RObject getRObject(Object obj) throws ProjectNotOpenException, PackageNotFoundException, RemoteException, ClassNotFoundException
     {
         synchronized (lock) {
-            RObject rObject = (RObject) cachedObjects.get(obj);
+            RObject rObject = cachedObjects.get(obj);
             if (rObject != null) {
                 return rObject;
             }
@@ -114,7 +111,7 @@ public class ObjectTracker
     public static void forgetRObject(Object obj)
     {
         synchronized (lock) {
-            RObject rObject = (RObject) cachedObjects.remove(obj);
+            RObject rObject = cachedObjects.remove(obj);
             if (rObject != null) {
                 try {
                     rObject.removeFromBench();

@@ -56,15 +56,17 @@ public class WorldInvokeListener
     private Class cl;
     private InspectorManager inspectorManager;
     private ObjectBenchInterface objectBench;
+    private GProject project;
     
     /** A map which tells us which construction location applies to each dialog */
     private Map dialogToLocationMap = new HashMap();
     
-    public WorldInvokeListener(Object obj, ObjectBenchInterface bench, InspectorManager inspectorManager)
+    public WorldInvokeListener(Object obj, ObjectBenchInterface bench, GProject inspectorManager)
     {
         this.objectBench = bench;
         this.obj = obj;
         this.inspectorManager = inspectorManager;
+        this.project = inspectorManager;
     }
     
     public WorldInvokeListener(Class cl)
@@ -234,7 +236,7 @@ public class WorldInvokeListener
 
             GPackage pkg = null;
             try {
-                pkg = GreenfootMain.getInstance().getProject().getDefaultPackage();
+                pkg = project.getDefaultPackage();
             }
             catch (ProjectNotOpenException e) {
                 // TODO Auto-generated catch block

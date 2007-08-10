@@ -1,6 +1,6 @@
 package greenfoot.actions;
 
-import greenfoot.core.GreenfootMain;
+import greenfoot.gui.GreenfootFrame;
 
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
@@ -16,27 +16,19 @@ import bluej.utility.Debug;
  */
 public class SaveProjectAction extends AbstractAction
 {
-    private static SaveProjectAction instance = new SaveProjectAction();
+    private GreenfootFrame gfFrame;
     
-    /**
-     * Singleton factory method for action.
-     */
-    public static SaveProjectAction getInstance()
-    {
-        return instance;
-    }
-
-    
-    private SaveProjectAction()
+    public SaveProjectAction(GreenfootFrame gfFrame)
     {
         super("Save");
+        this.gfFrame = gfFrame;
         setEnabled(false);
     }
     
     public void actionPerformed(ActionEvent e)
     {
         try {
-            GreenfootMain.getInstance().getProject().save();
+            gfFrame.getProject().save();
         }
         catch (ProjectNotOpenException e1) {
             Debug.reportError("Could not save scenario because it is not open.");
