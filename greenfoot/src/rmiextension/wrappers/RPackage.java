@@ -12,16 +12,32 @@ import bluej.extensions.ProjectNotOpenException;
  * The interface for a package.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RPackage.java 3648 2005-10-05 16:22:34Z polle $
+ * @version $Id: RPackage.java 5153 2007-08-10 06:58:51Z davmac $
  */
 public interface RPackage
     extends java.rmi.Remote
 {
 
-    public abstract void compile(boolean waitCompileEnd)
+    /**
+     * Compile all modified files.
+     * @param waitCompileEnd
+     * @throws ProjectNotOpenException
+     * @throws PackageNotFoundException
+     * @throws RemoteException
+     * @throws CompilationNotStartedException
+     */
+	public abstract void compile(boolean waitCompileEnd)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException, CompilationNotStartedException;
 
-    public abstract void compileAll(boolean waitCompileEnd)
+    /**
+     * Force compilation of all files in the package.
+     * @param waitCompileEnd
+     * @throws ProjectNotOpenException
+     * @throws PackageNotFoundException
+     * @throws RemoteException
+     * @throws CompilationNotStartedException
+     */
+	public abstract void compileAll(boolean waitCompileEnd)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException, CompilationNotStartedException;
 
     /**
