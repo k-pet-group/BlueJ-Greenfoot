@@ -112,9 +112,6 @@ public class GPackage
     public GProject getProject()
         throws ProjectNotOpenException, RemoteException
     {
-        if(project == null) {
-            project = new GProject(pkg.getProject());
-        }
         return project;
     }
 

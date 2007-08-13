@@ -1,13 +1,17 @@
 package greenfoot.core;
 
+import greenfoot.event.CompileListener;
 import greenfoot.gui.inspector.UpdatingClassInspector;
 import greenfoot.gui.inspector.UpdatingObjectInspector;
 
 import java.awt.EventQueue;
 import java.io.File;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JFrame;
@@ -15,6 +19,7 @@ import javax.swing.JFrame;
 import rmiextension.wrappers.RClass;
 import rmiextension.wrappers.RPackage;
 import rmiextension.wrappers.RProject;
+import rmiextension.wrappers.event.RCompileEvent;
 import rmiextension.wrappers.event.RProjectListenerImpl;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
@@ -27,19 +32,19 @@ import bluej.debugmgr.inspector.ResultInspector;
 import bluej.extensions.PackageAlreadyExistsException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.extensions.event.CompileEvent;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.ClassInspectInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 
 /**
- * 
  * Represents a project in greenfoot.
  * 
  * @author Poul Henriksen
  */
 public class GProject extends RProjectListenerImpl
-    implements InspectorManager
+    implements InspectorManager, CompileListener
 {
     /** This holds all object inspectors and class inspectors
     for a world. */
@@ -51,10 +56,14 @@ public class GProject extends RProjectListenerImpl
 
     private ProjectProperties projectProperties;
     
+    private List<CompileListener> compileListeners = new LinkedList<CompileListener>();
+    
     
     /**
      * Create a G(reenfoot)Project object. This is a singleton for every
      * running Greenfoot project (for every VM).
+     * 
+     * <p>The creator is responsible for setting up the GProject as a compile listener.
      */
     public GProject(RProject rmiProject) throws RemoteException
     {
@@ -409,5 +418,142 @@ public class GProject extends RProjectListenerImpl
         }
         return true;
     }
-
+    
+    public void addCompileListener(CompileListener listener)
+    {
+    	synchronized (compileListeners) {
+    		compileListeners.add(listener);
+    	}
+    }
+    
+    public void removeCompileListener(CompileListener listener)
+    {
+    	synchronized (compileListeners) {
+    		compileListeners.remove(listener);
+    	}
+    }
+    
+    // ----------- CompileListener interface -------------
+    
+    public void compileError(RCompileEvent event)
+    {
+    	delegateCompileEvent(event);
+    }
+    
+    public void compileFailed(RCompileEvent event)
+    {
+    	try {
+    		reloadClasses(event.getFiles());
+    	}
+    	catch (RemoteException re) {
+    		re.printStackTrace();
+    	}
+    	
+    	delegateCompileEvent(event);
+    }
+    
+    public void compileStarted(RCompileEvent event)
+    {
+    	delegateCompileEvent(event);
+    }
+    
+    public void compileSucceeded(RCompileEvent event)
+    {
+    	try {
+    		reloadClasses(event.getFiles());
+    	}
+    	catch (RemoteException re) {
+    		re.printStackTrace();
+    	}
+    	
+    	delegateCompileEvent(event);
+    }
+    
+    public void compileWarning(RCompileEvent event)
+    {
+    	delegateCompileEvent(event);
+    }
+    
+    // ----------- End of CompileListener interface ------
+    
+    private void reloadClasses(File [] files)
+    {
+    	try {
+    		File myDir = getDir();
+    		
+    		fileLoop:
+    		for (int i = 0; i < files.length; i++) {
+    			File classFile = files[i];
+    			String packageName = "";
+    			File classDir = classFile.getParentFile();
+    			while (! classDir.equals(myDir)) {
+    				if (packageName.length() == 0) {
+    					packageName = classDir.getName();
+    				}
+    				else {
+    					packageName = classDir.getName() + "." + packageName;
+    				}
+    				classDir = classDir.getParentFile();
+    				if (classDir == null) {
+    					// shouldn't actually happen
+    					continue fileLoop;
+    				}
+    			}
+    			
+    			// Strip the ".java" extension to get the class name
+    			String className = classFile.getName();
+    			if (className.length() > 5) {
+    				String extension = className.substring(className.length() - 5);
+    				if (extension.equalsIgnoreCase(".java")) {
+    					className = className.substring(0, className.length() - 5);
+    				}
+    			}
+    			
+    			GPackage pkg = getPackage(packageName);
+    			GClass gClass = pkg.getClass(className);
+    			if (gClass != null) {
+    				gClass.reload();
+    			}
+    		}
+    		
+    	}
+    	catch (ProjectNotOpenException pnoe) {}
+    	catch (RemoteException re) {
+    		re.printStackTrace();
+    	}
+    }
+    
+    private void delegateCompileEvent(RCompileEvent event)
+    {
+    	synchronized (compileListeners) {
+    		List<CompileListener> listeners = new ArrayList<CompileListener>(compileListeners);
+    		Iterator<CompileListener> i = listeners.iterator();
+    		while (i.hasNext()) {
+    			CompileListener listener = i.next();
+    			try {
+    				switch (event.getEvent()) {
+    					case CompileEvent.COMPILE_START_EVENT:
+    						listener.compileStarted(event);
+    						break;
+    					case CompileEvent.COMPILE_DONE_EVENT:
+    						listener.compileSucceeded(event);
+    						break;
+    					case CompileEvent.COMPILE_FAILED_EVENT:
+    						listener.compileFailed(event);
+    						break;
+    					case CompileEvent.COMPILE_ERROR_EVENT:
+    						listener.compileError(event);
+    						break;
+    					case CompileEvent.COMPILE_WARNING_EVENT:
+    						listener.compileWarning(event);
+    						break;
+    					default:
+    				}
+    			}
+    			catch (RemoteException re) {
+    				re.printStackTrace();
+    			}
+    		}
+    	}
+    }
 }

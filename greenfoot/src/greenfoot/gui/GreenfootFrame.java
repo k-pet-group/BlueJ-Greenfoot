@@ -81,7 +81,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5154 2007-08-10 07:02:51Z davmac $
+ * @version $Id: GreenfootFrame.java 5155 2007-08-13 02:11:28Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener
@@ -167,7 +167,6 @@ public class GreenfootFrame extends JFrame
 
         makeFrame();
         addWindowListener(this);
-        GreenfootMain.getInstance().setFinalCompileListener(this);
         
         restoreFrameState();
 
@@ -256,6 +255,7 @@ public class GreenfootFrame extends JFrame
     {
     	if (isClosedProject) {
     		this.project = project;
+    		project.addCompileListener(this);
     		setTitle("Greenfoot: " + project.getName());
     		enableProjectActions();
     		
@@ -284,6 +284,7 @@ public class GreenfootFrame extends JFrame
     public void closeProject()
     {
         setTitle("Greenfoot: ");
+        project.removeCompileListener(this);
         worldCanvas.setVisible(false);
         classBrowser.setVisible(false);
         WorldHandler.getInstance().getWorldTitle().setVisible(false);
@@ -354,27 +355,6 @@ public class GreenfootFrame extends JFrame
         });
         
         sim.addSimulationListener(SoundPlayer.getInstance());
-        GreenfootMain.getInstance().addCompileListener(new CompileListener() {
-            public void compileError(RCompileEvent event)
-            {
-            }
-
-            public void compileFailed(RCompileEvent event)
-            {
-            }
-
-            public void compileStarted(RCompileEvent event)
-            {
-                SoundPlayer.getInstance().stop();
-            }
-
-            public void compileSucceeded(RCompileEvent event)
-            {
-            }
-
-            public void compileWarning(RCompileEvent event)
-            {
-            }});
         
         JPanel canvasPanel = new JPanel(new CenterLayout());
         canvasPanel.add(worldCanvas, BorderLayout.CENTER);
@@ -760,7 +740,7 @@ public class GreenfootFrame extends JFrame
     // ----------- CompileListener interface -----------
     
     public void compileStarted(RCompileEvent event)
-    {        
+    {
         WorldHandler.getInstance().reset();
     }
 

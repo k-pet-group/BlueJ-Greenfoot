@@ -13,6 +13,7 @@ import greenfoot.gui.classbrowser.role.WorldClassRole;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -28,7 +29,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JPopupMenu;
 import javax.swing.JRootPane;
 import javax.swing.JToggleButton;
-import javax.swing.SwingUtilities;
 
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
@@ -37,7 +37,7 @@ import bluej.utility.Utility;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 5154 2007-08-10 07:02:51Z davmac $
+ * @version $Id: ClassView.java 5155 2007-08-13 02:11:28Z davmac $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -102,37 +102,35 @@ public class ClassView extends JToggleButton
      */
     public void updateSuperClass()
     {        
-        if (gClass.getSuperclassGuess() == superclass ||  (gClass != null && gClass.getSuperclassGuess().equals(superclass) )) {
-            // If super class has not changed, we do not want to update
-            // anything.
-            return;
-        }
-        else {
-            superclass = gClass.getSuperclassGuess();
-        }
+    	EventQueue.invokeLater(new Runnable() {
+    		public void run() {
+    	        if (gClass.getSuperclassGuess() == superclass ||  (gClass != null && gClass.getSuperclassGuess().equals(superclass) )) {
+    	            // If super class has not changed, we do not want to update
+    	            // anything.
+    	            return;
+    	        }
+    	        else {
+    	            superclass = gClass.getSuperclassGuess();
+    	        }
 
-        try {
-        	ClassRole newRole = determineRole(gClass.getPackage().getProject());
-        	setRole(newRole);
-        }
-        catch (ProjectNotOpenException pnoe) {}
-        catch (RemoteException re) { re.printStackTrace(); }
+    	        try {
+    	        	ClassRole newRole = determineRole(gClass.getPackage().getProject());
+    	        	setRole(newRole);
+    	        }
+    	        catch (ProjectNotOpenException pnoe) {}
+    	        catch (RemoteException re) { re.printStackTrace(); }
 
-        if (classBrowser != null) {
-            // If we are in a classBrowser, tell it to update this
-            // classview.
-            classBrowser.consolidateLayout(ClassView.this);
-        }
-        Thread t = new Thread() {
-            public void run()
-            {
-                update();
-                if (classBrowser != null) {
-                    classBrowser.updateLayout();
-                }
-            }
-        };
-        SwingUtilities.invokeLater(t);
+    	        if (classBrowser != null) {
+    	            // If we are in a classBrowser, tell it to update this
+    	            // classview.
+    	            classBrowser.consolidateLayout(ClassView.this);
+    	        }
+    	        update();
+    	        if (classBrowser != null) {
+    	        	classBrowser.updateLayout();
+    	        }
+    		}
+    	});
     }
 
     /**

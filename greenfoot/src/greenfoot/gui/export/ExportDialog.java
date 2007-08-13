@@ -332,9 +332,9 @@ public class ExportDialog extends EscapeDialog
         else
             dlg = new ExportCompileDialog(parent, project);
         
-        GreenfootMain.getInstance().addCompileListener(dlg);
+        project.addCompileListener(dlg);
         boolean compiled = dlg.display();
-        GreenfootMain.getInstance().removeCompileListener(dlg);
+        project.removeCompileListener(dlg);
         
         return compiled;
     }

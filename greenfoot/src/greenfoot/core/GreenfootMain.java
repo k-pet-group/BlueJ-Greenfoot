@@ -43,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 5154 2007-08-10 07:02:51Z davmac $
+ * @version $Id: GreenfootMain.java 5155 2007-08-13 02:11:28Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -80,9 +80,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     private CompileListenerForwarder compileListenerForwarder;
     private List<CompileListener> compileListeners = new LinkedList<CompileListener>();
 
-    /** Used to ensure that setFinalCompileListener is only called one time. */
-    private boolean finalCompileListenerSet;
-    
     /** The class state manager notifies GClass objects when their compilation state changes */
     private ClassStateManager classStateManager;
 
@@ -157,6 +154,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             startupProject = new File(startupProj, "startupProject");
 
             this.project = new GProject(proj);
+            addCompileListener(project);
             this.pkg = project.getDefaultPackage();
             ActorDelegateIDE.setupAsActorDelegate(project);
 
@@ -368,7 +366,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      * 
      * @param listener
      */
-    public void addCompileListener(CompileListener listener)
+    private void addCompileListener(CompileListener listener)
     {
         synchronized (compileListeners) {
             compileListeners.add(0, listener);            
@@ -376,28 +374,11 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     }
     
     /**
-     * Adds a listener for compile events that will be the last one in the chain
-     * of listeners to recieve the event.
-     * 
-     * @param listener
-     */
-    public void setFinalCompileListener(CompileListener listener)
-    {
-        synchronized (compileListeners) {
-            if(finalCompileListenerSet) {
-                throw new IllegalStateException("Final compile listener already set.");
-            }
-            finalCompileListenerSet = true;
-            compileListeners.add(listener);            
-        }
-    }
-
-    /**
      * removes a listener for compile events
      * 
      * @param listener
      */
-    public void removeCompileListener(CompileListener listener)
+    private void removeCompileListener(CompileListener listener)
     {
         synchronized (compileListeners) {
             compileListeners.remove(listener);

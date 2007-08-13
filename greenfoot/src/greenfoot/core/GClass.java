@@ -1,6 +1,5 @@
 package greenfoot.core;
 
-import greenfoot.event.CompileListener;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.util.GreenfootUtil;
 
@@ -10,7 +9,6 @@ import java.rmi.RemoteException;
 import rmiextension.wrappers.RClass;
 import rmiextension.wrappers.RConstructor;
 import rmiextension.wrappers.RField;
-import rmiextension.wrappers.event.RCompileEvent;
 import bluej.extensions.*;
 import bluej.extensions.ClassNotFoundException;
 import bluej.parser.ClassParser;
@@ -28,7 +26,7 @@ import bluej.utility.Debug;
  * @author Poul Henriksen
  * @version $Id$
  */
-public class GClass implements CompileListener
+public class GClass
 {
     private static String simObj = "greenfoot.Actor";
     private static String worldObj = "greenfoot.World";
@@ -50,7 +48,6 @@ public class GClass implements CompileListener
     {
         this.rmiClass = cls;
         this.pkg = pkg;
-        GreenfootMain.getInstance().addCompileListener(this);
         String savedSuperclass = getClassProperty("superclass");
         if(savedSuperclass == null) {
             guessSuperclass();
@@ -168,7 +165,6 @@ public class GClass implements CompileListener
 
     public void remove() throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException
     {
-        GreenfootMain.getInstance().removeCompileListener(this);
         rmiClass.remove();
     }
     
@@ -494,48 +490,14 @@ public class GClass implements CompileListener
         return false;
     }   
 
-    // ------------- CompileListener interface ----------------
-    
-    public void compileError(RCompileEvent event)
+    public void reload()
     {
-        guessSuperclass();
+    	loadRealClass();
+    	guessSuperclass();
         if(classView != null) {
             classView.updateSuperClass();
         }
     }
-
-    public void compileWarning(RCompileEvent event)
-    {
-        guessSuperclass();
-        if(classView != null) {
-            classView.updateSuperClass();
-        }
-    }
-
-    public void compileSucceeded(RCompileEvent event)
-    {
-        loadRealClass();
-        guessSuperclass();
-
-        if(classView != null) {
-            classView.updateView();
-            classView.updateSuperClass();
-        }
-    }
-
-    public void compileFailed(RCompileEvent event)
-    {
-        guessSuperclass();
-        if(classView != null) {
-            classView.updateSuperClass();
-        }
-    }
-
-    public void compileStarted(RCompileEvent event)
-    {   
-    }
-
-    // ------------- end of CompileListener interface ---------
 
     /**
      * Try and load the "real" (java.lang.Class) class represented by this
