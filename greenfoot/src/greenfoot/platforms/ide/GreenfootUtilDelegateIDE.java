@@ -38,7 +38,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     }
     
     /**
-     * Brings up a file browser that lets the suer select an existing Greenfoot scenario.
+     * Brings up a file browser that lets the user select an existing Greenfoot scenario.
      * 
      * @return Returns a File pointing to the scenario directory, or null if none selected.
      */
