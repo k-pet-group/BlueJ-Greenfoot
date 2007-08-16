@@ -81,7 +81,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5155 2007-08-13 02:11:28Z davmac $
+ * @version $Id: GreenfootFrame.java 5157 2007-08-16 04:39:01Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener
@@ -303,7 +303,8 @@ public class GreenfootFrame extends JFrame
     }
     
     /**
-     * Get the project showing in this frame.
+     * Get the project showing in this frame. If this frame is empty,
+     * will return null.
      */
     public GProject getProject()
     {
