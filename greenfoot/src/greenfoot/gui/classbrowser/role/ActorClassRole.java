@@ -17,7 +17,7 @@ import bluej.Config;
  * A role for Actor classes 
  * 
  * @author Poul Henriksen
- * @version $Id: ActorClassRole.java 5154 2007-08-10 07:02:51Z davmac $
+ * @version $Id: ActorClassRole.java 5158 2007-08-16 05:00:00Z davmac $
  */
 public class ActorClassRole extends ImageClassRole
 {
@@ -37,9 +37,9 @@ public class ActorClassRole extends ImageClassRole
      * Need to overide this method in order to delay the invocation of the
      * constructor until the object is placed into the world.
      */
-    public List createConstructorActions(Class realClass)
+    public List createConstructorActions(Class realClass, GProject project)
     {
-        List realActions = super.createConstructorActions(realClass);
+        List realActions = super.createConstructorActions(realClass, project);
         List<Action> tempActions = new ArrayList<Action>();
         for (Iterator iter = realActions.iterator(); iter.hasNext();) {
             Action realAction = (Action) iter.next();

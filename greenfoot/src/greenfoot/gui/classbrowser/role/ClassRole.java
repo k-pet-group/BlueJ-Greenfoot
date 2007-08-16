@@ -4,12 +4,14 @@ import greenfoot.actions.EditClassAction;
 import greenfoot.actions.NewSubclassAction;
 import greenfoot.actions.RemoveClassAction;
 import greenfoot.core.GClass;
+import greenfoot.core.GProject;
 import greenfoot.core.WorldInvokeListener;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -20,6 +22,7 @@ import javax.swing.JPopupMenu;
 
 import bluej.Config;
 import bluej.debugmgr.ConstructAction;
+import bluej.extensions.ProjectNotOpenException;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.views.ConstructorView;
@@ -33,7 +36,7 @@ import bluej.views.ViewFilter;
  * "normal" classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 5154 2007-08-10 07:02:51Z davmac $
+ * @version $Id: ClassRole.java 5158 2007-08-16 05:00:00Z davmac $
  */
 public abstract class ClassRole
 {
@@ -54,7 +57,7 @@ public abstract class ClassRole
     /**
      * Create a list of actions for invoking the constructors of the given class
      */
-    public List createConstructorActions(Class realClass)
+    public List createConstructorActions(Class realClass, GProject project)
     {
         View view = View.getView(realClass);
         List<Action> actions = new ArrayList<Action>();
@@ -68,7 +71,7 @@ public abstract class ClassRole
                 if (!filter.accept(m))
                     continue;
 
-                WorldInvokeListener invocListener = new WorldInvokeListener(realClass);
+                WorldInvokeListener invocListener = new WorldInvokeListener(realClass, project);
 
                 String prefix = "new ";
                 Action callAction = new ConstructAction(m, invocListener, prefix + m.getLongDesc());
@@ -92,13 +95,21 @@ public abstract class ClassRole
     {
         GClass gClass = classView.getGClass();
         JPopupMenu popupMenu = new JPopupMenu();
+        GProject project = null;
+        try {
+            project = gClass.getPackage().getProject();
+        }
+        catch (ProjectNotOpenException pnoe) {}
+        catch (RemoteException re) {
+            re.printStackTrace();
+        }
 
         Class realClass = gClass.getJavaClass();
         if (realClass != null) {
 
             // Constructors
             if (!java.lang.reflect.Modifier.isAbstract(realClass.getModifiers())) {
-                List constructorItems = createConstructorActions(realClass);
+                List constructorItems = createConstructorActions(realClass, project);
 
                 boolean hasEntries = false;
                 for (Iterator iter = constructorItems.iterator(); iter.hasNext();) {
@@ -117,7 +128,7 @@ public abstract class ClassRole
             ViewFilter filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
             View view = View.getView(realClass);
             MethodView[] allMethods = view.getAllMethods();
-            WorldInvokeListener invocListener = new WorldInvokeListener(realClass);
+            WorldInvokeListener invocListener = new WorldInvokeListener(realClass, project);
             if (bluej.pkgmgr.target.role.ClassRole.createMenuItems(popupMenu, allMethods, filter, 0, allMethods.length, "", invocListener))
                 popupMenu.addSeparator();
         }
