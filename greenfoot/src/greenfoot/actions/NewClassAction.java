@@ -23,7 +23,7 @@ import bluej.extensions.ProjectNotOpenException;
  * An action for creating a new (non-Actor, non-World) class.
  * 
  * @author dam
- * @version $Id: NewClassAction.java 5154 2007-08-10 07:02:51Z davmac $
+ * @version $Id: NewClassAction.java 5159 2007-08-17 03:27:38Z davmac $
  */
 public class NewClassAction extends AbstractAction
 {
@@ -59,7 +59,7 @@ public class NewClassAction extends AbstractAction
 
             GClass newClass = pkg.newClass(className);
 
-            ClassView classView = new ClassView(newClass);
+            ClassView classView = new ClassView(classBrowser, newClass);
             classBrowser.addClass(classView);
         }
         catch (RemoteException re) {

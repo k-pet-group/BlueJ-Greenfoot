@@ -81,7 +81,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5157 2007-08-16 04:39:01Z davmac $
+ * @version $Id: GreenfootFrame.java 5159 2007-08-17 03:27:38Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener
@@ -485,12 +485,12 @@ public class GreenfootFrame extends JFrame
     			GClass[] gClasses = sysPkg.getClasses();
     			for (int i = 0; i < gClasses.length; i++) {
     				GClass gClass = gClasses[i];
-    				classBrowser.quickAddClass(new ClassView(gClass, true));
+    				classBrowser.quickAddClass(new ClassView(classBrowser, gClass, true));
     			}
 
     			for (int i = 0; i < classes.length; i++) {
     				GClass gClass = classes[i];
-    				classBrowser.quickAddClass(new ClassView(gClass));
+    				classBrowser.quickAddClass(new ClassView(classBrowser, gClass));
     			}
 
     			classBrowser.updateLayout();

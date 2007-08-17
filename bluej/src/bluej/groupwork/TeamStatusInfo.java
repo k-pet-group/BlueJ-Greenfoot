@@ -7,7 +7,7 @@ import java.io.File;
  * Team status information for a file
  * 
  * @author Davin McCall
- * @version $Id: TeamStatusInfo.java 5096 2007-06-15 05:04:26Z davmac $
+ * @version $Id: TeamStatusInfo.java 5159 2007-08-17 03:27:38Z davmac $
  */
 public class TeamStatusInfo
 {
@@ -84,7 +84,7 @@ public class TeamStatusInfo
         "team.statusinfo.hasConflicts",
         "team.statusinfo.weird",
         "",
-        "team.statusinfo.conflictAdd",  // DAV these need to be added in labels
+        "team.statusinfo.conflictAdd",
         "team.statusinfo.conflictLMRD",
         "team.statusinfo.conflictLDRM"
     };

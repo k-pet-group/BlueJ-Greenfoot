@@ -338,6 +338,7 @@ public class GClass
         String name = this.getName();
         if(name.equals("World") || name.equals("Actor")) {
             //We do not want to waste time on guessing the name of the superclass for these two classes.
+            setSuperclassGuess("");
             return;
         }
         
@@ -495,7 +496,12 @@ public class GClass
     	loadRealClass();
     	guessSuperclass();
         if(classView != null) {
-            classView.updateSuperClass();
+            EventQueue.invokeLater(new Runnable() {
+                public void run()
+                {
+                    classView.updateView();
+                }
+            });
         }
     }
 

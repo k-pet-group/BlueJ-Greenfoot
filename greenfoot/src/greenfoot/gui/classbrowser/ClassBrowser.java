@@ -26,7 +26,7 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 5154 2007-08-10 07:02:51Z davmac $
+ * @version $Id: ClassBrowser.java 5159 2007-08-17 03:27:38Z davmac $
  */
 public class ClassBrowser extends JPanel
 {
@@ -73,7 +73,6 @@ public class ClassBrowser extends JPanel
             otherClasses.add(classView);
         }
         buttonGroup.add(classView);
-        classView.setClassBrowser(this);
         classView.addSelectionChangeListener(selectionManager);        
     }
     

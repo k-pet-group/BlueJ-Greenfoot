@@ -13,7 +13,6 @@ import greenfoot.gui.classbrowser.role.WorldClassRole;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -37,7 +36,7 @@ import bluej.utility.Utility;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 5155 2007-08-13 02:11:28Z davmac $
+ * @version $Id: ClassView.java 5159 2007-08-17 03:27:38Z davmac $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -67,9 +66,10 @@ public class ClassView extends JToggleButton
     /**
      * Creates a new ClassView with the role determined from gClass.
      */
-    public ClassView(GClass gClass)
+    public ClassView(ClassBrowser classBrowser, GClass gClass)
     {
         coreClass = false;
+        this.classBrowser = classBrowser;
         init(gClass);
     }
     
@@ -78,9 +78,10 @@ public class ClassView extends JToggleButton
      * ClassView optionally represents a "core" class which can't be removed
      * from the project.
      */
-    public ClassView(GClass gClass, boolean coreClass)
+    public ClassView(ClassBrowser classBrowser, GClass gClass, boolean coreClass)
     {
         this.coreClass = coreClass;
+        this.classBrowser = classBrowser;
         init(gClass);
     }
     
@@ -101,36 +102,22 @@ public class ClassView extends JToggleButton
      * 
      */
     public void updateSuperClass()
-    {        
-    	EventQueue.invokeLater(new Runnable() {
-    		public void run() {
-    	        if (gClass.getSuperclassGuess() == superclass ||  (gClass != null && gClass.getSuperclassGuess().equals(superclass) )) {
-    	            // If super class has not changed, we do not want to update
-    	            // anything.
-    	            return;
-    	        }
-    	        else {
-    	            superclass = gClass.getSuperclassGuess();
-    	        }
+    {
+        String superClassGuess = gClass.getSuperclassGuess();
+        if (superClassGuess == null || superClassGuess.equals(superclass)) {
+            // If super class has not changed, we do not want to update
+            // anything.
+            return;
+        }
+        else {
+            superclass = gClass.getSuperclassGuess();
+        }
 
-    	        try {
-    	        	ClassRole newRole = determineRole(gClass.getPackage().getProject());
-    	        	setRole(newRole);
-    	        }
-    	        catch (ProjectNotOpenException pnoe) {}
-    	        catch (RemoteException re) { re.printStackTrace(); }
-
-    	        if (classBrowser != null) {
-    	            // If we are in a classBrowser, tell it to update this
-    	            // classview.
-    	            classBrowser.consolidateLayout(ClassView.this);
-    	        }
-    	        update();
-    	        if (classBrowser != null) {
-    	        	classBrowser.updateLayout();
-    	        }
-    		}
-    	});
+        if (classBrowser != null) {
+            // If we are in a classBrowser, tell it to update the location
+            // of this classview in the tree.
+            classBrowser.consolidateLayout(ClassView.this);
+        }
     }
 
     /**
@@ -178,12 +165,7 @@ public class ClassView extends JToggleButton
         setContentAreaFilled(false);
         setFocusPainted(false);
         
-        try {
-        	setRole(determineRole(gClass.getPackage().getProject()));
-        	update();
-        }
-        catch (ProjectNotOpenException pnoe) {}
-        catch (RemoteException re) { re.printStackTrace(); }
+        update();
     }
 
         
@@ -193,12 +175,6 @@ public class ClassView extends JToggleButton
     public Class getRealClass()
     {
         return gClass.getJavaClass();
-    }
-
-    void setClassBrowser(ClassBrowser classBrowser)
-    {
-        this.classBrowser = classBrowser;
-        createPopupMenu();
     }
 
     public GClass getGClass()
@@ -224,14 +200,27 @@ public class ClassView extends JToggleButton
 
     /**
      * Rebuild the UI of this ClassView from scratch.
-     * <p>
-     * Must be called from event thread, unless it is the first time it is
-     * called.
      */
     private void update()
     {
         clearUI();
+        setRole(determineRole(classBrowser.getProject()));
         role.buildUI(this, gClass);
+        createPopupMenu();
+        
+        updateSuperClass();
+    }
+    
+    /**
+     * Rebuild the UI of this ClassView from scratch.
+     */
+    public void updateView()
+    {
+        update();
+        if (classBrowser != null) {
+            classBrowser.updateLayout();
+        }
+
         JRootPane rootPane = getRootPane();
         if(rootPane != null) {
             getRootPane().revalidate();
@@ -334,6 +323,9 @@ public class ClassView extends JToggleButton
         return gClass.getQualifiedName();
     }
 
+    /**
+     * Get the (non-qualified) name  of the class represented by this ClassView.
+     */
     public String getClassName()
     {
         return gClass.getName();
@@ -493,16 +485,7 @@ public class ClassView extends JToggleButton
         return null;
 
     }
-    
-    /**
-     * Updates this class view by rereading the underlying class' properties.
-     */
-    public void updateView()
-    {
-        createPopupMenu();
-        update();
-    }
-    
+        
     /**
      * Notify the class view that the underlying class has changed name.
      * @param oldName  The original name of the class
