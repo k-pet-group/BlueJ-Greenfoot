@@ -53,6 +53,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.prefmgr.PrefMgr;
+import bluej.utility.Debug;
 
 
 /**
@@ -474,7 +475,7 @@ public class WorldHandlerDelegateIDE
         }
         
         try {
-            World w = (World) cls.newInstance();            
+            World w = (World) cls.newInstance();      
             ActorInstantiationListener invocationListener = GreenfootMain.getInstance().getInvocationListener();
             if(invocationListener != null) {
                 invocationListener.localObjectCreated(w, LocationTracker.instance().getMouseButtonEvent());
@@ -489,6 +490,12 @@ public class WorldHandlerDelegateIDE
         catch (IllegalAccessException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        }
+        catch (Exception ise) {
+            // This can happen if an actor is instantiated from the world
+            // constructor, and the actor tries to get the world.
+            // Or for other reasons.
+            Debug.reportError("Could not instantiate world.", ise);
         }
         return null;
     }

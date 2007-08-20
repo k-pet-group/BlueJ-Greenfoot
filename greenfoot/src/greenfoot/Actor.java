@@ -31,7 +31,7 @@ public abstract class Actor
 {
     
     /** Error message to display when trying to use methods that requires a world. */
-    private static final String NO_WORLD = "No world has been instantiated.";
+    private static final String NO_WORLD = "An actor is trying to access the world, when no world has been instantiated.";
 
     /** Error message to display when trying to use methods that requires the actor be in a world. */
     private static final String ACTOR_NOT_IN_WORLD = "The actor has not been inserted into a world so it has no location yet. You might want to look at the method addedToWorld on the Actor class.";
