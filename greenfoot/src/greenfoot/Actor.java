@@ -498,15 +498,7 @@ public abstract class Actor
      */
     private final int getPaintX()
     {
-        World aWorld = world;
-        if (aWorld == null) {
-            aWorld = getActiveWorld();
-        } 
-        if (aWorld == null) {
-            // Should never happen
-            throw new IllegalStateException(NO_WORLD);
-        }
-        double cellCenter = aWorld.getCellCenter(x);
+        double cellCenter = getCellCenter(x);
         double paintX = cellCenter - image.getWidth() / 2.;
         return (int) Math.floor(paintX);
     }
@@ -520,16 +512,33 @@ public abstract class Actor
      */
     private final int getPaintY()
     {
+        double cellCenter = getCellCenter(y);
+        double paintY = cellCenter - image.getHeight() / 2.;
+		return (int) Math.floor(paintY);
+    }
+
+
+    /**
+     * Gets the center location of this cell (in pixels).
+     * 
+     * @param X or Y coordinate of a cell to be translated into pixels.
+     * @returns location in pixels of the center of the cell.
+     * @throws IllegalStateException If there is no world instantiated.
+     */
+    private double getCellCenter(int cell)
+        throws IllegalStateException
+    {
         World aWorld = world;
         if (aWorld == null) {
             aWorld = getActiveWorld();
         } 
         if (aWorld == null) {
+            // Should never happen. Well, it does happen if an object uses this
+            // method in the constructor, and that object is created from the
+            // worlds constructor.
             throw new IllegalStateException(NO_WORLD);
         }
-        double cellCenter = aWorld.getCellCenter(y);
-        double paintY = cellCenter - image.getHeight() / 2.;
-		return (int) Math.floor(paintY);
+        return aWorld.getCellCenter(cell);
     }
     
     /**
@@ -866,15 +875,16 @@ public abstract class Actor
      */
     GreenfootImage getImage(Class clazz)
     {
-        return delegate.getImage(clazz.getName());//GreenfootMain.getProjectProperties().getImage(clazz.getName());
+        return delegate.getImage(clazz.getName());
     }
 
     /**
-     * Get the active world.
+     * Get the active world. This method will return the instantiated world,
+     * even if the object is not yet added to a world.
      */
     World getActiveWorld()
     {
-        return delegate.getWorld(); //WorldHandler.getInstance().getWorld();
+        return delegate.getWorld();
     }
        
     //============================================================================
@@ -889,11 +899,6 @@ public abstract class Actor
     
     /** Remote version of this class. Will be of type RClass. */
     private static Object remoteObjectTracker;
-
-    /*static Object getTransportField()
-    {
-        return transportField;
-    }*/
     
     static Object getRemoteObjectTracker()
     {
