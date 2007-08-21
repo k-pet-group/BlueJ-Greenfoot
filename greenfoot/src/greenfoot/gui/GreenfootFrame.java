@@ -81,7 +81,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5159 2007-08-17 03:27:38Z davmac $
+ * @version $Id: GreenfootFrame.java 5162 2007-08-21 04:58:41Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener
@@ -318,6 +318,17 @@ public class GreenfootFrame extends JFrame
     private void makeFrame()
     {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        // Some first-time initializations
+        worldCanvas = new WorldCanvas(null);
+        worldCanvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        
+        WorldHandler.initialise(worldCanvas, new WorldHandlerDelegateIDE());
+        worldHandler = WorldHandler.getInstance();
+        worldHandler.addWorldListener(this);
+        Simulation.initialize(worldHandler);
+        Simulation sim = Simulation.getInstance();
+        
         // Build the class browser before building the menu, because
         // some menu actions work on the class browser.
         buildClassBrowser();
@@ -333,15 +344,6 @@ public class GreenfootFrame extends JFrame
         
         JPanel worldPanel = new JPanel(new BorderLayout());
         worldPanel.setBorder(BorderFactory.createEtchedBorder());        
-
-        worldCanvas = new WorldCanvas(null);
-        worldCanvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        
-        WorldHandler.initialise(worldCanvas, new WorldHandlerDelegateIDE());
-        worldHandler = WorldHandler.getInstance();
-        worldHandler.addWorldListener(this);
-        Simulation.initialize(worldHandler);
-        Simulation sim = Simulation.getInstance();
         
         sim.addSimulationListener(new SimulationListener() {
             public void simulationChanged(SimulationEvent e)
@@ -412,9 +414,7 @@ public class GreenfootFrame extends JFrame
         contentPane.add(eastPanel, BorderLayout.EAST);
 
         pack();
-        worldDimensions = worldCanvas.getPreferredSize();
-        
-        worldHandler.setSelectionManager(classBrowser.getSelectionManager());
+        worldDimensions = worldCanvas.getPreferredSize();        
     }
 
     /**
@@ -462,6 +462,7 @@ public class GreenfootFrame extends JFrame
     {
         classBrowser = new ClassBrowser(project);
         classBrowser.getSelectionManager().addSelectionChangeListener(this);
+        worldHandler.setSelectionManager(classBrowser.getSelectionManager());
     }
 
     /**
