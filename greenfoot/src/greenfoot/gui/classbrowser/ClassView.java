@@ -36,7 +36,7 @@ import bluej.utility.Utility;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 5159 2007-08-17 03:27:38Z davmac $
+ * @version $Id: ClassView.java 5163 2007-08-21 05:26:34Z davmac $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -152,7 +152,7 @@ public class ClassView extends JToggleButton
     {
         this.gClass = gClass;
         gClass.setClassView(this);
-
+        
         superclass = gClass.getSuperclassGuess();
         
         this.addMouseListener(this);
@@ -182,10 +182,13 @@ public class ClassView extends JToggleButton
         return gClass;
     }
 
-    private void createPopupMenu()
+    private JPopupMenu getPopupMenu()
     {
-        popupMenu = role.createPopupMenu(classBrowser, this);
-        popupMenu.setInvoker(this);
+        if (popupMenu == null) {
+            popupMenu = role.createPopupMenu(classBrowser, this);
+            popupMenu.setInvoker(this);
+        }
+        return popupMenu;
     }
 
     /**
@@ -206,7 +209,9 @@ public class ClassView extends JToggleButton
         clearUI();
         setRole(determineRole(classBrowser.getProject()));
         role.buildUI(this, gClass);
-        createPopupMenu();
+        
+        // Popup menu needs to be re-built
+        popupMenu = null;
         
         updateSuperClass();
     }
@@ -547,7 +552,7 @@ public class ClassView extends JToggleButton
     private void maybeShowPopup(MouseEvent e)
     {
         if (e.isPopupTrigger()) {
-            popupMenu.show(e.getComponent(), e.getX(), e.getY());
+            getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
         }
     }
 
