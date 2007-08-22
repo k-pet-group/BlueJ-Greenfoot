@@ -27,7 +27,7 @@ import bluej.utility.MultiLineLabel;
  * The BlueJ about box.
  * 
  * @author Poul Henriksen
- * @version $Id: AboutGreenfootDialog.java 4966 2007-04-19 09:57:43Z mik $
+ * @version $Id: AboutGreenfootDialog.java 5168 2007-08-22 14:51:34Z mik $
  */
 public class AboutGreenfootDialog extends JDialog
 {
@@ -58,8 +58,6 @@ public class AboutGreenfootDialog extends JDialog
         text.addText("      Davin McCall\n");
         text.addText("      Bruce Quig\n");
         text.addText("      John Rosenberg\n");
-        text.addText("      Ian Utting\n");
-        text.addText("      Cecilia Vargas\n");
 
         aboutPanel.add(text, BorderLayout.CENTER);
 
