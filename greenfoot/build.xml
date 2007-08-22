@@ -346,7 +346,7 @@
             <classpath>
             	<pathelement location="${bluej.projectdir}/boot/classes" />
                 <!-- <path refid="bluej.class.path"/> -->
-                <!-- <path refid="bluej.src.path"/> -->
+                <path refid="bluej.src.path"/>
                 <pathelement location="${build_java_home}/lib/tools.jar"/>
                 <pathelement location="/System/Library/Java"/>
                 <!-- <pathelement location="${build}"/> -->
