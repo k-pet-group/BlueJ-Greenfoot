@@ -34,10 +34,4 @@ public class ActorDelegateIDE implements ActorDelegate
     {
         return project.getProjectProperties().getImage(name);
     }
-
-    public World getWorld()
-    {
-        return WorldHandler.getInstance().getWorld();
-    }
-
 }

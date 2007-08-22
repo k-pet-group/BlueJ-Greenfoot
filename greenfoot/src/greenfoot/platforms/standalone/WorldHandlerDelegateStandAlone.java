@@ -88,9 +88,9 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         this.worldHandler = handler;
     }
 
-    public World instantiateNewWorld()
+    public void instantiateNewWorld()
     {
-        return viewer.instantiateNewWorld();
+        viewer.instantiateNewWorld();
     }
 
     public Class getLastWorldClass()

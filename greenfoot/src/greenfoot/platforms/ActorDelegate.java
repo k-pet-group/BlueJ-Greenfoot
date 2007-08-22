@@ -17,10 +17,4 @@ public interface ActorDelegate
      */
     public GreenfootImage getImage(String name);
 
-    /**
-     * Get the active world. This method should return the instantiated world,
-     * even if the object is not yet added to the world.
-     */
-    public World getWorld();
-
 }

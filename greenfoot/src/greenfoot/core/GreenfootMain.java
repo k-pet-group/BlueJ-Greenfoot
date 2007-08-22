@@ -43,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 5157 2007-08-16 04:39:01Z davmac $
+ * @version $Id: GreenfootMain.java 5164 2007-08-22 11:34:59Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -179,7 +179,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                             rBlueJ.addClassListener(classStateManager);
                         }
                         catch (Exception exc) {
-                            Debug.reportError("failed to open scenario", exc);
+                            Debug.reportError("Error when opening scenario", exc);
                         }
                     }
                     else {

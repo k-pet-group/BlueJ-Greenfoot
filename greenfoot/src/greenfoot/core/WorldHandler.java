@@ -32,6 +32,7 @@ import javax.swing.event.EventListenerList;
  */
 public class WorldHandler implements MouseListener, KeyListener, DropTarget, DragListener
 {
+    private World initialisingWorld;
     private World world;
     private WorldCanvas worldCanvas;
 
@@ -266,21 +267,38 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
      * Instantiate a new world and do any initialisation needed to activate that world.
      * @return The new World or null if an error occured
      */
-    public World instantiateNewWorld()
+    public void instantiateNewWorld()
     {
-        return handlerDelegate.instantiateNewWorld();
+        handlerDelegate.instantiateNewWorld();
     }
     
+    /**
+     * 
+     * @see #setWorld(World)
+     * @param world
+     */
+    public void setInitialisingWorld(World world) {
+        this.initialisingWorld = world;
+    }
     
     /**
-     * Sets a new world.
+     * Sets a new world. A world is set in two steps:
+     * 
+     * 1. When it is partially created the constructor in World will set the
+     * world in world handler, so that actors can access the world early on in
+     * their own constructors. (with worldInitialising(World world)
+     * 
+     * 2. When the world-object is fully created (finished the constructor) it
+     * will notify the worldhandler that it is fully created. (with setWorld)
+     * 
+     * @see #setInitialisingWorld(World)
      */
-    public synchronized void setWorld(World world)
+    public synchronized void setWorld(final World world)
     {
         handlerDelegate.setWorld(this.world, world);
         this.world = world;
+        initialisingWorld = null;
         worldCanvas.setWorld(world);
-        
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
@@ -288,8 +306,7 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
                     fireWorldCreatedEvent();
                 }
             }
-        });
-      
+        });      
     }
 
     /**
@@ -313,9 +330,15 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
         return handlerDelegate.getLastWorldClass();
     }
         
+    /**
+     * Return the currently active world.
+     */
     public World getWorld()
     {
-        return world;
+        if(world == null)
+            return initialisingWorld;
+        else 
+            return world;
     }
 
     public boolean drop(Object o, Point p)

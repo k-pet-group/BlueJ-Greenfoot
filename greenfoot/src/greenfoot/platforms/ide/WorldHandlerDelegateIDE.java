@@ -271,7 +271,6 @@ public class WorldHandlerDelegateIDE
                 if (newWorld != null) {
                     worldTitle.setText(newWorld.getClass().getName());
                 }
-                worldHandler.getWorldCanvas().setWorld(newWorld); // TODO consider removing this and only rely on server
                 worldTitle.setEnabled(true);
                 MouseListener listeners[] = worldTitle.getMouseListeners();
                 for (int i = 0; i < listeners.length; i++) {
@@ -454,33 +453,29 @@ public class WorldHandlerDelegateIDE
         this.worldHandler = handler;
     }
 
-    public World instantiateNewWorld()
+    public void instantiateNewWorld()
     {
         Class cls = getLastWorldClass();
         if(cls == null) {
             try {
             	List<Class> worldClasses = project.getDefaultPackage().getWorldClasses();
             	if(worldClasses.isEmpty() ) {
-            		return null;
+            		return;
             	}
             	cls = worldClasses.get(0);
             }
             catch (ProjectNotOpenException pnoe) {
-            	return null;
+            	return;
             }
             catch (RemoteException re) {
             	re.printStackTrace();
-            	return null;
+            	return;
             }
         }
         
         try {
             World w = (World) cls.newInstance();      
-            ActorInstantiationListener invocationListener = GreenfootMain.getInstance().getInvocationListener();
-            if(invocationListener != null) {
-                invocationListener.localObjectCreated(w, LocationTracker.instance().getMouseButtonEvent());
-            }
-            return w;
+            worldHandler.setWorld(w);
         }
         catch (LinkageError e) { }
         catch (InstantiationException e) {
@@ -495,9 +490,8 @@ public class WorldHandlerDelegateIDE
             // This can happen if an actor is instantiated from the world
             // constructor, and the actor tries to get the world.
             // Or for other reasons.
-            Debug.reportError("Could not instantiate world.", ise);
+            Debug.reportError("Error when instantiating world.", ise);
         }
-        return null;
     }
 
     public Class getLastWorldClass()

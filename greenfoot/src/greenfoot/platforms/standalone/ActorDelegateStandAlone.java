@@ -46,9 +46,4 @@ public class ActorDelegateStandAlone
     {
         return properties.getImage(name);
     }
-
-    public World getWorld()
-    {
-        return world;
-    }
 }

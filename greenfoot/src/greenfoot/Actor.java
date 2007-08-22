@@ -1,6 +1,7 @@
 package greenfoot;
 
 import greenfoot.collision.ibsp.Rect;
+import greenfoot.core.WorldHandler;
 import greenfoot.platforms.ActorDelegate;
 import greenfoot.util.Circle;
 import greenfoot.util.GreenfootUtil;
@@ -533,9 +534,7 @@ public abstract class Actor
             aWorld = getActiveWorld();
         } 
         if (aWorld == null) {
-            // Should never happen. Well, it does happen if an object uses this
-            // method in the constructor, and that object is created from the
-            // worlds constructor.
+            // Should never happen.
             throw new IllegalStateException(NO_WORLD);
         }
         return aWorld.getCellCenter(cell);
@@ -884,7 +883,7 @@ public abstract class Actor
      */
     World getActiveWorld()
     {
-        return delegate.getWorld();
+        return WorldHandler.getInstance().getWorld();
     }
        
     //============================================================================

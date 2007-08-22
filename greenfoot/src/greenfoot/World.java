@@ -78,6 +78,12 @@ public abstract class World
             image = new GreenfootImage((BufferedImage) image.getAwtImage());
             setBackground(image);
         }
+        
+        // Now, the WorldHandler must be informed of the new world, so it can be
+        // used immediately. This is important for actors that are created by
+        // the world constructor, if the actors are accessing the world in their
+        // constructors (by using getWidth/Height for instance)
+        WorldHandler.getInstance().setInitialisingWorld(this);
     }
 
     /**
