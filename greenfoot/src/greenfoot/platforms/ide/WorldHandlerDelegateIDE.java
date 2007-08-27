@@ -5,13 +5,10 @@ import greenfoot.ObjectTracker;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.core.GProject;
-import greenfoot.core.GreenfootMain;
-import greenfoot.core.LocationTracker;
 import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.core.WorldInvokeListener;
-import greenfoot.event.ActorInstantiationListener;
 import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.SelectionManager;
@@ -91,9 +88,9 @@ public class WorldHandlerDelegateIDE
      * 
      * @param selectionManager
      */
-    public void setSelectionManager(Object selectionManager)
+    public void setSelectionManager(SelectionManager selectionManager)
     {
-        this.classSelectionManager = (SelectionManager) selectionManager;
+        this.classSelectionManager = selectionManager;
     }
 
     /**

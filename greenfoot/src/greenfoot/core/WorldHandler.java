@@ -92,17 +92,6 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
     }
     
     /**
-     * Sets the selection manager.
-     * 
-     * 
-     * @param selectionManager
-     */
-    public void setSelectionManager(Object selectionManager)
-    {
-        handlerDelegate.setSelectionManager(selectionManager);
-    }
-    
-    /**
      * Get the keyboard manager.
      */
     public KeyboardManager getKeyboardManager()
@@ -253,17 +242,6 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
     }
     
     /**
-     * Attaches a project to this handler. Must be of type GProject. The
-     * parameter is not of type GProject to make WorldHandler independent of
-     * GProject which is necessary to run scenarios on different platforms.
-     */
-    public void attachProject(Object project)
-    {
-        handlerDelegate.attachProject(project);
-    }
-        
-
-    /**
      * Instantiate a new world and do any initialisation needed to activate that world.
      * @return The new World or null if an error occured
      */
@@ -309,14 +287,6 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
         });      
     }
 
-    /**
-     * @return
-     */
-    public Component getWorldTitle()
-    {
-        return handlerDelegate.getWorldTitle();
-    }
-    
     /**
      * Returns the world-class that has been instantiated last. This is the
      * class of the current world, if there is a world currently instantiated.
@@ -434,10 +404,12 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
         if (source != worldCanvas) {
             e = SwingUtilities.convertMouseEvent(source, e, worldCanvas);
         }
-        int x = WorldVisitor.toCellFloor(getWorld(), e.getX());
-        int y = WorldVisitor.toCellFloor(getWorld(), e.getY());
-        if(x < getWorld().getWidth() && y < getWorld().getHeight()) {
-            getWorld().addObject(actor, x, y);
+        
+        World world = getWorld();
+        int x = WorldVisitor.toCellFloor(world, e.getX());
+        int y = WorldVisitor.toCellFloor(world, e.getY());
+        if(x < world.getWidth() && y < world.getHeight()) {
+            world.addObject(actor, x, y);
             return true;
         } else {
             return false;

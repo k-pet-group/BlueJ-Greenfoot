@@ -81,7 +81,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5162 2007-08-21 04:58:41Z davmac $
+ * @version $Id: GreenfootFrame.java 5170 2007-08-27 05:15:03Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener
@@ -97,6 +97,7 @@ public class GreenfootFrame extends JFrame
     
     private WorldCanvas worldCanvas;
     private WorldHandler worldHandler;
+    private WorldHandlerDelegateIDE worldHandlerDelegate;
     private Dimension worldDimensions;
     private ClassBrowser classBrowser;
     private ControlPanel controlPanel;
@@ -255,6 +256,7 @@ public class GreenfootFrame extends JFrame
     {
     	if (isClosedProject) {
     		this.project = project;
+            worldHandlerDelegate.attachProject(project);
     		project.addCompileListener(this);
     		setTitle("Greenfoot: " + project.getName());
     		enableProjectActions();
@@ -270,7 +272,7 @@ public class GreenfootFrame extends JFrame
     		restoreFrameState();
     		
     		WorldHandler.getInstance().instantiateNewWorld();
-            WorldHandler.getInstance().getWorldTitle().setVisible(true);
+            worldHandlerDelegate.getWorldTitle().setVisible(true);
     		if(needsResize()) {
     			pack();
     		}
@@ -287,7 +289,7 @@ public class GreenfootFrame extends JFrame
         project.removeCompileListener(this);
         worldCanvas.setVisible(false);
         classBrowser.setVisible(false);
-        WorldHandler.getInstance().getWorldTitle().setVisible(false);
+        worldHandlerDelegate.getWorldTitle().setVisible(false);
         project = null;
         enableProjectActions();
         repaint();
@@ -323,7 +325,8 @@ public class GreenfootFrame extends JFrame
         worldCanvas = new WorldCanvas(null);
         worldCanvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         
-        WorldHandler.initialise(worldCanvas, new WorldHandlerDelegateIDE());
+        worldHandlerDelegate = new WorldHandlerDelegateIDE();
+        WorldHandler.initialise(worldCanvas, worldHandlerDelegate);
         worldHandler = WorldHandler.getInstance();
         worldHandler.addWorldListener(this);
         Simulation.initialize(worldHandler);
@@ -367,7 +370,7 @@ public class GreenfootFrame extends JFrame
         worldScrollPane.setBorder(null);
         
        
-        worldPanel.add(worldHandler.getWorldTitle(), BorderLayout.NORTH);
+        worldPanel.add(worldHandlerDelegate.getWorldTitle(), BorderLayout.NORTH);
         worldPanel.add(worldScrollPane, BorderLayout.CENTER);
 
         centrePanel.add(worldPanel, BorderLayout.CENTER);
@@ -462,7 +465,7 @@ public class GreenfootFrame extends JFrame
     {
         classBrowser = new ClassBrowser(project);
         classBrowser.getSelectionManager().addSelectionChangeListener(this);
-        worldHandler.setSelectionManager(classBrowser.getSelectionManager());
+        worldHandlerDelegate.setSelectionManager(classBrowser.getSelectionManager());
     }
 
     /**

@@ -5,7 +5,6 @@ import greenfoot.core.WorldHandler;
 import greenfoot.export.GreenfootScenarioViewer;
 import greenfoot.platforms.WorldHandlerDelegate;
 
-import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
@@ -26,20 +25,9 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         this.viewer = viewer;
     }
     
-    public void attachProject(Object project)
-    {
-        //Not used in standalone
-    }
-
     public void dragFinished(Object o)
     {
         worldHandler.finishDrag(o);
-    }
-
-    public Component getWorldTitle()
-    {
-        // Not used in standalone
-        return null;
     }
 
     public void keyReleased(KeyEvent e)
@@ -69,11 +57,6 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     }
 
     public void setQuickAddActive(boolean b)
-    {
-        // Not used in standalone
-    }
-
-    public void setSelectionManager(Object selectionManager)
     {
         // Not used in standalone
     }

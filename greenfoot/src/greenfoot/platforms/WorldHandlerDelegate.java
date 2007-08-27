@@ -3,7 +3,6 @@ package greenfoot.platforms;
 import greenfoot.World;
 import greenfoot.core.WorldHandler;
 
-import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
@@ -22,8 +21,6 @@ public interface WorldHandlerDelegate
      */
     boolean maybeShowPopup(MouseEvent e);
 
-    void setSelectionManager(Object selectionManager);
-
     void mouseClicked(MouseEvent e);
 
     void setQuickAddActive(boolean b);
@@ -32,11 +29,7 @@ public interface WorldHandlerDelegate
 
     void keyReleased(KeyEvent e);
 
-    void attachProject(Object project);
-
     void setWorld(World oldWorld, World newWorld);
-
-    Component getWorldTitle();
 
     void dragFinished(Object o);
 
