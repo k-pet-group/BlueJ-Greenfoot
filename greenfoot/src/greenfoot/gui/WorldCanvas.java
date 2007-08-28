@@ -15,7 +15,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 4928 2007-04-13 06:21:45Z davmac $
+ * @version $Id: WorldCanvas.java 5171 2007-08-28 03:01:03Z davmac $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -31,11 +31,11 @@ public class WorldCanvas extends JPanel
     }
 
     /**
-     * Sets the world that should be visualied by this canvas
+     * Sets the world that should be visualised by this canvas
      * 
      * @param world
      */
-    public synchronized void setWorld(World world)
+    public void setWorld(World world)
     {
         this.world = world;
         if (world != null) {
@@ -61,12 +61,15 @@ public class WorldCanvas extends JPanel
         //we need to sync, so that objects are not added and removed when we traverse the list.
         synchronized (world) {
             Set<Actor> objects = WorldVisitor.getObjectsList(world);
+            int paintSeq = 0;
             for (Iterator iter = objects.iterator(); iter.hasNext();) {
                 Actor thing = (Actor) iter.next();
                 int cellSize = WorldVisitor.getCellSize(world);
 
                 greenfoot.GreenfootImage image = ActorVisitor.getDisplayImage(thing);
                 if (image != null) {
+                    ActorVisitor.setLastPaintSeqNum(thing, paintSeq++);
+                    
                     double halfWidth = image.getWidth() / 2.;
                     double halfHeight = image.getHeight() / 2.;
 

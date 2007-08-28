@@ -55,7 +55,13 @@ public abstract class Actor
     /**
      * Sequence number of this actor
      */
-    int mySequenceNumber;
+    private int mySequenceNumber;
+    
+    /**
+     * The last time objects in the world were painted, where was this object
+     * in the sequence?
+     */
+    private int lastPaintSequenceNumber;
 
     /** Rotation in degrees (0-359) */
     private int rotation = 0;
@@ -841,11 +847,28 @@ public abstract class Actor
      * Get the sequence number of this actor. This can be used as a
      * hash value, which is not overridable by the user.
      */
-    int getSequenceNumber()
+    final int getSequenceNumber()
     {
         return mySequenceNumber;
     }
 
+    /**
+     * Get the sequence number of this actor from the last paint operation.
+     * (Returns whatever was set using the setLastPaintSeqNum method).
+     */
+    final int getLastPaintSeqNum()
+    {
+        return lastPaintSequenceNumber;
+    }
+    
+    /**
+     * Set the sequence number of this actor from the last paint operation.
+     */
+    final void setLastPaintSeqNum(int num)
+    {
+        lastPaintSequenceNumber = num;
+    }
+    
     // ============================================================================
     //  
     // Methods below here are delegated to different objects depending on how

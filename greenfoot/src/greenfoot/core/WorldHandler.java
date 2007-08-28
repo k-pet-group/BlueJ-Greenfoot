@@ -150,14 +150,12 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
     }
 
     /**
-     * TODO: this method should be removed when it is posisble to select among
-     * multiple objects from a popup menu.
+     * Returns an object at the given pixel location. If multiple objects exist
+     * at the one location, this method returns the top-most one according to
+     * paint order.
      * 
-     * Returns the object at the given pixel location.
-     * 
-     * @param x
-     * @param y
-     * @return
+     * @param x  The x-coordinate
+     * @param y  The y-coordinate
      */
     public Actor getObject(int x, int y)
     {
@@ -170,11 +168,16 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
         }
 
         Iterator iter = objectsThere.iterator();
-        Actor actor = null;
+        Actor topmostActor = (Actor) iter.next();
+        int seq = ActorVisitor.getLastPaintSeqNum(topmostActor);
         while (iter.hasNext()) {
-            actor = (Actor) iter.next();
+            Actor actor = (Actor) iter.next();
+            int actorSeq = ActorVisitor.getLastPaintSeqNum(actor);
+            if (actorSeq > seq) {
+                topmostActor = actor;
+            }
         }
-        return actor;
+        return topmostActor;
     }
 
     /*
@@ -276,10 +279,10 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
         handlerDelegate.setWorld(this.world, world);
         this.world = world;
         initialisingWorld = null;
-        worldCanvas.setWorld(world);
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
+                worldCanvas.setWorld(world);
                 if (WorldHandler.this.world != null) {
                     fireWorldCreatedEvent();
                 }

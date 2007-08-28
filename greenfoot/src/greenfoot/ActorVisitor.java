@@ -71,4 +71,23 @@ public class ActorVisitor
     {
         return actor.getSequenceNumber();
     }
+    
+    /**
+     * Get the sequence number of the given actor from the last paint
+     * operation on the world. (Returns whatever was set using the
+     * setLastPaintSeqNum method).
+     */
+    public static int getLastPaintSeqNum(Actor actor)
+    {
+        return actor.getLastPaintSeqNum();
+    }
+    
+    /**
+     * Set the sequence number of the given actor from the last paint
+     * operation on the world.
+     */
+    public static void setLastPaintSeqNum(Actor actor, int num)
+    {
+        actor.setLastPaintSeqNum(num);
+    }
 }
