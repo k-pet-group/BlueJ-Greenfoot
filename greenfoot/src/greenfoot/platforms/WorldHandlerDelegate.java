@@ -33,11 +33,6 @@ public interface WorldHandlerDelegate
 
     void dragFinished(Object o);
 
-    /**
-     * Indicate that a reset occurred (the world was removed, compile started, etc.)
-     */
-    void reset();
-
     void setWorldHandler(WorldHandler handler);
     
     /**

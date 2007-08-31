@@ -146,7 +146,6 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
     public void mouseReleased(MouseEvent e)
     {
         handlerDelegate.maybeShowPopup(e);
-
     }
 
     /**
@@ -159,11 +158,14 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
      */
     public Actor getObject(int x, int y)
     {
+        // Grab a snapshot of world to avoid concurrency issues
+        World world = this.world;
+        
         if (world == null)
             return null;
 
         Collection objectsThere = WorldVisitor.getObjectsAtPixel(world, x, y);
-        if (objectsThere.size() < 1) {
+        if (objectsThere.isEmpty()) {
             return null;
         }
 
@@ -437,20 +439,6 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
     
     }
 
-    /**
-     * Removes the world.
-     */
-    public void reset()
-    {
-        EventQueue.invokeLater(new Runnable() {
-            public void run()
-            {
-                handlerDelegate.reset();
-                setWorld(null);
-            }
-        });
-    }    
-    
     protected void fireWorldCreatedEvent()
     {
         // Guaranteed to return a non-null array

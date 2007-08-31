@@ -61,12 +61,13 @@ public class WorldInvokeListener
     /** A map which tells us which construction location applies to each dialog */
     private Map dialogToLocationMap = new HashMap();
     
-    public WorldInvokeListener(Object obj, ObjectBenchInterface bench, GProject inspectorManager)
+    public WorldInvokeListener(Object obj, ObjectBenchInterface bench,
+            InspectorManager inspectorManager, GProject project)
     {
         this.objectBench = bench;
         this.obj = obj;
         this.inspectorManager = inspectorManager;
-        this.project = inspectorManager;
+        this.project = project;
     }
     
     public WorldInvokeListener(Class cl, GProject project)

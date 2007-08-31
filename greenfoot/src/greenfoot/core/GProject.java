@@ -1,10 +1,7 @@
 package greenfoot.core;
 
 import greenfoot.event.CompileListener;
-import greenfoot.gui.inspector.UpdatingClassInspector;
-import greenfoot.gui.inspector.UpdatingObjectInspector;
 
-import java.awt.EventQueue;
 import java.io.File;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -14,28 +11,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JFrame;
-
 import rmiextension.wrappers.RClass;
 import rmiextension.wrappers.RPackage;
 import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RCompileEvent;
 import rmiextension.wrappers.event.RProjectListenerImpl;
-import bluej.debugger.DebuggerClass;
-import bluej.debugger.DebuggerObject;
-import bluej.debugmgr.ExpressionInformation;
-import bluej.debugmgr.inspector.ClassInspector;
-import bluej.debugmgr.inspector.Inspector;
-import bluej.debugmgr.inspector.InspectorManager;
-import bluej.debugmgr.inspector.ObjectInspector;
-import bluej.debugmgr.inspector.ResultInspector;
 import bluej.extensions.PackageAlreadyExistsException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.CompileEvent;
-import bluej.pkgmgr.Package;
-import bluej.testmgr.record.ClassInspectInvokerRecord;
-import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 
 /**
@@ -44,12 +28,8 @@ import bluej.utility.Debug;
  * @author Poul Henriksen
  */
 public class GProject extends RProjectListenerImpl
-    implements InspectorManager, CompileListener
-{
-    /** This holds all object inspectors and class inspectors
-    for a world. */
-    private Map inspectors = new HashMap();
-    
+    implements CompileListener
+{    
     private Map<RPackage,GPackage> packagePool = new HashMap<RPackage,GPackage>();
     
     private RProject rProject;
@@ -207,155 +187,12 @@ public class GProject extends RProjectListenerImpl
         }
         return null;
     }
-
-    
-    public ObjectInspector getInspectorInstance(DebuggerObject obj,
-            String name, Package pkg, InvokerRecord ir, JFrame parent) {
-        ObjectInspector inspector = (ObjectInspector) inspectors.get(obj);
         
-        if (inspector == null) {
-            inspector = new UpdatingObjectInspector(obj, this, name, pkg, ir, parent);
-            inspectors.put(obj, inspector);
-        }
-        
-        final ObjectInspector insp = inspector;
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                insp.update();
-                insp.updateLayout();
-                insp.setVisible(true);
-                insp.bringToFront();
-            }
-        });
-        
-        return inspector;
-    }
-    
-    
-    /**
-     * Return an ObjectInspector for an object. The inspector is visible.
-     * 
-     * @param obj The object displayed by this viewer
-     * @param name The name of this object or "null" if the name is unobtainable
-     * @param pkg The package all this belongs to
-     * @param ir the InvokerRecord explaining how we got this result/object if
-     *            null, the "get" button is permanently disabled
-     * @param info The information about the the expression that gave this
-     *            result
-     * @param parent The parent frame of this frame
-     * @return The Viewer value
-     */
-    public ResultInspector getResultInspectorInstance(DebuggerObject obj,
-        String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
-        JFrame parent) {
-       /* System.out.println("pkg:" + pkg);
-        System.out.println("prj: " + pkg.getProject());
-        System.out.println("insp: " + pkg.getProject().getInspector(obj));
-        System.out.println("");
-        */
-        
-        ResultInspector inspector = (ResultInspector) inspectors.get(obj);
-        
-      
-        if (inspector == null) {
-            inspector = new ResultInspector(obj, this, name, pkg, ir, info, parent);
-            inspectors.put(obj, inspector);
-        }
-
-        final ResultInspector insp = inspector;
-        insp.update();
-        insp.updateLayout();
-        EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    insp.setVisible(true);
-                    insp.bringToFront();
-        }
-            });
-
-        return inspector;
-    }
-    
-    
-    /**
-     * Return a ClassInspector for a class. The inspector is visible.
-     *
-     * @param clss
-     *            The class displayed by this viewer
-     * @param name
-     *            The name of this object or "null" if it is not on the object
-     *            bench
-     * @param pkg
-     *            The package all this belongs to
-     * @param getEnabled
-     *            if false, the "get" button is permanently disabled
-     * @param parent
-     *            The parent frame of this frame
-     * @return The Viewer value
-     */
-    public ClassInspector getClassInspectorInstance(DebuggerClass clss,
-        Package pkg, JFrame parent) {
-        ClassInspector inspector = (ClassInspector) inspectors.get(clss.getName());
-
-        if (inspector == null) {
-            ClassInspectInvokerRecord ir = new ClassInspectInvokerRecord(clss.getName());
-            inspector = new UpdatingClassInspector(clss, this, pkg, ir, parent);
-            inspectors.put(clss.getName(), inspector);
-        }
-
-        final Inspector insp = inspector;
-        EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    insp.update();
-                    insp.updateLayout();
-                    insp.setVisible(true);
-                    insp.bringToFront();
-                }
-            });
-
-        return inspector;
-    }
-
-
     public boolean inTestMode()
     {
         //Greenfoot does not support testing:
         return false;
     }
-    
-    
-    /**
-     * Removes all inspector instances for this project.
-     * This is used when VM is reset or the project is recompiled.
-     *
-     */
-    public void removeAllInspectors() {
-        for (Iterator it = inspectors.values().iterator(); it.hasNext();) {
-            Inspector inspector = (Inspector) it.next();
-            inspector.setVisible(false);
-            inspector.dispose();
-        }
-
-        inspectors.clear();
-    }
-
-    
-    /**
-     * Remove an inspector from the list of inspectors for this project
-     * @param obj the inspector.
-     */
-    public void removeInspector(DebuggerObject obj) {
-        inspectors.remove(obj);
-    }
-    
-    
-    /**
-     * Remove an inspector from the list of inspectors for this project
-     * @param obj the inspector. 
-     */
-    public void removeInspector(DebuggerClass cls) {
-        inspectors.remove(cls.getName());
-    }
-    
     
     /**
      * Retrieve the properties for a package. Loads the properties if necessary.

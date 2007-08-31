@@ -1,32 +1,8 @@
 package greenfoot.gui;
 
 import greenfoot.World;
-import greenfoot.actions.AboutGreenfootAction;
-import greenfoot.actions.CloseProjectAction;
-import greenfoot.actions.CompileAllAction;
-import greenfoot.actions.ExportProjectAction;
-import greenfoot.actions.NewClassAction;
-import greenfoot.actions.NewProjectAction;
-import greenfoot.actions.OpenProjectAction;
-import greenfoot.actions.OpenRecentProjectAction;
-import greenfoot.actions.PauseSimulationAction;
-import greenfoot.actions.PreferencesAction;
-import greenfoot.actions.QuitAction;
-import greenfoot.actions.RemoveSelectedClassAction;
-import greenfoot.actions.RunOnceSimulationAction;
-import greenfoot.actions.RunSimulationAction;
-import greenfoot.actions.SaveProjectAction;
-import greenfoot.actions.ShowCopyrightAction;
-import greenfoot.actions.ShowReadMeAction;
-import greenfoot.actions.ShowWebsiteAction;
-import greenfoot.core.GClass;
-import greenfoot.core.GPackage;
-import greenfoot.core.GProject;
-import greenfoot.core.GreenfootMain;
-import greenfoot.core.LocationTracker;
-import greenfoot.core.ProjectProperties;
-import greenfoot.core.Simulation;
-import greenfoot.core.WorldHandler;
+import greenfoot.actions.*;
+import greenfoot.core.*;
 import greenfoot.event.CompileListener;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
@@ -36,40 +12,38 @@ import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.Selectable;
 import greenfoot.gui.classbrowser.SelectionListener;
+import greenfoot.gui.inspector.UpdatingClassInspector;
+import greenfoot.gui.inspector.UpdatingObjectInspector;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.sound.SoundPlayer;
 import greenfoot.util.GreenfootUtil;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.HeadlessException;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.KeyStroke;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.*;
 
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.event.RCompileEvent;
 import bluej.Config;
+import bluej.debugger.DebuggerClass;
+import bluej.debugger.DebuggerObject;
+import bluej.debugmgr.ExpressionInformation;
+import bluej.debugmgr.inspector.ClassInspector;
+import bluej.debugmgr.inspector.Inspector;
+import bluej.debugmgr.inspector.InspectorManager;
+import bluej.debugmgr.inspector.ObjectInspector;
+import bluej.debugmgr.inspector.ResultInspector;
+import bluej.pkgmgr.Package;
 import bluej.prefmgr.PrefMgr;
+import bluej.testmgr.record.ClassInspectInvokerRecord;
+import bluej.testmgr.record.InvokerRecord;
 
 import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationAdapter;
@@ -81,10 +55,11 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5170 2007-08-27 05:15:03Z davmac $
+ * @version $Id: GreenfootFrame.java 5172 2007-08-31 03:26:59Z davmac $
  */
 public class GreenfootFrame extends JFrame
-    implements WindowListener, CompileListener, WorldListener, SelectionListener
+    implements WindowListener, CompileListener, WorldListener, SelectionListener,
+        InspectorManager
 {
     private static final String readMeIconFile = "readme.png";
     private static final String compileIconFile = "compile.png";
@@ -94,6 +69,9 @@ public class GreenfootFrame extends JFrame
     private static final int shiftAccelModifier = accelModifier | KeyEvent.SHIFT_MASK;
 
     private GProject project;
+    
+    /** This holds all object inspectors and class inspectors for a world. */
+    private Map inspectors = new HashMap();
     
     private WorldCanvas worldCanvas;
     private WorldHandler worldHandler;
@@ -158,7 +136,6 @@ public class GreenfootFrame extends JFrame
             e.printStackTrace();
         }
         catch (UnsupportedLookAndFeelException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         
@@ -325,7 +302,7 @@ public class GreenfootFrame extends JFrame
         worldCanvas = new WorldCanvas(null);
         worldCanvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         
-        worldHandlerDelegate = new WorldHandlerDelegateIDE();
+        worldHandlerDelegate = new WorldHandlerDelegateIDE(this);
         WorldHandler.initialise(worldCanvas, worldHandlerDelegate);
         worldHandler = WorldHandler.getInstance();
         worldHandler.addWorldListener(this);
@@ -746,7 +723,7 @@ public class GreenfootFrame extends JFrame
     
     public void compileStarted(RCompileEvent event)
     {
-        WorldHandler.getInstance().reset();
+        WorldHandler.getInstance().setWorld(null);
     }
 
     public void compileError(RCompileEvent event)
@@ -796,7 +773,7 @@ public class GreenfootFrame extends JFrame
     
     public void worldRemoved(WorldEvent e)
     {
-        // Nothing needs doing.
+        removeAllInspectors();
     }
 
     // ------------- end of WorldListener interface ------------
@@ -815,4 +792,105 @@ public class GreenfootFrame extends JFrame
     
     // ------------- end of SelectionListener interface --------
     
+    // ------------- InspectorManager interface ----------------
+    
+    public ClassInspector getClassInspectorInstance(DebuggerClass clss, Package pkg, JFrame parent)
+    {
+        ClassInspector inspector = (ClassInspector) inspectors.get(clss.getName());
+
+        if (inspector == null) {
+            ClassInspectInvokerRecord ir = new ClassInspectInvokerRecord(clss.getName());
+            inspector = new UpdatingClassInspector(clss, this, pkg, ir, parent);
+            inspectors.put(clss.getName(), inspector);
+        }
+
+        final Inspector insp = inspector;
+        EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    insp.update();
+                    insp.updateLayout();
+                    insp.setVisible(true);
+                    insp.bringToFront();
+                }
+            });
+
+        return inspector;
+    }
+    
+    public ObjectInspector getInspectorInstance(DebuggerObject obj, String name, Package pkg, InvokerRecord ir, JFrame parent)
+    {
+        ObjectInspector inspector = (ObjectInspector) inspectors.get(obj);
+        
+        if (inspector == null) {
+            inspector = new UpdatingObjectInspector(obj, this, name, pkg, ir, parent);
+            inspectors.put(obj, inspector);
+        }
+        
+        final ObjectInspector insp = inspector;
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                insp.update();
+                insp.updateLayout();
+                insp.setVisible(true);
+                insp.bringToFront();
+            }
+        });
+        
+        return inspector;
+    }
+    
+    public ResultInspector getResultInspectorInstance(DebuggerObject obj, String name, Package pkg, InvokerRecord ir, ExpressionInformation info, JFrame parent)
+    {
+        ResultInspector inspector = (ResultInspector) inspectors.get(obj);
+        
+        if (inspector == null) {
+            inspector = new ResultInspector(obj, this, name, pkg, ir, info, parent);
+            inspectors.put(obj, inspector);
+        }
+
+        final ResultInspector insp = inspector;
+        insp.update();
+        insp.updateLayout();
+        EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    insp.setVisible(true);
+                    insp.bringToFront();
+        }
+            });
+
+        return inspector;
+    }
+    
+    public boolean inTestMode()
+    {
+        //Greenfoot does not support testing:
+        return false;
+    }
+    
+    public void removeInspector(DebuggerClass cls)
+    {
+        inspectors.remove(cls.getName());
+    }
+    
+    public void removeInspector(DebuggerObject obj)
+    {
+        inspectors.remove(obj);
+    }
+
+    // ------------- end of InspectorManager interface ---------
+
+    /**
+     * Removes all inspector instances for this project.
+     * This is used when VM is reset or the project is recompiled.
+     */
+    public void removeAllInspectors()
+    {
+        for (Iterator it = inspectors.values().iterator(); it.hasNext();) {
+            Inspector inspector = (Inspector) it.next();
+            inspector.setVisible(false);
+            inspector.dispose();
+        }
+
+        inspectors.clear();
+    }
 }

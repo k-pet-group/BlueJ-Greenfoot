@@ -49,7 +49,7 @@ import javax.swing.SwingUtilities;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 4894 2007-03-25 13:08:57Z polle $
+ * @version $Id: DragGlassPane.java 5172 2007-08-31 03:26:59Z davmac $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -165,7 +165,7 @@ public class DragGlassPane extends JComponent
      * 
      * There are two types of drag: a "genuine" drag where an object is being
      * dragged with the mouse button down, and a "forced" drag where the button
-     * is up. In the case of a genuine drag, the DragGlassPane should bet set
+     * is up. In the case of a genuine drag, the DragGlassPane should be
      * added as a MouseListener and MouseMotionListener to the component
      * receiving the drag events. Otherwise, this is not necessary.
      * 
@@ -347,6 +347,9 @@ public class DragGlassPane extends JComponent
 
     public void mouseEntered(MouseEvent e)
     {
+        // Somehow during a drag the button was released without us noticing;
+        // cancel the drag now then. (I think this can happen when some other
+        // window steals focus during a drag).
         if(!forcedDrag && !e.isShiftDown() && ((e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK)==0) ) {
             cancelDrag();
         }

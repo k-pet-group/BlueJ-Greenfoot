@@ -51,11 +51,6 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         // Not used in standalone
     }
 
-    public void reset()
-    {
-        // Not used in standalone
-    }
-
     public void setQuickAddActive(boolean b)
     {
         // Not used in standalone

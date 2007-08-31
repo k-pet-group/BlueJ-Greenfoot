@@ -15,7 +15,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 5171 2007-08-28 03:01:03Z davmac $
+ * @version $Id: WorldCanvas.java 5172 2007-08-31 03:26:59Z davmac $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -31,9 +31,8 @@ public class WorldCanvas extends JPanel
     }
 
     /**
-     * Sets the world that should be visualised by this canvas
-     * 
-     * @param world
+     * Sets the world that should be visualised by this canvas.
+     * Call only from the Swing event thread.
      */
     public void setWorld(World world)
     {
@@ -51,7 +50,7 @@ public class WorldCanvas extends JPanel
     }
 
     /**
-     * Paints all the objects; must be called from a synchronized context.
+     * Paints all the objects.
      */
     private void paintObjects(Graphics g)
     {
@@ -90,9 +89,8 @@ public class WorldCanvas extends JPanel
 
     /**
      * TODO optimize performance... double buffering?
-     * 
      */
-    public synchronized void paintComponent(Graphics g)
+    public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
         if (world == null) {
@@ -108,7 +106,6 @@ public class WorldCanvas extends JPanel
     /**
      * Paint the world background. This takes tiling into account: the
      * world image is painted either once or tiled onto this component.
-     * Must be called from a synchronized context.
      */
     private void paintBackground(Graphics g)
     {

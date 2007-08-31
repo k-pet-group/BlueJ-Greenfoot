@@ -10,6 +10,7 @@ import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.core.WorldInvokeListener;
 import greenfoot.gui.DragGlassPane;
+import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.SelectionManager;
 import greenfoot.gui.classbrowser.role.ActorClassRole;
@@ -19,24 +20,13 @@ import greenfoot.platforms.WorldHandlerDelegate;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import rmiextension.wrappers.RObject;
 import bluej.Config;
@@ -71,16 +61,19 @@ public class WorldHandlerDelegateIDE
     private WorldHandler worldHandler;
 
     private GProject project;
+    
+    private GreenfootFrame frame;
 
     private JLabel worldTitle;
 
     private String lastWorldClass; 
     
-    public WorldHandlerDelegateIDE()
+    public WorldHandlerDelegateIDE(GreenfootFrame frame)
     {
         worldTitle = new JLabel();
         worldTitle.setBorder(BorderFactory.createEmptyBorder(18, 0, 4, 0));
         worldTitle.setHorizontalAlignment(SwingConstants.CENTER);
+        this.frame = frame;
     }
 
     /**
@@ -101,7 +94,7 @@ public class WorldHandlerDelegateIDE
     {
         JPopupMenu menu = new JPopupMenu();
 
-        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj, this, project),
+        ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj, this, frame, project),
                 LocalObject.getLocalObject(obj), null);
 
         menu.addSeparator();
@@ -155,7 +148,7 @@ public class WorldHandlerDelegateIDE
                 catch (bluej.extensions.ClassNotFoundException e1) {
                     e1.printStackTrace();
                 }
-                project.getInspectorInstance(dObj, instanceName, null, null, parent);
+                frame.getInspectorInstance(dObj, instanceName, null, null, parent);
             }
         });
         return m;
@@ -291,7 +284,7 @@ public class WorldHandlerDelegateIDE
                             JPopupMenu menu = new JPopupMenu();
 
                             ObjectWrapper.createMethodMenuItems(menu, newWorld.getClass(), new WorldInvokeListener(
-                                    newWorld, WorldHandlerDelegateIDE.this, project), LocalObject
+                                    newWorld, WorldHandlerDelegateIDE.this, frame, project), LocalObject
                                     .getLocalObject(newWorld), null);
                             menu.addSeparator();
                             // "inspect" menu item
@@ -433,11 +426,6 @@ public class WorldHandlerDelegateIDE
 
         ProjectProperties probs = this.project.getProjectProperties();
         lastWorldClass = probs.getString("world.lastInstantiated");
-    }
-
-    public void reset()
-    {
-        project.removeAllInspectors();
     }
 
     public Component getWorldTitle()
