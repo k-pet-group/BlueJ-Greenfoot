@@ -300,29 +300,39 @@ public abstract class World
     }
 
     /**
-     * Get all the objects in the world.<br>
-     * 
-     * If iterating through these objects, you should synchronize on this world
-     * to avoid ConcurrentModificationException.
+     * Get all the objects in the world, or all the objects of a particular class.
      * <p>
-     * 
-     * The objects are returned in their paint order. The first object in the
-     * List is the one painted first. The last object is the one painted on top
-     * of all other objects.
-     * <p>
-     * 
      * If a class is specified as a parameter, only objects of that class (or
      * its subclasses) will be returned.
      * <p>
      * 
-     * 
      * @param cls Class of objects to look for ('null' will find all objects).
      * 
-     * @return An unmodifiable list of objects.
+     * @return A list of objects.
      */
-    public synchronized List getObjects(Class cls)
+    public List getObjects(Class cls)
     {
-        return Collections.unmodifiableList(collisionChecker.getObjects(cls));
+        List result = new ArrayList();
+        
+        Iterator<Actor> i = objects.iterator();
+        while (i.hasNext()) {
+            Actor actor = i.next();
+            if (cls == null || cls.isInstance(actor)) {
+                result.add(actor);
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Get the number of actors currently in the world.
+     * 
+     * @return The number of actors
+     */
+    public int numberOfObjects()
+    {
+        return objects.size();
     }
     
     /**
