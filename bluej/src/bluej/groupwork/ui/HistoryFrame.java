@@ -23,7 +23,7 @@ import bluej.utility.SwingWorker;
  * and commit comments.
  * 
  * @author Davin McCall
- * @version $Id: HistoryFrame.java 5104 2007-06-18 04:37:37Z davmac $
+ * @version $Id: HistoryFrame.java 5177 2007-09-11 04:00:16Z bquig $
  */
 public class HistoryFrame extends EscapeDialog
 {
@@ -225,7 +225,7 @@ public class HistoryFrame extends EscapeDialog
         Collections.sort(filesList);
         
         userFilterCombo.removeAllItems();
-        userFilterCombo.addItem("All users");
+        userFilterCombo.addItem(Config.getString("team.history.allUsers"));
         Iterator i = usersList.iterator();
         while (i.hasNext()) {
             userFilterCombo.addItem(i.next());
@@ -234,7 +234,7 @@ public class HistoryFrame extends EscapeDialog
         userFilterCombo.setEnabled(true);
         
         fileFilterCombo.removeAllItems();
-        fileFilterCombo.addItem("All files");
+        fileFilterCombo.addItem(Config.getString("team.history.allFiles"));
         i = filesList.iterator();
         while (i.hasNext()) {
             fileFilterCombo.addItem(i.next());
