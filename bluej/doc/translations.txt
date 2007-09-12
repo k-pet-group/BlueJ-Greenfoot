@@ -11,8 +11,8 @@ czech           2.0.0                x                         Petr Skoda       
 danish          2.2.0preview         x                         Kenneth Johnson     <kenneth@kennethjohnsen.dk>
 dutch           2.0.0                x                         Peter van Diepen    <pvdiepen@tiscali.nl>
 english         2.0.5                x      
-french          2.0.0                x                         Patrice Moreaux     <patrice.moreaux@univ-reims.fr>
-german          2.1.0                x                         Thomas R?fer        <roefer@tzi.de>
+french          2.2.0                x                         Patrice Moreaux     <patrice.moreaux@univ-reims.fr>
+german          2.2.0                x                         Thomas R?fer        <roefer@tzi.de>
 greek           2.1.1                x          labels=2.1.3   Ioannis G. Baltopoulos <ioannis.baltopoulos@cl.cam.ac.uk>
 italian         2.0.5                x          only labels    Luzio Menna         <luzio@dazeroadieci.org> (or: Angelo Papadia: <angelo.papadia@libero.it>)
 japanese        1.3.5                           partially
