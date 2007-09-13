@@ -399,6 +399,7 @@ public final class MoeEditor extends JFrame
                     // backup
                     File crashFile = new File(crashFilename);
                     File backupFile = new File(backupFilename);
+                    backupFile.delete();
                     crashFile.renameTo(backupFile);
                 }
                 else {
