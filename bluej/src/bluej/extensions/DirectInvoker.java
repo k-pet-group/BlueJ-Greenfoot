@@ -17,7 +17,7 @@ import bluej.views.MethodView;
  * @author     Damiano Bolla, University of Kent at Canterbury, 2003,2004
  * @author     Clive Miller, University of Kent at Canterbury, 2002
  *
- * @version    $Id: DirectInvoker.java 4095 2006-05-05 13:45:01Z davmac $
+ * @version    $Id: DirectInvoker.java 5182 2007-09-14 15:29:41Z iau $
  */
 
 class DirectInvoker
@@ -144,11 +144,6 @@ class DirectInvoker
 
         if (watcher.isFailed()) {
             throw new InvocationErrorException("invokeMethod: Error=" + watcher.getError());
-        }
-
-        if (result == null) {
-            // This is most likely an error, but not of the sort above. Unlikely to happen
-            throw new InvocationErrorException("invokeMethod: ERROR: result==null");
         }
 
         // The "real" object is the first Field in this object.. BUT it is not always
