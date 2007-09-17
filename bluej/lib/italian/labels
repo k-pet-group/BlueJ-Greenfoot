@@ -1,7 +1,6 @@
 #
 # Traduzione a cura di Luzio Menna
-# Mail: luzio@dazeroadieci.org
-# URL: http://www.dazeroadieci.org
+# Mail: luzio@aruba.it
 #
 
 okay=Ok
@@ -342,6 +341,12 @@ pkgmgr.test.popup.createTest=Crea il metodo di test...
 pkgmgr.test.popup.benchToFixture=da Object Bench a Test Fixture
 pkgmgr.test.popup.fixtureToBench=da Test Fixture a Object Bench
 
+# codepad messages
+pkgmgr.codepad.uninitialized=Nota: Le variabili sono automaticamente inizializate\n come campi dell'istanza.
+pkgmgr.codepad.vmTerminated=Occore riavviare la VM
+# The "variable has already been defined" error message in the codepad. The '$' symbol will be
+# replaced by the name of the problematic variable.
+pkgmgr.codepad.redefinedVar=$ è gia definita
 
 # "new class" dialog
 pkgmgr.newClass.title=BlueJ:  Crea un nuova classe
@@ -554,17 +559,98 @@ menu.view.showTerminal=Terminale@T
 menu.view.showTextEval=Mostra il Code Pad@E
 menu.view.showTestDisplay=Mostra i _risultati dei test
 
-menu.group=Lavoro di _gruppo
-menu.group.make=Crea un package di gruppo
-menu.group.open=Apri un package di gruppo
-menu.group.updateSelected=Aggiorna selezionati
-menu.group.updateAll=Aggiorna tutto
-menu.group.commitSelected=Conferma per selezionati
-menu.group.commitAll=Conferma tutto
-menu.group.statusSelection=Stato della selezione
-menu.group.statusAll=Stato di tutto
-menu.group.users=Utenti
-menu.group.configuration=Configurazione
+team.project.marker=Progetti Condivisi
+team.commit=Pubblica@I
+team.menu.commit=Pubblica nel registro@I
+team.commit.title=Pubblica File nel Registro
+team.commit.files=Il files è stato pubblicato
+team.commit.comment=Pubblica commenti
+team.commit.layout=(Diagrammi Layout)
+team.commit.includelayout=Pubblica diagrammi layout
+team.commit.statusMessage=Pubblica progetto nel registro...
+team.commit.statusDone=Pubblicazione progetto nel registro... fatto.
+team.commit.moreFiles=(e più - controllare la condizione)
+team.update=Aggiorna@U
+team.menu.update=Aggiorna dal registro@U
+team.update.statusMessage=Aggiorna progetto...
+team.update.statusDone=Aggiornamento progetto... Fatto.
+team.update.title=Aggiorna file dal registro
+team.update.includelayout=Aggiorna diagrammi layout
+team.update.files=File da aggiornare
+team.checkout=Verifica progetto
+team.checkout.statusMessage=Verifica progetto condiviso
+team.history=Cronologia progetto
+team.history.title=Cronologia progetto
+team.history.filefilter=Mostra file:
+team.history.userfilter=Mostra utente:
+team.import=Condividi questo progetto
+team.import.statusMessage=Condividi questo progetto
+team.includeLayout=Includi diagrammi layout quando aggiorni
+team.settings=Impostazioni del team di lavoro
+team.status=Stato
+team.status.status=Stato team di lavoro
+team.status.resource=Risorse team
+team.status.version=Revisione
+team.status.refresh=Aggiornamento
+
+# The following appear in brackets after a filename, in the
+# update/commit dialogs.
+team.status.delete=cancella dal registro
+team.status.add=aggiungi al registro
+team.status.new=nuovo file
+team.status.removed=cancella
+team.status.needsmerge=confronta aggiornamenti
+
+team.nocommitfiles=No file pubblicati
+team.noupdatefiles=No file aggiornati
+
+team.statusinfo.upToDate=aggiornato
+team.statusinfo.needsCheckout=aggiunto al registro
+team.statusinfo.needsUpdate=Modificato nel registro
+team.statusinfo.removed=Rimosso dal registro
+team.statusinfo.needsAdd=Aggiunto in locale
+team.statusinfo.needsCommit=Modificato in locale
+team.statusinfo.deleted=Rimosso in locale
+team.statusinfo.needsMerge=Modificato in locale e nel registro
+team.statusinfo.unresolved=conflitto irrisolto
+team.statusinfo.hasConflicts=Ci sono conflitti
+team.statusinfo.weird=???
+team.statusinfo.conflictAdd=Aggiunto in locale e nel registro (conflitto)
+team.statusinfo.conflictLMRD=Modificato in locale e nel registro (conflitto)
+team.statusinfo.conflictLDRM=Rimosso in locale e nel registro (conflitto)
+
+team.settings.title = Impostazioni Team
+team.settings.personal=Personale
+team.settings.location=Ubicazione
+team.settings.user=Utente
+team.settings.password=Password
+team.settings.group=Gruppo
+team.settings.server=Server
+team.settings.prefix=Percorso del registro
+team.settings.ext=ext (usando SSH)
+team.settings.pserver=pserver
+team.settings.protocol=Protocollo
+team.settings.rememberSettings=Ricorda le impostazioni per i futuri progetti
+team.settings.checkConnection=Verifica connessione
+
+team.moduleselect.title=Seleziona progetto da verificare
+team.moduleselect.label=Seleziona o scegli il progetto:
+team.moduleselect.available=Progetti disponibili:
+team.moduleselect.show=Mostra
+
+team.checkingout=verifica progetto...
+team.checkedout=progetto verificato...
+team.checkout.filechooser.title=Scegli l'ubicazione per la verifica
+team.checkout.filechooser.button=Verifica
+
+team.import.initialMessage=Condivisione del progetto iniziata...
+
+team.sharing=Condivi progetto...
+team.shared=Progetto condiviso...
+
+team.checkconn.checking=Verifico connessione...
+team.checkconn.ok=Connessione è ok
+team.checkconn.bad=Impossibile connettersi al server
 
 menu.help=_Aiuto
 menu.help.about=_Informazioni su BlueJ
@@ -580,11 +666,15 @@ menu.help.standardApi=Librerie di classe _Java
 tooltip.newClass=Crea una nuova classe in questo package
 tooltip.newUses=Inserisci una relazione 'usa'
 tooltip.newExtends=Inserisci una relazione 'eredità'
+tooltip.test=Carica tutte le classi di test compilate di questo package
 tooltip.compile=Compila tutte le classi di questo package non compilate
 tooltip.test=Compila tutte le classi test del package
 tooltip.progress=Indicatore di esecuzione: indica quando la virtual machine è in esecuzione
 tooltip.test.end=Termina la registrazione di un metodo di test e lo salva.
 tooltip.test.cancel=Cancella ed elimina la registrazione di un metodo di test.
+tooltip.commit=Pubblica i cambiamenti locali nel registro
+tooltip.update=Aggiorna i file locali che sono stati modificati nel registro
+tooltip.status=Mostra lo stato deifile del progetto di tutto il team di lavoro
 
 #Copyright
 
