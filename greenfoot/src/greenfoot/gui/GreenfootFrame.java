@@ -55,7 +55,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5172 2007-08-31 03:26:59Z davmac $
+ * @version $Id: GreenfootFrame.java 5199 2007-09-24 04:55:26Z bquig $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener,
@@ -231,31 +231,31 @@ public class GreenfootFrame extends JFrame
      */
     public void openProject(final GProject project)
     {
-    	if (isClosedProject) {
-    		this.project = project;
+        if (isClosedProject) {
+            this.project = project;
             worldHandlerDelegate.attachProject(project);
-    		project.addCompileListener(this);
-    		setTitle("Greenfoot: " + project.getName());
-    		enableProjectActions();
-    		
-    		worldCanvas.setVisible(true);
+            project.addCompileListener(this);
+            setTitle("Greenfoot: " + project.getName());
+            enableProjectActions();
 
-    		// Class browser
-    		buildClassBrowser();
-    		populateClassBrowser(classBrowser, project);
-    		classBrowser.setVisible(true);
-    		classScrollPane.setViewportView(classBrowser);
-    		
-    		restoreFrameState();
-    		
-    		WorldHandler.getInstance().instantiateNewWorld();
+            worldCanvas.setVisible(true);
+
+            // Class browser
+            buildClassBrowser();
+            populateClassBrowser(classBrowser, project);
+            classBrowser.setVisible(true);
+            classScrollPane.setViewportView(classBrowser);
+
+            restoreFrameState();
+
+            WorldHandler.getInstance().instantiateNewWorld();
             worldHandlerDelegate.getWorldTitle().setVisible(true);
-    		if(needsResize()) {
-    			pack();
-    		}
-    		isClosedProject = false;
-    	}
-    }    
+            if (needsResize()) {
+                pack();
+            }
+            isClosedProject = false;
+        }
+    }
     
     /**
      * Calling this will make the current frame an empty frame.
@@ -272,7 +272,7 @@ public class GreenfootFrame extends JFrame
         repaint();
         isClosedProject = true;
     }
-    
+
     /**
      * Get the class browser currently embedded in this frame.
      */
@@ -502,12 +502,12 @@ public class GreenfootFrame extends JFrame
     {
         JMenuBar menuBar = new JMenuBar();
 
-        JMenu projectMenu = addMenu("Scenario", menuBar, 's');
+        JMenu projectMenu = addMenu(Config.getString("menu.scenario"), menuBar, 's');
         
         addMenuItem(NewProjectAction.getInstance(), projectMenu, -1, false, KeyEvent.VK_N);
         addMenuItem(OpenProjectAction.getInstance(), projectMenu, KeyEvent.VK_O, false, KeyEvent.VK_O);
         
-        recentProjectsMenu = new JMenu("Open recent");
+        recentProjectsMenu = new JMenu(Config.getString("menu.openRecent"));
         projectMenu.add(recentProjectsMenu);
         updateRecentProjects();
         
@@ -525,12 +525,12 @@ public class GreenfootFrame extends JFrame
             addMenuItem(QuitAction.getInstance(), projectMenu, KeyEvent.VK_Q, false, KeyEvent.VK_Q);
         }
         
-        JMenu editMenu = addMenu("Edit", menuBar, 'e');
+        JMenu editMenu = addMenu(Config.getString("menu.edit"), menuBar, 'e');
         
         addMenuItem(newClassAction, editMenu, KeyEvent.VK_N, false, KeyEvent.VK_N);
         addMenuItem(removeSelectedClassAction, editMenu, KeyEvent.VK_D, false, KeyEvent.VK_R);
         
-        JMenu ctrlMenu = addMenu("Controls", menuBar, 'c');
+        JMenu ctrlMenu = addMenu(Config.getString("menu.controls"), menuBar, 'c');
         
         addMenuItem(RunOnceSimulationAction.getInstance(), ctrlMenu, KeyEvent.VK_A, false, KeyEvent.VK_A);
         addMenuItem(RunSimulationAction.getInstance(), ctrlMenu, KeyEvent.VK_R, false, KeyEvent.VK_R);
@@ -540,19 +540,19 @@ public class GreenfootFrame extends JFrame
         ctrlMenu.addSeparator();
         addMenuItem(compileAllAction, ctrlMenu, KeyEvent.VK_K, false, -1);
         
-        JMenu helpMenu = addMenu("Help", menuBar, 'h');
+        JMenu helpMenu = addMenu(Config.getString("menu.help"), menuBar, 'h');
         
         if(! Config.isMacOS()) {
             addMenuItem(AboutGreenfootAction.getInstance(this), helpMenu, -1, false, KeyEvent.VK_A);
         }
         addMenuItem(ShowCopyrightAction.getInstance(this), helpMenu, -1, false, -1);
         helpMenu.addSeparator();
-        addMenuItem(new ShowWebsiteAction("Greenfoot Class Documentation", Config.getPropString("greenfoot.url.javadoc")), helpMenu, -1, false, -1);
-        addMenuItem(new ShowWebsiteAction("Java Library Documentation", Config.getPropString("greenfoot.url.javaStdLib")), helpMenu, -1, false, -1);
+        addMenuItem(new ShowWebsiteAction(Config.getString("menu.help.classDoc"), Config.getPropString("greenfoot.url.javadoc")), helpMenu, -1, false, -1);
+        addMenuItem(new ShowWebsiteAction(Config.getString("menu.help.javadoc"), Config.getPropString("greenfoot.url.javaStdLib")), helpMenu, -1, false, -1);
         helpMenu.addSeparator();
-        addMenuItem(new ShowWebsiteAction("Greenfoot Tutorial", Config.getPropString("greenfoot.url.tutorial")), helpMenu, -1, false, -1);
-        addMenuItem(new ShowWebsiteAction("Greenfoot Web Site", Config.getPropString("greenfoot.url.greenfoot")), helpMenu, -1, false, -1);
-        addMenuItem(new ShowWebsiteAction("Get more scenarios", Config.getPropString("greenfoot.url.scenarios")), helpMenu, -1, false, -1);
+        addMenuItem(new ShowWebsiteAction(Config.getString("menu.help.tutorial"), Config.getPropString("greenfoot.url.tutorial")), helpMenu, -1, false, -1);
+        addMenuItem(new ShowWebsiteAction(Config.getString("menu.help.website"), Config.getPropString("greenfoot.url.greenfoot")), helpMenu, -1, false, -1);
+        addMenuItem(new ShowWebsiteAction(Config.getString("menu.help.moreScenarios"), Config.getPropString("greenfoot.url.scenarios")), helpMenu, -1, false, -1);
         
         return menuBar;
     }
