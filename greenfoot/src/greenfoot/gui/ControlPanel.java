@@ -1,5 +1,6 @@
 package greenfoot.gui;
 
+import bluej.Config;
 import greenfoot.actions.PauseSimulationAction;
 import greenfoot.actions.ResetWorldAction;
 import greenfoot.actions.RunOnceSimulationAction;
@@ -28,7 +29,7 @@ import javax.swing.event.EventListenerList;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 5028 2007-04-27 12:19:29Z polle $
+ * @version $Id: ControlPanel.java 5200 2007-09-24 05:51:50Z bquig $
  */
 public class ControlPanel extends Box
     implements ChangeListener, SimulationListener
@@ -74,8 +75,10 @@ public class ControlPanel extends Box
         if (includeAllControls) {
             runOnceSimulationAction = RunOnceSimulationAction.getInstance();
             runOnceSimulationAction.attachSimulation(simulation);
-            runOnceSimulationAction.putValue(Action.LONG_DESCRIPTION, "Call 'act' once for every actor.");
-            runOnceSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Call 'act' once for every actor.");
+            runOnceSimulationAction.putValue(Action.LONG_DESCRIPTION, 
+                Config.getString("controls.runonce.longDescription"));
+            runOnceSimulationAction.putValue(Action.SHORT_DESCRIPTION, 
+                Config.getString("controls.runonce.shortDescription"));
             runOnceSimulationAction.setEnabled(false);
             AbstractButton stepButton = new JButton(runOnceSimulationAction);
 
@@ -84,17 +87,20 @@ public class ControlPanel extends Box
 
         runSimulationAction = RunSimulationAction.getInstance();
         runSimulationAction.attachSimulation(simulation);
-        runSimulationAction.putValue(Action.LONG_DESCRIPTION, "Run the simulation until stopped.");
-        runSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Run the simulation.");
+        runSimulationAction.putValue(Action.LONG_DESCRIPTION, 
+            Config.getString("controls.run.longDescription"));
+        runSimulationAction.putValue(Action.SHORT_DESCRIPTION, 
+            Config.getString("controls.run.shortDescription"));
         runSimulationAction.setEnabled(false);
         JButton runButton = new JButton(runSimulationAction);
         runButton.setFocusable(false);
 
         pauseSimulationAction = PauseSimulationAction.getInstance();
         pauseSimulationAction.attachSimulation(simulation);
-        pauseSimulationAction.putValue(Action.LONG_DESCRIPTION,
-                "Pause the simulation, leaving it in the current state.");
-        pauseSimulationAction.putValue(Action.SHORT_DESCRIPTION, "Pause the simulation.");
+        pauseSimulationAction.putValue(Action.LONG_DESCRIPTION, 
+            Config.getString("controls.pause.longDescription"));
+        pauseSimulationAction.putValue(Action.SHORT_DESCRIPTION, 
+            Config.getString("controls.pause.shortDescription"));
         pauseSimulationAction.setEnabled(false);
         JButton pauseButton = new JButton(pauseSimulationAction);
         pauseButton.setFocusable(false);
@@ -106,14 +112,14 @@ public class ControlPanel extends Box
                 return true;
             }
         };
-        runpauseContainer.add(runButton, "run");
-        runpauseContainer.add(pauseButton, "pause");
+        runpauseContainer.add(runButton, Config.getString("controls.run.button"));
+        runpauseContainer.add(pauseButton, Config.getString("controls.pause.button"));
         buttonPanel.add(runpauseContainer);
         
         
         resetWorldAction = ResetWorldAction.getInstance();
-        resetWorldAction.putValue(Action.LONG_DESCRIPTION, "Instantiate a new world.");
-        resetWorldAction.putValue(Action.SHORT_DESCRIPTION, "Instantiate a new world.");
+        resetWorldAction.putValue(Action.LONG_DESCRIPTION, Config.getString("controls.reset.longDescription"));
+        resetWorldAction.putValue(Action.SHORT_DESCRIPTION, Config.getString("controls.reset.shortDescription"));
         resetWorldAction.attachSimulation(simulation);
         resetWorldAction.setEnabled(false);
         AbstractButton resetButton = new JButton(resetWorldAction);
@@ -126,7 +132,7 @@ public class ControlPanel extends Box
     private JComponent createSpeedSlider()
     {
         JPanel speedPanel = new JPanel(new FlowLayout());
-        JLabel speedLabel = new JLabel("Speed:");
+        JLabel speedLabel = new JLabel(Config.getString("controls.speed.label"));
         speedPanel.add(speedLabel);
         
         int min = 0;
@@ -139,7 +145,7 @@ public class ControlPanel extends Box
         speedSlider.setValue( max / 2 );
         speedSlider.setEnabled(false);
         speedSlider.addChangeListener(this);
-        speedSlider.setToolTipText("Adjusts the execution speed");
+        speedSlider.setToolTipText(Config.getString("controls.speedSlider.tooltip"));
         speedSlider.setFocusable(false);
         speedPanel.add(speedSlider);
         
@@ -157,13 +163,13 @@ public class ControlPanel extends Box
             if(speedSlider != null) {
                 speedSlider.setEnabled(true);
             }
-            runpauseLayout.show(runpauseContainer, "pause");
+            runpauseLayout.show(runpauseContainer, Config.getString("controls.pause.button"));
         }
         else if (etype == SimulationEvent.STOPPED) {
             if(speedSlider != null) {
                 speedSlider.setEnabled(true);
             }
-            runpauseLayout.show(runpauseContainer, "run");
+            runpauseLayout.show(runpauseContainer, Config.getString("controls.run.button"));
         }
         else if (etype == SimulationEvent.CHANGED_SPEED) {
             if(speedSlider != null) {
