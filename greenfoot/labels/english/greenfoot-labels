@@ -1,5 +1,11 @@
-greenfoot.about=About Greenfoot...
+#beginning of i18n for greenfoot
+#many labels to add, may need renaming and restructuring
+
 greenfoot.nyi=Not Yet Implemented - sorry.
+greenfoot.preferences=Preferences...
+greenfoot.copyright=Copyright...
+greenfoot.quit=Quit
+
 project.close=Close
 
 compile.all=Compile all
@@ -10,8 +16,32 @@ new.project=New...
 new.subclass=New subclass...
 open.project=Open...
 open.recentProject=Open recent...
-
+remove.class=Remove
+remove.selected=Remove Class
+reset.world=Reset
+run.once=Act
+run.simulation=Run
+project.save=Save
+select.image=Set image...
+show.readme=Project Information
 export.project=Export...
+pause.simulation=Pause
+
+about.title=About Greenfoot
+
+# Simulation Control Panel
+controls.runonce.shortDescription=Call 'act' once for every actor.
+controls.runonce.longDescription=Call 'act' once for every actor.
+controls.run.shortDescription=Run the simulation.
+controls.run.longDescription=Run the simulation until stopped.
+controls.pause.shortDescription=Pause the simulation.
+controls.pause.longDescription=Pause the simulation, leaving it in the current state.
+controls.run.button=run
+controls.pause.button=pause
+controls.reset.shortDescription=Instantiate a new world.
+controls.reset.longDescription=Instantiate a new world.
+controls.speed.label=Speed:
+controls.speedSlider.tooltip=Adjusts the execution speed
 
 menu.openRecent=Open recent
 
@@ -22,6 +52,7 @@ menu.edit=Edit
 menu.controls=Controls
 
 menu.help=Help
+menu.help.about=About Greenfoot...
 menu.help.classDoc=Greenfoot Class Documentation
 menu.help.javadoc=Java Library Documentation
 menu.help.tutorial=Greenfoot Tutorial
