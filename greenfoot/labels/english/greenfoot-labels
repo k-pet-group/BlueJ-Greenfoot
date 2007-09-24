@@ -1,0 +1,30 @@
+greenfoot.about=About Greenfoot...
+greenfoot.nyi=Not Yet Implemented - sorry.
+project.close=Close
+
+compile.all=Compile all
+compile.class=Compile
+edit.class=Open editor
+new.class=New Class...
+new.project=New...
+new.subclass=New subclass...
+open.project=Open...
+open.recentProject=Open recent...
+
+export.project=Export...
+
+menu.openRecent=Open recent
+
+menu.scenario=Scenario
+
+menu.edit=Edit
+
+menu.controls=Controls
+
+menu.help=Help
+menu.help.classDoc=Greenfoot Class Documentation
+menu.help.javadoc=Java Library Documentation
+menu.help.tutorial=Greenfoot Tutorial
+menu.help.website=Greenfoot Web Site
+menu.help.moreScenarios=Get more scenarios
+ 
