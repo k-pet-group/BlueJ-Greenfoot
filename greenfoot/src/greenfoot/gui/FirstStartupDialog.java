@@ -17,6 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import bluej.BlueJTheme;
+import bluej.Config;
 
 /**
  * This is a dialog box presented to the user the very first time greenfoot is
@@ -52,9 +53,9 @@ public class FirstStartupDialog extends JDialog
         int spacingLarge = BlueJTheme.componentSpacingLarge;
         int spacingSmall = BlueJTheme.componentSpacingSmall;
         
-        String headerText = "Welcome to Greenfoot!";
-        String welcomeText = "Greenfoot lets you work on projects (also called 'scenarios'). To use Greenfoot, you first have to open an existing scenario, or create a new one. Several sample scenarios are included in a standard Greenfoot installlation.";
-        String questionText = "What would you like to do?";
+        String headerText = Config.getString("startup.header");
+        String welcomeText = Config.getString("startup.welcome");
+        String questionText = Config.getString("startup.question");
         
         //TODO maybe a nicely rendered image instead
         JLabel headerLabel = new JLabel(headerText);
@@ -84,10 +85,10 @@ public class FirstStartupDialog extends JDialog
         
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS)); //
-        JButton tutorialButton = new JButton("Open tutorial and tutorial scenario");
-        JButton openButton = new JButton("Choose a scenario");
-        JButton createButton = new JButton("Create a new scenario");
-        JButton continueButton = new JButton("Continue without scenario");       
+        JButton tutorialButton = new JButton(Config.getString("startup.tutorial.button"));
+        JButton openButton = new JButton(Config.getString("startup.open.button"));
+        JButton createButton = new JButton(Config.getString("startup.create.button"));
+        JButton continueButton = new JButton(Config.getString("startup.continue.button"));       
 
         getRootPane().setDefaultButton(tutorialButton);
         
