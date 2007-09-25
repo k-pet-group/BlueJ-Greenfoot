@@ -36,9 +36,9 @@ export.progress.writingJar=Writing jar file...
 export.progress.complete=Export complete.
 export.publish.complete=Publish complete
 
-
-
 about.title=About Greenfoot
+
+scenario.viewer.appletInfo=Applet generated with Greenfoot (www.greenfoot.org). Scenario name:
 
 # Simulation Control Panel
 controls.runonce.shortDescription=Call 'act' once for every actor.
@@ -53,6 +53,8 @@ controls.reset.shortDescription=Instantiate a new world.
 controls.reset.longDescription=Instantiate a new world.
 controls.speed.label=Speed:
 controls.speedSlider.tooltip=Adjusts the execution speed
+
+# Menus
 
 menu.openRecent=Open recent
 
