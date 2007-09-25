@@ -1,5 +1,6 @@
 package greenfoot.export;
 
+import bluej.Config;
 import greenfoot.World;
 import greenfoot.core.LocationTracker;
 import greenfoot.core.ProjectProperties;
@@ -287,7 +288,7 @@ public class GreenfootScenarioViewer extends JApplet
     public String getAppletInfo()
     {
         // provide information about the applet
-        return "Applet generated with Greenfoot (www.greenfoot.org). Scenario name: " + scenarioName; //"Title:   \nAuthor:   \nA simple applet example description. ";
+        return Config.getString("scenario.viewer.appletInfo") + " " + scenarioName; //"Title:   \nAuthor:   \nA simple applet example description. ";
     }
 
     /**
