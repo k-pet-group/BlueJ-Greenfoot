@@ -26,6 +26,7 @@ select.image=Set image...
 show.readme=Project Information
 pause.simulation=Pause
 
+# Export scenario dialog
 export.project=Export...
 export.progress.bundling=Bundling scenario...
 export.progress.publishing=Publishing...
@@ -35,6 +36,15 @@ export.progress.writingHTML=Writing web page...
 export.progress.writingJar=Writing jar file...
 export.progress.complete=Export complete.
 export.publish.complete=Publish complete
+
+# Initial startup dialog
+startup.header=Welcome to Greenfoot!
+startup.welcome=Greenfoot lets you work on projects (also called 'scenarios'). To use Greenfoot, you first have to open an existing scenario, or create a new one. Several sample scenarios are included in a standard Greenfoot installlation.
+startup.question=What would you like to do?
+startup.tutorial.button=Open tutorial and tutorial scenario
+startup.open.button=Choose a scenario
+startup.create.button=Create a new scenario
+startup.continue.button=Continue without scenario  
 
 about.title=About Greenfoot
 
