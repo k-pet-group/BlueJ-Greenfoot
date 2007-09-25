@@ -5,11 +5,12 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5144 2007-08-03 06:15:53Z davmac $
+ * @version $Id: Exporter.java 5203 2007-09-25 08:56:23Z bquig $
  */
 
 package greenfoot.export;
 
+import bluej.Config;
 import greenfoot.core.GProject;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.PublishEvent;
@@ -53,7 +54,7 @@ public class Exporter
     public void publishToWebServer(GProject project, ExportPublishPane pane, ExportDialog dlg)
     {
         this.dlg = dlg;
-        dlg.setProgress(true, "Bundling scenario...");
+        dlg.setProgress(true, Config.getString("export.progress.bundling"));
         
         //Create temporary jar        
         try {
@@ -105,16 +106,16 @@ public class Exporter
             webPublisher.addPublishListener(this);
         }
         
-        dlg.setProgress(true, "Publishing...");
+        dlg.setProgress(true, Config.getString("export.progress.publishing"));
         try {
             webPublisher.submit(host, login, password, scenarioName, tmpJarFile.getAbsolutePath());//TODO change so that it takes a File instead of String for the filename.
         }
         catch (UnknownHostException e) {
-            dlg.setProgress(false, "Publish failed: Unknown host (" + e.getMessage() + ")");
+            dlg.setProgress(false, Config.getString("export.progress.unknownHost") + " (" + e.getMessage() + ")");
             return;
         }
         catch (IOException e) {
-            dlg.setProgress(false, "Publish failed: " + e.getMessage());
+            dlg.setProgress(false, Config.getString("export.progress.fail") + " " + e.getMessage());
             return;
         }
     }
@@ -125,7 +126,7 @@ public class Exporter
     public void makeWebPage(GProject project, ExportWebPagePane pane, ExportDialog dlg)
     {
         this.dlg = dlg;
-        dlg.setProgress(true, "Writing web page...");
+        dlg.setProgress(true, Config.getString("export.progress.writingHTML"));
         File exportDir = new File(pane.getExportLocation());
         exportDir.mkdir();
 
@@ -149,7 +150,7 @@ public class Exporter
         String title = project.getName();
         File outputFile = new File(exportDir, htmlName);
         jarCreator.generateHTMLSkeleton(outputFile, title, size.width, size.height);
-        dlg.setProgress(false, "Export complete."); 
+        dlg.setProgress(false, Config.getString("export.progress.complete")); 
     }
         
     /**
@@ -157,7 +158,7 @@ public class Exporter
      */
     public void makeApplication(GProject project, ExportAppPane pane, ExportDialog dlg)
     {
-        dlg.setProgress(true, "Writing jar file...");
+        dlg.setProgress(true, Config.getString("export.progress.writingJar"));
         File exportFile = new File(pane.getExportName());
         File exportDir = exportFile.getParentFile();
         String jarName = exportFile.getName();
@@ -174,7 +175,7 @@ public class Exporter
         project.getProjectProperties().save();
         
         jarCreator.create();
-        dlg.setProgress(false, "Export complete."); 
+        dlg.setProgress(false, Config.getString("export.progress.complete")); 
     }
 
     /**
@@ -210,7 +211,7 @@ public class Exporter
     public void errorRecieved(PublishEvent event)
     {
         tmpJarFile.delete();
-        dlg.setProgress(false, "Publish failed: " + event.getMessage());
+        dlg.setProgress(false, Config.getString("export.publish.fail") + " " + event.getMessage());
     }
 
     /**
@@ -219,7 +220,7 @@ public class Exporter
     public void statusRecieved(PublishEvent event)
     {
         tmpJarFile.delete();
-        dlg.setProgress(false, "Publish complete.");
+        dlg.setProgress(false, Config.getString("export.publish.complete"));
     }
     
 }
