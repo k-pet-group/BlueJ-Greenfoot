@@ -1,5 +1,6 @@
 package greenfoot.gui.classbrowser;
 
+import bluej.Config;
 import greenfoot.core.GProject;
 import greenfoot.gui.classbrowser.role.ActorClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
@@ -26,7 +27,7 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 5159 2007-08-17 03:27:38Z davmac $
+ * @version $Id: ClassBrowser.java 5211 2007-09-26 01:46:07Z bquig $
  */
 public class ClassBrowser extends JPanel
 {
@@ -143,7 +144,7 @@ public class ClassBrowser extends JPanel
         ((FlowLayout)worldFrame.getLayout()).setAlignment(FlowLayout.LEFT);
         worldFrame.setBackground(Color.WHITE);
         worldFrame.add(worldClassPanel);
-        TitledBorder border = BorderFactory.createTitledBorder(null, "World classes");
+        TitledBorder border = BorderFactory.createTitledBorder(null, Config.getString("browser.border.world"));
         border.setTitleColor(Color.GRAY);
         worldFrame.setBorder(border);
 
@@ -158,7 +159,7 @@ public class ClassBrowser extends JPanel
             ((FlowLayout)objectFrame.getLayout()).setAlignment(FlowLayout.LEFT);
             objectFrame.setBackground(Color.WHITE);
             objectFrame.add(greenfootClassPanel);
-            border = BorderFactory.createTitledBorder(null, "Actor classes");
+            border = BorderFactory.createTitledBorder(null, Config.getString("browser.border.actors"));
             border.setTitleColor(Color.GRAY);
             objectFrame.setBorder(border);
 
@@ -173,7 +174,7 @@ public class ClassBrowser extends JPanel
                 ((FlowLayout)objectFrame.getLayout()).setAlignment(FlowLayout.LEFT);
                 objectFrame.setBackground(Color.WHITE);
                 objectFrame.add(otherClassPanel);
-                border = BorderFactory.createTitledBorder(null, "Other classes");
+                border = BorderFactory.createTitledBorder(null, Config.getString("browser.border.others"));
                 border.setTitleColor(Color.GRAY);
                 objectFrame.setBorder(border);
                 
