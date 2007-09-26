@@ -1,11 +1,9 @@
 package greenfoot.platforms.standalone;
 
-import greenfoot.Actor;
 import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
 import greenfoot.World;
 import greenfoot.core.ProjectProperties;
-import greenfoot.export.GreenfootScenarioViewer;
 import greenfoot.platforms.ActorDelegate;
 
 /**
