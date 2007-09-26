@@ -2,12 +2,13 @@
  * ExportWebPagePane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportWebPagePane.java 5027 2007-04-26 14:50:15Z mik $
+ * @version $Id: ExportWebPagePane.java 5218 2007-09-26 04:10:33Z bquig $
  */
 
 package greenfoot.gui.export;
 
 import bluej.BlueJTheme;
+import bluej.Config;
 import greenfoot.util.FileChoosers;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -27,8 +28,8 @@ public class ExportWebPagePane extends ExportPane
 {
     public static final String FUNCTION = "WEB";
     
-    private static final String helpLine1 = "Create a web page with an applet.";
-    private static final String exportLcoationLabelText = "Export location: ";
+    private static final String helpLine1 = Config.getString("export.web.help");
+    private static final String exportLocationLabelText = Config.getString("export.web.exportLocation");
 
     private JFileChooser fileChooser;
     private JTextField targetDirField;
@@ -81,18 +82,18 @@ public class ExportWebPagePane extends ExportPane
 
             JPanel exportLocationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
             {
-                JLabel exportLocationLabel = new JLabel(exportLcoationLabelText);
+                JLabel exportLocationLabel = new JLabel(exportLocationLabelText);
                 exportLocationPanel.add(exportLocationLabel);
 
                 exportLocationPanel.add(targetDirField);
 
-                JButton browse = new JButton("Browse");
+                JButton browse = new JButton(Config.getString("export.web.browse"));
                 exportLocationPanel.add(browse);
                 browse.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e)
                     {
                         File file = FileChoosers.getExportDir(ExportWebPagePane.this, defaultDir,
-                                                              "Choose Export Directory Name");
+                                                              Config.getString("export.web.choose"));
                         if(file != null) {
                             targetDirField.setText(file.getPath());
                         }
