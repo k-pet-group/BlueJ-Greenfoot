@@ -73,7 +73,15 @@ startup.question=What would you like to do?
 startup.tutorial.button=Open tutorial and tutorial scenario
 startup.open.button=Choose a scenario
 startup.create.button=Create a new scenario
-startup.continue.button=Continue without scenario  
+startup.continue.button=Continue without scenario
+
+# Image Lib Preview
+imagelib.title=Select class image: 
+imagelib.newClass=New class
+imagelib.projectImages=Project images:   
+imagelib.categories=Image Categories:   
+imagelib.images=Library images:
+imagelib.browse.button=Browse for more images ...
 
 about.title=About Greenfoot
 about.moreInfo=More information can be found at www.greenfoot.org
