@@ -10,7 +10,7 @@ import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
 
 /**
- * Inspector that updates the values in the inspector with a fixed tiemr
+ * Inspector that updates the values in the inspector with a fixed timer
  * interval.
  * 
  * @author Poul Henriksen
