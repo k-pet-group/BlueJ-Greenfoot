@@ -3,11 +3,12 @@
  * in the Export dialogue.
  *
  * @author Michael Kolling
- * @version $Id: ExportPane.java 5000 2007-04-24 17:04:35Z mik $
+ * @version $Id: ExportPane.java 5216 2007-09-26 02:30:02Z bquig $
  */
 
 package greenfoot.gui.export;
 
+import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import java.awt.FlowLayout;
 import java.util.List;
@@ -18,7 +19,7 @@ import javax.swing.JPanel;
 
 public abstract class ExportPane extends JPanel
 {
-    private static final String extraControlsLabelText = "Allow speed change and 'Act'";
+    private static final String extraControlsLabelText = Config.getString("export.controls.label");
 
     protected JCheckBox extraControls;
         
