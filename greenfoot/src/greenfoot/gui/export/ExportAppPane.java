@@ -7,12 +7,13 @@
  * and open the template in the editor.
 
  * @author Michael Kolling
- * @version $Id: ExportAppPane.java 5027 2007-04-26 14:50:15Z mik $
+ * @version $Id: ExportAppPane.java 5212 2007-09-26 02:17:06Z bquig $
  */
 
 package greenfoot.gui.export;
 
 import bluej.BlueJTheme;
+import bluej.Config;
 import greenfoot.util.FileChoosers;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -32,8 +33,8 @@ public class ExportAppPane extends ExportPane
 {
     public static final String FUNCTION = "APP";
     
-    private static final String helpLine1 = "Create an executable jar file that can be run on its own.";
-    private static final String exportLcoationLabelText = "Save to: ";
+    private static final String helpLine1 = Config.getString("export.app.help");
+    private static final String exportLocationLabelText = Config.getString("export.app.location");
 
     private JFileChooser fileChooser;
     private JTextField targetDirField;
@@ -79,12 +80,12 @@ public class ExportAppPane extends ExportPane
 
             JPanel exportLocationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
             {
-                JLabel exportLocationLabel = new JLabel(exportLcoationLabelText);
+                JLabel exportLocationLabel = new JLabel(exportLocationLabelText);
                 exportLocationPanel.add(exportLocationLabel);
 
                 exportLocationPanel.add(targetDirField);
 
-                JButton browse = new JButton("Browse");
+                JButton browse = new JButton(Config.getString("export.app.browse"));
                 exportLocationPanel.add(browse);
                 browse.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) { getFileName(targetFile); }
