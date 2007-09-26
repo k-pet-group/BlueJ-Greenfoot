@@ -13,7 +13,6 @@ import java.net.URL;
 import javax.swing.SwingUtilities;
 
 import rmiextension.RMIExtension;
-import bluej.Boot;
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
@@ -205,7 +204,6 @@ public class GreenfootLauncherBlueJVM
     {
         Thread t = new Thread() {
             public void run()  {
-                extension.waitUntilBlueJStarted();
                 // If no project is open now, we might want to open the startup project
                 File blueJLibDir = Config.getBlueJLibDir();
                 File startupProject = new File(blueJLibDir, STARTUP_PROJECT);

@@ -11,6 +11,8 @@ import bluej.Config;
 import bluej.extensions.BProject;
 import bluej.extensions.BlueJ;
 import bluej.extensions.Extension;
+import bluej.extensions.event.ApplicationEvent;
+import bluej.extensions.event.ApplicationListener;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.Debug;
 
@@ -20,9 +22,9 @@ import bluej.utility.Debug;
  * This is the starting point of greenfoot as a BlueJ Extension.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RMIExtension.java 5148 2007-08-06 08:35:21Z davmac $
+ * @version $Id: RMIExtension.java 5229 2007-09-26 05:22:19Z davmac $
  */
-public class RMIExtension extends Extension
+public class RMIExtension extends Extension implements ApplicationListener
 {
     private BlueJ theBlueJ;
 
@@ -47,7 +49,9 @@ public class RMIExtension extends Extension
             System.exit(1);
         }
 
-        GreenfootLauncherBlueJVM.getInstance().launch(this);
+        theBlueJ.addApplicationListener(this);
+        
+        //GreenfootLauncherBlueJVM.getInstance().launch(this);
     }
 
     /**
@@ -98,23 +102,6 @@ public class RMIExtension extends Extension
     }
 
     /**
-     * Waits for the packageMgrFrame to be ready. TODO this is not quite stable
-     * enough. Reinvestigate how to ensure BlueJ is properly started-
-     * 
-     */
-    public void waitUntilBlueJStarted()
-    {
-        while (PkgMgrFrame.getAllFrames() == null) {
-            try {
-                Thread.sleep(200);
-            }
-            catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    /**
      * This method must decide if this Extension is compatible with the current
      * release of the BlueJ Extensions API
      */
@@ -156,6 +143,13 @@ public class RMIExtension extends Extension
         catch (MalformedURLException e) {
             return null;
         }
+    }
+    
+    // ------------- ApplicationListener interface ------------
+    
+    public void blueJReady(ApplicationEvent event)
+    {
+        GreenfootLauncherBlueJVM.getInstance().launch(this);
     }
 
 }
