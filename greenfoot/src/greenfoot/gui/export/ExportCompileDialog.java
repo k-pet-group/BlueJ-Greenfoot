@@ -17,6 +17,7 @@ import javax.swing.WindowConstants;
 
 import rmiextension.wrappers.event.RCompileEvent;
 import bluej.BlueJTheme;
+import bluej.Config;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
 import java.awt.Dialog;
@@ -32,7 +33,7 @@ import java.awt.Frame;
 public class ExportCompileDialog extends EscapeDialog 
         implements CompileListener
 {
-    private String helpLine = "Not all the classes in the scenario are compiled. To continue with the export, compile the classes now.";
+    private String helpLine = Config.getString("export.compile.help");
     private boolean ok;
     private GProject project;
     
@@ -41,7 +42,7 @@ public class ExportCompileDialog extends EscapeDialog
      */
     public ExportCompileDialog(Dialog parent, GProject project)
     {
-        super(parent, "Project not compiled.", true);
+        super(parent, Config.getString("export.compile.notCompiled"), true);
         this.project = project;
         makeDialog();
     }
@@ -52,7 +53,7 @@ public class ExportCompileDialog extends EscapeDialog
      */
     public ExportCompileDialog(Frame parent, GProject project)
     {
-        super(parent, "Project not compiled.", true);
+        super(parent, Config.getString("export.compile.notCompiled"), true);
         this.project = project;
         makeDialog();
     }
