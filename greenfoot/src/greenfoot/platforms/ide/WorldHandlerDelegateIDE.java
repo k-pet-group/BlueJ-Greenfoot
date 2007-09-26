@@ -104,7 +104,7 @@ public class WorldHandlerDelegateIDE
         menu.add(m);
 
         // "remove" menu item
-        m = new JMenuItem("Remove");
+        m = new JMenuItem(Config.getString("world.handlerDelegate.remove"));
         m.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
@@ -123,7 +123,7 @@ public class WorldHandlerDelegateIDE
      */
     private JMenuItem getInspectMenuItem(final Object obj)
     {
-        JMenuItem m = new JMenuItem("Inspect");
+        JMenuItem m = new JMenuItem(Config.getString("world.handlerDelegate.inspect"));
         m.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
