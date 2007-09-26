@@ -7,14 +7,12 @@ package greenfoot.gui.export;
  * Currently hardcoded for one set of icons. Could be generalised if needed.
  *
  * @author Michael Kolling
- * @version $Id: TabbedIconPane.java 5015 2007-04-25 14:59:02Z polle $
+ * @version $Id: TabbedIconPane.java 5219 2007-09-26 04:23:24Z bquig $
  */
 
 import bluej.Config;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.FlowLayout;
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
@@ -29,7 +27,6 @@ import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 
 public class TabbedIconPane extends JPanel
         implements ActionListener
@@ -75,9 +72,9 @@ public class TabbedIconPane extends JPanel
 
         ButtonGroup group = new ButtonGroup();
 
-        JRadioButton toggle1 = makeButton("Publish", "export-publish", ExportPublishPane.FUNCTION, initialSelect, group, panel);
-        JRadioButton toggle2 = makeButton("Webpage", "export-webpage", ExportWebPagePane.FUNCTION, initialSelect, group, panel);
-        JRadioButton toggle3 = makeButton("Application", "export-app", ExportAppPane.FUNCTION, initialSelect, group, panel);
+        JRadioButton toggle1 = makeButton(Config.getString("export.icontab.publish"), "export-publish", ExportPublishPane.FUNCTION, initialSelect, group, panel);
+        JRadioButton toggle2 = makeButton(Config.getString("export.icontab.webpage"), "export-webpage", ExportWebPagePane.FUNCTION, initialSelect, group, panel);
+        JRadioButton toggle3 = makeButton(Config.getString("export.icontab.application"), "export-app", ExportAppPane.FUNCTION, initialSelect, group, panel);
 
         return panel;
     }
