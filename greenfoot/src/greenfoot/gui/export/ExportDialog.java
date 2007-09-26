@@ -1,7 +1,6 @@
 package greenfoot.gui.export;
 
 import greenfoot.core.GProject;
-import greenfoot.core.GreenfootMain;
 import greenfoot.export.Exporter;
 import greenfoot.gui.GreenfootFrame;
 
@@ -31,7 +30,7 @@ public class ExportDialog extends EscapeDialog
         implements TabbedIconPaneListener
 {
     // Internationalisation
-    private static final String dialogTitle ="Greenfoot: Export";
+    private static final String dialogTitle =Config.getString("export.dialog.title");
 
     private Frame parent;
     private GProject project;
@@ -280,7 +279,7 @@ public class ExportDialog extends EscapeDialog
             {
                 buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-                continueButton = new JButton("Export");
+                continueButton = new JButton(Config.getString("export.dialog.continue"));
                 continueButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent evt) { doOK(); }                
                 });
