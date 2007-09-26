@@ -7,7 +7,7 @@
  * and open the template in the editor.
 
  * @author Michael Kolling
- * @version $Id: ExportAppPane.java 5212 2007-09-26 02:17:06Z bquig $
+ * @version $Id: ExportAppPane.java 5213 2007-09-26 02:18:08Z bquig $
  */
 
 package greenfoot.gui.export;
@@ -20,7 +20,6 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.List;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
