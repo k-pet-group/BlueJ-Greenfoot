@@ -30,12 +30,41 @@ pause.simulation=Pause
 export.project=Export...
 export.progress.bundling=Bundling scenario...
 export.progress.publishing=Publishing...
-export.publish.fail=Publish failed:
-export.publish.unknownHost=Publish failed: Unknown host
 export.progress.writingHTML=Writing web page...
 export.progress.writingJar=Writing jar file...
 export.progress.complete=Export complete.
+export.publish.fail=Publish failed:
+export.publish.unknownHost=Publish failed: Unknown host
 export.publish.complete=Publish complete
+export.app.help=Create an executable jar file that can be run on its own.
+export.app.location=Save to: 
+export.app.browse=Browse
+export.compile.help=Not all the classes in the scenario are compiled. To continue with the export, compile the classes now.
+export.compile.notCompiled=Project not compiled.
+export.dialog.title=Greenfoot: Export
+export.dialog.continue=Export
+export.controls.label=Allow speed change and 'Act'
+export.publish.help=Publish the scenario to MyGame (mygame.java.sun.com).
+export.publish.info=Information for display on MyGame (optional)
+export.publish.shortDescription=A one-line scenario description:
+export.publish.longDescription=A slightly longer scenario description:
+export.publish.url=Your own web page (a URL):
+export.publish.login=Login information
+export.publish.username=Username:
+export.publish.password=Password:
+export.publish.createAccount=To create an account,
+export.publish.goToMyGame=go to MyGame.
+export.publish.goTo=Go to
+export.web.help=Create a web page with an applet.
+export.web.exportLocation=Export location: 
+export.web.browse=Browse
+export.web.choose=Choose Export Directory Name
+export.icontab.publish=Publish
+export.icontab.webpage=Webpage
+export.icontab.application=Application
+
+world.handlerDelegate.inspect=Inspect
+world.handlerDelegate.remove=Remove
 
 # Initial startup dialog
 startup.header=Welcome to Greenfoot!
@@ -47,6 +76,7 @@ startup.create.button=Create a new scenario
 startup.continue.button=Continue without scenario  
 
 about.title=About Greenfoot
+about.moreInfo=More information can be found at www.greenfoot.org
 
 scenario.viewer.appletInfo=Applet generated with Greenfoot (www.greenfoot.org). Scenario name:
 
@@ -63,6 +93,11 @@ controls.reset.shortDescription=Instantiate a new world.
 controls.reset.longDescription=Instantiate a new world.
 controls.speed.label=Speed:
 controls.speedSlider.tooltip=Adjusts the execution speed
+
+# Class browser
+browser.border.world=World classes
+browser.border.actors=Actor classes
+browser.border.others=Other classes
 
 # Menus
 
