@@ -2,7 +2,7 @@
  * ExportPublishPane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 5029 2007-04-27 13:47:36Z mik $
+ * @version $Id: ExportPublishPane.java 5217 2007-09-26 03:36:34Z bquig $
  */
 
 package greenfoot.gui.export;
@@ -40,7 +40,7 @@ public class ExportPublishPane extends ExportPane
     private static final String serverURL = Config.getPropString("greenfoot.gameserver.address", "http://stompt.org");
     private static final String serverName = Config.getPropString("greenfoot.gameserver.name", "stompt.org");
     
-    private static final String helpLine1 = "Publish the scenario to MyGame (mygame.java.sun.com).";
+    private static final String helpLine1 = Config.getString("export.publish.help");
     
     private JTextField shortDescriptionField;
     private JTextArea descriptionArea;
@@ -129,21 +129,21 @@ public class ExportPublishPane extends ExportPane
                                 BorderFactory.createEmptyBorder(12, 12, 12, 12));
             infoPanel.setBorder(border);
                 
-            JLabel text = new JLabel("Information for display on MyGame (optional)");
+            JLabel text = new JLabel(Config.getString("export.publish.info"));
             text.setForeground(headingColor);
             infoPanel.add(text, BorderLayout.NORTH); 
 
             JPanel dataPanel = new JPanel(new MiksGridLayout(3, 2, 8, 8));
             {
                 dataPanel.setBackground(background);
-                text = new JLabel("A one-line scenario description:", SwingConstants.TRAILING);
+                text = new JLabel(Config.getString("export.publish.shortDescription"), SwingConstants.TRAILING);
                 text.setFont(smallFont);
                 dataPanel.add(text);
 
                 shortDescriptionField = new JTextField();
                 dataPanel.add(shortDescriptionField);
 
-                text = new JLabel("A slightly longer scenario description:", SwingConstants.TRAILING);
+                text = new JLabel(Config.getString("export.publish.longDescription"), SwingConstants.TRAILING);
                 text.setVerticalAlignment(SwingConstants.TOP);
                 text.setFont(smallFont);
                 dataPanel.add(text);
@@ -153,7 +153,7 @@ public class ExportPublishPane extends ExportPane
                 JScrollPane description = new JScrollPane(descriptionArea);
                 dataPanel.add(description);
 
-                text = new JLabel("Your own web page (a URL):", SwingConstants.TRAILING);
+                text = new JLabel(Config.getString("export.publish.url"), SwingConstants.TRAILING);
                 text.setFont(smallFont);
                 dataPanel.add(text);
 
@@ -176,7 +176,7 @@ public class ExportPublishPane extends ExportPane
                                 BorderFactory.createEmptyBorder(12, 12, 12, 12));
             loginPanel.setBorder(border);
 
-            JLabel text = new JLabel("Login information");
+            JLabel text = new JLabel(Config.getString("export.publish.login"));
             text.setForeground(headingColor);
             text.setVerticalAlignment(SwingConstants.TOP);
             loginPanel.add(text, BorderLayout.WEST); 
@@ -184,12 +184,12 @@ public class ExportPublishPane extends ExportPane
             JPanel dataPanel = new JPanel(new MiksGridLayout(2, 2, 8, 8));
             {
                 dataPanel.setBackground(background);
-                text = new JLabel("Username:", SwingConstants.TRAILING);
+                text = new JLabel(Config.getString("export.publish.username"), SwingConstants.TRAILING);
                 text.setFont(smallFont);
                 dataPanel.add(text);
                 userNameField = new JTextField(10);
                 dataPanel.add(userNameField);
-                text = new JLabel("Password:", SwingConstants.TRAILING);
+                text = new JLabel(Config.getString("export.publish.password"), SwingConstants.TRAILING);
                 text.setFont(smallFont);
                 dataPanel.add(text);
                 passwordField = new JPasswordField(10);
@@ -197,9 +197,9 @@ public class ExportPublishPane extends ExportPane
             }
             loginPanel.add(dataPanel, BorderLayout.CENTER);
                 
-            MultiLineLabel helptext = new MultiLineLabel("To create an account,");
+            MultiLineLabel helptext = new MultiLineLabel(Config.getString("export.publish.createAccount"));
             helptext.setBackground(background);
-            helptext.addText("go to MyGame.");
+            helptext.addText(Config.getString("export.publish.goToMyGame"));
             helptext.setForeground(headingColor);
             loginPanel.add(helptext, BorderLayout.EAST);     
         }
@@ -213,7 +213,7 @@ public class ExportPublishPane extends ExportPane
 
             JPanel urlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             {
-                urlPanel.add(new JLabel("Go to"));
+                urlPanel.add(new JLabel(Config.getString("export.publish.goTo")));
                 JLabel urlLabel = new JLabel(serverName);
                 {
                     urlLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
