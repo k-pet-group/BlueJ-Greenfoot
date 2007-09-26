@@ -97,8 +97,6 @@ public class WorldHandlerDelegateIDE
         ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj, this, frame, project),
                 LocalObject.getLocalObject(obj), null);
 
-        menu.addSeparator();
-
         // "inspect" menu item
         JMenuItem m = getInspectMenuItem(obj);
         m.setFont(PrefMgr.getStandoutMenuFont());
