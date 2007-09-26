@@ -59,7 +59,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 5154 2007-08-10 07:02:51Z davmac $
+ * @version $Id: ImageLibFrame.java 5231 2007-09-26 12:57:47Z bquig $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -97,7 +97,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     public ImageLibFrame(JFrame owner, ClassView classView)
     {
         // TODO i18n
-        super(owner, "Select class image: " + classView.getClassName(), true);
+        super(owner, Config.getString("imagelib.title") + classView.getClassName(), true);
         // setIconImage(BlueJTheme.getIconImage());
         
         this.gclass = classView.getGClass();
@@ -128,7 +128,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
      */
     public ImageLibFrame(JFrame owner, GClass superClass)
     {
-        super(owner, "New class", true);
+        super(owner, Config.getString("imagelib.newClass"), true);
         
         defaultIcon = getClassIcon(superClass, getPreviewIcon(new File(GreenfootUtil.getGreenfootLogoPath())));
         showingGeneratedImage = false;
@@ -168,7 +168,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             {
                 Box piPanel = new Box(BoxLayout.Y_AXIS);
                 
-                JLabel piLabel = new JLabel("Project images:");
+                JLabel piLabel = new JLabel(Config.getString("imagelib.projectImages"));
                 piLabel.setAlignmentX(0.0f);
                 piPanel.add(piLabel);
                 
@@ -198,7 +198,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             {
                 Box piPanel = new Box(BoxLayout.Y_AXIS);
                 
-                JLabel piLabel = new JLabel("Image Categories:   ");
+                JLabel piLabel = new JLabel(Config.getString("imagelib.categories"));
                 piLabel.setAlignmentX(0.0f);
                 piPanel.add(piLabel);
                 
@@ -222,7 +222,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             {
                 Box piPanel = new Box(BoxLayout.Y_AXIS);
                 
-                JLabel piLabel = new JLabel("Library images:");
+                JLabel piLabel = new JLabel(Config.getString("imagelib.images"));
                 piLabel.setAlignmentX(0.0f);
                 piPanel.add(piLabel);
                 
@@ -248,7 +248,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         }
 
         // Browse button. Select image file from arbitrary location.
-        JButton browseButton = new JButton("Browse for more images ...");
+        JButton browseButton = new JButton(Config.getString("imagelib.browse.button"));
         browseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
             {
