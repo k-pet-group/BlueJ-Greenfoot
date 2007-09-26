@@ -284,7 +284,6 @@ public class WorldHandlerDelegateIDE
                             ObjectWrapper.createMethodMenuItems(menu, newWorld.getClass(), new WorldInvokeListener(
                                     newWorld, WorldHandlerDelegateIDE.this, frame, project), LocalObject
                                     .getLocalObject(newWorld), null);
-                            menu.addSeparator();
                             // "inspect" menu item
                             JMenuItem m = getInspectMenuItem(newWorld);
                             menu.add(m);
