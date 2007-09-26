@@ -2,9 +2,7 @@ package greenfoot.platforms.ide;
 
 import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
-import greenfoot.World;
 import greenfoot.core.GProject;
-import greenfoot.core.WorldHandler;
 import greenfoot.platforms.ActorDelegate;
 
 /**
