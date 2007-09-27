@@ -5,6 +5,14 @@ greenfoot.nyi=Not Yet Implemented - sorry.
 greenfoot.preferences=Preferences...
 greenfoot.copyright=Copyright...
 greenfoot.quit=Quit
+greenfoot.continue=Continue
+greenfoot.cancel=Cancel
+
+
+# Greenfoot project version info
+project.version.none=The scenario that you are trying to open appears to be an old greenfoot scenario (before greenfoot version 0.5). This will most likely result in some errors that will have to be fixed manually.
+project.version.notGreenfoot=This is not a Greenfoot scenario: 
+project.version.mismatch=Versions do not match
 
 project.close=Close
 
