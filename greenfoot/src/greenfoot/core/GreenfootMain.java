@@ -43,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 5170 2007-08-27 05:15:03Z davmac $
+ * @version $Id: GreenfootMain.java 5235 2007-09-27 02:21:19Z bquig $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -101,8 +101,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     };
     
     private ClassLoader currentLoader;
-
     
+  
     // ----------- static methods ------------
 
     /**
@@ -511,9 +511,9 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         }
 
         if (projectVersion == Version.NO_VERSION) {
-            String message = "The scenario that you are trying to open appears to be an old greenfoot scenario (before greenfoot version 0.5). This will most likely result in some errors that will have to be fixed manually.";
-            JButton continueButton = new JButton("Continue");
-            MessageDialog dialog = new MessageDialog(parent, message, "Versions do not match", 50,
+            String message = Config.getString("project.version.none");
+            JButton continueButton = new JButton(Config.getString("greenfoot.continue"));
+            MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 50,
                     new JButton[]{continueButton});
             dialog.displayModal();
             System.out.println(message);
@@ -525,7 +525,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     + "). The scenario will be updated to the current version (API version " + apiVersion
                     + "), but it might require some manual fixing of errors due to API changes.";
             JButton continueButton = new JButton("Continue");
-            MessageDialog dialog = new MessageDialog(parent, message, "Versions do not match", 50,
+            MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 50,
                     new JButton[]{continueButton});
             dialog.displayModal();
             GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties);
@@ -538,9 +538,9 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     + "some errors that will have to be fixed manually." + "\n \n"
                     + "Do you want to continue opening the scenario?";
 
-            JButton cancelButton = new JButton("Cancel");
-            JButton continueButton = new JButton("Continue");
-            MessageDialog dialog = new MessageDialog(parent, message, "Versions do not match", 50, new JButton[]{
+            JButton cancelButton = new JButton(Config.getString("greenfoot.cancel"));
+            JButton continueButton = new JButton(Config.getString("greenfoot.continue"));
+            MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 50, new JButton[]{
                     continueButton, cancelButton});
             JButton pressed = dialog.displayModal();
             if (pressed == cancelButton) {
@@ -552,9 +552,9 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             }
         }
         else {
-            String message = "This is not a Greenfoot scenario: " + projectDir;
-            JButton continueButton = new JButton("Continue");
-            MessageDialog dialog = new MessageDialog(parent, message, "Versions do not match", 50,
+            String message = Config.getString("project.version.notGreenfoot") + projectDir;
+            JButton continueButton = new JButton(Config.getString("greenfoot.continue"));
+            MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 50,
                     new JButton[]{continueButton});
             dialog.displayModal();
             return VERSION_BAD;
