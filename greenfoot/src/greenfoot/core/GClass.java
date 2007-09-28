@@ -1,5 +1,6 @@
 package greenfoot.core;
 
+import bluej.Config;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.util.GreenfootUtil;
 
@@ -425,7 +426,7 @@ public class GClass
         }
         catch (ProjectNotOpenException e) {}
         catch (ClassNotFoundException e) {}
-        return "Error getting real toString. super: " + super.toString();
+        return Config.getString("gclass.tostring.error") + super.toString();
     }
 
     /**
