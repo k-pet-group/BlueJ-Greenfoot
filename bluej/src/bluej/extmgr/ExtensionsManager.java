@@ -21,7 +21,7 @@ import javax.swing.*;
  * @author Damiano Bolla, University of Kent at Canterbury, 2003
  * @author Michael Kolling
  * 
- * @version $Id: ExtensionsManager.java 2768 2004-07-09 07:38:48Z mik $
+ * @version $Id: ExtensionsManager.java 5242 2007-10-01 02:11:51Z davmac $
  */
 public class ExtensionsManager
     implements BlueJEventListener
@@ -340,7 +340,7 @@ public class ExtensionsManager
     }
 
     /**
-     * This is called back when some sort of event occours. Depending on the
+     * This is called back when some sort of event occurs. Depending on the
      * event we will send it up adapted to the extension.
      * 
      * @param eventId
@@ -354,11 +354,6 @@ public class ExtensionsManager
         if (eventId == BlueJEvent.EXECUTION_RESULT) {
             ExecutionEvent exevent = (ExecutionEvent) arg;
             delegateEvent(new InvocationEvent(exevent));
-            return;
-        }
-
-        if (eventId == BlueJEvent.CREATE_VM_DONE) {
-            delegateEvent(new ApplicationEvent(ApplicationEvent.APP_READY_EVENT));
             return;
         }
     }
