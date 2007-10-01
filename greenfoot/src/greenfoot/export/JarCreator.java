@@ -145,6 +145,30 @@ public class JarCreator
         properties.put("project.name", scenarioName);
         properties.put("main.class", worldClass);
         properties.put("controls.extra", "" + includeExtraControls);
+        
+        properties.put("scenario.viewer.appletInfo", Config.getString("scenario.viewer.appletInfo"));
+        properties.put("run.once", Config.getString("run.once"));
+        properties.put("run.simulation", Config.getString("run.simulation"));
+//        properties.put("scenario.viewer.appletInfo", Config.getString("scenario.viewer.appletInfo"));
+//        properties.put("scenario.viewer.appletInfo", Config.getString("scenario.viewer.appletInfo"));
+//        properties.put("scenario.viewer.appletInfo", Config.getString("scenario.viewer.appletInfo"));
+//        controls.runonce.longDescription
+//        controls.runonce.shortDescription
+//        controls.run.longDescription
+//        controls.run.shortDescription
+//        controls.pause.longDescription
+//        controls.pause.shortDescription
+//        controls.run.button
+//        controls.pause.button
+//        controls.reset.longDescription
+//        controls.reset.shortDescription
+//        controls.speed.label
+//        controls.speedSlider.tooltip
+//        pause.simulation
+//        reset.world
+            
+            
+        
     }
     
     /**
