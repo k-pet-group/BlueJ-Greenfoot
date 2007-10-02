@@ -504,6 +504,9 @@ team.status.status=Status
 team.status.resource=Gemeinsame Dateien
 team.status.version=Revision
 team.status.refresh=Neu anzeigen
+team.conflicts.title=Konflikte gefunden
+team.conflicts.classes=Die folgenden Klassen haben Konflikte
+team.conflicts.show=Zeige Konflikte
 
 # The following appear in brackets after a filename, in the
 # update/commit dialogs.
@@ -598,4 +601,4 @@ about.javahome=Java-Heimverzeichnis\:
 about.logfile=Debug-Protokolldatei\:
 about.moreInfo=Mehr Informationen gibt es unter www.bluej.org.
 about.theTeam=Das BlueJ-Team\:
-workIndicator.resetMachine=Virtuelle Maschine zur\u00FCcksetzen@^R=
+workIndicator.resetMachine=Virtuelle Maschine zur\u00FCcksetzen@^R

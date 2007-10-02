@@ -595,6 +595,9 @@ team.status.status=Teamwork status
 team.status.resource=Team resources
 team.status.version=Revision
 team.status.refresh=Refresh
+team.conflicts.title=Conflicts found
+team.conflicts.classes=The following classes had conflicts
+team.conflicts.show=Show conflicts
 
 # The following appear in brackets after a filename, in the
 # update/commit dialogs.

@@ -49,16 +49,16 @@ public class ConflictsDialog extends JDialog
         this.project = project;
         this.bluejConflicts = bluejConflicts;
         this.nonBluejConflicts = nonBlueJConflicts;
-        setTitle("Conflicts found");
+        setTitle(Config.getString("team.conflicts.title"));
         makeWindow();
     }
 
     private void makeWindow()
     {
         JPanel mainPanel = new JPanel();
-        JPanel bluejConflictsPanel = makeConflictsPanel("The following classes had conflicts",
+        JPanel bluejConflictsPanel = makeConflictsPanel(Config.getString("team.conflicts.classes"),
                 bluejConflicts);
-        JPanel nonBluejConflictsPanel = makeConflictsPanel("The following files had conflicts",
+        JPanel nonBluejConflictsPanel = makeConflictsPanel(Config.getString("team.conflicts.classes"),
                 nonBluejConflicts);
         JPanel buttonPanel = makeButtonPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -135,7 +135,7 @@ public class ConflictsDialog extends JDialog
             buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 
             //close button
-            JButton closeButton = new JButton("Close");
+            JButton closeButton = new JButton(Config.getString("close"));
             closeButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent evt)
                     {
@@ -144,7 +144,7 @@ public class ConflictsDialog extends JDialog
                 });
 
             //resolve button
-            JButton resolveButton = new JButton("Show conflicts");
+            JButton resolveButton = new JButton(Config.getString("team.conflicts.show"));
             resolveButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent evt)
                     {
