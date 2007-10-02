@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import bluej.BlueJTheme;
+import bluej.Config;
 import bluej.utility.EscapeDialog;
 
 /**
@@ -31,7 +32,7 @@ public class NewClassDialog extends EscapeDialog
 
     public NewClassDialog(JFrame parent)
     {
-        super(parent, "Create new class", true);
+        super(parent, Config.getString("newclass.dialog.title"), true);
 
         JPanel mainPanel = new JPanel();
         setContentPane(mainPanel);
@@ -42,8 +43,8 @@ public class NewClassDialog extends EscapeDialog
         // help labels
         JLabel helpLabel1 = GreenfootUtil.createHelpLabel();
         JLabel helpLabel2 = GreenfootUtil.createHelpLabel();
-        helpLabel1.setText("A class name cannot contain spaces or punctuation ");
-        helpLabel2.setText("characters and should start with a capital letter.");
+        helpLabel1.setText(Config.getString("newclass.dialog.help1"));
+        helpLabel2.setText(Config.getString("newclass.dialog.help2"));
         helpLabel1.setAlignmentX(0.0f);
         helpLabel2.setAlignmentX(0.0f);
         mainPanel.add(helpLabel1);
@@ -51,7 +52,7 @@ public class NewClassDialog extends EscapeDialog
         mainPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
         mainPanel.add(GreenfootUtil.createSpacer(GreenfootUtil.Y_AXIS, 2 * BlueJTheme.generalSpacingWidth));
         
-        JLabel label = new JLabel("New class name: ");
+        JLabel label = new JLabel(Config.getString("newclass.dialog.className"));
         label.setAlignmentX(0.0f);
         mainPanel.add(label);
         
