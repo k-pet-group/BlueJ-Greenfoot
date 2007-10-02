@@ -1,5 +1,7 @@
 package greenfoot.event;
 
+import bluej.Config;
+
 /**
  * Event from publishing a scenario.
  * 
@@ -41,9 +43,9 @@ public class PublishEvent
     {
         String s = super.toString() + " [";
         if (type == ERROR)
-            s += "Error: ";
+            s += Config.getString("publish.event.error");
         else if (type == STATUS)
-            s += "Status: ";
+            s += Config.getString("publish.event.status");
         s += msg + "]";
         return s;
     }
