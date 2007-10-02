@@ -13,7 +13,7 @@ import javax.swing.*;
  * internationalised, using BlueJ's langauage library system.
  *
  * @author Michael Kolling
- * @version $Id: DialogManager.java 4843 2007-03-15 01:20:24Z davmac $
+ * @version $Id: DialogManager.java 5247 2007-10-02 02:32:31Z bquig $
  */
 public class DialogManager
 {
@@ -218,25 +218,25 @@ public class DialogManager
      * 
      * @return The string supplied by the user, or null if the dialog was cancelled.
      */
-	public static String askString(Component parent, String msgID, String defaultText)
-	{
-		String response = "";
-		String message = getMessage(msgID);
-		if(message != null) {
-			int defaultTextIndex = message.lastIndexOf("\n");
-			int titleIndex = message.lastIndexOf("\n", defaultTextIndex-1);
-			String title = message.substring(titleIndex+1, defaultTextIndex);
-			message = message.substring(0, titleIndex);
-			response = (String)JOptionPane.showInputDialog(parent,
-														   message,
-														   title,
-														   JOptionPane.PLAIN_MESSAGE,
-														   null,
-														   null,
-														   defaultText);
-		}
-		return response;
-	}
+    public static String askString(Component parent, String msgID, String defaultText)
+    {
+        String response = "";
+        String message = getMessage(msgID);
+        if (message != null) {
+            int defaultTextIndex = message.lastIndexOf("\n");
+            int titleIndex = message.lastIndexOf("\n", defaultTextIndex - 1);
+            String title = message.substring(titleIndex + 1, defaultTextIndex);
+            message = message.substring(0, titleIndex);
+            response = (String) JOptionPane.showInputDialog(parent,
+                                                            message,
+                                                            title,
+                                                            JOptionPane.PLAIN_MESSAGE,
+                                                            null,
+                                                            null,
+                                                            defaultText);
+        }
+        return response;
+    }
 
     /**
      * Support routine for dialogues. Read the message text out of the
@@ -247,18 +247,16 @@ public class DialogManager
         File filename = Config.getLanguageFile(DLG_FILE_NAME);
         String message = BlueJFileReader.readHelpText(filename, msgID, true);
         // check that message has been found, some messages may be missing
-        // in non-default language resource files.  If not found and not using 
+        // in non-default language resource files.  If not found and not using
         // English, then use the default English message
-        if(message == null && (!Config.language.equals(Config.DEFAULT_LANGUAGE))) {
-			filename = Config.getDefaultLanguageFile(DLG_FILE_NAME);
-			message = BlueJFileReader.readHelpText(filename, msgID, true);
+        if (message == null && (!Config.language.equals(Config.DEFAULT_LANGUAGE))) {
+            filename = Config.getDefaultLanguageFile(DLG_FILE_NAME);
+            message = BlueJFileReader.readHelpText(filename, msgID, true);
         }
         // if we still can't find it, there's something wrong...
-		if(message == null)
-            JOptionPane.showMessageDialog(null,
-                                          "BlueJ configuration problem:\n" +
-                                          "text not found for message ID\n" +
-                                          msgID);
+        if (message == null) {
+            JOptionPane.showMessageDialog(null, "BlueJ configuration problem:\n" + "text not found for message ID\n" + msgID);
+        }
         return message;
     }
 
