@@ -55,10 +55,14 @@ public class PropParser
                             }
                         }
                     }
-                    else {
+                    else if (isNameChar(cc)) {
                         // a variable name on its own
                         iter.backup();
                         processVar(iter, outBuffer, subvars, depth);
+                    }
+                    else {
+                        outBuffer.append('$');
+                        outBuffer.append(cc);
                     }
                 }
                 else {
@@ -71,12 +75,17 @@ public class PropParser
         }
     }
     
+    /**
+     * Check whether the given character is likely to be part of a property
+     * name. (Most punctuation marks are excluded).
+     */
     private static boolean isNameChar(char cc)
     {
         if (Character.isWhitespace(cc)) {
             return false;
         }
-        if (cc == '/' || cc == '\\' || cc == '{' || cc == '}' || cc == '\"' || cc == '$') {
+        if (cc == '/' || cc == '\\' || cc == '{' || cc == '}' || cc == '\"'
+            || cc == '$' || cc == '(' || cc == ')' || cc == ' ') {
             return false;
         }
         if (cc == ',') {
@@ -95,6 +104,8 @@ public class PropParser
                 varNameBuf.append(cc);
             }
             else if (cc == '$' && iter.hasNext()) {
+                // '$' can be used to escape non-name characters, so that they can
+                // be used in a property name.
                 cc = iter.next();
                 varNameBuf.append(cc);
             }
