@@ -21,7 +21,7 @@ import bluej.utility.Debug;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: BlueJRMIServer.java 5148 2007-08-06 08:35:21Z davmac $
+ * @version $Id: BlueJRMIServer.java 5268 2007-10-03 18:32:44Z polle $
  */
 public class BlueJRMIServer
 {
@@ -48,6 +48,16 @@ public class BlueJRMIServer
             throw new IllegalStateException("Registry not started.");
         }
         return "//" + HOST + ":" + port + "/" + BLUEJ_SERVICE;
+    }
+    
+    /**
+     * Make sure that the localhost is used for the server. If this is not done,
+     * RMI will use the outgoing IP address if there is one, and loosing this IP
+     * address will make RMI calls impossible and hence lock up Greenfoot.
+     */
+    public static void forceHostForServer()
+    {
+        System.setProperty("java.rmi.server.hostname", HOST);
     }
 
     /**
@@ -91,6 +101,7 @@ public class BlueJRMIServer
     private void startRegistry()
         throws IOException
     {
+        forceHostForServer();
         boolean success = false;
         while (!success && registryStartAttempts < MAX_REGISTRY_START_ATTEMPTS) {
             try {
