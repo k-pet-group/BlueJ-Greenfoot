@@ -27,7 +27,7 @@ public class GreenfootLauncherDebugVM
 {
     public GreenfootLauncherDebugVM(String prjDir, String pkgName, String rmiServiceName)
     {
-        BlueJRMIClient client = new BlueJRMIClient(prjDir, pkgName, rmiServiceName);
+        BlueJRMIClient client = new BlueJRMIClient(prjDir, rmiServiceName);
         
         RBlueJ blueJ = client.getBlueJ();
         try {

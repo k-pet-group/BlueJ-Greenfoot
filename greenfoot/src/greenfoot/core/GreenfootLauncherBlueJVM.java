@@ -2,7 +2,7 @@ package greenfoot.core;
 
 import greenfoot.gui.FirstStartupDialog;
 import greenfoot.gui.FirstStartupDialog.Result;
-import greenfoot.util.GreenfootUtil;
+import greenfoot.util.FileChoosers;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,12 +10,11 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.swing.SwingUtilities;
-
 import rmiextension.RMIExtension;
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
+import bluej.utility.FileUtility;
 import bluej.utility.Utility;
 
 /**
@@ -73,37 +72,28 @@ public class GreenfootLauncherBlueJVM
     
     /**
      * Displays a dialog to the first time user of greenfoot.
-     * <p>
-     * Will be executed on the eventthread later
-     * 
      */
     private void handleFirstTime()
     {
-        Thread t = new Thread() {
-            public void run()
-            {
-                FirstStartupDialog dialog = new FirstStartupDialog();
-                dialog.setLocationRelativeTo(null); // centers dialog
-                dialog.setVisible(true);
+        FirstStartupDialog dialog = new FirstStartupDialog();
+        dialog.setLocationRelativeTo(null); // centers dialog
+        dialog.setVisible(true);
 
-                Result result = dialog.getResult();
-                switch(result) {
-                    case TUTORIAL :
-                        openTutorial();
-                        break;
-                    case OPEN :
-                        openScenario();
-                        break;
-                    case CREATE :
-                        createScenario();
-                        break;
-                    case WITHOUT :
-                        openNormally();
-                        break;
-                }
-            }
-        };
-        SwingUtilities.invokeLater(t);
+        Result result = dialog.getResult();
+        switch(result) {
+            case TUTORIAL :
+                openTutorial();
+                break;
+            case OPEN :
+                openScenario();
+                break;
+            case CREATE :
+                createScenario();
+                break;
+            case WITHOUT :
+                openNormally();
+                break;
+        }
     }
     
 
@@ -174,7 +164,7 @@ public class GreenfootLauncherBlueJVM
     private void openScenario()
     {
         setScenariosAsDefaultDir();
-        File scenario = GreenfootUtil.getScenarioFromFileBrowser(null);
+        File scenario = FileChoosers.getScenario(null);
         if (scenario != null) {
             extension.openProject(scenario);
         }
@@ -190,27 +180,21 @@ public class GreenfootLauncherBlueJVM
      */    
     private void createScenario()
     {
-        String newName = GreenfootUtil.getNewProjectName(null);
+        String newName = FileUtility.getFileName(null, "New Scenario", Config.getString("pkgmgr.newPkg.buttonLabel"), false, null, true);
         File newDir = new File(newName);
         extension.newProject(newDir);
     }
+
     /**
-     * Starts up greenfoot by either letting BlueJ launch previous opened
+     * Starts up greenfoot by either letting BlueJ launch previously opened
      * scenarios or opening the empty startup project.
-     * <p>
-     * Will be executed in its own thread.
      */
     public void openNormally()
     {
-        Thread t = new Thread() {
-            public void run()  {
-                // If no project is open now, we might want to open the startup project
-                File blueJLibDir = Config.getBlueJLibDir();
-                File startupProject = new File(blueJLibDir, STARTUP_PROJECT);
-                extension.maybeOpenProject(startupProject);
-            }            
-        };
-        t.start();
+        // If no project is open now, we might want to open the startup project
+        File blueJLibDir = Config.getBlueJLibDir();
+        File startupProject = new File(blueJLibDir, STARTUP_PROJECT);
+        extension.maybeOpenProject(startupProject);
     }
     
     /**

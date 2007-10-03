@@ -16,7 +16,7 @@ import bluej.extensions.ProjectNotOpenException;
  * The RMI client that establishes the initial connection to the BlueJ RMI server
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: BlueJRMIClient.java 4751 2006-12-07 15:48:11Z polle $
+ * @version $Id: BlueJRMIClient.java 5255 2007-10-03 06:07:50Z davmac $
  */
 public class BlueJRMIClient implements BlueJPropStringSource
 {
@@ -26,7 +26,7 @@ public class BlueJRMIClient implements BlueJPropStringSource
 
     private RPackage pkg;
 
-    public BlueJRMIClient(String prjDir, String pkgName, String rmiServiceName)
+    public BlueJRMIClient(String prjDir, String rmiServiceName)
     {
         instance = this;
 
@@ -54,7 +54,7 @@ public class BlueJRMIClient implements BlueJPropStringSource
                         break;
                     }
                 }
-                pkg = prj.getPackage(pkgName);
+                pkg = prj.getPackage("");
 
             }
             catch (RemoteException e1) {
