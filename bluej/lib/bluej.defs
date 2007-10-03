@@ -340,6 +340,9 @@ bluej.terminal.font=monospaced
 #bluej.terminal.font=monospaced-bold
 bluej.terminal.fontsize=12
 
+# fontsize for the codepad
+#bluej.codepad.fontsize=12
+
 # The editor font. This is the name of a font face with an optional
 # "-bold" at the end. Most used are monospaced fonts, such as Courier.
 # Good large fonts for screen projections are SansSerif-bold, 14pt, or
@@ -557,15 +560,13 @@ bluej.debug=false
 
 #######################################################################
 ## Workaround for Windows UNC path (network path) handling bug in
-## java. There is a bug in java (1.4, 1.5) which means that opening
-## projects from a network location in Windows is problematic (it may
-## not be possible to compile).
+## java. There is a bug in java versions prior to 6 which means that
+## opening projects from a network location in Windows is problematic
+## (it may not be possible to compile).
 ##
 ## If you are experiencing this problem, you can try uncommenting this
-## setting. Be warned however that this is not recommended unless
-## necessary! If you upgrade to a later java version (the bug is
-## apparently fixed in java 1.6, yet to be released as at 22/4/05)
-## you should revise this setting.
+## setting. However, upgrading to java 6 is the recommended solution
+## and in that case this setting should not be used.
 ##
 ## For more information see the BlueJ bug database entry:
 ## http://bugs.bluej.org/show_bug.cgi?id=852

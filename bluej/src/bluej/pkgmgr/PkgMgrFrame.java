@@ -58,7 +58,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 5107 2007-06-19 04:28:41Z bquig $
+ * @version $Id: PkgMgrFrame.java 5251 2007-10-03 03:27:33Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -2588,7 +2588,14 @@ public class PkgMgrFrame extends JFrame
         classScroller.setPreferredSize(classScroller.getSize()); // memorize
                                                                  // current size
         if (textEvaluator == null) {
-            textEvaluator = new TextEvalArea(this, PkgMgrFont);
+            
+            Font codepadFont = PkgMgrFont;
+            int fontsize = Config.getPropInteger("bluej.codepad.fontsize", 0);
+            if (fontsize != 0) {
+                codepadFont = codepadFont.deriveFont((float) fontsize);
+            }
+            
+            textEvaluator = new TextEvalArea(this, codepadFont);
             objectBenchSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, objbench, textEvaluator);
             objectBenchSplitPane.setBorder(null);
             objectBenchSplitPane.setResizeWeight(1.0);
