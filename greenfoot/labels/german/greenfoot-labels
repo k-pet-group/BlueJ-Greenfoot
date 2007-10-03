@@ -122,13 +122,13 @@ menu.scenario=Szenario
 
 menu.edit=Bearbeiten
 
-menu.controls=Controls
+menu.controls=Ausf\u00FChren
 
 menu.help=Hilfe
 menu.help.about=\u00DCber Greenfoot...
 menu.help.classDoc=Greenfoot Klassendokumentation
-menu.help.javadoc=Java Library-Dokumentation
+menu.help.javadoc=Java Klassenbibliotheken
 menu.help.tutorial=Greenfoot Tutorium
 menu.help.website=Greenfoot Website
-menu.help.moreScenarios=Mehr Szenarien laden
- 
+menu.help.moreScenarios=Weitere Szenarien...
+
