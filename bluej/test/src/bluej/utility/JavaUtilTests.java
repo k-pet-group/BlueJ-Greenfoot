@@ -6,11 +6,13 @@ import junit.framework.TestCase;
 
 public class JavaUtilTests extends TestCase
 {
+    @Override
     protected void setUp()
     {
         // nothing to do
     }
     
+    @Override
     protected void tearDown()
     {
         // nothing to do
