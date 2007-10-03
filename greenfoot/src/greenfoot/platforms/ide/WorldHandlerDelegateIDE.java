@@ -4,6 +4,7 @@ import greenfoot.Actor;
 import greenfoot.ObjectTracker;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
+import greenfoot.core.GClass;
 import greenfoot.core.GProject;
 import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
@@ -207,7 +208,7 @@ public class WorldHandlerDelegateIDE
     {
         if (isQuickAddActive) {
             ClassView cls = (ClassView) classSelectionManager.getSelected();
-            if (cls != null && cls.getRole() instanceof ActorClassRole && cls.getGClass().isCompiled() ) {
+            if (canBeInstantiated(cls) ) {
                 ActorClassRole role = (ActorClassRole) cls.getRole();
                 Actor actor = role.createObjectDragProxy();// cls.createInstance();
 
@@ -222,6 +223,27 @@ public class WorldHandlerDelegateIDE
                 worldHandler.getWorldCanvas().addMouseListener(DragGlassPane.getInstance());
             }
         }
+    }
+
+    /**
+     * Returns true if the given class is in a state where it can be instantiated.
+     * 
+     */
+    private boolean canBeInstantiated(ClassView cls)
+    {
+        if(cls == null) 
+            return false;
+        if(! (cls.getRole() instanceof ActorClassRole))
+            return false;
+        GClass gCls = cls.getGClass();
+        if(! gCls.isCompiled()) {
+            return false;
+        }
+        Class<?> realClass = gCls.getJavaClass();
+        if(realClass != null && java.lang.reflect.Modifier.isAbstract(realClass.getModifiers())) {
+            return false;
+        }
+        return true;
     }
 
     public void keyReleased(KeyEvent e)
