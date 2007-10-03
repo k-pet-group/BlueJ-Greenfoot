@@ -36,7 +36,7 @@ import bluej.views.ViewFilter;
  * "normal" classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 5158 2007-08-16 05:00:00Z davmac $
+ * @version $Id: ClassRole.java 5265 2007-10-03 16:12:16Z polle $
  */
 public abstract class ClassRole
 {
@@ -67,7 +67,7 @@ public abstract class ClassRole
             try {
                 ConstructorView m = constructors[constructors.length - i - 1];
 
-                ViewFilter filter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
+                ViewFilter filter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PUBLIC);
                 if (!filter.accept(m))
                     continue;
 
@@ -125,7 +125,7 @@ public abstract class ClassRole
             }
 
             // Static methods
-            ViewFilter filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PROTECTED);
+            ViewFilter filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PUBLIC);
             View view = View.getView(realClass);
             MethodView[] allMethods = view.getAllMethods();
             WorldInvokeListener invocListener = new WorldInvokeListener(realClass, project);
