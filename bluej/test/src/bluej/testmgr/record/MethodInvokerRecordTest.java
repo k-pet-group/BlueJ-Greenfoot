@@ -15,6 +15,7 @@ public class MethodInvokerRecordTest extends junit.framework.TestCase
      *
      * Called before every test case method.
      */
+    @Override
     protected void setUp()
     {
         lotsOfAssertions = new MethodInvokerRecord(java.lang.Math.class,
@@ -32,6 +33,7 @@ public class MethodInvokerRecordTest extends junit.framework.TestCase
      *
      * Called after every test case method.
      */
+    @Override
     protected void tearDown()
     {
     }
