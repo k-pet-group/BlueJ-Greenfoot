@@ -33,7 +33,7 @@ import greenfoot.sound.SoundPlayer;
  * 
  * @author Davin McCall
  * @version 1.2.0
- * @cvs-version $Id: Greenfoot.java 5031 2007-04-27 16:32:17Z polle $
+ * @cvs-version $Id: Greenfoot.java 5264 2007-10-03 15:45:29Z polle $
  */
 public class Greenfoot
 {
@@ -72,15 +72,17 @@ public class Greenfoot
     }
     
     /**
-     * This method will delay the current execution by the time specified
-     * by the Greenfoot environment (the speed slider).
-     * false
+     * This method will delay the current execution by a number of time steps. 
+     * The size of one time step is defined by the Greenfoot environment (the speed slider).
+     * 
      * @see #setSimulationSpeed(int)
      */
-    public static void delay()
+    public static void delay(int time)
     {
-        WorldHandler.getInstance().repaint();
-        Simulation.getInstance().sleep();
+        for(int i=0; i < time; i++) {
+            WorldHandler.getInstance().repaint();
+            Simulation.getInstance().sleep();
+        }
     }
     
     /**
