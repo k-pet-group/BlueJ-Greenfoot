@@ -54,7 +54,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 5110 2007-06-21 01:51:58Z davmac $
+ * @version $Id: Project.java 5253 2007-10-03 06:04:25Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -1400,54 +1400,55 @@ public class Project implements DebuggerListener, InspectorManager
      * A debugger event was fired. Analyse which event it was, and take
      * appropriate action.
      */
-    public void debuggerEvent(final DebuggerEvent event) {
+    public void debuggerEvent(final DebuggerEvent event)
+    {
         EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    if (event.getID() == DebuggerEvent.DEBUGGER_STATECHANGED) {
-                        PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(Project.this);
+            public void run() {
+                if (event.getID() == DebuggerEvent.DEBUGGER_STATECHANGED) {
+                    PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(Project.this);
 
-                        if (frames == null) {
-                            return;
-                        }
-                        
-                        int newState = event.getNewState();
-                        int oldState = event.getOldState();
-
-                        for (int i = 0; i < frames.length; i++)
-                            frames[i].setDebuggerState(newState);
-
-                        // check whether we just got a freshly created VM
-                        if ((oldState == Debugger.NOTREADY) &&
-                                (newState == Debugger.IDLE)) {
-                            vmReady();
-                        }
-
-                        // check whether a good VM just disappeared
-                        if ((oldState == Debugger.IDLE) &&
-                                (newState == Debugger.NOTREADY)) {
-                            vmClosed();
-                        }
-
-                        // check whether we failed to create the VM
-                        if (newState == Debugger.LAUNCH_FAILED) {
-                            BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_FAILED, null);
-                        }
-                        
+                    if (frames == null) {
                         return;
                     }
 
-                    if (event.getID() == DebuggerEvent.DEBUGGER_REMOVESTEPMARKS) {
-                        removeStepMarks();
+                    int newState = event.getNewState();
+                    int oldState = event.getOldState();
 
-                        return;
+                    for (int i = 0; i < frames.length; i++)
+                        frames[i].setDebuggerState(newState);
+
+                    // check whether we just got a freshly created VM
+                    if ((oldState == Debugger.NOTREADY) &&
+                            (newState == Debugger.IDLE)) {
+                        vmReady();
                     }
 
-                    DebuggerThread thr = event.getThread();
-                    String packageName = JavaNames.getPrefix(thr.getClass(0));
-                    Package pkg = getPackage(packageName);
+                    // check whether a good VM just disappeared
+                    if ((oldState == Debugger.IDLE) &&
+                            (newState == Debugger.NOTREADY)) {
+                        vmClosed();
+                    }
 
-                    if (pkg != null) {
-                        switch (event.getID()) {
+                    // check whether we failed to create the VM
+                    if (newState == Debugger.LAUNCH_FAILED) {
+                        BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_FAILED, null);
+                    }
+
+                    return;
+                }
+
+                if (event.getID() == DebuggerEvent.DEBUGGER_REMOVESTEPMARKS) {
+                    removeStepMarks();
+
+                    return;
+                }
+
+                DebuggerThread thr = event.getThread();
+                String packageName = JavaNames.getPrefix(thr.getClass(0));
+                Package pkg = getPackage(packageName);
+
+                if (pkg != null) {
+                    switch (event.getID()) {
                         case DebuggerEvent.THREAD_BREAKPOINT:
                             pkg.hitBreakpoint(thr);
 
@@ -1458,16 +1459,16 @@ public class Project implements DebuggerListener, InspectorManager
 
                             break;
 
-                        //case DebuggerEvent.THREAD_CONTINUE:
-                        //	break;
+                            //case DebuggerEvent.THREAD_CONTINUE:
+                            //	break;
                         case DebuggerEvent.THREAD_SHOWSOURCE:
                             pkg.showSourcePosition(thr);
 
                             break;
-                        }
                     }
                 }
-            });
+            }
+        });
     }
 
     // ---- end of DebuggerListener interface ----

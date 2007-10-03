@@ -3,6 +3,7 @@ package bluej;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
+import java.awt.Graphics;
 import java.awt.Toolkit;
 
 /**
@@ -10,11 +11,13 @@ import java.awt.Toolkit;
  * starting up.
  *
  * @author  Michael Kolling
- * @version $Id: SplashWindow.java 3513 2005-08-13 13:30:18Z polle $
+ * @version $Id: SplashWindow.java 5253 2007-10-03 06:04:25Z davmac $
  */
 
 public class SplashWindow extends Frame
 {
+    private boolean painted = false;
+    
     public SplashWindow(SplashLabel image)
     {
         setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
@@ -28,6 +31,25 @@ public class SplashWindow extends Frame
         setLocation((screenDim.width - getSize().width) / 2, (screenDim.height - getSize().height) / 2);
         setVisible(true);
         //try { Thread.sleep(11000);} catch(Exception e) {}  // for testing: show longer
+    }
+    
+    public synchronized void paint(Graphics g)
+    {
+        painted = true;
+        super.paint(g);
+        notify();
+    }
+    
+    public synchronized void waitUntilPainted()
+    {
+        while (!painted) {
+            try {
+                wait();
+            }
+            catch (InterruptedException ie) {
+                painted = true;
+            }
+        }
     }
 }
 

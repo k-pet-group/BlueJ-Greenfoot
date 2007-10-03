@@ -1,6 +1,5 @@
 package bluej;
 
-import java.awt.Frame;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -21,7 +20,7 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 5167 2007-08-22 14:44:16Z mik $
+ * @version $Id: Boot.java 5253 2007-10-03 06:04:25Z davmac $
  */
 public class Boot
 {
@@ -85,6 +84,8 @@ public static final int BLUEJ_VERSION_MAJOR = 2;
     
     private static boolean isGreenfoot = false;
     
+    private SplashWindow splashWindow;
+    
     /**
      * Entry point for booting BlueJ
      *
@@ -130,19 +131,15 @@ public static final int BLUEJ_VERSION_MAJOR = 2;
         } else {
             image = new BlueJLabel();
         }
-        
-        Frame splash = new SplashWindow(image);
-        
+
         try {
-        	instance = new Boot(args, commandLineProps);
-        	instance.bootBluej();
+            instance = new Boot(args, commandLineProps, image);
+            instance.bootBluej();
         }
         catch (Throwable t) {
-        	t.printStackTrace();
-        	System.exit(1);
+            t.printStackTrace();
+            System.exit(1);
         }
-        
-        splash.dispose();
     }
 
 
@@ -175,12 +172,26 @@ public static final int BLUEJ_VERSION_MAJOR = 2;
      * @param args the arguments with which main() was invoked
      * @param props the properties (created from the args)
      */
-    private Boot(String[] args, Properties props)
+    private Boot(String[] args, Properties props, SplashLabel image)
     {
+        // Display the splash window, and wait until it's been painted before
+        // proceeding. Otherwise, the event thread may be occupied by BlueJ
+        // starting up and the window might *never* be painted.
+        splashWindow = new SplashWindow(image);
+        splashWindow.repaint(); // avoid delay before painting
+        splashWindow.waitUntilPainted();
+
         this.args = args;
         this.commandLineProps = props;
     }
 
+    /**
+     * Hide (and dispose) the splash window
+     */
+    public void disposeSplashWindow()
+    {
+        splashWindow.dispose();
+    }
 
     /**
      * Retuns the args list passed to the starting program.

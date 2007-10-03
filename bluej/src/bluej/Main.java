@@ -1,5 +1,6 @@
 package bluej;
 
+import java.awt.EventQueue;
 import java.io.File;
 import java.net.URL;
 import java.util.Properties;
@@ -18,7 +19,7 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Main.java 4911 2007-04-11 14:32:08Z mik $
+ * @version $Id: Main.java 5253 2007-10-03 06:04:25Z davmac $
  */
 public class Main
 {
@@ -32,7 +33,7 @@ public class Main
     public Main()
     {
         Boot boot = Boot.getInstance();
-        String [] args = boot.getArgs();
+        final String [] args = boot.getArgs();
         Properties commandLineProps = boot.getCommandLineProperties();
         File bluejLibDir = boot.getBluejLibDir();
 
@@ -55,7 +56,12 @@ public class Main
         }
         
         // process command line arguments, start BlueJ!
-        processArgs(args);
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                processArgs(args);
+            } 
+        });
     }
 
    
@@ -120,6 +126,7 @@ public class Main
             }
         }
 
+        Boot.getInstance().disposeSplashWindow();
         ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.APP_READY_EVENT));
     }
     
