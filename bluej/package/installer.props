@@ -28,7 +28,7 @@ install.exeName=bluej
 install.requiredJavaVersion=1.4
 
 # additional commands to be added to MacOS script before execution
-install.commands.mac = CP="~/lib/bluej.jar:!/lib/tools.jar"
+install.commands.mac = CP="~/lib/bluej.jar:!/lib/tools.jar:/System/Library/Java"
 
 # additional commands to be added to Unix script before execution
 install.commands.unix = CP="~/lib/bluej.jar:!/lib/tools.jar"
