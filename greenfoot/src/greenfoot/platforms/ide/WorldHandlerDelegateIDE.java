@@ -207,7 +207,7 @@ public class WorldHandlerDelegateIDE
     {
         if (isQuickAddActive) {
             ClassView cls = (ClassView) classSelectionManager.getSelected();
-            if (cls != null && cls.getRole() instanceof ActorClassRole) {
+            if (cls != null && cls.getRole() instanceof ActorClassRole && cls.getGClass().isCompiled() ) {
                 ActorClassRole role = (ActorClassRole) cls.getRole();
                 Actor actor = role.createObjectDragProxy();// cls.createInstance();
 
