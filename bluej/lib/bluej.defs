@@ -306,12 +306,13 @@ bluej.classTemplates = stdclass abstract interface appletj unittest enum
 # Theme fonts for User Interface components
 # These specify font and font sizes for most of the interface components
 # if using a crossplatform setting for bluej.lookandfeel. When using a
-# system lookandfeel UI fonts are derived from the OS settings.
-# This is the name of a font face with an optional "-bold" at the end.
+# system look-and-feel, UI fonts are derived from the OS settings.
+#
+# The font setting is specified as the name of a font face with an optional
+# "-bold" at the end.
+#
 # The theme fonts are only used if bluej.useTheme flag is true and the 
 # bluej.lookandfeel property has been uncommented and set to crossplatform.
-# Note: the use of theme flag and specification and non-standard fonts
-# may affect bluej startup time (not confirmed for all systems)
 
 # Use theme, which means interface and menu fonts can be specified.
 bluej.useTheme=false
