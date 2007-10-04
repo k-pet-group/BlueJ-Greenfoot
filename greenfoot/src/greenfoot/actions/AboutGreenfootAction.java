@@ -8,6 +8,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 
 import bluej.Boot;
+import bluej.Config;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
@@ -33,7 +34,7 @@ public class AboutGreenfootAction extends AbstractAction
 
     private AboutGreenfootAction(JFrame parent)
     {
-        super("About Greenfoot...");
+        super(Config.getString("greenfoot.about"));
         this.parent = parent;
     }
 
