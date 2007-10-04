@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
+import bluej.Config;
+
 /**
  * @author Poul Henriksen
  * @version $Id$
@@ -17,7 +19,7 @@ public class CloseProjectAction extends AbstractAction
     
     public CloseProjectAction(GreenfootFrame gfFrame)
     {
-        super("Close");
+        super(Config.getString("project.close"));
         this.gfFrame = gfFrame;
         setEnabled(false);
     }
