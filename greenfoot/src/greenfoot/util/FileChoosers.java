@@ -34,7 +34,7 @@ public class FileChoosers
             exportFileChooser.setDialogTitle(title);
             exportFileChooser.setSelectedFile(defaultFile);
         }
-        int result = exportFileChooser.showDialog(parent, "Choose");
+        int result = exportFileChooser.showDialog(parent, Config.getString("chooser.export.button"));
         
         if (result != JFileChooser.APPROVE_OPTION) {
            return null;
