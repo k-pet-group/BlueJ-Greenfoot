@@ -43,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 5235 2007-09-27 02:21:19Z bquig $
+ * @version $Id: GreenfootMain.java 5291 2007-10-04 06:26:52Z bquig $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -271,7 +271,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     /**
      * Closes this greenfoot frame, or handle it closing.
      * 
-     * If this is called with the windowClosign parameter false, and there is only one project open,
+     * If this is called with the windowClosing parameter false, and there is only one project open,
      * then the frame won't be closed but will instead be turned into an empty frame.
      */
     private void closeThisInstance(boolean windowClosing)
@@ -521,10 +521,10 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             return VERSION_UPDATED;
         }
         else if (projectVersion.compareTo(apiVersion) < 0) {
-            String message = "The scenario that you are trying to open appears to be an old greenfoot scenario (API version " + projectVersion
-                    + "). The scenario will be updated to the current version (API version " + apiVersion
-                    + "), but it might require some manual fixing of errors due to API changes.";
-            JButton continueButton = new JButton("Continue");
+            String message = Config.getString("project.version.older.part1") + projectVersion
+                    + Config.getString("project.version.older.part2") + apiVersion
+                    + Config.getString("project.version.older.part3");
+            JButton continueButton = new JButton(Config.getString("greenfoot.continue"));
             MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 50,
                     new JButton[]{continueButton});
             dialog.displayModal();
@@ -532,11 +532,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             return VERSION_UPDATED;
         }
         else if (projectVersion.compareTo(apiVersion) > 0) { //
-            String message = "The scenario that you are trying to open appears to be a greenfoot scenario created with"
-                    + "a newer version of the Greenfoot API (version " + projectVersion + ")."
-                    + "Opening the scenario with this version might result in"
-                    + "some errors that will have to be fixed manually." + "\n \n"
-                    + "Do you want to continue opening the scenario?";
+            String message = Config.getString("project.version.newer.part1") + projectVersion 
+                + Config.getString("project.version.newer.part2");
 
             JButton cancelButton = new JButton(Config.getString("greenfoot.cancel"));
             JButton continueButton = new JButton(Config.getString("greenfoot.continue"));
