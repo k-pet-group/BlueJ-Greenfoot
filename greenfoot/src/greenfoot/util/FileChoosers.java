@@ -1,5 +1,6 @@
 package greenfoot.util;
 
+import bluej.Config;
 import java.awt.Component;
 import java.io.File;
 
@@ -53,7 +54,7 @@ public class FileChoosers
             newFileChooser.setDialogTitle(title);
             newFileChooser.setSelectedFile(defaultFile);
         }
-        int result = newFileChooser.showDialog(parent, "Choose");
+        int result = newFileChooser.showDialog(parent, Config.getString("chooser.newFile.button"));
         
         if (result != JFileChooser.APPROVE_OPTION) {
            return null;
@@ -72,8 +73,8 @@ public class FileChoosers
         if(scenarioFileChooser == null) {
             scenarioFileChooser = new PackageChooserStrict(new File(PrefMgr.getProjectDirectory()));
         }
-        scenarioFileChooser.setDialogTitle("Open Scenario");
-        int result = scenarioFileChooser.showDialog(parent, "Open");
+        scenarioFileChooser.setDialogTitle(Config.getString("chooser.scenario.title"));
+        int result = scenarioFileChooser.showDialog(parent, Config.getString("chooser.scenario.button"));
         
         if (result != JFileChooser.APPROVE_OPTION) {
            return null;
