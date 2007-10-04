@@ -145,30 +145,24 @@ public class JarCreator
         properties.put("project.name", scenarioName);
         properties.put("main.class", worldClass);
         properties.put("controls.extra", "" + includeExtraControls);
-        
         properties.put("scenario.viewer.appletInfo", Config.getString("scenario.viewer.appletInfo"));
         properties.put("run.once", Config.getString("run.once"));
         properties.put("run.simulation", Config.getString("run.simulation"));
-//        properties.put("scenario.viewer.appletInfo", Config.getString("scenario.viewer.appletInfo"));
-//        properties.put("scenario.viewer.appletInfo", Config.getString("scenario.viewer.appletInfo"));
-//        properties.put("scenario.viewer.appletInfo", Config.getString("scenario.viewer.appletInfo"));
-//        controls.runonce.longDescription
-//        controls.runonce.shortDescription
-//        controls.run.longDescription
-//        controls.run.shortDescription
-//        controls.pause.longDescription
-//        controls.pause.shortDescription
-//        controls.run.button
-//        controls.pause.button
-//        controls.reset.longDescription
-//        controls.reset.shortDescription
-//        controls.speed.label
-//        controls.speedSlider.tooltip
-//        pause.simulation
-//        reset.world
-            
-            
-        
+        properties.put("pause.simulation", Config.getString("pause.simulation"));
+        properties.put("reset.world", Config.getString("reset.world"));
+        properties.put("controls.speed.label", Config.getString("controls.speed.label"));
+        properties.put("controls.runonce.longDescription", Config.getString("controls.runonce.longDescription"));
+        properties.put("controls.runonce.shortDescription", Config.getString("controls.runonce.shortDescription"));
+        properties.put("controls.run.longDescription", Config.getString("controls.run.longDescription"));
+        properties.put("controls.run.shortDescription", Config.getString("controls.run.shortDescription"));
+        properties.put("controls.pause.longDescription", Config.getString("controls.pause.longDescription"));
+        properties.put("controls.pause.shortDescription", Config.getString("controls.pause.shortDescription"));
+        properties.put("controls.run.button", Config.getString("controls.run.button"));
+        properties.put("controls.pause.button", Config.getString("controls.pause.button"));
+        properties.put("controls.reset.longDescription", Config.getString("controls.reset.longDescription"));
+        properties.put("controls.reset.shortDescription", Config.getString("controls.reset.shortDescription"));
+        properties.put("controls.speedSlider.tooltip", Config.getString("controls.speedSlider.tooltip"));
+              
     }
     
     /**
