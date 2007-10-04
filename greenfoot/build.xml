@@ -488,6 +488,15 @@ target="1.5">
         <copy file="resources/images/step.png" todir="${standalone.build}"/>   
         <copy file="resources/images/pause.png" todir="${standalone.build}"/> 
         <copy file="resources/images/reset.png" todir="${standalone.build}"/> 
+
+        <!-- Copy bluej.Config classes to allow use of i18n labels  -->
+        <copy todir="${standalone.build}">
+            <fileset dir="${bluej.projectdir}/classes/">
+                <include name="bluej/*.class"/>
+            </fileset>
+        </copy>
+
+       
     </target>
     
     <target name="clean-scenarios" description="clean up scenarios (remove doc and greenfoot dir)" >
