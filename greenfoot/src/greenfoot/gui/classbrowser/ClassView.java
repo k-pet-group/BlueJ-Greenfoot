@@ -36,7 +36,7 @@ import bluej.utility.Utility;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 5163 2007-08-21 05:26:34Z davmac $
+ * @version $Id: ClassView.java 5269 2007-10-04 02:02:36Z davmac $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -497,8 +497,8 @@ public class ClassView extends JToggleButton
      */
     public void nameChanged(String oldName)
     {
-        updateView();
         classBrowser.renameClass(this, oldName);
+        updateView();
     }
 
     // ----- MouseListener interface -----

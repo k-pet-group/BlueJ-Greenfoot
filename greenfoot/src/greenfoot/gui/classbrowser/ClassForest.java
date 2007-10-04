@@ -6,27 +6,24 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import bluej.utility.Debug;
-
 /**
- * A forest of trees. The roots are sorted alphabeticaly on their keys
+ * A forest of trees. The roots are sorted alphabetically on their keys
  * 
  * @author Poul Henriksen
- * @version $Id: ClassForest.java 4952 2007-04-18 03:02:25Z davmac $
+ * @version $Id: ClassForest.java 5269 2007-10-04 02:02:36Z davmac $
  */
 public class ClassForest
 {
     public class TreeEntry
-        implements Comparable
+        implements Comparable<TreeEntry>
     {
-        private List children = new ArrayList();
+        private List<TreeEntry> children = new ArrayList<TreeEntry>();
         private ClassView data;
         private String key;
 
@@ -46,7 +43,7 @@ public class ClassForest
             children.clear();
         }
 
-        public List getChildren()
+        public List<TreeEntry> getChildren()
         {
             return children;
         }
@@ -55,8 +52,8 @@ public class ClassForest
         public String toString()
         {
             StringBuffer str = new StringBuffer();
-            for (Iterator iter = children.iterator(); iter.hasNext();) {
-                TreeEntry element = (TreeEntry) iter.next();
+            for (Iterator<TreeEntry> iter = children.iterator(); iter.hasNext();) {
+                TreeEntry element = iter.next();
                 str.append(" " + element.toString());
             }
             return key + "(" + str + " )";
@@ -72,16 +69,16 @@ public class ClassForest
             return data;
         }
 
-        public int compareTo(Object o)
+        public int compareTo(TreeEntry o)
         {
             String name1 = this.getKey();
-            String name2 = ((TreeEntry) o).getKey();
+            String name2 = o.getKey();
             return name1.compareTo(name2);
         }
     }
 
-    private SortedSet roots = new TreeSet();
-    private Map<String, TreeEntry> treeEntryMap = new LinkedHashMap();
+    private SortedSet<TreeEntry> roots = new TreeSet<TreeEntry>();
+    private Map<String, TreeEntry> treeEntryMap = new LinkedHashMap<String, TreeEntry>();
     
     public ClassForest()
     { }
@@ -90,7 +87,7 @@ public class ClassForest
      * Get the root classes of this ClassForest (i.e. classes which have no
      * parent classes).
      */
-    public Set getRoots()
+    public Set<TreeEntry> getRoots()
     {
         return roots;
     }
@@ -98,7 +95,7 @@ public class ClassForest
     public String toString()
     {
         StringBuffer str = new StringBuffer();
-        for (Iterator iter = roots.iterator(); iter.hasNext();) {
+        for (Iterator<TreeEntry> iter = roots.iterator(); iter.hasNext();) {
             str.append(iter.next());
         }
         return str.toString();
@@ -147,23 +144,23 @@ public class ClassForest
      */
     public synchronized void rebuild() 
     {
-        roots = new TreeSet();
-        Collection values = treeEntryMap.values();
+        roots = new TreeSet<TreeEntry>();
+        Collection<TreeEntry> values = treeEntryMap.values();
 
-        for (Iterator iter = values.iterator(); iter.hasNext();) {
-            TreeEntry entry = ((TreeEntry) iter.next());
+        for (Iterator<TreeEntry> iter = values.iterator(); iter.hasNext();) {
+            TreeEntry entry = iter.next();
             entry.removeChildren();
         }
 
-        for (Iterator iter = values.iterator(); iter.hasNext();) {
-            TreeEntry entry = ((TreeEntry) iter.next());
+        for (Iterator<TreeEntry> iter = values.iterator(); iter.hasNext();) {
+            TreeEntry entry = iter.next();
             addEntryToTree(entry.getData());
         }
     }
     
     
     /**
-     * Add an entry from this forrest properly into the tree structure.
+     * Add an entry from this forest properly into the tree structure.
      */
     private void addEntryToTree(ClassView clsView)
     {
@@ -182,48 +179,5 @@ public class ClassForest
                 roots.add(child);
             }             	
         }
-    }
-
-    
-    /**
-     * Returns an iterator over the data in this forest.
-     * @return
-     */
-    public Iterator iterator()
-    {
-        if ((treeEntryMap == null) || (treeEntryMap.values() == null)) {
-            Debug.reportError("class tree is null - should never happen");
-        }
-
-        Iterator i = new Iterator() {
-
-            private Iterator treeEntries;
-            
-            {
-                //Make sure we do not get ConcurentModificationException
-                synchronized (ClassForest.this) {
-                    Collection values = treeEntryMap.values();
-                    List list = new LinkedList(values);
-                    treeEntries = list.iterator();
-                }
-            }
-
-            /**
-             * Not implemented
-             */
-            public void remove() { }
-
-            public boolean hasNext()
-            {
-                return treeEntries.hasNext();
-            }
-
-            public Object next()
-            {
-                return ((TreeEntry) treeEntries.next()).getData();
-            }
-
-        };
-        return i;
     }
 }

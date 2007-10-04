@@ -27,7 +27,7 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 5211 2007-09-26 01:46:07Z bquig $
+ * @version $Id: ClassBrowser.java 5269 2007-10-04 02:02:36Z davmac $
  */
 public class ClassBrowser extends JPanel
 {
@@ -280,17 +280,6 @@ public class ClassBrowser extends JPanel
     public SelectionManager getSelectionManager()
     {
         return selectionManager;
-    }
-
-    /**
-     * Gets all the classes that is in the GreenfootWorls classes section.
-     * Call from the Swing event thread.
-     * 
-     * @return A list of ClassViews
-     */
-    public Iterator getWorldClasses()
-    {
-        return worldClasses.iterator();
     }
 
     /**
