@@ -90,6 +90,8 @@ publish.event.status=Status:
 world.handlerDelegate.inspect=Inspect
 world.handlerDelegate.remove=Remove
 
+greenfoot.utilDelegate.newScenario=New Scenario
+
 #File choosers
 chooser.newFile.button=Choose
 chooser.scenario.title=Open Scenario
