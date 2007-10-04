@@ -48,7 +48,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     
     public String getNewProjectName(Component parent)
     {
-        return FileUtility.getFileName(parent, "New Scenario", Config.getString("pkgmgr.newPkg.buttonLabel"), false, null, true);
+        return FileUtility.getFileName(parent, Config.getString("greenfoot.utilDelegate.newScenario"), Config.getString("pkgmgr.newPkg.buttonLabel"), false, null, true);
     }
 
 
