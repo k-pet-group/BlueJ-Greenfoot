@@ -34,9 +34,13 @@ reset.world=Reset
 run.once=Act
 run.simulation=Run
 project.save=Save
+project.savecopy=Save a Copy As...
 select.image=Set image...
 show.readme=Scenario Information
 pause.simulation=Pause
+
+# Save project copy dialog
+project.savecopy.title=Save Project Copy
 
 # Export scenario dialog
 export.project=Export...

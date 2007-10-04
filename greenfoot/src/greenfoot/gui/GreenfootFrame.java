@@ -55,7 +55,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5199 2007-09-24 04:55:26Z bquig $
+ * @version $Id: GreenfootFrame.java 5288 2007-10-04 04:47:23Z davmac $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener,
@@ -83,6 +83,7 @@ public class GreenfootFrame extends JFrame
     
     private NewClassAction newClassAction;
     private SaveProjectAction saveProjectAction;
+    private SaveCopyAction saveCopyAction;
     private ShowReadMeAction showReadMeAction;
     private ExportProjectAction exportProjectAction;
     private CloseProjectAction closeProjectAction;
@@ -487,6 +488,7 @@ public class GreenfootFrame extends JFrame
     {
     	newClassAction = new NewClassAction(this);
     	saveProjectAction = new SaveProjectAction(this);
+    	saveCopyAction = new SaveCopyAction(this);
     	showReadMeAction = new ShowReadMeAction(this);
     	exportProjectAction = new ExportProjectAction(this);
     	closeProjectAction = new CloseProjectAction(this);
@@ -513,6 +515,7 @@ public class GreenfootFrame extends JFrame
         
         addMenuItem(closeProjectAction, projectMenu, KeyEvent.VK_W, false, KeyEvent.VK_C);
         addMenuItem(saveProjectAction, projectMenu, KeyEvent.VK_S, false, KeyEvent.VK_S);
+        addMenuItem(saveCopyAction, projectMenu, -1, false, -1);
         projectMenu.addSeparator();
         addMenuItem(exportProjectAction, projectMenu, KeyEvent.VK_E, false, KeyEvent.VK_E);
 
@@ -609,6 +612,7 @@ public class GreenfootFrame extends JFrame
     	
         closeProjectAction.setEnabled(state);
         saveProjectAction.setEnabled(state);
+        saveCopyAction.setEnabled(state);
         newClassAction.setEnabled(state);
         showReadMeAction.setEnabled(state);
         exportProjectAction.setEnabled(state);

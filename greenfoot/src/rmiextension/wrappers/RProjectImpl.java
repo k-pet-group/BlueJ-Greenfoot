@@ -17,7 +17,7 @@ import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RProjectImpl.java 4950 2007-04-17 11:43:33Z polle $
+ * @version $Id: RProjectImpl.java 5288 2007-10-04 04:47:23Z davmac $
  */
 public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     implements RProject
@@ -140,6 +140,7 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     }
 
     /**
+     * Request a save of all open files in the project.
      * @throws ProjectNotOpenException
      */
     public void save()

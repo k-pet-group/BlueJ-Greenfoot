@@ -10,7 +10,7 @@ import bluej.extensions.ProjectNotOpenException;
 /**
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RProject.java 4349 2006-06-12 03:07:04Z davmac $
+ * @version $Id: RProject.java 5288 2007-10-04 04:47:23Z davmac $
  */
 public interface RProject
     extends java.rmi.Remote
@@ -54,6 +54,7 @@ public interface RProject
         throws ProjectNotOpenException, RemoteException;
 
     /**
+     * Request a save of all open files in the project.
      * @throws ProjectNotOpenException
      */
     public abstract void save()

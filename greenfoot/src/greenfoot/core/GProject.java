@@ -64,6 +64,11 @@ public class GProject extends RProjectListenerImpl
         rProject.close();
     }
 
+    /**
+     * Request a save of all open files in the project.
+     * @throws ProjectNotOpenException
+     * @throws RemoteException
+     */
     public void save()
         throws ProjectNotOpenException, RemoteException
     {
