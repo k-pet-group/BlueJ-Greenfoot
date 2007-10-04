@@ -1,5 +1,6 @@
 package greenfoot.gui;
 
+import bluej.Config;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
@@ -24,7 +25,7 @@ import javax.swing.JLabel;
  * An image preview box accessory for a file chooser
  * 
  * @author Davin McCall
- * @version $Id: ImageFilePreview.java 3847 2006-03-21 03:35:09Z davmac $
+ * @version $Id: ImageFilePreview.java 5287 2007-10-04 04:32:24Z bquig $
  */
 public class ImageFilePreview extends JLabel
     implements PropertyChangeListener
@@ -40,11 +41,11 @@ public class ImageFilePreview extends JLabel
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = image.createGraphics();
         FontMetrics fontMetrics = graphics.getFontMetrics();
-        Rectangle2D stringBounds = fontMetrics.getStringBounds("No Preview", graphics);
+        Rectangle2D stringBounds = fontMetrics.getStringBounds(Config.getString("imagelib.file.noPreview"), graphics);
         int ypos = (int)(height - stringBounds.getHeight()) / 2 + fontMetrics.getAscent();
         int xpos = (int)(width - stringBounds.getWidth()) / 2;
         graphics.setColor(Color.BLACK);
-        graphics.drawString("No Preview", xpos, ypos);
+        graphics.drawString(Config.getString("imagelib.file.noPreview"), xpos, ypos);
         blankPreview = new ImageIcon(image);
         setIcon(blankPreview);
         
