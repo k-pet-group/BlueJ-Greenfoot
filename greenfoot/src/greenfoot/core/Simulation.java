@@ -333,8 +333,27 @@ public class Simulation extends Thread implements WorldListener
      */
     public void sleep()
     {
+        World world = WorldHandler.getInstance().getWorld();
+        
         try {
-            Thread.sleep(delay);
+            if (world != null) {
+                // The WorldCanvas may be trying to synchronize on the world in
+                // order to do a repaint. So, we use world.wait() here in order to
+                // release the world lock temporarily.
+                
+                long beginTime = System.currentTimeMillis();
+                long currentTime = System.currentTimeMillis();
+                while (currentTime - beginTime < delay) {
+                    synchronized (world) {
+                        world.wait(beginTime + delay - currentTime);
+                    }
+                    currentTime = System.currentTimeMillis();
+                }
+            }
+            else {
+                // shouldn't really happen
+                Thread.sleep(delay);
+            }
         }
         catch (InterruptedException e) {
             // TODO Auto-generated catch block
