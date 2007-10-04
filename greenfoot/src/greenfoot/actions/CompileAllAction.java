@@ -1,5 +1,6 @@
 package greenfoot.actions;
 
+import bluej.Config;
 import greenfoot.core.GProject;
 import greenfoot.core.Simulation;
 
@@ -16,7 +17,7 @@ import bluej.extensions.ProjectNotOpenException;
  * Action that compiles all classes that needs compilation.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: CompileAllAction.java 5154 2007-08-10 07:02:51Z davmac $
+ * @version $Id: CompileAllAction.java 5282 2007-10-04 04:05:32Z bquig $
  */
 public class CompileAllAction extends AbstractAction
 {
@@ -24,7 +25,7 @@ public class CompileAllAction extends AbstractAction
     
     public CompileAllAction(GProject project)
     {
-        super("Compile All");
+        super(Config.getString("compile.all"));
         setProject(project);
     }
     
