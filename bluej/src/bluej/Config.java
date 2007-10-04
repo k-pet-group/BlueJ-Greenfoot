@@ -36,7 +36,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 5196 2007-09-24 04:43:04Z bquig $
+ * @version $Id: Config.java 5271 2007-10-04 03:13:13Z bquig $
  */
 
 public final class Config
@@ -286,8 +286,36 @@ public final class Config
         if(compilertype.equals("internal"))
             compilertype = "javac";
     }
+
+    /**
+     * Initializer for use in Greenfoot's standalone scenario viewer if you 
+     * export a sceanrio as an app or applet.
+     */
+    public static void initializeStandalone(BlueJPropStringSource propSource)
+    {
+        if(initialised)
+            return;
     
-    public static boolean isInitialised() {
+        initialised = true;
+        Config.isGreenfoot = true;
+        Config.propSource = propSource;
+        
+        langProps =  new Properties() {
+            public String getProperty(String key)
+            {
+                return Config.propSource.getLabel(key);
+            }
+            
+            public String getProperty(String key, String def)
+            {
+                return Config.propSource.getLabel(key);
+            }
+        };
+
+    }
+    
+    public static boolean isInitialised() 
+    {
         return initialised;
     }
     
