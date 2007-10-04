@@ -3,7 +3,6 @@
 class.Critter.superclass=GridActor
 class.UnboundedGrid.superclass=AbstractGrid
 class.ColoredImage.superclass=
-
 version=1.1.0
 class.AbstractGrid.superclass=greenfoot.World
 class.Rock.superclass=GridActor
@@ -17,8 +16,5 @@ class.GridActor.superclass=greenfoot.Actor
 class.Grid.superclass=greenfoot.World
 class.Flower.superclass=GridActor
 class.GridActor.image=Actor.gif
-
-
 class.Rock.image=Rock.gif
-
 class.Location.superclass=

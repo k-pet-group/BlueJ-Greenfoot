@@ -12,4 +12,3 @@ class.Person.superclass=greenfoot.Actor
 class.Floor.image=floor.jpg
 class.Button.image=button-up-down.jpg
 class.LiftController.superclass=
-

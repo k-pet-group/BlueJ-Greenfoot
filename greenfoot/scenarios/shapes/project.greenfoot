@@ -1,7 +1,6 @@
 #Greenfoot properties
 #Mon Jan 29 12:13:48 GMT 2007
 class.Triangle.superclass=greenfoot.Actor
-
 class.ShapesWorld.superclass=greenfoot.World
 class.Sun.superclass=Circle
 version=1.1.0
@@ -10,11 +9,8 @@ class.ShapeWorld.superclass=greenfoot.World
 class.Shape.superclass=greenfoot.Actor
 simulation.speed=96
 class.Square.image=Square.png
-
-
 class.Triangle.image=Triangle.png
 class.Circle.image=Circle.png
-
 class.Sun.image=Sun.png
 class.Picture.superclass=greenfoot.Actor
 class.Circle.superclass=greenfoot.Actor

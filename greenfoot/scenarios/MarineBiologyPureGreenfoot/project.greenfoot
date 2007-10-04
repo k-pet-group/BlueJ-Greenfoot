@@ -3,16 +3,12 @@
 simulation.speed=93
 class.DarterFish.superclass=Fish
 class.Fish.superclass=greenfoot.Actor
-
 class.Fish.image=fish.png
 class.Direction.superclass=
 class.DarterFish.image=fish.png
 class.SquareEnvironment.superclass=greenfoot.World
 version=1.1.0
-
-
 class.SlowFish.superclass=Fish
-
 class.BoundedEnv.superclass=greenfoot.World
 class.SlowFish.image=fish.png
 class.ColoredImage.superclass=

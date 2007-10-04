@@ -9,4 +9,3 @@ class.WombatWorld.superclass=greenfoot.World
 class.Wombat.image=wombat.gif
 class.Rock.image=rock.gif
 class.Leaf.superclass=greenfoot.Actor
-

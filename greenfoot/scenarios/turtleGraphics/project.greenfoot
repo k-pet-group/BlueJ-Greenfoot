@@ -2,7 +2,6 @@
 #Sat Mar 24 15:21:25 GMT 2007
 class.SquareTurtle.superclass=Turtle
 simulation.speed=90
-
 class.TurtleWorld.superclass=greenfoot.World
 class.CircleTurtle.superclass=Turtle
 class.FlowerTurtle.superclass=SquareTurtle
@@ -10,6 +9,3 @@ version=1.2.0
 class.Turtle.superclass=greenfoot.Actor
 class.Turtle.image=Turtle.png
 class.SpiralTurtle.superclass=Turtle
-
-
-

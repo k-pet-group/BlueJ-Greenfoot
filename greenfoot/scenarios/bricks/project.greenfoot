@@ -3,13 +3,9 @@
 class.Brick.image=brick.png
 simulation.speed=99
 class.Paddle.superclass=greenfoot.Actor
-
 class.BrickWorld.superclass=greenfoot.World
 class.Paddle.image=Paddle.png
 version=1.1.0
 class.Ball.image=ball.png
 class.Ball.superclass=greenfoot.Actor
-
-
 class.Brick.superclass=greenfoot.Actor
-

@@ -4,7 +4,6 @@ class.Counter.superclass=greenfoot.Actor
 class.Flag.superclass=greenfoot.Actor
 class.Food.superclass=greenfoot.Actor
 class.Flag.image=flag.png
-
 version=1.2.0
 class.AntHill.superclass=greenfoot.Actor
 class.Plane.superclass=greenfoot.Actor
@@ -14,12 +13,9 @@ simulation.speed=92
 class.ControlKnob.superclass=greenfoot.Actor
 class.Field.superclass=greenfoot.World
 class.Moon.superclass=greenfoot.World
-
 class.Gravity.superclass=greenfoot.Actor
-
 class.Explosion.superclass=greenfoot.Actor
 class.Lander.image=rocket.png
 class.Pheromone.superclass=greenfoot.Actor
 class.Lander.superclass=greenfoot.Actor
-
 class.Ant.superclass=greenfoot.Actor

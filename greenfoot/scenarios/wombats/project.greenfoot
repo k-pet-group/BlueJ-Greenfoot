@@ -3,11 +3,7 @@
 class.Leaf.image=leaf.gif
 class.Wombat.image=wombat.gif
 simulation.speed=52
-
 class.Wombat.superclass=greenfoot.Actor
 version=1.2.0
-
-
 class.Leaf.superclass=greenfoot.Actor
 class.WombatWorld.superclass=greenfoot.World
-

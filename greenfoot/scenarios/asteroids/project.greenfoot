@@ -4,7 +4,6 @@ class.asd.superclass=greenfoot.Actor
 simulation.speed=91
 class.Bullet.image=bullet.png
 class.Space.superclass=greenfoot.World
-
 class.Vector.superclass=
 class.Asteroid.image=rock.gif
 class.MovingThing.superclass=greenfoot.Actor
@@ -13,7 +12,4 @@ version=1.2.0
 class.Asteroid.superclass=MovingThing
 class.Rocket.image=rocket.png
 world.lastInstantiated=Space
-
-
-
 class.Bullet.superclass=MovingThing

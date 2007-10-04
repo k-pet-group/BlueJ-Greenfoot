@@ -9,5 +9,3 @@ class.Vector.superclass=
 version=1.2.0
 class.Boid.image=bird.png
 class.Sky.superclass=greenfoot.World
-
-
