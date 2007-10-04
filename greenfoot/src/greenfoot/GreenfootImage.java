@@ -24,8 +24,8 @@ import javax.swing.ImageIcon;
  * and/or drawn by using various drawing methods.
  * 
  * @author Poul Henriksen
- * @version 1.2.0
- * @cvs-version $Id: GreenfootImage.java 5137 2007-08-02 06:04:42Z davmac $
+ * @version 1.3.0
+ * @cvs-version $Id: GreenfootImage.java 5302 2007-10-04 16:35:21Z polle $
  */
 public class GreenfootImage
 {

@@ -54,7 +54,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 5253 2007-10-03 06:04:25Z davmac $
+ * @version $Id: Project.java 5302 2007-10-04 16:35:21Z polle $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -335,7 +335,7 @@ public class Project implements DebuggerListener, InspectorManager
             }
 
             if (dir.mkdir()) {
-                File newpkgFile = new File(dir, Package.pkgfileName);
+                File newpkgFile = Package.getPkgFile(dir);
                 File newreadmeFile = new File(dir, Package.readmeName);
 
                 try {
@@ -773,7 +773,7 @@ public class Project implements DebuggerListener, InspectorManager
             st = new StringTokenizer(fullName, ".");
             newPkgDir = getProjectDir();
 
-            File newPkgFile = new File(newPkgDir, Package.pkgfileName);
+            File newPkgFile = Package.getPkgFile(newPkgDir);
 
             try {
                 newPkgFile.createNewFile();
@@ -784,7 +784,7 @@ public class Project implements DebuggerListener, InspectorManager
             while (st.hasMoreTokens()) {
                 newPkgDir = new File(newPkgDir, st.nextToken());
                 prepareCreateDir(newPkgDir);
-                newPkgFile = new File(newPkgDir, Package.pkgfileName);
+                newPkgFile = Package.getPkgFile(newPkgDir);
 
                 try {
                     newPkgFile.createNewFile();

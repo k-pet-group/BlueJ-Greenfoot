@@ -29,7 +29,7 @@ import java.util.*;
  * @see greenfoot.Actor
  * @author Poul Henriksen
  * @author Michael Kolling
- * @version 1.2.0
+ * @version 1.3.0
  * @cvs-version $Id$
  */
 public abstract class World

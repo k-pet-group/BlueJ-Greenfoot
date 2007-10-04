@@ -43,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 5291 2007-10-04 06:26:52Z bquig $
+ * @version $Id: GreenfootMain.java 5302 2007-10-04 16:35:21Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -447,6 +447,13 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         File dst = projectDir;
 
         deleteAllClassFiles(dst);
+        
+        // Since Greenfoot 1.3.0 we no longer use the bluej.pkg file, so if it exists it should now be deleted.
+        File pkgFile = new File(dst, bluej.pkgmgr.Package.pkgfileName);
+        if(pkgFile.exists()) {
+            pkgFile.delete();
+        }  
+        
         GreenfootUtil.copyDir(src, dst);
         
         touchApiClasses(dst);

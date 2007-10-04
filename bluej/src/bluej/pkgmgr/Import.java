@@ -22,7 +22,7 @@ import bluej.utility.JavaNames;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Import.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: Import.java 5302 2007-10-04 16:35:21Z polle $
  */
 public class Import
 {
@@ -192,7 +192,7 @@ public class Import
         while(i.hasNext()) {
             File f = (File) i.next();
 
-            File bluejFile = new File(f, Package.pkgfileName);
+            File bluejFile = Package.getPkgFile(f);
 
             if (bluejFile.exists())
                 continue;

@@ -49,7 +49,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 5135 2007-07-31 03:09:07Z bquig $
+ * @version $Id: Package.java 5302 2007-10-04 16:35:21Z polle $
  */
 public final class Package extends Graph
 {
@@ -557,8 +557,7 @@ public final class Package extends Graph
         throws IOException
     {
         // read the package properties
-        File pkgFile = new File(getPath(), pkgfileName);
-
+        File pkgFile = getPkgFile(getPath());
         // try to load the package file for this package
         FileInputStream input = new FileInputStream(pkgFile);
         lastSavedProps.load(input);
@@ -706,6 +705,23 @@ public final class Package extends Graph
     }
 
     /**
+     * Returns the file containing information about the package.
+     * For BlueJ this is bluej.pkg and for Greenfoot it is greenfoot.project.
+     * @return
+     */
+    static File getPkgFile(File dir)
+    {
+        File pkgFile;
+        if(Config.isGreenfoot()) {
+            pkgFile = new File(dir, greenfootProjectFile);            
+        } 
+        else { 
+            pkgFile = new File(dir, pkgfileName);
+        }
+        return pkgFile;
+    }
+
+    /**
      * Position a target which has been added, based on the layout file
      * (if an entry exists) or find a suitable position otherwise.
      * 
@@ -843,7 +859,7 @@ public final class Package extends Graph
     public void reReadGraphLayout() throws IOException
     {
         // read the package properties
-        File pkgFile = new File(getPath(), pkgfileName);
+        File pkgFile = getPkgFile(getPath());
 
         // try to load the package file for this package
         FileInputStream input = new FileInputStream(pkgFile);
@@ -893,12 +909,24 @@ public final class Package extends Graph
             }
         }
 
-        File file = new File(dir, pkgfileName);
+        File file = getPkgFile(dir);
         if (!file.canWrite())
             return false;
 
         SortedProperties props = new SortedProperties();
 
+        // If this is Greenfoot, this file will contain Greenfoot specific
+        // properties as well that we don't want to overwrite, so we load the
+        // file first.
+        if (Config.isGreenfoot() && file.exists()) {
+            try {
+                FileInputStream input = new FileInputStream(file);
+                props.load(input);
+            }
+            catch (IOException e) {
+            }
+        }
+        
         if (frameProperties != null)
             props.putAll(frameProperties);
 
@@ -931,7 +959,15 @@ public final class Package extends Graph
 
         try {
             FileOutputStream output = new FileOutputStream(file);
-            props.store(output, "BlueJ package file");
+            String header = null;
+            if(Config.isGreenfoot()) {
+                header = "Greenfoot project file";
+            }
+            else {
+                header = "BlueJ package file";
+            }
+            
+            props.store(output, header);
             output.close();
         }
         catch (IOException e) {
@@ -1872,16 +1908,8 @@ public final class Package extends Graph
         if (!f.isDirectory())
             return false;
 
-        File packageFile = null;
-        
-        // If it is Greenfoot the project file is different (project.greenfoot)
-        if (Config.isGreenfoot()){
-            packageFile = new File(f, greenfootProjectFile);
-        }
-        else { 
-        // It is BlueJ, package/project file is bluej.pkg
-            packageFile = new File(f, pkgfileName);
-        }
+        File packageFile = getPkgFile(f);        
+       
         return (packageFile.exists());
     }
 
