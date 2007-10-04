@@ -59,7 +59,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 5285 2007-10-04 04:16:17Z bquig $
+ * @version $Id: ImageLibFrame.java 5293 2007-10-04 06:40:57Z bquig $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -254,7 +254,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             {
                 JFileChooser chooser = new JFileChooser();
                 new ImageFilePreview(chooser);
-                int choice = chooser.showDialog(ImageLibFrame.this, "Select");
+                int choice = chooser.showDialog(ImageLibFrame.this, Config.getString("imagelib.browse.button"));
                 if (choice == JFileChooser.APPROVE_OPTION) {
                     selectedImageFile = chooser.getSelectedFile();
                     imageLabel.setIcon(getPreviewIcon(selectedImageFile));
@@ -625,10 +625,13 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     {
         File f = new File(new File("images"), gclass.getName() + ".png");
         if (f.exists()) {
-            int r = JOptionPane.showOptionDialog(this, "The file \"" + f + "\" already exists."
-                    + "Do you want to overwrite it?", "Confirm file replace",
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE,
-                    null, null, null);
+            int r = JOptionPane.showOptionDialog(this, 
+                                                 Config.getString("imagelib.write.exists.part1") + f 
+                                                    + Config.getString("imagelib.write.exists.part2"),
+                                                 Config.getString("imagelib.write.exists.title"),
+                                                 JOptionPane.OK_CANCEL_OPTION, 
+                                                 JOptionPane.WARNING_MESSAGE,
+                                                 null, null, null);
             
 //            int r = DialogManager.askQuestion(this, "imagelib-image-askReplace" , new String[]{f.toString()}); 
             
