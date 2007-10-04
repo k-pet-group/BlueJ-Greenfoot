@@ -7,8 +7,6 @@ greenfoot.quit=Quit
 greenfoot.continue=Continue
 greenfoot.cancel=Cancel
 
-gclass.tostring.error=Error getting real toString. super: 
-
 about.title=About Greenfoot
 about.moreInfo=More information can be found at www.greenfoot.org
 
@@ -21,7 +19,7 @@ project.version.older.part1=The scenario that you are trying to open appears to 
 project.version.older.part2=). The scenario will be updated to the current version (API version
 # api version inserted here by Greenfoot
 project.version.older.part3=), but it might require some manual fixing of errors due to API changes.
-project.version.newer.part1=The scenario that you are trying to open appears to be a greenfoot scenario created with a newer version of the Greenfoot API (version 
+project.version.newer.part1=The scenario that you are trying to open appears to be a Greenfoot scenario created with a newer version of the Greenfoot API (version 
 # project version inserted here by Greenfoot
 project.version.newer.part2=). Opening the scenario with this version might result in some errors that will have to be fixed manually.\n\nDo you want to continue opening the scenario?
 project.close=Close
@@ -47,7 +45,7 @@ show.readme=Scenario Information
 pause.simulation=Pause
 
 # Save project copy dialog
-project.savecopy.title=Save Project Copy
+project.savecopy.title=Save Scenario Copy
 
 # Export scenario dialog
 export.project=Export...
