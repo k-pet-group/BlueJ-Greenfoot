@@ -1,5 +1,6 @@
 package greenfoot.actions;
 
+import bluej.Config;
 import greenfoot.gui.GreenfootFrame;
 
 import java.awt.event.ActionEvent;
@@ -20,7 +21,7 @@ public class SaveProjectAction extends AbstractAction
     
     public SaveProjectAction(GreenfootFrame gfFrame)
     {
-        super("Save");
+        super(Config.getString("project.save"));
         this.gfFrame = gfFrame;
         setEnabled(false);
     }

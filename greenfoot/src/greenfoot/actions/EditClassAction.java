@@ -1,5 +1,6 @@
 package greenfoot.actions;
 
+import bluej.Config;
 import greenfoot.core.GClass;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
@@ -14,7 +15,7 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: EditClassAction.java 5154 2007-08-10 07:02:51Z davmac $
+ * @version $Id: EditClassAction.java 5284 2007-10-04 04:09:40Z bquig $
  */
 public class EditClassAction extends AbstractAction
 {
@@ -22,7 +23,7 @@ public class EditClassAction extends AbstractAction
 	
     public EditClassAction(ClassBrowser classBrowser)
     {
-        super("Open editor");
+        super(Config.getString("edit.class"));
         this.classBrowser = classBrowser;
     }
     

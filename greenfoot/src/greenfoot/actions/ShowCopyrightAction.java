@@ -1,5 +1,6 @@
 package greenfoot.actions;
 
+import bluej.Config;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
@@ -32,7 +33,7 @@ public class ShowCopyrightAction extends AbstractAction
      */
     private ShowCopyrightAction(JFrame parent) 
     {
-        super("Copyright...");
+        super(Config.getString("greenfoot.copyright"));
         this.parent = parent;
     }
 

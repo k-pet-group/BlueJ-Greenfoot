@@ -1,6 +1,6 @@
 package greenfoot.actions;
 
-import bluej.utility.Debug;
+import bluej.Config;
 import greenfoot.core.GreenfootMain;
 
 import java.awt.event.ActionEvent;
@@ -29,7 +29,7 @@ public class OpenRecentProjectAction extends AbstractAction
     
     private OpenRecentProjectAction()
     {
-        super("Open recent...");
+        super(Config.getString("open.recentProject"));
     }
     
     public void actionPerformed(final ActionEvent e)

@@ -1,5 +1,6 @@
 package greenfoot.actions;
 
+import bluej.Config;
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.export.ExportDialog;
 
@@ -11,7 +12,7 @@ import javax.swing.AbstractAction;
  * Action to export a project to a standalone program.
  * 
  * @author Poul Henriksen, Michael Kolling
- * @version $Id: ExportProjectAction.java 5154 2007-08-10 07:02:51Z davmac $
+ * @version $Id: ExportProjectAction.java 5284 2007-10-04 04:09:40Z bquig $
  */
 public class ExportProjectAction extends AbstractAction 
 {
@@ -20,7 +21,7 @@ public class ExportProjectAction extends AbstractAction
     
     public ExportProjectAction(GreenfootFrame gfFrame)
     {
-        super("Export...");
+        super(Config.getString("export.project"));
         this.gfFrame = gfFrame;
         setEnabled(false);
     }

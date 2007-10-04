@@ -1,5 +1,6 @@
 package greenfoot.actions;
 
+import bluej.Config;
 import greenfoot.core.GClass;
 import greenfoot.gui.ImageLibFrame;
 import greenfoot.gui.NewClassDialog;
@@ -16,7 +17,7 @@ import javax.swing.SwingUtilities;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NewSubclassAction.java 5159 2007-08-17 03:27:38Z davmac $
+ * @version $Id: NewSubclassAction.java 5284 2007-10-04 04:09:40Z bquig $
  */
 public class NewSubclassAction extends AbstractAction
 {
@@ -33,7 +34,7 @@ public class NewSubclassAction extends AbstractAction
      */
     public NewSubclassAction(ClassView view, ClassBrowser classBrowser)
     {
-        super("New subclass...");
+        super(Config.getString("new.subclass"));
         this.superclass = view;
         this.classBrowser = classBrowser;
     }

@@ -1,5 +1,6 @@
 package greenfoot.actions;
 
+import bluej.Config;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 
@@ -31,7 +32,7 @@ public class ResetWorldAction extends AbstractAction implements SimulationListen
     
     private ResetWorldAction()
     {
-        super("Reset", new ImageIcon(ResetWorldAction.class.getClassLoader().getResource(iconFile)));
+        super(Config.getString("reset.world"), new ImageIcon(ResetWorldAction.class.getClassLoader().getResource(iconFile)));
     }
 
     /**

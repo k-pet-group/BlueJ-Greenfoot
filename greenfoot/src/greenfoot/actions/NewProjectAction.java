@@ -1,5 +1,6 @@
 package greenfoot.actions;
 
+import bluej.Config;
 import greenfoot.core.GreenfootMain;
 
 import java.awt.event.ActionEvent;
@@ -8,7 +9,7 @@ import javax.swing.AbstractAction;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NewProjectAction.java 4062 2006-05-02 09:38:55Z mik $
+ * @version $Id: NewProjectAction.java 5284 2007-10-04 04:09:40Z bquig $
  */
 public class NewProjectAction extends AbstractAction
 {
@@ -25,7 +26,7 @@ public class NewProjectAction extends AbstractAction
     
     private NewProjectAction()
     {
-        super("New...");
+        super(Config.getString("new.project"));
     }
 
     /*

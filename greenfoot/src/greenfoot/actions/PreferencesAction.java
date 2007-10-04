@@ -1,5 +1,6 @@
 package greenfoot.actions;
 
+import bluej.Config;
 import bluej.prefmgr.PrefMgrDialog;
 import java.awt.event.ActionEvent;
 
@@ -8,7 +9,7 @@ import javax.swing.JFrame;
 
 /**
  * @author Michael Kolling
- * @version $Id: PreferencesAction.java 4963 2007-04-19 09:44:05Z mik $
+ * @version $Id: PreferencesAction.java 5284 2007-10-04 04:09:40Z bquig $
  */
 public class PreferencesAction extends AbstractAction
 {
@@ -27,7 +28,7 @@ public class PreferencesAction extends AbstractAction
     
     private PreferencesAction()
     {
-        super("Preferences...");
+        super(Config.getString("greenfoot.preferences"));
     }
 
     public void actionPerformed(ActionEvent e)

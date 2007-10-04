@@ -1,5 +1,6 @@
 package greenfoot.actions;
 
+import bluej.Config;
 import greenfoot.core.GClass;
 import greenfoot.core.Simulation;
 import greenfoot.gui.GreenfootFrame;
@@ -13,13 +14,13 @@ import bluej.extensions.ProjectNotOpenException;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: CompileClassAction.java 5154 2007-08-10 07:02:51Z davmac $
+ * @version $Id: CompileClassAction.java 5284 2007-10-04 04:09:40Z bquig $
  */
 public class CompileClassAction extends ClassAction
 {
     public CompileClassAction(GreenfootFrame gfFrame)
     {
-        super("Compile", gfFrame);
+        super(Config.getString("compile.class"), gfFrame);
     }
 
     /**

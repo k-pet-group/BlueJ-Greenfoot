@@ -1,5 +1,6 @@
 package greenfoot.actions;
 
+import bluej.Config;
 import greenfoot.gui.classbrowser.ClassView;
 
 import java.awt.event.ActionEvent;
@@ -17,7 +18,7 @@ public class RemoveClassAction extends AbstractAction
     
     public RemoveClassAction(ClassView view)
     {
-        super("Remove");
+        super(Config.getString("remove.class"));
         this.cls = view;
     }
 

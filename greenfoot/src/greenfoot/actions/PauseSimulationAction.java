@@ -1,5 +1,6 @@
 package greenfoot.actions;
 
+import bluej.Config;
 import greenfoot.core.Simulation;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
@@ -14,7 +15,7 @@ import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen
- * @version $Id: PauseSimulationAction.java 4165 2006-05-09 14:28:54Z davmac $
+ * @version $Id: PauseSimulationAction.java 5284 2007-10-04 04:09:40Z bquig $
  */
 public class PauseSimulationAction extends AbstractAction
     implements SimulationListener
@@ -34,7 +35,7 @@ public class PauseSimulationAction extends AbstractAction
 
     private PauseSimulationAction()
     {
-        super("Pause", new ImageIcon(PauseSimulationAction.class.getClassLoader().getResource(iconFile)));
+        super(Config.getString("pause.simulation"), new ImageIcon(PauseSimulationAction.class.getClassLoader().getResource(iconFile)));
     }
 
     /**

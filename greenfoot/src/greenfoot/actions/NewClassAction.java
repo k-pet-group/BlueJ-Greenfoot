@@ -1,5 +1,6 @@
 package greenfoot.actions;
 
+import bluej.Config;
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
 import greenfoot.gui.GreenfootFrame;
@@ -23,7 +24,7 @@ import bluej.extensions.ProjectNotOpenException;
  * An action for creating a new (non-Actor, non-World) class.
  * 
  * @author dam
- * @version $Id: NewClassAction.java 5159 2007-08-17 03:27:38Z davmac $
+ * @version $Id: NewClassAction.java 5284 2007-10-04 04:09:40Z bquig $
  */
 public class NewClassAction extends AbstractAction
 {
@@ -32,7 +33,7 @@ public class NewClassAction extends AbstractAction
 
     public NewClassAction(GreenfootFrame gfFrame)
     {
-        super("New Class...");
+        super(Config.getString("new.class"));
         setEnabled(false);
         this.gfFrame = gfFrame;
     }

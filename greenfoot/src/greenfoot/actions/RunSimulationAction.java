@@ -1,5 +1,6 @@
 package greenfoot.actions;
 
+import bluej.Config;
 import greenfoot.core.Simulation;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
@@ -14,7 +15,7 @@ import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen
- * @version $Id: RunSimulationAction.java 4927 2007-04-13 02:57:12Z davmac $
+ * @version $Id: RunSimulationAction.java 5284 2007-10-04 04:09:40Z bquig $
  */
 public class RunSimulationAction extends AbstractAction
     implements SimulationListener
@@ -35,7 +36,7 @@ public class RunSimulationAction extends AbstractAction
 
     private RunSimulationAction()
     {
-        super("Run", new ImageIcon(RunSimulationAction.class.getClassLoader().getResource(iconFile)));
+        super(Config.getString("run.simulation"), new ImageIcon(RunSimulationAction.class.getClassLoader().getResource(iconFile)));
     }
 
     /**

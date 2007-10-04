@@ -1,5 +1,6 @@
 package greenfoot.actions;
 
+import bluej.Config;
 import greenfoot.core.Simulation;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
@@ -36,7 +37,7 @@ public class RunOnceSimulationAction extends AbstractAction
 
     private RunOnceSimulationAction()
     {
-        super("Act", new ImageIcon(RunOnceSimulationAction.class.getClassLoader().getResource(iconFile)));
+        super(Config.getString("run.once"), new ImageIcon(RunOnceSimulationAction.class.getClassLoader().getResource(iconFile)));
     }
 
     /**
