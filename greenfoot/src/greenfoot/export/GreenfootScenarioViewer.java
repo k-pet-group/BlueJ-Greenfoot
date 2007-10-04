@@ -16,6 +16,7 @@ import greenfoot.platforms.standalone.ActorDelegateStandAlone;
 import greenfoot.platforms.standalone.GreenfootUtilDelegateStandAlone;
 import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
 import greenfoot.util.GreenfootUtil;
+import greenfoot.util.StandalonePropStringManager;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -158,6 +159,8 @@ public class GreenfootScenarioViewer extends JApplet
             worldClassName = p.getProperty("main.class");
             scenarioName = p.getProperty("project.name");
             includeExtraControls = Boolean.parseBoolean(p.getProperty("controls.extra"));
+            // set bluej Config to use the standalone prop values
+            Config.initializeStandalone(new StandalonePropStringManager(p));
             is.close();
         }
         catch (FileNotFoundException e) {
