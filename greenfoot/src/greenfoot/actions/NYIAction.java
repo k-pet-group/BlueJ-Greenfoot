@@ -1,5 +1,6 @@
 package greenfoot.actions;
 
+import bluej.Config;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
@@ -26,7 +27,7 @@ public class NYIAction extends AbstractAction
 
     public void actionPerformed(ActionEvent e)
     {
-        JOptionPane.showMessageDialog(parent, "Not Yet Implemented - sorry.");
+        JOptionPane.showMessageDialog(parent, Config.getString("greenfoot.nyi"));
     }
    
 }
