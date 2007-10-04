@@ -426,7 +426,7 @@ public class GClass
         }
         catch (ProjectNotOpenException e) {}
         catch (ClassNotFoundException e) {}
-        return Config.getString("gclass.tostring.error") + super.toString();
+        return "Error getting real toString. super:" + super.toString();
     }
 
     /**
