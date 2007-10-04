@@ -520,14 +520,14 @@ target="1.5">
         
         <!-- Remove empty lines from bluej.pkg -->
         <replaceregexp byline="false" flags="g">
-            <regexp pattern="(\n)\n+"/>
+            <regexp pattern="(\r?\n)(\r?\n)+"/>
             <substitution expression="\1"/>
             <fileset dir="scenarios" includes="**/bluej.pkg"/>
         </replaceregexp>        
         
         <!-- Remove empty lines from project.greenfoot -->
         <replaceregexp byline="false" flags="g">
-            <regexp pattern="(\n)\n+"/>
+            <regexp pattern="(\r?\n)(\r?\n)+"/>
             <substitution expression="\1"/>
             <fileset dir="scenarios" includes="**/project.greenfoot"/>
         </replaceregexp>
