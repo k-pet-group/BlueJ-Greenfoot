@@ -27,11 +27,11 @@ import bluej.utility.MultiLineLabel;
  * The BlueJ about box.
  * 
  * @author Poul Henriksen
- * @version $Id: AboutGreenfootDialog.java 5168 2007-08-22 14:51:34Z mik $
+ * @version $Id: AboutGreenfootDialog.java 5286 2007-10-04 04:18:15Z bquig $
  */
 public class AboutGreenfootDialog extends JDialog
 {
-    private static final String dialogTitle ="About Greenfoot";
+    private static final String dialogTitle =Config.getString("about.title");
 
     public AboutGreenfootDialog(JFrame parent, String version)
     {
@@ -74,7 +74,7 @@ public class AboutGreenfootDialog extends JDialog
                 + System.getProperty("os.version") + " (" + System.getProperty("os.arch") + ")");
         bottomtext.addText(Config.getString("about.javahome") + " " + System.getProperty("java.home"));
         bottomtext.addText(" ");
-        bottomtext.addText(Config.getString("More information can be found at www.greenfoot.org"));
+        bottomtext.addText(Config.getString("about.moreInfo"));
         bottomtext.addText(" ");
         bottomtext.addText(Config.getString("about.logfile") + " " + Config.getUserConfigFile(Config.greenfootDebugLogName));
 
