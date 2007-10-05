@@ -25,6 +25,7 @@ project.version.newer.part2=). Opening the scenario with this version might resu
 project.close=Close
 
 # Actions
+greenfoot.about=About Greenfoot...
 compile.all=Compile all
 compile.class=Compile
 edit.class=Open editor
