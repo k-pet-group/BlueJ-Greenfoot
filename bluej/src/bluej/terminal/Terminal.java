@@ -24,7 +24,7 @@ import bluej.utility.FileUtility;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 4911 2007-04-11 14:32:08Z mik $
+ * @version $Id: Terminal.java 5306 2007-10-05 05:34:10Z davmac $
  */
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
@@ -43,6 +43,8 @@ public final class Terminal extends JFrame
 
     static boolean enabled = true;
 
+    private static final String terminalFontPropertyName = "bluej.terminal.font";
+    private static final String terminalFontSizePropertyName = "bluej.terminal.fontsize";
 
     // -- instance --
 
@@ -72,6 +74,19 @@ public final class Terminal extends JFrame
     private boolean initialised = false; 
     
     /**
+     * Get the terminal font
+     */
+    private static Font getTerminalFont()
+    {
+        int fontSize = Config.getPropInteger(terminalFontSizePropertyName, 0);
+        if (fontSize == 0) {
+            fontSize = PrefMgr.getEditorFontSize();
+        }
+         
+        return Config.getFont(terminalFontPropertyName, "Monospaced", fontSize); 
+    }
+    
+    /**
      * Create a new terminal window with default specifications.
      */
     public Terminal(Project project)
@@ -85,7 +100,8 @@ public final class Terminal extends JFrame
     /**
      * Initialise the terminal; create the UI.
      */
-    private synchronized void initialise() {
+    private synchronized void initialise()
+    {
         if(! initialised) {            
             buffer = new InputBuffer(256);
             makeWindow(windowWidth, windowHeight);
@@ -114,7 +130,6 @@ public final class Terminal extends JFrame
         return isShowing();
     }
 
-
     /**
      * Make the window active.
      */
@@ -129,6 +144,18 @@ public final class Terminal extends JFrame
         }
     }
 
+    /**
+     * Reset the font according to preferences.
+     */
+    public void resetFont()
+    {
+        initialise();
+        Font terminalFont = getTerminalFont();
+        text.setFont(terminalFont);
+        if (errorText != null) {
+            errorText.setFont(terminalFont);
+        }
+    }
 
     /**
      * Clear the terminal.
@@ -375,7 +402,7 @@ public final class Terminal extends JFrame
         setIconImage(Config.getImage("image.icon.terminal"));        
         text = new TermTextArea(rows, columns);
         scrollPane = new JScrollPane(text);
-        text.setFont(PrefMgr.getTerminalFont());
+        text.setFont(getTerminalFont());
         text.setEditable(true);
         text.setLineWrap(false);
         text.setForeground(fgColour);
@@ -420,13 +447,13 @@ public final class Terminal extends JFrame
     }
 
     /**
-     * Create a second scrollled text area to the window, for error output.
+     * Create a second scrolled text area to the window, for error output.
      */
     private void createErrorPane()
     {
         errorText = new JTextArea(5, text.getColumns());
         errorScrollPane = new JScrollPane(errorText);
-        errorText.setFont(PrefMgr.getTerminalFont());
+        errorText.setFont(getTerminalFont());
         errorText.setEditable(false);
         errorText.setLineWrap(false);
         errorText.setForeground(errorColour);
@@ -437,8 +464,7 @@ public final class Terminal extends JFrame
     }
     
     /**
-     * Show the errorPane for error ouput
-     *
+     * Show the errorPane for error output
      */
     private void showErrorPane() {
         if(errorShown) {
@@ -459,7 +485,7 @@ public final class Terminal extends JFrame
         // This means a "clear" has been used to remove the splitpane
         // when this re-adds the scrollPane to the terminal area
         // it implicitly removes it from the splitpane as it can only have one
-        // owner. The side-effeect of this is the splitpane's
+        // owner. The side-effect of this is the splitpane's
         // top component becomes null.
         if(!isFirstShow)
             splitPane.setTopComponent(scrollPane);

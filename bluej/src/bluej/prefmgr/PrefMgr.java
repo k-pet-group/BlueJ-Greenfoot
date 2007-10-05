@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.*;
 
 import bluej.Config;
+import bluej.editor.EditorManager;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
 
 /**
  * A class to manage the user editable preferences
@@ -14,7 +17,7 @@ import bluej.Config;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 4921 2007-04-12 16:17:19Z mik $
+ * @version $Id: PrefMgr.java 5306 2007-10-05 05:34:10Z davmac $
  */
 public class PrefMgr
 {
@@ -36,8 +39,6 @@ public class PrefMgr
     private static final String editorFontPropertyName = "bluej.editor.font";
     private static final String editorMacFontPropertyName = "bluej.editor.MacOS.font";
     private static final String editorFontSizePropertyName = "bluej.editor.fontsize";
-    private static final String terminalFontPropertyName = "bluej.terminal.font";
-    private static final String terminalFontSizePropertyName = "bluej.terminal.fontsize";
 
     // other constants
     private static final int NUM_RECENT_PROJECTS = Config.getPropInteger("bluej.numberOfRecentProjects", 12);
@@ -84,29 +85,23 @@ public class PrefMgr
     private PrefMgr()
     {
         //set up fonts
-        setEditorFontSize(Config.getPropInteger(editorFontSizePropertyName, 12));
+        initEditorFontSize(Config.getPropInteger(editorFontSizePropertyName, 12));
 
         //bluej menu font
-        String menuFontName = Config.getPropString("bluej.menu.font", "SansSerif");
         menuFontSize = Config.getPropInteger("bluej.menu.fontsize", 12);
-        menuFont = deriveFont(menuFontName, menuFontSize);
+        menuFont = Config.getFont("bluej.menu.font", "SansSerif", menuFontSize);
         
         // popup menus are not permitted to be bold (MIK style guide) at present
         // make popup menus same font as drop down menus
-        if(menuFontName.endsWith("-bold")) {
-            menuFontName = menuFontName.substring(0, menuFontName.length()-5);
-        }
-        italicMenuFont = new Font(menuFontName, Font.ITALIC, menuFontSize);
-        popupMenuFont = new Font(menuFontName, Font.PLAIN, menuFontSize);
+        italicMenuFont = menuFont.deriveFont(Font.ITALIC);
+        popupMenuFont = menuFont.deriveFont(Font.PLAIN);
 
         //standard font for UI components
-        String normalFontName = Config.getPropString("bluej.font", "SansSerif");
         fontSize = Config.getPropInteger("bluej.fontsize", 12);
-        normalFont = deriveFont(normalFontName, fontSize);
+        normalFont = Config.getFont("bluej.font", "SansSerif", fontSize);
 
-        String targetFontName = Config.getPropString("bluej.target.font", "SansSerif-bold");
         targetFontSize = Config.getPropInteger("bluej.target.fontsize", 12);
-        targetFont = deriveFont(targetFontName, targetFontSize);
+        targetFont = Config.getFont("bluej.target.font", "SansSerif-bold", targetFontSize);
         
         // preferences other than fonts:
         
@@ -256,55 +251,48 @@ public class PrefMgr
      */
     public static void setEditorFontSize(int size)
     {
+        if (size > 0) {
+            initEditorFontSize(size);
+            EditorManager.getEditorManager().refreshAll();
+            Collection projects = Project.getProjects();
+            Iterator i = projects.iterator();
+            while (i.hasNext()) {
+                Project project = (Project) i.next();
+                if (project.hasTerminal()) {
+                    project.getTerminal().resetFont();
+                }
+            }
+            PkgMgrFrame [] frames = PkgMgrFrame.getAllFrames();
+            for (int j = 0; j < frames.length; j++) {
+                //frames[j];
+                frames[j].getCodePad().resetFontSize();
+            }
+        }
+    }
+    
+    /**
+     * Set up the editor font size, without informing various dependent components
+     * of a size change.
+     */
+    private static void initEditorFontSize(int size)
+    {
         if (size > 0 && size != editorFontSize) {
             editorFontSize = size;
 
             Config.putPropInteger(editorFontSizePropertyName, size);
 
-            String fontName;
+            Font font;
             if(Config.isMacOS()) {
-                fontName = Config.getPropString(editorMacFontPropertyName, 
-                                                "Monaco");
+                font = Config.getFont(editorMacFontPropertyName, "Monaco", size);
             }
             else {
-                fontName = Config.getPropString(editorFontPropertyName, 
-                                                "Monospaced");
+                font = Config.getFont(editorFontPropertyName, "Monospaced", size);
             }
-            editorStandardFont = deriveFont(fontName, size);
-            editorStandoutFont = new Font(fontName, Font.BOLD, size);
+            editorStandardFont = font;
+            editorStandoutFont = font.deriveFont(Font.BOLD);
         }
     }
     
-    /**
-     * Set the editor font size preference to a particular point size
-     *
-     * @param size  the size of the font
-     */
-    public static Font getTerminalFont()
-    {
-        int size = Config.getPropInteger(terminalFontSizePropertyName, 12);
-        String fontName = Config.getPropString(terminalFontPropertyName, "Monospaced");
-         
-        return deriveFont(fontName, size);
-    }
-    
-    /**
-    * Create font from name, style and size info.  Styles allowed are PLAIN
-    * and BOLD.  Bold is determined by -bold suffix on font name.
-    */
-    private static Font deriveFont(String fontName, int size)
-    {
-        int style;
-        if(fontName.endsWith("-bold")) {
-            style = Font.BOLD;
-            fontName = fontName.substring(0, fontName.length()-5);
-        }
-        else
-            style = Font.PLAIN;
-        
-        return new Font(fontName, style, size);
-    }
-
     /**
      * Return the editor font size as an integer size
      * (use getStandardEditorFont() if access to the actual font is required)

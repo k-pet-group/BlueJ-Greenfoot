@@ -2,18 +2,28 @@ package bluej;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.io.*;
-import java.util.List;
+import java.awt.font.TextAttribute;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.border.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 
-import bluej.utility.*;
+import bluej.utility.Debug;
+import bluej.utility.Utility;
 
 /**
  * Class to handle application configuration for BlueJ.
@@ -36,7 +46,7 @@ import bluej.utility.*;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 5271 2007-10-04 03:13:13Z bquig $
+ * @version $Id: Config.java 5306 2007-10-05 05:34:10Z davmac $
  */
 
 public final class Config
@@ -1132,7 +1142,7 @@ public final class Config
 
         return null;
     }
-
+    
     /**
      * Return a color value for selections.
      */
@@ -1142,6 +1152,29 @@ public final class Config
             selectionColour = Config.getItemColour("colour.selection");
         }
         return selectionColour;
+    }
+    
+    /**
+     * Get a font from a specified property, using the given default font name and
+     * the given size. Font name can end with "-bold" to indicate bold style.
+     */
+    public static Font getFont(String propertyName, String defaultFontName, int size)
+    {
+        String fontName = getPropString(propertyName, null);
+        if (fontName == null) {
+            fontName = defaultFontName;
+        }
+        
+        int style;
+        if(fontName.endsWith("-bold")) {
+            style = Font.BOLD;
+            fontName = fontName.substring(0, fontName.length()-5);
+        }
+        else {
+            style = Font.PLAIN;
+        }
+        
+        return new Font(fontName, style, size);
     }
     
     /**

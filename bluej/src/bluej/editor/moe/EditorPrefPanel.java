@@ -1,4 +1,4 @@
-// Copyright (c) 2000, 2005 BlueJ Group, Deakin University
+// Copyright (c) 2000, 2005, 2007 BlueJ Group, Deakin University
 //
 // This software is made available under the terms of the "MIT License"
 // A copy of this license is included with this source distribution
@@ -8,20 +8,22 @@
 
 package bluej.editor.moe;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 
-import bluej.Config;
+import javax.swing.*;
+
 import bluej.BlueJTheme;
-import bluej.editor.EditorManager;
-import bluej.prefmgr.*;
+import bluej.Config;
+import bluej.prefmgr.PrefMgr;
+import bluej.prefmgr.PrefPanelListener;
 
 /**
  * A PrefPanel subclass to allow the user to interactively edit
  * editor settings
  *
  * @author  Michael Kolling
- * @version $Id: EditorPrefPanel.java 3357 2005-05-02 03:23:33Z davmac $
+ * @version $Id: EditorPrefPanel.java 5306 2007-10-05 05:34:10Z davmac $
  */
 public class EditorPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -30,7 +32,6 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
     private JCheckBox autoIndentBox;
     private JCheckBox lineNumbersBox;
     private JCheckBox makeBackupBox;
-    private JCheckBox showTestBox;
     private JCheckBox matchBracketsBox;
 
     /**
@@ -108,7 +109,5 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
         PrefMgr.setFlag(PrefMgr.LINENUMBERS, lineNumbersBox.isSelected());
         PrefMgr.setFlag(PrefMgr.MAKE_BACKUP, makeBackupBox.isSelected());
         PrefMgr.setFlag(PrefMgr.MATCH_BRACKETS, matchBracketsBox.isSelected());
-
-        EditorManager.getEditorManager().refreshAll();
     }
 }

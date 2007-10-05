@@ -7,12 +7,13 @@ import javax.swing.*;
 
 import bluej.Config;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.prefmgr.PrefMgr;
 
 /**
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 3508 2005-08-08 04:18:26Z davmac $
+ * @version $Id: TextEvalArea.java 5306 2007-10-05 05:34:10Z davmac $
  */
 public final class TextEvalArea extends JScrollPane
     implements KeyListener, FocusListener
@@ -54,6 +55,33 @@ public final class TextEvalArea extends JScrollPane
         text.clear();
         text.clearVars();
     }
+    
+    /**
+     * Reset the font size according to preferences.
+     */
+    public void resetFontSize()
+    {
+        int fontsize = getFontSize();
+        if (fontsize != 0) {
+            Font codepadFont = text.getFont();
+            if (codepadFont.getSize() != fontsize) {
+                text.setFont(codepadFont.deriveFont((float) fontsize));
+            }
+        }
+    }
+    
+    /**
+     * Get the font size according to preferences. Might return 0.
+     */
+    private int getFontSize()
+    {
+        int fontsize = Config.getPropInteger("bluej.codepad.fontsize", 0);
+        if (fontsize == 0) {
+            // If not set specifically for codepad, use the editor font size
+            fontsize = PrefMgr.getEditorFontSize();
+        }
+        return fontsize;
+    }
 
     // --- FocusListener interface ---
     
@@ -89,7 +117,8 @@ public final class TextEvalArea extends JScrollPane
      * here. This method (and the whole keylistener interface) can be removed
      * when we don't support 1.4 anymore. (Fixed in JDK 5.0.)
      */
-    public void keyTyped(KeyEvent e) {
+    public void keyTyped(KeyEvent e)
+    {
         char ch = e.getKeyChar();
         final char DEL = 127;
         if(ch == '\b' || ch == '\t' || ch == DEL) {
@@ -112,6 +141,10 @@ public final class TextEvalArea extends JScrollPane
 
         text.addKeyListener(this);
         text.addFocusListener(this);
+        int fontSize = getFontSize();
+        if (fontSize != 0) {
+            font = font.deriveFont((float) fontSize);
+        }
         text.setFont(font);
         text.setSelectionColor(selectionColour);
 

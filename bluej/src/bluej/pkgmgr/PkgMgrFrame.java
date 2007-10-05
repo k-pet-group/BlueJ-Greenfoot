@@ -58,7 +58,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 5290 2007-10-04 06:02:25Z davmac $
+ * @version $Id: PkgMgrFrame.java 5306 2007-10-05 05:34:10Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -801,6 +801,13 @@ public class PkgMgrFrame extends JFrame
         return objbench;
     }
 
+    /**
+     * Return the Code Pad component.
+     */
+    public TextEvalArea getCodePad()
+    {
+        return textEvaluator;
+    }
 
     public void mousePressed(MouseEvent evt)
     {
@@ -2588,19 +2595,7 @@ public class PkgMgrFrame extends JFrame
         classScroller.setPreferredSize(classScroller.getSize()); // memorize
                                                                  // current size
         if (textEvaluator == null) {
-            
-            // Determine codepad font
-            Font codepadFont = PkgMgrFont;
-            int fontsize = Config.getPropInteger("bluej.codepad.fontsize", 0);
-            if (fontsize == 0) {
-                // If not set specifically for codepad, use the editor font size
-                fontsize = Config.getPropInteger("bluej.editor.fontsize", 0);
-            }
-            if (fontsize != 0) {
-                codepadFont = codepadFont.deriveFont((float) fontsize);
-            }
-            
-            textEvaluator = new TextEvalArea(this, codepadFont);
+            textEvaluator = new TextEvalArea(this, PkgMgrFont);
             objectBenchSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, objbench, textEvaluator);
             objectBenchSplitPane.setBorder(null);
             objectBenchSplitPane.setResizeWeight(1.0);
