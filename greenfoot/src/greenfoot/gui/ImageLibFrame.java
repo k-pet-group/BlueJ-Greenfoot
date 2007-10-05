@@ -59,7 +59,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 5293 2007-10-04 06:40:57Z bquig $
+ * @version $Id: ImageLibFrame.java 5305 2007-10-05 04:16:47Z bquig $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -254,7 +254,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             {
                 JFileChooser chooser = new JFileChooser();
                 new ImageFilePreview(chooser);
-                int choice = chooser.showDialog(ImageLibFrame.this, Config.getString("imagelib.browse.button"));
+                int choice = chooser.showDialog(ImageLibFrame.this, Config.getString("imagelib.choose.button"));
                 if (choice == JFileChooser.APPROVE_OPTION) {
                     selectedImageFile = chooser.getSelectedFile();
                     imageLabel.setIcon(getPreviewIcon(selectedImageFile));
