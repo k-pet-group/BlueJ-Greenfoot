@@ -6,7 +6,6 @@ import java.util.Random;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import greenfoot.core.KeyboardManager;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.sound.SoundPlayer;
@@ -33,7 +32,7 @@ import greenfoot.sound.SoundPlayer;
  * 
  * @author Davin McCall
  * @version 1.3.0
- * @cvs-version $Id: Greenfoot.java 5302 2007-10-04 16:35:21Z polle $
+ * @cvs-version $Id: Greenfoot.java 5311 2007-10-09 14:46:08Z polle $
  */
 public class Greenfoot
 {
