@@ -30,8 +30,8 @@ import java.util.*;
  * @author Poul Henriksen
  * @author Michael Kolling
  * @version 1.3.0
- * @cvs-version $Id$
  */
+@SuppressWarnings("unchecked")
 public abstract class World
 {    
     // private CollisionChecker collisionChecker = new GridCollisionChecker();
