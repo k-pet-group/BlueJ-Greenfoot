@@ -163,7 +163,7 @@ public class City extends World
     public void pause(int steps)
     {
         for (int i = 0; i < steps; i++) {
-            Greenfoot.delay();
+            Greenfoot.delay(1);
         }
     }
     
