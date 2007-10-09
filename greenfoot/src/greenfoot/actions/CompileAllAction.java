@@ -17,7 +17,7 @@ import bluej.extensions.ProjectNotOpenException;
  * Action that compiles all classes that needs compilation.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: CompileAllAction.java 5282 2007-10-04 04:05:32Z bquig $
+ * @version $Id: CompileAllAction.java 5310 2007-10-09 13:13:16Z polle $
  */
 public class CompileAllAction extends AbstractAction
 {
@@ -41,8 +41,13 @@ public class CompileAllAction extends AbstractAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        Simulation.getInstance().setPaused(true);
         try {
+            int numOfClasses = project.getDefaultPackage().getClasses().length;
+            // we only want to compile if there are classes in the project
+            if(numOfClasses < 1) {
+                return;
+            }
+            Simulation.getInstance().setPaused(true);
         	project.getDefaultPackage().compileAll(false);
         }
         catch (ProjectNotOpenException pnoe) {}
