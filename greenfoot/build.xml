@@ -515,24 +515,17 @@ target="1.5">
             <substitution expression=""/>
             <fileset dir="scenarios" includes="**/project.greenfoot"/>
         </replaceregexp>
-        <!-- Remove size and location from bluej.pkg -->
+        <!-- Remove size and location from project.greenfoot-->
         <replaceregexp byline="true">
             <regexp pattern="package.editor.*"/>
             <substitution expression=""/>
-            <fileset dir="scenarios" includes="**/bluej.pkg"/>
+            <fileset dir="scenarios" includes="**/project.greenfoot"/>
         </replaceregexp>        
         <replaceregexp byline="true" >
             <regexp pattern="target.*editor.*"/>
             <substitution expression=""/>
-            <fileset dir="scenarios" includes="**/bluej.pkg"/>
-        </replaceregexp>
-        
-        <!-- Remove empty lines from bluej.pkg -->
-        <replaceregexp byline="false" flags="g">
-            <regexp pattern="(\r?\n)(\r?\n)+"/>
-            <substitution expression="\1"/>
-            <fileset dir="scenarios" includes="**/bluej.pkg"/>
-        </replaceregexp>        
+            <fileset dir="scenarios" includes="**/project.greenfoot"/>
+        </replaceregexp>               
         
         <!-- Remove empty lines from project.greenfoot -->
         <replaceregexp byline="false" flags="g">
