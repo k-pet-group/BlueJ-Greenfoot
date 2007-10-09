@@ -200,7 +200,7 @@ public class ColorHandler extends Actor
     private void pause(int actDelay)
     {
         for (int i = 0; i < actDelay; i++) {
-            Greenfoot.delay();
+            Greenfoot.delay(1);
         }
     }
 }
