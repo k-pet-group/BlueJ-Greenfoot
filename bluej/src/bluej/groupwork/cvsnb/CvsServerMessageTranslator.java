@@ -1,11 +1,13 @@
 package bluej.groupwork.cvsnb;
 
+import bluej.utility.DialogManager;
+
 /**
  * This class takes strings that represent messages from the CVS server and
  * returns strings that are easier to understand.
  * 
  * @author fisker
- * @version $Id: CvsServerMessageTranslator.java 4926 2007-04-13 02:28:18Z davmac $
+ * @version $Id: CvsServerMessageTranslator.java 5318 2007-10-11 01:55:35Z davmac $
  */
 public class CvsServerMessageTranslator
 {
@@ -37,6 +39,9 @@ public class CvsServerMessageTranslator
         }
         else if (trimmedInput.length() == 0) {
             output = "team-empty-message";
+        }
+        if (output != null) {
+            output = DialogManager.getMessage(output);
         }
         return output;
     }

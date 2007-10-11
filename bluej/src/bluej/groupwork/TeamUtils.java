@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import bluej.groupwork.cvsnb.CvsServerMessageTranslator;
 import bluej.utility.DialogManager;
 
 public class TeamUtils
@@ -27,13 +26,7 @@ public class TeamUtils
             }
             else if (result.isError() && ! result.wasAborted()) {
                 String message = result.getErrorMessage();
-                String translatedMessage = CvsServerMessageTranslator.translate(message);
-                if (translatedMessage != null) {
-                    DialogManager.showError(window, translatedMessage);
-                }
-                else {
-                    DialogManager.showErrorText(window, message);
-                }
+                DialogManager.showErrorText(window, message);
             }
         }
     }
