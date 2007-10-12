@@ -1,7 +1,7 @@
 package bluej.extensions;
 
 
-/* The problem I am tring to solve is to have a uniform and simple way to deal with
+/* The problem I am trying to solve is to have a uniform and simple way to deal with
  * objects validity. An extension may be holding BProject  but this BProject may not be valid
  * since the gui has closed it. Or may be holding aBPackage and this not being valid
  * The same apply to a BClass or a BOBject.
@@ -147,6 +147,9 @@ class Identifier
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
+                // Check if it's already visible first, as calling
+                // setVisible(true) causes frame to grab focus on
+                // Windows
                 if(!pmf.isVisible()) {
                     pmf.setVisible(true);
                 }
