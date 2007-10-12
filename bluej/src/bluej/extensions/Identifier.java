@@ -147,7 +147,9 @@ class Identifier
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
-                pmf.setVisible(true);
+                if(!pmf.isVisible()) {
+                    pmf.setVisible(true);
+                }
             }
         });
         return pmf;
