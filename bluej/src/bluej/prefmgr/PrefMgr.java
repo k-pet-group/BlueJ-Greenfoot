@@ -17,7 +17,7 @@ import bluej.pkgmgr.Project;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 5306 2007-10-05 05:34:10Z davmac $
+ * @version $Id: PrefMgr.java 5328 2007-10-23 10:26:54Z polle $
  */
 public class PrefMgr
 {
@@ -264,8 +264,9 @@ public class PrefMgr
             }
             PkgMgrFrame [] frames = PkgMgrFrame.getAllFrames();
             for (int j = 0; j < frames.length; j++) {
-                //frames[j];
-                frames[j].getCodePad().resetFontSize();
+                if(frames[j].getCodePad() != null) {
+                    frames[j].getCodePad().resetFontSize();
+                }
             }
         }
     }
