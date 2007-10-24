@@ -29,7 +29,7 @@ import bluej.Config;
  * to and from other character encodings.
  * 
  * @author Michael Kolling
- * @version $Id: BlueJFileReader.java 5336 2007-10-24 08:13:04Z davmac $
+ * @version $Id: BlueJFileReader.java 5341 2007-10-24 12:43:43Z davmac $
  */
 public class BlueJFileReader
 {
@@ -193,10 +193,11 @@ public class BlueJFileReader
 
                         out.write(value);
                     }
-                    if (c != '$') {
+                    else if (c != '$') {
                         // let '$$' be an escape for single $
                         out.write('$');
                     }
+                    
                     if(c != -1) {
                         out.write(c);
                     }
