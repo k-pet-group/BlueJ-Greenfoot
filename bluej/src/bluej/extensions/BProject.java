@@ -12,7 +12,7 @@ import bluej.pkgmgr.Project;
 /**
  * A wrapper for a BlueJ project.
  *
- * @version $Id: BProject.java 5089 2007-06-07 02:19:17Z davmac $
+ * @version $Id: BProject.java 5343 2007-10-24 16:13:50Z iau $
  */
 
 /*
@@ -77,6 +77,17 @@ public class BProject
         thisProject.saveAll();
         PkgMgrFrame.closeProject (thisProject);
     }
+    
+    /**
+     * Restarts the VM used to run user code for this project.
+     * As a side-effect, removes all objects from the object bench.
+     * @throws ProjectNotOpenException if the project has been closed by the user.
+     */
+    public void restartVM() throws ProjectNotOpenException
+    {
+        projectId.getBluejProject().restartVM();
+    }
+            
     
     /**
      * Create and return a new package with the given fully qualified name.
