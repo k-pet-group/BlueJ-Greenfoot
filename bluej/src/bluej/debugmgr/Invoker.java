@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 5071 2007-05-30 02:19:05Z davmac $
+ * @version $Id: Invoker.java 5342 2007-10-24 16:12:55Z iau $
  */
 
 public class Invoker
@@ -295,18 +295,6 @@ public class Invoker
                 instanceName = mDialog.getNewInstanceName();                
                 String[] actualTypeParams = mDialog.getTypeParams();
                 
-                // if we are calling a main method then we want to simulate a
-                // new launch of an application, so first of all we unload all our
-                // classes (prevents problems with static variables not being
-                // reinitialised because the class hangs around from a previous
-                // call)
-                if(member instanceof MethodView) {
-                    MethodView mv = (MethodView)member;
-                    if((mv).isMain()) {
-                        pmf.getProject().removeClassLoader();
-                        pmf.getProject().newRemoteClassLoaderLeavingBreakpoints();
-                    }
-                }
                 pmf.setWaitCursor(true);
                 doInvocation(mDialog.getArgs(), mDialog.getArgGenTypes(true), actualTypeParams);
                 
@@ -467,10 +455,20 @@ public class Invoker
             }
 
             if (isVoid) {
-                if (method.isMain())
+                if (method.isMain()) {
+                    // if we are calling a main method then we want to simulate a
+                    // new launch of an application, so first of all we unload all our
+                    // classes (prevents problems with static variables not being
+                    // reinitialised because the class hangs around from a previous
+                    // call)
+                    pmf.getProject().removeClassLoader();
+                    pmf.getProject().newRemoteClassLoaderLeavingBreakpoints();
+
                     ir = new StaticVoidMainMethodInvokerRecord();
-                else
+                } 
+                else {
                     ir = new VoidMethodInvokerRecord(command + actualArgString, args);
+                }
                 instanceName = null;
             }
             else {
