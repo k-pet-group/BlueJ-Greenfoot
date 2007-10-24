@@ -29,7 +29,7 @@ import bluej.Config;
  * to and from other character encodings.
  * 
  * @author Michael Kolling
- * @version $Id: BlueJFileReader.java 4736 2006-12-04 04:25:10Z bquig $
+ * @version $Id: BlueJFileReader.java 5336 2007-10-24 08:13:04Z davmac $
  */
 public class BlueJFileReader
 {
@@ -133,13 +133,6 @@ public class BlueJFileReader
             return pattern.equals(message);
     }
 
-    public static void translateFile(String template, String dest,
-                                     Dictionary translations)
-        throws IOException
-    {
-        translateFile(new File(template), new File(dest), translations);
-    }
-
     /**
      * Copy a file while replacing special keywords
      * within the file by definitions.
@@ -171,6 +164,7 @@ public class BlueJFileReader
     {
         FileReader in = null;
         FileWriter out = null;
+        String newline = System.getProperty("line.separator");
 
         try {
             in = new FileReader(template);
@@ -179,31 +173,53 @@ public class BlueJFileReader
             for(int c; (c = in.read()) != -1; ) {
                 if(c == '$') {
                     StringBuffer buf = new StringBuffer();
-                    while(((c = in.read()) != -1) && Character.isLetter((char)c))
+                    while(((c = in.read()) != -1) && Character.isLetter((char)c)) {
                         buf.append((char)c);
-
-                    String key = buf.toString();
-                    String value = (String)translations.get(key);
-                    
-                    // TODO if there are tabs, replace
-                    if(replaceTabs && value.indexOf(TAB_CHAR) != -1)
-                        value = convertTabsToSpaces(value);
-                    
-                    if(value == null) {
-                        out.write('$');
-                        value = key;
                     }
 
-                    out.write(value);
-                    if(c != -1)
+                    String key = buf.toString();
+                    if (key.length() != 0) {
+                        String value = (String)translations.get(key);
+
+                        // If there are tabs, replace
+                        if(replaceTabs && value.indexOf(TAB_CHAR) != -1) {
+                            value = convertTabsToSpaces(value);
+                        }
+
+                        if(value == null) {
+                            out.write('$');
+                            value = key;
+                        }
+
+                        out.write(value);
+                    }
+                    if (c != '$') {
+                        // let '$$' be an escape for single $
+                        out.write('$');
+                    }
+                    if(c != -1) {
                         out.write(c);
+                    }
                 }
                 else if(replaceTabs && c == TAB_CHAR) {
                     out.write(tabAsSpace());
                 }
-                
-                else 
+                else if(c == '\r') {
+                    // The template is encoded with CR+LF line endings
+                    int nc = in.read();
+                    if (nc == '\n') {
+                        out.write(newline);
+                    }
+                    else {
+                        out.write(c);
+                        if (nc != -1) {
+                            out.write(nc);
+                        }
+                    }
+                }
+                else {
                     out.write(c);
+                }
             }
 
             in.close();
@@ -238,7 +254,8 @@ public class BlueJFileReader
     /**
      * Convert Unicode based characters in \udddd format
      */
-    private static String convert(String theString) {
+    private static String convert(String theString)
+    {
         char aChar;
         int len = theString.length();
         StringBuffer outBuffer = new StringBuffer(len);
