@@ -1,6 +1,5 @@
 package greenfoot.export;
 
-import bluej.Config;
 import greenfoot.World;
 import greenfoot.core.LocationTracker;
 import greenfoot.core.ProjectProperties;
@@ -21,6 +20,7 @@ import greenfoot.util.StandalonePropStringManager;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.FileNotFoundException;
@@ -30,12 +30,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
-import javax.swing.BorderFactory;
-import javax.swing.JApplet;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JRootPane;
-import javax.swing.RootPaneContainer;
+import javax.swing.*;
+
+import bluej.Config;
 
 /**
  * This class can view and run a greenfoot scenario. It is not possible to
@@ -74,13 +71,20 @@ public class GreenfootScenarioViewer extends JApplet
     public static void main(String[] args)
     {
         System.setProperty("apple.laf.useScreenMenuBar", "true");
-        JFrame frame = new JFrame(scenarioName);
+        
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run()
+            {
+                JFrame frame = new JFrame(scenarioName);
 
-        GreenfootScenarioViewer gs = new GreenfootScenarioViewer(frame);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setTitle(scenarioName);
-        frame.pack();
-        frame.setVisible(true);
+                GreenfootScenarioViewer gs = new GreenfootScenarioViewer(frame);
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setTitle(scenarioName);
+                frame.pack();
+                frame.setVisible(true);
+            }
+        });
     }
 
     public GreenfootScenarioViewer()
@@ -324,7 +328,8 @@ public class GreenfootScenarioViewer extends JApplet
     public void instantiateNewWorld() 
     {
         try {
-            World world = (World) worldConstructor.newInstance(new Object[]{});            
+            World world = (World) worldConstructor.newInstance(new Object[]{});
+            canvas.setWorld(world);
             WorldHandler.getInstance().setWorld(world);
         }
         catch (IllegalArgumentException e) {

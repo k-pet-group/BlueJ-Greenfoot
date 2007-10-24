@@ -337,7 +337,7 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
         else if (o instanceof Actor) {
             Actor actor = (Actor) o;
             if(actor.getWorld() == null) {
-                // Under some strange cirumstances the world can be null here.
+                // Under some strange circumstances the world can be null here.
                 // This can happen in the GridWorld scenario because it
                 // overrides World.addObject().
                 return false;
