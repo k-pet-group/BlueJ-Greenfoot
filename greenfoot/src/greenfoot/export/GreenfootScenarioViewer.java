@@ -73,7 +73,6 @@ public class GreenfootScenarioViewer extends JApplet
         System.setProperty("apple.laf.useScreenMenuBar", "true");
         
         EventQueue.invokeLater(new Runnable() {
-            @Override
             public void run()
             {
                 JFrame frame = new JFrame(scenarioName);
