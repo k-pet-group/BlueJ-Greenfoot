@@ -47,6 +47,8 @@ public class JavaUtilTests extends TestCase
         JavaUtils jutils = JavaUtils.getJavaUtils();
         JavaUtils jutils14 = new JavaUtils14();
         boolean onjava5 = ! (jutils instanceof JavaUtils14);
+        String majorVersion = System.getProperty("java.specification.version");        
+        boolean onjava6 = majorVersion.compareTo("1.6") >= 0;
         
         Method sampleMeth = null;
         
@@ -76,7 +78,12 @@ public class JavaUtilTests extends TestCase
             }
             
             sig = jutils.getSignature(sampleMeth);
-            assertEquals(sig, "Constructor<T> getConstructor(Class ...)");
+            if (! onjava6) {
+                assertEquals("Constructor<T> getConstructor(Class ...)", sig);
+            }
+            else {
+                assertEquals("Constructor<T> getConstructor(Class<?> ...)", sig);
+            }
         }
         
     }

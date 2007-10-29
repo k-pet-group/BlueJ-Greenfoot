@@ -6,12 +6,14 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
 import junit.framework.TestCase;
 import bluej.Boot;
 import bluej.Config;
+import bluej.SplashLabel;
 import bluej.classmgr.BPClassLoader;
 import bluej.debugger.*;
 import bluej.debugmgr.Invoker;
@@ -28,14 +30,15 @@ import bluej.views.View;
  * Tests for the debugger.
  *  
  * @author Davin McCall
- * @version $Id: JdiTests.java 4915 2007-04-12 03:55:45Z davmac $
+ * @version $Id: JdiTests.java 5346 2007-10-29 05:00:43Z davmac $
  */
 public class JdiTests extends TestCase
 {
     // various vars useful for testing
     boolean failed = false;
     boolean flag1 = false;
-        
+    Boot bootInstance;
+    
     protected void setUp()
     {
         try {
@@ -45,9 +48,12 @@ public class JdiTests extends TestCase
 
             Class bootClass = Class.forName("bluej.Boot");
             
-            Constructor bootConstructor = bootClass.getDeclaredConstructor(new Class[] { String[].class, Properties.class });
+            Constructor bootConstructor = bootClass.getDeclaredConstructor(new Class[] { String[].class, Properties.class, SplashLabel.class });
             bootConstructor.setAccessible(true);
-            Boot bootInstance = (Boot) bootConstructor.newInstance(new Object[] { new String[0], new Properties() });
+            SplashLabel splashLabel = new SplashLabel("") {
+                // empty
+            };
+            bootInstance = (Boot) bootConstructor.newInstance(new Object[] { new String[0], new Properties(), splashLabel });
             
             // call initializeBoot method
             Method initMethod = bootClass.getDeclaredMethod("initializeBoot", null);
@@ -96,6 +102,26 @@ public class JdiTests extends TestCase
         return null;
     }
     
+    protected BPClassLoader getProjectClassloader(File projectDir)
+    {
+        URL [] runtimeClassPath = bootInstance.getRuntimeClassPath();
+        URL [] projectClassPath = new URL[runtimeClassPath.length + 1];
+        
+        int i;
+        for (i = 0; i < runtimeClassPath.length; i++) {
+            projectClassPath[i] = runtimeClassPath[i];
+        }
+        
+        try {
+            projectClassPath[i] = projectDir.toURI().toURL();
+        }
+        catch (MalformedURLException mfue) {
+            throw new RuntimeException(mfue);
+        }
+        
+        return new BPClassLoader(projectClassPath, null);
+    }
+    
     protected void tearDown()
     {
     }
@@ -122,7 +148,9 @@ public class JdiTests extends TestCase
         DebuggerTerminal term = new TestTerminal();
         final JdiDebugger debugger = new JdiDebugger(launchDir,term);
         debugger.launch();
-        debugger.newClassLoader(new BPClassLoader(new URL[] {launchDir.toURI().toURL()}, null));
+        
+        BPClassLoader projectLoader = getProjectClassloader(launchDir);
+        debugger.newClassLoader(projectLoader);
         
         // wait til the debugger process has actually started
         debugger.getClass("shellInfiniteLoop");
