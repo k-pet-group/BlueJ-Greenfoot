@@ -44,7 +44,7 @@ import bluej.utility.Utility;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: TextEvalPane.java 5356 2007-10-31 03:09:08Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ValueCollection, ResultWatcher, MouseMotionListener
@@ -785,10 +785,12 @@ public class TextEvalPane extends JEditorPane
                     if (declaredVars != null) {
                         Iterator i = textParser.getDeclaredVars().iterator();
                         while (i.hasNext()) {
-                            if (newlyDeclareds == null)
+                            if (newlyDeclareds == null) {
                                 newlyDeclareds = new ArrayList();
-                            if (autoInitializedVars == null)
+                            }
+                            if (autoInitializedVars == null) {
                                 autoInitializedVars = new ArrayList();
+                            }
                             
                             TextParser.DeclaredVar dv = (TextParser.DeclaredVar) i.next();
                             String declaredName = dv.getName();

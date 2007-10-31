@@ -1904,7 +1904,10 @@ public class TextParser
             // figure out the class name of the array class
             String xName = "[" + baseType.arrayComponentName();
             try {
-                baseType = new GenTypeArray(baseType, new JavaReflective(classLoader.loadClass(xName)));
+                // In Java 6, ClassLoader.loadClass() fails to load primitive
+                // array classes; must use Class.forName instead.
+                Class arrayClass = Class.forName(xName, false, classLoader);
+                baseType = new GenTypeArray(baseType, new JavaReflective(arrayClass));
             }
             catch (ClassNotFoundException cnfe) {}
             arrayNode = arrayNode.getFirstChild();
