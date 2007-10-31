@@ -9,7 +9,7 @@ import bluej.debugmgr.objectbench.ObjectBench;
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 5354 2007-10-31 02:24:44Z davmac $
+ * @version $Id: TextParserTest.java 5355 2007-10-31 03:04:53Z davmac $
  */
 public class TextParserTest extends TestCase
 {
@@ -79,11 +79,19 @@ public class TextParserTest extends TestCase
     {
         ObjectBench ob = new ObjectBench();
         TextParser tp = new TextParser(getClass().getClassLoader(), "", ob);
-        String r = tp.parseCommand("int [] ia = new int [] {1,2,3};");
+        tp.parseCommand("int [] ia = new int [] {1,2,3};");
         List declaredVars = tp.getDeclaredVars();
         assertEquals(1, declaredVars.size());
         TextParser.DeclaredVar var = (TextParser.DeclaredVar) declaredVars.get(0);
         assertEquals("ia", var.getName());
         assertEquals("int[]", var.getDeclaredVarType().toString());
+        
+        // Test two-dimensional array
+        tp.parseCommand("int [][] iaa = new int [5][6];");
+        declaredVars = tp.getDeclaredVars();
+        assertEquals(1, declaredVars.size());
+        var = (TextParser.DeclaredVar) declaredVars.get(0);
+        assertEquals("iaa", var.getName());
+        assertEquals("int[][]", var.getDeclaredVarType().toString());
     }
 }
