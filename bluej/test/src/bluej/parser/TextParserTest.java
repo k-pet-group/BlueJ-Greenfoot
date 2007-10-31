@@ -1,5 +1,7 @@
 package bluej.parser;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 import bluej.debugmgr.objectbench.ObjectBench;
 
@@ -7,7 +9,7 @@ import bluej.debugmgr.objectbench.ObjectBench;
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 3574 2005-09-19 02:23:11Z davmac $
+ * @version $Id: TextParserTest.java 5354 2007-10-31 02:24:44Z davmac $
  */
 public class TextParserTest extends TestCase
 {
@@ -71,5 +73,17 @@ public class TextParserTest extends TestCase
         TextParser tp = new TextParser(getClass().getClassLoader(), "", ob);
         String r = tp.parseCommand("(java.util.LinkedList<?>) new java.util.LinkedList<Thread>()");
         assertEquals("java.util.LinkedList<?>", r);
+    }
+    
+    public void testArrayDeclaration()
+    {
+        ObjectBench ob = new ObjectBench();
+        TextParser tp = new TextParser(getClass().getClassLoader(), "", ob);
+        String r = tp.parseCommand("int [] ia = new int [] {1,2,3};");
+        List declaredVars = tp.getDeclaredVars();
+        assertEquals(1, declaredVars.size());
+        TextParser.DeclaredVar var = (TextParser.DeclaredVar) declaredVars.get(0);
+        assertEquals("ia", var.getName());
+        assertEquals("int[]", var.getDeclaredVarType().toString());
     }
 }
