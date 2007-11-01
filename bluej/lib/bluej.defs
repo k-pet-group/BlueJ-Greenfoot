@@ -419,7 +419,6 @@ bluej.teamwork.showtools=false
 
 colour.background=208,212,208
 colour.graph.background=255,255,255
-colour.text.bg=255,255,255
 colour.text.fg=0,0,0
 
 colour.arrow.uses=0,0,0

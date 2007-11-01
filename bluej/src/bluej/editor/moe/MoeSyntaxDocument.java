@@ -34,7 +34,10 @@ public class MoeSyntaxDocument extends SyntaxDocument
     public static final String ERROR = "error";
 
 	private static Color[] colors = null;
-    
+	
+	private static Color defaultColour = null;
+    private static Color backgroundColour = null;
+	
     public MoeSyntaxDocument()
     {
         super(getUserColors());
@@ -70,7 +73,21 @@ public class MoeSyntaxDocument extends SyntaxDocument
         }
     }
     
+    /**
+     * Get the default colour for MoeSyntaxDocuments.
+     */
+    public static Color getDefaultColor()
+    {
+        return defaultColour;
+    }
     
+    /**
+     * Get the background colour for MoeSyntaxDocuments.
+     */
+    public static Color getBackgroundColor()
+    {
+        return backgroundColour;
+    }
     
     /**
      * Allows user-defined colours to be set for synax highlighting. The file
@@ -84,48 +101,56 @@ public class MoeSyntaxDocument extends SyntaxDocument
     private static Color[] getUserColors()
     { 
         if(colors == null) {
-            	// Build colour table.	   
-            	colors = new Color[Token.ID_COUNT];
-            	
-            	// Replace with user-defined colours.
-            	int    colorInt;
-            	
-            	// Comments.
-                colorInt = getPropHexInt("comment", 0x1a1a80);
-            	colors[Token.COMMENT1] = new Color(colorInt);    
-            	
-            	// Javadoc comments.
-                colorInt = getPropHexInt("javadoc", 0x1a1a80);
-            	colors[Token.COMMENT2] = new Color(colorInt);
-            	
-            	// Stand-out comments (/*#).
-                colorInt = getPropHexInt("stand-out", 0xee00bb);
-            	colors[Token.COMMENT3] = new Color(colorInt);
-            	
-            	// Java keywords.
-                colorInt = getPropHexInt("keyword1", 0x660033);
-            	colors[Token.KEYWORD1] = new Color(colorInt);
-            	
-            	// Class-based keywords.
-                colorInt = getPropHexInt("keyword2", 0xcc8033);
-            	colors[Token.KEYWORD2] = new Color(colorInt);
-            	
-            	// Other Java keywords (true, false, this, super).
-                colorInt = getPropHexInt("keyword3", 0x006699);
-            	colors[Token.KEYWORD3] = new Color(colorInt);
-            	
-            	// Primitives.
-                colorInt = getPropHexInt("primitive", 0xcc0000);
-            	colors[Token.PRIMITIVE] = new Color(colorInt);
-            	
-            	// String literals.
-                colorInt = getPropHexInt("string", 0x339933);
-            	colors[Token.LITERAL1] = new Color(colorInt);
-            	
-            	// Leave remaining tokens as default.
-            	colors[Token.LABEL]    = new Color(0x990000);
-            	colors[Token.OPERATOR] = new Color(0xcc9900);
-            	colors[Token.INVALID]  = new Color(0xff3300);
+            // Replace with user-defined colours.
+            int    colorInt;
+                        
+            // First determine default colour and background colour
+            colorInt = getPropHexInt("other", 0x000000);
+            defaultColour = new Color(colorInt);
+            
+            colorInt = getPropHexInt("background", 0x000000);
+            backgroundColour = new Color(colorInt);
+
+            // Build colour table.	   
+            colors = new Color[Token.ID_COUNT];
+
+            // Comments.
+            colorInt = getPropHexInt("comment", 0x1a1a80);
+            colors[Token.COMMENT1] = new Color(colorInt);    
+
+            // Javadoc comments.
+            colorInt = getPropHexInt("javadoc", 0x1a1a80);
+            colors[Token.COMMENT2] = new Color(colorInt);
+
+            // Stand-out comments (/*#).
+            colorInt = getPropHexInt("stand-out", 0xee00bb);
+            colors[Token.COMMENT3] = new Color(colorInt);
+
+            // Java keywords.
+            colorInt = getPropHexInt("keyword1", 0x660033);
+            colors[Token.KEYWORD1] = new Color(colorInt);
+
+            // Class-based keywords.
+            colorInt = getPropHexInt("keyword2", 0xcc8033);
+            colors[Token.KEYWORD2] = new Color(colorInt);
+
+            // Other Java keywords (true, false, this, super).
+            colorInt = getPropHexInt("keyword3", 0x006699);
+            colors[Token.KEYWORD3] = new Color(colorInt);
+
+            // Primitives.
+            colorInt = getPropHexInt("primitive", 0xcc0000);
+            colors[Token.PRIMITIVE] = new Color(colorInt);
+
+            // String literals.
+            colorInt = getPropHexInt("string", 0x339933);
+            colors[Token.LITERAL1] = new Color(colorInt);
+
+            // Leave remaining tokens as default.
+            // colors[Token.LABEL]    = new Color(0x990000);
+            colors[Token.LABEL]    = new Color(0x999999);
+            colors[Token.OPERATOR] = new Color(0xcc9900);
+            colors[Token.INVALID]  = new Color(0xff3300);
         }
         return colors;
     }

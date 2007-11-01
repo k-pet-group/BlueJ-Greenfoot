@@ -31,7 +31,7 @@ import org.syntax.jedit.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: BlueJSyntaxView.java 3357 2005-05-02 03:23:33Z davmac $
+ * @version $Id: BlueJSyntaxView.java 5366 2007-11-01 05:27:26Z davmac $
  */
 
 public abstract class BlueJSyntaxView extends PlainView
@@ -93,7 +93,7 @@ public abstract class BlueJSyntaxView extends PlainView
         SyntaxDocument document = (SyntaxDocument)getDocument();
         TokenMarker tokenMarker = document.getTokenMarker();
 
-        Color def = getDefaultColor();
+        Color def = MoeSyntaxDocument.getDefaultColor();
 
         try {
             Element lineElement = getElement().getElement(lineIndex);

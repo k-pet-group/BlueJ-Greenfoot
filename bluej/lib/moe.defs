@@ -49,7 +49,7 @@ option = key-bindings preferences
 # Key to colours
 # --------------
 
-# Each colour should be given a six digit hexidecimal value of the from rrggbb where
+# Each colour should be given a six digit hexadecimal value of the from rrggbb where
 # the pairs of digits refer to the red, green and blue values respectively.
 
 comment = 999999
@@ -61,4 +61,6 @@ keyword3 = 006699
 primitive = cc0000
 string = 006600
 
+other = 000000
+background = ffffff
 
