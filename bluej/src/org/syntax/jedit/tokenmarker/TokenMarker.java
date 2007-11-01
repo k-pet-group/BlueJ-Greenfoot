@@ -14,7 +14,7 @@ import javax.swing.text.Segment;
 
 /**
  * A token marker that splits lines of text into tokens. Each token carries
- * a length field and an indentification tag that can be mapped to a color
+ * a length field and an identification tag that can be mapped to a color
  * for painting that token.<p>
  *
  * For performance reasons, the linked list of tokens is reused after each
@@ -23,7 +23,7 @@ import javax.swing.text.Segment;
  * cached.
  *
  * @author Slava Pestov
- * @version $Id: TokenMarker.java 3074 2004-11-08 04:24:58Z bquig $
+ * @version $Id: TokenMarker.java 5365 2007-11-01 05:24:32Z davmac $
  *
  * @see org.syntax.jedit.Token
  */
