@@ -83,7 +83,9 @@ public abstract class World
         // used immediately. This is important for actors that are created by
         // the world constructor, if the actors are accessing the world in their
         // constructors (by using getWidth/Height for instance)
-        WorldHandler.getInstance().setInitialisingWorld(this);
+        if(WorldHandler.getInstance() != null) { // will be null when running unit tests.
+            WorldHandler.getInstance().setInitialisingWorld(this);
+        }
     }
 
     /**
