@@ -146,11 +146,16 @@ public class MoeSyntaxDocument extends SyntaxDocument
             colorInt = getPropHexInt("string", 0x339933);
             colors[Token.LITERAL1] = new Color(colorInt);
 
-            // Leave remaining tokens as default.
-            // colors[Token.LABEL]    = new Color(0x990000);
-            colors[Token.LABEL]    = new Color(0x999999);
+            // Labels
+            colorInt = getPropHexInt("label", 0x999999);
+            colors[Token.LABEL] = new Color(colorInt);
+            
+            // Invalid (eg unclosed string literal)
+            colorInt = getPropHexInt("invalid", 0xff3300);
+            colors[Token.INVALID] = new Color(colorInt);
+            
+            // Operator is not produced by token marker
             colors[Token.OPERATOR] = new Color(0xcc9900);
-            colors[Token.INVALID]  = new Color(0xff3300);
         }
         return colors;
     }

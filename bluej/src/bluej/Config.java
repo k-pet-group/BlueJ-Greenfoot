@@ -2,7 +2,6 @@ package bluej;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.font.TextAttribute;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -46,7 +45,7 @@ import bluej.utility.Utility;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 5306 2007-10-05 05:34:10Z davmac $
+ * @version $Id: Config.java 5371 2007-11-05 03:30:17Z davmac $
  */
 
 public final class Config
