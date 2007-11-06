@@ -33,7 +33,6 @@ public class CvsShareProjectCmd extends CvsCommand
             client = getClient();
             
             if (client != null) {
-                repository.setupConnection(client);
                 checkoutResponse = repository.doCheckout(client, repository.getProjectPath());
             }
             else {

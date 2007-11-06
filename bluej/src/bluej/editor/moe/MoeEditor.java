@@ -170,8 +170,6 @@ public final class MoeEditor extends JFrame
         this.watcher = watcher;
         this.resources = resources;
         
-        // DAV read text color from resources
-        
         filename = null;
         windowTitle = title;
         sourceIsCode = isCode;

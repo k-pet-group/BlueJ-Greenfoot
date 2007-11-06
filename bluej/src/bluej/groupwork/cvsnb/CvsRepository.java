@@ -35,7 +35,7 @@ import bluej.utility.Debug;
  * This class handles communication with the repository.
  *
  * @author fisker
- * @version $Id: CvsRepository.java 5073 2007-05-31 04:53:52Z davmac $
+ * @version $Id: CvsRepository.java 5375 2007-11-06 05:56:01Z davmac $
  */
 public class CvsRepository implements Repository
 {
@@ -197,6 +197,7 @@ public class CvsRepository implements Repository
     {
         // Client client = getClient();
         // setupConnection();
+        setupConnection(client);
 
         CheckoutCommand checkoutCommand = new CheckoutCommand(true,
                 projectPath.getName());
@@ -244,6 +245,7 @@ public class CvsRepository implements Repository
             return basicServerResponse;
         }
 
+        setupConnection(client);
         // setupConnection();
         // Client client = getClient();
 
@@ -296,6 +298,7 @@ public class CvsRepository implements Repository
             return basicServerResponse;
         }
 
+        setupConnection(client);
         // setupConnection();
         // Client client = getClient();
 
@@ -334,6 +337,7 @@ public class CvsRepository implements Repository
     {
         // setupConnection();
         // Client client = getClient();
+        setupConnection(client);
 
         ImportCommand importCommand = new ImportCommand();
 
@@ -385,6 +389,7 @@ public class CvsRepository implements Repository
             return basicServerResponse;
         }
 
+        setupConnection(client);
         // setupConnection();
         // Client client = getClient();
 
@@ -422,6 +427,7 @@ public class CvsRepository implements Repository
     {
         // setupConnection();
         // Client client = getClient();
+        setupConnection(client);
 
         UpdateCommand updateCommand = new UpdateCommand();
         UpdateServerResponse updateServerResponse = new UpdateServerResponse(null, null);
@@ -573,9 +579,12 @@ public class CvsRepository implements Repository
                 client);
         client.getEventManager().addCVSListener(updateServerResponse);
         client.setLocalPath(projectPath.getAbsolutePath());
+        
         printCommand(command, client);
+        setupConnection(client);
 
         try {
+            adminHandler.setMildManneredMode(true);
             client.executeCommand(command, globalOptions);
             updateServerResponse.waitForExecutionToFinish();
         }
@@ -583,6 +592,7 @@ public class CvsRepository implements Repository
             // restore previous excludes setting
             client.getEventManager().removeCVSListener(updateServerResponse);
             disconnect(client);
+            adminHandler.setMildManneredMode(false);
         }
 
         updateServerResponse.setConflictMap(client.getConflictFiles());
@@ -782,6 +792,7 @@ public class CvsRepository implements Repository
     {
         // setupConnection();
         // Client client = getClient();
+        setupConnection(client);
         
         // Now we can use the cvs "status" command to get status on the
         // remaining files.
@@ -829,6 +840,7 @@ public class CvsRepository implements Repository
             AuthenticationException, CommandAbortedException, CommandException
     {
         // Client client = getClient();
+        setupConnection(client);
         client.setAdminHandler(new EmptyAdminHandler());
 
         CheckoutCommand checkoutCommand = new CheckoutCommand(true, ".");
@@ -904,6 +916,7 @@ public class CvsRepository implements Repository
         throws AuthenticationException, CommandAbortedException, CommandException
     {
         // Client client = getClient();
+        setupConnection(client);
 
         LogCommand logCommand = new LogCommand();
         

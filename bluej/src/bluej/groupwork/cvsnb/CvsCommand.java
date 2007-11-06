@@ -43,14 +43,6 @@ public abstract class CvsCommand
             }
             client = repository.getClient();
             myClient = client;
-        }
-        
-        repository.setupConnection(myClient);
-        
-        synchronized (this) {
-            if (cancelled) {
-                throw new CommandAbortedException("","");
-            }
             return client;
         }
     }
