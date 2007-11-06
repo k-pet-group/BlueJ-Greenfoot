@@ -4,6 +4,7 @@ import greenfoot.Actor;
 import greenfoot.MouseInfo;
 import greenfoot.TestObject;
 import greenfoot.World;
+import greenfoot.WorldVisitor;
 import greenfoot.mouse.MouseManager;
 import greenfoot.platforms.GreenfootUtilDelegate;
 import greenfoot.util.GreenfootUtil;
@@ -14,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -91,24 +93,24 @@ public class MousePollTest extends TestCase
         actorOutsideClick = new TestObject(10,10);
         world.addObject(actorOutsideClick, 50,50);
         mouseMan = new MouseManager(new WorldLocator(){
-            public Actor getTopMostActorAt(MouseEvent e)
-            { 
-                List<?> actors = world.getObjectsAt(e.getX(), e.getY(), TestObject.class);
-                if(actors.isEmpty()) {
-                    return null;
+                public Actor getTopMostActorAt(MouseEvent e)
+                { 
+                    Collection<?> actors = WorldVisitor.getObjectsAtPixel(world, e.getX(), e.getY());
+                    if(actors.isEmpty()) {
+                        return null;
+                    }
+                    return (Actor) actors.iterator().next();
                 }
-                return (Actor) actors.get(0);
-            }
 
-            public int getTranslatedX(MouseEvent e)
-            {
-                return e.getX();
-            }
+                public int getTranslatedX(MouseEvent e)
+                {
+                    return WorldVisitor.toCellFloor(world, e.getX());
+                }
 
-            public int getTranslatedY(MouseEvent e)
-            {
-                return e.getY();
-            }});
+                public int getTranslatedY(MouseEvent e)
+                {
+                    return WorldVisitor.toCellFloor(world, e.getY());
+                }});
         panel = new JPanel();
         panel.addMouseListener(mouseMan);
         panel.addMouseMotionListener(mouseMan);  
@@ -312,6 +314,56 @@ public class MousePollTest extends TestCase
 
     public void testButton3() {
         
+    }
+    
+    
+    /**
+     * Test a world that has a cell size bigger than 1x1 
+     */
+    public void testBigCellSize() 
+    {
+
+        final World world = new World(20, 20, 10) {};
+        final MouseManager mouseMan = new MouseManager(new WorldLocator(){
+            public Actor getTopMostActorAt(MouseEvent e)
+            { 
+                Collection<?> actors = WorldVisitor.getObjectsAtPixel(world, e.getX(), e.getY());
+                if(actors.isEmpty()) {
+                    return null;
+                }
+                return (Actor) actors.iterator().next();
+            }
+
+            public int getTranslatedX(MouseEvent e)
+            {
+                return WorldVisitor.toCellFloor(world, e.getX());
+            }
+
+            public int getTranslatedY(MouseEvent e)
+            {
+                return WorldVisitor.toCellFloor(world, e.getY());
+            }});
+        panel.addMouseListener(mouseMan);
+        panel.addMouseMotionListener(mouseMan);  
+        panel.setEnabled(true);
+        
+        mouseMan.newActStarted();
+        
+        MouseEvent event = new MouseEvent(panel, MouseEvent.MOUSE_MOVED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);          
+        dispatch(event);  
+        
+        assertTrue(mouseMan.isMouseMoved(null));   
+        
+        mouseMan.newActStarted();
+        event = new MouseEvent(panel, MouseEvent.MOUSE_MOVED,  System.currentTimeMillis(), 0, 55, 75, 1, false, MouseEvent.BUTTON1);        
+        dispatch(event);             
+
+        assertTrue(mouseMan.isMouseMoved(null));
+        
+        MouseInfo info = mouseMan.getMouseInfo();
+        System.out.println(info);
+        assertEquals(5, info.getX());
+        assertEquals(7, info.getY());
     }
     
 }

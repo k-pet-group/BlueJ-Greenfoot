@@ -95,14 +95,14 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
 
             public int getTranslatedX(MouseEvent e)
             {
-                Point p = SwingUtilities.convertPoint(e.getComponent(), e.getX(), e.getY(), worldCanvas);
-                return p.x;
+                Point p = SwingUtilities.convertPoint(e.getComponent(), e.getX(), e.getY(), worldCanvas);                
+                return WorldVisitor.toCellFloor(getWorld(), p.x);
             }
 
             public int getTranslatedY(MouseEvent e)
             {
                 Point p = SwingUtilities.convertPoint(e.getComponent(), e.getX(), e.getY(), worldCanvas);
-                return p.y;
+                return WorldVisitor.toCellFloor(getWorld(), p.y);
             }});
 
         worldCanvas.addMouseListener(this);
