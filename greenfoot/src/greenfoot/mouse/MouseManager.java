@@ -73,6 +73,11 @@ public class MouseManager implements MouseListener, MouseMotionListener
      */
     private WorldLocator locator;
 
+    /**
+     * Keeps track of where a drag started. This should never be explicitly set
+     * to null, because it might result in exceptions when doing undefined
+     * things like dragging with two buttons down at the same time.
+     */
     private MouseEventData dragStartData;
 
     private boolean isDragging;
@@ -324,7 +329,6 @@ public class MouseManager implements MouseListener, MouseMotionListener
                 int y = locator.getTranslatedY(e);
                 int button = e.getButton();
                 futureData.mouseDragEnded(x, y, button, dragStartData.getActor());
-                dragStartData = null;
                 isDragging = false;
             } else {
                 

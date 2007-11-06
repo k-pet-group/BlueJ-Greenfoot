@@ -272,6 +272,39 @@ public class MousePollTest extends TestCase
         assertFalse(mouseMan.isMouseClicked(actorAtClick));
         
     }
+
+    /**
+     * Tests behaviour when several buttons are pressed and dragged at the same
+     * time. We just want to ensure that nothing crashes or produecs exceptions.
+     * Otherwise the behaiour is undefined.
+     */
+    public void testMultipleButtons()
+    {
+        mouseMan.newActStarted();
+        
+        MouseEvent event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);        
+        dispatch(event);     
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);          
+        dispatch(event);  
+        
+        event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON2);        
+        dispatch(event);         
+        
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);          
+        dispatch(event);     
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON2);          
+        dispatch(event);  
+        
+        event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 7, 7, 1, false, MouseEvent.BUTTON1);        
+        dispatch(event);       
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON2);          
+        dispatch(event);           
+
+        assertTrue(mouseMan.isMouseDragged(actorAtClick));
+        assertTrue(mouseMan.isMousePressed(actorAtClick));
+        assertTrue(mouseMan.isMouseDragEnded(actorAtClick));
+        assertFalse(mouseMan.isMouseClicked(actorAtClick));
+    }
     
     public void testButton2() {
         
