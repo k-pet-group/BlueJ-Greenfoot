@@ -220,6 +220,16 @@ public class MousePollTest extends TestCase
         assertTrue(mouseMan.isMouseDragged(actorAtClick));
         assertTrue(mouseMan.getMouseInfo().getX() == 7 && mouseMan.getMouseInfo().getY() == 7);
         
+        /// New act round where we drag a bit more
+        mouseMan.newActStarted();
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 8, 8, 1, false, MouseEvent.BUTTON1);  
+        dispatch(event);          
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 9, 9, 1, false, MouseEvent.BUTTON1);  
+        dispatch(event);          
+        assertTrue(mouseMan.isMouseDragged(actorAtClick));
+        assertTrue(mouseMan.getMouseInfo().getX() == 9 && mouseMan.getMouseInfo().getY() == 9);
+        
+        
         /// New act round where nothing happens
         mouseMan.newActStarted();
         assertFalse(mouseMan.isMousePressed(actorAtClick));
@@ -231,6 +241,7 @@ public class MousePollTest extends TestCase
         event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 14, 14, 1, false, MouseEvent.BUTTON1);        
         dispatch(event);             
 
+        assertTrue(mouseMan.getMouseInfo().getX() == 14 && mouseMan.getMouseInfo().getY() == 14);
         assertTrue(mouseMan.isMouseDragEnded(actorAtClick));
         assertFalse(mouseMan.isMouseClicked(actorAtClick));
     }

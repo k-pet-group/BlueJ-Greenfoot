@@ -464,6 +464,8 @@ target="1.5">
             <include name="greenfoot/gui/DropTarget.java"/>
             <include name="greenfoot/gui/WorldCanvas.java"/>  
             <include name="greenfoot/gui/CenterLayout.java"/>            
+
+            <include name="greenfoot/mouse/*.java"/>
             
             <include name="greenfoot/platforms/*.java"/>   
             <include name="greenfoot/platforms/standalone/*.java"/>     

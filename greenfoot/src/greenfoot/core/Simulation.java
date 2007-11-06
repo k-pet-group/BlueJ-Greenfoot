@@ -32,6 +32,7 @@ public class Simulation extends Thread implements WorldListener
     private SimulationEvent stoppedEvent;
     private SimulationEvent disabledEvent;
     private SimulationEvent speedChangeEvent;
+    private SimulationEvent newActEvent;
     private static Simulation instance;
 
     /** for timing the animation */
@@ -74,12 +75,14 @@ public class Simulation extends Thread implements WorldListener
         instance.stoppedEvent = new SimulationEvent(instance, SimulationEvent.STOPPED);
         instance.speedChangeEvent = new SimulationEvent(instance, SimulationEvent.CHANGED_SPEED);
         instance.disabledEvent = new SimulationEvent(instance, SimulationEvent.DISABLED);
+        instance.newActEvent = new SimulationEvent(instance, SimulationEvent.NEW_ACT);
         instance.setPriority(Thread.MIN_PRIORITY);
         // instance.setSpeed(50);
         instance.paused = true;
         instance.sleeping = true;
 
         worldHandler.addWorldListener(instance);
+        instance.addSimulationListener(worldHandler);
         instance.start();
     }
 
@@ -150,6 +153,8 @@ public class Simulation extends Thread implements WorldListener
         if (world == null) {
             return;
         }
+        
+        fireSimulationEvent(newActEvent);
         
         try {
             List<? extends Actor> objects = null;

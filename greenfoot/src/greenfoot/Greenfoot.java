@@ -32,7 +32,7 @@ import greenfoot.sound.SoundPlayer;
  * 
  * @author Davin McCall
  * @version 1.3.0
- * @cvs-version $Id: Greenfoot.java 5311 2007-10-09 14:46:08Z polle $
+ * @cvs-version $Id: Greenfoot.java 5376 2007-11-06 16:15:22Z polle $
  */
 public class Greenfoot
 {
@@ -170,4 +170,116 @@ public class Greenfoot
             }
         }
     }
+    
+    
+    /**
+     * Whether the mouse had been pressed (changed from a non-pressed state to
+     * being pressed) on the given object. If the parameter is an Actor the
+     * method will only return true if the mouse has been pressed on the given
+     * actor - if there are several actors at the same place, only the top most
+     * actor will count. If the parameter is a World then true will be returned
+     * only if the mouse was pressed outside the boundaries of all Actors. If
+     * the parameter is null, then it will return true no matter where the mouse
+     * was pressed as long as it is inside the world boundaries.
+     * 
+     * @param obj Typically one of Actor, World or null
+     * @return True if the mouse has been pressed as explained above
+     */
+    public static boolean isMousePressed(Object obj)
+    {
+        return WorldHandler.getInstance().getMouseManager().isMousePressed(obj);
+    }
+
+    /**
+     * Whether the mouse had been clicked (pressed and released) on the given
+     * object. If the parameter is an Actor the method will only return true if
+     * the mouse has been clicked on the given actor - if there are several
+     * actors at the same place, only the top most actor will count. If the
+     * parameter is a World then true will be returned only if the mouse was
+     * clicked outside the boundaries of all Actors. If the parameter is null,
+     * then it will return true no matter where the mouse was clicked as long as
+     * it is inside the world boundaries.
+     * 
+     * @param obj Typically one of Actor, World or null
+     * @return True if the mouse has been clicked as explained above
+     */
+    public static boolean isMouseClicked(Object obj)
+    {
+        return WorldHandler.getInstance().getMouseManager().isMouseClicked(obj);
+    }
+
+    /**
+     * Whether the mouse had been dragged on the given object. The mouse is
+     * considered to be dragged on an object, only if the drag started on that
+     * object - even if the mouse has since been moved outside of that object.
+     * <p>
+     * If the parameter is an Actor the method will only return true if the drag
+     * started on the given actor - if there are several actors at the same
+     * place, only the top most actor will count. If the parameter is a World
+     * then true will be returned only if the drag was started outside the
+     * boundaries of all Actors. If the parameter is null, then it will return
+     * true no matter where the drag was started as long as it is inside the
+     * world boundaries.
+     * 
+     * @param obj Typically one of Actor, World or null
+     * @return True if the mouse has been pressed as explained above
+     */
+    public static boolean isMouseDragged(Object obj)
+    {
+        return WorldHandler.getInstance().getMouseManager().isMouseDragged(obj);
+    }
+
+    /**
+     * A mouse drag has ended. This happens when the mouse has been dragged and
+     * the mouse button released.
+     * <p>
+     * If the parameter is an Actor the method will only return true if the drag
+     * started on the given actor - if there are several actors at the same
+     * place, only the top most actor will count. If the parameter is a World
+     * then true will be returned only if the drag was started outside the
+     * boundaries of all Actors. If the parameter is null, then it will return
+     * true no matter where the drag was started as long as it is inside the
+     * world boundaries.
+     * 
+     * 
+     * @param obj Typically one of Actor, World or null
+     * @return True if the mouse has been pressed as explained above
+     */
+    public static boolean isMouseDragEnded(Object obj)
+    {
+        return WorldHandler.getInstance().getMouseManager().isMouseDragEnded(obj);
+    }
+
+    /**
+     * Whether the mouse had been moved on the given object. The mouse is
+     * considered to be moved on an object, only if the mouse pointer is above that
+     * object.
+     * <p>
+     * If the parameter is an Actor the method will only return true if the move
+     * is on the given actor - if there are several actors at the same
+     * place, only the top most actor will count. If the parameter is a World
+     * then true will be returned only if the move is outside the
+     * boundaries of all Actors. If the parameter is null, then it will return
+     * true no matter where the drag was started as long as it is inside the
+     * world boundaries.
+     * 
+     * @param obj Typically one of Actor, World or null
+     * @return True if the mouse has been moved as explained above
+     */
+    public static boolean isMouseMoved(Object obj)
+    {
+        return WorldHandler.getInstance().getMouseManager().isMouseMoved(obj);
+    }
+
+    /**
+     * Gets the mouse info with information about the current state of the
+     * mouse. Within the same act-loop it will always return exactly the same
+     * MouseInfo object with exactly the same contents.
+     * 
+     * @return The info about the current state of the mouse. Null if nothing mouse related has happened in this act round.
+     */
+    public static MouseInfo getMouseInfo()
+    {
+        return WorldHandler.getInstance().getMouseManager().getMouseInfo();
+    }   
 }

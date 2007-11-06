@@ -4,12 +4,16 @@ import greenfoot.Actor;
 import greenfoot.ActorVisitor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
+import greenfoot.event.SimulationEvent;
+import greenfoot.event.SimulationListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
 import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.DragListener;
 import greenfoot.gui.DropTarget;
 import greenfoot.gui.WorldCanvas;
+import greenfoot.mouse.MouseManager;
+import greenfoot.mouse.WorldLocator;
 import greenfoot.platforms.WorldHandlerDelegate;
 
 import java.awt.Component;
@@ -30,7 +34,7 @@ import javax.swing.event.EventListenerList;
  * @author Poul Henriksen
  * @version $Id$
  */
-public class WorldHandler implements MouseListener, KeyListener, DropTarget, DragListener
+public class WorldHandler implements MouseListener, KeyListener, DropTarget, DragListener, SimulationListener
 {
     private World initialisingWorld;
     private World world;
@@ -52,6 +56,7 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
     private EventListenerList listenerList = new EventListenerList();
     private WorldEvent worldEvent;
     private WorldHandlerDelegate handlerDelegate;
+    private MouseManager mouseManager;
     
     public static synchronized void initialise(WorldCanvas worldCanvas, WorldHandlerDelegate helper) 
     {
@@ -73,7 +78,7 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
      * and world.
      * @param handlerDelegate 
      */
-    private WorldHandler(WorldCanvas worldCanvas, WorldHandlerDelegate handlerDelegate)
+    private WorldHandler(final WorldCanvas worldCanvas, WorldHandlerDelegate handlerDelegate)
     {
         instance = this;
         this.handlerDelegate = handlerDelegate;
@@ -81,7 +86,27 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
 
         this.worldCanvas = worldCanvas;
         worldEvent = new WorldEvent(this);
+        mouseManager = new MouseManager(new WorldLocator() {
+            public Actor getTopMostActorAt(MouseEvent e)
+            {
+                Point p = SwingUtilities.convertPoint(e.getComponent(), e.getX(), e.getY(), worldCanvas);
+                return WorldHandler.this.getObject(p.x, p.y);
+            }
+
+            public int getTranslatedX(MouseEvent e)
+            {
+                Point p = SwingUtilities.convertPoint(e.getComponent(), e.getX(), e.getY(), worldCanvas);
+                return p.x;
+            }
+
+            public int getTranslatedY(MouseEvent e)
+            {
+                Point p = SwingUtilities.convertPoint(e.getComponent(), e.getX(), e.getY(), worldCanvas);
+                return p.y;
+            }});
+
         worldCanvas.addMouseListener(this);
+        
         worldCanvas.addKeyListener(this);
         worldCanvas.setDropTargetListener(this);
         
@@ -97,6 +122,14 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
     public KeyboardManager getKeyboardManager()
     {
         return keyboardManager;
+    }    
+    
+    /**
+     * Get the mouse manager.
+     */
+    public MouseManager getMouseManager()
+    {
+        return mouseManager;
     }
 
     /*
@@ -533,6 +566,34 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
     }
 
 
+
+    public void simulationChanged(SimulationEvent e)
+    {
+        if(e.getType() == SimulationEvent.NEW_ACT)
+        {
+            mouseManager.newActStarted();
+        }
+        else if(e.getType() == SimulationEvent.STARTED)
+        {
+            //enable polling
+            worldCanvas.addMouseListener(mouseManager);
+            worldCanvas.addMouseMotionListener(mouseManager);
+            //disable automatic
+            worldCanvas.removeMouseListener(this);
+            
+        }
+        else if(e.getType() == SimulationEvent.STOPPED)
+        {
+            //disable polling
+            worldCanvas.removeMouseListener(mouseManager);
+            worldCanvas.removeMouseMotionListener(mouseManager);
+            //enable automatic
+            worldCanvas.addMouseListener(this);
+        }
+    }
+    
+  
+    
 
 
 }

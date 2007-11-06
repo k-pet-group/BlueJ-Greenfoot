@@ -74,4 +74,9 @@ public class MouseInfo
         this.actor = actor;
     }
     
+    public String toString() 
+    {
+        return "MouseInfo. Actor: " + actor + "  Location: (" + x + "," + y + ")  Button: " + button;
+    }
+    
 }

@@ -3,6 +3,9 @@ package greenfoot.mouse;
 import greenfoot.Actor;
 import greenfoot.MouseInfo;
 import greenfoot.World;
+import greenfoot.core.Simulation;
+import greenfoot.event.SimulationEvent;
+import greenfoot.event.SimulationListener;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -359,7 +362,6 @@ public class MouseManager implements MouseListener, MouseMotionListener
             isDragging = true;
         }
     }
-    
    
 }
 
