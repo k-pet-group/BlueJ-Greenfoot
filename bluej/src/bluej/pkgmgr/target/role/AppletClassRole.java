@@ -19,9 +19,9 @@ import bluej.utility.*;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 4746 2006-12-07 02:26:53Z davmac $
+ * @version $Id: AppletClassRole.java 5379 2007-11-07 03:03:26Z davmac $
  */
-public class AppletClassRole extends ClassRole
+public class AppletClassRole extends StdClassRole
 {
     public static final String APPLET_ROLE_NAME = "AppletTarget";
     
