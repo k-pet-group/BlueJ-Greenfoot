@@ -24,7 +24,12 @@ class MouseEventData {
 
     private void init()
     {
-        if(mouseInfo == null) {
+        mousePressed = false;
+        mouseClicked = false;
+        mouseDragged = false;
+        mouseDragEnded = false;
+        mouseMoved = false;
+        if (mouseInfo == null) {
             mouseInfo = new MouseInfo();
         }
     }
@@ -52,11 +57,16 @@ class MouseEventData {
     {
         return mouseClicked;
     }
-
-    public void mouseClicked(int x, int y, int button, Actor actor)
+    
+    /**
+     * 
+     * @param isPressed indicates whether a press has also happened in this frame
+     */
+    public void mouseClicked(int x, int y, int button, Actor actor, boolean isPressed)
     {
         init();
         this.mouseClicked = true;
+        this.mousePressed = isPressed;
         MouseInfoVisitor.setButton(mouseInfo, button);
         MouseInfoVisitor.setLoc(mouseInfo, x, y);
         MouseInfoVisitor.setActor(mouseInfo, actor);
@@ -104,6 +114,16 @@ class MouseEventData {
         MouseInfoVisitor.setActor(mouseInfo, actor);
     }
 
+    public int getX()
+    {
+        return mouseInfo.getX();
+    }
+
+    public int getY()
+    {
+        return mouseInfo.getY();
+    }
+
     public Actor getActor()
     {
         if(mouseInfo == null) {
@@ -118,6 +138,30 @@ class MouseEventData {
             return 0;
         }
         return mouseInfo.getButton();
+    }
+    
+    public String toString()
+    {
+        String s = "MouseEventData ";
+        if(mouseInfo != null) {
+            s += mouseInfo.toString();
+        }
+        if(mousePressed) {
+            s += " pressed";
+        }
+        if(mouseClicked) {
+            s += " clicked";
+        }
+        if(mouseDragged) {
+            s += " dragged";
+        }
+        if(mouseDragEnded) {
+            s += " dragEnded";
+        }
+        if(mouseMoved) {
+            s += " moved";
+        }
+        return s;
     }
  
 }

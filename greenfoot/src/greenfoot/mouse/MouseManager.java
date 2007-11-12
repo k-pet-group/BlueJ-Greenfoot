@@ -3,9 +3,6 @@ package greenfoot.mouse;
 import greenfoot.Actor;
 import greenfoot.MouseInfo;
 import greenfoot.World;
-import greenfoot.core.Simulation;
-import greenfoot.event.SimulationEvent;
-import greenfoot.event.SimulationListener;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -28,8 +25,9 @@ import java.awt.event.MouseMotionListener;
  * into current mouseInfo and the creation of a new future mouse data object is
  * started.
  * <p>
- * If several events happen in the same frame the events are prioritized
- * like this: <br>
+ * 
+ * If several events happen in the same frame the events are prioritized like
+ * this: <br>
  * Priorities with highest priority first::
  * <ul>
  * <li> dragEnd </li>
@@ -39,12 +37,15 @@ import java.awt.event.MouseMotionListener;
  * <li> move </li>
  * </ul>
  * 
- * In general only one event can happen in a frame, the only exception is click and press which could happen in the same frame if a mouse is clicked in one frame.
- * <br>
+ * In general only one event can happen in a frame, the only exception is click
+ * and press which could happen in the same frame if a mouse is clicked in one
+ * frame. <br>
  * If several of the same type of event happens, then the last one is used.
  * <p>
- * If, for instance, two buttons are pressed at the same time, the behaviour is undefined.
- * 
+ * If, for instance, two buttons are pressed at the same time, the behaviour is
+ * undefined. Maybe we should define it so that button1 always have higher
+ * priority than button2 and button2 always higher than button3. But not
+ * necessarily documenting this to the user.
  * @author Poul Henriksen
  * 
  */
@@ -282,12 +283,16 @@ public class MouseManager implements MouseListener, MouseMotionListener
     public void mouseClicked(MouseEvent e)
     {
         synchronized (futureData) {
+            if(! PriorityManager.isHigherPriority(e, futureData)) return;
             registerEventRecieved();
             Actor actor = locator.getTopMostActorAt(e);
             int x = locator.getTranslatedX(e);
             int y = locator.getTranslatedY(e);
             int button = e.getButton();
-            futureData.mouseClicked(x, y, button, actor);
+            //in case we already had a mouse press associated with this click, we want to keep it.
+            boolean isPressed = futureData.isMousePressed() && futureData.getX() == x && futureData.getY() == y && futureData.getButton() == button;
+            futureData.mouseClicked(x, y, button, actor, isPressed);
+            isDragging = false;
         }
     }
 
@@ -307,15 +312,19 @@ public class MouseManager implements MouseListener, MouseMotionListener
     public void mousePressed(MouseEvent e)
     {
         synchronized(futureData) {
-            registerEventRecieved();
+            // This might be the beginning of a drag so we store it
+            dragStartData = new MouseEventData();
             Actor actor = locator.getTopMostActorAt(e);
             int x = locator.getTranslatedX(e);
             int y = locator.getTranslatedY(e);
             int button = e.getButton();
-            futureData.mousePressed(x, y, button, actor);
+            dragStartData.mousePressed(x, y, button, actor);            
 
-            // This might be the beginning of a drag so we store it
-            dragStartData = futureData;
+            // We only really want to register this event as a press if there is no higher priorities
+            if(! PriorityManager.isHigherPriority(e, futureData)) return;
+            registerEventRecieved();
+            futureData.mousePressed(x, y, button, actor);
+            isDragging = false;
         }
     }
 
@@ -324,14 +333,13 @@ public class MouseManager implements MouseListener, MouseMotionListener
         synchronized(futureData) {
             // This might be the end of a drag
             if(isDragging) {
+                if(! PriorityManager.isHigherPriority(e, futureData)) return;
                 registerEventRecieved();
                 int x = locator.getTranslatedX(e);
                 int y = locator.getTranslatedY(e);
                 int button = e.getButton();
                 futureData.mouseDragEnded(x, y, button, dragStartData.getActor());
                 isDragging = false;
-            } else {
-                
             }
         }
     }
@@ -339,33 +347,31 @@ public class MouseManager implements MouseListener, MouseMotionListener
     public void mouseDragged(MouseEvent e)
     {
         synchronized(futureData) {
+            isDragging = true;
+            
+            if(! PriorityManager.isHigherPriority(e, futureData)) return;
             registerEventRecieved();
-            //first, check if we are already dragging (what about double drags?)
-            //If we are already dragging, we should not change the actor. 
-            //Actually we should use the actor from the press? So never change actor while dragging but just reuse from the press? Need to get press from previous (current data)
-            // If there is a drag there MUST have been a press
             
             // Find and store the actor that relates to this drag.
             int x = locator.getTranslatedX(e);
             int y = locator.getTranslatedY(e);
             int button = e.getButton();
             futureData.mouseDragged(x, y, button, dragStartData.getActor());
-            isDragging = true;
         }
     }
 
     public void mouseMoved(MouseEvent e)
     {
         synchronized(futureData) {
+            if(! PriorityManager.isHigherPriority(e, futureData)) return;
             registerEventRecieved();
             Actor actor = locator.getTopMostActorAt(e);
             int x = locator.getTranslatedX(e);
             int y = locator.getTranslatedY(e);
             int button = e.getButton();
             futureData.mouseMoved(x, y, button, actor);
-            isDragging = true;
+            isDragging = false;
         }
-    }
-   
+    }   
 }
 
