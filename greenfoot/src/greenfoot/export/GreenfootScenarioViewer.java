@@ -1,5 +1,6 @@
 package greenfoot.export;
 
+import bluej.BlueJPropStringSource;
 import greenfoot.World;
 import greenfoot.core.LocationTracker;
 import greenfoot.core.ProjectProperties;
@@ -23,11 +24,15 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Properties;
 
 import javax.swing.*;
@@ -56,6 +61,8 @@ public class GreenfootScenarioViewer extends JApplet
 
     private Constructor worldConstructor;
 
+    private static String[] args;
+
     /**
      * Start the scenario.
      * <p>
@@ -71,7 +78,12 @@ public class GreenfootScenarioViewer extends JApplet
     public static void main(String[] args)
     {
         System.setProperty("apple.laf.useScreenMenuBar", "true");
-        
+        if(args.length != 3 && args.length != 0) {
+            System.err.println("Wrong number of arguments");
+        }
+            
+            
+        GreenfootScenarioViewer.args = args; 
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
@@ -157,7 +169,17 @@ public class GreenfootScenarioViewer extends JApplet
         try {
             ClassLoader loader = GreenfootScenarioViewer.class.getClassLoader();
             InputStream is = loader.getResourceAsStream("standalone.properties");
-
+            
+            if(is == null && args.length == 3) {
+                // This might happen if we are running from ant
+                // In that case we should have some command line arguments
+                p.put("project.name", args[0]);
+                p.put("main.class", args[1]);
+                p.put("controls.extra", "true");  
+                File f = new File(args[2]);
+                is = new FileInputStream(f);    
+            } 
+            
             p.load(is);
             worldClassName = p.getProperty("main.class");
             scenarioName = p.getProperty("project.name");
@@ -165,6 +187,7 @@ public class GreenfootScenarioViewer extends JApplet
             // set bluej Config to use the standalone prop values
             Config.initializeStandalone(new StandalonePropStringManager(p));
             is.close();
+            
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
