@@ -1,5 +1,6 @@
 package greenfoot.gui;
 
+import greenfoot.util.GraphicsUtilities;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Component;
@@ -30,7 +31,7 @@ import bluej.BlueJTheme;
  * filenames.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibList.java 4122 2006-05-08 14:12:06Z davmac $
+ * @version $Id: ImageLibList.java 5385 2007-11-19 12:28:26Z polle $
  */
 public class ImageLibList extends JList
 {
@@ -196,7 +197,7 @@ public class ImageLibList extends JList
             ListCellRenderer renderer = getCellRenderer();
             
             int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
-            ImageListEntry fakeEntry = new ImageListEntry(new File("abcdefghijklmnopqrstuvw.jpg"), new ImageIcon(new BufferedImage(dpi/3, dpi/3, BufferedImage.TYPE_INT_ARGB)));
+            ImageListEntry fakeEntry = new ImageListEntry(new File("abcdefghijklmnopqrstuvw.jpg"), new ImageIcon(GraphicsUtilities.createCompatibleTranslucentImage(dpi/3, dpi/3)));
             Component component = renderer.getListCellRendererComponent(this, fakeEntry, 0, false, false);
             d.width = component.getPreferredSize().width;
             return d;

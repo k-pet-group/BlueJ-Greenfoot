@@ -1,5 +1,6 @@
 package greenfoot;
 
+import greenfoot.util.GraphicsUtilities;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
@@ -14,6 +15,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.awt.image.VolatileImage;
+import java.io.IOException;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
@@ -25,7 +27,7 @@ import javax.swing.ImageIcon;
  * 
  * @author Poul Henriksen
  * @version 1.3.0
- * @cvs-version $Id: GreenfootImage.java 5302 2007-10-04 16:35:21Z polle $
+ * @cvs-version $Id: GreenfootImage.java 5385 2007-11-19 12:28:26Z polle $
  */
 public class GreenfootImage
 {
@@ -35,6 +37,16 @@ public class GreenfootImage
     private BufferedImage image;
     private Graphics2D graphics;
     private static MediaTracker tracker;
+    
+    /**
+     * Copy on write is used for performance reasons. If an image is
+     * copyOnWrite, it means that the actual image data might be shared between
+     * several GreenfootImage instances. As soon as a copy-on-write GreenfootImage is
+     * modified, it is necessary to create a copy of the image, in order not to
+     * change the image for the rest of the GreenfootImages sharing this image.
+     * This flag is used to keep track of whether it is a shared image that
+     * needs to be copied upon write (changes) to the image.
+     */
     private boolean copyOnWrite = false;
 
     /**
@@ -63,7 +75,7 @@ public class GreenfootImage
      */
     public GreenfootImage(int width, int height)
     {
-        setImage(new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB));
+        setImage(GraphicsUtilities.createCompatibleTranslucentImage(width, height));
     }
 
     /**
@@ -73,7 +85,7 @@ public class GreenfootImage
         throws IllegalArgumentException
     {
         if (! image.copyOnWrite) {
-            setImage(new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB));
+            setImage(GraphicsUtilities.createCompatibleTranslucentImage(image.getWidth(), image.getHeight()));
             drawImage(image, 0, 0);
         }
         else {
@@ -101,11 +113,12 @@ public class GreenfootImage
         if (imageURL == null) {
             throw new NullPointerException("Image URL must not be null.");
         }
-        Image newImage = new ImageIcon(imageURL).getImage();
-        if (newImage.getWidth(null) == -1) {
+        try {
+            image = GraphicsUtilities.loadCompatibleImage(imageURL);
+            copyOnWrite = false;
+        } catch (IOException ex) {
             throw new IllegalArgumentException("Could not load image from: " + imageFileName);
         }
-        setImage(newImage);
     }
 
     /**
@@ -202,7 +215,7 @@ public class GreenfootImage
     {
         AffineTransform tx = AffineTransform.getRotateInstance(Math.toRadians(degrees), getWidth()/2., getHeight()/2.);
         AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-        BufferedImage newImage = new BufferedImage(getWidth(), getHeight(),  BufferedImage.TYPE_INT_ARGB);
+        BufferedImage newImage = GraphicsUtilities.createCompatibleTranslucentImage(getWidth(), getHeight());
         setImage(op.filter(image, newImage));
     }
 
@@ -559,7 +572,7 @@ public class GreenfootImage
     private void ensureWritableImage()
     {
         if (copyOnWrite) {
-            BufferedImage bImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+            BufferedImage bImage = GraphicsUtilities.createCompatibleTranslucentImage(image.getWidth(null), image.getHeight(null));
             graphics = bImage.createGraphics();
             graphics.setBackground(DEFAULT_BACKGROUND);
             graphics.drawImage(image, 0, 0, null);
@@ -581,7 +594,7 @@ public class GreenfootImage
         }
         else {
             waitForImageLoad(image);
-            BufferedImage bImage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+            BufferedImage bImage = GraphicsUtilities.createCompatibleTranslucentImage(image.getWidth(null), image.getHeight(null));
             Graphics g = bImage.getGraphics();
             g.drawImage(image, 0, 0, null);
             image = bImage;

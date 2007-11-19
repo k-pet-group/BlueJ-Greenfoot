@@ -8,6 +8,7 @@ import greenfoot.World;
 import greenfoot.core.GClass;
 import greenfoot.core.GProject;
 import greenfoot.gui.classbrowser.ClassView;
+import greenfoot.util.GraphicsUtilities;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Component;
@@ -59,7 +60,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 5305 2007-10-05 04:16:47Z bquig $
+ * @version $Id: ImageLibFrame.java 5385 2007-11-19 12:28:26Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -491,7 +492,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             return new ImageIcon(GreenfootUtil.getScaledImage(bi, dpi/2, dpi/2));
         }
         catch (IOException ioe) {
-            BufferedImage bi = new BufferedImage(dpi/2, dpi/2, BufferedImage.TYPE_INT_ARGB);
+            BufferedImage bi = GraphicsUtilities.createCompatibleTranslucentImage(dpi/2, dpi/2);
             return new ImageIcon(bi);
         }
     }
@@ -575,7 +576,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 //rotate it.
                 int rotation = so.getRotation();
                 if (image != null && rotation != 0) {
-                    BufferedImage bImg = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+                    BufferedImage bImg = GraphicsUtilities.createCompatibleTranslucentImage(image.getWidth(), image.getHeight());
                     Graphics2D g2 = (Graphics2D) bImg.getGraphics();
 
                     double rotateX = image.getWidth() / 2.;

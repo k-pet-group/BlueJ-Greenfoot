@@ -32,7 +32,7 @@ import javax.swing.JPanel;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 4997 2007-04-24 09:09:48Z mik $
+ * @version $Id: GreenfootUtil.java 5385 2007-11-19 12:28:26Z polle $
  */
 public class GreenfootUtil
 {
@@ -139,7 +139,7 @@ public class GreenfootUtil
         }
         
         // Otherwise create a new image
-        BufferedImage rImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage rImage = GraphicsUtilities.createCompatibleTranslucentImage(w, h);
         Graphics2D graphics = rImage.createGraphics();
         // We'd like interpolated image rendering.
         graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
