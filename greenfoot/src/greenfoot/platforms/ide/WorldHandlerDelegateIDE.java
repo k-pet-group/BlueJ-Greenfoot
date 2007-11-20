@@ -278,10 +278,7 @@ public class WorldHandlerDelegateIDE
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
-                if (newWorld != null) {
-                    worldTitle.setText(newWorld.getClass().getName());
-                }
-                worldTitle.setEnabled(true);
+                createWorldTitle(newWorld);
                 MouseListener listeners[] = worldTitle.getMouseListeners();
                 for (int i = 0; i < listeners.length; i++) {
                     worldTitle.removeMouseListener(listeners[i]);
@@ -315,9 +312,27 @@ public class WorldHandlerDelegateIDE
                 });
 
             }
+
+            
         });
     }
-
+    
+    /**
+     * Creates and sets the title of the world in the UI.
+     * 
+     * @param newWorld The world for which a title should be set
+     */
+    private void createWorldTitle(final World newWorld)
+    {
+        if (newWorld == null) {
+            return;
+        }
+        String className = newWorld.getClass().getName();
+        String objName = className.substring(0, 1).toLowerCase() + className.substring(1);
+        worldTitle.setText(objName);
+        worldTitle.setEnabled(true);
+    }
+    
     public void dragFinished(Object o)
     {
         if (!isQuickAddActive) {
