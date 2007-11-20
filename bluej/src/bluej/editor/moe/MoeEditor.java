@@ -581,7 +581,8 @@ public final class MoeEditor extends JFrame
     }
 
     /**
-     * Remove all breakpoints in this editor.
+     * Called when all the breakpoints have been cleared. The editor should
+     * update its display to show that no breakpoints are set.
      */
     public void removeBreakpoints()
     {
