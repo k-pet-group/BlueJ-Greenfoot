@@ -33,7 +33,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 4725 2006-11-29 23:58:01Z davmac $
+ * @version $Id: JdiDebugger.java 5390 2007-11-21 05:06:41Z davmac $
  */
 public class JdiDebugger extends Debugger
 {
@@ -278,15 +278,18 @@ public class JdiDebugger extends Debugger
     public synchronized void newClassLoader(BPClassLoader bpClassLoader)
     {
         // lastProjectClassLoader is used if there is a VM restart
-        if ( bpClassLoader != null )
+        if (bpClassLoader != null) {
             lastProjectClassLoader = bpClassLoader;
-        else
+        }
+        else {
             return;
+        }
     
         VMReference vmr = getVMNoWait();
         if (vmr != null) {
             usedNames.clear();
             try {
+                vmr.clearAllBreakpoints();
                 vmr.newClassLoader(bpClassLoader.getURLs());
             }
             catch (VMDisconnectedException vmde) {}
@@ -294,26 +297,16 @@ public class JdiDebugger extends Debugger
     }
 
     /**
-     * Create a class loader in the debugger but retain any user created
-     * breakpoints.
+     * Remove all breakpoints in the given class.
      */
-    public synchronized void newClassLoaderLeavingBreakpoints(BPClassLoader bpClassLoader)
+    public void removeBreakpointsForClass(String className)
     {
-        // a list of Location's representing a temporarily
-        // saved list of breakpoints we want to keep
-        List savedBreakpoints;
-
         VMReference vmr = getVMNoWait();
         if (vmr != null) {
-            savedBreakpoints = vmr.getBreakpoints();
-            newClassLoader(bpClassLoader);
-            getVM().restoreBreakpoints(savedBreakpoints);
-        }
-        else {
-            newClassLoader(bpClassLoader);
+            vmr.clearBreakpointsForClass(className);
         }
     }
-
+    
     /**
      * Add a debugger object into the project scope.
      * 

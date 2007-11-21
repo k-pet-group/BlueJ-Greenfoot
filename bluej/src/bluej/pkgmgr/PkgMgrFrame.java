@@ -58,7 +58,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 5306 2007-10-05 05:34:10Z davmac $
+ * @version $Id: PkgMgrFrame.java 5390 2007-11-21 05:06:41Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1015,8 +1015,9 @@ public class PkgMgrFrame extends JFrame
             editor.repaint();
         }
 
-        if (target.getRole() instanceof UnitTestClassRole)
+        if (target.getRole() instanceof UnitTestClassRole) {
             pkg.compileQuiet(target);
+        }
         return true;
     }
 
@@ -2025,7 +2026,7 @@ public class PkgMgrFrame extends JFrame
 
             // remove objects from object bench
             getProject().removeClassLoader();
-            getProject().newRemoteClassLoader();
+            getProject().newRemoteClassLoaderLeavingBreakpoints();
             
             testTarget = null;
         }
@@ -2041,7 +2042,7 @@ public class PkgMgrFrame extends JFrame
         // remove objects from object bench (may have been put there
         // when testing was started)
         getProject().removeClassLoader();
-        getProject().newRemoteClassLoader();
+        getProject().newRemoteClassLoaderLeavingBreakpoints();
 
         testTarget = null;
     }

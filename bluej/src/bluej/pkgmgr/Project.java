@@ -54,7 +54,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 5302 2007-10-04 16:35:21Z polle $
+ * @version $Id: Project.java 5390 2007-11-21 05:06:41Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -1076,6 +1076,12 @@ public class Project implements DebuggerListener, InspectorManager
     {
         BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_DONE, null);
         Utility.bringToFront();  // only works on MacOS currently
+
+        Iterator i = packages.values().iterator();
+        while (i.hasNext()) {
+            Package pkg = (Package) i.next();
+            pkg.reInitBreakpoints();
+        }
     }
 
     /**
@@ -1084,14 +1090,6 @@ public class Project implements DebuggerListener, InspectorManager
      */
     private void vmClosed()
     {
-        // remove breakpoints for all packages
-        Iterator i = packages.values().iterator();
-
-        while (i.hasNext()) {
-            Package pkg = (Package) i.next();
-            pkg.removeBreakpoints();
-        }
-
         // any calls to the debugger made by removeLocalClassLoader
         // will silently fail
         removeClassLoader();
@@ -1100,13 +1098,15 @@ public class Project implements DebuggerListener, InspectorManager
         // rebuild the class loader (do this now so the new loader
         // will be installed as soon as the VM has restarted).
         newRemoteClassLoader();
+        
+        // Breakpoints will be re-initialized once the new VM has
+        // actually started.
     }
 
     /**
      * Removes the current classloader, and removes
      * references to classes loaded by it (this includes removing
      * the objects from all object benches of this project).
-     * Should be run whenever a source file changes
      */
     public void removeClassLoader()
     {
@@ -1145,7 +1145,7 @@ public class Project implements DebuggerListener, InspectorManager
 
     /**
      * Creates a new debugging VM classloader.
-     * Should be run whenever a class file changes.
+     * Breakpoints are discarded.
      */
     public void newRemoteClassLoader()
     {
@@ -1154,18 +1154,25 @@ public class Project implements DebuggerListener, InspectorManager
 
     /**
      * Creates a new debugging VM classloader, leaving current breakpoints.
-     * Should be run whenever a source file changes.
      */
     public void newRemoteClassLoaderLeavingBreakpoints()
     {
-        getDebugger().newClassLoaderLeavingBreakpoints(getClassLoader());
+        getDebugger().newClassLoader(getClassLoader());
+
+        Iterator i = packages.values().iterator();
+        while (i.hasNext()) {
+            Package pkg = (Package) i.next();
+            pkg.reInitBreakpoints();
+        }
     }
 
-    public Debugger getDebugger() {
+    public Debugger getDebugger()
+    {
         return debugger;
     }
 
-    public boolean hasExecControls() {
+    public boolean hasExecControls()
+    {
         return execControls != null;
     }
 

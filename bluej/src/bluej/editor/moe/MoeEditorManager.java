@@ -78,11 +78,10 @@ public final class MoeEditorManager
                 String windowTitle,
                 EditorWatcher watcher, 
                 boolean compiled,
-                List breakpoints,  // inherited from EditorManager
                 Rectangle bounds)
     {
         return openEditor (filename, docFilename, true, windowTitle, watcher, compiled,
-                           breakpoints, bounds);
+                           bounds);
     }
 
     // ------------------------------------------------------------------------
@@ -102,7 +101,7 @@ public final class MoeEditorManager
     public Editor openText(String filename, String windowTitle,
                            Rectangle bounds)	// inherited from EditorManager
     {
-        return openEditor (filename, null, false, windowTitle, null, false, null, bounds);
+        return openEditor (filename, null, false, windowTitle, null, false, bounds);
     }
 
     public void refreshAll()
@@ -167,7 +166,6 @@ public final class MoeEditorManager
     ** @param windowTitle	title of window (usually class name)
     ** @param watcher	an object interested in editing events
     ** @param compiled	true, if the class has been compiled
-    ** @param breakpoints	list of Integers: line numbers where bpts are    
     ** @param bounds	bounds for the editor window
     ** @returns		the new editor, or null if there was a problem
     **/
@@ -175,7 +173,7 @@ public final class MoeEditorManager
     private Editor openEditor(String filename, String docFilename,
     							  boolean isCode, String windowTitle, 
                               EditorWatcher watcher, boolean compiled, 
-                              List breakpoints, Rectangle bounds)
+                              Rectangle bounds)
     {
         MoeEditor editor;
 

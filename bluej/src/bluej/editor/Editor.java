@@ -17,7 +17,7 @@ import javax.swing.text.BadLocationException;
 /**
  * Interface between an editor and the rest of BlueJ
  * 
- * @version $Id: Editor.java 4746 2006-12-07 02:26:53Z davmac $
+ * @version $Id: Editor.java 5390 2007-11-21 05:06:41Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -163,9 +163,17 @@ public interface Editor
     void setCompiled(boolean compiled);
 
     /**
-     * Remove all breakpoints in this editor.
+     * All breakpoints have been cleared for this class, update the
+     * editor display to reflect this.
      */
     void removeBreakpoints();
+    
+    /**
+     * Breakpoints have been reset due to compilation or
+     * similar. Re-initialize the breakpoints by re-setting them via the
+     * EditorWatcher interface.
+     */
+    void reInitBreakpoints();
 
     /**
      * Determine whether this editor has been modified from the version on disk
@@ -190,7 +198,6 @@ public interface Editor
      * @return the readOnlyStatus. If true, editor is non-editable.
      */
     boolean isReadOnly();
-
     
     /**
      * Set the view of this editor to display either the source or the interface

@@ -60,7 +60,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 4935 2007-04-16 05:36:01Z davmac $
+ * @version $Id: ClassTarget.java 5390 2007-11-21 05:06:41Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -97,9 +97,6 @@ public class ClassTarget extends DependentTarget
     // time, should display the interface of this class
     private boolean openWithInterface = false;
 
-    // the set of breakpoints set in this class
-    protected List breakpoints = new ArrayList();
-
     // cached information obtained by parsing the source code
     // automatically becomes invalidated when the source code is
     // edited
@@ -124,6 +121,11 @@ public class ClassTarget extends DependentTarget
     private boolean isDragging = false;
     private boolean isMoveable = true;
     private boolean hasSource;
+    
+    // Whether the source has been modified since it was last compiled. This
+    // starts off as "true", which is a lie, but it prevents setting breakpoints
+    // in an initially uncompiled class.
+    private boolean modifiedSinceCompile = true;
 
     private String typeParameters = "";
 
@@ -260,7 +262,11 @@ public class ClassTarget extends DependentTarget
             // Notify extensions if necessary. Note we don't distinguish
             // S_COMPILING and S_INVALID.
             if (newState == S_NORMAL) {
-                ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getBClass(),true);
+                modifiedSinceCompile = false;
+                if (editor != null) {
+                    editor.reInitBreakpoints();
+                }
+                ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getBClass(), true);
                 ExtensionsManager.getInstance().delegateEvent(event);
             }
             else if (state == S_NORMAL) {
@@ -705,7 +711,7 @@ public class ClassTarget extends DependentTarget
             String filename = getSourceFile().getPath();
             String docFilename = getPackage().getProject().getDocumentationFile(filename);
             editor = EditorManager.getEditorManager().openClass(filename, docFilename, getBaseName(), this,
-                    isCompiled(), breakpoints, editorBounds);
+                    isCompiled(), editorBounds);
             editor.showInterface(showInterface);
         }
         return editor;
@@ -715,6 +721,9 @@ public class ClassTarget extends DependentTarget
      * Ensure that the source file of this class is up-to-date (i.e.
      * that any possible unsaved changes in an open editor window are 
      * saved).
+     * 
+     * <p>This can cause saveEvent() to be generated, which might move
+     * the class to a new package (if the package line has been changed).
      */
     public void ensureSaved() throws IOException
     {
@@ -761,7 +770,11 @@ public class ClassTarget extends DependentTarget
     public void modificationEvent(Editor editor)
     {
         invalidate();
-        removeBreakpoints();
+        if (! modifiedSinceCompile) {
+            removeBreakpoints();
+            getPackage().getProject().getDebugger().removeBreakpointsForClass(getQualifiedName());
+            modifiedSinceCompile = true;
+        }
         sourceInfo.setSourceModified();
     }
 
@@ -776,7 +789,7 @@ public class ClassTarget extends DependentTarget
 
     public String breakpointToggleEvent(Editor editor, int lineNo, boolean set)
     {
-        if (isCompiled()) {
+        if (isCompiled() || ! modifiedSinceCompile) {
             return getPackage().getDebugger().toggleBreakpoint(getQualifiedName(), lineNo, set);
         }
         else {
@@ -787,7 +800,7 @@ public class ClassTarget extends DependentTarget
     // --- end of EditorWatcher interface ---
 
     /**
-     * Description of the Method
+     * Remove all breakpoints in this class.
      */
     public void removeBreakpoints()
     {
@@ -795,9 +808,21 @@ public class ClassTarget extends DependentTarget
             editor.removeBreakpoints();
         }
     }
-
+    
     /**
-     * Description of the Method
+     * Re-initialize the breakpoints which have been set in this
+     * class.
+     */
+    public void reInitBreakpoints()
+    {
+        if (editor != null && isCompiled()) {
+            editor.reInitBreakpoints();
+        }
+    }
+    
+    /**
+     * Remove the step mark in this case
+     * (the mark in the editor that shows where execution is)
      */
     public void removeStepMark()
     {

@@ -49,7 +49,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 5302 2007-10-04 16:35:21Z polle $
+ * @version $Id: Package.java 5390 2007-11-21 05:06:41Z davmac $
  */
 public final class Package extends Graph
 {
@@ -1106,11 +1106,12 @@ public final class Package extends Graph
      */
     public void compile()
     {
-        if (!checkCompile())
+        if (!checkCompile()) {
             return;
+        }
 
-        List toCompile = new ArrayList();
-
+        // build the list of targets that need to be compiled
+        Set toCompile = new HashSet();
         for (Iterator it = targets.iterator(); it.hasNext();) {
             Target target = (Target) it.next();
 
@@ -1121,47 +1122,72 @@ public final class Package extends Graph
             }
         }
         
+        compile(toCompile, new PackageCompileObserver());
+    }
+
+    /**
+     * Compile a set of classes.
+     */
+    private void compile(Set toCompile, CompileObserver observer)
+    {
         if (! toCompile.isEmpty()) {
             project.removeClassLoader();
-            project.newRemoteClassLoader();
+            project.newRemoteClassLoaderLeavingBreakpoints();
 
             // Clear-down the compiler Warning dialog box singleton
             bluej.compiler.CompilerWarningDialog.getDialog().reset();
-        }
 
-        for (int i = toCompile.size() - 1; i >= 0; i--) {
-            boolean success = searchCompile((ClassTarget) toCompile.get(i), 1, new Stack(), new PackageCompileObserver());
-            if (! success)
-                break;
+            for (Iterator i = toCompile.iterator(); i.hasNext(); ) {
+                ClassTarget target = (ClassTarget) i.next();
+                boolean success = searchCompile(target, 1, new Stack(), new PackageCompileObserver());
+                if (! success)
+                    break;
+            }
         }
     }
-
+    
+    
     /**
      * Compile a single class.
      */
     public void compile(ClassTarget ct)
     {
-        if (!checkCompile())
+        if (!checkCompile()) {
             return;
+        }
+
+        ClassTarget assocTarget = (ClassTarget) ct.getAssociation();
+        if (assocTarget != null && ! assocTarget.hasSourceCode()) {
+            assocTarget = null;
+        }
 
         // we don't want to try and compile if it is a class target without src
         // it may be better to avoid calling this method on such targets
-        if (ct.hasSourceCode())
+        if (ct.hasSourceCode()) {
             ct.setInvalidState(); // to force compile
+        }
+        else {
+            ct = null;
+        }
+        
+        if (assocTarget != null) {
+            assocTarget.setInvalidState();
+        }
 
-        project.removeClassLoader();
-        project.newRemoteClassLoader();
+        if (ct != null || assocTarget != null) {
+            project.removeClassLoader();
+            project.newRemoteClassLoaderLeavingBreakpoints();
 
-        // Clear-down the compiler Warning dialog box singleton
-        bluej.compiler.CompilerWarningDialog.getDialog().reset();
+            // Clear-down the compiler Warning dialog box singleton
+            bluej.compiler.CompilerWarningDialog.getDialog().reset();
 
-        searchCompile(ct, 1, new Stack(), new PackageCompileObserver());
+            if (ct != null) {
+                searchCompile(ct, 1, new Stack(), new PackageCompileObserver());
+            }
 
-        if (ct.getAssociation() != null) {
-            ClassTarget assocTarget = (ClassTarget) ct.getAssociation();
-
-            assocTarget.setInvalidState(); // to force compile
-            searchCompile(assocTarget, 1, new Stack(), new QuietPackageCompileObserver());
+            if (assocTarget != null) {
+                searchCompile(assocTarget, 1, new Stack(), new QuietPackageCompileObserver());
+            }
         }
     }
 
@@ -1170,11 +1196,11 @@ public final class Package extends Graph
      */
     public void compileQuiet(ClassTarget ct)
     {
-        if (!checkCompile())
+        if (!isDebuggerIdle()) {
             return;
+        }
 
         ct.setInvalidState(); // to force compile
-
         searchCompile(ct, 1, new Stack(), new QuietPackageCompileObserver());
     }
 
@@ -1183,8 +1209,9 @@ public final class Package extends Graph
      */
     public void rebuild()
     {
-        if (!checkCompile())
+        if (!checkCompile()) {
             return;
+        }
 
         List compileTargets = new ArrayList();
 
@@ -1237,7 +1264,7 @@ public final class Package extends Graph
     /**
      * Use Tarjan's algorithm to construct compiler Jobs. (Cyclic dependencies are
      * submitted together as one job; otherwise we attempt to submit every file as
-     * a seperate job, compiling dependencies before their dependents).
+     * a separate job, compiling dependencies before their dependents).
      */
     private boolean searchCompile(ClassTarget t, int dfcount, Stack stack, CompileObserver observer)
     {
@@ -1317,9 +1344,6 @@ public final class Package extends Graph
             srcFiles[i] = ct.getSourceFile();
         }
         
-        removeBreakpoints();
-        //Terminal.getTerminal().clear();
-        
         JobQueue.getJobQueue().addJob(srcFiles, observer, getProject().getClassLoader(), getProject().getProjectDir(),
                 ! PrefMgr.getFlag("bluej.compiler.showunchecked"));
     }
@@ -1373,15 +1397,17 @@ public final class Package extends Graph
     }
 
     /**
-     * Remove all breakpoints in all classes.
+     * Re-initialize breakpoints, necessary after a new class loader is
+     * installed.
      */
-    public void removeBreakpoints()
+    public void reInitBreakpoints()
     {
         for (Iterator it = targets.iterator(); it.hasNext();) {
             Target target = (Target) it.next();
 
-            if (target instanceof ClassTarget)
-                ((ClassTarget) target).removeBreakpoints();
+            if (target instanceof ClassTarget) {
+                ((ClassTarget) target).reInitBreakpoints();
+            }
         }
     }
 

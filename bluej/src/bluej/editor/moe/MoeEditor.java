@@ -596,6 +596,23 @@ public final class MoeEditor extends JFrame
             }
         });
     }
+    
+    /**
+     * The editor must re-set all its breakpoints via the EditorWatcher
+     * interface.
+     */
+    public void reInitBreakpoints()
+    {
+        if (mayHaveBreakpoints) {
+            mayHaveBreakpoints = false;
+            for (int i = 1; i <= numberOfLines(); i++) {
+                if (lineHasBreakpoint(i)) {
+                    watcher.breakpointToggleEvent(this, i, true);
+                    mayHaveBreakpoints = true;
+                }
+            }
+        }
+    }
 
     /**
      *  Determine whether this buffer has been modified.

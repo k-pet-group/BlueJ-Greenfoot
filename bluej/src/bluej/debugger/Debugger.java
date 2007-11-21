@@ -13,7 +13,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 4725 2006-11-29 23:58:01Z davmac $
+ * @version $Id: Debugger.java 5390 2007-11-21 05:06:41Z davmac $
  */
 public abstract class Debugger
 {
@@ -76,13 +76,11 @@ public abstract class Debugger
      */
     public abstract void newClassLoader(BPClassLoader bpClassLoader);
 
-	/**
-     * Create a class loader in the debugger but retain
-     * any user created breakpoints.
-	 */
-	public abstract void newClassLoaderLeavingBreakpoints(BPClassLoader bpClassLoader);
-
-
+    /**
+     * Remove all breakpoints in the given class.
+     */
+    public abstract void removeBreakpointsForClass(String className);
+	
     /**
      * Add a debugger object into the project scope.
      * 

@@ -31,7 +31,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 5124 2007-07-10 10:45:06Z bquig $
+ * @version $Id: VMReference.java 5390 2007-11-21 05:06:41Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -95,10 +95,12 @@ class VMReference
     // the thread running inside the ExecServer
     private ThreadReference serverThread = null;
     private boolean serverThreadStarted = false;
+    private BreakpointRequest serverBreakpoint;
 
     // the worker thread running inside the ExecServer
     private ThreadReference workerThread = null;
     private boolean workerThreadReady = false;
+    private BreakpointRequest workerBreakpoint;
 
     // a record of the threads we start up for
     // redirecting ExecServer streams
@@ -576,13 +578,13 @@ class VMReference
                         + SERVER_STARTED_METHOD_NAME);
             }
             Location loc = startedMethod.location();
-            BreakpointRequest bpreq = erm.createBreakpointRequest(loc);
-            bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
+            serverBreakpoint = erm.createBreakpointRequest(loc);
+            serverBreakpoint.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
             // the presence of this property indicates to breakEvent that we are
             // a special type of breakpoint
-            bpreq.putProperty(SERVER_STARTED_METHOD_NAME, "yes");
-            bpreq.putProperty(VMEventHandler.DONT_RESUME, "yes");
-            bpreq.enable();
+            serverBreakpoint.putProperty(SERVER_STARTED_METHOD_NAME, "yes");
+            serverBreakpoint.putProperty(VMEventHandler.DONT_RESUME, "yes");
+            serverBreakpoint.enable();
         }
 
         // set a breakpoint in the suspend method
@@ -593,15 +595,15 @@ class VMReference
                         + SERVER_SUSPEND_METHOD_NAME);
             }
             Location loc = suspendMethod.location();
-            BreakpointRequest bpreq = erm.createBreakpointRequest(loc);
-            bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
+            workerBreakpoint = erm.createBreakpointRequest(loc);
+            workerBreakpoint.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
             // the presence of this property indicates to breakEvent that we are
             // a special type of breakpoint
-            bpreq.putProperty(SERVER_SUSPEND_METHOD_NAME, "yes");
+            workerBreakpoint.putProperty(SERVER_SUSPEND_METHOD_NAME, "yes");
             // the presence of this property indicates that we should not
             // be restarted after receiving this event
-            bpreq.putProperty(VMEventHandler.DONT_RESUME, "yes");
-            bpreq.enable();
+            workerBreakpoint.putProperty(VMEventHandler.DONT_RESUME, "yes");
+            workerBreakpoint.enable();
         }
 
     }
@@ -1333,6 +1335,51 @@ class VMReference
         }
 
         return breaks;
+    }
+    
+    /**
+     * Remove all user breakpoints
+     */
+    public void clearAllBreakpoints()
+    {
+        EventRequestManager erm = machine.eventRequestManager();
+        List breaks = new LinkedList();
+
+        List allBreakpoints = erm.breakpointRequests();
+        Iterator it = allBreakpoints.iterator();
+
+        while (it.hasNext()) {
+            BreakpointRequest bp = (BreakpointRequest) it.next();
+            if (bp != serverBreakpoint && bp != workerBreakpoint) {
+                breaks.add(bp);
+            }
+        }
+
+        erm.deleteEventRequests(breaks);
+    }
+    
+    /**
+     * Remove all breakpoints for the given class.
+     */
+    public void clearBreakpointsForClass(String className)
+    {
+        EventRequestManager erm = machine.eventRequestManager();
+
+        List allBreakpoints = erm.breakpointRequests();
+        Iterator it = allBreakpoints.iterator();
+        List toDelete = new LinkedList();
+
+        while (it.hasNext()) {
+            BreakpointRequest bp = (BreakpointRequest) it.next();
+
+            ReferenceType bpType = bp.location().declaringType();
+            if (bpType.name().equals(className)
+                    && bpType.classLoader() == currentLoader) {
+                toDelete.add(bp);
+            }
+        }
+        
+        erm.deleteEventRequests(toDelete);
     }
 
     /**

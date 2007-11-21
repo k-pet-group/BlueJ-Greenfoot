@@ -9,7 +9,7 @@
 package bluej.editor;
 
 /**
- * @version $Id: EditorWatcher.java 3357 2005-05-02 03:23:33Z davmac $
+ * @version $Id: EditorWatcher.java 5390 2007-11-21 05:06:41Z davmac $
  * @author Michael Kolling
  * Interface between the editor and the rest of BlueJ
  * The editor uses this class
@@ -32,7 +32,7 @@ public interface EditorWatcher
     void closeEvent(Editor editor);
 
     /**
-     * Called by Editor when a breakpoint is been set/cleared
+     * Called by Editor to set/clear a breakpoint
      * @param lineNo		the line number of the breakpoint
      * @param set		whether the breakpoint is set (true) or cleared
      * @return             An error message or null if okay.
