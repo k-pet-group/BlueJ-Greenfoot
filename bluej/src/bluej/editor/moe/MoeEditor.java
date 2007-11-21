@@ -2434,14 +2434,17 @@ public final class MoeEditor extends JFrame
         button.setRequestFocusEnabled(false);
         // never get keyboard focus
         
-        Insets margin = button.getMargin();
-        button.setMargin(new Insets(margin.top, 3, margin.bottom, 3));
+        if (!Config.isMacOS()) {
+            // on all other platforms than MacOS, the default insets needs to
+            // be changed to make the buttons smaller
+            Insets margin = button.getMargin();
+            button.setMargin(new Insets(margin.top, 3, margin.bottom, 3));
+        }
+        else {
+            Utility.changeToMacButton(button);
+        }
         
         button.setFont(PrefMgr.getStandardFont());
-        
-        // MacOS property to change button shape
-        button.putClientProperty("JButton.buttonType", "toolbar");
-        
         return button;
     }
 

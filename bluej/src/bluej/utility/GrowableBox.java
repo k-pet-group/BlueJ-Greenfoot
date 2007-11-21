@@ -24,7 +24,7 @@ import bluej.Config;
  * components in either a horizonatal or vertical direction.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GrowableBox.java 2785 2004-07-12 12:22:11Z polle $
+ * @version $Id: GrowableBox.java 5392 2007-11-21 19:23:48Z polle $
  */
 public class GrowableBox extends Box
 {
@@ -126,11 +126,11 @@ public class GrowableBox extends Box
      * @param removeButton
      */
     private void initButtons(JButton addButton, JButton removeButton) {
-        addButton.putClientProperty("JButton.buttonType", "toolbar");
-    	addButton.setFont(buttonFont);
+        Utility.changeToMacButton(addButton);
+        addButton.setFont(buttonFont);
         addButton.setText(addText);
         addButton.setIcon(addIcon);
-        removeButton.putClientProperty("JButton.buttonType", "toolbar");
+        Utility.changeToMacButton(removeButton);
     	removeButton.setFont(buttonFont);
         removeButton.setText(removeText);
         removeButton.setIcon(removeIcon);

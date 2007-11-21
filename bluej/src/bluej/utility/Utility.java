@@ -13,6 +13,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.AbstractButton;
+import javax.swing.JButton;
+import javax.swing.border.Border;
+
 import bluej.Config;
 
 /**
@@ -20,7 +24,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 4737 2006-12-04 05:20:57Z davmac $
+ * @version $Id: Utility.java 5392 2007-11-21 19:23:48Z polle $
  */
 public class Utility
 {
@@ -468,6 +472,25 @@ public class Utility
         
         Config.putPropBoolean(context, true);
         return true;
+    }
+    
+    /**
+     * This method creates a MacOS button. It will create a "textured" button on
+     * MacOS 10.5 and newer and a "toolbar" button on older MasOS.
+     * 
+     * @param button The button that should be changed. 
+     */
+    public static void changeToMacButton(AbstractButton button)
+    {
+        Border oldBorder = button.getBorder();
+        button.putClientProperty("JButton.buttonType", "textured");
+
+        if (oldBorder == button.getBorder()) {
+            // if the border didn't change the "textured" type probably doesn't
+            // exist, which means we are running on MacOS < 10.5. This means we
+            // should use the old pre-10.5 "toolbar" style instead.
+            button.putClientProperty("JButton.buttonType", "toolbar");
+        }
     }
     
 }

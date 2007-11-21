@@ -37,7 +37,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: MethodDialog.java 5392 2007-11-21 19:23:48Z polle $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -115,7 +115,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 4708 2006-11-27 00:47:57Z bquig $
+     * @version $Id: MethodDialog.java 5392 2007-11-21 19:23:48Z polle $
      */
     public static class ParameterList
     {
@@ -1000,8 +1000,7 @@ public class MethodDialog extends CallDialog implements FocusListener
         double parenthesisHeight = startParenthesis.getPreferredSize().getHeight();
         double parenthesisScale = comboHeight / parenthesisHeight;
         Font f = startParenthesis.getFont();
-        Font parenthesisFont = f.deriveFont(AffineTransform.getScaleInstance(parenthesisScale,
-                parenthesisScale));
+        Font parenthesisFont = f.deriveFont((float) (f.getSize() * parenthesisScale));
         startParenthesis.setFont(parenthesisFont);
 
         GridBagConstraints constraints = new GridBagConstraints();
@@ -1086,6 +1085,14 @@ public class MethodDialog extends CallDialog implements FocusListener
         JComboBox component = new JComboBox(history.toArray());
         component.insertItemAt(defaultParamValue, 0);
         component.setEditable(true);
+        
+        Dimension prefSize = component.getPreferredSize();
+        if (prefSize.width < 100) {
+            // On MacOS (Leopard) the ComboBox is tiny. So we
+            // explicitly set the width here.
+            prefSize.width = 100;
+            component.setPreferredSize(prefSize);            
+        }
         // treat 'return' in text field as OK
         component.getEditor().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt)
