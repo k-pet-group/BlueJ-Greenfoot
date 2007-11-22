@@ -72,7 +72,6 @@ public final class MoeEditor extends JFrame
     final static String versionString = "2.0";
 
     // colours
-    final static Color textBgColor = MoeSyntaxDocument.getBackgroundColor(); // background
     final static Color cursorColor = new Color(255, 0, 100);                 // cursor
 
     final static Color frameBgColor = new Color(196, 196, 196);
@@ -2235,7 +2234,7 @@ public final class MoeEditor extends JFrame
         sourcePane.setEditorKit(kit);
         moeCaret = new MoeCaret(this);
         sourcePane.setCaret(moeCaret);
-        sourcePane.setBackground(textBgColor);
+        sourcePane.setBackground(MoeSyntaxDocument.getBackgroundColor());
         //        sourcePane.setSelectionColor(selectionColour);
         sourcePane.setCaretColor(cursorColor);
 
