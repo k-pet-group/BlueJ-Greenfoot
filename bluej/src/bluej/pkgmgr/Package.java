@@ -49,7 +49,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 5390 2007-11-21 05:06:41Z davmac $
+ * @version $Id: Package.java 5395 2007-11-24 07:19:19Z davmac $
  */
 public final class Package extends Graph
 {
@@ -2128,16 +2128,20 @@ public final class Package extends Graph
         else
             t = (ClassTarget) getTarget(className);
 
-        if (t == null)
+        if (t == null) {
             return false;
+        }
 
-        if (bringToFront || !t.getEditor().isShowing())
-            t.open();
         Editor editor = t.getEditor();
-        if (editor != null)
+        if (editor != null) {
+            if (bringToFront || !editor.isShowing()) {
+                t.open();
+            }
             editor.displayMessage(message, lineNo, 0, beep, setStepMark, help);
-        else
+        }
+        else {
             Debug.message(t.getDisplayName() + ", line" + lineNo + ": " + message);
+        }
         return true;
     }
 
