@@ -496,15 +496,6 @@ bluej.compiler.unchecked=true
 
 #####################################################################
 ## Options for starting the internal virtual machine.
-## By default, we switch Hotspot optimisation on. There are occasional 
-## bugs in Hotspot that cause debugging errors when optimising.
-## This can also be switched in the preferences dialog.
-##
-#####################################################################
-
-bluej.vm.optimize=true
-
-#####################################################################
 ## bluej.vm.args provides arguments to the debug VM that 
 ## is launched to run Java code, the code pad and the object bench. 
 ## This setting is likely to not be needed in most instances.
