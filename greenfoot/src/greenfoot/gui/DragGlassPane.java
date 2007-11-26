@@ -3,8 +3,8 @@ package greenfoot.gui;
 import greenfoot.Actor;
 import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
-import greenfoot.ImageVisitor;
 import greenfoot.core.LocationTracker;
+import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -17,6 +17,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
 import java.net.URL;
 
 import javax.swing.Icon;
@@ -49,7 +50,7 @@ import javax.swing.SwingUtilities;
  * - dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 5172 2007-08-31 03:26:59Z davmac $
+ * @version $Id: DragGlassPane.java 5400 2007-11-26 13:34:33Z polle $
  *  
  */
 public class DragGlassPane extends JComponent
@@ -59,14 +60,10 @@ public class DragGlassPane extends JComponent
     private static DragGlassPane instance;
 
     /** The image displayed when dragging where no DropTarget is below */
-    private greenfoot.GreenfootImage image;
     private Icon noParkingIcon;
 
     /** Should the dragGlassPane display the no drop image? */
     private boolean paintNoDropImage;
-
-    /** Rotation of the image */
-    private double rotation;
 
     /** The object that is dragged */
     private Object data;
@@ -89,7 +86,18 @@ public class DragGlassPane extends JComponent
      */
     private DragListener dragListener;
 
+    /**
+     * Indicates whether the drag is done without any buttons pressed. This
+     * allows the drag to continue even if no keyboard or mouse buttons are
+     * pressed.
+     */
     private boolean forcedDrag;
+
+    
+    /**
+     * Image used when dragging. If this is null, no dragging is happening at the moment.
+     */
+    private BufferedImage dragImage;
 
     public static DragGlassPane getInstance()
     {
@@ -101,10 +109,6 @@ public class DragGlassPane extends JComponent
 
     private DragGlassPane()
     {
-        //HACK this is a mac hack that is necessay because I can't get the
-        // glasspane to grab the focus.
-        //Toolkit.getDefaultToolkit().addAWTEventListener(eventListener,
-        //        (AWTEvent.MOUSE_MOTION_EVENT_MASK | AWTEvent.MOUSE_EVENT_MASK));
         setVisible(false);
 
         this.addMouseMotionListener(this);
@@ -118,8 +122,8 @@ public class DragGlassPane extends JComponent
 
     public void paintComponent(Graphics g)
     {
-
-        if (image != null && paintNoDropImage) {
+        // We only handle painting here if no drop-target could handle the painting
+        if (dragImage != null && paintNoDropImage) {
             Graphics2D g2 = (Graphics2D) g;
 
             int width = rect.width;
@@ -128,11 +132,8 @@ public class DragGlassPane extends JComponent
             double halfWidth = width / 2.;
             double halfHeight = height / 2.;
 
-            double rotateX = halfWidth + rect.getX();
-            double rotateY = halfHeight + rect.getY();
-            g2.rotate(Math.toRadians(rotation), rotateX, rotateY);
-            ImageVisitor.drawImage(image, g2, rect.x, rect.y, this);
-
+            g2.drawImage(dragImage, rect.x, rect.y, null);
+            
 			g2.setColor(Color.RED);
             if (noParkingIcon != null) {
                 int x = (int) (rect.getX() + halfWidth - noParkingIcon.getIconWidth() / 2);
@@ -206,7 +207,7 @@ public class DragGlassPane extends JComponent
             return;
         }
         
-        setDragImage(objectImage, object.getRotation());
+        setDragImage(objectImage);
         setDragObject(object);
         paintNoDropImage = true;
                 
@@ -250,7 +251,7 @@ public class DragGlassPane extends JComponent
         
         setVisible(false);
         data = null;
-        image = null;
+        dragImage = null;
         dragListener = null;
         
         // Call dragFinished
@@ -267,14 +268,16 @@ public class DragGlassPane extends JComponent
      * @param rotation
      *            The rotation of the image
      */
-    public void setDragImage(greenfoot.GreenfootImage image, double rotation)
-    {
-        this.image = image;
+    public void setDragImage(greenfoot.GreenfootImage image)
+    {        
+        BufferedImage awtImage = image.getAwtImage();
+        dragImage = GreenfootUtil.createDragShadow(awtImage);
+        
+        
         int width = image.getWidth();
         int height = image.getHeight();
         rect.width = width;
         rect.height = height;
-        this.rotation = rotation;
     }
 
     public void setDragObject(Object object)
@@ -289,7 +292,7 @@ public class DragGlassPane extends JComponent
 
     private void move(MouseEvent e)
     {
-        if(image == null) {
+        if(dragImage == null) {
             //No valid drag object available.
             return;
         }
@@ -440,7 +443,7 @@ public class DragGlassPane extends JComponent
     private void storePosition(MouseEvent e)
     {
         e = SwingUtilities.convertMouseEvent((Component) e.getSource(), e, this);
-        rect.x = e.getX() + dragOffsetX - image.getWidth()/2;
-        rect.y = e.getY() + dragOffsetY - image.getHeight()/2;
+        rect.x = e.getX() + dragOffsetX - dragImage.getWidth()/2;
+        rect.y = e.getY() + dragOffsetY - dragImage.getHeight()/2;
     }
 }

@@ -18,16 +18,13 @@ import java.awt.image.VolatileImage;
 import java.io.IOException;
 import java.net.URL;
 
-import javax.swing.ImageIcon;
-
-
 /**
  * An image to be shown on screen. The image may be loaded from an image file
  * and/or drawn by using various drawing methods.
  * 
  * @author Poul Henriksen
  * @version 1.3.0
- * @cvs-version $Id: GreenfootImage.java 5385 2007-11-19 12:28:26Z polle $
+ * @cvs-version $Id: GreenfootImage.java 5400 2007-11-26 13:34:33Z polle $
  */
 public class GreenfootImage
 {
@@ -158,13 +155,13 @@ public class GreenfootImage
 
 
     /**
-     * Returns the java.awt.Image that backs this GreenfootImage. Any changes to
+     * Returns the java.awt.image.BufferedImage that backs this GreenfootImage. Any changes to
      * the returned image will be reflected in the GreenfootImage.
      * 
-     * @return The java.awt.Image backing this GreenfootImage
+     * @return The java.awt.image.BufferedImage backing this GreenfootImage
      * @since Greenfoot version 1.0.2
      */
-    public Image getAwtImage()
+    public BufferedImage getAwtImage()
     {
         ensureWritableImage();
         return image;

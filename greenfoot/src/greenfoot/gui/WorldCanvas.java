@@ -1,9 +1,12 @@
 package greenfoot.gui;
 
 import greenfoot.*;
+import greenfoot.core.ObjectDragProxy;
+import greenfoot.util.GreenfootUtil;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -12,16 +15,23 @@ import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 
 /**
- * The visual representation of the world
+ * The visual representation of the world.
  * 
- * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldCanvas.java 5172 2007-08-31 03:26:59Z davmac $
+ * @author Poul Henriksen
+ * @version $Id: WorldCanvas.java 5400 2007-11-26 13:34:33Z polle $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
 {
     private World world;
     private DropTarget dropTargetListener;
+
+    /** The actor being dragged. Null if no draggin. */ 
+    private Actor dragActor;
+    /** The current location where the object is dragged - in pixel coordinates relative to this canvas. */
+    private Point dragLocation;
+    /** Image used when dragging new actors on the world. Includes teh drop shadow.*/
+    private BufferedImage dragImage; 
 
     public WorldCanvas(World world)
     {
@@ -61,8 +71,8 @@ public class WorldCanvas extends JPanel
         synchronized (world) {
             Set<Actor> objects = WorldVisitor.getObjectsList(world);
             int paintSeq = 0;
-            for (Iterator iter = objects.iterator(); iter.hasNext();) {
-                Actor thing = (Actor) iter.next();
+            for (Iterator<Actor> iter = objects.iterator(); iter.hasNext();) {
+                Actor thing = iter.next();
                 int cellSize = WorldVisitor.getCellSize(world);
 
                 greenfoot.GreenfootImage image = ActorVisitor.getDisplayImage(thing);
@@ -87,9 +97,6 @@ public class WorldCanvas extends JPanel
         }
     }
 
-    /**
-     * TODO optimize performance... double buffering?
-     */
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
@@ -98,11 +105,30 @@ public class WorldCanvas extends JPanel
         }
         paintBackground(g);
         paintObjects(g);
+        paintDraggedObject(g);
         
         WorldVisitor.paintDebug(world, g);
     }
 
-    
+    /**
+     * If an object is being dragged, paint it.
+     */
+    private void paintDraggedObject(Graphics g)
+    {
+        if(dragImage != null) {
+            BufferedImage actorImage = dragActor.getImage().getAwtImage();
+            int x = (int) dragLocation.getX();
+            int y = (int) dragLocation.getY();
+            int xCell =  WorldVisitor.toCellFloor(world, x);
+            int yCell =  WorldVisitor.toCellFloor(world, y);
+            int cellSize = WorldVisitor.getCellSize(world);
+            x = (int) ((xCell + 0.5) * cellSize - dragImage.getWidth()/2);
+            y = (int) ((yCell + 0.5) * cellSize - dragImage.getHeight()/2);
+            
+            g.drawImage(dragImage, x, y, null);            
+        }
+    }
+
     /**
      * Paint the world background. This takes tiling into account: the
      * world image is painted either once or tiled onto this component.
@@ -124,8 +150,8 @@ public class WorldCanvas extends JPanel
 
     
     /**
-     * Print the world background image onto this component in tiles
-     * so that it will the whole world size.
+     * Paint the world background image onto this component in tiles
+     * so that it will fill the whole world size.
      */
     private void paintTiledBackground(Graphics g, GreenfootImage backgroundImage)
     {
@@ -148,10 +174,6 @@ public class WorldCanvas extends JPanel
         }
 
     }
-
-//    public Dimension getMaximumSize()
-//    {
-//    }
 
     public Dimension getMinimumSize()
     {
@@ -177,6 +199,7 @@ public class WorldCanvas extends JPanel
 
     public boolean drop(Object o, Point p)
     {
+        clearDragInfo();
         if (dropTargetListener != null) {
             return dropTargetListener.drop(o, p);
         }
@@ -186,23 +209,49 @@ public class WorldCanvas extends JPanel
 
     }
 
-    
+    /**
+     * If it is a new actor, that has not been added to the world yet, the
+     * dragging is handled here, otherwise it is handled in the world handler.
+     */
     public boolean drag(Object o, Point p)
     {
-        if (dropTargetListener != null) {
+        if(o instanceof ObjectDragProxy ) {            
+            if(o != dragActor) {
+                // It is the first time we are dragging this actor. Create the drag image.
+                dragActor = (Actor) o;          
+                dragImage = GreenfootUtil.createDragShadow(dragActor.getImage().getAwtImage());
+            }
+            dragLocation = p;
+            repaint();
+            return true;
+            
+        }        
+        else if (dropTargetListener != null) {
             return dropTargetListener.drag(o, p);
         }
         else {
             return false;
         }
     }
-
     
     public void dragEnded(Object o)
     {
+        clearDragInfo();
         if (dropTargetListener != null) {
             dropTargetListener.dragEnded(o);
         }
+        
+    }
+
+    /** 
+     * End the drag by setting all the drag information to null. And request repaint to update the graphics.
+     */
+    private void clearDragInfo()
+    {
+        dragLocation = null;
+        dragActor = null;
+        dragImage = null;
+        repaint();
     }
 
     public Dimension getPreferredScrollableViewportSize()

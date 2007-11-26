@@ -2,6 +2,7 @@ package greenfoot.util;
 
 import greenfoot.platforms.GreenfootUtilDelegate;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -32,7 +33,7 @@ import javax.swing.JPanel;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 5385 2007-11-19 12:28:26Z polle $
+ * @version $Id: GreenfootUtil.java 5400 2007-11-26 13:34:33Z polle $
  */
 public class GreenfootUtil
 {
@@ -504,5 +505,18 @@ public class GreenfootUtil
             return false;
         int modifiers = cls.getModifiers();
         return ( (0x0600 & modifiers) == 0x0000);
+    }
+    
+    /**
+     * Creates a new image which is a copy of the original with a drop shadow added.
+     * 
+     */
+    public static BufferedImage createDragShadow(BufferedImage image)
+    {
+        BufferedImage dragImage = (new ShadowRenderer(3 , 0.3f, Color.BLACK)).createShadow(image);
+        Graphics2D g2 = dragImage.createGraphics();
+        g2.drawImage(image, 0, 0, null);
+        g2.dispose();
+        return dragImage;
     }
 }
