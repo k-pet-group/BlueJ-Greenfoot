@@ -60,7 +60,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 5390 2007-11-21 05:06:41Z davmac $
+ * @version $Id: ClassTarget.java 5398 2007-11-26 04:32:36Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -712,7 +712,12 @@ public class ClassTarget extends DependentTarget
             String docFilename = getPackage().getProject().getDocumentationFile(filename);
             editor = EditorManager.getEditorManager().openClass(filename, docFilename, getBaseName(), this,
                     isCompiled(), editorBounds);
-            editor.showInterface(showInterface);
+            
+            // editor may be null if source has been deleted
+            // for example.
+            if (editor != null) {
+                editor.showInterface(showInterface);
+            }
         }
         return editor;
     }
