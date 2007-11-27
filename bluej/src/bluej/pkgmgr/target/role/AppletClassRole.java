@@ -19,7 +19,7 @@ import bluej.utility.*;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 5379 2007-11-07 03:03:26Z davmac $
+ * @version $Id: AppletClassRole.java 5402 2007-11-27 03:39:54Z davmac $
  */
 public class AppletClassRole extends StdClassRole
 {
@@ -303,10 +303,12 @@ public class AppletClassRole extends StdClassRole
         String archives = "";
         try{
             for(int i=0; i < libs.length; i++) {
-                if(archives.length() == 0)
+                if(archives.length() == 0) {
                     archives = libs[i].toURI().toURL().toString();
-                else
-                    archives += "," + libs[i].toURL();
+                }
+                else {
+                    archives += "," + libs[i].toURI().toURL();
+                }
             }
         }
         catch(MalformedURLException e) {}
