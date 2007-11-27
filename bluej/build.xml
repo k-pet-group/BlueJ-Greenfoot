@@ -15,8 +15,8 @@
      After changing the version number the target "update-version-number" should be run -->
     <property name="bluej.version.major" value="2" />
     <property name="bluej.version.minor" value="2" />
-    <property name="bluej.version.release" value="0" />
-    <property name="bluej.version.suffix" value="preview" />
+    <property name="bluej.version.release" value="1" />
+    <property name="bluej.version.suffix" value="" />
     <property name="bluej.version" value="${bluej.version.major}.${bluej.version.minor}.${bluej.version.release}${bluej.version.suffix}" />
 
     <!-- user specific properties that are edited to match local build environment-->
@@ -236,7 +236,7 @@
             mainclass="bluej.Boot"
             jvmversion="1.4+"
             icon="lib/images/bluej.icns"
-            version="2.1.0">
+            version="${bluej.version}">
             <jarfileset dir="lib">
                 <include name="**/*.jar" />
                 <exclude name="*/CVS" />
