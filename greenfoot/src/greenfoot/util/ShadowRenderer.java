@@ -9,6 +9,7 @@ package greenfoot.util;
  */
 
 import java.awt.Color;
+import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -333,7 +334,12 @@ public class ShadowRenderer {
                 aSum -= aHistory[historyIdx]; // substract the oldest pixel from the sum
 
                 // extract the new pixel ...
-                a = srcBuffer[srcOffset + srcX] >>> 24;
+                if(image.getTransparency() == Transparency.OPAQUE) {
+                    a = 0xff;
+                }
+                else {
+                    a = srcBuffer[srcOffset + srcX] >>> 24;
+                }
                 aHistory[historyIdx] = a;   // ... and store its value into history
                 aSum += a;                  // ... and add its value to the sum
 
