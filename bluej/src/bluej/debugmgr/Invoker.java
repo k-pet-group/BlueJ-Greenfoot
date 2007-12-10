@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 5342 2007-10-24 16:12:55Z iau $
+ * @version $Id: Invoker.java 5414 2007-12-10 14:47:22Z polle $
  */
 
 public class Invoker
@@ -1045,7 +1045,9 @@ public class Invoker
             // call dialog re-appears when the PkgMgrFrame is restored.
             // Calling dispose() as a workaround.
             // See http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5005454
-            dialog.dispose();
+            if (Config.isWinOS()) {
+                dialog.dispose();
+            }
             if (dialog instanceof MethodDialog)
                 ((MethodDialog) dialog).updateParameters();
         }
