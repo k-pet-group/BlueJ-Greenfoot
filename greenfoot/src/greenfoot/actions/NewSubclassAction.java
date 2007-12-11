@@ -1,12 +1,11 @@
 package greenfoot.actions;
 
-import bluej.Config;
 import greenfoot.core.GClass;
 import greenfoot.gui.ImageLibFrame;
 import greenfoot.gui.NewClassDialog;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
-import greenfoot.gui.classbrowser.role.ActorClassRole;
+import greenfoot.gui.classbrowser.role.ImageClassRole;
 
 import java.awt.event.ActionEvent;
 
@@ -14,10 +13,12 @@ import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import bluej.Config;
+
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NewSubclassAction.java 5284 2007-10-04 04:09:40Z bquig $
+ * @version $Id: NewSubclassAction.java 5415 2007-12-11 04:05:11Z davmac $
  */
 public class NewSubclassAction extends AbstractAction
 {
@@ -38,18 +39,22 @@ public class NewSubclassAction extends AbstractAction
         this.superclass = view;
         this.classBrowser = classBrowser;
     }
+    
     public void actionPerformed(ActionEvent e)
     {
-        String actor = "Actor";
         GClass superG = superclass.getGClass();
-        if(superG.isSubclassOf(actor) || superG.getName().equals(actor)) {
-            createActorClass();
+        
+        boolean imageClass = superG.isActorClass() || superG.isActorSubclass();
+        imageClass |= superG.isWorldClass() || superG.isWorldSubclass();
+            
+        if (imageClass) {
+            createImageClass();
         } else {
             createNonActorClass();
         }
     }
     
-    public void createActorClass()
+    public void createImageClass()
     {
         JFrame f = (JFrame) SwingUtilities.getWindowAncestor(classBrowser);
         
@@ -64,7 +69,7 @@ public class NewSubclassAction extends AbstractAction
         ClassView classView = new ClassView(classBrowser, gClass);
         
         SelectImageAction.setClassImage(classView,
-                (ActorClassRole) classView.getRole(),
+                (ImageClassRole) classView.getRole(),
                 dialog.getSelectedImageFile());
 
         classBrowser.addClass(classView);
