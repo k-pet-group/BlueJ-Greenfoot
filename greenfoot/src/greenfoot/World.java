@@ -237,6 +237,9 @@ public abstract class World
      * appear on top of all other objects; objects of the second class given
      * will be painted second last, and so on.
      * <p>
+     * Objects of a class not explicitly specified effectively inherit the paint
+     * order from their superclass.
+     * <p>
      * Objects not belonging to any of the given classes will appear underneath
      * all other objects.
      * 
