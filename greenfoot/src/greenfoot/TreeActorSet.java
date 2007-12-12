@@ -1,14 +1,14 @@
 package greenfoot;
 
-import java.util.AbstractSet;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * A set which allows specifying iteration order according to class of contained
  * objects.
+ * 
+ * <p>TreeActorSet is really an ordered "set of sets". Each set corresponds to
+ * a class; any actors of that class are put in the set, along with any actors
+ * of subclasses as long as there isn't a more appropriate set for them.
  * 
  * @author Davin McCall
  */
@@ -19,7 +19,7 @@ public class TreeActorSet extends AbstractSet<Actor>
     /** ActorSet for objects of a class without a specific z-order */
     private ActorSet generalSet;
     
-    private HashMap<Class, ActorSet> classSets;
+    private HashMap<Class<?>, ActorSet> classSets;
     
     /**
      * Construct an empty TreeActorSet.
@@ -30,57 +30,81 @@ public class TreeActorSet extends AbstractSet<Actor>
         generalSet = new ActorSet();
         subSets.add(generalSet);
         
-        classSets = new HashMap<Class, ActorSet>();
+        classSets = new HashMap<Class<?>, ActorSet>();
     }
     
     /**
      * Set the iteration order of objects. The first given class will have
-     * objects of its class first in the iteration order, and so on.
-     * Objects not belonging to any of the specified classes will be last
+     * objects of its class last in the iteration order, the next will have
+     * objects second last in iteration order, and so on.
+     * 
+     * Objects not belonging to any of the specified classes will be first
      * in the iteration order.
      */
-    public void setClassOrder(Class ... classes)
+    public void setClassOrder(Class<?> ... classes)
     {
-        HashMap<Class, ActorSet> oldClassSets = classSets;
-        classSets = new HashMap<Class, ActorSet>();
+        HashMap<Class<?>, ActorSet> oldClassSets = classSets;
+        classSets = new HashMap<Class<?>, ActorSet>();
         
-        // For the moment assume that we don't need to go through the
-        // general set - i.e. assume all classes were already given
-        // a z-order
-        boolean needGeneralSweep = false;
+        // A list of classes we need to sweep the superclass set of
+        LinkedList<Class<?>> sweepClasses = new LinkedList<Class<?>>();
         
         // For each listed class, use the ActorSet from the original classSets
         // if it exists, or create a new one if not
         for (int i = 0; i < classes.length; i++) {
             ActorSet oldSet = oldClassSets.remove(classes[i]);
             if (oldSet == null) {
-                // There was no old set for this class
+                // There was no old set for this class. We'll need to check
+                // the superclass set for actors which actually belong in
+                // the new set.
+                sweepClasses.add(classes[i]);
                 oldSet = new ActorSet();
-                needGeneralSweep = true;
             }
             classSets.put(classes[i], oldSet);
         }
         
-        if (needGeneralSweep) {
-            // We need to go through the general set and possibly re-assign
-            // each actor to a set
-            Iterator<Actor> i = generalSet.iterator();
-            while (i.hasNext()) {
-                Actor actor = i.next();
-                Class oClass = actor.getClass();
-                ActorSet set = classSets.get(oClass);
-                if (set != null) {
-                    set.add(actor); // add to the specific set
-                    i.remove(); // remove from the general set
+        // There may be objects in a set for some class A which
+        // belong in the set for class B which is derived from A.
+        // Now we'll "sweep" such sets.
+
+        Set<Class<?>> sweptClasses = new HashSet<Class<?>>();
+        
+        while (! sweepClasses.isEmpty()) {
+            Class<?> sweepClass = sweepClasses.removeFirst().getSuperclass();
+            ActorSet sweepSet = classSets.get(sweepClass);
+            while (sweepSet == null) {
+                sweepClass = sweepClass.getSuperclass();
+                if (sweepClass == null) {
+                    sweepSet = generalSet;
+                }
+                else {
+                    sweepSet = classSets.get(sweepClass);
+                }
+            }
+            
+            if (! sweptClasses.contains(sweepClass)) {
+                sweptClasses.add(sweepClass);
+                // go through sweep set
+                Iterator<Actor> i = sweepSet.iterator();
+                while (i.hasNext()) {
+                    Actor actor = i.next();
+                    ActorSet set = setForActor(actor);
+                    if (set != sweepSet) {
+                        set.add(actor); // add to the specific set
+                        i.remove(); // remove from the general set
+                    }
                 }
             }
         }
         
-        // Now, for any sets left in the old set, move all the actors into the
-        // general set
-        for (Iterator<ActorSet> i = oldClassSets.values().iterator(); i.hasNext(); ) {
-            ActorSet entry = i.next();
-            generalSet.addAll(entry);
+        // Now, for any old subsets not yet handled, move all the actors into
+        // the appropriate set. ("Not yet handled" means that the old subset
+        // has no equivalent in the new sets).
+        Iterator<Map.Entry<Class<?>,ActorSet>> ei = oldClassSets.entrySet().iterator();
+        for ( ; ei.hasNext(); ) {
+            Map.Entry<Class<?>,ActorSet> entry = ei.next();
+            ActorSet destinationSet = setForClass(entry.getKey());
+            destinationSet.addAll(entry.getValue());
         }
         
         // Finally, re-create the subsets list
@@ -129,8 +153,20 @@ public class TreeActorSet extends AbstractSet<Actor>
      */
     private ActorSet setForActor(Actor o)
     {
-        Class oClass = o.getClass();
+        Class<?> oClass = o.getClass();
+        return setForClass(oClass);
+    }
+    
+    private ActorSet setForClass(Class<?> oClass)
+    {
         ActorSet set = classSets.get(oClass);
+        
+        // There might be a set for some superclass
+        while (set == null && oClass != Object.class) {
+            oClass = oClass.getSuperclass();
+            set = classSets.get(oClass);
+        }
+        
         if (set == null) {
             set = generalSet;
         }

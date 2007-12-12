@@ -16,6 +16,16 @@ public class ActorSet extends AbstractSet<Actor>
     
     private int numActors = 0;
     
+    /** Sum of sequence numbers of contained actors */
+    private int myHashCode = 0;
+    
+    
+    @Override
+    public int hashCode()
+    {
+        return myHashCode;
+    }
+    
     public boolean add(Actor actor)
     {
         if (contains(actor)) {
@@ -25,18 +35,19 @@ public class ActorSet extends AbstractSet<Actor>
         numActors++;
         ListNode newNode = new ListNode(actor, listHeadTail.prev);
         
+        int seq = ActorVisitor.getSequenceNumber(actor);
         if (numActors >= 2 * hashMap.length) {
             // grow the hashmap
             resizeHashmap();
         }
         else {
-            int seq = ActorVisitor.getSequenceNumber(actor);
             int hash = seq % hashMap.length;
             ListNode hashHead = hashMap[hash];
             hashMap[hash] = newNode;
             newNode.setHashListHead(hashHead);
         }
         
+        myHashCode += seq;
         return true;
     }
 
@@ -97,6 +108,7 @@ public class ActorSet extends AbstractSet<Actor>
         
         if (actorNode != null) {
             remove(actorNode);
+            myHashCode -= ActorVisitor.getSequenceNumber(actor);
             return true;
         }
         else {
@@ -141,6 +153,7 @@ public class ActorSet extends AbstractSet<Actor>
         ListNode next;
         ListNode prev;
         
+        // The node also appears in a linked list representing the hash bucket 
         ListNode nextHash;
         ListNode prevHash;
         
@@ -165,6 +178,10 @@ public class ActorSet extends AbstractSet<Actor>
             next.prev = this;
         }
         
+        /**
+         * Set this node as the new head node in a hash bucket list.
+         * @param oldHead  The original head node in the bucket
+         */
         public void setHashListHead(ListNode oldHead)
         {
             if (oldHead == null) {
