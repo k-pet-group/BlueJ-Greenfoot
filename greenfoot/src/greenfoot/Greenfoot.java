@@ -32,7 +32,7 @@ import greenfoot.sound.SoundPlayer;
  * 
  * @author Davin McCall
  * @version 1.3.0
- * @cvs-version $Id: Greenfoot.java 5376 2007-11-06 16:15:22Z polle $
+ * @cvs-version $Id: Greenfoot.java 5421 2007-12-13 15:43:03Z polle $
  */
 public class Greenfoot
 {
@@ -173,7 +173,7 @@ public class Greenfoot
     
     
     /**
-     * Whether the mouse had been pressed (changed from a non-pressed state to
+     * Whether the mouse has been pressed (changed from a non-pressed state to
      * being pressed) on the given object. If the parameter is an Actor the
      * method will only return true if the mouse has been pressed on the given
      * actor - if there are several actors at the same place, only the top most
@@ -191,7 +191,7 @@ public class Greenfoot
     }
 
     /**
-     * Whether the mouse had been clicked (pressed and released) on the given
+     * Whether the mouse has been clicked (pressed and released) on the given
      * object. If the parameter is an Actor the method will only return true if
      * the mouse has been clicked on the given actor - if there are several
      * actors at the same place, only the top most actor will count. If the
@@ -209,7 +209,7 @@ public class Greenfoot
     }
 
     /**
-     * Whether the mouse had been dragged on the given object. The mouse is
+     * Whether the mouse has been dragged on the given object. The mouse is
      * considered to be dragged on an object, only if the drag started on that
      * object - even if the mouse has since been moved outside of that object.
      * <p>
@@ -251,17 +251,16 @@ public class Greenfoot
     }
 
     /**
-     * Whether the mouse had been moved on the given object. The mouse is
-     * considered to be moved on an object, only if the mouse pointer is above that
-     * object.
+     * Whether the mouse has been moved on the given object. The mouse is
+     * considered to be moved on an object, only if the mouse pointer is above
+     * that object.
      * <p>
      * If the parameter is an Actor the method will only return true if the move
-     * is on the given actor - if there are several actors at the same
-     * place, only the top most actor will count. If the parameter is a World
-     * then true will be returned only if the move is outside the
-     * boundaries of all Actors. If the parameter is null, then it will return
-     * true no matter where the drag was started as long as it is inside the
-     * world boundaries.
+     * is on the given actor - if there are several actors at the same place,
+     * only the top most actor will count. If the parameter is a World then true
+     * will be returned only if the move is outside the boundaries of all
+     * Actors. If the parameter is null, then it will return true no matter
+     * where the drag was started as long as it is inside the world boundaries.
      * 
      * @param obj Typically one of Actor, World or null
      * @return True if the mouse has been moved as explained above
@@ -273,10 +272,9 @@ public class Greenfoot
 
     /**
      * Gets the mouse info with information about the current state of the
-     * mouse. Within the same act-loop it will always return exactly the same
-     * MouseInfo object with exactly the same contents.
+     * mouse. 
      * 
-     * @return The info about the current state of the mouse. Null if nothing mouse related has happened in this act round.
+     * @return The info about the current state of the mouse. 
      */
     public static MouseInfo getMouseInfo()
     {
