@@ -60,7 +60,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 5385 2007-11-19 12:28:26Z polle $
+ * @version $Id: ImageLibFrame.java 5420 2007-12-13 03:47:49Z davmac $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -97,9 +97,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
      */
     public ImageLibFrame(JFrame owner, ClassView classView)
     {
-        // TODO i18n
         super(owner, Config.getString("imagelib.title") + classView.getClassName(), true);
-        // setIconImage(BlueJTheme.getIconImage());
         
         this.gclass = classView.getGClass();
         generatedImage = renderImage();
@@ -633,9 +631,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                                                  JOptionPane.OK_CANCEL_OPTION, 
                                                  JOptionPane.WARNING_MESSAGE,
                                                  null, null, null);
-            
-//            int r = DialogManager.askQuestion(this, "imagelib-image-askReplace" , new String[]{f.toString()}); 
-            
             
             if (r != JOptionPane.OK_OPTION) {
                 return null;
