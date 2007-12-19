@@ -1,5 +1,4 @@
-# German Greenfoot interface labels. Not yet complete.
-# (Translation: mik, Oct 2007)
+# German Greenfoot interface labels. Not yet complete. (Translation: mik, Oct 2007)
 
 greenfoot.nyi=Noch nicht implementiert.
 greenfoot.preferences=Einstellungen...
@@ -168,4 +167,3 @@ menu.help.javadoc=Java Klassenbibliotheken
 menu.help.tutorial=Greenfoot Tutorium
 menu.help.website=Greenfoot Website
 menu.help.moreScenarios=Weitere Szenarien...
-
