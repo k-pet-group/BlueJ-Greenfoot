@@ -1,6 +1,5 @@
 package greenfoot.export;
 
-import bluej.BlueJPropStringSource;
 import greenfoot.World;
 import greenfoot.core.LocationTracker;
 import greenfoot.core.ProjectProperties;
@@ -31,8 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Properties;
 
 import javax.swing.*;
@@ -59,7 +56,7 @@ public class GreenfootScenarioViewer extends JApplet
     private ControlPanel controls;
     private RootPaneContainer rootPaneContainer;
 
-    private Constructor worldConstructor;
+    private Constructor<?> worldConstructor;
 
     private static String[] args;
 
