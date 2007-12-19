@@ -39,7 +39,7 @@ How to make a BlueJ release                    (last update 05.01.2006, iau)
  8. Update the BlueJ web site to announce the new version. At least:
      - put a notice on the front page
      - update the "change history" section
-     - update the "download" section (bluej system and editor source)
+     - update the "download" section (bluej system, install instructions and editor source)
 
  9. Update the file www.bluej.org/version.info
     The real location currently is: dodo:~bluej/www/version.info
