@@ -45,7 +45,7 @@ import bluej.utility.Utility;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 5371 2007-11-05 03:30:17Z davmac $
+ * @version $Id: Config.java 5429 2007-12-19 15:51:35Z mik $
  */
 
 public final class Config
@@ -1009,14 +1009,15 @@ public final class Config
                 File jdkPath = new File(jdkPathName);
                 File binPath = new File(jdkPath, "bin");
 
-				// try to find normal (unix??) executable
+                // try to find normal (unix??) executable
                 File potentialExe = new File(binPath, executableName);
                 if(potentialExe.exists())
                     return potentialExe.getAbsolutePath();
+                
                 // try to find windows executable
-				potentialExe = new File(binPath, executableName + ".exe");
-				if(potentialExe.exists())
-					return potentialExe.getAbsolutePath();
+                potentialExe = new File(binPath, executableName + ".exe");
+                if(potentialExe.exists())
+                    return potentialExe.getAbsolutePath();
 
                 // we could be in a JRE directory INSIDE a JDK directory
                 // so lets go up one level and try again
