@@ -58,7 +58,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 5392 2007-11-21 19:23:48Z polle $
+ * @version $Id: PkgMgrFrame.java 5437 2007-12-19 17:03:31Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -553,6 +553,7 @@ public class PkgMgrFrame extends JFrame
         if(! Config.isGreenfoot()) {
             this.editor = new PackageEditor(pkg, this);
             editor.setFocusable(true);
+            editor.setTransferHandler(new FileTransferHandler(this));
             editor.addMouseListener(this); // This mouse listener MUST be before
             editor.addFocusListener(this); //  the editor's listener itself!
             editor.startMouseListening();
@@ -1497,6 +1498,23 @@ public class PkgMgrFrame extends JFrame
 
         if (classes == null)
             return;
+        importFromFile(classes);
+    }
+        
+    
+    /**
+     * Add a given set of Java source files as classes to this package.
+     */
+    public void addFiles(List<File> classes)
+    {
+        importFromFile(classes.toArray(new File[classes.size()]));
+    }
+    
+    /**
+     * Add the given set of Java source files as classes to this package.
+     */
+    private void importFromFile(File[] classes)
+    {
         // if there are errors this will potentially bring up multiple error
         // dialogs
         // these could be aggregated however the error messages may be different
