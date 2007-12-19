@@ -2,7 +2,6 @@ package bluej.debugmgr;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,7 +16,6 @@ import bluej.debugger.gentype.GenTypeArray;
 import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.TextType;
-import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -37,7 +35,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 5392 2007-11-21 19:23:48Z polle $
+ * @version $Id: MethodDialog.java 5433 2007-12-19 16:10:41Z mik $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -115,7 +113,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 5392 2007-11-21 19:23:48Z polle $
+     * @version $Id: MethodDialog.java 5433 2007-12-19 16:10:41Z mik $
      */
     public static class ParameterList
     {
