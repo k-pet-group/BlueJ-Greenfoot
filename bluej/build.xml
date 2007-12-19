@@ -79,7 +79,7 @@
                 destdir="${boot.build}"
                 deprecation="yes"
         >
-            <compilerarg line="-source 1.4"/>
+            <!-- compilerarg line="-source 1.4"/ -->
         </javac>
 
     </target>
@@ -93,8 +93,6 @@
         <javac
                 executable="${build_java_home}/bin/javac"
                 fork="yes"
-                source="1.4"
-                target="1.4"
                 srcdir="${core.src}"
                 destdir="${core.build}"
                 debug="on"
@@ -209,6 +207,29 @@
                 <pathelement location="${run_java_home}/lib/tools.jar"/>
                 <pathelement location="/System/Library/Java"/>
             </classpath>                	
+        </java>
+    </target>
+
+    <target name="run-profiler">
+        <fail unless="netbeans.home">This target can only run inside the NetBeans IDE.</fail>
+        <nbprofiledirect>
+            <classpath>
+                <pathelement location="${boot.jar}"/>
+                <pathelement location="${run_java_home}/lib/tools.jar"/>
+                <pathelement location="/System/Library/Java"/>
+            </classpath>
+        </nbprofiledirect>
+        
+        <!-- delete the greenfoot jar (if it exists) since it screws up BlueJ -->
+        <delete quiet="true" file="${extensions.lib}/greenfoot.jar"/>
+        <!-- run the java code built into the jar files -->
+        <java classname="bluej.Boot" fork="yes" jvm="${run_java_home}/bin/java">        
+            <classpath>
+                <pathelement location="${boot.jar}"/>
+                <pathelement location="${run_java_home}/lib/tools.jar"/>
+                <pathelement location="/System/Library/Java"/>
+            </classpath>
+            <jvmarg value="${profiler.info.jvmargs.agent}"/>
         </java>
     </target>
 
