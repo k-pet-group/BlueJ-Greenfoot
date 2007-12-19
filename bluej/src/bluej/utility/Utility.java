@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.AbstractButton;
-import javax.swing.JButton;
 import javax.swing.border.Border;
 
 import bluej.Config;
@@ -24,7 +23,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 5392 2007-11-21 19:23:48Z polle $
+ * @version $Id: Utility.java 5438 2007-12-19 17:04:51Z mik $
  */
 public class Utility
 {
