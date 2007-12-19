@@ -23,7 +23,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 5438 2007-12-19 17:04:51Z mik $
+ * @version $Id: Utility.java 5439 2007-12-19 17:09:32Z mik $
  */
 public class Utility
 {
@@ -347,29 +347,29 @@ public class Utility
             //    app.activateIgnoringOtherApps(true);
             // but does so by reflection so that this compiles on non-Apple machines.
             
-            try {
-                Class nsapp = null;
-                try {
-                    nsapp = Class.forName("com.apple.cocoa.application.NSApplication");
-                }
-                catch (ClassNotFoundException e) {}
-                if (nsapp == null) {
-                    // Using a custom class loader avoids having to set up the
-                    // class path on the mac.
-                    nsapp = Class.forName("com.apple.cocoa.application.NSApplication", true, new URLClassLoader(
-                            new URL[]{new File("/System/Library/Java/").toURI().toURL()}));
-                }
-                java.lang.reflect.Method sharedApp = nsapp.getMethod("sharedApplication", null);
-                Object obj = sharedApp.invoke(null, null);
-                
-                Class[] param = { boolean.class };
-                java.lang.reflect.Method act = nsapp.getMethod("activateIgnoringOtherApps", param);
-                Object[] args = { Boolean.TRUE };
-                act.invoke(obj, args);
-            }
-            catch(Exception exc) {
-                Debug.reportError("Bringing process to front failed (MacOS).");
-            }
+//            try {
+//                Class nsapp = null;
+//                try {
+//                    nsapp = Class.forName("com.apple.cocoa.application.NSApplication");
+//                }
+//                catch (ClassNotFoundException e) {}
+//                if (nsapp == null) {
+//                    // Using a custom class loader avoids having to set up the
+//                    // class path on the mac.
+//                    nsapp = Class.forName("com.apple.cocoa.application.NSApplication", true, new URLClassLoader(
+//                            new URL[]{new File("/System/Library/Java/").toURI().toURL()}));
+//                }
+//                java.lang.reflect.Method sharedApp = nsapp.getMethod("sharedApplication", (Class[])null);
+//                Object obj = sharedApp.invoke(null, (Object[])null);
+//                
+//                Class[] param = { boolean.class };
+//                java.lang.reflect.Method act = nsapp.getMethod("activateIgnoringOtherApps", param);
+//                Object[] args = { Boolean.TRUE };
+//                act.invoke(obj, args);
+//            }
+//            catch(Exception exc) {
+//                Debug.reportError("Bringing process to front failed (MacOS).");
+//            }
         }
 
 //            alternative technique: using 'open command. works only for BlueJ.app, not for remote VM            
