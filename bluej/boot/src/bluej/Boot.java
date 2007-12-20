@@ -20,14 +20,14 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 5403 2007-11-27 03:45:24Z davmac $
+ * @version $Id: Boot.java 5444 2007-12-20 11:04:47Z mik $
  */
 public class Boot
 {
 public static final int BLUEJ_VERSION_MAJOR = 2;
-    public static final int BLUEJ_VERSION_MINOR = 2;
-    public static final int BLUEJ_VERSION_RELEASE = 1;
-    public static final String BLUEJ_VERSION_SUFFIX = "";
+    public static final int BLUEJ_VERSION_MINOR = 3;
+    public static final int BLUEJ_VERSION_RELEASE = 0;
+    public static final String BLUEJ_VERSION_SUFFIX = " dev";
 
     // public static final int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
     //                                                BLUEJ_VERSION_MINOR * 100 +
@@ -40,7 +40,7 @@ public static final int BLUEJ_VERSION_MAJOR = 2;
 
     public static final String BLUEJ_VERSION_TITLE = "BlueJ " + BLUEJ_VERSION;
     
-    public static String GREENFOOT_VERSION = "1.3.0";
+    public static String GREENFOOT_VERSION = "1.4.0 dev";
     public static String GREENFOOT_API_VERSION = "1.3.0";
 
     
