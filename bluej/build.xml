@@ -79,7 +79,6 @@
                 destdir="${boot.build}"
                 deprecation="yes"
         >
-            <!-- compilerarg line="-source 1.4"/ -->
         </javac>
 
     </target>
@@ -93,6 +92,8 @@
         <javac
                 executable="${build_java_home}/bin/javac"
                 fork="yes"
+                source="1.5"
+                target="1.5"
                 srcdir="${core.src}"
                 destdir="${core.build}"
                 debug="on"
@@ -105,10 +106,7 @@
                     bluej/tester/**,
                     bluej/browser/**,
                     bluej/guibuilder/**,
-                    bluej/editor/moe/Moe.java"> <!--,
-             	        bluej/debugger/jdi/JdiUtils15.java,
-        	        bluej/utility/JavaUtils15.java,
-        	        bluej/utility/JavaArrayReflective.java">-->
+                    bluej/editor/moe/Moe.java">
 
             <classpath>
                 <path refid="bluej.class.path"/>
