@@ -71,7 +71,7 @@ public final class MoeEditor extends JFrame
     // colours
     final static Color cursorColor = new Color(255, 0, 100);                 // cursor
 
-    final static Color frameBgColor = new Color(196, 196, 196);
+    final static Color frameBgColor = new Color(175, 175, 175);
     final static Color infoColor = new Color(240, 240, 240);
     final static Color lightGrey = new Color(224, 224, 224);
     final static Color selectionColour = Config.getSelectionColour();
@@ -2157,8 +2157,10 @@ public final class MoeEditor extends JFrame
 
         // prepare the content pane
 
-        JPanel contentPane = new JPanel(new BorderLayout(5, 5));
-        contentPane.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+        JPanel contentPane = new JPanel(new BorderLayout(0,0));
+        //contentPane.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+        contentPane.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
+        contentPane.setBackground(frameBgColor);
         setContentPane(contentPane);
 
         // create and add info and status areas
@@ -2166,8 +2168,9 @@ public final class MoeEditor extends JFrame
         JPanel bottomArea = new JPanel();
         
         // create panel for info/status
-        bottomArea.setLayout(new BorderLayout(5, 5));
-
+        bottomArea.setLayout(new BorderLayout(1, 1));
+        bottomArea.setBackground(frameBgColor);
+        
         info = new Info();
         bottomArea.add(info, BorderLayout.CENTER);
 
@@ -2175,7 +2178,7 @@ public final class MoeEditor extends JFrame
         statusArea.setLayout(new GridLayout(0, 1));
         // one column, many rows
         statusArea.setBackground(infoColor);
-        statusArea.setBorder(BorderFactory.createLineBorder(Color.black));
+        //statusArea.setBorder(BorderFactory.createLineBorder(Color.black));
 
         saveState = new StatusLabel(StatusLabel.SAVED);
         statusArea.add(saveState);
@@ -2353,11 +2356,12 @@ public final class MoeEditor extends JFrame
     {
         JPanel toolbar = new JPanel();
         toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.X_AXIS));
+        toolbar.setBackground(frameBgColor);
 
         String[] toolGroups = getResource("toolbar").split(" ");
         for (String group : toolGroups) {
-            addToolbarGroup(toolbar, group);
             toolbar.add(Box.createHorizontalStrut(6));
+            addToolbarGroup(toolbar, group);
         }
 
         toolbar.add(Box.createHorizontalGlue());

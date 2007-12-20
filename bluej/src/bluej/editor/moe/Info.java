@@ -43,7 +43,7 @@ public final class Info extends JPanel
     {
         super();
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createLineBorder(Color.black));
+        //setBorder(BorderFactory.createLineBorder(Color.black));
         setFont(infoFont);
 
         JPanel body = new JPanel(new GridLayout(0, 1));	// one col, many rows
