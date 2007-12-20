@@ -18,11 +18,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Properties;
-import java.util.StringTokenizer;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -352,18 +349,6 @@ public final class MoeEditor extends JFrame
         currentTextPane.repaint();
     }
 
-    /**
-     * True is the editor is on screen.
-     * 
-     * @return The showing value
-     */
-    public boolean isShowing()       // inherited from Editor, redefined
-    {
-        if (isVisible() != super.isShowing()) {
-            Debug.message("isVisible is not isShowing!");
-        }
-        return super.isShowing();
-    }
 
     /**
      * Save the buffer to disk under current filename. This is often called from
@@ -2158,25 +2143,7 @@ public final class MoeEditor extends JFrame
         return Config.getPropString(name, null, resources);
     }
 
-    // --------------------------------------------------------------------
 
-    /**
-     * Tokenize a string.
-     */
-    private String[] tokenize(String input)
-    {
-        List list = new ArrayList();
-        StringTokenizer t = new StringTokenizer(input);
-        String tokens[];
-
-        while (t.hasMoreTokens()) {
-            list.add(t.nextToken());
-        }
-
-        tokens = new String[list.size()];
-        list.toArray(tokens);
-        return tokens;
-    }
 
     // ======================= WINDOW INITIALISATION =======================
 
@@ -2294,7 +2261,7 @@ public final class MoeEditor extends JFrame
         JMenuBar menubar = new JMenuBar();
         JMenu menu = null;
 
-        String[] menuKeys = tokenize(getResource("menubar"));
+        String[] menuKeys = getResource("menubar").split(" ");
         for (int i = 0; i < menuKeys.length; i++) {
             menu = createMenu(menuKeys[i]);
             if (menu != null) {
@@ -2326,7 +2293,7 @@ public final class MoeEditor extends JFrame
         }
 
         // cut menu definition into separate items
-        String[] itemKeys = tokenize(itemString);
+        String[] itemKeys = itemString.split(" ");
 
         // create menu item for each item
         for (int i = 0; i < itemKeys.length; i++) {
@@ -2388,7 +2355,8 @@ public final class MoeEditor extends JFrame
         toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.X_AXIS));
         //((FlowLayout)toolbar.getLayout()).setAlignment(FlowLayout.LEFT);
 
-        String[] toolKeys = tokenize(getResource("toolbar"));
+       // String[] toolKeys = tokenize(getResource("toolbar"));
+        String[] toolKeys = getResource("toolbar").split(" ");
         for (int i = 0; i < toolKeys.length; i++) {
             toolbar.add(createToolbarButton(toolKeys[i], false));
             toolbar.add(Box.createHorizontalStrut(4));
