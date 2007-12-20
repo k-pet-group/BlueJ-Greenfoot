@@ -23,7 +23,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 5439 2007-12-19 17:09:32Z mik $
+ * @version $Id: Utility.java 5445 2007-12-20 11:05:27Z mik $
  */
 public class Utility
 {
@@ -478,11 +478,16 @@ public class Utility
      * MacOS 10.5 and newer and a "toolbar" button on older MasOS.
      * 
      * @param button The button that should be changed. 
+     * @param position  The position in the button group. One of "first", 
+     *                  "middle", "last", "only".
      */
-    public static void changeToMacButton(AbstractButton button)
+    public static void changeToMacButton(AbstractButton button, String position)
     {
         Border oldBorder = button.getBorder();
-        button.putClientProperty("JButton.buttonType", "textured");
+        
+        // the following works since MacOS 10.5
+        button.putClientProperty("JButton.buttonType", "segmentedCapsule");
+        button.putClientProperty("JButton.segmentPosition", position);
 
         if (oldBorder == button.getBorder()) {
             // if the border didn't change the "textured" type probably doesn't

@@ -58,7 +58,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 5437 2007-12-19 17:03:31Z mik $
+ * @version $Id: PkgMgrFrame.java 5445 2007-12-20 11:05:27Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -2666,7 +2666,7 @@ public class PkgMgrFrame extends JFrame
             button = new JButton(action);
         }
         button.setFont(PkgMgrFont);
-        Utility.changeToMacButton(button);
+        Utility.changeToMacButton(button, "only");
         button.setFocusable(false); // buttons shouldn't get focus
 
         if (notext)

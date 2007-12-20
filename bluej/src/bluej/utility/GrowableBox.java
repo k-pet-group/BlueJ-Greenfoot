@@ -17,14 +17,12 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
-import bluej.Config;
-
 /**
  * A box that can be used to dynamically (from the UI) add and remove
  * components in either a horizonatal or vertical direction.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GrowableBox.java 5392 2007-11-21 19:23:48Z polle $
+ * @version $Id: GrowableBox.java 5445 2007-12-20 11:05:27Z mik $
  */
 public class GrowableBox extends Box
 {
@@ -126,11 +124,11 @@ public class GrowableBox extends Box
      * @param removeButton
      */
     private void initButtons(JButton addButton, JButton removeButton) {
-        Utility.changeToMacButton(addButton);
+        Utility.changeToMacButton(addButton, "only");
         addButton.setFont(buttonFont);
         addButton.setText(addText);
         addButton.setIcon(addIcon);
-        Utility.changeToMacButton(removeButton);
+        Utility.changeToMacButton(removeButton, "only");
     	removeButton.setFont(buttonFont);
         removeButton.setText(removeText);
         removeButton.setIcon(removeIcon);

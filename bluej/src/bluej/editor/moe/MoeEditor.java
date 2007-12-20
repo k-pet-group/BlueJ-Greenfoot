@@ -2353,13 +2353,11 @@ public final class MoeEditor extends JFrame
     {
         JPanel toolbar = new JPanel();
         toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.X_AXIS));
-        //((FlowLayout)toolbar.getLayout()).setAlignment(FlowLayout.LEFT);
 
-       // String[] toolKeys = tokenize(getResource("toolbar"));
-        String[] toolKeys = getResource("toolbar").split(" ");
-        for (int i = 0; i < toolKeys.length; i++) {
-            toolbar.add(createToolbarButton(toolKeys[i], false));
-            toolbar.add(Box.createHorizontalStrut(4));
+        String[] toolGroups = getResource("toolbar").split(" ");
+        for (String group : toolGroups) {
+            addToolbarGroup(toolbar, group);
+            toolbar.add(Box.createHorizontalStrut(6));
         }
 
         toolbar.add(Box.createHorizontalGlue());
@@ -2372,9 +2370,37 @@ public final class MoeEditor extends JFrame
     // --------------------------------------------------------------------
 
     /**
-     * Create a button on the toolbar.
+     * Create the toolbar.
+     * 
+     * @return The toolbar component, ready made.
      */
-    private AbstractButton createToolbarButton(String key, boolean isToggle)
+    private void addToolbarGroup(JComponent toolbar, String group)
+    {
+        String[] toolKeys = group.split(":");
+        if(toolKeys.length == 1) {
+            toolbar.add(createToolbarButton(toolKeys[0], "only"));
+        }
+        else {
+            toolbar.add(createToolbarButton(toolKeys[0], "first"));
+
+            for (int i = 1; i < toolKeys.length-1; i++) {
+                toolbar.add(createToolbarButton(toolKeys[i], "middle"));
+            }
+
+            toolbar.add(createToolbarButton(toolKeys[toolKeys.length-1], "last"));
+        }
+    }
+
+    // --------------------------------------------------------------------
+
+    /**
+     * Create a button on the toolbar.
+     * 
+     * @param key  The internal key identifyting the action and label
+     * @param position  The position in the button group. One of "first", 
+     *                  "middle", "last", "only". Only used on MacOS.
+     */
+    private AbstractButton createToolbarButton(String key, String position)
     {
         final String label = Config.getString("editor." + key + LabelSuffix);
         AbstractButton button;
@@ -2386,12 +2412,7 @@ public final class MoeEditor extends JFrame
         Action action = actions.getActionByName(actionName);
         Action tbAction = new ToolbarAction(action, label);
         
-        if (isToggle) {
-            button = new JToggleButton(tbAction);
-        }
-        else {
-            button = new JButton(tbAction);
-        }
+        button = new JButton(tbAction);
         
         if (action == null) {
             button.setEnabled(false);
@@ -2408,7 +2429,7 @@ public final class MoeEditor extends JFrame
             button.setMargin(new Insets(margin.top, 3, margin.bottom, 3));
         }
         else {
-            Utility.changeToMacButton(button);
+            Utility.changeToMacButton(button, position);
         }
         
         button.setFont(PrefMgr.getStandardFont());
