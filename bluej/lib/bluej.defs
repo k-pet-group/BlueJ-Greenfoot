@@ -601,7 +601,7 @@ image.filechooser.classIcon=classIcon.gif
 image.class.broken=broken-arrow.gif
 
 # editor help icon
-image.editor.help=help.gif
+image.editor.help=help.png
 
 # debugger
 image.debug.continue=continue.gif
