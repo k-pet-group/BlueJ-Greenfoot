@@ -12,10 +12,12 @@ import bluej.Config;
 import bluej.utility.DialogManager;
 import bluej.utility.BlueJFileReader;
 
+import bluej.utility.Utility;
 import java.awt.*;              // MenuBar, MenuItem, Menu, Button, etc.
 import java.awt.event.*;        // New Event model
 import javax.swing.*;		// all the GUI components
 import java.io.*;
+import javax.swing.border.EmptyBorder;
 
 /**
  *
@@ -48,6 +50,7 @@ public final class Info extends JPanel
 
         JPanel body = new JPanel(new GridLayout(0, 1));	// one col, many rows
         body.setBackground(MoeEditor.infoColor);
+        body.setBorder(new EmptyBorder(0,6,0,4));
         line1 = new JLabel();
         line2 = new JLabel();
         body.add(line1);
@@ -55,7 +58,12 @@ public final class Info extends JPanel
         add(body, BorderLayout.CENTER);
 
         helpButton = new JButton(helpImage);
-        helpButton.setMargin(new Insets(0,0,0,0));
+        if (!Config.isMacOS()) {
+            helpButton.setMargin(new Insets(0,0,0,0));
+        }
+        else {
+            Utility.changeToMacButton(helpButton, "only");
+        }
         helpButton.addActionListener(this);
         helpButton.setRequestFocusEnabled(false);   // never get focus
         add(helpButton, BorderLayout.EAST);
