@@ -120,7 +120,7 @@
                 destdir="${build}" 
                 classpathref="bluej.class.path" 
                 debug="true">
-            <compilerarg line="-target 1.5" />   
+            <compilerarg line="-target 1.5" />
         </javac>
         <!-- Compile the RMI-classes -->
         <rmic base="${build}" includes="**/*Impl.class" excludes="bluej/**">
