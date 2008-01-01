@@ -17,6 +17,8 @@ package bluej.editor.moe;
 import javax.swing.text.*;
 
 import java.awt.*;
+import java.util.Map;
+
 import org.syntax.jedit.tokenmarker.*;
 import org.syntax.jedit.*;
 
@@ -31,7 +33,7 @@ import org.syntax.jedit.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: BlueJSyntaxView.java 5366 2007-11-01 05:27:26Z davmac $
+ * @version $Id: BlueJSyntaxView.java 5449 2008-01-01 14:56:15Z davmac $
  */
 
 public abstract class BlueJSyntaxView extends PlainView
@@ -50,6 +52,9 @@ public abstract class BlueJSyntaxView extends PlainView
     FontMetrics lineNumberMetrics;
     private boolean initialised = false;
     
+    /** System settings for graphics rendering (inc. font antialiasing etc.) */
+    private Map desktopHints = null;
+    
     /**
      * Creates a new BlueJSyntaxView.
      * @param elem The element
@@ -60,6 +65,17 @@ public abstract class BlueJSyntaxView extends PlainView
         line = new Segment();
     }
 
+    @Override
+    public void paint(Graphics g, Shape a)
+    {
+        if (desktopHints != null && g instanceof Graphics2D) {
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.addRenderingHints(desktopHints); 
+        }
+
+        super.paint(g, a);
+    }
+    
     /**
      * Paints the specified line.
      *
@@ -87,8 +103,9 @@ public abstract class BlueJSyntaxView extends PlainView
      */
     protected void drawLine(int lineIndex, Graphics g, int x, int y)
     {
-        if(!initialised)
+        if(!initialised) {
             initialise(g);
+        }
 
         SyntaxDocument document = (SyntaxDocument)getDocument();
         TokenMarker tokenMarker = document.getTokenMarker();
@@ -204,6 +221,15 @@ public abstract class BlueJSyntaxView extends PlainView
         smallLineNumberFont = defaultFont.deriveFont(7.0f);
         Component c = getContainer();
         lineNumberMetrics = c.getFontMetrics(lineNumberFont);
+        
+        // Use system settings for text rendering (Java 6 only)
+        Toolkit tk = Toolkit.getDefaultToolkit(); 
+        desktopHints = (Map) (tk.getDesktopProperty("awt.font.desktophints")); 
+        if (desktopHints != null && g instanceof Graphics2D) {
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.addRenderingHints(desktopHints); 
+        }
+
         initialised = true;
     }
 

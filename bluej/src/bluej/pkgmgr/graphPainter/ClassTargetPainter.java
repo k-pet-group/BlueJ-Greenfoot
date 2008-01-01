@@ -1,17 +1,22 @@
 package bluej.pkgmgr.graphPainter;
 
-import java.awt.*;
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Image;
 
 import bluej.Config;
-import bluej.pkgmgr.target.*;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.Target;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Utility;
 /**
  * Paints a ClassTarget
  * 
  * @author fisker
- * @version $Id: ClassTargetPainter.java 2884 2004-08-17 08:31:20Z mik $
+ * @version $Id: ClassTargetPainter.java 5449 2008-01-01 14:56:15Z davmac $
  */
 
 public class ClassTargetPainter

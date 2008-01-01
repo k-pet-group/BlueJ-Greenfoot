@@ -1,22 +1,20 @@
 package bluej.pkgmgr.graphPainter;
 
 import java.awt.*;
-import java.awt.Graphics2D;
 import java.util.Iterator;
+import java.util.Map;
 
 import bluej.Config;
 import bluej.graph.*;
 import bluej.pkgmgr.dependency.*;
-import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.pkgmgr.target.*;
-import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.Package;
 
 /**
  * Paints a Graph using TargetPainters
  * 
  * @author fisker
- * @version $Id: GraphPainterStdImpl.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: GraphPainterStdImpl.java 5449 2008-01-01 14:56:15Z davmac $
  */
 public class GraphPainterStdImpl
     implements GraphPainter
@@ -49,6 +47,13 @@ public class GraphPainterStdImpl
      */
     public void paint(Graphics2D g, GraphEditor graphEditor)
     {
+        // Use system settings for text rendering (Java 6 only)
+        Toolkit tk = Toolkit.getDefaultToolkit(); 
+        Map desktopHints = (Map) (tk.getDesktopProperty("awt.font.desktophints")); 
+        if (desktopHints != null) { 
+            g.addRenderingHints(desktopHints); 
+        } 
+        
         this.graphEditor = graphEditor;
         Graph graph = graphEditor.getGraph();
         paintEdges(g, graph);
@@ -58,7 +63,7 @@ public class GraphPainterStdImpl
     }
 
     /**
-     * Paint the egdes in 'graph' on 'g'
+     * Paint the edges in 'graph' on 'g'
      * 
      * @param g
      * @param graph

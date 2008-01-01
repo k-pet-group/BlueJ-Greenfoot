@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -60,7 +59,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 5398 2007-11-26 04:32:36Z davmac $
+ * @version $Id: ClassTarget.java 5449 2008-01-01 14:56:15Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
