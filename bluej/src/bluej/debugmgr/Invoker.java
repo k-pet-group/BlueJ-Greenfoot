@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 5414 2007-12-10 14:47:22Z polle $
+ * @version $Id: Invoker.java 5450 2008-01-03 01:24:34Z davmac $
  */
 
 public class Invoker
@@ -461,8 +461,10 @@ public class Invoker
                     // classes (prevents problems with static variables not being
                     // reinitialised because the class hangs around from a previous
                     // call)
-                    pmf.getProject().removeClassLoader();
-                    pmf.getProject().newRemoteClassLoaderLeavingBreakpoints();
+                    if (! Config.isGreenfoot()) {
+                        pmf.getProject().removeClassLoader();
+                        pmf.getProject().newRemoteClassLoaderLeavingBreakpoints();
+                    }
 
                     ir = new StaticVoidMainMethodInvokerRecord();
                 } 
