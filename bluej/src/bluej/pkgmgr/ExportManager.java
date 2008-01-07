@@ -14,7 +14,7 @@ import bluej.utility.*;
  * Component to manage storing projects to jar file format.
  *
  * @author  Michael Kolling
- * @version $Id: ExportManager.java 3709 2005-11-02 04:41:04Z bquig $
+ * @version $Id: ExportManager.java 5451 2008-01-07 01:54:01Z davmac $
  */
 final class ExportManager
 {
@@ -186,6 +186,7 @@ final class ExportManager
      * Copy all files specified in the given list to the new jar directory.
      */
     private void copyLibsToJar(List userLibs, File destDir)
+        throws IOException
     {
         for(Iterator it = userLibs.iterator(); it.hasNext(); ) {
             File lib = (File)it.next();

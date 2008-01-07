@@ -16,7 +16,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 5089 2007-06-07 02:19:17Z davmac $
+ * @version $Id: FileUtility.java 5451 2008-01-07 01:54:01Z davmac $
  */
 public class FileUtility
 {
@@ -248,12 +248,13 @@ public class FileUtility
      * Copy file 'source' to file 'dest'. The source file must exist,
      * the destination file will be created. Returns true if successful.
      */
-    public static boolean copyFile(String source, String dest)
+    public static void copyFile(String source, String dest)
+        throws IOException
     {
         File srcFile = new File(source);
         File destFile = new File(dest);
 
-        return copyFile(srcFile, destFile);
+        copyFile(srcFile, destFile);
     }
 
 
@@ -261,29 +262,28 @@ public class FileUtility
      * Copy file 'srcFile' to file 'destFile'. The source file must exist,
      * the destination file will be created. Returns true if successful.
      */
-    public static boolean copyFile(File srcFile, File destFile)
+    public static void copyFile(File srcFile, File destFile)
+        throws IOException
     {
         // check whether source and dest are the same
         if(srcFile.equals(destFile)) {
-            return true;  // don't bother - they are the same
+            return;  // don't bother - they are the same
         }
 
         InputStream in = null;
         OutputStream out = null;
+        
         try {
             in = new BufferedInputStream(new FileInputStream(srcFile));
             out = new BufferedOutputStream(new FileOutputStream(destFile));
             copyStream(in, out);
-            return true;
-        } catch(IOException e) {
-            return false;
         } finally {
-            try {
-                if(in != null)
-                    in.close();
-                if(out != null)
-                    out.close();
-            } catch (IOException e) {}
+            if(in != null) {
+                in.close();
+            }
+            if(out != null) {
+                out.close();
+            }
         }
     }
 
@@ -328,8 +328,12 @@ public class FileUtility
             }
             else {
                 File file2 = new File(destFile, dir[i]);
-                if(!copyFile(file, file2))
+                try {
+                    copyFile(file, file2);
+                }
+                catch (IOException ioe) {
                     return COPY_ERROR;
+                }
             }
         }
         return NO_ERROR;
@@ -397,8 +401,17 @@ public class FileUtility
                 // handle all other files
                 File newFile = new File(destDir, files[i].getName());
 
-                if(newFile.exists() || !copyFile(files[i], newFile))
+                if (! newFile.exists()) {
+                    try {
+                        copyFile(files[i], newFile);
+                    }
+                    catch (IOException ioe) {
+                        failed.add(files[i]);
+                    }
+                }
+                else {
                     failed.add(files[i]);
+                }
             }
         }
 

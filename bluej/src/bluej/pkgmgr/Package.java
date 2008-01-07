@@ -49,7 +49,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 5395 2007-11-24 07:19:19Z davmac $
+ * @version $Id: Package.java 5451 2008-01-07 01:54:01Z davmac $
  */
 public final class Package extends Graph
 {
@@ -1007,8 +1007,12 @@ public final class Package extends Graph
         // copy class source into package
 
         File destFile = new File(getPath(), fileName);
-        if (!FileUtility.copyFile(aFile, destFile))
+        try {
+            FileUtility.copyFile(aFile, destFile);
+        }
+        catch (IOException ioe) {
             return COPY_ERROR;
+        }
 
         ClassTarget t = addClass(className);
 

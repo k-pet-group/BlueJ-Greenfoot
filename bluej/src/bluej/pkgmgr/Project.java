@@ -54,7 +54,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 5390 2007-11-21 05:06:41Z davmac $
+ * @version $Id: Project.java 5451 2008-01-07 01:54:01Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -340,14 +340,17 @@ public class Project implements DebuggerListener, InspectorManager
 
                 try {
                     if (newpkgFile.createNewFile()) {
-                        if (FileUtility.copyFile(Config.getTemplateFile(
-                                        "readme"), newreadmeFile)) {
+                        try {
+                            FileUtility.copyFile(Config.getTemplateFile(
+                                    "readme"), newreadmeFile);
                             return true;
-                        } else {
+                        }
+                        catch (IOException ioe) {
                             Debug.message("could not copy readme template");
                         }
                     }
                 } catch (IOException ioe) {
+                    // TODO should propagate this exception
                 }
             }
         }

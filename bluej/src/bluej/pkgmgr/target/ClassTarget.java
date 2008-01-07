@@ -59,7 +59,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 5449 2008-01-01 14:56:15Z davmac $
+ * @version $Id: ClassTarget.java 5451 2008-01-07 01:54:01Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -1148,7 +1148,8 @@ public class ClassTarget extends DependentTarget
         File newSourceFile = new File(getPackage().getPath(), newName + ".java");
         File oldSourceFile = getSourceFile();
 
-        if (FileUtility.copyFile(oldSourceFile, newSourceFile)) {
+        try {
+            FileUtility.copyFile(oldSourceFile, newSourceFile);
             
             getPackage().updateTargetIdentifier(this, getIdentifierName(), newName);
             
@@ -1176,7 +1177,9 @@ public class ClassTarget extends DependentTarget
 
             return true;
         }
-        return false;
+        catch (IOException ioe) {
+            return false;
+        }
     }
 
     /**
