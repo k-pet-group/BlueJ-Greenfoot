@@ -120,7 +120,7 @@
                 destdir="${build}" 
                 classpathref="bluej.class.path" 
                 debug="true">
-            <compilerarg line="-target 1.5" />
+            <compilerarg line="-target 1.5" />   
         </javac>
         <!-- Compile the RMI-classes -->
         <rmic base="${build}" includes="**/*Impl.class" excludes="bluej/**">
@@ -445,7 +445,7 @@ target="1.5">
             <include name="greenfoot/core/LocationTracker.java"/>
             <include name="greenfoot/core/ProjectProperties.java"/>
             <include name="greenfoot/core/Simulation.java"/>        
-            <include name="greenfoot/core/ObjectDragProxy.java"/>         
+            <include name="greenfoot/core/ObjectDragProxy.java"/>     
             
             <include name="greenfoot/event/SimulationEvent.java"/>
             <include name="greenfoot/event/SimulationListener.java"/> 
@@ -459,7 +459,8 @@ target="1.5">
             <include name="greenfoot/gui/DragListener.java"/>
             <include name="greenfoot/gui/DropTarget.java"/>
             <include name="greenfoot/gui/WorldCanvas.java"/>  
-            <include name="greenfoot/gui/CenterLayout.java"/>            
+            <include name="greenfoot/gui/CenterLayout.java"/>     
+            <include name="greenfoot/gui/InputManager.java"/>               
 
             <include name="greenfoot/mouse/*.java"/>
             
