@@ -11,19 +11,25 @@ import greenfoot.event.WorldListener;
 import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.DragListener;
 import greenfoot.gui.DropTarget;
+import greenfoot.gui.InputManager;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.mouse.MouseManager;
 import greenfoot.mouse.WorldLocator;
 import greenfoot.platforms.WorldHandlerDelegate;
 
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.EventQueue;
 import java.awt.Point;
-import java.awt.event.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.swing.*;
+import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 
 
@@ -34,13 +40,13 @@ import javax.swing.event.EventListenerList;
  * @author Poul Henriksen
  * @version $Id$
  */
-public class WorldHandler implements MouseListener, KeyListener, DropTarget, DragListener, SimulationListener
+public class WorldHandler implements MouseListener, MouseMotionListener, KeyListener, DropTarget, DragListener, SimulationListener
 {
     private World initialisingWorld;
     private World world;
     private WorldCanvas worldCanvas;
 
-    // where did the the drag/drop operation begin?
+    // where did the the drag/drop operation begin? In pixels
     private int dragBeginX;
     private int dragBeginY;
 
@@ -50,13 +56,20 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
      */
     private boolean objectDropped = true; // true if the object was dropped
     
-
     private KeyboardManager keyboardManager;
     private static WorldHandler instance;
     private EventListenerList listenerList = new EventListenerList();
     private WorldEvent worldEvent;
     private WorldHandlerDelegate handlerDelegate;
     private MouseManager mouseManager;
+    private InputManager inputManager;
+    
+    //Offset from the middle of the actor when initiating a drag on an actor.
+    private int dragOffsetX;
+    private int dragOffsetY;
+    //The actor being dragged
+    private Actor dragActor;
+    private Cursor defaultCursor;
     
     public static synchronized void initialise(WorldCanvas worldCanvas, WorldHandlerDelegate helper) 
     {
@@ -105,15 +118,25 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
                 return WorldVisitor.toCellFloor(getWorld(), p.y);
             }});
 
-        worldCanvas.addMouseListener(this);
-        
-        worldCanvas.addKeyListener(this);
         worldCanvas.setDropTargetListener(this);
         
         LocationTracker.instance().setSourceComponent(worldCanvas);
-        
         keyboardManager = new KeyboardManager();
-        DragGlassPane.getInstance().addKeyListener(this);
+
+        inputManager = new InputManager();
+        
+        worldCanvas.addMouseListener(inputManager);
+        worldCanvas.addMouseMotionListener(inputManager);
+        worldCanvas.addKeyListener(inputManager);
+        DragGlassPane.getInstance().addMouseListener(inputManager);
+        DragGlassPane.getInstance().addMouseMotionListener(inputManager);
+        DragGlassPane.getInstance().addKeyListener(inputManager);        
+        inputManager.setRunningListeners(getKeyboardManager(), mouseManager, mouseManager);
+        inputManager.setIdleListeners(this, this, this);
+        inputManager.setDragListeners(DragGlassPane.getInstance(),DragGlassPane.getInstance(),DragGlassPane.getInstance());
+        inputManager.setMoveListeners(this,this,this);
+        inputManager.init();
+        defaultCursor = worldCanvas.getCursor();
     }
     
     /**
@@ -153,23 +176,18 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
         if (SwingUtilities.isLeftMouseButton(e)) {
             Actor actor = getObject(e.getX(), e.getY());
             if (actor != null) {
+                dragActor = actor;
                 dragBeginX = actor.getX() * world.getCellSize() + world.getCellSize()/2;
                 dragBeginY = actor.getY() * world.getCellSize() + world.getCellSize()/2;
-                int dragOffsetX = dragBeginX - e.getX();
-                int dragOffsetY = dragBeginY - e.getY();
-                objectDropped = false;
-                
-                // While the drag is occuring, the world handler no longer
-                // processes mouse/key events
-                worldCanvas.removeMouseListener(this);
-                worldCanvas.removeKeyListener(this);
-                worldCanvas.addMouseMotionListener(DragGlassPane.getInstance());
-                worldCanvas.addMouseListener(DragGlassPane.getInstance());
-
-                DragGlassPane.getInstance().startDrag(actor, dragOffsetX, dragOffsetY, this, worldCanvas, false);
+                dragOffsetX = dragBeginX - e.getX();
+                dragOffsetY = dragBeginY - e.getY();
+                objectDropped = false;       
+                worldCanvas.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                drag(actor, e.getPoint());                
             }
         }
     }
+
 
     /*
      * (non-Javadoc)
@@ -179,6 +197,10 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
     public void mouseReleased(MouseEvent e)
     {
         handlerDelegate.maybeShowPopup(e);
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            dragActor = null;
+            worldCanvas.setCursor(defaultCursor);
+        };
     }
 
     /**
@@ -197,12 +219,12 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
         if (world == null)
             return null;
 
-        Collection objectsThere = WorldVisitor.getObjectsAtPixel(world, x, y);
+        Collection<?> objectsThere = WorldVisitor.getObjectsAtPixel(world, x, y);
         if (objectsThere.isEmpty()) {
             return null;
         }
 
-        Iterator iter = objectsThere.iterator();
+        Iterator<?> iter = objectsThere.iterator();
         Actor topmostActor = (Actor) iter.next();
         int seq = ActorVisitor.getLastPaintSeqNum(topmostActor);
         while (iter.hasNext()) {
@@ -233,7 +255,10 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
      */
     public void mouseExited(MouseEvent e)
     {
-
+        if(dragActor != null) {
+            ActorVisitor.setLocationInPixels(dragActor, dragBeginX, dragBeginY);
+            repaint();
+        }
     }
 
     /**
@@ -251,7 +276,6 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
      */
     public void keyTyped(KeyEvent e)
     {
-        keyboardManager.keyTyped(e);
     }
 
     /*
@@ -262,7 +286,6 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
     public void keyPressed(KeyEvent e)
     {
     	handlerDelegate.processKeyEvent(e);
-        keyboardManager.keyPressed(e);
     }
 
     /*
@@ -272,11 +295,8 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
      */
     public void keyReleased(KeyEvent e)
     {
-        DragGlassPane.getInstance().cancelDrag(); // dragEnded/dragFinished
-        worldCanvas.requestFocus();
-        
+        worldCanvas.requestFocus();        
         handlerDelegate.keyReleased(e);
-        keyboardManager.keyReleased(e);
     }
     
     /**
@@ -333,7 +353,7 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
      *         instantiated in this project, or the world can no longer be
      *         instantiated.
      */
-    public Class getLastWorldClass()
+    public Class<?> getLastWorldClass()
     {
         return handlerDelegate.getLastWorldClass();
     }
@@ -349,6 +369,9 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
             return world;
     }
 
+    /**
+     * Handle drop of actors. Handles all types of drops (Move, QuickAddd etc)
+     */
     public boolean drop(Object o, Point p)
     {
         int maxHeight = WorldVisitor.getHeightInPixels(world);
@@ -390,8 +413,8 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
         }
     }
 
-    /* (non-Javadoc)
-     * @see greenfoot.gui.DropTarget#drag(java.lang.Object, java.awt.Point)
+    /**
+     * Handle drag on actors that are already in the world
      */
     public boolean drag(Object o, Point p)
     {
@@ -399,19 +422,19 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
             int x = WorldVisitor.toCellFloor(getWorld(), (int) p.getX());
             int y = WorldVisitor.toCellFloor(getWorld(), (int) p.getY());
             Actor actor = (Actor) o;
-            try {
-                //make sure the object is added to the world.
-                getWorld().addObject(actor, x, y);                
+            try {            
 
                 int oldX = actor.getX();
                 int oldY = actor.getY();
 
                 if (oldX != x || oldY != y) {
                     if (x < world.getWidth() && y < world.getHeight() && x >= 0 && y >= 0) {
-                        Simulation.getInstance().dragObject(actor, x, y);
+                        ActorVisitor.setLocationInPixels(actor, (int) p.getX() + dragOffsetX, (int) p.getY() + dragOffsetY);
+                        repaint();
                     }
                     else {
-                        world.removeObject(actor);
+                        ActorVisitor.setLocationInPixels(actor, dragBeginX, dragBeginY);
+                        repaint();
                         return false;
                     }
                 }
@@ -464,12 +487,7 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
 
     public void dragFinished(Object o)
     {
-        DragGlassPane drag = DragGlassPane.getInstance();
-        worldCanvas.removeMouseListener(drag);
-        worldCanvas.removeMouseMotionListener(drag);
-
-        handlerDelegate.dragFinished(o);
-    
+        handlerDelegate.dragFinished(o);    
     }
 
     protected void fireWorldCreatedEvent()
@@ -518,8 +536,6 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
     {
         WorldVisitor.startSequence(world);
     }
-
-    
     
     public WorldCanvas getWorldCanvas() 
     {
@@ -550,50 +566,39 @@ public class WorldHandler implements MouseListener, KeyListener, DropTarget, Dra
      */
     public void finishDrag(Object o)
     {
-        // re-enable keylistener after object drag
-        getWorldCanvas().addMouseListener(this);
-        getWorldCanvas().addKeyListener(this);
-
         // if the operation was cancelled, add the object back into the
         // world at its original position
         if (!isObjectDropped() && o instanceof Actor) {
             Actor actor = (Actor) o;
-            int x = WorldVisitor.toCellFloor(world, dragBeginX);
-            int y = WorldVisitor.toCellFloor(world, dragBeginY);
-            world.addObject(actor, x, y);
             setObjectDropped(true);
+            ActorVisitor.setLocationInPixels(actor, dragBeginX, dragBeginY);
         }
     }
-
 
 
     public void simulationChanged(SimulationEvent e)
     {
+        inputManager.simulationChanged(e); // TODO maybe add somewhere else?
         if(e.getType() == SimulationEvent.NEW_ACT)
         {
             mouseManager.newActStarted();
         }
-        else if(e.getType() == SimulationEvent.STARTED)
-        {
-            //enable polling
-            worldCanvas.addMouseListener(mouseManager);
-            worldCanvas.addMouseMotionListener(mouseManager);
-            //disable automatic
-            worldCanvas.removeMouseListener(this);
-            
-        }
-        else if(e.getType() == SimulationEvent.STOPPED)
-        {
-            //disable polling
-            worldCanvas.removeMouseListener(mouseManager);
-            worldCanvas.removeMouseMotionListener(mouseManager);
-            //enable automatic
-            worldCanvas.addMouseListener(this);
-        }
     }
     
-  
-    
+    public InputManager getInputManager() {
+        return inputManager;
+    }
 
+    public void mouseDragged(MouseEvent e)
+    {
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            objectDropped = false;  
+            drag(dragActor, e.getPoint());
+        }
+    }
+
+    public void mouseMoved(MouseEvent e)
+    {
+    }
 
 }

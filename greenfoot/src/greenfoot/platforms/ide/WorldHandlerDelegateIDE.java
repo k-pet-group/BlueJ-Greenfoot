@@ -21,13 +21,24 @@ import greenfoot.platforms.WorldHandlerDelegate;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import rmiextension.wrappers.RObject;
 import bluej.Config;
@@ -218,9 +229,7 @@ public class WorldHandlerDelegateIDE
                 DragGlassPane.getInstance().startDrag(actor, dragOffsetX, dragOffsetY, worldHandler, worldHandler.getWorldCanvas(), false);
 
                 // On the mac, the glass pane doesn't seem to receive
-                // mouse move events; the shift/move is treated like a drag
-                worldHandler.getWorldCanvas().addMouseMotionListener(DragGlassPane.getInstance());
-                worldHandler.getWorldCanvas().addMouseListener(DragGlassPane.getInstance());
+                // mouse move events; the shift/move is treated like a drag        
             }
         }
     }
@@ -474,10 +483,10 @@ public class WorldHandlerDelegateIDE
 
     public void instantiateNewWorld()
     {
-        Class cls = getLastWorldClass();
+        Class<?> cls = getLastWorldClass();
         if(cls == null) {
             try {
-            	List<Class> worldClasses = project.getDefaultPackage().getWorldClasses();
+            	List<Class<?>> worldClasses = project.getDefaultPackage().getWorldClasses();
             	if(worldClasses.isEmpty() ) {
             		return;
             	}
@@ -513,17 +522,17 @@ public class WorldHandlerDelegateIDE
         }
     }
 
-    public Class getLastWorldClass()
+    public Class<?> getLastWorldClass()
     {
         if(lastWorldClass == null) {
             return null;
         }
         
         try {
-        	List<Class> worldClasses = project.getDefaultPackage().getWorldClasses();
+        	List<Class<?>> worldClasses = project.getDefaultPackage().getWorldClasses();
 
         	//Has to be one of the currently instantiable world classes.
-        	for (Class worldClass : worldClasses) {
+        	for (Class<?> worldClass : worldClasses) {
         		if(worldClass.getName().equals(lastWorldClass)) {
         			return worldClass;
         		}                

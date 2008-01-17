@@ -4,14 +4,21 @@ import greenfoot.platforms.GreenfootUtilDelegate;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FocusTraversalPolicy;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.KeyboardFocusManager;
 import java.awt.RenderingHints;
+import java.awt.Window;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyVetoException;
+import java.beans.VetoableChangeListener;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -24,16 +31,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessControlException;
 
+import javax.swing.FocusManager;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 
 /**
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 5400 2007-11-26 13:34:33Z polle $
+ * @version $Id: GreenfootUtil.java 5457 2008-01-17 12:22:42Z polle $
  */
 public class GreenfootUtil
 {
@@ -497,7 +506,7 @@ public class GreenfootUtil
         return delegate.getGreenfootLogoPath();
     }
     
-    public static boolean canBeInstantiated(Class cls) {
+    public static boolean canBeInstantiated(Class<?> cls) {
         // ACC_INTERFACE 0x0200 Is an interface, not a class.
         // ACC_ABSTRACT 0x0400 Declared abstract; may not be
         // instantiated.
@@ -518,5 +527,100 @@ public class GreenfootUtil
         g2.drawImage(image, 0, 0, null);
         g2.dispose();
         return dragImage;
+    }
+    
+    /**
+     * Force the focus in container to always be on the component c.
+     */
+    public static void setupFocusTraversalPolicy(final Component component, Container container)
+    {
+        // The traversal policy will handle most attempts at changing the focus
+        // (like tabbing between components)
+        FocusTraversalPolicy newPolicy = new FocusTraversalPolicy() {
+            @Override
+            public Component getComponentAfter(Container cont, Component comp)
+            {
+                return component;
+            }
+
+            @Override
+            public Component getComponentBefore(Container cont, Component comp)
+            {
+                return component;
+            }
+
+            @Override
+            public Component getDefaultComponent(Container cont)
+            {
+                return component;
+            }
+
+            @Override
+            public Component getFirstComponent(Container cont)
+            {
+                return component;
+            }
+
+            @Override
+            public Component getLastComponent(Container cont)
+            {
+                return component;
+            }
+        };
+        container.setFocusTraversalPolicy(newPolicy);
+        //TODO: code below doesn't work. It disables use of all buttons in the greenfoot window :-(
+        
+        // To avoid loosing focus when clicking other components like buttons,
+        // we veto all permanent focus changes away from the favoured component within the same window.
+      /*  KeyboardFocusManager focusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        focusManager.addVetoableChangeListener("permanentFocusOwner", new VetoableChangeListener() {
+           // int i;
+            private Window lastFocusedWindow; 
+            public void vetoableChange(PropertyChangeEvent evt)
+                throws PropertyVetoException
+            { 
+                Component newComp = (Component) evt.getNewValue(); 
+                Component oldComp = (Component) evt.getOldValue(); 
+               
+                Window newWin = null;
+                if(newComp != null) {
+                    newWin = SwingUtilities.getWindowAncestor(newComp);
+                }
+                
+                // If we have to non-null component, we only want to continue
+                // (veto) if they are in same window as the last component.
+                if (lastFocusedWindow != newWin && (newWin != null && lastFocusedWindow != null)) {
+                    return;
+                }
+                
+                // Need to take special care of changes to null, otherwise we
+                // get infinite loops for some strange reason.
+                if (newComp != component && newComp != null ) {     
+                   // System.out.println("VETO:" + lastFocusedWindow + "  " + newWin);
+                    throw new PropertyVetoException("Forced to always use: " + component, evt);
+                } else {
+                //    i++;
+                //    if(i<200) {
+                //        if(lastFocusedWindow != newWin) {
+                 //           System.out.println("DIFF wins: " + lastFocusedWindow + " != " + newWin);
+                 //       }
+                //        System.out.println("OK: " + evt.getPropertyName() + "   " +  evt.getOldValue() + "  " + evt.getNewValue());
+                //    }
+                }
+                if(newWin != null) {
+                    lastFocusedWindow = newWin;
+                }
+            }
+        });
+        */
+    /*    focusManager.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt)
+            {
+                if(evt.getPropertyName().equals("permanentFocusOwner")) {
+                    System.out.println("NEW focus owner: " + evt.getNewValue() );
+                }                
+            }           
+        });
+*/
     }
 }

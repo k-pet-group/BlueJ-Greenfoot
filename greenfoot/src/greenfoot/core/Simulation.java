@@ -1,7 +1,12 @@
 package greenfoot.core;
 
-import greenfoot.*;
-import greenfoot.event.*;
+import greenfoot.Actor;
+import greenfoot.World;
+import greenfoot.WorldVisitor;
+import greenfoot.event.SimulationEvent;
+import greenfoot.event.SimulationListener;
+import greenfoot.event.WorldEvent;
+import greenfoot.event.WorldListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,15 +48,6 @@ public class Simulation extends Thread implements WorldListener
     private int delay;      // the speed translated into delay (ms) per step
     private boolean sleeping; // true when we are sleeping for delay or pause purposes
 
-    /** for synchronized object dragging */
-    private Actor draggedObject;
-    
-    /** X position of a dragged object in world coordinates (cells) */
-    private int dragXpos;
-
-    /** Y position of a dragged object in world coordinates (cells) */
-    private int dragYpos;
-    
     /**
      * Create new simulation. Leaves the simulation in paused state
      * 
@@ -120,7 +116,6 @@ public class Simulation extends Thread implements WorldListener
      */
     private synchronized void maybePause()
     {
-        checkScheduledDrag();
         
         if (paused && enabled) {
             fireSimulationEvent(stoppedEvent);
@@ -172,14 +167,6 @@ public class Simulation extends Thread implements WorldListener
                         actor.act();
                     }
                 }
-                
-                // If an object is being dragged, update its location
-                synchronized (this) {
-                        if (draggedObject != null && draggedObject.getWorld() != null) {
-                            draggedObject.setLocation(dragXpos, dragYpos);
-                            draggedObject = null;
-                        }
-                }
             }
         }
         catch (Throwable t) {
@@ -192,26 +179,6 @@ public class Simulation extends Thread implements WorldListener
         worldHandler.repaint();
     }
     
-    /**
-     * Check if there is a scheduled object drag, and perform it if there is.
-     * Should be called from a synchronized context on the simulation thread. 
-     */
-    private void checkScheduledDrag()
-    {
-        if (draggedObject == null) {
-            return;
-        }
-        
-        World world = draggedObject.getWorld();
-        if (world != null) {
-            synchronized (world) {
-                if (draggedObject != null && draggedObject.getWorld() != null) {                    
-                    draggedObject.setLocation(dragXpos, dragYpos);
-                    draggedObject = null;
-                }
-            }
-        }
-    }
 
     // Public methods etc.
     
@@ -417,30 +384,6 @@ public class Simulation extends Thread implements WorldListener
     }
     
     // ----------- End of WorldListener interface -------------
-    
-    /**
-     * Drag an object in the world, in a synchronized manner with the rest
-     * of the simulation. This will return immediately even if the actual
-     * actor movement is slightly delayed.
-     * 
-     * @param xpos Drag location in world coordinates (cells)
-     * @param ypos Drag location in world coordinates (cells)
-     */
-    public void dragObject(Actor object, int xpos, int ypos)
-    {
-        synchronized (this) {
-            if (sleeping && ! hasSleepTimeExpired()) {
-				object.setLocation(xpos,ypos);
-                worldHandler.repaint();
-            }
-            else {
-                // schedule a drag
-                draggedObject = object;
-                dragXpos = xpos;
-                dragYpos = ypos;
-            }
-        }
-    }
     
     /**
      * Check whether the simulation is running and the delay time has expired.

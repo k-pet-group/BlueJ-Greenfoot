@@ -1,8 +1,33 @@
 package greenfoot.gui;
 
 import greenfoot.World;
-import greenfoot.actions.*;
-import greenfoot.core.*;
+import greenfoot.actions.AboutGreenfootAction;
+import greenfoot.actions.CloseProjectAction;
+import greenfoot.actions.CompileAllAction;
+import greenfoot.actions.ExportProjectAction;
+import greenfoot.actions.NewClassAction;
+import greenfoot.actions.NewProjectAction;
+import greenfoot.actions.OpenProjectAction;
+import greenfoot.actions.OpenRecentProjectAction;
+import greenfoot.actions.PauseSimulationAction;
+import greenfoot.actions.PreferencesAction;
+import greenfoot.actions.QuitAction;
+import greenfoot.actions.RemoveSelectedClassAction;
+import greenfoot.actions.RunOnceSimulationAction;
+import greenfoot.actions.RunSimulationAction;
+import greenfoot.actions.SaveCopyAction;
+import greenfoot.actions.SaveProjectAction;
+import greenfoot.actions.ShowCopyrightAction;
+import greenfoot.actions.ShowReadMeAction;
+import greenfoot.actions.ShowWebsiteAction;
+import greenfoot.core.GClass;
+import greenfoot.core.GPackage;
+import greenfoot.core.GProject;
+import greenfoot.core.GreenfootMain;
+import greenfoot.core.LocationTracker;
+import greenfoot.core.ProjectProperties;
+import greenfoot.core.Simulation;
+import greenfoot.core.WorldHandler;
 import greenfoot.event.CompileListener;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
@@ -18,7 +43,12 @@ import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.sound.SoundPlayer;
 import greenfoot.util.GreenfootUtil;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.HeadlessException;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -27,7 +57,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.*;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.event.RCompileEvent;
@@ -55,7 +97,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5288 2007-10-04 04:47:23Z davmac $
+ * @version $Id: GreenfootFrame.java 5457 2008-01-17 12:22:42Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener,
@@ -70,8 +112,10 @@ public class GreenfootFrame extends JFrame
 
     private GProject project;
     
-    /** This holds all object inspectors and class inspectors for a world. */
-    private Map inspectors = new HashMap();
+    /** This holds all object inspectors for a world. */
+    private Map<DebuggerObject, Inspector> objectInspectors = new HashMap<DebuggerObject, Inspector> ();
+    /** This holds all class inspectors for a world. */
+    private Map<String, Inspector> classInspectors = new HashMap<String, Inspector> ();
     
     private WorldCanvas worldCanvas;
     private WorldHandler worldHandler;
@@ -302,6 +346,7 @@ public class GreenfootFrame extends JFrame
         // Some first-time initializations
         worldCanvas = new WorldCanvas(null);
         worldCanvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
         
         worldHandlerDelegate = new WorldHandlerDelegateIDE(this);
         WorldHandler.initialise(worldCanvas, worldHandlerDelegate);
@@ -394,6 +439,7 @@ public class GreenfootFrame extends JFrame
         contentPane.add(centrePanel, BorderLayout.CENTER);
         contentPane.add(eastPanel, BorderLayout.EAST);
 
+        GreenfootUtil.setupFocusTraversalPolicy(worldCanvas, this);
         pack();
         worldDimensions = worldCanvas.getPreferredSize();        
     }
@@ -593,8 +639,8 @@ public class GreenfootFrame extends JFrame
      */
     private void updateRecentProjects()
     {
-        List projects = PrefMgr.getRecentProjects();
-        for (Iterator it = projects.iterator(); it.hasNext();) {
+        List<?> projects = PrefMgr.getRecentProjects();
+        for (Iterator<?> it = projects.iterator(); it.hasNext();) {
             JMenuItem item = new JMenuItem((String)it.next());
             item.addActionListener(OpenRecentProjectAction.getInstance());
             recentProjectsMenu.add(item);
@@ -800,12 +846,12 @@ public class GreenfootFrame extends JFrame
     
     public ClassInspector getClassInspectorInstance(DebuggerClass clss, Package pkg, JFrame parent)
     {
-        ClassInspector inspector = (ClassInspector) inspectors.get(clss.getName());
+        ClassInspector inspector = (ClassInspector) classInspectors.get(clss.getName());
 
         if (inspector == null) {
             ClassInspectInvokerRecord ir = new ClassInspectInvokerRecord(clss.getName());
             inspector = new UpdatingClassInspector(clss, this, pkg, ir, parent);
-            inspectors.put(clss.getName(), inspector);
+            classInspectors.put(clss.getName(), inspector);
         }
 
         final Inspector insp = inspector;
@@ -823,11 +869,11 @@ public class GreenfootFrame extends JFrame
     
     public ObjectInspector getInspectorInstance(DebuggerObject obj, String name, Package pkg, InvokerRecord ir, JFrame parent)
     {
-        ObjectInspector inspector = (ObjectInspector) inspectors.get(obj);
+        ObjectInspector inspector = (ObjectInspector) objectInspectors.get(obj);
         
         if (inspector == null) {
             inspector = new UpdatingObjectInspector(obj, this, name, pkg, ir, parent);
-            inspectors.put(obj, inspector);
+            objectInspectors.put(obj, inspector);
         }
         
         final ObjectInspector insp = inspector;
@@ -845,11 +891,11 @@ public class GreenfootFrame extends JFrame
     
     public ResultInspector getResultInspectorInstance(DebuggerObject obj, String name, Package pkg, InvokerRecord ir, ExpressionInformation info, JFrame parent)
     {
-        ResultInspector inspector = (ResultInspector) inspectors.get(obj);
+        ResultInspector inspector = (ResultInspector) objectInspectors.get(obj);
         
         if (inspector == null) {
             inspector = new ResultInspector(obj, this, name, pkg, ir, info, parent);
-            inspectors.put(obj, inspector);
+            objectInspectors.put(obj, inspector);
         }
 
         final ResultInspector insp = inspector;
@@ -873,12 +919,12 @@ public class GreenfootFrame extends JFrame
     
     public void removeInspector(DebuggerClass cls)
     {
-        inspectors.remove(cls.getName());
+        classInspectors.remove(cls.getName());
     }
     
     public void removeInspector(DebuggerObject obj)
     {
-        inspectors.remove(obj);
+        objectInspectors.remove(obj);
     }
 
     // ------------- end of InspectorManager interface ---------
@@ -889,12 +935,18 @@ public class GreenfootFrame extends JFrame
      */
     public void removeAllInspectors()
     {
-        for (Iterator it = inspectors.values().iterator(); it.hasNext();) {
+        for (Iterator<Inspector> it = objectInspectors.values().iterator(); it.hasNext();) {
             Inspector inspector = (Inspector) it.next();
             inspector.setVisible(false);
             inspector.dispose();
         }
-
-        inspectors.clear();
+        objectInspectors.clear();
+        
+        for (Iterator<Inspector> it = classInspectors.values().iterator(); it.hasNext();) {
+            Inspector inspector = (Inspector) it.next();
+            inspector.setVisible(false);
+            inspector.dispose();
+        }
+        classInspectors.clear();
     }
 }

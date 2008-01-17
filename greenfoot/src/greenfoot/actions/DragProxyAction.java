@@ -2,6 +2,7 @@ package greenfoot.actions;
 
 import greenfoot.GreenfootImage;
 import greenfoot.core.ObjectDragProxy;
+import greenfoot.core.WorldHandler;
 import greenfoot.gui.DragGlassPane;
 
 import java.awt.event.ActionEvent;
@@ -32,6 +33,7 @@ public class DragProxyAction extends AbstractAction
     public void actionPerformed(ActionEvent e)
     {
         ObjectDragProxy object = new ObjectDragProxy(dragImage, dropAction);
+        WorldHandler.getInstance().getInputManager().objectAdded();
         DragGlassPane.getInstance().startDrag(object, 0, 0, null, null, true);
     }
 

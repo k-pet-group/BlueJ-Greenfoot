@@ -1,6 +1,8 @@
 package greenfoot.gui;
 
-import java.awt.Component;
+import greenfoot.event.SimulationEvent;
+import greenfoot.event.SimulationListener;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -9,12 +11,8 @@ import java.awt.event.MouseMotionListener;
 
 import javax.swing.SwingUtilities;
 
-
-import greenfoot.event.SimulationEvent;
-import greenfoot.event.SimulationListener;
-
 /**
- * Manages which listeners gets input events (mouse/keyboard) from components at different times/states.
+ * Manages which listeners gets input events (mouse/keyboard) from components at different times/states. Also handles whether dragComponent is visible.
  * <p>
  * It works by forwarding events to the listeners that should receive events at the current state.
  * <p>
@@ -49,27 +47,25 @@ import greenfoot.event.SimulationListener;
  */
 public class InputManager implements SimulationListener, KeyListener, MouseListener, MouseMotionListener
 {
-
-    // Components that can generate mouse and key events
-    private Component defaultComp;
-    private Component dragComp;
     
     // Key listeners
-    private  KeyListener runningKeyListener;
-    private  KeyListener idleKeyListener;
-    private  KeyListener dragKeyListener;
-    
+    private KeyListener runningKeyListener;
+    private KeyListener idleKeyListener;
+    private KeyListener dragKeyListener;
+    private KeyListener moveKeyListener;
+
     // Mouse listeners
-    private  MouseListener runningMouseListener;
-    private  MouseListener idleMouseListener;
-    private  MouseListener dragMouseListener;  
-    
+    private MouseListener runningMouseListener;
+    private MouseListener idleMouseListener;
+    private MouseListener dragMouseListener;
+    private MouseListener moveMouseListener;
+
     // Mouse motion listeners
-    private  MouseMotionListener runningMouseMotionListener;
-    private  MouseMotionListener idleMouseMotionListener;
-    private  MouseMotionListener dragMouseMotionListener;
-        
-    private Component activeComponent;
+    private MouseMotionListener runningMouseMotionListener;
+    private MouseMotionListener idleMouseMotionListener;
+    private MouseMotionListener dragMouseMotionListener;
+    private MouseMotionListener moveMouseMotionListener;
+
     private KeyListener activeKeyListener;
     private MouseListener activeMouseListener;
     private MouseMotionListener activeMouseMotionListener;
@@ -97,7 +93,6 @@ public class InputManager implements SimulationListener, KeyListener, MouseListe
          */
         protected void switchAndActivateState(State newState)
         {
-            System.out.println("SWITCH from state: " + state + " to " + newState);
             state = newState;
             state.activate();
         }      
@@ -117,6 +112,9 @@ public class InputManager implements SimulationListener, KeyListener, MouseListe
             switch(event) {
                 case SIMULATION_STOPPED :
                     switchAndActivateState(IDLE_STATE);
+                    break;
+                case CONSTRUCTOR_INVOKED :
+                    switchAndActivateState(CONSTRUCTOR_DRAG_WHILE_RUNNING_STATE);
                     break;
             }
         }
@@ -171,7 +169,7 @@ public class InputManager implements SimulationListener, KeyListener, MouseListe
         @Override
         protected void activate()
         {        
-            activateIdleListeners();  
+            activateMoveListeners();  
         }
     };
 
@@ -216,6 +214,28 @@ public class InputManager implements SimulationListener, KeyListener, MouseListe
         }
     }; 
     
+    private class ConstructorDragWhileRunningState extends State
+    {
+        @Override
+        void switchToNextState(Event event)
+        {
+            switch(event) {
+                case SIMULATION_STOPPED:
+                    switchAndActivateState(CONSTRUCTOR_DRAG_STATE);
+                    break;
+                case MOUSE_RELEASED:
+                    switchAndActivateState(RUNNING_STATE);
+                    break;
+            }
+        }
+
+        @Override
+        protected void activate()
+        {
+            activateDragListeners();
+        }
+    }; 
+    
 
     // STATES
     private final State RUNNING_STATE = new RunningState();
@@ -223,50 +243,67 @@ public class InputManager implements SimulationListener, KeyListener, MouseListe
     private final State MOVE_STATE = new MoveState();
     private final State QUICKADD_DRAG_STATE = new QuickAddDragState();
     private final State CONSTRUCTOR_DRAG_STATE = new ConstructorDragState();
+    private final State CONSTRUCTOR_DRAG_WHILE_RUNNING_STATE = new ConstructorDragWhileRunningState();
     
     private State state;
-    
-    public InputManager(Component defaultComp, Component dragComp, KeyListener runningKeyListener,
-            KeyListener idleKeyListener, KeyListener dragKeyListener, MouseListener runningMouseListener,
-            MouseListener idleMouseListener, MouseListener dragMouseListener, MouseMotionListener runningMouseMotionListener,
-            MouseMotionListener idleMouseMotionListener, MouseMotionListener dragMouseMotionListener)
-    {
-        super();
-        this.defaultComp = defaultComp;
-        this.dragComp = dragComp;
-        this.runningKeyListener = runningKeyListener;
-        this.idleKeyListener = idleKeyListener;
-        this.dragKeyListener = dragKeyListener;
-        this.runningMouseListener = runningMouseListener;
-        this.idleMouseListener = idleMouseListener;
-        this.dragMouseListener = dragMouseListener;
-        this.runningMouseMotionListener = runningMouseMotionListener;
-        this.idleMouseMotionListener = idleMouseMotionListener;
-        this.dragMouseMotionListener = dragMouseMotionListener;
-                
+    private boolean moveInitialized;
+    private boolean dragInitialized;
+    private boolean idleInitialized;
+    private boolean runningInitialized;
 
-        removeSelfAsListener();
-        defaultComp.addKeyListener(this);
-        defaultComp.addMouseListener(this);
-        defaultComp.addMouseMotionListener(this);
-        dragComp.addKeyListener(this);
-        dragComp.addMouseListener(this);
-        dragComp.addMouseMotionListener(this);
-        
+    public void setRunningListeners(KeyListener runningKeyListener, MouseListener runningMouseListener,
+            MouseMotionListener runningMouseMotionListener)
+    {
+        runningInitialized = true;
+        this.runningKeyListener = runningKeyListener;
+        this.runningMouseListener = runningMouseListener;
+        this.runningMouseMotionListener = runningMouseMotionListener;
+    } 
+    
+    public void setIdleListeners(KeyListener idleKeyListener, MouseListener idleMouseListener,
+            MouseMotionListener idleMouseMotionListener)
+    {
+        idleInitialized = true;
+        this.idleKeyListener = idleKeyListener;
+        this.idleMouseListener = idleMouseListener;
+        this.idleMouseMotionListener = idleMouseMotionListener;
+    }
+    
+    public void setDragListeners(KeyListener dragKeyListener, MouseListener dragMouseListener,
+            MouseMotionListener dragMouseMotionListener)
+    {
+        dragInitialized = true;
+        this.dragMouseListener = dragMouseListener;
+        this.dragKeyListener = dragKeyListener;
+        this.dragMouseMotionListener = dragMouseMotionListener;
+    }
+    
+    public void setMoveListeners(KeyListener moveKeyListener, MouseListener moveMouseListener,
+            MouseMotionListener moveMouseMotionListener)
+    {        
+        moveInitialized = true;
+        this.moveMouseListener = moveMouseListener;
+        this.moveKeyListener = moveKeyListener;
+        this.moveMouseMotionListener = moveMouseMotionListener;
+    }
+    
+    /**
+     * Should be called after all listeners are correctly setup.
+     */
+    public void init() 
+    {
+        if( !(idleInitialized && runningInitialized && moveInitialized && dragInitialized)) {
+            throw new IllegalStateException("Listeners not set up correctly.");
+        }
         state = IDLE_STATE;
         state.activate();
     }
-
-    private void removeSelfAsListener()
+    
+    public InputManager()
     {
-        defaultComp.removeKeyListener(InputManager.this);
-        defaultComp.removeMouseListener(InputManager.this);
-        defaultComp.removeMouseMotionListener(InputManager.this);
-        dragComp.removeKeyListener(InputManager.this);
-        dragComp.removeMouseListener(InputManager.this);
-        dragComp.removeMouseMotionListener(InputManager.this);
+        super();
     }
-
+    
     private void activateRunningListeners() {
         activeKeyListener = runningKeyListener;
         activeMouseListener = runningMouseListener;
@@ -276,6 +313,11 @@ public class InputManager implements SimulationListener, KeyListener, MouseListe
         activeKeyListener = idleKeyListener;
         activeMouseListener = idleMouseListener;
         activeMouseMotionListener = idleMouseMotionListener;
+    }
+    private void activateMoveListeners() {
+        activeKeyListener = moveKeyListener;
+        activeMouseListener = moveMouseListener;
+        activeMouseMotionListener = moveMouseMotionListener;
     }
     private void activateDragListeners() {
         activeKeyListener = dragKeyListener;
@@ -309,38 +351,34 @@ public class InputManager implements SimulationListener, KeyListener, MouseListe
     
     public void keyPressed(KeyEvent e)
     {
-        System.out.println("keyPressed: " + e);
         activeKeyListener.keyPressed(e);
         if(e.isShiftDown()) {
             state.switchToNextState(Event.SHIFT_PRESSED);
         }
+        activeKeyListener.keyPressed(e);
     }
 
     public void keyReleased(KeyEvent e)
     {
-        System.out.println("keyReleased: " + e);
         activeKeyListener.keyReleased(e);
         if(! e.isShiftDown()) {
             state.switchToNextState(Event.SHIFT_RELEASED);
         }
+        activeKeyListener.keyReleased(e);
     }
 
     public void keyTyped(KeyEvent e)
     {
-        System.out.println("keyTyped: " + e);
         activeKeyListener.keyTyped(e);
     }
 
     public void mouseClicked(MouseEvent e)
     {
-
-        System.out.println("mouseClicked: " + e);
         activeMouseListener.mouseClicked(e);
     }
 
     public void mousePressed(MouseEvent e)
     {
-        System.out.println("mousePressed: " + e);
         activeMouseListener.mousePressed(e);
         if(SwingUtilities.isLeftMouseButton(e) && !e.isShiftDown() ) {
             state.switchToNextState(Event.MOUSE_PRESSED);
@@ -349,38 +387,41 @@ public class InputManager implements SimulationListener, KeyListener, MouseListe
 
     public void mouseReleased(MouseEvent e)
     {
-        
-        System.out.println("mouseReleased: " + e);
         activeMouseListener.mouseReleased(e);
-        state.switchToNextState(Event.MOUSE_RELEASED);
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            state.switchToNextState(Event.MOUSE_RELEASED);
+        }
     }
     
     public void mouseEntered(MouseEvent e)
     {
-        System.out.println("mouseEntered: " + e);
-        // TODO take care of state changes that has happened outside this component. Like mouse pressed/released and SHIFT.
-        /*if(! e.isShiftDown()) {
-            activeMouseListener.mouseEntered(e);
-            state.switchToNextState(Event.SHIFT_RELEASED);
-        }*/
         activeMouseListener.mouseEntered(e);
+        
+        // Somehow during a drag the button was released without us noticing;
+        // make sure we are in the right state. (I think this can happen when
+        // some other window steals focus during a drag).
+        if (!e.isShiftDown()) {
+            state.switchToNextState(Event.SHIFT_RELEASED);
+        }
+    //    if ((e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) == 0) {
+     //       state.switchToNextState(Event.MOUSE_RELEASED);
+      //  }
     }
 
     public void mouseExited(MouseEvent e)
     {
-        System.out.println("mouseExited: " + e);
         activeMouseListener.mouseExited(e);
     }
 
     public void mouseDragged(MouseEvent e)
     {
-      //  System.out.println("mouseDragged: " + e);
-        activeMouseMotionListener.mouseDragged(e);
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            activeMouseMotionListener.mouseDragged(e);
+        }
     }
 
     public void mouseMoved(MouseEvent e)
     {
-     //   System.out.println("mouseMoved: " + e);
         activeMouseMotionListener.mouseMoved(e);
     }
 

@@ -32,7 +32,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JApplet;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JRootPane;
+import javax.swing.RootPaneContainer;
 
 import bluej.Config;
 
@@ -202,8 +207,7 @@ public class GreenfootScenarioViewer extends JApplet
 
             canvas = new WorldCanvas(null);
             
-            
-            
+            GreenfootUtil.setupFocusTraversalPolicy(canvas, this);
             
             WorldHandler.initialise(canvas, new WorldHandlerDelegateStandAlone(this));
             WorldHandler worldHandler = WorldHandler.getInstance();

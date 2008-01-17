@@ -14,6 +14,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -34,27 +36,28 @@ import javax.swing.SwingUtilities;
  * when the mouse is released and the component on that location get the
  * MouseEvent (mouseReleased)
  * 
+ * This component is used for dragging initiated either by invoking a
+ * constructor through the menus or by using the SHIFT-add feature.
+ * 
  * Some of this is taken from:
  * http://java.sun.com/docs/books/tutorial/uiswing/components/example-1dot4/GlassPaneDemo.java
  * 
- * after startDrag():
- * - drag() sent to drop target when object is dragged over it
- * - dragEnded() sent to drop target when object is dragged off it
+ * after startDrag(): - drag() sent to drop target when object is dragged over
+ * it - dragEnded() sent to drop target when object is dragged off it
  * 
- * If the object is dropped on a drop target:
- * - drop() is sent to the drop target (dragEnded() is not sent)
- * - dragFinished() is sent to the drag listener
+ * If the object is dropped on a drop target: - drop() is sent to the drop
+ * target (dragEnded() is not sent) - dragFinished() is sent to the drag
+ * listener
  * 
- * If the drag is cancelled:
- * - dragEnded() is sent to the drop target
- * - dragFinished() is sent to the drag listener
+ * If the drag is cancelled: - dragEnded() is sent to the drop target -
+ * dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 5400 2007-11-26 13:34:33Z polle $
- *  
+ * @version $Id: DragGlassPane.java 5457 2008-01-17 12:22:42Z polle $
+ * 
  */
 public class DragGlassPane extends JComponent
-    implements MouseMotionListener, MouseListener
+    implements MouseMotionListener, MouseListener, KeyListener
 {
     /** Singleton */
     private static DragGlassPane instance;
@@ -109,10 +112,7 @@ public class DragGlassPane extends JComponent
 
     private DragGlassPane()
     {
-        setVisible(false);
-
-        this.addMouseMotionListener(this);
-        this.addMouseListener(this);
+    	setVisible(false);
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         URL noParkingIconFile = this.getClass().getClassLoader().getResource("noParking.png");
         if (noParkingIconFile != null) {
@@ -219,10 +219,12 @@ public class DragGlassPane extends JComponent
             //force painting of drag object
             Point p = e.getPoint();
             p.translate(xOffset, yOffset);
-            paintNoDropImage =  ! lastDropTarget.drag(object, p);                      
-        }
-
-        setVisible(true);
+            paintNoDropImage =  ! lastDropTarget.drag(object, p);  
+            if(paintNoDropImage) {
+                repaint();
+            }    
+        }       
+        setVisible(true); 
     }
 
     /**
@@ -445,5 +447,18 @@ public class DragGlassPane extends JComponent
         e = SwingUtilities.convertMouseEvent((Component) e.getSource(), e, this);
         rect.x = e.getX() + dragOffsetX - dragImage.getWidth()/2;
         rect.y = e.getY() + dragOffsetY - dragImage.getHeight()/2;
+    }
+
+    public void keyPressed(KeyEvent e)
+    {
+    }
+
+    public void keyReleased(KeyEvent e)
+    {
+        cancelDrag(); // dragEnded/dragFinished
+    }
+
+    public void keyTyped(KeyEvent e)
+    {
     }
 }

@@ -9,7 +9,7 @@ import java.util.EventObject;
  * A simulation event
  * 
  * @author Poul Henriksen
- * @version $Id: SimulationEvent.java 5376 2007-11-06 16:15:22Z polle $
+ * @version $Id: SimulationEvent.java 5457 2008-01-17 12:22:42Z polle $
  */
 public class SimulationEvent extends EventObject
 {
@@ -42,5 +42,22 @@ public class SimulationEvent extends EventObject
     public int getType()
     {
         return type;
+    }
+    
+    public String toString() {
+        switch (type) {
+            case STARTED:
+                return "STARTED";
+            case STOPPED:
+                return "STOPPED";
+            case CHANGED_SPEED:
+                return "CHANGED_SPEED";
+            case DISABLED:
+                return "DISABLED";
+            case NEW_ACT:
+                return "NEW_ACT";                
+        }
+        return super.toString();
+        
     }
 }

@@ -1,10 +1,20 @@
 package greenfoot.gui;
 
-import greenfoot.*;
+import greenfoot.Actor;
+import greenfoot.ActorVisitor;
+import greenfoot.GreenfootImage;
+import greenfoot.ImageVisitor;
+import greenfoot.World;
+import greenfoot.WorldVisitor;
 import greenfoot.core.ObjectDragProxy;
 import greenfoot.util.GreenfootUtil;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
@@ -18,7 +28,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldCanvas.java 5418 2007-12-12 03:50:45Z davmac $
+ * @version $Id: WorldCanvas.java 5457 2008-01-17 12:22:42Z polle $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -26,12 +36,12 @@ public class WorldCanvas extends JPanel
     private World world;
     private DropTarget dropTargetListener;
 
-    /** The actor being dragged. Null if no draggin. */ 
+    /** The actor being dragged. Null if no dragging. */ 
     private Actor dragActor;
     /** The current location where the object is dragged - in pixel coordinates relative to this canvas. */
     private Point dragLocation;
-    /** Image used when dragging new actors on the world. Includes teh drop shadow.*/
-    private BufferedImage dragImage; 
+    /** Image used when dragging new actors on the world. Includes the drop shadow.*/
+    private BufferedImage dragImage;
 
     public WorldCanvas(World world)
     {
@@ -125,7 +135,7 @@ public class WorldCanvas extends JPanel
             y = (int) ((yCell + 0.5) * cellSize - dragImage.getHeight()/2);
             
             g.drawImage(dragImage, x, y, null);            
-        }
+        } 
     }
 
     /**
@@ -210,11 +220,14 @@ public class WorldCanvas extends JPanel
 
     /**
      * If it is a new actor, that has not been added to the world yet, the
-     * dragging is handled here, otherwise it is handled in the world handler.
+     * dragging is handled here.
      */
     public boolean drag(Object o, Point p)
     {
-        if(o instanceof ObjectDragProxy ) {            
+        if(o instanceof ObjectDragProxy ) {   
+            if(!new Rectangle(getSize()).contains(p)) {
+                return false;
+            }
             if(o != dragActor) {
                 // It is the first time we are dragging this actor. Create the drag image.
                 dragActor = (Actor) o;          
@@ -228,7 +241,7 @@ public class WorldCanvas extends JPanel
         else if (dropTargetListener != null) {
             return dropTargetListener.drag(o, p);
         }
-        else {
+        else {        
             return false;
         }
     }
@@ -305,4 +318,5 @@ public class WorldCanvas extends JPanel
         return false;
     }
 
+    
 }
