@@ -631,6 +631,7 @@ team.settings.location=Location
 team.settings.user=User
 team.settings.password=Password
 team.settings.group=Group
+team.settings.serverType=Server type
 team.settings.server=Server
 team.settings.prefix=Repository Path
 team.settings.ext=ext (using SSH)

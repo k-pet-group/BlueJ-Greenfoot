@@ -10,7 +10,7 @@ import javax.swing.JLabel;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.groupwork.cvsnb.CvsRepository;
+import bluej.groupwork.TeamworkProvider;
 import bluej.utility.DBox;
 import bluej.utility.EscapeDialog;
 
@@ -23,15 +23,31 @@ import bluej.utility.EscapeDialog;
 public class CheckConnectionDialog extends EscapeDialog
 {
     private ActivityIndicator activityIndicator;
-    private String cvsRoot;
     private JLabel connLabel;
     private JButton closeButton;
     
-    public CheckConnectionDialog(Dialog owner, String cvsRoot)
+    private TeamworkProvider provider;
+    private String protocol;
+    private String server;
+    private String prefix;
+    private String group;
+    private String userName;
+    private String password;
+    
+    public CheckConnectionDialog(Dialog owner, TeamworkProvider provider, String protocol,
+            String server, String prefix, String group, String userName, String password)
     {
         super(owner, true);
         setTitle(Config.getString("team.settings.checkConnection"));
-        this.cvsRoot = cvsRoot;
+        
+        this.provider = provider;
+        this.protocol = protocol;
+        this.server = server;
+        this.prefix = prefix;
+        this.group = group;
+        this.userName = userName;
+        this.password = password;
+        
         buildUI();
         setLocationRelativeTo(owner);
     }
@@ -93,7 +109,7 @@ public class CheckConnectionDialog extends EscapeDialog
     
     private boolean validateConnection()
     {
-        // String result = (CvsRepository.validateConnection(cvsRoot) ? "Connection is ok" : "Could not connect to server");
-        return CvsRepository.validateConnection(cvsRoot);
+        return provider.checkConnection(protocol, server, prefix,
+                group, userName, password);
     }   
 }

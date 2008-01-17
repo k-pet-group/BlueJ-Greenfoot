@@ -18,7 +18,7 @@ import bluej.utility.filefilter.DirectoryFilter;
  * the top-level folder of a team project, and the bluej.properties
  *
  * @author fisker
- * @version $Id: TeamSettingsController.java 5088 2007-06-05 04:03:10Z davmac $
+ * @version $Id: TeamSettingsController.java 5456 2008-01-17 05:06:33Z davmac $
  */
 public class TeamSettingsController
 {
@@ -32,16 +32,10 @@ public class TeamSettingsController
     //private String user;
     private String password;
 
-    // cvs data
-    //private String protocol;
-    //private String server;
-    //private String groupname;
-    //private String module;
-    //private String repositoryPrefix;
     private File teamdefs;
     
     // repository
-    private CvsRepository repository;
+    private Repository repository;
 
     /**
      * Construct a team settings controller for the given project.
@@ -333,14 +327,14 @@ public class TeamSettingsController
      */
     private void addIgnoreFilePatterns(Properties teamProperties)
     {
-        teamProperties.put("bluej.teamsettings.cvs.ignore1", ".*\\.class");
-        teamProperties.put("bluej.teamsettings.cvs.ignore2", "bluej\\.pkh");
-        teamProperties.put("bluej.teamsettings.cvs.ignore3", "team\\.defs");
-        teamProperties.put("bluej.teamsettings.cvs.ignore4", ".*\\.ctxt");
-        teamProperties.put("bluej.teamsettings.cvs.ignore5", ".*\\~");
-        teamProperties.put("bluej.teamsettings.cvs.ignore6", ".*\\#");
-        teamProperties.put("bluej.teamsettings.cvs.ignore7", ".*\\#backup");
-        teamProperties.put("bluej.teamsettings.cvs.ignore8", "\\.DS_Store");
+        teamProperties.put("bluej.teamsettings.ignore1", ".*\\.class");
+        teamProperties.put("bluej.teamsettings.ignore2", "bluej\\.pkh");
+        teamProperties.put("bluej.teamsettings.ignore3", "team\\.defs");
+        teamProperties.put("bluej.teamsettings.ignore4", ".*\\.ctxt");
+        teamProperties.put("bluej.teamsettings.ignore5", ".*\\~");
+        teamProperties.put("bluej.teamsettings.ignore6", ".*\\#");
+        teamProperties.put("bluej.teamsettings.ignore7", ".*\\#backup");
+        teamProperties.put("bluej.teamsettings.ignore8", "\\.DS_Store");
     }
 
     /**
@@ -401,7 +395,13 @@ public class TeamSettingsController
         while (keys.hasMoreElements()) {
             String key = (String) keys.nextElement();
 
+            // legacy settings
             if (key.startsWith("bluej.teamsettings.cvs.ignore")) {
+                patterns.add(teamProperties.getProperty(key));
+            }
+            
+            // new settings
+            if (key.startsWith("bluej.teamsettings.ignore")) {
                 patterns.add(teamProperties.getProperty(key));
             }
         }

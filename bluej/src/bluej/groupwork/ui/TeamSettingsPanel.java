@@ -1,7 +1,10 @@
 package bluej.groupwork.ui;
 
-import java.awt.BorderLayout;
 import java.awt.FocusTraversalPolicy;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -9,15 +12,18 @@ import javax.swing.event.DocumentListener;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.groupwork.CvsProvider;
+import bluej.groupwork.SubversionProvider;
 import bluej.groupwork.TeamSettingsController;
-import bluej.groupwork.actions.ValidateCvsConnectionAction;
+import bluej.groupwork.TeamworkProvider;
+import bluej.groupwork.actions.ValidateConnectionAction;
 
 
 /**
  * A panel for team settings.
  * 
  * @author fisker
- * @version $Id: TeamSettingsPanel.java 5079 2007-05-31 06:48:07Z davmac $
+ * @version $Id: TeamSettingsPanel.java 5456 2008-01-17 05:06:33Z davmac $
  */
 public class TeamSettingsPanel extends JPanel 
 {
@@ -28,20 +34,30 @@ public class TeamSettingsPanel extends JPanel
     private TeamSettingsController teamSettingsController;
     private TeamSettingsDialog teamSettingsDialog;
     
+    private static ArrayList teamProviders;
+    static {
+        teamProviders = new ArrayList(2);
+        teamProviders.add(new CvsProvider());
+        teamProviders.add(new SubversionProvider());
+    }
+    
     JTextField userField;
     JPasswordField passwordField;
     JTextField groupField;
     JTextField prefixField;
+    JComboBox serverTypeComboBox;
     JTextField serverField;
     JComboBox protocolComboBox;
     JButton validateButton;
     JCheckBox useAsDefault;
     
-    JLabel groupLabel;
-    JLabel prefixLabel;
-    JLabel serverLabel;
-    JLabel protocolLabel;
+    private JLabel serverTypeLabel;
+    private JLabel groupLabel;
+    private JLabel prefixLabel;
+    private JLabel serverLabel;
+    private JLabel protocolLabel;
     
+    private int selectedServerType = -1;
     private boolean okEnabled = true;
     
     public TeamSettingsPanel(TeamSettingsController teamSettingsController, TeamSettingsDialog dialog)
@@ -60,7 +76,7 @@ public class TeamSettingsPanel extends JPanel
         useAsDefault = new JCheckBox(Config.getString("team.settings.rememberSettings"));
         add(useAsDefault);
         add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-        validateButton = new JButton(new ValidateCvsConnectionAction(
+        validateButton = new JButton(new ValidateConnectionAction(
                 Config.getString("team.settings.checkConnection"), this, dialog));
         add(validateButton);
         
@@ -117,6 +133,7 @@ public class TeamSettingsPanel extends JPanel
      */
     public void disableRepositorySettings()
     {
+        serverTypeComboBox.setEnabled(false);
         groupField.setEnabled(false);
         prefixField.setEnabled(false);
         serverField.setEnabled(false);
@@ -124,6 +141,7 @@ public class TeamSettingsPanel extends JPanel
         
         // useAsDefault.setEnabled(false);
         
+        serverTypeLabel.setEnabled(false);
         groupLabel.setEnabled(false);
         prefixLabel.setEnabled(false);
         serverLabel.setEnabled(false);
@@ -168,15 +186,28 @@ public class TeamSettingsPanel extends JPanel
     
     private JPanel makeLocationPanel()
     {
-        JPanel locationPanel = new JPanel(new BorderLayout(5, 0));
+        JPanel locationPanel = new JPanel(new MiksGridLayout(4,2,10,5));
         {
-            locationPanel.setLayout(new MiksGridLayout(3,2,10,5));
             String docTitle2 = Config.getString("team.settings.location");
             locationPanel.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createTitledBorder(docTitle2),
                     BlueJTheme.generalBorder));
             locationPanel.setAlignmentX(LEFT_ALIGNMENT);
             
+            serverTypeLabel = new JLabel(Config.getString("team.settings.serverType"));
+            serverTypeComboBox = new JComboBox();
+            for (Iterator i = teamProviders.iterator(); i.hasNext(); ) {
+                TeamworkProvider provider = (TeamworkProvider) i.next();
+                serverTypeComboBox.addItem(provider.getProviderName());
+            }
+            
+            serverTypeComboBox.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e)
+                {
+                    fillProtocolSelections();
+                    setProviderSettings();
+                }
+            });
             
             serverLabel = new JLabel(Config.getString("team.settings.server"));
             serverField = new JTextField(fieldsize);
@@ -185,15 +216,19 @@ public class TeamSettingsPanel extends JPanel
             prefixField = new JTextField(fieldsize);
             
             protocolLabel = new JLabel(Config.getString("team.settings.protocol"));
-            protocolComboBox = new JComboBox(conTypes);
+            protocolComboBox = new JComboBox();
             protocolComboBox.setEditable(false);
-            
+            fillProtocolSelections();
             
             prefixLabel.setMaximumSize(prefixLabel.getMinimumSize());
             prefixField.setMaximumSize(prefixField.getMinimumSize());
             serverLabel.setMaximumSize(serverLabel.getMinimumSize());
             serverField.setMaximumSize(serverField.getMinimumSize());
+            serverTypeLabel.setMaximumSize(serverTypeLabel.getMinimumSize());
+            serverTypeComboBox.setMaximumSize(serverTypeComboBox.getMinimumSize());
             
+            locationPanel.add(serverTypeLabel);
+            locationPanel.add(serverTypeComboBox);
             locationPanel.add(serverLabel);
             locationPanel.add(serverField);
             locationPanel.add(prefixLabel);
@@ -204,6 +239,24 @@ public class TeamSettingsPanel extends JPanel
         return locationPanel;
     }
     
+    /**
+     * Empty the protocol selection box, then fill it with the available protocols
+     * from the currently selected teamwork provider.
+     */
+    private void fillProtocolSelections()
+    {
+        int selected = serverTypeComboBox.getSelectedIndex();
+        if (selected != selectedServerType) {
+            selectedServerType = selected;
+            protocolComboBox.removeAllItems();
+            TeamworkProvider provider = (TeamworkProvider) teamProviders.get(selected);
+            String [] protocols = provider.getProtocols();
+            for (int i = 0; i < protocols.length; i++) {
+                protocolComboBox.addItem(protocols[i]);
+            }
+        }
+    }
+        
     private void setupContent()
     {
         String user = teamSettingsController.getPropString("bluej.teamsettings.user");
@@ -218,19 +271,32 @@ public class TeamSettingsPanel extends JPanel
         if(group != null) {
             setGroup(group);
         }
-        String prefix = teamSettingsController.getPropString("bluej.teamsettings.cvs.repositoryPrefix");
-        if (prefix != null) {
-            setPrefix(prefix);
-        }
-        String server = teamSettingsController.getPropString("bluej.teamsettings.cvs.server");
-        if (server != null) {
-            setServer(server);
-        }
         String useAsDefault = teamSettingsController.getPropString("bluej.teamsettings.useAsDefault");
         if (useAsDefault != null) {
             setUseAsDefault(Boolean.getBoolean(useAsDefault));
         }
-        String protocol = teamSettingsController.getPropString("bluej.teamsettings.cvs.protocol");
+        setProviderSettings();
+    }
+    
+    /**
+     * Set settings to provider-specific values (repository prefix, server, protocol).
+     * The values are remembered on a per-provider basis; this sets the fields to show
+     * the remembered values for the selected provider. 
+     */
+    private void setProviderSettings()
+    {
+        String keyBase = "bluej.teamsettings."
+            + getSelectedProvider().getProviderName().toLowerCase() + "."; 
+        
+        String prefix = teamSettingsController.getPropString(keyBase + "repositoryPrefix");
+        if (prefix != null) {
+            setPrefix(prefix);
+        }
+        String server = teamSettingsController.getPropString(keyBase + "server");
+        if (server != null) {
+            setServer(server);
+        }
+        String protocol = teamSettingsController.getPropString(keyBase + "protocol");
         if (protocol != null){
             setProtocol(protocol);
         }
@@ -275,14 +341,25 @@ public class TeamSettingsPanel extends JPanel
         serverField.setText(server);
     }
     
-    private void setProtocol(String connectionType)
+    /**
+     * Set the protocol to that identified by the given protocol key.
+     */
+    private void setProtocol(String protocolKey)
     {
-        protocolComboBox.setSelectedItem(connectionType);
+        String protocolLabel = getSelectedProvider().getProtocolLabel(protocolKey);
+        protocolComboBox.setSelectedItem(protocolLabel);
     }
     
     private void setUseAsDefault(boolean use)
     {
         useAsDefault.setSelected(use);
+    }
+    
+    public TeamworkProvider getSelectedProvider()
+    {
+        int selected = serverTypeComboBox.getSelectedIndex();
+        TeamworkProvider provider = (TeamworkProvider) teamProviders.get(selected);
+        return provider;
     }
     
     public String getUser()
@@ -312,7 +389,13 @@ public class TeamSettingsPanel extends JPanel
     
     public String getProtocol()
     {
-        return (String)protocolComboBox.getSelectedItem();
+        return (String) protocolComboBox.getSelectedItem();
+    }
+    
+    public String getProtocolKey()
+    {
+        int protocol = protocolComboBox.getSelectedIndex();
+        return getSelectedProvider().getProtocolKey(protocol);
     }
     
     public boolean getUseAsDefault()

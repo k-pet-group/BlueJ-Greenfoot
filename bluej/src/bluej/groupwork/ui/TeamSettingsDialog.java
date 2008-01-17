@@ -11,7 +11,6 @@ import javax.swing.JPanel;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.groupwork.TeamSettingsController;
-import bluej.groupwork.cvsnb.ProtocolMapper;
 import bluej.utility.EscapeDialog;
 
 /**
@@ -19,7 +18,7 @@ import bluej.utility.EscapeDialog;
  *
  * @author fisker
  * @author bquig
- * @version $Id: TeamSettingsDialog.java 4926 2007-04-13 02:28:18Z davmac $
+ * @version $Id: TeamSettingsDialog.java 5456 2008-01-17 05:06:33Z davmac $
  */
 public class TeamSettingsDialog extends EscapeDialog
 {
@@ -90,26 +89,28 @@ public class TeamSettingsDialog extends EscapeDialog
                         String passValue = teamSettingsPanel.getPassword();
                         teamSettingsController.setPasswordString(passValue);
 
-                        String serverKey = "bluej.teamsettings.cvs.server";
+                        String keyBase = "bluej.teamsettings."
+                                + teamSettingsPanel.getSelectedProvider().getProviderName().toLowerCase()
+                                + ".";
+                        String serverKey = keyBase + "server";
                         String serverValue = teamSettingsPanel.getServer();
                         teamSettingsController.setPropString(serverKey,
                             serverValue);
 
-                        String prefixKey = "bluej.teamsettings.cvs.repositoryPrefix";
+                        String prefixKey = keyBase + "repositoryPrefix";
                         String prefixValue = teamSettingsPanel.getPrefix();
                         teamSettingsController.setPropString(prefixKey,
                             prefixValue);
+
+                        String protocolKey = keyBase + "protocol";
+                        String protocolValue = teamSettingsPanel.getProtocolKey();
+                        teamSettingsController.setPropString(protocolKey,
+                            protocolValue);
 
                         String groupKey = "bluej.teamsettings.groupname";
                         String groupValue = teamSettingsPanel.getGroup();
                         teamSettingsController.setPropString(groupKey,
                             groupValue);
-
-                        String protocolKey = "bluej.teamsettings.cvs.protocol";
-                        String protocolValue = ProtocolMapper.getProtocol(teamSettingsPanel.getProtocol());
-                                                
-                        teamSettingsController.setPropString(protocolKey,
-                            protocolValue);
 
                         String useAsDefaultKey = "bluej.teamsettings.useAsDefault";
                         Config.putPropString(useAsDefaultKey,
@@ -129,9 +130,6 @@ public class TeamSettingsDialog extends EscapeDialog
                             teamSettingsController.writeToProject();
                         }
 
-                        //if (getProject() != null && getProject().getTeamControlsFrame() != null){
-                        //    getProject().getTeamControlsFrame().configureHelp();
-                        //}
                         event = OK;
                         setVisible(false);
                     }
@@ -157,7 +155,8 @@ public class TeamSettingsDialog extends EscapeDialog
 
     /**
      * Disable the fields used to specify the repository:
-     * group, prefix, server and protocol
+     * group, prefix, server and protocol. Called when the team settings
+     * dialog is connected to a project already.
      */
     public void disableRepositorySettings()
     {
