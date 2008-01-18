@@ -55,6 +55,9 @@ public class MouseManager implements MouseListener, MouseMotionListener
     /** Whether the user has requested any information about the mouse in this act loop. */
     private boolean polledInThisAct;
     
+    /** Whether the user has requested any information about the current mouse data  - ever.*/
+    private boolean polledThisData;
+    
     /**
      * The current mouse data This will be the mouse info returned for the rest
      * of this act loop.
@@ -111,6 +114,7 @@ public class MouseManager implements MouseListener, MouseMotionListener
     private void registerEventRecieved()
     {
         gotNewEvent = true;
+        polledThisData = false;
     }
     
     /**
@@ -126,11 +130,13 @@ public class MouseManager implements MouseListener, MouseMotionListener
         }
         
         synchronized(futureData) {
-            if(! gotNewEvent) {
-                //If we didn't get a new event we want to keep the current data.
+            if(!polledThisData && !gotNewEvent) {
+                polledThisData = true;
+                polledInThisAct = true;
                 return;
             }
             MouseEventData newData = new MouseEventData();
+            
             currentData = futureData;
             futureData = newData;
             
@@ -138,9 +144,8 @@ public class MouseManager implements MouseListener, MouseMotionListener
             gotNewEvent = false;
         }
 
-        polledInThisAct = true;
-        
-        
+        polledInThisAct = true; 
+        polledThisData = true;
     }
 
     // ************************************
