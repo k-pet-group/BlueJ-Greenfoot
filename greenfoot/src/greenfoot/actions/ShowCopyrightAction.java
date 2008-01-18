@@ -49,7 +49,7 @@ public class ShowCopyrightAction extends AbstractAction
                 "This software may not be sold for profit or included in other", 
                 "packages which are sold for profit without written authorisation.", 
                 " ",
-                "Copyright notice for the class GraphicsUtilities: ",
+                "Copyright notice for the classes GraphicsUtilities and ShadowRenderer: ",
                 " Copyright (c) 2007, Romain Guy",
                 " All rights reserved.",
                 " ",

@@ -42,7 +42,7 @@ import javax.swing.SwingUtilities;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 5457 2008-01-17 12:22:42Z polle $
+ * @version $Id: GreenfootUtil.java 5460 2008-01-18 12:45:03Z polle $
  */
 public class GreenfootUtil
 {
@@ -522,7 +522,7 @@ public class GreenfootUtil
      */
     public static BufferedImage createDragShadow(BufferedImage image)
     {
-        BufferedImage dragImage = (new ShadowRenderer(3 , 0.3f, Color.BLACK)).createShadow(image);
+        BufferedImage dragImage = ShadowRenderer.createDropShadow(image, 3, 0.3f, Color.BLACK);
         Graphics2D g2 = dragImage.createGraphics();
         g2.drawImage(image, 0, 0, null);
         g2.dispose();
