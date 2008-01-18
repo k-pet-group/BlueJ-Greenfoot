@@ -223,10 +223,8 @@ public class WorldHandlerDelegateIDE
                 ActorClassRole role = (ActorClassRole) cls.getRole();
                 Actor actor = role.createObjectDragProxy();// cls.createInstance();
 
-                int dragOffsetX = 0;
-                int dragOffsetY = 0;
                 worldHandler.setObjectDropped(false);
-                DragGlassPane.getInstance().startDrag(actor, dragOffsetX, dragOffsetY, worldHandler, worldHandler.getWorldCanvas(), false);
+                DragGlassPane.getInstance().startDrag(actor, worldHandler, worldHandler.getWorldCanvas(), false);
 
                 // On the mac, the glass pane doesn't seem to receive
                 // mouse move events; the shift/move is treated like a drag        

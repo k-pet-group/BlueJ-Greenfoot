@@ -34,7 +34,7 @@ public class DragProxyAction extends AbstractAction
     {
         ObjectDragProxy object = new ObjectDragProxy(dragImage, dropAction);
         WorldHandler.getInstance().getInputManager().objectAdded();
-        DragGlassPane.getInstance().startDrag(object, 0, 0, null, null, true);
+        DragGlassPane.getInstance().startDrag(object, null, null, true);
     }
 
 }

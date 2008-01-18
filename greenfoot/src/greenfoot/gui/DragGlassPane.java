@@ -35,10 +35,12 @@ import javax.swing.SwingUtilities;
  * a JFrame. A drag is started with the startDrag() method. The drag will end
  * when the mouse is released and the component on that location get the
  * MouseEvent (mouseReleased)
- * 
+ * <p>
+ * All instance methods in this class should be called on the Swing event thread.
+ * <p>
  * This component is used for dragging initiated either by invoking a
  * constructor through the menus or by using the SHIFT-add feature.
- * 
+ * <p>
  * Some of this is taken from:
  * http://java.sun.com/docs/books/tutorial/uiswing/components/example-1dot4/GlassPaneDemo.java
  * 
@@ -52,8 +54,8 @@ import javax.swing.SwingUtilities;
  * If the drag is cancelled: - dragEnded() is sent to the drop target -
  * dragFinished() is sent to the drag listener
  * 
- * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: DragGlassPane.java 5457 2008-01-17 12:22:42Z polle $
+ * @author Poul Henriksen
+ * @version $Id: DragGlassPane.java 5462 2008-01-18 18:41:12Z polle $
  * 
  */
 public class DragGlassPane extends JComponent
@@ -71,19 +73,18 @@ public class DragGlassPane extends JComponent
     /** The object that is dragged */
     private Object data;
 
-    /** Rectangles used for graphics update */
-    private Rectangle rect = new Rectangle();
-    
-    /** Offset from center of object being dragged to mouse cursor */
-    private int dragOffsetX;
-    private int dragOffsetY;
+    /** Rectangle defining the current bounds of the object being dragged */
+    private Rectangle dragRect = new Rectangle();
+
+    /** Rectangle defining the last bounds of where a drag object was painted */
+    private Rectangle lastPaintRect = new Rectangle();
 
     /**
      * Keeps track of the last drop target, in order to send messages to old
      * drop targets when drag moves away from the component
      */
     private DropTarget lastDropTarget;
-    
+
     /**
      * The listener to be notified when the drag operation finishes.
      */
@@ -96,9 +97,9 @@ public class DragGlassPane extends JComponent
      */
     private boolean forcedDrag;
 
-    
     /**
-     * Image used when dragging. If this is null, no dragging is happening at the moment.
+     * Image used when dragging. If this is null, no dragging is happening at
+     * the moment.
      */
     private BufferedImage dragImage;
 
@@ -112,7 +113,6 @@ public class DragGlassPane extends JComponent
 
     private DragGlassPane()
     {
-    	setVisible(false);
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         URL noParkingIconFile = this.getClass().getClassLoader().getResource("noParking.png");
         if (noParkingIconFile != null) {
@@ -122,71 +122,52 @@ public class DragGlassPane extends JComponent
 
     public void paintComponent(Graphics g)
     {
-        // We only handle painting here if no drop-target could handle the painting
+        // We only handle painting here if no drop-target could handle the
+        // painting, and if we have a dragImage
         if (dragImage != null && paintNoDropImage) {
             Graphics2D g2 = (Graphics2D) g;
-
-            int width = rect.width;
-            int height = rect.height;
-
-            double halfWidth = width / 2.;
-            double halfHeight = height / 2.;
-
-            g2.drawImage(dragImage, rect.x, rect.y, null);
-            
-			g2.setColor(Color.RED);
-            if (noParkingIcon != null) {
-                int x = (int) (rect.getX() + halfWidth - noParkingIcon.getIconWidth() / 2);
-                int y = (int) (rect.getY() + halfHeight - noParkingIcon.getIconHeight() / 2);
-                noParkingIcon.paintIcon(this, g2, x, y);
-            }
+            // Set the clip to be the union between the image we are going to
+            // paint now, and the previously painted image.
+            Rectangle currentClip = new Rectangle(dragRect.x, dragRect.y, dragImage.getWidth(), dragImage.getHeight());
+            Rectangle temp = new Rectangle(currentClip);
+            currentClip.add(lastPaintRect);
+            lastPaintRect = temp;
+            g2.clip(currentClip);
+            g2.drawImage(dragImage, dragRect.x, dragRect.y, null);
         }
         else {
-            //we do nothing - a DropTarget should have handled this
+            // we do nothing - a DropTarget should have handled this
         }
     }
 
-   /* private Rectangle getClip()
-    {
-        int width = rect.width;
-        int height = rect.height;
-        int diag = (int) Math.ceil(Math.sqrt(width * width + height * height));
-        int widthDiff = (diag - width) / 2;
-        int heightDiff = (diag - height) / 2;
-        Rectangle oldClip = new Rectangle(oldRect.x - widthDiff, oldRect.y - heightDiff, diag, diag);
-        Rectangle newClip = new Rectangle(rect.x - widthDiff, rect.y - heightDiff, diag, diag);
-        return oldClip.union(newClip);
-    }*/
-
     /**
-     * Initiates a drag. The xOffset and yOffset specify the offset in pixels
-     * from the mouse cursor to the image top-left corner during the drag
-     * operation (normally negative).
+     * Initiates a drag.
      * <p>
      * 
      * There are two types of drag: a "genuine" drag where an object is being
      * dragged with the mouse button down, and a "forced" drag where the button
-     * is up. In the case of a genuine drag, the DragGlassPane should be
-     * added as a MouseListener and MouseMotionListener to the component
-     * receiving the drag events. Otherwise, this is not necessary.
+     * is up. In the case of a genuine drag, the DragGlassPane should be added
+     * as a MouseListener and MouseMotionListener to the component receiving the
+     * drag events. Otherwise, this is not necessary.
      * 
-     * @param object The object to drag.
-     * @param xOffset The X offset from the icon's top-left to the mouse cursor
-     * @param yOffset The Y offset from the icon's top-left to the mouse cursor
-     * @param dl The listener to be notified when the operation finishes
-     * @param initialDropTarget An initial drop target. It can be null. Used
-     *            when we want to imediately paint a dragimage unto the drop
-     *            target.
-     * @param forcedDrag indicates whether the drag is done without any buttons
+     * @param object
+     *            The object to drag.
+     * @param dl
+     *            The listener to be notified when the operation finishes
+     * @param initialDropTarget
+     *            An initial drop target. It can be null. Used when we want to
+     *            immediately paint a dragImage unto the drop target.
+     * @param forcedDrag
+     *            indicates whether the drag is done without any buttons
      *            pressed. This allows the drag to continue even if no keyboard
      *            or mouse buttons are pressed.
      * 
      */
-    public void startDrag(Actor object, int xOffset, int yOffset, DragListener dl, DropTarget initialDropTarget, boolean forcedDrag)
+    public void startDrag(Actor object, DragListener dl, DropTarget initialDropTarget, boolean forcedDrag)
     {
         // Save the listener first, so that calls to endDrag() work.
         dragListener = dl;
-        
+
         if (object == null) {
             endDrag();
             return;
@@ -197,34 +178,32 @@ public class DragGlassPane extends JComponent
             return;
         }
         this.forcedDrag = forcedDrag;
-        
-        //get last mouseevent to get first location
-        MouseEvent e =  LocationTracker.instance().getMouseMotionEvent();
-        if(e == null) {
+
+        // get last mouseevent to get first location
+        MouseEvent e = LocationTracker.instance().getMouseMotionEvent();
+        if (e == null) {
             // This startDrag was probably initiated by a mouse event that was
             // handled before the LocationTracker got a chance to handle it.
             endDrag();
             return;
         }
-        
+
         setDragImage(objectImage);
         setDragObject(object);
         paintNoDropImage = true;
-                
+
         storePosition(e);
-        dragOffsetX = xOffset;
-        dragOffsetY = yOffset;
         lastDropTarget = initialDropTarget;
-        if(initialDropTarget != null) {
-            //force painting of drag object
+
+        setVisible(true);
+        if (initialDropTarget != null) {
+            // force painting of drag object
             Point p = e.getPoint();
-            p.translate(xOffset, yOffset);
-            paintNoDropImage =  ! lastDropTarget.drag(object, p);  
-            if(paintNoDropImage) {
+            paintNoDropImage = !initialDropTarget.drag(object, p);
+            if (paintNoDropImage) {
                 repaint();
-            }    
-        }       
-        setVisible(true); 
+            }
+        }
     }
 
     /**
@@ -236,7 +215,7 @@ public class DragGlassPane extends JComponent
     {
         endDrag();
     }
-    
+
     /**
      * The drag is finished.
      */
@@ -250,12 +229,12 @@ public class DragGlassPane extends JComponent
         // call below
         DragListener dl = dragListener;
         Object od = data;
-        
+
         setVisible(false);
         data = null;
         dragImage = null;
         dragListener = null;
-        
+
         // Call dragFinished
         if (dl != null) {
             dl.dragFinished(od);
@@ -267,35 +246,42 @@ public class DragGlassPane extends JComponent
      * 
      * @param image
      *            The image
-     * @param rotation
-     *            The rotation of the image
      */
-    public void setDragImage(greenfoot.GreenfootImage image)
-    {        
+    public void setDragImage(final greenfoot.GreenfootImage image)
+    {
         BufferedImage awtImage = image.getAwtImage();
+
+        // TODO: run on event thread since it is used in paintComponent?
         dragImage = GreenfootUtil.createDragShadow(awtImage);
-        
-        
-        int width = image.getWidth();
-        int height = image.getHeight();
-        rect.width = width;
-        rect.height = height;
+
+        dragRect.width = image.getWidth();
+        dragRect.height = image.getHeight();
+
+        Graphics2D g = dragImage.createGraphics();
+
+        // We use original image proportions, to get the icon in the middle when
+        // not considering the shadow.
+        int x = (int) ((image.getWidth() - noParkingIcon.getIconWidth()) / 2);
+        int y = (int) ((image.getHeight() - noParkingIcon.getIconHeight()) / 2);
+        g.setColor(Color.RED);
+        noParkingIcon.paintIcon(this, g, x, y);
+        g.dispose();
     }
 
-    public void setDragObject(Object object)
+    /**
+     * Sets the object to be dragged.
+     * 
+     * @param object
+     */
+    public void setDragObject(final Object object)
     {
-        this.data = object;
-    }
-
-    public Object getDragObject()
-    {
-        return data;
+        data = object;
     }
 
     private void move(MouseEvent e)
     {
-        if(dragImage == null) {
-            //No valid drag object available.
+        if (dragImage == null) {
+            // No valid drag object available.
             return;
         }
         storePosition(e);
@@ -306,10 +292,9 @@ public class DragGlassPane extends JComponent
             dropTarget = (DropTarget) destination;
 
             Point tp = e.getPoint().getLocation(); // copy the point
-            tp.translate(dragOffsetX, dragOffsetY);
             Point p = SwingUtilities.convertPoint(e.getComponent(), tp, destination);
             if (dropTarget.drag(data, p)) {
-                if(paintNoDropImage) {
+                if (paintNoDropImage) {
                     paintNoDropImage = false;
                 }
                 else {
@@ -332,9 +317,11 @@ public class DragGlassPane extends JComponent
         }
         lastDropTarget = dropTarget;
         if (isVisible() && doRepaint) {
-            //We need to repaint because the drag was not processed by another component.
+            // We need to repaint because the drag was not processed by another
+            // component.
             repaint();
         }
+
     }
 
     public void mouseMoved(MouseEvent e)
@@ -355,7 +342,7 @@ public class DragGlassPane extends JComponent
         // Somehow during a drag the button was released without us noticing;
         // cancel the drag now then. (I think this can happen when some other
         // window steals focus during a drag).
-        if(!forcedDrag && !e.isShiftDown() && ((e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK)==0) ) {
+        if (!forcedDrag && !e.isShiftDown() && ((e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) == 0)) {
             cancelDrag();
         }
     }
@@ -373,7 +360,6 @@ public class DragGlassPane extends JComponent
         if (destination != null && destination instanceof DropTarget) {
             DropTarget dropTarget = (DropTarget) destination;
             Point tp = e.getPoint().getLocation();
-            tp.translate(dragOffsetX, dragOffsetY);
             Point destinationPoint = SwingUtilities.convertPoint(e.getComponent(), tp, destination);
             Object tmpData = data;
             dropTarget.drop(tmpData, destinationPoint);
@@ -395,32 +381,32 @@ public class DragGlassPane extends JComponent
             glassPane = (Component) e.getSource();
         else
             glassPane = null;
-        
+
         int menuBarHeight = 0;
-        if(frame instanceof JFrame) {
+        if (frame instanceof JFrame) {
             JMenuBar menuBar = ((JFrame) frame).getJMenuBar();
-            if(menuBar != null) {
+            if (menuBar != null) {
                 menuBarHeight = menuBar.getHeight();
             }
         }
         Point glassPanePoint = e.getPoint();
         Container container = contentPane;
         Point containerPoint = SwingUtilities.convertPoint(glassPane, glassPanePoint, contentPane);
-        if (containerPoint.y < 0) { //we're not in the content pane
+        if (containerPoint.y < 0) { // we're not in the content pane
             if (containerPoint.y + menuBarHeight >= 0) {
-                //The mouse event is over the menu bar.
-                //Could handle specially.
+                // The mouse event is over the menu bar.
+                // Could handle specially.
             }
             else {
-                //The mouse event is over non-system window
-                //decorations, such as the ones provided by
-                //the Java look and feel.
-                //Could handle specially.
+                // The mouse event is over non-system window
+                // decorations, such as the ones provided by
+                // the Java look and feel.
+                // Could handle specially.
             }
         }
         else {
-            //The mouse event is probably over the content pane.
-            //Find out exactly which component it's over.
+            // The mouse event is probably over the content pane.
+            // Find out exactly which component it's over.
             Component destination = SwingUtilities.getDeepestComponentAt(container, containerPoint.x, containerPoint.y);
             return destination;
         }
@@ -429,29 +415,29 @@ public class DragGlassPane extends JComponent
 
     /**
      * Returns the RootPaneContainer from this components parent hierarchy.
+     * 
      * @param pane
      * @return
      */
     private RootPaneContainer getRootPaneContainer(Component pane)
     {
         Component c = pane;
-        while(c.getParent() != null && !(c instanceof RootPaneContainer)) {
+        while (c.getParent() != null && !(c instanceof RootPaneContainer)) {
             c = c.getParent();
         }
-        
+
         return (RootPaneContainer) c;
     }
 
     private void storePosition(MouseEvent e)
     {
         e = SwingUtilities.convertMouseEvent((Component) e.getSource(), e, this);
-        rect.x = e.getX() + dragOffsetX - dragImage.getWidth()/2;
-        rect.y = e.getY() + dragOffsetY - dragImage.getHeight()/2;
+        dragRect.x = (int) (e.getX() - dragRect.getWidth() / 2);
+        dragRect.y = (int) (e.getY() - dragRect.getHeight() / 2);
     }
 
     public void keyPressed(KeyEvent e)
-    {
-    }
+    {}
 
     public void keyReleased(KeyEvent e)
     {
@@ -459,6 +445,5 @@ public class DragGlassPane extends JComponent
     }
 
     public void keyTyped(KeyEvent e)
-    {
-    }
+    {}
 }
