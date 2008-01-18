@@ -32,7 +32,7 @@ import greenfoot.sound.SoundPlayer;
  * 
  * @author Davin McCall
  * @version 1.3.0
- * @cvs-version $Id: Greenfoot.java 5421 2007-12-13 15:43:03Z polle $
+ * @cvs-version $Id: Greenfoot.java 5463 2008-01-18 19:51:59Z polle $
  */
 public class Greenfoot
 {
@@ -185,7 +185,7 @@ public class Greenfoot
      * @param obj Typically one of Actor, World or null
      * @return True if the mouse has been pressed as explained above
      */
-    public static boolean isMousePressed(Object obj)
+    public static boolean mousePressed(Object obj)
     {
         return WorldHandler.getInstance().getMouseManager().isMousePressed(obj);
     }
@@ -203,7 +203,7 @@ public class Greenfoot
      * @param obj Typically one of Actor, World or null
      * @return True if the mouse has been clicked as explained above
      */
-    public static boolean isMouseClicked(Object obj)
+    public static boolean mouseClicked(Object obj)
     {
         return WorldHandler.getInstance().getMouseManager().isMouseClicked(obj);
     }
@@ -224,7 +224,7 @@ public class Greenfoot
      * @param obj Typically one of Actor, World or null
      * @return True if the mouse has been pressed as explained above
      */
-    public static boolean isMouseDragged(Object obj)
+    public static boolean mouseDragged(Object obj)
     {
         return WorldHandler.getInstance().getMouseManager().isMouseDragged(obj);
     }
@@ -245,7 +245,7 @@ public class Greenfoot
      * @param obj Typically one of Actor, World or null
      * @return True if the mouse has been pressed as explained above
      */
-    public static boolean isMouseDragEnded(Object obj)
+    public static boolean mouseDragEnded(Object obj)
     {
         return WorldHandler.getInstance().getMouseManager().isMouseDragEnded(obj);
     }
@@ -265,7 +265,7 @@ public class Greenfoot
      * @param obj Typically one of Actor, World or null
      * @return True if the mouse has been moved as explained above
      */
-    public static boolean isMouseMoved(Object obj)
+    public static boolean mouseMoved(Object obj)
     {
         return WorldHandler.getInstance().getMouseManager().isMouseMoved(obj);
     }
