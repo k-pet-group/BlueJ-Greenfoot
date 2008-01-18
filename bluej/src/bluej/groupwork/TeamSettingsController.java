@@ -4,8 +4,6 @@ import java.io.*;
 import java.util.*;
 
 import bluej.Config;
-import bluej.groupwork.cvsnb.BlueJAdminHandler;
-import bluej.groupwork.cvsnb.CvsRepository;
 import bluej.groupwork.ui.TeamSettingsDialog;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
@@ -18,7 +16,7 @@ import bluej.utility.filefilter.DirectoryFilter;
  * the top-level folder of a team project, and the bluej.properties
  *
  * @author fisker
- * @version $Id: TeamSettingsController.java 5456 2008-01-17 05:06:33Z davmac $
+ * @version $Id: TeamSettingsController.java 5459 2008-01-18 05:24:16Z davmac $
  */
 public class TeamSettingsController
 {
@@ -26,10 +24,8 @@ public class TeamSettingsController
     private File projectDir;
     private Properties teamProperties;
     private TeamSettingsDialog teamSettingsDialog;
-    private BlueJAdminHandler adminHandler;
     
     //general
-    //private String user;
     private String password;
 
     private File teamdefs;
@@ -70,7 +66,6 @@ public class TeamSettingsController
         project = proj;
         projectDir = proj.getProjectDir();
         repository = null;
-        adminHandler = null;
         checkTeamSettingsDialog();
     }
     
@@ -81,10 +76,19 @@ public class TeamSettingsController
     public Repository getRepository()
     {
         if (repository == null) {
-            String cvsroot = getCvsRoot();
-            if (cvsroot != null) {
-                repository = new CvsRepository(projectDir, cvsroot, getAdminHandler());
+            
+            if (password == null) {
+                // If we don't yet know the password, prompt the user
+                getTeamSettingsDialog().doTeamSettings();
+                
+                // If we still don't know it, user cancelled
+                if (password == null) {
+                    return null;
+                }
             }
+            
+            TeamSettings settings = teamSettingsDialog.getSettings();
+            repository = settings.getProvider().getRepository(projectDir, settings);
         }
         
         return repository;
@@ -115,7 +119,8 @@ public class TeamSettingsController
                 File dir = (File) stack.remove(0);
                 File [] subDirs = dir.listFiles(new DirectoryFilter());
                 for (int i = 0; i < subDirs.length; i++) {
-                    if (! subDirs[i].getName().equals("CVS")) {
+                    FileFilter reposFilter = repository.getMetadataFilter();
+                    if (reposFilter.accept(subDirs[i])) {
                         stack.add(subDirs[i]);
                     }
                 }
@@ -198,24 +203,12 @@ public class TeamSettingsController
     }
 
     /**
-     * Lazily construct an AdminHandler for the repository/project.
-     */
-    private BlueJAdminHandler getAdminHandler()
-    {
-        if (adminHandler == null) {
-            adminHandler = new BlueJAdminHandler(projectDir);
-        }
-        return adminHandler;
-    }
-    
-    /**
      * Prepare for the deletion of a directory. For CVS, this involves moving
      * the metadata elsewhere.
      */
     public void prepareDeleteDir(File dir)
     {
-        BlueJAdminHandler adminHandler = getAdminHandler();
-        adminHandler.prepareDeleteDir(dir);
+        getRepository().prepareDeleteDir(dir);
     }
     
     /**
@@ -223,46 +216,7 @@ public class TeamSettingsController
      */
     public void prepareCreateDir(File dir)
     {
-        BlueJAdminHandler adminHandler = getAdminHandler();
-        adminHandler.prepareCreateDir(dir);
-    }
-    
-    public String getCvsRoot()
-    {
-        if (password == null) {
-            // If we don't yet know the password, prompt the user
-            getTeamSettingsDialog().doTeamSettings();
-            
-            // If we still don't know it, user cancelled
-            if (password == null) {
-                return null;
-            }
-        }
-
-        String protocol = getPropString("bluej.teamsettings.cvs.protocol");
-        String user = getPropString("bluej.teamsettings.user");
-
-        String server = getPropString("bluej.teamsettings.cvs.server");
-        String repositoryPrefix = getPropString(
-                "bluej.teamsettings.cvs.repositoryPrefix");
-        
-        String groupname = getPropString("bluej.teamsettings.groupname");
-
-        if (! repositoryPrefix.endsWith("/") && groupname.length() != 0) {
-            // There must be a slash between the repository prefix and the
-            // group name, if there is a group name
-            repositoryPrefix = repositoryPrefix + "/";
-        }
-        else if (repositoryPrefix.endsWith("/") && groupname.length() == 0) {
-            // The final repository prefix should not have a trailing slash
-            int nlen = repositoryPrefix.length();
-            repositoryPrefix = repositoryPrefix.substring(0, nlen - 1);
-        }
-        
-        String cvsRoot = ":" + protocol + ":" + user + ":" + password + "@" +
-            server + ":" + repositoryPrefix + groupname;
-
-        return cvsRoot;
+        getRepository().prepareCreateDir(dir);
     }
 
     /**
@@ -384,7 +338,7 @@ public class TeamSettingsController
     }
 
     /**
-     * gets the regular expressions in string form for the files we shoule ignore
+     * gets the regular expressions in string form for the files we should ignore
      * @return List containing Strings
      */
     public List getIgnoreFiles()

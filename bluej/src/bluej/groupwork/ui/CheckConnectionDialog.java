@@ -10,6 +10,7 @@ import javax.swing.JLabel;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamworkProvider;
 import bluej.utility.DBox;
 import bluej.utility.EscapeDialog;
@@ -26,27 +27,17 @@ public class CheckConnectionDialog extends EscapeDialog
     private JLabel connLabel;
     private JButton closeButton;
     
+    private TeamSettings settings;
     private TeamworkProvider provider;
-    private String protocol;
-    private String server;
-    private String prefix;
-    private String group;
-    private String userName;
-    private String password;
     
-    public CheckConnectionDialog(Dialog owner, TeamworkProvider provider, String protocol,
-            String server, String prefix, String group, String userName, String password)
+    public CheckConnectionDialog(Dialog owner, TeamworkProvider provider,
+            TeamSettings settings)
     {
         super(owner, true);
         setTitle(Config.getString("team.settings.checkConnection"));
         
         this.provider = provider;
-        this.protocol = protocol;
-        this.server = server;
-        this.prefix = prefix;
-        this.group = group;
-        this.userName = userName;
-        this.password = password;
+        this.settings = settings;
         
         buildUI();
         setLocationRelativeTo(owner);
@@ -109,7 +100,6 @@ public class CheckConnectionDialog extends EscapeDialog
     
     private boolean validateConnection()
     {
-        return provider.checkConnection(protocol, server, prefix,
-                group, userName, password);
+        return provider.checkConnection(settings);
     }   
 }

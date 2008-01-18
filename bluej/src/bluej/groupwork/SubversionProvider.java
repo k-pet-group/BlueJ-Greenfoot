@@ -1,5 +1,7 @@
 package bluej.groupwork;
 
+import java.io.File;
+
 /**
  * Teamwork provider for Subversion.
  * 
@@ -12,8 +14,7 @@ public class SubversionProvider implements TeamworkProvider
         return "Subversion";
     }
     
-    public boolean checkConnection(String protocol, String server, String prefix, String group, String userName,
-            String password)
+    public boolean checkConnection(TeamSettings settings)
     {
         // TODO Auto-generated method stub
         return false;
@@ -32,5 +33,11 @@ public class SubversionProvider implements TeamworkProvider
     public String getProtocolLabel(String protocolKey)
     {
         return protocolKey;
+    }
+    
+    public Repository getRepository(File projectDir, TeamSettings settings)
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

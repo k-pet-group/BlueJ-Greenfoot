@@ -1,8 +1,11 @@
 package bluej.groupwork;
 
+import java.io.File;
+
 import org.netbeans.lib.cvsclient.CVSRoot;
 
 import bluej.Config;
+import bluej.groupwork.cvsnb.BlueJAdminHandler;
 import bluej.groupwork.cvsnb.CvsRepository;
 
 /**
@@ -24,9 +27,21 @@ public class CvsProvider
         return "CVS";
     }
     
-    public boolean checkConnection(String protocol, String server, String prefix, String group, String userName,
-            String password)
+    public boolean checkConnection(TeamSettings settings)
     {
+        String cvsRoot = makeCvsRoot(settings);
+        return CvsRepository.validateConnection(cvsRoot);
+    }
+    
+    protected String makeCvsRoot(TeamSettings settings)
+    {
+        String protocol = settings.getProtocol();
+        String userName = settings.getUserName();
+        String password = settings.getPassword();
+        String server = settings.getServer();
+        String prefix = settings.getPrefix();
+        String group = settings.getGroup();
+        
         String cvsRoot = ":" + protocol + ":" + userName + ":" + password + "@" +
             server + ":" + prefix;
         if (group != null && group.length() != 0) {
@@ -35,8 +50,12 @@ public class CvsProvider
             }
             cvsRoot += group;
         }
+        else if (cvsRoot.endsWith("/")) {
+            // Repository path should not end with '/'
+            cvsRoot = cvsRoot.substring(0, cvsRoot.length() - 1);
+        }
         
-        return CvsRepository.validateConnection(cvsRoot);
+        return cvsRoot;
     }
 
     public String[] getProtocols()
@@ -55,4 +74,12 @@ public class CvsProvider
         while (!protocolKeys[i].equals(protocolKey)) i++;
         return protocols[i];
     }
+    
+    public Repository getRepository(File projectDir, TeamSettings settings)
+    {
+        String cvsRoot = makeCvsRoot(settings);
+        BlueJAdminHandler adminHandler = new BlueJAdminHandler(projectDir);
+        return new CvsRepository(projectDir, cvsRoot, adminHandler);
+    }
+    
 }

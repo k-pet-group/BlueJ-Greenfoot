@@ -1,5 +1,7 @@
 package bluej.groupwork;
 
+import java.io.File;
+
 /**
  * An interface for teamwork providers - CVS, Subversion
  * 
@@ -33,16 +35,11 @@ public interface TeamworkProvider
     /**
      * Check that supplied information can be used to connect to a repository.
      * This might take some time to execute.
-     * 
-     * @param protocol  The protocol to use (an index into the array from getProtocols())
-     * @param server    The server/host
-     * @param prefix    The repository path (minus group part)
-     * @param group     The group to which the user belongs, should be appended to
-     *                  repository prefix to form complete repository path
-     * @param userName  The username to connect with
-     * @param password  The password to connect with
-     * @return
      */
-    public boolean checkConnection(String protocol, String server, String prefix,
-            String group, String userName, String password);
+    public boolean checkConnection(TeamSettings settings);
+    
+    /**
+     * Get a repository from the given settings
+     */
+    public Repository getRepository(File projectDir, TeamSettings settings);
 }

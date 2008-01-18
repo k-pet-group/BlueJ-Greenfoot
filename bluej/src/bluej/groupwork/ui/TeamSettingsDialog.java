@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamSettingsController;
 import bluej.utility.EscapeDialog;
 
@@ -18,7 +19,7 @@ import bluej.utility.EscapeDialog;
  *
  * @author fisker
  * @author bquig
- * @version $Id: TeamSettingsDialog.java 5456 2008-01-17 05:06:33Z davmac $
+ * @version $Id: TeamSettingsDialog.java 5459 2008-01-18 05:24:16Z davmac $
  */
 public class TeamSettingsDialog extends EscapeDialog
 {
@@ -80,35 +81,37 @@ public class TeamSettingsDialog extends EscapeDialog
                      */
                     public void actionPerformed(ActionEvent e)
                     {
+                        TeamSettings settings = teamSettingsPanel.getSettings();
+                        
                         String userKey = "bluej.teamsettings.user";
-                        String userValue = teamSettingsPanel.getUser();
+                        String userValue = settings.getUserName();
                         teamSettingsController.setPropString(userKey, userValue);
 
                         // passwords are handled differently for security reasons,
                         // we don't at present store them on disk
-                        String passValue = teamSettingsPanel.getPassword();
+                        String passValue = settings.getPassword();
                         teamSettingsController.setPasswordString(passValue);
 
                         String keyBase = "bluej.teamsettings."
                                 + teamSettingsPanel.getSelectedProvider().getProviderName().toLowerCase()
                                 + ".";
                         String serverKey = keyBase + "server";
-                        String serverValue = teamSettingsPanel.getServer();
+                        String serverValue = settings.getServer();
                         teamSettingsController.setPropString(serverKey,
                             serverValue);
 
                         String prefixKey = keyBase + "repositoryPrefix";
-                        String prefixValue = teamSettingsPanel.getPrefix();
+                        String prefixValue = settings.getPrefix();
                         teamSettingsController.setPropString(prefixKey,
                             prefixValue);
 
                         String protocolKey = keyBase + "protocol";
-                        String protocolValue = teamSettingsPanel.getProtocolKey();
+                        String protocolValue = settings.getProtocol();
                         teamSettingsController.setPropString(protocolKey,
                             protocolValue);
 
                         String groupKey = "bluej.teamsettings.groupname";
-                        String groupValue = teamSettingsPanel.getGroup();
+                        String groupValue = settings.getGroup();
                         teamSettingsController.setPropString(groupKey,
                             groupValue);
 
@@ -180,5 +183,13 @@ public class TeamSettingsDialog extends EscapeDialog
     public void setOkButtonEnabled(boolean enabled)
     {
         okButton.setEnabled(enabled);
+    }
+    
+    /**
+     * Get the settings specified by the user
+     */
+    public TeamSettings getSettings()
+    {
+        return teamSettingsPanel.getSettings();
     }
 }

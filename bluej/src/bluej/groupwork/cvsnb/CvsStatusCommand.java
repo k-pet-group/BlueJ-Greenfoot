@@ -121,6 +121,8 @@ public class CvsStatusCommand extends CvsCommand
             }
             
             if (fstatus == FileStatus.NEEDS_CHECKOUT) {
+                // For deleted files, CVS returns NEEDS_CHECKOUT because
+                // we haven't executed "cvs remove" yet.
                 if (workingRev.length() > 0) {
                     String reposRev = sinfo.getRepositoryRevision();
                     if (workingRev.equals(reposRev)) {

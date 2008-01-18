@@ -14,6 +14,7 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.groupwork.CvsProvider;
 import bluej.groupwork.SubversionProvider;
+import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.actions.ValidateConnectionAction;
@@ -23,7 +24,7 @@ import bluej.groupwork.actions.ValidateConnectionAction;
  * A panel for team settings.
  * 
  * @author fisker
- * @version $Id: TeamSettingsPanel.java 5456 2008-01-17 05:06:33Z davmac $
+ * @version $Id: TeamSettingsPanel.java 5459 2008-01-18 05:24:16Z davmac $
  */
 public class TeamSettingsPanel extends JPanel 
 {
@@ -41,15 +42,15 @@ public class TeamSettingsPanel extends JPanel
         teamProviders.add(new SubversionProvider());
     }
     
-    JTextField userField;
-    JPasswordField passwordField;
-    JTextField groupField;
-    JTextField prefixField;
-    JComboBox serverTypeComboBox;
-    JTextField serverField;
-    JComboBox protocolComboBox;
-    JButton validateButton;
-    JCheckBox useAsDefault;
+    private JTextField userField;
+    private JPasswordField passwordField;
+    private JTextField groupField;
+    private JTextField prefixField;
+    private JComboBox serverTypeComboBox;
+    private JTextField serverField;
+    private JComboBox protocolComboBox;
+    private JButton validateButton;
+    private JCheckBox useAsDefault;
     
     private JLabel serverTypeLabel;
     private JLabel groupLabel;
@@ -260,11 +261,11 @@ public class TeamSettingsPanel extends JPanel
     private void setupContent()
     {
         String user = teamSettingsController.getPropString("bluej.teamsettings.user");
-        if (user != null){
+        if (user != null) {
             setUser(user);
         }
         String password = teamSettingsController.getPasswordString();
-        if (password != null){
+        if (password != null) {
             setPassword(password);
         }
         String group = teamSettingsController.getPropString("bluej.teamsettings.groupname");
@@ -362,37 +363,32 @@ public class TeamSettingsPanel extends JPanel
         return provider;
     }
     
-    public String getUser()
+    private String getUser()
     {
         return userField.getText();
     }
     
-    public String getPassword()
+    private String getPassword()
     {
         return new String(passwordField.getPassword());
     }
     
-    public String getGroup()
+    private String getGroup()
     {
         return groupField.getText();
     }
     
-    public String getPrefix()
+    private String getPrefix()
     {
         return prefixField.getText();
     }
     
-    public String getServer()
+    private String getServer()
     {
         return serverField.getText();
     }
     
-    public String getProtocol()
-    {
-        return (String) protocolComboBox.getSelectedItem();
-    }
-    
-    public String getProtocolKey()
+    private String getProtocolKey()
     {
         int protocol = protocolComboBox.getSelectedIndex();
         return getSelectedProvider().getProtocolKey(protocol);
@@ -403,4 +399,9 @@ public class TeamSettingsPanel extends JPanel
         return useAsDefault.isSelected();
     }
     
+    public TeamSettings getSettings()
+    {
+        return new TeamSettings(getSelectedProvider(), getProtocolKey(),
+                getServer(), getPrefix(), getGroup(), getUser(), getPassword());
+    }
 }

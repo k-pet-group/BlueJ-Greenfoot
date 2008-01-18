@@ -7,7 +7,7 @@ import java.io.File;
  * Team status information for a file
  * 
  * @author Davin McCall
- * @version $Id: TeamStatusInfo.java 5159 2007-08-17 03:27:38Z davmac $
+ * @version $Id: TeamStatusInfo.java 5459 2008-01-18 05:24:16Z davmac $
  */
 public class TeamStatusInfo
 {
@@ -33,11 +33,7 @@ public class TeamStatusInfo
     /** The file exists locally, but has been removed in the repository */
     public final static int STATUS_REMOVED = 7;
     /**
-     * An unresolved conflict. This can happen when either:<ul>
-     * <li>the file has been removed from the repository, but local changes have been made
-     * <li>the file has been locally removed, but modified in the repository
-     * <li>a file has been locally added, but has been added to the repository by someone
-     *   else
+     * An unresolved conflict. This can happen when:<ul>
      * <li>when two binary files have been modified maybe?
      * </ul><p> 
      * 

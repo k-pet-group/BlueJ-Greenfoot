@@ -1,6 +1,7 @@
 package bluej.groupwork.cvsnb;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.*;
 
@@ -35,7 +36,7 @@ import bluej.utility.Debug;
  * This class handles communication with the repository.
  *
  * @author fisker
- * @version $Id: CvsRepository.java 5375 2007-11-06 05:56:01Z davmac $
+ * @version $Id: CvsRepository.java 5459 2008-01-18 05:24:16Z davmac $
  */
 public class CvsRepository implements Repository
 {
@@ -944,5 +945,36 @@ public class CvsRepository implements Repository
     String getRepositoryRoot()
     {
         return cvsroot.getRepository();
+    }
+    
+    /**
+     * Prepare for the deletion of a directory. For CVS, this involves moving
+     * the metadata elsewhere.
+     */
+    public void prepareDeleteDir(File dir)
+    {
+        adminHandler.prepareDeleteDir(dir);
+    }
+    
+    /**
+     * Prepare a newly created directory for version control.
+     */
+    public void prepareCreateDir(File dir)
+    {
+        adminHandler.prepareCreateDir(dir);
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see bluej.groupwork.Repository#getMetadataFilter()
+     */
+    public FileFilter getMetadataFilter()
+    {
+        return new FileFilter() {
+            public boolean accept(File pathname)
+            {
+                return ! pathname.getName().equals("CVS"); 
+            }
+        };
     }
 }

@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
+import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.ui.CheckConnectionDialog;
 import bluej.groupwork.ui.TeamSettingsPanel;
@@ -33,15 +34,8 @@ public class ValidateConnectionAction extends AbstractAction
     public void actionPerformed(ActionEvent e)
     {
         TeamworkProvider provider = teamSettingsPanel.getSelectedProvider();
+        TeamSettings settings = teamSettingsPanel.getSettings();
         
-        String protocol = teamSettingsPanel.getProtocolKey();
-        String server = teamSettingsPanel.getServer();
-        String prefix = teamSettingsPanel.getPrefix();
-        String group = teamSettingsPanel.getGroup();
-        String username = teamSettingsPanel.getUser();
-        String password = teamSettingsPanel.getPassword();
-        
-        new CheckConnectionDialog(owner, provider,
-                protocol, server, prefix, group, username, password).setVisible(true);
+        new CheckConnectionDialog(owner, provider, settings).setVisible(true);
     }
 }

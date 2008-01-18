@@ -1,6 +1,7 @@
 package bluej.groupwork;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -90,4 +91,21 @@ public interface Repository
      * revision, user, and comment.
      */
     public TeamworkCommand getLogHistory(LogHistoryListener listener);
+    
+    /**
+     * Prepare for the deletion of a directory. For CVS, this involves moving
+     * the metadata elsewhere.
+     */
+    public void prepareDeleteDir(File dir);
+    
+    /**
+     * Prepare a newly created directory for version control.
+     */
+    public void prepareCreateDir(File dir);
+    
+    /**
+     * Get a filter which can filter out directories/files that comprise metadata
+     * or other housekeeping information in the working copy
+     */
+    public FileFilter getMetadataFilter();
 }
