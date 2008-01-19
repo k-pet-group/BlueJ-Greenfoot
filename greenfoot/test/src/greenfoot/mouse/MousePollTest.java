@@ -151,9 +151,9 @@ public class MousePollTest extends TestCase
         MouseInfo mouseInfo = mouseMan.getMouseInfo();
         assertTrue(mouseInfo.getButton() == 1);
 
-        // After new act it should still longer be clicked
+        // After new act it should not be clicked because we already checked it.
         mouseMan.newActStarted();
-        assertTrue(mouseMan.isMouseClicked(actorAtClick));
+        assertFalse(mouseMan.isMouseClicked(actorAtClick));
     }
     
     /**
@@ -174,9 +174,9 @@ public class MousePollTest extends TestCase
         MouseInfo mouseInfo = mouseMan.getMouseInfo();
         assertTrue(mouseInfo.getButton() == 1);      
         
-        // After new act it should still be pressed
+        // After new act it should not be pressed because we already checked it.
         mouseMan.newActStarted();
-        assertTrue(mouseMan.isMousePressed(actorAtClick));        
+        assertFalse(mouseMan.isMousePressed(actorAtClick));        
     }
     
     
@@ -211,8 +211,8 @@ public class MousePollTest extends TestCase
         
         /// New act round where nothing happens
         mouseMan.newActStarted();        
-        assertTrue(mouseMan.isMousePressed(actorAtClick));
-        assertNotNull(mouseMan.getMouseInfo());
+        assertFalse(mouseMan.isMousePressed(actorAtClick));
+        assertNull(mouseMan.getMouseInfo());
         
         /// New act round where we drag a bit
         mouseMan.newActStarted();
@@ -236,8 +236,8 @@ public class MousePollTest extends TestCase
         /// New act round where nothing happens
         mouseMan.newActStarted();
         assertFalse(mouseMan.isMousePressed(actorAtClick));
-        assertTrue(mouseMan.isMouseDragged(actorAtClick));
-        assertNotNull(mouseMan.getMouseInfo());
+        assertFalse(mouseMan.isMouseDragged(actorAtClick));
+        assertNull(mouseMan.getMouseInfo());
         
         // New act round where the drag is ended
         mouseMan.newActStarted();
@@ -265,7 +265,7 @@ public class MousePollTest extends TestCase
         assertFalse(mouseMan.isMouseMoved(world));     
         
         mouseMan.newActStarted();
-        assertTrue(mouseMan.isMouseMoved(actorAtClick));  
+        assertFalse(mouseMan.isMouseMoved(actorAtClick));  
         mouseMan.newActStarted();
         event = new MouseEvent(panel, MouseEvent.MOUSE_MOVED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);        
         dispatch(event);             
@@ -569,5 +569,25 @@ public class MousePollTest extends TestCase
         assertFalse(mouseMan.isMouseDragged(actorAtClick));
         assertFalse(mouseMan.isMouseClicked(actorAtClick));
         assertFalse(mouseMan.isMouseDragEnded(actorAtClick));       
+    }
+    
+    public void testOnlyKeepDataTillFirstClick() {
+        mouseMan.newActStarted();
+        
+        MouseEvent event = new MouseEvent(panel, MouseEvent.MOUSE_MOVED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);    
+        event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
+        dispatch(event); 
+        event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);
+        event = new MouseEvent(panel, MouseEvent.MOUSE_CLICKED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);  
+
+        mouseMan.newActStarted();
+        mouseMan.newActStarted();
+        
+        assertTrue(mouseMan.isMouseClicked(actorAtClick));
+        mouseMan.newActStarted();                
+        assertFalse(mouseMan.isMouseClicked(actorAtClick));        
     }
 }
