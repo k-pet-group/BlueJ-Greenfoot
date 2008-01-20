@@ -10,19 +10,21 @@ import greenfoot.gui.classbrowser.role.ImageClassRole;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.IOException;
 import java.rmi.RemoteException;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 
 import bluej.extensions.ProjectNotOpenException;
+import bluej.utility.Debug;
 import bluej.utility.FileUtility;
 
 /**
  * Action to select an image for a class.
  * 
  * @author Davin McCall
- * @version $Id: SelectImageAction.java 5284 2007-10-04 04:09:40Z bquig $
+ * @version $Id: SelectImageAction.java 5466 2008-01-20 22:19:30Z polle $
  */
 public class SelectImageAction extends AbstractAction
 {
@@ -58,8 +60,14 @@ public class SelectImageAction extends AbstractAction
                     // An image was selected from an external dir. We need
                     // to copy it into the project images directory first.
                     File destFile = new File(projImagesDir, imageFile.getName());
-                    FileUtility.copyFile(imageFile, destFile);
-                    imageFile = destFile;
+                    try {
+                        FileUtility.copyFile(imageFile, destFile);
+                        imageFile = destFile;
+                        return;
+                    }
+                    catch (IOException e) {
+                        Debug.reportError("Error when copying file: " + imageFile + " to: " + destFile, e);
+                    }
                 }
                 
                 GClass gclass = classView.getGClass();

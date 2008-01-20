@@ -382,7 +382,13 @@ public class JarCreator
     {
         for (Iterator it = userLibs.iterator(); it.hasNext();) {
             File lib = (File) it.next();
-            FileUtility.copyFile(lib, new File(destDir, lib.getName()));
+            File destFile = new File(destDir, lib.getName());
+            try {
+                FileUtility.copyFile(lib, destFile);
+            }
+            catch (IOException e) {
+                Debug.reportError("Error when copying file: " + lib + " to: " + destFile, e);               
+            }
         }
     }
 
