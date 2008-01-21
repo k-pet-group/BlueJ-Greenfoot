@@ -94,10 +94,10 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main frame for a Greenfoot project (one per project)
  * 
- * @author Poul Henriksen <polle@mip.sdu.dk>
+ * @author Poul Henriksen
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5457 2008-01-17 12:22:42Z polle $
+ * @version $Id: GreenfootFrame.java 5469 2008-01-21 19:23:16Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener,
@@ -196,6 +196,8 @@ public class GreenfootFrame extends JFrame
         prepareMacOSApp();
         
         setVisible(true);
+        worldCanvas.requestFocusInWindow();
+        worldCanvas.requestFocus();
     }
     
     /**
@@ -386,9 +388,11 @@ public class GreenfootFrame extends JFrame
         sim.addSimulationListener(SoundPlayer.getInstance());
         
         JPanel canvasPanel = new JPanel(new CenterLayout());
+        
         canvasPanel.add(worldCanvas, BorderLayout.CENTER);
         JScrollPane worldScrollPane = new JScrollPane(canvasPanel);
         worldScrollPane.setOpaque(false);
+        // Why are these not opaque? Maybe they have to be on some platforms? looks fine on Mac OS X Leopard.
         worldScrollPane.getViewport().setOpaque(false);
         worldScrollPane.setBorder(null);
         
@@ -410,7 +414,7 @@ public class GreenfootFrame extends JFrame
         
         JPanel eastPanel = new JPanel(new BorderLayout(12, 12));
 
-        JButton readMeButton = new JButton(showReadMeAction); 
+        JButton readMeButton = GreenfootUtil.createButton(showReadMeAction); 
         readMeButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource(readMeIconFile)));
         eastPanel.add(readMeButton, BorderLayout.NORTH);
         
@@ -424,7 +428,8 @@ public class GreenfootFrame extends JFrame
 
         // the compile button at the bottom
         
-        JButton button = new JButton(compileAllAction);
+        JButton button = GreenfootUtil.createButton(compileAllAction);
+        button.setFocusable(false);
         // set the icon image: currently empty, but used to force same button look as readme button
         button.setIcon(new ImageIcon(getClass().getClassLoader().getResource(compileIconFile)));
         eastPanel.add(button, BorderLayout.SOUTH);
@@ -439,7 +444,6 @@ public class GreenfootFrame extends JFrame
         contentPane.add(centrePanel, BorderLayout.CENTER);
         contentPane.add(eastPanel, BorderLayout.EAST);
 
-        GreenfootUtil.setupFocusTraversalPolicy(worldCanvas, this);
         pack();
         worldDimensions = worldCanvas.getPreferredSize();        
     }

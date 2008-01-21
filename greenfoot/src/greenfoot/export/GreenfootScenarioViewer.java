@@ -207,8 +207,6 @@ public class GreenfootScenarioViewer extends JApplet
 
             canvas = new WorldCanvas(null);
             
-            GreenfootUtil.setupFocusTraversalPolicy(canvas, this);
-            
             WorldHandler.initialise(canvas, new WorldHandlerDelegateStandAlone(this));
             WorldHandler worldHandler = WorldHandler.getInstance();
             Simulation.initialize(worldHandler);

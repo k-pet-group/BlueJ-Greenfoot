@@ -36,7 +36,7 @@ import bluej.utility.Utility;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 5269 2007-10-04 02:02:36Z davmac $
+ * @version $Id: ClassView.java 5469 2008-01-21 19:23:16Z polle $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -83,6 +83,11 @@ public class ClassView extends JToggleButton
         this.coreClass = coreClass;
         this.classBrowser = classBrowser;
         init(gClass);
+    }
+    
+    public boolean isFocusable() 
+    {
+        return false;
     }
     
     /**

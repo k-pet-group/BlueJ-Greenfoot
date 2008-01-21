@@ -8,6 +8,7 @@ import greenfoot.actions.RunSimulationAction;
 import greenfoot.core.Simulation;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
+import greenfoot.util.GreenfootUtil;
 
 import java.awt.CardLayout;
 import java.awt.FlowLayout;
@@ -29,7 +30,7 @@ import javax.swing.event.EventListenerList;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 5200 2007-09-24 05:51:50Z bquig $
+ * @version $Id: ControlPanel.java 5469 2008-01-21 19:23:16Z polle $
  */
 public class ControlPanel extends Box
     implements ChangeListener, SimulationListener
@@ -80,7 +81,7 @@ public class ControlPanel extends Box
             runOnceSimulationAction.putValue(Action.SHORT_DESCRIPTION, 
                 Config.getString("controls.runonce.shortDescription"));
             runOnceSimulationAction.setEnabled(false);
-            AbstractButton stepButton = new JButton(runOnceSimulationAction);
+            AbstractButton stepButton = GreenfootUtil.createButton(runOnceSimulationAction);
 
             buttonPanel.add(stepButton);
         }
@@ -92,7 +93,7 @@ public class ControlPanel extends Box
         runSimulationAction.putValue(Action.SHORT_DESCRIPTION, 
             Config.getString("controls.run.shortDescription"));
         runSimulationAction.setEnabled(false);
-        JButton runButton = new JButton(runSimulationAction);
+        JButton runButton = GreenfootUtil.createButton(runSimulationAction);
         runButton.setFocusable(false);
 
         pauseSimulationAction = PauseSimulationAction.getInstance();
@@ -102,7 +103,7 @@ public class ControlPanel extends Box
         pauseSimulationAction.putValue(Action.SHORT_DESCRIPTION, 
             Config.getString("controls.pause.shortDescription"));
         pauseSimulationAction.setEnabled(false);
-        JButton pauseButton = new JButton(pauseSimulationAction);
+        JButton pauseButton = GreenfootUtil.createButton(pauseSimulationAction);
         pauseButton.setFocusable(false);
         
         runpauseLayout = new CardLayout();
@@ -122,7 +123,7 @@ public class ControlPanel extends Box
         resetWorldAction.putValue(Action.SHORT_DESCRIPTION, Config.getString("controls.reset.shortDescription"));
         resetWorldAction.attachSimulation(simulation);
         resetWorldAction.setEnabled(false);
-        AbstractButton resetButton = new JButton(resetWorldAction);
+        AbstractButton resetButton = GreenfootUtil.createButton(resetWorldAction);
         resetButton.setFocusable(false);
         buttonPanel.add(resetButton);
         
