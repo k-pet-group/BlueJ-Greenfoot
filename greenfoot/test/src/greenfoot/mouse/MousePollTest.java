@@ -712,14 +712,6 @@ public class MousePollTest extends TestCase
         assertTrue(mouseMan.isMouseClicked(null));    
         assertTrue(mouseMan.isMousePressed(null));   
        
-        // The test fails in the following line, because "pressed" has lower
-        // priority than dragEnded and is therefore not updated when the 2nd
-        // MOUSE_PRESSED event is send.
-        
-        // Don't know if this matters too much.
-        
-        // The correct solution would be to only update press&click when a new
-        // drag has happened. But that means keeping lots of extra info.
         assertTrue(mouseMan.isMousePressed(world));
         assertTrue(mouseMan.isMouseDragEnded(world));
         assertFalse(mouseMan.isMouseClicked(world));          

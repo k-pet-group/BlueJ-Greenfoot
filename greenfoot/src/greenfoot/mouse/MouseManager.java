@@ -71,7 +71,15 @@ public class MouseManager implements MouseListener, MouseMotionListener
      * become the current.
      */
     private MouseEventData futureData = new MouseEventData();
-
+	
+	/**
+     * Used to collect data if we already have a highest priority dragEnded
+     * collected. We need this in order to collect data for a potential new
+     * dragEnd since we want to report the latest dragEnd in case there are more
+     * than one.
+     */
+    private MouseEventData potentialNewDragData = new MouseEventData();
+    
     /**
      * Locates the actors in the world
      */
@@ -139,6 +147,8 @@ public class MouseManager implements MouseListener, MouseMotionListener
             
             currentData = futureData;
             futureData = newData;
+            
+            potentialNewDragData = new MouseEventData();
             
             // Indicate that we have processed all current events.
             gotNewEvent = false;
@@ -276,13 +286,19 @@ public class MouseManager implements MouseListener, MouseMotionListener
     public void mouseClicked(MouseEvent e)
     {
         synchronized (futureData) {
-            if(! PriorityManager.isHigherPriority(e, futureData)) return;
+            MouseEventData mouseData = futureData;
+            // In case we already have a dragEnded and we get another
+            // dragEnded, we need to start collection data for that.            
+            if (futureData.isMouseDragEnded(null)) {
+                mouseData = potentialNewDragData;
+            }
+            if(! PriorityManager.isHigherPriority(e, mouseData)) return;
             registerEventRecieved();
             Actor actor = locator.getTopMostActorAt(e);
             int x = locator.getTranslatedX(e);
             int y = locator.getTranslatedY(e);
             int button = e.getButton();
-            futureData.mouseClicked(x, y, button, actor);
+            mouseData.mouseClicked(x, y, button, actor);
             isDragging = false;
         }
     }
@@ -298,6 +314,13 @@ public class MouseManager implements MouseListener, MouseMotionListener
     public void mousePressed(MouseEvent e)
     {
         synchronized(futureData) {
+            MouseEventData mouseData = futureData;
+            // In case we already have a dragEnded and we get another
+            // dragEnded, we need to start collection data for that.
+            if (futureData.isMouseDragEnded(null)) {
+                mouseData = potentialNewDragData;
+            }
+        
             // This might be the beginning of a drag so we store it
             dragStartData = new MouseEventData();
             Actor actor = locator.getTopMostActorAt(e);
@@ -307,9 +330,9 @@ public class MouseManager implements MouseListener, MouseMotionListener
             dragStartData.mousePressed(x, y, button, actor);            
 
             // We only really want to register this event as a press if there is no higher priorities
-            if(! PriorityManager.isHigherPriority(e, futureData)) return;
+            if(! PriorityManager.isHigherPriority(e, mouseData)) return;
             registerEventRecieved();
-            futureData.mousePressed(x, y, button, actor);
+            mouseData.mousePressed(x, y, button, actor);
             isDragging = false;
         }
     }
@@ -319,6 +342,12 @@ public class MouseManager implements MouseListener, MouseMotionListener
         synchronized(futureData) {
             // This might be the end of a drag
             if(isDragging) {
+                // In case we already have a dragEnded and we get another
+                // dragEnded, should use the new one
+                if (futureData.isMouseDragEnded(null)) {
+                    futureData = potentialNewDragData;
+                }
+                
                 if(! PriorityManager.isHigherPriority(e, futureData)) return;
                 registerEventRecieved();
                 int x = locator.getTranslatedX(e);
@@ -331,6 +360,7 @@ public class MouseManager implements MouseListener, MouseMotionListener
                 Actor actor = dragStartData.getActor();
                 futureData.mouseDragEnded(x, y, button, actor);
                 isDragging = false;
+                potentialNewDragData = new MouseEventData();
             }
         }
     }
