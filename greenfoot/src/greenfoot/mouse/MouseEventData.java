@@ -4,6 +4,7 @@ package greenfoot.mouse;
 import greenfoot.Actor;
 import greenfoot.MouseInfo;
 import greenfoot.MouseInfoVisitor;
+import greenfoot.World;
 
 
 /**
@@ -15,23 +16,23 @@ import greenfoot.MouseInfoVisitor;
  */
 class MouseEventData {
     private MouseInfo mouseInfo;
-    private boolean mousePressed;
-    private boolean mouseClicked;
-    private boolean mouseDragged;
-    private boolean mouseDragEnded;
-    private boolean mouseMoved;
     
+    // We need to hold the data for each individual action that might have
+    // happened, because what to report depends on what we are interested in,
+    // with relation to the actor, world or globally.
+    private MouseInfo mouseDragEndedInfo;
+    private MouseInfo mouseClickedInfo;
+    private MouseInfo mousePressedInfo;
+    private MouseInfo mouseDraggedInfo;
+    private MouseInfo mouseMovedInfo;    
 
     private void init()
     {
-        mousePressed = false;
-        mouseClicked = false;
-        mouseDragged = false;
-        mouseDragEnded = false;
-        mouseMoved = false;
-        if (mouseInfo == null) {
-            mouseInfo = new MouseInfo();
-        }
+        mousePressedInfo = null;
+        mouseClickedInfo = null;
+        mouseDraggedInfo = null;
+        mouseDragEndedInfo = null;
+        mouseMovedInfo = null;
     }
     
     public MouseInfo getMouseInfo()
@@ -39,76 +40,88 @@ class MouseEventData {
         return mouseInfo;
     }
 
-    public boolean isMousePressed()
+    public boolean isMousePressed(Object obj)
     {
-        return mousePressed;
+        return checkObject(obj, mousePressedInfo);
     }
 
     public void mousePressed(int x, int y, int button, Actor actor)
     {
         init();
-        this.mousePressed = true;
+        mousePressedInfo = new MouseInfo();
+        mouseInfo = mousePressedInfo;  
         MouseInfoVisitor.setButton(mouseInfo, button);
         MouseInfoVisitor.setLoc(mouseInfo, x, y);
         MouseInfoVisitor.setActor(mouseInfo, actor);
     }
 
-    public boolean isMouseClicked()
-    {
-        return mouseClicked;
+    public boolean isMouseClicked(Object obj)
+    { 
+        // if the mouse was pressed outside the object we are looking for, it
+        // can't be clicked on that object
+        if(obj != null && (isMousePressed(null) && !isMousePressed(obj))) {
+            return false;
+        }
+        return checkObject(obj, mouseClickedInfo);
     }
     
-    /**
-     * 
-     * @param isPressed indicates whether a press has also happened in this frame
-     */
-    public void mouseClicked(int x, int y, int button, Actor actor, boolean isPressed)
+    public void mouseClicked(int x, int y, int button, Actor actor)
     {
-        init();
-        this.mouseClicked = true;
-        this.mousePressed = isPressed;
+        MouseInfo tempPressedInfo = mousePressedInfo;        
+        init();       
+        mousePressedInfo = tempPressedInfo;
+        
+        mouseClickedInfo = new MouseInfo();
+        mouseInfo = mouseClickedInfo;
         MouseInfoVisitor.setButton(mouseInfo, button);
         MouseInfoVisitor.setLoc(mouseInfo, x, y);
         MouseInfoVisitor.setActor(mouseInfo, actor);
     }
 
-    public boolean isMouseDragged()
+    public boolean isMouseDragged(Object obj)
     {
-        return mouseDragged;
+        return checkObject(obj, mouseDraggedInfo);
     }
 
     public void mouseDragged(int x, int y, int button, Actor actor)
     {
         init();
-        this.mouseDragged = true;
+        mouseDraggedInfo = new MouseInfo();
+        mouseInfo = mouseDraggedInfo;
         MouseInfoVisitor.setButton(mouseInfo, button);
         MouseInfoVisitor.setLoc(mouseInfo, x, y);
         MouseInfoVisitor.setActor(mouseInfo, actor);
     }
 
-    public boolean isMouseDragEnded()
+    public boolean isMouseDragEnded(Object obj)
     {
-        return mouseDragEnded;
+        return checkObject(obj, mouseDragEndedInfo);
     }
 
     public void mouseDragEnded(int x, int y, int button, Actor actor)
     {
+        MouseInfo tempPressedInfo = mousePressedInfo;
+        MouseInfo tempClickedInfo = mouseClickedInfo;
         init();
-        this.mouseDragEnded = true;
+        mousePressedInfo = tempPressedInfo;
+        mouseClickedInfo = tempClickedInfo;
+        mouseDragEndedInfo = new MouseInfo();
+        mouseInfo = mouseDragEndedInfo;
         MouseInfoVisitor.setButton(mouseInfo, button);
         MouseInfoVisitor.setLoc(mouseInfo, x, y);
         MouseInfoVisitor.setActor(mouseInfo, actor);
     }
 
-    public boolean isMouseMoved()
+    public boolean isMouseMoved(Object obj)
     {
-        return mouseMoved;
+        return checkObject(obj, mouseMovedInfo);
     }
 
     public void mouseMoved(int x, int y, int button, Actor actor)
     {
         init();
-        this.mouseMoved = true;
+        mouseMovedInfo = new MouseInfo();
+        mouseInfo = mouseMovedInfo;
         MouseInfoVisitor.setButton(mouseInfo, button);
         MouseInfoVisitor.setLoc(mouseInfo, x, y);
         MouseInfoVisitor.setActor(mouseInfo, actor);
@@ -140,25 +153,42 @@ class MouseEventData {
         return mouseInfo.getButton();
     }
     
+    /**
+     * Check whether the given object can be considered to match the MouseInfo.
+     * 
+     * @param obj The query
+     * @param info To check against
+     * @return
+     */
+    private boolean checkObject(Object obj, MouseInfo info)
+    {
+        if(info == null) {
+            return false;
+        }
+        Actor actor = info.getActor();
+        return obj == null || (obj instanceof World && actor == null) || actor == obj;
+    }
+
+    
     public String toString()
     {
         String s = "MouseEventData ";
         if(mouseInfo != null) {
             s += mouseInfo.toString();
         }
-        if(mousePressed) {
+        if(mousePressedInfo != null) {
             s += " pressed";
         }
-        if(mouseClicked) {
+        if(mouseClickedInfo != null) {
             s += " clicked";
         }
-        if(mouseDragged) {
+        if(mouseDraggedInfo != null) {
             s += " dragged";
         }
-        if(mouseDragEnded) {
+        if(mouseDragEndedInfo != null) {
             s += " dragEnded";
         }
-        if(mouseMoved) {
+        if(mouseMovedInfo != null) {
             s += " moved";
         }
         return s;

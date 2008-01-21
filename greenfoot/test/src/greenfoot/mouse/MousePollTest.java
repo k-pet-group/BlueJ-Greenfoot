@@ -196,8 +196,8 @@ public class MousePollTest extends TestCase
 
         assertTrue(mouseMan.isMouseDragEnded(actorAtClick));
         assertFalse(mouseMan.isMouseDragged(actorAtClick));
-        assertFalse(mouseMan.isMousePressed(actorAtClick));
-        assertFalse(mouseMan.isMouseClicked(actorAtClick));
+        assertTrue(mouseMan.isMousePressed(actorAtClick));
+        assertTrue(mouseMan.isMouseClicked(actorAtClick));
         
     }
     
@@ -439,10 +439,10 @@ public class MousePollTest extends TestCase
         assertEquals(7, info.getX());
         assertEquals(8, info.getY());
         assertTrue(mouseMan.isMouseDragEnded(actorAtClick));
-        assertFalse(mouseMan.isMouseClicked(actorAtClick));
+        assertTrue(mouseMan.isMouseClicked(actorAtClick));
         assertFalse(mouseMan.isMouseMoved(actorAtClick));
         assertFalse(mouseMan.isMouseDragged(actorAtClick));
-        assertFalse(mouseMan.isMousePressed(actorAtClick));
+        assertTrue(mouseMan.isMousePressed(actorAtClick));
        
         mouseMan.newActStarted();
         // Test that the last dragEnd is reported when several occurs
@@ -465,8 +465,8 @@ public class MousePollTest extends TestCase
         assertEquals(3, info.getY());
         assertFalse(mouseMan.isMouseMoved(actorAtClick));
         assertFalse(mouseMan.isMouseDragged(actorAtClick));
-        assertFalse(mouseMan.isMousePressed(actorAtClick));
-        assertFalse(mouseMan.isMouseClicked(actorAtClick));
+        assertTrue(mouseMan.isMousePressed(actorAtClick));
+        assertTrue(mouseMan.isMouseClicked(actorAtClick));
     }
     
     public void testClickPriorities() 
@@ -494,7 +494,7 @@ public class MousePollTest extends TestCase
         assertEquals(8, info.getY());
         assertFalse(mouseMan.isMouseMoved(actorAtClick));
         assertFalse(mouseMan.isMouseDragged(actorAtClick));
-        assertFalse(mouseMan.isMousePressed(actorAtClick));
+        assertTrue(mouseMan.isMousePressed(actorAtClick));
         assertFalse(mouseMan.isMouseDragEnded(actorAtClick));
        
         mouseMan.newActStarted();
@@ -518,7 +518,7 @@ public class MousePollTest extends TestCase
         assertTrue(mouseMan.isMouseClicked(actorAtClick));
         assertFalse(mouseMan.isMouseMoved(actorAtClick));
         assertFalse(mouseMan.isMouseDragged(actorAtClick));
-        assertFalse(mouseMan.isMousePressed(actorAtClick));
+        assertTrue(mouseMan.isMousePressed(actorAtClick));
         assertFalse(mouseMan.isMouseDragEnded(actorAtClick));       
     }
     
@@ -589,5 +589,145 @@ public class MousePollTest extends TestCase
         assertTrue(mouseMan.isMouseClicked(actorAtClick));
         mouseMan.newActStarted();                
         assertFalse(mouseMan.isMouseClicked(actorAtClick));        
+    }
+    
+    public void testMoveClickWithinActor() 
+    {
+        mouseMan.newActStarted();
+        
+        MouseEvent event = new MouseEvent(panel, MouseEvent.MOUSE_MOVED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);    
+        event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
+        dispatch(event); 
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);    
+        event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);
+        assertTrue(mouseMan.isMouseDragEnded(actorAtClick));
+        assertTrue(mouseMan.isMouseClicked(actorAtClick));    
+        assertTrue(mouseMan.isMousePressed(actorAtClick));  
+        
+        
+        mouseMan.newActStarted();
+        // test that there is NO click when dragging outside actor bounds
+        event = new MouseEvent(panel, MouseEvent.MOUSE_MOVED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);    
+        event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
+        dispatch(event); 
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 26, 26, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);    
+        event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 26, 26, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);
+        assertTrue(mouseMan.isMouseDragEnded(actorAtClick));
+        assertFalse(mouseMan.isMouseClicked(actorAtClick));    
+        assertTrue(mouseMan.isMousePressed(actorAtClick));  
+        
+
+        mouseMan.newActStarted();
+        // test that there is NO click and press when dragging from outside actor bounds into actor bounds
+        event = new MouseEvent(panel, MouseEvent.MOUSE_MOVED,  System.currentTimeMillis(), 0, 25, 25, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);    
+        event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 25, 25, 1, false, MouseEvent.BUTTON1);
+        dispatch(event); 
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);    
+        event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);
+        assertFalse(mouseMan.isMouseDragEnded(actorAtClick));
+        assertFalse(mouseMan.isMouseClicked(actorAtClick));    
+        assertFalse(mouseMan.isMousePressed(actorAtClick));          
+    }
+    
+
+    public void testNullPressDragClickOnActorBounds() 
+    {
+        mouseMan.newActStarted();
+              
+        // test that even if moving out of actor, giving null as argument will still report all press, clicks and dragEnds
+        MouseEvent event = new MouseEvent(panel, MouseEvent.MOUSE_MOVED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);    
+        event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
+        dispatch(event); 
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 26, 26, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);    
+        event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 26, 26, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);
+        assertTrue(mouseMan.isMouseDragEnded(null));
+        assertTrue(mouseMan.isMouseClicked(null));    
+        assertTrue(mouseMan.isMousePressed(null));  
+
+        mouseMan.newActStarted();
+        event = new MouseEvent(panel, MouseEvent.MOUSE_MOVED,  System.currentTimeMillis(), 0, 25, 25, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);    
+        event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 25, 25, 1, false, MouseEvent.BUTTON1);
+        dispatch(event); 
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);    
+        event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);
+
+        assertFalse(mouseMan.isMouseMoved(null));
+        
+        assertTrue(mouseMan.isMouseDragEnded(null));
+        assertTrue(mouseMan.isMouseClicked(null));    
+        assertTrue(mouseMan.isMousePressed(null));   
+       
+        assertTrue(mouseMan.isMousePressed(world));
+        assertTrue(mouseMan.isMouseDragEnded(world));
+        assertFalse(mouseMan.isMouseClicked(world));          
+
+        assertFalse(mouseMan.isMousePressed(actorAtClick));
+        assertFalse(mouseMan.isMouseDragEnded(actorAtClick));
+        assertFalse(mouseMan.isMouseClicked(actorAtClick));    
+        assertFalse(mouseMan.isMousePressed(actorAtClick)); 
+        
+    }
+    
+    public void testMultipleDragsInFrame() 
+    {
+        mouseMan.newActStarted();
+              
+        // test that even if moving out of actor, giving null as argument will still report all press, clicks and dragEnds
+        MouseEvent event = new MouseEvent(panel, MouseEvent.MOUSE_MOVED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);    
+        event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON1);
+        dispatch(event); 
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 26, 26, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);    
+        event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 26, 26, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);
+
+        event = new MouseEvent(panel, MouseEvent.MOUSE_MOVED,  System.currentTimeMillis(), 0, 25, 25, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);    
+        event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 25, 25, 1, false, MouseEvent.BUTTON1);
+        dispatch(event); 
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);    
+        event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 6, 6, 1, false, MouseEvent.BUTTON1);
+        dispatch(event);
+
+        assertFalse(mouseMan.isMouseMoved(null));
+        
+        assertTrue(mouseMan.isMouseDragEnded(null));
+        assertTrue(mouseMan.isMouseClicked(null));    
+        assertTrue(mouseMan.isMousePressed(null));   
+       
+        // The test fails in the following line, because "pressed" has lower
+        // priority than dragEnded and is therefore not updated when the 2nd
+        // MOUSE_PRESSED event is send.
+        
+        // Don't know if this matters too much.
+        
+        // The correct solution would be to only update press&click when a new
+        // drag has happened. But that means keeping lots of extra info.
+        assertTrue(mouseMan.isMousePressed(world));
+        assertTrue(mouseMan.isMouseDragEnded(world));
+        assertFalse(mouseMan.isMouseClicked(world));          
+
+        assertFalse(mouseMan.isMousePressed(actorAtClick));
+        assertFalse(mouseMan.isMouseDragEnded(actorAtClick));
+        assertFalse(mouseMan.isMouseClicked(actorAtClick));    
+        assertFalse(mouseMan.isMousePressed(actorAtClick)); 
+        
     }
 }

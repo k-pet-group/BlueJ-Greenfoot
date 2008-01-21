@@ -28,7 +28,7 @@ import java.awt.event.MouseMotionListener;
  * 
  * If several events happen in the same frame the events are prioritized like
  * this: <br>
- * Priorities with highest priority first::
+ * Priorities with highest priority first:
  * <ul>
  * <li> dragEnd </li>
  * <li> click </li>
@@ -168,7 +168,7 @@ public class MouseManager implements MouseListener, MouseMotionListener
     public boolean isMousePressed(Object obj)
     {
         freezeMouseData();
-        return checkObject(obj, currentData.getActor()) && currentData.isMousePressed();
+        return currentData.isMousePressed(obj);
     }
 
     /**
@@ -187,7 +187,7 @@ public class MouseManager implements MouseListener, MouseMotionListener
     public boolean isMouseClicked(Object obj)
     {
         freezeMouseData();
-        return checkObject(obj, currentData.getActor()) && currentData.isMouseClicked();
+        return currentData.isMouseClicked(obj);
     }
 
     /**
@@ -209,7 +209,7 @@ public class MouseManager implements MouseListener, MouseMotionListener
     public boolean isMouseDragged(Object obj)
     {
         freezeMouseData();
-        return checkObject(obj, currentData.getActor()) && currentData.isMouseDragged();
+        return currentData.isMouseDragged(obj);
     }
 
     /**
@@ -231,7 +231,7 @@ public class MouseManager implements MouseListener, MouseMotionListener
     public boolean isMouseDragEnded(Object obj)
     {
         freezeMouseData(); 
-        return checkObject(obj, currentData.getActor()) && currentData.isMouseDragEnded();
+        return currentData.isMouseDragEnded(obj);
     }
 
     /**
@@ -253,7 +253,7 @@ public class MouseManager implements MouseListener, MouseMotionListener
     public boolean isMouseMoved(Object obj)
     {
         freezeMouseData();
-        return checkObject(obj, currentData.getActor()) && currentData.isMouseMoved();
+        return currentData.isMouseMoved(obj);
     }
 
     /**
@@ -269,18 +269,6 @@ public class MouseManager implements MouseListener, MouseMotionListener
         return currentData.getMouseInfo();
     }   
 
-    /**
-     * Check whether the given object can be considered to match the actor.
-     * 
-     * @param obj The query
-     * @param actor The actor - often the actor related to some mouseevent.
-     * @return
-     */
-    private boolean checkObject(Object obj, Actor actor)
-    {
-        return obj == null || (obj instanceof World && actor == null) || actor == obj;
-    }
-
     // ************************************
     // Implementations of listeners.
     // ************************************
@@ -294,24 +282,17 @@ public class MouseManager implements MouseListener, MouseMotionListener
             int x = locator.getTranslatedX(e);
             int y = locator.getTranslatedY(e);
             int button = e.getButton();
-            //in case we already had a mouse press associated with this click, we want to keep it.
-            boolean isPressed = futureData.isMousePressed() && futureData.getX() == x && futureData.getY() == y && futureData.getButton() == button;
-            futureData.mouseClicked(x, y, button, actor, isPressed);
+            futureData.mouseClicked(x, y, button, actor);
             isDragging = false;
         }
     }
 
-
     public void mouseEntered(MouseEvent e)
     {
-        synchronized(futureData) {
-        }
     }
 
     public void mouseExited(MouseEvent e)
     {
-        synchronized(futureData) {
-        }
     }
 
     public void mousePressed(MouseEvent e)
@@ -343,7 +324,12 @@ public class MouseManager implements MouseListener, MouseMotionListener
                 int x = locator.getTranslatedX(e);
                 int y = locator.getTranslatedY(e);
                 int button = e.getButton();
-                futureData.mouseDragEnded(x, y, button, dragStartData.getActor());
+
+                Actor clickActor = locator.getTopMostActorAt(e);
+                futureData.mouseClicked(x, y, button, clickActor);
+                
+                Actor actor = dragStartData.getActor();
+                futureData.mouseDragEnded(x, y, button, actor);
                 isDragging = false;
             }
         }
