@@ -38,7 +38,7 @@ import javax.swing.event.EventListenerList;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id$
+ * @version $Id:$
  */
 public class WorldHandler implements MouseListener, MouseMotionListener, KeyListener, DropTarget, DragListener, SimulationListener
 {
@@ -479,7 +479,7 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
 
     public void dragEnded(Object o)
     {
-        if (o instanceof Actor) {
+        if (o instanceof Actor && world != null) {
             Actor actor = (Actor) o;
             world.removeObject(actor);
         }
