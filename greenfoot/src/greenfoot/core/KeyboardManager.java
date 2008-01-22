@@ -1,6 +1,8 @@
 package greenfoot.core;
 
 import java.awt.Toolkit;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.HashMap;
@@ -17,9 +19,9 @@ import java.util.Map;
  * F1-F12.
  * 
  * @author davmac
- * @version $Id: KeyboardManager.java 4867 2007-03-21 03:47:36Z davmac $
+ * @version $Id: KeyboardManager.java 5480 2008-01-22 16:20:17Z polle $
  */
-public class KeyboardManager implements KeyListener
+public class KeyboardManager implements KeyListener, FocusListener
 {
     private String lastKeyTyped;
 
@@ -207,12 +209,16 @@ public class KeyboardManager implements KeyListener
     public synchronized void keyPressed(KeyEvent event)
     {
         int keyCode = event.getKeyCode();
-        keyCode = numLockTranslate(keyCode);
+        pressKey(keyCode);
+    }
+
+	private void pressKey(int keyCode) {
+		keyCode = numLockTranslate(keyCode);
         
         checkKeyArrays(keyCode);
         keyLatched[keyCode] = true;
         keyDown[keyCode] = true;
-    }
+	}
     
     /* (non-Javadoc)
      * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
@@ -220,7 +226,11 @@ public class KeyboardManager implements KeyListener
     public synchronized void keyReleased(KeyEvent event)
     {
         int keyCode = event.getKeyCode();
-        keyCode = numLockTranslate(keyCode);
+        releaseKey(keyCode);
+    }
+
+	private void releaseKey(int keyCode) {
+		keyCode = numLockTranslate(keyCode);
         
         checkKeyArrays(keyCode);
         keyDown[keyCode] = false;
@@ -230,7 +240,7 @@ public class KeyboardManager implements KeyListener
                 lastKeyTyped = keyName;
             }
         }
-    }
+	}
     
     /**
      * Translate the "key pad" directional keys according to the status of numlock.
@@ -311,4 +321,20 @@ public class KeyboardManager implements KeyListener
             lastKeyTyped = "" + c;
         }
     }
+
+	@Override
+	public void focusGained(FocusEvent e) {		
+	}
+
+	/**
+	 * If we loose focus, we should treat all keys as not pressed anymore
+	 */
+	@Override
+	public void focusLost(FocusEvent e) {
+		for (int keyCode = 0; keyCode < keyDown.length; keyCode++) {
+			if(keyDown[keyCode]) {
+				releaseKey(keyCode);
+			}
+		}
+	}
 }

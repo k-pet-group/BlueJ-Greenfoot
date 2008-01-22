@@ -122,7 +122,8 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
         
         LocationTracker.instance().setSourceComponent(worldCanvas);
         keyboardManager = new KeyboardManager();
-
+        worldCanvas.addFocusListener(keyboardManager);
+        
         inputManager = new InputManager();
         addWorldListener(inputManager);
         worldCanvas.addMouseListener(inputManager);
