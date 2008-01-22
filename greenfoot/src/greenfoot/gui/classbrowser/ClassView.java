@@ -5,6 +5,7 @@ import greenfoot.core.GPackage;
 import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.LocationTracker;
+import greenfoot.core.WorldHandler;
 import greenfoot.event.ActorInstantiationListener;
 import greenfoot.gui.classbrowser.role.ActorClassRole;
 import greenfoot.gui.classbrowser.role.ClassRole;
@@ -36,7 +37,7 @@ import bluej.utility.Utility;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 5469 2008-01-21 19:23:16Z polle $
+ * @version $Id: ClassView.java 5477 2008-01-22 14:05:55Z polle $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -203,7 +204,9 @@ public class ClassView extends JToggleButton
      */
     private void setRole(ClassRole role)
     {
+    	WorldHandler.getInstance().removeWorldListener(this.role);
         this.role = role;
+    	WorldHandler.getInstance().addWorldListener(this.role);
     }
 
     /**
@@ -568,6 +571,7 @@ public class ClassView extends JToggleButton
      */
     public void remove()
     {
+    	WorldHandler.getInstance().removeWorldListener(this.role);
         classBrowser.removeClass(this);
         try {
             gClass.remove();

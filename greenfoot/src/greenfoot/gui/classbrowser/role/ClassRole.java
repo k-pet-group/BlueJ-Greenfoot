@@ -6,6 +6,8 @@ import greenfoot.actions.RemoveClassAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GProject;
 import greenfoot.core.WorldInvokeListener;
+import greenfoot.event.WorldEvent;
+import greenfoot.event.WorldListener;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 
@@ -13,7 +15,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.Action;
@@ -36,9 +37,9 @@ import bluej.views.ViewFilter;
  * "normal" classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 5265 2007-10-03 16:12:16Z polle $
+ * @version $Id: ClassRole.java 5477 2008-01-22 14:05:55Z polle $
  */
-public abstract class ClassRole
+public abstract class ClassRole implements WorldListener
 {
     protected final static Dimension iconSize = new Dimension(16, 16);
     
@@ -57,7 +58,7 @@ public abstract class ClassRole
     /**
      * Create a list of actions for invoking the constructors of the given class
      */
-    public List createConstructorActions(Class realClass, GProject project)
+    public List<Action> createConstructorActions(Class<?> realClass, GProject project)
     {
         View view = View.getView(realClass);
         List<Action> actions = new ArrayList<Action>();
@@ -104,16 +105,15 @@ public abstract class ClassRole
             re.printStackTrace();
         }
 
-        Class realClass = gClass.getJavaClass();
+        Class<?> realClass = gClass.getJavaClass();
         if (realClass != null) {
 
             // Constructors
             if (!java.lang.reflect.Modifier.isAbstract(realClass.getModifiers())) {
-                List constructorItems = createConstructorActions(realClass, project);
+                List<Action> constructorItems = createConstructorActions(realClass, project);
 
                 boolean hasEntries = false;
-                for (Iterator iter = constructorItems.iterator(); iter.hasNext();) {
-                    Action callAction = (Action) iter.next();
+                for (Action callAction : constructorItems) {
                     JMenuItem item = popupMenu.add(callAction);
                     item.setFont(PrefMgr.getPopupMenuFont());
                     hasEntries = true;
@@ -163,4 +163,16 @@ public abstract class ClassRole
     {
         // default implementation does nothing
     }
+
+	@Override
+	public void worldCreated(WorldEvent e) {
+		// Do nothing - only want to handle this for actors
+	}
+
+	@Override
+	public void worldRemoved(WorldEvent e) {
+		// Do nothing - only want to handle this for actors
+	}
+
+	
 }

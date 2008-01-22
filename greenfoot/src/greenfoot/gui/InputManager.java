@@ -2,11 +2,16 @@ package greenfoot.gui;
 
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
+import greenfoot.event.WorldEvent;
+import greenfoot.event.WorldListener;
 
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 
 import javax.swing.SwingUtilities;
@@ -49,13 +54,13 @@ import javax.swing.SwingUtilities;
  * 
  */
 public class InputManager
-    implements SimulationListener, KeyListener, MouseListener, MouseMotionListener
+    implements SimulationListener, KeyListener, MouseListener, MouseMotionListener, WorldListener
 {
     /**
      * Represents the different events that can tricker state changes.
      */
     private enum Event {
-        CONSTRUCTOR_INVOKED, MOUSE_RELEASED, SHIFT_PRESSED, SHIFT_RELEASED, MOUSE_PRESSED, SIMULATION_STARTED, SIMULATION_STOPPED
+        CONSTRUCTOR_INVOKED, MOUSE_RELEASED, SHIFT_PRESSED, SHIFT_RELEASED, MOUSE_PRESSED, SIMULATION_STARTED, SIMULATION_STOPPED, WORLD_CREATED, WORLD_REMOVED
     };
 
     /**
@@ -76,7 +81,13 @@ public class InputManager
          * 
          * @see #switchAndActivateState(greenfoot.gui.InputManager.State)
          */
-        abstract void switchToNextState(Event event);
+        void switchToNextState(Event event) {
+            switch(event) {
+                case WORLD_REMOVED:
+                    switchAndActivateState(DISABLED_STATE);
+                    break;
+            }
+        }
 
         /**
          * Switches to the given state and activates it by calling the method
@@ -100,7 +111,30 @@ public class InputManager
          */
         protected abstract void activate();
     };
+    
+    /**
+     * This state is active when you should not be allowed to initiate a drag.
+     * 
+     * @author Poul Henriksen
+     */
+    private class DisabledState extends State
+    {
+        @Override
+        void switchToNextState(Event event)
+        {
+            switch(event) {
+                case WORLD_CREATED:
+                    switchAndActivateState(IDLE_STATE);
+                    break;
+            }
+        }
 
+        @Override
+        protected void activate()
+        {
+            activateDisabledListeners();
+        }
+    }
     /**
      * This state is active when the simulation is running.
      * 
@@ -111,6 +145,7 @@ public class InputManager
         @Override
         void switchToNextState(Event event)
         {
+            super.switchToNextState(event);
             switch(event) {
                 case SIMULATION_STOPPED :
                     switchAndActivateState(IDLE_STATE);
@@ -139,6 +174,7 @@ public class InputManager
         @Override
         void switchToNextState(Event event)
         {
+            super.switchToNextState(event);
             switch(event) {
                 case CONSTRUCTOR_INVOKED :
                     switchAndActivateState(CONSTRUCTOR_DRAG_STATE);
@@ -173,6 +209,7 @@ public class InputManager
         @Override
         void switchToNextState(Event event)
         {
+            super.switchToNextState(event);
             switch(event) {
                 case MOUSE_RELEASED :
                     switchAndActivateState(IDLE_STATE);
@@ -198,6 +235,7 @@ public class InputManager
         @Override
         void switchToNextState(Event event)
         {
+            super.switchToNextState(event);
             switch(event) {
                 case SHIFT_RELEASED :
                     switchAndActivateState(IDLE_STATE);
@@ -226,6 +264,7 @@ public class InputManager
         @Override
         void switchToNextState(Event event)
         {
+            super.switchToNextState(event);
             switch(event) {
                 case SHIFT_PRESSED :
                     switchAndActivateState(QUICKADD_DRAG_STATE);
@@ -256,6 +295,7 @@ public class InputManager
         @Override
         void switchToNextState(Event event)
         {
+            super.switchToNextState(event);
             switch(event) {
                 case SIMULATION_STOPPED :
                     switchAndActivateState(CONSTRUCTOR_DRAG_STATE);
@@ -274,6 +314,7 @@ public class InputManager
     };
 
     // STATES
+    private final State DISABLED_STATE = new DisabledState();
     private final State RUNNING_STATE = new RunningState();
     private final State IDLE_STATE = new IdleState();
     private final State MOVE_STATE = new MoveState();
@@ -282,7 +323,7 @@ public class InputManager
     private final State CONSTRUCTOR_DRAG_WHILE_RUNNING_STATE = new ConstructorDragWhileRunningState();
 
     /** The current state */
-    private State state = IDLE_STATE;
+    private State state = DISABLED_STATE;
 
     // Flags to keep track of which listeners has been initialised.
     private boolean moveInitialized;
@@ -291,18 +332,21 @@ public class InputManager
     private boolean runningInitialized;
 
     // Key listeners
+    private KeyListener disabledKeyListener;
     private KeyListener runningKeyListener;
     private KeyListener idleKeyListener;
     private KeyListener dragKeyListener;
     private KeyListener moveKeyListener;
 
     // Mouse listeners
+    private MouseListener disabledMouseListener;
     private MouseListener runningMouseListener;
     private MouseListener idleMouseListener;
     private MouseListener dragMouseListener;
     private MouseListener moveMouseListener;
 
     // Mouse motion listeners
+    private MouseMotionListener disabledMouseMotionListener;
     private MouseMotionListener runningMouseMotionListener;
     private MouseMotionListener idleMouseMotionListener;
     private MouseMotionListener dragMouseMotionListener;
@@ -325,6 +369,9 @@ public class InputManager
      */
     public InputManager()
     {
+    	disabledKeyListener = new KeyAdapter(){};
+    	disabledMouseListener = new MouseAdapter(){};
+    	disabledMouseMotionListener = new MouseMotionAdapter(){};
     }
 
     /**
@@ -404,6 +451,13 @@ public class InputManager
         if (!(idleInitialized && runningInitialized && moveInitialized && dragInitialized)) {
             throw new IllegalStateException("Listeners not set up correctly.");
         }
+    }
+    
+    private void activateDisabledListeners()
+    {
+        activeKeyListener = disabledKeyListener;
+        activeMouseListener = disabledMouseListener;
+        activeMouseMotionListener = disabledMouseMotionListener;
     }
     
     private void activateRunningListeners()
@@ -532,4 +586,13 @@ public class InputManager
     {
         activeMouseMotionListener.mouseMoved(e);
     }
+
+
+	public void worldCreated(WorldEvent e) {
+		state.switchToNextState(Event.WORLD_CREATED);
+	}
+
+	public void worldRemoved(WorldEvent e) {
+		state.switchToNextState(Event.WORLD_REMOVED);
+	}
 }

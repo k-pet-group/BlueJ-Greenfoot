@@ -124,7 +124,7 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
         keyboardManager = new KeyboardManager();
 
         inputManager = new InputManager();
-        
+        addWorldListener(inputManager);
         worldCanvas.addMouseListener(inputManager);
         worldCanvas.addMouseMotionListener(inputManager);
         worldCanvas.addKeyListener(inputManager);
@@ -527,6 +527,15 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
     {
         listenerList.add(WorldListener.class, l);
     }
+    
+    /**
+     * Removes a worldListener.
+     * @param l
+     *            Listener to remove
+     */
+	public void removeWorldListener(WorldListener l) {
+		listenerList.remove(WorldListener.class, l);
+	}
 
     /**
      * Used to indicate the start of an animation sequence. For use in the collision checker.
