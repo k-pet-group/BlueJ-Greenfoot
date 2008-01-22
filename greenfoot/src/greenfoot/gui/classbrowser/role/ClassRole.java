@@ -37,7 +37,7 @@ import bluej.views.ViewFilter;
  * "normal" classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 5477 2008-01-22 14:05:55Z polle $
+ * @version $Id: ClassRole.java 5483 2008-01-22 16:39:10Z polle $
  */
 public abstract class ClassRole implements WorldListener
 {
@@ -164,12 +164,10 @@ public abstract class ClassRole implements WorldListener
         // default implementation does nothing
     }
 
-	@Override
 	public void worldCreated(WorldEvent e) {
 		// Do nothing - only want to handle this for actors
 	}
 
-	@Override
 	public void worldRemoved(WorldEvent e) {
 		// Do nothing - only want to handle this for actors
 	}

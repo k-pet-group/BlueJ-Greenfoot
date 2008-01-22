@@ -19,7 +19,7 @@ import java.util.Map;
  * F1-F12.
  * 
  * @author davmac
- * @version $Id: KeyboardManager.java 5480 2008-01-22 16:20:17Z polle $
+ * @version $Id: KeyboardManager.java 5483 2008-01-22 16:39:10Z polle $
  */
 public class KeyboardManager implements KeyListener, FocusListener
 {
@@ -322,14 +322,12 @@ public class KeyboardManager implements KeyListener, FocusListener
         }
     }
 
-	@Override
 	public void focusGained(FocusEvent e) {		
 	}
 
 	/**
 	 * If we loose focus, we should treat all keys as not pressed anymore
 	 */
-	@Override
 	public void focusLost(FocusEvent e) {
 		for (int keyCode = 0; keyCode < keyDown.length; keyCode++) {
 			if(keyDown[keyCode]) {
