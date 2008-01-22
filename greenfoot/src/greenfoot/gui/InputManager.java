@@ -523,7 +523,7 @@ public class InputManager
     public void keyReleased(KeyEvent e)
     {
         activeKeyListener.keyReleased(e);
-        if (!e.isShiftDown()) {
+        if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
             state.switchToNextState(Event.SHIFT_RELEASED);
         }
         activeKeyListener.keyReleased(e);

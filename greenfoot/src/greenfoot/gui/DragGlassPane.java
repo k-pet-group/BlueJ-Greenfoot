@@ -55,7 +55,7 @@ import javax.swing.SwingUtilities;
  * dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen
- * @version $Id: DragGlassPane.java 5462 2008-01-18 18:41:12Z polle $
+ * @version $Id: DragGlassPane.java 5479 2008-01-22 16:18:11Z polle $
  * 
  */
 public class DragGlassPane extends JComponent
@@ -441,7 +441,9 @@ public class DragGlassPane extends JComponent
 
     public void keyReleased(KeyEvent e)
     {
-        cancelDrag(); // dragEnded/dragFinished
+    	if(e.getKeyCode() == KeyEvent.VK_SHIFT){
+    		cancelDrag(); // dragEnded/dragFinished
+    	}
     }
 
     public void keyTyped(KeyEvent e)
