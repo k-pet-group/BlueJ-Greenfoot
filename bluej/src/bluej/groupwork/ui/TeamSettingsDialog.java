@@ -19,7 +19,7 @@ import bluej.utility.EscapeDialog;
  *
  * @author fisker
  * @author bquig
- * @version $Id: TeamSettingsDialog.java 5459 2008-01-18 05:24:16Z davmac $
+ * @version $Id: TeamSettingsDialog.java 5473 2008-01-22 04:26:36Z davmac $
  */
 public class TeamSettingsDialog extends EscapeDialog
 {
@@ -92,9 +92,13 @@ public class TeamSettingsDialog extends EscapeDialog
                         String passValue = settings.getPassword();
                         teamSettingsController.setPasswordString(passValue);
 
+                        String providerKey = "bluej.teamsettings.vcs";
+                        String providerName = teamSettingsPanel.getSelectedProvider()
+                                .getProviderName().toLowerCase();
+                        teamSettingsController.setPropString(providerKey, providerName);
+                        
                         String keyBase = "bluej.teamsettings."
-                                + teamSettingsPanel.getSelectedProvider().getProviderName().toLowerCase()
-                                + ".";
+                                + providerName + ".";
                         String serverKey = keyBase + "server";
                         String serverValue = settings.getServer();
                         teamSettingsController.setPropString(serverKey,
@@ -121,6 +125,7 @@ public class TeamSettingsDialog extends EscapeDialog
                                 teamSettingsPanel.getUseAsDefault()));
 
                         if (teamSettingsPanel.getUseAsDefault()) {
+                            Config.putPropString(providerKey, providerName);
                             Config.putPropString(userKey, userValue);
                             Config.putPropString(serverKey, serverValue);
                             Config.putPropString(prefixKey, prefixValue);

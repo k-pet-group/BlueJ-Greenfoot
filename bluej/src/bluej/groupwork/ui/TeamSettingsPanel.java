@@ -24,7 +24,7 @@ import bluej.groupwork.actions.ValidateConnectionAction;
  * A panel for team settings.
  * 
  * @author fisker
- * @version $Id: TeamSettingsPanel.java 5459 2008-01-18 05:24:16Z davmac $
+ * @version $Id: TeamSettingsPanel.java 5473 2008-01-22 04:26:36Z davmac $
  */
 public class TeamSettingsPanel extends JPanel 
 {
@@ -205,7 +205,6 @@ public class TeamSettingsPanel extends JPanel
             serverTypeComboBox.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
-                    fillProtocolSelections();
                     setProviderSettings();
                 }
             });
@@ -219,7 +218,6 @@ public class TeamSettingsPanel extends JPanel
             protocolLabel = new JLabel(Config.getString("team.settings.protocol"));
             protocolComboBox = new JComboBox();
             protocolComboBox.setEditable(false);
-            fillProtocolSelections();
             
             prefixLabel.setMaximumSize(prefixLabel.getMinimumSize());
             prefixField.setMaximumSize(prefixField.getMinimumSize());
@@ -276,6 +274,18 @@ public class TeamSettingsPanel extends JPanel
         if (useAsDefault != null) {
             setUseAsDefault(Boolean.getBoolean(useAsDefault));
         }
+        
+        String providerName = teamSettingsController.getPropString("bluej.teamsettings.vcs");
+        if (providerName != null) {
+            for (int index = 0; index < teamProviders.size(); index++) {
+                TeamworkProvider provider = (TeamworkProvider) teamProviders.get(index);
+                if (provider.getProviderName().equalsIgnoreCase(providerName)) {
+                    serverTypeComboBox.setSelectedIndex(index);
+                    break;
+                }
+            }
+        }
+        
         setProviderSettings();
     }
     
@@ -297,6 +307,9 @@ public class TeamSettingsPanel extends JPanel
         if (server != null) {
             setServer(server);
         }
+        
+        fillProtocolSelections();
+        
         String protocol = teamSettingsController.getPropString(keyBase + "protocol");
         if (protocol != null){
             setProtocol(protocol);
