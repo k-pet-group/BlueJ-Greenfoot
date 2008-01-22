@@ -344,7 +344,6 @@ public class GreenfootScenarioViewer extends JApplet
     
     /**
      * Creates a new instance of the world. And initialises with that world.
-     * @return The new world or null if failed to create new world. 
      */
     public void instantiateNewWorld() 
     {

@@ -40,7 +40,7 @@ import javax.swing.SwingUtilities;
  * actor (b-c) 5a. mouse released (c-b)
  * 
  * Two components can be enabled: WorldCanvas or DragGlassPane Listeners:
- * (MouseManager, KeyboardManager), WorldHandler and DragGlassPane
+ * (MousePollingManager, KeyboardManager), WorldHandler and DragGlassPane
  * 
  * What about standalone!? RightClicks! What about keyboard shortcuts while
  * running? Space for pause?

@@ -3,7 +3,7 @@ package greenfoot.mouse;
 import java.awt.event.MouseEvent;
 
 /**
- * This class resolves the priorities of mouse events for the MouseManager.
+ * This class resolves the priorities of mouse events for the MousePollingManager.
  * <p>
  *
  * Priorities with highest priority first::

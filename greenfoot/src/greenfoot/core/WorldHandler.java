@@ -13,7 +13,7 @@ import greenfoot.gui.DragListener;
 import greenfoot.gui.DropTarget;
 import greenfoot.gui.InputManager;
 import greenfoot.gui.WorldCanvas;
-import greenfoot.mouse.MouseManager;
+import greenfoot.mouse.MousePollingManager;
 import greenfoot.mouse.WorldLocator;
 import greenfoot.platforms.WorldHandlerDelegate;
 
@@ -61,7 +61,7 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
     private EventListenerList listenerList = new EventListenerList();
     private WorldEvent worldEvent;
     private WorldHandlerDelegate handlerDelegate;
-    private MouseManager mouseManager;
+    private MousePollingManager mousePollingManager;
     private InputManager inputManager;
     
     //Offset from the middle of the actor when initiating a drag on an actor.
@@ -99,7 +99,7 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
 
         this.worldCanvas = worldCanvas;
         worldEvent = new WorldEvent(this);
-        mouseManager = new MouseManager(new WorldLocator() {
+        mousePollingManager = new MousePollingManager(new WorldLocator() {
             public Actor getTopMostActorAt(MouseEvent e)
             {
                 Point p = SwingUtilities.convertPoint(e.getComponent(), e.getX(), e.getY(), worldCanvas);
@@ -131,7 +131,7 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
         DragGlassPane.getInstance().addMouseListener(inputManager);
         DragGlassPane.getInstance().addMouseMotionListener(inputManager);
         DragGlassPane.getInstance().addKeyListener(inputManager);        
-        inputManager.setRunningListeners(getKeyboardManager(), mouseManager, mouseManager);
+        inputManager.setRunningListeners(getKeyboardManager(), mousePollingManager, mousePollingManager);
         inputManager.setIdleListeners(this, this, this);
         inputManager.setDragListeners(DragGlassPane.getInstance(),DragGlassPane.getInstance(),DragGlassPane.getInstance());
         inputManager.setMoveListeners(this,this,this);
@@ -150,9 +150,9 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
     /**
      * Get the mouse manager.
      */
-    public MouseManager getMouseManager()
+    public MousePollingManager getMouseManager()
     {
-        return mouseManager;
+        return mousePollingManager;
     }
 
     /*
@@ -581,7 +581,7 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
         inputManager.simulationChanged(e); // TODO maybe add somewhere else?
         if(e.getType() == SimulationEvent.NEW_ACT)
         {
-            mouseManager.newActStarted();
+            mousePollingManager.newActStarted();
         }
     }
     
