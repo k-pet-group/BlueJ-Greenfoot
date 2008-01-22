@@ -536,11 +536,13 @@ public class InputManager
 
     public void mouseClicked(MouseEvent e)
     {
+		checkShift(e);
         activeMouseListener.mouseClicked(e);
     }
 
     public void mousePressed(MouseEvent e)
     {
+		checkShift(e);
         activeMouseListener.mousePressed(e);
         if (SwingUtilities.isLeftMouseButton(e) && !e.isShiftDown()) {
             state.switchToNextState(Event.MOUSE_PRESSED);
@@ -549,6 +551,7 @@ public class InputManager
 
     public void mouseReleased(MouseEvent e)
     {
+		checkShift(e);
         activeMouseListener.mouseReleased(e);
         if (SwingUtilities.isLeftMouseButton(e)) {
             state.switchToNextState(Event.MOUSE_RELEASED);
@@ -557,26 +560,41 @@ public class InputManager
 
     public void mouseEntered(MouseEvent e)
     {
+		checkShift(e);
         activeMouseListener.mouseEntered(e);
 
         // Somehow during a drag the button was released without us noticing;
         // make sure we are in the right state. (I think this can happen when
         // some other window steals focus during a drag).
-        if (!e.isShiftDown()) {
-            state.switchToNextState(Event.SHIFT_RELEASED);
-        }
-        // if ((e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) == 0) {
-        // state.switchToNextState(Event.MOUSE_RELEASED);
-        // }
+        
+       // if ((e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) == 0) {
+       // state.switchToNextState(Event.MOUSE_RELEASED);
+       // }
     }
 
     public void mouseExited(MouseEvent e)
     {
+		checkShift(e);
         activeMouseListener.mouseExited(e);
     }
 
+    /**
+	 * Method that checks whether shift has been released without us noticing.
+	 * It will then simulate a KEY_RELEASED event and send it to the key
+	 * listener. This happens when another window grabs focus while holding down
+	 * SHIFT.
+	 * 
+	 */
+	private void checkShift(MouseEvent e) {
+		if (state == QUICKADD_DRAG_STATE && !e.isShiftDown()) {
+			activeKeyListener.keyReleased(new KeyEvent(e.getComponent(), KeyEvent.KEY_RELEASED, System.currentTimeMillis(), 0, KeyEvent.VK_SHIFT, KeyEvent.CHAR_UNDEFINED));
+			state.switchToNextState(Event.SHIFT_RELEASED);
+		}
+	}
+
     public void mouseDragged(MouseEvent e)
     {
+		checkShift(e);
         if (SwingUtilities.isLeftMouseButton(e)) {
             activeMouseMotionListener.mouseDragged(e);
         }
@@ -584,6 +602,7 @@ public class InputManager
 
     public void mouseMoved(MouseEvent e)
     {
+		checkShift(e);
         activeMouseMotionListener.mouseMoved(e);
     }
 
