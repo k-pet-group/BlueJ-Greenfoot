@@ -5,7 +5,7 @@ import greenfoot.MouseInfo;
 import greenfoot.TestObject;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
-import greenfoot.mouse.MouseManager;
+import greenfoot.mouse.MousePollingManager;
 import greenfoot.platforms.GreenfootUtilDelegate;
 import greenfoot.util.GreenfootUtil;
 
@@ -31,7 +31,7 @@ import junit.framework.TestCase;
  */
 public class MousePollTest extends TestCase
 {
-    private MouseManager mouseMan; 
+    private MousePollingManager mouseMan; 
     
     /** Panel used to simulate events on */
     private JPanel panel;     
@@ -93,7 +93,7 @@ public class MousePollTest extends TestCase
         world.addObject(actorAtClick, 5,5);
         actorOutsideClick = new TestObject(10,10);
         world.addObject(actorOutsideClick, 50,50);
-        mouseMan = new MouseManager(new WorldLocator(){
+        mouseMan = new MousePollingManager(new WorldLocator(){
                 public Actor getTopMostActorAt(MouseEvent e)
                 { 
                     Collection<?> actors = WorldVisitor.getObjectsAtPixel(world, e.getX(), e.getY());
@@ -343,7 +343,7 @@ public class MousePollTest extends TestCase
     {
 
         final World world = new World(20, 20, 10) {};
-        final MouseManager mouseMan = new MouseManager(new WorldLocator(){
+        final MousePollingManager mouseMan = new MousePollingManager(new WorldLocator(){
             public Actor getTopMostActorAt(MouseEvent e)
             { 
                 Collection<?> actors = WorldVisitor.getObjectsAtPixel(world, e.getX(), e.getY());
