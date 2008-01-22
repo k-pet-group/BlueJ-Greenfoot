@@ -24,7 +24,7 @@ import bluej.utility.FileUtility;
  * Action to select an image for a class.
  * 
  * @author Davin McCall
- * @version $Id: SelectImageAction.java 5466 2008-01-20 22:19:30Z polle $
+ * @version $Id: SelectImageAction.java 5474 2008-01-22 12:16:16Z polle $
  */
 public class SelectImageAction extends AbstractAction
 {
@@ -63,7 +63,6 @@ public class SelectImageAction extends AbstractAction
                     try {
                         FileUtility.copyFile(imageFile, destFile);
                         imageFile = destFile;
-                        return;
                     }
                     catch (IOException e) {
                         Debug.reportError("Error when copying file: " + imageFile + " to: " + destFile, e);
