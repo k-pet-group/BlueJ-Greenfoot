@@ -75,18 +75,6 @@ public interface Repository
     public TeamworkCommand getModules(List modules);
     
     /**
-     * Get the locally deleted files (files which are under version control,
-     * and which existed locally, but which have been deleted locally).
-     * 
-     * <p>Does not communicate with server.
-     * 
-     * @param set  The set to store the locally deleted files in
-     * @param dir  The directory to look for deleted files in (non-recursively)
-     * @throws IOException
-     */
-    public void getLocallyDeletedFiles(Set set, File dir) throws IOException;
-    
-    /**
      * Get the history of the repository - all commits, including file, date,
      * revision, user, and comment.
      */
@@ -94,9 +82,11 @@ public interface Repository
     
     /**
      * Prepare for the deletion of a directory. For CVS, this involves moving
-     * the metadata elsewhere.
+     * the metadata elsewhere. Returns true if the directory should be physically
+     * removed, or false otherwise. Also, calling this may result in the directory
+     * being removed.
      */
-    public void prepareDeleteDir(File dir);
+    public boolean prepareDeleteDir(File dir);
     
     /**
      * Prepare a newly created directory for version control.
@@ -108,4 +98,13 @@ public interface Repository
      * or other housekeeping information in the working copy
      */
     public FileFilter getMetadataFilter();
+    
+    /**
+     * Get all the locally deleted files in the repository. The files are put
+     * into the supplied set.
+     * 
+     * <p>Calling this method Does not result in communication with the repository
+     * server.
+     */
+    public void getAllLocallyDeletedFiles(Set files);
 }

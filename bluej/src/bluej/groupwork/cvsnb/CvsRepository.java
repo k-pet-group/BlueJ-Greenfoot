@@ -30,13 +30,14 @@ import org.netbeans.modules.versioning.system.cvss.SSHConnection;
 
 import bluej.groupwork.*;
 import bluej.utility.Debug;
+import bluej.utility.filefilter.DirectoryFilter;
 
 
 /**
  * This class handles communication with the repository.
  *
  * @author fisker
- * @version $Id: CvsRepository.java 5459 2008-01-18 05:24:16Z davmac $
+ * @version $Id: CvsRepository.java 5472 2008-01-22 03:48:01Z davmac $
  */
 public class CvsRepository implements Repository
 {
@@ -947,13 +948,15 @@ public class CvsRepository implements Repository
         return cvsroot.getRepository();
     }
     
-    /**
-     * Prepare for the deletion of a directory. For CVS, this involves moving
-     * the metadata elsewhere.
+    /*
+     * (non-Javadoc)
+     * @see bluej.groupwork.Repository#prepareDeleteDir(java.io.File)
      */
-    public void prepareDeleteDir(File dir)
+    public boolean prepareDeleteDir(File dir)
     {
+        /* Move the CVS metadata into a new location */
         adminHandler.prepareDeleteDir(dir);
+        return true;
     }
     
     /**
@@ -976,5 +979,60 @@ public class CvsRepository implements Repository
                 return ! pathname.getName().equals("CVS"); 
             }
         };
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see bluej.groupwork.Repository#getAllLocallyDeletedFiles()
+     */
+    public void getAllLocallyDeletedFiles(Set files)
+    {
+        LinkedList stack = new LinkedList();
+        stack.add(projectPath);
+        Set tempSet = new HashSet();
+        FileFilter reposFilter = getMetadataFilter();
+
+        while (! stack.isEmpty()) {
+            File dir = (File) stack.remove(0);
+            File [] subDirs = dir.listFiles(new DirectoryFilter());
+            for (int i = 0; i < subDirs.length; i++) {
+                if (reposFilter.accept(subDirs[i])) {
+                    stack.add(subDirs[i]);
+                }
+            }
+            try {
+                getLocallyDeletedFiles(files, dir);
+            }
+            catch (IOException ioe) { }
+        }
+
+        File delDir = new File(projectPath, "CVS");
+        delDir = new File(delDir, "deleted");
+        if (delDir.exists()) {
+            stack.add(delDir);
+        }
+        
+        while (! stack.isEmpty()) {
+            File dir = (File) stack.remove(0);
+            File [] subDirs = dir.listFiles(new DirectoryFilter());
+            for (int i = 0; i < subDirs.length; i++) {
+                if (reposFilter.accept(subDirs[i])) {
+                    stack.add(subDirs[i]);
+                }
+            }
+            try {
+                getLocallyDeletedFiles(tempSet, dir);
+                for (Iterator i = tempSet.iterator(); i.hasNext(); ) {
+                    File file = (File) i.next();
+                    // map the file back to the real directory
+                    String fileStr = file.getPath();
+                    fileStr = fileStr.substring(delDir.getPath().length());
+                    file = new File(projectPath, fileStr);
+                    files.add(file);
+                }
+                tempSet.clear();
+            }
+            catch (IOException ioe) { }
+        }
     }
 }

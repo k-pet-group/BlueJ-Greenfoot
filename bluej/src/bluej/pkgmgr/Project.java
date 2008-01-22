@@ -54,7 +54,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 5451 2008-01-07 01:54:01Z davmac $
+ * @version $Id: Project.java 5472 2008-01-22 03:48:01Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -1695,11 +1695,14 @@ public class Project implements DebuggerListener, InspectorManager
      * a notification which allows the team management code to save the
      * version control metadata elsewhere, if necessary.
      */
-    public void prepareDeleteDir(File dir)
+    public boolean prepareDeleteDir(File dir)
     {
         TeamSettingsController tsc = getTeamSettingsController();
         if (tsc != null) {
-            tsc.prepareDeleteDir(dir);
+            return tsc.prepareDeleteDir(dir);
+        }
+        else {
+            return true;
         }
     }
     

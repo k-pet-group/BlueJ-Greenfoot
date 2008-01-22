@@ -7,7 +7,6 @@ import bluej.Config;
 import bluej.groupwork.ui.TeamSettingsDialog;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
-import bluej.utility.filefilter.DirectoryFilter;
 
 
 /**
@@ -16,7 +15,7 @@ import bluej.utility.filefilter.DirectoryFilter;
  * the top-level folder of a team project, and the bluej.properties
  *
  * @author fisker
- * @version $Id: TeamSettingsController.java 5459 2008-01-18 05:24:16Z davmac $
+ * @version $Id: TeamSettingsController.java 5472 2008-01-22 03:48:01Z davmac $
  */
 public class TeamSettingsController
 {
@@ -100,6 +99,7 @@ public class TeamSettingsController
      * since the last commit.
      * 
      * @param includeLayout  indicates whether to include the layout (bluej.pkg) files.
+     * (Note that locally deleted bluej.pkg files are always included).
      */
     public Set getProjectFiles(boolean includeLayout)
     {
@@ -107,66 +107,7 @@ public class TeamSettingsController
         Set files = project.getFilesInProject(includeLayout);
         
         if (repository != null) {
-            // Include files which did exist locally and were under version control,
-            // but have been locally deleted (without the delete being committed).
-            LinkedList stack = new LinkedList();
-            stack.add(project.getProjectDir());
-            Set tempSet = new HashSet();
-            // We filter these files, but don't filter the layout files; if they've
-            // been deleted, the delete should always be committed.
-            FilenameFilter filter = getFileFilter(true);
-            while (! stack.isEmpty()) {
-                File dir = (File) stack.remove(0);
-                File [] subDirs = dir.listFiles(new DirectoryFilter());
-                for (int i = 0; i < subDirs.length; i++) {
-                    FileFilter reposFilter = repository.getMetadataFilter();
-                    if (reposFilter.accept(subDirs[i])) {
-                        stack.add(subDirs[i]);
-                    }
-                }
-                try {
-                    repository.getLocallyDeletedFiles(tempSet, dir);
-                    for (Iterator i = tempSet.iterator(); i.hasNext(); ) {
-                        File file = (File) i.next();
-                        if (filter.accept(dir, file.getName())) {
-                            files.add(file);
-                        }
-                    }
-                    tempSet.clear();
-                }
-                catch (IOException ioe) { }
-            }
-            
-            File delDir = new File(project.getProjectDir(), "CVS");
-            delDir = new File(delDir, "deleted");
-            if (delDir.exists()) {
-                stack.add(delDir);
-            }
-            
-            while (! stack.isEmpty()) {
-                File dir = (File) stack.remove(0);
-                File [] subDirs = dir.listFiles(new DirectoryFilter());
-                for (int i = 0; i < subDirs.length; i++) {
-                    if (! subDirs[i].getName().equals("CVS")) {
-                        stack.add(subDirs[i]);
-                    }
-                }
-                try {
-                    repository.getLocallyDeletedFiles(tempSet, dir);
-                    for (Iterator i = tempSet.iterator(); i.hasNext(); ) {
-                        File file = (File) i.next();
-                        if (filter.accept(dir, file.getName())) {
-                            // map the file back to the real directory
-                            String fileStr = file.getPath();
-                            fileStr = fileStr.substring(delDir.getPath().length());
-                            file = new File(project.getProjectDir(), fileStr);
-                            files.add(file);
-                        }
-                    }
-                    tempSet.clear();
-                }
-                catch (IOException ioe) { }
-            }
+            repository.getAllLocallyDeletedFiles(files);
         }
         
         return files;
@@ -204,11 +145,13 @@ public class TeamSettingsController
 
     /**
      * Prepare for the deletion of a directory. For CVS, this involves moving
-     * the metadata elsewhere.
+     * the metadata elsewhere. Returns true if the directory should actually
+     * be deleted, or false if the version control system will delete it either
+     * immediately or at commit time.
      */
-    public void prepareDeleteDir(File dir)
+    public boolean  prepareDeleteDir(File dir)
     {
-        getRepository().prepareDeleteDir(dir);
+        return getRepository().prepareDeleteDir(dir);
     }
     
     /**
