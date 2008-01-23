@@ -21,7 +21,7 @@ import bluej.utility.SwingWorker;
  * project.
  * 
  * @author Kasper
- * @version $Id: CheckoutAction.java 4916 2007-04-12 03:57:23Z davmac $
+ * @version $Id: CheckoutAction.java 5486 2008-01-23 03:39:36Z davmac $
  */
 public class CheckoutAction extends TeamAction
 {
@@ -57,7 +57,7 @@ public class CheckoutAction extends TeamAction
         // Create a TeamSettingsController for the current project directory,
         // switch it to the new one once it's been created
         TeamSettingsController tsc = new TeamSettingsController(new File(".").getAbsoluteFile());
-        TeamSettingsDialog tsd = new TeamSettingsDialog(tsc);
+        TeamSettingsDialog tsd = tsc.getTeamSettingsDialog();
         tsd.setLocationRelativeTo(oldFrame);
         
         if (tsd.doTeamSettings() == TeamSettingsDialog.OK) {
