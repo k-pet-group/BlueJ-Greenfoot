@@ -8,7 +8,8 @@ package bluej.groupwork;
 public interface TeamworkCommand
 {
     /**
-     * Cancel execution of the command.
+     * Cancel execution of the command. This can be called from any
+     * thread, and should return immediately.
      */
     public void cancel();
     

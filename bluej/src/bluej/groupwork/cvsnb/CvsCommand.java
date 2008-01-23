@@ -29,22 +29,14 @@ public abstract class CvsCommand
     /**
      * Get a new client to be used for command processing.
      */
-    protected BlueJCvsClient getClient() throws CommandAbortedException,
-        AuthenticationException
+    protected synchronized BlueJCvsClient getClient()
+        throws CommandAbortedException, AuthenticationException
     {
-        // We don't synchronize this whole method, because then we're holding the
-        // monitor for (potentially) a long time during setupConnection() call.
-        // So we must individually synchronize access to the protected variables.
-        
-        BlueJCvsClient myClient;
-        synchronized (this) {
-            if (cancelled) {
-                throw new CommandAbortedException("","");
-            }
-            client = repository.getClient();
-            myClient = client;
-            return client;
+        if (cancelled) {
+            throw new CommandAbortedException("","");
         }
+        client = repository.getClient();
+        return client;
     }
     
     public synchronized void cancel()
