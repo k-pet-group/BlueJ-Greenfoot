@@ -31,8 +31,8 @@ import greenfoot.sound.SoundPlayer;
  * </ul>
  * 
  * @author Davin McCall
- * @version 1.3.0
- * @cvs-version $Id: Greenfoot.java 5463 2008-01-18 19:51:59Z polle $
+ * @version 1.4.0
+ * @cvs-version $Id: Greenfoot.java 5488 2008-01-23 16:53:29Z polle $
  */
 public class Greenfoot
 {

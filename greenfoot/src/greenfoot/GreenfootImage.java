@@ -23,8 +23,8 @@ import java.net.URL;
  * and/or drawn by using various drawing methods.
  * 
  * @author Poul Henriksen
- * @version 1.3.0
- * @cvs-version $Id: GreenfootImage.java 5400 2007-11-26 13:34:33Z polle $
+ * @version 1.4.0
+ * @cvs-version $Id: GreenfootImage.java 5488 2008-01-23 16:53:29Z polle $
  */
 public class GreenfootImage
 {

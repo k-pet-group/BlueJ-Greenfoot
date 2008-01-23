@@ -29,7 +29,7 @@ import java.util.*;
  * @see greenfoot.Actor
  * @author Poul Henriksen
  * @author Michael Kolling
- * @version 1.3.0
+ * @version 1.4.0
  */
 @SuppressWarnings("unchecked")
 public abstract class World
