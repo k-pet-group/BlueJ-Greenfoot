@@ -52,7 +52,9 @@ public interface Repository
     public TeamworkCommand updateFiles(UpdateListener listener, Set theFiles, Set forceFiles);
     
     /**
-     * Put the project in the repository
+     * Put the project in the repository. This should create an empty project in
+     * the repository, and set the local project up as a working copy (with
+     * uncommitted files).
      */
     public TeamworkCommand shareProject();
 
