@@ -207,6 +207,7 @@ target="1.5">
                 <include name="greenfoot/World.java" />
                 <include name="greenfoot/GreenfootImage.java" />
                 <include name="greenfoot/Greenfoot.java" />
+                <include name="greenfoot/MouseInfo.java" />
             </fileset>
         </javadoc>
     </target>
