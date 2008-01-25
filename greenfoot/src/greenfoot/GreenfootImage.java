@@ -24,12 +24,13 @@ import java.net.URL;
  * 
  * @author Poul Henriksen
  * @version 1.4.0
- * @cvs-version $Id: GreenfootImage.java 5488 2008-01-23 16:53:29Z polle $
+ * @cvs-version $Id: GreenfootImage.java 5497 2008-01-25 11:34:01Z polle $
  */
 public class GreenfootImage
 {
-    private static final Color DEFAULT_BACKGROUND = new Color(0, 0, 0, 0);
-    /** The image name is primarily use for debuging. */
+    private static final Color DEFAULT_BACKGROUND = new Color(255,255,255,0);
+    private static final Color DEFAULT_FOREGROUND = Color.BLACK;
+    /** The image name is primarily used for debugging. */
     private String imageFileName;
     private BufferedImage image;
     private Graphics2D graphics;
@@ -176,10 +177,21 @@ public class GreenfootImage
             }
             else {
                 graphics = (Graphics2D) image.createGraphics();
-                graphics.setBackground(DEFAULT_BACKGROUND);
+                initGraphics();
             }
         }
         return graphics;
+    }
+
+    /**
+     * Initialises the graphics. Should be called whenever we have created a graphics for this image.
+     */
+    private void initGraphics()
+    {
+        if(graphics != null) {
+            graphics.setBackground(DEFAULT_BACKGROUND);
+            graphics.setColor(DEFAULT_FOREGROUND);
+        }
     }
 
     /**
@@ -571,7 +583,7 @@ public class GreenfootImage
         if (copyOnWrite) {
             BufferedImage bImage = GraphicsUtilities.createCompatibleTranslucentImage(image.getWidth(null), image.getHeight(null));
             graphics = bImage.createGraphics();
-            graphics.setBackground(DEFAULT_BACKGROUND);
+            initGraphics();
             graphics.drawImage(image, 0, 0, null);
             image = bImage;
             copyOnWrite = false;
@@ -600,7 +612,7 @@ public class GreenfootImage
     }
         
     /**
-     * Wait until the iamge is fully loaded and then init the graphics.
+     * Wait until the image is fully loaded and then init the graphics.
      * 
      */
     private static void waitForImageLoad(Image image)
