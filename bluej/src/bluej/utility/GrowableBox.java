@@ -22,7 +22,7 @@ import javax.swing.border.Border;
  * components in either a horizonatal or vertical direction.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GrowableBox.java 5445 2007-12-20 11:05:27Z mik $
+ * @version $Id: GrowableBox.java 5509 2008-01-29 17:32:38Z mik $
  */
 public class GrowableBox extends Box
 {
@@ -124,16 +124,16 @@ public class GrowableBox extends Box
      * @param removeButton
      */
     private void initButtons(JButton addButton, JButton removeButton) {
-        Utility.changeToMacButton(addButton, "only");
+        Utility.changeToMacButton(addButton);
         addButton.setFont(buttonFont);
         addButton.setText(addText);
         addButton.setIcon(addIcon);
-        Utility.changeToMacButton(removeButton, "only");
+        Utility.changeToMacButton(removeButton);
     	removeButton.setFont(buttonFont);
         removeButton.setText(removeText);
         removeButton.setIcon(removeIcon);
-        addButton.setMargin(buttonInsets);
-        removeButton.setMargin(buttonInsets);
+        //addButton.setMargin(buttonInsets);    //needed before MacOS 10.5?
+        //removeButton.setMargin(buttonInsets);
     }
 
     private void addGrowableComponent(int index, JComponent growableComponent) {        

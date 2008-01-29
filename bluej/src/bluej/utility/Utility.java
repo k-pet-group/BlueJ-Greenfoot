@@ -17,13 +17,14 @@ import javax.swing.AbstractButton;
 import javax.swing.border.Border;
 
 import bluej.Config;
+import java.awt.Insets;
 
 /**
  * Some generally useful utility methods available to all of bluej.
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 5508 2008-01-29 16:03:55Z mik $
+ * @version $Id: Utility.java 5509 2008-01-29 17:32:38Z mik $
  */
 public class Utility
 {
@@ -478,16 +479,23 @@ public class Utility
      * MacOS 10.5 and newer and a "toolbar" button on older MasOS.
      * 
      * @param button The button that should be changed. 
-     * @param position  The position in the button group. One of "first", 
-     *                  "middle", "last", "only".
      */
-    public static void changeToMacButton(AbstractButton button, String position)
+    public static void changeToMacButton(AbstractButton button)
     {
+        // available button styles, as of MacOS 10.5:
+        // square, gradient, bevel, textured, roundRect, recessed, help
+        // segmented styles:
+        // segmented, segmentedRoundRect, segmentedCapsule, segmentedTextured
+        // see: http://developer.apple.com/technotes/tn2007/tn2196.html
+        
         Border oldBorder = button.getBorder();
         
         // the following works since MacOS 10.5
-        button.putClientProperty("JButton.buttonType", "segmentedCapsule");
-        button.putClientProperty("JButton.segmentPosition", position);
+      
+        button.putClientProperty("JButton.buttonType", "square");
+        button.setMargin(new Insets(8, 8, 8, 8));
+       // button.putClientProperty("JButton.segmentPosition", position);
+
 
         if (oldBorder == button.getBorder()) {
             // if the border didn't change the "textured" type probably doesn't

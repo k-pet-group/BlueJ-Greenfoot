@@ -45,7 +45,7 @@ import bluej.utility.Utility;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 5429 2007-12-19 15:51:35Z mik $
+ * @version $Id: Config.java 5509 2008-01-29 17:32:38Z mik $
  */
 
 public final class Config
@@ -366,6 +366,15 @@ public final class Config
     public static boolean isMacOS()
     {
         return osname.startsWith("Mac");
+    }
+
+    /**
+     * Tell us whether we are running on MacOS 10.5 (Leopard) or later
+     */
+    public static boolean isMacOSLeopard()
+    {
+        return osname.startsWith("Mac") &&
+               System.getProperty("os.version").compareTo("10.5") >= 0;
     }
     
     /**

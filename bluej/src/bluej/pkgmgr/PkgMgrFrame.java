@@ -58,7 +58,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 5445 2007-12-20 11:05:27Z mik $
+ * @version $Id: PkgMgrFrame.java 5509 2008-01-29 17:32:38Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -2438,19 +2438,19 @@ public class PkgMgrFrame extends JFrame
 
                 AbstractButton button = createButton(newClassAction, false, false, 4, 4);
                 buttonPanel.add(button);
-                buttonPanel.add(Box.createVerticalStrut(3));
+                if(!Config.isMacOSLeopard()) buttonPanel.add(Box.createVerticalStrut(3));
 
                 imgDependsButton = createButton(newUsesAction, true, false, 4, 4);
                 buttonPanel.add(imgDependsButton);
-                buttonPanel.add(Box.createVerticalStrut(3));
+                if(!Config.isMacOSLeopard()) buttonPanel.add(Box.createVerticalStrut(3));
 
                 imgExtendsButton = createButton(newInheritsAction, true, false, 4, 4);
                 buttonPanel.add(imgExtendsButton);
-                buttonPanel.add(Box.createVerticalStrut(3));
+                if(!Config.isMacOSLeopard()) buttonPanel.add(Box.createVerticalStrut(3));
 
                 button = createButton(compileAction, false, false, 4, 4);
                 buttonPanel.add(button);
-                buttonPanel.add(Box.createVerticalStrut(3));
+                if(!Config.isMacOSLeopard()) buttonPanel.add(Box.createVerticalStrut(3));
 
                 buttonPanel.setAlignmentX(0.5f);
             }
@@ -2483,7 +2483,7 @@ public class PkgMgrFrame extends JFrame
                 endTestButton.setEnabled(false);
 
                 testPanel.add(endTestButton);
-                testPanel.add(Box.createVerticalStrut(3));
+                if(!Config.isMacOSLeopard()) testPanel.add(Box.createVerticalStrut(3));
 
                 action = CancelTestRecordAction.getInstance();
                 cancelTestButton = createButton(action, false, false, 2, 4);
@@ -2506,21 +2506,19 @@ public class PkgMgrFrame extends JFrame
                 updateButton = createButton(teamActions.getUpdateAction(), false, false, 2, 4);                
                 updateButton.setAlignmentX(0.15f);
                 teamPanel.add(updateButton);
-                teamPanel.add(Box.createVerticalStrut(3));
+                if(!Config.isMacOSLeopard()) teamPanel.add(Box.createVerticalStrut(3));
                 
                 commitButton = createButton(teamActions.getCommitCommentAction(), false, false, 2, 4);
                 commitButton.setAlignmentX(0.15f);
                 //make the button use a different label than the one from
                 // action
                 teamPanel.add(commitButton);
-                
-                teamPanel.add(Box.createVerticalStrut(3));
+                if(!Config.isMacOSLeopard()) teamPanel.add(Box.createVerticalStrut(3));
 
                 teamStatusButton = createButton(teamActions.getStatusAction(), false, false, 2, 4);
                 teamStatusButton.setAlignmentX(0.15f);
                 teamPanel.add(teamStatusButton);
-                
-                teamPanel.add(Box.createVerticalStrut(3));
+                if(!Config.isMacOSLeopard()) teamPanel.add(Box.createVerticalStrut(3));
                 teamPanel.setAlignmentX(0.5f);
             }
             teamItems.add(teamPanel);
@@ -2666,7 +2664,7 @@ public class PkgMgrFrame extends JFrame
             button = new JButton(action);
         }
         button.setFont(PkgMgrFont);
-        Utility.changeToMacButton(button, "only");
+        Utility.changeToMacButton(button);
         button.setFocusable(false); // buttons shouldn't get focus
 
         if (notext)
@@ -2675,7 +2673,7 @@ public class PkgMgrFrame extends JFrame
         Dimension pref = button.getMinimumSize();
         pref.width = Integer.MAX_VALUE;
         button.setMaximumSize(pref);
-        button.setMargin(new Insets(vSpacing, hSpacing, vSpacing, hSpacing));
+        //button.setMargin(new Insets(vSpacing, hSpacing, vSpacing, hSpacing));
 
         return button;
     }

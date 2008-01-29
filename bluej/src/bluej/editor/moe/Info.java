@@ -45,7 +45,7 @@ public final class Info extends JPanel
     {
         super();
         setLayout(new BorderLayout());
-        //setBorder(BorderFactory.createLineBorder(Color.black));
+        setBorder(BorderFactory.createLineBorder(Color.black));
         setFont(infoFont);
 
         JPanel body = new JPanel(new GridLayout(0, 1));	// one col, many rows
@@ -62,7 +62,7 @@ public final class Info extends JPanel
             helpButton.setMargin(new Insets(0,0,0,0));
         }
         else {
-            Utility.changeToMacButton(helpButton, "only");
+            Utility.changeToMacButton(helpButton);
         }
         helpButton.addActionListener(this);
         helpButton.setRequestFocusEnabled(false);   // never get focus

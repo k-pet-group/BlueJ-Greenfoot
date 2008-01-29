@@ -2157,10 +2157,10 @@ public final class MoeEditor extends JFrame
 
         // prepare the content pane
 
-        JPanel contentPane = new JPanel(new BorderLayout(0,0));
-        //contentPane.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
-        contentPane.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
-        contentPane.setBackground(frameBgColor);
+        JPanel contentPane = new JPanel(new BorderLayout(6,6));
+        contentPane.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+        //contentPane.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
+        //contentPane.setBackground(frameBgColor);
         setContentPane(contentPane);
 
         // create and add info and status areas
@@ -2168,8 +2168,8 @@ public final class MoeEditor extends JFrame
         JPanel bottomArea = new JPanel();
         
         // create panel for info/status
-        bottomArea.setLayout(new BorderLayout(1, 1));
-        bottomArea.setBackground(frameBgColor);
+        bottomArea.setLayout(new BorderLayout(6, 1));
+        //bottomArea.setBackground(frameBgColor);
         
         info = new Info();
         bottomArea.add(info, BorderLayout.CENTER);
@@ -2178,7 +2178,7 @@ public final class MoeEditor extends JFrame
         statusArea.setLayout(new GridLayout(0, 1));
         // one column, many rows
         statusArea.setBackground(infoColor);
-        //statusArea.setBorder(BorderFactory.createLineBorder(Color.black));
+        statusArea.setBorder(BorderFactory.createLineBorder(Color.black));
 
         saveState = new StatusLabel(StatusLabel.SAVED);
         statusArea.add(saveState);
@@ -2356,11 +2356,10 @@ public final class MoeEditor extends JFrame
     {
         JPanel toolbar = new JPanel();
         toolbar.setLayout(new BoxLayout(toolbar, BoxLayout.X_AXIS));
-        toolbar.setBackground(frameBgColor);
+        //toolbar.setBackground(frameBgColor);
 
         String[] toolGroups = getResource("toolbar").split(" ");
         for (String group : toolGroups) {
-            toolbar.add(Box.createHorizontalStrut(6));
             addToolbarGroup(toolbar, group);
         }
 
@@ -2381,17 +2380,9 @@ public final class MoeEditor extends JFrame
     private void addToolbarGroup(JComponent toolbar, String group)
     {
         String[] toolKeys = group.split(":");
-        if(toolKeys.length == 1) {
-            toolbar.add(createToolbarButton(toolKeys[0], "only"));
-        }
-        else {
-            toolbar.add(createToolbarButton(toolKeys[0], "first"));
-
-            for (int i = 1; i < toolKeys.length-1; i++) {
-                toolbar.add(createToolbarButton(toolKeys[i], "middle"));
-            }
-
-            toolbar.add(createToolbarButton(toolKeys[toolKeys.length-1], "last"));
+        for (int i = 0; i < toolKeys.length; i++) {
+            toolbar.add(createToolbarButton(toolKeys[i]));
+            if(!Config.isMacOSLeopard()) toolbar.add(Box.createHorizontalStrut(3));
         }
     }
 
@@ -2404,7 +2395,7 @@ public final class MoeEditor extends JFrame
      * @param position  The position in the button group. One of "first", 
      *                  "middle", "last", "only". Only used on MacOS.
      */
-    private AbstractButton createToolbarButton(String key, String position)
+    private AbstractButton createToolbarButton(String key)
     {
         final String label = Config.getString("editor." + key + LabelSuffix);
         AbstractButton button;
@@ -2433,7 +2424,7 @@ public final class MoeEditor extends JFrame
             button.setMargin(new Insets(margin.top, 3, margin.bottom, 3));
         }
         else {
-            Utility.changeToMacButton(button, position);
+            Utility.changeToMacButton(button);
         }
         
         button.setFont(PrefMgr.getStandardFont());
