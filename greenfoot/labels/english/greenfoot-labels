@@ -46,6 +46,12 @@ select.image=Set image...
 show.readme=Scenario Information
 pause.simulation=Pause
 
+# Remove class confirmation
+remove.confirm.title=Confirm removal of class
+remove.confirm.text1=About to remove class
+remove.confirm.text2=Continue?
+
+
 # Save project copy dialog
 project.savecopy.title=Save Scenario Copy
 

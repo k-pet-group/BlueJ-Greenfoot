@@ -1,19 +1,24 @@
 package greenfoot.actions;
 
-import bluej.Config;
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.classbrowser.ClassView;
 
 import java.awt.event.ActionEvent;
 
+import javax.swing.JFrame;
+
+import bluej.Config;
+
 /**
  * An action to remove the currently selected class.
  * 
  * @author davmac
- * @version $Id: RemoveSelectedClassAction.java 5284 2007-10-04 04:09:40Z bquig $
+ * @version $Id: RemoveSelectedClassAction.java 5507 2008-01-29 15:37:54Z polle $
  */
 public class RemoveSelectedClassAction extends ClassAction
 {
+    private JFrame frame;
+
     /**
      * Construct a remove action to remove the currently selected class.
      * The constructed action should be set as selection listener for the
@@ -23,11 +28,17 @@ public class RemoveSelectedClassAction extends ClassAction
     {
         super(Config.getString("remove.selected"), gfFrame);
         setEnabled(false);
+        this.frame = gfFrame;
     }
     
     public void actionPerformed(ActionEvent e)
     {
-    	ClassView selectedClassView = getSelectedClassView();
-        selectedClassView.remove();
+    	ClassView cls = getSelectedClassView();
+    	
+    	boolean confirmed = RemoveClassAction.confirmRemoveClass(cls, frame);
+        if (confirmed) {
+            cls.remove();
+        }
     }
+
 }

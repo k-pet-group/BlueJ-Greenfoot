@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.Action;
+import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
@@ -37,7 +38,7 @@ import bluej.views.ViewFilter;
  * "normal" classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 5483 2008-01-22 16:39:10Z polle $
+ * @version $Id: ClassRole.java 5507 2008-01-29 15:37:54Z polle $
  */
 public abstract class ClassRole implements WorldListener
 {
@@ -138,7 +139,7 @@ public abstract class ClassRole implements WorldListener
         addPopupMenuItems(popupMenu, classView.isCoreClass());
 
         if (! classView.isCoreClass()) {
-            popupMenu.add(createMenuItem(new RemoveClassAction(classView)));
+            popupMenu.add(createMenuItem(new RemoveClassAction(classView, classBrowser.getFrame())));
         }
         popupMenu.addSeparator();
         popupMenu.add(createMenuItem(new NewSubclassAction(classView, classBrowser)));

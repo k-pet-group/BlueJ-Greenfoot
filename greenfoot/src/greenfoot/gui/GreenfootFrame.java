@@ -98,7 +98,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5506 2008-01-29 11:55:02Z polle $
+ * @version $Id: GreenfootFrame.java 5507 2008-01-29 15:37:54Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener,
@@ -492,7 +492,7 @@ public class GreenfootFrame extends JFrame
 	 */
     private void buildClassBrowser()
     {
-        classBrowser = new ClassBrowser(project);
+        classBrowser = new ClassBrowser(project, this);
         classBrowser.getSelectionManager().addSelectionChangeListener(this);
         worldHandlerDelegate.setSelectionManager(classBrowser.getSelectionManager());
     }

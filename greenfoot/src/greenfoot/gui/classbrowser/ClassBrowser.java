@@ -16,6 +16,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.border.TitledBorder;
@@ -27,7 +28,7 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 5269 2007-10-04 02:02:36Z davmac $
+ * @version $Id: ClassBrowser.java 5507 2008-01-29 15:37:54Z polle $
  */
 public class ClassBrowser extends JPanel
 {
@@ -42,10 +43,12 @@ public class ClassBrowser extends JPanel
     
     private GProject project;
 
-    public ClassBrowser(GProject project)
+    private JFrame frame;
+
+    public ClassBrowser(GProject project, JFrame frame)
     {
     	this.project = project;
-    	
+    	this.frame = frame;
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         setBackground(Color.WHITE);
@@ -320,5 +323,13 @@ public class ClassBrowser extends JPanel
     public GProject getProject()
     {
     	return project;
+    }
+
+    /** 
+     * Get the parent frame of this class browser.
+     */
+    public JFrame getFrame()
+    {
+        return frame;
     }
 }
