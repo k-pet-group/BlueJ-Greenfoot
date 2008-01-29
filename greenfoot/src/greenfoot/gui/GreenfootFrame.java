@@ -13,6 +13,7 @@ import greenfoot.actions.PauseSimulationAction;
 import greenfoot.actions.PreferencesAction;
 import greenfoot.actions.QuitAction;
 import greenfoot.actions.RemoveSelectedClassAction;
+import greenfoot.actions.ResetWorldAction;
 import greenfoot.actions.RunOnceSimulationAction;
 import greenfoot.actions.RunSimulationAction;
 import greenfoot.actions.SaveCopyAction;
@@ -97,7 +98,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5469 2008-01-21 19:23:16Z polle $
+ * @version $Id: GreenfootFrame.java 5506 2008-01-29 11:55:02Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener,
@@ -588,6 +589,7 @@ public class GreenfootFrame extends JFrame
         addMenuItem(RunOnceSimulationAction.getInstance(), ctrlMenu, KeyEvent.VK_A, false, KeyEvent.VK_A);
         addMenuItem(RunSimulationAction.getInstance(), ctrlMenu, KeyEvent.VK_R, false, KeyEvent.VK_R);
         addMenuItem(PauseSimulationAction.getInstance(), ctrlMenu, KeyEvent.VK_R, true, KeyEvent.VK_P);
+        addMenuItem(ResetWorldAction.getInstance(), ctrlMenu, KeyEvent.VK_T, false, KeyEvent.VK_T);
 //        addMenuItem(new NYIAction("Increase Speed", this), ctrlMenu, KeyEvent.VK_PLUS, false, KeyEvent.VK_PLUS);
 //        addMenuItem(new NYIAction("Decrease Speed", this), ctrlMenu, KeyEvent.VK_MINUS, false, KeyEvent.VK_MINUS);
         ctrlMenu.addSeparator();
