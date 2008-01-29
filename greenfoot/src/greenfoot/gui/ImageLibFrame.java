@@ -6,11 +6,15 @@ import greenfoot.GreenfootImage;
 import greenfoot.ImageVisitor;
 import greenfoot.World;
 import greenfoot.core.GClass;
+import greenfoot.core.GPackage;
 import greenfoot.core.GProject;
+import greenfoot.event.ValidityEvent;
+import greenfoot.event.ValidityListener;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.util.GraphicsUtilities;
 import greenfoot.util.GreenfootUtil;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -43,11 +47,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.text.BadLocationException;
 
 import bluej.BlueJTheme;
 import bluej.Config;
@@ -60,7 +61,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 5420 2007-12-13 03:47:49Z davmac $
+ * @version $Id: ImageLibFrame.java 5500 2008-01-29 00:22:23Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 {
@@ -77,7 +78,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     
     private File selectedImageFile;
     private File projImagesDir;
-    private String className;
     
     public static int OK = 0;
     public static int CANCEL = 1;
@@ -87,6 +87,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     private boolean showingGeneratedImage;
     
     private int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
+    private JTextField classNameField;
 
     
     /**
@@ -128,7 +129,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     public ImageLibFrame(JFrame owner, GClass superClass)
     {
         super(owner, Config.getString("imagelib.newClass"), true);
-        
         defaultIcon = getClassIcon(superClass, getPreviewIcon(new File(GreenfootUtil.getGreenfootLogoPath())));
         showingGeneratedImage = false;
         
@@ -155,7 +155,15 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         okAction = getOkAction();
         
         // Class details - name, current icon
-        contentPane.add(buildClassDetailsPanel(includeClassNameField));
+        try {
+            contentPane.add(buildClassDetailsPanel(includeClassNameField, project.getDefaultPackage()));
+        }
+        catch (ProjectNotOpenException e1) {
+            e1.printStackTrace();
+        }
+        catch (RemoteException e1) {
+            e1.printStackTrace();
+        }
         
         // Image selection panels - project and greenfoot image library
         {
@@ -276,6 +284,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             okButton.setAction(okAction);
             
             JButton cancelButton = BlueJTheme.getCancelButton();
+            cancelButton.setVerifyInputWhenFocusTarget(false);
             cancelButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     result = CANCEL;
@@ -307,8 +316,9 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
      * 
      * @param includeClassNameField  Whether to include a field for
      *                              specifying the class name.
+     * @param pkg 
      */
-    private JPanel buildClassDetailsPanel(boolean includeClassNameField)
+    private JPanel buildClassDetailsPanel(boolean includeClassNameField, GPackage pkg)
     {
         JPanel classDetailsPanel = new JPanel();
         classDetailsPanel.setLayout(new BoxLayout(classDetailsPanel, BoxLayout.Y_AXIS));
@@ -329,39 +339,35 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 // "ok" button should be disabled until class name entered
                 okAction.setEnabled(false);
                 
-                final JTextField classNameField = new JTextField(12);
-                classNameField.getDocument().addDocumentListener(new DocumentListener() {
-                    private void change()
+                classNameField = new JTextField(12);
+                final JLabel errorMsgLabel = new JLabel();
+                errorMsgLabel.setVisible(false);
+                errorMsgLabel.setForeground(Color.RED);
+                
+                final ClassNameVerifier classNameVerifier = new ClassNameVerifier(classNameField, pkg);
+                classNameVerifier.addValidityListener(new ValidityListener(){
+                    public void changedToInvalid(ValidityEvent e)
                     {
-                        int length = classNameField.getDocument().getLength();
-                        okAction.setEnabled(length != 0);
-                        try {
-                            className = classNameField.getDocument().getText(0, length);
-                        }
-                        catch (BadLocationException ble) {}
+                        errorMsgLabel.setText(e.getReason());
+                        errorMsgLabel.setVisible(true);
+                        okAction.setEnabled(false);
                     }
-                    
-                    public void changedUpdate(DocumentEvent e)
+
+                    public void changedToValid(ValidityEvent e)
                     {
-                        // Nothing to do
-                    }
-                    
-                    public void insertUpdate(DocumentEvent e)
-                    {
-                        change();
-                    }
-                    
-                    public void removeUpdate(DocumentEvent e)
-                    {
-                        change();
-                    }
-                });
+                        errorMsgLabel.setVisible(false);
+                        okAction.setEnabled(true);
+                    }});
+                
                 
                 b.add(Box.createHorizontalStrut(spacingLarge));
+                
                 b.add(fixHeight(classNameField));
                 b.setAlignmentX(0.0f);
-                
                 classDetailsPanel.add(b);
+                
+                classDetailsPanel.add(errorMsgLabel);
+
                 classDetailsPanel.add(Box.createVerticalStrut(spacingLarge));
             }
             
@@ -533,7 +539,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
      */
     public String getClassName()
     {
-        return className;
+        return classNameField.getText();
     }
     
     /**

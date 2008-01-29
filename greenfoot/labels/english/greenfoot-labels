@@ -104,6 +104,8 @@ newclass.dialog.title=Create new class
 newclass.dialog.help1=A class name cannot contain spaces or punctuation 
 newclass.dialog.help2=characters and should start with a capital letter.
 newclass.dialog.className=New class name: 
+newclass.dialog.err.classExists=Class with that name already exists.
+newclass.dialog.err.classNameIllegal=Not a valid Java class name.
 
 # Initial startup dialog
 startup.header=Welcome to Greenfoot!

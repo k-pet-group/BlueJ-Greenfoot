@@ -1,6 +1,5 @@
 package greenfoot.actions;
 
-import bluej.Config;
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
 import greenfoot.gui.GreenfootFrame;
@@ -18,13 +17,14 @@ import java.rmi.RemoteException;
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 
+import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
 
 /**
  * An action for creating a new (non-Actor, non-World) class.
  * 
  * @author dam
- * @version $Id: NewClassAction.java 5284 2007-10-04 04:09:40Z bquig $
+ * @version $Id: NewClassAction.java 5500 2008-01-29 00:22:23Z polle $
  */
 public class NewClassAction extends AbstractAction
 {
@@ -41,7 +41,22 @@ public class NewClassAction extends AbstractAction
     public void actionPerformed(ActionEvent arg0)
     {
         JFrame f = gfFrame;
-        NewClassDialog dialog = new NewClassDialog(f);
+        ClassBrowser classBrowser = gfFrame.getClassBrowser();
+        GPackage pkg = null;
+        try {
+            pkg = classBrowser.getProject().getDefaultPackage();
+        }
+        catch (ProjectNotOpenException e) {
+            e.printStackTrace();
+            return;
+        }
+        catch (RemoteException e) {
+            e.printStackTrace();
+            return;
+        }
+   
+        
+        NewClassDialog dialog = new NewClassDialog(f, pkg);
         dialog.setVisible(true);
         if (!dialog.okPressed()) {
             return;
@@ -51,8 +66,6 @@ public class NewClassAction extends AbstractAction
         //GClass gClass = superclass.createSubclass(className);        
         
         try {
-        	ClassBrowser classBrowser = gfFrame.getClassBrowser();
-            GPackage pkg = classBrowser.getProject().getDefaultPackage();
             
             File dir = pkg.getProject().getDir();
             File newJavaFile = new File(dir, className + ".java");

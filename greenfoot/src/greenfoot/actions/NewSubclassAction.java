@@ -1,6 +1,7 @@
 package greenfoot.actions;
 
 import greenfoot.core.GClass;
+import greenfoot.core.GPackage;
 import greenfoot.gui.ImageLibFrame;
 import greenfoot.gui.NewClassDialog;
 import greenfoot.gui.classbrowser.ClassBrowser;
@@ -8,17 +9,21 @@ import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.role.ImageClassRole;
 
 import java.awt.event.ActionEvent;
+import java.rmi.RemoteException;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import bluej.Config;
+import bluej.extensions.ProjectNotOpenException;
 
 
 /**
+ * Action that creates a new class as a subclass of an existing class
+ * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NewSubclassAction.java 5415 2007-12-11 04:05:11Z davmac $
+ * @version $Id: NewSubclassAction.java 5500 2008-01-29 00:22:23Z polle $
  */
 public class NewSubclassAction extends AbstractAction
 {
@@ -78,7 +83,19 @@ public class NewSubclassAction extends AbstractAction
     public void createNonActorClass()
     {
         JFrame f = (JFrame) SwingUtilities.getWindowAncestor(classBrowser);
-        NewClassDialog dialog = new NewClassDialog(f);
+        GPackage pkg = null;
+        try {
+            pkg = classBrowser.getProject().getDefaultPackage();
+        }
+        catch (ProjectNotOpenException e) {
+            e.printStackTrace();
+            return;
+        }
+        catch (RemoteException e) {
+            e.printStackTrace();
+            return;
+        }
+        NewClassDialog dialog = new NewClassDialog(f, pkg);
         dialog.setVisible(true);
         if (!dialog.okPressed()) {
             return;
