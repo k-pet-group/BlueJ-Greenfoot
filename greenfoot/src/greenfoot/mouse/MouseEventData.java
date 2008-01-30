@@ -48,7 +48,7 @@ class MouseEventData {
     public void mousePressed(int x, int y, int button, Actor actor)
     {
         init();
-        mousePressedInfo = new MouseInfo();
+        mousePressedInfo = MouseInfoVisitor.newMouseInfo();
         mouseInfo = mousePressedInfo;  
         MouseInfoVisitor.setButton(mouseInfo, button);
         MouseInfoVisitor.setLoc(mouseInfo, x, y);
@@ -71,7 +71,7 @@ class MouseEventData {
         init();       
         mousePressedInfo = tempPressedInfo;
         
-        mouseClickedInfo = new MouseInfo();
+        mouseClickedInfo = MouseInfoVisitor.newMouseInfo();;
         mouseInfo = mouseClickedInfo;
         MouseInfoVisitor.setButton(mouseInfo, button);
         MouseInfoVisitor.setLoc(mouseInfo, x, y);
@@ -86,7 +86,7 @@ class MouseEventData {
     public void mouseDragged(int x, int y, int button, Actor actor)
     {
         init();
-        mouseDraggedInfo = new MouseInfo();
+        mouseDraggedInfo = MouseInfoVisitor.newMouseInfo();;
         mouseInfo = mouseDraggedInfo;
         MouseInfoVisitor.setButton(mouseInfo, button);
         MouseInfoVisitor.setLoc(mouseInfo, x, y);
@@ -105,7 +105,7 @@ class MouseEventData {
         init();
         mousePressedInfo = tempPressedInfo;
         mouseClickedInfo = tempClickedInfo;
-        mouseDragEndedInfo = new MouseInfo();
+        mouseDragEndedInfo = MouseInfoVisitor.newMouseInfo();;
         mouseInfo = mouseDragEndedInfo;
         MouseInfoVisitor.setButton(mouseInfo, button);
         MouseInfoVisitor.setLoc(mouseInfo, x, y);
@@ -120,7 +120,7 @@ class MouseEventData {
     public void mouseMoved(int x, int y, int button, Actor actor)
     {
         init();
-        mouseMovedInfo = new MouseInfo();
+        mouseMovedInfo = MouseInfoVisitor.newMouseInfo();;
         mouseInfo = mouseMovedInfo;
         MouseInfoVisitor.setButton(mouseInfo, button);
         MouseInfoVisitor.setLoc(mouseInfo, x, y);

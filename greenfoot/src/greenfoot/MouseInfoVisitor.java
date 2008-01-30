@@ -23,4 +23,9 @@ public class MouseInfoVisitor
     {
         info.setButton(button);
     }    
+    
+    public static MouseInfo newMouseInfo()
+    {
+        return new MouseInfo();
+    }
 }

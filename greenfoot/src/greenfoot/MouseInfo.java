@@ -1,7 +1,9 @@
 package greenfoot;
 /**
- * This class contains information about the current status of the mouse.
+ * This class contains information about the current status of the mouse. You
+ * can get a MouseInfo object via {@link Greenfoot.#getMouseInfo()}.
  * 
+ * @see Greenfoot.#getMouseInfo()
  * @author Poul Henriksen
  */
 public class MouseInfo
@@ -11,6 +13,15 @@ public class MouseInfo
     private int button;
     private int x;
     private int y;;
+    
+    /**
+     * Do not create your own MouseInfo objects. Use
+     * {@link Greenfoot.#getMouseInfo()}.
+     * 
+     * @see Greenfoot.#getMouseInfo()
+     */
+    MouseInfo() {        
+    }
     
     /**
      * Returns the current x position of the mouse cursor.
