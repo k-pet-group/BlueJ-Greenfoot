@@ -203,16 +203,19 @@ public class UpdateServerResponse extends BasicServerResponse implements UpdateR
     	return results;
     }
     
-    /**
-     * Get a list of UpdateResults that represents conflicts. 
-     * This method will block until the UpdateCommand we are listening for has
-     * terminated.
-     * @return List of UpdateResults which represents conflicts
+    /* (non-Javadoc)
+     * @see bluej.groupwork.UpdateResults#getConflicts()
      */
     public List getConflicts()
     {
     	waitForExecutionToFinish();
-    	return getUpdateResultsOfType(CvsUpdateResult.CONFLICT);
+    	List curList = getUpdateResultsOfType(CvsUpdateResult.CONFLICT);
+    	List fileList = new ArrayList(curList.size());
+    	for (Iterator i = curList.iterator(); i.hasNext(); ) {
+    	    CvsUpdateResult result = (CvsUpdateResult) i.next();
+    	    fileList.add(new File(client.getLocalPath(), result.getFilename()));
+    	}
+    	return fileList;
     }
     
     /**

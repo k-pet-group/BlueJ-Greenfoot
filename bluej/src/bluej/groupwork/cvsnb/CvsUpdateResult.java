@@ -1,7 +1,6 @@
 package bluej.groupwork.cvsnb;
 
 import bluej.groupwork.UnableToParseInputException;
-import bluej.groupwork.UpdateResult;
 
 /**
  * This class represents the result we get back from the server when doing an
@@ -11,7 +10,7 @@ import bluej.groupwork.UpdateResult;
  * 
  * @author fisker
  */
-public class CvsUpdateResult implements UpdateResult
+public class CvsUpdateResult
 {
 	char statusCode = 'X';
 	String filename;

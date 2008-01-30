@@ -7,7 +7,7 @@ import java.io.File;
  * by an update from the repository.
  * 
  * @author Davin McCall
- * @version $Id: UpdateListener.java 4916 2007-04-12 03:57:23Z davmac $
+ * @version $Id: UpdateListener.java 5510 2008-01-30 03:08:03Z davmac $
  */
 public interface UpdateListener
 {
@@ -29,5 +29,5 @@ public interface UpdateListener
     /**
      * Conflicts must be handled.
      */
-    public void handleConflicts(UpdateResults updateServerResponse);
+    public void handleConflicts(UpdateResults updateResults);
 }
