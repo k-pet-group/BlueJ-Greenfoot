@@ -5,28 +5,28 @@ package bluej.groupwork;
  * Filename, revision, date, user, comment
  * 
  * @author Davin McCall
- * @version $Id: HistoryInfo.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version $Id: HistoryInfo.java 5529 2008-02-04 04:39:56Z davmac $
  */
 public class HistoryInfo
 {
-    private String file;
+    private String [] files;
     private String revision;
     private String date;
     private String user;
     private String comment;
     
-    public HistoryInfo(String file, String revision, String date, String user, String comment)
+    public HistoryInfo(String [] files, String revision, String date, String user, String comment)
     {
-        this.file = file;
+        this.files = files;
         this.revision = revision;
         this.date = date;
         this.user = user;
         this.comment = comment;
     }
     
-    public String getFile()
+    public String [] getFiles()
     {
-        return file;
+        return files;
     }
     
     public String getRevision()

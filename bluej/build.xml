@@ -49,6 +49,7 @@
     	<pathelement location="${bluej_home}/lib/org-netbeans-lib-cvsclient.jar"/>
         <pathelement location="${bluej_home}/lib/jsch.jar"/>
         <pathelement location="${bluej_home}/lib/sshconnection.jar"/>
+    	<pathelement location="$(bluej_home}/lib/svnkit-javahl.jar"/>
     </path>
     
     <!-- taskdef name="jarbundler"

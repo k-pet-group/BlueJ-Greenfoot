@@ -25,7 +25,7 @@ import bluej.utility.Debug;
  * A sub package (or parent package)
  * 
  * @author Michael Cahill
- * @version $Id: PackageTarget.java 5472 2008-01-22 03:48:01Z davmac $
+ * @version $Id: PackageTarget.java 5529 2008-02-04 04:39:56Z davmac $
  */
 public class PackageTarget extends Target
     implements Moveable
@@ -117,13 +117,13 @@ public class PackageTarget extends Target
             }
         }
         else {
-            // delete all subdirectories
-            for(int i=0;i<Array.getLength(fileList);i++) {
-                deleteDir(fileList[i]);
-            }
-            
-            // then delete the directory (when it is empty)
             if (getPackage().getProject().prepareDeleteDir(directory)) {
+                // delete all subdirectories
+                for(int i=0;i<Array.getLength(fileList);i++) {
+                    deleteDir(fileList[i]);
+                }
+
+                // then delete the directory (when it is empty)
                 directory.delete();
             }
         }

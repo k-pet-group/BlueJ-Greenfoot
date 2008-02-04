@@ -29,8 +29,11 @@ import bluej.utility.SwingWorker;
 /**
  * Action to update out-of-date files.
  * 
+ * <p>Before this action is enabled, setFilesToUpdate(), setFilesToForceUpdate()
+ * and setStatusCommand() must each be called.
+ * 
  * @author fisker
- * @version $Id: UpdateAction.java 5079 2007-05-31 06:48:07Z davmac $
+ * @version $Id: UpdateAction.java 5529 2008-02-04 04:39:56Z davmac $
  */
 public class UpdateAction extends AbstractAction
 {
@@ -41,6 +44,7 @@ public class UpdateAction extends AbstractAction
     
     private Set filesToUpdate;
     private Set filesToForceUpdate;
+    private TeamworkCommand statusCommand;
     
     /** A list of packages whose bluej.pkg file has been removed */
     private List removedPackages;
@@ -53,7 +57,7 @@ public class UpdateAction extends AbstractAction
     }
 
     /**
-     * Set the files to be updated (changes merged if necessary)
+     * Set the files to be updated (changes merged if necessary).
      * @files a Set of File
      */
     public void setFilesToUpdate(Set files)
@@ -70,6 +74,15 @@ public class UpdateAction extends AbstractAction
         filesToForceUpdate = files;
     }
     
+    /**
+     * Set the status command that was used previously to determine
+     * file statuses.
+     */
+    public void setStatusCommand(TeamworkCommand statusCommand)
+    {
+        this.statusCommand = statusCommand;
+    }
+    
     /* (non-Javadoc)
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
@@ -83,7 +96,8 @@ public class UpdateAction extends AbstractAction
             updateFrame.startProgress();
             PkgMgrFrame.displayMessage(project, Config.getString("team.update.statusMessage"));
             
-            worker = new UpdateWorker(project, filesToUpdate, filesToForceUpdate);
+            worker = new UpdateWorker(project, statusCommand,
+                    filesToUpdate, filesToForceUpdate);
             worker.start();
         }
     }
@@ -101,17 +115,14 @@ public class UpdateAction extends AbstractAction
     
     private class UpdateWorker extends SwingWorker implements UpdateListener
     {
-        private Repository repository;
         private TeamworkCommand command;
         private TeamworkCommandResult result;
         private boolean aborted;
         
-        public UpdateWorker(Project project, Set filesToUpdate, Set filesToForceUpdate)
+        public UpdateWorker(Project project, TeamworkCommand statusCommand,
+                Set filesToUpdate, Set filesToForceUpdate)
         {
-            repository = project.getRepository();
-            if (repository != null) {
-                command = repository.updateFiles(this, filesToUpdate, filesToForceUpdate);
-            }
+            command = statusCommand.getUpdateTo(this, filesToUpdate, filesToForceUpdate);
         }
         
         public Object construct()
@@ -296,7 +307,8 @@ public class UpdateAction extends AbstractAction
                 return;
             }
 
-            if (updateServerResponse.getConflicts().size() <= 0) {
+            if (updateServerResponse.getConflicts().size() <= 0
+                    && updateServerResponse.getBinaryConflicts().size() <= 0) {
                 return;
             }
 
@@ -338,18 +350,10 @@ public class UpdateAction extends AbstractAction
 
                         for (Iterator i = updateServerResponse.getConflicts().iterator();
                                 i.hasNext();) {
-                            UpdateResult updateResult = (UpdateResult) i.next();
+                            File file = (File) i.next();
 
                             // Calculate the file base name
-                            String fileName = updateResult.getFilename();
-                            String baseName;
-                            int n = fileName.lastIndexOf('/');
-                            if (n != -1) {
-                                baseName = fileName.substring(n + 1);
-                            }
-                            else {
-                                baseName = fileName;
-                            }
+                            String baseName = file.getName();
 
                             // bluej.pkg may come up as a conflict, but it won't cause a problem,
                             // so it can be ignored.
@@ -357,7 +361,6 @@ public class UpdateAction extends AbstractAction
                                 Target target = null;
 
                                 if (baseName.endsWith(".java") || baseName.endsWith(".class")) {
-                                    File file = new File(project.getProjectDir(), fileName);
                                     String pkg = project.getPackageForFile(file);
                                     if (pkg != null) {
                                         String targetId = filenameToTargetIdentifier(baseName);
@@ -366,7 +369,6 @@ public class UpdateAction extends AbstractAction
                                     }
                                 }
                                 else if (baseName.equals("README.TXT")) {
-                                    File file = new File(project.getProjectDir(), fileName);
                                     String pkg = project.getPackageForFile(file);
                                     if (pkg != null) {
                                         String targetId = ReadmeTarget.README_ID;
@@ -375,6 +377,8 @@ public class UpdateAction extends AbstractAction
                                     }
                                 }
 
+                                String fileName = makeRelativePath(project.getProjectDir(), file);
+                                
                                 if (target == null) {
                                     nonBlueJConflicts.add(fileName);
                                 } else {
@@ -465,5 +469,21 @@ public class UpdateAction extends AbstractAction
     {
         int lastDot = filename.lastIndexOf('.');
         return filename.substring(0, lastDot);
+    }
+    
+    /**
+     * Make a relative path between a file and containing directory. 
+     */
+    private static String makeRelativePath(File parent, File file)
+    {
+        String parentStr = parent.getAbsolutePath();
+        String filePath = file.getAbsolutePath();
+        
+        if (filePath.startsWith(parentStr)) {
+            // remove parent, plus path separator character
+            filePath = filePath.substring(parentStr.length() + 1);
+        }
+        
+        return filePath;
     }
 }

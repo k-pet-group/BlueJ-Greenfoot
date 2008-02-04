@@ -54,7 +54,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 5472 2008-01-22 03:48:01Z davmac $
+ * @version $Id: Project.java 5529 2008-02-04 04:39:56Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -1534,13 +1534,17 @@ public class Project implements DebuggerListener, InspectorManager
 
     /**
      * Get an array of Files that resides in the project folders.
-     * @param project the project
-     * @return List of Files 
+     * @param includePkgFiles   true if package layout files should be included
+     * @param includeDirs       true if directories should be included
+     * @return List of File objects 
      */
-    public Set getFilesInProject(boolean includePkgFiles)
+    public Set getFilesInProject(boolean includePkgFiles, boolean includeDirs)
     {
         Set files = new HashSet();
-        traverseDirsForFiles(files, projectDir, includePkgFiles);
+        if (includeDirs) {
+            files.add(projectDir);
+        }
+        traverseDirsForFiles(files, projectDir, includePkgFiles, includeDirs);
         return files;
     }
 
@@ -1564,7 +1568,8 @@ public class Project implements DebuggerListener, InspectorManager
      * @param dir the directory the search starts from
      * @param includePkgFiles if true, bluej.pkg files are included as well.
      */
-    private void traverseDirsForFiles(Set allFiles, File dir, boolean includePkgFiles)
+    private void traverseDirsForFiles(Set allFiles, File dir, boolean includePkgFiles,
+            boolean includeDirs)
     {
         File[] files = dir.listFiles(getTeamSettingsController().getFileFilter(includePkgFiles));
         if (files==null){
@@ -1574,7 +1579,10 @@ public class Project implements DebuggerListener, InspectorManager
             if (files[i].isFile()) {
                 allFiles.add(files[i]);
             } else {
-                traverseDirsForFiles(allFiles, files[i], includePkgFiles);
+                if (includeDirs) {
+                    allFiles.add(files[i]);
+                }
+                traverseDirsForFiles(allFiles, files[i], includePkgFiles, includeDirs);
             }
         }
     }
@@ -1685,8 +1693,8 @@ public class Project implements DebuggerListener, InspectorManager
     {
         if(statusFrame == null) {
             statusFrame = new StatusFrame(this);
+            statusFrame.setLocationRelativeTo(parent);
         }
-        statusFrame.setLocationRelativeTo(parent);
         return statusFrame;
     }
     

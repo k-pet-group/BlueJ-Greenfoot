@@ -1,14 +1,15 @@
 package bluej.groupwork.ui;
 
-import bluej.utility.Debug;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.util.*;
+import java.io.FileFilter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -21,14 +22,12 @@ import bluej.groupwork.*;
 import bluej.pkgmgr.Project;
 import bluej.utility.EscapeDialog;
 import bluej.utility.SwingWorker;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 
 /**
  * Main frame for CVS Status Dialog
  *
  * @author bquig
- * @version $Id: StatusFrame.java 5092 2007-06-14 15:11:09Z mik $
+ * @version $Id: StatusFrame.java 5529 2008-02-04 04:39:56Z davmac $
  */
 public class StatusFrame extends EscapeDialog
 {
@@ -142,13 +141,14 @@ public class StatusFrame extends EscapeDialog
     private int estimateInitialEntries()
     {
         // Use number of targets + README.TXT
-        int initialEntries = project.getFilesInProject(true).size() + 1;
+        int initialEntries = project.getFilesInProject(true, false).size() + 1;
         // may need to include diagram layout
         //if(project.includeLayout())
         //    initialEntries++;
         // Limit to a reasonable maximum
-        if(initialEntries > MAX_ENTRIES)
+        if(initialEntries > MAX_ENTRIES) {
             initialEntries = MAX_ENTRIES;
+        }
         return initialEntries;
     }
 
@@ -179,14 +179,14 @@ public class StatusFrame extends EscapeDialog
         TeamworkCommand command;
         TeamworkCommandResult result;
         boolean aborted;
-        FilenameFilter filter = project.getTeamSettingsController().getFileFilter(true);
+        FileFilter filter = project.getTeamSettingsController().getFileFilter(true);
 
         public StatusWorker()
         {
             super();
             resources = new ArrayList();
-            Set files = project.getTeamSettingsController().getProjectFiles(true);
-            command = repository.getStatus(this, files, true);
+            //Set files = project.getTeamSettingsController().getProjectFiles(true);
+            command = repository.getStatus(this, filter, true);
         }
 
         public void abort()
@@ -203,10 +203,7 @@ public class StatusFrame extends EscapeDialog
 
         public void gotStatus(TeamStatusInfo info)
         {
-            File infoFile = info.getFile();
-            if (filter.accept(infoFile.getParentFile(), infoFile.getName())) {
-                resources.add(info);
-            }
+            resources.add(info);
         }
 
         public void finished() 

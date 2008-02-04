@@ -33,7 +33,6 @@ public class StatusAction extends TeamAction
     {
         StatusFrame status = pmf.getProject().getStatusWindow(pmf);
         status.setVisible(true);
-        status.toFront();
         status.update();
     }
 }

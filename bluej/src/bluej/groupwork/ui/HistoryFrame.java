@@ -23,7 +23,7 @@ import bluej.utility.SwingWorker;
  * and commit comments.
  * 
  * @author Davin McCall
- * @version $Id: HistoryFrame.java 5177 2007-09-11 04:00:16Z bquig $
+ * @version $Id: HistoryFrame.java 5529 2008-02-04 04:39:56Z davmac $
  */
 public class HistoryFrame extends EscapeDialog
 {
@@ -81,7 +81,7 @@ public class HistoryFrame extends EscapeDialog
         
         // Find a suitable size for the history list
         List tempList = new ArrayList(5);
-        HistoryInfo tempInfo = new HistoryInfo("somepath/abcdefg.java", "1.1", "2006/11/34 12:34:56", "abraham", "this is the expected comment length of comments");
+        HistoryInfo tempInfo = new HistoryInfo(new String[] {"somepath/abcdefg.java"}, "1.1", "2006/11/34 12:34:56", "abraham", "this is the expected comment length of comments");
         for (int i = 0; i < 8; i++) {
             tempList.add(tempInfo);
         }
@@ -193,7 +193,7 @@ public class HistoryFrame extends EscapeDialog
                 if (user != null && ! info.getUser().equals(user)) {
                     continue;
                 }
-                if (file != null && ! info.getFile().equals(file)) {
+                if (file != null && ! hinfoHasFile(info, file)) {
                     continue;
                 }
                 
@@ -202,6 +202,20 @@ public class HistoryFrame extends EscapeDialog
         }
         
         listModel.setListData(displayList);
+    }
+    
+    /**
+     * Check whether a history item pertains at all to a particular file
+     */
+    private boolean hinfoHasFile(HistoryInfo info, String file)
+    {
+        String [] files = info.getFiles();
+        for (int i = 0; i < files.length; i++) {
+            if (files[i].equals(file)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /**
@@ -215,7 +229,10 @@ public class HistoryFrame extends EscapeDialog
         
         for (Iterator i = historyInfoList.iterator(); i.hasNext(); ) {
             HistoryInfo info = (HistoryInfo) i.next();
-            files.add(info.getFile());
+            String [] infoFiles = info.getFiles();
+            for (int j = 0; j < infoFiles.length; j++) {
+                files.add(infoFiles[j]);
+            }
             users.add(info.getUser());
         }
         
@@ -251,14 +268,12 @@ public class HistoryFrame extends EscapeDialog
      */
     private class HistoryWorker extends SwingWorker implements LogHistoryListener
     {
-        private Repository repository;
         private List responseList;
         private TeamworkCommand command;
         private TeamworkCommandResult response;
         
         public HistoryWorker(Repository repository)
         {
-            this.repository = repository;
             this.responseList = new ArrayList();
             
             command = repository.getLogHistory(this);
@@ -270,9 +285,9 @@ public class HistoryFrame extends EscapeDialog
             return response;
         }
         
-        public void logInfoAvailable(LogInformation logInfo)
+        public void logInfoAvailable(HistoryInfo hInfo)
         {
-            responseList.add(logInfo);
+            responseList.add(hInfo);
         }
         
         public void finished()
@@ -285,38 +300,16 @@ public class HistoryFrame extends EscapeDialog
                     setVisible(false);
                 }
                 else {
-                    List modelList = new ArrayList();
                     
-                    // Convert the list of LogInformation into a list of
-                    // HistoryInfo
-                    for (Iterator i = responseList.iterator(); i.hasNext(); ) {
-                        LogInformation logInfo = (LogInformation) i.next();
-                        String file = logInfo.getFile().getPath();
-                        String projectPath = project.getProjectDir().getPath();
-                        if (file.startsWith(projectPath)) {
-                            file = file.substring(projectPath.length() + 1);
-                        }
-                        Iterator j = logInfo.getRevisionList().iterator();
-                        while (j.hasNext()) {
-                            Revision revision = (Revision) j.next();
-                            String user = revision.getAuthor();
-                            String rev = revision.getNumber();
-                            String date = revision.getDateString();
-                            String comment = revision.getMessage();
-                            HistoryInfo info = new HistoryInfo(file, rev, date, user, comment);
-                            modelList.add(info);
-                        }
-                    }
-                    
-                    Collections.sort(modelList, new DateCompare());
+                    Collections.sort(responseList, new DateCompare());
                     
                     // Make the history list forget the preferred size that was forced
                     // upon it when we built the frame.
                     historyList.setPreferredSize(null);
                     
                     renderer.setWrapMode(historyPane);
-                    listModel.setListData(modelList);
-                    historyInfoList = modelList;
+                    listModel.setListData(responseList);
+                    historyInfoList = responseList;
                     
                     resetFilterBoxes();
                 }

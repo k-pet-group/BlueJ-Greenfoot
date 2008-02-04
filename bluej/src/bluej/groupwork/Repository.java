@@ -2,7 +2,6 @@ package bluej.groupwork;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -15,17 +14,23 @@ import java.util.Set;
 public interface Repository
 {
     /**
+     * Set the password used to access the repository
+     */
+    public void setPassword(TeamSettings newSettings);
+    
+    /**
+     * Returns true if this repository versions directories (subversion),
+     * false otherwise (CVS).
+     */
+    public boolean versionsDirectories();
+    
+    /**
      * Checkout project from repostitory to local project.
      */
     public TeamworkCommand checkout(File projectPath);
 
     /**
-     * Commits the files and directories in the project. If files or dirs need
-     * to be added first, they are added. The booelean includePkgFiles
-     * determins whether pkg files are included in  the commit. One exception
-     * to this is newly created packages. They always  have their pkg files
-     * committed. Otherwise bluej won't know the difference between simple
-     * directories and bluej packages.
+     * Commits the files and directories in the project.
      *
      * @param newFiles Files to be committed which are not presently in the repository
      *                 (text files only)
@@ -41,17 +46,6 @@ public interface Repository
             Set deletedFiles, Set files, String commitComment);
     
     /**
-     * Update local files with changes from the repository
-     * 
-     * @param listener  A listener to be notified of files being added/updated/removed
-     *                  during the update, and of conflicts.
-     * @param theFiles     The files to be updated (excluding forceFiles)
-     * @param forceFiles   Files to be updated "forcefully", i.e. get a clean copy of the
-     *                     file from the repository rather than attempting a merge
-     */
-    public TeamworkCommand updateFiles(UpdateListener listener, Set theFiles, Set forceFiles);
-    
-    /**
      * Put the project in the repository. This should create an empty project in
      * the repository, and set the local project up as a working copy (with
      * uncommitted files).
@@ -63,12 +57,13 @@ public interface Repository
      * Returns a List of TeamStatusInfo.
      *
      * @param listener  A listener to be notified of the status of each requested file
-     * @param files  The files whose status to retrieve
+     * @param filter  A file filter to determine which files and directories to include
+     *                in the returned statuses
      * @param includeRemote  Whether to include remote files (files which do not exist
      *                       locally, but which do exist in the repository), regardless of
      *                       whether they are listed in the files argument.
      */
-    public TeamworkCommand getStatus(StatusListener listener, Set files, boolean includeRemote);
+    public TeamworkCommand getStatus(StatusListener listener, FileFilter filter, boolean includeRemote);
     
     /**
      * Get a list of modules in the repository. The module names (String) are added
@@ -85,7 +80,10 @@ public interface Repository
     /**
      * Prepare for the deletion of a directory. For CVS, this involves moving
      * the metadata elsewhere. Returns true if the directory should be physically
-     * removed, or false otherwise. Also, calling this may result in the directory
+     * removed, or false otherwise, in which case all files and sub-directories
+     * within are assumed to have been handled.
+     * 
+     * <p>Also, calling this may result in the directory
      * being removed.
      */
     public boolean prepareDeleteDir(File dir);

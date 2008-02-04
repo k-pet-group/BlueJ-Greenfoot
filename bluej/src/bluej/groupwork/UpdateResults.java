@@ -12,7 +12,7 @@ import java.util.Set;
 public interface UpdateResults
 {
     /**
-     * Get a list of File objects that have a conflict after update. 
+     * Get a list of File objects that represents conflicts. 
      */
     public List getConflicts();
     
@@ -27,7 +27,7 @@ public interface UpdateResults
     /**
      * Once the initial update has finished and the binary conflicts are known,
      * this method must be called to select whether to keep the local or use the
-     * remote version of the conflicting files.
+     * remove version of the conflicting files.
      *  
      * @param files  A set of files to fetch from the repository, overwriting the
      *               local version. (For any file not in the set, the local version

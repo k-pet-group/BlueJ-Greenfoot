@@ -7,7 +7,7 @@ import java.io.File;
  * Team status information for a file
  * 
  * @author Davin McCall
- * @version $Id: TeamStatusInfo.java 5459 2008-01-18 05:24:16Z davmac $
+ * @version $Id: TeamStatusInfo.java 5529 2008-02-04 04:39:56Z davmac $
  */
 public class TeamStatusInfo
 {
@@ -86,7 +86,7 @@ public class TeamStatusInfo
     };
     
     /**
-     * Default "blank" status info. Used to prepopulate status table whilst 
+     * Default "blank" status info. Used to pre-populate status table whilst 
      * awaiting repository response.
      */
     public TeamStatusInfo()

@@ -8,14 +8,12 @@ package bluej.groupwork;
 public class Revision
 {
     private String author;
-    private String number;
     private String date;
     private String comment;
     
-    public Revision(String author, String number, String date, String comment)
+    public Revision(String author, String date, String comment)
     {
         this.author = author;
-        this.number = number;
         this.date = date;
         this.comment = comment;
     }
@@ -23,11 +21,6 @@ public class Revision
     public String getAuthor()
     {
         return author;
-    }
-    
-    public String getNumber()
-    {
-        return number;
     }
     
     public String getDateString()
@@ -38,5 +31,20 @@ public class Revision
     public String getMessage()
     {
         return comment;
+    }
+    
+    public int hashCode()
+    {
+        return author.hashCode() + date.hashCode() + comment.hashCode();
+    }
+    
+    public boolean equals(Object other)
+    {
+        if (other instanceof Revision) {
+            Revision rother = (Revision) other;
+            return rother.author.equals(author) && rother.date.equals(date)
+                && rother.comment.equals(comment);
+        }
+        return false;
     }
 }

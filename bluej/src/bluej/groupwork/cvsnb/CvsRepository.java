@@ -37,7 +37,7 @@ import bluej.utility.filefilter.DirectoryFilter;
  * This class handles communication with the repository.
  *
  * @author fisker
- * @version $Id: CvsRepository.java 5472 2008-01-22 03:48:01Z davmac $
+ * @version $Id: CvsRepository.java 5529 2008-02-04 04:39:56Z davmac $
  */
 public class CvsRepository implements Repository
 {
@@ -88,7 +88,7 @@ public class CvsRepository implements Repository
         // System.setProperty("javacvs.multiple_commands_warning", "false");
     }
 
-    // **** static declerations 
+    // **** static declarations 
 
     /**
      * Convert a List of Files to an array of Files.
@@ -110,6 +110,14 @@ public class CvsRepository implements Repository
 
     // setup start
 
+    /* (non-Javadoc)
+     * @see bluej.groupwork.Repository#setPassword(bluej.groupwork.TeamSettings)
+     */
+    public void setPassword(TeamSettings newSettings)
+    {
+        setCvsRoot(CvsProvider.makeCvsRoot(newSettings));
+    }
+    
     /**
      * Get the project path for this repository.
      */
@@ -181,6 +189,17 @@ public class CvsRepository implements Repository
         }
     }
 
+    /* (non-Javadoc)
+     * @see bluej.groupwork.Repository#versionsDirectories()
+     */
+    public boolean versionsDirectories()
+    {
+        return false;
+    }
+    
+    /* (non-Javadoc)
+     * @see bluej.groupwork.Repository#checkout(java.io.File)
+     */
     public TeamworkCommand checkout(File projectPath)
     {
         return new CvsCheckoutCommand(this, projectPath);
@@ -766,12 +785,61 @@ public class CvsRepository implements Repository
         }
     }
     
-    /* (non-Javadoc)
-     * @see bluej.groupwork.Repository#getStatus(bluej.groupwork.StatusListener, java.util.Set, java.util.Set)
+    /**
+     * Get the status of the given set of files 
+     * @param listener
+     * @param files
+     * @param includeRemote
+     * @return
      */
     public TeamworkCommand getStatus(StatusListener listener, Set files, boolean includeRemote)
     {
         return new CvsStatusCommand(this, listener, files, includeRemote);
+    }
+    
+    /* (non-Javadoc)
+     * @see bluej.groupwork.Repository#getStatus(bluej.groupwork.StatusListener, java.io.FileFilter, boolean)
+     */
+    public TeamworkCommand getStatus(StatusListener listener, FileFilter filter, boolean includeRemote)
+    {
+        Set files = new HashSet();
+        traverseDirsForFiles(files, projectPath, filter);
+        return getStatus(listener, files, includeRemote);
+    }
+
+    /**
+     * Traverse the directory tree starting in dir and add all the encountered 
+     * files to the Set allFiles. 
+     */
+    private void traverseDirsForFiles(Set allFiles, File dir, FileFilter filter)
+    {
+        if (! filter.accept(dir)) {
+            return;
+        }
+        if (dir.isFile()) {
+            allFiles.add(dir);
+            return;
+        }
+        
+        File[] files = dir.listFiles(filter);
+        if (files==null){
+            return;
+        }
+
+        try {
+            getLocallyDeletedFiles(allFiles, dir);
+        }
+        catch (IOException ioe) {
+            Debug.message("CVS error determining locally deleted files: " + ioe.getLocalizedMessage());
+            // TODO: should probably propagate and cause the command to fail.
+        }
+        for(int i=0; i< files.length; i++ ){
+            if (files[i].isFile()) {
+                allFiles.add(files[i]);
+            } else {
+                traverseDirsForFiles(allFiles, files[i], filter);
+            }
+        }
     }
     
     /**

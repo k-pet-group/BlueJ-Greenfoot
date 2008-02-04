@@ -30,7 +30,7 @@ import bluej.groupwork.UpdateResults;
  */
 public class UpdateServerResponse extends BasicServerResponse implements UpdateResults
 {
-	/**
+    /**
      * Stores a tagged line
      */
     private final StringBuffer taggedLine = new StringBuffer();
@@ -115,7 +115,7 @@ public class UpdateServerResponse extends BasicServerResponse implements UpdateR
     {
         String line = e.getMessage();
         //System.out.println("UpdateServerResponse parsed: " + e.getMessage() + 
-        //		" isTagged: " + e.isTagged()	);
+        //      " isTagged: " + e.isTagged()    );
 
         if (e.isTagged())
         {
@@ -160,11 +160,11 @@ public class UpdateServerResponse extends BasicServerResponse implements UpdateR
         }
 
         try {
-			CvsUpdateResult updateResult = CvsUpdateResult.parse(line);
-			updateResults.add(updateResult);
-		} catch (UnableToParseInputException e1) {
-			//e1.printStackTrace();
-		}
+            CvsUpdateResult updateResult = CvsUpdateResult.parse(line);
+            updateResults.add(updateResult);
+        } catch (UnableToParseInputException e1) {
+            //e1.printStackTrace();
+        }
     }
     
     public void fileUpdated(FileUpdatedEvent arg0)
@@ -193,14 +193,14 @@ public class UpdateServerResponse extends BasicServerResponse implements UpdateR
     
     private List getUpdateResultsOfType(char type)
     {
-    	List results = new LinkedList();
-    	for (Iterator i = updateResults.iterator(); i.hasNext();) {
-			CvsUpdateResult updateResult = (CvsUpdateResult) i.next();
-			if (updateResult.getStatusCode()== type) {
-				results.add(updateResult);
-			}
-		}
-    	return results;
+        List results = new LinkedList();
+        for (Iterator i = updateResults.iterator(); i.hasNext();) {
+            CvsUpdateResult updateResult = (CvsUpdateResult) i.next();
+            if (updateResult.getStatusCode()== type) {
+                results.add(updateResult);
+            }
+        }
+        return results;
     }
     
     /* (non-Javadoc)
@@ -208,14 +208,14 @@ public class UpdateServerResponse extends BasicServerResponse implements UpdateR
      */
     public List getConflicts()
     {
-    	waitForExecutionToFinish();
-    	List curList = getUpdateResultsOfType(CvsUpdateResult.CONFLICT);
-    	List fileList = new ArrayList(curList.size());
-    	for (Iterator i = curList.iterator(); i.hasNext(); ) {
-    	    CvsUpdateResult result = (CvsUpdateResult) i.next();
-    	    fileList.add(new File(client.getLocalPath(), result.getFilename()));
-    	}
-    	return fileList;
+        waitForExecutionToFinish();
+        List curList = getUpdateResultsOfType(CvsUpdateResult.CONFLICT);
+        List fileList = new ArrayList(curList.size());
+        for (Iterator i = curList.iterator(); i.hasNext(); ) {
+            CvsUpdateResult result = (CvsUpdateResult) i.next();
+            fileList.add(new File(client.getLocalPath(), result.getFilename()));
+        }
+        return fileList;
     }
     
     /**
@@ -226,8 +226,8 @@ public class UpdateServerResponse extends BasicServerResponse implements UpdateR
      */
     public List getUpdated()
     {
-    	waitForExecutionToFinish();
-    	return getUpdateResultsOfType(CvsUpdateResult.UPDATED);
+        waitForExecutionToFinish();
+        return getUpdateResultsOfType(CvsUpdateResult.UPDATED);
     }
     
     /**

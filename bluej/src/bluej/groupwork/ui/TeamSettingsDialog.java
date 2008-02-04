@@ -19,7 +19,7 @@ import bluej.utility.EscapeDialog;
  *
  * @author fisker
  * @author bquig
- * @version $Id: TeamSettingsDialog.java 5473 2008-01-22 04:26:36Z davmac $
+ * @version $Id: TeamSettingsDialog.java 5529 2008-02-04 04:39:56Z davmac $
  */
 public class TeamSettingsDialog extends EscapeDialog
 {
@@ -41,8 +41,9 @@ public class TeamSettingsDialog extends EscapeDialog
     {
         teamSettingsController = controller;
         event = CANCEL;
-        if(teamSettingsController.hasProject())
+        if(teamSettingsController.hasProject()) {
             title += " - " + teamSettingsController.getProject().getProjectName();
+        }
         setTitle(title);
        
         setModal(true);
@@ -83,58 +84,10 @@ public class TeamSettingsDialog extends EscapeDialog
                     {
                         TeamSettings settings = teamSettingsPanel.getSettings();
                         
-                        String userKey = "bluej.teamsettings.user";
-                        String userValue = settings.getUserName();
-                        teamSettingsController.setPropString(userKey, userValue);
-
-                        // passwords are handled differently for security reasons,
-                        // we don't at present store them on disk
-                        String passValue = settings.getPassword();
-                        teamSettingsController.setPasswordString(passValue);
-
-                        String providerKey = "bluej.teamsettings.vcs";
-                        String providerName = teamSettingsPanel.getSelectedProvider()
-                                .getProviderName().toLowerCase();
-                        teamSettingsController.setPropString(providerKey, providerName);
+                        teamSettingsController.updateSettings(settings,
+                                teamSettingsPanel.getUseAsDefault());
                         
-                        String keyBase = "bluej.teamsettings."
-                                + providerName + ".";
-                        String serverKey = keyBase + "server";
-                        String serverValue = settings.getServer();
-                        teamSettingsController.setPropString(serverKey,
-                            serverValue);
-
-                        String prefixKey = keyBase + "repositoryPrefix";
-                        String prefixValue = settings.getPrefix();
-                        teamSettingsController.setPropString(prefixKey,
-                            prefixValue);
-
-                        String protocolKey = keyBase + "protocol";
-                        String protocolValue = settings.getProtocol();
-                        teamSettingsController.setPropString(protocolKey,
-                            protocolValue);
-
-                        String groupKey = "bluej.teamsettings.groupname";
-                        String groupValue = settings.getGroup();
-                        teamSettingsController.setPropString(groupKey,
-                            groupValue);
-
-                        String useAsDefaultKey = "bluej.teamsettings.useAsDefault";
-                        Config.putPropString(useAsDefaultKey,
-                            Boolean.toString(
-                                teamSettingsPanel.getUseAsDefault()));
-
-                        if (teamSettingsPanel.getUseAsDefault()) {
-                            Config.putPropString(providerKey, providerName);
-                            Config.putPropString(userKey, userValue);
-                            Config.putPropString(serverKey, serverValue);
-                            Config.putPropString(prefixKey, prefixValue);
-                            Config.putPropString(groupKey, groupValue);
-                            Config.putPropString(protocolKey, protocolValue);
-                        }
-
-                        if ((teamSettingsController != null) &&
-                                teamSettingsController.hasProject()) {
+                        if (teamSettingsController.hasProject()) {
                             teamSettingsController.writeToProject();
                         }
 

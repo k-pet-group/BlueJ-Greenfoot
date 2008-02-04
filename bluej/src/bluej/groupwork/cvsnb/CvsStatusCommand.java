@@ -16,6 +16,8 @@ import org.netbeans.lib.cvsclient.file.FileStatus;
 
 import bluej.groupwork.StatusListener;
 import bluej.groupwork.TeamStatusInfo;
+import bluej.groupwork.TeamworkCommand;
+import bluej.groupwork.UpdateListener;
 
 /**
  * A command to get status of files in a CVS repository.
@@ -126,7 +128,8 @@ public class CvsStatusCommand extends CvsCommand
                 if (workingRev.length() > 0) {
                     String reposRev = sinfo.getRepositoryRevision();
                     if (workingRev.equals(reposRev)) {
-                        status = TeamStatusInfo.STATUS_DELETED;
+                        status = TeamStatusInfo.STATUS_DELETED;    
+
                     }
                     else {
                         // Not up-to-date, but locally deleted
@@ -224,5 +227,12 @@ public class CvsStatusCommand extends CvsCommand
         
         return statusServerResponse;
     }
-
+    
+    /* (non-Javadoc)
+     * @see bluej.groupwork.cvsnb.CvsCommand#getUpdateTo(bluej.groupwork.UpdateListener, java.util.Set, java.util.Set)
+     */
+    public TeamworkCommand getUpdateTo(UpdateListener listener, Set files, Set forceFiles)
+    {
+        return new CvsUpdateCommand(repository, listener, files, forceFiles);
+    }
 }

@@ -10,5 +10,5 @@ public interface LogHistoryListener
     /**
      * Some log/history information is available, during execution of a log command.
      */
-    public void logInfoAvailable(LogInformation logInfo);
+    public void logInfoAvailable(HistoryInfo logInfo);
 }

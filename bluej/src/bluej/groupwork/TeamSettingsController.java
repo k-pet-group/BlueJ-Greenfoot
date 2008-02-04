@@ -7,6 +7,7 @@ import bluej.Config;
 import bluej.groupwork.ui.TeamSettingsDialog;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import bluej.utility.Debug;
 
 
 /**
@@ -15,14 +16,34 @@ import bluej.pkgmgr.Project;
  * the top-level folder of a team project, and the bluej.properties
  *
  * @author fisker
- * @version $Id: TeamSettingsController.java 5472 2008-01-22 03:48:01Z davmac $
+ * @version $Id: TeamSettingsController.java 5529 2008-02-04 04:39:56Z davmac $
  */
 public class TeamSettingsController
 {
+    private static ArrayList teamProviders;
+    static {
+        teamProviders = new ArrayList(2);
+        try {
+            teamProviders.add(new CvsProvider());
+        }
+        catch (Throwable e) {
+            Debug.message("Failed to initialize Cvs: " + e.getClass().getName()
+                    + ": "+ e.getLocalizedMessage());
+        }
+        try {
+            teamProviders.add(new SubversionProvider());
+        }
+        catch (Throwable e) {
+            Debug.message("Failed to initialize Subversion: " + e.getClass().getName()
+                    + ": "+ e.getLocalizedMessage());
+        }
+    }
+    
     private Project project;
     private File projectDir;
     private Properties teamProperties;
     private TeamSettingsDialog teamSettingsDialog;
+    private TeamSettings settings;
     
     //general
     private String password;
@@ -31,7 +52,7 @@ public class TeamSettingsController
     
     // repository
     private Repository repository;
-
+    
     /**
      * Construct a team settings controller for the given project.
      */
@@ -69,42 +90,71 @@ public class TeamSettingsController
     }
     
     /**
-     * Get the repository. Can return null if user credentials are required
+     * Get a list of the teamwork providers (CVS, Subversion).
+     */
+    public List getTeamworkProviders()
+    {
+        return teamProviders;
+    }
+    
+    /**
+     * Get the repository. Returns null if user credentials are required
      * but the user chooses to cancel.
      */
     public Repository getRepository()
     {
-        if (repository == null) {
-            
+        if (password == null) {
+            // If we don't yet know the password, prompt the user
+            getTeamSettingsDialog().doTeamSettings();
+
+            // If we still don't know it, user cancelled
             if (password == null) {
-                // If we don't yet know the password, prompt the user
-                getTeamSettingsDialog().doTeamSettings();
-                
-                // If we still don't know it, user cancelled
-                if (password == null) {
-                    return null;
-                }
+                return null;
             }
             
             TeamSettings settings = teamSettingsDialog.getSettings();
-            repository = settings.getProvider().getRepository(projectDir, settings);
+            if (repository == null) {
+                repository = settings.getProvider().getRepository(projectDir, settings);
+            }
+            else {
+                repository.setPassword(settings);
+            }
         }
         
         return repository;
     }
     
     /**
-     * Get a list of files in the project which should be under version
-     * control management. This includes files which have been locally deleted
-     * since the last commit.
+     * Initialize the repository. This doesn't require the password to be entered
+     * or the team settings dialog to be displayed.
+     */
+    private void initRepository()
+    {
+        if (repository == null) {
+            TeamworkProvider provider = settings.getProvider();
+            repository = provider.getRepository(projectDir, settings);
+        }
+    }
+    
+    /**
+     * Get a list of files (and possibly directories) in the project which should be
+     * under version control management. This includes files which have been locally
+     * deleted since the last commit.
      * 
      * @param includeLayout  indicates whether to include the layout (bluej.pkg) files.
      * (Note that locally deleted bluej.pkg files are always included).
      */
     public Set getProjectFiles(boolean includeLayout)
     {
+        initRepository(); // make sure the repository is constructed
+        
+        boolean versionsDirs = false;
+        if (repository != null) {
+            versionsDirs = repository.versionsDirectories();
+        }
+        
         // Get a list of files to commit
-        Set files = project.getFilesInProject(includeLayout);
+        Set files = project.getFilesInProject(includeLayout, versionsDirs);
         
         if (repository != null) {
             repository.getAllLocallyDeletedFiles(files);
@@ -117,32 +167,87 @@ public class TeamSettingsController
      * Get a filename filter suitable for filtering out files which we don't want
      * to be under version control.
      */
-    public FilenameFilter getFileFilter(boolean includeLayout)
+    public FileFilter getFileFilter(boolean includeLayout)
     {
-        return new CodeFileFilter(getIgnoreFiles(), includeLayout);
+        initRepository();
+        FileFilter repositoryFilter = null;
+        if (repository != null) {
+            repositoryFilter = repository.getMetadataFilter();
+        }
+        return new CodeFileFilter(getIgnoreFiles(), includeLayout, repositoryFilter);
     }
     
     /**
-     * Read the team setup file in the top level folder of the project and
-     * configure the cvsroot and set the globalOptions
-     * @throws IOException
-     * @throws FileNotFoundException
+     * Read the team setup file in the top level folder of the project
      */
     private void readSetupFile()
     {
-        teamdefs = new File(projectDir + "/team.defs");
+        teamdefs = new File(projectDir, "team.defs");
 
         try {
             teamProperties.load(new FileInputStream(teamdefs));
-        } catch (FileNotFoundException e) {
+            if (teamProperties.getProperty("bluej.teamsettings.vcs") == null) {
+                // old project from before Subversion support, was using CVS
+                teamProperties.setProperty("bluej.teamsettings.vcs", "cvs");
+            }
+            
+            initSettings();
+        }
+        catch (FileNotFoundException e) {
             // e.printStackTrace();
             // This is allowed to happen - if a non-shared project becomes
             // shared
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    private void initSettings()
+    {
+        String user = getPropString("bluej.teamsettings.user");
+        if (user == null) {
+            user = "";
+        }
+        String group = getPropString("bluej.teamsettings.groupname");
+        if(group == null) {
+            group = "";
+        }
+//        String useAsDefault = teamSettingsController.getPropString("bluej.teamsettings.useAsDefault");
+//        if (useAsDefault != null) {
+//            setUseAsDefault(Boolean.getBoolean(useAsDefault));
+//        }
+        
+        TeamworkProvider provider = null;
+        String providerName = getPropString("bluej.teamsettings.vcs");
+        if (providerName != null) {
+            for (int index = 0; index < teamProviders.size(); index++) {
+                TeamworkProvider prov = (TeamworkProvider) teamProviders.get(index);
+                if (prov.getProviderName().equalsIgnoreCase(providerName)) {
+                    provider = prov;
+                }
+            }
+        }
+        
+        if (provider != null) {
+            settings = initProviderSettings(user, group, password, provider);
+        }
+    }
+    
+    public TeamSettings initProviderSettings(String user, String group, String password,
+            TeamworkProvider provider) {
+        
+        String keyBase = "bluej.teamsettings."
+            + provider.getProviderName().toLowerCase() + "."; 
+        
+        String prefix = getPropString(keyBase + "repositoryPrefix");
+        String server = getPropString(keyBase + "server");
+        
+        String protocol = getPropString(keyBase + "protocol");
+
+        return new TeamSettings(provider, protocol, server, prefix, group, user, password);
+    }
+    
     /**
      * Prepare for the deletion of a directory. For CVS, this involves moving
      * the metadata elsewhere. Returns true if the directory should actually
@@ -258,6 +363,62 @@ public class TeamSettingsController
     {
         teamProperties.setProperty(key, value);
     }
+    
+    public void updateSettings(TeamSettings newSettings, boolean useAsDefault)
+    {
+        settings = newSettings;
+        
+        String userKey = "bluej.teamsettings.user";
+        String userValue = settings.getUserName();
+        setPropString(userKey, userValue);
+
+        String providerKey = "bluej.teamsettings.vcs";
+        
+        String providerName = newSettings.getProvider()
+                .getProviderName().toLowerCase();
+        setPropString(providerKey, providerName);
+        
+        String keyBase = "bluej.teamsettings."
+                + providerName + ".";
+        String serverKey = keyBase + "server";
+        String serverValue = settings.getServer();
+        setPropString(serverKey, serverValue);
+
+        String prefixKey = keyBase + "repositoryPrefix";
+        String prefixValue = settings.getPrefix();
+        setPropString(prefixKey, prefixValue);
+
+        String protocolKey = keyBase + "protocol";
+        String protocolValue = settings.getProtocol();
+        setPropString(protocolKey, protocolValue);
+
+        String groupKey = "bluej.teamsettings.groupname";
+        String groupValue = settings.getGroup();
+        setPropString(groupKey,  groupValue);
+
+        String useAsDefaultKey = "bluej.teamsettings.useAsDefault";
+        Config.putPropString(useAsDefaultKey,
+            Boolean.toString(useAsDefault));
+
+        // passwords are handled differently for security reasons,
+        // we don't at present store them on disk
+        String passValue = settings.getPassword();
+        setPasswordString(passValue);
+        
+        if (repository != null) {
+            TeamSettings settings = getTeamSettingsDialog().getSettings();
+            repository.setPassword(settings);
+        }
+        
+        if (useAsDefault) {
+            Config.putPropString(providerKey, providerName);
+            Config.putPropString(userKey, userValue);
+            Config.putPropString(serverKey, serverValue);
+            Config.putPropString(prefixKey, prefixValue);
+            Config.putPropString(groupKey, groupValue);
+            Config.putPropString(protocolKey, protocolValue);
+        }
+    }
 
     /**
      * In the first instance we don't want to store password.
@@ -270,7 +431,7 @@ public class TeamSettingsController
         return password;
     }
 
-    public void setPasswordString(String password)
+    private void setPasswordString(String password)
     {
         this.password = password;
     }

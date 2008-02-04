@@ -4,13 +4,12 @@ import bluej.Config;
 import bluej.groupwork.TeamStatusInfo;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
-import bluej.utility.Debug;
 
 /**
  * Class to determine team resource descriptions for use in dialogs
  * 
  * @author Bruce Quig
- * @version $Id: ResourceDescriptor.java 5082 2007-06-04 04:29:25Z bquig $
+ * @version $Id: ResourceDescriptor.java 5529 2008-02-04 04:39:56Z davmac $
  */
 public class ResourceDescriptor
 {
@@ -36,7 +35,8 @@ public class ResourceDescriptor
                 else if (info.getStatus() == TeamStatusInfo.STATUS_NEEDSCHECKOUT) {
                     status += " (" + Config.getString("team.status.new") + ")";
                 }
-                else if (info.getStatus() == TeamStatusInfo.STATUS_REMOVED) {
+                else if (info.getStatus() == TeamStatusInfo.STATUS_REMOVED
+                        || info.getStatus() == TeamStatusInfo.STATUS_CONFLICT_LMRD) {
                     status += " (" + Config.getString("team.status.removed") + ")";
                 }
                 else if (info.getStatus() == TeamStatusInfo.STATUS_NEEDSMERGE) {

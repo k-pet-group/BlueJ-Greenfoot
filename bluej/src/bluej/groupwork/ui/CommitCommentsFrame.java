@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -317,8 +318,8 @@ public class CommitCommentsFrame extends EscapeDialog
         {
             super();
             response = new ArrayList();
-            Set files = project.getTeamSettingsController().getProjectFiles(true);
-            command = repository.getStatus(this, files, false);
+            FileFilter filter = project.getTeamSettingsController().getFileFilter(true);
+            command = repository.getStatus(this, filter, false);
         }
         
         /* (non-Javadoc)

@@ -33,7 +33,7 @@ public class CvsProvider
         return CvsRepository.validateConnection(cvsRoot);
     }
     
-    protected String makeCvsRoot(TeamSettings settings)
+    public static String makeCvsRoot(TeamSettings settings)
     {
         String protocol = settings.getProtocol();
         String userName = settings.getUserName();

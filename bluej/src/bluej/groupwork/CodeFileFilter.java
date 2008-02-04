@@ -1,9 +1,8 @@
 package bluej.groupwork;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileFilter;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,26 +13,28 @@ import java.util.regex.PatternSyntaxException;
 import bluej.pkgmgr.Package;
 
 /**
- * A FilenameFilter that filters out files that reside in a directory named
- * 'CVS' or 'CVSROOT'
- * It also filters out files  
+ * A FilenameFilter that filters out files based on a list of patterns. It also
+ * filters out a standard set of file types (such as bluej.pkh files, ctxt files).
  *
+ * @author fisker
  */
-public class CodeFileFilter implements FilenameFilter {
-
-	boolean includePkgFiles;
-	List patterns = null;
+public class CodeFileFilter implements FileFilter, FilenameFilter
+{
+	private boolean includePkgFiles;
+	private List patterns = null;
+	private FileFilter parentFilter = null;
 	
 	/**
 	 * Construct a filter.
+	 * @param ignore  List of file patterns to ignore
 	 * @param includePkgFiles if true, pkg files are accepted
-	 * @throws IOException
-	 * @throws FileNotFoundException
+	 * @param 
 	 */
-	public CodeFileFilter(List ignore, boolean includePkgFiles)
+	public CodeFileFilter(List ignore, boolean includePkgFiles, FileFilter parent)
     {
 		this.includePkgFiles = includePkgFiles;
 		patterns = makePatterns(ignore);
+		parentFilter = parent;
 	}
 	
 	private List makePatterns(List ignore)
@@ -51,7 +52,8 @@ public class CodeFileFilter implements FilenameFilter {
 		return patterns;
 	}
 	
-	private boolean matchesPatterns(String input){
+	private boolean matchesPatterns(String input)
+	{
 		for (Iterator i = patterns.iterator(); i.hasNext();) {
 			Pattern pattern = (Pattern) i.next();
 			Matcher matcher = pattern.matcher(input);
@@ -61,12 +63,14 @@ public class CodeFileFilter implements FilenameFilter {
 		}
 		return false;
 	}
+	
 	/**
-	 * Determins which files should be included
+	 * Determines which files should be included
 	 * @param dir the directory in which the file was found.
 	 * @param name the name of the file.
 	 */
-	public boolean accept(File dir, String name) {
+	public boolean accept(File dir, String name)
+	{
 		boolean result = true;
         
         if(name.equals("doc") || dir.getName().equals("doc")){
@@ -114,12 +118,18 @@ public class CodeFileFilter implements FilenameFilter {
 		if (matchesPatterns(name)){
 			result = false;
 		}
-		if (result) {
-			//System.out.println("Repository:509 accepted: " + name + " in " + dir.getAbsolutePath());
-		}else{
-			//System.out.println("Repository:509 rejected: " + name + " in " + dir.getAbsolutePath());
+		
+		if (result && parentFilter != null) {
+		    result = parentFilter.accept(new File(dir, name));
 		}
+		
 		return result;
+	}
+	
+	public boolean accept(File pathname)
+	{
+	    File parent = pathname.getParentFile();
+	    return accept(parent, pathname.getName());
 	}
 	
 	/**
@@ -127,7 +137,8 @@ public class CodeFileFilter implements FilenameFilter {
 	 * @param filename the name of the file
 	 * @return a string with the type of the file.
 	 */
-	private String getFileType(String filename) {
+	private String getFileType(String filename)
+	{
 		int lastDotIndex = filename.lastIndexOf('.');
 		if (lastDotIndex > -1 && lastDotIndex < filename.length()){
 			return filename.substring(lastDotIndex + 1);

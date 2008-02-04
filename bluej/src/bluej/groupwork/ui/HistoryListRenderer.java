@@ -10,6 +10,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import bluej.groupwork.HistoryInfo;
+import bluej.utility.DBox;
 import bluej.utility.MultiWrapLabel;
 
 /**
@@ -20,26 +21,31 @@ import bluej.utility.MultiWrapLabel;
  * width.
  * 
  * @author Davin McCall
- * @version $Id: HistoryListRenderer.java 4916 2007-04-12 03:57:23Z davmac $
+ * @version $Id: HistoryListRenderer.java 5529 2008-02-04 04:39:56Z davmac $
  */
-public class HistoryListRenderer extends Box implements ListCellRenderer
+public class HistoryListRenderer extends DBox implements ListCellRenderer
 {
     private HistoryListModel model;
     
     private JLabel topLabel;
     private MultiWrapLabel commentArea;
     private JLabel spacerLabel;
+    private JTextArea filesArea;
     
     private JScrollPane container;
     
     private int index;
+    
+    private Box filesBox;
+    private Box commentBox;
     
     /**
      * Create a new list renderer.
      */
     public HistoryListRenderer(HistoryListModel model)
     {
-        super(BoxLayout.Y_AXIS);
+        //super(BoxLayout.Y_AXIS);
+        super(DBox.Y_AXIS, 0f);
         
         this.model = model;
         
@@ -49,8 +55,18 @@ public class HistoryListRenderer extends Box implements ListCellRenderer
         topLabel.setFont(font.deriveFont(Font.BOLD));
         add(topLabel);
         
-        Box commentBox = new Box(BoxLayout.X_AXIS);
-        spacerLabel = new JLabel("      ");
+        filesBox = new Box(BoxLayout.X_AXIS);
+        JLabel spaceLabel = new JLabel("    ");
+        filesBox.add(spaceLabel);
+        filesArea = new JTextArea();
+        filesArea.setAlignmentX(0f);
+        filesArea.setFont(font.deriveFont(0));
+        filesBox.add(filesArea);
+        filesBox.setAlignmentX(0f);
+        add(filesBox);
+        
+        commentBox = new Box(BoxLayout.X_AXIS);
+        spacerLabel = new JLabel("        ");
         commentBox.add(spacerLabel);
         commentArea = new MultiWrapLabel();
         commentArea.setAlignmentX(0f);
@@ -81,7 +97,15 @@ public class HistoryListRenderer extends Box implements ListCellRenderer
       boolean cellHasFocus)    // the list and the cell have the focus
     {
         HistoryInfo info = (HistoryInfo) value;
-        String topText = info.getDate() + " " + info.getFile() + " " + info.getRevision() + " " + info.getUser();
+        String topText = info.getDate() + " "  + info.getRevision() + " " + info.getUser();
+        String [] files = info.getFiles();
+        String filesText = files[0];
+        for (int i = 1; i < files.length; i++) {
+            filesText += "\n" + files[i];
+        }
+        filesArea.setText(filesText);
+        filesArea.invalidate();
+        filesBox.invalidate();
         topLabel.setText(topText);
         
         String commentText = info.getComment();
@@ -89,15 +113,20 @@ public class HistoryListRenderer extends Box implements ListCellRenderer
         //commentArea.setLineWrap(false);
         //commentArea.setLineWrap(true);
         commentArea.setText(commentText);
+        commentBox.invalidate();
 
         if (isSelected) {
             setBackground(list.getSelectionBackground());
             setForeground(list.getSelectionForeground());
+            filesArea.setForeground(list.getSelectionForeground());
+            filesArea.setBackground(list.getSelectionBackground());
             setOpaque(true);
         }
         else {
             setBackground(list.getBackground());
             setForeground(list.getForeground());
+            filesArea.setForeground(list.getForeground());
+            filesArea.setBackground(list.getBackground());
             setOpaque(false);
         }
         
@@ -125,6 +154,7 @@ public class HistoryListRenderer extends Box implements ListCellRenderer
 
         // We need to validate to ensure that we have the correct preferred
         // size.
+        invalidate();
         validate();
         
         // Inform the model of our desired height. If this has changed, the model

@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class LogInformation
 {
-    private File file;
+    private File [] files;
     private List revisionList;
     
     /**
@@ -18,15 +18,15 @@ public class LogInformation
      * @param file  The file to which the entry applies
      * @param revisionList  The list of revisions for this file (List of Revision)
      */
-    public LogInformation(File file, List revisionList)
+    public LogInformation(File [] files, List revisionList)
     {
-        this.file = file;
+        this.files = files;
         this.revisionList = revisionList;
     }
     
-    public File getFile()
+    public File [] getFiles()
     {
-        return file;
+        return files;
     }
     
     public List getRevisionList()

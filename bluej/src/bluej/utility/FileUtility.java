@@ -16,7 +16,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 5451 2008-01-07 01:54:01Z davmac $
+ * @version $Id: FileUtility.java 5529 2008-02-04 04:39:56Z davmac $
  */
 public class FileUtility
 {
@@ -512,5 +512,27 @@ public class FileUtility
                 Debug.message("Trouble deleting: "+directory+se);
             }
         }
+    }
+    
+    /**
+     * Find the relative path from some parent directory to a file nested within.
+     * For instance, for parent "/a/b" and file "/a/b/c/d/somefile.java" returns
+     * "c/d/somefile.java".
+     * 
+     * @param parent  The containing directory
+     * @param file    The file to get the relative path to
+     * @return   The relative path between parent and file
+     */
+    public static String makeRelativePath(File parent, File file)
+    {
+        String filePath = file.getAbsolutePath();
+        String parentPath = parent.getAbsolutePath();
+        
+        if (filePath.startsWith(parentPath)) {
+            // Strip parent path and path separator
+            filePath = filePath.substring(parentPath.length() + 1);
+        }
+        
+        return filePath;
     }
 }

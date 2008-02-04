@@ -1,6 +1,15 @@
 package bluej.groupwork;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import org.tigris.subversion.javahl.*;
+
+import bluej.groupwork.svn.SvnRepository;
+import bluej.utility.Debug;
+
+import org.tigris.subversion.javahl.Revision;
 
 /**
  * Teamwork provider for Subversion.
@@ -9,6 +18,48 @@ import java.io.File;
  */
 public class SubversionProvider implements TeamworkProvider
 {
+    public SubversionProvider()
+    {
+    }
+    
+    /**
+     * Get a handle to the subversion client interface (SVNKit/JavaHL).
+     */
+    private SVNClientInterface getClient()
+    {
+        SVNClientInterface client = null;
+        
+        try {
+            Class clientImplClass = Class.forName("org.tmatesoft.svn.core.javahl.SVNClientImpl");
+            
+            Method newInstanceMethod = clientImplClass.getMethod("newInstance", new Class[0]);
+            Object svnClient = newInstanceMethod.invoke(null, new Object[0]);
+            
+            if (svnClient instanceof SVNClientInterface) {
+                client = (SVNClientInterface) svnClient;
+            }
+            else {
+                Debug.message("Subversion client class does not implement SVNClientInterface");
+            }
+        }
+        catch (ClassNotFoundException cnfe) {}
+        catch (NoSuchMethodException nsme) {
+            Debug.message("No \"newInstance()\" method in SVNClientImpl class.");
+            nsme.printStackTrace();
+        }
+        catch (LinkageError le) {}
+        catch (InvocationTargetException ite) {
+            Debug.message("Error while instantiating subversion client implementation.");
+            ite.printStackTrace();
+            if (ite.getCause() != null) {
+                ite.getCause().printStackTrace();
+            }
+        }
+        catch (IllegalAccessException iae) {}
+    
+        return client;
+    }
+    
     public String getProviderName()
     {
         return "Subversion";
@@ -16,8 +67,18 @@ public class SubversionProvider implements TeamworkProvider
     
     public boolean checkConnection(TeamSettings settings)
     {
-        // TODO Auto-generated method stub
-        return false;
+        SVNClientInterface client = getClient();
+        client.username(settings.getUserName());
+        client.password(settings.getPassword());
+        
+        try {
+            client.info2(makeSvnUrl(settings), Revision.HEAD, Revision.HEAD, false);
+            return true;
+        }
+        catch (ClientException ce) {
+            Debug.message("Check SVN connection: " + ce.getLocalizedMessage());
+            return false;
+        }
     }
     
     public String[] getProtocols()
@@ -37,7 +98,40 @@ public class SubversionProvider implements TeamworkProvider
     
     public Repository getRepository(File projectDir, TeamSettings settings)
     {
-        // TODO Auto-generated method stub
-        return null;
+        SVNClientInterface client = getClient();
+        client.username(settings.getUserName());
+        client.password(settings.getPassword());
+        return new SvnRepository(projectDir, makeSvnUrl(settings), client);
+    }
+    
+    /**
+     * Construct a subversion URL based on the given team settings
+     */
+    protected String makeSvnUrl(TeamSettings settings)
+    {
+        String protocol = settings.getProtocol();
+        String userName = settings.getUserName();
+        // String password = settings.getPassword();
+        String server = settings.getServer();
+        String prefix = settings.getPrefix();
+        String group = settings.getGroup();
+        
+        String svnUrl = protocol + "://" + userName + "@" + server;
+        if (prefix.length() != 0 && ! prefix.startsWith("/")) {
+            svnUrl += "/";
+        }
+        svnUrl += prefix;
+        if (group != null && group.length() != 0) {
+            if (! svnUrl.endsWith("/")) {
+                svnUrl += "/";
+            }
+            svnUrl += group;
+        }
+        else if (svnUrl.endsWith("/")) {
+            // Repository path should not end with '/'
+            svnUrl = svnUrl.substring(0, svnUrl.length() - 1);
+        }
+
+        return svnUrl;
     }
 }

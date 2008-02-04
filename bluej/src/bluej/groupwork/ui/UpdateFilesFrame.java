@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.File;
+import java.io.FileFilter;
 import java.util.*;
 
 import javax.swing.*;
@@ -26,7 +27,7 @@ import bluej.utility.SwingWorker;
  * A Swing based user interface for showing files to be updated
  * @author Bruce Quig
  * @author Davin McCall
- * @version $Id: UpdateFilesFrame.java 5096 2007-06-15 05:04:26Z davmac $
+ * @version $Id: UpdateFilesFrame.java 5529 2008-02-04 04:39:56Z davmac $
  */
 public class UpdateFilesFrame extends EscapeDialog
 {
@@ -44,7 +45,8 @@ public class UpdateFilesFrame extends EscapeDialog
     private Repository repository;
     private DefaultListModel updateListModel;
     
-    private Set changedLayoutFiles;
+    private Set changedLayoutFiles; // set of TeamStatusInfo
+    private Set forcedLayoutFiles; // set of File
     private boolean includeLayout = true;
     
     private static String noFilesToUpdate = Config.getString("team.noupdatefiles"); 
@@ -53,6 +55,7 @@ public class UpdateFilesFrame extends EscapeDialog
     {
         project = proj;
         changedLayoutFiles = new HashSet();
+        forcedLayoutFiles = new HashSet();
         createUI();
         DialogManager.centreDialog(this);
     }
@@ -67,6 +70,7 @@ public class UpdateFilesFrame extends EscapeDialog
             includeLayoutCheckbox.setSelected(false);
             includeLayoutCheckbox.setEnabled(false);
             changedLayoutFiles.clear();
+            forcedLayoutFiles.clear();
             updateListModel.removeAllElements();
             
             repository = project.getRepository();
@@ -163,9 +167,9 @@ public class UpdateFilesFrame extends EscapeDialog
                 {
                     JCheckBox layoutCheck = (JCheckBox)e.getSource();
                     includeLayout = layoutCheck.isSelected();
+                    resetForcedFiles();
                     if (includeLayout) {
                         addModifiedLayouts();
-                        updateAction.setFilesToForceUpdate(getChangedLayoutFiles());
                         if(!updateButton.isEnabled()) {
                             updateAction.setEnabled(true);
                         }
@@ -173,7 +177,6 @@ public class UpdateFilesFrame extends EscapeDialog
                     // unselected
                     else {
                         removeModifiedLayouts();
-                        updateAction.setFilesToForceUpdate(Collections.EMPTY_SET);
                         if(isUpdateListEmpty()) {
                             updateAction.setEnabled(false);
                         }
@@ -281,6 +284,22 @@ public class UpdateFilesFrame extends EscapeDialog
         includeLayoutCheckbox.setEnabled(true);
         includeLayoutCheckbox.setSelected(includeLayout);
     }
+    
+    /**
+     * Re-set the forced files in the update action. This needs to be
+     * done when the "include layout" option is toggled.
+     */
+    private void resetForcedFiles()
+    {
+        Set forcedFiles = new HashSet(forcedLayoutFiles);
+        if (includeLayout) {
+            for (Iterator i = changedLayoutFiles.iterator(); i.hasNext(); ) {
+                TeamStatusInfo info = (TeamStatusInfo) i.next();
+                forcedFiles.add(info.getFile());
+            }
+        }
+        updateAction.setFilesToForceUpdate(forcedFiles);
+    }
 
     /**
     * Inner class to do the actual cvs status check to populate commit dialog
@@ -297,8 +316,8 @@ public class UpdateFilesFrame extends EscapeDialog
         {
             super();
             response = new ArrayList();
-            Set files = project.getTeamSettingsController().getProjectFiles(true);
-            command = repository.getStatus(this, files, true);
+            FileFilter filter = project.getTeamSettingsController().getFileFilter(true);
+            command = repository.getStatus(this, filter, true);
         }
         
         /* (non-Javadoc)
@@ -356,12 +375,28 @@ public class UpdateFilesFrame extends EscapeDialog
                         return;
                     }
 
-                    updateAction.setFilesToUpdate(filesToUpdate);
-                    updateAction.setFilesToForceUpdate(Collections.EMPTY_SET);
+                    // Build the actual set of files to update. If there are new or removed
+                    // directories, don't include files within.
+                    Set updateFiles = new HashSet();
+                    for (Iterator i = filesToUpdate.iterator(); i.hasNext(); ) {
+                        File file = (File) i.next();
+                        if (! filesToUpdate.contains(file.getParentFile())) {
+                            updateFiles.add(file);
+                        }
+                    }
+                    for (Iterator i = forcedLayoutFiles.iterator(); i.hasNext(); ) {
+                        File file = (File) i.next();
+                        if (filesToUpdate.contains(file.getParentFile())) {
+                            i.remove();
+                        }
+                    }
+                    
+                    updateAction.setStatusCommand(command);
+                    updateAction.setFilesToUpdate(updateFiles);
+                    resetForcedFiles();
 
                     if (includeLayout && ! changedLayoutFiles.isEmpty()) {
                         addModifiedLayouts();
-                        updateAction.setFilesToForceUpdate(getChangedLayoutFiles());
                     }
 
                     if(updateListModel.isEmpty()) {
@@ -375,14 +410,12 @@ public class UpdateFilesFrame extends EscapeDialog
         }
         
         /**
-         * Go through the status list, and figure out which files to commit, and
-         * of those which are to be added (i.e. which aren't in the repository) and
-         * which are to be removed.
+         * Go through the status list, and figure out which files to update, and
+         * which to force update.
          * 
          * @param info  The list of files with status (List of TeamStatusInfo)
-         * @param filesToCommit  The set to store the files to commit in
-         * @param filesToAdd     The set to store the files to be added in
-         * @param filesToRemove  The set to store the files to be removed in
+         * @param filesToUpdate  The set to store the files to update in
+         * @param modifiedLayoutFiles  The set to store the files to be force updated in
          * @param conflicts      The set to store unresolved conflicts in
          *                       (any files in this set prevent update from occurring)
          */
@@ -399,10 +432,18 @@ public class UpdateFilesFrame extends EscapeDialog
                         filesToUpdate.add(statusInfo.getFile());
                     }
                     else {
-                        // add file to list of files that may be added to commit
-                        modifiedLayoutFiles.add(statusInfo.getFile());
-                        // keep track of StatusInfo objects representing changed diagrams
-                        changedLayoutFiles.add(statusInfo);
+                        if (filter.updateAlways(statusInfo)) {
+                            // The package file is new or removed. There is no
+                            // option not to include it in the update.
+                            updateListModel.addElement(statusInfo);
+                            forcedLayoutFiles.add(statusInfo.getFile());
+                        }
+                        else {
+                            // add file to list of files that may be added to commit
+                            modifiedLayoutFiles.add(statusInfo.getFile());
+                            // keep track of StatusInfo objects representing changed diagrams
+                            changedLayoutFiles.add(statusInfo);
+                        }
                     }
                 }
                 else {

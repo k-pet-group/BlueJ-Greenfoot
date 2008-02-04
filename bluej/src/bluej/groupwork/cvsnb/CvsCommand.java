@@ -1,5 +1,7 @@
 package bluej.groupwork.cvsnb;
 
+import java.util.Set;
+
 import org.netbeans.lib.cvsclient.command.CommandAbortedException;
 import org.netbeans.lib.cvsclient.command.CommandException;
 import org.netbeans.lib.cvsclient.connection.AuthenticationException;
@@ -47,6 +49,14 @@ public abstract class CvsCommand
                 client.abort();
             }
         }
+    }
+    
+    /* (non-Javadoc)
+     * @see bluej.groupwork.TeamworkCommand#getUpdateTo(bluej.groupwork.UpdateListener, java.util.Set, java.util.Set)
+     */
+    public TeamworkCommand getUpdateTo(UpdateListener listener, Set files, Set forceFiles)
+    {
+        return null;
     }
 
     public TeamworkCommandResult getResult()
