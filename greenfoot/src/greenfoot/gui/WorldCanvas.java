@@ -28,7 +28,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldCanvas.java 5462 2008-01-18 18:41:12Z polle $
+ * @version $Id: WorldCanvas.java 5536 2008-02-06 17:18:04Z polle $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -79,7 +79,7 @@ public class WorldCanvas extends JPanel
         }
         //we need to sync, so that objects are not added and removed when we traverse the list.
         synchronized (world) {
-            Set<Actor> objects = WorldVisitor.getObjectsList(world);
+            Set<Actor> objects = WorldVisitor.getObjectsListInPaintOrder(world);
             int paintSeq = 0;
             for (Iterator<Actor> iter = objects.iterator(); iter.hasNext();) {
                 Actor thing = iter.next();

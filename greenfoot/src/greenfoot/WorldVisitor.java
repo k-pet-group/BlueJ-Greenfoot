@@ -10,7 +10,7 @@ import java.util.Collection;
  * in the public interface visible to users.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldVisitor.java 5335 2007-10-24 01:59:58Z davmac $
+ * @version $Id: WorldVisitor.java 5536 2008-02-06 17:18:04Z polle $
  */
 public class WorldVisitor
 {
@@ -62,8 +62,20 @@ public class WorldVisitor
      * should be synchronized on itself or the World to avoid concurrent
      * modifications.
      */
-    public static TreeActorSet getObjectsList(World world)
+    public static TreeActorSet getObjectsListInPaintOrder(World world)
     {
-        return world.getObjectsList(); 
+        return world.getObjectsListInPaintOrder(); 
     }
+    
+    /**
+     * Get the list of all objects in the world. This returns a live list which
+     * should not be modified by the caller. If iterating over this list, it
+     * should be synchronized on itself or the World to avoid concurrent
+     * modifications.
+     */
+    public static TreeActorSet getObjectsListInActOrder(World world)
+    {
+        return world.getObjectsListInActOrder(); 
+    }
+
 }

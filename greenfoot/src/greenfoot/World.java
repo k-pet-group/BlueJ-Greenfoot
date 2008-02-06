@@ -42,9 +42,14 @@ public abstract class World
     //    collisionChecker = new CollisionProfiler(collisionChecker);
     //}
 
-    /** All the objects currently in the world */
-    //private List objects = Collections.synchronizedList(new ArrayList());
-    private TreeActorSet objects = new TreeActorSet();
+    // One or two sets can be used to store objects in different orders.
+    // Initially only the disordered set will be used, if later we need
+    // ordering, the disordered set might be used for an ordered set. If two
+    // orderings are used at the same time a new set will be created for the
+    // second set.
+    private TreeActorSet objectsDisordered = new TreeActorSet(); 
+    private TreeActorSet objectsInPaintOrder;    
+    private TreeActorSet objectsInActOrder;
 
     /** The size of the cell in pixels. */
     private int cellSize = 1;
@@ -250,9 +255,67 @@ public abstract class World
         if (classes == null) {
             // Allow null as an argument, to specify no paint order
             classes = new Class[0];
+            objectsInPaintOrder.setClassOrder(true, classes);
+            objectsInPaintOrder = null;
+            return;
         }
-        objects.setClassOrder(classes);
+        
+        if (objectsInPaintOrder != null) {
+            // Just reuse existing set
+        }
+        else if (objectsInActOrder == objectsDisordered) {
+            // Use new set because existing disordered set is in use
+            // already.
+            objectsInPaintOrder = new TreeActorSet();
+        }
+        else {
+            // Reuse disordered set, since it is not already in use by the
+            // act ordering
+            objectsInPaintOrder = objectsDisordered;
+        }
+        objectsInPaintOrder.setClassOrder(true, classes);
     }
+    
+    /**
+     * Sets the act order of objects in the world according to their class.
+     * Objects of the first class given will act first; objects of the second
+     * class given will act second, and so on.
+     * <p>
+     * Objects of a class not explicitly specified effectively inherit the act
+     * order from their superclass.
+     * <p>
+     * Objects not belonging to any of the given classes will act after all
+     * other actors.
+     * 
+     * @param classes
+     *            The classes in desired act order
+     */
+    public void setActOrder(Class ... classes)
+    {
+        if (classes == null) {
+            // Allow null as an argument, to specify no paint order
+            classes = new Class[0];
+            objectsInActOrder.setClassOrder(false, classes);
+            objectsInActOrder = null;
+            return;
+        }
+        
+        if (objectsInActOrder != null) {
+            // Just reuse existing set
+        }
+        else if (objectsInPaintOrder == objectsDisordered) {
+            // Use new set because existing disordered set is in use
+            // already.
+            objectsInActOrder = new TreeActorSet();
+        }
+        else {
+            // Reuse disordered set, since it is not already in use by the
+            // paint ordering
+            objectsInActOrder = objectsDisordered;
+        }
+        objectsInActOrder.setClassOrder(false, classes);
+    }
+    
     
     /**
      * Add an Actor to the world (at the object's specified location).
@@ -264,7 +327,7 @@ public abstract class World
     public synchronized void addObject(Actor object, int x, int y)
         throws IndexOutOfBoundsException
     {
-        if (! objects.add(object)) {
+        if (! objectsDisordered.add(object)) {
             // Actor is already in the world
             return;
         }
@@ -272,9 +335,38 @@ public abstract class World
         object.addToWorld(x, y, this);
 
         collisionChecker.addObject(object);
-        objects.add(object);
+        addInPaintOrder(object);
+        addInActOrder(object);
 
         object.addedToWorld(this);
+    }
+
+    private void addInActOrder(Actor object)
+    {
+        if(objectsInActOrder != null) {
+            objectsInActOrder.add(object);
+        }
+    }
+
+    private void addInPaintOrder(Actor object)
+    {
+        if(objectsInPaintOrder != null) {
+            objectsInPaintOrder.add(object);
+        }
+    }
+
+    private void removeInActOrder(Actor object)
+    {
+        if(objectsInActOrder != null) {
+            objectsInActOrder.remove(object);
+        }
+    }
+
+    private void removeInPaintOrder(Actor object)
+    {
+        if(objectsInPaintOrder != null) {
+            objectsInPaintOrder.remove(object);
+        }
     }
 
     /**
@@ -284,9 +376,11 @@ public abstract class World
      */
     public synchronized void removeObject(Actor object)
     {
-        if (objects.remove(object)) {
+        if (objectsDisordered.remove(object)) {
             // we only want to remove it once.
             collisionChecker.removeObject(object);
+            removeInActOrder(object);
+            removeInPaintOrder(object);
         }
         object.setWorld(null);
     }
@@ -315,11 +409,11 @@ public abstract class World
      * 
      * @return A list of objects.
      */
-    public List getObjects(Class cls)
+  /*  public List getObjects(Class cls)
     {
         List result = new ArrayList();
         
-        Iterator<Actor> i = objects.iterator();
+        Iterator<Actor> i = objectsDisordered.iterator();
         while (i.hasNext()) {
             Actor actor = i.next();
             if (cls == null || cls.isInstance(actor)) {
@@ -328,7 +422,7 @@ public abstract class World
         }
         
         return result;
-    }
+    }*/
     
     /**
      * Get the number of actors currently in the world.
@@ -337,7 +431,7 @@ public abstract class World
      */
     public int numberOfObjects()
     {
-        return objects.size();
+        return objectsDisordered.size();
     }
     
     /**
@@ -597,13 +691,34 @@ public abstract class World
      * Get the list of all objects in the world. This returns a live list which
      * should not be modified by the caller. If iterating over this list, it
      * should be synchronized on itself or the World to avoid concurrent
-     * modifactions.
+     * modifications.
      */
-    TreeActorSet getObjectsList()
+    TreeActorSet getObjectsListInPaintOrder()
     {
-        return objects;
+        if (objectsInPaintOrder != null) {
+            return objectsInPaintOrder;
+        }
+        else {
+            return objectsDisordered;
+        }
     }
-
+    
+    /**
+     * Get the list of all objects in the world. This returns a live list which
+     * should not be modified by the caller. If iterating over this list, it
+     * should be synchronized on itself or the World to avoid concurrent
+     * modifications.
+     */
+    TreeActorSet getObjectsListInActOrder()
+    {
+        if (objectsInActOrder != null) {
+            return objectsInActOrder;
+        }
+        else {
+            return objectsDisordered;
+        }
+    }
+    
     void paintDebug(Graphics g)
     {
     /*

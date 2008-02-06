@@ -268,7 +268,7 @@ public class WorldHandlerDelegateIDE
         if (oldWorld != null) {
             // Remove the old world and actors from the remote object caches
             ObjectTracker.forgetRObject(oldWorld);
-            List<Actor> oldActors = new ArrayList<Actor>(WorldVisitor.getObjectsList(oldWorld));
+            List<Actor> oldActors = new ArrayList<Actor>(WorldVisitor.getObjectsListInPaintOrder(oldWorld));
             for (Iterator<Actor> i = oldActors.iterator(); i.hasNext();) {
                 Actor oldActor = i.next();
                 ObjectTracker.forgetRObject(oldActor);

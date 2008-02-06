@@ -36,12 +36,17 @@ public class TreeActorSet extends AbstractSet<Actor>
     /**
      * Set the iteration order of objects. The first given class will have
      * objects of its class last in the iteration order, the next will have
-     * objects second last in iteration order, and so on.
+     * objects second last in iteration order, and so on. This hold if it is
+     * reversed. If it is not reversed it will return the first one first and so
+     * on.
      * 
-     * Objects not belonging to any of the specified classes will be first
-     * in the iteration order.
+     * Objects not belonging to any of the specified classes will be first in
+     * the iteration order if reversed, or last if not reversed
+     * 
+     * @param reverse
+     *            Whether to reverse the order or not. 
      */
-    public void setClassOrder(Class<?> ... classes)
+    public void setClassOrder(boolean reverse, Class<?> ... classes)
     {
         HashMap<Class<?>, ActorSet> oldClassSets = classSets;
         classSets = new HashMap<Class<?>, ActorSet>();
@@ -109,9 +114,17 @@ public class TreeActorSet extends AbstractSet<Actor>
         
         // Finally, re-create the subsets list
         subSets.clear();
-        subSets.add(generalSet);
-        for (int i = classes.length; i > 0; ) {
-            subSets.add(classSets.get(classes[--i]));
+        if(reverse) {
+            subSets.add(generalSet);
+            for (int i = classes.length; i > 0; ) {
+                subSets.add(classSets.get(classes[--i]));
+            }
+        }
+        else {
+            for (int i = 0; i < classes.length; i++) {
+                subSets.add(classSets.get(classes[i]));
+            }
+            subSets.add(generalSet);
         }
     }
     

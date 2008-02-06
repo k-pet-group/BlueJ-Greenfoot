@@ -160,7 +160,7 @@ public class Simulation extends Thread implements WorldListener
                 world.act();
                 
                 // We need to copy it, to avoid ConcurrentModificationException
-                objects = new ArrayList<Actor>(WorldVisitor.getObjectsList(world));
+                objects = new ArrayList<Actor>(WorldVisitor.getObjectsListInActOrder(world));
 
                 for (Actor actor : objects) {
                     if (actor.getWorld() != null) {
