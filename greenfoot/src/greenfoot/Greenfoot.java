@@ -32,7 +32,7 @@ import greenfoot.sound.SoundPlayer;
  * 
  * @author Davin McCall
  * @version 1.4.0
- * @cvs-version $Id: Greenfoot.java 5488 2008-01-23 16:53:29Z polle $
+ * @cvs-version $Id: Greenfoot.java 5542 2008-02-07 15:26:06Z polle $
  */
 public class Greenfoot
 {
@@ -272,9 +272,10 @@ public class Greenfoot
 
     /**
      * Gets the mouse info with information about the current state of the
-     * mouse. 
+     * mouse.
      * 
-     * @return The info about the current state of the mouse. 
+     * @return The info about the current state of the mouse. Or null if nothing
+     *         has happened with the mouse since it was last checked.
      */
     public static MouseInfo getMouseInfo()
     {
