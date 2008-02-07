@@ -61,3 +61,15 @@ greenfoot.gameserver.address=http://mygame.java.sun.com/MyGame/
 ##
 #####################################################################
 bluej.compiler.options=-source 1.5 -target 1.5
+
+#####################################################################
+## Options for starting the internal virtual machine.
+## bluej.vm.args provides arguments to the debug VM that 
+## is launched to run Java code, the code pad and the object bench. 
+## This setting is likely to not be needed in most instances.
+## It is provided for situations where Greenfoot and/or Java defaults
+## need to be modified. Multiple args can be specified on the one line.
+## Settings here have the ability to stop Greenfoot running correctly
+## if not configured properly.  
+#####################################################################
+bluej.vm.args=-server -Xincgc -Dapple.awt.graphics.UseQuartz=true
