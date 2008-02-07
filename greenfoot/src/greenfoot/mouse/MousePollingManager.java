@@ -2,11 +2,12 @@ package greenfoot.mouse;
 
 import greenfoot.Actor;
 import greenfoot.MouseInfo;
-import greenfoot.World;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+
+import bluej.Config;
 
 /**
  * There are two ways that the mouse can be handled in Greenfoot. One is the
@@ -98,8 +99,12 @@ public class MousePollingManager implements MouseListener, MouseMotionListener
     
 
     /**
-     * Creates a new mouse manager. The mouse manager should be notified whenever a new act round starts by calling {@link #newActStarted()}. 
-     * @param locator Used to locate things (actors and coordinates) within the World.
+     * Creates a new mouse manager. The mouse manager should be notified
+     * whenever a new act round starts by calling {@link #newActStarted()}.
+     * 
+     * @param locator
+     *            Used to locate things (actors and coordinates) within the
+     *            World.
      */
     public MousePollingManager(WorldLocator locator) 
     {
@@ -297,10 +302,29 @@ public class MousePollingManager implements MouseListener, MouseMotionListener
             Actor actor = locator.getTopMostActorAt(e);
             int x = locator.getTranslatedX(e);
             int y = locator.getTranslatedY(e);
-            int button = e.getButton();
+            int button = getButton(e);
+            
             mouseData.mouseClicked(x, y, button, actor);
             isDragging = false;
         }
+    }
+
+    /**
+     * Gets the button for the mouse event. This will also translate CTRL-clicks
+     * on mac into mouse button three.
+     */
+    private int getButton(MouseEvent e)
+    {
+        int button = e.getButton();
+        if (Config.isMacOS() && button == MouseEvent.BUTTON1) {
+            // Simulate right click on Macs that use CTRL click for right
+            // clicks. Would be nice if we could use isPopupTrigger instead, but
+            // that only works for mouse pressed.
+            if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == MouseEvent.CTRL_DOWN_MASK) {
+                button = MouseEvent.BUTTON3;
+            }
+        }
+        return button;
     }
 
     public void mouseEntered(MouseEvent e)
@@ -326,7 +350,7 @@ public class MousePollingManager implements MouseListener, MouseMotionListener
             Actor actor = locator.getTopMostActorAt(e);
             int x = locator.getTranslatedX(e);
             int y = locator.getTranslatedY(e);
-            int button = e.getButton();
+            int button = getButton(e);
             dragStartData.mousePressed(x, y, button, actor);            
 
             // We only really want to register this event as a press if there is no higher priorities
@@ -352,7 +376,7 @@ public class MousePollingManager implements MouseListener, MouseMotionListener
                 registerEventRecieved();
                 int x = locator.getTranslatedX(e);
                 int y = locator.getTranslatedY(e);
-                int button = e.getButton();
+                int button = getButton(e);
 
                 Actor clickActor = locator.getTopMostActorAt(e);
                 futureData.mouseClicked(x, y, button, clickActor);
@@ -376,7 +400,7 @@ public class MousePollingManager implements MouseListener, MouseMotionListener
             // Find and store the actor that relates to this drag.
             int x = locator.getTranslatedX(e);
             int y = locator.getTranslatedY(e);
-            int button = e.getButton();
+            int button = getButton(e);
             futureData.mouseDragged(x, y, button, dragStartData.getActor());
         }
     }
@@ -389,7 +413,7 @@ public class MousePollingManager implements MouseListener, MouseMotionListener
             Actor actor = locator.getTopMostActorAt(e);
             int x = locator.getTranslatedX(e);
             int y = locator.getTranslatedY(e);
-            int button = e.getButton();
+            int button = getButton(e);
             futureData.mouseMoved(x, y, button, actor);
             isDragging = false;
         }
