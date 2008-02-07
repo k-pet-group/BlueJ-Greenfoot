@@ -157,9 +157,15 @@ public class GClass
         rmiClass.compile(waitCompileEnd);
     }
 
+    /**
+     * Open the editor for this class.
+     */
     public void edit()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
+        if(isWorldClass() || isActorClass()) {
+            rmiClass.setReadOnly(true);
+        }
         rmiClass.edit();
     }
 

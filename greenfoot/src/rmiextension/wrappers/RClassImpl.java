@@ -18,7 +18,7 @@ import bluej.extensions.editor.Editor;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 4353 2006-06-13 03:40:59Z davmac $
+ * @version $Id: RClassImpl.java 5540 2008-02-07 14:04:04Z polle $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -222,26 +222,9 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     }
 
 
-    // No longer needed. TODO: remove.
-//    public MenuSerializer getMenu()
-//        throws RemoteException
-//    {
-//
-//        try {
-//            JPopupMenu menu = (JPopupMenu) bClass.getMenu();
-//            return new MenuSerializer(menu);
-//        }
-//        catch (ProjectNotOpenException e) {
-//            e.printStackTrace();
-//        }
-//        catch (PackageNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//        catch (ClassNotFoundException e) {
-//            //e.printStackTrace();
-//            //to be expected
-//        }
-//        return null;
-//    }
+    public void setReadOnly(boolean b) throws RemoteException, ProjectNotOpenException, PackageNotFoundException 
+    {
+        bClass.getEditor().setReadOnly(b);
+    }
 
 }

@@ -9,10 +9,11 @@ import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.CompilationNotStartedException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.extensions.editor.Editor;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClass.java 4353 2006-06-13 03:40:59Z davmac $
+ * @version $Id: RClass.java 5540 2008-02-07 14:04:04Z polle $
  */
 public interface RClass
     extends java.rmi.Remote
@@ -132,4 +133,10 @@ public interface RClass
     //    throws RemoteException;
 
     public abstract void remove() throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException;
+
+    /**
+     * 
+     * @see Editor#setReadOnly(boolean)
+     */
+    public abstract void setReadOnly(boolean b) throws RemoteException, ProjectNotOpenException, PackageNotFoundException ;
 }
