@@ -58,7 +58,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 5509 2008-01-29 17:32:38Z mik $
+ * @version $Id: PkgMgrFrame.java 5545 2008-02-08 12:25:35Z mik $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -609,7 +609,7 @@ public class PkgMgrFrame extends JFrame
         
             teamActions = pkg.getProject().getTeamActions();
             resetTeamActions();
-        };
+        }
 
         extMgr.packageOpened(pkg);
     }
@@ -2673,7 +2673,9 @@ public class PkgMgrFrame extends JFrame
         Dimension pref = button.getMinimumSize();
         pref.width = Integer.MAX_VALUE;
         button.setMaximumSize(pref);
-        //button.setMargin(new Insets(vSpacing, hSpacing, vSpacing, hSpacing));
+        if(!Config.isMacOSLeopard()) {
+            button.setMargin(new Insets(vSpacing, hSpacing, vSpacing, hSpacing));
+        }
 
         return button;
     }

@@ -1,5 +1,6 @@
 package bluej.utility;
 
+import bluej.Config;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -22,7 +23,7 @@ import javax.swing.border.Border;
  * components in either a horizonatal or vertical direction.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GrowableBox.java 5509 2008-01-29 17:32:38Z mik $
+ * @version $Id: GrowableBox.java 5545 2008-02-08 12:25:35Z mik $
  */
 public class GrowableBox extends Box
 {
@@ -132,8 +133,10 @@ public class GrowableBox extends Box
     	removeButton.setFont(buttonFont);
         removeButton.setText(removeText);
         removeButton.setIcon(removeIcon);
-        //addButton.setMargin(buttonInsets);    //needed before MacOS 10.5?
-        //removeButton.setMargin(buttonInsets);
+        if(!Config.isMacOSLeopard()) {
+            addButton.setMargin(buttonInsets);    //needed before MacOS 10.5
+            removeButton.setMargin(buttonInsets);
+        }
     }
 
     private void addGrowableComponent(int index, JComponent growableComponent) {        
