@@ -452,6 +452,9 @@ colour.menu.environOp=152,32,32
 #colour for selections (in text and otherwise)
 colour.selection=249,225,87
 
+#colour for the value field in the inspectors
+colour.inspector.value.bg=255,255,255
+
 #####################################################################
 ## Compiling. Commands used to execute a compiler. The first property
 ## sets the type of the compiler. Currently it can be one of

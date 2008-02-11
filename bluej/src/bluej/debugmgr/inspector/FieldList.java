@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
@@ -21,23 +22,28 @@ import bluej.debugger.DebuggerObject;
  */
 public class FieldList extends JTable
 {
+    private int preferredWidth;
 
     /**
      * Creates a new fieldlist with no data.
      * 
-     * @param maxDescriptionLength
-     *            The maximum number of characters for the "description" of the
-     *            field (the name and modifiers)
+     * @param preferredWidth
+     *            Used to determine the width of the columns. This will be the
+     *            default width of the list when the inspector is first shown.
+     * @param valueFieldColor
+     *            background color of the value field.
      */
-    public FieldList(int maxDescriptionLength)
+    public FieldList(int preferredWidth, Color valueFieldColor)
     {
         super(new ListTableModel());
+
+        this.preferredWidth = preferredWidth;
         this.setShowGrid(false);
         this.setRowSelectionAllowed(true);
         this.setColumnSelectionAllowed(false);
         this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         this.setIntercellSpacing(new Dimension());
-        this.setDefaultRenderer(Object.class, new ListTableCellRenderer(maxDescriptionLength));
+        this.setDefaultRenderer(Object.class, new ListTableCellRenderer(valueFieldColor));
 
         this.setRowHeight(25);
         this.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
@@ -65,24 +71,53 @@ public class FieldList extends JTable
     {
         ((ListTableModel) getModel()).setDataVector(listData);
 
-        // Calculate preferrred column widths. Use at most the first four
-        // rows; the size is also dynamically updated as the cells are
-        // displayed.
-        TableCellRenderer ltcr = getDefaultRenderer(Object.class);
+        setColumnWidths(listData);
+        
+        revalidate();        
+    }
+
+    /**
+     * Calculate column widths based on the data.
+     */
+    private void setColumnWidths(Object[] listData)
+    {
+        int colPrefWidth = preferredWidth/2;
+
         for (int column = 0; column < 2; column++) {
             TableColumn tableColumn = getColumnModel().getColumn(column);
-            int preferredWidth = tableColumn.getPreferredWidth();
-            for (int row = 0; row < 4 && row < listData.length; row++) {
-                Component n = ltcr.getTableCellRendererComponent(this, dataModel.getValueAt(row, column), false, false,
-                        row, column);
-                int labelWidth = n.getPreferredSize().width;
-                if (labelWidth > preferredWidth) {
-                    preferredWidth = labelWidth;
-                }
+
+            int contentsMaxWidth = getMaxWidth(listData, column);
+            
+            // Make the minimum width look nice. A minimum width is always
+            // needed so short columns doesn't get squeezed by long columns.
+            if (contentsMaxWidth < colPrefWidth) {
+                tableColumn.setMinWidth(contentsMaxWidth);
             }
-            tableColumn.setPreferredWidth(preferredWidth);
+            else {
+                tableColumn.setMinWidth(colPrefWidth);
+            }
+            
+            tableColumn.setPreferredWidth(contentsMaxWidth);
         }
-        revalidate();
+    }
+
+    /**
+     * Finds the maximum width among all the elements in the given column in the data.
+     */
+    private int getMaxWidth(Object[] listData, int column)
+    {
+        TableCellRenderer ltcr = getDefaultRenderer(Object.class);
+        TableColumn tableColumn = getColumnModel().getColumn(column);
+        int contentsMaxWidth = tableColumn.getPreferredWidth();
+        for (int row = 0; row < listData.length; row++) {
+            Component n = ltcr.getTableCellRendererComponent(this, dataModel.getValueAt(row, column), false, false,
+                    row, column);
+            int labelWidth = n.getPreferredSize().width;
+            if (labelWidth > contentsMaxWidth) {
+                contentsMaxWidth = labelWidth;
+            }
+        }
+        return contentsMaxWidth;
     }
 
     /**
@@ -163,17 +198,16 @@ public class FieldList extends JTable
      * @author Poul Henriksen
      *  
      */
-    public static class ListTableCellRenderer extends JLabel
-        implements TableCellRenderer
+    public static class ListTableCellRenderer extends DefaultTableCellRenderer
     {
         final static private ImageIcon objectrefIcon = Config.getImageAsIcon("image.inspector.objectref");
         final private static Border valueBorder = BorderFactory.createLineBorder(Color.gray);
+        private Color valueColor;
 
-        private int maxDescriptionLength;
 
-        public ListTableCellRenderer(int maxDescriptionLength)
+        public ListTableCellRenderer(Color valueColor)
         {
-            this.maxDescriptionLength = maxDescriptionLength;
+            this.valueColor = valueColor;
             this.setOpaque(true);
         }
 
@@ -212,37 +246,17 @@ public class FieldList extends JTable
             super.setBorder(b);
 
             TableColumn tableColumn = table.getColumnModel().getColumn(column);
-            int preferredWidth = tableColumn.getPreferredWidth();
-            int labelWidth = this.getPreferredSize().width;
-            if (labelWidth > preferredWidth) {
-                preferredWidth = labelWidth;
-                tableColumn.setPreferredWidth(preferredWidth);
-            }
 
-            //depending in which column we are in, we have to do some different
-            // stuff
+            // depending in which column we are in, we have to do some different
+            // things
             if (column == 1) {
-                this.setBackground(Color.white);
+                this.setBackground(valueColor);
                 this.setHorizontalAlignment(JLabel.CENTER);
                 Border compoundBorder = BorderFactory.createCompoundBorder(getBorder(), valueBorder);
                 super.setBorder(compoundBorder);
             }
             else {
                 this.setHorizontalAlignment(JLabel.LEADING);
-                //Determine the minimum width
-                if (valueString.length() < maxDescriptionLength) {
-                    if (preferredWidth > tableColumn.getMinWidth()) {
-                        tableColumn.setMinWidth(preferredWidth);
-                    }
-                }
-                else {
-                    String tmp = valueString.substring(0, maxDescriptionLength);
-                    JLabel dummy = new JLabel(tmp);
-                    int minWidth = dummy.getPreferredSize().width;
-                    if (tableColumn.getMinWidth() < minWidth) {
-                        tableColumn.setMinWidth(minWidth);
-                    }
-                }
             }
             return this;
         }

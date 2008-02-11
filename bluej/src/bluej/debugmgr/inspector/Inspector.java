@@ -1,6 +1,7 @@
 package bluej.debugmgr.inspector;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridLayout;
@@ -31,7 +32,7 @@ import bluej.utility.DialogManager;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: Inspector.java 4755 2006-12-07 17:18:27Z polle $
+ * @version $Id: Inspector.java 5546 2008-02-11 10:52:43Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -44,6 +45,7 @@ public abstract class Inspector extends JFrame
     protected final static String getLabel = Config.getString("debugger.inspector.get");
     protected final static String close = Config.getString("close");
 
+    private final static Color valueFieldColor = Config.getItemColour("colour.inspector.value.bg");
     // === instance variables ===
 
     protected FieldList fieldList = null;
@@ -64,11 +66,9 @@ public abstract class Inspector extends JFrame
     protected InspectorManager inspectorManager;
     protected InvokerRecord ir;
 
-    //The maximum length of the description (modifiers + field-name)
-    private final static int MAX_DESCRIPTION_LENGTH = 30;
-
-    //The width of the list
-    private static final int LIST_WIDTH = 200;
+    //The width of the list of fields
+    private static final int MIN_LIST_WIDTH = 150;
+    private static final int MAX_LIST_WIDTH = 300;
 
   
     /**
@@ -118,7 +118,7 @@ public abstract class Inspector extends JFrame
      */
     private void initFieldList()
     {
-        fieldList = new FieldList(getMaxDescriptionLength());
+        fieldList = new FieldList(MAX_LIST_WIDTH, valueFieldColor);
         fieldList.setBackground(this.getBackground());
         fieldList.setOpaque(true);
         fieldList.setSelectionBackground(Config.getSelectionColour());
@@ -263,8 +263,13 @@ public abstract class Inspector extends JFrame
         }
         
         int width = (int) fieldList.getPreferredSize().getWidth();
-        if (width < LIST_WIDTH)
-            width = LIST_WIDTH;
+        if (width < MIN_LIST_WIDTH) {
+            width = MIN_LIST_WIDTH;
+        }
+        if(width > MAX_LIST_WIDTH) {
+            width = MAX_LIST_WIDTH;
+        }
+        
         
         fieldList.setPreferredScrollableViewportSize(new Dimension(width, (int) height));
         pack();
@@ -402,16 +407,6 @@ public abstract class Inspector extends JFrame
         ((JPanel) getContentPane()).setBorder(border);
     }
 
-    public int getMaxDescriptionLength()
-    {
-        return MAX_DESCRIPTION_LENGTH;
-    }
-
-    public int getListWidth()
-    {
-        return LIST_WIDTH;
-    }
-
     protected JButton createCloseButton()
     {
         JButton button = new JButton(close);
@@ -476,8 +471,7 @@ public abstract class Inspector extends JFrame
         scrollPane.setBorder(BlueJTheme.generalBorder);
         scrollPane.setOpaque(false);
         scrollPane.getViewport().setOpaque(false);
-
-        fieldList.setPreferredScrollableViewportSize(new Dimension(getListWidth(), 25));
+        
         return scrollPane;
     }
 }
