@@ -5,6 +5,7 @@ package greenfoot;
  * 
  * @see Greenfoot.#getMouseInfo()
  * @author Poul Henriksen
+ * @version 1.4.0
  */
 public class MouseInfo
 {    
@@ -59,11 +60,10 @@ public class MouseInfo
     }
     
     /**
-     * The pressed or clicked button (if any),
+     * The number of the pressed or clicked button (if any).
      * 
-     * TODO maybe it would be more convenient with isLeftButton, isRightButton
-     * 
-     * @return The button {@link Button}
+     * @return The button number. Usually 1 is the left button, 2 is the middle
+     *         button and 3 is the right button.
      */
     public int getButton() {
         return button;
@@ -88,6 +88,5 @@ public class MouseInfo
     public String toString() 
     {
         return "MouseInfo. Actor: " + actor + "  Location: (" + x + "," + y + ")  Button: " + button;
-    }
-    
+    }    
 }

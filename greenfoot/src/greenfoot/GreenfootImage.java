@@ -24,7 +24,6 @@ import java.net.URL;
  * 
  * @author Poul Henriksen
  * @version 1.4.0
- * @cvs-version $Id: GreenfootImage.java 5544 2008-02-08 11:48:47Z polle $
  */
 public class GreenfootImage
 {

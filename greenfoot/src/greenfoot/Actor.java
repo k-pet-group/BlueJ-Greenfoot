@@ -27,7 +27,6 @@ import java.util.List;
  * @author Poul Henriksen
  * @version 1.4.0
  */
-@SuppressWarnings("unchecked")
 public abstract class Actor 
 {
     

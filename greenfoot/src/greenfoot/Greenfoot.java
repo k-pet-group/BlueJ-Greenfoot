@@ -32,7 +32,6 @@ import greenfoot.sound.SoundPlayer;
  * 
  * @author Davin McCall
  * @version 1.4.0
- * @cvs-version $Id: Greenfoot.java 5542 2008-02-07 15:26:06Z polle $
  */
 public class Greenfoot
 {
@@ -222,7 +221,7 @@ public class Greenfoot
      * world boundaries.
      * 
      * @param obj Typically one of Actor, World or null
-     * @return True if the mouse has been pressed as explained above
+     * @return True if the mouse has been dragged as explained above
      */
     public static boolean mouseDragged(Object obj)
     {
@@ -230,8 +229,8 @@ public class Greenfoot
     }
 
     /**
-     * A mouse drag has ended. This happens when the mouse has been dragged and
-     * the mouse button released.
+     * Whether a mouse drag has ended. This happens when the mouse has been
+     * dragged and the mouse button released.
      * <p>
      * If the parameter is an Actor the method will only return true if the drag
      * started on the given actor - if there are several actors at the same
@@ -242,8 +241,9 @@ public class Greenfoot
      * world boundaries.
      * 
      * 
-     * @param obj Typically one of Actor, World or null
-     * @return True if the mouse has been pressed as explained above
+     * @param obj
+     *            Typically one of Actor, World or null
+     * @return True if the mouse has been dragged as explained above
      */
     public static boolean mouseDragEnded(Object obj)
     {
