@@ -538,7 +538,7 @@ target="1.5">
         <replaceregexp byline="true">
             <regexp pattern="@version .*"/>
             <substitution expression="@version ${greenfoot.apiversion}"/>
-            <fileset dir="${src}/greenfoot" includes="Greenfoot.java,GreenfootImage.java,Actor.java,World.java"/>
+            <fileset dir="${src}/greenfoot" includes="Greenfoot.java,GreenfootImage.java,Actor.java,World.java,MouseInfo.java"/>
         </replaceregexp>
         <replaceregexp byline="true">
             <regexp pattern="GREENFOOT_VERSION = .*"/>
