@@ -81,7 +81,6 @@
         <exclude name="**/doc/" />
         <exclude name="**/__*" />
         <include name="ants/" />
-        <include name="plane/" />
         <include name="lunarlander/" />
         <include name="turtleGraphics/" />
         <include name="wombats/" />
