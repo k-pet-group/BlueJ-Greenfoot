@@ -23,14 +23,14 @@ import javax.swing.border.Border;
  * components in either a horizonatal or vertical direction.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GrowableBox.java 5545 2008-02-08 12:25:35Z mik $
+ * @version $Id: GrowableBox.java 5548 2008-02-11 14:07:21Z polle $
  */
 public class GrowableBox extends Box
 {
     private ComponentFactory componentFactory;
     private JComponent emptyGrowable;
     private Border emptyBorder;
-    private static Insets buttonInsets = new Insets(0, 1, 0, 1);	
+    private static Insets buttonInsets = new Insets(0, 2, 0, 2);	
     private static Font buttonFont = new Font("Monospaced", Font.BOLD, 12);	
     private static String addText = "+";
     private static ImageIcon addIcon;
