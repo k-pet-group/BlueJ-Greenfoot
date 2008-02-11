@@ -8,6 +8,7 @@ import greenfoot.World;
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
 import greenfoot.core.GProject;
+import greenfoot.core.WorldHandler;
 import greenfoot.event.ValidityEvent;
 import greenfoot.event.ValidityListener;
 import greenfoot.gui.classbrowser.ClassView;
@@ -23,6 +24,8 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
@@ -61,9 +64,9 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 5500 2008-01-29 00:22:23Z polle $
+ * @version $Id: ImageLibFrame.java 5550 2008-02-11 16:29:40Z polle $
  */
-public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
+public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
     /** label displaying the currently selected image */
     private JLabel imageLabel;
@@ -88,6 +91,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     
     private int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
     private JTextField classNameField;
+    private GreenfootImage originalImage;
 
     
     /**
@@ -144,6 +148,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     
     private void buildUI(GProject project, boolean includeClassNameField)
     {
+        this.addWindowListener(this);
         JPanel contentPane = new JPanel();
         this.setContentPane(contentPane);
         contentPane.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
@@ -263,8 +268,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 new ImageFilePreview(chooser);
                 int choice = chooser.showDialog(ImageLibFrame.this, Config.getString("imagelib.choose.button"));
                 if (choice == JFileChooser.APPROVE_OPTION) {
-                    selectedImageFile = chooser.getSelectedFile();
-                    imageLabel.setIcon(getPreviewIcon(selectedImageFile));
+                    selectImage(chooser.getSelectedFile());
                 }
             }
         });
@@ -289,6 +293,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 public void actionPerformed(ActionEvent e) {
                     result = CANCEL;
                     selectedImageFile = null;
+                    restoreOriginalImage();
                     setVisible(false);
                     dispose();
                 }
@@ -444,10 +449,46 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             
             if (ile != null) {
                 showingGeneratedImage = false;
-                imageLabel.setIcon(getPreviewIcon(ile.imageFile));
-                selectedImageFile = ile.imageFile;
+                File imageFile = ile.imageFile;
+                selectImage(imageFile);
             }
         }
+    }
+
+    /**
+     * Selects the given file for use in the preview.
+     */
+    private void selectImage(File imageFile)
+    {
+        imageLabel.setIcon(getPreviewIcon(imageFile));
+        selectedImageFile = imageFile;
+        if(gclass.isWorldSubclass()) {
+            World world = WorldHandler.getInstance().getWorld();
+            if(world != null) {
+                if(originalImage == null) {
+                    originalImage = world.getBackground();
+                }
+                world.setBackground(new GreenfootImage(imageFile.toString()));
+                WorldHandler.getInstance().repaint();
+            }
+        }
+    }
+    
+    /**
+     * Restores the original image on the world.
+     */
+    private void restoreOriginalImage()
+    {
+        if (originalImage != null) {
+            if (gclass.isWorldSubclass()) {
+                World world = WorldHandler.getInstance().getWorld();
+                if (world != null) {
+                    world.setBackground(originalImage);
+                    WorldHandler.getInstance().repaint();
+                }
+            }
+        }
+        originalImage = null;
     }
     
     /**
@@ -670,9 +711,41 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                         ioe.printStackTrace();
                     }
                 }
+                originalImage = null;
                 setVisible(false);
                 dispose();
             }
         };
     }
+
+    public void windowActivated(WindowEvent e)
+    {        
+    }
+
+    public void windowClosed(WindowEvent e)
+    {
+        restoreOriginalImage();
+    }
+
+    public void windowClosing(WindowEvent e)
+    {
+        restoreOriginalImage();
+    }
+
+    public void windowDeactivated(WindowEvent e)
+    {
+    }
+
+    public void windowDeiconified(WindowEvent e)
+    {
+    }
+
+    public void windowIconified(WindowEvent e)
+    {
+    }
+
+    public void windowOpened(WindowEvent e)
+    {
+    }
+
 }
