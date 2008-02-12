@@ -408,9 +408,9 @@ public abstract class World
      * 
      * @return A list of objects.
      */
-  /*  public List getObjects(Class cls)
+    public List getObjects(Class<?> cls)
     {
-        List result = new ArrayList();
+        List<Actor> result = new ArrayList<Actor>();
         
         Iterator<Actor> i = objectsDisordered.iterator();
         while (i.hasNext()) {
@@ -421,7 +421,7 @@ public abstract class World
         }
         
         return result;
-    }*/
+    }
     
     /**
      * Get the number of actors currently in the world.
