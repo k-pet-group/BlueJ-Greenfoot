@@ -18,6 +18,8 @@ import java.awt.image.VolatileImage;
 import java.io.IOException;
 import java.net.URL;
 
+import bluej.Config;
+
 /**
  * An image to be shown on screen. The image may be loaded from an image file
  * and/or drawn by using various drawing methods.
@@ -236,7 +238,7 @@ public class GreenfootImage
      */
     public void scale(int width, int height)
     {
-        setImage(image.getScaledInstance(width, height, Image.SCALE_AREA_AVERAGING));
+        setImage(image.getScaledInstance(width, height, Image.SCALE_DEFAULT));
     }
 
     /**
