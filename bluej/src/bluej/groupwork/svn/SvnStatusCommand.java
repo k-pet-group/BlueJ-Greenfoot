@@ -119,6 +119,11 @@ public class SvnStatusCommand extends SvnCommand
                         rinfo = new TeamStatusInfo(file, "", "" + reposRev, TeamStatusInfo.STATUS_NEEDSCHECKOUT);
                     }
                 }
+                else if (textStat == StatusKind.added) {
+                    // shouldn't normally happen unless something went wrong
+                    // or someone has done "svn add" from command line etc.
+                    rinfo = new TeamStatusInfo(file, "", "", TeamStatusInfo.STATUS_NEEDSCOMMIT);
+                }
                 
 //                if (filter.accept(file) || ! file.exists()) {
 //                    System.out.println("Status for: " + status[i].getPath());

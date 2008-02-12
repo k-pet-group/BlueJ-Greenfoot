@@ -8,6 +8,7 @@ import org.tigris.subversion.javahl.ClientException;
 import org.tigris.subversion.javahl.NodeKind;
 import org.tigris.subversion.javahl.SVNClientInterface;
 import org.tigris.subversion.javahl.Status;
+import org.tigris.subversion.javahl.StatusKind;
 
 import bluej.groupwork.TeamworkCommandAborted;
 import bluej.groupwork.TeamworkCommandError;
@@ -49,7 +50,12 @@ public class SvnCommitAllCommand extends SvnCommand
                 
                 Status status = client.singleStatus(newFile.getAbsolutePath(), false);
                 if (! status.isManaged()) {
-                    addDir(client, newFile.getParentFile());
+                    if(addDir(client, newFile.getParentFile(), files)) {
+                        // A parent directory needed to be added. The commit will
+                        // function at the directory level.
+                        files.remove(newFile);
+                    }
+                    
                     client.add(newFile.getAbsolutePath(), false);
                     if (! newFile.isDirectory()) {
                         client.propertySet(newFile.getAbsolutePath(), "svn:eol-style",
@@ -65,7 +71,12 @@ public class SvnCommitAllCommand extends SvnCommand
                 
                 Status status = client.singleStatus(newFile.getAbsolutePath(), false);
                 if (! status.isManaged()) {
-                    addDir(client, newFile.getParentFile());
+                    if (addDir(client, newFile.getParentFile(), files)) {
+                        // A parent directory needed to be added. The commit will
+                        // function at the directory level.
+                        files.remove(newFile);
+                    }
+                    
                     client.add(newFile.getAbsolutePath(), false);
                     if (! newFile.isDirectory()) {
                         client.propertySet(newFile.getAbsolutePath(), "svn:mime-type",
@@ -107,18 +118,37 @@ public class SvnCommitAllCommand extends SvnCommand
      * Add ("svn add") a directory, if necessary
      * @throws ClientException
      */
-    protected void addDir(SVNClientInterface client, File dir) throws ClientException
+    protected boolean addDir(SVNClientInterface client, File dir, Set commitFiles) throws ClientException
     {
         File projectPath = getRepository().getProjectPath().getAbsoluteFile();
         if (dir.getAbsoluteFile().equals(projectPath)) {
-            return;
+            return false;
         }
         
         Status status = client.singleStatus(dir.getAbsolutePath(), false);
-        if (status.getNodeKind() == NodeKind.none) {
+        int istatus = status.getNodeKind();
+        
+        boolean doAdd = (istatus == NodeKind.none || istatus == NodeKind.unknown);
+        boolean commit = (istatus == NodeKind.dir
+                && status.getTextStatus() == StatusKind.added);
+        
+        if (doAdd || commit) {
             File parent = dir.getParentFile();
-            addDir(client, parent);
-            client.add(dir.getAbsolutePath(), false);
+            boolean parentAdded = addDir(client, parent, commitFiles);
+            if (doAdd) {
+                client.add(dir.getAbsolutePath(), false);
+            }
+            if (! parentAdded) {
+                // parent directory didn't need to be added, commit this level
+                commitFiles.add(dir);
+            }
+            return true;
         }
+        
+        if (istatus == NodeKind.dir && status.getTextStatus() == StatusKind.added) {
+            
+        }
+        
+        return false;
     }
 }
