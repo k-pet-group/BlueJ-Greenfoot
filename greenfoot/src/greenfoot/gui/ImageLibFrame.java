@@ -64,7 +64,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 5550 2008-02-11 16:29:40Z polle $
+ * @version $Id: ImageLibFrame.java 5558 2008-02-12 15:46:34Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
@@ -462,7 +462,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     {
         imageLabel.setIcon(getPreviewIcon(imageFile));
         selectedImageFile = imageFile;
-        if(gclass.isWorldSubclass()) {
+        if(gclass != null && gclass.isWorldSubclass()) {
             World world = WorldHandler.getInstance().getWorld();
             if(world != null) {
                 if(originalImage == null) {
@@ -480,7 +480,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     private void restoreOriginalImage()
     {
         if (originalImage != null) {
-            if (gclass.isWorldSubclass()) {
+            if (gclass != null && gclass.isWorldSubclass()) {
                 World world = WorldHandler.getInstance().getWorld();
                 if (world != null) {
                     world.setBackground(originalImage);
