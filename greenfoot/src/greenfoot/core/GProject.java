@@ -284,12 +284,7 @@ public class GProject extends RProjectListenerImpl
     
     public void compileFailed(RCompileEvent event)
     {
-    	try {
-    		reloadClasses(event.getFiles());
-    	}
-    	catch (RemoteException re) {
-    		re.printStackTrace();
-    	}
+    	reloadClasses();
     	
     	delegateCompileEvent(event);
     }
@@ -301,12 +296,7 @@ public class GProject extends RProjectListenerImpl
     
     public void compileSucceeded(RCompileEvent event)
     {
-    	try {
-    		reloadClasses(event.getFiles());
-    	}
-    	catch (RemoteException re) {
-    		re.printStackTrace();
-    	}
+    	reloadClasses();
     	
     	delegateCompileEvent(event);
     }
@@ -318,51 +308,23 @@ public class GProject extends RProjectListenerImpl
     
     // ----------- End of CompileListener interface ------
     
-    private void reloadClasses(File [] files)
+    private void reloadClasses()
     {
-    	try {
-    		File myDir = getDir();
-    		
-    		fileLoop:
-    		for (int i = 0; i < files.length; i++) {
-    			File classFile = files[i];
-    			String packageName = "";
-    			File classDir = classFile.getParentFile();
-    			while (! classDir.equals(myDir)) {
-    				if (packageName.length() == 0) {
-    					packageName = classDir.getName();
-    				}
-    				else {
-    					packageName = classDir.getName() + "." + packageName;
-    				}
-    				classDir = classDir.getParentFile();
-    				if (classDir == null) {
-    					// shouldn't actually happen
-    					continue fileLoop;
-    				}
-    			}
-    			
-    			// Strip the ".java" extension to get the class name
-    			String className = classFile.getName();
-    			if (className.length() > 5) {
-    				String extension = className.substring(className.length() - 5);
-    				if (extension.equalsIgnoreCase(".java")) {
-    					className = className.substring(0, className.length() - 5);
-    				}
-    			}
-    			
-    			GPackage pkg = getPackage(packageName);
-    			GClass gClass = pkg.getClass(className);
-    			if (gClass != null) {
-    				gClass.reload();
-    			}
-    		}
-    		
-    	}
-    	catch (ProjectNotOpenException pnoe) {}
-    	catch (RemoteException re) {
-    		re.printStackTrace();
-    	}
+        try {
+            GPackage pkg = getDefaultPackage();  
+            GClass[] classes = pkg.getClasses();
+            for (GClass cls : classes) {
+                cls.reload();
+            }
+        }
+        catch (ProjectNotOpenException e) {
+        }
+        catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        catch (PackageNotFoundException e) {
+        }
+        
     }
     
     private void delegateCompileEvent(RCompileEvent event)
