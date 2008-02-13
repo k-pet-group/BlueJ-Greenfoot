@@ -65,14 +65,14 @@ public class SvnUpdateToCommand extends SvnCommand implements UpdateResults
             client.notification2(new Notify2() {
                 public void onNotify(NotifyInformation ninfo)
                 {
-                    System.out.println("NotifyInfo:");
-                    System.out.println("  path: " + ninfo.getPath());
-                    System.out.println("  revision: " + ninfo.getRevision());
-                    System.out.println("  action: " + NotifyAction.actionNames[ninfo.getAction()]);
-                    System.out.println("  errmsg: " + ninfo.getErrMsg());
-                    System.out.println("  contentstate: " + NotifyStatus.statusNames[ninfo.getContentState()]);
-                    System.out.println("  node kind = " + NodeKind.getNodeKindName(ninfo.getKind()));
-                    System.out.println("  mimetype = " + ninfo.getMimeType());
+//                    System.out.println("NotifyInfo:");
+//                    System.out.println("  path: " + ninfo.getPath());
+//                    System.out.println("  revision: " + ninfo.getRevision());
+//                    System.out.println("  action: " + NotifyAction.actionNames[ninfo.getAction()]);
+//                    System.out.println("  errmsg: " + ninfo.getErrMsg());
+//                    System.out.println("  contentstate: " + NotifyStatus.statusNames[ninfo.getContentState()]);
+//                    System.out.println("  node kind = " + NodeKind.getNodeKindName(ninfo.getKind()));
+//                    System.out.println("  mimetype = " + ninfo.getMimeType());
                     
                     if (ninfo.getKind() == NodeKind.file
                             || ninfo.getKind() == NodeKind.none) {
