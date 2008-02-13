@@ -50,12 +50,7 @@ public class SvnCommitAllCommand extends SvnCommand
                 
                 Status status = client.singleStatus(newFile.getAbsolutePath(), false);
                 if (! status.isManaged()) {
-                    if(addDir(client, newFile.getParentFile(), files)) {
-                        // A parent directory needed to be added. The commit will
-                        // function at the directory level.
-                        files.remove(newFile);
-                    }
-                    
+                    addDir(client, newFile.getParentFile(), files);
                     client.add(newFile.getAbsolutePath(), false);
                     if (! newFile.isDirectory()) {
                         client.propertySet(newFile.getAbsolutePath(), "svn:eol-style",
@@ -71,12 +66,7 @@ public class SvnCommitAllCommand extends SvnCommand
                 
                 Status status = client.singleStatus(newFile.getAbsolutePath(), false);
                 if (! status.isManaged()) {
-                    if (addDir(client, newFile.getParentFile(), files)) {
-                        // A parent directory needed to be added. The commit will
-                        // function at the directory level.
-                        files.remove(newFile);
-                    }
-                    
+                    addDir(client, newFile.getParentFile(), files);
                     client.add(newFile.getAbsolutePath(), false);
                     if (! newFile.isDirectory()) {
                         client.propertySet(newFile.getAbsolutePath(), "svn:mime-type",
