@@ -128,15 +128,8 @@ public class SvnCommitAllCommand extends SvnCommand
             if (doAdd) {
                 client.add(dir.getAbsolutePath(), false);
             }
-            if (! parentAdded) {
-                // parent directory didn't need to be added, commit this level
-                commitFiles.add(dir);
-            }
+            commitFiles.add(dir);
             return true;
-        }
-        
-        if (istatus == NodeKind.dir && status.getTextStatus() == StatusKind.added) {
-            
         }
         
         return false;
