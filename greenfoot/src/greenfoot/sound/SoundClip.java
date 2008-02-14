@@ -11,7 +11,6 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
@@ -45,7 +44,6 @@ public class SoundClip extends Sound
         this.player = player;
         this.url = url;
         isPlaying = false;
-        open();
     }
 
     /**
@@ -85,6 +83,7 @@ public class SoundClip extends Sound
         soundClip.stop();
         soundClip.setMicrosecondPosition(0);
         isPlaying = false;
+        soundClip.close();
     }
 
     /**
@@ -107,9 +106,16 @@ public class SoundClip extends Sound
 
     /**
      * Play this sound.
+     * @throws LineUnavailableException if a matching line is not available due to resource restrictions
+     * @throws IOException if an I/O exception occurs
+     * @throws SecurityException if a matching line is not available due to security restrictions
+     * @throws UnsupportedAudioFileException if the URL does not point to valid audio file data
+     * @throws IllegalArgumentException if the system does not support at least one line matching the specified Line.Info object through any installed mixer
+     
      */
-    public void play()
+    public void play() throws IllegalArgumentException, SecurityException, LineUnavailableException, IOException, UnsupportedAudioFileException
     {
+        open();
         isPlaying = true;
         soundClip.setMicrosecondPosition(0);
         soundClip.start();
@@ -140,6 +146,7 @@ public class SoundClip extends Sound
         if (event.getType() == LineEvent.Type.STOP) {
             isPlaying = false;
             player.soundFinished(this);
+            stop();
         }
     }
 

@@ -28,11 +28,16 @@ public abstract class Sound
     
     /**
      * Play this sound. Should only be called once.
+     * @throws UnsupportedAudioFileException 
+     * @throws IOException 
+     * @throws LineUnavailableException 
+     * @throws SecurityException 
+     * @throws IllegalArgumentException 
      * @throws IOException
      * @throws UnsupportedAudioFileException
      * @throws LineUnavailableException
      */
-    public abstract void play();
+    public abstract void play() throws IllegalArgumentException, SecurityException, LineUnavailableException, IOException, UnsupportedAudioFileException;
 
     /**
      * Converts format to a compatible format.

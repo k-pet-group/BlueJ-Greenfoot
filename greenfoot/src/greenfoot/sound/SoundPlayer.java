@@ -122,7 +122,16 @@ public class SoundPlayer implements SimulationListener
                 Thread t = new Thread() {
                     public void run()
                     {
-                        soundStream.play();
+                        try {
+                            soundStream.play();
+                            // Will not actually throw any of the exception.
+                            // Only the clip does that at this point.
+                        }
+                        catch (IllegalArgumentException e) {}
+                        catch (SecurityException e) {}
+                        catch (LineUnavailableException e) {}
+                        catch (IOException e) {}
+                        catch (UnsupportedAudioFileException e) {}
                     }
                 };
                 t.start();
