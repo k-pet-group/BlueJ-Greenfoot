@@ -31,10 +31,13 @@ public class GreenfootImage
 {
     private static final Color DEFAULT_BACKGROUND = new Color(255,255,255,0);
     private static final Color DEFAULT_FOREGROUND = Color.BLACK;
+    
     /** The image name is primarily used for debugging. */
     private String imageFileName;
     private BufferedImage image;
     private static MediaTracker tracker;
+    
+    private Color currentColor = DEFAULT_FOREGROUND;
     
     /**
      * Copy on write is used for performance reasons. If an image is
@@ -190,7 +193,7 @@ public class GreenfootImage
     {
         if(graphics != null) {
             graphics.setBackground(DEFAULT_BACKGROUND);
-            graphics.setColor(DEFAULT_FOREGROUND);
+            graphics.setColor(currentColor);
         }
     }
 
@@ -327,9 +330,7 @@ public class GreenfootImage
      */
     public void setColor(Color color)
     {
-        Graphics2D g = getGraphics();
-        g.setColor(color);
-        g.dispose();
+        currentColor = color;
     }
 
     /**
@@ -339,10 +340,7 @@ public class GreenfootImage
      */
     public Color getColor()
     {
-        Graphics2D g = getGraphics();
-        Color c = g.getColor();
-        g.dispose();
-        return c;
+        return currentColor;
     }
 
     /**
