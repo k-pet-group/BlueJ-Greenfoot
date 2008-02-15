@@ -253,9 +253,11 @@ public abstract class World
     {
         if (classes == null) {
             // Allow null as an argument, to specify no paint order
-            classes = new Class[0];
-            objectsInPaintOrder.setClassOrder(true, classes);
-            objectsInPaintOrder = null;
+            if(objectsInPaintOrder != null) {
+                classes = new Class[0];
+                objectsInPaintOrder.setClassOrder(true, classes);
+                objectsInPaintOrder = null;
+            }
             return;
         }
         
@@ -266,6 +268,7 @@ public abstract class World
             // Use new set because existing disordered set is in use
             // already.
             objectsInPaintOrder = new TreeActorSet();
+            objectsInPaintOrder.addAll(objectsDisordered);
         }
         else {
             // Reuse disordered set, since it is not already in use by the
@@ -293,9 +296,11 @@ public abstract class World
     {
         if (classes == null) {
             // Allow null as an argument, to specify no paint order
-            classes = new Class[0];
-            objectsInActOrder.setClassOrder(false, classes);
-            objectsInActOrder = null;
+            if(objectsInActOrder != null) {
+                classes = new Class[0];
+                objectsInActOrder.setClassOrder(false, classes);
+                objectsInActOrder = null;
+            }
             return;
         }
         
@@ -306,6 +311,7 @@ public abstract class World
             // Use new set because existing disordered set is in use
             // already.
             objectsInActOrder = new TreeActorSet();
+            objectsInActOrder.addAll(objectsDisordered);
         }
         else {
             // Reuse disordered set, since it is not already in use by the
