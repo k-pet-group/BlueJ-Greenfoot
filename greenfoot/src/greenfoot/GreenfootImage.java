@@ -34,7 +34,6 @@ public class GreenfootImage
     /** The image name is primarily used for debugging. */
     private String imageFileName;
     private BufferedImage image;
-    private Graphics2D graphics;
     private static MediaTracker tracker;
     
     /**
@@ -153,7 +152,6 @@ public class GreenfootImage
         }
         this.image = getBufferedImage(image);
         copyOnWrite = false;
-        graphics = null;
     }
 
 
@@ -170,25 +168,25 @@ public class GreenfootImage
         return image;
     }
 
+    /**
+     * Remember to call dispose() when no longer using the graphics object.
+     * 
+     */
     private Graphics2D getGraphics()
     {
-        if (graphics == null) {
-            if (copyOnWrite) {
-                // this also sets graphics
-                ensureWritableImage();
-            }
-            else {
-                graphics = (Graphics2D) image.createGraphics();
-                initGraphics();
-            }
+        if (copyOnWrite) {
+            ensureWritableImage();
         }
+        Graphics2D graphics = image.createGraphics();
+        initGraphics(graphics);
         return graphics;
     }
 
     /**
-     * Initialises the graphics. Should be called whenever we have created a graphics for this image.
+     * Initialises the graphics. Should be called whenever we have created a
+     * graphics for this image.
      */
-    private void initGraphics()
+    private void initGraphics(Graphics2D graphics)
     {
         if(graphics != null) {
             graphics.setBackground(DEFAULT_BACKGROUND);
@@ -273,6 +271,7 @@ public class GreenfootImage
     {
         Graphics g = getGraphics();
         g.fillRect(0, 0, getWidth(), getHeight());
+        g.dispose();
     }
 
     /**
@@ -284,8 +283,9 @@ public class GreenfootImage
      */
     public void drawImage(GreenfootImage image, int x, int y)
     {
-        Graphics thisGraphics = getGraphics();
-        image.drawImage(thisGraphics, x, y, null);
+        Graphics g = getGraphics();
+        image.drawImage(g, x, y, null);
+        g.dispose();
     }
     
     /**
@@ -303,7 +303,9 @@ public class GreenfootImage
      */
     public void setFont(Font f)
     {
-        getGraphics().setFont(f);
+        Graphics2D g = getGraphics();
+        g.setFont(f);
+        g.dispose();
     }
     
     /**
@@ -311,7 +313,10 @@ public class GreenfootImage
      */
     public Font getFont()
     {
-        return getGraphics().getFont();
+        Graphics2D g = getGraphics();
+        Font f = g.getFont();
+        g.dispose();
+        return f;
     }
 
     /**
@@ -322,7 +327,9 @@ public class GreenfootImage
      */
     public void setColor(Color color)
     {
-        getGraphics().setColor(color);
+        Graphics2D g = getGraphics();
+        g.setColor(color);
+        g.dispose();
     }
 
     /**
@@ -332,7 +339,10 @@ public class GreenfootImage
      */
     public Color getColor()
     {
-        return getGraphics().getColor();
+        Graphics2D g = getGraphics();
+        Color c = g.getColor();
+        g.dispose();
+        return c;
     }
 
     /**
@@ -415,7 +425,9 @@ public class GreenfootImage
      */
     public void fillRect(int x, int y, int width, int height)
     {
-        getGraphics().fillRect(x, y, width, height);
+        Graphics2D g = getGraphics();
+        g.fillRect(x, y, width, height);
+        g.dispose();
     }
 
     /**
@@ -424,7 +436,9 @@ public class GreenfootImage
      */
     public void clear()
     {
-        getGraphics().clearRect(0, 0, getWidth(), getHeight());
+        Graphics2D g = getGraphics();
+        g.clearRect(0, 0, getWidth(), getHeight());
+        g.dispose();
     }
 
     /**
@@ -441,7 +455,9 @@ public class GreenfootImage
      */
     public void drawRect(int x, int y, int width, int height)
     {
-        getGraphics().drawRect(x, y, width, height);
+        Graphics2D g = getGraphics();
+        g.drawRect(x, y, width, height);
+        g.dispose();
     }
 
     /**
@@ -455,7 +471,9 @@ public class GreenfootImage
      */
     public void drawString(String string, int x, int y)
     {
-        getGraphics().drawString(string, x, y);
+        Graphics2D g = getGraphics();
+        g.drawString(string, x, y);
+        g.dispose();
     }
 
     /**
@@ -471,7 +489,9 @@ public class GreenfootImage
      */
     public void fillOval(int x, int y, int width, int height)
     {
-        getGraphics().fillOval(x, y, width, height);
+        Graphics2D g = getGraphics();
+        g.fillOval(x, y, width, height);
+        g.dispose();
     }
 
     /**
@@ -487,7 +507,9 @@ public class GreenfootImage
      */
     public void drawOval(int x, int y, int width, int height)
     {
-        getGraphics().drawOval(x, y, width, height);
+        Graphics2D g = getGraphics();
+        g.drawOval(x, y, width, height);
+        g.dispose();
     }
 
     /**
@@ -512,7 +534,9 @@ public class GreenfootImage
      */
     public void fillPolygon(int[] xPoints, int[] yPoints, int nPoints)
     {
-        getGraphics().fillPolygon(xPoints, yPoints, nPoints);
+        Graphics2D g = getGraphics();
+        g.fillPolygon(xPoints, yPoints, nPoints);
+        g.dispose();
     }
 
     /**
@@ -534,7 +558,9 @@ public class GreenfootImage
      */
     public void drawPolygon(int[] xPoints, int[] yPoints, int nPoints)
     {
-        getGraphics().drawPolygon(xPoints, yPoints, nPoints);
+        Graphics2D g = getGraphics();
+        g.drawPolygon(xPoints, yPoints, nPoints);
+        g.dispose();
     }
 
     /**
@@ -548,7 +574,9 @@ public class GreenfootImage
      */
     public void drawLine(int x1, int y1, int x2, int y2)
     {
-        getGraphics().drawLine(x1, y1, x2, y2);
+        Graphics2D g = getGraphics();
+        g.drawLine(x1, y1, x2, y2);
+        g.dispose();
     }
 
     /**
@@ -584,11 +612,12 @@ public class GreenfootImage
     {
         if (copyOnWrite) {
             BufferedImage bImage = GraphicsUtilities.createCompatibleTranslucentImage(image.getWidth(null), image.getHeight(null));
-            graphics = bImage.createGraphics();
-            initGraphics();
+            Graphics2D graphics = bImage.createGraphics();
+            initGraphics(graphics);
             graphics.drawImage(image, 0, 0, null);
             image = bImage;
             copyOnWrite = false;
+            graphics.dispose();
         }
     }
     
