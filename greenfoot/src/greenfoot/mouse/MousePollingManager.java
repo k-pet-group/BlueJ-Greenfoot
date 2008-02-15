@@ -304,7 +304,7 @@ public class MousePollingManager implements MouseListener, MouseMotionListener
             int y = locator.getTranslatedY(e);
             int button = getButton(e);
             
-            mouseData.mouseClicked(x, y, button, actor);
+            mouseData.mouseClicked(x, y, button, e.getClickCount(), actor);
             isDragging = false;
         }
     }
@@ -379,7 +379,7 @@ public class MousePollingManager implements MouseListener, MouseMotionListener
                 int button = getButton(e);
 
                 Actor clickActor = locator.getTopMostActorAt(e);
-                futureData.mouseClicked(x, y, button, clickActor);
+                futureData.mouseClicked(x, y, button, 1, clickActor);
                 
                 Actor actor = dragStartData.getActor();
                 futureData.mouseDragEnded(x, y, button, actor);

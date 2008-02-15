@@ -65,7 +65,7 @@ class MouseEventData {
         return checkObject(obj, mouseClickedInfo);
     }
     
-    public void mouseClicked(int x, int y, int button, Actor actor)
+    public void mouseClicked(int x, int y, int button, int clickCount, Actor actor)
     {
         MouseInfo tempPressedInfo = mousePressedInfo;        
         init();       
@@ -76,6 +76,7 @@ class MouseEventData {
         MouseInfoVisitor.setButton(mouseInfo, button);
         MouseInfoVisitor.setLoc(mouseInfo, x, y);
         MouseInfoVisitor.setActor(mouseInfo, actor);
+        MouseInfoVisitor.setClickCount(mouseInfo, clickCount);
     }
 
     public boolean isMouseDragged(Object obj)

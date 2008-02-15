@@ -13,7 +13,8 @@ public class MouseInfo
     private Actor actor;
     private int button;
     private int x;
-    private int y;;
+    private int y;
+    private int clickCount;;
     
     /**
      * Do not create your own MouseInfo objects. Use
@@ -69,6 +70,14 @@ public class MouseInfo
         return button;
     }
 
+    /**
+     * Returns the number of mouse clicks associated with this mouse info.
+     * @return The number of times a button has been clicked.
+     */
+    public int getClickCount() {
+        return clickCount;
+    }
+    
     void setButton(int button)
     {
         this.button = button;
@@ -84,9 +93,14 @@ public class MouseInfo
     {
         this.actor = actor;
     }
+
+    void setClickCount(int clickCount)
+    {
+        this.clickCount = clickCount;
+    }    
     
     public String toString() 
     {
-        return "MouseInfo. Actor: " + actor + "  Location: (" + x + "," + y + ")  Button: " + button;
-    }    
+        return "MouseInfo. Actor: " + actor + "  Location: (" + x + "," + y + ")  Button: " + button + " Click Count: " + clickCount;
+    }
 }

@@ -28,4 +28,9 @@ public class MouseInfoVisitor
     {
         return new MouseInfo();
     }
+
+    public static void setClickCount(MouseInfo mouseInfo, int clickCount)
+    {
+        mouseInfo.setClickCount(clickCount);
+    }
 }
