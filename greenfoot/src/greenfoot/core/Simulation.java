@@ -124,11 +124,11 @@ public class Simulation extends Thread implements WorldListener
         while (paused && ! runOnce) {
             sleeping = true;
             try {
+                System.gc();
                 this.wait();
             }
             catch (InterruptedException e1) { }
             if (!paused) {
-                System.gc();
                 fireSimulationEvent(startedEvent);
             }
 
