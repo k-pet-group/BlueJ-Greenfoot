@@ -38,6 +38,7 @@ public class GreenfootImage
     private static MediaTracker tracker;
     
     private Color currentColor = DEFAULT_FOREGROUND;
+    private Font currentFont;
     
     /**
      * Copy on write is used for performance reasons. If an image is
@@ -194,6 +195,9 @@ public class GreenfootImage
         if(graphics != null) {
             graphics.setBackground(DEFAULT_BACKGROUND);
             graphics.setColor(currentColor);
+            if(currentFont != null) {
+                graphics.setFont(currentFont);
+            }
         }
     }
 
@@ -306,20 +310,18 @@ public class GreenfootImage
      */
     public void setFont(Font f)
     {
-        Graphics2D g = getGraphics();
-        g.setFont(f);
-        g.dispose();
+        currentFont = f;
     }
     
     /**
      * Get the current font.
      */
     public Font getFont()
-    {
-        Graphics2D g = getGraphics();
-        Font f = g.getFont();
-        g.dispose();
-        return f;
+    {        
+        if(currentFont == null) {
+            currentFont = getGraphics().getFont();
+        }
+        return currentFont;
     }
 
     /**
@@ -435,6 +437,7 @@ public class GreenfootImage
     public void clear()
     {
         Graphics2D g = getGraphics();
+        //TODO clearRect might be very slow on mac with Sun Rendere
         g.clearRect(0, 0, getWidth(), getHeight());
         g.dispose();
     }
