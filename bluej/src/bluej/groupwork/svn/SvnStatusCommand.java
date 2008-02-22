@@ -74,7 +74,7 @@ public class SvnStatusCommand extends SvnCommand
                 
                 if (textStat == StatusKind.missing
                         || textStat == StatusKind.deleted) {
-                    rinfo = new TeamStatusInfo(file, "" + status[i].getRevisionNumber(), "", TeamStatusInfo.STATUS_DELETED);
+                    rinfo = new TeamStatusInfo(file, "" + status[i].getLastChangedRevisionNumber(), "", TeamStatusInfo.STATUS_DELETED);
                 }
                 else if (textStat == StatusKind.unversioned) {
                     if (filter.accept(file)) {
@@ -86,7 +86,7 @@ public class SvnStatusCommand extends SvnCommand
                 }
                 else if (textStat == StatusKind.normal) {
                     if (filter.accept(file)) {
-                        String rev = "" + status[i].getRevisionNumber();
+                        String rev = "" + status[i].getLastChangedRevisionNumber();
                         if (reposStat == StatusKind.deleted) {
                             rinfo = new TeamStatusInfo(file, rev, "", TeamStatusInfo.STATUS_REMOVED);
                         }
@@ -102,7 +102,7 @@ public class SvnStatusCommand extends SvnCommand
                 }
                 else if (textStat == StatusKind.modified) {
                     if (filter.accept(file)) {
-                        String rev = "" + status[i].getRevisionNumber();
+                        String rev = "" + status[i].getLastChangedRevisionNumber();
                         if (reposStat == StatusKind.deleted) {
                             rinfo = new TeamStatusInfo(file, rev, "", TeamStatusInfo.STATUS_CONFLICT_LMRD);
                         }
