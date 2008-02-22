@@ -1,0 +1,35 @@
+Building Greenfoot:
+ 1. Update version number in build.xml and run ant update-version-number.
+ 2. Update greenfoot-about.png and greenfoot-splash.jpg with new version number.
+ 3. Test bundled scenarios and make sure they are upgraded to new API version.
+ 4. Run ant dist.
+ 5. Copy the builds to greenfoot.org.
+ 6. Make Bruce build the windows installer.
+ 7. Run ant create-api-doc.
+ 
+ 
+Subversion:
+ Tag greenfoot and bluej with GREENFOOT_RELEASE_X.X.X
+ 
+ 
+Trac: 
+ Create new version and new milestone version.
+ Check that all bugs for this milestone are closed or updated to a new milestone.
+ 
+ 
+Web-pages to update on www.greenfoot.org:
+ doc
+  move javadoc to doc/old
+  update javadoc with the generated doc from create-api-doc
+  update greenfoot-javadoc.zip
+  update Greenfoot API.pdf
+ index.html
+ download/old-downloads.html
+ download/install.html
+ download/index.html
+ doc/version-history.html
+ scenarios/* (if greenfoot API change)
+ 
+ 
+Email:
+ send email to greenfoot-announce
