@@ -1,6 +1,5 @@
 package bluej.utility;
 
-import java.awt.Desktop;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Insets;
@@ -26,7 +25,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 5591 2008-02-25 03:57:08Z davmac $
+ * @version $Id: Utility.java 5593 2008-02-25 14:25:36Z mik $
  */
 public class Utility
 {
