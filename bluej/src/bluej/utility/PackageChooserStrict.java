@@ -8,15 +8,15 @@ import java.io.File;
  * A file chooser for opening packages (with strict behaviour with
  * regards clicking on BlueJ packages).
  *
- * Behaves the same as a PackageChooser but with the added restriction
- * that only BlueJ package directories are an acceptable selection
- * and that double clicking on a BlueJ package will open it not
- * traverse into it.
+ * <p>Behaves the same as a PackageChooser but with the added restriction
+ * that only BlueJ package directories, and archives, are an acceptable
+ * selection. Double clicking on a BlueJ package will open it rather
+ * than traverse into it.
  *
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Markus Ostman
- * @version $Id: PackageChooserStrict.java 4949 2007-04-17 11:32:32Z polle $
+ * @version $Id: PackageChooserStrict.java 5592 2008-02-25 05:08:42Z davmac $
  */
 public class PackageChooserStrict extends PackageChooser
 {
@@ -27,7 +27,7 @@ public class PackageChooserStrict extends PackageChooser
      */
     public PackageChooserStrict(File startDirectory)
     {
-        super(startDirectory, false, false);
+        super(startDirectory, false, true);
     }
 
     /**
@@ -36,7 +36,12 @@ public class PackageChooserStrict extends PackageChooser
      */
     public void approveSelection()   // redefined
     {
-    	if (Package.isBlueJPackage(getSelectedFile())) {
+        File selectedFile = getSelectedFile();
+        if (selectedFile.isFile()) {
+            // it must be an archive (jar or zip)
+            approved();
+        }
+        else if (Package.isBlueJPackage(getSelectedFile())) {
     	    approved();
         }
         else {

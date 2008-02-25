@@ -58,7 +58,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 5545 2008-02-08 12:25:35Z mik $
+ * @version $Id: PkgMgrFrame.java 5592 2008-02-25 05:08:42Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1052,7 +1052,12 @@ public class PkgMgrFrame extends JFrame
         File dirName = FileUtility.getPackageName(this);
 
         if (dirName != null) {
-            openProject(dirName.getAbsolutePath());
+            if (dirName.isDirectory()) {
+                openProject(dirName.getAbsolutePath());
+            }
+            else {
+                openJar(dirName);
+            }
         }
     }
 
