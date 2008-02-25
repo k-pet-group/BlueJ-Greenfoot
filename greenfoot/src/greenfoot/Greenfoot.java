@@ -172,14 +172,15 @@ public class Greenfoot
     
     
     /**
-     * Whether the mouse has been pressed (changed from a non-pressed state to
+     * True the mouse has been pressed (changed from a non-pressed state to
      * being pressed) on the given object. If the parameter is an Actor the
      * method will only return true if the mouse has been pressed on the given
-     * actor - if there are several actors at the same place, only the top most
-     * actor will count. If the parameter is a World then true will be returned
-     * only if the mouse was pressed outside the boundaries of all Actors. If
-     * the parameter is null, then it will return true no matter where the mouse
-     * was pressed as long as it is inside the world boundaries.
+     * actor. If there are several actors at the same place, only the top most
+     * actor will receive the press. 
+     * If the parameter is a World then true will be returned if the mouse was
+     * pressed on the world background. If the parameter is null,
+     * then true will be returned for any mouse press, independent of the target 
+     * pressed on.
      * 
      * @param obj Typically one of Actor, World or null
      * @return True if the mouse has been pressed as explained above
