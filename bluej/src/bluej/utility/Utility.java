@@ -26,7 +26,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 5590 2008-02-25 03:34:11Z davmac $
+ * @version $Id: Utility.java 5591 2008-02-25 03:57:08Z davmac $
  */
 public class Utility
 {
@@ -282,35 +282,63 @@ public class Utility
             }
             
             String cmd = mergeStrings(Config.getPropString("browserCmd1"), url.toString());
+            String cmd2 = mergeStrings(Config.getPropString("browserCmd2"), url.toString());
 
+            Process p = null;
             try {
-                Process p = Runtime.getRuntime().exec(cmd);
-
-                // wait for exit code. 0 indicates success, otherwise
-                // we try second command
-                int exitCode = p.waitFor();
-
-                cmd = Config.getPropString("browserCmd2");
-
-                if(exitCode != 0 && cmd != null && cmd.length() > 0) {
-                    cmd = mergeStrings(cmd, url.toString());
-                    // Debug.message(cmd);
-                    p = Runtime.getRuntime().exec(cmd);
-                }
-            }
-            catch(InterruptedException e) {
-                Debug.reportError("cannot start web browser: " + cmd);
-                Debug.reportError("caught exc " + e);
-                return false;
+                p = Runtime.getRuntime().exec(cmd);
             }
             catch(IOException e) {
-                Debug.reportError("could not start web browser.  exc: " + e);
-                return false;
+                try {
+                    p = Runtime.getRuntime().exec(cmd2);
+                    cmd2 = null;
+                }
+                catch (IOException e2) {
+                    Debug.reportError("could not start web browser.  exc: " + e);
+                    return false;
+                }
             }
+            
+            final String command2 = cmd2;
+            final Process process = p;
+            new Thread() {
+                public void run()
+                {
+                    runUnixWebBrowser(process, command2);
+                }
+            }.start();
         }
         return true;
     }
 
+    /**
+     * Wait for the given process to finish, try running the second command
+     * if it returns false.
+     * @param p
+     * @param url
+     * @param cmd2
+     */
+    private static void runUnixWebBrowser(Process p, String cmd2)
+    {
+        try {
+            // wait for exit code. 0 indicates success, otherwise
+            // we try second command
+            int exitCode = p.waitFor();
+
+            if(exitCode != 0 && cmd2 != null && cmd2.length() > 0) {
+                p = Runtime.getRuntime().exec(cmd2);
+            }
+        }
+        catch (InterruptedException ie) {
+            Debug.reportError("cannot start web browser:");
+            Debug.reportError("caught exc " + ie);
+        }
+        catch (IOException ioe) {
+            Debug.reportError("cannot start web browser:");
+            Debug.reportError("caught exc " + ioe);
+        }
+    }
+    
     /**
      * Let the given file be shown in a browser window.
      * @param file the file to be shown.
