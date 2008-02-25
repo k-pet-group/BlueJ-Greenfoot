@@ -2,13 +2,20 @@ package bluej.utility;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import bluej.Config;
-import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
+import bluej.debugger.gentype.JavaType;
 
 /**
  * Utilities for dealing with reflection, which must behave differently for
@@ -16,7 +23,7 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 3586 2005-09-22 06:02:25Z davmac $
+ * @version $Id: JavaUtils.java 5590 2008-02-25 03:34:11Z davmac $
  */
 public abstract class JavaUtils {
 
@@ -24,13 +31,15 @@ public abstract class JavaUtils {
     
     /**
      * Factory method. Returns a JavaUtils object.
-     * @return an object supporting the approriate feature set
+     * @return an object supporting the appropriate feature set
      */
     public static JavaUtils getJavaUtils()
     {
-        if( jutils != null )
+        if( jutils != null ) {
             return jutils;
-        if( Config.isJava15() ) {
+        }
+        
+        if (Config.isJava15()) {
             try {
                 Class J15Class = Class.forName("bluej.utility.JavaUtils15");
                 jutils = (JavaUtils)J15Class.newInstance();
@@ -39,8 +48,10 @@ public abstract class JavaUtils {
             catch(IllegalAccessException iae) { }
             catch(InstantiationException ie) { }
         }
-        else
+        else {
             jutils = new JavaUtils14();
+        }
+        
         return jutils;
     }
     
@@ -220,6 +231,41 @@ public abstract class JavaUtils {
      */
     abstract public JavaType[] getParamGenTypes(Constructor constructor);
 
+    /**
+     * Open a web browser to show the given URL. On Java 6+ we can use
+     * the desktop integration functionality of the JDK to do this. On
+     * prior versions we fall back to older methods.
+     * 
+     * @return true if successful
+     */
+    public boolean openWebBrowser(URL url)
+    {
+        // For now, do this via reflection so that BlueJ can be built
+        // on Java 5 and earlier.
+        
+        try {
+            Class cl = Class.forName("java.awt.Desktop");
+            Method m = cl.getMethod("isDesktopSupported", new Class[0]);
+            Boolean result = (Boolean) m.invoke(null, null);
+            if (result.booleanValue()) {
+                // The Desktop abstraction is supported
+                m = cl.getMethod("getDesktop", new Class[0]);
+                Object desktop = m.invoke(null, null);
+                
+                // Invoke the browse method
+                m = cl.getMethod("browse", new Class[] {URI.class});
+                m.invoke(desktop, new Object[] {url.toURI()});
+                return true;
+            }
+        }
+        catch (ClassNotFoundException cnfe) {}
+        catch (NoSuchMethodException nsme) {}
+        catch (IllegalAccessException iae) {}
+        catch (InvocationTargetException ite) {}
+        catch (URISyntaxException use) {}
+        return false;
+    }
+    
     /**
      * Change a list of type parameters (with bounds) into a map, which maps
      * the name of the parameter to its bounding type.

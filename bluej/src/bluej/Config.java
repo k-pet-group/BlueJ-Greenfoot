@@ -45,7 +45,7 @@ import bluej.utility.Utility;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 5509 2008-01-29 17:32:38Z mik $
+ * @version $Id: Config.java 5590 2008-02-25 03:34:11Z davmac $
  */
 
 public final class Config
@@ -407,6 +407,14 @@ public final class Config
     public static boolean isJava15()
     {
         return System.getProperty("java.specification.version").compareTo("1.5") >= 0;
+    }
+    
+    /**
+     * Tell us whether we are running on a Java VM that supports Java 6 features.
+     */
+    public static boolean isJava16()
+    {
+        return System.getProperty("java.specification.version").compareTo("1.6") >= 0;
     }
     
     /**

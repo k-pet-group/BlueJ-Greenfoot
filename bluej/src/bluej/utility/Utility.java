@@ -1,11 +1,14 @@
 package bluej.utility;
 
+import java.awt.Desktop;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Insets;
 import java.awt.Shape;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -17,14 +20,13 @@ import javax.swing.AbstractButton;
 import javax.swing.border.Border;
 
 import bluej.Config;
-import java.awt.Insets;
 
 /**
  * Some generally useful utility methods available to all of bluej.
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 5509 2008-01-29 17:32:38Z mik $
+ * @version $Id: Utility.java 5590 2008-02-25 03:34:11Z davmac $
  */
 public class Utility
 {
@@ -211,9 +213,9 @@ public class Utility
      * @param  url  the URL or file path to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
-    public static boolean openWebBrowser(String url) {
-
-        if(Config.osname.startsWith("Windows")) {                 // Windows
+    public static boolean openWebBrowser(String url)
+    {
+        if(Config.isWinOS()) {                 // Windows
 
             String cmd;
             // catering for stupid differences in Windows shells...
@@ -257,9 +259,10 @@ public class Utility
      * @param url the URL to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
-    public static boolean openWebBrowser(URL url) {
-
-        if(Config.isMacOS()) {                           // Mac
+    public static boolean openWebBrowser(URL url)
+    {
+        if(Config.isMacOS()) {
+            // Mac
             try {
                 com.apple.eio.FileManager.openURL(url.toString());
             }
@@ -268,12 +271,16 @@ public class Utility
                 return false;
             }
         }
-        else if(Config.osname.startsWith("Windows")) {                 // Windows
-
+        else if(Config.isWinOS()) {
+            // Windows
             return openWebBrowser(url.toString());
         }
-        else {                                                      // Unix and other
-        
+        else {
+            // Unix and other
+            if (JavaUtils.getJavaUtils().openWebBrowser(url)) {
+                return true;
+            }
+            
             String cmd = mergeStrings(Config.getPropString("browserCmd1"), url.toString());
 
             try {
@@ -309,15 +316,12 @@ public class Utility
      * @param file the file to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
-    public static boolean openWebBrowser(File file) {
-
-        if(Config.osname.startsWith("Windows")) {                 // Windows
-
+    public static boolean openWebBrowser(File file)
+    {
+        if(Config.isWinOS()) {            // Windows
             return openWebBrowser(file.toString());
-            
         }
-        else {                                                      // Mac, Unix and other
-        
+        else {                                               // Mac, Unix and other
             try {
                 return openWebBrowser(file.toURI().toURL());
             }
