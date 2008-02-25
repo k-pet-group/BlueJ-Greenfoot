@@ -26,7 +26,7 @@ public class MouseInfo
     }
     
     /**
-     * Returns the current x position of the mouse cursor.
+     * Return the current x position of the mouse cursor.
      * 
      * @return the x position in grid coordinates
      */
@@ -36,7 +36,7 @@ public class MouseInfo
     }
 
     /**
-     * Returns the current y position of the mouse cursor.
+     * Return the current y position of the mouse cursor.
      * 
      * @return the y position in grid coordinates
      */
@@ -71,7 +71,7 @@ public class MouseInfo
     }
 
     /**
-     * Returns the number of mouse clicks associated with this mouse info.
+     * Return the number of mouse clicks associated with this mouse event.
      * @return The number of times a button has been clicked.
      */
     public int getClickCount() {
