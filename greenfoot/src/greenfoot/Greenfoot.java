@@ -70,7 +70,7 @@ public class Greenfoot
     }
     
     /**
-     * This method will delay the current execution by a number of time steps. 
+     * Delay the current execution by a number of time steps. 
      * The size of one time step is defined by the Greenfoot environment (the speed slider).
      * 
      * @see #setSimulationSpeed(int)
@@ -190,14 +190,14 @@ public class Greenfoot
     }
 
     /**
-     * Whether the mouse has been clicked (pressed and released) on the given
+     * True if the mouse has been clicked (pressed and released) on the given
      * object. If the parameter is an Actor the method will only return true if
-     * the mouse has been clicked on the given actor - if there are several
-     * actors at the same place, only the top most actor will count. If the
-     * parameter is a World then true will be returned only if the mouse was
-     * clicked outside the boundaries of all Actors. If the parameter is null,
-     * then it will return true no matter where the mouse was clicked as long as
-     * it is inside the world boundaries.
+     * the mouse has been clicked on the given actor. If there are several
+     * actors at the same place, only the top most actor will receive the click.
+     * If the parameter is a World then true will be returned if the mouse was
+     * clicked on the world background. If the parameter is null,
+     * then true will be returned for any click, independent of the target 
+     * clicked on.
      * 
      * @param obj Typically one of Actor, World or null
      * @return True if the mouse has been clicked as explained above
@@ -208,17 +208,17 @@ public class Greenfoot
     }
 
     /**
-     * Whether the mouse has been dragged on the given object. The mouse is
-     * considered to be dragged on an object, only if the drag started on that
+     * True if the mouse has been dragged on the given object. The mouse is
+     * considered to be dragged on an object if the drag started on that
      * object - even if the mouse has since been moved outside of that object.
      * <p>
      * If the parameter is an Actor the method will only return true if the drag
-     * started on the given actor - if there are several actors at the same
-     * place, only the top most actor will count. If the parameter is a World
-     * then true will be returned only if the drag was started outside the
-     * boundaries of all Actors. If the parameter is null, then it will return
-     * true no matter where the drag was started as long as it is inside the
-     * world boundaries.
+     * started on the given actor. If there are several actors at the same
+     * place, only the top most actor will receive the drag. 
+     * If the parameter is a World then true will be returned if the drag action
+     * was started on the world background. If the parameter is null,
+     * then true will be returned for any drag action, independent of the target 
+     * clicked on.
      * 
      * @param obj Typically one of Actor, World or null
      * @return True if the mouse has been dragged as explained above
@@ -229,17 +229,16 @@ public class Greenfoot
     }
 
     /**
-     * Whether a mouse drag has ended. This happens when the mouse has been
+     * True if a mouse drag has ended. This happens when the mouse has been
      * dragged and the mouse button released.
      * <p>
      * If the parameter is an Actor the method will only return true if the drag
-     * started on the given actor - if there are several actors at the same
-     * place, only the top most actor will count. If the parameter is a World
-     * then true will be returned only if the drag was started outside the
-     * boundaries of all Actors. If the parameter is null, then it will return
-     * true no matter where the drag was started as long as it is inside the
-     * world boundaries.
-     * 
+     * started on the given actor. If there are several actors at the same
+     * place, only the top most actor will receive the drag. 
+     * If the parameter is a World then true will be returned if the drag action
+     * was started on the world background. If the parameter is null,
+     * then true will be returned for any drag action, independent of the target 
+     * clicked on.
      * 
      * @param obj
      *            Typically one of Actor, World or null
@@ -251,16 +250,17 @@ public class Greenfoot
     }
 
     /**
-     * Whether the mouse has been moved on the given object. The mouse is
-     * considered to be moved on an object, only if the mouse pointer is above
+     * True if the mouse has been moved on the given object. The mouse is
+     * considered to be moved on an object if the mouse pointer is above
      * that object.
      * <p>
      * If the parameter is an Actor the method will only return true if the move
-     * is on the given actor - if there are several actors at the same place,
-     * only the top most actor will count. If the parameter is a World then true
-     * will be returned only if the move is outside the boundaries of all
-     * Actors. If the parameter is null, then it will return true no matter
-     * where the drag was started as long as it is inside the world boundaries.
+     * is on the given actor. If there are several actors at the same
+     * place, only the top most actor will receive the move. 
+     * If the parameter is a World then true will be returned if the move
+     * was on the world background. If the parameter is null,
+     * then true will be returned for any move, independent of the target 
+     * under the move location.
      * 
      * @param obj Typically one of Actor, World or null
      * @return True if the mouse has been moved as explained above
@@ -271,7 +271,7 @@ public class Greenfoot
     }
 
     /**
-     * Gets the mouse info with information about the current state of the
+     * Return a mouse info object with information about the state of the
      * mouse.
      * 
      * @return The info about the current state of the mouse. Or null if nothing
