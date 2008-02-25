@@ -7,7 +7,6 @@ import java.awt.Shape;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ import bluej.Config;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Utility.java 5593 2008-02-25 14:25:36Z mik $
+ * @version $Id: Utility.java 5594 2008-02-25 14:26:15Z mik $
  */
 public class Utility
 {
