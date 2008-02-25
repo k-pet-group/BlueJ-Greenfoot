@@ -191,7 +191,8 @@ public abstract class World
 
     /**
      * If set to true, the background image will be tiled to fill out the entire
-     * background of the world.
+     * background of the world. If false, the image is shown only one in the top 
+     * left corner of the world. The default is 'true'.
      * 
      * @param tiled Whether it should tile the image or not.
      */
@@ -236,16 +237,18 @@ public abstract class World
     }
 
     /**
-     * Sets the paint order of objects in the world according to their class.
-     * Objects of the first class given will be painted last, so they will
-     * appear on top of all other objects; objects of the second class given
-     * will be painted second last, and so on.
+     * Set the paint order of objects in the world. Paint order is specified
+     * by class: objects of one class will always be painted on top of objects
+     * of some other class. The order of objects of the same class cannot be 
+     * specified.
+     * Objects of classes listed first in the parameter list will 
+     * appear on top of all objects of classes listed later.
      * <p>
      * Objects of a class not explicitly specified effectively inherit the paint
      * order from their superclass.
      * <p>
-     * Objects not belonging to any of the given classes will appear underneath
-     * all other objects.
+     * Objects of classes not listed will appear below the objects whose classes
+     * have been specified.
      * 
      * @param classes  The classes in desired paint order
      */
@@ -279,15 +282,18 @@ public abstract class World
     }
     
     /**
-     * Sets the act order of objects in the world according to their class.
-     * Objects of the first class given will act first; objects of the second
-     * class given will act second, and so on.
+     * Set the act order of objects in the world. Act order is specified
+     * by class: objects of one class will always act before objects
+     * of some other class. The order of objects of the same class cannot be 
+     * specified.
+     * Objects of classes listed first in the parameter list will 
+     * act before any objects of classes listed later.
      * <p>
-     * Objects of a class not explicitly specified effectively inherit the act
+     * Objects of a class not explicitly specified inherit the act
      * order from their superclass.
      * <p>
-     * Objects not belonging to any of the given classes will act after all
-     * other actors.
+     * Objects of classes not listed will act after all objects whose classes
+     * have been specified.
      * 
      * @param classes
      *            The classes in desired act order
@@ -323,14 +329,13 @@ public abstract class World
     
     
     /**
-     * Add an Actor to the world (at the object's specified location).
+     * Add an Actor to the world.
      * 
      * @param object The new object to add.
-     * @throws IndexOutOfBoundsException If the coordinates are outside the
-     *             bounds of the world.
+     * @param x The x coordinate of the location where the object is added.
+     * @param y The y coordinate of the location where the object is added.
      */
     public synchronized void addObject(Actor object, int x, int y)
-        throws IndexOutOfBoundsException
     {
         if (! objectsDisordered.add(object)) {
             // Actor is already in the world
