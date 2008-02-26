@@ -182,6 +182,10 @@ bluej.autoOpenLastProject=true
 ## Web browser. The following are the commands used for opening a
 ## web browser. (Only relevant for systems other than Windows and
 ## MacOS. On Win and MacOS, the mechanism is built-in.)
+##
+## When running on Java 6, BlueJ will first attempt to use Java 6's
+## desktop integration features to launch the browser. The commands
+## specified here will only be used if that fails.
 #####################################################################
 
 # First, try to open the URL in a running firefox process. If that 
