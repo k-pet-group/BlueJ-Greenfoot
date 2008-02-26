@@ -28,7 +28,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldCanvas.java 5536 2008-02-06 17:18:04Z polle $
+ * @version $Id: WorldCanvas.java 5601 2008-02-26 18:03:53Z polle $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -58,9 +58,7 @@ public class WorldCanvas extends JPanel
     {
         this.world = world;
         if (world != null) {
-            int width = WorldVisitor.getWidthInPixels(world);
-            int height = WorldVisitor.getHeightInPixels(world);
-            this.setSize(width, height);
+            this.setSize(getPreferredSize());
             revalidate();
             repaint();
         }
@@ -193,8 +191,8 @@ public class WorldCanvas extends JPanel
     {
         Dimension size = new Dimension();
         if (world != null) {
-            size.width = WorldVisitor.getWidthInPixels(world);
-            size.height = WorldVisitor.getHeightInPixels(world);
+            size.width = WorldVisitor.getWidthInPixels(world) + 2;
+            size.height = WorldVisitor.getHeightInPixels(world) + 2;
         }
         return size;
     }
