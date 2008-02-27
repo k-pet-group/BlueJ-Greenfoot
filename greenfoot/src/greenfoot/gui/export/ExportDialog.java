@@ -1,6 +1,7 @@
 package greenfoot.gui.export;
 
 import greenfoot.core.GProject;
+import greenfoot.core.WorldHandler;
 import greenfoot.export.Exporter;
 import greenfoot.gui.GreenfootFrame;
 
@@ -10,6 +11,7 @@ import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.rmi.RemoteException;
 import java.util.HashMap;
@@ -79,7 +81,11 @@ public class ExportDialog extends EscapeDialog
                 return;         // Cancel export
             }
         }
-
+        ExportPublishPane publishPane = (ExportPublishPane) panes.get(ExportPublishPane.FUNCTION);
+        BufferedImage snapShot = WorldHandler.getInstance().getSnapShot();
+        if(snapShot != null) {
+            publishPane.setImage(snapShot);
+        }        
         clearStatus();
         setVisible(true);  // returns after OK or Cancel, which set 'ok'
     }
@@ -137,7 +143,7 @@ public class ExportDialog extends EscapeDialog
     }
 
     /**
-     * A sepatrate thread to execute the actual axporting.
+     * A separate thread to execute the actual exporting.
      */
     class ExportThread extends Thread {
         public void run() 

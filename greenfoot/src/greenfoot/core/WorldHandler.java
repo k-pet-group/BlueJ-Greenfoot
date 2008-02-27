@@ -16,16 +16,19 @@ import greenfoot.gui.WorldCanvas;
 import greenfoot.mouse.MousePollingManager;
 import greenfoot.mouse.WorldLocator;
 import greenfoot.platforms.WorldHandlerDelegate;
+import greenfoot.util.GraphicsUtilities;
 
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.EventQueue;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -609,6 +612,27 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
 
     public void mouseMoved(MouseEvent e)
     {
+    }
+
+    /**
+     * Get a snapshot of the currently instantiated world or null if no world is
+     * instantiated.
+     */
+    public BufferedImage getSnapShot()
+    {
+        if (world == null) {
+            return null;
+        }
+
+        WorldCanvas canvas = getWorldCanvas();
+        BufferedImage img = GraphicsUtilities.createCompatibleImage(WorldVisitor.getWidthInPixels(world), WorldVisitor
+                .getHeightInPixels(world));
+        Graphics2D g = img.createGraphics();
+        g.setColor(canvas.getBackground());
+        g.fillRect(0, 0, img.getWidth(), img.getHeight());
+        canvas.paintBackground(g);
+        canvas.paintObjects(g);
+        return img;
     }
 
 }

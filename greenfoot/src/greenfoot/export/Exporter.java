@@ -5,7 +5,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5603 2008-02-27 02:52:30Z davmac $
+ * @version $Id: Exporter.java 5606 2008-02-27 18:48:54Z polle $
  */
 
 package greenfoot.export;
@@ -20,10 +20,15 @@ import greenfoot.gui.export.ExportAppPane;
 import greenfoot.gui.export.ExportDialog;
 import greenfoot.gui.export.ExportPublishPane;
 import greenfoot.gui.export.ExportWebPagePane;
+import greenfoot.util.GraphicsUtilities;
+
 import java.awt.Dimension;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
+
+import javax.imageio.ImageIO;
 
 public class Exporter 
         implements PublishListener
@@ -39,6 +44,7 @@ public class Exporter
     }
     
     private File tmpJarFile;
+    private File tmpImgFile;
     private WebPublisher webPublisher;
     private ExportDialog dlg;
     
@@ -92,6 +98,33 @@ public class Exporter
         project.getProjectProperties().save();
         
         jarCreator.create();
+                
+        // Create image file      
+        String formatName = "png";
+        try {
+            // Test start
+           /*  
+             tmpImgFile = new File(exportDir, "snapshotImage.png");
+             System.out.println( "File: " + tmpImgFile.getAbsolutePath());
+             if(!tmpImgFile.exists()) tmpImgFile.createNewFile();            
+             BufferedImage im = pane.getImage();
+             System.out.println("Image dim: " + im.getHeight() + ", " + im.getWidth());
+             ImageIO.write(im, formatName, tmpImgFile);
+             if(true) return;
+           */
+            // Test end
+            
+            tmpImgFile = File.createTempFile("greenfoot", "." + formatName, null);
+            BufferedImage img = pane.getImage();
+            ImageIO.write(img, formatName, tmpImgFile);
+            // make sure it is deleted on exit (should be deleted right after
+            // the publish finish - but just in case...)
+            tmpImgFile.deleteOnExit();              
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
         
         String login = pane.getUserName();
         String password = pane.getPassword();
@@ -213,6 +246,7 @@ public class Exporter
     public void errorRecieved(PublishEvent event)
     {
         tmpJarFile.delete();
+        tmpImgFile.delete();
         dlg.setProgress(false, Config.getString("export.publish.fail") + " " + event.getMessage());
     }
 
@@ -222,6 +256,7 @@ public class Exporter
     public void statusRecieved(PublishEvent event)
     {
         tmpJarFile.delete();
+        tmpImgFile.delete();
         dlg.setProgress(false, Config.getString("export.publish.complete"));
     }
     

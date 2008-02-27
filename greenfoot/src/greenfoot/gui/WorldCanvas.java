@@ -28,14 +28,13 @@ import javax.swing.SwingConstants;
  * The visual representation of the world.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldCanvas.java 5601 2008-02-26 18:03:53Z polle $
+ * @version $Id: WorldCanvas.java 5606 2008-02-27 18:48:54Z polle $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
 {
     private World world;
     private DropTarget dropTargetListener;
-
     /** The actor being dragged. Null if no dragging. */ 
     private Actor dragActor;
     /** The current location where the object is dragged - in pixel coordinates relative to this canvas. */
@@ -70,7 +69,7 @@ public class WorldCanvas extends JPanel
     /**
      * Paints all the objects.
      */
-    private void paintObjects(Graphics g)
+    public void paintObjects(Graphics g)
     {
         if (world == null) {
             return;
@@ -140,7 +139,7 @@ public class WorldCanvas extends JPanel
      * Paint the world background. This takes tiling into account: the
      * world image is painted either once or tiled onto this component.
      */
-    private void paintBackground(Graphics g)
+    public void paintBackground(Graphics g)
     {
         if (world != null) {
             GreenfootImage backgroundImage = world.getBackground();

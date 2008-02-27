@@ -2,7 +2,7 @@
  * ExportPublishPane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 5602 2008-02-27 02:40:18Z davmac $
+ * @version $Id: ExportPublishPane.java 5606 2008-02-27 18:48:54Z polle $
  */
 
 package greenfoot.gui.export;
@@ -12,13 +12,19 @@ import bluej.Config;
 import bluej.groupwork.ui.MiksGridLayout;
 import bluej.utility.MultiLineLabel;
 import bluej.utility.Utility;
+import greenfoot.util.GraphicsUtilities;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -33,6 +39,9 @@ import javax.swing.border.Border;
 
 public class ExportPublishPane extends ExportPane
 {
+    public static final int IMAGE_WIDTH = 150;
+    public static final int IMAGE_HEIGHT = 150;
+    
     public static final String FUNCTION = "PUBLISH";
     private static final Color background = new Color(166, 188, 202);
     private static final Color urlColor = new Color(0, 90, 200);
@@ -47,7 +56,8 @@ public class ExportPublishPane extends ExportPane
     private JTextField URLField;
     private JTextField userNameField;
     private JPasswordField passwordField;
-        
+    private ImageEditCanvas imageCanvas;
+    private ImageEditPanel imagePanel;
 
     /** Creates a new instance of ExportPublishPane */
     public ExportPublishPane(String scenarioName) 
@@ -56,6 +66,46 @@ public class ExportPublishPane extends ExportPane
         makePane();
     }
     
+    /**
+     * Get the image that is to be used as icon for this scenario.
+     * 
+     * @return The image, or null if it couldn't be created.
+     */
+    public BufferedImage getImage() 
+    {
+        if(imageCanvas == null) {
+            return null;
+        }
+        BufferedImage newImage = GraphicsUtilities.createCompatibleImage(IMAGE_WIDTH, IMAGE_HEIGHT);
+        Graphics2D g = newImage.createGraphics();
+        imageCanvas.paintImage(g);
+        g.dispose();
+        return newImage;
+    }
+    
+    
+
+    /**
+     * Must be called from Swing Event Thread.
+     * @param snapShot
+     */
+    public void setImage(BufferedImage snapShot)
+    {
+        if(imageCanvas == null) {
+            imageCanvas = new ImageEditCanvas(IMAGE_WIDTH, IMAGE_HEIGHT, snapShot);
+            imageCanvas.fit();
+            imagePanel.setImageCanvas(imageCanvas);
+            imagePanel.repaint();
+        }
+        else {
+            imageCanvas.setImage(snapShot);
+            imageCanvas.fit();
+            imageCanvas.repaint();
+        }
+    }
+    
+ 
+
     /**
      * Return the short description string.
      */
@@ -133,9 +183,19 @@ public class ExportPublishPane extends ExportPane
             text.setForeground(headingColor);
             infoPanel.add(text, BorderLayout.NORTH); 
 
-            JPanel dataPanel = new JPanel(new MiksGridLayout(3, 2, 8, 8));
+            JPanel dataPanel = new JPanel(new MiksGridLayout(4, 2, 8, 8));
             {
                 dataPanel.setBackground(background);
+                
+                imagePanel = new ImageEditPanel();   
+                imagePanel.setPreferredSize(new Dimension(IMAGE_WIDTH + 2, IMAGE_HEIGHT + 2));
+                imagePanel.setBackground(background);
+                text = new JLabel(Config.getString("export.publish.image"), SwingConstants.TRAILING);
+                text.setFont(smallFont);
+                dataPanel.add(text);
+                dataPanel.add(imagePanel);                
+                
+                
                 text = new JLabel(Config.getString("export.publish.shortDescription"), SwingConstants.TRAILING);
                 text.setFont(smallFont);
                 dataPanel.add(text);
@@ -230,4 +290,5 @@ public class ExportPublishPane extends ExportPane
         }
         add(extraPanel);
     }
+
 }
