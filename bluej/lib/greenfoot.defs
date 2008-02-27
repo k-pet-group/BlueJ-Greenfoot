@@ -52,6 +52,10 @@ doctool.options=-author -version -nodeprecated -protected
 greenfoot.gameserver.name=MyGame
 greenfoot.gameserver.address=http://www.bluej.org/mygame/
 
+# If you need to use a HTTP proxy, set and uncomment the following items
+#proxy.host=
+#proxy.port=80
+
 #####################################################################
 ## Compiler options. 
 ## 

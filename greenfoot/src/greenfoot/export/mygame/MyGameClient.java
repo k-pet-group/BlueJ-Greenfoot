@@ -32,16 +32,27 @@ public abstract class MyGameClient
     {
         HttpClient httpClient = new HttpClient();
         
-        HostConfiguration hostConfig = httpClient.getHostConfiguration();
-        hostConfig.setProxy("cache.deakin.edu.au", 3128);
-        // TODO prompt for user/password
-        String proxyUser = Config.getPropString("proxy.user");
-        String proxyPass = Config.getPropString("proxy.password");
-        if (proxyUser != null) {
-            AuthScope authScope = new AuthScope("cache.deakin.edu.au", 3128);
-            Credentials proxyCreds =
-                new UsernamePasswordCredentials(proxyUser, proxyPass);
-            httpClient.getState().setProxyCredentials(authScope, proxyCreds);
+        String proxyHost = Config.getPropString("proxy.host", null);
+        String proxyPortStr = Config.getPropString("proxy.port", null);
+        if (proxyHost != null && proxyHost.length() != 0 && proxyPortStr != null) {
+            HostConfiguration hostConfig = httpClient.getHostConfiguration();
+
+            int proxyPort = 80;
+            try {
+                proxyPort = Integer.parseInt(proxyPortStr);
+            }
+            catch (NumberFormatException nfe) {}
+
+            hostConfig.setProxy(proxyHost, proxyPort);
+            // TODO prompt for user/password
+            String proxyUser = Config.getPropString("proxy.user", null);
+            String proxyPass = Config.getPropString("proxy.password", null);
+            if (proxyUser != null) {
+                AuthScope authScope = new AuthScope(proxyHost, proxyPort);
+                Credentials proxyCreds =
+                    new UsernamePasswordCredentials(proxyUser, proxyPass);
+                httpClient.getState().setProxyCredentials(authScope, proxyCreds);
+            }
         }
         
         // Authenticate user and initiate session
