@@ -2,7 +2,7 @@
  * ExportPublishPane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 5551 2008-02-11 16:48:57Z polle $
+ * @version $Id: ExportPublishPane.java 5602 2008-02-27 02:40:18Z davmac $
  */
 
 package greenfoot.gui.export;
@@ -109,12 +109,6 @@ public class ExportPublishPane extends ExportPane
      */
     private void makePane()
     {
-        add(new JLabel("The publish functionality is not enabled in the current version of Greenfoot."));
-        
-        if(true) return;
-        
-        //Disabled for now
-        
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BlueJTheme.dialogBorder);
 

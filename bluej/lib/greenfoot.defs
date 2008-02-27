@@ -49,8 +49,8 @@ doctool.options=-author -version -nodeprecated -protected
 ## function
 #####################################################################
 
-greenfoot.gameserver.name=mygame.java.sun.com
-greenfoot.gameserver.address=http://mygame.java.sun.com/MyGame/
+greenfoot.gameserver.name=MyGame
+greenfoot.gameserver.address=http://www.bluej.org/mygame/
 
 #####################################################################
 ## Compiler options. 

@@ -5,7 +5,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5203 2007-09-25 08:56:23Z bquig $
+ * @version $Id: Exporter.java 5602 2008-02-27 02:40:18Z davmac $
  */
 
 package greenfoot.export;
@@ -78,9 +78,7 @@ public class Exporter
         // do not include source
         jarCreator.includeSource(false);
         
-        
-        // Extra entries for the manifest - used when publishing to stompt.org 
-        // TODO: get these from the pane?
+        // Extra entries for the manifest
         jarCreator.putManifestEntry("short-description", pane.getShortDescription());
         jarCreator.putManifestEntry("description", pane.getDescription());
         jarCreator.putManifestEntry("url", pane.getURL());
@@ -95,12 +93,14 @@ public class Exporter
         
         jarCreator.create();
         
-
-        //TODO: get these from the pane?
         String login = pane.getUserName();
         String password = pane.getPassword();
         String scenarioName = project.getName();        
-        String host = "mygame.java.sun.com";
+        String hostAddress = Config.getPropString("greenfoot.gameserver.address", "http://mygame.java.sun.com/");
+        if (! hostAddress.endsWith("/")) {
+            hostAddress += "/";
+        }
+        
         if(webPublisher == null) {
             webPublisher = new WebPublisher();
             webPublisher.addPublishListener(this);
@@ -108,7 +108,9 @@ public class Exporter
         
         dlg.setProgress(true, Config.getString("export.progress.publishing"));
         try {
-            webPublisher.submit(host, login, password, scenarioName, tmpJarFile.getAbsolutePath());//TODO change so that it takes a File instead of String for the filename.
+            webPublisher.submit(hostAddress, login, password, scenarioName,
+                    tmpJarFile.getAbsolutePath(), size.width, size.height,
+                    pane.getShortDescription(), pane.getDescription());
         }
         catch (UnknownHostException e) {
             dlg.setProgress(false, Config.getString("export.progress.unknownHost") + " (" + e.getMessage() + ")");

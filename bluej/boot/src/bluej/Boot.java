@@ -20,7 +20,7 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 5599 2008-02-26 03:11:04Z davmac $
+ * @version $Id: Boot.java 5602 2008-02-27 02:40:18Z davmac $
  */
 public class Boot
 {
@@ -73,7 +73,9 @@ public static final int BLUEJ_VERSION_MAJOR = 2;
     private static final String[] greenfootUserJars = {"extensions" + File.separatorChar + "greenfoot.jar", 
         "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
         "antlr.jar", "MRJ141Stubs.jar",
-        "junit.jar", "bluej.jar"};
+        "junit.jar", "bluej.jar",
+        "commons-httpclient-3.1.jar", "commons-logging-api-1.1.1.jar",
+        "commons-codec-1.3.jar"};
     
     private static final int greenfootUserBuildJars = 4;
     

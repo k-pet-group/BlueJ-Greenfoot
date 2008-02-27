@@ -224,13 +224,6 @@ public class ExportDialog extends EscapeDialog
             contentPane.add(chosenPane, BorderLayout.CENTER);
             selectedPane = chosenPane;
             selectedFunction = function;
-            if(selectedFunction == ExportPublishPane.FUNCTION) {
-                // Publish is disabled for now.
-                enableButtons(false);
-            } else {
-                enableButtons(true);
-            }
-            
             
             clearStatus();
             pack();

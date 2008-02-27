@@ -1,10 +1,10 @@
 package greenfoot.export;
 
-import javax.swing.event.EventListenerList;
-
 import greenfoot.event.PublishEvent;
 import greenfoot.event.PublishListener;
-import greenfoot.export.gameserver.GameServer;
+import greenfoot.export.mygame.MyGameClient;
+
+import javax.swing.event.EventListenerList;
 
 
 
@@ -14,7 +14,7 @@ import greenfoot.export.gameserver.GameServer;
  * @author Poul Henriksen
  *
  */
-public class WebPublisher extends GameServer
+public class WebPublisher extends MyGameClient
 {
     private EventListenerList listenerList = new EventListenerList();
         
