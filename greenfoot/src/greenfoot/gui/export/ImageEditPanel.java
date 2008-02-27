@@ -56,7 +56,8 @@ public class ImageEditPanel extends JPanel
         int min = (int) (imageCanvas.getMinimumScale() * 100);
         int max = 100;
         zoomSlider = new JSlider(JSlider.VERTICAL, min, max, (int) (imageCanvas.getScale() * 100));
-
+        zoomSlider.setOpaque(false);
+        
         Dimension maxSize = zoomSlider.getMaximumSize();
         maxSize.height = imageCanvas.getMaximumSize().height;
         zoomSlider.setMaximumSize(maxSize);
@@ -81,7 +82,7 @@ public class ImageEditPanel extends JPanel
 
     public void mouseDragged(MouseEvent e)
     {
-        if (e.getButton() == MouseEvent.BUTTON1) {
+        if ( (e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) != 0) {
             imageCanvas.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
             int dx = e.getX() - lastX;
             int dy = e.getY() - lastY;
@@ -114,7 +115,6 @@ public class ImageEditPanel extends JPanel
     public void mouseReleased(MouseEvent e)
     {
         if (e.getButton() == MouseEvent.BUTTON1) {
-
             imageCanvas.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
     }
