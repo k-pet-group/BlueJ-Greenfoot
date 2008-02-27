@@ -4,13 +4,19 @@ import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
+import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
+
+import bluej.Config;
 
 /**
  * MyGame client.
@@ -26,6 +32,18 @@ public abstract class MyGameClient
     {
         HttpClient httpClient = new HttpClient();
         
+        HostConfiguration hostConfig = httpClient.getHostConfiguration();
+        hostConfig.setProxy("cache.deakin.edu.au", 3128);
+        // TODO prompt for user/password
+        String proxyUser = Config.getPropString("proxy.user");
+        String proxyPass = Config.getPropString("proxy.password");
+        if (proxyUser != null) {
+            AuthScope authScope = new AuthScope("cache.deakin.edu.au", 3128);
+            Credentials proxyCreds =
+                new UsernamePasswordCredentials(proxyUser, proxyPass);
+            httpClient.getState().setProxyCredentials(authScope, proxyCreds);
+        }
+        
         // Authenticate user and initiate session
         PostMethod postMethod = new PostMethod(hostAddress + "account/authenticate");
         
@@ -33,6 +51,11 @@ public abstract class MyGameClient
         postMethod.addParameter("user[password]", password);
         
         int response = httpClient.executeMethod(postMethod);
+        
+        if (response == 407) {
+            // proxy auth required
+        }
+        
         if (response > 400) {
             error("Unrecognized response from the server"); // TODO i18n
             return this;
@@ -79,7 +102,6 @@ public abstract class MyGameClient
             error("Error while uploading scenario to server"); // TODO i18n
             return this;
         }
-        
         
         // Done.
         status("Upload complete.");
