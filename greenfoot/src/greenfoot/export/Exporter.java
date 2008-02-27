@@ -5,7 +5,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5602 2008-02-27 02:40:18Z davmac $
+ * @version $Id: Exporter.java 5603 2008-02-27 02:52:30Z davmac $
  */
 
 package greenfoot.export;
@@ -113,11 +113,11 @@ public class Exporter
                     pane.getShortDescription(), pane.getDescription());
         }
         catch (UnknownHostException e) {
-            dlg.setProgress(false, Config.getString("export.progress.unknownHost") + " (" + e.getMessage() + ")");
+            dlg.setProgress(false, Config.getString("export.publish.unknownHost") + " (" + e.getMessage() + ")");
             return;
         }
         catch (IOException e) {
-            dlg.setProgress(false, Config.getString("export.progress.fail") + " " + e.getMessage());
+            dlg.setProgress(false, Config.getString("export.publish.fail") + " " + e.getMessage());
             return;
         }
     }
