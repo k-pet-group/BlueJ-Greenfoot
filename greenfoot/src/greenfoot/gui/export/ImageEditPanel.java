@@ -68,11 +68,14 @@ public class ImageEditPanel extends JPanel
         imageCanvas.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         int min = (int) (imageCanvas.getMinimumScale() * 100);
         int max = 100;
+
         zoomSlider = new JSlider(JSlider.VERTICAL, min, max, (int) (imageCanvas.getScale() * 100));
         zoomSlider.setOpaque(false);
-        
+
         Dimension maxSize = zoomSlider.getMaximumSize();
         maxSize.height = imageCanvas.getMaximumSize().height;
+        zoomSlider.setMaximumSize(maxSize);
+        
         zoomSlider.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e)
             {
@@ -84,11 +87,10 @@ public class ImageEditPanel extends JPanel
 
         // Set label images for slider
         try {
-            URL url = new File(GreenfootUtil.getGreenfootLogoPath()).toURL();
+            URL url = new File(GreenfootUtil.getGreenfootLogoPath()).toURI().toURL();
             BufferedImage iconImage = GraphicsUtilities.loadCompatibleImage(url);
             JLabel bigLabel = new JLabel(new ImageIcon(iconImage.getScaledInstance(-1, 15, Image.SCALE_DEFAULT)));
             JLabel smallLabel = new JLabel(new ImageIcon(iconImage.getScaledInstance(-1, 10, Image.SCALE_DEFAULT)));
-            
             Dictionary<Integer, JLabel> labels = new Hashtable<Integer, JLabel>();
             labels.put(zoomSlider.getMinimum(), smallLabel);
             labels.put(zoomSlider.getMaximum(), bigLabel);
@@ -101,7 +103,9 @@ public class ImageEditPanel extends JPanel
         catch (IOException e1) {
             e1.printStackTrace();
         }
-        
+
+        // Panel that contains the border so that borders are not drawn on our
+        // canvas, but just outside it.
         Box border = new Box(BoxLayout.LINE_AXIS);
         border.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         border.add(imageCanvas);
