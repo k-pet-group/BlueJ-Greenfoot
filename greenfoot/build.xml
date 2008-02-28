@@ -32,7 +32,7 @@
         <pathelement location="${bluej.projectdir}/lib/antlr.jar"/>
         <pathelement location="${bluej.projectdir}/lib/junit.jar"/>
         <pathelement location="${bluej.projectdir}/lib/MRJ141Stubs.jar"/>
-    	<pathelement location="${bluej.projectdir}/lib/commons-httpclient-3.1.jar"/>
+    	<pathelement location="${greenfoot.projectdir}/lib/commons-httpclient-3.1.jar"/>
     </path>
     <!-- The sourcepath to the bluej classes-->
     <path id="bluej.src.path">
