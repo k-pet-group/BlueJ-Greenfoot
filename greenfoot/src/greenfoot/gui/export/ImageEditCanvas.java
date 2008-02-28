@@ -31,9 +31,9 @@ public class ImageEditCanvas extends JPanel
     /** Size of this component as specified by client */
     private Dimension size;
 
-    /** Current x displacement to get center as origin */
+    /** Location in the original image that should be in the center of the view */
     private double x;
-    /** Current y displacement to get center as origin */
+    /** Location in the original image that should be in the center of the view */
     private double y;
     /** Current factor to scale image with */
     private double scaleFactor = 1;
@@ -125,8 +125,9 @@ public class ImageEditCanvas extends JPanel
      */
     public void fit()
     {
-        x = (int) (-size.getWidth() / 2.) / minScaleFactor;
-        y = (int) (-size.getHeight() / 2.) / minScaleFactor;
+        x = (int) (-image.getWidth() / 2.) ;
+        y = (int) (-image.getHeight() / 2.) ;
+      
         setScale(minScaleFactor);
     }
 
@@ -135,6 +136,8 @@ public class ImageEditCanvas extends JPanel
      */
     public void move(int dx, int dy)
     {
+        // Divide by scaleFactor since we want the location in the original
+        // image.
         x += dx / scaleFactor;
         y += dy / scaleFactor;
         repaint();
