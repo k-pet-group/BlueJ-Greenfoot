@@ -60,6 +60,8 @@ import java.util.Map;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -98,7 +100,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5507 2008-01-29 15:37:54Z polle $
+ * @version $Id: GreenfootFrame.java 5610 2008-02-28 16:05:37Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener,
@@ -348,8 +350,7 @@ public class GreenfootFrame extends JFrame
         
         // Some first-time initializations
         worldCanvas = new WorldCanvas(null);
-        worldCanvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-
+        
         
         worldHandlerDelegate = new WorldHandlerDelegateIDE(this);
         WorldHandler.initialise(worldCanvas, worldHandlerDelegate);
@@ -388,9 +389,14 @@ public class GreenfootFrame extends JFrame
         
         sim.addSimulationListener(SoundPlayer.getInstance());
         
-        JPanel canvasPanel = new JPanel(new CenterLayout());
+        // Panel that contains the border so that borders are not drawn on our
+        // canvas, but just outside it.
+        Box borderPanel = new Box(BoxLayout.LINE_AXIS);
+        borderPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        borderPanel.add(worldCanvas);
         
-        canvasPanel.add(worldCanvas, BorderLayout.CENTER);
+        JPanel canvasPanel = new JPanel(new CenterLayout());        
+        canvasPanel.add(borderPanel, BorderLayout.CENTER);
         JScrollPane worldScrollPane = new JScrollPane(canvasPanel);
         worldScrollPane.setOpaque(false);
         // Why are these not opaque? Maybe they have to be on some platforms? looks fine on Mac OS X Leopard.
