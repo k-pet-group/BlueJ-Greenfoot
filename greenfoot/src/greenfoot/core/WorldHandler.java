@@ -231,13 +231,16 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
         Iterator<?> iter = objectsThere.iterator();
         Actor topmostActor = (Actor) iter.next();
         int seq = ActorVisitor.getLastPaintSeqNum(topmostActor);
+
         while (iter.hasNext()) {
             Actor actor = (Actor) iter.next();
             int actorSeq = ActorVisitor.getLastPaintSeqNum(actor);
             if (actorSeq > seq) {
                 topmostActor = actor;
+                seq = actorSeq;
             }
         }
+
         return topmostActor;
     }
 
