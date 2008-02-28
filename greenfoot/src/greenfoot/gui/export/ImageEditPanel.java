@@ -1,17 +1,30 @@
 package greenfoot.gui.export;
 
+import greenfoot.util.GraphicsUtilities;
+import greenfoot.util.GreenfootUtil;
+
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
@@ -60,7 +73,6 @@ public class ImageEditPanel extends JPanel
         
         Dimension maxSize = zoomSlider.getMaximumSize();
         maxSize.height = imageCanvas.getMaximumSize().height;
-        zoomSlider.setMaximumSize(maxSize);
         zoomSlider.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e)
             {
@@ -70,10 +82,31 @@ public class ImageEditPanel extends JPanel
             }
         });
 
-        add(Box.createHorizontalGlue());
+        // Set label images for slider
+        try {
+            URL url = new File(GreenfootUtil.getGreenfootLogoPath()).toURL();
+            BufferedImage iconImage = GraphicsUtilities.loadCompatibleImage(url);
+            JLabel bigLabel = new JLabel(new ImageIcon(iconImage.getScaledInstance(-1, 15, Image.SCALE_DEFAULT)));
+            JLabel smallLabel = new JLabel(new ImageIcon(iconImage.getScaledInstance(-1, 10, Image.SCALE_DEFAULT)));
+            
+            Dictionary<Integer, JLabel> labels = new Hashtable<Integer, JLabel>();
+            labels.put(zoomSlider.getMinimum(), smallLabel);
+            labels.put(zoomSlider.getMaximum(), bigLabel);
+            zoomSlider.setLabelTable(labels);
+            zoomSlider.setPaintLabels(true);
+        }
+        catch (MalformedURLException e1) {
+            e1.printStackTrace();
+        }
+        catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        
         Box border = new Box(BoxLayout.LINE_AXIS);
         border.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         border.add(imageCanvas);
+        
+        add(Box.createHorizontalGlue());
         add(border);
         add(zoomSlider);
         add(Box.createHorizontalGlue());
