@@ -1,5 +1,8 @@
 package greenfoot.core;
 
+import greenfoot.event.SimulationEvent;
+import greenfoot.event.SimulationListener;
+
 import java.awt.Toolkit;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -19,9 +22,9 @@ import java.util.Map;
  * F1-F12.
  * 
  * @author davmac
- * @version $Id: KeyboardManager.java 5483 2008-01-22 16:39:10Z polle $
+ * @version $Id: KeyboardManager.java 5615 2008-02-28 19:07:44Z polle $
  */
-public class KeyboardManager implements KeyListener, FocusListener
+public class KeyboardManager implements KeyListener, FocusListener, SimulationListener
 {
     private String lastKeyTyped;
 
@@ -329,10 +332,24 @@ public class KeyboardManager implements KeyListener, FocusListener
 	 * If we loose focus, we should treat all keys as not pressed anymore
 	 */
 	public void focusLost(FocusEvent e) {
-		for (int keyCode = 0; keyCode < keyDown.length; keyCode++) {
-			if(keyDown[keyCode]) {
-				releaseKey(keyCode);
-			}
-		}
+		releaseAllKeys();
 	}
+
+	/**
+	 * Release all the keys.
+	 */
+    private void releaseAllKeys()
+    {
+        for (int keyCode = 0; keyCode < keyDown.length; keyCode++) {
+			keyDown[keyCode] = false;
+			keyLatched[keyCode] = false;				
+		}
+    }
+
+    public void simulationChanged(SimulationEvent e)
+    {
+        if(e.getType() == SimulationEvent.STOPPED) {
+            releaseAllKeys();
+        }
+    }
 }

@@ -595,6 +595,7 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
     public void simulationChanged(SimulationEvent e)
     {
         inputManager.simulationChanged(e); // TODO maybe add somewhere else?
+        keyboardManager.simulationChanged(e);
         if(e.getType() == SimulationEvent.NEW_ACT)
         {
             mousePollingManager.newActStarted();
