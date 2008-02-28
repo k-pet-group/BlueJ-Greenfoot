@@ -6,6 +6,7 @@ import greenfoot.util.GreenfootUtil;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -49,15 +50,45 @@ public class ImageEditPanel extends JPanel
     /** Slider for zooming*/
     private JSlider zoomSlider;
 
+    /** Width of the image view */
+    private int width;
+    /** Height of the image view */
+    private int height;
+    
+    /** Label used for the slider. */
+    private JLabel bigLabel;
+    /** Label used for the slider. */
+    private JLabel smallLabel;
+    
+    public ImageEditPanel(int width, int height) {
+        this.width = width;
+        this.height = height;
+        setPreferredSize(new Dimension(width + 2, height + 2));
+    }
+    
     /**
-     * Must be called from the swing event thread.
+     * Set the image to be manipulated.
      */
-    public void setImageCanvas(ImageEditCanvas imageCanvas)
+    public void setImage(BufferedImage snapShot)
     {
-        this.imageCanvas = imageCanvas;
-        buildUI();
+        if(imageCanvas == null) {
+            imageCanvas = new ImageEditCanvas(width, height, snapShot);
+            imageCanvas.fit();
+            buildUI();
+        }
+        else {
+            double oldMinScale = imageCanvas.getMinimumScale();
+            imageCanvas.setImage(snapShot); 
+            double newMinScale = imageCanvas.getMinimumScale();
+            if(newMinScale != oldMinScale) {
+                // Only re-fit scaling if there was a change in size.
+                imageCanvas.fit();
+                adjustSlider();    
+            } 
+        }
     }
 
+    
     private void buildUI()
     {
         setOpaque(false);
@@ -66,12 +97,27 @@ public class ImageEditPanel extends JPanel
         imageCanvas.addMouseListener(this);
         imageCanvas.addMouseWheelListener(this);
         imageCanvas.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        int min = (int) (imageCanvas.getMinimumScale() * 100);
-        int max = 100;
-
-        zoomSlider = new JSlider(JSlider.VERTICAL, min, max, (int) (imageCanvas.getScale() * 100));
+      
+        zoomSlider = new JSlider(JSlider.VERTICAL);
         zoomSlider.setOpaque(false);
-
+        
+        // Create labels for slider
+        try {
+            URL url = new File(GreenfootUtil.getGreenfootLogoPath()).toURI().toURL();
+            BufferedImage iconImage = GraphicsUtilities.loadCompatibleImage(url);
+            bigLabel = new JLabel(new ImageIcon(iconImage.getScaledInstance(-1, 15, Image.SCALE_DEFAULT)));
+            smallLabel = new JLabel(new ImageIcon(iconImage.getScaledInstance(-1, 10, Image.SCALE_DEFAULT)));
+            zoomSlider.setPaintLabels(true);
+        }
+        catch (MalformedURLException e1) {
+            e1.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        adjustSlider();
+        
         Dimension maxSize = zoomSlider.getMaximumSize();
         maxSize.height = imageCanvas.getMaximumSize().height;
         zoomSlider.setMaximumSize(maxSize);
@@ -84,26 +130,6 @@ public class ImageEditPanel extends JPanel
                 imageCanvas.setScale(scale / 100.);
             }
         });
-
-        // Set label images for slider
-        try {
-            URL url = new File(GreenfootUtil.getGreenfootLogoPath()).toURI().toURL();
-            BufferedImage iconImage = GraphicsUtilities.loadCompatibleImage(url);
-            JLabel bigLabel = new JLabel(new ImageIcon(iconImage.getScaledInstance(-1, 15, Image.SCALE_DEFAULT)));
-            JLabel smallLabel = new JLabel(new ImageIcon(iconImage.getScaledInstance(-1, 10, Image.SCALE_DEFAULT)));
-            Dictionary<Integer, JLabel> labels = new Hashtable<Integer, JLabel>();
-            labels.put(zoomSlider.getMinimum(), smallLabel);
-            labels.put(zoomSlider.getMaximum(), bigLabel);
-            zoomSlider.setLabelTable(labels);
-            zoomSlider.setPaintLabels(true);
-        }
-        catch (MalformedURLException e1) {
-            e1.printStackTrace();
-        }
-        catch (IOException e1) {
-            e1.printStackTrace();
-        }
-
         // Panel that contains the border so that borders are not drawn on our
         // canvas, but just outside it.
         Box border = new Box(BoxLayout.LINE_AXIS);
@@ -115,6 +141,21 @@ public class ImageEditPanel extends JPanel
         add(zoomSlider);
         add(Box.createHorizontalGlue());
 
+    }
+
+    private void adjustSlider()
+    {
+        int min = (int) (imageCanvas.getMinimumScale() * 100);
+        int max = 100;
+        int scale = (int) (imageCanvas.getScale() * 100);
+        zoomSlider.setMinimum(min);
+        zoomSlider.setMaximum(max);        
+        zoomSlider.setValue(scale);
+        Dictionary<Integer, JLabel> labels = new Hashtable<Integer, JLabel>();
+        labels.put(zoomSlider.getMinimum(), smallLabel);
+        labels.put(zoomSlider.getMaximum(), bigLabel);
+        zoomSlider.setLabelTable(labels);
+        zoomSlider.repaint();
     }
 
     public void mouseDragged(MouseEvent e)
@@ -160,6 +201,21 @@ public class ImageEditPanel extends JPanel
     {
         int scroll = e.getUnitsToScroll();
         zoomSlider.setValue(zoomSlider.getValue() - scroll);
+    }
+
+    /**
+     * Get the image created by this image panel or null if none exists.
+     */
+    public BufferedImage getImage()
+    {
+        if(imageCanvas == null) {
+            return null;
+        }
+        BufferedImage newImage = GraphicsUtilities.createCompatibleImage(width, height);
+        Graphics2D g = newImage.createGraphics();
+        imageCanvas.paintImage(g);
+        g.dispose();
+        return newImage;
     }
 
 }

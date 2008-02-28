@@ -2,25 +2,16 @@
  * ExportPublishPane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 5606 2008-02-27 18:48:54Z polle $
+ * @version $Id: ExportPublishPane.java 5613 2008-02-28 18:22:48Z polle $
  */
 
 package greenfoot.gui.export;
 
-import bluej.BlueJTheme;
-import bluej.Config;
-import bluej.groupwork.ui.MiksGridLayout;
-import bluej.utility.MultiLineLabel;
-import bluej.utility.Utility;
-import greenfoot.util.GraphicsUtilities;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -36,6 +27,12 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
+
+import bluej.BlueJTheme;
+import bluej.Config;
+import bluej.groupwork.ui.MiksGridLayout;
+import bluej.utility.MultiLineLabel;
+import bluej.utility.Utility;
 
 public class ExportPublishPane extends ExportPane
 {
@@ -56,7 +53,6 @@ public class ExportPublishPane extends ExportPane
     private JTextField URLField;
     private JTextField userNameField;
     private JPasswordField passwordField;
-    private ImageEditCanvas imageCanvas;
     private ImageEditPanel imagePanel;
 
     /** Creates a new instance of ExportPublishPane */
@@ -73,17 +69,8 @@ public class ExportPublishPane extends ExportPane
      */
     public BufferedImage getImage() 
     {
-        if(imageCanvas == null) {
-            return null;
-        }
-        BufferedImage newImage = GraphicsUtilities.createCompatibleImage(IMAGE_WIDTH, IMAGE_HEIGHT);
-        Graphics2D g = newImage.createGraphics();
-        imageCanvas.paintImage(g);
-        g.dispose();
-        return newImage;
+        return imagePanel.getImage();
     }
-    
-    
 
     /**
      * Must be called from Swing Event Thread.
@@ -91,20 +78,9 @@ public class ExportPublishPane extends ExportPane
      */
     public void setImage(BufferedImage snapShot)
     {
-        if(imageCanvas == null) {
-            imageCanvas = new ImageEditCanvas(IMAGE_WIDTH, IMAGE_HEIGHT, snapShot);
-            imageCanvas.fit();
-            imagePanel.setImageCanvas(imageCanvas);
-            imagePanel.repaint();
-        }
-        else {
-            imageCanvas.setImage(snapShot);
-            imageCanvas.fit();
-            imageCanvas.repaint();
-        }
+        imagePanel.setImage(snapShot);
+        imagePanel.repaint();
     }
-    
- 
 
     /**
      * Return the short description string.
@@ -187,8 +163,7 @@ public class ExportPublishPane extends ExportPane
             {
                 dataPanel.setBackground(background);
                 
-                imagePanel = new ImageEditPanel();   
-                imagePanel.setPreferredSize(new Dimension(IMAGE_WIDTH + 2, IMAGE_HEIGHT + 2));
+                imagePanel = new ImageEditPanel(IMAGE_WIDTH, IMAGE_HEIGHT);   
                 imagePanel.setBackground(background);
                 text = new JLabel(Config.getString("export.publish.image"), SwingConstants.TRAILING);
                 text.setFont(smallFont);
