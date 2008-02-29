@@ -15,7 +15,7 @@ import bluej.debugger.DebuggerObject;
  * Represent a local class as a DebuggerClass.
  * 
  * @author Davin McCall
- * @version $Id: LocalClass.java 4854 2007-03-20 01:16:35Z davmac $
+ * @version $Id: LocalClass.java 5619 2008-02-29 14:39:36Z polle $
  */
 public class LocalClass extends DebuggerClass
 {
@@ -86,7 +86,7 @@ public class LocalClass extends DebuggerClass
         for (int i = 0; i < fields.length; i++) {
             // skip non-instance fields
             int mods = fields[i].getModifiers();
-            if ((mods & Modifier.STATIC) != 0)
+            if ((mods & Modifier.STATIC) == 0)
                 continue;
             
             String desc = "";
@@ -176,6 +176,7 @@ public class LocalClass extends DebuggerClass
             AccessibleObject.setAccessible(declFields, true);
             allFields.addAll(Arrays.asList(declFields));
             c = c.getSuperclass();
+
         }
 
         return (Field []) allFields.toArray(noFields);
