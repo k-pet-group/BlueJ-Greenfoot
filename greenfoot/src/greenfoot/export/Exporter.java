@@ -5,7 +5,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5606 2008-02-27 18:48:54Z polle $
+ * @version $Id: Exporter.java 5616 2008-02-29 06:50:47Z davmac $
  */
 
 package greenfoot.export;
@@ -142,7 +142,7 @@ public class Exporter
         dlg.setProgress(true, Config.getString("export.progress.publishing"));
         try {
             webPublisher.submit(hostAddress, login, password, scenarioName,
-                    tmpJarFile.getAbsolutePath(), size.width, size.height,
+                    tmpJarFile.getAbsolutePath(), tmpImgFile, size.width, size.height,
                     pane.getShortDescription(), pane.getDescription());
         }
         catch (UnknownHostException e) {
@@ -152,6 +152,10 @@ public class Exporter
         catch (IOException e) {
             dlg.setProgress(false, Config.getString("export.publish.fail") + " " + e.getMessage());
             return;
+        }
+        finally {
+            tmpImgFile.delete();
+            tmpImgFile = null;
         }
     }
 

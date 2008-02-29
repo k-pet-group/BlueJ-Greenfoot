@@ -26,7 +26,7 @@ import bluej.Config;
 public abstract class MyGameClient
 {
     public final MyGameClient submit(String hostAddress, String uid, String password,
-            String gameName, String fileName, int width, int height,
+            String gameName, String fileName, File screenshotFile, int width, int height,
             String shortDescription, String longDescription)
         throws UnknownHostException, IOException
     {
@@ -91,7 +91,8 @@ public abstract class MyGameClient
                 new StringPart("scenario[height]", "" + height),
                 new StringPart("scenario[short_description]", shortDescription),
                 new StringPart("scenario[long_description]", longDescription),
-                new FilePart("scenario[uploaded_data]", new File(fileName))
+                new FilePart("scenario[uploaded_data]", new File(fileName)),
+                new FilePart("scenario[screenshot_data]", screenshotFile)
         };
         
         postMethod = new PostMethod(hostAddress + "upload-scenario");
