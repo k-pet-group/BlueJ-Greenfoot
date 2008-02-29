@@ -109,7 +109,7 @@
             <fileset dir="${images}"/>
             <fileset dir="lib"/>
         </copy>
-        <copy todir="${bluej.projectdir}/lib}">
+        <copy todir="${bluej.projectdir}/lib">
             <fileset dir="lib" />
         </copy>
         <mkdir dir="${package}"/>
