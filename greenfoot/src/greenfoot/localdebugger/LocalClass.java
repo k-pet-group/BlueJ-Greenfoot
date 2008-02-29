@@ -1,5 +1,8 @@
 package greenfoot.localdebugger;
 
+import greenfoot.Actor;
+import greenfoot.World;
+
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -15,13 +18,13 @@ import bluej.debugger.DebuggerObject;
  * Represent a local class as a DebuggerClass.
  * 
  * @author Davin McCall
- * @version $Id: LocalClass.java 5619 2008-02-29 14:39:36Z polle $
+ * @version $Id: LocalClass.java 5621 2008-02-29 18:24:46Z polle $
  */
 public class LocalClass extends DebuggerClass
 {
     private Class cl;
     private static Field [] noFields = new Field[0];
-    
+     
     /**
      * Constructor for LocalClass.
      */
@@ -42,15 +45,8 @@ public class LocalClass extends DebuggerClass
      * @see bluej.debugger.DebuggerClass#getStaticFieldCount()
      */
     public int getStaticFieldCount()
-    {
-        Field [] fields = getFields();
-        int staticCount = 0;
-        for (int i = 0; i < fields.length; i++) {
-            if ((fields[i].getModifiers() & Modifier.STATIC) != 0)
-                staticCount++;
-        }
-        
-        return staticCount;
+    {        
+        return getFields().length;
     }
 
     /* (non-Javadoc)
@@ -86,8 +82,6 @@ public class LocalClass extends DebuggerClass
         for (int i = 0; i < fields.length; i++) {
             // skip non-instance fields
             int mods = fields[i].getModifiers();
-            if ((mods & Modifier.STATIC) == 0)
-                continue;
             
             String desc = "";
             if (includeModifiers) {
@@ -156,8 +150,8 @@ public class LocalClass extends DebuggerClass
     }
 
     /**
-     * Convenience method to get all fields, instance and static, public
-     * and private.
+     * Convenience method to get static fields, public
+     * and private. Except the ones that should be filtered out.
      */
     private Field [] getFields()
     {
@@ -168,8 +162,9 @@ public class LocalClass extends DebuggerClass
             Field [] declFields = c.getDeclaredFields();
             ArrayList sfields = new ArrayList();
             for (int i = 0; i < declFields.length; i++) {
-                if ((declFields[i].getModifiers() & Modifier.STATIC) != 0)
-                    sfields.add(declFields[i]);
+                Field field = declFields[i];
+                if ((field.getModifiers() & Modifier.STATIC) != 0 && keepField(c, field))
+                    sfields.add(field);
             }
             
             declFields = (Field []) sfields.toArray(noFields);
@@ -194,4 +189,18 @@ public class LocalClass extends DebuggerClass
         catch (IllegalAccessException iae) { return false; }
     }
 
+    /**
+     * Whether a given field should be used.
+     * @return True if the field should be used, false if it should be ignored
+     */
+    private boolean keepField(Class cls, Field field) 
+    {
+        if(cls.equals(World.class)) {
+            return false;
+        }
+        else if(cls.equals(Actor.class)) {
+            return false;
+        }
+        return true;            
+    }
 }

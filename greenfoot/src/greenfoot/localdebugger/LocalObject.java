@@ -1,5 +1,8 @@
 package greenfoot.localdebugger;
 
+import greenfoot.Actor;
+import greenfoot.World;
+
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -21,7 +24,7 @@ import com.sun.jdi.ObjectReference;
  * A class to represent a local object as a DebuggerObject
  *  
  * @author Davin McCall
- * @version $Id: LocalObject.java 4854 2007-03-20 01:16:35Z davmac $
+ * @version $Id: LocalObject.java 5621 2008-02-29 18:24:46Z polle $
  */
 public class LocalObject extends DebuggerObject
 {
@@ -31,7 +34,10 @@ public class LocalObject extends DebuggerObject
     // instance fields
     protected Object object;
     private Map genericParams = null; // Map of parameter names to types
-    
+   
+    private static String[] actorIncludeFields = new String[]{"x", "y", "rotation", "image", "world"};
+    private static String[] worldIncludeFields = new String[]{"width", "height", "cellSize", "backgroundImage"};
+   
     
     public static LocalObject getLocalObject(Object o)
     {
@@ -257,7 +263,15 @@ public class LocalObject extends DebuggerObject
         while (c != null) {
             Field [] declFields = c.getDeclaredFields();
             AccessibleObject.setAccessible(declFields, true);
-            allFields.addAll(Arrays.asList(declFields));
+            
+            for (int j = 0; j < declFields.length; j++) {
+                Field field = declFields[j];
+                // Filter out some fields that we want to hide.
+                if(keepField(c, field)) {
+                    allFields.add(field);
+                }
+            }
+            
             c = c.getSuperclass();
         }
 
@@ -529,6 +543,7 @@ public class LocalObject extends DebuggerObject
                 continue;
             }
             
+            
             String desc = "";
             if (includeModifiers) {
                 if (Modifier.isPublic(mods)) {
@@ -646,5 +661,32 @@ public class LocalObject extends DebuggerObject
     {
         // TODO Auto-generated method stub
         return null;
+    }
+    
+    /**
+     * Whether a given field should be used.
+     * @return True if the field should be used, false if it should be ignored
+     */
+    private boolean keepField(Class cls, Field field) 
+    {
+        if(cls.equals(World.class)) {
+            for (int i = 0; i < worldIncludeFields.length; i++) {
+                String includeName = worldIncludeFields[i];
+                if(includeName.equals(field.getName())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        else if(cls.equals(Actor.class)) {
+            for (int i = 0; i < actorIncludeFields.length; i++) {
+                String includeName = actorIncludeFields[i];
+                if(includeName.equals(field.getName())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return true;            
     }
 }
