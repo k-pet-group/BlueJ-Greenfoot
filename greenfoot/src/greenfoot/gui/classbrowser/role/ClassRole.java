@@ -1,6 +1,7 @@
 package greenfoot.gui.classbrowser.role;
 
 import greenfoot.actions.EditClassAction;
+import greenfoot.actions.InspectClassAction;
 import greenfoot.actions.NewSubclassAction;
 import greenfoot.actions.RemoveClassAction;
 import greenfoot.core.GClass;
@@ -10,6 +11,7 @@ import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
+import greenfoot.localdebugger.LocalClass;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -18,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.Action;
-import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
@@ -38,7 +39,7 @@ import bluej.views.ViewFilter;
  * "normal" classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 5507 2008-01-29 15:37:54Z polle $
+ * @version $Id: ClassRole.java 5620 2008-02-29 15:13:52Z polle $
  */
 public abstract class ClassRole implements WorldListener
 {
@@ -137,10 +138,13 @@ public abstract class ClassRole implements WorldListener
         popupMenu.add(createMenuItem(new EditClassAction(classBrowser)));
 
         addPopupMenuItems(popupMenu, classView.isCoreClass());
-
+        
+        popupMenu.add(createMenuItem(new InspectClassAction(new LocalClass(classView.getRealClass()), null, classBrowser.getFrame(), classBrowser.getFrame() )));
+       
         if (! classView.isCoreClass()) {
             popupMenu.add(createMenuItem(new RemoveClassAction(classView, classBrowser.getFrame())));
         }
+        
         popupMenu.addSeparator();
         popupMenu.add(createMenuItem(new NewSubclassAction(classView, classBrowser)));
 

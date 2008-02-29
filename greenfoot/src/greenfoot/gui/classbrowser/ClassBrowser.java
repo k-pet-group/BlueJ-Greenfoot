@@ -2,6 +2,7 @@ package greenfoot.gui.classbrowser;
 
 import bluej.Config;
 import greenfoot.core.GProject;
+import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.classbrowser.role.ActorClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
 
@@ -28,7 +29,7 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 5507 2008-01-29 15:37:54Z polle $
+ * @version $Id: ClassBrowser.java 5620 2008-02-29 15:13:52Z polle $
  */
 public class ClassBrowser extends JPanel
 {
@@ -43,9 +44,9 @@ public class ClassBrowser extends JPanel
     
     private GProject project;
 
-    private JFrame frame;
+    private GreenfootFrame frame;
 
-    public ClassBrowser(GProject project, JFrame frame)
+    public ClassBrowser(GProject project, GreenfootFrame frame)
     {
     	this.project = project;
     	this.frame = frame;
@@ -328,7 +329,7 @@ public class ClassBrowser extends JPanel
     /** 
      * Get the parent frame of this class browser.
      */
-    public JFrame getFrame()
+    public GreenfootFrame getFrame()
     {
         return frame;
     }

@@ -37,6 +37,7 @@ open.project=Open...
 open.recentProject=Open recent
 remove.class=Remove
 remove.selected=Remove Class
+inspect.class=Inspect
 reset.world=Reset
 run.once=Act
 run.simulation=Run
