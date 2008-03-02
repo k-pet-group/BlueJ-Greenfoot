@@ -6,6 +6,7 @@ import greenfoot.actions.NewSubclassAction;
 import greenfoot.actions.RemoveClassAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GProject;
+import greenfoot.core.GreenfootMain;
 import greenfoot.core.WorldInvokeListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
@@ -39,7 +40,7 @@ import bluej.views.ViewFilter;
  * "normal" classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 5620 2008-02-29 15:13:52Z polle $
+ * @version $Id: ClassRole.java 5622 2008-03-02 17:22:42Z polle $
  */
 public abstract class ClassRole implements WorldListener
 {
@@ -74,7 +75,7 @@ public abstract class ClassRole implements WorldListener
                 if (!filter.accept(m))
                     continue;
 
-                WorldInvokeListener invocListener = new WorldInvokeListener(realClass, project);
+                WorldInvokeListener invocListener = new WorldInvokeListener(realClass, GreenfootMain.getInstance().getFrame(), project);
 
                 String prefix = "new ";
                 Action callAction = new ConstructAction(m, invocListener, prefix + m.getLongDesc());
@@ -130,7 +131,7 @@ public abstract class ClassRole implements WorldListener
             ViewFilter filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PUBLIC);
             View view = View.getView(realClass);
             MethodView[] allMethods = view.getAllMethods();
-            WorldInvokeListener invocListener = new WorldInvokeListener(realClass, project);
+            WorldInvokeListener invocListener = new WorldInvokeListener(realClass, GreenfootMain.getInstance().getFrame(), project);
             if (bluej.pkgmgr.target.role.ClassRole.createMenuItems(popupMenu, allMethods, filter, 0, allMethods.length, "", invocListener))
                 popupMenu.addSeparator();
         }

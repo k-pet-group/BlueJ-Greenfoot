@@ -70,10 +70,11 @@ public class WorldInvokeListener
         this.project = project;
     }
     
-    public WorldInvokeListener(Class cl, GProject project)
+    public WorldInvokeListener(Class cl, InspectorManager inspectorManager, GProject project)
     {
         this.cl = cl;
         this.project = project;
+        this.inspectorManager = inspectorManager;
     }
     
     /* (non-Javadoc)
