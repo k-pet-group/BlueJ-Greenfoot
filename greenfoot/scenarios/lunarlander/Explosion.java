@@ -38,8 +38,8 @@ public class Explosion extends Actor
      */
     public synchronized static void initialiseImages() {
         if(images == null) {
-            GreenfootImage baseImage = new GreenfootImage("images/explosion.png");
-            int maxSize = baseImage.getWidth()/2;
+            GreenfootImage baseImage = new GreenfootImage("explosion.png");
+            int maxSize = baseImage.getWidth()*4;
             int delta = maxSize / (IMAGE_COUNT+1);
             int size = 0;
             images = new GreenfootImage[IMAGE_COUNT];

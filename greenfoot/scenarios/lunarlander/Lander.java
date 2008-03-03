@@ -44,9 +44,8 @@ public class Lander extends Actor
     public Lander()
     {
         rocket = getImage();
-        rocketWithThrust = new GreenfootImage("images/thrust.png");
+        rocketWithThrust = new GreenfootImage("thrust.png");
         rocketWithThrust.drawImage(rocket, 0, 0);
-        setRotation(-90);
     }       
 
     public void act()

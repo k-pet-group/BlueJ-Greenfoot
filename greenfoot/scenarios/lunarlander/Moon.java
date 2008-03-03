@@ -21,7 +21,6 @@ public class Moon extends World
     
     public Moon() {
         super(600,600,1);
-        setBackground("moon.png");
         addObject(new Lander(), 326, 100);
         //Force the explosion to initialise the images
         //We do this in a thread to make it load in the background
