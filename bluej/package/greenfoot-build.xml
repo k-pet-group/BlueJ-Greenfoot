@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="greenfoot-package" default="dist">
 
+    <patternset id="bluej.docfiles">
+        <exclude name="**/.#*" />
+        <include name="doc/NOTICE.txt" />
+        <include name="doc/APACHE-LICENSE.txt" />
+    </patternset>
+    
     <patternset id="bluej.libfiles">
         <exclude name="**/.#*" />
         <include name="lib/bluej.jar" />
@@ -62,6 +68,7 @@
             <fileset dir="${bluej_home}">
                 <patternset refid="bluej.libfiles" />
                 <patternset refid="bluej.libdirs" />
+                <patternset refid="bluej.docfiles" />
             </fileset>
             <fileset dir="${bluej_home}/package">
                 <patternset refid="greenfoot.scenarios" />

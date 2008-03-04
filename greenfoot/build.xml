@@ -112,6 +112,10 @@
         <copy todir="${bluej.projectdir}/lib">
             <fileset dir="lib" />
         </copy>
+        <mkdir dir="${bluej.projectdir}/doc" />
+        <copy todir="${bluej.projectdir}/doc">
+            <fileset dir="doc" />
+        </copy>
         <mkdir dir="${package}"/>
     </target>
 
