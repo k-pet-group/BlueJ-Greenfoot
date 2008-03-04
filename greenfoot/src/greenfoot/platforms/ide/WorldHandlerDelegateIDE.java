@@ -512,11 +512,10 @@ public class WorldHandlerDelegateIDE
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        catch (Exception ise) {
-            // This can happen if an actor is instantiated from the world
-            // constructor, and the actor tries to get the world.
+        catch (Throwable ise) {
+            // This can happen if a static initializer block throws a Throwable.
             // Or for other reasons.
-            Debug.reportError("Error when instantiating world.", ise);
+            ise.printStackTrace();
         }
     }
 
