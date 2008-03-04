@@ -176,19 +176,9 @@
 
         <!-- construct the directory structure we want for the distribution -->
         <copy todir="${zip_dir}">
-            <fileset dir="${bluej_home}/package">
-                <patternset refid="greenfoot.scenarios" />
-            </fileset>
-            <fileset dir="${bluej_home}/package">
-                <patternset refid="greenfoot.tutorial" />
-            </fileset>
+            <fileset dir="install_tmp"/>
         </copy>
-        <copy todir="${zip_dir}">
-            <fileset dir="${bluej_home}">
-                <patternset refid="bluej.libfiles" />
-                <patternset refid="bluej.libdirs" />
-            </fileset>
-        </copy>
+        
         <!-- The lib dir should not be in the root dir, so we move the contents to the proper mac-location -->
         <move todir="${zip_dir}/Greenfoot.app/Contents/Resources/Java">
             <fileset dir="${zip_dir}/lib/" />
