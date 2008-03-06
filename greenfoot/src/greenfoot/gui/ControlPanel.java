@@ -1,6 +1,5 @@
 package greenfoot.gui;
 
-import bluej.Config;
 import greenfoot.actions.PauseSimulationAction;
 import greenfoot.actions.ResetWorldAction;
 import greenfoot.actions.RunOnceSimulationAction;
@@ -10,7 +9,6 @@ import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.util.GreenfootUtil;
 
-import java.awt.CardLayout;
 import java.awt.FlowLayout;
 
 import javax.swing.AbstractButton;
@@ -22,15 +20,18 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
+
+import bluej.Config;
 
 /**
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 5469 2008-01-21 19:23:16Z polle $
+ * @version $Id: ControlPanel.java 5634 2008-03-06 12:40:45Z polle $
  */
 public class ControlPanel extends Box
     implements ChangeListener, SimulationListener
@@ -43,11 +44,11 @@ public class ControlPanel extends Box
     private JSlider speedSlider;
 
     protected EventListenerList listenerList = new EventListenerList();
-    
-    private CardLayout runpauseLayout;
-    private JPanel runpauseContainer;
-    
+ 
     private Simulation simulation;
+    private JPanel buttonPanel;
+    private JButton pauseButton;
+    private JButton runButton;
     
     /**
      * 
@@ -71,7 +72,7 @@ public class ControlPanel extends Box
 
     private JPanel createButtonPanel(Simulation simulation, boolean includeAllControls)
     {
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         
         if (includeAllControls) {
             runOnceSimulationAction = RunOnceSimulationAction.getInstance();
@@ -93,7 +94,7 @@ public class ControlPanel extends Box
         runSimulationAction.putValue(Action.SHORT_DESCRIPTION, 
             Config.getString("controls.run.shortDescription"));
         runSimulationAction.setEnabled(false);
-        JButton runButton = GreenfootUtil.createButton(runSimulationAction);
+        runButton = GreenfootUtil.createButton(runSimulationAction);
         runButton.setFocusable(false);
 
         pauseSimulationAction = PauseSimulationAction.getInstance();
@@ -103,21 +104,22 @@ public class ControlPanel extends Box
         pauseSimulationAction.putValue(Action.SHORT_DESCRIPTION, 
             Config.getString("controls.pause.shortDescription"));
         pauseSimulationAction.setEnabled(false);
-        JButton pauseButton = GreenfootUtil.createButton(pauseSimulationAction);
+        pauseButton = GreenfootUtil.createButton(pauseSimulationAction);
         pauseButton.setFocusable(false);
         
-        runpauseLayout = new CardLayout();
-        runpauseContainer = new JPanel(runpauseLayout) {
-            public boolean isValidateRoot()
-            {
-                return true;
-            }
-        };
-        runpauseContainer.add(runButton, Config.getString("controls.run.button"));
-        runpauseContainer.add(pauseButton, Config.getString("controls.pause.button"));
-        buttonPanel.add(runpauseContainer);
+        // Make buttons the same size
+        if(pauseButton.getPreferredSize().getWidth() > runButton.getPreferredSize().getWidth()) {
+            runButton.setPreferredSize(pauseButton.getPreferredSize());
+            runButton.setMaximumSize(pauseButton.getMaximumSize());
+            runButton.setMinimumSize(pauseButton.getMinimumSize());
+        } else  {
+            pauseButton.setPreferredSize(runButton.getPreferredSize());
+            pauseButton.setMaximumSize(runButton.getMaximumSize());
+            pauseButton.setMinimumSize(runButton.getMinimumSize());
+        }
         
-        
+        buttonPanel.add(runButton);
+                
         resetWorldAction = ResetWorldAction.getInstance();
         resetWorldAction.putValue(Action.LONG_DESCRIPTION, Config.getString("controls.reset.longDescription"));
         resetWorldAction.putValue(Action.SHORT_DESCRIPTION, Config.getString("controls.reset.shortDescription"));
@@ -159,33 +161,49 @@ public class ControlPanel extends Box
      */
     public void simulationChanged(SimulationEvent e)
     {
-        int etype = e.getType();
-        if (etype == SimulationEvent.STARTED) {
-            if(speedSlider != null) {
-                speedSlider.setEnabled(true);
-            }
-            runpauseLayout.show(runpauseContainer, Config.getString("controls.pause.button"));
+
+        final int etype = e.getType();
+        if (etype == SimulationEvent.NEW_ACT) {
+            // we don't care about these events here so we want to avoid
+            // creating a new thread below.
+            return;
         }
-        else if (etype == SimulationEvent.STOPPED) {
-            if(speedSlider != null) {
-                speedSlider.setEnabled(true);
-            }
-            runpauseLayout.show(runpauseContainer, Config.getString("controls.run.button"));
-        }
-        else if (etype == SimulationEvent.CHANGED_SPEED) {
-            if(speedSlider != null) {
-                speedSlider.setEnabled(true);            
-                int newSpeed = simulation.getSpeed();
-                if (newSpeed != speedSlider.getValue()) {
-                    speedSlider.setValue(newSpeed);
+
+        SwingUtilities.invokeLater(new Thread() {
+            public void run()
+            {
+                if (etype == SimulationEvent.STARTED) {
+                    if (speedSlider != null) {
+                        speedSlider.setEnabled(true);
+                    }
+                    buttonPanel.remove(runButton);
+                    buttonPanel.add(pauseButton, 1);
+                    buttonPanel.validate();
+                }
+                else if (etype == SimulationEvent.STOPPED) {
+                    if (speedSlider != null) {
+                        speedSlider.setEnabled(true);
+                    }
+                    buttonPanel.remove(pauseButton);
+                    buttonPanel.add(runButton, 1);
+                    buttonPanel.validate();
+                }
+                else if (etype == SimulationEvent.CHANGED_SPEED) {
+                    if (speedSlider != null) {
+                        speedSlider.setEnabled(true);
+                        int newSpeed = simulation.getSpeed();
+                        if (newSpeed != speedSlider.getValue()) {
+                            speedSlider.setValue(newSpeed);
+                        }
+                    }
+                }
+                else if (etype == SimulationEvent.DISABLED) {
+                    if (speedSlider != null) {
+                        speedSlider.setEnabled(false);
+                    }
                 }
             }
-        } 
-        else if(etype == SimulationEvent.DISABLED) {
-            if(speedSlider != null) {
-                speedSlider.setEnabled(false);
-            }
-        }
+        });
     }
     
 
