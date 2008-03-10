@@ -9,7 +9,15 @@ Building Greenfoot:
  
  
 Subversion:
- Tag greenfoot and bluej with GREENFOOT_RELEASE_X.X.X
+ Create tag dir:
+   svn+ssh://cvs.bluej.org/home/bluej/svnroot/tags/GREENFOOT_RELEASE_X_Y_Z
+ Tag BlueJ
+  from: svn+ssh://cvs.bluej.org/home/bluej/svnroot/trunk/bluej
+  to: svn+ssh://cvs.bluej.org/home/bluej/svnroot/tags/GREENFOOT_RELEASE_X_Y_Z/bluej
+ Tag Greenfoot
+  from: svn+ssh://cvs.bluej.org/home/bluej/svnroot/trunk/greenfoot
+  to: svn+ssh://cvs.bluej.org/home/bluej/svnroot/tags/GREENFOOT_RELEASE_X_Y_Z/greenfoot
+ 
  
  
 Trac: 
