@@ -264,7 +264,11 @@ public class JarCreator
     private String fixNewlines(String value)
     {
         StringBuffer buffer = new StringBuffer(value.length());
-        String[] lines = value.split(System.getProperty("line.separator"));
+        
+        //(?m) MULTILINE is required for $ and ^ to work. 
+        //(?s) DOTALL makes . match newlines as well.
+        String newLineRegExp = "(?m)(?s)$.^";
+		String[] lines = value.split(newLineRegExp);
         for (int i = 0; i < lines.length; i++) {
             String string = lines[i];
             if(i!=0) {
