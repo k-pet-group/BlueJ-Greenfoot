@@ -50,7 +50,7 @@ public class JarCreator
     /** Directory to be exported. */
     private File projectDir;
     
-    /** Name of the jaf file that will be created. */
+    /** Name of the jar file that will be created. */
     private String jarName;
     
     /** List of extra jars that should be put in the same dir as the created jar (the exportDir)*/
@@ -124,6 +124,15 @@ public class JarCreator
         // skip CVS stuff
         addSkipDir("CVS");
         addSkipFile(".cvsignore");
+        
+        // skip Subversion files
+        addSkipDir(".svn");
+        
+        // skip Mac files
+        addSkipFile(".DS_Store");
+        
+        // skip doc dir
+        addSkipDir(projectDir.getPath() + System.getProperty("file.separator") + "doc");
         
         // skip the export dir (in case it is in the projectDir)
         addSkipDir(exportDir.getAbsolutePath().toString());
