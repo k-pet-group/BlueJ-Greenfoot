@@ -268,7 +268,9 @@ public class JarCreator
         //(?m) MULTILINE is required for $ and ^ to work. 
         //(?s) DOTALL makes . match newlines as well.
         String newLineRegExp = "(?m)(?s)$.^";
-		String[] lines = value.split(newLineRegExp);
+        //\\z matches end of input, so this will match all trailing newlines.
+        String trailingNewLineReqExp = "$.\\z";
+		String[] lines = value.split(newLineRegExp + "|" + trailingNewLineReqExp );
         for (int i = 0; i < lines.length; i++) {
             String string = lines[i];
             if(i!=0) {
