@@ -15,7 +15,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJImpl.java 4350 2006-06-12 03:56:19Z davmac $
+ * @version $Id: RBlueJImpl.java 5644 2008-03-13 16:25:04Z polle $
  */
 public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     implements RBlueJ
@@ -35,16 +35,14 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     /* (non-Javadoc)
      * @see rmiextension.wrappers.RBlueJ#addCompileListener(rmiextension.wrappers.event.RCompileListener, java.lang.String)
      */
-    public void addCompileListener(RCompileListener listener, String projectName)
+    public void addCompileListener(RCompileListener listener, File projectPath)
     {
         BProject[] projects = blueJ.getOpenProjects();
         BProject project = null;
-        // TODO this is not robust if more than one project with the
-        // same name is open
         for (int i = 0; i < projects.length; i++) {
             BProject prj = projects[i];
             try {
-                if(prj.getName().equals(projectName)) {
+                if(prj.getDir().equals(projectPath)) {
                     project = prj;
                 }
             }

@@ -43,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 5376 2007-11-06 16:15:22Z polle $
+ * @version $Id: GreenfootMain.java 5644 2008-03-13 16:25:04Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -172,7 +172,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                             Utility.bringToFront();
 
                             compileListenerForwarder = new CompileListenerForwarder(compileListeners);
-                            GreenfootMain.this.rBlueJ.addCompileListener(compileListenerForwarder, pkg.getProject().getName());
+                            GreenfootMain.this.rBlueJ.addCompileListener(compileListenerForwarder, pkg.getProject().getDir());
                             
                             classStateManager = new ClassStateManager(project);
                             rBlueJ.addClassListener(classStateManager);

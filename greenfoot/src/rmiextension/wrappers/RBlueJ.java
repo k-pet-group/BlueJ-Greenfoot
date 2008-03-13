@@ -12,15 +12,15 @@ import rmiextension.wrappers.event.RInvocationListener;
  * Interface for accessing BlueJ-functionality
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJ.java 4349 2006-06-12 03:07:04Z davmac $
+ * @version $Id: RBlueJ.java 5644 2008-03-13 16:25:04Z polle $
  */
 public interface RBlueJ
     extends java.rmi.Remote
 {
     /**
-     * Register a Compile event listener
+     * Register a Compile event listener for the project identified by the given path.
      */
-    public void addCompileListener(RCompileListener listener, String project)
+    public void addCompileListener(RCompileListener listener, File projectPath)
         throws RemoteException;
 
     /**
