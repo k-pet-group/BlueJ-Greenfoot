@@ -2,7 +2,7 @@
  * ExportPublishPane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 5642 2008-03-13 01:46:46Z polle $
+ * @version $Id: ExportPublishPane.java 5643 2008-03-13 02:02:50Z polle $
  */
 
 package greenfoot.gui.export;
@@ -47,8 +47,9 @@ public class ExportPublishPane extends ExportPane
     private static final Color headingColor = new Color(40, 75, 125);
     private static final String serverURL = Config.getPropString("greenfoot.gameserver.address", "http://stompt.org");
     private static final String serverName = Config.getPropString("greenfoot.gameserver.name", "stompt.org");
-    
-    private static final String helpLine1 = Config.getString("export.publish.help");
+
+    private static final String helpLine1 = Config.getString("export.publish.help") + " " + serverName + " ("
+            + serverURL + ")";
 
     private JTextField titleField;
     private JTextField shortDescriptionField;
@@ -169,8 +170,9 @@ public class ExportPublishPane extends ExportPane
                                 BorderFactory.createLoweredBevelBorder(),
                                 BorderFactory.createEmptyBorder(12, 12, 12, 12));
             infoPanel.setBorder(border);
-                
-            JLabel text = new JLabel(Config.getString("export.publish.info"));
+
+            JLabel text = new JLabel(Config.getString("export.publish.info1") + " " + serverName + " "
+                    + Config.getString("export.publish.info2"));
             text.setForeground(headingColor);
             infoPanel.add(text, BorderLayout.NORTH); 
 
