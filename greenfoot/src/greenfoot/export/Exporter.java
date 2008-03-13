@@ -5,7 +5,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5616 2008-02-29 06:50:47Z davmac $
+ * @version $Id: Exporter.java 5642 2008-03-13 01:46:46Z polle $
  */
 
 package greenfoot.export;
@@ -85,11 +85,12 @@ public class Exporter
         jarCreator.includeSource(false);
         
         // Extra entries for the manifest
+        jarCreator.putManifestEntry("title", pane.getTitle());
         jarCreator.putManifestEntry("short-description", pane.getShortDescription());
         jarCreator.putManifestEntry("description", pane.getDescription());
         jarCreator.putManifestEntry("url", pane.getURL());
         jarCreator.putManifestEntry("args", "currently unused");
-
+        
         Dimension size = getSize(includeControls);
         jarCreator.putManifestEntry("width", "" + size.width);
         jarCreator.putManifestEntry("height","" + size.height);
@@ -99,21 +100,10 @@ public class Exporter
         
         jarCreator.create();
                 
+        
         // Create image file      
         String formatName = "png";
         try {
-            // Test start
-           /*  
-             tmpImgFile = new File(exportDir, "snapshotImage.png");
-             System.out.println( "File: " + tmpImgFile.getAbsolutePath());
-             if(!tmpImgFile.exists()) tmpImgFile.createNewFile();            
-             BufferedImage im = pane.getImage();
-             System.out.println("Image dim: " + im.getHeight() + ", " + im.getWidth());
-             ImageIO.write(im, formatName, tmpImgFile);
-             if(true) return;
-           */
-            // Test end
-            
             tmpImgFile = File.createTempFile("greenfoot", "." + formatName, null);
             BufferedImage img = pane.getImage();
             ImageIO.write(img, formatName, tmpImgFile);
@@ -127,8 +117,11 @@ public class Exporter
         }
         
         String login = pane.getUserName();
-        String password = pane.getPassword();
-        String scenarioName = project.getName();        
+        String password = pane.getPassword();     
+        String scenarioName = pane.getTitle();
+        if(scenarioName != null && scenarioName.length() < 1) {
+            scenarioName = "NO_NAME";
+        }       
         String hostAddress = Config.getPropString("greenfoot.gameserver.address", "http://mygame.java.sun.com/");
         if (! hostAddress.endsWith("/")) {
             hostAddress += "/";

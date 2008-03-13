@@ -2,7 +2,7 @@
  * ExportPublishPane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 5613 2008-02-28 18:22:48Z polle $
+ * @version $Id: ExportPublishPane.java 5642 2008-03-13 01:46:46Z polle $
  */
 
 package greenfoot.gui.export;
@@ -19,6 +19,8 @@ import java.awt.image.BufferedImage;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.InputVerifier;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -47,18 +49,26 @@ public class ExportPublishPane extends ExportPane
     private static final String serverName = Config.getPropString("greenfoot.gameserver.name", "stompt.org");
     
     private static final String helpLine1 = Config.getString("export.publish.help");
-    
+
+    private JTextField titleField;
     private JTextField shortDescriptionField;
     private JTextArea descriptionArea;
     private JTextField URLField;
     private JTextField userNameField;
     private JPasswordField passwordField;
     private ImageEditPanel imagePanel;
+    
+    /**
+     * Name of the scenario as Greenfoot knows it. This is NOT necessarily the
+     * title that will be used on MyGame
+     */
+    private String scenarioName;
 
     /** Creates a new instance of ExportPublishPane */
     public ExportPublishPane(String scenarioName) 
     {
         super();
+        this.scenarioName = scenarioName;
         makePane();
     }
     
@@ -80,6 +90,11 @@ public class ExportPublishPane extends ExportPane
     {
         imagePanel.setImage(snapShot);
         imagePanel.repaint();
+    }
+    
+    public String getTitle() 
+    {
+        return titleField.getText();
     }
 
     /**
@@ -159,7 +174,7 @@ public class ExportPublishPane extends ExportPane
             text.setForeground(headingColor);
             infoPanel.add(text, BorderLayout.NORTH); 
 
-            JPanel dataPanel = new JPanel(new MiksGridLayout(4, 2, 8, 8));
+            JPanel dataPanel = new JPanel(new MiksGridLayout(5, 2, 8, 8));
             {
                 dataPanel.setBackground(background);
                 
@@ -170,6 +185,20 @@ public class ExportPublishPane extends ExportPane
                 dataPanel.add(text);
                 dataPanel.add(imagePanel);                
                 
+
+                text = new JLabel(Config.getString("export.publish.title"), SwingConstants.TRAILING);
+                text.setFont(smallFont);
+                dataPanel.add(text);
+                
+                titleField = new JTextField(scenarioName);
+                titleField.setInputVerifier(new InputVerifier(){
+                    @Override
+                    public boolean verify(JComponent input)
+                    {
+                        String text = titleField.getText();
+                        return text.length() > 0;
+                    }});
+                dataPanel.add(titleField);
                 
                 text = new JLabel(Config.getString("export.publish.shortDescription"), SwingConstants.TRAILING);
                 text.setFont(smallFont);

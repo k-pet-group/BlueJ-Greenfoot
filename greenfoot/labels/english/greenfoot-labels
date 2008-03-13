@@ -77,6 +77,7 @@ export.controls.label=Allow speed change and 'Act'
 export.publish.help=Publish the scenario to MyGame (mygame.java.sun.com).
 export.publish.info=Information for display on MyGame (optional)
 export.publish.image=Scenario icon (scale and move it):
+export.publish.title=Title:
 export.publish.shortDescription=A one-line scenario description:
 export.publish.longDescription=A slightly longer scenario description:
 export.publish.url=Your own web page (a URL):
