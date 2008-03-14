@@ -7,7 +7,7 @@ import greenfoot.gui.classbrowser.ClassView;
  * Role for a "normal" (non-Actor, non-World) class.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NormalClassRole.java 4823 2007-01-25 17:03:30Z polle $
+ * @version $Id: NormalClassRole.java 5646 2008-03-14 17:49:03Z polle $
  */
 public class NormalClassRole extends ClassRole
 {
@@ -42,6 +42,12 @@ public class NormalClassRole extends ClassRole
     public String getTemplateFileName()
     {
         return template;
+    }
+
+    @Override
+    public void remove()
+    {
+       //do nothing
     }
 
     

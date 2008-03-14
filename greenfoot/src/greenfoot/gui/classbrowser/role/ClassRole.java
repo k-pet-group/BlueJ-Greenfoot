@@ -40,7 +40,7 @@ import bluej.views.ViewFilter;
  * "normal" classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 5622 2008-03-02 17:22:42Z polle $
+ * @version $Id: ClassRole.java 5646 2008-03-14 17:49:03Z polle $
  */
 public abstract class ClassRole implements WorldListener
 {
@@ -178,5 +178,9 @@ public abstract class ClassRole implements WorldListener
 		// Do nothing - only want to handle this for actors
 	}
 
+	/**
+	 * Called when this role is being removed. Do any cleanup that is needed here.
+	 */
+    public abstract void remove();
 	
 }

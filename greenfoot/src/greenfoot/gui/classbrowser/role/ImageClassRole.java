@@ -10,6 +10,7 @@ import greenfoot.util.GreenfootUtil;
 
 import java.awt.Image;
 import java.rmi.RemoteException;
+import java.util.Hashtable;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -27,6 +28,7 @@ public abstract class ImageClassRole extends ClassRole
     protected GClass gClass;
     protected ClassView classView;
     protected GProject project;
+    private static Hashtable<GClass, ImageIcon> imageIcons = new Hashtable<GClass, ImageIcon>();
     
     public ImageClassRole(GProject project)
     {
@@ -39,12 +41,7 @@ public abstract class ImageClassRole extends ClassRole
         this.gClass = gClass;
         this.classView = classView;
         classView.setText(gClass.getName());
-        
-        Image image = getImage(gClass);
-        if (image != null) {
-            Image scaledImage = GreenfootUtil.getScaledImage(image, iconSize.width, iconSize.height);
-            classView.setIcon(new ImageIcon(scaledImage));
-        }
+        changeImage();
     }
 
     @Override
@@ -70,29 +67,65 @@ public abstract class ImageClassRole extends ClassRole
         }
     }
 
-    public static GreenfootImage getGreenfootImage(GClass gclass)
+    /**
+     * Returns a class in the given class' class hierarchy that has an image set.
+     */
+    private static GClass getClassThatHasImage(GClass gclass) 
     {
         while (gclass != null) {
             String className = gclass.getQualifiedName();
             GreenfootImage gfImage = null;
             try {
-            	GProject project = gclass.getPackage().getProject();
+                GProject project = gclass.getPackage().getProject();
                 gfImage = project.getProjectProperties().getImage(className);
             }
             catch (ProjectNotOpenException pnoe) {}
             catch (RemoteException re) {
-            	re.printStackTrace();
+                re.printStackTrace();
             }
-        	catch (IllegalArgumentException e) {
+            catch (IllegalArgumentException e) {
                 e.printStackTrace();
             }
             if (gfImage != null) {
-                return gfImage;
+                break;
             }
             gclass = gclass.getSuperclass();
         }
+        return gclass;
+    }
+    
+    private static GreenfootImage getGreenfootImage(GClass gclass)
+    {
+        gclass = getClassThatHasImage(gclass);
+
+        if(gclass == null) return null;
         
+        String className = gclass.getQualifiedName();
+        try {
+            GProject project = gclass.getPackage().getProject();
+            return project.getProjectProperties().getImage(className);
+        }
+        catch (ProjectNotOpenException pnoe) {}
+        catch (RemoteException re) {
+            re.printStackTrace();
+        }
+        catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+
         return null;
+    }
+    
+    private ImageIcon getImageIcon() {
+        GClass gCls = getClassThatHasImage(gClass);
+        ImageIcon icon = imageIcons.get(gCls);
+        if(icon == null) {
+            Image image = getImage(gCls);
+            Image scaledImage = GreenfootUtil.getScaledImage(image, iconSize.width, iconSize.height);
+            icon = new ImageIcon(scaledImage);
+            imageIcons.put(gCls, icon);     
+        }
+        return icon;
     }
 
     public ObjectDragProxy createObjectDragProxy() {
@@ -118,10 +151,20 @@ public abstract class ImageClassRole extends ClassRole
     public void changeImage()
     {
         project.getProjectProperties().removeCachedImage(classView.getClassName());
+       
+        
         Image image = getImage(gClass);
         if (image != null) {
-            Image scaledImage = GreenfootUtil.getScaledImage(image, iconSize.width, iconSize.height);
-            classView.setIcon(new ImageIcon(scaledImage));
+            Image scaledImage = GreenfootUtil.getScaledImage(image,iconSize.width, iconSize.height);
+            ImageIcon icon = getImageIcon();
+            icon.setImage(scaledImage);
+            classView.setIcon(icon);
         }
+    }
+
+    @Override    
+    public void remove() 
+    {
+        imageIcons.remove(gClass);        
     }
 }

@@ -37,7 +37,7 @@ import bluej.utility.Utility;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 5477 2008-01-22 14:05:55Z polle $
+ * @version $Id: ClassView.java 5646 2008-03-14 17:49:03Z polle $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -572,6 +572,7 @@ public class ClassView extends JToggleButton
     public void remove()
     {
     	WorldHandler.getInstance().removeWorldListener(this.role);
+    	role.remove();
         classBrowser.removeClass(this);
         try {
             gClass.remove();
