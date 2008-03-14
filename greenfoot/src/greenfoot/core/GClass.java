@@ -172,6 +172,10 @@ public class GClass
 
     public void remove() throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException
     {
+        ProjectProperties props = pkg.getProject().getProjectProperties();
+        props.removeProperty("class." + getName() + ".superclass");
+        props.removeProperty("class." + getName() + ".image");
+        props.removeCachedImage(getName());
         rmiClass.remove();
     }
     
