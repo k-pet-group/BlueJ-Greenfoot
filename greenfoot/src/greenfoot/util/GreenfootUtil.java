@@ -31,11 +31,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 
+
 /**
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 5469 2008-01-21 19:23:16Z polle $
+ * @version $Id: GreenfootUtil.java 5647 2008-03-16 14:28:17Z polle $
  */
 public class GreenfootUtil
 {
@@ -422,17 +423,39 @@ public class GreenfootUtil
         }
 
         ClassLoader currentLoader = delegate.getCurrentClassLoader();
-        
         URL url = null;
-        
+       
+        // If the 'dir' is part of the filename already, we attempt to use the
+        // filename alone first in order to avoid a wrong lookup for applets,
+        // because this can take a while over the net.
+        boolean pathContainsDir = false;
         if(dir != null) {
-            // First, try the specified dir
+            int sepLoc = filename.lastIndexOf(System.getProperty("file.separator"));
+            if(sepLoc > 0) {
+              String pathOnly = filename.substring(0,sepLoc);
+              pathContainsDir = pathOnly.endsWith(dir);
+            }
+        }        
+
+        // Also look for ':' which will indicate some sort of protocol (http,
+        // jar, file, etc) which will be absolute and hence no need to use
+        // 'dir'.
+        boolean pathContainsColon = filename.contains(":");
+        
+        boolean dirSearched = false;     
+        if (!pathContainsColon && !pathContainsDir) {
             url = currentLoader.getResource(dir + "/" + filename);
-        }
+            dirSearched = true;
+        } 
         
         if (url == null) {
             // Second, try the project directory
             url = currentLoader.getResource(filename);
+        }
+        if(url == null && !dirSearched) {
+            // First, try the specified dir
+            url = currentLoader.getResource(dir + "/" + filename);
+            dirSearched = true;
         }
         if (url == null) {
             // Third, try as an absolute file
