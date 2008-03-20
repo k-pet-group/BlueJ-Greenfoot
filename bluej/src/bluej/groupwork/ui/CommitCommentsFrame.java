@@ -20,6 +20,7 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.groupwork.*;
 import bluej.groupwork.actions.CommitAction;
+import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.utility.DBox;
 import bluej.utility.DBoxLayout;
@@ -471,7 +472,7 @@ public class CommitCommentsFrame extends EscapeDialog
                 TeamStatusInfo statusInfo = (TeamStatusInfo) it.next();
                 int status = statusInfo.getStatus();
                 if(filter.accept(statusInfo)) {
-                    if (!statusInfo.getFile().getName().equals("bluej.pkg") 
+                    if (!statusInfo.getFile().getName().equals(Package.pkgfileName) 
                             || status == TeamStatusInfo.STATUS_NEEDSADD 
                             || status == TeamStatusInfo.STATUS_DELETED ) {
                         
@@ -482,10 +483,11 @@ public class CommitCommentsFrame extends EscapeDialog
                     if (status == TeamStatusInfo.STATUS_NEEDSADD) {
                         filesToAdd.add(statusInfo.getFile());
                     }
-                    else if (status == TeamStatusInfo.STATUS_DELETED) {
+                    else if (status == TeamStatusInfo.STATUS_DELETED
+                            || status == TeamStatusInfo.STATUS_CONFLICT_LDRM) {
                         filesToRemove.add(statusInfo.getFile());
                     }
-                    else if(statusInfo.getFile().getName().equals("bluej.pkg")){
+                    else if(statusInfo.getFile().getName().equals(Package.pkgfileName)) {
                         // add file to list of files that may be added to commit
                         modifiedLayoutFiles.add(statusInfo.getFile());
                         // keep track of StatusInfo objects representing changed diagrams
@@ -495,7 +497,8 @@ public class CommitCommentsFrame extends EscapeDialog
                     }
                 }
                 else {
-                    if(!statusInfo.getFile().getName().equals("bluej.pkg") || includeLayout()) {
+                    if(!statusInfo.getFile().getName().equals(Package.pkgfileName)
+                            || includeLayout()) {
                         if (status == TeamStatusInfo.STATUS_HASCONFLICTS) {
                             mergeConflicts.add(statusInfo.getFile());
                         }
