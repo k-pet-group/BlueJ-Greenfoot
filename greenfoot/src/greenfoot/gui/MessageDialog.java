@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JPanel;
 
 import bluej.BlueJTheme;
@@ -39,6 +40,7 @@ public class MessageDialog extends EscapeDialog implements ActionListener
     public MessageDialog(Frame owner, String message, String title, int width, JButton[] buttons)
     {
         super(owner, title);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         createDialog(message, buttons, width);
     }
 
@@ -78,7 +80,15 @@ public class MessageDialog extends EscapeDialog implements ActionListener
         return pressedButton;
     }
 
-    
+    /**
+     * Display the dialog (non-modal). 
+     */
+    public void display()
+    {
+        setModal(false);  
+        DialogManager.centreDialog(this);
+        setVisible(true);
+    }
     /**
      * Store the button pressed so that it can be returned. Close the dialog.
      */
@@ -90,5 +100,6 @@ public class MessageDialog extends EscapeDialog implements ActionListener
             buttons[i].removeActionListener(this);
         }     
         setVisible(false);
+        dispose();
     }
 }

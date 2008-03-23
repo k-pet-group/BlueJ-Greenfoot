@@ -43,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 5644 2008-03-13 16:25:04Z polle $
+ * @version $Id: GreenfootMain.java 5650 2008-03-23 17:44:03Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -219,18 +219,30 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     public void openProject(String projectDir)
         throws RemoteException
     {
-    	try {
+    	File projectDirFile = new File(projectDir);
+    	
+    	// Display msg dialog of project does not exist.
+    	if (!projectDirFile.exists()) {
+            JButton[] buttons = new JButton[]{new JButton(Config.getString("greenfoot.continue"))};
+            MessageDialog confirmRemove = new MessageDialog(frame, Config.getString("noproject.dialog.msg")
+                    + System.getProperty("line.separator") + projectDir, Config.getString("noproject.dialog.title"),
+                    200, buttons);
+            confirmRemove.display();
+    	    return;
+    	}
+    	
+        try {
     		// It's possible that the user re-opened a project which they previously closed,
     		// resulting in an empty frame (because no other open projects). In that case the
     		// project is actually still running, behind the scenes; so just re-display it.
-    		if (project.getDir().equals(new File(projectDir))) {
+    		if (project.getDir().equals(projectDirFile)) {
     			frame.openProject(project);
     			return;
     		}
     	}
     	catch (ProjectNotOpenException pnoe) {}
     	
-        int versionStatus = GreenfootMain.updateApi(new File(projectDir), frame);
+        int versionStatus = GreenfootMain.updateApi(projectDirFile, frame);
         boolean doOpen = versionStatus != VERSION_BAD;
         if (doOpen) {
             rBlueJ.openProject(projectDir);
@@ -598,6 +610,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     private static void deleteClassFiles(File dir)
     {
         String[] classFiles = dir.list(classFilter);
+        if(classFiles == null) return;
+        
         for (int i = 0; i < classFiles.length; i++) {
             String fileName = classFiles[i];
             File file = new File(dir, fileName);
