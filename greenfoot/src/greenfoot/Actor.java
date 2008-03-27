@@ -106,8 +106,9 @@ public abstract class Actor
             image = greenfootImage;
         }
         
-        // Make the image "copy-on-write".
-        image = new GreenfootImage((BufferedImage) image.getAwtImage());
+        // Make the image a copy of the original to avoid modifications to the
+        // original. 
+        image = image.getCopyOnWriteClone();
         
         setImage(image);
     }

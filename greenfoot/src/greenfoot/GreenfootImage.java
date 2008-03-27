@@ -31,8 +31,10 @@ public class GreenfootImage
     private static final Color DEFAULT_BACKGROUND = new Color(255,255,255,0);
     private static final Color DEFAULT_FOREGROUND = Color.BLACK;
     
-    /** The image name is primarily used for debugging. */
+    /** The image name and url are primarily used for debugging. */
     private String imageFileName;
+    private URL imageUrl;
+    
     private BufferedImage image;
     private static MediaTracker tracker;
     
@@ -95,19 +97,42 @@ public class GreenfootImage
             this.image = image.image;
             copyOnWrite = true;
         }
+        copyStates(image, this);
+    }
+
+  
+
+    private GreenfootImage() {        
+    } 
+    
+    /**
+     * Create a copy-on-write image based on this image. If the new image is
+     * modified, the original image will not be affected.
+     * <p>
+     * Only use this method if you are sure that the original image will never
+     * be modified.
+     */
+    GreenfootImage getCopyOnWriteClone()
+    {
+        GreenfootImage clone = new GreenfootImage();
+        clone.copyOnWrite = true;
+        clone.image = image;
+        copyStates(this, clone);
+        
+        return clone;
     }
     
     /**
-     * Create a copy-on-write image based on the given BufferedImage.
-     * If the GreenfootImage is modified, the original BufferedImage will
-     * not be affected.
+     * Copies the states from the src image to dst image.
      */
-    GreenfootImage(BufferedImage image)
+    private static void copyStates(GreenfootImage src, GreenfootImage dst)
     {
-        this.image = image;
-        copyOnWrite = true;
-    }
-
+        dst.imageFileName = src.imageFileName;
+        dst.imageUrl = src.imageUrl;
+        dst.currentColor = src.currentColor;
+        dst.currentFont = src.currentFont;
+    }    
+    
     private void loadURL(URL imageURL)
         throws IllegalArgumentException
     {
@@ -137,9 +162,9 @@ public class GreenfootImage
             throw new NullPointerException("Filename must not be null.");
         }
         imageFileName = filename;
-        URL url = GreenfootUtil.getURL(filename, "images");
+        imageUrl = GreenfootUtil.getURL(filename, "images");
 
-        loadURL(url);
+        loadURL(imageUrl);
     }
 
     /**
@@ -170,7 +195,7 @@ public class GreenfootImage
         ensureWritableImage();
         return image;
     }
-
+    
     /**
      * Remember to call dispose() when no longer using the graphics object.
      * 
@@ -178,7 +203,7 @@ public class GreenfootImage
     private Graphics2D getGraphics()
     {
         if (copyOnWrite) {
-            ensureWritableImage();
+        ensureWritableImage();
         }
         Graphics2D graphics = image.createGraphics();
         initGraphics(graphics);
@@ -589,7 +614,7 @@ public class GreenfootImage
             return superString;
         }
         else {
-            return "Image file name: " + imageFileName + " " + superString;
+            return "Image file name: " + imageFileName +   "   Image url: " + imageUrl + "  " + superString;
         }
     }
     
@@ -660,4 +685,6 @@ public class GreenfootImage
             e.printStackTrace();
         }
     }
+
+   
 }
