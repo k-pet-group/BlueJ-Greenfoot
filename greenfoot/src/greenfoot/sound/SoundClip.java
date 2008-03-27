@@ -27,6 +27,15 @@ public class SoundClip extends Sound
     private String name;
     private URL url;
     private boolean isPlaying;
+    
+    /** The time at which sound playback was started. */
+    private long startTime;
+    
+    /**
+     * Extra delay in ms added to the sleep time before closing down the clip.
+     * This helps avoid closing down the clip too soon.
+     */
+    private final static int EXTEA_SLEEP_DELAY = 300;
 
     /**
      * Creates a new sound clip
@@ -144,12 +153,46 @@ public class SoundClip extends Sound
     public void update(LineEvent event)
     {
         if (event.getType() == LineEvent.Type.STOP) {
-            isPlaying = false;
-            player.soundFinished(this);
-            stop();
+            // This is a hack to make it work on Linux, where the STOP event is
+            // send BEFORE the sound has actually finished playing (probably
+            // send when some buffer is empty instead)
+            long sleepTime = soundClip.getMicrosecondLength() / 1000 - (System.currentTimeMillis() - startTime);
+            delayedClose(sleepTime);
         }
+        else if (event.getType() == LineEvent.Type.START) {
+            startTime = System.currentTimeMillis();
+        }
+        
     }
 
+    /**
+     * Close the clip after the given amount of time. This will be done
+     * asynchronously.
+     * 
+     * @param sleepTime
+     *            Minimum time to wait before closing the stream.
+     */
+    private void delayedClose(final long sleepTime)
+    {
+        new Thread() {
+            public void run()
+            {
+                try {
+                    // We add the extra sleep time, just to make sure
+                    // that we don't close it before playback has
+                    // finished. This fixes some issues when using applets where
+                    // it seems like the sounds are stopped too early
+                    // (Linux/Firefox).
+                    Thread.sleep(sleepTime + EXTEA_SLEEP_DELAY);
+                }
+                catch (Throwable e) {}
+                isPlaying = false;
+                player.soundFinished(SoundClip.this);
+                SoundClip.this.stop();
+            }
+        }.start();
+    }
+    
     public String toString()
     {
         return url + " " + super.toString();
