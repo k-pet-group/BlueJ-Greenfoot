@@ -18,7 +18,6 @@ import java.awt.image.VolatileImage;
 import java.io.IOException;
 import java.net.URL;
 
-import bluej.Config;
 
 /**
  * An image to be shown on screen. The image may be loaded from an image file
@@ -116,7 +115,7 @@ public class GreenfootImage
             throw new NullPointerException("Image URL must not be null.");
         }
         try {
-            image = GraphicsUtilities.loadCompatibleImage(imageURL);
+            image = GraphicsUtilities.loadCompatibleTranslucentImage(imageURL);
             copyOnWrite = false;
         } catch (IOException ex) {
             throw new IllegalArgumentException("Could not load image from: " + imageFileName);

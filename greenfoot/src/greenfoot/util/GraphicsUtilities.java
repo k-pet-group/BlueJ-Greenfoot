@@ -199,6 +199,27 @@ public class GraphicsUtilities {
         BufferedImage image = ImageIO.read(resource);
         return toCompatibleImage(image);
     }
+    
+    /**
+     * <p>Returns a new compatible image from a URL. The image is loaded from the
+     * specified location and then turned, if necessary into a translucent compatible
+     * image.</p>
+     *
+     * @see #createCompatibleImage(java.awt.image.BufferedImage)
+     * @see #createCompatibleImage(java.awt.image.BufferedImage, int, int)
+     * @see #createCompatibleImage(int, int)
+     * @see #createCompatibleTranslucentImage(int, int)
+     * @see #toCompatibleImage(java.awt.image.BufferedImage)
+     * @param resource the URL of the picture to load as a compatible image
+     * @return a new translucent compatible <code>BufferedImage</code> of the
+     *   specified width and height
+     * @throws java.io.IOException if the image cannot be read or loaded
+     */
+    public static BufferedImage loadCompatibleTranslucentImage(URL resource)
+            throws IOException {
+        BufferedImage image = ImageIO.read(resource);
+        return toCompatibleTranslucentImage(image);
+    }
 
     /**
      * <p>Return a new compatible image that contains a copy of the specified
@@ -224,6 +245,40 @@ public class GraphicsUtilities {
                 getGraphicsConfiguration().createCompatibleImage(
                     image.getWidth(), image.getHeight(),
                     image.getTransparency());
+        Graphics g = compatibleImage.getGraphics();
+        g.drawImage(image, 0, 0, null);
+        g.dispose();
+
+        return compatibleImage;
+    }
+    
+    /**
+     * <p>
+     * Return a new compatible image that contains a copy of the specified
+     * image. This method ensures an image is compatible with the hardware, and
+     * therefore optimized for fast blitting operations. It also ensures that
+     * the image is translucent.
+     * </p>
+     * 
+     * @see #createCompatibleImage(java.awt.image.BufferedImage)
+     * @see #createCompatibleImage(java.awt.image.BufferedImage, int, int)
+     * @see #createCompatibleImage(int, int)
+     * @see #createCompatibleTranslucentImage(int, int)
+     * @see #loadCompatibleImage(java.net.URL)
+     * @param image the image to copy into a new compatible image
+     * @return a new compatible copy, with the same width and height and
+     *         transparency and content, of <code>image</code>
+     */
+    public static BufferedImage toCompatibleTranslucentImage(BufferedImage image)
+    {
+        if (image.getColorModel().equals(getGraphicsConfiguration().getColorModel())
+                && image.getColorModel().hasAlpha()) {
+            return image;
+        }
+
+        BufferedImage compatibleImage = getGraphicsConfiguration().createCompatibleImage(
+                    image.getWidth(), image.getHeight(),
+                    Transparency.TRANSLUCENT);
         Graphics g = compatibleImage.getGraphics();
         g.drawImage(image, 0, 0, null);
         g.dispose();
