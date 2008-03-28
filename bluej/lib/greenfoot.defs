@@ -49,8 +49,8 @@ doctool.options=-author -version -nodeprecated -protected
 ## function
 #####################################################################
 
-greenfoot.gameserver.name=MyGame
-greenfoot.gameserver.address=http://www.greenfoot.org/mygame/
+greenfoot.gameserver.name=Greenfoot Gallery
+greenfoot.gameserver.address=http://www.greenfootgallery.org
 
 # If you need to use a HTTP proxy, set and uncomment the following items
 #proxy.host=
