@@ -103,7 +103,7 @@ public class JarCreator
      * @param includeExtraControls Should the exported scenario include 'act'
      *            and speedslider.
      */
-    public JarCreator(GProject project, File exportDir, String jarName, String worldClass, boolean includeExtraControls) 
+    public JarCreator(GProject project, File exportDir, String jarName, String worldClass, boolean lockScenario) 
     {   
         this(exportDir, jarName);
         
@@ -161,7 +161,7 @@ public class JarCreator
         // Add the properties read by the GreenfootScenarioViewer
         properties.put("project.name", scenarioName);
         properties.put("main.class", worldClass);
-        properties.put("controls.extra", "" + includeExtraControls);
+        properties.put("scenario.lock", "" + lockScenario);
         properties.put("scenario.viewer.appletInfo", Config.getString("scenario.viewer.appletInfo"));
         properties.put("run.once", Config.getString("run.once"));
         properties.put("run.simulation", Config.getString("run.simulation"));

@@ -5,7 +5,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5660 2008-04-01 16:21:39Z polle $
+ * @version $Id: Exporter.java 5661 2008-04-01 17:21:53Z polle $
  */
 
 package greenfoot.export;
@@ -77,9 +77,9 @@ public class Exporter
         
         String worldClass = WorldHandler.getInstance().getLastWorldClass().getName();
         
-        boolean  includeControls = pane.includeExtraControls();
+        boolean  lockScenario = pane.lockScenario();
         
-        JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, includeControls);            
+        JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, lockScenario);            
         
         // do not include source
         jarCreator.includeSource(false);
@@ -91,7 +91,7 @@ public class Exporter
         jarCreator.putManifestEntry("url", pane.getURL());
         jarCreator.putManifestEntry("args", "currently unused");
         
-        Dimension size = getSize(includeControls);
+        Dimension size = getSize(!lockScenario);
         jarCreator.putManifestEntry("width", "" + size.width);
         jarCreator.putManifestEntry("height","" + size.height);
 
@@ -186,7 +186,7 @@ public class Exporter
 
         String worldClass = WorldHandler.getInstance().getLastWorldClass().getName();
         
-        boolean  includeControls = pane.includeExtraControls();
+        boolean  includeControls = pane.lockScenario();
         String jarName = project.getName() + ".jar";
         JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, includeControls);            
         
@@ -219,7 +219,7 @@ public class Exporter
 
         String worldClass = WorldHandler.getInstance().getLastWorldClass().getName();
         
-        boolean  includeControls = pane.includeExtraControls();
+        boolean  includeControls = pane.lockScenario();
         
         JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, includeControls); 
         // do not include source

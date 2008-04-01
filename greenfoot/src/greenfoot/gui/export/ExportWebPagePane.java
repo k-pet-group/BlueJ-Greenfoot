@@ -2,20 +2,18 @@
  * ExportWebPagePane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportWebPagePane.java 5218 2007-09-26 04:10:33Z bquig $
+ * @version $Id: ExportWebPagePane.java 5661 2008-04-01 17:21:53Z polle $
  */
 
 package greenfoot.gui.export;
 
-import bluej.BlueJTheme;
-import bluej.Config;
 import greenfoot.util.FileChoosers;
+
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.List;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -23,6 +21,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
+import bluej.BlueJTheme;
+import bluej.Config;
 
 public class ExportWebPagePane extends ExportPane
 {
@@ -104,7 +105,8 @@ public class ExportWebPagePane extends ExportPane
             inputPanel.add(exportLocationPanel);
             inputPanel.add(Box.createVerticalStrut(4));
 
-            inputPanel.add(extraControls);
+            inputPanel.add(lockScenario);
+            inputPanel.add(lockScenarioDescription);
         }
 
         add(inputPanel);

@@ -166,7 +166,7 @@ public class GreenfootScenarioViewer extends JApplet
         rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
         
         String worldClassName = null; 
-        boolean includeExtraControls = false;
+        boolean lockScenario = false;
         Properties p = new Properties();
         try {
             ClassLoader loader = GreenfootScenarioViewer.class.getClassLoader();
@@ -177,7 +177,7 @@ public class GreenfootScenarioViewer extends JApplet
                 // In that case we should have some command line arguments
                 p.put("project.name", args[0]);
                 p.put("main.class", args[1]);
-                p.put("controls.extra", "true");  
+                p.put("scenario.lock", "true");  
                 File f = new File(args[2]);
                 is = new FileInputStream(f);    
             } 
@@ -185,7 +185,7 @@ public class GreenfootScenarioViewer extends JApplet
             p.load(is);
             worldClassName = p.getProperty("main.class");
             scenarioName = p.getProperty("project.name");
-            includeExtraControls = Boolean.parseBoolean(p.getProperty("controls.extra"));
+            lockScenario = Boolean.parseBoolean(p.getProperty("scenario.lock"));
             // set bluej Config to use the standalone prop values
             Config.initializeStandalone(new StandalonePropStringManager(p));
             is.close();
@@ -207,13 +207,13 @@ public class GreenfootScenarioViewer extends JApplet
 
             canvas = new WorldCanvas(null);
             
-            WorldHandler.initialise(canvas, new WorldHandlerDelegateStandAlone(this));
+            WorldHandler.initialise(canvas, new WorldHandlerDelegateStandAlone(this, lockScenario));
             WorldHandler worldHandler = WorldHandler.getInstance();
             Simulation.initialize(worldHandler);
             LocationTracker.initialize();
             sim = Simulation.getInstance();
-            controls = new ControlPanel(sim, includeExtraControls);
-
+            controls = new ControlPanel(sim, ! lockScenario);
+            
             sim.addSimulationListener(new SimulationListener() {
                 public void simulationChanged(SimulationEvent e)
                 {

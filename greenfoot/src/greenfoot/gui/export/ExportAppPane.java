@@ -7,19 +7,18 @@
  * and open the template in the editor.
 
  * @author Michael Kolling
- * @version $Id: ExportAppPane.java 5213 2007-09-26 02:18:08Z bquig $
+ * @version $Id: ExportAppPane.java 5661 2008-04-01 17:21:53Z polle $
  */
 
 package greenfoot.gui.export;
 
-import bluej.BlueJTheme;
-import bluej.Config;
 import greenfoot.util.FileChoosers;
+
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -27,6 +26,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
+import bluej.BlueJTheme;
+import bluej.Config;
 
 public class ExportAppPane extends ExportPane
 {
@@ -94,7 +96,8 @@ public class ExportAppPane extends ExportPane
             inputPanel.add(exportLocationPanel);
             inputPanel.add(Box.createVerticalStrut(5));
 
-            inputPanel.add(extraControls);
+            inputPanel.add(lockScenario);
+            inputPanel.add(lockScenarioDescription);
         }
 
         add(inputPanel);

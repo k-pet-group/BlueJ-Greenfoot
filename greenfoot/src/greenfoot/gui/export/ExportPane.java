@@ -3,42 +3,49 @@
  * in the Export dialogue.
  *
  * @author Michael Kolling
- * @version $Id: ExportPane.java 5216 2007-09-26 02:30:02Z bquig $
+ * @version $Id: ExportPane.java 5661 2008-04-01 17:21:53Z polle $
  */
 
 package greenfoot.gui.export;
 
-import bluej.Config;
-import bluej.prefmgr.PrefMgr;
-import java.awt.FlowLayout;
-import java.util.List;
+import java.awt.Font;
+
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+
+import bluej.Config;
+
 public abstract class ExportPane extends JPanel
 {
-    private static final String extraControlsLabelText = Config.getString("export.controls.label");
+    private static final String lockText = Config.getString("export.lock.label");
+    private static final String lockDescription = Config.getString("export.lock.description");
 
-    protected JCheckBox extraControls;
+    protected JCheckBox lockScenario;
+    protected JLabel lockScenarioDescription;
         
     /** 
      * Create a an export pane for export to web pages.
      */
     public ExportPane() 
     {
-        extraControls = new JCheckBox(extraControlsLabelText, false);
-        extraControls.setSelected(true);
-        extraControls.setAlignmentX(LEFT_ALIGNMENT);
+        lockScenario = new JCheckBox(lockText, false);
+        lockScenario.setSelected(false);
+        lockScenario.setAlignmentX(LEFT_ALIGNMENT);
+        
+        lockScenarioDescription = new JLabel(lockDescription); 
+        Font smallFont = lockScenarioDescription.getFont().deriveFont(Font.ITALIC, 11.0f);
+        lockScenarioDescription.setFont(smallFont);
+        
     }
     
 
     /**
-     * Return true if user wants to include the source.
+     * Return true if the user wants to lock the scenario.
      */
-    public boolean includeExtraControls()
+    public boolean lockScenario()
     {
-        return extraControls.isSelected();
+        return lockScenario.isSelected();
     }
 }

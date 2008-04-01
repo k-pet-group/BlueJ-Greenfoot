@@ -2,7 +2,7 @@
  * ExportPublishPane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 5660 2008-04-01 16:21:39Z polle $
+ * @version $Id: ExportPublishPane.java 5661 2008-04-01 17:21:53Z polle $
  */
 
 package greenfoot.gui.export;
@@ -293,8 +293,8 @@ public class ExportPublishPane extends ExportPane
         JPanel extraPanel = new JPanel(new BorderLayout(20, 0));
         {
             extraPanel.setAlignmentX(LEFT_ALIGNMENT);
-            extraPanel.add(extraControls, BorderLayout.WEST);
-
+            extraPanel.add(lockScenario, BorderLayout.WEST);
+            extraPanel.add(lockScenarioDescription, BorderLayout.SOUTH);
             JPanel urlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             {
                 urlPanel.add(new JLabel(Config.getString("export.publish.goTo")));

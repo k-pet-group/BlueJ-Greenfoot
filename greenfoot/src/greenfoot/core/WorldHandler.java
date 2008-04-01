@@ -127,19 +127,14 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
         keyboardManager = new KeyboardManager();
         worldCanvas.addFocusListener(keyboardManager);
         
-        inputManager = new InputManager();
+        inputManager = handlerDelegate.getInputManager();
         addWorldListener(inputManager);
+        inputManager.setRunningListeners(getKeyboardManager(), mousePollingManager, mousePollingManager);
         worldCanvas.addMouseListener(inputManager);
         worldCanvas.addMouseMotionListener(inputManager);
         worldCanvas.addKeyListener(inputManager);
-        DragGlassPane.getInstance().addMouseListener(inputManager);
-        DragGlassPane.getInstance().addMouseMotionListener(inputManager);
-        DragGlassPane.getInstance().addKeyListener(inputManager);        
-        inputManager.setRunningListeners(getKeyboardManager(), mousePollingManager, mousePollingManager);
-        inputManager.setIdleListeners(this, this, this);
-        inputManager.setDragListeners(DragGlassPane.getInstance(),DragGlassPane.getInstance(),DragGlassPane.getInstance());
-        inputManager.setMoveListeners(this,this,this);
         inputManager.init();
+        
         defaultCursor = worldCanvas.getCursor();
     }
     

@@ -3,10 +3,15 @@ package greenfoot.platforms.standalone;
 import greenfoot.World;
 import greenfoot.core.WorldHandler;
 import greenfoot.export.GreenfootScenarioViewer;
+import greenfoot.gui.DragGlassPane;
+import greenfoot.gui.InputManager;
 import greenfoot.platforms.WorldHandlerDelegate;
 
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 
 
 /**
@@ -19,10 +24,12 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
 {    
     private WorldHandler worldHandler;
     private GreenfootScenarioViewer viewer;
+    private boolean lockScenario;
     
-    public WorldHandlerDelegateStandAlone (GreenfootScenarioViewer viewer) 
+    public WorldHandlerDelegateStandAlone (GreenfootScenarioViewer viewer, boolean lockScenario) 
     {
         this.viewer = viewer;
+        this.lockScenario = lockScenario;
     }
     
     public void dragFinished(Object o)
@@ -76,5 +83,24 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         // Not used in standalone
         return null;
     }
-
+    
+    public InputManager getInputManager()
+    {
+        InputManager inputManager = new InputManager();       
+        DragGlassPane.getInstance().addMouseListener(inputManager);
+        DragGlassPane.getInstance().addMouseMotionListener(inputManager);
+        DragGlassPane.getInstance().addKeyListener(inputManager);       
+        if (lockScenario) {
+            inputManager.setIdleListeners(new KeyAdapter() {}, new MouseAdapter() {}, new MouseMotionAdapter() {});
+            inputManager.setDragListeners(new KeyAdapter() {}, new MouseAdapter() {}, new MouseMotionAdapter() {});
+            inputManager.setMoveListeners(new KeyAdapter() {}, new MouseAdapter() {}, new MouseMotionAdapter() {});
+        }
+        else {
+            inputManager.setIdleListeners(worldHandler, worldHandler, worldHandler);
+            inputManager.setDragListeners(DragGlassPane.getInstance(), DragGlassPane.getInstance(), DragGlassPane
+                    .getInstance());
+            inputManager.setMoveListeners(worldHandler, worldHandler, worldHandler);
+        }
+        return inputManager;
+    }
 }

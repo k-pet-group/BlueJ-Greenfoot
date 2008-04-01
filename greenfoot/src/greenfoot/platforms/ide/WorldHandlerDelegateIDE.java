@@ -12,6 +12,7 @@ import greenfoot.core.WorldHandler;
 import greenfoot.core.WorldInvokeListener;
 import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.GreenfootFrame;
+import greenfoot.gui.InputManager;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.SelectionManager;
 import greenfoot.gui.classbrowser.role.ActorClassRole;
@@ -52,7 +53,6 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.Debug;
 
 
 /**
@@ -541,6 +541,19 @@ public class WorldHandlerDelegateIDE
         }
         
         return null;
+    }
+
+    public InputManager getInputManager()
+    {
+        InputManager inputManager = new InputManager();       
+        DragGlassPane.getInstance().addMouseListener(inputManager);
+        DragGlassPane.getInstance().addMouseMotionListener(inputManager);
+        DragGlassPane.getInstance().addKeyListener(inputManager);        
+        inputManager.setIdleListeners(worldHandler, worldHandler, worldHandler);
+        inputManager.setDragListeners(DragGlassPane.getInstance(),DragGlassPane.getInstance(),DragGlassPane.getInstance());
+        inputManager.setMoveListeners(worldHandler, worldHandler, worldHandler);
+        
+        return inputManager;
     }
 
 }
