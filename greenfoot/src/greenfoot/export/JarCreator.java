@@ -20,6 +20,7 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
+import java.util.zip.ZipOutputStream;
 
 import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
@@ -29,7 +30,7 @@ import bluej.utility.Debug;
 import bluej.utility.FileUtility;
 
 /**
- * Utility class to create jar files.
+ * Utility class to create jar or zip files from a Greenfoot project.
  * 
  * @author Poul Henriksen <polle@polle.org>
  * 
@@ -69,7 +70,8 @@ public class JarCreator
     
     /** Properties that contains information read by the GreenfootScnearioViewer */
     private Properties properties;
-
+ 
+    private boolean isZip = false;
     /**
      * Prepares a new jar creator. Once everything is set up, call create()
      * 
@@ -89,13 +91,17 @@ public class JarCreator
     }
 
     /**
-     * Convenience constructor that includes settings that are common for all projects and export types. This will exclude BlueJ metafiles.
-     *
+     * Export the class files for a project.
+     * 
+     * Convenience constructor that includes settings that are common for all
+     * projects and export types. This will exclude BlueJ metafiles.
+     * 
      * @param project The project to be exported.
      * @param exportDir The directory to export to.
      * @param jarName Name of the jar file that should be created.
      * @param worldClass Name of the main class.
-     * @param includeExtraControls Should the exported scenario include 'act' and speedslider.
+     * @param includeExtraControls Should the exported scenario include 'act'
+     *            and speedslider.
      */
     public JarCreator(GProject project, File exportDir, String jarName, String worldClass, boolean includeExtraControls) 
     {   
@@ -144,6 +150,8 @@ public class JarCreator
         addSkipFile(".ctxt");
         addSkipFile("bluej.pkg");
         addSkipFile("bluej.pkh");   
+        
+        // Exlude +libs. These should be added with the addJar() method.
         addSkipDir(Project.projectLibDirName);
         
         // Set the main class
@@ -175,31 +183,96 @@ public class JarCreator
     }
     
     /**
+     * 
+     * Export source code. Includes all the project files. Creates a dir in the
+     * zip with the same name as the project dir.
+     *
+     * Convenience constructor that includes settings that are common for all
+     * projects and export types.
+     * 
+     * @param project The project to be exported.
+     * @param exportDir The directory to export to.
+     * @param jarName Name of the jar file that should be created.
+     * @param worldClass Name of the main class.
+     * @param includeExtraControls Should the exported scenario include 'act'
+     *            and speedslider.
+     */
+    public JarCreator(GProject project, File exportDir, String zipName) 
+    {   
+        this(exportDir, zipName);
+        
+        isZip = true;
+        
+        // get the project directory        
+        try {
+            projectDir = project.getDir();
+        }
+        catch (ProjectNotOpenException e) {
+            e.printStackTrace();
+        }
+        catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        
+        String scenarioName = project.getName();
+        
+        addDir(projectDir);        
+        
+        // skip CVS stuff
+        addSkipDir("CVS");
+        addSkipFile(".cvsignore");
+        
+        // skip Subversion files
+        addSkipDir(".svn");
+        
+        // skip Mac files
+        addSkipFile(".DS_Store");
+        
+        // skip doc dir
+        addSkipDir(projectDir.getPath() + System.getProperty("file.separator") + "doc");
+        
+        // skip the export dir (in case it is in the projectDir)
+        addSkipDir(exportDir.getAbsolutePath().toString());
+        
+        // skip the greenfoot subdir that are in the projects
+        addSkipDir(projectDir.getPath() + System.getProperty("file.separator") + "greenfoot");
+        
+        // skip BlueJ files
+        addSkipFile("bluej.pkg");
+        addSkipFile("bluej.pkh");   
+        
+        includeSource(true);
+    }
+    
+    /**
      * Creates the jar file with the current settings.
      * 
      */
     public void create()
-    {
-        File propertiesFile = new File(projectDir, "standalone.properties");
-        writePropertiesFile(propertiesFile);        
-        
-        // create the jar file
-        if (!jarName.endsWith(".jar"))
-            jarName = jarName + ".jar";
+    {        
         File jarFile = new File(exportDir, jarName);
-
+        File propertiesFile = null;
         OutputStream oStream = null;
-        JarOutputStream jStream = null;
+        ZipOutputStream jStream = null;
 
         try {
-            writeManifest();
-
             oStream = new FileOutputStream(jarFile);
-            jStream = new JarOutputStream(oStream, manifest);
-
+            String pathPrefix = ""; // Put everything in top level of jar
+            if (! isZip) {
+                // It is a jar file so we write the manifest and the properties.
+                writeManifest();
+                propertiesFile = new File(projectDir, "standalone.properties");
+                writePropertiesFile(propertiesFile);
+                jStream = new JarOutputStream(oStream, manifest);
+            }
+            else {
+                // It is a zip, so we want a dir with the project name inside the zip
+                pathPrefix = projectDir.getName() + "/";
+                jStream = new ZipOutputStream(oStream);
+            }
             // Write contents of project-dir
             for(File dir : dirs) {
-                writeDirToJar(dir, "", jStream, jarFile.getCanonicalFile());
+                writeDirToJar(dir, pathPrefix, jStream, jarFile.getCanonicalFile());
             }
             
             copyLibsToJar(extraJars, exportDir);            
@@ -213,9 +286,10 @@ public class JarCreator
                     jStream.close();
             }
             catch (IOException e) {}
-            propertiesFile.delete();
+            if(propertiesFile != null) {
+                propertiesFile.delete();
+            }
         }
-
     }
 
     
@@ -368,14 +442,14 @@ public class JarCreator
      * the Jar file we are creating (to prevent including itself in the Jar
      * file)
      */
-    private void writeDirToJar(File sourceDir, String pathPrefix, JarOutputStream jStream, File outputFile)
+    private void writeDirToJar(File sourceDir, String pathPrefix, ZipOutputStream stream, File outputFile)
         throws IOException
     {
         File[] dir = sourceDir.listFiles();
         for (int i = 0; i < dir.length; i++) {
             if (dir[i].isDirectory()) {
                 if (!skipDir(dir[i])) {
-                    writeDirToJar(dir[i], pathPrefix + dir[i].getName() + "/", jStream, outputFile);
+                    writeDirToJar(dir[i], pathPrefix + dir[i].getName() + "/", stream, outputFile);
                 }
             }
             else {
@@ -384,7 +458,7 @@ public class JarCreator
                 // (hangs the machine)
                 if (!skipFile(dir[i].getName(), !includeSource)
                         && !outputFile.equals(dir[i].getCanonicalFile())) {
-                    writeJarEntry(dir[i], jStream, pathPrefix + dir[i].getName());
+                    writeJarEntry(dir[i], stream, pathPrefix + dir[i].getName());
                 }
             }
         }
@@ -393,9 +467,9 @@ public class JarCreator
     /**
      * Copy all files specified in the given list to the new jar directory.
      */
-    private void copyLibsToJar(List userLibs, File destDir)
+    private void copyLibsToJar(List<File> userLibs, File destDir)
     {
-        for (Iterator it = userLibs.iterator(); it.hasNext();) {
+        for (Iterator<File> it = userLibs.iterator(); it.hasNext();) {
             File lib = (File) it.next();
             File destFile = new File(destDir, lib.getName());
             try {
@@ -446,14 +520,14 @@ public class JarCreator
      * always be a path with / seperators (NOT the platform dependant
      * File.seperator)
      */
-    private void writeJarEntry(File file, JarOutputStream jStream, String entryName)
+    private void writeJarEntry(File file, ZipOutputStream stream, String entryName)
         throws IOException
     {
         InputStream in = null;
         try {
             in = new FileInputStream(file);
-            jStream.putNextEntry(new ZipEntry(entryName));
-            FileUtility.copyStream(in, jStream);
+            stream.putNextEntry(new ZipEntry(entryName));
+            FileUtility.copyStream(in, stream);
         }
         catch (ZipException exc) {
             Debug.message("warning: " + exc);

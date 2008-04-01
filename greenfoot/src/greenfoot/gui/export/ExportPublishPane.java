@@ -2,7 +2,7 @@
  * ExportPublishPane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 5643 2008-03-13 02:02:50Z polle $
+ * @version $Id: ExportPublishPane.java 5660 2008-04-01 16:21:39Z polle $
  */
 
 package greenfoot.gui.export;
@@ -20,6 +20,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.InputVerifier;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -45,8 +46,8 @@ public class ExportPublishPane extends ExportPane
     private static final Color background = new Color(166, 188, 202);
     private static final Color urlColor = new Color(0, 90, 200);
     private static final Color headingColor = new Color(40, 75, 125);
-    private static final String serverURL = Config.getPropString("greenfoot.gameserver.address", "http://stompt.org");
-    private static final String serverName = Config.getPropString("greenfoot.gameserver.name", "stompt.org");
+    private static final String serverURL = Config.getPropString("greenfoot.gameserver.address", "http://greenfootgallery.org");
+    private static final String serverName = Config.getPropString("greenfoot.gameserver.name", "Greenfoot Gallery");
 
     private static final String helpLine1 = Config.getString("export.publish.help") + " " + serverName + " ("
             + serverURL + ")";
@@ -54,10 +55,11 @@ public class ExportPublishPane extends ExportPane
     private JTextField titleField;
     private JTextField shortDescriptionField;
     private JTextArea descriptionArea;
-    private JTextField URLField;
+    private JTextField urlField;
     private JTextField userNameField;
     private JPasswordField passwordField;
     private ImageEditPanel imagePanel;
+    private JCheckBox includeSource;
     
     /**
      * Name of the scenario as Greenfoot knows it. This is NOT necessarily the
@@ -119,7 +121,7 @@ public class ExportPublishPane extends ExportPane
      */
     public String getURL() 
     {
-        return URLField.getText();
+        return urlField.getText();
     }
 
     /**
@@ -136,6 +138,14 @@ public class ExportPublishPane extends ExportPane
     public String getPassword() 
     {
         return new String(passwordField.getPassword());
+    }
+    
+    /**
+     * True if the source code should be included.
+     */
+    public boolean includeSourceCode() 
+    {
+        return includeSource.isSelected();
     }
 
     /**
@@ -176,7 +186,7 @@ public class ExportPublishPane extends ExportPane
             text.setForeground(headingColor);
             infoPanel.add(text, BorderLayout.NORTH); 
 
-            JPanel dataPanel = new JPanel(new MiksGridLayout(5, 2, 8, 8));
+            JPanel dataPanel = new JPanel(new MiksGridLayout(6, 2, 8, 8));
             {
                 dataPanel.setBackground(background);
                 
@@ -223,8 +233,16 @@ public class ExportPublishPane extends ExportPane
                 text.setFont(smallFont);
                 dataPanel.add(text);
 
-                URLField = new JTextField();
-                dataPanel.add(URLField);
+                urlField = new JTextField();
+                dataPanel.add(urlField);
+                
+                text = new JLabel(Config.getString("export.publish.includeSource"), SwingConstants.TRAILING);                
+                text.setFont(smallFont);
+                dataPanel.add(text);
+                includeSource = new JCheckBox();
+                includeSource.setOpaque(false);
+                includeSource.setSelected(false);
+                dataPanel.add(includeSource);
             }
             infoPanel.add(dataPanel, BorderLayout.CENTER);
         }

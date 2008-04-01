@@ -88,6 +88,7 @@ export.publish.password=Password:
 export.publish.createAccount=To create an account,
 export.publish.goToMyGame=go to MyGame.
 export.publish.goTo=Go to
+export.publish.includeSource=Publish source code:
 export.web.help=Create a web page with an applet.
 export.web.exportLocation=Export location: 
 export.web.browse=Browse

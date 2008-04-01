@@ -5,7 +5,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5642 2008-03-13 01:46:46Z polle $
+ * @version $Id: Exporter.java 5660 2008-04-01 16:21:39Z polle $
  */
 
 package greenfoot.export;
@@ -20,7 +20,6 @@ import greenfoot.gui.export.ExportAppPane;
 import greenfoot.gui.export.ExportDialog;
 import greenfoot.gui.export.ExportPublishPane;
 import greenfoot.gui.export.ExportWebPagePane;
-import greenfoot.util.GraphicsUtilities;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
@@ -74,7 +73,8 @@ public class Exporter
         }
         File exportDir = tmpJarFile.getParentFile();
         String jarName = tmpJarFile.getName();           
-
+        
+        
         String worldClass = WorldHandler.getInstance().getLastWorldClass().getName();
         
         boolean  includeControls = pane.includeExtraControls();
@@ -99,7 +99,25 @@ public class Exporter
         project.getProjectProperties().save();
         
         jarCreator.create();
-                
+            
+        File tmpZipFile = null;
+        // Build zip with source code if needed
+        if(pane.includeSourceCode()) { 
+            //Create temporary zip file for the source code        
+            try {
+                tmpZipFile = File.createTempFile("greenfootSource", ".zip", null);
+                //make sure it is deleted on exit (should be deleted right after the publish finish - but just in case...)
+                tmpZipFile.deleteOnExit();     
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+            String zipName = tmpZipFile.getName();  
+            JarCreator zipCreator = new JarCreator(project, exportDir, zipName);            
+            zipCreator.create();
+        }
+            
         
         // Create image file      
         String formatName = "png";
@@ -134,8 +152,12 @@ public class Exporter
         
         dlg.setProgress(true, Config.getString("export.progress.publishing"));
         try {
+            String zipFilePath = null;
+            if(tmpZipFile != null) {
+                zipFilePath = tmpZipFile.getAbsolutePath();
+            }
             webPublisher.submit(hostAddress, login, password, scenarioName,
-                    tmpJarFile.getAbsolutePath(), tmpImgFile, size.width, size.height,
+                    tmpJarFile.getAbsolutePath(), zipFilePath, tmpImgFile, size.width, size.height,
                     pane.getShortDescription(), pane.getDescription());
         }
         catch (UnknownHostException e) {
@@ -170,7 +192,7 @@ public class Exporter
         
         // do not include source
         jarCreator.includeSource(false);
-
+        
         Dimension size = getSize(includeControls);
 
         // Make sure the current properties are saved before they are exported.
