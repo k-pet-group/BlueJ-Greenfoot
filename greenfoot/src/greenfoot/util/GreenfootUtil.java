@@ -4,12 +4,16 @@ import greenfoot.platforms.GreenfootUtilDelegate;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.BufferedInputStream;
@@ -23,6 +27,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessControlException;
+import java.util.Map;
 
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -30,13 +35,15 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import bluej.utility.Utility;
+
 
 
 /**
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 5647 2008-03-16 14:28:17Z polle $
+ * @version $Id: GreenfootUtil.java 5662 2008-04-03 16:17:35Z polle $
  */
 public class GreenfootUtil
 {
@@ -45,6 +52,8 @@ public class GreenfootUtil
     public static final int Y_AXIS = 1;
     
     private static GreenfootUtilDelegate delegate;
+
+    private static final Color urlColor = new Color(0, 90, 200);
     
     public static void initialise(GreenfootUtilDelegate newDelegate) {
         delegate = newDelegate;
@@ -553,5 +562,40 @@ public class GreenfootUtil
         JButton button = new JButton(action);
         button.setFocusable(false);
         return button;
+    }
+    
+    /**
+     * Creates a new font derived from the one passed in, but with an added underline.
+     */
+    @SuppressWarnings("unchecked")
+    private static Font deriveUnderlinedFont(Font f)
+    {
+        Map attr =  f.getAttributes();                
+        attr.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
+        Font underLineFont = f.deriveFont(attr);
+        return underLineFont;
+    }
+
+    /**
+     * Makes this label into a clickable link to some website. It will modify
+     * the font to look like a classic link from HTML pages by making it blue
+     * with an underline.
+     * 
+     * @param label The label to make into a hyperlink.
+     * @param url The url to open when clicked.
+     */
+    public static void makeLink(final JLabel label, final String url)
+    {
+        label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        label.setForeground(urlColor);
+        Font f = label.getFont();
+        Font underLineFont = deriveUnderlinedFont(f);
+        label.setFont(underLineFont);
+        label.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e)
+            {
+                Utility.openWebBrowser(url);
+            }
+        });
     }
 }

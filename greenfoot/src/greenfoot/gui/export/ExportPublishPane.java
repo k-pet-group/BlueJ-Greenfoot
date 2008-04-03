@@ -2,18 +2,16 @@
  * ExportPublishPane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 5661 2008-04-01 17:21:53Z polle $
+ * @version $Id: ExportPublishPane.java 5662 2008-04-03 16:17:35Z polle $
  */
 
 package greenfoot.gui.export;
 
+import greenfoot.util.GreenfootUtil;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
@@ -34,8 +32,6 @@ import javax.swing.border.Border;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.groupwork.ui.MiksGridLayout;
-import bluej.utility.MultiLineLabel;
-import bluej.utility.Utility;
 
 public class ExportPublishPane extends ExportPane
 {
@@ -44,13 +40,12 @@ public class ExportPublishPane extends ExportPane
     
     public static final String FUNCTION = "PUBLISH";
     private static final Color background = new Color(166, 188, 202);
-    private static final Color urlColor = new Color(0, 90, 200);
     private static final Color headingColor = new Color(40, 75, 125);
     private static final String serverURL = Config.getPropString("greenfoot.gameserver.address", "http://greenfootgallery.org");
+    private static final String createAccountUrl = Config.getPropString("greenfoot.gameserver.createAccount.address", "http://www.greenfootgallery.org/users/new");
     private static final String serverName = Config.getPropString("greenfoot.gameserver.name", "Greenfoot Gallery");
 
-    private static final String helpLine1 = Config.getString("export.publish.help") + " " + serverName + " ("
-            + serverURL + ")";
+    private static final String helpLine1 = Config.getString("export.publish.help") + " " + serverName ;
 
     private JTextField titleField;
     private JTextField shortDescriptionField;
@@ -148,13 +143,7 @@ public class ExportPublishPane extends ExportPane
         return includeSource.isSelected();
     }
 
-    /**
-     * Open the games server in a web browser.
-     */
-    private void openServerPage()
-    {
-        Utility.openWebBrowser(serverURL);
-    }
+ 
     
     /**
      * Build the component.
@@ -164,10 +153,19 @@ public class ExportPublishPane extends ExportPane
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BlueJTheme.dialogBorder);
 
-        JLabel helpText1 = new JLabel(helpLine1);
-        add(helpText1);
-
-        Font smallFont = helpText1.getFont().deriveFont(Font.ITALIC, 11.0f);
+        Box helpBox = new Box(BoxLayout.X_AXIS);
+        {
+            helpBox.setAlignmentX(LEFT_ALIGNMENT);
+            JLabel helpText1 = new JLabel(helpLine1 + " (");
+            helpBox.add(helpText1);
+            JLabel serverLink = new JLabel(serverURL);
+            GreenfootUtil.makeLink(serverLink, serverURL);
+            helpBox.add(serverLink);
+            helpBox.add(new JLabel(")"));
+        }
+        add(helpBox);
+        
+        Font smallFont = (new JLabel()).getFont().deriveFont(Font.ITALIC, 11.0f);
 
         add(Box.createVerticalStrut(12));
 
@@ -281,11 +279,15 @@ public class ExportPublishPane extends ExportPane
             }
             loginPanel.add(dataPanel, BorderLayout.CENTER);
                 
-            MultiLineLabel helptext = new MultiLineLabel(Config.getString("export.publish.createAccount"));
-            helptext.setBackground(background);
-            helptext.addText(Config.getString("export.publish.goToMyGame"));
-            helptext.setForeground(headingColor);
-            loginPanel.add(helptext, BorderLayout.EAST);     
+        
+            JLabel createAccountLabel = new JLabel(Config.getString("export.publish.createAccount"));
+            {
+                createAccountLabel.setBackground(background);
+
+                createAccountLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+                GreenfootUtil.makeLink(createAccountLabel, createAccountUrl);
+            }
+            loginPanel.add(createAccountLabel, BorderLayout.EAST);  
         }
         add(loginPanel);
         add(Box.createVerticalStrut(20));
@@ -294,25 +296,10 @@ public class ExportPublishPane extends ExportPane
         {
             extraPanel.setAlignmentX(LEFT_ALIGNMENT);
             extraPanel.add(lockScenario, BorderLayout.WEST);
-            extraPanel.add(lockScenarioDescription, BorderLayout.SOUTH);
-            JPanel urlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-            {
-                urlPanel.add(new JLabel(Config.getString("export.publish.goTo")));
-                JLabel urlLabel = new JLabel(serverName);
-                {
-                    urlLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                    urlLabel.setForeground(urlColor);
-                    urlLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-                    urlLabel.addMouseListener(new MouseAdapter() {
-                        public void mouseClicked(MouseEvent e) { openServerPage(); }
-                    });
-                }
-                urlPanel.add(urlLabel);
-                urlPanel.setAlignmentX(LEFT_ALIGNMENT);
-            }
-            extraPanel.add(urlPanel, BorderLayout.EAST);
+            extraPanel.add(lockScenarioDescription, BorderLayout.SOUTH);      
         }
         add(extraPanel);
     }
+
 
 }
