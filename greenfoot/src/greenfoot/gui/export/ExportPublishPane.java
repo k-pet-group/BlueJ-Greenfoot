@@ -2,7 +2,7 @@
  * ExportPublishPane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 5662 2008-04-03 16:17:35Z polle $
+ * @version $Id: ExportPublishPane.java 5664 2008-04-04 13:29:38Z polle $
  */
 
 package greenfoot.gui.export;
@@ -35,8 +35,8 @@ import bluej.groupwork.ui.MiksGridLayout;
 
 public class ExportPublishPane extends ExportPane
 {
-    public static final int IMAGE_WIDTH = 150;
-    public static final int IMAGE_HEIGHT = 150;
+    public static final int IMAGE_WIDTH = 120;
+    public static final int IMAGE_HEIGHT = 70;
     
     public static final String FUNCTION = "PUBLISH";
     private static final Color background = new Color(166, 188, 202);
