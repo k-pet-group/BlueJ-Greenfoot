@@ -7,7 +7,6 @@ import greenfoot.core.WorldHandler;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.image.BufferedImage;
 import java.util.*;
 
 
@@ -449,8 +448,22 @@ public abstract class World
      * Repaints the world. 
      */
     public void repaint() 
-    {
-        WorldHandler.getInstance().repaint();
+    {        
+        // We have the world lock when arriving here, since it will be called
+        // from the user code. So, we need to release the lock, for a repaint to
+        // happen, since the repaint synchronizes on the world.
+        synchronized (this) {
+            WorldHandler.getInstance().repaint();
+            // TODO to really ensure a repaint, we should check whether the
+            // repaint actually happened and keep waiting until it does. Because
+            // we could get spurious wake ups. But this should work in most
+            // cases. Maybe use the JDK1.5 concurrency API to fix it.
+            try {
+                this.wait();
+            }
+            catch (InterruptedException e) {
+            }
+        }
     }
     
     /**

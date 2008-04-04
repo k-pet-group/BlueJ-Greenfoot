@@ -28,7 +28,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldCanvas.java 5610 2008-02-28 16:05:37Z polle $
+ * @version $Id: WorldCanvas.java 5663 2008-04-04 13:18:18Z polle $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -102,6 +102,8 @@ public class WorldCanvas extends JPanel
                     g2.setTransform(oldTx);
                 }
             }
+            //Wake up any threads waiting. For instance the World.repaint() call.
+            world.notifyAll();
         }
     }
 
