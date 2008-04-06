@@ -8,7 +8,6 @@ import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
-import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.DragListener;
 import greenfoot.gui.DropTarget;
 import greenfoot.gui.InputManager;
@@ -35,7 +34,6 @@ import java.util.Iterator;
 import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 
-
 /**
  * The worldhandler handles the connection between the World and the
  * WorldCanvas.
@@ -43,7 +41,8 @@ import javax.swing.event.EventListenerList;
  * @author Poul Henriksen
  * @version $Id:$
  */
-public class WorldHandler implements MouseListener, MouseMotionListener, KeyListener, DropTarget, DragListener, SimulationListener
+public class WorldHandler
+    implements MouseListener, MouseMotionListener, KeyListener, DropTarget, DragListener, SimulationListener
 {
     private World initialisingWorld;
     private World world;
@@ -58,7 +57,7 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
      * need to be replaced if the drop is cancelled.
      */
     private boolean objectDropped = true; // true if the object was dropped
-    
+
     private KeyboardManager keyboardManager;
     private static WorldHandler instance;
     private EventListenerList listenerList = new EventListenerList();
@@ -66,33 +65,32 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
     private WorldHandlerDelegate handlerDelegate;
     private MousePollingManager mousePollingManager;
     private InputManager inputManager;
-    
-    //Offset from the middle of the actor when initiating a drag on an actor.
+
+    // Offset from the middle of the actor when initiating a drag on an actor.
     private int dragOffsetX;
     private int dragOffsetY;
-    //The actor being dragged
+    // The actor being dragged
     private Actor dragActor;
     private Cursor defaultCursor;
-    
-    public static synchronized void initialise(WorldCanvas worldCanvas, WorldHandlerDelegate helper) 
+
+    public static synchronized void initialise(WorldCanvas worldCanvas, WorldHandlerDelegate helper)
     {
         instance = new WorldHandler(worldCanvas, helper);
     }
 
-
     /**
      * Return the singleton instance.
      */
-    public synchronized static WorldHandler getInstance() 
+    public synchronized static WorldHandler getInstance()
     {
         return instance;
     }
 
-
     /**
      * Creates a new worldHandler and sets up the connection between worldCanvas
      * and world.
-     * @param handlerDelegate 
+     * 
+     * @param handlerDelegate
      */
     private WorldHandler(final WorldCanvas worldCanvas, WorldHandlerDelegate handlerDelegate)
     {
@@ -111,7 +109,7 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
 
             public int getTranslatedX(MouseEvent e)
             {
-                Point p = SwingUtilities.convertPoint(e.getComponent(), e.getX(), e.getY(), worldCanvas);                
+                Point p = SwingUtilities.convertPoint(e.getComponent(), e.getX(), e.getY(), worldCanvas);
                 return WorldVisitor.toCellFloor(getWorld(), p.x);
             }
 
@@ -119,14 +117,15 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
             {
                 Point p = SwingUtilities.convertPoint(e.getComponent(), e.getX(), e.getY(), worldCanvas);
                 return WorldVisitor.toCellFloor(getWorld(), p.y);
-            }});
+            }
+        });
 
         worldCanvas.setDropTargetListener(this);
-        
+
         LocationTracker.instance().setSourceComponent(worldCanvas);
         keyboardManager = new KeyboardManager();
         worldCanvas.addFocusListener(keyboardManager);
-        
+
         inputManager = handlerDelegate.getInputManager();
         addWorldListener(inputManager);
         inputManager.setRunningListeners(getKeyboardManager(), mousePollingManager, mousePollingManager);
@@ -134,18 +133,18 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
         worldCanvas.addMouseMotionListener(inputManager);
         worldCanvas.addKeyListener(inputManager);
         inputManager.init();
-        
+
         defaultCursor = worldCanvas.getCursor();
     }
-    
+
     /**
      * Get the keyboard manager.
      */
     public KeyboardManager getKeyboardManager()
     {
         return keyboardManager;
-    }    
-    
+    }
+
     /**
      * Get the mouse manager.
      */
@@ -176,17 +175,16 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
             Actor actor = getObject(e.getX(), e.getY());
             if (actor != null) {
                 dragActor = actor;
-                dragBeginX = actor.getX() * world.getCellSize() + world.getCellSize()/2;
-                dragBeginY = actor.getY() * world.getCellSize() + world.getCellSize()/2;
+                dragBeginX = actor.getX() * world.getCellSize() + world.getCellSize() / 2;
+                dragBeginY = actor.getY() * world.getCellSize() + world.getCellSize() / 2;
                 dragOffsetX = dragBeginX - e.getX();
                 dragOffsetY = dragBeginY - e.getY();
-                objectDropped = false;       
+                objectDropped = false;
                 worldCanvas.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                drag(actor, e.getPoint());                
+                drag(actor, e.getPoint());
             }
         }
     }
-
 
     /*
      * (non-Javadoc)
@@ -207,14 +205,16 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
      * at the one location, this method returns the top-most one according to
      * paint order.
      * 
-     * @param x  The x-coordinate
-     * @param y  The y-coordinate
+     * @param x
+     *            The x-coordinate
+     * @param y
+     *            The y-coordinate
      */
     public Actor getObject(int x, int y)
     {
         // Grab a snapshot of world to avoid concurrency issues
         World world = this.world;
-        
+
         if (world == null)
             return null;
 
@@ -247,7 +247,7 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
     public void mouseEntered(MouseEvent e)
     {
         handlerDelegate.setQuickAddActive(false);
-        worldCanvas.requestFocusInWindow();     
+        worldCanvas.requestFocusInWindow();
     }
 
     /*
@@ -257,7 +257,7 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
      */
     public void mouseExited(MouseEvent e)
     {
-        if(dragActor != null) {
+        if (dragActor != null) {
             ActorVisitor.setLocationInPixels(dragActor, dragBeginX, dragBeginY);
             repaint();
         }
@@ -270,15 +270,14 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
     {
         worldCanvas.repaint();
     }
-    
+
     /*
      * (non-Javadoc)
      * 
      * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
      */
     public void keyTyped(KeyEvent e)
-    {
-    }
+    {}
 
     /*
      * (non-Javadoc)
@@ -287,7 +286,7 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
      */
     public void keyPressed(KeyEvent e)
     {
-    	handlerDelegate.processKeyEvent(e);
+        handlerDelegate.processKeyEvent(e);
     }
 
     /*
@@ -297,28 +296,31 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
      */
     public void keyReleased(KeyEvent e)
     {
-        worldCanvas.requestFocus();        
+        worldCanvas.requestFocus();
         handlerDelegate.keyReleased(e);
     }
-    
+
     /**
-     * Instantiate a new world and do any initialisation needed to activate that world.
+     * Instantiate a new world and do any initialisation needed to activate that
+     * world.
+     * 
      * @return The new World or null if an error occured
      */
     public void instantiateNewWorld()
     {
         handlerDelegate.instantiateNewWorld();
     }
-    
+
     /**
      * 
      * @see #setWorld(World)
      * @param world
      */
-    public void setInitialisingWorld(World world) {
+    public void setInitialisingWorld(World world)
+    {
         this.initialisingWorld = world;
     }
-    
+
     /**
      * Sets a new world. A world is set in two steps:
      * 
@@ -344,7 +346,7 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
                     fireWorldCreatedEvent();
                 }
             }
-        });      
+        });
     }
 
     /**
@@ -359,15 +361,15 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
     {
         return handlerDelegate.getLastWorldClass();
     }
-        
+
     /**
      * Return the currently active world.
      */
     public World getWorld()
     {
-        if(world == null)
+        if (world == null)
             return initialisingWorld;
-        else 
+        else
             return world;
     }
 
@@ -380,12 +382,12 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
         int maxWidth = WorldVisitor.getWidthInPixels(world);
         int x = (int) p.getX();
         int y = (int) p.getY();
-        
-        if(x >= maxWidth || y >= maxHeight) {
+
+        if (x >= maxWidth || y >= maxHeight) {
             return false;
         }
-        else if( o instanceof ObjectDragProxy) {
-            //create the real object
+        else if (o instanceof ObjectDragProxy) {
+            // create the real object
             ObjectDragProxy to = (ObjectDragProxy) o;
             to.createRealObject();
             world.removeObject(to);
@@ -394,7 +396,7 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
         }
         else if (o instanceof Actor) {
             Actor actor = (Actor) o;
-            if(actor.getWorld() == null) {
+            if (actor.getWorld() == null) {
                 // Under some strange circumstances the world can be null here.
                 // This can happen in the GridWorld scenario because it
                 // overrides World.addObject().
@@ -404,8 +406,8 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
                 ActorVisitor.setLocationInPixels(actor, x, y);
                 objectDropped = true;
             }
-            catch(IndexOutOfBoundsException e) {
-                //it happens...
+            catch (IndexOutOfBoundsException e) {
+                // it happens...
                 return false;
             }
             return true;
@@ -424,14 +426,15 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
             int x = WorldVisitor.toCellFloor(getWorld(), (int) p.getX());
             int y = WorldVisitor.toCellFloor(getWorld(), (int) p.getY());
             Actor actor = (Actor) o;
-            try {            
+            try {
 
                 int oldX = actor.getX();
                 int oldY = actor.getY();
 
                 if (oldX != x || oldY != y) {
                     if (x < world.getWidth() && y < world.getHeight() && x >= 0 && y >= 0) {
-                        ActorVisitor.setLocationInPixels(actor, (int) p.getX() + dragOffsetX, (int) p.getY() + dragOffsetY);
+                        ActorVisitor.setLocationInPixels(actor, (int) p.getX() + dragOffsetX, (int) p.getY()
+                                + dragOffsetY);
                         repaint();
                     }
                     else {
@@ -452,14 +455,14 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
             return false;
         }
     }
-    
+
     /**
      * Adds the object where the mouse event occured.
      * 
      * @return true if location changed
-     * @throws IndexOutOfBoundsException If the coordinates are outside the
-     *             bounds of the world. Note that a wrapping world has no
-     *             bounds.
+     * @throws IndexOutOfBoundsException
+     *             If the coordinates are outside the bounds of the world. Note
+     *             that a wrapping world has no bounds.
      */
     public synchronized boolean addObjectAtEvent(Actor actor, MouseEvent e)
     {
@@ -467,14 +470,15 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
         if (source != worldCanvas) {
             e = SwingUtilities.convertMouseEvent(source, e, worldCanvas);
         }
-        
+
         World world = getWorld();
         int x = WorldVisitor.toCellFloor(world, e.getX());
         int y = WorldVisitor.toCellFloor(world, e.getY());
-        if(x < world.getWidth() && y < world.getHeight()) {
+        if (x < world.getWidth() && y < world.getHeight()) {
             world.addObject(actor, x, y);
             return true;
-        } else {
+        }
+        else {
             return false;
         }
     }
@@ -489,7 +493,7 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
 
     public void dragFinished(Object o)
     {
-        handlerDelegate.dragFinished(o);    
+        handlerDelegate.dragFinished(o);
     }
 
     protected void fireWorldCreatedEvent()
@@ -504,7 +508,7 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
             }
         }
     }
-    
+
     public void fireWorldRemovedEvent()
     {
         // Guaranteed to return a non-null array
@@ -517,7 +521,7 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
             }
         }
     }
-    
+
     /**
      * Add a worldListener to listen for when a worlds are created and removed.
      * Events will be delivered on the GUI event thread.
@@ -529,41 +533,43 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
     {
         listenerList.add(WorldListener.class, l);
     }
-    
+
     /**
      * Removes a worldListener.
+     * 
      * @param l
      *            Listener to remove
      */
-	public void removeWorldListener(WorldListener l) {
-		listenerList.remove(WorldListener.class, l);
-	}
+    public void removeWorldListener(WorldListener l)
+    {
+        listenerList.remove(WorldListener.class, l);
+    }
 
     /**
-     * Used to indicate the start of an animation sequence. For use in the collision checker.
+     * Used to indicate the start of an animation sequence. For use in the
+     * collision checker.
+     * 
      * @see greenfoot.collision.CollisionChecker#startSequence()
      */
     public void startSequence()
     {
         WorldVisitor.startSequence(world);
     }
-    
-    public WorldCanvas getWorldCanvas() 
+
+    public WorldCanvas getWorldCanvas()
     {
         return worldCanvas;
     }
-    
-    public boolean isObjectDropped() 
+
+    public boolean isObjectDropped()
     {
         return objectDropped;
     }
-
 
     public void setObjectDropped(boolean b)
     {
         objectDropped = b;
     }
-
 
     public EventListenerList getListenerList()
     {
@@ -586,32 +592,30 @@ public class WorldHandler implements MouseListener, MouseMotionListener, KeyList
         }
     }
 
-
     public void simulationChanged(SimulationEvent e)
     {
         inputManager.simulationChanged(e); // TODO maybe add somewhere else?
         keyboardManager.simulationChanged(e);
-        if(e.getType() == SimulationEvent.NEW_ACT)
-        {
+        if (e.getType() == SimulationEvent.NEW_ACT) {
             mousePollingManager.newActStarted();
         }
     }
-    
-    public InputManager getInputManager() {
+
+    public InputManager getInputManager()
+    {
         return inputManager;
     }
 
     public void mouseDragged(MouseEvent e)
     {
         if (SwingUtilities.isLeftMouseButton(e)) {
-            objectDropped = false;  
+            objectDropped = false;
             drag(dragActor, e.getPoint());
         }
     }
 
     public void mouseMoved(MouseEvent e)
-    {
-    }
+    {}
 
     /**
      * Get a snapshot of the currently instantiated world or null if no world is
