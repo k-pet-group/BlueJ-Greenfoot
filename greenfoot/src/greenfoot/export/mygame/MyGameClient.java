@@ -26,7 +26,7 @@ import bluej.Config;
 public abstract class MyGameClient
 {
     public final MyGameClient submit(String hostAddress, String uid, String password,
-            String gameName, String jarFileName, String zipFileName, File screenshotFile, int width, int height,
+            String gameName, String jarFileName, File sourceFile, File screenshotFile, int width, int height,
             String shortDescription, String longDescription)
         throws UnknownHostException, IOException
     {
@@ -83,23 +83,27 @@ public abstract class MyGameClient
             return this;
         }
         
-        // TEST START
-        System.out.println("source zip: " + zipFileName);        
-        // TEST END
-        
         // Send the scenario and associated info
-        Part [] parts = {
-                new StringPart("scenario[title]", gameName),
-                new StringPart("scenario[main_class]", "greenfoot.export.GreenfootScenarioViewer"),
-                new StringPart("scenario[width]", "" + width),
-                new StringPart("scenario[height]", "" + height),
-                new StringPart("scenario[short_description]", shortDescription),
-                new StringPart("scenario[long_description]", longDescription),
-                new FilePart("scenario[uploaded_data]", new File(jarFileName)),
-                new FilePart("scenario[screenshot_data]", screenshotFile)
-                //,new FilePart("scenario[source_data]", new File(zipFileName))  CAN BE NULL!!! Why do we require a string as parameter and then create a new file here?
-        };
+        Part [] parts;
+        boolean hasSource = sourceFile != null;
+        if (hasSource) {
+            parts = new Part[9];
+        }
+        else {
+            parts = new Part[8];
+        }
         
+        parts[0] = new StringPart("scenario[title]", gameName);
+        parts[1] = new StringPart("scenario[main_class]", "greenfoot.export.GreenfootScenarioViewer");
+        parts[2] = new StringPart("scenario[width]", "" + width);
+        parts[3] = new StringPart("scenario[height]", "" + height);
+        parts[4] = new StringPart("scenario[short_description]", shortDescription);
+        parts[5] = new StringPart("scenario[long_description]", longDescription);
+        parts[6] = new FilePart("scenario[uploaded_data]", new File(jarFileName));
+        parts[7] = new FilePart("scenario[screenshot_data]", screenshotFile);
+        if (hasSource) {
+            parts[8] = new FilePart("scenario[source_data]", sourceFile);
+        }
         
         postMethod = new PostMethod(hostAddress + "upload-scenario");
         postMethod.setRequestEntity(new MultipartRequestEntity(parts,
