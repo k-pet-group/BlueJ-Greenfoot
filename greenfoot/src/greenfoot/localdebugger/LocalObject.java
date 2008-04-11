@@ -24,7 +24,7 @@ import com.sun.jdi.ObjectReference;
  * A class to represent a local object as a DebuggerObject
  *  
  * @author Davin McCall
- * @version $Id: LocalObject.java 5621 2008-02-29 18:24:46Z polle $
+ * @version $Id: LocalObject.java 5670 2008-04-11 13:28:48Z polle $
  */
 public class LocalObject extends DebuggerObject
 {
@@ -41,7 +41,7 @@ public class LocalObject extends DebuggerObject
     
     public static LocalObject getLocalObject(Object o)
     {
-        if (o.getClass().isArray()) {
+        if (o != null && o.getClass().isArray()) {
             if (o instanceof boolean[]) {
                 return new LocalBooleanArray((boolean []) o);
             }
@@ -72,8 +72,8 @@ public class LocalObject extends DebuggerObject
     }
     
     public static LocalObject getLocalObject(Object o, Map genericParams)
-    {
-        if (o.getClass().isArray()) {
+    {        
+        if (o != null && o.getClass().isArray()) {
             if (o instanceof boolean[]) {
                 return new LocalBooleanArray((boolean []) o);
             }
