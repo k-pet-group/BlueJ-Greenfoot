@@ -44,4 +44,6 @@ public interface WorldHandlerDelegate
     Class getLastWorldClass();
 
     InputManager getInputManager();
+
+    void discardWorld(World world);
 }

@@ -299,18 +299,20 @@ public class Simulation extends Thread
      */
     public synchronized void setPaused(boolean b)
     {
+        paused = b;
         if (enabled) {
-            paused = b;
             notifyAll();
-            // Interrupt thread.
-            instance.interrupt();
-
+            
+            // Interrupt thread to make sure it stops.
+            if(paused) {
+                instance.interrupt();
             // TODO: check if the thread is still running now, we should force
             // it to quit. Maybe using the deprecated stop() and then restarting
             // the thread. Maybe making sim a runnable instead of thread and
             // then creating a new thread and start that.
             // instance.stop();
             // reinit
+            }
         }
     }
 
@@ -319,6 +321,8 @@ public class Simulation extends Thread
      */
     public synchronized void setEnabled(boolean b)
     {
+        if (b) notifyAll();
+        
         if (enabled != b) {
             enabled = b;
             if (!enabled) {

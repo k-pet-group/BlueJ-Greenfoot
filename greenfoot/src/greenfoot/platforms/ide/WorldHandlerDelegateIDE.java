@@ -260,26 +260,23 @@ public class WorldHandlerDelegateIDE
         }
     }
 
+    public void discardWorld(World world) {        
+        // Remove the  world and actors from the remote object caches
+        ObjectTracker.forgetRObject(world);
+        List<Actor> oldActors = new ArrayList<Actor>(WorldVisitor.getObjectsListInPaintOrder(world));
+        for (Iterator<Actor> i = oldActors.iterator(); i.hasNext();) {
+            Actor oldActor = i.next();
+            ObjectTracker.forgetRObject(oldActor);
+        }
+    }
+    
     public void setWorld(final World oldWorld, final World newWorld)
     {
         if (newWorld != null) {
             lastWorldClass = newWorld.getClass().getName();
         }
         if (oldWorld != null) {
-            // Remove the old world and actors from the remote object caches
-            ObjectTracker.forgetRObject(oldWorld);
-            List<Actor> oldActors = new ArrayList<Actor>(WorldVisitor.getObjectsListInPaintOrder(oldWorld));
-            for (Iterator<Actor> i = oldActors.iterator(); i.hasNext();) {
-                Actor oldActor = i.next();
-                ObjectTracker.forgetRObject(oldActor);
-            }
-
-            EventQueue.invokeLater(new Runnable() {
-                public void run() {
-                    worldHandler.fireWorldRemovedEvent();
-                }
-            });
-            Simulation.getInstance().setPaused(true);
+            discardWorld(oldWorld);
         }
 
         EventQueue.invokeLater(new Runnable() {

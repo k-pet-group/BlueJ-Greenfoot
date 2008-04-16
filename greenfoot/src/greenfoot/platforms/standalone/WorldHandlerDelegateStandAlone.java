@@ -103,4 +103,9 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         }
         return inputManager;
     }
+
+    public void discardWorld(World world)
+    {
+    	// Nothing special to do.    
+    }
 }

@@ -321,6 +321,22 @@ public class WorldHandler
         this.initialisingWorld = world;
     }
 
+    /** 
+     * Removes the current world.
+     */
+    public synchronized void discardWorld() {
+        if(world == null) return;
+        handlerDelegate.discardWorld(world); 
+        world = null;
+
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                worldCanvas.setWorld(null);
+                fireWorldRemovedEvent();
+            }
+        });
+    }
+    
     /**
      * Sets a new world. A world is set in two steps:
      * 

@@ -100,7 +100,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5657 2008-03-27 19:20:30Z polle $
+ * @version $Id: GreenfootFrame.java 5679 2008-04-16 19:34:28Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener,
@@ -679,7 +679,7 @@ public class GreenfootFrame extends JFrame
         
         // Disable simulation buttons
         if (state == false) {
-        	WorldHandler.getInstance().setWorld(null);
+        	WorldHandler.getInstance().discardWorld();
             removeSelectedClassAction.setEnabled(false);
         }
         
@@ -787,7 +787,7 @@ public class GreenfootFrame extends JFrame
     
     public void compileStarted(RCompileEvent event)
     {
-        WorldHandler.getInstance().setWorld(null);
+        WorldHandler.getInstance().discardWorld();
     }
 
     public void compileError(RCompileEvent event)
