@@ -457,6 +457,8 @@ target="1.5">
             <include name="greenfoot/core/ProjectProperties.java"/>
             <include name="greenfoot/core/Simulation.java"/>
             <include name="greenfoot/core/ObjectDragProxy.java"/>
+            <include name="greenfoot/core/ActInterruptedException.java"/>
+
 
             <include name="greenfoot/event/SimulationEvent.java"/>
             <include name="greenfoot/event/SimulationListener.java"/>
