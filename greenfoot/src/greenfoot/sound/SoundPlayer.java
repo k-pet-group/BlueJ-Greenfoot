@@ -7,14 +7,11 @@ import greenfoot.util.GreenfootUtil;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.sound.sampled.Mixer.Info;
-
-import bluej.Config;
 
 /**
  * Plays sounds from a file or URL. Several sounds can be played at the same
@@ -39,7 +36,6 @@ public class SoundPlayer implements SimulationListener
     private static SoundPlayer instance;
     
     private SoundCache soundCache;
-
     
     /**
      * Only use clips when the size of the clip is below this value.
@@ -49,42 +45,6 @@ public class SoundPlayer implements SimulationListener
     private SoundPlayer()
     {
         soundCache = new SoundCache();
-        new Thread() {
-            public void run() {
-                init();
-            }
-        }.start();
-    }
-
-    /**
-     * Initialize sound player to avoid initial delay when playing sounds. This
-     * is a hack to make it faster on the mac, where there is a bug that makes
-     * it look up some of the classes on the server. Looking up these classes
-     * can take a very long time since they do not exist, so we force them to be
-     * looked up when the scenario is started instead of when the first sound is
-     * played. <p>
-     * The two classes that we have to force loading <p>
-     * com.sun.media.sound.DirectAudioDeviceProvider <p>
-     * com.sun.media.sound.PortMixerProvider
-     */
-    private void init()
-    {
-        if (Config.isMacOS()) {       
-            new Thread("MacAppletAudioHack") {
-                private Info[] mixers;
-                public void run() {
-                    while (true) {
-                        try {
-                            mixers = AudioSystem.getMixerInfo();
-                            Thread.sleep(1000);
-                        }
-                        catch (Throwable ex) {}
-                    }
-                }
-            }.start();            
-        }
-        
-        // create a line and keep it open forever, maybe that will avoid reloading of the classes
     }
 
     public synchronized static SoundPlayer getInstance()
@@ -180,8 +140,6 @@ public class SoundPlayer implements SimulationListener
                 // The sound is small enough to be loaded into memory as a clip.
                 sound = new SoundClip(file, url, SoundPlayer.this);
                 soundCache.put(sound);
-                
-                
                 playingSounds.add(sound);
                 sound.play();
             }
