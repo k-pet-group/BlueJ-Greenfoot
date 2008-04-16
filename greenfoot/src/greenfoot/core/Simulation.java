@@ -7,9 +7,12 @@ import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
+import greenfoot.util.HDTimer;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import javax.swing.event.EventListenerList;
 
@@ -20,14 +23,19 @@ import javax.swing.event.EventListenerList;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  * @version $Id$
  */
-public class Simulation extends Thread implements WorldListener
+public class Simulation extends Thread
+    implements WorldListener
 {
+    // We skip repaints if the simulation is running faster than the
+    // MAX_FRAME_RATE. This makes the high speeds run faster, since we avoid
+    // repaints that can't be seen anyway.
+    private static int MAX_FRAME_RATE = 60;
     private WorldHandler worldHandler;
     private boolean paused;
-    
+
     /** Whether the simulation is enabled (world installed) */
     private boolean enabled;
-    
+
     /** Whether to run one loop when paused */
     private boolean runOnce;
 
@@ -42,11 +50,19 @@ public class Simulation extends Thread implements WorldListener
 
     /** for timing the animation */
     public static final int MAX_SIMULATION_SPEED = 100;
-    private int speed;      // the simulation speed in range (1..100)
-    
+    private int speed; // the simulation speed in range (1..100)
+
     private long lastDelayTime;
-    private int delay;      // the speed translated into delay (ms) per step
-    private boolean sleeping; // true when we are sleeping for delay or pause purposes
+    private long delay; // the speed translated into delay (nanoseconds)
+
+    private long updates; // used for debugging to calculate update rate
+    private long lastUpdate; // used for debugging to calculate update rate
+
+    /**
+     * The last few times at which repaints were requested. These are used to
+     * calculate the frame rate.
+     */
+    private Queue<Long> repaintTimes = new LinkedList<Long>();
 
     /**
      * Create new simulation. Leaves the simulation in paused state
@@ -57,11 +73,11 @@ public class Simulation extends Thread implements WorldListener
     private Simulation()
     {
         this.setName("SimulationThread");
-        speed = 0;
+        speed = 50;
         delay = calculateDelay(speed);
+        HDTimer.init();
     }
 
-    
     public static void initialize(WorldHandler worldHandler)
     {
         instance = new Simulation();
@@ -75,14 +91,12 @@ public class Simulation extends Thread implements WorldListener
         instance.setPriority(Thread.MIN_PRIORITY);
         // instance.setSpeed(50);
         instance.paused = true;
-        instance.sleeping = true;
 
         worldHandler.addWorldListener(instance);
         instance.addSimulationListener(worldHandler);
         instance.start();
     }
 
-    
     /**
      * Returns the simulation if it is initialised. If not, it will return null.
      */
@@ -92,7 +106,7 @@ public class Simulation extends Thread implements WorldListener
     }
 
     // The following methods should run only on the simulation thread itself!
-    
+
     /**
      * Runs the simulation from the current state.
      */
@@ -100,42 +114,54 @@ public class Simulation extends Thread implements WorldListener
     {
         System.gc();
         while (true) {
-            maybePause();
-            
-            World world = worldHandler.getWorld();
-            if (world != null) {
-                WorldVisitor.startSequence(world);
-                runOneLoop();
+            try {
+                maybePause();
+
+                World world = worldHandler.getWorld();
+                if (world != null) {
+                    WorldVisitor.startSequence(world);
+
+                    runOneLoop();
+
+                }
+                delay();
             }
-            delay();
+            catch (ActInterruptedException e) {
+                // Someone interrupted the user code. We ignore it and let
+                // maybePause() handle whatever needs to be done.
+            }
         }
     }
 
     /**
-     * Block if the simulation is paused. This will block until the simulation is resumed.
+     * Block if the simulation is paused. This will block until the simulation
+     * is resumed.
      */
     private synchronized void maybePause()
     {
-        
         if (paused && enabled) {
             fireSimulationEvent(stoppedEvent);
             System.gc();
         }
-        while (paused && ! runOnce) {
-            sleeping = true;
+        while (paused && !runOnce) {
+            // Make sure we repaint before pausing.
+            worldHandler.repaint();
             try {
                 System.gc();
                 this.wait();
             }
-            catch (InterruptedException e1) { }
+            catch (InterruptedException e1) {
+                throw new ActInterruptedException(e1);
+            }
             if (!paused) {
+                synchronized (repaintTimes) {
+                    repaintTimes.clear();
+                }
                 fireSimulationEvent(startedEvent);
             }
-
         }
-        
+
         runOnce = false;
-        sleeping = false;
     }
 
     /**
@@ -148,20 +174,16 @@ public class Simulation extends Thread implements WorldListener
         if (world == null) {
             return;
         }
-        
+
         fireSimulationEvent(newActEvent);
-        
+
         try {
             List<? extends Actor> objects = null;
 
-            // We need to sync, so that the collection is not changed while
-            // copying it (to avoid ConcurrentModificationException)
+            // We need to sync to avoid ConcurrentModificationException
             synchronized (world) {
                 world.act();
-                
-                // We need to copy it, to avoid ConcurrentModificationException
                 objects = new ArrayList<Actor>(WorldVisitor.getObjectsListInActOrder(world));
-
                 for (Actor actor : objects) {
                     if (actor.getWorld() != null) {
                         actor.act();
@@ -169,19 +191,98 @@ public class Simulation extends Thread implements WorldListener
                 }
             }
         }
+        /*
+         * catch (ThreadDeath td) { throw td; }
+         */
+        catch (ActInterruptedException e) {
+            throw e;
+        }
         catch (Throwable t) {
             // If an exception occurs, halt the simulation
             paused = true;
             t.printStackTrace();
         }
-        
-        
-        worldHandler.repaint();
+
+        printUpdateRate(System.nanoTime());
+
+        repaintIfNeeded();
     }
-    
+
+    /**
+     * Repaints the world if needed to obtain the desired frame rate.
+     */
+    private void repaintIfNeeded()
+    {
+        int repaintRate = getRepaintRate();
+        if (repaintRate <= MAX_FRAME_RATE) {
+            worldHandler.repaint();
+
+            synchronized (repaintTimes) {
+                repaintTimes.offer(System.nanoTime());
+            }
+
+            // Yielding here makes sure the WorldCanvas gets a chance to
+            // repaint. It also lets the rest of the UI be responsive, even if
+            // we are running at maximum speed, since we will do a yield at
+            // every repaint. We could maybe speed up things by not yielding
+            // every time, maybe only once per second or so. But that would
+            // probably make the animation less fluid.
+            Thread.yield();
+        }
+    }
+
+    /**
+     * Returns the current repaint rate. Calculated from the time since a
+     * previous repaint and the current time.
+     */
+    private int getRepaintRate()
+    {
+        long currentTime = System.nanoTime();
+        long lastRepaintTime = 0;
+        int knownRepaintTimes = 0;
+        synchronized (repaintTimes) {
+            knownRepaintTimes = repaintTimes.size();
+
+            if (knownRepaintTimes >= 100) {
+                lastRepaintTime = repaintTimes.poll();
+            }
+            else if (knownRepaintTimes > 0) {
+                lastRepaintTime = repaintTimes.peek();
+            }
+        }
+        int timeSinceRepaint = (int) (currentTime - lastRepaintTime);
+        // Avoid divide by zero
+        if (timeSinceRepaint == 0)
+            timeSinceRepaint = 1;
+        int frameRate = (int) ((knownRepaintTimes * 1000000000L) / timeSinceRepaint);
+        return frameRate;
+    }
+
+    /**
+     * Debug output to print the rate at which updates are performed
+     * (acts/second).
+     */
+    private void printUpdateRate(long currentTime)
+    {
+        updates++;
+
+        long timeSinceUpdate = currentTime - lastUpdate;
+        if (timeSinceUpdate > 3000000000L) {
+            lastUpdate = currentTime;
+            if (timeSinceUpdate == 0) {
+                System.out.println("Update rate: INFINITE");
+            }
+            else {
+                long updateRate = (updates * 1000000000L) / timeSinceUpdate;
+                System.out.println("Update rate: " + updateRate);
+            }
+
+            updates = 0;
+        }
+    }
 
     // Public methods etc.
-    
+
     /**
      * Run one step of the simulation. Each actor in the world acts once.
      */
@@ -192,7 +293,7 @@ public class Simulation extends Thread implements WorldListener
         runOnce = true;
         notifyAll();
     }
-    
+
     /**
      * Pauses and unpauses the simulation.
      */
@@ -201,9 +302,18 @@ public class Simulation extends Thread implements WorldListener
         if (enabled) {
             paused = b;
             notifyAll();
+            // Interrupt thread.
+            instance.interrupt();
+
+            // TODO: check if the thread is still running now, we should force
+            // it to quit. Maybe using the deprecated stop() and then restarting
+            // the thread. Maybe making sim a runnable instead of thread and
+            // then creating a new thread and start that.
+            // instance.stop();
+            // reinit
         }
     }
-    
+
     /**
      * Enable or disable the simulation.
      */
@@ -211,7 +321,7 @@ public class Simulation extends Thread implements WorldListener
     {
         if (enabled != b) {
             enabled = b;
-            if (! enabled) {
+            if (!enabled) {
                 paused = true;
                 fireSimulationEvent(disabledEvent);
             }
@@ -246,22 +356,23 @@ public class Simulation extends Thread implements WorldListener
     {
         listenerList.add(SimulationListener.class, l);
     }
-    
+
     /**
      * Remove a simulationListener to listen for changes.
      * 
-     * @param l  Listener to remove
+     * @param l
+     *            Listener to remove
      */
     public void removeSimulationListener(SimulationListener l)
     {
         listenerList.remove(SimulationListener.class, l);
     }
-    
-    
+
     /**
      * Set the speed of the simulation.
-     *
-     * @param speed  The speed in the range (0..100)
+     * 
+     * @param speed
+     *            The speed in the range (0..100)
      */
     public void setSpeed(int speed)
     {
@@ -272,9 +383,13 @@ public class Simulation extends Thread implements WorldListener
             speed = MAX_SIMULATION_SPEED;
         }
 
-        if(this.speed != speed) {
+        if (this.speed != speed) {
             this.speed = speed;
             this.delay = calculateDelay(speed);
+
+            synchronized (repaintTimes) {
+                repaintTimes.clear();
+            }
             fireSimulationEvent(speedChangeEvent);
         }
     }
@@ -282,16 +397,31 @@ public class Simulation extends Thread implements WorldListener
     /**
      * Returns the delay as a function of the speed.
      * 
+     * @return The delay in nanoseconds.
      */
-    private int calculateDelay(int speed)
+    private long calculateDelay(int speed)
     {
-        return (MAX_SIMULATION_SPEED - speed) * 4;
+        // Make the speed into a delay
+        long rawDelay = MAX_SIMULATION_SPEED - speed;
+
+        long min = 30 * 1000L; // Delay at MAX_SIMULATION_SPEED - 1
+        long max = 500 * 1000L * 1000L; // Delay at slowest speed
+
+        double a = Math.pow(max / (double) min, 1D / (MAX_SIMULATION_SPEED - 1));
+        long delay = 0;
+        if (rawDelay > 0) {
+            delay = (long) (Math.pow(a, rawDelay - 1) * min);
+        }
+
+        System.out.println("raw: " + rawDelay + "   delay: " + delay / 1000000.);
+
+        return delay;
     }
-    
-    
+
     /**
      * Get the current simulation speed.
-     * @return  The speed in the range (1..100)
+     * 
+     * @return The speed in the range (1..100)
      */
     public int getSpeed()
     {
@@ -306,33 +436,24 @@ public class Simulation extends Thread implements WorldListener
     public void sleep()
     {
         World world = WorldHandler.getInstance().getWorld();
-        
+
         try {
             if (world != null) {
                 // The WorldCanvas may be trying to synchronize on the world in
-                // order to do a repaint. So, we use world.wait() here in order to
-                // release the world lock temporarily.
-                
-                long beginTime = System.currentTimeMillis();
-                long currentTime = System.currentTimeMillis();
-                while (currentTime - beginTime < delay) {
-                    synchronized (world) {
-                        world.wait(beginTime + delay - currentTime);
-                    }
-                    currentTime = System.currentTimeMillis();
-                }
+                // order to do a repaint. So, we use wait() here in order
+                // to release the world lock temporarily.
+                HDTimer.wait(delay, world);
             }
             else {
                 // shouldn't really happen
-                Thread.sleep(delay);
+                HDTimer.sleep(delay);
             }
         }
         catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new ActInterruptedException(e);
         }
     }
-    
+
     /**
      * Cause a delay (wait) according to the current speed setting for this
      * simulation. It will take the time spend in this simulation loop into
@@ -343,38 +464,48 @@ public class Simulation extends Thread implements WorldListener
     private void delay()
     {
         try {
-            long timeElapsed = System.currentTimeMillis() - this.lastDelayTime;
+            long timeElapsed = System.nanoTime() - this.lastDelayTime;
             long actualDelay = delay - timeElapsed;
-            if (actualDelay > 0) {
-                synchronized (this) {
-                    sleeping = true;
-                }
-                Thread.sleep(delay - timeElapsed);
-                synchronized (this) {
-                    sleeping = false;
-                }
-            } else {
-               // Thread.yield();
+
+            // It is not possible to go back in time, so don't try it!
+            if (actualDelay < 0) {
+                actualDelay = 0;
             }
-            this.lastDelayTime = System.currentTimeMillis();
+
+            // This is the time at which the delay should be over. Instead of
+            // setting this after the sleep() we do it here, so that the bad
+            // precision of sleep() will not have too big an impact.
+            this.lastDelayTime = System.nanoTime() + actualDelay;
+
+            if (actualDelay > 0) {
+                HDTimer.sleep(actualDelay);
+            }
+            else {
+                // If we get to this point, it means that we have trouble
+                // keeping up with chosen speed, and that we are probably
+                // starving the CPU. Running at full speed means infinite speed
+                // and hence we will always end here when running at full speed.
+            }
         }
         catch (InterruptedException e) {
+            throw new ActInterruptedException(e);
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
     // ---------- WorldListener interface -----------
-    
+
     /**
-     * A new world was created - we're ready to go.
-     * Enable the simulation functions.
+     * A new world was created - we're ready to go. Enable the simulation
+     * functions.
      */
     public void worldCreated(WorldEvent e)
     {
         setEnabled(true);
     }
 
-    
     /**
      * The world was removed - disable the simulation functions.
      */
@@ -382,21 +513,7 @@ public class Simulation extends Thread implements WorldListener
     {
         setEnabled(false);
     }
-    
+
     // ----------- End of WorldListener interface -------------
-    
-    /**
-     * Check whether the simulation is running and the delay time has expired.
-     * This is an indication that the simulation thread is being starved for
-     * CPU time.
-     */
-    private boolean hasSleepTimeExpired()
-    {
-        if (paused || ! enabled) {
-            return false;
-        }
-            
-        return (lastDelayTime + delay < System.currentTimeMillis());
-    }
 
 }

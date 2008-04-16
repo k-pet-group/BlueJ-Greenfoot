@@ -31,7 +31,7 @@ import bluej.Config;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 5634 2008-03-06 12:40:45Z polle $
+ * @version $Id: ControlPanel.java 5676 2008-04-16 16:51:38Z polle $
  */
 public class ControlPanel extends Box
     implements ChangeListener, SimulationListener
@@ -145,7 +145,6 @@ public class ControlPanel extends Box
         speedSlider.setMajorTickSpacing( max / 2);
         speedSlider.setMinorTickSpacing( max / 4);
         speedSlider.setPaintTicks(true);
-        speedSlider.setValue( max / 2 );
         speedSlider.setEnabled(false);
         speedSlider.addChangeListener(this);
         speedSlider.setToolTipText(Config.getString("controls.speedSlider.tooltip"));

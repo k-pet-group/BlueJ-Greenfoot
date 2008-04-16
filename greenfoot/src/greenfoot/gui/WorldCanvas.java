@@ -28,7 +28,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldCanvas.java 5663 2008-04-04 13:18:18Z polle $
+ * @version $Id: WorldCanvas.java 5676 2008-04-16 16:51:38Z polle $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -41,6 +41,8 @@ public class WorldCanvas extends JPanel
     private Point dragLocation;
     /** Image used when dragging new actors on the world. Includes the drop shadow.*/
     private BufferedImage dragImage;
+    private long lastRepaint; // For debugging
+    private long paints;// For debugging
 
     public WorldCanvas(World world)
     {
@@ -108,7 +110,9 @@ public class WorldCanvas extends JPanel
     }
 
     public void paintComponent(Graphics g)
-    {
+    {          
+        printRepaintRate();
+        
         super.paintComponent(g);
         if (world == null) {
             return;
@@ -118,6 +122,26 @@ public class WorldCanvas extends JPanel
         paintDraggedObject(g);
         
         WorldVisitor.paintDebug(world, g);
+    }
+
+
+    /**
+     * Prints the rate at which repaints are made.
+     */
+    private void printRepaintRate()
+    {
+        paints++;
+        long currentTime = System.currentTimeMillis();
+        int timeElpased = (int) (currentTime - lastRepaint);
+     
+        if (timeElpased > 3000) {
+            if (timeElpased == 0)
+                timeElpased = 0;
+            int rate = (int) (paints * 1000L / timeElpased);
+            System.out.println("Repaint rate: " + rate);
+            lastRepaint = currentTime;
+            paints = 0;
+        }
     }
 
     /**
