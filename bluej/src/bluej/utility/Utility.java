@@ -1,11 +1,19 @@
 package bluej.utility;
 
+import java.awt.AWTException;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.PointerInfo;
+import java.awt.Robot;
 import java.awt.Shape;
+import java.awt.Window;
+import java.awt.event.InputEvent;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -15,16 +23,17 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.AbstractButton;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
 import bluej.Config;
 
 /**
  * Some generally useful utility methods available to all of bluej.
- *
- * @author  Michael Cahill
- * @author  Michael Kolling
- * @version $Id: Utility.java 5594 2008-02-25 14:26:15Z mik $
+ * 
+ * @author Michael Cahill
+ * @author Michael Kolling
+ * @version $Id: Utility.java 5682 2008-04-17 23:57:03Z polle $
  */
 public class Utility
 {
@@ -32,14 +41,14 @@ public class Utility
      * Used to track which events have occurred for firstTimeThisRun()
      */
     private static Set occurredEvents = new HashSet();
-    
+
     /**
      * Draw a thick rectangle - another of the things missing from the AWT
      */
     public static void drawThickRect(Graphics g, int x, int y, int width, int height, int thickness)
     {
-        for(int i = 0; i < thickness; i++)
-            g.drawRect(x + i, y + i, width - 2*i, height - 2*i);
+        for (int i = 0; i < thickness; i++)
+            g.drawRect(x + i, y + i, width - 2 * i, height - 2 * i);
     }
 
     /**
@@ -47,27 +56,37 @@ public class Utility
      */
     public static void stripeRect(Graphics g, int x, int y, int width, int height, int separation, int thickness)
     {
-        for(int offset = 0; offset < width + height; offset += separation)
-            for(int i = 0; i < thickness; i++, offset++) {
+        for (int offset = 0; offset < width + height; offset += separation)
+            for (int i = 0; i < thickness; i++, offset++) {
                 int x1, y1, x2, y2;
 
-                if(offset < height)
-                    { x1 = x; y1 = y + offset; }
-                else
-                    { x1 = x + offset - height; y1 = y + height; }
+                if (offset < height) {
+                    x1 = x;
+                    y1 = y + offset;
+                }
+                else {
+                    x1 = x + offset - height;
+                    y1 = y + height;
+                }
 
-                if(offset < width)
-                    { x2 = x + offset; y2 = y; }
-                else
-                    { x2 = x + width; y2 = y + offset - width; }
+                if (offset < width) {
+                    x2 = x + offset;
+                    y2 = y;
+                }
+                else {
+                    x2 = x + width;
+                    y2 = y + offset - width;
+                }
 
                 g.drawLine(x1, y1, x2, y2);
             }
     }
 
     /**
-     * Draw a string at a given location on screen centered in a given rectangle.<br>
-     * Left justifies the string if it is too long to fit all of the string inside the rectangle.
+     * Draw a string at a given location on screen centered in a given
+     * rectangle.<br>
+     * Left justifies the string if it is too long to fit all of the string
+     * inside the rectangle.
      */
     public static void drawCentredText(Graphics g, String str, int x, int y, int width, int height)
     {
@@ -75,9 +94,9 @@ public class Utility
 
         Shape oldClip = g.getClip();
         g.clipRect(x, y, width, height);
-        int xOffset = (width - fm.stringWidth(str)) / 2;        
-        if(xOffset<0) {            
-            xOffset=0;
+        int xOffset = (width - fm.stringWidth(str)) / 2;
+        if (xOffset < 0) {
+            xOffset = 0;
         }
         int yOffset = (height + fm.getAscent()) / 2;
         g.drawString(str, x + xOffset, y + yOffset);
@@ -85,7 +104,8 @@ public class Utility
     }
 
     /**
-     * Draw a string at a given location on screen right-aligned in a given rectangle.
+     * Draw a string at a given location on screen right-aligned in a given
+     * rectangle.
      */
     public static void drawRightText(Graphics g, String str, int x, int y, int width, int height)
     {
@@ -93,33 +113,35 @@ public class Utility
 
         Shape oldClip = g.getClip();
         g.clipRect(x, y, width, height);
-        g.drawString(str, x + width - fm.stringWidth(str),
-                     y + (height + fm.getAscent()) / 2);
+        g.drawString(str, x + width - fm.stringWidth(str), y + (height + fm.getAscent()) / 2);
         g.setClip(oldClip);
     }
 
     /**
      * Splits "string" by "Delimiter"
-     * @param str - the string to be split
-     * @param delimiter - the field delimiter within str
-     * @returns	an array of Strings
+     * 
+     * @param str -
+     *            the string to be split
+     * @param delimiter -
+     *            the field delimiter within str
+     * @returns an array of Strings
      */
     public static String[] split(String str, String delimiter)
     {
         List strings = new ArrayList();
-        int	start = 0;
+        int start = 0;
         int len = str.length();
         int dlen = delimiter.length();
-        int offset = str.lastIndexOf(delimiter);		// First of all, find the
+        int offset = str.lastIndexOf(delimiter); // First of all, find the
         // Last occurance of the Delimiter
         // Stop empty delimiters
         if (dlen < 1)
-	    return null;
-        else if(offset < 0)	 // one element
-	    {
-            String[] result = { str };
+            return null;
+        else if (offset < 0) // one element
+        {
+            String[] result = {str};
             return result;
-	    }
+        }
 
         //
         // Append the delimiter onto the end if it doesn't already exit
@@ -131,8 +153,8 @@ public class Utility
 
         do {
             // Get the new Offset
-            offset = str.indexOf(delimiter,start);
-            strings.add(str.substring(start,offset));
+            offset = str.indexOf(delimiter, start);
+            strings.add(str.substring(start, offset));
 
             // Get the new Start position
             start = offset + dlen;
@@ -146,8 +168,10 @@ public class Utility
 
     /**
      * Splits "string" into lines (stripping end-of-line characters)
-     * @param str - the string to be split
-     * @returns	an array of Strings
+     * 
+     * @param str -
+     *            the string to be split
+     * @returns an array of Strings
      */
     public static String[] splitLines(String str)
     {
@@ -155,16 +179,15 @@ public class Utility
     }
 
     /**
-     * Return a string in which all the quotable characters (tab, newline, ' and ", etc)
-     * are quoted, Java-style. 
+     * Return a string in which all the quotable characters (tab, newline, ' and ",
+     * etc) are quoted, Java-style.
      */
     public static String quoteString(String src)
     {
         StringBuffer buf = new StringBuffer();
 
-        for(int i = 0; i < src.length(); i++)
-        {
-            char c = src.charAt(i);    
+        for (int i = 0; i < src.length(); i++) {
+            char c = src.charAt(i);
             if (c == '\n')
                 buf.append("\\n");
             else if (c == '\r')
@@ -172,15 +195,15 @@ public class Utility
             else if (c == '\t')
                 buf.append("\\g");
             else if (c < 32 || c > 128) {
-                    // Character is outside normal ASCII range, output it as unicode
-                    // escape sequence.
-                    String n = Integer.toHexString(c);
-                    n = "0000".substring(n.length()) + n;
-                    buf.append("\\u");
-                    buf.append(n);
+                // Character is outside normal ASCII range, output it as unicode
+                // escape sequence.
+                String n = Integer.toHexString(c);
+                n = "0000".substring(n.length()) + n;
+                buf.append("\\u");
+                buf.append(n);
             }
             else {
-                if(c == '\\' || c == '"' || c == '\'')
+                if (c == '\\' || c == '"' || c == '\'')
                     buf.append('\\');
                 buf.append(src.charAt(i));
             }
@@ -190,56 +213,57 @@ public class Utility
     }
 
     /**
-     * Translate a given, qualified class name into a URL where we believe
-     * its documentation to be, and display that URL in a web browser.
+     * Translate a given, qualified class name into a URL where we believe its
+     * documentation to be, and display that URL in a web browser.
      */
     public static void showClassDocumentation(String classname, String suffix)
     {
         classname = classname.replace('.', '/');
         String docURL = Config.getPropString("bluej.url.javaStdLib");
-        if(docURL.endsWith(".html")) {
+        if (docURL.endsWith(".html")) {
             int lastSlash = docURL.lastIndexOf('/');
-            if(lastSlash != -1)
-                docURL = docURL.substring(0, lastSlash+1);
+            if (lastSlash != -1)
+                docURL = docURL.substring(0, lastSlash + 1);
         }
-        //Debug.message(docURL + classname + ".html" + suffix);
+        // Debug.message(docURL + classname + ".html" + suffix);
         openWebBrowser(docURL + classname + ".html" + suffix);
     }
 
     /**
      * Let the given URL be shown in a browser window.
-     * @param  url  the URL or file path to be shown.
+     * 
+     * @param url
+     *            the URL or file path to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
     public static boolean openWebBrowser(String url)
     {
-        if(Config.isWinOS()) {                 // Windows
+        if (Config.isWinOS()) { // Windows
 
             String cmd;
             // catering for stupid differences in Windows shells...
-            if(Config.osname.startsWith("Windows 9") || Config.osname.equals("Windows Me"))    // win95/98/Me
+            if (Config.osname.startsWith("Windows 9") || Config.osname.equals("Windows Me")) // win95/98/Me
                 cmd = "command.com";
-            else                                                        // other
+            else
+                // other
                 cmd = "cmd.exe";
 
             try {
                 // more stupid Windows differences...
-                if(Config.osname.startsWith("Windows 98") || Config.osname.equals("Windows Me")) {
-                    Runtime.getRuntime().exec(
-                         new String[] { cmd, "/c", "start", '"' + url + '"' });
+                if (Config.osname.startsWith("Windows 98") || Config.osname.equals("Windows Me")) {
+                    Runtime.getRuntime().exec(new String[]{cmd, "/c", "start", '"' + url + '"'});
                 }
                 else {
-                    Runtime.getRuntime().exec(
-                        new String[] { cmd, "/c", "start", "\"\"", '"' + url + '"' });
+                    Runtime.getRuntime().exec(new String[]{cmd, "/c", "start", "\"\"", '"' + url + '"'});
                 }
             }
-            catch(IOException e) {
+            catch (IOException e) {
                 Debug.reportError("could not start web browser. exc: " + e);
                 return false;
             }
         }
-        else {                                                      // Mac, Unix and other
-        
+        else { // Mac, Unix and other
+
             // The string should be either a URL or a file path
             try {
                 return openWebBrowser(new URL(url));
@@ -247,29 +271,31 @@ public class Utility
             catch (MalformedURLException mfue) {
                 return openWebBrowser(new File(url));
             }
-            
+
         }
         return true;
     }
-    
+
     /**
      * Let the given URL be shown in a browser window.
-     * @param url the URL to be shown.
+     * 
+     * @param url
+     *            the URL to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
     public static boolean openWebBrowser(URL url)
     {
-        if(Config.isMacOS()) {
+        if (Config.isMacOS()) {
             // Mac
             try {
                 com.apple.eio.FileManager.openURL(url.toString());
             }
-            catch(IOException e) {
+            catch (IOException e) {
                 Debug.reportError("could not start web browser. exc: " + e);
                 return false;
             }
         }
-        else if(Config.isWinOS()) {
+        else if (Config.isWinOS()) {
             // Windows
             return openWebBrowser(url.toString());
         }
@@ -278,7 +304,7 @@ public class Utility
             if (JavaUtils.getJavaUtils().openWebBrowser(url)) {
                 return true;
             }
-            
+
             String cmd = mergeStrings(Config.getPropString("browserCmd1"), url.toString());
             String cmd2 = mergeStrings(Config.getPropString("browserCmd2"), url.toString());
 
@@ -286,7 +312,7 @@ public class Utility
             try {
                 p = Runtime.getRuntime().exec(cmd);
             }
-            catch(IOException e) {
+            catch (IOException e) {
                 try {
                     p = Runtime.getRuntime().exec(cmd2);
                     cmd2 = null;
@@ -296,7 +322,7 @@ public class Utility
                     return false;
                 }
             }
-            
+
             final String command2 = cmd2;
             final Process process = p;
             new Thread() {
@@ -310,8 +336,9 @@ public class Utility
     }
 
     /**
-     * Wait for the given process to finish, try running the second command
-     * if it returns false.
+     * Wait for the given process to finish, try running the second command if
+     * it returns false.
+     * 
      * @param p
      * @param url
      * @param cmd2
@@ -323,7 +350,7 @@ public class Utility
             // we try second command
             int exitCode = p.waitFor();
 
-            if(exitCode != 0 && cmd2 != null && cmd2.length() > 0) {
+            if (exitCode != 0 && cmd2 != null && cmd2.length() > 0) {
                 p = Runtime.getRuntime().exec(cmd2);
             }
         }
@@ -336,18 +363,20 @@ public class Utility
             Debug.reportError("caught exc " + ioe);
         }
     }
-    
+
     /**
      * Let the given file be shown in a browser window.
-     * @param file the file to be shown.
+     * 
+     * @param file
+     *            the file to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
     public static boolean openWebBrowser(File file)
     {
-        if(Config.isWinOS()) {            // Windows
+        if (Config.isWinOS()) { // Windows
             return openWebBrowser(file.toString());
         }
-        else {                                               // Mac, Unix and other
+        else { // Mac, Unix and other
             try {
                 return openWebBrowser(file.toURI().toURL());
             }
@@ -362,22 +391,39 @@ public class Utility
      * Bring the current process to the front in the OS window stacking order.
      * Curently: only implemented for MacOS.
      */
-    public static void bringToFront()
+    public static void bringToFront(final Window window)
     {
-        // This method implementation could be replaced by the following, once we use 1.5:
-        
-        //frame.setVisible(true); // necessary and idiomatically correct
-        //frame.setAlwaysOnTop(true); // This brings it to the top immediately
-        //frame.setAlwaysOnTop(false); // Oh no, I actually did not want
+        // We assume that alwaysOnTop is supported since we can't find out on
+        // Java 5
+        boolean alwaysOnTopSupported = true;
 
-        if(Config.isMacOS()) {
-            
-            
+        // If we are on Java 6 we can actually check if alwaysOnTop is
+        // supported:
+        if (Config.isJava16()) {
+            // The following executes the Java 6 method
+            // frame.isAlwaysOnTopSupported(). It does so by using reflection so
+            // that it compiles on Java 5.
+            Class<? extends Window> cls = window.getClass();
+
+            try {
+                Method m = cls.getMethod("isAlwaysOnTopSupported", (Class[]) null);
+                Boolean result = (Boolean) m.invoke(window);
+                alwaysOnTopSupported = result;
+            }
+            catch (Exception e) {
+            	Debug.reportError("Invoking alwaysOnTopSupported() failed in Utility.bringToFront().");
+            }
+        }
+
+        if (Config.isMacOS() && !Config.isJava16()) {
             // The following code executes these calls:
-            //    NSApplication app = NSApplication.sharedApplication();
-            //    app.activateIgnoringOtherApps(true);
-            // but does so by reflection so that this compiles on non-Apple machines.
-            
+            // NSApplication app = NSApplication.sharedApplication();
+            // app.activateIgnoringOtherApps(true);
+            // but does so by reflection so that this compiles on non-Apple
+            // machines.
+
+            // Although there is a cross platform hack to do the same, we still
+            // use the Mac specific code, because it is a less nasty hack.
             try {
                 Class nsapp = null;
                 try {
@@ -390,75 +436,125 @@ public class Utility
                     nsapp = Class.forName("com.apple.cocoa.application.NSApplication", true, new URLClassLoader(
                             new URL[]{new File("/System/Library/Java/").toURI().toURL()}));
                 }
-                java.lang.reflect.Method sharedApp = nsapp.getMethod("sharedApplication", (Class[])null);
-                Object obj = sharedApp.invoke(null, (Object[])null);
-                
-                Class[] param = { boolean.class };
+                java.lang.reflect.Method sharedApp = nsapp.getMethod("sharedApplication", (Class[]) null);
+                Object obj = sharedApp.invoke(null, (Object[]) null);
+
+                Class[] param = {boolean.class};
                 java.lang.reflect.Method act = nsapp.getMethod("activateIgnoringOtherApps", param);
-                Object[] args = { Boolean.TRUE };
+                Object[] args = {Boolean.TRUE};
                 act.invoke(obj, args);
             }
-            catch(Exception exc) {
+            catch (Exception exc) {
                 Debug.reportError("Bringing process to front failed (MacOS).");
             }
         }
+        else if (alwaysOnTopSupported && window.isShowing()) {
+            // This should work cross platform, but is a very nasty hack, so we
+            // only do it if alwaysOnTop is supported.
+            SwingUtilities.invokeLater(new Thread() {
+                public void run()
+                {
+                    if (!window.isVisible()) {
+                        // necessary and idiomatically correct
+                        window.setVisible(true);
+                    }
+                    // Bring the frame to the top (will not give it focus)
+                    window.setAlwaysOnTop(true);
 
-//            alternative technique: using 'open command. works only for BlueJ.app, not for remote VM            
-//            // first, find the path of BlueJ.app
-//            String path = getClass().getResource("PkgMgrFrame.class").getPath();
-//            int index = path.indexOf("BlueJ.app");
-//            if(index != -1) {
-//                path = path.substring(0, index+9);
-//                // once we found it, call 'open' on it to bring it to front.
-//                String[] openCmd = { "open", path };
-//                Runtime.getRuntime().exec(openCmd);
-//            }
-            
-        
+                    // Fake a click on the frame so that it gets the focus.
+                    //
+                    // This assumes that the frame is the top most frame, which
+                    // is not necessarily the case if there are other
+                    // alwaysOnTop windows - but it is a fair attempt.
+                    try {
+                        Robot r = new Robot();
+
+                        // Get the current location of the mouse pointer and
+                        // store it
+                        PointerInfo pointerInfo = MouseInfo.getPointerInfo();
+                        Point oldPoint = pointerInfo.getLocation();
+
+                        // Move mouse cursor to the top middle of the frame
+                        Point p = window.getLocationOnScreen();
+                        int width = window.getWidth();
+                        r.mouseMove((int) p.getX() + width / 2, (int) p.getY());
+
+                        // Click
+                        r.mousePress(InputEvent.BUTTON1_MASK);
+                        r.mouseRelease(InputEvent.BUTTON1_MASK);
+
+                        // Move the mouse cursor back to the original location
+                        r.mouseMove((int) oldPoint.getX(), (int) oldPoint.getY());
+                    }
+                    catch (AWTException e) {
+                        Debug.reportError("Bringing process to front failed (cross platform).");
+                    }
+
+                    // Oh no, I actually did not want this
+                    window.setAlwaysOnTop(false);
+                }
+            });
         }
+
+        // alternative technique: using 'open command. works only for BlueJ.app,
+        // not for remote VM
+        // // first, find the path of BlueJ.app
+        // String path = getClass().getResource("PkgMgrFrame.class").getPath();
+        // int index = path.indexOf("BlueJ.app");
+        // if(index != -1) {
+        // path = path.substring(0, index+9);
+        // // once we found it, call 'open' on it to bring it to front.
+        // String[] openCmd = { "open", path };
+        // Runtime.getRuntime().exec(openCmd);
+        // }
+
+    }
 
     /**
      * merge s2 into s1 at position of first '$'
      */
-    public static String mergeStrings (String s1, String s2)
+    public static String mergeStrings(String s1, String s2)
     {
         int pos = s1.indexOf('$');
-        if(pos == -1)
+        if (pos == -1)
             return s1;
         else
-            return s1.substring(0,pos) + s2 + s1.substring(pos+1);
+            return s1.substring(0, pos) + s2 + s1.substring(pos + 1);
     }
 
     /**
      * merge strings in s2 into s1 at positions of '$'
      */
-    public static String mergeStrings (String s1, String s2[]) {
-	    for (int current = 0; current < s2.length; current++) {
-		    s1 = mergeStrings(s1, s2[current]);
-	    }
+    public static String mergeStrings(String s1, String s2[])
+    {
+        for (int current = 0; current < s2.length; current++) {
+            s1 = mergeStrings(s1, s2[current]);
+        }
 
-	    return s1;
+        return s1;
     }
 
     /**
-     * Converts tabs in a String into a specified number of spaces.  It assumes
+     * Converts tabs in a String into a specified number of spaces. It assumes
      * that beginning of String is the starting point of tab offsets.
-     *
-     * @param original the String to convert
-     * @param tabSize number of spaces to be inserted in place of tab
+     * 
+     * @param original
+     *            the String to convert
+     * @param tabSize
+     *            number of spaces to be inserted in place of tab
      * @return the String with spaces replacing tabs (if tabs present).
      */
     public static String convertTabsToSpaces(String originalString, int tabSize)
     {
         // if there are tab(s) in the String
-        if(originalString.indexOf('\t') != -1) {
+        if (originalString.indexOf('\t') != -1) {
             StringBuffer buffer = new StringBuffer(originalString);
-            for(int i = 0; i < buffer.length(); i++) {
-                if(buffer.charAt(i) == '\t') {
+            for (int i = 0; i < buffer.length(); i++) {
+                if (buffer.charAt(i) == '\t') {
                     buffer.deleteCharAt(i);
                     // calculate how many spaces to add
                     int numberOfSpaces = tabSize - (i % tabSize);
-                    for(int j = 0; j < numberOfSpaces; j++)
+                    for (int j = 0; j < numberOfSpaces; j++)
                         buffer.insert(i, ' ');
                 }
             }
@@ -472,26 +568,29 @@ public class Utility
      * Check if this is the first time a particular event (identified by the
      * context string) has occurred during this run of BlueJ.
      * 
-     * @param context  Identifies the event (suggested: fully-qualified-class-name:event-id)
-     * @return  true the first time the method was called with the given context; false
-     *          every subsequent time.
+     * @param context
+     *            Identifies the event (suggested:
+     *            fully-qualified-class-name:event-id)
+     * @return true the first time the method was called with the given context;
+     *         false every subsequent time.
      */
     public static boolean firstTimeThisRun(String context)
     {
         if (occurredEvents.contains(context))
             return false;
-        
+
         occurredEvents.add(context);
         return true;
     }
-    
+
     /**
      * Check if this is the first time a particular event (identified by the
      * context string) has occurred "ever" (in this BlueJ installation).
      * 
-     * @param context  Identifies the event (a property name)
-     * @return  true the first time the method was called with the given context; false
-     *          every subsequent time.
+     * @param context
+     *            Identifies the event (a property name)
+     * @return true the first time the method was called with the given context;
+     *         false every subsequent time.
      */
     public static boolean firstTimeEver(String context)
     {
@@ -499,16 +598,17 @@ public class Utility
         if (occurred) {
             return false;
         }
-        
+
         Config.putPropBoolean(context, true);
         return true;
     }
-    
+
     /**
      * This method creates a MacOS button. It will create a "textured" button on
      * MacOS 10.5 and newer and a "toolbar" button on older MasOS.
      * 
-     * @param button The button that should be changed. 
+     * @param button
+     *            The button that should be changed.
      */
     public static void changeToMacButton(AbstractButton button)
     {
@@ -517,15 +617,14 @@ public class Utility
         // segmented styles:
         // segmented, segmentedRoundRect, segmentedCapsule, segmentedTextured
         // see: http://developer.apple.com/technotes/tn2007/tn2196.html
-        
+
         Border oldBorder = button.getBorder();
-        
+
         // the following works since MacOS 10.5
-      
+
         button.putClientProperty("JButton.buttonType", "square");
         button.setMargin(new Insets(8, 8, 8, 8));
-       // button.putClientProperty("JButton.segmentPosition", position);
-
+        // button.putClientProperty("JButton.segmentPosition", position);
 
         if (oldBorder == button.getBorder()) {
             // if the border didn't change the "textured" type probably doesn't
@@ -534,5 +633,5 @@ public class Utility
             button.putClientProperty("JButton.buttonType", "toolbar");
         }
     }
-    
+
 }

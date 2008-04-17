@@ -333,8 +333,8 @@ public final class MoeEditor extends JFrame
             checkBracketStatus();
             setState(Frame.NORMAL);         // de-iconify
             toFront();                      // window to front
+            Utility.bringToFront(this);            
         }
-        Utility.bringToFront();
         super.setVisible(vis);              // show the window
     }
 

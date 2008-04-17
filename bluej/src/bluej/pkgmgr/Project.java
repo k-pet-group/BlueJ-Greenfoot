@@ -9,6 +9,8 @@ import java.net.URL;
 import java.util.*;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+
 import java.awt.Window;
 
 import bluej.BlueJEvent;
@@ -54,7 +56,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 5529 2008-02-04 04:39:56Z davmac $
+ * @version $Id: Project.java 5682 2008-04-17 23:57:03Z polle $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -81,7 +83,7 @@ public class Project implements DebuggerListener, InspectorManager
       (indexed by the qualifiedName of the package).
        The unnamed package ie root package of the package tree
        can be obtained by retrieving "" from this collection */
-    private Map packages;
+    private Map<String, Package> packages;
 
     /** the debugger for this project */
     private Debugger debugger;
@@ -141,7 +143,7 @@ public class Project implements DebuggerListener, InspectorManager
 
         this.projectDir = projectDir;
         inspectors = new HashMap();
-        packages = new TreeMap();
+        packages = new TreeMap<String, Package>();
 
         try {
             packages.put("", new Package(this));
@@ -688,7 +690,7 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public Package getPackage(String qualifiedName)
     {
-        Package existing = (Package) packages.get(qualifiedName);
+        Package existing = packages.get(qualifiedName);
 
         if (existing != null) {
             // The unnamed package is always already open, so that case is
@@ -749,7 +751,7 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public Package getCachedPackage(String qualifiedName)
     {
-        return (Package) packages.get(qualifiedName);
+        return packages.get(qualifiedName);
     }
 
     /**
@@ -813,7 +815,7 @@ public class Project implements DebuggerListener, InspectorManager
             return NEW_PACKAGE_BAD_NAME;
         }
 
-        Package existing = (Package) packages.get(qualifiedName);
+        Package existing = packages.get(qualifiedName);
 
         if (existing != null) {
             return NEW_PACKAGE_EXIST;
@@ -921,7 +923,7 @@ public class Project implements DebuggerListener, InspectorManager
 
     public void saveAllEditors()
     {
-    	Iterator i = packages.values().iterator();
+    	Iterator<Package> i = packages.values().iterator();
 
         while(i.hasNext()) {
             Package pkg = (Package) i.next();
@@ -938,7 +940,7 @@ public class Project implements DebuggerListener, InspectorManager
      * Make all the Packages in this project save their graphlayout
      */
     public void saveAllGraphLayout(){
-    	Iterator i = packages.values().iterator();
+    	Iterator<Package> i = packages.values().iterator();
  
         while(i.hasNext()) {
             Package pkg = (Package) i.next();
@@ -953,7 +955,7 @@ public class Project implements DebuggerListener, InspectorManager
      * of the project directory ie an import.
      */
     public void reloadAll() {
-        Iterator i = packages.values().iterator();
+        Iterator<Package> i = packages.values().iterator();
 
         while (i.hasNext()) {
             Package pkg = (Package) i.next();
@@ -968,7 +970,7 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public void clearAllSelections()
     {
-    	Iterator i = packages.values().iterator();
+    	Iterator<Package> i = packages.values().iterator();
 
         while(i.hasNext()) {
             Package pkg = (Package) i.next();
@@ -1078,12 +1080,18 @@ public class Project implements DebuggerListener, InspectorManager
     private void vmReady()
     {
         BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_DONE, null);
-        Utility.bringToFront();  // only works on MacOS currently
-
-        Iterator i = packages.values().iterator();
+        
+        Package pkg = null;
+        Iterator<Package> i = packages.values().iterator();
         while (i.hasNext()) {
-            Package pkg = (Package) i.next();
-            pkg.reInitBreakpoints();
+            pkg = (Package) i.next();
+            pkg.reInitBreakpoints();           
+        }
+        if(pkg != null) {
+            Window w = SwingUtilities.getWindowAncestor(pkg.getEditor());
+            if(w != null) {
+                Utility.bringToFront(w); 
+            }
         }
     }
 
@@ -1162,7 +1170,7 @@ public class Project implements DebuggerListener, InspectorManager
     {
         getDebugger().newClassLoader(getClassLoader());
 
-        Iterator i = packages.values().iterator();
+        Iterator<Package> i = packages.values().iterator();
         while (i.hasNext()) {
             Package pkg = (Package) i.next();
             pkg.reInitBreakpoints();
@@ -1394,7 +1402,7 @@ public class Project implements DebuggerListener, InspectorManager
     public void removeStepMarks() 
     {
         // remove step marks for all packages
-        Iterator i = packages.values().iterator();
+        Iterator<Package> i = packages.values().iterator();
 
         while (i.hasNext()) {
             Package pkg = (Package) i.next();
@@ -1499,7 +1507,7 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public void removePackage(String packageQualifiedName)
     {
-        Package pkg = (Package) packages.get(packageQualifiedName);
+        Package pkg = packages.get(packageQualifiedName);
         if (pkg != null) {
             List childPackages = pkg.getChildren(false);
             Iterator i = childPackages.iterator();
