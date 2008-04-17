@@ -512,7 +512,7 @@ bluej.compiler.unchecked=true
 ## if not configured properly.  
 #####################################################################
 
-bluej.vm.args=-server -Xincgc
+bluej.vm.args=
 
 #####################################################################
 ## bluej.windows.vm.args provides arguments to the Java VM that 
