@@ -26,6 +26,8 @@ import java.util.EmptyStackException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.AbstractButton;
 import javax.swing.JComponent;
@@ -40,7 +42,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 5687 2008-04-18 12:37:29Z polle $
+ * @version $Id: Utility.java 5690 2008-04-18 14:39:06Z polle $
  */
 public class Utility
 {
@@ -57,15 +59,40 @@ public class Utility
      */
     private static class InterceptEventQueue extends EventQueue
     {
+        private final static long timeout = 1000;
+
+        private Timer timer = new Timer();
+
+        /**
+         * Method that stops interception after a given timeout. Can be used as
+         * a fallback in case it is not stopped the normal way.
+         */
+        public void startTimeOut()
+        {
+            TimerTask task = new TimerTask() {
+                @Override
+                public void run()
+                {
+                    System.out.println("Removing after timeout");
+                    pop();
+                    timer.cancel();
+                }
+            };
+            timer.schedule(task, timeout);
+
+        }
+
         @Override
         public void dispatchEvent(java.awt.AWTEvent awtEvent)
         {
-            System.out.println("AWT EVentQueue: " + awtEvent);
+            // System.out.println("AWT EVentQueue: " + awtEvent);
             if (awtEvent instanceof MouseEvent) {
-                System.out.println("  interception: " + awtEvent);
-                if (awtEvent.getID() == MouseEvent.MOUSE_CLICKED) {
+
+                System.out.println(" interception: " + awtEvent);
+                if (awtEvent.getID() == MouseEvent.MOUSE_RELEASED) {
                     // Stop intercepting event
                     System.out.println("Removing interceptQueue");
+                    timer.cancel();
                     pop();
                 }
                 return;
@@ -162,10 +189,8 @@ public class Utility
     /**
      * Splits "string" by "Delimiter"
      * 
-     * @param str -
-     *            the string to be split
-     * @param delimiter -
-     *            the field delimiter within str
+     * @param str - the string to be split
+     * @param delimiter - the field delimiter within str
      * @returns an array of Strings
      */
     public static String[] split(String str, String delimiter)
@@ -211,8 +236,7 @@ public class Utility
     /**
      * Splits "string" into lines (stripping end-of-line characters)
      * 
-     * @param str -
-     *            the string to be split
+     * @param str - the string to be split
      * @returns an array of Strings
      */
     public static String[] splitLines(String str)
@@ -274,8 +298,7 @@ public class Utility
     /**
      * Let the given URL be shown in a browser window.
      * 
-     * @param url
-     *            the URL or file path to be shown.
+     * @param url the URL or file path to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
     public static boolean openWebBrowser(String url)
@@ -321,8 +344,7 @@ public class Utility
     /**
      * Let the given URL be shown in a browser window.
      * 
-     * @param url
-     *            the URL to be shown.
+     * @param url the URL to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
     public static boolean openWebBrowser(URL url)
@@ -409,8 +431,7 @@ public class Utility
     /**
      * Let the given file be shown in a browser window.
      * 
-     * @param file
-     *            the file to be shown.
+     * @param file the file to be shown.
      * @return true if the web browser could be started, false otherwise.
      */
     public static boolean openWebBrowser(File file)
@@ -436,8 +457,9 @@ public class Utility
     public static void bringToFront(final Window window)
     {
         // If already the focused window, or not showing at all we return now.
-        if (window.isFocusOwner() ||  !window.isShowing()) {
-            System.out.println("Not bring window to front: " + window + "   isFocusOwner: " + window.isFocusOwner() + "  isShowing: " + window.isShowing());
+        if (window.isFocusOwner() || !window.isShowing()) {
+            System.out.println("Not bring window to front: " + window + "   isFocusOwner: " + window.isFocusOwner()
+                    + "  isShowing: " + window.isShowing());
             return;
         }
         boolean alwaysOnTopSupported = isAlwaysOnTopSupported(window);
@@ -475,9 +497,13 @@ public class Utility
                 Debug.reportError("Bringing process to front failed (MacOS).");
             }
         }
-        else if (alwaysOnTopSupported) {
+        else if (alwaysOnTopSupported && !window.isAlwaysOnTop()) {
             // This should work cross platform, but is a very nasty hack, so we
             // only do it if alwaysOnTop is likely to be supported.
+            // If the window is already on top, it is probably because we are
+            // doing this method twice at the same time. Not a problem, but no
+            // need to do it a second time.
+            
             SwingUtilities.invokeLater(new Thread() {
                 public void run()
                 {
@@ -485,10 +511,19 @@ public class Utility
                         // necessary and idiomatically correct
                         window.setVisible(true);
                     }
-
+                }
+            });
+            SwingUtilities.invokeLater(new Thread() {
+                public void run()
+                {
                     // Bring the frame to the top (will not give it focus)
                     window.setAlwaysOnTop(true);
 
+                }
+            });
+            SwingUtilities.invokeLater(new Thread() {
+                public void run()
+                {
                     // Fake a click on the frame so that it gets the focus.
                     //
                     // This assumes that the frame is the top most frame, which
@@ -505,7 +540,15 @@ public class Utility
                     }
                     finally {
                         // Oh no, I actually did not want this
-                        window.setAlwaysOnTop(false);
+                        SwingUtilities.invokeLater(new Thread() {
+                            public void run()
+                            {
+                                // we have to do this after everything else has
+                                // finished (clicks etc) so we do it later.
+                                window.setAlwaysOnTop(false);
+                            }
+                        });
+
                     }
                 }
             });
@@ -528,8 +571,7 @@ public class Utility
     /**
      * Performs a click at the given absolute coordinate.
      * 
-     * @throws AWTException
-     *             if something went wrong.
+     * @throws AWTException if something went wrong.
      */
     private static void simulateClick(int x, int y)
         throws AWTException
@@ -542,18 +584,27 @@ public class Utility
 
         // Intercept mouse events with new event queue
         EventQueue eventQueue = java.awt.Toolkit.getDefaultToolkit().getSystemEventQueue();
-        eventQueue.push(new InterceptEventQueue());
+        InterceptEventQueue interceptQueue = new InterceptEventQueue();
 
-        // Move mouse cursor to the click location
-        System.out.println("Clicking at: " + x + ", " + y);
-        r.mouseMove(x, y);
+        try {
+            eventQueue.push(interceptQueue);
 
-        // Click
-        r.mousePress(InputEvent.BUTTON1_MASK);
-        r.mouseRelease(InputEvent.BUTTON1_MASK);
+            // Move mouse cursor to the click location
+            System.out.println("Clicking at: " + x + ", " + y);
+            r.mouseMove(x, y);
 
-        // Move the mouse cursor back to the original location
-        r.mouseMove((int) oldPoint.getX(), (int) oldPoint.getY());
+            // Click
+            r.mousePress(InputEvent.BUTTON1_MASK);
+            r.mouseRelease(InputEvent.BUTTON1_MASK);
+
+            // Move the mouse cursor back to the original location
+            r.mouseMove((int) oldPoint.getX(), (int) oldPoint.getY());
+        }
+        finally {
+            // Make sure the interception is stopped at some point, even if
+            // things go wrong somewhere
+            interceptQueue.startTimeOut();
+        }
     }
 
     /**
@@ -614,10 +665,8 @@ public class Utility
      * Converts tabs in a String into a specified number of spaces. It assumes
      * that beginning of String is the starting point of tab offsets.
      * 
-     * @param original
-     *            the String to convert
-     * @param tabSize
-     *            number of spaces to be inserted in place of tab
+     * @param original the String to convert
+     * @param tabSize number of spaces to be inserted in place of tab
      * @return the String with spaces replacing tabs (if tabs present).
      */
     public static String convertTabsToSpaces(String originalString, int tabSize)
@@ -644,8 +693,7 @@ public class Utility
      * Check if this is the first time a particular event (identified by the
      * context string) has occurred during this run of BlueJ.
      * 
-     * @param context
-     *            Identifies the event (suggested:
+     * @param context Identifies the event (suggested:
      *            fully-qualified-class-name:event-id)
      * @return true the first time the method was called with the given context;
      *         false every subsequent time.
@@ -663,8 +711,7 @@ public class Utility
      * Check if this is the first time a particular event (identified by the
      * context string) has occurred "ever" (in this BlueJ installation).
      * 
-     * @param context
-     *            Identifies the event (a property name)
+     * @param context Identifies the event (a property name)
      * @return true the first time the method was called with the given context;
      *         false every subsequent time.
      */
@@ -683,8 +730,7 @@ public class Utility
      * This method creates a MacOS button. It will create a "textured" button on
      * MacOS 10.5 and newer and a "toolbar" button on older MasOS.
      * 
-     * @param button
-     *            The button that should be changed.
+     * @param button The button that should be changed.
      */
     public static void changeToMacButton(AbstractButton button)
     {
