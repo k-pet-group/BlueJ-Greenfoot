@@ -20,8 +20,7 @@ import javax.swing.event.EventListenerList;
  * The main class of the simulation. It drives the simulation and calls act()
  * obejcts in the world and then paints them.
  * 
- * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id$
+ * @author Poul Henriksen
  */
 public class Simulation extends Thread
     implements WorldListener
@@ -63,6 +62,7 @@ public class Simulation extends Thread
      * calculate the frame rate.
      */
     private Queue<Long> repaintTimes = new LinkedList<Long>();
+    private volatile boolean interruptedForSpeedChange = false;
 
     /**
      * Create new simulation. Leaves the simulation in paused state
@@ -77,7 +77,7 @@ public class Simulation extends Thread
         delay = calculateDelay(speed);
         HDTimer.init();
     }
-
+    
     public static void initialize(WorldHandler worldHandler)
     {
         instance = new Simulation();
@@ -115,6 +115,10 @@ public class Simulation extends Thread
         System.gc();
         while (true) {
             try {
+                if(interruptedForSpeedChange) {
+                    interruptedForSpeedChange = false;
+                    delay();
+                }                
                 maybePause();
 
                 World world = worldHandler.getWorld();
@@ -129,6 +133,9 @@ public class Simulation extends Thread
             catch (ActInterruptedException e) {
                 // Someone interrupted the user code. We ignore it and let
                 // maybePause() handle whatever needs to be done.
+                // Unless it was interrupted because of a speed change, then we
+                // delay an amount equal to the new delay:
+                
             }
         }
     }
@@ -302,16 +309,18 @@ public class Simulation extends Thread
         paused = b;
         if (enabled) {
             notifyAll();
-            
+
             // Interrupt thread to make sure it stops.
-            if(paused) {
+            if (paused) {
                 instance.interrupt();
-            // TODO: check if the thread is still running now, we should force
-            // it to quit. Maybe using the deprecated stop() and then restarting
-            // the thread. Maybe making sim a runnable instead of thread and
-            // then creating a new thread and start that.
-            // instance.stop();
-            // reinit
+                // TODO: check if the thread is still running now, we should
+                // force
+                // it to quit. Maybe using the deprecated stop() and then
+                // restarting
+                // the thread. Maybe making sim a runnable instead of thread and
+                // then creating a new thread and start that.
+                // instance.stop();
+                // reinit
             }
         }
     }
@@ -321,8 +330,9 @@ public class Simulation extends Thread
      */
     public synchronized void setEnabled(boolean b)
     {
-        if (b) notifyAll();
-        
+        if (b) {
+            notifyAll();
+        }
         if (enabled != b) {
             enabled = b;
             if (!enabled) {
@@ -394,6 +404,12 @@ public class Simulation extends Thread
             synchronized (repaintTimes) {
                 repaintTimes.clear();
             }
+            // If simulation is running we should interrupt any waiting or
+            // sleeping that is currently happening.
+            if(!paused) {
+                interruptedForSpeedChange = true;
+                interrupt();
+            }
             fireSimulationEvent(speedChangeEvent);
         }
     }
@@ -409,7 +425,7 @@ public class Simulation extends Thread
         long rawDelay = MAX_SIMULATION_SPEED - speed;
 
         long min = 30 * 1000L; // Delay at MAX_SIMULATION_SPEED - 1
-        long max = 500 * 1000L * 1000L; // Delay at slowest speed
+        long max = 10000 * 1000L * 1000L; // Delay at slowest speed
 
         double a = Math.pow(max / (double) min, 1D / (MAX_SIMULATION_SPEED - 1));
         long delay = 0;
@@ -468,18 +484,14 @@ public class Simulation extends Thread
     private void delay()
     {
         try {
-            long timeElapsed = System.nanoTime() - this.lastDelayTime;
+            long currentTime = System.nanoTime();
+            long timeElapsed = currentTime - this.lastDelayTime;
             long actualDelay = delay - timeElapsed;
 
             // It is not possible to go back in time, so don't try it!
             if (actualDelay < 0) {
                 actualDelay = 0;
             }
-
-            // This is the time at which the delay should be over. Instead of
-            // setting this after the sleep() we do it here, so that the bad
-            // precision of sleep() will not have too big an impact.
-            this.lastDelayTime = System.nanoTime() + actualDelay;
 
             if (actualDelay > 0) {
                 HDTimer.sleep(actualDelay);
@@ -490,6 +502,11 @@ public class Simulation extends Thread
                 // starving the CPU. Running at full speed means infinite speed
                 // and hence we will always end here when running at full speed.
             }
+            // This is the time at which the delay should be over. Instead of
+            // using the time after sleep we use the time measured at the
+            // beginning, so that the bad precision of sleep() will not have too
+            // big an impact.
+            this.lastDelayTime = currentTime + actualDelay;
         }
         catch (InterruptedException e) {
             throw new ActInterruptedException(e);
