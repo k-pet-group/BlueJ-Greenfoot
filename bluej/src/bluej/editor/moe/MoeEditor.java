@@ -330,12 +330,16 @@ public final class MoeEditor extends JFrame
         if (vis) {
             sourcePane.setFont(PrefMgr.getStandardEditorFont());
             checkSyntaxStatus();
-            checkBracketStatus();
-            setState(Frame.NORMAL);         // de-iconify
-            toFront();                      // window to front
-            Utility.bringToFront(this);            
+            checkBracketStatus();  
         }
+        
         super.setVisible(vis);              // show the window
+        
+        if(vis) {
+            setState(Frame.NORMAL);         // de-iconify
+            toFront();                      // window to front  
+            Utility.bringToFront(this);        
+        }
     }
 
     /**
