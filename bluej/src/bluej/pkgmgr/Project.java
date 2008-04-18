@@ -56,7 +56,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 5684 2008-04-18 00:22:24Z polle $
+ * @version $Id: Project.java 5693 2008-04-18 16:58:30Z polle $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -1087,15 +1087,10 @@ public class Project implements DebuggerListener, InspectorManager
             pkg = (Package) i.next();
             pkg.reInitBreakpoints();           
         }
-        if (pkg != null) {
-            PackageEditor editor = pkg.getEditor();
-            if (editor != null) {
-                Window w = SwingUtilities.getWindowAncestor(editor);
-                if (w != null) {
-                    Utility.bringToFront(w);
-                }
-            }
-        }
+        PkgMgrFrame frame = PkgMgrFrame.getMostRecent();
+        if (frame != null) {
+            Utility.bringToFront(frame);
+        }        
     }
 
     /**
