@@ -40,7 +40,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 5685 2008-04-18 10:52:54Z polle $
+ * @version $Id: Utility.java 5687 2008-04-18 12:37:29Z polle $
  */
 public class Utility
 {
@@ -435,9 +435,9 @@ public class Utility
      */
     public static void bringToFront(final Window window)
     {
-        // If already the active window, or not showing at all we return now.
-        if (window.isActive() && window.isFocused() || !window.isShowing()) {
-            System.out.println("Already in front: " + window + "  " + window.isActive() + "  " + window.isFocused());
+        // If already the focused window, or not showing at all we return now.
+        if (window.isFocusOwner() ||  !window.isShowing()) {
+            System.out.println("Not bring window to front: " + window + "   isFocusOwner: " + window.isFocusOwner() + "  isShowing: " + window.isShowing());
             return;
         }
         boolean alwaysOnTopSupported = isAlwaysOnTopSupported(window);
