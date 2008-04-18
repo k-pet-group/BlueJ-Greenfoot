@@ -1,6 +1,8 @@
 package bluej.utility;
 
 import java.awt.AWTException;
+import java.awt.Component;
+import java.awt.EventQueue;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Insets;
@@ -11,6 +13,8 @@ import java.awt.Robot;
 import java.awt.Shape;
 import java.awt.Window;
 import java.awt.event.InputEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -18,11 +22,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.EmptyStackException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.swing.AbstractButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
@@ -33,7 +40,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 5682 2008-04-17 23:57:03Z polle $
+ * @version $Id: Utility.java 5685 2008-04-18 10:52:54Z polle $
  */
 public class Utility
 {
@@ -41,6 +48,41 @@ public class Utility
      * Used to track which events have occurred for firstTimeThisRun()
      */
     private static Set occurredEvents = new HashSet();
+
+    /**
+     * EventQueue that will intercept all mouse events until a mouse click is
+     * recieved. After recieving the a mouse click it will disable itself.
+     * 
+     * @author Poul Henriksen
+     */
+    private static class InterceptEventQueue extends EventQueue
+    {
+        @Override
+        public void dispatchEvent(java.awt.AWTEvent awtEvent)
+        {
+            System.out.println("AWT EVentQueue: " + awtEvent);
+            if (awtEvent instanceof MouseEvent) {
+                System.out.println("  interception: " + awtEvent);
+                if (awtEvent.getID() == MouseEvent.MOUSE_CLICKED) {
+                    // Stop intercepting event
+                    System.out.println("Removing interceptQueue");
+                    pop();
+                }
+                return;
+            }
+            // Dispatch as normal.
+            super.dispatchEvent(awtEvent);
+        }
+
+        @Override
+        public void pop()
+        {
+            try {
+                super.pop();
+            }
+            catch (EmptyStackException e) {}
+        }
+    }
 
     /**
      * Draw a thick rectangle - another of the things missing from the AWT
@@ -393,27 +435,12 @@ public class Utility
      */
     public static void bringToFront(final Window window)
     {
-        // We assume that alwaysOnTop is supported since we can't find out on
-        // Java 5
-        boolean alwaysOnTopSupported = true;
-
-        // If we are on Java 6 we can actually check if alwaysOnTop is
-        // supported:
-        if (Config.isJava16()) {
-            // The following executes the Java 6 method
-            // frame.isAlwaysOnTopSupported(). It does so by using reflection so
-            // that it compiles on Java 5.
-            Class<? extends Window> cls = window.getClass();
-
-            try {
-                Method m = cls.getMethod("isAlwaysOnTopSupported", (Class[]) null);
-                Boolean result = (Boolean) m.invoke(window);
-                alwaysOnTopSupported = result;
-            }
-            catch (Exception e) {
-            	Debug.reportError("Invoking alwaysOnTopSupported() failed in Utility.bringToFront().");
-            }
+        // If already the active window, or not showing at all we return now.
+        if (window.isActive() && window.isFocused() || !window.isShowing()) {
+            System.out.println("Already in front: " + window + "  " + window.isActive() + "  " + window.isFocused());
+            return;
         }
+        boolean alwaysOnTopSupported = isAlwaysOnTopSupported(window);
 
         if (Config.isMacOS() && !Config.isJava16()) {
             // The following code executes these calls:
@@ -448,9 +475,9 @@ public class Utility
                 Debug.reportError("Bringing process to front failed (MacOS).");
             }
         }
-        else if (alwaysOnTopSupported && window.isShowing()) {
+        else if (alwaysOnTopSupported) {
             // This should work cross platform, but is a very nasty hack, so we
-            // only do it if alwaysOnTop is supported.
+            // only do it if alwaysOnTop is likely to be supported.
             SwingUtilities.invokeLater(new Thread() {
                 public void run()
                 {
@@ -458,6 +485,7 @@ public class Utility
                         // necessary and idiomatically correct
                         window.setVisible(true);
                     }
+
                     // Bring the frame to the top (will not give it focus)
                     window.setAlwaysOnTop(true);
 
@@ -466,32 +494,19 @@ public class Utility
                     // This assumes that the frame is the top most frame, which
                     // is not necessarily the case if there are other
                     // alwaysOnTop windows - but it is a fair attempt.
+                    Point windowLoc = window.getLocationOnScreen();
+                    int x = (int) (windowLoc.getX() + window.getWidth() / 2);
+                    int y = (int) (windowLoc.getY() + window.getHeight() / 2);
                     try {
-                        Robot r = new Robot();
-
-                        // Get the current location of the mouse pointer and
-                        // store it
-                        PointerInfo pointerInfo = MouseInfo.getPointerInfo();
-                        Point oldPoint = pointerInfo.getLocation();
-
-                        // Move mouse cursor to the top middle of the frame
-                        Point p = window.getLocationOnScreen();
-                        int width = window.getWidth();
-                        r.mouseMove((int) p.getX() + width / 2, (int) p.getY());
-
-                        // Click
-                        r.mousePress(InputEvent.BUTTON1_MASK);
-                        r.mouseRelease(InputEvent.BUTTON1_MASK);
-
-                        // Move the mouse cursor back to the original location
-                        r.mouseMove((int) oldPoint.getX(), (int) oldPoint.getY());
+                        simulateClick(x, y);
                     }
-                    catch (AWTException e) {
+                    catch (Throwable e) {
                         Debug.reportError("Bringing process to front failed (cross platform).");
                     }
-
-                    // Oh no, I actually did not want this
-                    window.setAlwaysOnTop(false);
+                    finally {
+                        // Oh no, I actually did not want this
+                        window.setAlwaysOnTop(false);
+                    }
                 }
             });
         }
@@ -508,6 +523,67 @@ public class Utility
         // Runtime.getRuntime().exec(openCmd);
         // }
 
+    }
+
+    /**
+     * Performs a click at the given absolute coordinate.
+     * 
+     * @throws AWTException
+     *             if something went wrong.
+     */
+    private static void simulateClick(int x, int y)
+        throws AWTException
+    {
+        Robot r = new Robot();
+        // Get the current location of the mouse pointer and
+        // store it
+        PointerInfo pointerInfo = MouseInfo.getPointerInfo();
+        Point oldPoint = pointerInfo.getLocation();
+
+        // Intercept mouse events with new event queue
+        EventQueue eventQueue = java.awt.Toolkit.getDefaultToolkit().getSystemEventQueue();
+        eventQueue.push(new InterceptEventQueue());
+
+        // Move mouse cursor to the click location
+        System.out.println("Clicking at: " + x + ", " + y);
+        r.mouseMove(x, y);
+
+        // Click
+        r.mousePress(InputEvent.BUTTON1_MASK);
+        r.mouseRelease(InputEvent.BUTTON1_MASK);
+
+        // Move the mouse cursor back to the original location
+        r.mouseMove((int) oldPoint.getX(), (int) oldPoint.getY());
+    }
+
+    /**
+     * Try to determine if alwaysOnTop is supported for the window. If we can't
+     * find out, we assume it is supported.
+     * 
+     */
+    private static boolean isAlwaysOnTopSupported(final Window window)
+    {
+        // We assume that alwaysOnTop is supported since we can't find out on
+        // Java 5
+        boolean alwaysOnTopSupported = true;
+        // If we are on Java 6 we can actually check if alwaysOnTop is
+        // supported:
+        if (Config.isJava16()) {
+            // The following executes the Java 6 method
+            // frame.isAlwaysOnTopSupported(). It does so by using reflection so
+            // that it compiles on Java 5.
+            Class<? extends Window> cls = window.getClass();
+
+            try {
+                Method m = cls.getMethod("isAlwaysOnTopSupported", (Class[]) null);
+                Boolean result = (Boolean) m.invoke(window);
+                alwaysOnTopSupported = result;
+            }
+            catch (Exception e) {
+                Debug.reportError("Invoking alwaysOnTopSupported() failed in Utility.bringToFront().");
+            }
+        }
+        return alwaysOnTopSupported;
     }
 
     /**
