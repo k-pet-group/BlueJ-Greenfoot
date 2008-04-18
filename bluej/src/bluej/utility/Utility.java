@@ -38,7 +38,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 5692 2008-04-18 15:38:04Z polle $
+ * @version $Id: Utility.java 5694 2008-04-18 17:16:31Z polle $
  */
 public class Utility
 {
@@ -73,11 +73,18 @@ public class Utility
                     try {
                         pop();                      
                         timer.cancel();
-                    } catch (Throwable e) {                        
+                    }
+                    catch (IllegalStateException e) {
+                        // The timer might already be canceled. 
                     }
                 }
             };
-            timer.schedule(task, timeout);
+            try {
+                timer.schedule(task, timeout);
+            }
+            catch (IllegalStateException e) {
+                // The timer might already be canceled.           
+            }
         }
 
         @Override
@@ -93,8 +100,8 @@ public class Utility
                     try {
                         pop();                      
                         timer.cancel();
-                    } catch (Throwable e) {
-                        
+                    } catch (IllegalStateException e) {
+                        // The timer might already be canceled. 
                     }
                 }
                 return;
@@ -545,6 +552,8 @@ public class Utility
                         simulateClick(x, y);
                     }
                     catch (Throwable e) {
+                        e.printStackTrace();
+                        
                         Debug.reportError("Bringing process to front failed (cross platform): " + e);
                     }
                     finally {
