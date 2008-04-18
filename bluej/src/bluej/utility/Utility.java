@@ -1,7 +1,6 @@
 package bluej.utility;
 
 import java.awt.AWTException;
-import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -13,7 +12,6 @@ import java.awt.Robot;
 import java.awt.Shape;
 import java.awt.Window;
 import java.awt.event.InputEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
@@ -30,8 +28,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.AbstractButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
@@ -42,7 +38,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 5690 2008-04-18 14:39:06Z polle $
+ * @version $Id: Utility.java 5692 2008-04-18 15:38:04Z polle $
  */
 public class Utility
 {
@@ -74,12 +70,14 @@ public class Utility
                 public void run()
                 {
                     System.out.println("Removing after timeout");
-                    pop();
-                    timer.cancel();
+                    try {
+                        pop();                      
+                        timer.cancel();
+                    } catch (Throwable e) {                        
+                    }
                 }
             };
             timer.schedule(task, timeout);
-
         }
 
         @Override
@@ -92,8 +90,12 @@ public class Utility
                 if (awtEvent.getID() == MouseEvent.MOUSE_RELEASED) {
                     // Stop intercepting event
                     System.out.println("Removing interceptQueue");
-                    timer.cancel();
-                    pop();
+                    try {
+                        pop();                      
+                        timer.cancel();
+                    } catch (Throwable e) {
+                        
+                    }
                 }
                 return;
             }
@@ -494,7 +496,7 @@ public class Utility
                 act.invoke(obj, args);
             }
             catch (Exception exc) {
-                Debug.reportError("Bringing process to front failed (MacOS).");
+                Debug.reportError("Bringing process to front failed (MacOS): " + exc);
             }
         }
         else if (alwaysOnTopSupported && !window.isAlwaysOnTop()) {
@@ -503,7 +505,7 @@ public class Utility
             // If the window is already on top, it is probably because we are
             // doing this method twice at the same time. Not a problem, but no
             // need to do it a second time.
-            
+
             SwingUtilities.invokeLater(new Thread() {
                 public void run()
                 {
@@ -518,25 +520,32 @@ public class Utility
                 {
                     // Bring the frame to the top (will not give it focus)
                     window.setAlwaysOnTop(true);
-
                 }
             });
+            // Fake a click on the frame so that it gets the focus.
+            //
+            // This assumes that the frame is the top most frame, which
+            // is not necessarily the case if there are other
+            // alwaysOnTop windows - but it is a fair attempt.
             SwingUtilities.invokeLater(new Thread() {
                 public void run()
-                {
-                    // Fake a click on the frame so that it gets the focus.
-                    //
-                    // This assumes that the frame is the top most frame, which
-                    // is not necessarily the case if there are other
-                    // alwaysOnTop windows - but it is a fair attempt.
+                {   
+                    // Figure out a safe location to click.
+                    // Ignore border so we don't accidently click on a
+                    // close-button or similar.
                     Point windowLoc = window.getLocationOnScreen();
-                    int x = (int) (windowLoc.getX() + window.getWidth() / 2);
-                    int y = (int) (windowLoc.getY() + window.getHeight() / 2);
+                    Insets insets = window.getInsets();
+                    windowLoc.translate(insets.right, insets.top);
+                    int width = window.getWidth() - insets.left - insets.right;
+                    int height = window.getHeight() - insets.top - insets.bottom;
+                    int x = (int) (windowLoc.getX() + width / 2);
+                    int y = (int) (windowLoc.getY() + height / 2);
+                    
                     try {
                         simulateClick(x, y);
                     }
                     catch (Throwable e) {
-                        Debug.reportError("Bringing process to front failed (cross platform).");
+                        Debug.reportError("Bringing process to front failed (cross platform): " + e);
                     }
                     finally {
                         // Oh no, I actually did not want this
