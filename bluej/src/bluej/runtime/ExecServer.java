@@ -16,6 +16,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 
+import bluej.utility.Utility;
+
 import junit.framework.TestCase;
 import junit.framework.TestFailure;
 import junit.framework.TestResult;
@@ -30,7 +32,7 @@ import junit.framework.TestSuite;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 5025 2007-04-26 11:25:18Z davmac $
+ * @version $Id: ExecServer.java 5683 2008-04-18 00:06:23Z polle $
  */
 public class ExecServer
 {
@@ -200,10 +202,14 @@ public class ExecServer
         {
             public void eventDispatched(AWTEvent event)
             {
-                if(event.getID() == WindowEvent.WINDOW_OPENED) {
-                    addWindow(event.getSource());
+                Object source = event.getSource();
+                if(event.getID() == WindowEvent.WINDOW_OPENED) {                    
+                    addWindow(source);
+                    if(source instanceof Window) {
+                        Utility.bringToFront((Window) source);
+                    }
                 } else if(event.getID() == WindowEvent.WINDOW_CLOSED) {
-                    removeWindow(event.getSource());
+                    removeWindow(source);
                 }
             }
         };
