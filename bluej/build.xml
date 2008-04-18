@@ -78,6 +78,8 @@
                 fork="yes"
                 srcdir="${boot.src}"
                 destdir="${boot.build}"
+                source="1.5"
+                target="1.5"
                 deprecation="yes"
         >
         </javac>
@@ -125,6 +127,8 @@
                 executable="${build_java_home}/bin/javac"
                 fork="yes"
                 srcdir="${test.src}"
+                source="1.5"
+                target="1.5"
                 destdir="${test.build}"
                 deprecation="yes"
                 >
