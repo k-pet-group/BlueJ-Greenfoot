@@ -38,7 +38,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 5694 2008-04-18 17:16:31Z polle $
+ * @version $Id: Utility.java 5696 2008-04-19 10:43:36Z polle $
  */
 public class Utility
 {
@@ -46,6 +46,17 @@ public class Utility
      * Used to track which events have occurred for firstTimeThisRun()
      */
     private static Set occurredEvents = new HashSet();
+    
+    private static URLClassLoader classLoader ;
+    static {
+        try {
+            classLoader = new URLClassLoader(new URL[]{new File("/System/Library/Java/").toURI().toURL()});
+        }
+        catch (MalformedURLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
     /**
      * EventQueue that will intercept all mouse events until a mouse click is
@@ -80,8 +91,8 @@ public class Utility
                 }
             };
             try {
-                timer.schedule(task, timeout);
-            }
+            timer.schedule(task, timeout);
+        }
             catch (IllegalStateException e) {
                 // The timer might already be canceled.           
             }
@@ -491,8 +502,7 @@ public class Utility
                 if (nsapp == null) {
                     // Using a custom class loader avoids having to set up the
                     // class path on the mac.
-                    nsapp = Class.forName("com.apple.cocoa.application.NSApplication", true, new URLClassLoader(
-                            new URL[]{new File("/System/Library/Java/").toURI().toURL()}));
+                    nsapp = Class.forName("com.apple.cocoa.application.NSApplication", true, classLoader);
                 }
                 java.lang.reflect.Method sharedApp = nsapp.getMethod("sharedApplication", (Class[]) null);
                 Object obj = sharedApp.invoke(null, (Object[]) null);
@@ -552,8 +562,6 @@ public class Utility
                         simulateClick(x, y);
                     }
                     catch (Throwable e) {
-                        e.printStackTrace();
-                        
                         Debug.reportError("Bringing process to front failed (cross platform): " + e);
                     }
                     finally {
