@@ -22,7 +22,7 @@ import java.util.Map;
  * F1-F12.
  * 
  * @author davmac
- * @version $Id: KeyboardManager.java 5697 2008-04-21 05:08:56Z davmac $
+ * @version $Id: KeyboardManager.java 5701 2008-04-21 11:16:37Z polle $
  */
 public class KeyboardManager implements KeyListener, FocusListener, SimulationListener
 {
@@ -54,12 +54,7 @@ public class KeyboardManager implements KeyListener, FocusListener, SimulationLi
     {
         keyCodeMap = new HashMap<String,Integer>();
         addAllKeys();
-        buildKeyNameArray();
-        
-        // Some Danish characters map to incorrect virtual keys
-        keyCodeMap.put("å", KeyEvent.VK_OPEN_BRACKET);
-        keyCodeMap.put("æ", KeyEvent.VK_SEMICOLON);
-        keyCodeMap.put("ø", KeyEvent.VK_QUOTE);
+        buildKeyNameArray();        
     }
     
     /**
