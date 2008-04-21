@@ -22,7 +22,7 @@ import java.util.Map;
  * F1-F12.
  * 
  * @author davmac
- * @version $Id: KeyboardManager.java 5615 2008-02-28 19:07:44Z polle $
+ * @version $Id: KeyboardManager.java 5697 2008-04-21 05:08:56Z davmac $
  */
 public class KeyboardManager implements KeyListener, FocusListener, SimulationListener
 {
@@ -55,12 +55,18 @@ public class KeyboardManager implements KeyListener, FocusListener, SimulationLi
         keyCodeMap = new HashMap<String,Integer>();
         addAllKeys();
         buildKeyNameArray();
+        
+        // Some Danish characters map to incorrect virtual keys
+        keyCodeMap.put("å", KeyEvent.VK_OPEN_BRACKET);
+        keyCodeMap.put("æ", KeyEvent.VK_SEMICOLON);
+        keyCodeMap.put("ø", KeyEvent.VK_QUOTE);
     }
     
     /**
      * Add all the keys which Greenfoot will directly support into the
      * key code map (excluding keys with single-character names identifying
-     * the key, such as "a", "b" .. "z" and "0" .. "9", punctuation marks.
+     * the key, such as "a", "b" .. "z" and "0" .. "9", and other keys whose
+     * unicode value maps to their key code.
      */
     private void addAllKeys()
     {
@@ -84,6 +90,7 @@ public class KeyboardManager implements KeyListener, FocusListener, SimulationLi
         addKey("F11", KeyEvent.VK_F11);
         addKey("F12", KeyEvent.VK_F12);
         addKey("backspace", KeyEvent.VK_BACK_SPACE);
+        addKey("\'", KeyEvent.VK_QUOTE);
     }
     
     /**
@@ -121,6 +128,7 @@ public class KeyboardManager implements KeyListener, FocusListener, SimulationLi
         keyNames[KeyEvent.VK_ESCAPE] = null;
         keyNames[KeyEvent.VK_TAB] = null;
         keyNames[KeyEvent.VK_BACK_SPACE] = null;
+        keyNames[KeyEvent.VK_QUOTE] = null;
     }
         
     
@@ -194,7 +202,7 @@ public class KeyboardManager implements KeyListener, FocusListener, SimulationLi
         else {
             // If the keyId is a single character, treat the unicode
             // value of that character as a virtual key code. This is
-            // something of a hack, but it works.
+            // something of a hack, but it works for a range of keys.
             if (keyId.codePointCount(0, keyId.length()) == 1) {
                 int keyChar = keyId.codePointAt(0);
                 keyChar = Character.toUpperCase(keyChar);
