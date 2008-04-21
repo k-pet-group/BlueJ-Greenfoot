@@ -84,6 +84,16 @@ public class Greenfoot
     }
     
     /**
+     * Set the speed of the simulation execution.
+     *  
+     * @param speed  The new speed. the value must be in the range (1..100)
+     */
+    public static void setSimulationSpeed(int speed)
+    {
+        Simulation.getInstance().setSpeed(speed);
+    }
+    
+    /**
      * Pause the simulation.
      */
     public static void stopSimulation()
