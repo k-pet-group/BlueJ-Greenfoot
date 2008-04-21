@@ -51,6 +51,7 @@ doctool.options=-author -version -nodeprecated -protected
 
 greenfoot.gameserver.name=Greenfoot Gallery
 greenfoot.gameserver.address=http://www.greenfootgallery.org
+greenfoot.gameserver.createAccount.address=http://www.greenfootgallery.org/users/new
 
 # If you need to use a HTTP proxy, set and uncomment the following items
 #proxy.host=
