@@ -6,6 +6,9 @@ import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
+import greenfoot.event.TriggeredKeyListener;
+import greenfoot.event.TriggeredMouseListener;
+import greenfoot.event.TriggeredMouseMotionListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
 import greenfoot.gui.DragListener;
@@ -23,10 +26,7 @@ import java.awt.EventQueue;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.Iterator;
@@ -39,10 +39,9 @@ import javax.swing.event.EventListenerList;
  * WorldCanvas.
  * 
  * @author Poul Henriksen
- * @version $Id:$
  */
 public class WorldHandler
-    implements MouseListener, MouseMotionListener, KeyListener, DropTarget, DragListener, SimulationListener
+    implements TriggeredMouseListener, TriggeredMouseMotionListener, TriggeredKeyListener, DropTarget, DragListener, SimulationListener
 {
     private World initialisingWorld;
     private World world;
@@ -611,7 +610,6 @@ public class WorldHandler
     public void simulationChanged(SimulationEvent e)
     {
         inputManager.simulationChanged(e); // TODO maybe add somewhere else?
-        keyboardManager.simulationChanged(e);
         if (e.getType() == SimulationEvent.NEW_ACT) {
             mousePollingManager.newActStarted();
         }
@@ -652,6 +650,18 @@ public class WorldHandler
         canvas.paintBackground(g);
         canvas.paintObjects(g);
         return img;
+    }
+
+    public void listeningEnded()
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void listeningStarted()
+    {
+        // TODO Auto-generated method stub
+        
     }
 
 }

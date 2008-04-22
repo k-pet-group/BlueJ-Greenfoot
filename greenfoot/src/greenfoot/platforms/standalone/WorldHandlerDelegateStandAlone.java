@@ -3,7 +3,6 @@ package greenfoot.platforms.standalone;
 import greenfoot.World;
 import greenfoot.core.WorldHandler;
 import greenfoot.export.GreenfootScenarioViewer;
-import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.InputManager;
 import greenfoot.platforms.WorldHandlerDelegate;
 
@@ -86,19 +85,14 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     
     public InputManager getInputManager()
     {
-        InputManager inputManager = new InputManager();       
-        DragGlassPane.getInstance().addMouseListener(inputManager);
-        DragGlassPane.getInstance().addMouseMotionListener(inputManager);
-        DragGlassPane.getInstance().addKeyListener(inputManager);       
+        InputManager inputManager = new InputManager();
+        inputManager.setDragListeners(null, null, null);
         if (lockScenario) {
-            inputManager.setIdleListeners(new KeyAdapter() {}, new MouseAdapter() {}, new MouseMotionAdapter() {});
-            inputManager.setDragListeners(new KeyAdapter() {}, new MouseAdapter() {}, new MouseMotionAdapter() {});
-            inputManager.setMoveListeners(new KeyAdapter() {}, new MouseAdapter() {}, new MouseMotionAdapter() {});
+            inputManager.setIdleListeners(null, null, null);
+            inputManager.setMoveListeners(null, null, null);
         }
         else {
             inputManager.setIdleListeners(worldHandler, worldHandler, worldHandler);
-            inputManager.setDragListeners(DragGlassPane.getInstance(), DragGlassPane.getInstance(), DragGlassPane
-                    .getInstance());
             inputManager.setMoveListeners(worldHandler, worldHandler, worldHandler);
         }
         return inputManager;

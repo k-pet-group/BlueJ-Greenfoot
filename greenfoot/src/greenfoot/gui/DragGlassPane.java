@@ -4,6 +4,8 @@ import greenfoot.Actor;
 import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
 import greenfoot.core.LocationTracker;
+import greenfoot.event.TriggeredMouseListener;
+import greenfoot.event.TriggeredMouseMotionListener;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
@@ -14,11 +16,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 
@@ -55,11 +53,11 @@ import javax.swing.SwingUtilities;
  * dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen
- * @version $Id: DragGlassPane.java 5479 2008-01-22 16:18:11Z polle $
+ * @version $Id: DragGlassPane.java 5708 2008-04-22 21:26:08Z polle $
  * 
  */
 public class DragGlassPane extends JComponent
-    implements MouseMotionListener, MouseListener, KeyListener
+    implements TriggeredMouseMotionListener, TriggeredMouseListener
 {
     /** Singleton */
     private static DragGlassPane instance;
@@ -89,13 +87,6 @@ public class DragGlassPane extends JComponent
      * The listener to be notified when the drag operation finishes.
      */
     private DragListener dragListener;
-
-    /**
-     * Indicates whether the drag is done without any buttons pressed. This
-     * allows the drag to continue even if no keyboard or mouse buttons are
-     * pressed.
-     */
-    private boolean forcedDrag;
 
     /**
      * Image used when dragging. If this is null, no dragging is happening at
@@ -177,7 +168,6 @@ public class DragGlassPane extends JComponent
             endDrag();
             return;
         }
-        this.forcedDrag = forcedDrag;
 
         // get last mouseevent to get first location
         MouseEvent e = LocationTracker.instance().getMouseMotionEvent();
@@ -338,14 +328,7 @@ public class DragGlassPane extends JComponent
     {}
 
     public void mouseEntered(MouseEvent e)
-    {
-        // Somehow during a drag the button was released without us noticing;
-        // cancel the drag now then. (I think this can happen when some other
-        // window steals focus during a drag).
-        if (!forcedDrag && !e.isShiftDown() && ((e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) == 0)) {
-            cancelDrag();
-        }
-    }
+    {}
 
     public void mouseExited(MouseEvent e)
     {}
@@ -436,16 +419,12 @@ public class DragGlassPane extends JComponent
         dragRect.y = (int) (e.getY() - dragRect.getHeight() / 2);
     }
 
-    public void keyPressed(KeyEvent e)
-    {}
-
-    public void keyReleased(KeyEvent e)
+    public void listeningEnded()
     {
-    	if(e.getKeyCode() == KeyEvent.VK_SHIFT){
-    		cancelDrag(); // dragEnded/dragFinished
-    	}
+        cancelDrag();
     }
 
-    public void keyTyped(KeyEvent e)
-    {}
+    public void listeningStarted()
+    {
+    }
 }

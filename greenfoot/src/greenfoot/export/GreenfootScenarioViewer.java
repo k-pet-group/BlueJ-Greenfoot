@@ -9,11 +9,11 @@ import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.gui.CenterLayout;
 import greenfoot.gui.ControlPanel;
-import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.platforms.standalone.ActorDelegateStandAlone;
 import greenfoot.platforms.standalone.GreenfootUtilDelegateStandAlone;
 import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
+import greenfoot.sound.SoundPlayer;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.util.StandalonePropStringManager;
 
@@ -90,8 +90,7 @@ public class GreenfootScenarioViewer extends JApplet
             public void run()
             {
                 JFrame frame = new JFrame(scenarioName);
-
-                GreenfootScenarioViewer gs = new GreenfootScenarioViewer(frame);
+                new GreenfootScenarioViewer(frame);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setTitle(scenarioName);
                 frame.pack();
@@ -133,7 +132,6 @@ public class GreenfootScenarioViewer extends JApplet
             rootPaneContainer = this;
         }
 
-        rootPaneContainer.setGlassPane(DragGlassPane.getInstance());
         JPanel centerPanel = new JPanel(new CenterLayout());
         centerPanel.add(canvas);
         canvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -213,6 +211,9 @@ public class GreenfootScenarioViewer extends JApplet
             LocationTracker.initialize();
             sim = Simulation.getInstance();
             controls = new ControlPanel(sim, ! lockScenario);
+            
+            // Make sure the SoundPlayer is initialized and listens for events
+            sim.addSimulationListener(SoundPlayer.getInstance());
             
             sim.addSimulationListener(new SimulationListener() {
                 public void simulationChanged(SimulationEvent e)

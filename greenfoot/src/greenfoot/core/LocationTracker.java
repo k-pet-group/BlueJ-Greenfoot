@@ -1,6 +1,5 @@
 package greenfoot.core;
 
-import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.WorldCanvas;
 
 import java.awt.AWTEvent;
@@ -9,7 +8,6 @@ import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 
 import javax.swing.SwingUtilities;

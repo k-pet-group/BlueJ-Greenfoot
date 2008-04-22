@@ -217,6 +217,8 @@ public class WorldHandlerDelegateIDE
      */
     private void quickAddIfActive()
     {
+        //TODO Should be moved away from here. Some to the dragglasspane , and some to the InputHandler. Maybe split Inputhandler into a second class StateHandler
+        //  Be carefull though... have to exclude drag glass pane from standalone then
         if (isQuickAddActive) {
             ClassView cls = (ClassView) classSelectionManager.getSelected();
             if (canBeInstantiated(cls) ) {
@@ -225,9 +227,7 @@ public class WorldHandlerDelegateIDE
 
                 worldHandler.setObjectDropped(false);
                 DragGlassPane.getInstance().startDrag(actor, worldHandler, worldHandler.getWorldCanvas(), false);
-
-                // On the mac, the glass pane doesn't seem to receive
-                // mouse move events; the shift/move is treated like a drag        
+  
             }
         }
     }
@@ -547,7 +547,7 @@ public class WorldHandlerDelegateIDE
         DragGlassPane.getInstance().addMouseMotionListener(inputManager);
         DragGlassPane.getInstance().addKeyListener(inputManager);        
         inputManager.setIdleListeners(worldHandler, worldHandler, worldHandler);
-        inputManager.setDragListeners(DragGlassPane.getInstance(),DragGlassPane.getInstance(),DragGlassPane.getInstance());
+        inputManager.setDragListeners(null, DragGlassPane.getInstance(), DragGlassPane.getInstance());
         inputManager.setMoveListeners(worldHandler, worldHandler, worldHandler);
         
         return inputManager;

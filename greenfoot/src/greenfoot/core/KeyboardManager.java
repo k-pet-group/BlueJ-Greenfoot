@@ -1,13 +1,11 @@
 package greenfoot.core;
 
-import greenfoot.event.SimulationEvent;
-import greenfoot.event.SimulationListener;
+import greenfoot.event.TriggeredKeyListener;
 
 import java.awt.Toolkit;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -22,9 +20,9 @@ import java.util.Map;
  * F1-F12.
  * 
  * @author davmac
- * @version $Id: KeyboardManager.java 5701 2008-04-21 11:16:37Z polle $
+ * @version $Id$
  */
-public class KeyboardManager implements KeyListener, FocusListener, SimulationListener
+public class KeyboardManager implements TriggeredKeyListener, FocusListener
 {
     private String lastKeyTyped;
 
@@ -247,7 +245,16 @@ public class KeyboardManager implements KeyListener, FocusListener, SimulationLi
             }
         }
 	}
-    
+
+    public void listeningStarted()
+    {       
+    }
+
+    public void listeningEnded()
+    {
+        releaseAllKeys();
+    }
+	
     /**
      * Translate the "key pad" directional keys according to the status of numlock.
      * 
@@ -347,12 +354,5 @@ public class KeyboardManager implements KeyListener, FocusListener, SimulationLi
 			keyDown[keyCode] = false;
 			keyLatched[keyCode] = false;				
 		}
-    }
-
-    public void simulationChanged(SimulationEvent e)
-    {
-        if(e.getType() == SimulationEvent.STOPPED) {
-            releaseAllKeys();
-        }
     }
 }

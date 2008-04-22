@@ -2,16 +2,27 @@ package greenfoot.gui;
 
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
+import greenfoot.event.TriggeredKeyAdapter;
+import greenfoot.event.TriggeredKeyListener;
+import greenfoot.event.TriggeredMouseAdapter;
+import greenfoot.event.TriggeredMouseListener;
+import greenfoot.event.TriggeredMouseMotionAdapter;
+import greenfoot.event.TriggeredMouseMotionListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
+import greenfoot.gui.input.states.ConstructorDragState;
+import greenfoot.gui.input.states.ConstructorDragWhileRunningState;
+import greenfoot.gui.input.states.DisabledState;
+import greenfoot.gui.input.states.IdleState;
+import greenfoot.gui.input.states.MoveState;
+import greenfoot.gui.input.states.QuickAddDragState;
+import greenfoot.gui.input.states.RunningState;
+import greenfoot.gui.input.states.State;
 
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 
 import javax.swing.SwingUtilities;
@@ -23,355 +34,38 @@ import javax.swing.SwingUtilities;
  * It works by forwarding events to the listeners that should receive events at
  * the current state.
  * 
- * <p>
- * DELETE:
- * 
- * <p>
- * States: b) Initial/nothing/idle: List: WorldHandler gets all keys and mouse
- * Comp: WorldCanvas c) Move: List: worldhandler Comp: WorldCanvas d)
- * SHIFT/quickadd: List, Comp: DragGlassPane activated when shift pressed.
- * Deactivated when Shift released (OBS: shift release outside comp) e)
- * Constructor invoc: List, Comp: DragGlassPane is activated when new object is
- * created via menu. until mouse clicked. Or shift (which cancels and starts
- * quickadd)?
- * 
- * e) Running: Listener: everything goes to mouse manager and keyboard manager
- * (rename them to polling) comp: WorldCanvas
- * 
- * 
- * Triggers of state change: 1. Object created via constructor menu ( b->e) 1a.
- * Mouse clicked (e->b) 1b. SHIFT pressed (e->d) 2. SHIFT pressed (b->d) 2a.
- * SHIFT released (d->b) 4. Sim started (b->a) 4a. Sim ended (a->b) 5. drag on
- * actor (b-c) 5a. mouse released (c-b)
- * 
- * Two components can be enabled: WorldCanvas or DragGlassPane Listeners:
- * (MousePollingManager, KeyboardManager), WorldHandler and DragGlassPane
- * 
- * What about standalone!? RightClicks! What about keyboard shortcuts while
- * running? Space for pause?
- * 
  * @author Poul Henriksen
  * 
  */
 public class InputManager
     implements SimulationListener, KeyListener, MouseListener, MouseMotionListener, WorldListener
 {
-    /**
-     * Represents the different events that can tricker state changes.
-     */
-    private enum Event {
-        CONSTRUCTOR_INVOKED, MOUSE_RELEASED, SHIFT_PRESSED, SHIFT_RELEASED, MOUSE_PRESSED, SIMULATION_STARTED, SIMULATION_STOPPED, WORLD_CREATED, WORLD_REMOVED
-    };
-
-    /**
-     * Superclass for all states. Each state is also responsible for determining
-     * the next state given a specific event. The states also set up the
-     * listeners that should be active in that state.
-     * 
-     * @author Poul Henriksen
-     * 
-     */
-    private abstract class State
-    {
-        /**
-         * The rules for switching states. Implementations should respond to
-         * events by using the method
-         * {@link #switchAndActivateState(greenfoot.gui.InputManager.State)} to
-         * switch to other states based on the event.
-         * 
-         * @see #switchAndActivateState(greenfoot.gui.InputManager.State)
-         */
-        void switchToNextState(Event event) {
-            switch(event) {
-                case WORLD_REMOVED:
-                    switchAndActivateState(DISABLED_STATE);
-                    break;
-            }
-        }
-
-        /**
-         * Switches to the given state and activates it by calling the method
-         * {@link #activate()}.
-         * 
-         * @see #activate()
-         */
-        protected void switchAndActivateState(State newState)
-        {
-            state = newState;
-            state.activate();
-        }
-
-        /**
-         * This method should set up the correct listeners and components.
-         * Activating a state means setting up the listeners to receive events.
-         * 
-         * @see InputManager.#activeKeyListener
-         * @see InputManager.#activeMouseListener
-         * @see InputManager.#activeMouseMotionListener
-         */
-        protected abstract void activate();
-    };
-    
-    /**
-     * This state is active when you should not be allowed to initiate a drag.
-     * 
-     * @author Poul Henriksen
-     */
-    private class DisabledState extends State
-    {
-        @Override
-        void switchToNextState(Event event)
-        {
-            switch(event) {
-                case WORLD_CREATED:
-                    switchAndActivateState(IDLE_STATE);
-                    break;
-            }
-        }
-
-        @Override
-        protected void activate()
-        {
-            activateDisabledListeners();
-        }
-    }
-    /**
-     * This state is active when the simulation is running.
-     * 
-     * @author Poul Henriksen
-     */
-    private class RunningState extends State
-    {
-        @Override
-        void switchToNextState(Event event)
-        {
-            super.switchToNextState(event);
-            switch(event) {
-                case SIMULATION_STOPPED :
-                    switchAndActivateState(IDLE_STATE);
-                    break;
-                case CONSTRUCTOR_INVOKED :
-                    switchAndActivateState(CONSTRUCTOR_DRAG_WHILE_RUNNING_STATE);
-                    break;
-            }
-        }
-
-        @Override
-        protected void activate()
-        {
-            activateRunningListeners();
-        }
-    }
-
-    /**
-     * This is the default state, which is active when the simulation is stopped
-     * and nothing else is happening (no dragging etc.)
-     * 
-     * @author Poul Henriksen
-     */
-    private class IdleState extends State
-    {
-        @Override
-        void switchToNextState(Event event)
-        {
-            super.switchToNextState(event);
-            switch(event) {
-                case CONSTRUCTOR_INVOKED :
-                    switchAndActivateState(CONSTRUCTOR_DRAG_STATE);
-                    break;
-                case SIMULATION_STARTED :
-                    switchAndActivateState(RUNNING_STATE);
-                    break;
-                case MOUSE_PRESSED :
-                    switchAndActivateState(MOVE_STATE);
-                    break;
-                case SHIFT_PRESSED :
-                    switchAndActivateState(QUICKADD_DRAG_STATE);
-                    break;
-            }
-        }
-
-        @Override
-        protected void activate()
-        {
-            activateIdleListeners();
-        }
-    };
-
-    /**
-     * This state is active when an Actor that has previously been added to the
-     * world is dragged around. Works only while the simulation is stopped.
-     * 
-     * @author Poul Henriksen
-     */
-    private class MoveState extends State
-    {
-        @Override
-        void switchToNextState(Event event)
-        {
-            super.switchToNextState(event);
-            switch(event) {
-                case MOUSE_RELEASED :
-                    switchAndActivateState(IDLE_STATE);
-                    break;
-            }
-        }
-
-        @Override
-        protected void activate()
-        {
-            activateMoveListeners();
-        }
-    };
-
-    /**
-     * This state is active when "quick adding" a new Actor by holding down the
-     * SHIFT-key. Works only while the simulation is stopped.
-     * 
-     * @author Poul Henriksen
-     */
-    private class QuickAddDragState extends State
-    {
-        @Override
-        void switchToNextState(Event event)
-        {
-            super.switchToNextState(event);
-            switch(event) {
-                case SHIFT_RELEASED :
-                    switchAndActivateState(IDLE_STATE);
-                    break;
-            }
-        }
-
-        @Override
-        protected void activate()
-        {
-            activateDragListeners();
-        }
-    };
-
-    /**
-     * This state is active when the constructor of an Actor has been invoked
-     * via the context-menu of the Actor. Works only while the simulation is
-     * stopped, but there is another state
-     * {@link ConstructorDragWhileRunningState} which handles the same case when
-     * the simulation is running.
-     * 
-     * @author Poul Henriksen
-     */
-    private class ConstructorDragState extends State
-    {
-        @Override
-        void switchToNextState(Event event)
-        {
-            super.switchToNextState(event);
-            switch(event) {
-                case SHIFT_PRESSED :
-                    switchAndActivateState(QUICKADD_DRAG_STATE);
-                    break;
-                case MOUSE_RELEASED :
-                    switchAndActivateState(IDLE_STATE);
-                    break;
-            }
-        }
-
-        @Override
-        protected void activate()
-        {
-            activateDragListeners();
-        }
-    };
-
-    /**
-     * This state is active when the constructor of an Actor has been invoked
-     * via the context-menu of the Actor. Works only while the simulation is
-     * running, but there is another state {@link ConstructorDragState} which
-     * handles the same case when the simulation is stopped.
-     * 
-     * @author Poul Henriksen
-     */
-    private class ConstructorDragWhileRunningState extends State
-    {
-        @Override
-        void switchToNextState(Event event)
-        {
-            super.switchToNextState(event);
-            switch(event) {
-                case SIMULATION_STOPPED :
-                    switchAndActivateState(CONSTRUCTOR_DRAG_STATE);
-                    break;
-                case MOUSE_RELEASED :
-                    switchAndActivateState(RUNNING_STATE);
-                    break;
-            }
-        }
-
-        @Override
-        protected void activate()
-        {
-            activateDragListeners();
-        }
-    };
-
-    // STATES
-    private final State DISABLED_STATE = new DisabledState();
-    private final State RUNNING_STATE = new RunningState();
-    private final State IDLE_STATE = new IdleState();
-    private final State MOVE_STATE = new MoveState();
-    private final State QUICKADD_DRAG_STATE = new QuickAddDragState();
-    private final State CONSTRUCTOR_DRAG_STATE = new ConstructorDragState();
-    private final State CONSTRUCTOR_DRAG_WHILE_RUNNING_STATE = new ConstructorDragWhileRunningState();
-
     /** The current state */
-    private State state = DISABLED_STATE;
-
-    // Flags to keep track of which listeners has been initialised.
-    private boolean moveInitialized;
-    private boolean dragInitialized;
-    private boolean idleInitialized;
-    private boolean runningInitialized;
-
-    // Key listeners
-    private KeyListener disabledKeyListener;
-    private KeyListener runningKeyListener;
-    private KeyListener idleKeyListener;
-    private KeyListener dragKeyListener;
-    private KeyListener moveKeyListener;
-
-    // Mouse listeners
-    private MouseListener disabledMouseListener;
-    private MouseListener runningMouseListener;
-    private MouseListener idleMouseListener;
-    private MouseListener dragMouseListener;
-    private MouseListener moveMouseListener;
-
-    // Mouse motion listeners
-    private MouseMotionListener disabledMouseMotionListener;
-    private MouseMotionListener runningMouseMotionListener;
-    private MouseMotionListener idleMouseMotionListener;
-    private MouseMotionListener dragMouseMotionListener;
-    private MouseMotionListener moveMouseMotionListener;
+    private State state = null;
 
     // The active listeners that will receive the events.
-    private KeyListener activeKeyListener;
-    private MouseListener activeMouseListener;
-    private MouseMotionListener activeMouseMotionListener;
+    private TriggeredKeyListener activeKeyListener;
+    private TriggeredMouseListener activeMouseListener;
+    private TriggeredMouseMotionListener activeMouseMotionListener;
+    
     /**
      * Create a new input manager. Before using this object, the listeners
      * should be initialized and the {@link #init()} method should be called.
      * 
-     * @see #setMoveListeners(KeyListener, MouseListener, MouseMotionListener)
-     * @see #setDragListeners(KeyListener, MouseListener, MouseMotionListener)
-     * @see #setIdleListeners(KeyListener, MouseListener, MouseMotionListener)
-     * @see #setRunningListeners(KeyListener, MouseListener,
-     *      MouseMotionListener)
+     * @see #setMoveListeners(TriggeredKeyListener, TriggeredMouseListener,
+     *      TriggeredMouseMotionListener)
+     * @see #setDragListeners(TriggeredKeyListener, TriggeredMouseListener,
+     *      TriggeredMouseMotionListener)
+     * @see #setIdleListeners(TriggeredKeyListener, TriggeredMouseListener,
+     *      TriggeredMouseMotionListener)
+     * @see #setRunningListeners(TriggeredKeyListener, TriggeredMouseListener,
+     *      TriggeredMouseMotionListener)
      * @see #init()
      */
     public InputManager()
     {
-    	disabledKeyListener = new KeyAdapter(){};
-    	disabledMouseListener = new MouseAdapter(){};
-    	disabledMouseMotionListener = new MouseMotionAdapter(){};
+        State disabledState = DisabledState.initialize(this,  new TriggeredKeyAdapter(),  new TriggeredMouseAdapter(), new TriggeredMouseMotionAdapter());
+        switchAndActivateState(disabledState);
     }
 
     /**
@@ -379,14 +73,10 @@ public class InputManager
      * 
      * @see #init()
      */
-    public void setRunningListeners(KeyListener runningKeyListener, MouseListener runningMouseListener,
-            MouseMotionListener runningMouseMotionListener)
-    {
-        runningInitialized = true;
-        this.runningKeyListener = runningKeyListener;
-        this.runningMouseListener = runningMouseListener;
-        this.runningMouseMotionListener = runningMouseMotionListener;
-        state.activate();
+    public void setRunningListeners(TriggeredKeyListener runningKeyListener, TriggeredMouseListener runningMouseListener,
+            TriggeredMouseMotionListener runningMouseMotionListener)
+    {      
+        RunningState.initialize(this, runningKeyListener, runningMouseListener, runningMouseMotionListener);
     }
 
     /**
@@ -394,14 +84,10 @@ public class InputManager
      * 
      * @see #init()
      */
-    public void setIdleListeners(KeyListener idleKeyListener, MouseListener idleMouseListener,
-            MouseMotionListener idleMouseMotionListener)
-    {
-        idleInitialized = true;
-        this.idleKeyListener = idleKeyListener;
-        this.idleMouseListener = idleMouseListener;
-        this.idleMouseMotionListener = idleMouseMotionListener;
-        state.activate();
+    public void setIdleListeners(TriggeredKeyListener idleKeyListener, TriggeredMouseListener idleMouseListener,
+            TriggeredMouseMotionListener idleMouseMotionListener)
+    {        
+        IdleState.initialize(this, idleKeyListener, idleMouseListener, idleMouseMotionListener);
     }
 
     /**
@@ -410,14 +96,12 @@ public class InputManager
      * 
      * @see #init()
      */
-    public void setDragListeners(KeyListener dragKeyListener, MouseListener dragMouseListener,
-            MouseMotionListener dragMouseMotionListener)
+    public void setDragListeners(TriggeredKeyListener dragKeyListener, TriggeredMouseListener dragMouseListener,
+            TriggeredMouseMotionListener dragMouseMotionListener)
     {
-        dragInitialized = true;
-        this.dragMouseListener = dragMouseListener;
-        this.dragKeyListener = dragKeyListener;
-        this.dragMouseMotionListener = dragMouseMotionListener;
-        state.activate();
+        QuickAddDragState.initialize(this, dragKeyListener, dragMouseListener, dragMouseMotionListener);
+        ConstructorDragState.initialize(this, dragKeyListener, dragMouseListener, dragMouseMotionListener);
+        ConstructorDragWhileRunningState.initialize(this, dragKeyListener, dragMouseListener, dragMouseMotionListener);;
     }
 
     /**
@@ -426,96 +110,100 @@ public class InputManager
      * 
      * @see #init()
      */
-    public void setMoveListeners(KeyListener moveKeyListener, MouseListener moveMouseListener,
-            MouseMotionListener moveMouseMotionListener)
+    public void setMoveListeners(TriggeredKeyListener moveKeyListener, TriggeredMouseListener moveMouseListener,
+            TriggeredMouseMotionListener moveMouseMotionListener)
     {
-        moveInitialized = true;
-        this.moveMouseListener = moveMouseListener;
-        this.moveKeyListener = moveKeyListener;
-        this.moveMouseMotionListener = moveMouseMotionListener;
-        state.activate();
+        MoveState.initialize(this, moveKeyListener, moveMouseListener, moveMouseMotionListener);
     }
 
     /**
      * Should be called after all listeners are correctly setup.
      * 
-     * @see #setMoveListeners(KeyListener, MouseListener, MouseMotionListener)
-     * @see #setDragListeners(KeyListener, MouseListener, MouseMotionListener)
-     * @see #setIdleListeners(KeyListener, MouseListener, MouseMotionListener)
-     * @see #setRunningListeners(KeyListener, MouseListener,
-     *      MouseMotionListener)
+     * @see #setMoveListeners(TriggeredKeyListener, TriggeredMouseListener, TriggeredMouseMotionListener)
+     * @see #setDragListeners(TriggeredKeyListener, TriggeredMouseListener, TriggeredMouseMotionListener)
+     * @see #setIdleListeners(TriggeredKeyListener, TriggeredMouseListener, TriggeredMouseMotionListener)
+     * @see #setRunningListeners(TriggeredKeyListener, TriggeredMouseListener,
+     *      TriggeredMouseMotionListener)
      * @throws IllegalStateException If some of the listeners has not been set up correctly.
      */
     public void init() throws IllegalStateException
     {
-        if (!(idleInitialized && runningInitialized && moveInitialized && dragInitialized)) {
-            throw new IllegalStateException("Listeners not set up correctly.");
+        // Make sure we fail now if we can't get all the states.
+        DisabledState.getInstance();
+        RunningState.getInstance();
+        MoveState.getInstance();
+        QuickAddDragState.getInstance();
+        ConstructorDragState.getInstance();
+        ConstructorDragWhileRunningState.getInstance();
+        
+        switchAndActivateState(IdleState.getInstance());
+    }
+    
+    /**
+     * Deactivates the current listeners and enables the new ones. This method
+     * is called from the State classes when they are activated
+     */
+    public void activateListeners(TriggeredKeyListener keyL, TriggeredMouseListener mouseL, TriggeredMouseMotionListener mouseMotionL) 
+    {
+        if (activeKeyListener != null) {
+            activeKeyListener.listeningEnded();
         }
+        if (activeMouseListener != null) {
+            activeMouseListener.listeningEnded();
+        }
+        if (activeMouseMotionListener != null) {
+            activeMouseMotionListener.listeningEnded();
+        }
+        
+        activeKeyListener = keyL;
+        activeMouseListener = mouseL;
+        activeMouseMotionListener = mouseMotionL;
+
+        activeKeyListener.listeningStarted();
+        activeMouseListener.listeningStarted();
+        activeMouseMotionListener.listeningStarted();
     }
     
-    private void activateDisabledListeners()
+    /**
+     * Switches to the given state and activates it by calling the method
+     * {@link #activate()}.
+     * 
+     * @see #activate()
+     */
+    public void switchAndActivateState(State newState)
     {
-        activeKeyListener = disabledKeyListener;
-        activeMouseListener = disabledMouseListener;
-        activeMouseMotionListener = disabledMouseMotionListener;
+        System.out.println("Switching to new state: " + newState);
+        state = newState;
+        state.activate();
     }
     
-    private void activateRunningListeners()
-    {
-        activeKeyListener = runningKeyListener;
-        activeMouseListener = runningMouseListener;
-        activeMouseMotionListener = runningMouseMotionListener;
-    }
-
-    private void activateIdleListeners()
-    {
-        activeKeyListener = idleKeyListener;
-        activeMouseListener = idleMouseListener;
-        activeMouseMotionListener = idleMouseMotionListener;
-    }
-
-    private void activateMoveListeners()
-    {
-        activeKeyListener = moveKeyListener;
-        activeMouseListener = moveMouseListener;
-        activeMouseMotionListener = moveMouseMotionListener;
-    }
-
-    private void activateDragListeners()
-    {
-        activeKeyListener = dragKeyListener;
-        activeMouseListener = dragMouseListener;
-        activeMouseMotionListener = dragMouseMotionListener;
-    }
-
     /**
      * Used for changing between running and stopped state.
      */
     public void simulationChanged(SimulationEvent e)
     {
-        // maybe add state change to states? so you just send "event" to a
-        // state, and that then transitions to next state
         if (e.getType() == SimulationEvent.STARTED) {
-            state.switchToNextState(Event.SIMULATION_STARTED);
+            state.switchToNextState(State.Event.SIMULATION_STARTED);
         }
         else if (e.getType() == SimulationEvent.STOPPED) {
-            state.switchToNextState(Event.SIMULATION_STOPPED);
+            state.switchToNextState(State.Event.SIMULATION_STOPPED);
         }
     }
 
     /**
      * When an actor is created via constructor the constructor in the context menu.
+     * @param object 
      */
     public void objectAdded()
     {
-        state.switchToNextState(Event.CONSTRUCTOR_INVOKED);
+        state.switchToNextState(State.Event.CONSTRUCTOR_INVOKED);
     }
 
     public void keyPressed(KeyEvent e)
     {
         activeKeyListener.keyPressed(e);
         if (e.isShiftDown()) {
-            state.switchToNextState(Event.SHIFT_PRESSED);
+            state.switchToNextState(State.Event.SHIFT_PRESSED);
         }
         activeKeyListener.keyPressed(e);
     }
@@ -523,8 +211,9 @@ public class InputManager
     public void keyReleased(KeyEvent e)
     {
         activeKeyListener.keyReleased(e);
+        //TODO: should this be !e.isShiftDown instead?
         if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
-            state.switchToNextState(Event.SHIFT_RELEASED);
+            state.switchToNextState(State.Event.SHIFT_RELEASED);
         }
         activeKeyListener.keyReleased(e);
     }
@@ -545,7 +234,7 @@ public class InputManager
 		checkShift(e);
         activeMouseListener.mousePressed(e);
         if (SwingUtilities.isLeftMouseButton(e) && !e.isShiftDown()) {
-            state.switchToNextState(Event.MOUSE_PRESSED);
+            state.switchToNextState(State.Event.MOUSE_PRESSED);
         }
     }
 
@@ -554,7 +243,7 @@ public class InputManager
 		checkShift(e);
         activeMouseListener.mouseReleased(e);
         if (SwingUtilities.isLeftMouseButton(e)) {
-            state.switchToNextState(Event.MOUSE_RELEASED);
+            state.switchToNextState(State.Event.MOUSE_RELEASED);
         }
     }
 
@@ -562,14 +251,6 @@ public class InputManager
     {
 		checkShift(e);
         activeMouseListener.mouseEntered(e);
-
-        // Somehow during a drag the button was released without us noticing;
-        // make sure we are in the right state. (I think this can happen when
-        // some other window steals focus during a drag).
-        
-       // if ((e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) == 0) {
-       // state.switchToNextState(Event.MOUSE_RELEASED);
-       // }
     }
 
     public void mouseExited(MouseEvent e)
@@ -580,15 +261,12 @@ public class InputManager
 
     /**
 	 * Method that checks whether shift has been released without us noticing.
-	 * It will then simulate a KEY_RELEASED event and send it to the key
-	 * listener. This happens when another window grabs focus while holding down
-	 * SHIFT.
+	 * It will then simulate that the shift key has been released.
 	 * 
 	 */
 	private void checkShift(MouseEvent e) {
-		if (state == QUICKADD_DRAG_STATE && !e.isShiftDown()) {
-			activeKeyListener.keyReleased(new KeyEvent(e.getComponent(), KeyEvent.KEY_RELEASED, System.currentTimeMillis(), 0, KeyEvent.VK_SHIFT, KeyEvent.CHAR_UNDEFINED));
-			state.switchToNextState(Event.SHIFT_RELEASED);
+		if (state == QuickAddDragState.getInstance() && !e.isShiftDown()) {
+			state.switchToNextState(State.Event.SHIFT_RELEASED);
 		}
 	}
 
@@ -606,12 +284,11 @@ public class InputManager
         activeMouseMotionListener.mouseMoved(e);
     }
 
-
 	public void worldCreated(WorldEvent e) {
-		state.switchToNextState(Event.WORLD_CREATED);
+		state.switchToNextState(State.Event.WORLD_CREATED);
 	}
 
 	public void worldRemoved(WorldEvent e) {
-		state.switchToNextState(Event.WORLD_REMOVED);
+		state.switchToNextState(State.Event.WORLD_REMOVED);
 	}
 }

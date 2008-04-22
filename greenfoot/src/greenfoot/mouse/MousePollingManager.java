@@ -2,10 +2,11 @@ package greenfoot.mouse;
 
 import greenfoot.Actor;
 import greenfoot.MouseInfo;
+import greenfoot.event.TriggeredMouseListener;
+import greenfoot.event.TriggeredMouseMotionListener;
+import greenfoot.mouse.MouseEventData;
 
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 
 import bluej.Config;
 
@@ -50,7 +51,7 @@ import bluej.Config;
  * @author Poul Henriksen
  * 
  */
-public class MousePollingManager implements MouseListener, MouseMotionListener
+public class MousePollingManager implements TriggeredMouseListener, TriggeredMouseMotionListener
 {
 
     /** Whether the user has requested any information about the mouse in this act loop. */
@@ -72,8 +73,8 @@ public class MousePollingManager implements MouseListener, MouseMotionListener
      * become the current.
      */
     private MouseEventData futureData = new MouseEventData();
-	
-	/**
+    
+    /**
      * Used to collect data if we already have a highest priority dragEnded
      * collected. We need this in order to collect data for a potential new
      * dragEnd since we want to report the latest dragEnd in case there are more
@@ -417,6 +418,14 @@ public class MousePollingManager implements MouseListener, MouseMotionListener
             futureData.mouseMoved(x, y, button, actor);
             isDragging = false;
         }
+    }
+
+    public void listeningEnded()
+    {
+    }
+
+    public void listeningStarted()
+    {
     }   
 }
 
