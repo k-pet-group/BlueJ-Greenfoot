@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -49,6 +50,12 @@ public abstract class MyGameClient
         String longDescription = info.getLongDescription();
         
         // Debug stuff begins
+        
+        List<String> commonTags = getCommonTags(hostAddress, 5);
+        for (Iterator<String> ii = commonTags.iterator(); ii.hasNext(); ) {
+            System.out.println("Common tag: " + ii.next());
+        }
+        
         ScenarioInfo oldInfo = new ScenarioInfo();
         if (checkExistingScenario(hostAddress, uid, gameName, oldInfo)) {
             System.out.println("Old scenario exists with that name:");
@@ -62,6 +69,7 @@ public abstract class MyGameClient
         else {
             System.out.println("No old scenario with that name.");
         }
+        
         // Debug stuff ends
         
         HttpClient httpClient = getHttpClient();
@@ -283,11 +291,38 @@ public abstract class MyGameClient
     public List<String> getCommonTags(String hostAddress, int maxNumberOfTags)
         throws UnknownHostException, IOException
     {
-        // just a stub for now
-        List<String> rlist = new ArrayList<String>();
-        rlist.add("game");
-        rlist.add("simulation");
-        return rlist;
+        HttpClient client = getHttpClient();
+        
+        GetMethod getMethod = new GetMethod(hostAddress +
+                "common-tags/"+ maxNumberOfTags);
+        
+        int response = client.executeMethod(getMethod);
+        if (response > 400) {
+            throw new IOException("HTTP error response " + response + " from server.");
+        }
+        
+        // found - now we can parse the response
+        InputStream responseStream = getMethod.getResponseBodyAsStream();
+        
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dbuilder = dbf.newDocumentBuilder();
+
+            Document doc = dbuilder.parse(responseStream);
+            Element root = doc.getDocumentElement();
+            if (root == null || !root.getTagName().equals("taglist")) {
+                return Collections.<String>emptyList();
+            }
+
+            return parseTagListXmlElement(root);
+        }
+        catch(SAXException saxe) { }
+        catch(ParserConfigurationException pce) { }
+        finally {
+            responseStream.close();
+        }
+        
+        return Collections.<String>emptyList();
     }
     
     public abstract void error(String s);
