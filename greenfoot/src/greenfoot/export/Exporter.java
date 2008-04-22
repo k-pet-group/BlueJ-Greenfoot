@@ -5,16 +5,16 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5666 2008-04-10 05:45:23Z davmac $
+ * @version $Id: Exporter.java 5703 2008-04-22 04:33:30Z davmac $
  */
 
 package greenfoot.export;
 
-import bluej.Config;
 import greenfoot.core.GProject;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.PublishEvent;
 import greenfoot.event.PublishListener;
+import greenfoot.export.mygame.ScenarioInfo;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.export.ExportAppPane;
 import greenfoot.gui.export.ExportDialog;
@@ -26,8 +26,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Collections;
 
 import javax.imageio.ImageIO;
+
+import bluej.Config;
 
 public class Exporter 
         implements PublishListener
@@ -152,9 +155,15 @@ public class Exporter
         
         dlg.setProgress(true, Config.getString("export.progress.publishing"));
         try {
-            webPublisher.submit(hostAddress, login, password, scenarioName,
+            ScenarioInfo info = new ScenarioInfo();
+            info.setTitle(scenarioName);
+            info.setShortDescription(pane.getShortDescription());
+            info.setLongDescription(pane.getDescription());
+            info.setTags(Collections.<String>emptyList());
+            
+            webPublisher.submit(hostAddress, login, password,
                     tmpJarFile.getAbsolutePath(), tmpZipFile, tmpImgFile, size.width, size.height,
-                    pane.getShortDescription(), pane.getDescription());
+                    info);
         }
         catch (UnknownHostException e) {
             dlg.setProgress(false, Config.getString("export.publish.unknownHost") + " (" + e.getMessage() + ")");

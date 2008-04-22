@@ -3,6 +3,8 @@ package greenfoot.export.mygame;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.Header;
@@ -26,10 +28,14 @@ import bluej.Config;
 public abstract class MyGameClient
 {
     public final MyGameClient submit(String hostAddress, String uid, String password,
-            String gameName, String jarFileName, File sourceFile, File screenshotFile, int width, int height,
-            String shortDescription, String longDescription)
+            String jarFileName, File sourceFile, File screenshotFile, int width, int height,
+            ScenarioInfo info)
         throws UnknownHostException, IOException
     {
+        String gameName = info.getTitle();
+        String shortDescription = info.getShortDescription();
+        String longDescription = info.getLongDescription();
+        
         HttpClient httpClient = new HttpClient();
         
         String proxyHost = Config.getPropString("proxy.host", null);
@@ -129,6 +135,39 @@ public abstract class MyGameClient
         status("Upload complete.");
         
         return this;
+    }
+    
+    /**
+     * Check whether a pre-existing scenario with the given title exists. Returns true
+     * if the scenario exists or false if not.
+     * 
+     * @param hostAddress   The game server address
+     * @param uid           The username of the user
+     * @param gameName      The scenario title
+     * @param info        If not null, this will have the title, short description,
+     *                    long description and tags set to whatever the existing
+     *                    scenario has. 
+     * @return
+     */
+    public boolean checkExistingScenario(String hostAddress, String uid,
+            String gameName, ScenarioInfo info)
+        throws UnknownHostException, IOException
+    {
+        // Just a stub for now
+        return false;
+    }
+    
+    /**
+     * Get a list of commonly used tags from the server.
+     */
+    public List<String> getCommonTags(String hostAddress, int maxNumberOfTags)
+        throws UnknownHostException, IOException
+    {
+        // just a stub for now
+        List<String> rlist = new ArrayList<String>();
+        rlist.add("game");
+        rlist.add("simulation");
+        return rlist;
     }
     
     public abstract void error(String s);
