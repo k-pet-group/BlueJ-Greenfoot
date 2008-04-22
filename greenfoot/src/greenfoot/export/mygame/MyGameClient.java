@@ -103,14 +103,9 @@ public abstract class MyGameClient
         }
         
         // Send the scenario and associated info
-        Part [] parts;
+        List<String> tagsList = info.getTags();
         boolean hasSource = sourceFile != null;
-        if (hasSource) {
-            parts = new Part[9];
-        }
-        else {
-            parts = new Part[8];
-        }
+        Part [] parts = new Part[8 + tagsList.size() + (hasSource ? 1 : 0)];
         
         parts[0] = new StringPart("scenario[title]", gameName);
         parts[1] = new StringPart("scenario[main_class]", "greenfoot.export.GreenfootScenarioViewer");
@@ -120,8 +115,15 @@ public abstract class MyGameClient
         parts[5] = new StringPart("scenario[long_description]", longDescription);
         parts[6] = new FilePart("scenario[uploaded_data]", new File(jarFileName));
         parts[7] = new FilePart("scenario[screenshot_data]", screenshotFile);
+        int tagindex = 8;
         if (hasSource) {
             parts[8] = new FilePart("scenario[source_data]", sourceFile);
+            tagindex = 9;
+        }
+        
+        int tagNum = 0;
+        for (Iterator<String> i = tagsList.iterator(); i.hasNext(); ) {
+            parts[tagindex++] = new StringPart("scenario[tag" + tagNum++ + "]", i.next());
         }
         
         postMethod = new PostMethod(hostAddress + "upload-scenario");
