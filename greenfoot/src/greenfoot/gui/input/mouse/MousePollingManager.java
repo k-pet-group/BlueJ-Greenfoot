@@ -1,10 +1,10 @@
-package greenfoot.mouse;
+package greenfoot.gui.input.mouse;
 
 import greenfoot.Actor;
 import greenfoot.MouseInfo;
 import greenfoot.event.TriggeredMouseListener;
 import greenfoot.event.TriggeredMouseMotionListener;
-import greenfoot.mouse.MouseEventData;
+import greenfoot.gui.input.mouse.MouseEventData;
 
 import java.awt.event.MouseEvent;
 

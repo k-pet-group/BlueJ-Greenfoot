@@ -25,7 +25,6 @@ import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
 import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
-import greenfoot.core.LocationTracker;
 import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
@@ -38,6 +37,7 @@ import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.Selectable;
 import greenfoot.gui.classbrowser.SelectionListener;
+import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.gui.inspector.UpdatingClassInspector;
 import greenfoot.gui.inspector.UpdatingObjectInspector;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
@@ -100,7 +100,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5679 2008-04-16 19:34:28Z polle $
+ * @version $Id: GreenfootFrame.java 5709 2008-04-22 21:39:43Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener,

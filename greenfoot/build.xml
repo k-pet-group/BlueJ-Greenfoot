@@ -452,7 +452,6 @@ target="1.5">
 
             <include name="greenfoot/collision/**/*.java"/>
 
-            <include name="greenfoot/core/KeyboardManager.java"/>
             <include name="greenfoot/core/LocationTracker.java"/>
             <include name="greenfoot/core/ProjectProperties.java"/>
             <include name="greenfoot/core/Simulation.java"/>
@@ -464,18 +463,28 @@ target="1.5">
             <include name="greenfoot/event/SimulationListener.java"/>
             <include name="greenfoot/event/WorldListener.java"/>
             <include name="greenfoot/event/WorldEvent.java"/>
+            <include name="greenfoot/event/TriggeredMouseListener.java"/>
+            <include name="greenfoot/event/TriggeredMouseMotionListener.java"/>
+            <include name="greenfoot/event/TriggeredKeyListener.java"/>
+            <include name="greenfoot/event/TriggeredMouseAdapter.java"/>
+            <include name="greenfoot/event/TriggeredMouseMotionAdapter.java"/>
+            <include name="greenfoot/event/TriggeredKeyAdapter.java"/>
+            <include name="greenfoot/event/TriggeredListener.java"/>
 
             <include name="greenfoot/export/GreenfootScenarioViewer.java"/>
 
             <include name="greenfoot/gui/ControlPanel.java"/>
-            <include name="greenfoot/gui/DragGlassPane.java"/>
             <include name="greenfoot/gui/DragListener.java"/>
             <include name="greenfoot/gui/DropTarget.java"/>
             <include name="greenfoot/gui/WorldCanvas.java"/>
             <include name="greenfoot/gui/CenterLayout.java"/>
-            <include name="greenfoot/gui/InputManager.java"/>
+            <include name="greenfoot/gui/input/KeyboardManager.java"/>
+            
+            <include name="greenfoot/gui/input/InputManager.java"/>
 
-            <include name="greenfoot/mouse/*.java"/>
+            <include name="greenfoot/gui/input/states/*.java"/>
+            
+            <include name="greenfoot/gui/input/mouse/*.java"/>
 
             <include name="greenfoot/platforms/*.java"/>
             <include name="greenfoot/platforms/standalone/*.java"/>

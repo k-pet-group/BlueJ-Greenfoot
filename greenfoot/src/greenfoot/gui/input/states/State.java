@@ -6,7 +6,7 @@ import greenfoot.event.TriggeredMouseAdapter;
 import greenfoot.event.TriggeredMouseListener;
 import greenfoot.event.TriggeredMouseMotionAdapter;
 import greenfoot.event.TriggeredMouseMotionListener;
-import greenfoot.gui.InputManager;
+import greenfoot.gui.input.InputManager;
 
 /**
  * Superclass for all states. Each state is also responsible for determining the

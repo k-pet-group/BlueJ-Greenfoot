@@ -2,6 +2,7 @@ package greenfoot.core;
 
 import greenfoot.ObjectTracker;
 import greenfoot.event.ActorInstantiationListener;
+import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.localdebugger.LocalObject;
 
 import java.awt.EventQueue;

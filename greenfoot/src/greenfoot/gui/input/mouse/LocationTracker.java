@@ -1,5 +1,6 @@
-package greenfoot.core;
+package greenfoot.gui.input.mouse;
 
+import greenfoot.core.WorldHandler;
 import greenfoot.gui.WorldCanvas;
 
 import java.awt.AWTEvent;

@@ -4,13 +4,13 @@ import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
 import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
-import greenfoot.core.LocationTracker;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.ActorInstantiationListener;
 import greenfoot.gui.classbrowser.role.ActorClassRole;
 import greenfoot.gui.classbrowser.role.ClassRole;
 import greenfoot.gui.classbrowser.role.NormalClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
+import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
@@ -37,7 +37,7 @@ import bluej.utility.Utility;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 5646 2008-03-14 17:49:03Z polle $
+ * @version $Id: ClassView.java 5709 2008-04-22 21:39:43Z polle $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener

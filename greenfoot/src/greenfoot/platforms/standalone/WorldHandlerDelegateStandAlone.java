@@ -3,7 +3,7 @@ package greenfoot.platforms.standalone;
 import greenfoot.World;
 import greenfoot.core.WorldHandler;
 import greenfoot.export.GreenfootScenarioViewer;
-import greenfoot.gui.InputManager;
+import greenfoot.gui.input.InputManager;
 import greenfoot.platforms.WorldHandlerDelegate;
 
 import java.awt.event.KeyAdapter;

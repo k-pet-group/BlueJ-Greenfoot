@@ -1,4 +1,4 @@
-package greenfoot.gui;
+package greenfoot.gui.input;
 
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;

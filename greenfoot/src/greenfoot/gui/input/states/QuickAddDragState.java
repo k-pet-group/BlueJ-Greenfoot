@@ -3,7 +3,7 @@ package greenfoot.gui.input.states;
 import greenfoot.event.TriggeredKeyListener;
 import greenfoot.event.TriggeredMouseListener;
 import greenfoot.event.TriggeredMouseMotionListener;
-import greenfoot.gui.InputManager;
+import greenfoot.gui.input.InputManager;
 import greenfoot.gui.input.states.State.Event;
 
 /**

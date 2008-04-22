@@ -1,7 +1,6 @@
 package greenfoot.export;
 
 import greenfoot.World;
-import greenfoot.core.LocationTracker;
 import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
@@ -10,6 +9,7 @@ import greenfoot.event.SimulationListener;
 import greenfoot.gui.CenterLayout;
 import greenfoot.gui.ControlPanel;
 import greenfoot.gui.WorldCanvas;
+import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.platforms.standalone.ActorDelegateStandAlone;
 import greenfoot.platforms.standalone.GreenfootUtilDelegateStandAlone;
 import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;

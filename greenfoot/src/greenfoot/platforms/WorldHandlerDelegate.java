@@ -2,7 +2,7 @@ package greenfoot.platforms;
 
 import greenfoot.World;
 import greenfoot.core.WorldHandler;
-import greenfoot.gui.InputManager;
+import greenfoot.gui.input.InputManager;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;

@@ -3,9 +3,9 @@ package greenfoot.gui;
 import greenfoot.Actor;
 import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
-import greenfoot.core.LocationTracker;
 import greenfoot.event.TriggeredMouseListener;
 import greenfoot.event.TriggeredMouseMotionListener;
+import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
@@ -53,7 +53,7 @@ import javax.swing.SwingUtilities;
  * dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen
- * @version $Id: DragGlassPane.java 5708 2008-04-22 21:26:08Z polle $
+ * @version $Id: DragGlassPane.java 5709 2008-04-22 21:39:43Z polle $
  * 
  */
 public class DragGlassPane extends JComponent

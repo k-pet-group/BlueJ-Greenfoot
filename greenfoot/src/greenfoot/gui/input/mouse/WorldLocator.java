@@ -1,4 +1,4 @@
-package greenfoot.mouse;
+package greenfoot.gui.input.mouse;
 
 import java.awt.event.MouseEvent;
 

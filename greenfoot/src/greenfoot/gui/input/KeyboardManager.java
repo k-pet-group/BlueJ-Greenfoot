@@ -1,4 +1,4 @@
-package greenfoot.core;
+package greenfoot.gui.input;
 
 import greenfoot.event.TriggeredKeyListener;
 

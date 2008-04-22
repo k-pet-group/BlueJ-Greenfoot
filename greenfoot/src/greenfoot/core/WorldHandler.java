@@ -13,10 +13,12 @@ import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
 import greenfoot.gui.DragListener;
 import greenfoot.gui.DropTarget;
-import greenfoot.gui.InputManager;
 import greenfoot.gui.WorldCanvas;
-import greenfoot.mouse.MousePollingManager;
-import greenfoot.mouse.WorldLocator;
+import greenfoot.gui.input.InputManager;
+import greenfoot.gui.input.KeyboardManager;
+import greenfoot.gui.input.mouse.LocationTracker;
+import greenfoot.gui.input.mouse.MousePollingManager;
+import greenfoot.gui.input.mouse.WorldLocator;
 import greenfoot.platforms.WorldHandlerDelegate;
 import greenfoot.util.GraphicsUtilities;
 

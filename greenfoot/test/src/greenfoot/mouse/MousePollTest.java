@@ -5,7 +5,8 @@ import greenfoot.MouseInfo;
 import greenfoot.TestObject;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
-import greenfoot.mouse.MousePollingManager;
+import greenfoot.gui.input.mouse.MousePollingManager;
+import greenfoot.gui.input.mouse.WorldLocator;
 import greenfoot.platforms.GreenfootUtilDelegate;
 import greenfoot.util.GreenfootUtil;
 
