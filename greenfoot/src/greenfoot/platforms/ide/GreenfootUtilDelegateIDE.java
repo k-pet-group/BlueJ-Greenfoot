@@ -1,15 +1,10 @@
 package greenfoot.platforms.ide;
 
-import greenfoot.gui.export.ExportDialog;
 import greenfoot.platforms.GreenfootUtilDelegate;
 import greenfoot.util.FileChoosers;
-import greenfoot.util.GreenfootUtil;
 
 import java.awt.Component;
 import java.io.File;
-
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
 import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;

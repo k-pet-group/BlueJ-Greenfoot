@@ -247,7 +247,8 @@ public class WorldHandler
      */
     public void mouseEntered(MouseEvent e)
     {
-        handlerDelegate.setQuickAddActive(false);
+        // TODO figure out if I need this still:
+        //handlerDelegate.setQuickAddActive(false);
         worldCanvas.requestFocusInWindow();
     }
 
@@ -287,7 +288,6 @@ public class WorldHandler
      */
     public void keyPressed(KeyEvent e)
     {
-        handlerDelegate.processKeyEvent(e);
     }
 
     /*
@@ -297,8 +297,8 @@ public class WorldHandler
      */
     public void keyReleased(KeyEvent e)
     {
+        //TODO: is this really necessary?
         worldCanvas.requestFocus();
-        handlerDelegate.keyReleased(e);
     }
 
     /**

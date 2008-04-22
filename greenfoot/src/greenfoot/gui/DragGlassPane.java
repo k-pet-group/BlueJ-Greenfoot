@@ -3,8 +3,13 @@ package greenfoot.gui;
 import greenfoot.Actor;
 import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
+import greenfoot.core.GClass;
+import greenfoot.core.WorldHandler;
 import greenfoot.event.TriggeredMouseListener;
 import greenfoot.event.TriggeredMouseMotionListener;
+import greenfoot.gui.classbrowser.ClassView;
+import greenfoot.gui.classbrowser.SelectionManager;
+import greenfoot.gui.classbrowser.role.ActorClassRole;
 import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.util.GreenfootUtil;
 
@@ -53,11 +58,11 @@ import javax.swing.SwingUtilities;
  * dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen
- * @version $Id: DragGlassPane.java 5709 2008-04-22 21:39:43Z polle $
+ * @version $Id: DragGlassPane.java 5710 2008-04-22 23:19:06Z polle $
  * 
  */
 public class DragGlassPane extends JComponent
-    implements TriggeredMouseMotionListener, TriggeredMouseListener
+    implements TriggeredMouseMotionListener, TriggeredMouseListener, DragListener
 {
     /** Singleton */
     private static DragGlassPane instance;
@@ -93,6 +98,20 @@ public class DragGlassPane extends JComponent
      * the moment.
      */
     private BufferedImage dragImage;
+
+    private boolean isQuickAddActive;
+
+    private SelectionManager classSelectionManager;
+
+    /**
+     * Sets the selection manager.
+     * 
+     * @param selectionManager
+     */
+    public void setSelectionManager(SelectionManager selectionManager)
+    {
+        this.classSelectionManager = selectionManager;
+    }
 
     public static DragGlassPane getInstance()
     {
@@ -201,8 +220,9 @@ public class DragGlassPane extends JComponent
      * called for the dropTarget over which the object is currently being
      * dragged, and then dragFinished() will be called on the DragListener.
      */
-    public void cancelDrag()
+    private void cancelDrag()
     {
+        isQuickAddActive = false;
         endDrag();
     }
 
@@ -419,6 +439,50 @@ public class DragGlassPane extends JComponent
         dragRect.y = (int) (e.getY() - dragRect.getHeight() / 2);
     }
 
+    /**
+     * Do a "quick add" of the currently selected class, *iff* quick-add is "active"
+     * (i.e. if shift is currently pressed).
+     */
+    private void quickAddIfActive()
+    {
+        if (isQuickAddActive) {
+            WorldHandler worldHandler = WorldHandler.getInstance();
+            ClassView cls = (ClassView) classSelectionManager.getSelected();
+            if (canBeInstantiated(cls) ) {
+                ActorClassRole role = (ActorClassRole) cls.getRole();
+                Actor actor = role.createObjectDragProxy();
+                DragGlassPane.getInstance().startDrag(actor, this, worldHandler.getWorldCanvas(), false);
+  
+            }
+        }
+    }
+
+    /**
+     * Returns true if the given class is in a state where it can be instantiated.
+     * 
+     */
+    private boolean canBeInstantiated(ClassView cls)
+    {
+        if(cls == null) 
+            return false;
+        if(! (cls.getRole() instanceof ActorClassRole))
+            return false;
+        GClass gCls = cls.getGClass();
+        if(! gCls.isCompiled()) {
+            return false;
+        }
+        Class<?> realClass = gCls.getJavaClass();
+        if(realClass != null && java.lang.reflect.Modifier.isAbstract(realClass.getModifiers())) {
+            return false;
+        }
+        return true;
+    }
+
+    public void dragFinished(Object o)
+    {
+        quickAddIfActive();
+    }
+    
     public void listeningEnded()
     {
         cancelDrag();
@@ -426,5 +490,9 @@ public class DragGlassPane extends JComponent
 
     public void listeningStarted()
     {
+        // TODO Should only be true if this is really a quick add and not a constructor add. Not that it really matters.
+        // Maybe change the triggeredlisteners to get one for each tpe of listener. I get 3 of these already... should only get one, no?
+        isQuickAddActive = true;
+        quickAddIfActive();
     }
 }

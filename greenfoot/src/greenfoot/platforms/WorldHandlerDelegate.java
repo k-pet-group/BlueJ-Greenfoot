@@ -4,7 +4,6 @@ import greenfoot.World;
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.input.InputManager;
 
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 
@@ -24,12 +23,6 @@ public interface WorldHandlerDelegate
 
     void mouseClicked(MouseEvent e);
 
-    void setQuickAddActive(boolean b);
-
-    void processKeyEvent(KeyEvent e);
-
-    void keyReleased(KeyEvent e);
-
     void setWorld(World oldWorld, World newWorld);
 
     void dragFinished(Object o);
@@ -41,6 +34,7 @@ public interface WorldHandlerDelegate
      */
     void instantiateNewWorld();
 
+    @SuppressWarnings("unchecked")
     Class getLastWorldClass();
 
     InputManager getInputManager();

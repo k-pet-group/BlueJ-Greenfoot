@@ -4,17 +4,12 @@ import greenfoot.Actor;
 import greenfoot.ObjectTracker;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
-import greenfoot.core.GClass;
 import greenfoot.core.GProject;
 import greenfoot.core.ProjectProperties;
-import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.core.WorldInvokeListener;
 import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.GreenfootFrame;
-import greenfoot.gui.classbrowser.ClassView;
-import greenfoot.gui.classbrowser.SelectionManager;
-import greenfoot.gui.classbrowser.role.ActorClassRole;
 import greenfoot.gui.input.InputManager;
 import greenfoot.localdebugger.LocalObject;
 import greenfoot.platforms.WorldHandlerDelegate;
@@ -24,7 +19,6 @@ import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -66,10 +60,6 @@ public class WorldHandlerDelegateIDE
 {
     protected final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
-    private SelectionManager classSelectionManager;
-
-    private boolean isQuickAddActive;
-
     private WorldHandler worldHandler;
 
     private GProject project;
@@ -86,16 +76,6 @@ public class WorldHandlerDelegateIDE
         worldTitle.setBorder(BorderFactory.createEmptyBorder(18, 0, 4, 0));
         worldTitle.setHorizontalAlignment(SwingConstants.CENTER);
         this.frame = frame;
-    }
-
-    /**
-     * Sets the selection manager.
-     * 
-     * @param selectionManager
-     */
-    public void setSelectionManager(SelectionManager selectionManager)
-    {
-        this.classSelectionManager = selectionManager;
     }
 
     /**
@@ -187,78 +167,6 @@ public class WorldHandlerDelegateIDE
         return false;
     }
 
-    public void setQuickAddActive(boolean b)
-    {
-        isQuickAddActive = b;
-
-    }
-
-    /**
-     * Process key event for quickadd
-     * 
-     */
-    public void processKeyEvent(KeyEvent e)
-    {
-        if (!isQuickAddActive) {
-            isQuickAddActive = e.isShiftDown();
-            if (isQuickAddActive) {
-                // When shift is pressed any existing drags should be cancelled.
-                // For instance dragging object instantiated via interactively
-                // calling the constructor.
-                DragGlassPane.getInstance().cancelDrag();
-            }
-            quickAddIfActive();
-        }
-    }
-
-    /**
-     * Do a "quick add" of the currently selected class, *iff* quick-add is "active"
-     * (i.e. if shift is currently pressed).
-     */
-    private void quickAddIfActive()
-    {
-        //TODO Should be moved away from here. Some to the dragglasspane , and some to the InputHandler. Maybe split Inputhandler into a second class StateHandler
-        //  Be carefull though... have to exclude drag glass pane from standalone then
-        if (isQuickAddActive) {
-            ClassView cls = (ClassView) classSelectionManager.getSelected();
-            if (canBeInstantiated(cls) ) {
-                ActorClassRole role = (ActorClassRole) cls.getRole();
-                Actor actor = role.createObjectDragProxy();// cls.createInstance();
-
-                worldHandler.setObjectDropped(false);
-                DragGlassPane.getInstance().startDrag(actor, worldHandler, worldHandler.getWorldCanvas(), false);
-  
-            }
-        }
-    }
-
-    /**
-     * Returns true if the given class is in a state where it can be instantiated.
-     * 
-     */
-    private boolean canBeInstantiated(ClassView cls)
-    {
-        if(cls == null) 
-            return false;
-        if(! (cls.getRole() instanceof ActorClassRole))
-            return false;
-        GClass gCls = cls.getGClass();
-        if(! gCls.isCompiled()) {
-            return false;
-        }
-        Class<?> realClass = gCls.getJavaClass();
-        if(realClass != null && java.lang.reflect.Modifier.isAbstract(realClass.getModifiers())) {
-            return false;
-        }
-        return true;
-    }
-
-    public void keyReleased(KeyEvent e)
-    {
-        if (isQuickAddActive) {
-            isQuickAddActive = e.isShiftDown();
-        }
-    }
 
     public void discardWorld(World world) {        
         // Remove the  world and actors from the remote object caches
@@ -339,16 +247,8 @@ public class WorldHandlerDelegateIDE
     
     public void dragFinished(Object o)
     {
-        if (!isQuickAddActive) {
-            worldHandler.finishDrag(o);
-        }
-        else if (worldHandler.isObjectDropped()) {
-            // Quick-add another object
-            quickAddIfActive();
-        }
+        worldHandler.finishDrag(o);
     }
-    
-    
     
     
     /**
@@ -552,5 +452,4 @@ public class WorldHandlerDelegateIDE
         
         return inputManager;
     }
-
 }
