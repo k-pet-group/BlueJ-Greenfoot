@@ -202,7 +202,6 @@ public class InputManager
 
     public void keyPressed(KeyEvent e)
     {
-        activeKeyListener.keyPressed(e);
         if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
             state.switchToNextState(State.Event.SHIFT_PRESSED, null);
         }
@@ -215,7 +214,6 @@ public class InputManager
         if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
             state.switchToNextState(State.Event.SHIFT_RELEASED, null);
         }
-        activeKeyListener.keyReleased(e);
     }
 
     public void keyTyped(KeyEvent e)
