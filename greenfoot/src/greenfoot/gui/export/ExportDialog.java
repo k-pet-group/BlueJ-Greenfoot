@@ -227,10 +227,10 @@ public class ExportDialog extends EscapeDialog
         if(chosenPane != selectedPane) {
             if(selectedPane != null)
                 contentPane.remove(selectedPane);
+            chosenPane.activated();
             contentPane.add(chosenPane, BorderLayout.CENTER);
             selectedPane = chosenPane;
             selectedFunction = function;
-            
             clearStatus();
             pack();
             Config.putPropString("greenfoot.lastExportPane", function);

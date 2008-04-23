@@ -1,24 +1,28 @@
-/*
- * ExportPublishPane.java
- *
- * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 5664 2008-04-04 13:29:38Z polle $
- */
+
 
 package greenfoot.gui.export;
 
+import greenfoot.export.WebPublisher;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.InputVerifier;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -28,11 +32,20 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.groupwork.ui.MiksGridLayout;
+import bluej.utility.SwingWorker;
 
+/**
+ * ExportPublishPane.java
+ *
+ * @author Michael Kolling
+ * @version $Id: ExportPublishPane.java 5713 2008-04-23 18:16:35Z polle $
+ */
 public class ExportPublishPane extends ExportPane
 {
     public static final int IMAGE_WIDTH = 120;
@@ -41,7 +54,7 @@ public class ExportPublishPane extends ExportPane
     public static final String FUNCTION = "PUBLISH";
     private static final Color background = new Color(166, 188, 202);
     private static final Color headingColor = new Color(40, 75, 125);
-    private static final String serverURL = Config.getPropString("greenfoot.gameserver.address", "http://greenfootgallery.org");
+    private static final String serverURL = Config.getPropString("greenfoot.gameserver.address", "http://www.greenfootgallery.org");
     private static final String createAccountUrl = Config.getPropString("greenfoot.gameserver.createAccount.address", "http://www.greenfootgallery.org/users/new");
     private static final String serverName = Config.getPropString("greenfoot.gameserver.name", "Greenfoot Gallery");
 
@@ -61,6 +74,10 @@ public class ExportPublishPane extends ExportPane
      * title that will be used on MyGame
      */
     private String scenarioName;
+    private JTextField tagField;
+    private Vector<String> popularTags = new Vector<String>();
+    protected boolean commonTagsLoaded;
+    private SwingWorker commonTagsLoader;
 
     /** Creates a new instance of ExportPublishPane */
     public ExportPublishPane(String scenarioName) 
@@ -184,7 +201,7 @@ public class ExportPublishPane extends ExportPane
             text.setForeground(headingColor);
             infoPanel.add(text, BorderLayout.NORTH); 
 
-            JPanel dataPanel = new JPanel(new MiksGridLayout(6, 2, 8, 8));
+            JPanel dataPanel = new JPanel(new MiksGridLayout(7, 2, 8, 8));
             {
                 dataPanel.setBackground(background);
                 
@@ -209,6 +226,86 @@ public class ExportPublishPane extends ExportPane
                         return text.length() > 0;
                     }});
                 dataPanel.add(titleField);
+
+                text = new JLabel(Config.getString("export.publish.tags"), SwingConstants.TRAILING);
+                text.setFont(smallFont);
+                dataPanel.add(text);
+                
+                Box tagPanel = new Box(BoxLayout.X_AXIS);
+                {
+                    tagField = new JTextField("");
+                    final Object popularTagsLabel = new Object() {
+                        private String string = Config.getString("export.publish.tags.popular");
+                        
+                        public String toString()
+                        {
+                            return string;
+                        }
+                    };
+                    final JComboBox popularTagsCombo = new JComboBox(popularTags);
+
+                    popularTagsCombo.insertItemAt(popularTagsLabel, 0);
+                    popularTagsCombo.setSelectedIndex(0);
+                    popularTagsCombo.setEditable(false);
+
+                    // Give it a nice size
+                    popularTagsCombo.setPrototypeDisplayValue(popularTagsLabel);
+
+                    // Add a popup listener that can remove the popular tags
+                    // label while displaying the popup
+                    popularTagsCombo.addPopupMenuListener(new PopupMenuListener() {
+                        public void popupMenuCanceled(PopupMenuEvent e)
+                        {
+                        }
+                        public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+                        {
+                            popularTagsCombo.insertItemAt(popularTagsLabel, 0);
+                            popularTagsCombo.setSelectedIndex(0);
+                            popularTagsCombo.removeItemAt(1);
+                        }
+
+                        public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+                        {
+                            popularTagsCombo.insertItemAt("", 0);
+                            popularTagsCombo.setSelectedIndex(0);
+                            popularTagsCombo.removeItemAt(1);
+                        }
+                    });
+
+                    popularTagsCombo.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            JComboBox cb = (JComboBox) e.getSource();
+                            Object ob =  cb.getSelectedItem();
+                            if(ob == popularTagsLabel) {
+                                return;
+                            }
+                            String item = (String) cb.getSelectedItem();
+                            String currentTags = tagField.getText().trim();
+
+                            String[] tags = currentTags.split(" ");
+                            boolean tagExists = false;
+                            for (int i = 0; i < tags.length; i++) {
+                                String tag = tags[i];
+                                if (tag.trim().equals(item)) {
+                                    tagExists = true;
+                                }
+                            }
+                            if (tagExists || item.trim().equals("")) {
+                                return;
+                            }
+                            else if (currentTags.equals("")) {
+                                tagField.setText(item);
+                            }
+                            else {
+                                tagField.setText(currentTags + " " + item);
+                            }
+                        }
+                    });
+                    tagPanel.add(tagField);
+                    tagPanel.add(popularTagsCombo);
+                }
+                dataPanel.add(tagPanel);
                 
                 text = new JLabel(Config.getString("export.publish.shortDescription"), SwingConstants.TRAILING);
                 text.setFont(smallFont);
@@ -301,5 +398,75 @@ public class ExportPublishPane extends ExportPane
         add(extraPanel);
     }
 
+    /**
+     * The first time this pane is activated we fetch the popular tags from the server (if possible).
+     * 
+     * <p>
+     * 
+     * TODO And, if the scenario exists, we issue a warning and give the user the option to fetch all info.
+     * 
+     * <p>
+     * Not thread safe.
+     */
+    @Override
+    public void activated()
+    {
+        if (commonTagsLoader == null) {
+            commonTagsLoader = new SwingWorker() {
+                @SuppressWarnings("unchecked")
+                @Override
+                public void finished()
+                {
+                    List<String> l = (List<String>) getValue();
+                    if(l != null) {
+                        setPopularTags(l);
+                    }
+                }
+
+                @Override
+                public Object construct()
+                {
+                    WebPublisher client = new WebPublisher();
+                    List<String> tags = null;
+                    try {
+                        String hostAddress = serverURL;
+                        if (!hostAddress.endsWith("/")) {
+                            hostAddress += "/";
+                        }
+                        tags = client.getCommonTags(hostAddress, 10);
+                    }
+                    catch (UnknownHostException e) {
+                        e.printStackTrace();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return tags;
+                }
+            };
+            commonTagsLoader.start();
+        }
+    }
+
+    public void setPopularTags(List<String> tags) {
+        popularTags.addAll(tags);
+    }
+
+    /**
+     * Returns a list of the tags that the user chose for this scenario.
+     */
+    public List<String> getTags()
+    {
+        String currentTags = tagField.getText().trim();
+        String[] tags = currentTags.split(" ");
+        List<String> tagList = new LinkedList<String>();
+        for (int i = 0; i < tags.length; i++) {
+            String tag = tags[i].trim();
+            if(! tag.equals("")) {
+                tagList.add(tag);
+            }
+        }
+        return tagList;
+    }
 
 }

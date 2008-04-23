@@ -5,7 +5,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5703 2008-04-22 04:33:30Z davmac $
+ * @version $Id: Exporter.java 5713 2008-04-23 18:16:35Z polle $
  */
 
 package greenfoot.export;
@@ -143,7 +143,7 @@ public class Exporter
         if(scenarioName != null && scenarioName.length() < 1) {
             scenarioName = "NO_NAME";
         }       
-        String hostAddress = Config.getPropString("greenfoot.gameserver.address", "http://mygame.java.sun.com/");
+        String hostAddress = Config.getPropString("greenfoot.gameserver.address", "http://www.greenfootgallery.org/");
         if (! hostAddress.endsWith("/")) {
             hostAddress += "/";
         }
@@ -159,7 +159,7 @@ public class Exporter
             info.setTitle(scenarioName);
             info.setShortDescription(pane.getShortDescription());
             info.setLongDescription(pane.getDescription());
-            info.setTags(Collections.<String>emptyList());
+            info.setTags(pane.getTags());
             
             webPublisher.submit(hostAddress, login, password,
                     tmpJarFile.getAbsolutePath(), tmpZipFile, tmpImgFile, size.width, size.height,

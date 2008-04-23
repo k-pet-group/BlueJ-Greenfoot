@@ -7,7 +7,7 @@
  * and open the template in the editor.
 
  * @author Michael Kolling
- * @version $Id: ExportAppPane.java 5661 2008-04-01 17:21:53Z polle $
+ * @version $Id: ExportAppPane.java 5713 2008-04-23 18:16:35Z polle $
  */
 
 package greenfoot.gui.export;
@@ -118,5 +118,11 @@ public class ExportAppPane extends ExportPane
             }
             targetDirField.setText(newName);
         }
+    }
+
+    @Override
+    public void activated()
+    {
+        // Nothing special to do here
     }
 }

@@ -3,7 +3,7 @@
  * in the Export dialogue.
  *
  * @author Michael Kolling
- * @version $Id: ExportPane.java 5661 2008-04-01 17:21:53Z polle $
+ * @version $Id: ExportPane.java 5713 2008-04-23 18:16:35Z polle $
  */
 
 package greenfoot.gui.export;
@@ -40,7 +40,13 @@ public abstract class ExportPane extends JPanel
         
     }
     
+    /**
+     * This method will be called when this pane is activated (about to be
+     * shown/visible)
+     */
+    public abstract void activated();
 
+    
     /**
      * Return true if the user wants to lock the scenario.
      */
