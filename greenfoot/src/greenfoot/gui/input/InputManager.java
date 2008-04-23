@@ -1,5 +1,6 @@
 package greenfoot.gui.input;
 
+import greenfoot.Actor;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.event.TriggeredKeyAdapter;
@@ -33,7 +34,8 @@ import javax.swing.SwingUtilities;
  * <p>
  * It works by forwarding events to the listeners that should receive events at
  * the current state.
- * 
+ * <p>
+ * Not thread safe. Make sure to call methods from the event thread.
  * @author Poul Henriksen
  * 
  */
@@ -65,7 +67,7 @@ public class InputManager
     public InputManager()
     {
         State disabledState = DisabledState.initialize(this,  new TriggeredKeyAdapter(),  new TriggeredMouseAdapter(), new TriggeredMouseMotionAdapter());
-        switchAndActivateState(disabledState);
+        switchAndActivateState(disabledState, null);
     }
 
     /**
@@ -136,14 +138,14 @@ public class InputManager
         ConstructorDragState.getInstance();
         ConstructorDragWhileRunningState.getInstance();
         
-        switchAndActivateState(IdleState.getInstance());
+        switchAndActivateState(IdleState.getInstance(), null);
     }
     
     /**
      * Deactivates the current listeners and enables the new ones. This method
      * is called from the State classes when they are activated
      */
-    public void activateListeners(TriggeredKeyListener keyL, TriggeredMouseListener mouseL, TriggeredMouseMotionListener mouseMotionL) 
+    public void activateListeners(TriggeredKeyListener keyL, TriggeredMouseListener mouseL, TriggeredMouseMotionListener mouseMotionL, Object obj) 
     {
         if (activeKeyListener != null) {
             activeKeyListener.listeningEnded();
@@ -159,9 +161,9 @@ public class InputManager
         activeMouseListener = mouseL;
         activeMouseMotionListener = mouseMotionL;
 
-        activeKeyListener.listeningStarted();
-        activeMouseListener.listeningStarted();
-        activeMouseMotionListener.listeningStarted();
+        activeKeyListener.listeningStarted(obj);
+        activeMouseListener.listeningStarted(obj);
+        activeMouseMotionListener.listeningStarted(obj);
     }
     
     /**
@@ -170,11 +172,10 @@ public class InputManager
      * 
      * @see #activate()
      */
-    public void switchAndActivateState(State newState)
+    public void switchAndActivateState(State newState, Object obj)
     {
-        System.out.println("Switching to new state: " + newState);
         state = newState;
-        state.activate();
+        state.activate(obj);
     }
     
     /**
@@ -183,27 +184,27 @@ public class InputManager
     public void simulationChanged(SimulationEvent e)
     {
         if (e.getType() == SimulationEvent.STARTED) {
-            state.switchToNextState(State.Event.SIMULATION_STARTED);
+            state.switchToNextState(State.Event.SIMULATION_STARTED, null);
         }
         else if (e.getType() == SimulationEvent.STOPPED) {
-            state.switchToNextState(State.Event.SIMULATION_STOPPED);
+            state.switchToNextState(State.Event.SIMULATION_STOPPED, null);
         }
     }
 
     /**
      * When an actor is created via constructor the constructor in the context menu.
-     * @param object 
+     * @param object Object that has been added
      */
-    public void objectAdded()
+    public void objectAdded(Actor object)
     {
-        state.switchToNextState(State.Event.CONSTRUCTOR_INVOKED);
+        state.switchToNextState(State.Event.CONSTRUCTOR_INVOKED, object);
     }
 
     public void keyPressed(KeyEvent e)
     {
         activeKeyListener.keyPressed(e);
-        if (e.isShiftDown()) {
-            state.switchToNextState(State.Event.SHIFT_PRESSED);
+        if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
+            state.switchToNextState(State.Event.SHIFT_PRESSED, null);
         }
         activeKeyListener.keyPressed(e);
     }
@@ -211,9 +212,8 @@ public class InputManager
     public void keyReleased(KeyEvent e)
     {
         activeKeyListener.keyReleased(e);
-        //TODO: should this be !e.isShiftDown instead?
         if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
-            state.switchToNextState(State.Event.SHIFT_RELEASED);
+            state.switchToNextState(State.Event.SHIFT_RELEASED, null);
         }
         activeKeyListener.keyReleased(e);
     }
@@ -234,7 +234,7 @@ public class InputManager
 		checkShift(e);
         activeMouseListener.mousePressed(e);
         if (SwingUtilities.isLeftMouseButton(e) && !e.isShiftDown()) {
-            state.switchToNextState(State.Event.MOUSE_PRESSED);
+            state.switchToNextState(State.Event.MOUSE_PRESSED, null);
         }
     }
 
@@ -243,7 +243,7 @@ public class InputManager
 		checkShift(e);
         activeMouseListener.mouseReleased(e);
         if (SwingUtilities.isLeftMouseButton(e)) {
-            state.switchToNextState(State.Event.MOUSE_RELEASED);
+            state.switchToNextState(State.Event.MOUSE_RELEASED, null);
         }
     }
 
@@ -266,7 +266,7 @@ public class InputManager
 	 */
 	private void checkShift(MouseEvent e) {
 		if (state == QuickAddDragState.getInstance() && !e.isShiftDown()) {
-			state.switchToNextState(State.Event.SHIFT_RELEASED);
+			state.switchToNextState(State.Event.SHIFT_RELEASED, null);
 		}
 	}
 
@@ -285,10 +285,10 @@ public class InputManager
     }
 
 	public void worldCreated(WorldEvent e) {
-		state.switchToNextState(State.Event.WORLD_CREATED);
+		state.switchToNextState(State.Event.WORLD_CREATED, null);
 	}
 
 	public void worldRemoved(WorldEvent e) {
-		state.switchToNextState(State.Event.WORLD_REMOVED);
+		state.switchToNextState(State.Event.WORLD_REMOVED, null);
 	}
 }

@@ -29,7 +29,7 @@ public class TriggeredKeyAdapter
 
     }
 
-    public void listeningStarted()
+    public void listeningStarted(Object obj)
     {
 
     }

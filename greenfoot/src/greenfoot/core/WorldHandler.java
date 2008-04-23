@@ -660,7 +660,7 @@ public class WorldHandler
         
     }
 
-    public void listeningStarted()
+    public void listeningStarted(Object obj)
     {
         // TODO Auto-generated method stub
         

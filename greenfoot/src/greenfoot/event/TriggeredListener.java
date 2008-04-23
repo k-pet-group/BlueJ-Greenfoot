@@ -15,17 +15,14 @@ public interface TriggeredListener
 {
     /**
      * Fired when this event will start receiving events.
+     * @param obj Optional object to be passed to the listener. Can be null.
      * 
-     * @param e The event that was received last, and triggered the change to
-     *            this listener. Can be null if it wasn't triggered by an event.
      */
-    public void listeningStarted();
+    public void listeningStarted(Object obj);
 
     /**
      * Fired when this event will stop receiving events.
      * 
-     * @param e The event that was just received, and triggered the change away
-     *            from listener. Can be null if it wasn't triggered by an event.
      */
     public void listeningEnded();
 }

@@ -45,7 +45,7 @@ public class TriggeredMouseAdapter
 
     }
 
-    public void listeningStarted()
+    public void listeningStarted(Object obj)
     {
      
 

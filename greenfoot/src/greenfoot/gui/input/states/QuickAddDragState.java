@@ -41,12 +41,12 @@ public class QuickAddDragState extends State
     }
 
     @Override
-    public void switchToNextState(State.Event event)
+    public void switchToNextState(State.Event event, Object obj)
     {
-        super.switchToNextState(event);
+        super.switchToNextState(event, obj);
         switch(event) {
             case SHIFT_RELEASED :
-                switchAndActivateState(IdleState.getInstance());
+                switchAndActivateState(IdleState.getInstance(), obj);
                 break;
         }
     }

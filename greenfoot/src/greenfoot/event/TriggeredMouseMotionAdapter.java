@@ -27,7 +27,7 @@ public class TriggeredMouseMotionAdapter
 
     }
 
-    public void listeningStarted()
+    public void listeningStarted(Object obj)
     {
     
 

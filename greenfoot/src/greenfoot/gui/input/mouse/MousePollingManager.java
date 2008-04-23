@@ -424,7 +424,7 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
     {
     }
 
-    public void listeningStarted()
+    public void listeningStarted(Object obj)
     {
     }   
 }

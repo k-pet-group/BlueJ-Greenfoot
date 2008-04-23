@@ -43,15 +43,15 @@ public class ConstructorDragState extends State
     }
 
     @Override
-    public void switchToNextState(State.Event event)
+    public void switchToNextState(State.Event event, Object obj)
     {
-        super.switchToNextState(event);
+        super.switchToNextState(event, obj);
         switch(event) {
             case SHIFT_PRESSED :
-                switchAndActivateState(QuickAddDragState.getInstance());
+                switchAndActivateState(QuickAddDragState.getInstance(), obj);
                 break;
             case MOUSE_RELEASED :
-                switchAndActivateState(IdleState.getInstance());
+                switchAndActivateState(IdleState.getInstance(), obj);
                 break;
         }
     }

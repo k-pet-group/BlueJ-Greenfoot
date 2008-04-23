@@ -246,7 +246,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
         }
 	}
 
-    public void listeningStarted()
+    public void listeningStarted(Object obj)
     {       
     }
 

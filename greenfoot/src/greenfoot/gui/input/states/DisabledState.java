@@ -41,11 +41,11 @@ public class DisabledState extends State
     }
 
     @Override
-    public void switchToNextState(State.Event event)
+    public void switchToNextState(State.Event event, Object obj)
     {
         switch(event) {
             case WORLD_CREATED :
-                switchAndActivateState(IdleState.getInstance());
+                switchAndActivateState(IdleState.getInstance(), obj);
                 break;
         }
     }

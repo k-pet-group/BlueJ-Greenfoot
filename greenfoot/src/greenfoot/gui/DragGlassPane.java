@@ -58,7 +58,7 @@ import javax.swing.SwingUtilities;
  * dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen
- * @version $Id: DragGlassPane.java 5710 2008-04-22 23:19:06Z polle $
+ * @version $Id: DragGlassPane.java 5711 2008-04-23 00:02:34Z polle $
  * 
  */
 public class DragGlassPane extends JComponent
@@ -102,6 +102,8 @@ public class DragGlassPane extends JComponent
     private boolean isQuickAddActive;
 
     private SelectionManager classSelectionManager;
+
+    private boolean listening;
 
     /**
      * Sets the selection manager.
@@ -173,7 +175,7 @@ public class DragGlassPane extends JComponent
      *            or mouse buttons are pressed.
      * 
      */
-    public void startDrag(Actor object, DragListener dl, DropTarget initialDropTarget, boolean forcedDrag)
+    private void startDrag(Actor object, DragListener dl, DropTarget initialDropTarget, boolean forcedDrag)
     {
         // Save the listener first, so that calls to endDrag() work.
         dragListener = dl;
@@ -485,14 +487,23 @@ public class DragGlassPane extends JComponent
     
     public void listeningEnded()
     {
+        listening = false;
         cancelDrag();
     }
 
-    public void listeningStarted()
+    public void listeningStarted(Object obj)
     {
-        // TODO Should only be true if this is really a quick add and not a constructor add. Not that it really matters.
-        // Maybe change the triggeredlisteners to get one for each tpe of listener. I get 3 of these already... should only get one, no?
-        isQuickAddActive = true;
-        quickAddIfActive();
+        // We can get several invocation of listeningStarted, so we only listen to the first one.
+        if(listening) {
+            return;            
+        }        
+        listening = true;
+        
+        if(obj != null) {
+            startDrag((Actor) obj, null, null, true);
+        } else {
+            isQuickAddActive = true;
+            quickAddIfActive();
+        }
     }
 }

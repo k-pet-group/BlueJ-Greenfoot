@@ -41,21 +41,21 @@ public class IdleState extends State
     }
 
     @Override
-    public void switchToNextState(State.Event event)
+    public void switchToNextState(State.Event event, Object obj)
     {
-        super.switchToNextState(event);
+        super.switchToNextState(event, obj);
         switch(event) {
             case CONSTRUCTOR_INVOKED :
-                switchAndActivateState(ConstructorDragState.getInstance());
+                switchAndActivateState(ConstructorDragState.getInstance(), obj);
                 break;
             case SIMULATION_STARTED :
-                switchAndActivateState(RunningState.getInstance());
+                switchAndActivateState(RunningState.getInstance(), obj);
                 break;
             case MOUSE_PRESSED :
-                switchAndActivateState(MoveState.getInstance());
+                switchAndActivateState(MoveState.getInstance(), obj);
                 break;
             case SHIFT_PRESSED :
-                switchAndActivateState(QuickAddDragState.getInstance());
+                switchAndActivateState(QuickAddDragState.getInstance(), obj);
                 break;
         }
     }

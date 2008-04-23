@@ -68,11 +68,11 @@ public abstract class State
      * 
      * @see #switchAndActivateState(greenfoot.gui.InputManager.State)
      */
-    public void switchToNextState(State.Event event)
+    public void switchToNextState(State.Event event, Object obj)
     {
         switch(event) {
             case WORLD_REMOVED :
-                inputManager.switchAndActivateState(DisabledState.getInstance());
+                inputManager.switchAndActivateState(DisabledState.getInstance(), obj);
                 break;
         }
     }
@@ -86,13 +86,13 @@ public abstract class State
      * @see InputManager.#activeMouseListener
      * @see InputManager.#activeMouseMotionListener
      */
-    public void activate()
+    public void activate(Object obj)
     {
-        inputManager.activateListeners(keyListener, mouseListener, mouseMotionListener);
+        inputManager.activateListeners(keyListener, mouseListener, mouseMotionListener, obj);
     }
 
-    void switchAndActivateState(State state)
+    void switchAndActivateState(State state, Object obj)
     {
-        inputManager.switchAndActivateState(state);
+        inputManager.switchAndActivateState(state, obj);
     }
 }

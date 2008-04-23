@@ -43,15 +43,15 @@ public class ConstructorDragWhileRunningState extends State
     }
 
     @Override
-    public void switchToNextState(State.Event event)
+    public void switchToNextState(State.Event event, Object obj)
     {
-        super.switchToNextState(event);
+        super.switchToNextState(event, obj);
         switch(event) {
             case SIMULATION_STOPPED :
-                switchAndActivateState(ConstructorDragState.getInstance());
+                switchAndActivateState(ConstructorDragState.getInstance(), obj);
                 break;
             case MOUSE_RELEASED :
-                switchAndActivateState(RunningState.getInstance());
+                switchAndActivateState(RunningState.getInstance(), obj);
                 break;
         }
     }
