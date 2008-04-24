@@ -48,6 +48,7 @@ public abstract class MyGameClient
         String gameName = info.getTitle();
         String shortDescription = info.getShortDescription();
         String longDescription = info.getLongDescription();
+        String gameUrl = info.getUrl();
         
         // Debug stuff begins
         
@@ -105,7 +106,7 @@ public abstract class MyGameClient
         // Send the scenario and associated info
         List<String> tagsList = info.getTags();
         boolean hasSource = sourceFile != null;
-        Part [] parts = new Part[8 + tagsList.size() + (hasSource ? 1 : 0)];
+        Part [] parts = new Part[9 + tagsList.size() + (hasSource ? 1 : 0)];
         
         parts[0] = new StringPart("scenario[title]", gameName);
         parts[1] = new StringPart("scenario[main_class]", "greenfoot.export.GreenfootScenarioViewer");
@@ -113,9 +114,10 @@ public abstract class MyGameClient
         parts[3] = new StringPart("scenario[height]", "" + height);
         parts[4] = new StringPart("scenario[short_description]", shortDescription);
         parts[5] = new StringPart("scenario[long_description]", longDescription);
-        parts[6] = new FilePart("scenario[uploaded_data]", new File(jarFileName));
-        parts[7] = new FilePart("scenario[screenshot_data]", screenshotFile);
-        int tagindex = 8;
+        parts[6] = new StringPart("scenario[url]", gameUrl);
+        parts[7] = new FilePart("scenario[uploaded_data]", new File(jarFileName));
+        parts[8] = new FilePart("scenario[screenshot_data]", screenshotFile);
+        int tagindex = 9;
         if (hasSource) {
             parts[8] = new FilePart("scenario[source_data]", sourceFile);
             tagindex = 9;
@@ -257,6 +259,12 @@ public abstract class MyGameClient
                     }
                     else if (element.getTagName().equals("taglist")) {
                         info.setTags(parseTagListXmlElement(element));
+                    }
+                    else if (element.getTagName().equals("webpage")) {
+                        info.setUrl(element.getTextContent());
+                    }
+                    else if (element.getTagName().equals("hassource")) {
+                        info.setHasSource(element.getTextContent().equals("true"));
                     }
                 }
             }

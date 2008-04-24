@@ -5,7 +5,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5713 2008-04-23 18:16:35Z polle $
+ * @version $Id: Exporter.java 5714 2008-04-24 04:10:13Z davmac $
  */
 
 package greenfoot.export;
@@ -26,7 +26,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.Collections;
 
 import javax.imageio.ImageIO;
 
@@ -160,6 +159,7 @@ public class Exporter
             info.setShortDescription(pane.getShortDescription());
             info.setLongDescription(pane.getDescription());
             info.setTags(pane.getTags());
+            info.setUrl(pane.getURL());
             
             webPublisher.submit(hostAddress, login, password,
                     tmpJarFile.getAbsolutePath(), tmpZipFile, tmpImgFile, size.width, size.height,

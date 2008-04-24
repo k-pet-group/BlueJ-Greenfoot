@@ -13,6 +13,8 @@ public class ScenarioInfo
     private String shortDescription;
     private String longDescription;
     private List<String> tags;
+    private String url;
+    private boolean hasSource;
     
     public void setTitle(String title)
     {
@@ -52,5 +54,25 @@ public class ScenarioInfo
     public List<String> getTags()
     {
         return tags;
+    }
+    
+    public void setUrl(String url)
+    {
+        this.url = url;
+    }
+    
+    public String getUrl()
+    {
+        return url;
+    }
+    
+    public void setHasSource(boolean hasSource)
+    {
+        this.hasSource = hasSource;
+    }
+    
+    public boolean getHasSource()
+    {
+        return hasSource;
     }
 }
