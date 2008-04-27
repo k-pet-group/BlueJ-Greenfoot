@@ -1,6 +1,7 @@
 package bluej.utility;
 
 import java.awt.AWTException;
+import java.awt.Dialog;
 import java.awt.EventQueue;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -38,7 +39,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 5696 2008-04-19 10:43:36Z polle $
+ * @version $Id: Utility.java 5715 2008-04-27 16:03:21Z polle $
  */
 public class Utility
 {
@@ -82,19 +83,19 @@ public class Utility
                 {
                     System.out.println("Removing after timeout");
                     try {
-                        pop();                      
+                        pop();
                         timer.cancel();
                     }
                     catch (IllegalStateException e) {
-                        // The timer might already be canceled. 
+                        // The timer might already be canceled.
                     }
                 }
             };
             try {
-            timer.schedule(task, timeout);
-        }
+                timer.schedule(task, timeout);
+            }
             catch (IllegalStateException e) {
-                // The timer might already be canceled.           
+                // The timer might already be canceled.
             }
         }
 
@@ -109,20 +110,21 @@ public class Utility
                     // Stop intercepting event
                     System.out.println("Removing interceptQueue");
                     try {
-                        pop();                      
+                        pop();
                         timer.cancel();
-                    } catch (IllegalStateException e) {
-                        // The timer might already be canceled. 
+                    }
+                    catch (IllegalStateException e) {
+                        // The timer might already be canceled.
                     }
                 }
-                return;
             }
-            // Dispatch as normal.
-            super.dispatchEvent(awtEvent);
+            else {
+                // Dispatch as normal.
+                super.dispatchEvent(awtEvent);
+            }
         }
 
-        @Override
-        public void pop()
+        private void remove()
         {
             try {
                 super.pop();
@@ -471,17 +473,19 @@ public class Utility
     }
 
     /**
-     * Bring the current process to the front in the OS window stacking order.
-     * Curently: only implemented for MacOS.
+     * Bring the current process to the front in the OS window stacking order. 
+     * The given window will be brought to the front.
+     *
      */
     public static void bringToFront(final Window window)
     {
         // If already the focused window, or not showing at all we return now.
         if (window.isFocusOwner() || !window.isShowing()) {
-            System.out.println("Not bring window to front: " + window + "   isFocusOwner: " + window.isFocusOwner()
+            System.out.println("Not bringing window to front: " + window + "   isFocusOwner: " + window.isFocusOwner()
                     + "  isShowing: " + window.isShowing());
             return;
         }
+
         boolean alwaysOnTopSupported = isAlwaysOnTopSupported(window);
 
         if (Config.isMacOS() && !Config.isJava16()) {
@@ -522,42 +526,46 @@ public class Utility
             // If the window is already on top, it is probably because we are
             // doing this method twice at the same time. Not a problem, but no
             // need to do it a second time.
+            System.out.println("Bringing to front: " + window);
+
+            // Sometimes there seems to be trouble with this hack when dealing
+            // with dialogs that have an owner. The dialogs will sometimes be
+            // closed immediately for some reason. So we bail now before messing
+            // things up.
+            if (window instanceof Dialog) {
+                Dialog dialog = (Dialog) window;
+                if (dialog.getOwner() != null) {
+                    System.out.println("Not bringing dialog to front: " + dialog);
+                    return;
+                }
+            }
 
             SwingUtilities.invokeLater(new Thread() {
                 public void run()
                 {
+
                     if (!window.isVisible()) {
                         // necessary and idiomatically correct
                         window.setVisible(true);
                     }
-                }
-            });
-            SwingUtilities.invokeLater(new Thread() {
-                public void run()
-                {
                     // Bring the frame to the top (will not give it focus)
                     window.setAlwaysOnTop(true);
-                }
-            });
-            // Fake a click on the frame so that it gets the focus.
-            //
-            // This assumes that the frame is the top most frame, which
-            // is not necessarily the case if there are other
-            // alwaysOnTop windows - but it is a fair attempt.
-            SwingUtilities.invokeLater(new Thread() {
-                public void run()
-                {   
+
+                   
                     // Figure out a safe location to click.
                     // Ignore border so we don't accidently click on a
                     // close-button or similar.
                     Point windowLoc = window.getLocationOnScreen();
                     Insets insets = window.getInsets();
                     windowLoc.translate(insets.right, insets.top);
-                    int width = window.getWidth() - insets.left - insets.right;
-                    int height = window.getHeight() - insets.top - insets.bottom;
-                    int x = (int) (windowLoc.getX() + width / 2);
-                    int y = (int) (windowLoc.getY() + height / 2);
-                    
+                    int x = (int) (windowLoc.getX() + 1);
+                    int y = (int) (windowLoc.getY() + 1);
+
+                    // Fake a click on the window so that it gets the focus.
+                    //
+                    // This assumes that the window is the top most windo,
+                    // which is not necessarily the case if there are other
+                    // alwaysOnTop windows - but it is a fair attempt.
                     try {
                         simulateClick(x, y);
                     }
@@ -574,7 +582,6 @@ public class Utility
                                 window.setAlwaysOnTop(false);
                             }
                         });
-
                     }
                 }
             });
