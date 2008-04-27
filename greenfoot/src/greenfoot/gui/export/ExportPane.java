@@ -3,7 +3,7 @@
  * in the Export dialogue.
  *
  * @author Michael Kolling
- * @version $Id: ExportPane.java 5713 2008-04-23 18:16:35Z polle $
+ * @version $Id: ExportPane.java 5716 2008-04-27 17:25:17Z polle $
  */
 
 package greenfoot.gui.export;
@@ -31,7 +31,7 @@ public abstract class ExportPane extends JPanel
     public ExportPane() 
     {
         lockScenario = new JCheckBox(lockText, false);
-        lockScenario.setSelected(false);
+        lockScenario.setSelected(true);
         lockScenario.setAlignmentX(LEFT_ALIGNMENT);
         
         lockScenarioDescription = new JLabel(lockDescription); 
