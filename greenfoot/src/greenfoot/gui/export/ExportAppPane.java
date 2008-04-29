@@ -7,7 +7,7 @@
  * and open the template in the editor.
 
  * @author Michael Kolling
- * @version $Id: ExportAppPane.java 5713 2008-04-23 18:16:35Z polle $
+ * @version $Id: ExportAppPane.java 5718 2008-04-29 17:48:33Z polle $
  */
 
 package greenfoot.gui.export;
@@ -97,7 +97,6 @@ public class ExportAppPane extends ExportPane
             inputPanel.add(Box.createVerticalStrut(5));
 
             inputPanel.add(lockScenario);
-            inputPanel.add(lockScenarioDescription);
         }
 
         add(inputPanel);

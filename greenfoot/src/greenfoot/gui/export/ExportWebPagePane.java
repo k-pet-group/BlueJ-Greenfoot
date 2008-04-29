@@ -2,7 +2,7 @@
  * ExportWebPagePane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportWebPagePane.java 5713 2008-04-23 18:16:35Z polle $
+ * @version $Id: ExportWebPagePane.java 5718 2008-04-29 17:48:33Z polle $
  */
 
 package greenfoot.gui.export;
@@ -106,7 +106,6 @@ public class ExportWebPagePane extends ExportPane
             inputPanel.add(Box.createVerticalStrut(4));
 
             inputPanel.add(lockScenario);
-            inputPanel.add(lockScenarioDescription);
         }
 
         add(inputPanel);
