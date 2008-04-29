@@ -119,8 +119,8 @@ public abstract class MyGameClient
         parts[8] = new FilePart("scenario[screenshot_data]", screenshotFile);
         int tagindex = 9;
         if (hasSource) {
-            parts[8] = new FilePart("scenario[source_data]", sourceFile);
-            tagindex = 9;
+            parts[9] = new FilePart("scenario[source_data]", sourceFile);
+            tagindex = 10;
         }
         
         int tagNum = 0;
