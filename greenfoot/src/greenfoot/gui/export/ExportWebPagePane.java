@@ -2,7 +2,7 @@
  * ExportWebPagePane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportWebPagePane.java 5718 2008-04-29 17:48:33Z polle $
+ * @version $Id: ExportWebPagePane.java 5722 2008-04-30 17:13:53Z polle $
  */
 
 package greenfoot.gui.export;
@@ -115,5 +115,18 @@ public class ExportWebPagePane extends ExportPane
     public void activated()
     {
         // Nothing special to do here        
+    }   
+    
+    @Override
+    public boolean prePublish()
+    {
+        // Nothing special to do here   
+        return true;
+    }
+    
+    @Override
+    public void postPublish(boolean success)
+    {
+        // Nothing special to do here       
     }
 }

@@ -65,7 +65,7 @@ public class ExportDialog extends EscapeDialog
             e1.printStackTrace();
         }
         
-        createPanes(project.getName(), projectDir.getParentFile());
+        createPanes(project, projectDir.getParentFile());
         makeDialog();
     }
 
@@ -138,6 +138,7 @@ public class ExportDialog extends EscapeDialog
      */
     private void doExport()
     {
+        selectedPane.prePublish();
         ExportThread expThread = new ExportThread();
         expThread.start();
     }
@@ -240,14 +241,15 @@ public class ExportDialog extends EscapeDialog
     /**
      * Create all the panes that should appear as part of this dialogue.
      */
-    private void createPanes(String scenarioName, File defaultExportDir)
+    private void createPanes(GProject project, File defaultExportDir)
     {
         panes = new HashMap<String, ExportPane>();
-        panes.put(ExportPublishPane.FUNCTION, new ExportPublishPane(scenarioName));
-        panes.put(ExportWebPagePane.FUNCTION, new ExportWebPagePane(scenarioName, defaultExportDir));
-        panes.put(ExportAppPane.FUNCTION, new ExportAppPane(scenarioName, defaultExportDir));
+        panes.put(ExportPublishPane.FUNCTION, new ExportPublishPane(project));
+        panes.put(ExportWebPagePane.FUNCTION, new ExportWebPagePane(project.getName(), defaultExportDir));
+        panes.put(ExportAppPane.FUNCTION, new ExportAppPane(project.getName(), defaultExportDir));
         
         fixSizes(panes);
+        
     }
 
     /**
@@ -343,5 +345,16 @@ public class ExportDialog extends EscapeDialog
         project.removeCompileListener(dlg);
         
         return compiled;
+    }
+
+    /**
+     * Tell this dialog that the publish has finished and whether it was succesfull.
+     * @param success
+     * @param string
+     */
+    public void publishFinished(boolean success, String msg)
+    {
+        selectedPane.postPublish(success);
+        setProgress(false, msg);        
     }
 }

@@ -5,7 +5,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5714 2008-04-24 04:10:13Z davmac $
+ * @version $Id: Exporter.java 5722 2008-04-30 17:13:53Z polle $
  */
 
 package greenfoot.export;
@@ -271,7 +271,7 @@ public class Exporter
     {
         tmpJarFile.delete();
         tmpImgFile.delete();
-        dlg.setProgress(false, Config.getString("export.publish.fail") + " " + event.getMessage());
+        dlg.publishFinished(false,  Config.getString("export.publish.fail") + " " + event.getMessage());
     }
 
     /**
@@ -281,7 +281,7 @@ public class Exporter
     {
         tmpJarFile.delete();
         tmpImgFile.delete();
-        dlg.setProgress(false, Config.getString("export.publish.complete"));
+        dlg.publishFinished(false, Config.getString("export.publish.complete"));
     }
     
 }

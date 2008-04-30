@@ -1,5 +1,9 @@
 package greenfoot.export.mygame;
 
+import greenfoot.core.ProjectProperties;
+
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -15,6 +19,7 @@ public class ScenarioInfo
     private List<String> tags;
     private String url;
     private boolean hasSource;
+    private boolean isLocked;
     
     public void setTitle(String title)
     {
@@ -25,7 +30,7 @@ public class ScenarioInfo
     {
         return title;
     }
-    
+
     public void setShortDescription(String shortDesc)
     {
         shortDescription = shortDesc;
@@ -71,8 +76,77 @@ public class ScenarioInfo
         this.hasSource = hasSource;
     }
     
+    public boolean isLocked()
+    {
+        return isLocked;
+    }
+    
+    public void setLocked(boolean locked)
+    {
+        this.isLocked = locked;
+    }
+    
     public boolean getHasSource()
     {
         return hasSource;
+    }
+    /**
+     * Stores the scenario info locally.
+     */
+    public void store(ProjectProperties properties)
+    {
+        properties.setString("publish.title", getTitle());
+        properties.setString("publish.shortDesc", getShortDescription());
+        properties.setString("publish.longDesc", getLongDescription());
+        properties.setString("publish.url", getUrl());
+        properties.setString("publish.tags", getTagsAsString());
+        properties.setBoolean("publish.hasSource", getHasSource());
+        properties.setBoolean("publish.locked", isLocked());
+    }
+
+    private String getTagsAsString()
+    {
+        StringBuilder tags = new StringBuilder();
+        List<String> tagList = getTags();
+        for (Iterator<String> iterator = tagList.iterator(); iterator.hasNext();) {
+            String tag = iterator.next();
+            tags.append(tag);
+            tags.append(" ");
+        }
+        return tags.toString();
+    }
+
+    /**
+     * Attempts to load previously saved ScenarioInfo for this project.
+     * 
+     * @return true if it found and loaded the stored values.
+     */
+    public boolean load(ProjectProperties properties)
+    {
+        try {
+            System.out.println("has source: " + properties.getBoolean("publish.hasSource"));
+        }
+        catch (NullPointerException e) {
+            e.printStackTrace();
+            // No locally stored info is available
+            return false;
+        }
+        
+        setTitle(properties.getString("publish.title"));
+        setShortDescription(properties.getString("publish.shortDesc"));
+        setLongDescription(properties.getString("publish.longDesc"));
+        setUrl(properties.getString("publish.url"));
+        String tags = properties.getString("publish.tags");
+        String[] tagArray = tags.split(" ");
+
+        List<String> tagList = new LinkedList<String>();
+        for (int i = 0; i < tagArray.length; i++) {
+            String string = tagArray[i];
+            tagList.add(string);
+        }
+        setTags(tagList);
+        setHasSource(properties.getBoolean("publish.hasSource"));
+        setLocked(properties.getBoolean("publish.locked"));
+        return true;
     }
 }

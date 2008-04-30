@@ -188,7 +188,27 @@ public class ProjectProperties
         String number = properties.getProperty(key);
         return Integer.parseInt(number);
     }
-
+    
+    /**
+     * Sets a boolean property as in Java's Properties class. 
+     */
+    public void setBoolean(String key, boolean value)
+    {
+        properties.setProperty(key, Boolean.toString(value));        
+    }
+    
+    /**
+     * Gets a boolean property as in Java's Properties class.
+     */
+    public boolean getBoolean(String key) throws NullPointerException
+    {
+        String bool = properties.getProperty(key);
+        if (bool == null) {
+            throw new NullPointerException("Key does not exist: " + key);
+        }
+        return Boolean.parseBoolean(bool);
+    }
+    
     /**
      * Remove a property; return its old value.
      * @param key  The property name

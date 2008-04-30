@@ -3,7 +3,7 @@
  * in the Export dialogue.
  *
  * @author Michael Kolling
- * @version $Id: ExportPane.java 5718 2008-04-29 17:48:33Z polle $
+ * @version $Id: ExportPane.java 5722 2008-04-30 17:13:53Z polle $
  */
 
 package greenfoot.gui.export;
@@ -37,6 +37,23 @@ public abstract class ExportPane extends JPanel
      * shown/visible)
      */
     public abstract void activated();
+    
+    /**
+     * This method will be called when the user is about to export the scenario
+     * with information from this pane. Will be called from the swing event
+     * thread and will not publish until this method returns.
+     * 
+     * @return Whether to continue publishing. Continues if true, cancels if false.
+     */
+    public abstract boolean prePublish();  
+    
+    /**
+     * This method will be called when the scenario has been published with the
+     * information from this pane.
+     * 
+     * @param success Whether the publish was successfull
+     */
+    public abstract void postPublish(boolean success);
 
     /**
      * Return true if the user wants to lock the scenario.
