@@ -124,11 +124,9 @@ public class ScenarioInfo
     public boolean load(ProjectProperties properties)
     {
         try {
-            System.out.println("has source: " + properties.getBoolean("publish.hasSource"));
+            properties.getBoolean("publish.hasSource");
         }
         catch (NullPointerException e) {
-            e.printStackTrace();
-            // No locally stored info is available
             return false;
         }
         
