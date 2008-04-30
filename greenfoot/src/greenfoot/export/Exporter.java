@@ -5,7 +5,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5722 2008-04-30 17:13:53Z polle $
+ * @version $Id: Exporter.java 5723 2008-04-30 17:47:55Z polle $
  */
 
 package greenfoot.export;
@@ -275,13 +275,13 @@ public class Exporter
     }
 
     /**
-     * Publsh succeeded.
+     * Publish succeeded.
      */    
     public void statusRecieved(PublishEvent event)
     {
         tmpJarFile.delete();
         tmpImgFile.delete();
-        dlg.publishFinished(false, Config.getString("export.publish.complete"));
+        dlg.publishFinished(true, Config.getString("export.publish.complete"));
     }
     
 }

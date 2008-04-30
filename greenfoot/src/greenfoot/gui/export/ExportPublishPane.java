@@ -41,7 +41,7 @@ import bluej.utility.SwingWorker;
  * ExportPublishPane.java
  * 
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 5722 2008-04-30 17:13:53Z polle $
+ * @version $Id: ExportPublishPane.java 5723 2008-04-30 17:47:55Z polle $
  */
 public class ExportPublishPane extends ExportPane
 {
@@ -72,8 +72,10 @@ public class ExportPublishPane extends ExportPane
     private JCheckBox[] popTags = new JCheckBox[7];
     private JTextArea tagArea;
     private GProject project;
-    private ScenarioInfo publishedScenarioInfo;
     private boolean firstActivation = true;
+    
+    private ScenarioInfo publishedScenarioInfo;
+    private String publishedUserName;
 
     /** Creates a new instance of ExportPublishPane */
     public ExportPublishPane(GProject project)
@@ -213,6 +215,11 @@ public class ExportPublishPane extends ExportPane
     {
         titleField.setText(title);
     }
+
+    private void setUserName(String name)
+    {
+        userNameField.setText(name);
+    }   
     
     /**
      * Build the component.
@@ -475,19 +482,16 @@ public class ExportPublishPane extends ExportPane
         }
     }
    
-    private void storeScenarioInfo()
+    private void createScenarioInfo()
     {        
-        publishedScenarioInfo = new ScenarioInfo();
-        
+        publishedScenarioInfo = new ScenarioInfo();        
         publishedScenarioInfo.setTitle(getTitle());
         publishedScenarioInfo.setShortDescription(getShortDescription());
         publishedScenarioInfo.setLongDescription(getDescription());
         publishedScenarioInfo.setUrl(getURL());
         publishedScenarioInfo.setTags(getTags());
         publishedScenarioInfo.setLocked(lockScenario());
-        publishedScenarioInfo.setHasSource(includeSourceCode());
-        
-        publishedScenarioInfo.store(project.getProjectProperties());
+        publishedScenarioInfo.setHasSource(includeSourceCode());        
     }
     
     
@@ -502,14 +506,7 @@ public class ExportPublishPane extends ExportPane
     public void activated()
     {        
         if (firstActivation) {
-            SwingUtilities.invokeLater(new Thread() {
-                public void run() {
-                    loadScenarioInfo();
-                }                
-            });
-            
-            //TODO: fetch username
-            
+            firstActivation  = false;
             commonTagsLoader = new SwingWorker() {
                 @SuppressWarnings("unchecked")
                 @Override
@@ -543,16 +540,20 @@ public class ExportPublishPane extends ExportPane
                 }
             };
             commonTagsLoader.start();
-            firstActivation  = false;
-        }
-        
+            SwingUtilities.invokeLater(new Thread() {
+                public void run() {
+                    setUserName(Config.getPropString("publish.username",""));
+                    loadScenarioInfo();
+                }             
+            });
+        }        
     }
 
     @Override
     public boolean prePublish()
     {
-        storeScenarioInfo();
-        
+        createScenarioInfo();
+        publishedUserName = userNameField.getText();
         //TODO: Check if scenario exists online, and confirm that user wants to continue?
         return true;
     }
@@ -562,6 +563,7 @@ public class ExportPublishPane extends ExportPane
     {
         if(success) {
             publishedScenarioInfo.store(project.getProjectProperties());
+            Config.putPropString("publish.username", getUserName());
         }
     }
 }
