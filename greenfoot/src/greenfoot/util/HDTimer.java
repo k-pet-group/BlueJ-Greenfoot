@@ -26,9 +26,6 @@ public class HDTimer
             measureSleepPrecision();
             measureWaitPrecision();
             inited = true;
-            System.out.println("Thread.sleep() precision: " + sleepPrecision);
-
-            System.out.println("Object.wait() precision: " + waitPrecision);
         }
     }
 
@@ -143,7 +140,6 @@ public class HDTimer
         int loopCount = 0;
 
         // First, use Java's Object.wait()
-
         long waits = 0;
         while ((System.nanoTime() - tStart ) < (nanos  - waitPrecision) || waits == 0) {
             long waitNanos = tStart - System.nanoTime() - waitPrecision;
@@ -178,11 +174,11 @@ public class HDTimer
         while ((System.nanoTime() - tStart) < nanos)
             loopCount++;
 
-        long tEnd = System.nanoTime();
-        System.out.println("wait error when waiting " + nanos + " nanos: " + (nanos - (tEnd - tStart)));
-        System.out.println(" counts: " + waits + " " + yieldCount + " " + loopCount);
-        System.out.println(" worstYield: " + worstYieldTime);
-        System.out.println(" waited: " + waited);
+        //long tEnd = System.nanoTime();
+        //System.out.println("wait error when waiting " + nanos + " nanos: " + (nanos - (tEnd - tStart)));
+        //System.out.println(" counts: " + waits + " " + yieldCount + " " + loopCount);
+        //System.out.println(" worstYield: " + worstYieldTime);
+        //System.out.println(" waited: " + waited);
 
     }
 }

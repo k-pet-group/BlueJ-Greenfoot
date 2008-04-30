@@ -276,14 +276,6 @@ public class Simulation extends Thread
         long timeSinceUpdate = currentTime - lastUpdate;
         if (timeSinceUpdate > 3000000000L) {
             lastUpdate = currentTime;
-            if (timeSinceUpdate == 0) {
-                System.out.println("Update rate: INFINITE");
-            }
-            else {
-                long updateRate = (updates * 1000000000L) / timeSinceUpdate;
-                System.out.println("Update rate: " + updateRate);
-            }
-
             updates = 0;
         }
     }
@@ -432,9 +424,6 @@ public class Simulation extends Thread
         if (rawDelay > 0) {
             delay = (long) (Math.pow(a, rawDelay - 1) * min);
         }
-
-        System.out.println("raw: " + rawDelay + "   delay: " + delay / 1000000.);
-
         return delay;
     }
 
