@@ -41,7 +41,7 @@ import bluej.utility.SwingWorker;
  * ExportPublishPane.java
  * 
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 5723 2008-04-30 17:47:55Z polle $
+ * @version $Id: ExportPublishPane.java 5730 2008-05-01 10:58:30Z polle $
  */
 public class ExportPublishPane extends ExportPane
 {
@@ -430,8 +430,9 @@ public class ExportPublishPane extends ExportPane
      */
     private void setPopularTags(List<String> tags)
     {
-        for (int i = 0; i < popTags.length; i++) {
-            JCheckBox checkBox = popTags[i];
+        int minLength = popTags.length < tags.size() ? popTags.length : tags.size();
+        for (int i = 0; i < minLength; i++) {
+            JCheckBox checkBox = popTags[i];            
             checkBox.setText(tags.get(i));
             checkBox.setEnabled(true);
             setTags(getTags());
