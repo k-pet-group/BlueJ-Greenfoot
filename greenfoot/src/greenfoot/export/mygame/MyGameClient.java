@@ -50,29 +50,6 @@ public abstract class MyGameClient
         String longDescription = info.getLongDescription();
         String gameUrl = info.getUrl();
         
-        // Debug stuff begins
-        
-        List<String> commonTags = getCommonTags(hostAddress, 5);
-        for (Iterator<String> ii = commonTags.iterator(); ii.hasNext(); ) {
-            System.out.println("Common tag: " + ii.next());
-        }
-        
-        ScenarioInfo oldInfo = new ScenarioInfo();
-        if (checkExistingScenario(hostAddress, uid, gameName, oldInfo)) {
-            System.out.println("Old scenario exists with that name:");
-            System.out.println("  short = " + oldInfo.getShortDescription());
-            System.out.println("  long = " + oldInfo.getLongDescription());
-            List<String> tags = oldInfo.getTags();
-            for (Iterator<String> ii = tags.iterator(); ii.hasNext(); ) {
-                System.out.println("  tag: " + ii.next());
-            }
-        }
-        else {
-            System.out.println("No old scenario with that name.");
-        }
-        
-        // Debug stuff ends
-        
         HttpClient httpClient = getHttpClient();
         
         // Authenticate user and initiate session
