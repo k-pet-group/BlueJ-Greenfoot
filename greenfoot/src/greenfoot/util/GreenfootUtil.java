@@ -5,8 +5,10 @@ import greenfoot.platforms.GreenfootUtilDelegate;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -43,7 +45,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 5662 2008-04-03 16:17:35Z polle $
+ * @version $Id: GreenfootUtil.java 5731 2008-05-01 11:15:53Z polle $
  */
 public class GreenfootUtil
 {
@@ -598,4 +600,29 @@ public class GreenfootUtil
             }
         });
     }
+    
+    /**
+     * Replaces all occurrences of BlueJ with Greenfoot in the title of the frame.
+     * <p>
+     * Should be called from event thread.
+     */
+    public static void makeGreenfootTitle(Frame frame)
+    {
+        String title = frame.getTitle();
+        String newTitle = title.replaceAll("BlueJ", "Greenfoot");
+        frame.setTitle(newTitle);
+    }    
+    
+
+    /**
+     * Replaces all occurrences of BlueJ with Greenfoot in the title of the dialog.
+     * <p>
+     * Should be called from event thread.
+     */
+    public static void makeGreenfootTitle(Dialog dialog)
+    {
+        String title = dialog.getTitle();
+        String newTitle = title.replaceAll("BlueJ", "Greenfoot");
+        dialog.setTitle(newTitle);
+    }    
 }

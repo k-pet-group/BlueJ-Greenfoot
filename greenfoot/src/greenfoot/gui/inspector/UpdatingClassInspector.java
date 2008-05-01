@@ -1,5 +1,7 @@
 package greenfoot.gui.inspector;
 
+import greenfoot.util.GreenfootUtil;
+
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
@@ -27,7 +29,7 @@ public class UpdatingClassInspector extends ClassInspector
         SwingUtilities.invokeLater(new Runnable() {
             public void run()
             {
-                GreenfootInspector.makeGreenfootTitle(UpdatingClassInspector.this);
+                GreenfootUtil.makeGreenfootTitle(UpdatingClassInspector.this);
             }
         });
     }

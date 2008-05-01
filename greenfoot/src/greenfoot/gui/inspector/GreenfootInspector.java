@@ -4,7 +4,6 @@ import greenfoot.Actor;
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.input.InputManager;
 import greenfoot.localdebugger.LocalObject;
-import bluej.debugmgr.inspector.Inspector;
 
 /**
  * Contains methods used by the inspector in greenfoot.
@@ -28,7 +27,6 @@ public class GreenfootInspector
         return false;
     }
 
-
     /**
      * The "Get" button was pressed. Start dragging the selected object.
      */
@@ -38,14 +36,4 @@ public class GreenfootInspector
         InputManager inputManager = WorldHandler.getInstance().getInputManager();
         inputManager.objectAdded((Actor) obj);
     }
-    
-    /**
-     * Should be called from event thread.
-     */
-    static void makeGreenfootTitle(Inspector insp)
-    {
-        String title = insp.getTitle();
-        String newTitle = title.replaceAll("BlueJ", "Greenfoot");
-        insp.setTitle(newTitle);
-    }    
 }
