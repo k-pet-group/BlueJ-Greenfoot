@@ -18,10 +18,10 @@ import bluej.testmgr.record.InvokerRecord;
  * @author Poul Henriksen
  * 
  */
-public class UpdatingClassInspector extends ClassInspector
+public class GreenfootClassInspector extends ClassInspector
 {
 
-    public UpdatingClassInspector(DebuggerClass clss, InspectorManager inspectorManager, Package pkg, InvokerRecord ir,
+    public GreenfootClassInspector(DebuggerClass clss, InspectorManager inspectorManager, Package pkg, InvokerRecord ir,
             JFrame parent)
     {
         super(clss, inspectorManager, pkg, ir, parent);
@@ -29,7 +29,7 @@ public class UpdatingClassInspector extends ClassInspector
         SwingUtilities.invokeLater(new Runnable() {
             public void run()
             {
-                GreenfootUtil.makeGreenfootTitle(UpdatingClassInspector.this);
+                GreenfootUtil.makeGreenfootTitle(GreenfootClassInspector.this);
             }
         });
     }

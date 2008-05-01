@@ -39,8 +39,8 @@ import greenfoot.gui.classbrowser.Selectable;
 import greenfoot.gui.classbrowser.SelectionListener;
 import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.gui.inspector.GreenfootResultInspector;
-import greenfoot.gui.inspector.UpdatingClassInspector;
-import greenfoot.gui.inspector.UpdatingObjectInspector;
+import greenfoot.gui.inspector.GreenfootClassInspector;
+import greenfoot.gui.inspector.GreenfootObjectInspector;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.sound.SoundPlayer;
 import greenfoot.util.GreenfootUtil;
@@ -101,7 +101,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5728 2008-05-01 10:41:38Z polle $
+ * @version $Id: GreenfootFrame.java 5737 2008-05-01 14:14:42Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener,
@@ -865,7 +865,7 @@ public class GreenfootFrame extends JFrame
 
         if (inspector == null) {
             ClassInspectInvokerRecord ir = new ClassInspectInvokerRecord(clss.getName());
-            inspector = new UpdatingClassInspector(clss, this, pkg, ir, parent);
+            inspector = new GreenfootClassInspector(clss, this, pkg, ir, parent);
             classInspectors.put(clss.getName(), inspector);
         }
 
@@ -887,7 +887,7 @@ public class GreenfootFrame extends JFrame
         ObjectInspector inspector = (ObjectInspector) objectInspectors.get(obj);
         
         if (inspector == null) {
-            inspector = new UpdatingObjectInspector(obj, this, name, pkg, ir, parent);
+            inspector = new GreenfootObjectInspector(obj, this, name, pkg, ir, parent);
             objectInspectors.put(obj, inspector);
         }
         
