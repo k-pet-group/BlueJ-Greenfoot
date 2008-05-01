@@ -38,6 +38,7 @@ import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.Selectable;
 import greenfoot.gui.classbrowser.SelectionListener;
 import greenfoot.gui.input.mouse.LocationTracker;
+import greenfoot.gui.inspector.GreenfootResultInspector;
 import greenfoot.gui.inspector.UpdatingClassInspector;
 import greenfoot.gui.inspector.UpdatingObjectInspector;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
@@ -100,7 +101,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5710 2008-04-22 23:19:06Z polle $
+ * @version $Id: GreenfootFrame.java 5728 2008-05-01 10:41:38Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener,
@@ -908,7 +909,7 @@ public class GreenfootFrame extends JFrame
         ResultInspector inspector = (ResultInspector) objectInspectors.get(obj);
         
         if (inspector == null) {
-            inspector = new ResultInspector(obj, this, name, pkg, ir, info, parent);
+            inspector = new GreenfootResultInspector(obj, this, name, pkg, ir, info, parent);
             objectInspectors.put(obj, inspector);
         }
 

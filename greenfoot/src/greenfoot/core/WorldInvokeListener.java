@@ -361,47 +361,47 @@ public class WorldInvokeListener
         Object wrapped;
         if (c == boolean.class) {
             wrapped = new Object() {
-                boolean result = ((Boolean) r).booleanValue();
+                public boolean result = ((Boolean) r).booleanValue();
             };
         }
         else if (c == byte.class) {
             wrapped = new Object() {
-                byte result = ((Byte) r).byteValue();
+                public byte result = ((Byte) r).byteValue();
             };
         }
         else if (c == char.class) {
             wrapped = new Object() {
-                char result = ((Character) r).charValue();
+                public char result = ((Character) r).charValue();
             };
         }
         else if (c == short.class) {
             wrapped = new Object() {
-                short result = ((Short) r).shortValue();
+                public short result = ((Short) r).shortValue();
             };
         }
         else if (c == int.class) {
             wrapped = new Object() {
-                int result = ((Integer) r).intValue();
+                public int result = ((Integer) r).intValue();
             };
         }
         else if (c == long.class) {
             wrapped = new Object() {
-                long result = ((Long) r).longValue();
+                public long result = ((Long) r).longValue();
             };
         }
         else if (c == float.class) {
             wrapped = new Object() {
-                float result = ((Float) r).floatValue();
+                public float result = ((Float) r).floatValue();
             };
         }
         else if (c == double.class) {
             wrapped = new Object() {
-                double result = ((Double) r).doubleValue();
+                public double result = ((Double) r).doubleValue();
             };
         }
         else {
             wrapped = new Object() {
-                Object result = r;
+                public Object result = r;
             };
         }
         return LocalObject.getLocalObject(wrapped);
