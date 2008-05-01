@@ -39,7 +39,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 5715 2008-04-27 16:03:21Z polle $
+ * @version $Id: Utility.java 5733 2008-05-01 11:41:13Z polle $
  */
 public class Utility
 {
@@ -47,8 +47,8 @@ public class Utility
      * Used to track which events have occurred for firstTimeThisRun()
      */
     private static Set occurredEvents = new HashSet();
-    
-    private static URLClassLoader classLoader ;
+
+    private static URLClassLoader classLoader;
     static {
         try {
             classLoader = new URLClassLoader(new URL[]{new File("/System/Library/Java/").toURI().toURL()});
@@ -473,9 +473,9 @@ public class Utility
     }
 
     /**
-     * Bring the current process to the front in the OS window stacking order. 
+     * Bring the current process to the front in the OS window stacking order.
      * The given window will be brought to the front.
-     *
+     * 
      */
     public static void bringToFront(final Window window)
     {
@@ -543,15 +543,17 @@ public class Utility
             SwingUtilities.invokeLater(new Thread() {
                 public void run()
                 {
-
                     if (!window.isVisible()) {
                         // necessary and idiomatically correct
                         window.setVisible(true);
                     }
                     // Bring the frame to the top (will not give it focus)
                     window.setAlwaysOnTop(true);
-
-                   
+                }
+            });
+            SwingUtilities.invokeLater(new Thread() {
+                public void run()
+                {
                     // Figure out a safe location to click.
                     // Ignore border so we don't accidently click on a
                     // close-button or similar.
@@ -560,7 +562,6 @@ public class Utility
                     windowLoc.translate(insets.right, insets.top);
                     int x = (int) (windowLoc.getX() + 1);
                     int y = (int) (windowLoc.getY() + 1);
-
                     // Fake a click on the window so that it gets the focus.
                     //
                     // This assumes that the window is the top most windo,
@@ -572,17 +573,20 @@ public class Utility
                     catch (Throwable e) {
                         Debug.reportError("Bringing process to front failed (cross platform): " + e);
                     }
-                    finally {
-                        // Oh no, I actually did not want this
-                        SwingUtilities.invokeLater(new Thread() {
-                            public void run()
-                            {
-                                // we have to do this after everything else has
-                                // finished (clicks etc) so we do it later.
-                                window.setAlwaysOnTop(false);
-                            }
-                        });
-                    }
+                }
+            });
+            SwingUtilities.invokeLater(new Thread() {
+                public void run()
+                {
+                    // Oh no, I actually did not want this
+                    SwingUtilities.invokeLater(new Thread() {
+                        public void run()
+                        {
+                            // we have to do this after everything else has
+                            // finished (clicks etc)
+                            window.setAlwaysOnTop(false);
+                        }
+                    });
                 }
             });
         }
