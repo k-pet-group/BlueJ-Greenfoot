@@ -411,6 +411,14 @@ public class WorldHandler
             objectDropped = true;
             return true;
         }
+        else if (o instanceof Actor && ((Actor) o).getWorld() == null) {
+            // object received from the inspector via the Get button.
+
+            Actor actor = (Actor) o;
+            getWorld().addObject(actor, x, y);
+            objectDropped = true;
+            return true;
+        }
         else if (o instanceof Actor) {
             Actor actor = (Actor) o;
             if (actor.getWorld() == null) {
@@ -487,10 +495,16 @@ public class WorldHandler
         if (source != worldCanvas) {
             e = SwingUtilities.convertMouseEvent(source, e, worldCanvas);
         }
+        int xPixel = e.getX();
+        int yPixel = e.getY();
+        return addActorAtPixel(actor, xPixel, yPixel);
+    }
 
+    private boolean addActorAtPixel(Actor actor, int xPixel, int yPixel)
+    {
         World world = getWorld();
-        int x = WorldVisitor.toCellFloor(world, e.getX());
-        int y = WorldVisitor.toCellFloor(world, e.getY());
+        int x = WorldVisitor.toCellFloor(world, xPixel);
+        int y = WorldVisitor.toCellFloor(world, yPixel);
         if (x < world.getWidth() && y < world.getHeight()) {
             world.addObject(actor, x, y);
             return true;

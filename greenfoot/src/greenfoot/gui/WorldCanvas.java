@@ -6,7 +6,6 @@ import greenfoot.GreenfootImage;
 import greenfoot.ImageVisitor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
-import greenfoot.core.ObjectDragProxy;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
@@ -28,7 +27,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldCanvas.java 5720 2008-04-30 13:15:14Z polle $
+ * @version $Id: WorldCanvas.java 5726 2008-05-01 01:27:03Z polle $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -226,7 +225,7 @@ public class WorldCanvas extends JPanel
      */
     public boolean drag(Object o, Point p)
     {
-        if(o instanceof ObjectDragProxy ) {   
+        if(o instanceof Actor && ((Actor) o).getWorld() == null) {   
             if(!getVisibleRect().contains(p)) {
                 return false;
             }
@@ -237,8 +236,7 @@ public class WorldCanvas extends JPanel
             }
             dragLocation = p;
             repaint();
-            return true;
-            
+            return true;            
         }        
         else if (dropTargetListener != null) {
             return dropTargetListener.drag(o, p);

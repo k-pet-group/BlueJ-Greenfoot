@@ -6,7 +6,13 @@ import greenfoot.World;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
@@ -24,7 +30,7 @@ import com.sun.jdi.ObjectReference;
  * A class to represent a local object as a DebuggerObject
  *  
  * @author Davin McCall
- * @version $Id: LocalObject.java 5670 2008-04-11 13:28:48Z polle $
+ * @version $Id: LocalObject.java 5726 2008-05-01 01:27:03Z polle $
  */
 public class LocalObject extends DebuggerObject
 {
@@ -605,8 +611,9 @@ public class LocalObject extends DebuggerObject
      */
     public boolean staticFieldIsPublic(int slot)
     {
-        // TODO Auto-generated method stub
-        return false;
+        Field field = getStaticFieldSlot(slot);
+        int mods = field.getModifiers();
+        return Modifier.isPublic(mods);
     }
 
     /* (non-Javadoc)
@@ -614,8 +621,9 @@ public class LocalObject extends DebuggerObject
      */
     public boolean instanceFieldIsPublic(int slot)
     {
-        // TODO Auto-generated method stub
-        return false;
+        Field field = getInstanceFieldSlot(slot);
+        int mods = field.getModifiers();
+        return Modifier.isPublic(mods);
     }
 
     /* (non-Javadoc)
@@ -688,5 +696,13 @@ public class LocalObject extends DebuggerObject
             return false;
         }
         return true;            
+    }
+
+    /**
+     * Returns the object that this LocalObject represents.
+     */
+    public Object getObject()
+    {
+        return object;
     }
 }

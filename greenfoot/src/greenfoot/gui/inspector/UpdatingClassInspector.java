@@ -22,7 +22,26 @@ public class UpdatingClassInspector extends ClassInspector
             JFrame parent)
     {
         super(clss, inspectorManager, pkg, ir, parent);
-        InspectorUpdater updater = new InspectorUpdater(this);
+        new InspectorUpdater(this);
     }
 
+    /**
+     * Whether the Get button should be enabled.
+     * @return True if the selected object is an actor
+     */
+    @Override
+    protected boolean isGetEnabled()
+    {
+        return GreenfootInspector.isGetEnabled(selectedObject);
+    }
+
+
+    /**
+     * The "Get" button was pressed. Start dragging the selected object.
+     */
+    @Override
+    protected void doGet()
+    {
+        GreenfootInspector.doGet(selectedObject);
+    }
 }
