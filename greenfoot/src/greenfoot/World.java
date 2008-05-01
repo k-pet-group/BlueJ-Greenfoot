@@ -591,15 +591,21 @@ public abstract class World
         return getWidth() * getCellSize();
     }
 
-    int toCellCeil(int i)
+    /**
+     * Converts the pixel location into a cell, rounding up.
+     */    
+    int toCellCeil(int pixel)
     {
-        return (int) Math.ceil((double) i / cellSize);
+        return (int) Math.ceil((double) pixel / cellSize);
     }
 
-    int toCellFloor(int i)
+    /**
+     * Converts the pixel location into a cell, rounding down.
+     */
+    int toCellFloor(int pixel)
     {
-        return (int) Math.floor((double) i / cellSize);
-    }
+        return (int) Math.floor((double) pixel / cellSize);
+    }        
 
     /**
      * Returns the center of the cell. It should be rounded down with Math.floor() if the integer version is needed.
