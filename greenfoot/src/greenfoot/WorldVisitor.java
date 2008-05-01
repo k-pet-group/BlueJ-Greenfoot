@@ -10,7 +10,7 @@ import java.util.Collection;
  * in the public interface visible to users.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldVisitor.java 5536 2008-02-06 17:18:04Z polle $
+ * @version $Id: WorldVisitor.java 5736 2008-05-01 13:37:23Z polle $
  */
 public class WorldVisitor
 {
@@ -54,6 +54,16 @@ public class WorldVisitor
     public static int toCellFloor(World world, int x)
     {
         return world.toCellFloor(x);
+    }
+    
+    /**
+     * Returns the center of the cell. It should be rounded down with Math.floor() if the integer version is needed.
+     * @param l Cell location.
+     * @return Absolute location of the cell center in pixels.
+     */
+    public static  double getCellCenter(World w, int c)
+    {
+        return w.getCellCenter(c);
     }
     
     /**

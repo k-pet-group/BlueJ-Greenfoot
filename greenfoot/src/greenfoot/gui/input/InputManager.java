@@ -195,9 +195,19 @@ public class InputManager
      * When an actor is created via constructor the constructor in the context menu.
      * @param object Object that has been added
      */
-    public void objectAdded(Actor object)
+    public void objectCreated(Actor object)
     {
         state.switchToNextState(State.Event.CONSTRUCTOR_INVOKED, object);
+    }
+    
+
+    /**
+     * When an actor is created via constructor the constructor in the context menu.
+     * @param object Object that has been added
+     */
+    public void objectMoved(Actor object)
+    {
+        state.switchToNextState(State.Event.OBJECT_MOVED, object);
     }
 
     public void keyPressed(KeyEvent e)

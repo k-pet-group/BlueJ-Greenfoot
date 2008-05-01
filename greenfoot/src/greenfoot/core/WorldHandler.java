@@ -171,20 +171,27 @@ public class WorldHandler
      */
     public void mousePressed(MouseEvent e)
     {
-        handlerDelegate.maybeShowPopup(e);
-        if (SwingUtilities.isLeftMouseButton(e)) {
+        boolean isPopUp = handlerDelegate.maybeShowPopup(e);
+        if (SwingUtilities.isLeftMouseButton(e) && !isPopUp) {
             Actor actor = getObject(e.getX(), e.getY());
             if (actor != null) {
-                dragActor = actor;
-                dragBeginX = actor.getX() * world.getCellSize() + world.getCellSize() / 2;
-                dragBeginY = actor.getY() * world.getCellSize() + world.getCellSize() / 2;
-                dragOffsetX = dragBeginX - e.getX();
-                dragOffsetY = dragBeginY - e.getY();
-                objectDropped = false;
-                worldCanvas.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                drag(actor, e.getPoint());
+                Point p = e.getPoint();
+                startDrag(actor, p);
             }
         }
+    }
+
+    private void startDrag(Actor actor, Point p)
+    {
+        dragActor = actor;
+        dragBeginX = actor.getX() * world.getCellSize() + world.getCellSize() / 2;
+        dragBeginY = actor.getY() * world.getCellSize() + world.getCellSize() / 2;
+        dragOffsetX = dragBeginX - p.x;
+        dragOffsetY = dragBeginY - p.y;
+        objectDropped = false;
+        SwingUtilities.getWindowAncestor(worldCanvas).toFront();
+        worldCanvas.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        drag(actor, p);
     }
 
     /*
@@ -645,7 +652,10 @@ public class WorldHandler
     }
 
     public void mouseMoved(MouseEvent e)
-    {}
+    {
+        objectDropped = false;
+        drag(dragActor, e.getPoint());
+    }
 
     /**
      * Get a snapshot of the currently instantiated world or null if no world is
@@ -670,14 +680,19 @@ public class WorldHandler
 
     public void listeningEnded()
     {
-        // TODO Auto-generated method stub
-        
+        dragActor = null;
     }
 
     public void listeningStarted(Object obj)
     {
-        // TODO Auto-generated method stub
-        
+        // If the obj is not null, it means we have to activate the dragging of that object.
+        if (obj != null && obj != dragActor) {
+            Actor actor = (Actor) obj;
+            int x = (int) Math.floor(WorldVisitor.getCellCenter(world, actor.getX()));
+            int y = (int) Math.floor(WorldVisitor.getCellCenter(world, actor.getY()));
+            Point p = new Point(x, y);
+            startDrag(actor, p);
+        }
     }
 
 }

@@ -34,6 +34,12 @@ public class GreenfootInspector
     {
         Object obj = ((LocalObject) selectedObject).getObject();
         InputManager inputManager = WorldHandler.getInstance().getInputManager();
-        inputManager.objectAdded((Actor) obj);
+        Actor actor = (Actor) obj;
+        if(actor.getWorld() != null) {
+            inputManager.objectMoved(actor);
+        }
+        else {
+            inputManager.objectCreated(actor);
+        }
     }
 }

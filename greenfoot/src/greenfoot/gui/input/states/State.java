@@ -24,7 +24,7 @@ public abstract class State
      * Represents the different events that can tricker state changes.
      */
     public static enum Event {
-         CONSTRUCTOR_INVOKED,  MOUSE_RELEASED,  SHIFT_PRESSED,  SHIFT_RELEASED,  MOUSE_PRESSED,  SIMULATION_STARTED,  SIMULATION_STOPPED,  WORLD_CREATED,  WORLD_REMOVED;        
+         CONSTRUCTOR_INVOKED,  MOUSE_RELEASED,  SHIFT_PRESSED,  SHIFT_RELEASED,  MOUSE_PRESSED,  SIMULATION_STARTED,  SIMULATION_STOPPED,  WORLD_CREATED,  WORLD_REMOVED, OBJECT_MOVED;        
     }
 
     protected InputManager inputManager;

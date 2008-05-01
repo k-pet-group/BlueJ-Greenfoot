@@ -48,6 +48,9 @@ public class IdleState extends State
             case CONSTRUCTOR_INVOKED :
                 switchAndActivateState(ConstructorDragState.getInstance(), obj);
                 break;
+            case OBJECT_MOVED :
+                switchAndActivateState(MoveState.getInstance(), obj);
+                break;
             case SIMULATION_STARTED :
                 switchAndActivateState(RunningState.getInstance(), obj);
                 break;

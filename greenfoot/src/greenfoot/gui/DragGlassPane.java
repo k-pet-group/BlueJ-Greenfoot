@@ -58,7 +58,7 @@ import javax.swing.SwingUtilities;
  * dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen
- * @version $Id: DragGlassPane.java 5711 2008-04-23 00:02:34Z polle $
+ * @version $Id: DragGlassPane.java 5736 2008-05-01 13:37:23Z polle $
  * 
  */
 public class DragGlassPane extends JComponent
@@ -501,6 +501,7 @@ public class DragGlassPane extends JComponent
         
         if(obj != null) {
             startDrag((Actor) obj, null, null, true);
+            SwingUtilities.getWindowAncestor(this).toFront();
         } else {
             isQuickAddActive = true;
             quickAddIfActive();

@@ -33,7 +33,7 @@ public class DragProxyAction extends AbstractAction
     public void actionPerformed(ActionEvent e)
     {
         ObjectDragProxy object = new ObjectDragProxy(dragImage, dropAction);
-        WorldHandler.getInstance().getInputManager().objectAdded(object);
+        WorldHandler.getInstance().getInputManager().objectCreated(object);
     }
 
 }
