@@ -32,7 +32,7 @@ import bluej.utility.DialogManager;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: Inspector.java 5546 2008-02-11 10:52:43Z polle $
+ * @version $Id: Inspector.java 5734 2008-05-01 13:22:39Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -329,9 +329,7 @@ public abstract class Inspector extends JFrame
     protected void setButtonsEnabled(boolean inspect, boolean get)
     {
         inspectButton.setEnabled(inspect);
-        if (isGetEnabled()) {
-            getButton.setEnabled(get);
-        }
+        getButton.setEnabled(get && isGetEnabled());
     }
 
     /**
