@@ -11,7 +11,7 @@ import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
 
 /**
- * Result inspector for Greenfoot. 
+ * Result inspector for Greenfoot.
  * 
  * @author Poul Henriksen
  */
@@ -22,10 +22,17 @@ public class GreenfootResultInspector extends ResultInspector
             InvokerRecord ir, ExpressionInformation info, JFrame parent)
     {
         super(obj, inspectorManager, name, pkg, ir, info, parent);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run()
+            {
+                GreenfootInspector.makeGreenfootTitle(GreenfootResultInspector.this);
+            }
+        });
     }
-    
+
     /**
      * Whether the Get button should be enabled.
+     * 
      * @return True if the selected object is an actor
      */
     @Override
@@ -42,5 +49,5 @@ public class GreenfootResultInspector extends ResultInspector
     {
         GreenfootInspector.doGet(selectedObject);
     }
-    
+
 }

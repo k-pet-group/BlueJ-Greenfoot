@@ -1,6 +1,7 @@
 package greenfoot.gui.inspector;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 import bluej.debugger.DebuggerClass;
 import bluej.debugmgr.inspector.ClassInspector;
@@ -23,10 +24,17 @@ public class UpdatingClassInspector extends ClassInspector
     {
         super(clss, inspectorManager, pkg, ir, parent);
         new InspectorUpdater(this);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run()
+            {
+                GreenfootInspector.makeGreenfootTitle(UpdatingClassInspector.this);
+            }
+        });
     }
 
     /**
      * Whether the Get button should be enabled.
+     * 
      * @return True if the selected object is an actor
      */
     @Override
@@ -34,7 +42,6 @@ public class UpdatingClassInspector extends ClassInspector
     {
         return GreenfootInspector.isGetEnabled(selectedObject);
     }
-
 
     /**
      * The "Get" button was pressed. Start dragging the selected object.

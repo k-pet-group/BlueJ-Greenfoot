@@ -1,6 +1,7 @@
 package greenfoot.gui.inspector;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 import bluej.debugger.DebuggerObject;
 import bluej.debugmgr.inspector.InspectorManager;
@@ -22,10 +23,17 @@ public class UpdatingObjectInspector extends ObjectInspector
     {
         super(obj, inspectorManager, name, pkg, ir, parent);
         new InspectorUpdater(this);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run()
+            {
+                GreenfootInspector.makeGreenfootTitle(UpdatingObjectInspector.this);
+            }
+        });
     }
 
     /**
      * Whether the Get button should be enabled.
+     * 
      * @return True if the selected object is an actor
      */
     @Override
