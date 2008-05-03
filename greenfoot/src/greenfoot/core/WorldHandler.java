@@ -680,13 +680,15 @@ public class WorldHandler
 
     public void listeningEnded()
     {
-        dragActor = null;
+    // TODO: instead of relying on mousePressed to start a drag on the world, we
+    // should initiate it in listeningStarted. Maybe by passing the event object
+    // to listening started. 
     }
 
     public void listeningStarted(Object obj)
     {
         // If the obj is not null, it means we have to activate the dragging of that object.
-        if (obj != null && obj != dragActor) {
+        if (obj != null && obj != dragActor && obj instanceof Actor) {
             Actor actor = (Actor) obj;
             int x = (int) Math.floor(WorldVisitor.getCellCenter(world, actor.getX()));
             int y = (int) Math.floor(WorldVisitor.getCellCenter(world, actor.getY()));
