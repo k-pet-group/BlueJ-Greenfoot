@@ -39,7 +39,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 5733 2008-05-01 11:41:13Z polle $
+ * @version $Id: Utility.java 5741 2008-05-03 10:47:09Z polle $
  */
 public class Utility
 {
@@ -481,8 +481,7 @@ public class Utility
     {
         // If already the focused window, or not showing at all we return now.
         if (window.isFocusOwner() || !window.isShowing()) {
-            System.out.println("Not bringing window to front: " + window + "   isFocusOwner: " + window.isFocusOwner()
-                    + "  isShowing: " + window.isShowing());
+            //System.out.println("Not bringing window to front: " + window + "   isFocusOwner: " + window.isFocusOwner() + "  isShowing: " + window.isShowing());
             return;
         }
 
@@ -520,7 +519,7 @@ public class Utility
                 Debug.reportError("Bringing process to front failed (MacOS): " + exc);
             }
         }
-        else if (alwaysOnTopSupported && !window.isAlwaysOnTop()) {
+        else if (false && alwaysOnTopSupported && !window.isAlwaysOnTop()) {
             // This should work cross platform, but is a very nasty hack, so we
             // only do it if alwaysOnTop is likely to be supported.
             // If the window is already on top, it is probably because we are
