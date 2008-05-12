@@ -257,7 +257,7 @@ public class Simulation extends Thread
                 lastRepaintTime = repaintTimes.peek();
             }
         }
-        int timeSinceRepaint = (int) (currentTime - lastRepaintTime);
+        long timeSinceRepaint = currentTime - lastRepaintTime;
         // Avoid divide by zero
         if (timeSinceRepaint == 0)
             timeSinceRepaint = 1;
