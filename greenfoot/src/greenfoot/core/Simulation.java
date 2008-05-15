@@ -225,7 +225,7 @@ public class Simulation extends Thread
             worldHandler.repaint();
 
             synchronized (repaintTimes) {
-                repaintTimes.offer(System.nanoTime());
+                repaintTimes.offer(System.currentTimeMillis());
             }
 
             // Yielding here makes sure the WorldCanvas gets a chance to
@@ -244,7 +244,7 @@ public class Simulation extends Thread
      */
     private int getRepaintRate()
     {
-        long currentTime = System.nanoTime();
+        long currentTime = System.currentTimeMillis();
         long lastRepaintTime = 0;
         int knownRepaintTimes = 0;
         synchronized (repaintTimes) {
@@ -261,7 +261,7 @@ public class Simulation extends Thread
         // Avoid divide by zero
         if (timeSinceRepaint == 0)
             timeSinceRepaint = 1;
-        int frameRate = (int) ((knownRepaintTimes * 1000000000L) / timeSinceRepaint);
+        int frameRate = (int) ((knownRepaintTimes * 1000L) / timeSinceRepaint);
         return frameRate;
     }
 
