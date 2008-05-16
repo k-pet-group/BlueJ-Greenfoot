@@ -39,7 +39,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 5741 2008-05-03 10:47:09Z polle $
+ * @version $Id: Utility.java 5750 2008-05-16 17:21:56Z polle $
  */
 public class Utility
 {
@@ -775,15 +775,23 @@ public class Utility
         // segmented styles:
         // segmented, segmentedRoundRect, segmentedCapsule, segmentedTextured
         // see: http://developer.apple.com/technotes/tn2007/tn2196.html
-
+        
+        if(!Config.isMacOS()) {
+            return;
+        }
+        
         Border oldBorder = button.getBorder();
 
         // the following works since MacOS 10.5
-
         button.putClientProperty("JButton.buttonType", "square");
-        button.setMargin(new Insets(8, 8, 8, 8));
-        // button.putClientProperty("JButton.segmentPosition", position);
-
+       
+        if(!Config.isJava16()) {
+            button.setMargin(new Insets(8, 8, 8, 8));
+        } else {
+            // They changed the insets in Java 1.6....
+            button.setMargin(new Insets(3, 1, 3, 1));            
+        }
+        
         if (oldBorder == button.getBorder()) {
             // if the border didn't change the "textured" type probably doesn't
             // exist, which means we are running on MacOS < 10.5. This means we
