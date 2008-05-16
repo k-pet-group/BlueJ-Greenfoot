@@ -29,6 +29,7 @@
     <patternset id="bluej.libdirs">
         <exclude name="**/.#*" />
         <include name="lib/images/*.gif" />
+        <include name="lib/images/*.png" />
         <include name="lib/images/*.jpg" />
         <include name="lib/images/*.icns" />
         <include name="lib/afrikaans/" />
