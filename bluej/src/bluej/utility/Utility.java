@@ -39,7 +39,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 5750 2008-05-16 17:21:56Z polle $
+ * @version $Id: Utility.java 5754 2008-05-19 10:02:47Z polle $
  */
 public class Utility
 {
@@ -784,19 +784,21 @@ public class Utility
 
         // the following works since MacOS 10.5
         button.putClientProperty("JButton.buttonType", "square");
-       
-        if(!Config.isJava16()) {
-            button.setMargin(new Insets(8, 8, 8, 8));
-        } else {
-            // They changed the insets in Java 1.6....
-            button.setMargin(new Insets(3, 1, 3, 1));            
-        }
         
         if (oldBorder == button.getBorder()) {
             // if the border didn't change the "textured" type probably doesn't
             // exist, which means we are running on MacOS < 10.5. This means we
             // should use the old pre-10.5 "toolbar" style instead.
             button.putClientProperty("JButton.buttonType", "toolbar");
+        } else {
+            // if we get to this point, the square button type is available, and
+    		// we can continue configuring for that one.
+    		if (!Config.isJava16()) {
+    			button.setMargin(new Insets(8, 8, 8, 8));
+            } else {
+                // They changed the insets in Java 1.6....
+                button.setMargin(new Insets(3, 1, 3, 1));            
+            }	
         }
     }
 
