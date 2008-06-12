@@ -3,6 +3,7 @@ package greenfoot.util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 /**
  * Timer to do high precision sleeps and waits.
@@ -83,6 +84,22 @@ public class HDTimer
         throws InterruptedException
     {
         long tStart = System.nanoTime();
+        sleepFromTime(nanos, tStart);
+    }
+
+    /**
+     * Sleep for the specified amount of time.
+     * 
+     * @param nanos
+     *            Time to wait in nanoseconds.
+     * @param tStart The tiem from which the wainting should start.
+     * 
+     * @throws InterruptedException
+     *             if another thread has interrupted the current thread
+     */
+    private static void sleepFromTime(long nanos, long tStart)
+        throws InterruptedException
+    {
         int yieldCount = 0;
         int loopCount = 0;
         long sleepNanos = nanos - sleepPrecision;
@@ -127,6 +144,7 @@ public class HDTimer
      * Object.wait() to release the lock and is hence limited by the precision
      * of wait.
      * 
+     * @deprecated Use {@link #wait(long, WriteLock)}
      * @param nanos
      *            Time to wait in nanoseconds.
      * @throws InterruptedException
@@ -180,5 +198,40 @@ public class HDTimer
         //System.out.println(" worstYield: " + worstYieldTime);
         //System.out.println(" waited: " + waited);
 
+    }
+    
+    /**
+     * Wait for the specified amount of time. This method will release the lock
+     * (if it is currently held) for some time while waiting. As opposed to
+     * Object.wait(), this method will not finish when the lock receives a
+     * notify or notifyAll, but will instead continue waiting.
+     * 
+     * This method is less precise than sleep, since it always has to invoke
+     * Object.wait() to release the lock and is hence limited by the precision
+     * of wait.
+     * 
+     * @param nanos Time to wait in nanoseconds.
+     * @param lock The lock to release while waiting.
+     * @throws InterruptedException if another thread has interrupted the
+     *             current thread
+     */
+    public static void wait(long nanos, WriteLock lock)
+        throws InterruptedException
+    {
+        long tStart = System.nanoTime();
+        if(!lock.isHeldByCurrentThread()) {
+            // We do not hold the lock, so use sleep instead:
+            sleepFromTime(nanos, tStart);
+            return;
+        }
+            
+        // We can release the lock until we are finished sleeping
+        lock.unlock();
+        try {
+            sleepFromTime(nanos, tStart);
+        }
+        finally {
+            lock.lockInterruptibly();
+        }
     }
 }

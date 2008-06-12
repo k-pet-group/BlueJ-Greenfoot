@@ -3,11 +3,17 @@ package greenfoot;
 
 import greenfoot.collision.CollisionChecker;
 import greenfoot.collision.ibsp.IBSPColChecker;
+import greenfoot.core.ActInterruptedException;
 import greenfoot.core.WorldHandler;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 
@@ -62,6 +68,11 @@ public abstract class World
     /** Should the image be tiled to fill the entire background */
     private boolean tiled = true;    
 
+    /** Lock used for iterating over actors. */
+    public ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    /** Timeout used for readers attempting to acquire lock */
+    public static final int READ_LOCK_TIMEOUT = 500;
+    
     /**
      * Construct a new world. The size of the world (in number of cells) and the
      * size of each cell (in pixels) must be specified.
@@ -448,22 +459,25 @@ public abstract class World
      * Repaints the world. 
      */
     public void repaint() 
-    {        
-        // We have the world lock when arriving here, since it will be called
-        // from the user code. So, we need to release the lock, for a repaint to
-        // happen, since the repaint synchronizes on the world.
-        synchronized (this) {
-            WorldHandler.getInstance().repaint();
-            // TODO to really ensure a repaint, we should check whether the
-            // repaint actually happened and keep waiting until it does. Because
-            // we could get spurious wake ups. But this should work in most
-            // cases. Maybe use the JDK1.5 concurrency API to fix it.
+    {   
+        WorldHandler.getInstance().repaint();
+        // If we have the write lock now, we need to release it for the repaint
+        // to actually happen:
+        if (lock.isWriteLockedByCurrentThread()) {
             try {
-                this.wait();
+                // TODO to really ensure a repaint, we should check whether the
+                // repaint actually happened and keep waiting until it does.
+                // Because we could get spurious wake ups. BUT, if we miss an
+                // update that is really not a big problem, so we just ignore it
+                lock.writeLock().newCondition().await(100, TimeUnit.MILLISECONDS);
             }
             catch (InterruptedException e) {
+                // Since we have the writeLock, it means that we are executing in
+                // the simulation loop, and hence need interruptions to be
+                // handled by the simulation.
+                throw new ActInterruptedException(e);
             }
-        }
+        }        
     }
     
     /**

@@ -18,6 +18,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JPanel;
 import javax.swing.Scrollable;
@@ -27,7 +28,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldCanvas.java 5726 2008-05-01 01:27:03Z polle $
+ * @version $Id: WorldCanvas.java 5758 2008-06-12 15:23:45Z polle $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -68,55 +69,81 @@ public class WorldCanvas extends JPanel
 
     /**
      * Paints all the objects.
+     * 
+     * Must be synchronized on the World.lock.
      */
     public void paintObjects(Graphics g)
     {
-        if (world == null) {
-            return;
-        }
-        //we need to sync, so that objects are not added and removed when we traverse the list.
-        synchronized (world) {
-            Set<Actor> objects = WorldVisitor.getObjectsListInPaintOrder(world);
-            int paintSeq = 0;
-            for (Iterator<Actor> iter = objects.iterator(); iter.hasNext();) {
-                Actor thing = iter.next();
-                int cellSize = WorldVisitor.getCellSize(world);
+        Set<Actor> objects = WorldVisitor.getObjectsListInPaintOrder(world);
+        int paintSeq = 0;
+        for (Iterator<Actor> iter = objects.iterator(); iter.hasNext();) {
+            Actor thing = iter.next();
+            int cellSize = WorldVisitor.getCellSize(world);
 
-                GreenfootImage image = ActorVisitor.getDisplayImage(thing);
-                if (image != null) {
-                    ActorVisitor.setLastPaintSeqNum(thing, paintSeq++);
-                    
-                    double halfWidth = image.getWidth() / 2.;
-                    double halfHeight = image.getHeight() / 2.;
+            GreenfootImage image = ActorVisitor.getDisplayImage(thing);
+            if (image != null) {
+                ActorVisitor.setLastPaintSeqNum(thing, paintSeq++);
 
-                    double xCenter = thing.getX() * cellSize + cellSize / 2.;
-                    int paintX = (int) Math.floor(xCenter - halfWidth);
-                    double yCenter = thing.getY() * cellSize + cellSize / 2.;
-                    int paintY = (int) Math.floor(yCenter - halfHeight);
+                double halfWidth = image.getWidth() / 2.;
+                double halfHeight = image.getHeight() / 2.;
 
-                    Graphics2D g2 = (Graphics2D) g;
-                    AffineTransform oldTx = g2.getTransform();
-                    g2.rotate(Math.toRadians(thing.getRotation()), xCenter, yCenter);
-                    ImageVisitor.drawImage(image, g, paintX, paintY, this);
-                    g2.setTransform(oldTx);
-                }
+                double xCenter = thing.getX() * cellSize + cellSize / 2.;
+                int paintX = (int) Math.floor(xCenter - halfWidth);
+                double yCenter = thing.getY() * cellSize + cellSize / 2.;
+                int paintY = (int) Math.floor(yCenter - halfHeight);
+
+                Graphics2D g2 = (Graphics2D) g;
+                AffineTransform oldTx = g2.getTransform();
+                g2.rotate(Math.toRadians(thing.getRotation()), xCenter, yCenter);
+                ImageVisitor.drawImage(image, g, paintX, paintY, this);
+                g2.setTransform(oldTx);
             }
-            //Wake up any threads waiting. For instance the World.repaint() call.
-            world.notifyAll();
         }
+
     }
 
     public void paintComponent(Graphics g)
-    {          
-        super.paintComponent(g);
+    {         
         if (world == null) {
             return;
         }
-        paintBackground(g);
-        paintObjects(g);
-        paintDraggedObject(g);
-        
-        WorldVisitor.paintDebug(world, g);
+        // We need to sync, so that objects are not added and removed when we
+        // traverse the list.
+        // But, we only try to get the lock for a brief period to avoid
+        // deadlocks. A deadlock could otherwise happen if a modal dialog is
+        // created from the user code in one of the act() methods.
+        // We could do the sync only on the paintObjects, but that would mean
+        // that the background will be reset and no objects painted, resulting
+        // in a slightly broken look, if the user code is sleeping (with
+        // Thread.sleep).
+        try {
+            if (world.lock.readLock().tryLock(World.READ_LOCK_TIMEOUT, TimeUnit.MILLISECONDS)) {
+                try {
+                    super.paintComponent(g);
+                    paintBackground(g);
+                    paintObjects(g);
+                    paintDraggedObject(g);
+                    WorldVisitor.paintDebug(world, g);
+                }
+                finally {
+                    world.lock.readLock().unlock();
+
+                    // Wake up any threads waiting. For instance the
+                    // World.repaint() call.
+                    if (world.lock.writeLock().tryLock()) {
+                        try {
+                            world.lock.writeLock().newCondition().signalAll();
+                        }
+                        finally {
+                            world.lock.writeLock().unlock();
+                        }
+                    }
+                }
+            }
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 

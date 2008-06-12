@@ -184,12 +184,15 @@ public class Simulation extends Thread
 
         fireSimulationEvent(newActEvent);
 
-        try {
-            List<? extends Actor> objects = null;
+        List<? extends Actor> objects = null;
 
-            // We need to sync to avoid ConcurrentModificationException
-            synchronized (world) {
+        // We need to sync to avoid ConcurrentModificationException
+        try {
+            world.lock.writeLock().lockInterruptibly();
+            try {
                 world.act();
+                // We need to make a copy so that the original collection can be
+                // modified by the actors act() methods
                 objects = new ArrayList<Actor>(WorldVisitor.getObjectsListInActOrder(world));
                 for (Actor actor : objects) {
                     if (actor.getWorld() != null) {
@@ -197,18 +200,22 @@ public class Simulation extends Thread
                     }
                 }
             }
+            catch (ActInterruptedException e) {
+                throw e;
+            }
+            catch (Throwable t) {
+                // If any other exceptions occur, halt the simulation
+                paused = true;
+                t.printStackTrace();
+            }
+            finally {
+                world.lock.writeLock().unlock();
+            }
         }
-        /*
-         * catch (ThreadDeath td) { throw td; }
-         */
-        catch (ActInterruptedException e) {
-            throw e;
-        }
-        catch (Throwable t) {
-            // If an exception occurs, halt the simulation
-            paused = true;
-            t.printStackTrace();
-        }
+        catch (InterruptedException e) {
+            // Interrupted while trying to acquire lock
+            throw new ActInterruptedException(e);
+        }    
 
         printUpdateRate(System.nanoTime());
 
@@ -451,7 +458,7 @@ public class Simulation extends Thread
                 // The WorldCanvas may be trying to synchronize on the world in
                 // order to do a repaint. So, we use wait() here in order
                 // to release the world lock temporarily.
-                HDTimer.wait(delay, world);
+                HDTimer.wait(delay, world.lock.writeLock());
             }
             else {
                 // shouldn't really happen
