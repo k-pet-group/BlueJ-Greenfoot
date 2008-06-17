@@ -5,7 +5,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5723 2008-04-30 17:47:55Z polle $
+ * @version $Id: Exporter.java 5769 2008-06-17 17:24:07Z polle $
  */
 
 package greenfoot.export;
@@ -29,6 +29,7 @@ import java.net.UnknownHostException;
 
 import javax.imageio.ImageIO;
 
+import bluej.Boot;
 import bluej.Config;
 
 public class Exporter 
@@ -88,10 +89,20 @@ public class Exporter
         
         // Extra entries for the manifest
         jarCreator.putManifestEntry("title", pane.getTitle());
+        
         jarCreator.putManifestEntry("short-description", pane.getShortDescription());
         jarCreator.putManifestEntry("description", pane.getDescription());
         jarCreator.putManifestEntry("url", pane.getURL());
-        jarCreator.putManifestEntry("args", "currently unused");
+
+        jarCreator.putManifestEntry("greenfoot-version", Boot.GREENFOOT_VERSION);
+        jarCreator.putManifestEntry("java-version", System.getProperty("java.version"));
+        jarCreator.putManifestEntry("java-vm-name", System.getProperty("java.vm.name"));
+        jarCreator.putManifestEntry("java-vm-version", System.getProperty("java.vm.version"));
+        jarCreator.putManifestEntry("java-vm-vendor", System.getProperty("java.vm.vendor"));
+        jarCreator.putManifestEntry("os-name", System.getProperty("os.name"));
+        jarCreator.putManifestEntry("os-version", System.getProperty("os.version"));
+        jarCreator.putManifestEntry("os-arch", System.getProperty("os.arch"));
+        jarCreator.putManifestEntry("java-home", System.getProperty("java.home"));        
         
         Dimension size = getSize(!lockScenario);
         jarCreator.putManifestEntry("width", "" + size.width);
