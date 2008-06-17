@@ -4,7 +4,6 @@ import greenfoot.event.TriggeredKeyListener;
 import greenfoot.event.TriggeredMouseListener;
 import greenfoot.event.TriggeredMouseMotionListener;
 import greenfoot.gui.input.InputManager;
-import greenfoot.gui.input.states.State.Event;
 
 /**
  * This state is active when the simulation is running.
@@ -32,9 +31,6 @@ public class RunningState extends State
     public static synchronized RunningState initialize(InputManager inputManager, TriggeredKeyListener keyListener,
             TriggeredMouseListener mouseListener, TriggeredMouseMotionListener mouseMotionListener)
     {
-        if (instance != null) {
-            throw new IllegalStateException("Already intialized.");
-        }
         instance = new RunningState(inputManager, keyListener, mouseListener, mouseMotionListener);
         return instance;
     }
