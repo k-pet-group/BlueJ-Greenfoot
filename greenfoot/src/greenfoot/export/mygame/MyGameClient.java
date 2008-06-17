@@ -65,18 +65,12 @@ public abstract class MyGameClient
         }
         
         if (response > 400) {
-            error("Unrecognized response from the server"); // TODO i18n
+            error("Unrecognized response from the server: " + response); // TODO i18n
             return this;
         }
         
         // Check authentication result
-        Header statusHeader = postMethod.getResponseHeader("X-mygame-status");
-        if (statusHeader == null) {
-            error("Unrecognized response from the server"); // TODO i18n
-            return this;
-        }
-        else if (!statusHeader.getValue().equals("0 OK")) {
-            error("Invalid username or password"); // TODO i18n
+        if(! handleResponse(postMethod)) {
             return this;
         }
         
@@ -111,17 +105,11 @@ public abstract class MyGameClient
         
         response = httpClient.executeMethod(postMethod);
         if (response > 400) {
-            error("Unrecognized response from the server"); // TODO i18n
+            error("Unrecognized response from the server: " + response); // TODO i18n
             return this;
         }
         
-        statusHeader = postMethod.getResponseHeader("X-mygame-status");
-        if (statusHeader == null) {
-            error("Unrecognized response from the server"); // TODO i18n
-            return this;
-        }
-        else if (!statusHeader.getValue().equals("0 OK")) {
-            error("Error while uploading scenario to server"); // TODO i18n
+        if(! handleResponse(postMethod)) {
             return this;
         }
         
@@ -129,6 +117,44 @@ public abstract class MyGameClient
         status("Upload complete.");
         
         return this;
+    }
+
+    /**
+     * Checks the result of of the given method. Should only be called after the
+     * postMethod has been executed.
+     * 
+     * If the check is successful the method will return true. Otherwise it will
+     * print an error message and return false.
+     * 
+     * @param postMethod The method to check the result for.
+     * @return True if the execution was successful, false otherwise.
+     * @throws NumberFormatException
+     */
+    private boolean handleResponse(PostMethod postMethod)
+        throws NumberFormatException
+    {
+        Header statusHeader = postMethod.getResponseHeader("X-mygame-status");
+        if (statusHeader == null) {
+            error("Unrecognized response from the server."); // TODO i18n
+            return false;
+        }
+        String responseString = statusHeader.getValue();
+        int statusCode = Integer.parseInt(responseString.substring(0, responseString.indexOf(" ")));
+        switch(statusCode) {
+            case 0 :
+                // Everything is good!
+                return true;
+            case 1 :
+                error("Invalid username or password"); // TODO i18n
+                return false;
+            case 2 :
+                error("The scenario is too large"); // TODO i18n
+                return false;
+            default :
+                // Unknown error - print it!
+                error(responseString);
+                return false;
+        }
     }
     
     /**
