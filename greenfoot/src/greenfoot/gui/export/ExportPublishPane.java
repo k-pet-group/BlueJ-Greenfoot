@@ -38,10 +38,11 @@ import bluej.groupwork.ui.MiksGridLayout;
 import bluej.utility.SwingWorker;
 
 /**
- * ExportPublishPane.java
+ * Pane used for exporting to Greenfoot Gallery
  * 
  * @author Michael Kolling
- * @version $Id: ExportPublishPane.java 5730 2008-05-01 10:58:30Z polle $
+ * @author Poul Henriksen
+ * @version $Id: ExportPublishPane.java 5770 2008-06-18 15:37:44Z polle $
  */
 public class ExportPublishPane extends ExportPane
 {
@@ -73,7 +74,7 @@ public class ExportPublishPane extends ExportPane
     private JTextArea tagArea;
     private GProject project;
     private boolean firstActivation = true;
-    
+
     private ScenarioInfo publishedScenarioInfo;
     private String publishedUserName;
 
@@ -158,7 +159,7 @@ public class ExportPublishPane extends ExportPane
     {
         return includeSource.isSelected();
     }
-    
+
     private void setHasSource(boolean hasSource)
     {
         includeSource.setSelected(hasSource);
@@ -178,14 +179,14 @@ public class ExportPublishPane extends ExportPane
             boolean isPopTag = false;
             for (int i = 0; i < popTags.length; i++) {
                 JCheckBox popTag = popTags[i];
-                if(popTag.getText().equals(tag)) {
+                if (popTag.getText().equals(tag)) {
                     popTag.setSelected(true);
                     isPopTag = true;
                     break;
                 }
             }
-            if(! isPopTag) {
-                if(! isFirstNewTag) {
+            if (!isPopTag) {
+                if (!isFirstNewTag) {
                     // Only insert newline if it is not the first new tag
                     newTags.append(System.getProperty("line.separator"));
                 }
@@ -219,8 +220,8 @@ public class ExportPublishPane extends ExportPane
     private void setUserName(String name)
     {
         userNameField.setText(name);
-    }   
-    
+    }
+
     /**
      * Build the component.
      */
@@ -432,7 +433,7 @@ public class ExportPublishPane extends ExportPane
     {
         int minLength = popTags.length < tags.size() ? popTags.length : tags.size();
         for (int i = 0; i < minLength; i++) {
-            JCheckBox checkBox = popTags[i];            
+            JCheckBox checkBox = popTags[i];
             checkBox.setText(tags.get(i));
             checkBox.setEnabled(true);
             setTags(getTags());
@@ -445,15 +446,14 @@ public class ExportPublishPane extends ExportPane
     public List<String> getTags()
     {
         List<String> tagList = new LinkedList<String>();
-        
+
         for (int i = 0; i < popTags.length; i++) {
             JCheckBox checkBox = popTags[i];
-            if(checkBox.isSelected()) {
+            if (checkBox.isSelected()) {
                 tagList.add(checkBox.getText());
             }
         }
-        
-        
+
         String currentTags = tagArea.getText().trim();
         String[] tags = currentTags.split("\\s");
         for (int i = 0; i < tags.length; i++) {
@@ -464,15 +464,17 @@ public class ExportPublishPane extends ExportPane
         }
         return tagList;
     }
-    
+
     /**
-     * Attempts to load details already stored for this scenario at previous publish.
+     * Attempts to load details already stored for this scenario at previous
+     * publish.
      * 
      * Must be called from the event thread.
      */
-    private void loadScenarioInfo() {
+    private void loadStoredScenarioInfo()
+    {
         ScenarioInfo info = new ScenarioInfo();
-        if(info.load(project.getProjectProperties())) {  
+        if (info.load(project.getProjectProperties())) {
             setTitle(info.getTitle());
             setShortDescripton(info.getShortDescription());
             setLongDescription(info.getLongDescription());
@@ -482,20 +484,22 @@ public class ExportPublishPane extends ExportPane
             setHasSource(info.getHasSource());
         }
     }
-   
-    private void createScenarioInfo()
-    {        
-        publishedScenarioInfo = new ScenarioInfo();        
-        publishedScenarioInfo.setTitle(getTitle());
-        publishedScenarioInfo.setShortDescription(getShortDescription());
-        publishedScenarioInfo.setLongDescription(getDescription());
-        publishedScenarioInfo.setUrl(getURL());
-        publishedScenarioInfo.setTags(getTags());
-        publishedScenarioInfo.setLocked(lockScenario());
-        publishedScenarioInfo.setHasSource(includeSourceCode());        
+
+    /**
+     * Updates the given scenarioInfo with the current values typed into the
+     * dialog.
+     */
+    private void updateInfoFromFields(ScenarioInfo scenarioInfo)
+    {
+        scenarioInfo.setTitle(getTitle());
+        scenarioInfo.setShortDescription(getShortDescription());
+        scenarioInfo.setLongDescription(getDescription());
+        scenarioInfo.setUrl(getURL());
+        scenarioInfo.setTags(getTags());
+        scenarioInfo.setLocked(lockScenario());
+        scenarioInfo.setHasSource(includeSourceCode());
     }
-    
-    
+
     /**
      * The first time this pane is activated we fetch the popular tags from the
      * server (if possible).
@@ -505,9 +509,9 @@ public class ExportPublishPane extends ExportPane
      */
     @Override
     public void activated()
-    {        
+    {
         if (firstActivation) {
-            firstActivation  = false;
+            firstActivation = false;
             commonTagsLoader = new SwingWorker() {
                 @SuppressWarnings("unchecked")
                 @Override
@@ -542,27 +546,30 @@ public class ExportPublishPane extends ExportPane
             };
             commonTagsLoader.start();
             SwingUtilities.invokeLater(new Thread() {
-                public void run() {
-                    setUserName(Config.getPropString("publish.username",""));
-                    loadScenarioInfo();
-                }             
+                public void run()
+                {
+                    setUserName(Config.getPropString("publish.username", ""));
+                    loadStoredScenarioInfo();
+                }
             });
-        }        
+        }
     }
 
     @Override
     public boolean prePublish()
     {
-        createScenarioInfo();
+        publishedScenarioInfo = new ScenarioInfo();
+        updateInfoFromFields(publishedScenarioInfo);
         publishedUserName = userNameField.getText();
-        //TODO: Check if scenario exists online, and confirm that user wants to continue?
+        // TODO: Check if scenario exists online, and confirm that user wants to
+        // continue?
         return true;
     }
 
     @Override
     public void postPublish(boolean success)
     {
-        if(success) {
+        if (success) {
             publishedScenarioInfo.store(project.getProjectProperties());
             Config.putPropString("publish.username", getUserName());
         }
