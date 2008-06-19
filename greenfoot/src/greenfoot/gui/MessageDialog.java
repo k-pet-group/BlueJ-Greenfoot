@@ -1,6 +1,7 @@
 package greenfoot.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Dialog;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
@@ -31,6 +32,22 @@ public class MessageDialog extends EscapeDialog implements ActionListener
      * Creates a new dialog. The buttons will be placed right-justified at the
      * bottom of the dialog, with the first item in the array to the left.
      * 
+     * @param owner The parent dialog.
+     * @param message The message to display.
+     * @param title Title that goes in the window.
+     * @param width Width of the message in columns.
+     * @param buttons Array of buttons to display.
+     */
+    public MessageDialog(Dialog owner, String message, String title, int width, JButton[] buttons)
+    {
+        super(owner, title);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        createDialog(message, buttons, width);
+    }
+    /**
+     * Creates a new dialog. The buttons will be placed right-justified at the
+     * bottom of the dialog, with the first item in the array to the left.
+     * 
      * @param owner The parent frame.
      * @param message The message to display.
      * @param title Title that goes in the window.
@@ -43,7 +60,6 @@ public class MessageDialog extends EscapeDialog implements ActionListener
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         createDialog(message, buttons, width);
     }
-
     private void createDialog(String message, JButton[] buttons, int width)
     {
         this.buttons = buttons;
