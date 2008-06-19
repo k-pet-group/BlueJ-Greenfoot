@@ -458,7 +458,7 @@ public class Simulation extends Thread
                 // The WorldCanvas may be trying to synchronize on the world in
                 // order to do a repaint. So, we use wait() here in order
                 // to release the world lock temporarily.
-                HDTimer.wait(delay, world.lock.writeLock());
+                HDTimer.wait(delay, world.lock);
             }
             else {
                 // shouldn't really happen

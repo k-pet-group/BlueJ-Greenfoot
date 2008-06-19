@@ -3,6 +3,7 @@ package greenfoot.util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 /**
@@ -175,7 +176,7 @@ public class HDTimer
                 waits++;
             }
         }
-        long waited = System.nanoTime() - tStart;
+        //long waited = System.nanoTime() - tStart;
         
         // Second, yield in a busy loop if precise enough
         while ((System.nanoTime() - tStart + worstYieldTime) < nanos) {
@@ -215,23 +216,23 @@ public class HDTimer
      * @throws InterruptedException if another thread has interrupted the
      *             current thread
      */
-    public static void wait(long nanos, WriteLock lock)
+    public static void wait(long nanos, ReentrantReadWriteLock lock)
         throws InterruptedException
     {
         long tStart = System.nanoTime();
-        if(!lock.isHeldByCurrentThread()) {
+        if(!lock.isWriteLockedByCurrentThread()) {
             // We do not hold the lock, so use sleep instead:
             sleepFromTime(nanos, tStart);
             return;
         }
             
         // We can release the lock until we are finished sleeping
-        lock.unlock();
+        lock.writeLock().unlock();
         try {
             sleepFromTime(nanos, tStart);
         }
         finally {
-            lock.lockInterruptibly();
+            lock.writeLock().lockInterruptibly();
         }
     }
 }
