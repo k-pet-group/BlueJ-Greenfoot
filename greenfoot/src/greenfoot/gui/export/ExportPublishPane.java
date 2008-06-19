@@ -2,6 +2,7 @@ package greenfoot.gui.export;
 
 import greenfoot.core.GProject;
 import greenfoot.export.WebPublisher;
+import greenfoot.export.mygame.ExistingScenarioChecker;
 import greenfoot.export.mygame.ScenarioInfo;
 import greenfoot.util.GreenfootUtil;
 
@@ -42,7 +43,7 @@ import bluej.utility.SwingWorker;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ExportPublishPane.java 5772 2008-06-19 10:46:54Z !Snabe23 $
+ * @version $Id: ExportPublishPane.java 5774 2008-06-19 13:15:19Z !Snabe23 $
  */
 public class ExportPublishPane extends ExportPane
 {
@@ -78,7 +79,7 @@ public class ExportPublishPane extends ExportPane
     private ScenarioInfo publishedScenarioInfo;
     private String publishedUserName;
     
-    
+    private ExistingScenarioChecker scenarioChecker;
 
     /** Creates a new instance of ExportPublishPane */
     public ExportPublishPane(GProject project)
@@ -222,6 +223,10 @@ public class ExportPublishPane extends ExportPane
     private void setUserName(String name)
     {
         userNameField.setText(name);
+        if(name != null && !name.equals("")) {
+            
+            checkForExistingScenario();
+        }
     }
 
     /**
@@ -502,6 +507,26 @@ public class ExportPublishPane extends ExportPane
         scenarioInfo.setHasSource(includeSourceCode());
     }
 
+    private void checkForExistingScenario() {
+        if(scenarioChecker == null) {
+            scenarioChecker = new ExistingScenarioChecker() {
+                @Override
+                public void scenarioExistenceCheckFailed(Exception reason)
+                {
+                    System.err.println("Scenario existence check failed: " + reason);
+                    reason.printStackTrace();
+                }
+
+                @Override
+                public void scenarioExistenceChecked(ScenarioInfo info)
+                {
+                    System.out.println("Scenario exists: " + info);
+                }                
+            };
+        }
+        scenarioChecker.startScenarioExistenceCheck(serverURL, getUserName(), getTitle());
+    }
+    
     /**
      * The first time this pane is activated we fetch the popular tags from the
      * server (if possible).
@@ -573,9 +598,7 @@ public class ExportPublishPane extends ExportPane
     {
         if (success) {
             publishedScenarioInfo.store(project.getProjectProperties());
-            //Config.putPropString("publish.username", getUserName());
             Config.putPropString("publish.username", publishedUserName);
-            
         }
     }
 }
