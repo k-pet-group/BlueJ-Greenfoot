@@ -42,7 +42,7 @@ import bluej.utility.SwingWorker;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ExportPublishPane.java 5770 2008-06-18 15:37:44Z polle $
+ * @version $Id: ExportPublishPane.java 5772 2008-06-19 10:46:54Z !Snabe23 $
  */
 public class ExportPublishPane extends ExportPane
 {
@@ -77,6 +77,8 @@ public class ExportPublishPane extends ExportPane
 
     private ScenarioInfo publishedScenarioInfo;
     private String publishedUserName;
+    
+    
 
     /** Creates a new instance of ExportPublishPane */
     public ExportPublishPane(GProject project)
@@ -571,7 +573,9 @@ public class ExportPublishPane extends ExportPane
     {
         if (success) {
             publishedScenarioInfo.store(project.getProjectProperties());
-            Config.putPropString("publish.username", getUserName());
+            //Config.putPropString("publish.username", getUserName());
+            Config.putPropString("publish.username", publishedUserName);
+            
         }
     }
 }
