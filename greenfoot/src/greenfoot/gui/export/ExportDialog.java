@@ -138,11 +138,11 @@ public class ExportDialog extends EscapeDialog
      */
     private void doExport()
     {
-        selectedPane.prePublish();
-        ExportThread expThread = new ExportThread();
-        expThread.start();
+        if(selectedPane.prePublish()) {
+            ExportThread expThread = new ExportThread();
+            expThread.start();
+        }
     }
-
     /**
      * A separate thread to execute the actual exporting.
      */
@@ -228,7 +228,8 @@ public class ExportDialog extends EscapeDialog
         if(chosenPane != selectedPane) {
             if(selectedPane != null)
                 contentPane.remove(selectedPane);
-            chosenPane.activated();
+            continueButton.setText(Config.getString("export.dialog.continue"));
+            chosenPane.activated(continueButton);
             contentPane.add(chosenPane, BorderLayout.CENTER);
             selectedPane = chosenPane;
             selectedFunction = function;

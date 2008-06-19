@@ -11,6 +11,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -22,6 +24,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.InputVerifier;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -43,7 +46,7 @@ import bluej.utility.SwingWorker;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ExportPublishPane.java 5774 2008-06-19 13:15:19Z !Snabe23 $
+ * @version $Id: ExportPublishPane.java 5776 2008-06-19 17:19:36Z !Snabe23 $
  */
 public class ExportPublishPane extends ExportPane
 {
@@ -78,8 +81,9 @@ public class ExportPublishPane extends ExportPane
 
     private ScenarioInfo publishedScenarioInfo;
     private String publishedUserName;
-    
+
     private ExistingScenarioChecker scenarioChecker;
+    private JButton continueButton;
 
     /** Creates a new instance of ExportPublishPane */
     public ExportPublishPane(GProject project)
@@ -218,15 +222,13 @@ public class ExportPublishPane extends ExportPane
     private void setTitle(String title)
     {
         titleField.setText(title);
+        checkForExistingScenario();
     }
 
     private void setUserName(String name)
     {
         userNameField.setText(name);
-        if(name != null && !name.equals("")) {
-            
-            checkForExistingScenario();
-        }
+        checkForExistingScenario();
     }
 
     /**
@@ -299,6 +301,13 @@ public class ExportPublishPane extends ExportPane
                     {
                         String text = titleField.getText();
                         return text.length() > 0;
+                    }
+                });
+                titleField.addFocusListener(new FocusAdapter() {
+                    @Override
+                    public void focusLost(FocusEvent e)
+                    {
+                        checkForExistingScenario();
                     }
                 });
                 titleAndDescPanel.add(titleField);
@@ -409,6 +418,21 @@ public class ExportPublishPane extends ExportPane
             text.setFont(smallFont);
             loginPanel.add(text);
             userNameField = new JTextField(10);
+            userNameField.setInputVerifier(new InputVerifier() {
+                @Override
+                public boolean verify(JComponent input)
+                {
+                    String text = userNameField.getText();
+                    return text.length() > 0;
+                }
+            });
+            userNameField.addFocusListener(new FocusAdapter() {
+                @Override
+                public void focusLost(FocusEvent e)
+                {
+                    checkForExistingScenario();
+                }
+            });
             loginPanel.add(userNameField);
             text = new JLabel(Config.getString("export.publish.password"), SwingConstants.TRAILING);
             text.setFont(smallFont);
@@ -507,26 +531,70 @@ public class ExportPublishPane extends ExportPane
         scenarioInfo.setHasSource(includeSourceCode());
     }
 
-    private void checkForExistingScenario() {
-        if(scenarioChecker == null) {
+
+    private void checkForExistingScenario()
+    {
+        checkForExistingScenario(false);
+    }
+    
+    private void checkForExistingScenario(boolean forceRecheck)
+    {
+        String userName = getUserName();
+        String title = getTitle();
+
+        // First check if everything is ready and bail out if it is not.
+        if (userName == null || userName.equals("")) {
+            return;
+        }
+        if (title == null || title.equals("")) {
+            return;
+        }
+
+        if (scenarioChecker == null) {
             scenarioChecker = new ExistingScenarioChecker() {
+                private String updateText = " (update)";
+                private String newText = " (new)";
+
                 @Override
                 public void scenarioExistenceCheckFailed(Exception reason)
                 {
-                    System.err.println("Scenario existence check failed: " + reason);
-                    reason.printStackTrace();
+                    // If an error occurs, we just reset the text on the export
+                    // button.
+                    continueButton.setText(getStrippedText());
                 }
 
                 @Override
                 public void scenarioExistenceChecked(ScenarioInfo info)
                 {
-                    System.out.println("Scenario exists: " + info);
-                }                
+                    String currentText = getStrippedText();
+
+                    if (info != null) {
+                        // Update existing scenario
+                        continueButton.setText(currentText + updateText);
+                    }
+                    else {
+                        continueButton.setText(currentText + newText);
+                    }
+                }
+
+                private String getStrippedText()
+                {
+                    String currentText = continueButton.getText();
+                    int i = currentText.indexOf(newText);
+                    if (i != -1) {
+                        currentText = currentText.substring(0, i);
+                    }
+                    i = currentText.indexOf(updateText);
+                    if (i != -1) {
+                        currentText = currentText.substring(0, i);
+                    }
+                    return currentText;
+                }
             };
         }
-        scenarioChecker.startScenarioExistenceCheck(serverURL, getUserName(), getTitle());
+        scenarioChecker.startScenarioExistenceCheck(serverURL + "/", userName, title, forceRecheck);
     }
-    
+
     /**
      * The first time this pane is activated we fetch the popular tags from the
      * server (if possible).
@@ -535,8 +603,10 @@ public class ExportPublishPane extends ExportPane
      * 
      */
     @Override
-    public void activated()
+    public void activated(JButton continueButton)
     {
+        this.continueButton = continueButton;
+        checkForExistingScenario();
         if (firstActivation) {
             firstActivation = false;
             commonTagsLoader = new SwingWorker() {
@@ -588,8 +658,26 @@ public class ExportPublishPane extends ExportPane
         publishedScenarioInfo = new ScenarioInfo();
         updateInfoFromFields(publishedScenarioInfo);
         publishedUserName = userNameField.getText();
-        // TODO: Check if scenario exists online, and confirm that user wants to
+        // TODO: Check if scenario exists, and confirm that user wants to
         // continue?
+        /*
+         * checkForExistingScenario(); Object existResult =
+         * scenarioChecker.getResult(); if (existResult == null) { // It is a
+         * new scenario - just continue } if (existResult instanceof
+         * ScenarioInfo) { // The scenario exists - confirm ScenarioInfo info =
+         * (ScenarioInfo) existResult; JButton updateButton = new
+         * JButton("Update"); JButton cancelButton = new JButton("Cancel");
+         * 
+         * JButton[] buttons = new JButton[]{cancelButton, updateButton};
+         * MessageDialog d = new MessageDialog( (Dialog)
+         * SwingUtilities.getWindowAncestor(this), "The scenario " +
+         * info.getTitle() + " exists. If you continue exporting the existing
+         * scenario will be updated with this version. Continue exporting?",
+         * "Confirm Update", 50, buttons); JButton result = d.displayModal(); if
+         * (result != updateButton) { System.out.println("return false"); return
+         * false; }
+         *  }
+         */
         return true;
     }
 
@@ -599,6 +687,7 @@ public class ExportPublishPane extends ExportPane
         if (success) {
             publishedScenarioInfo.store(project.getProjectProperties());
             Config.putPropString("publish.username", publishedUserName);
+            checkForExistingScenario(true);
         }
     }
 }

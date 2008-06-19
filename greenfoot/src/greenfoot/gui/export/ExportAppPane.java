@@ -7,7 +7,7 @@
  * and open the template in the editor.
 
  * @author Michael Kolling
- * @version $Id: ExportAppPane.java 5722 2008-04-30 17:13:53Z polle $
+ * @version $Id: ExportAppPane.java 5776 2008-06-19 17:19:36Z !Snabe23 $
  */
 
 package greenfoot.gui.export;
@@ -120,7 +120,7 @@ public class ExportAppPane extends ExportPane
     }
 
     @Override
-    public void activated()
+    public void activated(JButton continueButton)
     {
         // Nothing special to do here
     }    

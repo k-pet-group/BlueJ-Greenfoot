@@ -3,11 +3,12 @@
  * in the Export dialogue.
  *
  * @author Michael Kolling
- * @version $Id: ExportPane.java 5722 2008-04-30 17:13:53Z polle $
+ * @version $Id: ExportPane.java 5776 2008-06-19 17:19:36Z !Snabe23 $
  */
 
 package greenfoot.gui.export;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
@@ -35,8 +36,9 @@ public abstract class ExportPane extends JPanel
     /**
      * This method will be called when this pane is activated (about to be
      * shown/visible)
+     * @param continueButton 
      */
-    public abstract void activated();
+    public abstract void activated(JButton continueButton);
     
     /**
      * This method will be called when the user is about to export the scenario

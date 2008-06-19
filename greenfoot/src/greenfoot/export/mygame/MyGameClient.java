@@ -204,7 +204,7 @@ public abstract class MyGameClient
      */
     public boolean checkExistingScenario(String hostAddress, String uid,
             String gameName, ScenarioInfo info)
-        throws UnknownHostException, IOException
+        throws UnknownHostException, IOException, InterruptedException
     {
         HttpClient client = getHttpClient();
         

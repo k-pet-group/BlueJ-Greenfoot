@@ -3,6 +3,8 @@ package greenfoot.export.mygame;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
+import javax.swing.SwingUtilities;
+
 import bluej.utility.SwingWorker;
 import greenfoot.export.WebPublisher;
 
@@ -27,21 +29,12 @@ public abstract class ExistingScenarioChecker
     /** Indicates that the checking has finished. */
     private boolean finished = false;
 
+    private String hostName;
+    private String userName;
+    private String scenarioName;
 
     class ScenarioWorker extends SwingWorker
     {
-
-        private final String hostName;
-        private final String userName;
-        private final String scenarioName;
-
-        ScenarioWorker(String hostName, String userName, String scenarioName)
-        {
-            this.hostName = hostName;
-            this.userName = userName;
-            this.scenarioName = scenarioName;
-        }
-
         @Override
         public Object construct()
         {
@@ -60,21 +53,40 @@ public abstract class ExistingScenarioChecker
      * exists for the given user. When a result is ready the method
      * scenarioExistenceChecked will be called. If it is already checking for
      * the existence of another scenario name, that check will be aborted and
-     * this check will start.
+     * this check will start. If it is already checking for a scenario with taht
+     * name it will just return and continue that checking.
      * 
      * @param scenarioName
+     * @param forceRecheck 
      */
-    public synchronized void startScenarioExistenceCheck(final String hostName, final String userName, final String scenarioName)
+    public synchronized void startScenarioExistenceCheck(final String hostName, final String userName,
+            final String scenarioName, boolean forceRecheck)
     {
-        if(checking) {
+        boolean sameScenario = hostName.equals(this.hostName) && userName.equals(this.userName)
+                && scenarioName.equals(this.scenarioName);
+        if (sameScenario && !forceRecheck) {
+            // Scenario already checked, but make sure finished is invoked to
+            // update status (continue button)
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run()
+                {
+                    worker.finished();
+                }
+            });
+            return;
+        }
+        if (checking) {
             abort();
         }
-        
+
+        this.hostName = hostName;
+        this.userName = userName;
+        this.scenarioName = scenarioName;
+
         checking = true;
         abort = false;
         finished = false;
-        System.out.println("hostname: " + hostName);
-        worker = new ScenarioWorker(hostName + "/", userName, scenarioName);
+        worker = new ScenarioWorker();
         worker.start();
     }
 
@@ -97,13 +109,15 @@ public abstract class ExistingScenarioChecker
         if (!checking) {
             throw new IllegalStateException("Check not started yet. Nothing to abort.");
         }
+
         abort = true;
         worker.interrupt();
         return true;
     }
 
     /**
-     * Blocks until the result is ready.
+     * Blocks until the result is ready. TODO: This can block forever if the
+     * server never responds?
      * 
      * @return An Exception if an error occurred, or null if the scenario does
      *         not exist, or a ScenarioInfo object if the scenario exists.
@@ -111,18 +125,10 @@ public abstract class ExistingScenarioChecker
     public Object getResult()
     {
         synchronized (this) {
-            if (!checking) {
-                throw new IllegalStateException("Check not started yet. Nothing to abort.");
+            if (worker == null) {
+                throw new IllegalStateException("Check not started yet. No result to get.");
             }
         }
-       /* while (!finished) {
-            try {
-                wait();
-            }
-            catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }*/
         return worker.get();
     }
 
@@ -160,12 +166,16 @@ public abstract class ExistingScenarioChecker
             else {
                 return null;
             }
+
         }
         catch (UnknownHostException e) {
             exception = e;
         }
         catch (IOException e) {
             exception = e;
+        }
+        catch (InterruptedException e) {
+            // We were probably interrupted for aborting
         }
 
         return exception;
@@ -181,7 +191,6 @@ public abstract class ExistingScenarioChecker
     {
         finished = true;
         checking = false;
-        this.notifyAll();
 
         if (!abort) {
             if (value instanceof Exception) {
