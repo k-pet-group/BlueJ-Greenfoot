@@ -73,6 +73,7 @@ export.compile.help=Not all the classes in the scenario are compiled. To continu
 export.compile.notCompiled=Scenario not compiled.
 export.dialog.title=Greenfoot: Export
 export.dialog.continue=Export
+export.dialog.continue.update=(update)
 export.lock.label=Lock scenario
 export.lock.description=Prevents: Speed change, Act-button, and changing of actor locations while paused.
 export.publish.help=Publish the scenario to:

@@ -46,7 +46,7 @@ import bluej.utility.SwingWorker;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ExportPublishPane.java 5776 2008-06-19 17:19:36Z !Snabe23 $
+ * @version $Id: ExportPublishPane.java 5777 2008-06-22 23:30:20Z polle $
  */
 public class ExportPublishPane extends ExportPane
 {
@@ -552,8 +552,7 @@ public class ExportPublishPane extends ExportPane
 
         if (scenarioChecker == null) {
             scenarioChecker = new ExistingScenarioChecker() {
-                private String updateText = " (update)";
-                private String newText = " (new)";
+                private String updateText = " " + Config.getString("export.dialog.continue.update");
 
                 @Override
                 public void scenarioExistenceCheckFailed(Exception reason)
@@ -573,18 +572,14 @@ public class ExportPublishPane extends ExportPane
                         continueButton.setText(currentText + updateText);
                     }
                     else {
-                        continueButton.setText(currentText + newText);
+                        continueButton.setText(currentText);
                     }
                 }
 
                 private String getStrippedText()
                 {
                     String currentText = continueButton.getText();
-                    int i = currentText.indexOf(newText);
-                    if (i != -1) {
-                        currentText = currentText.substring(0, i);
-                    }
-                    i = currentText.indexOf(updateText);
+                    int i = currentText.indexOf(updateText);
                     if (i != -1) {
                         currentText = currentText.substring(0, i);
                     }
