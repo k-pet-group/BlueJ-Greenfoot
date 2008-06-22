@@ -15,7 +15,7 @@
     <!-- Greenfoot Version Number -->
     <property name="greenfoot.version.major" value="1"/>
     <property name="greenfoot.version.minor" value="4"/>
-    <property name="greenfoot.version.micro" value="5 beta"/>
+    <property name="greenfoot.version.micro" value="5"/>
     <property name="greenfoot.apiversion" value="1.4.5"/>
 
     <property name="greenfoot.version" value="${greenfoot.version.major}.${greenfoot.version.minor}.${greenfoot.version.micro}"/>
