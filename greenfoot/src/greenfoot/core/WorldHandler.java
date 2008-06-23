@@ -421,9 +421,10 @@ public class WorldHandler
         }
         else if (o instanceof Actor && ((Actor) o).getWorld() == null) {
             // object received from the inspector via the Get button.
-
             Actor actor = (Actor) o;
-            getWorld().addObject(actor, x, y);
+            int xCell = WorldVisitor.toCellFloor(getWorld(), x);
+            int yCell = WorldVisitor.toCellFloor(getWorld(), y);
+            getWorld().addObject(actor, xCell, yCell);
             objectDropped = true;
             return true;
         }
