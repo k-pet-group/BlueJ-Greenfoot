@@ -169,7 +169,7 @@
         <macrodef name="compile-scenario">
             <attribute name="scenario" />
             <sequential>
-                <copy todir="scenarios/@{scenario}">
+                <copy todir="scenarios/@{scenario}" preservelastmodified="true" >
                     <fileset dir="projects/skeletonProject">
                         <include name="greenfoot/**" />
                         <include name="images/**" />
@@ -220,7 +220,7 @@ target="1.5">
     </target>
 
     <target name="skeleton" depends="compile"  description="Copy the framework files from the build-dir to the skeletonproject." >
-        <copy todir="projects/skeletonProject">
+        <copy todir="projects/skeletonProject" preservelastmodified="true">
             <fileset dir="${src}">
                 <patternset refid="skeleton.files"/>
             </fileset>
@@ -233,13 +233,13 @@ target="1.5">
     </target>
 
     <target name="copy-projects" depends="skeleton"  description="Copies the projects skeletonProject and startupProject to bluej" >
-        <copy todir="${bluej.lib.greenfoot}">
+        <copy todir="${bluej.lib.greenfoot}" preservelastmodified="true">
             <fileset dir="projects"/>
         </copy>
     </target>
 
     <target name="copy-scenarios" depends="compile-scenarios"  description="Copies the scenarios to bluej" >
-        <copy todir="${bluej.projectdir}/package/scenarios">
+        <copy todir="${bluej.projectdir}/package/scenarios" preservelastmodified="true">
             <fileset dir="scenarios">
                 <patternset refid="distribution.scenarios"/>
             </fileset>

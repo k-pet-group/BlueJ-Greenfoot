@@ -64,7 +64,7 @@
         <mkdir dir="install_tmp" />
 
         <!-- construct the directory structure we want for the distribution -->
-        <copy todir="install_tmp">
+        <copy todir="install_tmp" preservelastmodified="true">
             <fileset dir="${bluej_home}">
                 <patternset refid="bluej.libfiles" />
                 <patternset refid="bluej.libdirs" />
@@ -163,7 +163,7 @@
         <property name="executable_files" value="**/PkgInfo,**/JavaApplicationStub" />
 
         <!-- copy the skeleton mac dir -->
-        <copy todir="${zip_dir}/Greenfoot.app">
+        <copy todir="${zip_dir}/Greenfoot.app" preservelastmodified="true"> 
             <fileset dir="macfiles/Greenfoot.app"/> 
         </copy>
         
@@ -175,7 +175,7 @@
         </replaceregexp>
 
         <!-- construct the directory structure we want for the distribution -->
-        <copy todir="${zip_dir}">
+        <copy todir="${zip_dir}" preservelastmodified="true">
             <fileset dir="install_tmp"/>
         </copy>
         
