@@ -40,7 +40,7 @@ import bluej.views.ViewFilter;
  * "normal" classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 5646 2008-03-14 17:49:03Z polle $
+ * @version $Id: ClassRole.java 5781 2008-06-23 08:27:01Z polle $
  */
 public abstract class ClassRole implements WorldListener
 {
@@ -140,8 +140,10 @@ public abstract class ClassRole implements WorldListener
 
         addPopupMenuItems(popupMenu, classView.isCoreClass());
         
-        popupMenu.add(createMenuItem(new InspectClassAction(new LocalClass(classView.getRealClass()), null, classBrowser.getFrame(), classBrowser.getFrame() )));
-       
+        if(classView.getRealClass() != null) { 
+            popupMenu.add(createMenuItem(new InspectClassAction(new LocalClass(classView.getRealClass()), null, classBrowser.getFrame(), classBrowser.getFrame() )));
+        }
+        
         if (! classView.isCoreClass()) {
             popupMenu.add(createMenuItem(new RemoveClassAction(classView, classBrowser.getFrame())));
         }
