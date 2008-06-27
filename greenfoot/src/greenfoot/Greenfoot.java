@@ -172,7 +172,7 @@ public class Greenfoot
     
     
     /**
-     * True the mouse has been pressed (changed from a non-pressed state to
+     * True if the mouse has been pressed (changed from a non-pressed state to
      * being pressed) on the given object. If the parameter is an Actor the
      * method will only return true if the mouse has been pressed on the given
      * actor. If there are several actors at the same place, only the top most
