@@ -376,6 +376,8 @@ public class ExportDialog extends EscapeDialog
     {
         progressBar.setMinimum(0);
         progressBar.setMaximum(bytes);
+        progressBar.setValue(0);
+        progress = 0;
         progressBar.setIndeterminate(false);
     }
     
