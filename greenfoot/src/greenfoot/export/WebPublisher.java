@@ -43,6 +43,16 @@ public class WebPublisher extends MyGameClient
     public void status(String s) {
         firePublishEvent(new PublishEvent(s, PublishEvent.STATUS));
     }
+    
+    /**
+     * Do not call this method. Use the listener interface instead.
+     * 
+     * @see #addPublishListener(PublishListener)
+     */
+    public void progress(int bytes)
+    {
+        firePublishEvent(new PublishEvent(bytes, PublishEvent.PROGRESS));
+    }
 
     private void firePublishEvent(PublishEvent event)
     {
@@ -57,6 +67,9 @@ public class WebPublisher extends MyGameClient
                 } 
                 else if(event.getType() == PublishEvent.STATUS) {
                     ((PublishListener) listeners[i + 1]).statusRecieved(event);
+                }
+                else if(event.getType() == PublishEvent.PROGRESS) {
+                    ((PublishListener) listeners[i + 1]).progressMade(event);
                 }
             }
         }

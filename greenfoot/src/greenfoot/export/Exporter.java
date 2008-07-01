@@ -1,11 +1,11 @@
 /*
- * Class Exporter manages the various possibel export functions, such as writing 
+ * Class Exporter manages the various possible export functions, such as writing 
  * jar files or publishing to the scenario web server.
  *
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 5769 2008-06-17 17:24:07Z polle $
+ * @version $Id: Exporter.java 5788 2008-07-01 06:01:34Z davmac $
  */
 
 package greenfoot.export;
@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 
 import javax.imageio.ImageIO;
+import javax.swing.SwingUtilities;
 
 import bluej.Boot;
 import bluej.Config;
@@ -172,6 +173,15 @@ public class Exporter
             info.setTags(pane.getTags());
             info.setUrl(pane.getURL());
             
+            int uploadSize = (int) tmpJarFile.length();
+            if (tmpImgFile != null) {
+                uploadSize += (int) tmpImgFile.length();
+            }
+            if (tmpZipFile != null) {
+                uploadSize += (int) tmpZipFile.length();
+            }
+            gotUploadSize(uploadSize);
+            
             webPublisher.submit(hostAddress, login, password,
                     tmpJarFile.getAbsolutePath(), tmpZipFile, tmpImgFile, size.width, size.height,
                     info);
@@ -278,11 +288,16 @@ public class Exporter
     /**
      * Something went wrong when publishing.
      */
-    public void errorRecieved(PublishEvent event)
+    public void errorRecieved(final PublishEvent event)
     {
         tmpJarFile.delete();
         tmpImgFile.delete();
-        dlg.publishFinished(false,  Config.getString("export.publish.fail") + " " + event.getMessage());
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run()
+            {
+                dlg.publishFinished(false,  Config.getString("export.publish.fail") + " " + event.getMessage());
+            }
+        });
     }
 
     /**
@@ -292,7 +307,37 @@ public class Exporter
     {
         tmpJarFile.delete();
         tmpImgFile.delete();
-        dlg.publishFinished(true, Config.getString("export.publish.complete"));
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run()
+            {
+                dlg.publishFinished(true, Config.getString("export.publish.complete"));
+            }
+        });
     }
     
+    /**
+     * We now know the total upload size.
+     */
+    public void gotUploadSize(final int size)
+    {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run()
+            {
+                dlg.gotUploadSize(size);
+            }
+        });
+    }
+    
+    /**
+     * Upload progress made.
+     */
+    public void progressMade(final PublishEvent event)
+    {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run()
+            {
+                dlg.progressMade(event.getBytes());
+            }
+        });
+    }
 }

@@ -44,6 +44,7 @@ public class ExportDialog extends EscapeDialog
     private HashMap<String, ExportPane> panes;
     private ExportPane selectedPane;
     private String selectedFunction;
+    private int progress;
 
     public ExportDialog(GreenfootFrame parent)
     {
@@ -101,6 +102,9 @@ public class ExportDialog extends EscapeDialog
     {
         SwingUtilities.invokeLater(new Runnable() { public void run() { 
             progressBar.setVisible(showProgress);
+            if (! showProgress) {
+                progressBar.setIndeterminate(true);
+            }
             if(text == null) {
                 progressLabel.setVisible(false);
             }
@@ -140,6 +144,7 @@ public class ExportDialog extends EscapeDialog
     {
         if(selectedPane.prePublish()) {
             ExportThread expThread = new ExportThread();
+            enableButtons(false);
             expThread.start();
         }
     }
@@ -149,7 +154,6 @@ public class ExportDialog extends EscapeDialog
     class ExportThread extends Thread {
         public void run() 
         {
-            enableButtons(false);
             try {
                 String function = getSelectedFunction();
                 ExportPane pane = getSelectedPane();
@@ -158,6 +162,7 @@ public class ExportDialog extends EscapeDialog
 
                 if(function.equals(ExportPublishPane.FUNCTION)) {
                     exporter.publishToWebServer(project, (ExportPublishPane)pane, ExportDialog.this);
+                    
                 }
                 if(function.equals(ExportWebPagePane.FUNCTION)) {
                     exporter.makeWebPage(project, (ExportWebPagePane)pane, ExportDialog.this);
@@ -167,7 +172,12 @@ public class ExportDialog extends EscapeDialog
                 }
             }
             finally {
-                enableButtons(true);
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run()
+                    {
+                        enableButtons(true);
+                    }
+                });
             }
         }
     }
@@ -357,5 +367,25 @@ public class ExportDialog extends EscapeDialog
     {
         selectedPane.postPublish(success);
         setProgress(false, msg);        
+    }
+    
+    /**
+     * We now know the upload size.
+     */
+    public void gotUploadSize(int bytes)
+    {
+        progressBar.setMinimum(0);
+        progressBar.setMaximum(bytes);
+        progressBar.setIndeterminate(false);
+    }
+    
+    /**
+     * The upload is progressing, a certain number of bytes were just transmitted.
+     * @param bytes  The number of bytes just transmitted
+     */
+    public void progressMade(int bytes)
+    {
+        progress += bytes;
+        progressBar.setValue(progress);
     }
 }

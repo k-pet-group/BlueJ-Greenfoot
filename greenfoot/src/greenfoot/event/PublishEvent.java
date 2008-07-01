@@ -14,12 +14,19 @@ public class PublishEvent
     public final static int ERROR = 0;
 
     /**
-     * A status message has been returned. For now, recieving a status message
+     * A status message has been returned. For now, receiving a status message
      * means that it was a successful submit.
      */
     public final static int STATUS = 1;
 
+    /**
+     * Some upload progress has been made. Use getBytes() to find out how
+     * much.
+     */
+    public final static int PROGRESS = 2;
+    
     private String msg;
+    private int bytes;
 
     private int type;
 
@@ -29,9 +36,20 @@ public class PublishEvent
         this.type = type;
     }
 
+    public PublishEvent(int progress, int type)
+    {
+        this.type = type;
+        this.bytes = progress;
+    }
+    
     public String getMessage()
     {
         return msg;
+    }
+    
+    public int getBytes()
+    {
+        return bytes;
     }
 
     public int getType()

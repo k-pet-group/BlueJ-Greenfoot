@@ -22,7 +22,6 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
@@ -87,11 +86,11 @@ public abstract class MyGameClient
         parts[4] = new StringPart("scenario[short_description]", shortDescription);
         parts[5] = new StringPart("scenario[long_description]", longDescription);
         parts[6] = new StringPart("scenario[url]", gameUrl);
-        parts[7] = new FilePart("scenario[uploaded_data]", new File(jarFileName));
-        parts[8] = new FilePart("scenario[screenshot_data]", screenshotFile);
+        parts[7] = new ProgressTrackingPart("scenario[uploaded_data]", new File(jarFileName), this);
+        parts[8] = new ProgressTrackingPart("scenario[screenshot_data]", screenshotFile, this);
         int tagindex = 9;
         if (hasSource) {
-            parts[9] = new FilePart("scenario[source_data]", sourceFile);
+            parts[9] = new ProgressTrackingPart("scenario[source_data]", sourceFile, this);
             tagindex = 10;
         }
         
@@ -344,5 +343,10 @@ public abstract class MyGameClient
     public abstract void error(String s);
     
     public abstract void status(String s);
+    
+    /**
+     * The specified number of bytes have just been sent.
+     */
+    public abstract void progress(int bytes);
      
 }
