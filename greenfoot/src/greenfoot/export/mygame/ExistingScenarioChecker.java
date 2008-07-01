@@ -53,7 +53,7 @@ public abstract class ExistingScenarioChecker
      * exists for the given user. When a result is ready the method
      * scenarioExistenceChecked will be called. If it is already checking for
      * the existence of another scenario name, that check will be aborted and
-     * this check will start. If it is already checking for a scenario with taht
+     * this check will start. If it is already checking for a scenario with that
      * name it will just return and continue that checking.
      * 
      * @param scenarioName

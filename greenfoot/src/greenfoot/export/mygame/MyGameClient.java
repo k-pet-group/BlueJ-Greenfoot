@@ -3,6 +3,7 @@ package greenfoot.export.mygame;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -208,8 +209,10 @@ public abstract class MyGameClient
     {
         HttpClient client = getHttpClient();
         
+        String encodedName = URLEncoder.encode(gameName, "UTF-8");
+        encodedName = encodedName.replace("+", "%20");
         GetMethod getMethod = new GetMethod(hostAddress +
-                "user/"+ uid + "/check_scenario/" + gameName);
+                "user/"+ uid + "/check_scenario/" + encodedName);
         
         int response = client.executeMethod(getMethod);
         if (response > 400) {
