@@ -360,14 +360,12 @@
     </target>
 
     <target name="clean-boot">
-        <delete quiet="true" dir="${boot.build}/bluej"/>
+        <delete quiet="true" dir="${boot.build}"/>
         <delete quiet="true" file="${boot.jar}"/>
     </target>
 
     <target name="clean-core">
-        <delete quiet="true" dir="${core.build}/bluej"/>
-        <delete quiet="true" dir="${core.build}/org"/>
-        <delete quiet="true" dir="${core.build}/net"/>
+        <delete quiet="true" dir="${core.build}"/>
         <delete quiet="true" file="${core.jar}"/>
         <delete quiet="true" file="${editor.jar}"/>
         <delete quiet="true" file="${extension.jar}"/>
