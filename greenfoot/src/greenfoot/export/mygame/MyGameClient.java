@@ -25,6 +25,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -40,6 +41,12 @@ import bluej.Config;
  */
 public abstract class MyGameClient
 {
+    public MyGameClient()
+    {
+        // Disable logging, prevents guff going to System.err
+        LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
+    }
+    
     public final MyGameClient submit(String hostAddress, String uid, String password,
             String jarFileName, File sourceFile, File screenshotFile, int width, int height,
             ScenarioInfo info)
