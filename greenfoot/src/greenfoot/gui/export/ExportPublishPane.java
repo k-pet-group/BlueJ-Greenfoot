@@ -46,7 +46,7 @@ import bluej.utility.SwingWorker;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ExportPublishPane.java 5777 2008-06-22 23:30:20Z polle $
+ * @version $Id: ExportPublishPane.java 5786 2008-07-01 03:16:59Z davmac $
  */
 public class ExportPublishPane extends ExportPane
 {
@@ -56,8 +56,8 @@ public class ExportPublishPane extends ExportPane
     public static final String FUNCTION = "PUBLISH";
     private static final Color background = new Color(166, 188, 202);
     private static final Color headingColor = new Color(40, 75, 125);
-    private static final String serverURL = Config.getPropString("greenfoot.gameserver.address",
-            "http://greenfootgallery.org");
+    private static final String serverURL = ensureTrailingSlash(Config.getPropString("greenfoot.gameserver.address",
+            "http://greenfootgallery.org"));
     private static final String createAccountUrl = Config.getPropString("greenfoot.gameserver.createAccount.address",
             "http://greenfootgallery.org/users/new");
     private static final String serverName = Config.getPropString("greenfoot.gameserver.name", "Greenfoot Gallery");
@@ -587,7 +587,7 @@ public class ExportPublishPane extends ExportPane
                 }
             };
         }
-        scenarioChecker.startScenarioExistenceCheck(serverURL + "/", userName, title, forceRecheck);
+        scenarioChecker.startScenarioExistenceCheck(serverURL, userName, title, forceRecheck);
     }
 
     /**
@@ -683,6 +683,19 @@ public class ExportPublishPane extends ExportPane
             publishedScenarioInfo.store(project.getProjectProperties());
             Config.putPropString("publish.username", publishedUserName);
             checkForExistingScenario(true);
+        }
+    }
+    
+    /**
+     * Make sure a host name ends with a slash.
+     */
+    public static String ensureTrailingSlash(String hostname)
+    {
+        if (hostname.endsWith("/")) {
+            return hostname;
+        }
+        else {
+            return hostname + "/";
         }
     }
 }
