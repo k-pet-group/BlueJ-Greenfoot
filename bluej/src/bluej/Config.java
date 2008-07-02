@@ -45,7 +45,7 @@ import bluej.utility.Utility;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 5590 2008-02-25 03:34:11Z davmac $
+ * @version $Id: Config.java 5796 2008-07-02 14:38:31Z polle $
  */
 
 public final class Config
@@ -90,9 +90,12 @@ public final class Config
     private static boolean isGreenfoot;
     
     /** name of the icons file for the VM on Mac */
-    private static String vmIconsFile;
+    private static final String BLUEJ_DEBUG_DOCK_ICON = "vm.icns";
+    private static final String GREENFOOT_DEBUG_DOCK_ICON = "greenfootvm.icns";
+    
     /** name of the VM in the dock on Mac */
-    private static String vmName;
+    private static final String BLUEJ_DEBUG_DOCK_NAME = "BlueJ Virtual Machine";
+    private static final String GREENFOOT_DEBUG_DOCK_NAME = "Greenfoot";
     
     protected static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
@@ -115,6 +118,9 @@ public final class Config
    
     private static Color selectionColour;
     private static List debugVMArgs = new ArrayList();
+    
+    /** whether this is the debug vm or not. */
+    private static boolean isDebugVm;
 
     /**
      * Initialisation of BlueJ configuration. Must be called at startup.
@@ -130,6 +136,8 @@ public final class Config
 
         initialised = true;
 
+        isDebugVm = false;
+        
         isGreenfoot = bootingGreenfoot;
 
         screenBounds = calculateScreenBounds();
@@ -232,6 +240,9 @@ public final class Config
             return;
     
         initialised = true;
+        
+        isDebugVm = true;
+        
         Config.bluejLibDir = bluejLibDir;
         Config.greenfootLibDir = new File(bluejLibDir, "greenfoot");
         Config.propSource = propSource;
@@ -329,27 +340,16 @@ public final class Config
     }
     
     /**
-     * Set the name of icons file for the debug VM (Mac).
-     */
-    public static void setVMIconsName(String name)
-    {
-        vmIconsFile = name;
-    }
-    
-    /**
      * Get the name of icons file for the debug VM (Mac).
      */
     public static String getVMIconsName()
     {
-        return vmIconsFile;
-    }
-    
-    /**
-     * Set the name of the debug VM to appear in the dock (Mac).
-     */
-    public static void setVMDockName(String name)
-    {
-        vmName = name;
+        if(isGreenfoot()) {
+            return GREENFOOT_DEBUG_DOCK_ICON;
+        }
+        else {
+            return BLUEJ_DEBUG_DOCK_ICON;
+        }
     }
     
     /**
@@ -357,7 +357,23 @@ public final class Config
      */
     public static String getVMDockName()
     {
-        return vmName;
+        if(isGreenfoot()) {
+            return GREENFOOT_DEBUG_DOCK_NAME;
+        }
+        else {
+            return BLUEJ_DEBUG_DOCK_NAME;
+        }
+    }
+    
+    /**
+     * True if this is the debugVM false if not.
+     */
+    public static boolean isDebugVM() 
+    {
+        if(!initialised) {
+            throw new IllegalArgumentException("Can't determine VM type before the Config is initialised.");
+        }
+        return isDebugVm;
     }
     
     /**
