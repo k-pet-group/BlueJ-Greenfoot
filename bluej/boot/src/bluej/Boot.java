@@ -20,7 +20,7 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 5778 2008-06-22 23:43:57Z polle $
+ * @version $Id: Boot.java 5798 2008-07-03 15:56:38Z polle $
  */
 public class Boot
 {
@@ -86,7 +86,8 @@ public static final int BLUEJ_VERSION_MAJOR = 2;
     private static int numUserBuildJars = bluejUserBuildJars;
     
     private static boolean isGreenfoot = false;
-    
+    private static File bluejLibDir; 
+
     private SplashWindow splashWindow;
     
     /**
@@ -161,8 +162,7 @@ public static final int BLUEJ_VERSION_MAJOR = 2;
     private Properties commandLineProps; //Properties specified a the command line (-....)
     private String[] args;      // Command line arguments
     private File javaHomeDir;   // The value returned by System.getProperty
-    private File bluejLibDir;   // Calculated below
-
+  
     private ClassLoader bootLoader; // The loader this class is loaded with
 
     private URL[] runtimeUserClassPath; // The initial class path used to run code within BlueJ
@@ -231,8 +231,11 @@ public static final int BLUEJ_VERSION_MAJOR = 2;
      *
      * @return    The bluejLibDir value
      */
-    public File getBluejLibDir()
+    public static File getBluejLibDir()
     {
+    	if(bluejLibDir == null) {
+    	    bluejLibDir = calculateBluejLibDir();
+    	}
         return bluejLibDir;
     }
 
@@ -295,13 +298,11 @@ public static final int BLUEJ_VERSION_MAJOR = 2;
         // Get the home directory of the Java implementation we're being run by
         javaHomeDir = new File(System.getProperty("java.home"));
 
-        // Now work out what the BlueJ lib directory is.
-        bluejLibDir = calculateBluejLibDir();
 
         try {
-        	runtimeClassPath = getKnownJars(bluejLibDir, runtimeJars, true, numBuildJars);
+        	runtimeClassPath = getKnownJars(getBluejLibDir(), runtimeJars, true, numBuildJars);
         
-        	runtimeUserClassPath = getKnownJars(bluejLibDir, userJars, false, numUserBuildJars);
+        	runtimeUserClassPath = getKnownJars(getBluejLibDir(), userJars, false, numUserBuildJars);
         }
         catch (Exception exc) {
             exc.printStackTrace();
@@ -320,10 +321,10 @@ public static final int BLUEJ_VERSION_MAJOR = 2;
      *
      * @return    the path of the BlueJ lib directory
      */
-    private File calculateBluejLibDir()
+    private static File calculateBluejLibDir()
     {
         File bluejDir = null;
-        String bootFullName = getClass().getResource("Boot.class").toString();
+        String bootFullName = Boot.class.getResource("Boot.class").toString();
 
         try {
             if (! bootFullName.startsWith("jar:")) {

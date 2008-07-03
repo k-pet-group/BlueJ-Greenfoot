@@ -24,6 +24,7 @@
         <include name="lib/bluej.defs" />
         <include name="lib/moe.defs" />
         <include name="lib/userlib/README.TXT" />
+        <include name="lib/windowtofront.js" />
     </patternset>
 
     <patternset id="bluej.libdirs">

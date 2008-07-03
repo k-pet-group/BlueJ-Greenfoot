@@ -4,7 +4,6 @@ import java.awt.AWTException;
 import java.awt.Dialog;
 import java.awt.EventQueue;
 import java.awt.FontMetrics;
-import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.MouseInfo;
@@ -17,8 +16,11 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -41,7 +43,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 5797 2008-07-02 14:49:30Z polle $
+ * @version $Id: Utility.java 5798 2008-07-03 15:56:38Z polle $
  */
 public class Utility
 {
@@ -480,47 +482,41 @@ public class Utility
      * 
      */
     public static void bringToFront(final Window window)
-    {        
-        // If already the focused window, or not showing at all we return now.
-        if (window.isFocusOwner() || !window.isShowing()) {
-            //System.out.println("Not bringing window to front: " + window + "   isFocusOwner: " + window.isFocusOwner() + "  isShowing: " + window.isShowing());
+    {
+        // If not showing at all we return now.
+        if (!window.isShowing()) {
+            // System.out.println("Not bringing window to front: " + window + "
+            // isFocusOwner: " + window.isFocusOwner() + " isShowing: " +
+            // window.isShowing());
             return;
         }
-
-        System.out.println("toFront: vmDockNAme " + Config.getVMDockName());
-        System.out.println("toFront: isGreenfoot " + Config.isGreenfoot());
-        System.out.println("toFront: isDebugVm " + Config.isDebugVM());
-        System.out.println("toFront: windowname " + window.getName());
-        
-        if(window instanceof Frame) {
-            Frame frame = (Frame) window;
-            System.out.println("toFront: frame title " + frame.getTitle());
-        }
-        if(window instanceof Dialog) {
-            Dialog frame = (Dialog) window;
-            System.out.println("toFront: dialog title " + frame.getTitle());
-        }
-        
-        
         boolean alwaysOnTopSupported = isAlwaysOnTopSupported(window);
 
-        
-        if(Config.isWinOS()) {
-            //AppActivate in Windows Script Host
-            //http://msdn.microsoft.com/en-us/library/by8safft(VS.85).aspx
-            //http://www.pctools.com/guides/scripting/detail/140/?act=reference
-            //http://msdn.microsoft.com/en-us/library/wzcddbek(VS.85).aspx
-            //http://www.microsoft.com/technet/scriptcenter/guide/sas_wsh_hilv.mspx?mfr=true
-            //http://www.xent.com/pipermail/fork/Week-of-Mon-20050926/038246.html
-            //http://www.snee.com/bobdc.blog/2008/04/windows_command_line_text_proc.html
-            //
-            //http://www.eggheadcafe.com/software/aspnet/31799544/bring-to-front.aspxv
-            //http://bytes.com/forum/thread363105.html
-            //http://www.bobpowell.net/tipstricks.htm
-            //http://ubuntuforums.org/archive/index.php/t-197207.html
+        if (Config.isWinOS()) {
+            // Use WSH (Windows Script Host) to execute a javascript that brings
+            // a window to front.
+
+            File libdir = Boot.getBluejLibDir();
+
+            String pid = ManagementFactory.getRuntimeMXBean().getName();
+            // Strip the host name from the pid.
+            int atIndex = pid.indexOf("@");
+            if (atIndex != -1) {
+                pid = pid.substring(0, atIndex);
+            }
+
+            String command = "cscript " + libdir.getAbsolutePath() + "\\windowtofront.js \"" + pid + "\"";
+            System.out.println("toFront executing command: " + command);
+
+            try {
+                Runtime.getRuntime().exec(command);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        if(Config.isLinux()) {
-            
+        if (Config.isLinux()) {
+            // http://ubuntuforums.org/archive/index.php/t-197207.html
         }
         else if (Config.isMacOS() && !Config.isJava16()) {
             // The following code executes these calls:
@@ -552,22 +548,24 @@ public class Utility
                 Debug.reportError("Bringing process to front failed (MacOS): " + exc);
             }
         }
-        else if(Config.isMacOS()) {
+        else if (Config.isMacOS() && Config.isJava16()) {
             // Use some applescript to bring it to front.
             String appName;
-            if(Config.isDebugVM()) {
+            if (Config.isDebugVM()) {
                 appName = Config.getVMDockName();
             }
             else {
-                if(Config.isGreenfoot()) {
-                    appName = "greenfoot"; //TODO: maybe change this to something else in the Info.plist?
-                } else {
+                if (Config.isGreenfoot()) {
+                    appName = "greenfoot"; // TODO: maybe change this to
+                    // something else in the Info.plist?
+                }
+                else {
                     appName = Config.getApplicationName();
                 }
             }
             try {
                 String command = "osascript -e 'tell application \"" + appName + "\"' -e 'activate' -e 'end tell'";
-                System.out.println("tofront executing: " + command);
+                System.out.println("toFront executing command: " + command);
                 Runtime.getRuntime().exec(command);
             }
             catch (IOException e) {}
@@ -654,10 +652,6 @@ public class Utility
         // String[] openCmd = { "open", path };
         // Runtime.getRuntime().exec(openCmd);
         // }
-        
-        
-        
-     
 
     }
 
@@ -832,30 +826,32 @@ public class Utility
         // segmented styles:
         // segmented, segmentedRoundRect, segmentedCapsule, segmentedTextured
         // see: http://developer.apple.com/technotes/tn2007/tn2196.html
-        
-        if(!Config.isMacOS()) {
+
+        if (!Config.isMacOS()) {
             return;
         }
-        
+
         Border oldBorder = button.getBorder();
 
         // the following works since MacOS 10.5
         button.putClientProperty("JButton.buttonType", "square");
-        
+
         if (oldBorder == button.getBorder()) {
             // if the border didn't change the "textured" type probably doesn't
             // exist, which means we are running on MacOS < 10.5. This means we
             // should use the old pre-10.5 "toolbar" style instead.
             button.putClientProperty("JButton.buttonType", "toolbar");
-        } else {
+        }
+        else {
             // if we get to this point, the square button type is available, and
-    		// we can continue configuring for that one.
-    		if (!Config.isJava16()) {
-    			button.setMargin(new Insets(8, 8, 8, 8));
-            } else {
+            // we can continue configuring for that one.
+            if (!Config.isJava16()) {
+                button.setMargin(new Insets(8, 8, 8, 8));
+            }
+            else {
                 // They changed the insets in Java 1.6....
-                button.setMargin(new Insets(3, 1, 3, 1));            
-            }	
+                button.setMargin(new Insets(3, 1, 3, 1));
+            }
         }
     }
 

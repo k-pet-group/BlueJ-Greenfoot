@@ -45,7 +45,7 @@ import bluej.utility.Utility;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 5796 2008-07-02 14:38:31Z polle $
+ * @version $Id: Config.java 5798 2008-07-03 15:56:38Z polle $
  */
 
 public final class Config
@@ -120,7 +120,7 @@ public final class Config
     private static List debugVMArgs = new ArrayList();
     
     /** whether this is the debug vm or not. */
-    private static boolean isDebugVm;
+    private static boolean isDebugVm = true;
 
     /**
      * Initialisation of BlueJ configuration. Must be called at startup.
@@ -370,9 +370,6 @@ public final class Config
      */
     public static boolean isDebugVM() 
     {
-        if(!initialised) {
-            throw new IllegalArgumentException("Can't determine VM type before the Config is initialised.");
-        }
         return isDebugVm;
     }
     
