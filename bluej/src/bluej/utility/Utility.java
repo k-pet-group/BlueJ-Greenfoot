@@ -1,7 +1,6 @@
 package bluej.utility;
 
 import java.awt.AWTException;
-import java.awt.Dialog;
 import java.awt.EventQueue;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -14,13 +13,13 @@ import java.awt.Shape;
 import java.awt.Window;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -32,7 +31,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.AbstractButton;
-import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
 import bluej.Boot;
@@ -43,7 +41,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 5798 2008-07-03 15:56:38Z polle $
+ * @version $Id: Utility.java 5799 2008-07-04 15:05:31Z polle $
  */
 public class Utility
 {
@@ -490,6 +488,14 @@ public class Utility
             // window.isShowing());
             return;
         }
+
+        String pid = ManagementFactory.getRuntimeMXBean().getName();
+        // Strip the host name from the pid.
+        int atIndex = pid.indexOf("@");
+        if (atIndex != -1) {
+            pid = pid.substring(0, atIndex);
+        }
+
         boolean alwaysOnTopSupported = isAlwaysOnTopSupported(window);
 
         if (Config.isWinOS()) {
@@ -497,13 +503,6 @@ public class Utility
             // a window to front.
 
             File libdir = Boot.getBluejLibDir();
-
-            String pid = ManagementFactory.getRuntimeMXBean().getName();
-            // Strip the host name from the pid.
-            int atIndex = pid.indexOf("@");
-            if (atIndex != -1) {
-                pid = pid.substring(0, atIndex);
-            }
 
             String command = "cscript " + libdir.getAbsolutePath() + "\\windowtofront.js \"" + pid + "\"";
             System.out.println("toFront executing command: " + command);
@@ -548,98 +547,52 @@ public class Utility
                 Debug.reportError("Bringing process to front failed (MacOS): " + exc);
             }
         }
-        else if (Config.isMacOS() && Config.isJava16()) {
-            // Use some applescript to bring it to front.
-            String appName;
-            if (Config.isDebugVM()) {
-                appName = Config.getVMDockName();
+        else if (Config.isMacOS()) {
+            // Use applescript to bring it to front.
+            String command[] = {"osascript", "-e", "tell application \"System Events\"", "-e",
+                    "set frontmost of first process whose unix id is " + pid + " to true", "-e", "end tell"};
+            
+            StringBuffer commandAsStr = new StringBuffer();
+            for (int i = 0; i < command.length; i++) {
+                commandAsStr.append(command[i] + " ");
             }
-            else {
-                if (Config.isGreenfoot()) {
-                    appName = "greenfoot"; // TODO: maybe change this to
-                    // something else in the Info.plist?
-                }
-                else {
-                    appName = Config.getApplicationName();
-                }
-            }
+            
+            System.out.print("toFront executing command: " + commandAsStr);
+            
             try {
-                String command = "osascript -e 'tell application \"" + appName + "\"' -e 'activate' -e 'end tell'";
-                System.out.println("toFront executing command: " + command);
-                Runtime.getRuntime().exec(command);
-            }
-            catch (IOException e) {}
-        }
-        else if (false && alwaysOnTopSupported && !window.isAlwaysOnTop()) {
-            // This should work cross platform, but is a very nasty hack, so we
-            // only do it if alwaysOnTop is likely to be supported.
-            // If the window is already on top, it is probably because we are
-            // doing this method twice at the same time. Not a problem, but no
-            // need to do it a second time.
-            System.out.println("Bringing to front: " + window);
+                Process p = Runtime.getRuntime().exec(command);
+                
+                BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                // grab anything else
+                try {
+                    br = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+                    StringBuffer extra = new StringBuffer();
 
-            // Sometimes there seems to be trouble with this hack when dealing
-            // with dialogs that have an owner. The dialogs will sometimes be
-            // closed immediately for some reason. So we bail now before messing
-            // things up.
-            if (window instanceof Dialog) {
-                Dialog dialog = (Dialog) window;
-                if (dialog.getOwner() != null) {
-                    System.out.println("Not bringing dialog to front: " + dialog);
-                    return;
-                }
-            }
+                    char[] buf = new char[1024];
+                    for (int i = 0; i < 5; i++) {
+                        Thread.sleep(200);
 
-            SwingUtilities.invokeLater(new Thread() {
-                public void run()
-                {
-                    if (!window.isVisible()) {
-                        // necessary and idiomatically correct
-                        window.setVisible(true);
+                        // discontinue if no data available or stream closed
+                        if (!br.ready())
+                            break;
+                        int len = br.read(buf);
+                        if (len == -1)
+                            break;
+
+                        extra.append(buf, 0, len);
                     }
-                    // Bring the frame to the top (will not give it focus)
-                    window.setAlwaysOnTop(true);
-                }
-            });
-            SwingUtilities.invokeLater(new Thread() {
-                public void run()
-                {
-                    // Figure out a safe location to click.
-                    // Ignore border so we don't accidently click on a
-                    // close-button or similar.
-                    Point windowLoc = window.getLocationOnScreen();
-                    Insets insets = window.getInsets();
-                    windowLoc.translate(insets.right, insets.top);
-                    int x = (int) (windowLoc.getX() + 1);
-                    int y = (int) (windowLoc.getY() + 1);
-                    // Fake a click on the window so that it gets the focus.
-                    //
-                    // This assumes that the window is the top most windo,
-                    // which is not necessarily the case if there are other
-                    // alwaysOnTop windows - but it is a fair attempt.
-                    try {
-                        simulateClick(x, y);
-                    }
-                    catch (Throwable e) {
-                        Debug.reportError("Bringing process to front failed (cross platform): " + e);
+                    if (extra.length() != 0) {
+                        Debug.message("When trying to launch osascript:" + extra);
+                        Debug.message(" This error was recieved: " + commandAsStr);
                     }
                 }
-            });
-            SwingUtilities.invokeLater(new Thread() {
-                public void run()
-                {
-                    // Oh no, I actually did not want this
-                    SwingUtilities.invokeLater(new Thread() {
-                        public void run()
-                        {
-                            // we have to do this after everything else has
-                            // finished (clicks etc)
-                            window.setAlwaysOnTop(false);
-                        }
-                    });
-                }
-            });
+                catch (InterruptedException ie) {}
+
+            }
+            catch (IOException e) {
+            }
         }
+        
 
         // alternative technique: using 'open command. works only for BlueJ.app,
         // not for remote VM
