@@ -379,6 +379,34 @@ target="1.5">
         </java>
     </target>
 
+    <target name="run-greenfoot-with-local-gallery"  depends="ready-to-run">
+        <!-- run the java code built into the jar files -->
+        <java classname="bluej.Boot" fork="yes" jvm="${build_java_home}/bin/java">
+            <classpath>
+                <pathelement location="${bluej.projectdir}/boot/classes" />
+                <!-- <path refid="bluej.class.path"/> -->
+                <path refid="bluej.src.path"/>
+                <pathelement location="${build_java_home}/lib/tools.jar"/>
+                <pathelement location="/System/Library/Java"/>
+                <!-- <pathelement location="${build}"/> -->
+            </classpath>
+
+            <arg value="-bluej.debug=true">
+            </arg>
+            <arg value="-greenfoot=true">
+            </arg>
+            <arg value="-useclassesdir=true">
+            </arg>
+            <arg value="-greenfootclassesdir=${build}"/>
+            <arg value="-greenfoot.scenarios=${greenfoot.scenarios}"/>
+            <arg value="-greenfoot.tutorial=${greenfoot.tutorial}"/>
+            <arg value="-greenfoot.tutorial.scenario=${greenfoot.tutorial.scenario}"/>
+            <arg value="-bluej.compiler.showunchecked=false"/>
+            <arg value="-greenfoot.gameserver.address=http://localhost:3000"/>
+            <arg value="-greenfoot.gameserver.createAccount.address=http://localhost:3000/users/new"/>
+        </java>
+    </target>
+
     <target name="run-scenario-viewer"  depends="ready-to-run,compile-scenarios">
         <!-- run the java code built into the jar files -->
         <java classname="greenfoot.export.GreenfootScenarioViewer" fork="yes" jvm="${build_java_home}/bin/java">
