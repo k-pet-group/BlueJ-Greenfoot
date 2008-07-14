@@ -209,7 +209,11 @@ public class Simulation extends Thread
                 t.printStackTrace();
             }
             finally {
-                world.lock.writeLock().unlock();
+                // Release lock if we have it (we might not have the lock if
+                // interrupted)
+                if(world.lock.isWriteLockedByCurrentThread()){
+                    world.lock.writeLock().unlock();
+                }
             }
         }
         catch (InterruptedException e) {
