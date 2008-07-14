@@ -12,6 +12,7 @@ import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.platforms.standalone.ActorDelegateStandAlone;
 import greenfoot.platforms.standalone.GreenfootUtilDelegateStandAlone;
+import greenfoot.platforms.standalone.SimulationDelegateStandAlone;
 import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
 import greenfoot.sound.SoundPlayer;
 import greenfoot.util.GreenfootUtil;
@@ -207,7 +208,7 @@ public class GreenfootScenarioViewer extends JApplet
             
             WorldHandler.initialise(canvas, new WorldHandlerDelegateStandAlone(this, lockScenario));
             WorldHandler worldHandler = WorldHandler.getInstance();
-            Simulation.initialize(worldHandler);
+            Simulation.initialize(worldHandler, new SimulationDelegateStandAlone());
             LocationTracker.initialize();
             sim = Simulation.getInstance();
             controls = new ControlPanel(sim, ! lockScenario);

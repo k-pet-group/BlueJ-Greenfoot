@@ -7,6 +7,7 @@ import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
+import greenfoot.platforms.SimulationDelegate;
 import greenfoot.util.HDTimer;
 
 import java.util.ArrayList;
@@ -63,6 +64,7 @@ public class Simulation extends Thread
      */
     private Queue<Long> repaintTimes = new LinkedList<Long>();
     private volatile boolean interruptedForSpeedChange = false;
+    private SimulationDelegate delegate;
 
     /**
      * Create new simulation. Leaves the simulation in paused state
@@ -78,18 +80,17 @@ public class Simulation extends Thread
         HDTimer.init();
     }
     
-    public static void initialize(WorldHandler worldHandler)
+    public static void initialize(WorldHandler worldHandler, SimulationDelegate simulationDelegate)
     {
         instance = new Simulation();
         instance.worldHandler = worldHandler;
-
+        instance.delegate = simulationDelegate;
         instance.startedEvent = new SimulationEvent(instance, SimulationEvent.STARTED);
         instance.stoppedEvent = new SimulationEvent(instance, SimulationEvent.STOPPED);
         instance.speedChangeEvent = new SimulationEvent(instance, SimulationEvent.CHANGED_SPEED);
         instance.disabledEvent = new SimulationEvent(instance, SimulationEvent.DISABLED);
         instance.newActEvent = new SimulationEvent(instance, SimulationEvent.NEW_ACT);
         instance.setPriority(Thread.MIN_PRIORITY);
-        // instance.setSpeed(50);
         instance.paused = true;
 
         worldHandler.addWorldListener(instance);
@@ -402,6 +403,9 @@ public class Simulation extends Thread
 
         if (this.speed != speed) {
             this.speed = speed;
+            
+            delegate.setSpeed(speed);
+            
             this.delay = calculateDelay(speed);
 
             synchronized (repaintTimes) {

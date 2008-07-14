@@ -41,6 +41,7 @@ import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.gui.inspector.GreenfootResultInspector;
 import greenfoot.gui.inspector.GreenfootClassInspector;
 import greenfoot.gui.inspector.GreenfootObjectInspector;
+import greenfoot.platforms.ide.SimulationDelegateIDE;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.sound.SoundPlayer;
 import greenfoot.util.GreenfootUtil;
@@ -101,7 +102,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5737 2008-05-01 14:14:42Z polle $
+ * @version $Id: GreenfootFrame.java 5802 2008-07-14 11:43:27Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener,
@@ -234,13 +235,6 @@ public class GreenfootFrame extends JFrame
             setResizeWhenPossible(true);
         }
         
-        try {
-            int speed = projectProperties.getInt("simulation.speed");
-            Simulation.getInstance().setSpeed(speed);
-        } 
-        catch (NumberFormatException ecx) {
-            //simulation.speed not found
-        }
     }
 
     
@@ -299,6 +293,14 @@ public class GreenfootFrame extends JFrame
 
             restoreFrameState();
 
+            try {
+                ProjectProperties props = project.getProjectProperties();
+                int initialSpeed = props.getInt("simulation.speed");
+                Simulation.getInstance().setSpeed(initialSpeed);
+            } catch (NumberFormatException nfe) {
+                // If there is no speed info in the properties we don't care...
+            }
+            
             WorldHandler.getInstance().instantiateNewWorld();
             worldHandlerDelegate.getWorldTitle().setVisible(true);
             if (needsResize()) {
@@ -357,9 +359,9 @@ public class GreenfootFrame extends JFrame
         WorldHandler.initialise(worldCanvas, worldHandlerDelegate);
         worldHandler = WorldHandler.getInstance();
         worldHandler.addWorldListener(this);
-        Simulation.initialize(worldHandler);
+        Simulation.initialize(worldHandler, new SimulationDelegateIDE());
         Simulation sim = Simulation.getInstance();
-        
+       
         // Build the class browser before building the menu, because
         // some menu actions work on the class browser.
         buildClassBrowser();
