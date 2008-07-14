@@ -1,34 +1,22 @@
 package bluej.utility;
 
-import java.awt.AWTException;
-import java.awt.EventQueue;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Insets;
-import java.awt.MouseInfo;
-import java.awt.Point;
-import java.awt.PointerInfo;
-import java.awt.Robot;
 import java.awt.Shape;
 import java.awt.Window;
-import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.EmptyStackException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.swing.AbstractButton;
 import javax.swing.border.Border;
@@ -41,14 +29,14 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 5799 2008-07-04 15:05:31Z polle $
+ * @version $Id: Utility.java 5806 2008-07-14 15:05:54Z polle $
  */
 public class Utility
 {
     /**
      * Used to track which events have occurred for firstTimeThisRun()
      */
-    private static Set occurredEvents = new HashSet();
+    private static Set<String> occurredEvents = new HashSet<String>();
 
     private static URLClassLoader classLoader;
     static {
@@ -58,80 +46,6 @@ public class Utility
         catch (MalformedURLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
-    }
-
-    /**
-     * EventQueue that will intercept all mouse events until a mouse click is
-     * recieved. After recieving the a mouse click it will disable itself.
-     * 
-     * @author Poul Henriksen
-     */
-    private static class InterceptEventQueue extends EventQueue
-    {
-        private final static long timeout = 1000;
-
-        private Timer timer = new Timer();
-
-        /**
-         * Method that stops interception after a given timeout. Can be used as
-         * a fallback in case it is not stopped the normal way.
-         */
-        public void startTimeOut()
-        {
-            TimerTask task = new TimerTask() {
-                @Override
-                public void run()
-                {
-                    System.out.println("Removing after timeout");
-                    try {
-                        pop();
-                        timer.cancel();
-                    }
-                    catch (IllegalStateException e) {
-                        // The timer might already be canceled.
-                    }
-                }
-            };
-            try {
-                timer.schedule(task, timeout);
-            }
-            catch (IllegalStateException e) {
-                // The timer might already be canceled.
-            }
-        }
-
-        @Override
-        public void dispatchEvent(java.awt.AWTEvent awtEvent)
-        {
-            // System.out.println("AWT EVentQueue: " + awtEvent);
-            if (awtEvent instanceof MouseEvent) {
-
-                System.out.println(" interception: " + awtEvent);
-                if (awtEvent.getID() == MouseEvent.MOUSE_RELEASED) {
-                    // Stop intercepting event
-                    System.out.println("Removing interceptQueue");
-                    try {
-                        pop();
-                        timer.cancel();
-                    }
-                    catch (IllegalStateException e) {
-                        // The timer might already be canceled.
-                    }
-                }
-            }
-            else {
-                // Dispatch as normal.
-                super.dispatchEvent(awtEvent);
-            }
-        }
-
-        private void remove()
-        {
-            try {
-                super.pop();
-            }
-            catch (EmptyStackException e) {}
         }
     }
 
@@ -219,7 +133,7 @@ public class Utility
      */
     public static String[] split(String str, String delimiter)
     {
-        List strings = new ArrayList();
+        List<String> strings = new ArrayList<String>();
         int start = 0;
         int len = str.length();
         int dlen = delimiter.length();
@@ -496,7 +410,6 @@ public class Utility
             pid = pid.substring(0, atIndex);
         }
 
-        boolean alwaysOnTopSupported = isAlwaysOnTopSupported(window);
 
         if (Config.isWinOS()) {
             // Use WSH (Windows Script Host) to execute a javascript that brings
@@ -525,7 +438,7 @@ public class Utility
             // machines.
 
             try {
-                Class nsapp = null;
+                Class<?> nsapp = null;
                 try {
                     nsapp = Class.forName("com.apple.cocoa.application.NSApplication");
                 }
@@ -538,7 +451,7 @@ public class Utility
                 java.lang.reflect.Method sharedApp = nsapp.getMethod("sharedApplication", (Class[]) null);
                 Object obj = sharedApp.invoke(null, (Object[]) null);
 
-                Class[] param = {boolean.class};
+                Class<?>[] param = {boolean.class};
                 java.lang.reflect.Method act = nsapp.getMethod("activateIgnoringOtherApps", param);
                 Object[] args = {Boolean.TRUE};
                 act.invoke(obj, args);
@@ -591,8 +504,7 @@ public class Utility
             }
             catch (IOException e) {
             }
-        }
-        
+        }        
 
         // alternative technique: using 'open command. works only for BlueJ.app,
         // not for remote VM
@@ -608,75 +520,7 @@ public class Utility
 
     }
 
-    /**
-     * Performs a click at the given absolute coordinate.
-     * 
-     * @throws AWTException if something went wrong.
-     */
-    private static void simulateClick(int x, int y)
-        throws AWTException
-    {
-        Robot r = new Robot();
-        // Get the current location of the mouse pointer and
-        // store it
-        PointerInfo pointerInfo = MouseInfo.getPointerInfo();
-        Point oldPoint = pointerInfo.getLocation();
-
-        // Intercept mouse events with new event queue
-        EventQueue eventQueue = java.awt.Toolkit.getDefaultToolkit().getSystemEventQueue();
-        InterceptEventQueue interceptQueue = new InterceptEventQueue();
-
-        try {
-            eventQueue.push(interceptQueue);
-
-            // Move mouse cursor to the click location
-            System.out.println("Clicking at: " + x + ", " + y);
-            r.mouseMove(x, y);
-
-            // Click
-            r.mousePress(InputEvent.BUTTON1_MASK);
-            r.mouseRelease(InputEvent.BUTTON1_MASK);
-
-            // Move the mouse cursor back to the original location
-            r.mouseMove((int) oldPoint.getX(), (int) oldPoint.getY());
-        }
-        finally {
-            // Make sure the interception is stopped at some point, even if
-            // things go wrong somewhere
-            interceptQueue.startTimeOut();
-        }
-    }
-
-    /**
-     * Try to determine if alwaysOnTop is supported for the window. If we can't
-     * find out, we assume it is supported.
-     * 
-     */
-    private static boolean isAlwaysOnTopSupported(final Window window)
-    {
-        // We assume that alwaysOnTop is supported since we can't find out on
-        // Java 5
-        boolean alwaysOnTopSupported = true;
-        // If we are on Java 6 we can actually check if alwaysOnTop is
-        // supported:
-        if (Config.isJava16()) {
-            // The following executes the Java 6 method
-            // frame.isAlwaysOnTopSupported(). It does so by using reflection so
-            // that it compiles on Java 5.
-            Class<? extends Window> cls = window.getClass();
-
-            try {
-                Method m = cls.getMethod("isAlwaysOnTopSupported", (Class[]) null);
-                Boolean result = (Boolean) m.invoke(window);
-                alwaysOnTopSupported = result;
-            }
-            catch (Exception e) {
-                Debug.reportError("Invoking alwaysOnTopSupported() failed in Utility.bringToFront().");
-            }
-        }
-        return alwaysOnTopSupported;
-    }
-
+   
     /**
      * merge s2 into s1 at position of first '$'
      */
