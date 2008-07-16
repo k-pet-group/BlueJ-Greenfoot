@@ -18,7 +18,7 @@ import bluej.extensions.editor.Editor;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 5540 2008-02-07 14:04:04Z polle $
+ * @version $Id: RClassImpl.java 5808 2008-07-16 13:00:36Z davmac $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -59,13 +59,15 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
         final Editor editor = bClass.getEditor();
-        Thread t = new Thread() {
-            public void run()
-            {
-                editor.setVisible(true);
-            }
-        };
-        SwingUtilities.invokeLater(t);
+        if (editor != null) {
+            Thread t = new Thread() {
+                public void run()
+                {
+                    editor.setVisible(true);
+                }
+            };
+            SwingUtilities.invokeLater(t);
+        }
     }
 
     /**
