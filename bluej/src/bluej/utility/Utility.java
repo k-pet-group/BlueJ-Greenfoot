@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -21,7 +23,6 @@ import java.util.Set;
 import javax.swing.AbstractButton;
 import javax.swing.border.Border;
 
-import bluej.Boot;
 import bluej.Config;
 
 /**
@@ -29,7 +30,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 5806 2008-07-14 15:05:54Z polle $
+ * @version $Id: Utility.java 5810 2008-07-17 17:17:36Z polle $
  */
 public class Utility
 {
@@ -387,7 +388,53 @@ public class Utility
             }
         }
     }
+    /**
+     * Method copied from Boot since we don't always have access to Boot here (if this method is called from the user VM for instance).
+     * 
+     * Calculate the bluejLibDir value by doing some reasoning on a resource 
+     * we know we have: the .class file for the Utility class.
+     *
+     * @return    the path of the BlueJ lib directory
+     */
+    private static File calculateBluejLibDir()
+    {
+        File bluejDir = null;
+        String bootFullName = Utility.class.getResource("Utility.class").toString();
 
+        try {
+            if (! bootFullName.startsWith("jar:")) {
+                // Boot.class is not in a jar-file. Find a lib directory somewhere
+                // above us to use
+                File startingDir = (new File(new URI(bootFullName)).getParentFile());
+                while((startingDir != null) &&
+                        !(new File(startingDir.getParentFile(), "lib").isDirectory())) {
+                    startingDir = startingDir.getParentFile();
+                }
+                
+                if (startingDir == null) {
+                    bluejDir = null;
+                }
+                else {
+                    bluejDir = new File(startingDir.getParentFile(), "lib");
+                }
+            }
+            else {
+                // The class is in a jar file, '!' separates the jar file name
+                // from the class name. Cut off the class name and the "jar:" prefix.
+                int classIndex = bootFullName.indexOf("!");
+                String bootName = bootFullName.substring(4, classIndex);
+                
+                File finalFile = new File(new URI(bootName));
+                bluejDir = finalFile.getParentFile();
+            }   
+        } 
+        catch (URISyntaxException use) { }
+        
+        return bluejDir;
+    }
+
+    
+    
     /**
      * Bring the current process to the front in the OS window stacking order.
      * The given window will be brought to the front.
@@ -414,18 +461,46 @@ public class Utility
         if (Config.isWinOS()) {
             // Use WSH (Windows Script Host) to execute a javascript that brings
             // a window to front.
-
-            File libdir = Boot.getBluejLibDir();
-
-            String command = "cscript " + libdir.getAbsolutePath() + "\\windowtofront.js \"" + pid + "\"";
-            System.out.println("toFront executing command: " + command);
+            File libdir = calculateBluejLibDir();
+            String[] command = {"cscript","\"" + libdir.getAbsolutePath() + "\\windowtofront.js\"",pid };
+            
+            StringBuffer commandAsStr = new StringBuffer();
+            for (int i = 0; i < command.length; i++) {
+                commandAsStr.append(command[i] + " ");
+            }
+            System.out.println("toFront executing command: " + commandAsStr);
 
             try {
-                Runtime.getRuntime().exec(command);
+                Process p = Runtime.getRuntime().exec(command);
+
+                // Grab error output
+                try {
+                    BufferedReader br = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+                    StringBuffer extra = new StringBuffer();
+
+                    char[] buf = new char[1024];
+                    for (int i = 0; i < 5; i++) {
+                        Thread.sleep(200);
+
+                        // discontinue if no data available or stream closed
+                        if (!br.ready())
+                            break;
+                        int len = br.read(buf);
+                        if (len == -1)
+                            break;
+
+                        extra.append(buf, 0, len);
+                    }
+                    if (extra.length() != 0) {
+                        Debug.message("When trying to launch cscript:" + extra);
+                        Debug.message(" This error was recieved: " + commandAsStr);
+                    }
+                }
+                catch (InterruptedException ie) {}
+
             }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
+            catch (IOException e) {}
+
         }
         if (Config.isLinux()) {
             // http://ubuntuforums.org/archive/index.php/t-197207.html
