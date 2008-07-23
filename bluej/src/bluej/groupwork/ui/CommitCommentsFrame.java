@@ -14,13 +14,28 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.groupwork.*;
+import bluej.groupwork.CommitFilter;
+import bluej.groupwork.Repository;
+import bluej.groupwork.StatusListener;
+import bluej.groupwork.TeamStatusInfo;
+import bluej.groupwork.TeamUtils;
+import bluej.groupwork.TeamworkCommand;
+import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.actions.CommitAction;
-import bluej.pkgmgr.Package;
+import bluej.pkgmgr.BlueJPackageFile;
 import bluej.pkgmgr.Project;
 import bluej.utility.DBox;
 import bluej.utility.DBoxLayout;
@@ -472,7 +487,7 @@ public class CommitCommentsFrame extends EscapeDialog
                 TeamStatusInfo statusInfo = (TeamStatusInfo) it.next();
                 int status = statusInfo.getStatus();
                 if(filter.accept(statusInfo)) {
-                    if (!statusInfo.getFile().getName().equals(Package.pkgfileName) 
+                    if (! BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName()) 
                             || status == TeamStatusInfo.STATUS_NEEDSADD 
                             || status == TeamStatusInfo.STATUS_DELETED ) {
                         
@@ -487,7 +502,7 @@ public class CommitCommentsFrame extends EscapeDialog
                             || status == TeamStatusInfo.STATUS_CONFLICT_LDRM) {
                         filesToRemove.add(statusInfo.getFile());
                     }
-                    else if(statusInfo.getFile().getName().equals(Package.pkgfileName)) {
+                    else if(BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) {
                         // add file to list of files that may be added to commit
                         modifiedLayoutFiles.add(statusInfo.getFile());
                         // keep track of StatusInfo objects representing changed diagrams
@@ -497,7 +512,7 @@ public class CommitCommentsFrame extends EscapeDialog
                     }
                 }
                 else {
-                    if(!statusInfo.getFile().getName().equals(Package.pkgfileName)
+                    if(! BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())
                             || includeLayout()) {
                         if (status == TeamStatusInfo.STATUS_HASCONFLICTS) {
                             mergeConflicts.add(statusInfo.getFile());

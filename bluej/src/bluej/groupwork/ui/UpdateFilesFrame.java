@@ -7,14 +7,32 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.io.FileFilter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.groupwork.*;
+import bluej.groupwork.Repository;
+import bluej.groupwork.StatusListener;
+import bluej.groupwork.TeamStatusInfo;
+import bluej.groupwork.TeamUtils;
+import bluej.groupwork.TeamworkCommand;
+import bluej.groupwork.TeamworkCommandResult;
+import bluej.groupwork.UpdateFilter;
 import bluej.groupwork.actions.UpdateAction;
+import bluej.pkgmgr.BlueJPackageFile;
 import bluej.pkgmgr.Project;
 import bluej.utility.DBox;
 import bluej.utility.DBoxLayout;
@@ -27,7 +45,7 @@ import bluej.utility.SwingWorker;
  * A Swing based user interface for showing files to be updated
  * @author Bruce Quig
  * @author Davin McCall
- * @version $Id: UpdateFilesFrame.java 5529 2008-02-04 04:39:56Z davmac $
+ * @version $Id: UpdateFilesFrame.java 5811 2008-07-23 16:45:17Z polle $
  */
 public class UpdateFilesFrame extends EscapeDialog
 {
@@ -427,7 +445,7 @@ public class UpdateFilesFrame extends EscapeDialog
                 TeamStatusInfo statusInfo = (TeamStatusInfo) it.next();
                 int status = statusInfo.getStatus();
                 if(filter.accept(statusInfo)) {
-                    if (!statusInfo.getFile().getName().equals("bluej.pkg")) { 
+                    if (!BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) { 
                         updateListModel.addElement(statusInfo);
                         filesToUpdate.add(statusInfo.getFile());
                     }
@@ -452,7 +470,7 @@ public class UpdateFilesFrame extends EscapeDialog
                     conflict |= status == TeamStatusInfo.STATUS_CONFLICT_ADD;
                     conflict |= status == TeamStatusInfo.STATUS_CONFLICT_LMRD;
                     if (conflict) {
-                        if(!statusInfo.getFile().getName().equals("bluej.pkg")) {
+                        if(!BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) {
                             conflicts.add(statusInfo.getFile());
                         }
                         else {

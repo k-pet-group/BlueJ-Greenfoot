@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import bluej.pkgmgr.Package;
+import bluej.pkgmgr.BlueJPackageFile;
 
 /**
  * A FilenameFilter that filters out files based on a list of patterns. It also
@@ -87,7 +87,7 @@ public class CodeFileFilter implements FileFilter, FilenameFilter
 		 * added and committed. If we don't, BlueJ can't know which folders
 		 * are packages
 		 */ 
-		if (!includePkgFiles && name.equals(Package.pkgfileName)){
+		if (!includePkgFiles && BlueJPackageFile.isPackageFileName(name)){
 			result = false;
 		}
         // the old bluej.pkg backup file

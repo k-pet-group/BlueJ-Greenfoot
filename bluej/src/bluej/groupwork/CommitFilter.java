@@ -1,6 +1,6 @@
 package bluej.groupwork;
 
-import bluej.pkgmgr.Package;
+import bluej.pkgmgr.BlueJPackageFile;
 
 /**
  * Class to filter CVS StatusInformation to calculate those classes that will 
@@ -8,7 +8,7 @@ import bluej.pkgmgr.Package;
  * modified, remotely modified, locally deleted and remotely removed.
  *
  * @author bquig
- * @version $Id: CommitFilter.java 5648 2008-03-20 02:27:49Z davmac $
+ * @version $Id: CommitFilter.java 5811 2008-07-23 16:45:17Z polle $
  */
 public class CommitFilter
 {
@@ -30,7 +30,7 @@ public class CommitFilter
             return true;
         }
         
-        if (statusInfo.getFile().getName().equals(Package.pkgfileName)) {
+        if (BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) {
             boolean conflict = (stat == TeamStatusInfo.STATUS_CONFLICT_ADD);
             conflict |= (stat == TeamStatusInfo.STATUS_NEEDSMERGE);
             conflict |= (stat == TeamStatusInfo.STATUS_CONFLICT_LDRM);

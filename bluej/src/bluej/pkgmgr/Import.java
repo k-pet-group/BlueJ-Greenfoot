@@ -11,6 +11,7 @@ import javax.swing.JFrame;
 
 import bluej.parser.ClassParser;
 import bluej.parser.symtab.ClassInfo;
+import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
 
@@ -22,7 +23,7 @@ import bluej.utility.JavaNames;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Import.java 5302 2007-10-04 16:35:21Z polle $
+ * @version $Id: Import.java 5811 2008-07-23 16:45:17Z polle $
  */
 public class Import
 {
@@ -184,25 +185,20 @@ public class Import
      */
     public static void convertDirectory(List dirs)
     {
-        // create a bluej.pkg file in every directory that
+        // create a BlueJ package file in every directory that
         // we have determined to be interesting
 
         Iterator i = dirs.iterator();
 
         while(i.hasNext()) {
             File f = (File) i.next();
-
-            File bluejFile = Package.getPkgFile(f);
-
-            if (bluejFile.exists())
-                continue;
-
             try {
-                bluejFile.createNewFile();
+                BlueJPackageFile.create(f);
             }
-            catch(IOException ioe) {
-                ioe.printStackTrace();
+            catch (IOException e) {
+                Debug.reportError("Could not create package files in dir: " + f, e);
             }
+          
         }
     }
 }

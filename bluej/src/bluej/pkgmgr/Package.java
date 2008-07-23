@@ -1,12 +1,20 @@
 package bluej.pkgmgr;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.Stack;
 
 import bluej.Config;
 import bluej.compiler.CompileObserver;
@@ -32,7 +40,14 @@ import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ExtendsDependency;
 import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.pkgmgr.dependency.UsesDependency;
-import bluej.pkgmgr.target.*;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.DependentTarget;
+import bluej.pkgmgr.target.EditableTarget;
+import bluej.pkgmgr.target.PackageTarget;
+import bluej.pkgmgr.target.ParentPackageTarget;
+import bluej.pkgmgr.target.ReadmeTarget;
+import bluej.pkgmgr.target.Target;
+import bluej.pkgmgr.target.TargetCollection;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.FileUtility;
@@ -49,7 +64,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 5451 2008-01-07 01:54:01Z davmac $
+ * @version $Id: Package.java 5811 2008-07-23 16:45:17Z polle $
  */
 public final class Package extends Graph
 {
@@ -66,9 +81,8 @@ public final class Package extends Graph
      * the name of the package file in a package directory that holds
      * information about the package and its targets.
      */
-    public static final String pkgfileName = "bluej.pkg";
-    /** Greenfoot project file name */
-    public static final String greenfootProjectFile = "project.greenfoot";
+    private PackageFile packageFile;
+    
     /** Readme file name */
     public static final String readmeName = "README.TXT";
 
@@ -100,16 +114,16 @@ public final class Package extends Graph
     public static final int FIXED_TARGET_Y = 10;
 
     /* the Project this package is in */
-    private Project project;
+    private final Project project;
 
     /*
      * the parent Package object for this package or null if this is the unnamed
      * package ie. the root of the package tree
      */
-    private Package parentPackage = null;
+    private final Package parentPackage;
 
     /* base name of package (eg util) ("" for the unnamed package) */
-    private String baseName = "";
+    private final String baseName;
 
     /*
      * this properties object contains the properties loaded off disk for this
@@ -162,6 +176,9 @@ public final class Package extends Graph
     private int state = S_IDLE;
 
     private PackageEditor editor;
+    
+    /** File pointing at the directory for this package */
+    private File dir;
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -211,6 +228,7 @@ public final class Package extends Graph
         usesArrows = new ArrayList();
         extendsArrows = new ArrayList();
         callHistory = new CallHistory(HISTORY_LENGTH);
+        dir = new File(project.getProjectDir(), getRelativePath().getPath());
         load();
     }
 
@@ -332,13 +350,9 @@ public final class Package extends Graph
      * @return The file object representing the full path to the packages
      *         directory
      */
-    public File getPath()
+    public File getPath() 
     {
-        /*
-         * append our relative path onto the absolute path which our project
-         * gives us
-         */
-        return new File(project.getProjectDir(), getRelativePath().getPath());
+        return dir;
     }
 
     /**
@@ -557,11 +571,11 @@ public final class Package extends Graph
         throws IOException
     {
         // read the package properties
-        File pkgFile = getPkgFile(getPath());
+        
+        packageFile = getPkgFile();
+        
         // try to load the package file for this package
-        FileInputStream input = new FileInputStream(pkgFile);
-        lastSavedProps.load(input);
-        input.close();
+        packageFile.load(lastSavedProps);
 
         // read in all the targets contained in this package
         // into this temporary map
@@ -574,7 +588,7 @@ public final class Package extends Graph
             numDependencies = Integer.parseInt(lastSavedProps.getProperty("package.numDependencies", "0"));
         }
         catch (Exception e) {
-            Debug.reportError("Error loading from bluej.pkg file " + pkgFile + ": " + e);
+            Debug.reportError("Error loading from package file " + packageFile + ": " + e);
             e.printStackTrace();
             return;
         }
@@ -617,7 +631,7 @@ public final class Package extends Graph
             addTarget(target);
         }
 
-        // now look for Java sorce files that may have been
+        // now look for Java source files that may have been
         // added to the directory
         Set interestingSet = findTargets(getPath());
 
@@ -706,19 +720,18 @@ public final class Package extends Graph
 
     /**
      * Returns the file containing information about the package.
-     * For BlueJ this is bluej.pkg and for Greenfoot it is greenfoot.project.
-     * @return
+     * For BlueJ this is package.bluej (or for older versions bluej.pkg) 
+     * and for Greenfoot it is greenfoot.project.
      */
-    static File getPkgFile(File dir)
+    private PackageFile getPkgFile()
     {
-        File pkgFile;
+        File dir = getPath();
         if(Config.isGreenfoot()) {
-            pkgFile = new File(dir, greenfootProjectFile);            
+            return new GreenfootProjectFile(dir);            
         } 
         else { 
-            pkgFile = new File(dir, pkgfileName);
+            return new BlueJPackageFile(dir);
         }
-        return pkgFile;
     }
 
     /**
@@ -858,14 +871,10 @@ public final class Package extends Graph
      */
     public void reReadGraphLayout() throws IOException
     {
-        // read the package properties
-        File pkgFile = getPkgFile(getPath());
 
         // try to load the package file for this package
-        FileInputStream input = new FileInputStream(pkgFile);
         SortedProperties props = new SortedProperties();
-        props.load(input);
-        input.close();
+        packageFile.load(props);
 
         int numTargets = 0;
 
@@ -873,7 +882,7 @@ public final class Package extends Graph
             numTargets = Integer.parseInt(props.getProperty("package.numTargets", "0"));
         }
         catch (Exception e) {
-            Debug.reportError("Error loading from bluej.pkg file " + pkgFile + ": " + e);
+            Debug.reportError("Error loading from bluej package file " + packageFile + ": " + e);
             e.printStackTrace();
             return;
         }
@@ -896,42 +905,25 @@ public final class Package extends Graph
 
     /**
      * Save this package to disk. The package is saved to the standard package
-     * file (bluej.pkg).
+     * file.
      */
-    public boolean save(Properties frameProperties)
+    public void save(Properties frameProperties)
     {
         /* create the directory if it doesn't exist */
         File dir = getPath();
         if (!dir.exists()) {
             if (!dir.mkdir()) {
                 Debug.reportError("Error creating directory " + dir);
-                return false;
+                return;
             }
         }
-
-        File file = getPkgFile(dir);
-        if (!file.canWrite())
-            return false;
 
         SortedProperties props = new SortedProperties();
-
-        // If this is Greenfoot, this file will contain Greenfoot specific
-        // properties as well that we don't want to overwrite, so we load the
-        // file first.
-        if (Config.isGreenfoot() && file.exists()) {
-            try {
-                FileInputStream input = new FileInputStream(file);
-                props.load(input);
-            }
-            catch (IOException e) {
-            }
-        }
         
         if (frameProperties != null)
             props.putAll(frameProperties);
 
         // save targets and dependencies in package
-
         props.put("package.numDependencies", String.valueOf(usesArrows.size()));
 
         int t_count = 0;
@@ -958,26 +950,15 @@ public final class Package extends Graph
         }
 
         try {
-            FileOutputStream output = new FileOutputStream(file);
-            String header = null;
-            if(Config.isGreenfoot()) {
-                header = "Greenfoot project file";
-            }
-            else {
-                header = "BlueJ package file";
-            }
-            
-            props.store(output, header);
-            output.close();
+            packageFile.save(props);
         }
         catch (IOException e) {
-            Debug.reportError("Error saving project file " + file + ": " + e);
-            return false;
+            Debug.reportError("Exception when saving package file : " + e);
+            return;
         }
-
         lastSavedProps = props;
 
-        return true;
+        return;
     }
 
     /**
@@ -1926,21 +1907,7 @@ public final class Package extends Graph
      */
     public static boolean isBlueJPackage(File f)
     {
-        if (f == null)
-            return false;
-
-        // don't try to test Windows root directories (you'll get in
-        // trouble with disks that are not in drives...).
-
-        if (f.getPath().endsWith(":\\"))
-            return false;
-
-        if (!f.isDirectory())
-            return false;
-
-        File packageFile = getPkgFile(f);        
-       
-        return (packageFile.exists());
+        return BlueJPackageFile.exists(f);
     }
 
     /**

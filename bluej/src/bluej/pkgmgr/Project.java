@@ -1,23 +1,36 @@
 package bluej.pkgmgr;
 
-import bluej.groupwork.ui.StatusFrame;
 import java.awt.EventQueue;
+import java.awt.Window;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-
-import java.awt.Window;
 
 import bluej.BlueJEvent;
 import bluej.Boot;
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
-import bluej.debugger.*;
+import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerClass;
+import bluej.debugger.DebuggerEvent;
+import bluej.debugger.DebuggerListener;
+import bluej.debugger.DebuggerObject;
+import bluej.debugger.DebuggerThread;
 import bluej.debugmgr.ExecControls;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.inspector.ClassInspector;
@@ -33,6 +46,7 @@ import bluej.groupwork.Repository;
 import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.actions.TeamActionGroup;
 import bluej.groupwork.ui.CommitCommentsFrame;
+import bluej.groupwork.ui.StatusFrame;
 import bluej.groupwork.ui.TeamSettingsDialog;
 import bluej.groupwork.ui.UpdateFilesFrame;
 import bluej.pkgmgr.target.ClassTarget;
@@ -56,7 +70,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 5693 2008-04-18 16:58:30Z polle $
+ * @version $Id: Project.java 5811 2008-07-23 16:45:17Z polle $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -337,11 +351,10 @@ public class Project implements DebuggerListener, InspectorManager
             }
 
             if (dir.mkdir()) {
-                File newpkgFile = Package.getPkgFile(dir);
                 File newreadmeFile = new File(dir, Package.readmeName);
 
                 try {
-                    if (newpkgFile.createNewFile()) {
+                    if (BlueJPackageFile.create(dir)) {
                         try {
                             FileUtility.copyFile(Config.getTemplateFile(
                                     "readme"), newreadmeFile);
@@ -430,7 +443,7 @@ public class Project implements DebuggerListener, InspectorManager
            we immediately find the parent directory and use that as the
            starting directory */
         if (startingDir.isFile()) {
-            if (startingDir.getName().equals(Package.pkgfileName)) {
+            if (BlueJPackageFile.isPackageFileName(startingDir.getName())) {
                 return startingDir.getParentFile();
             }
         }
@@ -778,10 +791,8 @@ public class Project implements DebuggerListener, InspectorManager
             st = new StringTokenizer(fullName, ".");
             newPkgDir = getProjectDir();
 
-            File newPkgFile = Package.getPkgFile(newPkgDir);
-
             try {
-                newPkgFile.createNewFile();
+                BlueJPackageFile.create(newPkgDir);
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
@@ -789,10 +800,9 @@ public class Project implements DebuggerListener, InspectorManager
             while (st.hasMoreTokens()) {
                 newPkgDir = new File(newPkgDir, st.nextToken());
                 prepareCreateDir(newPkgDir);
-                newPkgFile = Package.getPkgFile(newPkgDir);
 
                 try {
-                    newPkgFile.createNewFile();
+                    BlueJPackageFile.create(newPkgDir);
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
                 }

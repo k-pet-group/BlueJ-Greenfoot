@@ -2,6 +2,7 @@ package bluej.groupwork.ui;
 
 import bluej.Config;
 import bluej.groupwork.TeamStatusInfo;
+import bluej.pkgmgr.BlueJPackageFile;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 
@@ -9,7 +10,7 @@ import bluej.pkgmgr.Project;
  * Class to determine team resource descriptions for use in dialogs
  * 
  * @author Bruce Quig
- * @version $Id: ResourceDescriptor.java 5529 2008-02-04 04:39:56Z davmac $
+ * @version $Id: ResourceDescriptor.java 5811 2008-07-23 16:45:17Z polle $
  */
 public class ResourceDescriptor
 {
@@ -19,7 +20,7 @@ public class ResourceDescriptor
         String status = value.toString();
         if(value instanceof TeamStatusInfo) {
             TeamStatusInfo info = (TeamStatusInfo)value;
-            boolean isPkgFile = info.getFile().getName().equals(Package.pkgfileName);
+            boolean isPkgFile = BlueJPackageFile.isPackageFileName(info.getFile().getName());
 
             if (isPkgFile) {
                   status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());

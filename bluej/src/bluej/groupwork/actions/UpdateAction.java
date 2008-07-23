@@ -14,6 +14,7 @@ import bluej.Config;
 import bluej.groupwork.*;
 import bluej.groupwork.ui.ConflictsDialog;
 import bluej.groupwork.ui.UpdateFilesFrame;
+import bluej.pkgmgr.BlueJPackageFile;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
@@ -33,7 +34,7 @@ import bluej.utility.SwingWorker;
  * and setStatusCommand() must each be called.
  * 
  * @author fisker
- * @version $Id: UpdateAction.java 5529 2008-02-04 04:39:56Z davmac $
+ * @version $Id: UpdateAction.java 5811 2008-07-23 16:45:17Z polle $
  */
 public class UpdateAction extends AbstractAction
 {
@@ -145,7 +146,7 @@ public class UpdateAction extends AbstractAction
                     String fileName = f.getName();
                     if (! fileName.endsWith(".java") &&
                             ! fileName.endsWith(".class") &&
-                            ! fileName.equals("bluej.pkg")) {
+                            ! BlueJPackageFile.isPackageFileName(fileName)) {
                         return;
                     }
                     
@@ -155,7 +156,7 @@ public class UpdateAction extends AbstractAction
                         return;
                     }
                     
-                    if (fileName.equals("bluej.pkg")) {
+                    if (BlueJPackageFile.isPackageFileName(fileName)) {
                         if (packageName.length() > 0) {
                             // If we now have a new package, we might need to add it
                             // as a target in an existing package
@@ -204,7 +205,7 @@ public class UpdateAction extends AbstractAction
                    String fileName = f.getName();
                    if (! fileName.endsWith(".java") &&
                            ! fileName.endsWith(".class") &&
-                           ! fileName.equals("bluej.pkg")) {
+                           ! BlueJPackageFile.isPackageFileName(fileName)) {
                        return;
                    }
                    
@@ -214,7 +215,7 @@ public class UpdateAction extends AbstractAction
                        return;
                    }
                    
-                   if (fileName.equals("bluej.pkg")) {
+                   if (BlueJPackageFile.isPackageFileName(fileName)) {
                        // Delay removing the package until
                        // after the update has finished, and only do it if there
                        // are no files left in the package.
@@ -256,7 +257,7 @@ public class UpdateAction extends AbstractAction
                     String fileName = f.getName();
                     if (! fileName.endsWith(".java") &&
                             ! fileName.endsWith(".class") &&
-                            ! fileName.equals("bluej.pkg")) {
+                            ! BlueJPackageFile.isPackageFileName(fileName)) {
                         return;
                     }
                     
@@ -270,7 +271,7 @@ public class UpdateAction extends AbstractAction
                         return;
                     }
                     
-                    if (fileName.equals("bluej.pkg")) {
+                    if (BlueJPackageFile.isPackageFileName(fileName)) {
                         try {
                             if (includeLayout) {
                                 pkg.reReadGraphLayout();
@@ -325,7 +326,7 @@ public class UpdateAction extends AbstractAction
                             File f = (File) i.next();
 
                             // TODO proper check for name - case insensitive file systems
-                            if (f.getName().equals("bluej.pkg")) {
+                            if (BlueJPackageFile.isPackageFileName(f.getName())) {
                                 filesToOverride.add(f);
                             }
                             else {
@@ -355,9 +356,9 @@ public class UpdateAction extends AbstractAction
                             // Calculate the file base name
                             String baseName = file.getName();
 
-                            // bluej.pkg may come up as a conflict, but it won't cause a problem,
+                            // bluej package file may come up as a conflict, but it won't cause a problem,
                             // so it can be ignored.
-                            if (! baseName.equals("bluej.pkg")) {
+                            if (! BlueJPackageFile.isPackageFileName(baseName)) {
                                 Target target = null;
 
                                 if (baseName.endsWith(".java") || baseName.endsWith(".class")) {
