@@ -16,20 +16,23 @@ import java.util.Properties;
  * <ul>
  * <li><i>Old BlueJ:</i> support only the .pkg extension. This is all versions
  * before BlueJ 2.3.0.</li>
+ * 
+ * 
  * <li><i>Transition BlueJ:</i> support both .pkg and .bluej extension. If .pkg
- * exists, it will load from this file and it will also write to it. If .pkg
- * doesn't exist it is NOT created. It will always attempt to save to .bluej.
- * The first transition version is BlueJ 2.3.0.</li>
- * <li><i>New BlueJ:</i> supports mostly the .bluej extension. If .pkg exists it
- * will load from it. When saving, if it manages to save to .bluej, it will
- * delete .pkg. If it can't save to .bluej it will attempt to save to .pkg if it
- * exists.</li>
+ * exists, it will load from this file. It will always attempt to save to both
+ * .bluej and .pkg. The first transition version is BlueJ 2.3.0.</li>
+ * 
+ * <li><i>New BlueJ:</i> support for .bluej, and limited for .pkg. If .pkg
+ * exists, it will load from this file. If .pkg doesn't exist it is NOT created.
+ * It will always attempt to save to .bluej. If .pkg exists it will also save to
+ * that. No versions of this exists yet.</li>
  * <ul>
  * 
- * One implication of this is that a project that has been opened with a New
- * version of BlueJ can not be opened with an Old version of BlueJ. The
- * alternative would be to keep the .pkg around forever, which is not what we
- * want.
+ * One implication of this is that a project that has been created with a New
+ * version of BlueJ can not be opened with an Old version of BlueJ (it can be
+ * opened by a Transition version though). The alternative would be to keep the
+ * .pkg around forever, which is not what we want. And if the transition period
+ * is long enough, it should not create to many problems.
  * 
  * @author Poul Henriksen
  */
@@ -99,7 +102,7 @@ public class BlueJPackageFile
                 input = new FileInputStream(pkgFile);
             }
             else {
-                throw new IOException("Can't read from package file(s): " + this);
+                throw new IOException("Can't read from package file(s) in: " + this);
             }
             p.load(input);
         }
@@ -114,14 +117,16 @@ public class BlueJPackageFile
      * Save the given properties to the file.
      * <p>
      * 
-     * Store properties to both package files. It always try to store to the
-     * pkgFile, and if the oldPkgFile exists it will also try to store to that.
+     * Store properties to both package files. This method will always attempt
+     * to store the properties to both package files (.bluej and .pkg).
+     * <p>
+     * 
      * It should fail if the oldPkgFile exists but can't be written, because
      * this is the first one to be loaded if both exists and it would then
      * result in inconsistent properties. If it manages to store to the
      * oldPkgFile it doesn't matter if it fails to store to the new one, since
      * whenever the old one is present, that will be loaded first in all
-     * versions of BlueJ
+     * versions of BlueJ.
      * 
      * @throws IOException if something goes wrong while trying to write the
      *             properties.
@@ -129,7 +134,23 @@ public class BlueJPackageFile
     public void save(Properties props)
         throws IOException
     {
-
+        // TODO: In some future version of BlueJ the createNewFile invocation
+        // below should be removed to get rid of the old .pkg file.
+        //
+        // And, when the invocation is removed the Javadoc for the method should
+        // include the following lines:
+        //
+        // * Store properties to both package files. It always try to store to
+        // * the pkgFile, and if the oldPkgFile exists it will also try to store
+        // * to that.
+        try {
+            oldPkgFile.createNewFile();
+        }
+        catch (Exception e) {
+            // If it can't be created, just continue and hope we can write to
+            // package.bluej.
+        }
+        
         boolean oldPkgSaved = false;
         if (oldPkgFile.exists()) {
             if (!oldPkgFile.canWrite()) {
