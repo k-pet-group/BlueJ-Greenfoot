@@ -15,7 +15,7 @@ import bluej.pkgmgr.Project;
  * 
  * 
  * @author Bruce Quig
- * @cvs $Id: StatusTableModel.java 5098 2007-06-15 08:49:21Z polle $
+ * @cvs $Id: StatusTableModel.java 5813 2008-07-25 11:26:06Z polle $
  */
 public class StatusTableModel extends AbstractTableModel
 {
@@ -24,7 +24,7 @@ public class StatusTableModel extends AbstractTableModel
     static final String versionLabel = Config.getString("team.status.version");
  
     private Project project;
-    private List resources;
+    private List<TeamStatusInfo> resources;
     
     /**
      *
@@ -32,19 +32,10 @@ public class StatusTableModel extends AbstractTableModel
     public StatusTableModel(Project project, int initialRows)
     {
         this.project = project;
-        resources = new ArrayList();
+        resources = new ArrayList<TeamStatusInfo>();
         for(int i = 0; i < initialRows; i++) {
             resources.add(new TeamStatusInfo());
         }
-    }
-    
-    /**
-     * Construct a table model
-     * TODO this may now be redundant
-     */
-    public StatusTableModel(List teamResources)
-    {
-        resources = teamResources;
     }
     
     /**
@@ -133,7 +124,7 @@ public class StatusTableModel extends AbstractTableModel
         fireTableDataChanged();
     }
     
-    public void setStatusData(List statusResources)
+    public void setStatusData(List<TeamStatusInfo> statusResources)
     {
         resources = statusResources;
         fireTableDataChanged();

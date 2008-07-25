@@ -3,14 +3,13 @@ package bluej.groupwork.ui;
 import bluej.Config;
 import bluej.groupwork.TeamStatusInfo;
 import bluej.pkgmgr.BlueJPackageFile;
-import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 
 /**
  * Class to determine team resource descriptions for use in dialogs
  * 
  * @author Bruce Quig
- * @version $Id: ResourceDescriptor.java 5811 2008-07-23 16:45:17Z polle $
+ * @version $Id: ResourceDescriptor.java 5813 2008-07-25 11:26:06Z polle $
  */
 public class ResourceDescriptor
 {

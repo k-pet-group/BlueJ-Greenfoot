@@ -27,7 +27,7 @@ import bluej.utility.SwingWorker;
  * Main frame for CVS Status Dialog
  *
  * @author bquig
- * @version $Id: StatusFrame.java 5529 2008-02-04 04:39:56Z davmac $
+ * @version $Id: StatusFrame.java 5813 2008-07-25 11:26:06Z polle $
  */
 public class StatusFrame extends EscapeDialog
 {
@@ -175,7 +175,7 @@ public class StatusFrame extends EscapeDialog
      */
     class StatusWorker extends SwingWorker implements StatusListener
     {
-        List resources;
+        List<TeamStatusInfo> resources;
         TeamworkCommand command;
         TeamworkCommandResult result;
         boolean aborted;
@@ -184,7 +184,7 @@ public class StatusFrame extends EscapeDialog
         public StatusWorker()
         {
             super();
-            resources = new ArrayList();
+            resources = new ArrayList<TeamStatusInfo>();
             //Set files = project.getTeamSettingsController().getProjectFiles(true);
             command = repository.getStatus(this, filter, true);
         }
@@ -215,8 +215,8 @@ public class StatusFrame extends EscapeDialog
                     setVisible(false);
                 }
                 else {
-                    Collections.sort(resources, new Comparator() {
-                        public int compare(Object arg0, Object arg1)
+                    Collections.sort(resources, new Comparator<TeamStatusInfo>() {
+                        public int compare(TeamStatusInfo arg0, TeamStatusInfo arg1)
                         {
                             TeamStatusInfo tsi0 = (TeamStatusInfo) arg0;
                             TeamStatusInfo tsi1 = (TeamStatusInfo) arg1;
