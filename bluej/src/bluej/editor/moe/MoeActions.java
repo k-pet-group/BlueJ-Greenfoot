@@ -63,7 +63,7 @@ public final class MoeActions
     // -------- INSTANCE VARIABLES --------
 
     private Action[] actionTable; // table of all known actions
-    private Hashtable actions; // the same actions in a hashtable
+    private Hashtable<Object, Action> actions; // the same actions in a hashtable
     private String[] categories;
     private int[] categoryIndex;
 
@@ -169,21 +169,21 @@ public final class MoeActions
      */
     public KeyStroke[] addComponentKeyStrokes(Action action, KeyStroke[] keys)
     {
-        ArrayList keyStrokes = null;
+        ArrayList<KeyStroke> keyStrokes = null;
         KeyStroke[] componentKeys = componentInputMap.allKeys();
 
         // find all component keys that bind to this action
         for (int i = 0; i < componentKeys.length; i++) {
             if (componentInputMap.get(componentKeys[i]).equals(action.getValue(Action.NAME))) {
                 if (keyStrokes == null)
-                    keyStrokes = new ArrayList();
+                    keyStrokes = new ArrayList<KeyStroke>();
                 keyStrokes.add(componentKeys[i]);
             }
         }
 
         // test whether this keyStroke was redefined in keymap
         if (keyStrokes != null) {
-            for (Iterator i = keyStrokes.iterator(); i.hasNext();) {
+            for (Iterator<KeyStroke> i = keyStrokes.iterator(); i.hasNext();) {
                 if (keymap.getAction((KeyStroke) i.next()) != null) {
                     i.remove();
                 }
@@ -1163,11 +1163,11 @@ public final class MoeActions
     /**
      * Find and return a line by text position
      */
-    private Element getLineAt(JTextComponent text, int pos)
-    {
-        MoeSyntaxDocument document = (MoeSyntaxDocument) text.getDocument();
-        return document.getParagraphElement(pos);
-    }
+    //private Element getLineAt(JTextComponent text, int pos)
+    //{
+    //    MoeSyntaxDocument document = (MoeSyntaxDocument) text.getDocument();
+    //    return document.getParagraphElement(pos);
+    //}
 
     // -------------------------------------------------------------------
     /**
@@ -1516,7 +1516,6 @@ public final class MoeActions
         try {
             File template = Config.getTemplateFile(templateName);
             BufferedReader in = new BufferedReader(new FileReader(template));
-            int pos = textPane.getCaretPosition();
             int column = getCurrentColumn(textPane);
             if (column > 40)
                 column = 40;
@@ -1531,7 +1530,10 @@ public final class MoeActions
                 textPane.replaceSelection(spaces.substring(0, column)); // indent
                 line = in.readLine();
             }
-            textPane.setCaretPosition(pos);
+            // The position of the caret should be in the right place now.
+            // Previously it was set to the position it was at before adding the
+            // template, but that resulted in errors when selecting the entire
+            // contents of the class before inserting the template.
         }
         catch (IOException exc) {
             Debug.reportError("Could not read method template.");
@@ -1626,7 +1628,7 @@ public final class MoeActions
 
         // insert all actions into a hashtable
 
-        actions = new Hashtable();
+        actions = new Hashtable<Object, Action>();
 
         Action action;
         for (int i = 0; i < textActions.length; i++) {
