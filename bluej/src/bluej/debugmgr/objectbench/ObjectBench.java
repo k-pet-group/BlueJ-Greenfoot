@@ -21,7 +21,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 4341 2006-06-07 05:32:07Z davmac $
+ * @version $Id: ObjectBench.java 5816 2008-07-25 15:54:42Z polle $
  */
 public class ObjectBench extends JPanel implements ValueCollection,
     FocusListener, KeyListener, MouseListener, ObjectBenchInterface
@@ -30,11 +30,11 @@ public class ObjectBench extends JPanel implements ValueCollection,
 
     private JScrollPane scroll;
     private ObjectBenchPanel obp;
-    private List objects;
+    private List<ObjectWrapper> objects;
     private ObjectWrapper selectedObject;
 	
     // All invocations done since our last reset.
-    private List invokerRecords;
+    private List<InvokerRecord> invokerRecords;
 
    
     /**
@@ -44,7 +44,7 @@ public class ObjectBench extends JPanel implements ValueCollection,
     public ObjectBench()
     {
         super();
-        objects = new ArrayList();
+        objects = new ArrayList<ObjectWrapper>();
         createComponent();
     }
 
@@ -75,7 +75,7 @@ public class ObjectBench extends JPanel implements ValueCollection,
     /**
      * Return all the wrappers stored in this object bench in an array
      */
-    public List getObjects()
+    public List<ObjectWrapper> getObjects()
     {
         return Collections.unmodifiableList(objects);
     }
@@ -84,7 +84,7 @@ public class ObjectBench extends JPanel implements ValueCollection,
      * Return an iterator through all the objects on the bench (to meet
      * the ValueCollection interface)
      */
-    public Iterator getValueIterator()
+    public Iterator<ObjectWrapper> getValueIterator()
     {
         return getObjects().iterator();
     }
@@ -98,8 +98,8 @@ public class ObjectBench extends JPanel implements ValueCollection,
      */
     public ObjectWrapper getObject(String name)
     {
-        for(Iterator i = objects.iterator(); i.hasNext(); ) {
-            ObjectWrapper wrapper = (ObjectWrapper)i.next();
+        for(Iterator<ObjectWrapper> i = objects.iterator(); i.hasNext(); ) {
+            ObjectWrapper wrapper = i.next();
             if(wrapper.getName().equals(name))
                 return wrapper;
         }
@@ -139,8 +139,8 @@ public class ObjectBench extends JPanel implements ValueCollection,
     {
         setSelectedObject (null);
 
-        for(Iterator i = objects.iterator(); i.hasNext(); ) {
-            ObjectWrapper wrapper = (ObjectWrapper) i.next();
+        for(Iterator<ObjectWrapper> i = objects.iterator(); i.hasNext(); ) {
+            ObjectWrapper wrapper = i.next();
             wrapper.prepareRemove();
             wrapper.getPackage().getDebugger().removeObject(scopeId, wrapper.getName());
             obp.remove(wrapper);
@@ -448,7 +448,7 @@ public class ObjectBench extends JPanel implements ValueCollection,
      */
     public void resetRecordingInteractions()
     {
-        invokerRecords = new LinkedList();
+        invokerRecords = new LinkedList<InvokerRecord>();
     }
 
     
@@ -464,10 +464,10 @@ public class ObjectBench extends JPanel implements ValueCollection,
     public String getFixtureDeclaration()
     {
         StringBuffer sb = new StringBuffer();
-        Iterator it = invokerRecords.iterator();
+        Iterator<InvokerRecord> it = invokerRecords.iterator();
         
         while(it.hasNext()) {
-            InvokerRecord ir = (InvokerRecord) it.next();
+            InvokerRecord ir = it.next();
             
             if (ir.toFixtureDeclaration() != null)
             	sb.append(ir.toFixtureDeclaration());
@@ -480,10 +480,10 @@ public class ObjectBench extends JPanel implements ValueCollection,
     public String getFixtureSetup()
     {
         StringBuffer sb = new StringBuffer();
-        Iterator it = invokerRecords.iterator();
+        Iterator<InvokerRecord> it = invokerRecords.iterator();
         
         while(it.hasNext()) {
-            InvokerRecord ir = (InvokerRecord) it.next();
+            InvokerRecord ir = it.next();
             
 			if (ir.toFixtureSetup() != null)
 	            sb.append(ir.toFixtureSetup());
@@ -496,10 +496,10 @@ public class ObjectBench extends JPanel implements ValueCollection,
     public String getTestMethod()
     {
         StringBuffer sb = new StringBuffer();
-        Iterator it = invokerRecords.iterator();
+        Iterator<InvokerRecord> it = invokerRecords.iterator();
         
         while(it.hasNext()) {
-            InvokerRecord ir = (InvokerRecord) it.next();
+            InvokerRecord ir = it.next();
             
 			if (ir.toTestMethod() != null)
 	            sb.append(ir.toTestMethod());
