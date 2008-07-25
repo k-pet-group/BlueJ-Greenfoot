@@ -28,6 +28,7 @@ import bluej.groupwork.Repository;
 import bluej.groupwork.StatusListener;
 import bluej.groupwork.TeamStatusInfo;
 import bluej.groupwork.TeamUtils;
+import bluej.groupwork.TeamViewFilter;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.UpdateFilter;
@@ -45,7 +46,7 @@ import bluej.utility.SwingWorker;
  * A Swing based user interface for showing files to be updated
  * @author Bruce Quig
  * @author Davin McCall
- * @version $Id: UpdateFilesFrame.java 5811 2008-07-23 16:45:17Z polle $
+ * @version $Id: UpdateFilesFrame.java 5814 2008-07-25 12:59:44Z polle $
  */
 public class UpdateFilesFrame extends EscapeDialog
 {
@@ -63,8 +64,8 @@ public class UpdateFilesFrame extends EscapeDialog
     private Repository repository;
     private DefaultListModel updateListModel;
     
-    private Set changedLayoutFiles; // set of TeamStatusInfo
-    private Set forcedLayoutFiles; // set of File
+    private Set<TeamStatusInfo> changedLayoutFiles; // set of TeamStatusInfo
+    private Set<File> forcedLayoutFiles; // set of File
     private boolean includeLayout = true;
     
     private static String noFilesToUpdate = Config.getString("team.noupdatefiles"); 
@@ -72,8 +73,8 @@ public class UpdateFilesFrame extends EscapeDialog
     public UpdateFilesFrame(Project proj)
     {
         project = proj;
-        changedLayoutFiles = new HashSet();
-        forcedLayoutFiles = new HashSet();
+        changedLayoutFiles = new HashSet<TeamStatusInfo>();
+        forcedLayoutFiles = new HashSet<File>();
         createUI();
         DialogManager.centreDialog(this);
     }
@@ -228,7 +229,7 @@ public class UpdateFilesFrame extends EscapeDialog
     private void removeModifiedLayouts()
     {
         // remove modified layouts from list of files shown for commit
-        for(Iterator it = changedLayoutFiles.iterator(); it.hasNext();) {
+        for(Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator(); it.hasNext();) {
             updateListModel.removeElement(it.next());
         }
         if(updateListModel.isEmpty()) {
@@ -249,20 +250,24 @@ public class UpdateFilesFrame extends EscapeDialog
         if(updateListModel.contains(noFilesToUpdate)) {
             updateListModel.removeElement(noFilesToUpdate);
         }
+        TeamViewFilter filter = new TeamViewFilter();
         // add diagram layout files to list of files to be committed
-        for(Iterator it = changedLayoutFiles.iterator(); it.hasNext(); ) {
-            updateListModel.addElement(it.next());
+        for(Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator(); it.hasNext(); ) {
+            TeamStatusInfo info = it.next();
+            if (filter.accept(info)) {
+                updateListModel.addElement(info);
+            }
         }
     }
     
     /**
      * Get a set (of File) containing the layout files which need to be updated.
      */
-    public Set getChangedLayoutFiles()
+    public Set<File> getChangedLayoutFiles()
     {
-        Set files = new HashSet();
-        for(Iterator it = changedLayoutFiles.iterator(); it.hasNext(); ) {
-            TeamStatusInfo info = (TeamStatusInfo)it.next();
+        Set<File> files = new HashSet<File>();
+        for(Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator(); it.hasNext(); ) {
+            TeamStatusInfo info = it.next();
             files.add(info.getFile());
         }
         return files;
@@ -309,10 +314,10 @@ public class UpdateFilesFrame extends EscapeDialog
      */
     private void resetForcedFiles()
     {
-        Set forcedFiles = new HashSet(forcedLayoutFiles);
+        Set<File> forcedFiles = new HashSet<File>(forcedLayoutFiles);
         if (includeLayout) {
-            for (Iterator i = changedLayoutFiles.iterator(); i.hasNext(); ) {
-                TeamStatusInfo info = (TeamStatusInfo) i.next();
+            for (Iterator<TeamStatusInfo> i = changedLayoutFiles.iterator(); i.hasNext(); ) {
+                TeamStatusInfo info = i.next();
                 forcedFiles.add(info.getFile());
             }
         }
@@ -325,7 +330,7 @@ public class UpdateFilesFrame extends EscapeDialog
     */
     class UpdateWorker extends SwingWorker implements StatusListener
     {
-        List response;
+        List<TeamStatusInfo> response;
         TeamworkCommand command;
         TeamworkCommandResult result;
         private boolean aborted;
@@ -333,7 +338,7 @@ public class UpdateFilesFrame extends EscapeDialog
         public UpdateWorker()
         {
             super();
-            response = new ArrayList();
+            response = new ArrayList<TeamStatusInfo>();
             FileFilter filter = project.getTeamSettingsController().getFileFilter(true);
             command = repository.getStatus(this, filter, true);
         }
@@ -367,18 +372,18 @@ public class UpdateFilesFrame extends EscapeDialog
                     setVisible(false);
                 }
                 else {
-                    Set filesToUpdate = new HashSet();
-                    Set conflicts = new HashSet();
-                    Set modifiedLayoutFiles = new HashSet();
+                    Set<File> filesToUpdate = new HashSet<File>();
+                    Set<File> conflicts = new HashSet<File>();
+                    Set<File> modifiedLayoutFiles = new HashSet<File>();
 
-                    List info = response;
+                    List<TeamStatusInfo> info = response;
                     getUpdateFileSet(info, filesToUpdate, conflicts, modifiedLayoutFiles);
 
                     if (conflicts.size() != 0) {
                         String filesList = "";
-                        Iterator i = conflicts.iterator();
+                        Iterator<File> i = conflicts.iterator();
                         for (int j = 0; j < 10 && i.hasNext(); j++) {
-                            File conflictFile = (File) i.next();
+                            File conflictFile = i.next();
                             filesList += "    " + conflictFile.getName() + "\n";
                         }
 
@@ -395,14 +400,14 @@ public class UpdateFilesFrame extends EscapeDialog
 
                     // Build the actual set of files to update. If there are new or removed
                     // directories, don't include files within.
-                    Set updateFiles = new HashSet();
-                    for (Iterator i = filesToUpdate.iterator(); i.hasNext(); ) {
-                        File file = (File) i.next();
+                    Set<File> updateFiles = new HashSet<File>();
+                    for (Iterator<File> i = filesToUpdate.iterator(); i.hasNext(); ) {
+                        File file = i.next();
                         if (! filesToUpdate.contains(file.getParentFile())) {
                             updateFiles.add(file);
                         }
                     }
-                    for (Iterator i = forcedLayoutFiles.iterator(); i.hasNext(); ) {
+                    for (Iterator<File> i = forcedLayoutFiles.iterator(); i.hasNext(); ) {
                         File file = (File) i.next();
                         if (filesToUpdate.contains(file.getParentFile())) {
                             i.remove();
@@ -437,12 +442,12 @@ public class UpdateFilesFrame extends EscapeDialog
          * @param conflicts      The set to store unresolved conflicts in
          *                       (any files in this set prevent update from occurring)
          */
-        private void getUpdateFileSet(List info, Set filesToUpdate, Set conflicts, Set modifiedLayoutFiles)
+        private void getUpdateFileSet(List<TeamStatusInfo> info, Set<File> filesToUpdate, Set<File> conflicts, Set<File> modifiedLayoutFiles)
         {
             UpdateFilter filter = new UpdateFilter();
 
-            for (Iterator it = info.iterator(); it.hasNext();) {
-                TeamStatusInfo statusInfo = (TeamStatusInfo) it.next();
+            for (Iterator<TeamStatusInfo> it = info.iterator(); it.hasNext();) {
+                TeamStatusInfo statusInfo = it.next();
                 int status = statusInfo.getStatus();
                 if(filter.accept(statusInfo)) {
                     if (!BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) { 
@@ -474,7 +479,7 @@ public class UpdateFilesFrame extends EscapeDialog
                             conflicts.add(statusInfo.getFile());
                         }
                         else {
-                            // bluej.pkg will be force-updated
+                            // bluej package file will be force-updated
                             modifiedLayoutFiles.add(statusInfo.getFile());
                             changedLayoutFiles.add(statusInfo);
                         }

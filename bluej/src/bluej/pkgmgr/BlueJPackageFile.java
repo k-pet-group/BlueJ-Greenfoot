@@ -204,6 +204,15 @@ public class BlueJPackageFile
     {
         return name.equals(pkgfileName) || name.equals(oldPkgfileName);
     }
+    
+    /**
+     * Check if the given name matches the name of the old BlueJ package file
+     * (bluej.pkg).
+     */
+    public static boolean isOldPackageFileName(String name)
+    {
+        return name.equals(oldPkgfileName);
+    }
 
     /**
      * Creates the two package files if they don't already exist. If only

@@ -34,6 +34,7 @@ import bluej.groupwork.TeamStatusInfo;
 import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
+import bluej.groupwork.TeamViewFilter;
 import bluej.groupwork.actions.CommitAction;
 import bluej.pkgmgr.BlueJPackageFile;
 import bluej.pkgmgr.Project;
@@ -66,14 +67,14 @@ public class CommitCommentsFrame extends EscapeDialog
     private Repository repository;
     private DefaultListModel commitListModel;
     
-    private Set changedLayoutFiles;
+    private Set<TeamStatusInfo>changedLayoutFiles;
     
     private static String noFilesToCommit = Config.getString("team.nocommitfiles"); 
 
     public CommitCommentsFrame(Project proj)
     {
         project = proj;
-        changedLayoutFiles = new HashSet();
+        changedLayoutFiles = new HashSet<TeamStatusInfo>();
         createUI();
         DialogManager.centreDialog(this);
     }
@@ -249,7 +250,7 @@ public class CommitCommentsFrame extends EscapeDialog
     private void removeModifiedLayouts()
     {
         // remove modified layouts from list of files shown for commit
-        for(Iterator it = changedLayoutFiles.iterator();it.hasNext();) {
+        for(Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator();it.hasNext();) {
             commitListModel.removeElement(it.next());
         }
         if(commitListModel.isEmpty()) {
@@ -269,19 +270,23 @@ public class CommitCommentsFrame extends EscapeDialog
             commitListModel.removeElement(noFilesToCommit);
             commitText.setEnabled(true);
         }
+        TeamViewFilter filter = new TeamViewFilter();
         // add diagram layout files to list of files to be committed
-        for(Iterator it = changedLayoutFiles.iterator(); it.hasNext(); ) {
-            commitListModel.addElement(it.next());
+        for(Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator(); it.hasNext(); ) {
+            TeamStatusInfo info = it.next();
+            if (filter.accept(info)) {
+                commitListModel.addElement(info);
+            }
         }
     }
     
     /**
      * Get a list of the layout files to be committed
      */
-    public Set getChangedLayoutFiles()
+    public Set<File> getChangedLayoutFiles()
     {
-        Set files = new HashSet();
-        for(Iterator it = changedLayoutFiles.iterator(); it.hasNext(); ) {
+        Set<File> files = new HashSet<File>();
+        for(Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator(); it.hasNext(); ) {
             TeamStatusInfo info = (TeamStatusInfo)it.next();
             files.add(info.getFile());
         }
@@ -325,7 +330,7 @@ public class CommitCommentsFrame extends EscapeDialog
     */
     class CommitWorker extends SwingWorker implements StatusListener
     {
-        List response;
+        List<TeamStatusInfo> response;
         TeamworkCommand command;
         TeamworkCommandResult result;
         private boolean aborted;
@@ -333,7 +338,7 @@ public class CommitCommentsFrame extends EscapeDialog
         public CommitWorker()
         {
             super();
-            response = new ArrayList();
+            response = new ArrayList<TeamStatusInfo>();
             FileFilter filter = project.getTeamSettingsController().getFileFilter(true);
             command = repository.getStatus(this, filter, false);
         }
@@ -367,16 +372,16 @@ public class CommitCommentsFrame extends EscapeDialog
                     setVisible(false);
                 }
                 else if (response != null) {
-                    Set filesToCommit = new HashSet();
-                    Set filesToAdd = new HashSet();
-                    Set filesToDelete = new HashSet();
-                    Set mergeConflicts = new HashSet();
-                    Set deleteConflicts = new HashSet();
-                    Set otherConflicts = new HashSet();
-                    Set needsMerge = new HashSet();
-                    Set modifiedLayoutFiles = new HashSet();
+                    Set<File> filesToCommit = new HashSet<File>();
+                    Set<File> filesToAdd = new HashSet<File>();
+                    Set<File> filesToDelete = new HashSet<File>();
+                    Set<File> mergeConflicts = new HashSet<File>();
+                    Set<File> deleteConflicts = new HashSet<File>();
+                    Set<File> otherConflicts = new HashSet<File>();
+                    Set<File> needsMerge = new HashSet<File>();
+                    Set<File> modifiedLayoutFiles = new HashSet<File>();
 
-                    List info = response;
+                    List<TeamStatusInfo> info = response;
                     getCommitFileSets(info, filesToCommit, filesToAdd, filesToDelete,
                             mergeConflicts, deleteConflicts, otherConflicts,
                             needsMerge, modifiedLayoutFiles);
@@ -405,8 +410,8 @@ public class CommitCommentsFrame extends EscapeDialog
             }
         }
         
-        private void handleConflicts(Set mergeConflicts, Set deleteConflicts,
-                Set otherConflicts, Set needsMerge)
+        private void handleConflicts(Set<File> mergeConflicts, Set<File> deleteConflicts,
+                Set<File> otherConflicts, Set<File> needsMerge)
         {
             String dlgLabel;
             String filesList;
@@ -441,10 +446,10 @@ public class CommitCommentsFrame extends EscapeDialog
          * @param conflicts
          * @return
          */
-        private String buildConflictsList(Set conflicts)
+        private String buildConflictsList(Set<File> conflicts)
         {
             String filesList = "";
-            Iterator i = conflicts.iterator();
+            Iterator<File> i = conflicts.iterator();
             for (int j = 0; j < 10 && i.hasNext(); j++) {
                 File conflictFile = (File) i.next();
                 filesList += "    " + conflictFile.getName() + "\n";
@@ -475,16 +480,16 @@ public class CommitCommentsFrame extends EscapeDialog
          *                       well as in the repository (required merging).
          * @param conflicts      The set to store unresolved conflicts in
          */
-        private void getCommitFileSets(List info, Set filesToCommit, Set filesToAdd,
-                Set filesToRemove, Set mergeConflicts, Set deleteConflicts,
-                Set otherConflicts, Set needsMerge, Set modifiedLayoutFiles)
+        private void getCommitFileSets(List<TeamStatusInfo> info, Set<File> filesToCommit, Set<File> filesToAdd,
+                Set<File> filesToRemove, Set<File> mergeConflicts, Set<File> deleteConflicts,
+                Set<File> otherConflicts, Set<File> needsMerge, Set<File> modifiedLayoutFiles)
         {
             //boolean includeLayout = project.getTeamSettingsController().includeLayout();
             
             CommitFilter filter = new CommitFilter();
 
-            for (Iterator it = info.iterator(); it.hasNext();) {
-                TeamStatusInfo statusInfo = (TeamStatusInfo) it.next();
+            for (Iterator<TeamStatusInfo> it = info.iterator(); it.hasNext();) {
+                TeamStatusInfo statusInfo = it.next();
                 int status = statusInfo.getStatus();
                 if(filter.accept(statusInfo)) {
                     if (! BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName()) 

@@ -9,6 +9,7 @@ import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -27,7 +28,7 @@ import bluej.utility.SwingWorker;
  * Main frame for CVS Status Dialog
  *
  * @author bquig
- * @version $Id: StatusFrame.java 5813 2008-07-25 11:26:06Z polle $
+ * @version $Id: StatusFrame.java 5814 2008-07-25 12:59:44Z polle $
  */
 public class StatusFrame extends EscapeDialog
 {
@@ -225,6 +226,14 @@ public class StatusFrame extends EscapeDialog
                         }
                     });
 
+                    TeamViewFilter filter = new TeamViewFilter();
+                    // Remove old package files from display
+                    for (Iterator<TeamStatusInfo> iterator = resources.iterator(); iterator.hasNext();) {
+                        TeamStatusInfo info = iterator.next();
+                        if(! filter.accept(info)) {
+                            iterator.remove();
+                        }                        
+                    }
                     statusModel.setStatusData(resources);
                 }
                 refreshButton.setEnabled(true);
