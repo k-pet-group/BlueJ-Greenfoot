@@ -16,13 +16,13 @@ import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.actions.ValidateConnectionAction;
-
+import bluej.utility.MiksGridLayout;
 
 /**
  * A panel for team settings.
  * 
  * @author fisker
- * @version $Id: TeamSettingsPanel.java 5529 2008-02-04 04:39:56Z davmac $
+ * @version $Id: TeamSettingsPanel.java 5819 2008-08-01 10:23:29Z davmac $
  */
 public class TeamSettingsPanel extends JPanel 
 {

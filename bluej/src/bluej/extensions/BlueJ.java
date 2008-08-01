@@ -46,7 +46,7 @@ import javax.swing.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 5089 2007-06-07 02:19:17Z davmac $
+ * @version    $Id: BlueJ.java 5819 2008-08-01 10:23:29Z davmac $
  */
 
 /*
@@ -55,6 +55,9 @@ import javax.swing.*;
  */
 public final class BlueJ
 {
+    public static final int SE_PROJECT = 0;
+    public static final int ME_PROJECT = 1;
+    
     private final ExtensionWrapper myWrapper;
     private final ExtensionPrefManager prefManager;
 
@@ -142,10 +145,11 @@ public final class BlueJ
     /**
      * Creates a new BlueJ project.
      *
-     * @param  directory  where you want the project be placed, it must be writable.
-     * @return            the newly created BProject if successful, null otherwise.
+     * @param  directory    where you want the project be placed, it must be writable.
+     * @param  projectType  the type of project, such as ME or SE.
+     * @return              the newly created BProject if successful, null otherwise.
      */
-    public BProject newProject(File directory)
+    public BProject newProject(File directory, int projectType )
     {
         if (!myWrapper.isValid())
             throw new ExtensionUnloadedException();
@@ -154,14 +158,25 @@ public final class BlueJ
         if (!pathString.endsWith(File.separator))
             pathString += File.separator;
             
-        if (!Project.createNewProject(pathString))
+        if (!Project.createNewProject(pathString, projectType == ME_PROJECT))
             return null;
             
         return openProject(directory);
     }
 
 
+    /**
+     * Creates a new BlueJ project.
+     *
+     * @param  directory  where you want the project be placed, it must be writable.
+     * @return            the newly created BProject if successful, null otherwise.
+     */
+    public BProject newProject(File directory)
+    {
+        return newProject( directory, SE_PROJECT );
+    }
 
+    
     /**
      * Returns all currently open projects.
      * Returns an empty array if no projects are open.

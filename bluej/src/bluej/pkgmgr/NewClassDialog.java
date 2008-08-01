@@ -18,7 +18,7 @@ import bluej.utility.*;
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewClassDialog.java 3175 2004-11-25 14:33:52Z fisker $
+ * @version $Id: NewClassDialog.java 5819 2008-08-01 10:23:29Z davmac $
  */
 class NewClassDialog extends EscapeDialog
 {
@@ -27,10 +27,13 @@ class NewClassDialog extends EscapeDialog
 
     private String newClassName = "";
     private boolean ok;		// result: which button?
+    private boolean isJavaMEpackage;
 
     public NewClassDialog(JFrame parent)
     {
         super(parent, Config.getString("pkgmgr.newClass.title"), true);
+        
+        isJavaMEpackage = ((PkgMgrFrame) parent).isJavaMEpackage( );
 
         addWindowListener(new WindowAdapter() {
                 public void windowClosing(WindowEvent E)
@@ -161,10 +164,20 @@ class NewClassDialog extends EscapeDialog
                         templates.add(template);
                 }
             }
-        }
-
-        // create a radio button for each template found
-
+        }        
+       
+        // In Java ME packages disallow the creation of enum, unittest, and applet
+        // classes. In SE packages disallow the creation of midlets.
+        if ( isJavaMEpackage ) {
+            templates.remove( "enum"     );
+            templates.remove( "unittest" );  
+            templates.remove( "appletj"  );            
+         }
+         else {            
+            templates.remove( "midlet" );             
+         }
+       
+        // Create a radio button for each template found
         JRadioButton button;
         JRadioButton previousButton = null;
         templateButtons = new ButtonGroup();

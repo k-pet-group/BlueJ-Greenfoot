@@ -1,11 +1,11 @@
 package bluej.compiler;
 
-import bluej.classmgr.BPClassLoader;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-
+import bluej.classmgr.BPClassLoader;
 import bluej.Config;
 
 /**
@@ -17,12 +17,13 @@ import bluej.Config;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: Compiler.java 4737 2006-12-04 05:20:57Z davmac $
+ * @version $Id: Compiler.java 5819 2008-08-01 10:23:29Z davmac $
  */
 abstract class Compiler
 {
     public static final String COMPILER_OPTIONS = "bluej.compiler.options";
-
+    public static final String JAVAME_COMPILER_OPTIONS = "bluej.javame.compiler.options";
+    
     private File destDir;
     private BPClassLoader bpClassLoader;
     private boolean debug;
@@ -81,30 +82,41 @@ abstract class Compiler
             args.add("-d");
             args.add(getDestDir().getPath());
         }
-
+               
+        boolean isJavaMEproject = false;
         if (getProjectClassLoader() != null) {
             args.add("-classpath");
             args.add(getProjectClassLoader().getClassPathAsString());
+            
+            if ( getProjectClassLoader( ).loadsForJavaMEproject( ) )
+                isJavaMEproject = true;
+        }       
+        
+       if ( isJavaMEproject ) {
+            addUserSpecifiedOptions(args, JAVAME_COMPILER_OPTIONS);
+            args.add( "-bootclasspath" );
+            args.add ( getProjectClassLoader( ).getJavaMElibsAsPath( ) ); 
         }
-
+        else {
+            String majorVersion = System.getProperty("java.specification.version"); 
+            args.add("-source");
+            args.add(majorVersion);
+        }
+        
         if (isDebug())
             args.add("-g");
 
         if (isDeprecation())
-            args.add("-deprecation");
-            
-        String majorVersion = System.getProperty("java.specification.version");        
-        args.add("-source");
-        args.add(majorVersion);
+            args.add("-deprecation");      
 
-        addUserSpecifiedOptions(args);
+        addUserSpecifiedOptions(args, COMPILER_OPTIONS);
 
         return args;
     }
 
-    private void addUserSpecifiedOptions(List args)
+    private void addUserSpecifiedOptions(List args, String options)
     {
-        String compilerOptions = Config.getPropString(COMPILER_OPTIONS, null);
+        String compilerOptions = Config.getPropString(options, null);
         if (compilerOptions != null) {
             StringTokenizer st = new StringTokenizer(compilerOptions);
             while (st.hasMoreTokens()) {

@@ -1,15 +1,13 @@
 package bluej.classmgr;
 
-import bluej.utility.*;
+import bluej.utility.Debug;
 import java.io.File;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-
-import javax.swing.JOptionPane;
-
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * A Bluej Project ClassLoader that can be used to load or obtain information about classes loadable in a bluej project.
@@ -21,21 +19,47 @@ import javax.swing.JOptionPane;
  * having a correct working version. This is the reason for this class being named BPClassLoader.
  * it will be renamed when the new classloading is refactored and tested.
  *
- * @version    $Id: BPClassLoader.java 4704 2006-11-27 00:07:19Z bquig $
+ * @version    $Id: BPClassLoader.java 5819 2008-08-01 10:23:29Z davmac $
+ * @author  Damiano Bolla
  */
 
-/*
- * Author: Damiano Bolla
- */
-public final class BPClassLoader extends URLClassLoader {
+public final class BPClassLoader extends URLClassLoader
+{
+    private boolean loadsForJavaMEproject;
+    
+    //We store the Java ME libraries in fields of the class loader--even though
+    //these libraries are in the search path of URLs of the loader--because
+    //we need them in the compiler's bootclasspath and in the classpath of the
+    //preverify command.
+    private List javaMEcoreLibs;  // Java ME core libraries
+    private List javaMEoptLibs;   // Java ME optional libraries  
+    
     /**
      * Constructructor.
      * @param parent the parent loader that is searched first to resolve classes.
      * @param urls the list of jars and directory that are searched next.
      */
     public BPClassLoader(URL[] urls, ClassLoader parent) {
-        super(urls, parent);
-    }
+        this(urls, parent, false);
+    }  
+ 
+    /**
+     * Constructor.
+     * @param parent   the parent loader that is searched first to resolve classes.
+     * @param urls     the list of jars and directory that are searched next.
+     * @param meFlag   whether this classloader is for a Java ME project
+     */
+    public BPClassLoader( URL[] urls, ClassLoader parent, boolean meFlag ) {
+        super( urls, parent );
+        loadsForJavaMEproject = meFlag;        
+    }      
+    
+    /**
+     * Returns flag indicating whether this class loads for a JavaME project.
+     */
+    public boolean loadsForJavaMEproject( ) {
+        return loadsForJavaMEproject;
+    }    
 
     /**
      * Compare the current array of URLS with the given one.
@@ -149,5 +173,33 @@ public final class BPClassLoader extends URLClassLoader {
 
     public String toString() {
         return "BPClassLoader path=" + getClassPathAsString();
+    }
+    
+    public void setJavaMEcoreLibs( List list ) { javaMEcoreLibs = list; }
+    public void setJavaMEoptLibs ( List list ) { javaMEoptLibs  = list; }   
+    
+    public List getJavaMEcoreLibs( ) { return javaMEcoreLibs; }
+    public List getJavaMEoptLibs ( ) { return javaMEoptLibs;  }  
+    
+    /**
+     * Concatenates the Java ME libraries, both core and optional, into a single
+     * semicolon-separated String.
+     * @return all the Java ME libraries in a String
+     */
+    public String getJavaMElibsAsPath( ) 
+    {
+        String risul = "";
+        Iterator iter = getJavaMEcoreLibs( ).iterator( );
+        while ( iter.hasNext( ) ) 
+            risul = risul + (String) iter.next( ) + ";";
+        
+        iter = getJavaMEoptLibs( ).iterator( );
+        while ( iter.hasNext( ) ) 
+            risul = risul + (String) iter.next( ) + ";"; 
+        
+        if ( ! risul.equals("") ) //Remove last semicolon.
+            risul = risul.substring( 0, risul.length( ) - 1 ); 
+        
+        return risul;
     }
 }

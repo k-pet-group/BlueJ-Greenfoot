@@ -27,6 +27,7 @@ public final class ClassInfo
 {
     private static final String[] appletClasses = { "Applet", "JApplet" };
     private static final String[] unitTestClasses = { "TestCase", "junit.framework.TestCase" };
+    private static final String[] midletClasses = { "MIDlet", "javax.microedition.midlet.MIDlet" }; 
 
     private boolean foundClass = false, foundPublicClass = false;
 
@@ -79,6 +80,7 @@ public final class ClassInfo
     private boolean isApplet = false;
     private boolean isUnitTest = false;
     private boolean isEnum = false;
+    private boolean isMIDlet = false;
 
     public boolean foundClass()
     {
@@ -120,6 +122,11 @@ public final class ClassInfo
         for (int i = 0; i < unitTestClasses.length; i++) {
             if(name.equals(unitTestClasses[i]))
                 isUnitTest = true;
+        }
+        
+        for (int i = 0; i < midletClasses.length; i++) {
+            if(name.equals(midletClasses[i]))
+                isMIDlet = true;
         }
     }
     
@@ -493,6 +500,11 @@ public final class ClassInfo
         return this.isApplet;
     }
 
+    public boolean isMIDlet()
+    {
+        return this.isMIDlet;
+    }
+    
     public boolean isUnitTest()
     {
         return this.isUnitTest;

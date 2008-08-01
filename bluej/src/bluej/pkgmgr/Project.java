@@ -5,6 +5,7 @@ import java.awt.Window;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,7 +71,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 5811 2008-07-23 16:45:17Z polle $
+ * @version $Id: Project.java 5819 2008-08-01 10:23:29Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -85,7 +86,7 @@ public class Project implements DebuggerListener, InspectorManager
     public static final int NEW_PACKAGE_NO_PARENT = 3;
 
     public static final String projectLibDirName = "+libs";
-
+    
     /* ------------------- end of static declarations ------------------ */
 
     // instance fields
@@ -139,8 +140,10 @@ public class Project implements DebuggerListener, InspectorManager
     private boolean isSharedProject;
 
     // team actions
-    private TeamActionGroup teamActions;
+    private TeamActionGroup teamActions;  
     
+    // Flag signalling whether this is a Java Micro Edition project
+    private boolean isJavaMEproject = false;    
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -334,13 +337,16 @@ public class Project implements DebuggerListener, InspectorManager
 
     /**
      * Create a new project in the directory specified by projectPath.
-     * This name must be a directory that does not already exist
+     * This name must be a directory that does not already exist.
+     * For Java ME projects, create directory res/icons in the project folder,
+     * and copy the default icon file for midlets from lib/images into res/icons.
      *
      * @param   projectPath     a string representing the path in which
      *                          to make the new project
+     * @param   isJavaMEproj    whether or not the project is a Java Micro Edition project
      * @return                  a boolean indicating success or failure
      */
-    public static boolean createNewProject(String projectPath) 
+    public static boolean createNewProject(String projectPath, boolean isJavaMEproj ) 
     {
         if (projectPath != null) {
             // check whether name is already in use
@@ -352,7 +358,22 @@ public class Project implements DebuggerListener, InspectorManager
 
             if (dir.mkdir()) {
                 File newreadmeFile = new File(dir, Package.readmeName);
-
+                
+                if ( isJavaMEproj ) {
+                    File iconsDirectory = new File( dir, MIDletDeployer.ICONS_DIR );   
+                    if ( iconsDirectory.mkdirs( ) ) {                        
+                        File defaultMidletIconFile = new File( iconsDirectory, 
+                                                               MIDletDeployer.DEFAULT_MIDLET_ICON );
+                        File iconDefaultSource     = new File( Config.getBlueJLibDir( ), 
+                                                               MIDletDeployer.DEFAULT_LIB_ME_ICON );
+                        try {
+                            FileUtility.copyFile( iconDefaultSource, defaultMidletIconFile );
+                        }
+                        catch (IOException ioe) {
+                            Debug.reportError( "Could not copy default icon file into Project directory.");
+                        }
+                    } 
+                }
                 try {
                     if (BlueJPackageFile.create(dir)) {
                         try {
@@ -419,6 +440,15 @@ public class Project implements DebuggerListener, InspectorManager
         }
 
         return Package.isBlueJPackage(startingDir);
+    }
+   
+    /**
+     * Set this project as a Java Micro Edition project. This method has package
+     * access because it is only called in PkgMgrFrame.openPackage( Package ).
+    */
+    void setJavaMEproject( boolean isMicroEdition )
+    {
+        isJavaMEproject = isMicroEdition;
     }
     
     /**
@@ -1244,6 +1274,43 @@ public class Project implements DebuggerListener, InspectorManager
 
   
     /**
+     * Return a list of URL of the Java ME libraries specified in the 
+     * configuration files. The libraries are physically located in the 'lib'  
+     * subdirectory of the Wireless Toolkit directory. 
+     * @param type   "optional" or "core", the type of libraries to process
+     * @return a non null but possibly empty list of URL.
+     */
+    protected List getJavaMELibraries( String type ) 
+    {
+        List risul = new ArrayList( );
+        String toolkitDir = Config.getPropString( "bluej.javame.toolkit.dir", null );
+        
+        String libs;   //string of java me libraries to parse
+        if ( type.equals( "core" ) )
+            libs = Config.getPropString( "bluej.javame.corelibraries", null );
+        else if ( type.equals( "optional" ) )
+            libs = Config.getPropString( "bluej.javame.optlibraries", null );
+        else
+            libs = null;
+        
+        if ( toolkitDir != null  &&  libs != null )
+        {            
+            String libDir = toolkitDir + File.separator + "lib" + File.separator;
+            StringTokenizer st = new StringTokenizer( libs );
+            while ( st.hasMoreTokens( ) ) {
+                try {
+                    File file = new File( libDir + st.nextToken( ) );
+                    risul.add( file.toURI( ).toURL( ) );
+                }
+                catch( MalformedURLException mue ) { 
+                    Debug.reportError( st.nextToken( ) + " is a Java ME malformed file." );
+                }
+            }
+        }  
+        return risul;
+    }
+        
+    /**
      * Returns a list of URL having in it all libraries that are in the +libs directory
      * of this project.
      * @return a non null but possibly empty list of URL.
@@ -1352,8 +1419,11 @@ public class Project implements DebuggerListener, InspectorManager
     {
         if (currentClassLoader != null)
             return currentClassLoader;
-        
+       
         ArrayList pathList = new ArrayList();
+        
+        List coreLibs = new ArrayList(); //Java ME core libraries
+        List optLibs  = new ArrayList(); //java ME optional libraries
 
         try {
             // Junit is always part of the project libraries, only Junit, not the core Bluej.
@@ -1374,7 +1444,14 @@ public class Project implements DebuggerListener, InspectorManager
           
             // The current paroject dir must be added to the project class path too.
             pathList.add(getProjectDir().toURI().toURL());
-
+            
+            //Add Java ME jars if this is a Java ME project. 
+            if ( isJavaMEproject ) { 
+                coreLibs = getJavaMELibraries( "core"     ) ;
+                optLibs  = getJavaMELibraries( "optional" ) ;                
+                pathList.addAll( coreLibs );  
+                pathList.addAll( optLibs );         
+            }
         }
         catch ( Exception exc ) {
             // Should never happen
@@ -1387,11 +1464,38 @@ public class Project implements DebuggerListener, InspectorManager
         // The Project Class Loader should not see the BlueJ classes (the necessary
         // ones have been added to the URL list anyway). So we use the boot loader
         // as parent.
-        currentClassLoader = new BPClassLoader(newUrls,Boot.getInstance().getBootClassLoader());
-
+        currentClassLoader = new BPClassLoader( newUrls,
+                     Boot.getInstance().getBootClassLoader(), isJavaMEproject );
+        
+        currentClassLoader.setJavaMEcoreLibs( toStringList( coreLibs ) );
+        currentClassLoader.setJavaMEoptLibs ( toStringList( optLibs  ) );
+        
         return currentClassLoader;
     }
 
+    /**
+     * Converts a list of URLs into a list of Strings.
+     * @param urlList List of URLs to convert to Strings.
+     * @return the parameter as a list of Strings or an empty list if parameter list is empty.
+     */
+    private List toStringList( List urlList )  
+    {
+        List risul = new ArrayList( );        
+        Iterator it = urlList.iterator( );
+        while ( it.hasNext( ) ) 
+        {
+            URL u = (URL) it.next( );
+            try {
+                File f = new File( u.toURI( ) );
+                risul.add( f.toString( ) );
+            } 
+            catch( URISyntaxException e ) { 
+                Debug.reportError("Bad syntax in URL " + u + ". Cannot do toURI().");
+            }
+        }
+        return risul;
+    }  
+    
     /**
      * Convert a filename into a fully qualified Java name.
      * Returns null if the file is outside the project

@@ -282,7 +282,7 @@ bluej.macos.screenmenubar=true
 ## double-backslashes (see example).
 #######################################################################
 
-bluej.classTemplates = stdclass abstract interface appletj unittest enum
+bluej.classTemplates = midlet stdclass abstract interface appletj unittest enum
 #bluej.templatePath = /home/mik/bluej/lib/english/templates/newclass
 #bluej.templatePath = F:\\shared\\bluej\\templates
 
@@ -402,20 +402,14 @@ bluej.editor.tabsize=4
 
 
 #######################################################################
-## Settings for test tools preferences.
+## Settings for test, teamwork, and Java ME tools preferences.
 ## These are the initial defaults - the settings can be changed by
 ## users in their preferences dialogue. (values: true / false)
 #######################################################################
 
 bluej.testing.showtools=false
-
-#######################################################################
-## Settings for team tools preferences.
-## These are the initial defaults - the settings can be changed by
-## users in their preferences dialogue. (values: true / false)
-#######################################################################
-
 bluej.teamwork.showtools=false
+bluej.javame.showtools=false
 
 #######################################################################
 ### Colours. All are specified as RGB values.
@@ -441,6 +435,7 @@ colour.class.bg.interface=245,204,155
 colour.class.bg.applet=245,204,155
 colour.class.bg.unittest=197,211,165
 colour.class.bg.enum=245,204,155
+colour.class.bg.midlet=245,204,155
 
 colour.package.bg.default=180,130,44
 
@@ -500,6 +495,50 @@ bluej.compiler.unchecked=true
 #####################################################################
 
 #bluej.compiler.options=-source 1.4
+
+#####################################################################
+## Compiler options to compile classes in Java ME projects. 
+## 
+## Here you can add compile options for the Java compiler (by 
+## default javac; see bluej.compiler setting above) to compile
+## classes in Java Micro Edition projects. 
+##
+## Do not change the options below, -target and -source, unless you
+## really know what you are doing. You can add options by attaching
+## them to the end of the string below. For example, to add the
+## -verbose option, change the string to be:
+##     bluej.javame.compiler.options=-source 1.4 -target 1.4 -verbose
+## 
+## The -bootclasspath option will ALWAYS be added internally in BlueJ
+## when compiling Java ME projects. This option specifies the
+## MIDP and CLDC jar files needed to compile Java ME projects.
+##
+#####################################################################
+
+bluej.javame.compiler.options=-source 1.4 -target 1.4
+
+#####################################################################
+## The Wireless Toolkit directory. 
+#####################################################################
+
+bluej.javame.toolkit.dir=C:\\WTK2.5.1
+
+#####################################################################
+## Java Micro Edition libraries, core and optional, in 
+## blank-separated lists. For example:
+##     bluej.javame.optlibraries=jsr238.jar jsr239.jar mmapi.jar
+#####################################################################
+
+bluej.javame.corelibraries=midpapi20.jar cldcapi11.jar
+#bluej.javame.optlibraries=
+
+#####################################################################
+## Options for the preverify command used in the deployment of MIDlets,
+## as well as for the command that launches the emulator.
+#####################################################################
+
+#bluej.javame.preverify.options=-verbose
+#bluej.javame.emulator.options=-Xverbose:all
 
 #####################################################################
 ## Options for starting the internal virtual machine.

@@ -9,7 +9,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * project in a new window.
  * 
  * @author Davin McCall
- * @version $Id: NewProjectAction.java 2505 2004-04-21 01:50:28Z davmac $
+ * @version $Id: NewProjectAction.java 5819 2008-08-01 10:23:29Z davmac $
  */
 
 final public class NewProjectAction extends PkgMgrAction {
@@ -36,6 +36,6 @@ final public class NewProjectAction extends PkgMgrAction {
     public void actionPerformed(PkgMgrFrame pmf)
     {
         pmf.menuCall();
-        pmf.doNewProject();
+        pmf.doNewProject( false ); //pass false because we are not creating an ME project
     }                        
 }

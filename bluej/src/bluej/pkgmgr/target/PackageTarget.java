@@ -25,7 +25,7 @@ import bluej.utility.Debug;
  * A sub package (or parent package)
  * 
  * @author Michael Cahill
- * @version $Id: PackageTarget.java 5529 2008-02-04 04:39:56Z davmac $
+ * @version $Id: PackageTarget.java 5819 2008-08-01 10:23:29Z davmac $
  */
 public class PackageTarget extends Target
     implements Moveable
@@ -108,7 +108,7 @@ public class PackageTarget extends Target
     {
         File[] fileList = directory.listFiles();
 
-        // If it is a file, delete
+        // If it is a file or an empty directory, delete
         if (fileList == null) {
             try{
                 directory.delete();

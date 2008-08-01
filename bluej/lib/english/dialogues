@@ -479,3 +479,14 @@ repository.
 Keep my version
 Use repository version
 null
+
+not-all-compiled
+Not all classes in this project are compiled. To deploy the MIDlet
+suite in this project you must compile all classes in the project.
+
+error-midleticon-exists
+The file you have selected is already in this project's res/icons directory.
+Do you want to overwrite it?
+Overwrite
+Cancel
+null

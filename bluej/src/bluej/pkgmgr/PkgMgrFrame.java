@@ -48,6 +48,7 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
+import bluej.utility.SortedProperties;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
@@ -58,7 +59,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 5592 2008-02-25 05:08:42Z davmac $
+ * @version $Id: PkgMgrFrame.java 5819 2008-08-01 10:23:29Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -76,6 +77,7 @@ public class PkgMgrFrame extends JFrame
     private static Application macApplication = prepareMacOSApp();
     private static boolean testToolsShown = wantToSeeTestingTools();
     private static boolean teamToolsShown = wantToSeeTeamTools();
+    private static boolean javaMEtoolsShown = wantToSeeJavaMEtools();
 
     // instance fields:
 
@@ -119,6 +121,8 @@ public class PkgMgrFrame extends JFrame
     private AbstractButton commitButton;
     private AbstractButton teamStatusButton;
     private List teamItems;
+    private JMenuItem javaMEnewProjMenuItem;
+    private JMenuItem javaMEdeployMenuItem;
   
     // these should probably be transferred to having static getInstance methods
     //like PkgMgrActions
@@ -155,6 +159,7 @@ public class PkgMgrFrame extends JFrame
     private PkgMgrAction showTerminalAction = new ShowTerminalAction();
     private PkgMgrAction showTextEvalAction = new ShowTextEvalAction();
     private Action runTestsAction = new RunTestsAction();
+    private Action deployMIDletAction = new DeployMIDletAction();
 
     /* The scroller which holds the PackageEditor we use to edit packages */
     private JScrollPane classScroller = null;
@@ -164,7 +169,7 @@ public class PkgMgrFrame extends JFrame
      * there is no package currently being edited (check with isEmptyFrame())
      */
     private Package pkg = null;
-
+    
     /*
      * The graph editor which works on the package or null for the case where
      * there is no package current being edited (isEmptyFrame() == true)
@@ -401,7 +406,16 @@ public class PkgMgrFrame extends JFrame
     {
         if (testToolsShown != wantToSeeTestingTools()) {
             for (Iterator i = frames.iterator(); i.hasNext();) {
-                ((PkgMgrFrame) i.next()).showTestingTools(!testToolsShown);
+              
+                PkgMgrFrame pmf = (PkgMgrFrame) i.next();
+                
+                //Testing tools are always hidden in Java ME packages.  
+                if ( pmf.isJavaMEpackage( ) ) {
+                    pmf.showTestingTools( false );
+                }
+                else {
+                    pmf.showTestingTools(!testToolsShown);               
+                }
             }
             testToolsShown = !testToolsShown;
         }
@@ -416,7 +430,7 @@ public class PkgMgrFrame extends JFrame
     }
     
      /**
-     * Check whether the status of the 'Show unit test tools' preference has
+     * Check whether the status of the 'Show teamwork tools' preference has
      * changed, and if it has, show or hide them as requested.
      */
     public static void updateTeamStatus()
@@ -436,7 +450,28 @@ public class PkgMgrFrame extends JFrame
     {
         return PrefMgr.getFlag(PrefMgr.SHOW_TEAM_TOOLS);
     }
-
+  
+     /**
+     * Check whether the status of the 'Show Java ME tools' preference has
+     * changed, and if it has, show or hide them as requested.
+     */
+    public static void updateJavaMEstatus()
+    {
+        if ( javaMEtoolsShown != wantToSeeJavaMEtools() )  {
+            for (Iterator i = frames.iterator(); i.hasNext();) {
+                ( (PkgMgrFrame) i.next() ).showJavaMEtools( !javaMEtoolsShown );
+            }
+            javaMEtoolsShown = !javaMEtoolsShown;
+        }
+    }
+    /**
+     * Tell whether Java ME tools should be shown.
+     */
+    private static boolean wantToSeeJavaMEtools()
+    {
+        return PrefMgr.getFlag( PrefMgr.SHOW_JAVAME_TOOLS );
+    }
+    
     /**
      * Display a short text message to the user. Without specifying a package,
      * this is done by showing the message in the status bars of all open
@@ -608,11 +643,75 @@ public class PkgMgrFrame extends JFrame
             this.menuManager.addExtensionMenu(pkg.getProject());
         
             teamActions = pkg.getProject().getTeamActions();
-            resetTeamActions();
-        }
+            resetTeamActions();             
+           
+            // In Java-ME packages, we display Java-ME controls in the
+            // test panel. We are just using the real estate of the test panel.
+            // The rest of the testing tools (menus, etc) are always hidden.
+            String javaMEflag = p.getProperty( "package.isJavaMEproject", "false" );
+            if ( javaMEflag.equals( "true" ) ) {
+                getProject().setJavaMEproject( true );
+                showJavaMEcontrols( );
+            } 
+            else {
+                getProject().setJavaMEproject( false ); 
+            }                
+        };
 
         extMgr.packageOpened(pkg);
     }
+    
+    /**
+     * In frames that display a Java Micro Edition package, the testing tools
+     * are always hidden, and in their place we display in the testPanel a 
+     * label signalling that the frame is for a Java ME package, and a button
+     * and Project-menu item for deploying the MIDlet project. This label, button,
+     * and menu item show in all frames with Java ME packages, regardless of whether
+     * the java-me checkbox in the preferences panel is ticked or not.
+     */
+    private void showJavaMEcontrols( )
+    {           
+        javaMEdeployMenuItem.setVisible( true );
+        
+        // The contents of testItems are shown/hidden depending on user
+        // preferences specified in the preferences panel. So we
+        // remove testPanel from testItems because it will
+        // always be visible, displaying the Java ME controls.
+        testItems.remove( testPanel );                
+        testPanel.removeAll();
+        
+        JLabel label = new JLabel( "Java ME" );
+        //label.setFont( PkgMgrFont );  
+        //To show Michael how bold looks. 
+        //   fontSize = Config.getPropInteger("bluej.fontsize", 12);
+        //   normalFont = Config.getFont("bluej.font", "SansSerif", fontSize);
+        //should do what the statement below does. Look into it if Michael likes bold.
+        //See assignment of normalFont in PrefMgr.java
+        label.setFont( new Font ("SansSerif", Font.BOLD, 12 ) );
+        label.setHorizontalAlignment( JLabel.CENTER );
+        label.setForeground( label.getBackground( ).darker( ).darker( ) ); 
+        Dimension pref = label.getMinimumSize();
+        pref.width = Integer.MAX_VALUE;
+        label.setMaximumSize(pref);  
+        testPanel.add( label );
+        testPanel.add( Box.createVerticalStrut( 4 ) );   
+        
+        AbstractButton button = createButton( deployMIDletAction, false, false, 4, 4 );        
+        testPanel.add( button );
+        testPanel.add( Box.createVerticalStrut( 4 ) );   
+ 
+        testPanel.setVisible( true );              
+        showTestingTools( false ); //Hide the rest of the testing tools
+    }
+    
+    /**
+     * Deploy the MIDlet suite contained in this project.
+     */
+    public void doDeployMIDlet()
+    { 
+        MIDletDeployer deployer = new MIDletDeployer( this );
+        deployer.deploy( );
+    } 
     
     /**
      * Set the team controls to use the team actions for the project.
@@ -928,22 +1027,34 @@ public class PkgMgrFrame extends JFrame
     
     /**
      * Create a new project and display it in a frame.
-     * @param dirName  The directory to create the project in
+     * @param dirName           The directory to create the project in
+     * @param isJavaMEproject   Whether this is a Java Micro Edition project
      * @return     true if successful, false otherwise
      */
-    public boolean newProject(String dirName)
+    
+    public boolean newProject(String dirName, boolean isJavaMEproject )
     {
-        if (Project.createNewProject(dirName)) {
+        if (Project.createNewProject(dirName, isJavaMEproject)) {
             Project proj = Project.openProject(dirName);
+            
+            Package unNamedPkg = proj.getPackage("");
+            
+            //Store in bluej.pkg file the flag signalling a Java ME project.
+            //This property will be used by openPackage().
+            if ( isJavaMEproject ) {
+                SortedProperties props = new SortedProperties();
+                props.setProperty( "package.isJavaMEproject", "true" );
+                unNamedPkg.save( props );
+            } 
 
             if (isEmptyFrame()) {
-                openPackage(proj.getPackage(""));
+                openPackage( unNamedPkg );
             }
             else {
-                PkgMgrFrame pmf = createFrame(proj.getPackage(""));
+                PkgMgrFrame pmf = createFrame( unNamedPkg );
                 DialogManager.tileWindow(pmf, this);
                 pmf.setVisible(true);
-            }
+            }    
             return true;
         }
         return false;
@@ -1026,23 +1137,28 @@ public class PkgMgrFrame extends JFrame
     
     /**
      * Allow the user to select a directory into which we create a project.
+     * @param isJavaMEproject   Whether this is a Java Micro Edition project or not.
      */
-    public boolean doNewProject()
+    public boolean doNewProject( boolean isJavaMEproject )
     {
-        String newname = FileUtility.getFileName(this, Config.getString("pkgmgr.newPkg.title"), Config
-                .getString("pkgmgr.newPkg.buttonLabel"), true, null, true);
+        String title = Config.getString( "pkgmgr.newPkg.title" );
+        if ( isJavaMEproject )
+            title = Config.getString( "pkgmgr.newMEpkg.title" );
+                    
+        String newname = FileUtility.getFileName( this, title,
+                 Config.getString( "pkgmgr.newPkg.buttonLabel" ), true, null, true );
 
         if (newname == null)
             return false;
 
-        if(! newProject(newname)) {
+        if( ! newProject( newname, isJavaMEproject ) ) {
             DialogManager.showError(null, "directory-exists");
             return false;
         }
 
         return true;
     }
-
+   
     /**
      * Open a dialog that lets the user choose a project. The project selected
      * is opened in a frame.
@@ -1459,6 +1575,9 @@ public class PkgMgrFrame extends JFrame
     
             p.put("package.showUses", new Boolean(isShowUses()).toString());
             p.put("package.showExtends", new Boolean(isShowExtends()).toString());
+
+            if ( isJavaMEpackage( ) )
+                p.put( "package.isJavaMEproject", "true");
         }
         pkg.save(p);
 
@@ -1909,6 +2028,14 @@ public class PkgMgrFrame extends JFrame
             Debug.reportError("creation of new package failed unexpectedly");
             return false;
         }
+        
+        // If we have a Java Micro Edition project, store the 
+        // isJavaMEproject flag in the bluej.pkg file
+        if ( isJavaMEpackage( ) ) {
+            Properties props = newPackage.getLastSavedProperties();
+            props.setProperty( "package.isJavaMEproject", "true" );
+            newPackage.save( props );
+        }
 
         while (newPackage != null) {
             newPackage.reload();
@@ -2250,7 +2377,7 @@ public class PkgMgrFrame extends JFrame
     }
     
     /**
-     * Show or hide the testing tools.
+     * Show or hide the teamwork tools.
      */
     public void showTeamTools(boolean show)
     {
@@ -2258,6 +2385,18 @@ public class PkgMgrFrame extends JFrame
             JComponent component = (JComponent) it.next();
             component.setVisible(show);
         }
+    }
+    
+    /**
+     * Show or hide the Java ME tools, which for now is just the
+     * 'New ME Project...' menu item in the Project menu.
+     * Java ME tools show or not in all packages--not only in
+     * Java ME packages--depending on whether the checkbox in 
+     * the Preferences panel is ticked or not.
+     */
+    public void showJavaMEtools( boolean show )
+    {
+        javaMEnewProjMenuItem.setVisible( show );
     }
 
     /**
@@ -2587,6 +2726,11 @@ public class PkgMgrFrame extends JFrame
         if (! teamToolsShown) {
             showTeamTools(false);
         }
+
+        // hide Java ME tools if not wanted
+        if (! javaMEtoolsShown) {
+            showJavaMEtools(false);
+        }
         
         // show the text evaluation pane if needed
         if (PrefMgr.getFlag(PrefMgr.SHOW_TEXT_EVAL)) {
@@ -2699,6 +2843,7 @@ public class PkgMgrFrame extends JFrame
         menubar.add(menu);
         {
             createMenuItem(NewProjectAction.getInstance(), menu);
+            javaMEnewProjMenuItem = createMenuItem( NewMEprojectAction.getInstance(), menu );            
             createMenuItem(OpenProjectAction.getInstance(), menu);
             recentProjectsMenu = new JMenu(Config.getString("menu.package.openRecent"));
             menu.add(recentProjectsMenu);
@@ -2710,6 +2855,8 @@ public class PkgMgrFrame extends JFrame
 
             createMenuItem(importProjectAction, menu);
             createMenuItem(exportProjectAction, menu);
+            javaMEdeployMenuItem = createMenuItem( deployMIDletAction, menu ); 
+            javaMEdeployMenuItem.setVisible( false ); //visible only in Java ME packages
             menu.addSeparator();
 
             createMenuItem(pageSetupAction, menu);
@@ -2986,6 +3133,22 @@ public class PkgMgrFrame extends JFrame
         }
     }
 
+    /**
+     * Return true if this frame is editing a Java Micro Edition package.
+     * Note that the property has the suffix 'project' because all packages
+     * in a Java ME project have to be Java ME packages. That is, this is 
+     * a property of the project. Nevertheless, we store the property in 
+     * the bluej.pkg file of each package in a Java ME project to simplify
+     * the code.
+     */
+    public boolean isJavaMEpackage( )
+    {
+        String javaMEflag = 
+               pkg.getLastSavedProperties().getProperty( "package.isJavaMEproject", "false" );
+        
+        return javaMEflag.equals( "true" );
+    }        
+    
     class URLDisplayer
         implements ActionListener
     {

@@ -17,7 +17,7 @@ import bluej.pkgmgr.Project;
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 5328 2007-10-23 10:26:54Z polle $
+ * @version $Id: PrefMgr.java 5819 2008-08-01 10:23:29Z davmac $
  */
 public class PrefMgr
 {
@@ -30,6 +30,7 @@ public class PrefMgr
     public static final String LINK_LIB = "doctool.linkToStandardLib";
     public static final String SHOW_TEST_TOOLS = "bluej.testing.showtools";
     public static final String SHOW_TEAM_TOOLS = "bluej.teamwork.showtools";
+    public static final String SHOW_JAVAME_TOOLS = "bluej.javame.showtools";   
     public static final String SHOW_TEXT_EVAL = "bluej.startWithTextEval";
     public static final String SHOW_UNCHECKED = "bluej.compiler.showunchecked";
     
@@ -117,6 +118,7 @@ public class PrefMgr
         flags.put(USE_THEMES, Config.getPropString(USE_THEMES, "false"));
         flags.put(SHOW_TEST_TOOLS, Config.getPropString(SHOW_TEST_TOOLS, "false"));
         flags.put(SHOW_TEAM_TOOLS, Config.getPropString(SHOW_TEAM_TOOLS, "false"));
+        flags.put(SHOW_JAVAME_TOOLS, Config.getPropString(SHOW_JAVAME_TOOLS, "false"));        
         flags.put(SHOW_TEXT_EVAL, Config.getPropString(SHOW_TEXT_EVAL, "false"));
         flags.put(SHOW_UNCHECKED, Config.getPropString(SHOW_UNCHECKED, "true"));
     }

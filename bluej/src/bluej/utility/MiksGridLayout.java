@@ -1,10 +1,10 @@
-package bluej.groupwork.ui;
+package bluej.utility;
 import java.awt.*;
 
 /**
  * MiksGridLayout - a grid layout with non-homogenous column widths.
  * 
- * @version $Id: MiksGridLayout.java 5026 2007-04-26 14:46:17Z mik $
+ * @version $Id: mergeCopyTarget64862.tmp 5416 2007-12-11 15:40:37Z cecilia $
  */
 public class MiksGridLayout extends GridLayout
 {

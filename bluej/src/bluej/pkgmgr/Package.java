@@ -64,7 +64,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 5811 2008-07-23 16:45:17Z polle $
+ * @version $Id: Package.java 5819 2008-08-01 10:23:29Z davmac $
  */
 public final class Package extends Graph
 {
@@ -576,7 +576,15 @@ public final class Package extends Graph
         
         // try to load the package file for this package
         packageFile.load(lastSavedProps);
-
+        
+        //Set the internal project flag identifying Java Micro Edition projects
+        String javaMEflag = lastSavedProps.getProperty( "package.isJavaMEproject", "false" );
+        if ( javaMEflag.equals( "true" ) ) {
+            getProject().setJavaMEproject( true );
+        } else {
+            getProject().setJavaMEproject( false );
+        }
+ 
         // read in all the targets contained in this package
         // into this temporary map
         Map propTargets = new HashMap();
@@ -920,6 +928,10 @@ public final class Package extends Graph
 
         SortedProperties props = new SortedProperties();
         
+        String javaMEflag = lastSavedProps.getProperty( "package.isJavaMEproject", "false" );
+        if ( javaMEflag.equals( "true" ) ) 
+            props.put( "package.isJavaMEproject", "true" );
+         
         if (frameProperties != null)
             props.putAll(frameProperties);
 
