@@ -22,7 +22,7 @@ import bluej.utility.DialogManager;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: ObjectInspector.java 5823 2008-08-06 11:07:18Z polle $
+ * @version $Id: ObjectInspector.java 5826 2008-08-06 12:17:12Z polle $
  */
 public class ObjectInspector extends Inspector
 {
@@ -223,22 +223,7 @@ public class ObjectInspector extends Inspector
             }
         }
         else if (obj.instanceFieldIsObject(slot)) {
-            String newInspectedName;
-
-          //POLLE delete this?
-          //  if (objName != null && !obj.isArray()) {
-                // don't use object name in front, since it is already there from the parent
-                newInspectedName = obj.getInstanceFieldName(slot);
-          //  }
-           // else if (objName != null && obj.isArray()) {
-                //TODO arrays? do they still work?
-          //      newInspectedName =  objName + obj.getInstanceFieldName(slot);
-           // }
-            //else {
-            //    newInspectedName = obj.getInstanceFieldName(slot);
-           // }
-
-            setCurrentObj(obj.getInstanceFieldObject(slot), newInspectedName, obj.getInstanceFieldType(slot));
+            setCurrentObj(obj.getInstanceFieldObject(slot), obj.getInstanceFieldName(slot), obj.getInstanceFieldType(slot));
 
             if (obj.instanceFieldIsPublic(slot)) {
                 setButtonsEnabled(true, true);

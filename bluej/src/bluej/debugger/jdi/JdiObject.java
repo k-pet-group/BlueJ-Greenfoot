@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 5823 2008-08-06 11:07:18Z polle $
+ * @version $Id: JdiObject.java 5826 2008-08-06 12:17:12Z polle $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -317,7 +317,7 @@ public class JdiObject extends DebuggerObject
     }
 
     /**
-     *  Return the type of the object field at 'slot'.
+     * Return the type of the instance field at 'slot'.
      *
      *@param  slot  The slot number to be checked
      *@return       The type of the field
@@ -325,8 +325,8 @@ public class JdiObject extends DebuggerObject
     @Override
     public String getInstanceFieldType(int slot)
     {    
-        //POLLE check that this is the right type
-        return JdiReflective.fromField(getField(false, slot), this).toString(true);
+        //POLLE check that this is the right type. should it be stripped?
+        return JdiReflective.fromField(getField(false, slot), this).toString(false);
     }
 
     /**

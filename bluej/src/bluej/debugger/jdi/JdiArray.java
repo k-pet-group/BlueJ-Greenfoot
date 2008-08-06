@@ -16,7 +16,7 @@ import com.sun.jdi.Value;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 5824 2008-08-06 11:50:14Z polle $
+ * @version    $Id: JdiArray.java 5826 2008-08-06 12:17:12Z polle $
  */
 public class JdiArray extends JdiObject
 {    
@@ -188,7 +188,7 @@ public class JdiArray extends JdiObject
     }
     
     /**
-     *  Return the type of the object field at 'slot'.
+     * Return the type of the object field at 'slot'.
      *
      *@param  slot  The slot number to be checked
      *@return       The type of the field
@@ -198,11 +198,11 @@ public class JdiArray extends JdiObject
     {            
         String arrayType = null;
         if(componentType == null) {
-            //POLLE check that this is the right type. Generics? handled by else?
-            arrayType = JavaNames.stripPrefix(getClassName());
+            //POLLE check that this is the right type. Generics? handled by else? Should prefix be stripped?
+            arrayType = getClassName();
         }
         else {
-            arrayType = componentType.toString(true);
+            arrayType = componentType.toString(false);
         }
 
         return JavaNames.getArrayElementType(arrayType);

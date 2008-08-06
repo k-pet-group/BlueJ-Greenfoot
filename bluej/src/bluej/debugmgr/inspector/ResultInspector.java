@@ -33,7 +33,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 5824 2008-08-06 11:50:14Z polle $
+ * @version $Id: ResultInspector.java 5826 2008-08-06 12:17:12Z polle $
  */
 public class ResultInspector extends Inspector
 {
@@ -264,7 +264,8 @@ public class ResultInspector extends Inspector
             }
 
             // Don't use the name, since it is meaningless anyway (it is always "result")
-            setCurrentObj(obj.getInstanceFieldObject(slot, resultType), null, resultType.toString(true));
+            //POLLE check that this type is right. should it be stripped?
+            setCurrentObj(obj.getInstanceFieldObject(slot, resultType), null, resultType.toString(false));
 
             if (obj.instanceFieldIsPublic(slot)) {
                 setButtonsEnabled(true, true);

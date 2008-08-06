@@ -33,7 +33,7 @@ import bluej.utility.DialogManager;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: Inspector.java 5824 2008-08-06 11:50:14Z polle $
+ * @version $Id: Inspector.java 5826 2008-08-06 12:17:12Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -348,8 +348,8 @@ public abstract class Inspector extends JFrame
         if (selectedField != null) {
             boolean isPublic = getButton.isEnabled();
             
-            // POLLE check that this type is right. Make sure this getClassName works with generics and stuff as well, and that the type is correct - maybe we need typecasts too?
-            InvokerRecord newIr = new ObjectInspectInvokerRecord(selectedField.getStrippedGenClassName(), selectedFieldName, selectedField.isArray(), ir);
+            // POLLE check that this type is right. Should it always be stripped?
+            InvokerRecord newIr = new ObjectInspectInvokerRecord(selectedFieldType, selectedFieldName, selectedField.isArray(), ir);
             inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? newIr : null, this);
         }
     }

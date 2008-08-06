@@ -15,7 +15,7 @@ import com.sun.jdi.*;
  *
  *@author     Michael Kolling
  *@created    December 26, 2000
- *@version    $Id: JdiClass.java 5823 2008-08-06 11:07:18Z polle $
+ *@version    $Id: JdiClass.java 5826 2008-08-06 12:17:12Z polle $
  */
 public class JdiClass extends DebuggerClass
 {
@@ -79,8 +79,8 @@ public class JdiClass extends DebuggerClass
     public String getStaticFieldType(int slot)
     {
         Field field = (Field) staticFields.get(slot);
-        //POLLE check that this is the right type
-        return JdiReflective.fromField(field, remoteClass).toString(true);
+        //POLLE check that this is the right type, should it be stripped?
+        return JdiReflective.fromField(field, remoteClass).toString(false);
     }
 
     /**
