@@ -33,7 +33,7 @@ import bluej.utility.DialogManager;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: Inspector.java 5823 2008-08-06 11:07:18Z polle $
+ * @version $Id: Inspector.java 5824 2008-08-06 11:50:14Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -56,7 +56,7 @@ public abstract class Inspector extends JFrame
     protected AssertPanel assertPanel;
 
 	// POLLE create new type to encapsulate selected obejct
-    protected DebuggerObject selectedObject; // the object currently selected in
+    protected DebuggerObject selectedField; // the object currently selected in
     // the list
     protected String selectedFieldName; // the name of the field of the
     // currently selected object
@@ -319,11 +319,8 @@ public abstract class Inspector extends JFrame
      */
     protected void setCurrentObj(DebuggerObject object, String name, String type)
     {
-        selectedObject = object;
-        //POLLE rename selectedObject to selectedField
+        selectedField = object;
         selectedFieldName = name;
-        
-        //POLLE 1 urgent! fieldtype is BlaBLa[] for array items instead of BlaBla
         selectedFieldType = type;
     }
 
@@ -348,12 +345,12 @@ public abstract class Inspector extends JFrame
     {
         prepareInspection();
 
-        if (selectedObject != null) {
+        if (selectedField != null) {
             boolean isPublic = getButton.isEnabled();
             
             // POLLE check that this type is right. Make sure this getClassName works with generics and stuff as well, and that the type is correct - maybe we need typecasts too?
-            InvokerRecord newIr = new ObjectInspectInvokerRecord(selectedObject.getStrippedGenClassName(), selectedFieldName, selectedObject.isArray(), ir);
-            inspectorManager.getInspectorInstance(selectedObject, selectedFieldName, pkg, isPublic ? newIr : null, this);
+            InvokerRecord newIr = new ObjectInspectInvokerRecord(selectedField.getStrippedGenClassName(), selectedFieldName, selectedField.isArray(), ir);
+            inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? newIr : null, this);
         }
     }
 
@@ -363,9 +360,9 @@ public abstract class Inspector extends JFrame
      */
     protected void doGet()
     {
-        if (selectedObject != null) {
+        if (selectedField != null) {
             GetInvokerRecord getIr = new GetInvokerRecord(selectedFieldType, selectedFieldName, ir);
-            pkg.getEditor().raisePutOnBenchEvent(this, selectedObject, selectedObject.getGenType(), getIr);
+            pkg.getEditor().raisePutOnBenchEvent(this, selectedField, selectedField.getGenType(), getIr);
         }
     }
 

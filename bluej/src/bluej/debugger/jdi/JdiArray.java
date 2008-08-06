@@ -16,7 +16,7 @@ import com.sun.jdi.Value;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 5823 2008-08-06 11:07:18Z polle $
+ * @version    $Id: JdiArray.java 5824 2008-08-06 11:50:14Z polle $
  */
 public class JdiArray extends JdiObject
 {    
@@ -195,21 +195,17 @@ public class JdiArray extends JdiObject
      */
     @Override
     public String getInstanceFieldType(int slot)
-    {    
-        //POLLE check that this is the right type
-//        Value val = ((ArrayReference) obj).getValue(slot);
-        
-       /* if(componentType != null)
-            return JdiObject.getDebuggerObject((ObjectReference) val, componentType);
-        else
-            return JdiObject.getDebuggerObject((ObjectReference) val);*/
-        
-        //return "ass"; //JdiReflective.fromField(getField(false, slot), this).toString(true);
-        
+    {            
+        String arrayType = null;
+        if(componentType == null) {
+            //POLLE check that this is the right type. Generics? handled by else?
+            arrayType = JavaNames.stripPrefix(getClassName());
+        }
+        else {
+            arrayType = componentType.toString(true);
+        }
 
-        if(componentType == null)
-            return JavaNames.stripPrefix(getClassName());
-        return componentType.toString(true);
+        return JavaNames.getArrayElementType(arrayType);
     }
 
     /**

@@ -33,7 +33,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 5823 2008-08-06 11:07:18Z polle $
+ * @version $Id: ResultInspector.java 5824 2008-08-06 11:50:14Z polle $
  */
 public class ResultInspector extends Inspector
 {
@@ -320,8 +320,8 @@ public class ResultInspector extends Inspector
     
     protected void doGet()
     {
-        if (selectedObject != null) {
-            pkg.getEditor().raisePutOnBenchEvent(this, selectedObject, resultType.asClass(), ir);
+        if (selectedField != null) {
+            pkg.getEditor().raisePutOnBenchEvent(this, selectedField, resultType.asClass(), ir);
         }
     }
 }

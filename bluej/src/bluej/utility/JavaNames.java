@@ -8,7 +8,7 @@ import java.util.*;
  * java names.
  *
  * @author  Andrew Patterson
- * @version $Id: JavaNames.java 4843 2007-03-15 01:20:24Z davmac $
+ * @version $Id: JavaNames.java 5824 2008-08-06 11:50:14Z polle $
  */
 public class JavaNames
 {
@@ -253,5 +253,17 @@ public class JavaNames
         else {
             return firstPart + "." + secondPart;
         }
+    }
+
+    /**
+     * From an array type, figure out the type of the elements in the array. For
+     * instance, if you have an array type of "Integer[]" this method will
+     * return "Integer".
+     * 
+     * @param arrayType A string describing the array type. For instance "Integer[]".
+     */
+    public static String getArrayElementType(String arrayType)
+    {
+        return JavaNames.stripSuffix(arrayType, "[]");
     }
 }
