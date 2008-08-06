@@ -9,7 +9,7 @@ import bluej.utility.JavaNames;
  * This record is for method calls that return a result.
  *
  * @author  Andrew Patterson
- * @version $Id: MethodInvokerRecord.java 5823 2008-08-06 11:07:18Z polle $
+ * @version $Id: MethodInvokerRecord.java 5827 2008-08-06 12:35:20Z polle $
  */
 public class MethodInvokerRecord extends VoidMethodInvokerRecord
 {
@@ -179,8 +179,14 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
 	@Override
     public String toExpression()
     {
-    	// POLLE Fix this
-        return "TodoMethodExpressionInMethodInvokerRecord";     
+        StringBuffer sb = new StringBuffer();
+        if (benchName == null)
+            sb.append(command);
+        else {
+            sb.append(benchName);
+        }
+
+        return sb.toString();
     }
 	
     @Override
