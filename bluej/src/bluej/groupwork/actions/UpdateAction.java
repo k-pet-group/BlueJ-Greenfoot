@@ -31,10 +31,9 @@ import bluej.utility.SwingWorker;
  * Action to update out-of-date files.
  * 
  * <p>Before this action is enabled, setFilesToUpdate(), setFilesToForceUpdate()
- * and setStatusCommand() must each be called.
+ * and setStatusHandle() must each be called.
  * 
- * @author fisker
- * @version $Id: UpdateAction.java 5811 2008-07-23 16:45:17Z polle $
+ * @author Kasper Fisker
  */
 public class UpdateAction extends AbstractAction
 {
@@ -43,9 +42,9 @@ public class UpdateAction extends AbstractAction
     private UpdateFilesFrame updateFrame;
     private UpdateWorker worker;
     
-    private Set filesToUpdate;
-    private Set filesToForceUpdate;
-    private TeamworkCommand statusCommand;
+    private Set<File> filesToUpdate;
+    private Set<File> filesToForceUpdate;
+    private StatusHandle statusHandle;
     
     /** A list of packages whose bluej.pkg file has been removed */
     private List removedPackages;
@@ -76,12 +75,11 @@ public class UpdateAction extends AbstractAction
     }
     
     /**
-     * Set the status command that was used previously to determine
-     * file statuses.
+     * Set the status handle (which comes from a preceeding status operation).
      */
-    public void setStatusCommand(TeamworkCommand statusCommand)
+    public void setStatusHandle(StatusHandle statusHandle)
     {
-        this.statusCommand = statusCommand;
+        this.statusHandle = statusHandle;
     }
     
     /* (non-Javadoc)
@@ -97,7 +95,7 @@ public class UpdateAction extends AbstractAction
             updateFrame.startProgress();
             PkgMgrFrame.displayMessage(project, Config.getString("team.update.statusMessage"));
             
-            worker = new UpdateWorker(project, statusCommand,
+            worker = new UpdateWorker(project, statusHandle,
                     filesToUpdate, filesToForceUpdate);
             worker.start();
         }
@@ -120,10 +118,10 @@ public class UpdateAction extends AbstractAction
         private TeamworkCommandResult result;
         private boolean aborted;
         
-        public UpdateWorker(Project project, TeamworkCommand statusCommand,
-                Set filesToUpdate, Set filesToForceUpdate)
+        public UpdateWorker(Project project, StatusHandle statusHandle,
+                Set<File> filesToUpdate, Set<File> filesToForceUpdate)
         {
-            command = statusCommand.getUpdateTo(this, filesToUpdate, filesToForceUpdate);
+            command = statusHandle.updateTo(this, filesToUpdate, filesToForceUpdate);
         }
         
         public Object construct()

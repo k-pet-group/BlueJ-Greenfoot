@@ -1,14 +1,11 @@
 package bluej.groupwork.svn;
 
-import java.util.Set;
-
 import org.tigris.subversion.javahl.ClientException;
 import org.tigris.subversion.javahl.SVNClientInterface;
 
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandAborted;
 import bluej.groupwork.TeamworkCommandResult;
-import bluej.groupwork.UpdateListener;
 import bluej.utility.Debug;
 
 /**
@@ -41,14 +38,6 @@ abstract public class SvnCommand
                 ce.printStackTrace(System.out);
             }
         }
-    }
-    
-    /* (non-Javadoc)
-     * @see bluej.groupwork.TeamworkCommand#getUpdateTo(bluej.groupwork.UpdateListener, java.util.Set, java.util.Set)
-     */
-    public TeamworkCommand getUpdateTo(UpdateListener listener, Set files, Set forceFiles)
-    {
-        return null;
     }
     
     /**

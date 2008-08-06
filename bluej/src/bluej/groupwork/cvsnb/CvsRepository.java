@@ -37,7 +37,7 @@ import bluej.utility.filefilter.DirectoryFilter;
  * This class handles communication with the repository.
  *
  * @author fisker
- * @version $Id: CvsRepository.java 5529 2008-02-04 04:39:56Z davmac $
+ * @version $Id: CvsRepository.java 5820 2008-08-06 09:01:38Z davmac $
  */
 public class CvsRepository implements Repository
 {
@@ -95,12 +95,12 @@ public class CvsRepository implements Repository
      *
      * @param fileList
      */
-    static File[] listToFileArray(Collection fileList)
+    static File[] listToFileArray(Collection<File> fileList)
     {
         File[] files = new File[fileList.size()];
         int j = 0;
 
-        for (Iterator i = fileList.iterator(); i.hasNext();) {
+        for (Iterator<File> i = fileList.iterator(); i.hasNext();) {
             File file = (File) i.next();
             files[j++] = file;
         }
@@ -516,8 +516,14 @@ public class CvsRepository implements Repository
                 commitComment);
     }
 
-    /* (non-Javadoc)
-     * @see bluej.groupwork.Repository#updateFiles(bluej.groupwork.UpdateListener, java.util.Set, java.util.Set)
+    /**
+     * Get a command to update the given sets of files.
+     * 
+     * @param listener  The listener to receive notification of update progress, conflicts
+     * @param theFiles   The set of files to update normally
+     * @param forceFiles The set of files to update forcefully (to a clean version from
+     *                   the repository)
+     * @return
      */
     public TeamworkCommand updateFiles(UpdateListener listener, Set theFiles, Set forceFiles)
     {
@@ -1103,4 +1109,17 @@ public class CvsRepository implements Repository
             catch (IOException ioe) { }
         }
     }
+    
+    /**
+     * Set the revision of a versioned file to the given revision, without altering
+     * the file contents.
+     */
+    public void setFileVersion(File file, String revision) throws IOException
+    {
+        Entry cvsEntry = adminHandler.getEntry(file);
+        if (cvsEntry != null) {
+            cvsEntry.setRevision(revision);
+        }
+    }
+
 }

@@ -27,10 +27,11 @@ import bluej.groupwork.UpdateListener;
 public class CvsStatusCommand extends CvsCommand
 {
     private StatusListener listener;
-    private Set files;
+    private Set<File> files;
     private boolean includeRemote;
     
-    public CvsStatusCommand(CvsRepository repository, StatusListener listener, Set files, boolean includeRemote)
+    public CvsStatusCommand(CvsRepository repository, StatusListener listener,
+            Set<File> files, boolean includeRemote)
     {
         super(repository);
         this.listener = listener;
@@ -50,7 +51,7 @@ public class CvsStatusCommand extends CvsCommand
         // First we need to figure out remote directories
         if (includeRemote) {
             remoteDirs = new HashSet();
-            List remoteFiles = repository.getRemoteFiles(client, remoteDirs);
+            List<File> remoteFiles = repository.getRemoteFiles(client, remoteDirs);
             files.addAll(remoteFiles);
         }
         else {
@@ -61,7 +62,7 @@ public class CvsStatusCommand extends CvsCommand
         // First, it's necessary to filter out files which are in
         // directories not in the repository. Otherwise the
         // CVS status command barfs when it hits such a file.
-        for (Iterator i = files.iterator(); i.hasNext(); ) {
+        for (Iterator<File> i = files.iterator(); i.hasNext(); ) {
             File file = (File) i.next();
             File parent = file.getParentFile();
             if (! remoteDirs.contains(parent) && ! repository.isDirectoryUnderCVS(parent)) {
@@ -223,6 +224,8 @@ public class CvsStatusCommand extends CvsCommand
                 TeamStatusInfo teamInfo = (TeamStatusInfo) returnInfo.removeFirst();
                 listener.gotStatus(teamInfo);
             }
+            
+            listener.statusComplete(new CvsStatusHandle(repository));
         }
         
         return statusServerResponse;

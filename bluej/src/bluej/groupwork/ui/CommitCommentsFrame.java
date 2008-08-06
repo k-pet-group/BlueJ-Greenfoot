@@ -28,6 +28,7 @@ import javax.swing.JTextArea;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.groupwork.CommitFilter;
+import bluej.groupwork.StatusHandle;
 import bluej.groupwork.Repository;
 import bluej.groupwork.StatusListener;
 import bluej.groupwork.TeamStatusInfo;
@@ -67,7 +68,7 @@ public class CommitCommentsFrame extends EscapeDialog
     private Repository repository;
     private DefaultListModel commitListModel;
     
-    private Set<TeamStatusInfo>changedLayoutFiles;
+    private Set<TeamStatusInfo> changedLayoutFiles;
     
     private static String noFilesToCommit = Config.getString("team.nocommitfiles"); 
 
@@ -293,6 +294,14 @@ public class CommitCommentsFrame extends EscapeDialog
         return files;
     }
     
+    /**
+     * Get a set of the layout files which have changed (with status info).
+     */
+    public Set<TeamStatusInfo> getChangedLayoutInfo()
+    {
+        return changedLayoutFiles;
+    }
+    
     public boolean includeLayout()
     {
         return includeLayout != null && includeLayout.isSelected();
@@ -349,6 +358,14 @@ public class CommitCommentsFrame extends EscapeDialog
         public void gotStatus(TeamStatusInfo info)
         {
             response.add(info);
+        }
+        
+        /* (non-Javadoc)
+         * @see bluej.groupwork.StatusListener#statusComplete(bluej.groupwork.CommitHandle)
+         */
+        public void statusComplete(StatusHandle statusHandle)
+        {
+            commitAction.setStatusHandle(statusHandle);
         }
         
         public Object construct()

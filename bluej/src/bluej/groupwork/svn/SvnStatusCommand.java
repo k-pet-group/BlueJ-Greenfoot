@@ -163,6 +163,7 @@ public class SvnStatusCommand extends SvnCommand
                 }
             }
             
+            listener.statusComplete(new SvnStatusHandle(getRepository(), currentRevision));
             return new TeamworkCommandResult();
         }
         catch (ClientException ce) {
@@ -247,14 +248,5 @@ public class SvnStatusCommand extends SvnCommand
             }
 
         }
-    }
-    
-    /*
-     * @see bluej.groupwork.svn.SvnCommand#getUpdateTo()
-     */
-    public TeamworkCommand getUpdateTo(UpdateListener listener, Set files, Set forceFiles)
-    {
-        return new SvnUpdateToCommand(getRepository(), listener,
-                currentRevision, files, forceFiles);
     }
 }

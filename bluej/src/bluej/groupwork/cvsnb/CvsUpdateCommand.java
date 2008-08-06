@@ -15,7 +15,7 @@ import bluej.groupwork.UpdateListener;
  */
 public class CvsUpdateCommand extends CvsCommand
 {
-    private UpdateListener listener;
+    private UpdateListener listener; // may be null
     private Set theFiles;
     private Set forceFiles;
     
@@ -36,7 +36,9 @@ public class CvsUpdateCommand extends CvsCommand
         if (! theFiles.isEmpty()) {
             BlueJCvsClient client = getClient();
             response = repository.doUpdateFiles(client, listener, theFiles, false);
-            listener.handleConflicts(response);
+            if (listener != null) {
+                listener.handleConflicts(response);
+            }
             
             if (response.isError()) {
                 return response;

@@ -2,11 +2,15 @@ package bluej.groupwork;
 
 import java.awt.Window;
 import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
 
 public class TeamUtils
 {
@@ -35,12 +39,12 @@ public class TeamUtils
      * From a set of File objects, remove those files which should be treated as
      * binary files (and put them in a new set). 
      */
-    public static Set extractBinaryFilesFromSet(Set files)
+    public static Set<File> extractBinaryFilesFromSet(Set<File> files)
     {
-        Set binFiles = new HashSet();
-        Iterator i = files.iterator();
+        Set<File> binFiles = new HashSet<File>();
+        Iterator<File> i = files.iterator();
         while (i.hasNext()) {
-            File f = (File) i.next();
+            File f = i.next();
             String fname = f.getName();
             if (! fname.endsWith(".txt") && ! fname.endsWith(".java")) {
                 binFiles.add(f);
@@ -50,4 +54,37 @@ public class TeamUtils
         return binFiles;
     }
 
+    /**
+     * Backup a set of files, returning a map from the original file name to
+     * the backup name. The backup files are created in the system's temp
+     * folder/directory.
+     */
+    public Map<File,File> backupFiles(Set<File> files) throws IOException
+    {
+        Map<File,File> rmap = new HashMap<File,File>();
+        for (Iterator<File> i = files.iterator(); i.hasNext(); ) {
+            File tempFile = File.createTempFile("bluejvcs", null);
+            File srcFile = i.next();
+            FileUtility.copyFile(srcFile, tempFile);
+            rmap.put(srcFile, tempFile);
+        }
+        return rmap;
+    }
+    
+    /**
+     * Copy a set of files, then delete the source files. This is used to
+     * restore a backup created by the backupFiles() method. The source
+     * files (i.e. the backup files) are deleted afterwards.
+     */
+    public void restoreBackups(Map<File,File> rmap) throws IOException
+    {
+        Iterator<Map.Entry<File,File>> i = rmap.entrySet().iterator();
+        while (i.hasNext()) {
+            Map.Entry<File,File> entry = i.next();
+            File orig = entry.getKey();
+            File backup = entry.getValue();
+            FileUtility.copyFile(backup, orig);
+            backup.delete();
+        }
+    }
 }

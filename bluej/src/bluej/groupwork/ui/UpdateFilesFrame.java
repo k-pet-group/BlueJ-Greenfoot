@@ -24,6 +24,7 @@ import javax.swing.JScrollPane;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.groupwork.StatusHandle;
 import bluej.groupwork.Repository;
 import bluej.groupwork.StatusListener;
 import bluej.groupwork.TeamStatusInfo;
@@ -46,7 +47,7 @@ import bluej.utility.SwingWorker;
  * A Swing based user interface for showing files to be updated
  * @author Bruce Quig
  * @author Davin McCall
- * @version $Id: UpdateFilesFrame.java 5814 2008-07-25 12:59:44Z polle $
+ * @version $Id: UpdateFilesFrame.java 5820 2008-08-06 09:01:38Z davmac $
  */
 public class UpdateFilesFrame extends EscapeDialog
 {
@@ -334,6 +335,7 @@ public class UpdateFilesFrame extends EscapeDialog
         TeamworkCommand command;
         TeamworkCommandResult result;
         private boolean aborted;
+        private StatusHandle statusHandle;
 
         public UpdateWorker()
         {
@@ -349,6 +351,14 @@ public class UpdateFilesFrame extends EscapeDialog
         public void gotStatus(TeamStatusInfo info)
         {
             response.add(info);
+        }
+        
+        /* (non-Javadoc)
+         * @see bluej.groupwork.StatusListener#statusComplete(bluej.groupwork.CommitHandle)
+         */
+        public void statusComplete(StatusHandle statusHandle)
+        {
+            this.statusHandle = statusHandle;
         }
         
         public Object construct()
@@ -414,7 +424,7 @@ public class UpdateFilesFrame extends EscapeDialog
                         }
                     }
                     
-                    updateAction.setStatusCommand(command);
+                    updateAction.setStatusHandle(statusHandle);
                     updateAction.setFilesToUpdate(updateFiles);
                     resetForcedFiles();
 

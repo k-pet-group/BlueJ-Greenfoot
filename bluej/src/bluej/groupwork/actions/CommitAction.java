@@ -2,12 +2,15 @@ package bluej.groupwork.actions;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
+import java.io.File;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
 
 import bluej.Config;
-import bluej.groupwork.Repository;
+import bluej.groupwork.StatusHandle;
+import bluej.groupwork.TeamStatusInfo;
 import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
@@ -18,18 +21,28 @@ import bluej.utility.SwingWorker;
 
 
 /**
- * An action to do an actual commit. By this stage we know what we are
- * committing and have the commit comments.
+ * An action to do an actual commit.
+ * 
+ * <p>This action should not be enabled until the following methods have
+ * been called:
+ * 
+ * <ul>
+ * <li>setNewFiles()
+ * <li>setDeletedFiles()
+ * <li>setFiles()
+ * <li>setStatusHandle()
+ * </ul>
  * 
  * @author Kasper
- * @version $Id: CommitAction.java 5067 2007-05-28 04:15:57Z bquig $
+ * @version $Id: CommitAction.java 5820 2008-08-06 09:01:38Z davmac $
  */
 public class CommitAction extends AbstractAction
 {
-    private Set newFiles; // which files are new files
-    private Set deletedFiles; // which files are to be removed
-    private Set files; // files to commit (includes both of above)
+    private Set<File> newFiles; // which files are new files
+    private Set<File> deletedFiles; // which files are to be removed
+    private Set<File> files; // files to commit (includes both of above)
     private CommitCommentsFrame commitCommentsFrame;
+    private StatusHandle statusHandle;
     
     private CommitWorker worker;
     
@@ -43,7 +56,7 @@ public class CommitAction extends AbstractAction
      * Set the files which are new, that is, which aren't presently under
      * version management and which need to be added.
      */
-    public void setNewFiles(Set newFiles)
+    public void setNewFiles(Set<File> newFiles)
     {
         this.newFiles = newFiles;
     }
@@ -52,7 +65,7 @@ public class CommitAction extends AbstractAction
      * Set the files which have been deleted locally, and the deletion
      * needs to be propagated to the repository.
      */
-    public void setDeletedFiles(Set deletedFiles)
+    public void setDeletedFiles(Set<File> deletedFiles)
     {
         this.deletedFiles = deletedFiles;
     }
@@ -62,17 +75,17 @@ public class CommitAction extends AbstractAction
      * the new files and the deleted files, as well as any other files
      * which have been locally modified and need to be committed.
      */
-    public void setFiles(Set files)
+    public void setFiles(Set<File> files)
     {
         this.files = files;
     }
     
     /**
-     * accessor for combined list of new, deleted and modified files
+     * Set the status handle to use in order to perform the commit operation.
      */
-    public Set getFiles()
+    public void setStatusHandle(StatusHandle statusHandle)
     {
-        return files;
+        this.statusHandle = statusHandle;
     }
     
     /* (non-Javadoc)
@@ -113,28 +126,28 @@ public class CommitAction extends AbstractAction
      */
     private class CommitWorker extends SwingWorker
     {
-        private Repository repository;
         private TeamworkCommand command;
         private TeamworkCommandResult result;
         private boolean aborted;
         
         public CommitWorker(Project project)
         {
-            repository = project.getRepository();
             String comment = commitCommentsFrame.getComment();
-
+            Set<TeamStatusInfo> forceFiles = new HashSet<TeamStatusInfo>();
+            
             //last step before committing is to add in modified diagram 
             //layouts if selected in commit comments dialog
             if(commitCommentsFrame.includeLayout()) {
+                forceFiles = commitCommentsFrame.getChangedLayoutInfo();
                 files.addAll(commitCommentsFrame.getChangedLayoutFiles());
             }
 
-            Set binFiles = TeamUtils.extractBinaryFilesFromSet(newFiles);
+            Set<File> binFiles = TeamUtils.extractBinaryFilesFromSet(newFiles);
 
             // Note, getRepository() cannot return null here - otherwise
             // the commit dialog was cancelled (and we'd never get here)
-            command = project.getRepository().commitAll(newFiles, binFiles, 
-                    deletedFiles, files, comment);
+            command = statusHandle.commitAll(newFiles, binFiles, deletedFiles, files,
+                    forceFiles, comment);
         }
         
         public Object construct()

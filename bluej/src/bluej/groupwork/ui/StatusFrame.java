@@ -28,7 +28,7 @@ import bluej.utility.SwingWorker;
  * Main frame for CVS Status Dialog
  *
  * @author bquig
- * @version $Id: StatusFrame.java 5814 2008-07-25 12:59:44Z polle $
+ * @version $Id: StatusFrame.java 5820 2008-08-06 09:01:38Z davmac $
  */
 public class StatusFrame extends EscapeDialog
 {
@@ -207,6 +207,11 @@ public class StatusFrame extends EscapeDialog
             resources.add(info);
         }
 
+        public void statusComplete(StatusHandle commitHandle)
+        {
+            // Nothing to be done here.
+        }
+        
         public void finished() 
         {
             progressBar.setRunning(false);
