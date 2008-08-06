@@ -59,7 +59,7 @@ public class TeamUtils
      * the backup name. The backup files are created in the system's temp
      * folder/directory.
      */
-    public Map<File,File> backupFiles(Set<File> files) throws IOException
+    public static Map<File,File> backupFiles(Set<File> files) throws IOException
     {
         Map<File,File> rmap = new HashMap<File,File>();
         for (Iterator<File> i = files.iterator(); i.hasNext(); ) {
@@ -76,7 +76,7 @@ public class TeamUtils
      * restore a backup created by the backupFiles() method. The source
      * files (i.e. the backup files) are deleted afterwards.
      */
-    public void restoreBackups(Map<File,File> rmap) throws IOException
+    public static void restoreBackups(Map<File,File> rmap) throws IOException
     {
         Iterator<Map.Entry<File,File>> i = rmap.entrySet().iterator();
         while (i.hasNext()) {

@@ -21,11 +21,11 @@ import bluej.groupwork.TeamworkCommandResult;
  */
 public class SvnCommitAllCommand extends SvnCommand
 {
-    private Set newFiles;
-    private Set binaryNewFiles;
-    private Set deletedFiles;
-    private Set files;
-    private String commitComment;
+    protected Set newFiles;
+    protected Set binaryNewFiles;
+    protected Set deletedFiles;
+    protected Set files;
+    protected String commitComment;
     
     public SvnCommitAllCommand(SvnRepository repository, Set newFiles, Set binaryNewFiles,
             Set deletedFiles, Set files, String commitComment)

@@ -1,6 +1,8 @@
 package bluej.groupwork.svn;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import bluej.groupwork.StatusHandle;
@@ -31,8 +33,13 @@ public class SvnStatusHandle implements StatusHandle
             Set<File> binaryNewFiles, Set<File> deletedFiles, Set<File> files,
             Set<TeamStatusInfo> forceFiles, String commitComment)
     {
-        // TODO Complete implementation
-        return null;
+        Set<File> forceFileSet = new HashSet<File>();
+        for (Iterator<TeamStatusInfo> i = forceFiles.iterator(); i.hasNext(); ) {
+            forceFileSet.add(i.next().getFile());
+        }
+        
+        return new SvnCommitCommand(repository, newFiles, binaryNewFiles, deletedFiles,
+                files, forceFileSet, version, commitComment);
     }
 
     /* (non-Javadoc)

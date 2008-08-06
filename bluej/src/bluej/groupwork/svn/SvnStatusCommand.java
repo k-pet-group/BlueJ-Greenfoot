@@ -20,7 +20,6 @@ public class SvnStatusCommand extends SvnCommand
 {
     private StatusListener listener;
     private FileFilter filter;
-    private boolean includeRemote;
     private long currentRevision = -1;
     
     public SvnStatusCommand(SvnRepository repository, StatusListener listener,
@@ -29,7 +28,6 @@ public class SvnStatusCommand extends SvnCommand
         super(repository);
         this.listener = listener;
         this.filter = filter;
-        this.includeRemote = includeRemote;
     }
     
     protected TeamworkCommandResult doCommand()
@@ -68,6 +66,10 @@ public class SvnStatusCommand extends SvnCommand
                 long reposRev = status[i].getReposLastCmtRevisionNumber();
                 if (reposRev > currentRevision) {
                     currentRevision = reposRev;
+                }
+                long revNumber = status[i].getRevisionNumber();
+                if (revNumber > currentRevision) {
+                    currentRevision = revNumber;
                 }
                 
                 TeamStatusInfo rinfo = null;
