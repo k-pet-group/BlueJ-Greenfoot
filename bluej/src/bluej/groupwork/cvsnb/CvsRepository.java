@@ -37,7 +37,7 @@ import bluej.utility.filefilter.DirectoryFilter;
  * This class handles communication with the repository.
  *
  * @author fisker
- * @version $Id: CvsRepository.java 5821 2008-08-06 09:22:44Z davmac $
+ * @version $Id: CvsRepository.java 5825 2008-08-06 12:14:59Z davmac $
  */
 public class CvsRepository implements Repository
 {
@@ -528,49 +528,6 @@ public class CvsRepository implements Repository
     public TeamworkCommand updateFiles(UpdateListener listener, Set theFiles, Set forceFiles)
     {
         return new CvsUpdateCommand(this, listener, theFiles, forceFiles);
-    }
-    
-    /**
-     * Get all changes from repository
-     *
-     * @return UpdateServerResponse if an update was performed
-     *
-     * @throws CommandAbortedException
-     * @throws CommandException
-     * @throws AuthenticationException
-     * @throws InvalidCvsRootException
-     */
-    synchronized UpdateServerResponse doUpdateAll(BlueJCvsClient client,
-            UpdateListener listener)
-        throws CommandAbortedException, CommandException, 
-            AuthenticationException
-    {
-        // BlueJCvsClient client = getClient();
-
-        UpdateCommand command = new UpdateCommand();
-        command.setCleanCopy(false);
-        command.setRecursive(true);
-        command.setBuildDirectories(true);
-        command.setPruneDirectories(true);
-
-        UpdateServerResponse updateServerResponse = new UpdateServerResponse(listener,
-                client);
-        client.getEventManager().addCVSListener(updateServerResponse);
-        client.setLocalPath(projectPath.getAbsolutePath());
-        printCommand(command, client);
-
-        try {
-            client.executeCommand(command, globalOptions);
-            updateServerResponse.waitForExecutionToFinish();
-        }
-        finally {
-            // restore previous excludes setting
-            client.getEventManager().removeCVSListener(updateServerResponse);
-            disconnect(client);
-        }
-
-        updateServerResponse.setConflictMap(client.getConflictFiles());
-        return updateServerResponse;
     }
     
    /**

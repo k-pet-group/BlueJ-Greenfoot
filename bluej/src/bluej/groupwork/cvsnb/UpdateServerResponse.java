@@ -146,17 +146,15 @@ public class UpdateServerResponse extends BasicServerResponse implements UpdateR
                     newDirectoryNames.add(dirName);
                 }
             }
-            else if (line.equals("rcsmerge: warning: conflicts during merge")) {
-                // We get this message only if the server actually tried to merge the
-                // files, i.e., the files are non-binary. We'll remember that, so that
-                // when we see the conflict we know it's a non-binary conflict.
+        }
+        else {
+            // System.out.println("CVS: " + line);
+            if (line.startsWith("Merging differences between ")) {
+                // We get this when a textual merge is performed.
                 if (client != null) {
                     client.nextConflictNonBinary();
                 }
             }
-        }
-        else {
-            // System.out.println("CVS: " + line);
         }
 
         try {
