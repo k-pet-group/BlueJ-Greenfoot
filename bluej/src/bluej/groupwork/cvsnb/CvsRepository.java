@@ -37,7 +37,7 @@ import bluej.utility.filefilter.DirectoryFilter;
  * This class handles communication with the repository.
  *
  * @author fisker
- * @version $Id: CvsRepository.java 5820 2008-08-06 09:01:38Z davmac $
+ * @version $Id: CvsRepository.java 5821 2008-08-06 09:22:44Z davmac $
  */
 public class CvsRepository implements Repository
 {
@@ -1112,14 +1112,21 @@ public class CvsRepository implements Repository
     
     /**
      * Set the revision of a versioned file to the given revision, without altering
-     * the file contents.
+     * the file contents. (This is a way to "update" but keep the current file
+     * contents. The server doesn't need to be contacted).
      */
-    public void setFileVersion(File file, String revision) throws IOException
+    public synchronized void setFileVersion(File file, String revision) throws IOException
     {
         Entry cvsEntry = adminHandler.getEntry(file);
         if (cvsEntry != null) {
             cvsEntry.setRevision(revision);
         }
+        else {
+            cvsEntry = new Entry();
+            cvsEntry.setName(file.getName());
+            cvsEntry.setRevision(revision);
+        }
+        adminHandler.setEntry(file, cvsEntry);
     }
 
 }

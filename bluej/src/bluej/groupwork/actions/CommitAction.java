@@ -34,7 +34,7 @@ import bluej.utility.SwingWorker;
  * </ul>
  * 
  * @author Kasper
- * @version $Id: CommitAction.java 5820 2008-08-06 09:01:38Z davmac $
+ * @version $Id: CommitAction.java 5821 2008-08-06 09:22:44Z davmac $
  */
 public class CommitAction extends AbstractAction
 {
@@ -144,8 +144,6 @@ public class CommitAction extends AbstractAction
 
             Set<File> binFiles = TeamUtils.extractBinaryFilesFromSet(newFiles);
 
-            // Note, getRepository() cannot return null here - otherwise
-            // the commit dialog was cancelled (and we'd never get here)
             command = statusHandle.commitAll(newFiles, binFiles, deletedFiles, files,
                     forceFiles, comment);
         }
