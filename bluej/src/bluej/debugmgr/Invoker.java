@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 5823 2008-08-06 11:07:18Z polle $
+ * @version $Id: Invoker.java 5829 2008-08-06 13:56:11Z polle $
  */
 
 public class Invoker
@@ -471,7 +471,7 @@ public class Invoker
                 instanceName = null;
             }
             else {
-                ir = new MethodInvokerRecord(method.getReturnType().getViewClass(), command + actualArgString, args);
+                ir = new MethodInvokerRecord(method.getGenericReturnType(), command + actualArgString, args);
                 instanceName = "result";
             }
 

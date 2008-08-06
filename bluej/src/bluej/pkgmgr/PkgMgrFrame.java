@@ -60,7 +60,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 5823 2008-08-06 11:07:18Z polle $
+ * @version $Id: PkgMgrFrame.java 5829 2008-08-06 13:56:11Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1946,11 +1946,11 @@ public class PkgMgrFrame extends JFrame
 
             if (ir instanceof MethodInvokerRecord) {
                 MethodInvokerRecord mir = (MethodInvokerRecord) ir;
-                mir.setBenchName(newInstanceName, wrapper.getObject().getClassName());
+                mir.setBenchName(newInstanceName, wrapper.getObject().getGenClassName());
             }
             if(ir instanceof GetInvokerRecord) {
                 GetInvokerRecord gir = (GetInvokerRecord) ir;
-                gir.setBenchName(newInstanceName, wrapper.getObject().getClassName());
+                gir.setBenchName(newInstanceName, wrapper.getObject().getGenClassName());
                 getObjectBench().addInteraction(gir);
             }
         }

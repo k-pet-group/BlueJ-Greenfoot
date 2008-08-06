@@ -1,5 +1,7 @@
 package bluej.testmgr.record;
 
+import bluej.utility.JavaUtils;
+
 /**
  * Records a single user interaction with the 
  * method call mechanisms of BlueJ.
@@ -7,7 +9,7 @@ package bluej.testmgr.record;
  * This record is for method calls with no result.
  *
  * @author  Bruce Quig
- * @version $Id: ExpressionInvokerRecord.java 3532 2005-08-19 06:01:30Z davmac $
+ * @version $Id: ExpressionInvokerRecord.java 5829 2008-08-06 13:56:11Z polle $
  */
 public class ExpressionInvokerRecord extends MethodInvokerRecord 
 {
@@ -17,7 +19,7 @@ public class ExpressionInvokerRecord extends MethodInvokerRecord
 	 */
 	public ExpressionInvokerRecord(String command) 
     {
-		super(Object.class, command, null);
+		super(JavaUtils.getJavaUtils().genTypeFromClass(Object.class), command, null);
 	}
     
     /**

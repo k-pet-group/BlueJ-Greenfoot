@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -23,7 +24,7 @@ import bluej.debugger.gentype.JavaType;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 5590 2008-02-25 03:34:11Z davmac $
+ * @version $Id: JavaUtils.java 5829 2008-08-06 13:56:11Z polle $
  */
 public abstract class JavaUtils {
 
@@ -231,6 +232,13 @@ public abstract class JavaUtils {
      */
     abstract public JavaType[] getParamGenTypes(Constructor constructor);
 
+
+    
+    /**
+     * Build a JavaType structure from a "Class" object.
+     */
+    abstract public JavaType genTypeFromClass(Class t);
+    
     /**
      * Open a web browser to show the given URL. On Java 6+ we can use
      * the desktop integration functionality of the JDK to do this. On

@@ -1,5 +1,7 @@
 package bluej.testmgr.record;
 
+import bluej.debugger.gentype.GenTypeArray;
+import bluej.debugger.gentype.JavaType;
 import bluej.utility.JavaNames;
 
 /**
@@ -9,11 +11,11 @@ import bluej.utility.JavaNames;
  * This record is for method calls that return a result.
  *
  * @author  Andrew Patterson
- * @version $Id: MethodInvokerRecord.java 5827 2008-08-06 12:35:20Z polle $
+ * @version $Id: MethodInvokerRecord.java 5829 2008-08-06 13:56:11Z polle $
  */
 public class MethodInvokerRecord extends VoidMethodInvokerRecord
 {
-    private Class<?> returnType;
+    private JavaType returnType;
 	private String benchType;
 	protected String benchName;
 	
@@ -23,12 +25,12 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
      * @param returnType  the Class of the return type of the method
      * @param command     the method statement to execute
      */
-    public MethodInvokerRecord(Class<?> returnType, String command, String [] argumentValues)
+    public MethodInvokerRecord(JavaType returnType, String command, String [] argumentValues)
     {
     	super(command, argumentValues);
     	
         this.returnType = returnType;
-        this.benchType = returnType.getName();
+        this.benchType = returnType.toString(false);
         this.benchName = null;
     }
 
@@ -152,7 +154,7 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
 				sb.append("{\n");			
 
 				sb.append(thirdIndent);
-				sb.append(JavaNames.typeName(returnType.getName()));
+				sb.append(returnType.toString(false));
 				sb.append(" result = ");
 				sb.append(command);
 				sb.append(";\n");
@@ -179,8 +181,9 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
 	@Override
     public String toExpression()
     {
-        StringBuffer sb = new StringBuffer();
-        if (benchName == null)
+	    StringBuffer sb = new StringBuffer();
+        if (benchName == null)  
+            //POLLE if the result is inspected, and two or more fields are Gotten, it will result in several invocations of the method. It should detect this, and crate a local variable for that case.
             sb.append(command);
         else {
             sb.append(benchName);
@@ -192,7 +195,7 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
     @Override
     public String getExpressionGlue()
     {
-        if(returnType.isArray()) {
+        if(returnType instanceof GenTypeArray) {
             return "";
         } else {
             return ".";
@@ -219,7 +222,7 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
 		sb.append(" = ");
 
 		// check if a typecast is required
-		if (!benchType.equals(returnType.getName())) {
+		if (!benchType.equals(returnType.toString(false))) {
 			sb.append("(");
 			sb.append(benchType);
 			sb.append(")");

@@ -9,7 +9,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 3753 2006-01-31 00:12:01Z davmac $
+ * @version $Id: JavaUtils15.java 5829 2008-08-06 13:56:11Z polle $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -199,7 +199,7 @@ public class JavaUtils15 extends JavaUtils {
     public JavaType getRawReturnType(Method method)
     {
         Class c = method.getReturnType();
-        return JavaUtils14.genTypeFromClass(c);
+        return JavaUtils14.genTypeFromClass14(c);
     }
     
     public JavaType getFieldType(Field field)
@@ -210,7 +210,7 @@ public class JavaUtils15 extends JavaUtils {
     public JavaType getRawFieldType(Field field)
     {
         Class c = field.getType();
-        return JavaUtils14.genTypeFromClass(c);
+        return JavaUtils14.genTypeFromClass14(c);
     }
     
     public List getTypeParams(Method method)
@@ -284,6 +284,14 @@ public class JavaUtils15 extends JavaUtils {
         }
         return gentypes;
     }
+        
+    /**
+     * Build a GenType structure from a "Type" object.
+     */
+    public JavaType genTypeFromClass(Class t)
+    {
+        return genTypeFromType(t);
+    }
     
     /* -------------- Internal methods ---------------- */
     
@@ -291,7 +299,7 @@ public class JavaUtils15 extends JavaUtils {
      * Get the type parameters for any GenericDeclaration implementor. This
      * includes Methods, Constructors and Classes.
      */
-    private static List getTypeParams(GenericDeclaration decl)
+    private List getTypeParams(GenericDeclaration decl)
     {
         List rlist = new ArrayList();
         TypeVariable [] tvars = decl.getTypeParameters();
@@ -482,23 +490,23 @@ public class JavaUtils15 extends JavaUtils {
         else
             return "";
     }
-    
+
     /**
      * Build a GenType structure from a "Type" object.
      */
-    static private JavaType genTypeFromType(Type t)
+    private static JavaType genTypeFromType(Type t)
     {
         return genTypeFromType(t, new LinkedList());
     }
     
     /**
-     * Build a GenType structure from a "Type" oject, using the given backTrace
+     * Build a GenType structure from a "Type" object, using the given backTrace
      * stack to avoid infinite recursion.
      */
-    static private JavaType genTypeFromType(Type t, List backTrace)
+    private static JavaType genTypeFromType(Type t, List backTrace)
     {
         if( t instanceof Class )
-            return JavaUtils14.genTypeFromClass((Class)t);
+            return JavaUtils14.genTypeFromClass14((Class)t);
         if (t instanceof TypeVariable) {
             TypeVariable tv = (TypeVariable) t;
             if (backTrace.contains(t))

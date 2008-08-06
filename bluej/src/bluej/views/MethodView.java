@@ -2,6 +2,7 @@ package bluej.views;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +14,7 @@ import bluej.utility.JavaUtils;
  *
  * A representation of a Java method in BlueJ
  * 
- *  @version $Id: MethodView.java 4708 2006-11-27 00:47:57Z bquig $
+ *  @version $Id: MethodView.java 5829 2008-08-06 13:56:11Z polle $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -224,6 +225,10 @@ public class MethodView extends CallableView implements Comparable
         if (returnType == null)
             returnType = View.getView(method.getReturnType());
         return returnType;
+    }
+    
+    public JavaType getGenericReturnType() {
+        return JavaUtils.getJavaUtils().getReturnType(method);
     }
     
     public void print(FormattedPrintWriter out, Map typeParams, int indents)

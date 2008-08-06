@@ -14,7 +14,7 @@ import bluej.debugger.gentype.*;
  * 
  * @author Davin McCall
  * 
- * @version $Id: JavaUtils14.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: JavaUtils14.java 5829 2008-08-06 13:56:11Z polle $
  */
 public class JavaUtils14 extends JavaUtils
 {
@@ -177,6 +177,12 @@ public class JavaUtils14 extends JavaUtils
         }
         return gentypes;
     }
+    
+    @Override
+    public JavaType genTypeFromClass(Class t)
+    {
+        return genTypeFromClass14(t);
+    }    
 
     /* ------------- Internal methods --------------- */
 
@@ -234,7 +240,7 @@ public class JavaUtils14 extends JavaUtils
         return sb.toString();
     }
 
-    static public JavaType genTypeFromClass(Class c)
+    static JavaType genTypeFromClass14(Class c)
     {
         if (c.isPrimitive()) {
             if (c == boolean.class)
@@ -258,10 +264,9 @@ public class JavaUtils14 extends JavaUtils
             Debug.message("getReturnType: Unknown primitive type");
         }
         if (c.isArray()) {
-            JavaType componentT = genTypeFromClass(c.getComponentType());
+            JavaType componentT = genTypeFromClass14(c.getComponentType());
             return new GenTypeArray(componentT, new JavaReflective(c));
         }
         return new GenTypeClass(new JavaReflective(c));
     }
-
 }
