@@ -20,7 +20,7 @@ import bluej.utility.JavaNames;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: ClassInspector.java 5823 2008-08-06 11:07:18Z polle $
  */
 public class ClassInspector extends Inspector
 {
@@ -160,7 +160,7 @@ public class ClassInspector extends Inspector
     protected void listElementSelected(int slot)
     {
         if (myClass.staticFieldIsObject(slot)) {
-            setCurrentObj(myClass.getStaticFieldObject(slot), myClass.getStaticFieldName(slot));
+            setCurrentObj(myClass.getStaticFieldObject(slot), myClass.getStaticFieldName(slot), myClass.getStaticFieldType(slot));
 
             if (myClass.staticFieldIsPublic(slot)) {
                 setButtonsEnabled(true, true);
@@ -170,7 +170,7 @@ public class ClassInspector extends Inspector
             }
         }
         else {
-            setCurrentObj(null, null);
+            setCurrentObj(null, null, null);
             setButtonsEnabled(false, false);
         }
     }
@@ -190,7 +190,7 @@ public class ClassInspector extends Inspector
     {
     // nothing to do here
     }
-
+    
     /**
      * Remove this inspector.
      */

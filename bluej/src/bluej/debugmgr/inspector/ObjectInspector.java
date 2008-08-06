@@ -22,7 +22,7 @@ import bluej.utility.DialogManager;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: ObjectInspector.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: ObjectInspector.java 5823 2008-08-06 11:07:18Z polle $
  */
 public class ObjectInspector extends Inspector
 {
@@ -31,18 +31,29 @@ public class ObjectInspector extends Inspector
     protected final static String inspectTitle = Config.getString("debugger.inspector.object.title");
 
     // === instance variables ===
-
+    
+    /** A reference to the object being inspected */
     protected DebuggerObject obj;
-    protected String objName; // name on the object bench
-    protected boolean queryArrayElementSelected = false;
-    protected TreeSet arraySet = null; // array of Integers representing the
-    // array indexes from
-    // a large array that have been selected for viewing
-    protected List indexToSlotList = null; // list which is built when viewing
-    // an array
-    // that records the object slot corresponding to each
-    // array index
 
+    /**
+     * Name of the object, as it appears on the object bench, or null if the
+     * object being inspected is not on the object bench
+     */
+    protected String objName;
+
+    protected boolean queryArrayElementSelected = false;
+
+    /**
+     * array of Integers representing the array indexes from a large array that
+     * have been selected for viewing
+     */
+    //protected TreeSet arraySet = null;
+
+    /**
+     * list which is built when viewing an array that records the object slot
+     * corresponding to each array index
+     */
+    protected List<Integer> indexToSlotList = null; 
 
     /**
      *  Note: 'pkg' may be null if 'ir' is null.
@@ -64,10 +75,7 @@ public class ObjectInspector extends Inspector
         super(inspectorManager, pkg, ir);
 
         this.obj = obj;
-        if (name == null)
-            this.objName = "";
-        else
-            this.objName = name;
+        this.objName = name;
 
         final ObjectInspector thisInspector = this;
         EventQueue.invokeLater(new Runnable() {
@@ -99,7 +107,14 @@ public class ObjectInspector extends Inspector
         JComponent header = new JPanel();
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
         String className = obj.getStrippedGenClassName();
-        final String fullTitle = objName + " : " + className;
+
+        String fullTitle = null;
+        if(objName != null) {
+            fullTitle = objName + " : " + className;   
+        }
+        else {
+            fullTitle = " : " + className;
+        }
         JLabel headerLabel = new JLabel(fullTitle, JLabel.CENTER) {
             public void paintComponent(Graphics g)
             {
@@ -187,7 +202,7 @@ public class ObjectInspector extends Inspector
             // if selection is the first field containing array length
             // we treat as special case and do nothing more
             if (slot == ARRAY_LENGTH_SLOT_VALUE) {
-                setCurrentObj(null, null);
+                setCurrentObj(null, null, null);
                 setButtonsEnabled(false, false);
                 return;
             }
@@ -197,7 +212,7 @@ public class ObjectInspector extends Inspector
 
         // for array compression..
         if (queryArrayElementSelected) { // "..." in Array inspector
-            setCurrentObj(null, null); //  selected
+            setCurrentObj(null, null, null); //  selected
             // check to see if elements are objects,
             // using the first item in the array
             if (obj.instanceFieldIsObject(0)) {
@@ -210,17 +225,20 @@ public class ObjectInspector extends Inspector
         else if (obj.instanceFieldIsObject(slot)) {
             String newInspectedName;
 
-            if (objName != null && !obj.isArray()) {
-                newInspectedName = objName + "." + obj.getInstanceFieldName(slot);
-            }
-            else if (objName != null && obj.isArray()) {
-                newInspectedName = objName + obj.getInstanceFieldName(slot);
-            }
-            else {
+          //POLLE delete this?
+          //  if (objName != null && !obj.isArray()) {
+                // don't use object name in front, since it is already there from the parent
                 newInspectedName = obj.getInstanceFieldName(slot);
-            }
+          //  }
+           // else if (objName != null && obj.isArray()) {
+                //TODO arrays? do they still work?
+          //      newInspectedName =  objName + obj.getInstanceFieldName(slot);
+           // }
+            //else {
+            //    newInspectedName = obj.getInstanceFieldName(slot);
+           // }
 
-            setCurrentObj(obj.getInstanceFieldObject(slot), newInspectedName);
+            setCurrentObj(obj.getInstanceFieldObject(slot), newInspectedName, obj.getInstanceFieldType(slot));
 
             if (obj.instanceFieldIsPublic(slot)) {
                 setButtonsEnabled(true, true);
@@ -230,7 +248,7 @@ public class ObjectInspector extends Inspector
             }
         }
         else {
-            setCurrentObj(null, null);
+            setCurrentObj(null, null, null);
             setButtonsEnabled(false, false);
         }
     }
@@ -252,7 +270,7 @@ public class ObjectInspector extends Inspector
         if (queryArrayElementSelected) {
             selectArrayElement();
         }
-    }
+    } 
 
     /**
      * Remove this inspector.
@@ -279,7 +297,7 @@ public class ObjectInspector extends Inspector
                 if (slot >= 0 && slot < obj.getInstanceFieldCount()) {
                     // if its an object set as current object
                     if (obj.instanceFieldIsObject(slot)) {
-                        setCurrentObj(obj.getInstanceFieldObject(slot), obj.getInstanceFieldName(slot));
+                        setCurrentObj(obj.getInstanceFieldObject(slot), obj.getInstanceFieldName(slot), obj.getInstanceFieldType(slot));
                         setButtonsEnabled(true, false);
                     }
                     else {
@@ -296,14 +314,14 @@ public class ObjectInspector extends Inspector
             }
             catch (NumberFormatException e) {
                 // input could not be parsed, eg. non integer value
-                setCurrentObj(null, null);
+                setCurrentObj(null, null, null);
                 DialogManager.showError(this, "cannot-access-element");
             }
         }
         else {
             // set current object to null to avoid re-inspection of
             // previously selected wildcard
-            setCurrentObj(null, null);
+            setCurrentObj(null, null, null);
         }
     }
 
@@ -334,12 +352,12 @@ public class ObjectInspector extends Inspector
      *            the full field list for an array
      * @return the compressed array
      */
-    private List compressArrayList(List fullArrayFieldList)
+    private List<String> compressArrayList(List<String> fullArrayFieldList)
     {
         // mimic the public length field that arrays possess
         // according to the java spec...
         fullArrayFieldList.add(0, ("int length = " + fullArrayFieldList.size()));
-        indexToSlotList = new LinkedList();
+        indexToSlotList = new LinkedList<Integer>();
         indexToSlotList.add(0, new Integer(ARRAY_LENGTH_SLOT_VALUE));
 
         // the +1 here is due to the fact that if we do not have at least one
@@ -351,7 +369,7 @@ public class ObjectInspector extends Inspector
         if (fullArrayFieldList.size() > (VISIBLE_ARRAY_START + VISIBLE_ARRAY_TAIL + 2)) {
 
             // the destination list
-            List newArray = new ArrayList();
+            List<String> newArray = new ArrayList<String>();
             for (int i = 0; i <= VISIBLE_ARRAY_START; i++) {
                 // first 40 elements are displayed as per normal
                 newArray.add(fullArrayFieldList.get(i));
@@ -390,7 +408,7 @@ public class ObjectInspector extends Inspector
      */
     private int indexToSlot(int listIndexPosition)
     {
-        Integer slot = (Integer) indexToSlotList.get(listIndexPosition);
+        Integer slot = indexToSlotList.get(listIndexPosition);
 
         return slot.intValue();
     }

@@ -8,11 +8,11 @@ import java.util.*;
  * and setup code.
  * 
  * @author  Andrew Patterson
- * @version $Id: ExistingFixtureInvokerRecord.java 2303 2003-11-07 04:49:43Z ajp $
+ * @version $Id: ExistingFixtureInvokerRecord.java 5823 2008-08-06 11:07:18Z polle $
  */
 public class ExistingFixtureInvokerRecord extends InvokerRecord
 {
-    private List fieldsSrc;
+    private List<String> fieldsSrc;
     private String setUpSrc;
     
     /**
@@ -23,7 +23,7 @@ public class ExistingFixtureInvokerRecord extends InvokerRecord
      */
     public ExistingFixtureInvokerRecord()
     {
-        fieldsSrc = new ArrayList();
+        fieldsSrc = new ArrayList<String>();
     }
 
     public void addFieldDeclaration(String fieldDecl)
@@ -47,7 +47,7 @@ public class ExistingFixtureInvokerRecord extends InvokerRecord
     {
         StringBuffer sb = new StringBuffer();
 
-        ListIterator it = fieldsSrc.listIterator();
+        ListIterator<String> it = fieldsSrc.listIterator();
                 
         while(it.hasNext()) {
             String fieldDecl = (String) it.next();
@@ -87,5 +87,16 @@ public class ExistingFixtureInvokerRecord extends InvokerRecord
 	{
 	    return null;
 	}
+	
+    @Override
+    public String toExpression()
+    {
+        throw new RuntimeException("Method not implemented for this type.");
+    }
 
+    @Override
+    public String getExpressionGlue()
+    {
+        throw new RuntimeException("Method not implemented for this type.");
+    }
 }

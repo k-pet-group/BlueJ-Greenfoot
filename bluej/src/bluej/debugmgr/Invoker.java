@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 5450 2008-01-03 01:24:34Z davmac $
+ * @version $Id: Invoker.java 5823 2008-08-06 11:07:18Z polle $
  */
 
 public class Invoker
@@ -63,7 +63,7 @@ public class Invoker
      * cache the dialogs we create. We store the mapping from method to dialog
      * in this hashtable.
      */
-    private static Map methods = new HashMap();
+    private static Map<CallableView, MethodDialog> methods = new HashMap<CallableView, MethodDialog>();
 
     private PkgMgrFrame pmf;
     private Package pkg;
@@ -71,7 +71,7 @@ public class Invoker
     private CallableView member;
     private String shellName;
     private String objName;
-    private Map typeMap; // map type parameter names to types
+    private Map<?, ?> typeMap; // map type parameter names to types
     private ValueCollection localVars;
     private String imports; // import statements to include in shell file
     
@@ -125,9 +125,6 @@ public class Invoker
      *            the frame of the package we are working on
      * @param member
      *            the member to invoke
-     * @param objName
-     *            the name of the object on which the method is called (has no
-     *            relevance when we are calling a constructor or static method)
      * @param watcher
      *            an object interested in the result of the invocation
      */
@@ -248,7 +245,7 @@ public class Invoker
             doInvocation(null, (JavaType []) null, null);
         }
         else {
-            MethodDialog mDialog = (MethodDialog) methods.get(member);
+            MethodDialog mDialog = methods.get(member);
 
             if (mDialog == null) {
                 mDialog = new MethodDialog(pmf, objName, member, typeMap);
@@ -664,10 +661,10 @@ public class Invoker
         // __bluej_runtime_scope("instnameB");
 
         String scopeId = Utility.quoteString(pkg.getId());
-        Iterator wrappers = pmf.getObjectBench().getValueIterator();
+        Iterator<ObjectWrapper> wrappers = pmf.getObjectBench().getValueIterator();
         NameTransform cqtTransform = new CleverQualifyTypeNameTransform(pkg);
 
-        Map objBenchVarsMap = new HashMap();
+        Map<String, String> objBenchVarsMap = new HashMap<String, String>();
         
         if (wrappers.hasNext() || localVars != null) {
             buffer.append("final java.util.Map __bluej_runtime_scope = getScope(\"" + scopeId + "\");" + Config.nl);
@@ -684,14 +681,14 @@ public class Invoker
         // later on.
         if (localVars != null && constype == null) {
             // writeVariables("lv:", buffer, false, localVars.getValueIterator(), cqtTransform);
-            Iterator i = localVars.getValueIterator();
+            Iterator<?> i = localVars.getValueIterator();
             while (i.hasNext()) {
                 NamedValue localVar = (NamedValue) i.next();
                 objBenchVarsMap.put(localVar.getName(), getVarDeclString("lv:", false, localVar, cqtTransform));
             }
         }
         
-        Iterator obVarsIterator = objBenchVarsMap.values().iterator();
+        Iterator<String> obVarsIterator = objBenchVarsMap.values().iterator();
         while (obVarsIterator.hasNext()) {
             buffer.append(obVarsIterator.next().toString());
         }
@@ -746,7 +743,7 @@ public class Invoker
         // save altered local variable values
         buffer = new StringBuffer();
         if (localVars != null) {
-            for (Iterator i = localVars.getValueIterator(); i.hasNext();) {
+            for (Iterator<?> i = localVars.getValueIterator(); i.hasNext();) {
                 NamedValue wrapper = (NamedValue) i.next();
                 if (! wrapper.isFinal() || ! wrapper.isInitialized()) {
                     String instname = wrapper.getName();
@@ -805,7 +802,7 @@ public class Invoker
      * @param i        An iterator through the variables to write
      * @param nt       The name transform to use
      */
-    private void writeVariables(String scopePx, StringBuffer buffer, boolean isStatic, Iterator i, NameTransform nt)
+    private void writeVariables(String scopePx, StringBuffer buffer, boolean isStatic, Iterator<?> i, NameTransform nt)
     {
         for (; i.hasNext();) {
             NamedValue wrapper = (NamedValue) i.next();

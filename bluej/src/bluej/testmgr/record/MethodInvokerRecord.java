@@ -9,11 +9,11 @@ import bluej.utility.JavaNames;
  * This record is for method calls that return a result.
  *
  * @author  Andrew Patterson
- * @version $Id: MethodInvokerRecord.java 3532 2005-08-19 06:01:30Z davmac $
+ * @version $Id: MethodInvokerRecord.java 5823 2008-08-06 11:07:18Z polle $
  */
 public class MethodInvokerRecord extends VoidMethodInvokerRecord
 {
-    private Class returnType;
+    private Class<?> returnType;
 	private String benchType;
 	protected String benchName;
 	
@@ -23,7 +23,7 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
      * @param returnType  the Class of the return type of the method
      * @param command     the method statement to execute
      */
-    public MethodInvokerRecord(Class returnType, String command, String [] argumentValues)
+    public MethodInvokerRecord(Class<?> returnType, String command, String [] argumentValues)
     {
     	super(command, argumentValues);
     	
@@ -176,6 +176,22 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
 		return sb.toString();
 	}
     
+	@Override
+    public String toExpression()
+    {
+    	// POLLE Fix this
+        return "TodoMethodExpressionInMethodInvokerRecord";     
+    }
+	
+    @Override
+    public String getExpressionGlue()
+    {
+        if(returnType.isArray()) {
+            return "";
+        } else {
+            return ".";
+        }
+    }
 
     /**
      * @return A string representing the type name of an object

@@ -6,7 +6,7 @@ import java.util.List;
  *  A class representing an object in the debugged VM.
  *
  *@author     Michael Kolling
- *@version    $Id: DebuggerClass.java 2830 2004-08-03 09:26:06Z polle $
+ *@version    $Id: DebuggerClass.java 5823 2008-08-06 11:07:18Z polle $
  */
 public abstract class DebuggerClass
 {
@@ -31,6 +31,14 @@ public abstract class DebuggerClass
      *@return       The StaticFieldName value
      */
     public abstract String getStaticFieldName(int slot);
+    
+    /**
+     * Return the type of the static field at 'slot'.
+     *
+     *@param  slot  The slot number to be checked
+     *@return       The type of the static field
+     */
+    public abstract String getStaticFieldType(int slot);
 
     /**
      *  Return the object in static field 'slot'.
@@ -47,7 +55,7 @@ public abstract class DebuggerClass
      *@param  includeModifiers  Whether to include modifiers (private,etc.)
      *@return                   The StaticFields value
      */
-    public abstract List getStaticFields(boolean includeModifiers);
+    public abstract List<String> getStaticFields(boolean includeModifiers);
 
     /**
      *  Return true if the static field 'slot' is public.

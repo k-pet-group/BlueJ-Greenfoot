@@ -8,7 +8,7 @@ package bluej.testmgr.record;
  * This record is for method calls with no result.
  *
  * @author  Andrew Patterson
- * @version $Id: VoidMethodInvokerRecord.java 3532 2005-08-19 06:01:30Z davmac $
+ * @version $Id: VoidMethodInvokerRecord.java 5823 2008-08-06 11:07:18Z polle $
  */
 public class VoidMethodInvokerRecord extends InvokerRecord
 {
@@ -55,4 +55,16 @@ public class VoidMethodInvokerRecord extends InvokerRecord
 		// code for the test method involves just inserting the method call
 		return secondIndent + command + statementEnd;
 	}
+
+    @Override
+    public String toExpression()
+    {
+        throw new RuntimeException("Method not implemented for this type.");
+    }
+
+    @Override
+    public String getExpressionGlue()
+    {
+        throw new RuntimeException("Method not implemented for this type.");
+    }
 }

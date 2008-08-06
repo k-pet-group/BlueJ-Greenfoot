@@ -8,12 +8,14 @@ package bluej.testmgr.record;
  * (not currently working).
  *
  * @author  Andrew Patterson
- * @version $Id: ObjectInspectInvokerRecord.java 2223 2003-10-28 01:54:15Z ajp $
+ * @version $Id: ObjectInspectInvokerRecord.java 5823 2008-08-06 11:07:18Z polle $
  */
 public class ObjectInspectInvokerRecord extends InvokerRecord
 {
     private String type;
     private String name;
+    private InvokerRecord parentIr;
+    private boolean isArray;
 
 	/**
 	 * Object inspection from an initial result.
@@ -21,10 +23,12 @@ public class ObjectInspectInvokerRecord extends InvokerRecord
 	 * @param type
 	 * @param name
 	 */    
-    public ObjectInspectInvokerRecord(String type, String name)
+    public ObjectInspectInvokerRecord(String type, String name, boolean isArray)
     {
         this.type = type;
         this.name = name;
+        //POLLE create a ArrayInspectInvokerRecord?
+        this.isArray = isArray;
     }
 
 	/**
@@ -34,10 +38,12 @@ public class ObjectInspectInvokerRecord extends InvokerRecord
 	 * @param name
 	 * @param ir
 	 */
-    public ObjectInspectInvokerRecord(String type, String name, InvokerRecord ir)
+    public ObjectInspectInvokerRecord(String type, String name,  boolean isArray, InvokerRecord ir)
     {
         this.type = type;
         this.name = name;
+        this.isArray = isArray;
+        this.parentIr = ir;
     }
 
     public String toFixtureDeclaration()
@@ -54,4 +60,30 @@ public class ObjectInspectInvokerRecord extends InvokerRecord
 	{
 		return firstIndent + type + statementEnd;
 	}
+	
+	@Override
+    public String toExpression()
+    {
+	    if(parentIr instanceof MethodInvokerRecord) {
+	        // This means we are inspecting a method result, and not a named object
+	        // POLLE Maybe don't set the name and use that instead of instanceof
+	        return parentIr.toExpression();
+	    }
+        else if(parentIr != null) {
+            return parentIr.toExpression() + parentIr.getExpressionGlue() + name; 
+        }
+	    else {
+	        return name;
+	    }
+	}
+
+    @Override
+    public String getExpressionGlue()
+    {
+        if(isArray) {
+            return "";
+        } else {
+            return ".";
+        }
+    }
 }

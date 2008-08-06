@@ -5,7 +5,7 @@ package bluej.testmgr.record;
  * mechanisms of BlueJ.
  *
  * @author  Andrew Patterson
- * @version $Id: ConstructionInvokerRecord.java 3532 2005-08-19 06:01:30Z davmac $
+ * @version $Id: ConstructionInvokerRecord.java 5823 2008-08-06 11:07:18Z polle $
  */
 public class ConstructionInvokerRecord extends InvokerRecord
 {
@@ -61,4 +61,16 @@ public class ConstructionInvokerRecord extends InvokerRecord
 	{
 		return secondIndent + type + " " + name + " = " + command + statementEnd;
 	}
+	
+	@Override
+    public String toExpression()
+    {
+        return name;
+    }
+
+    @Override
+    public String getExpressionGlue()
+    {
+        return ".";
+    }
 }

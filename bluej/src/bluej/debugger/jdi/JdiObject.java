@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 5308 2007-10-08 03:37:38Z davmac $
+ * @version $Id: JdiObject.java 5823 2008-08-06 11:07:18Z polle $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -81,7 +81,7 @@ public class JdiObject extends DebuggerObject
 
     ObjectReference obj;  // the remote object represented
     GenTypeClass genType = null; // the generic type, if known
-    List fields;
+    List<Field> fields;
     
     // used by JdiArray.
     protected JdiObject()
@@ -176,7 +176,7 @@ public class JdiObject extends DebuggerObject
      * been given.
      * @return  true if the object is raw, otherwise false.
      */
-    private boolean isRaw()
+ /*   private boolean isRaw()
     {
         if(JdiUtils.getJdiUtils().hasGenericSig(obj)) {
             if (genType == null)
@@ -186,7 +186,7 @@ public class JdiObject extends DebuggerObject
         }
         else
             return false;
-    }
+    }*/
 
     /**
      *  Get the class of this object.
@@ -316,6 +316,18 @@ public class JdiObject extends DebuggerObject
         return getField(false, slot).name();
     }
 
+    /**
+     *  Return the type of the object field at 'slot'.
+     *
+     *@param  slot  The slot number to be checked
+     *@return       The type of the field
+     */
+    @Override
+    public String getInstanceFieldType(int slot)
+    {    
+        //POLLE check that this is the right type
+        return JdiReflective.fromField(getField(false, slot), this).toString(true);
+    }
 
     /**
      *  Return the object in static field 'slot'. Slot must exist and
@@ -424,7 +436,7 @@ public class JdiObject extends DebuggerObject
      *@param  includeModifiers  Description of Parameter
      *@return                   The StaticFields value
      */
-    public List getStaticFields(boolean includeModifiers)
+    public List<String> getStaticFields(boolean includeModifiers)
     {
         return getFields(false, true, includeModifiers);
     }
@@ -436,7 +448,7 @@ public class JdiObject extends DebuggerObject
      *@param  includeModifiers  Description of Parameter
      *@return                   The InstanceFields value
      */
-    public List getInstanceFields(boolean includeModifiers)
+    public List<String> getInstanceFields(boolean includeModifiers)
     {
         return getFields(false, false, includeModifiers);
     }
@@ -449,7 +461,7 @@ public class JdiObject extends DebuggerObject
      *@param  includeModifiers  Description of Parameter
      *@return                   The AllFields value
      */
-    public List getAllFields(boolean includeModifiers)
+    public List<String> getAllFields(boolean includeModifiers)
     {
         return getFields(true, true, includeModifiers);
     }
@@ -511,7 +523,7 @@ public class JdiObject extends DebuggerObject
      */
     public boolean fieldIsObject(int slot)
     {
-        Field field = (Field) fields.get(slot);
+        Field field = fields.get(slot);
         Value val = obj.getValue(field);
         return (val instanceof ObjectReference);
     }
@@ -546,16 +558,16 @@ public class JdiObject extends DebuggerObject
      *@param  includeModifiers  If true, include the modifier name (public, private)
      *@return                   The Fields value
      */
-    private List getFields(boolean getAll, boolean getStatic,
+    private List<String> getFields(boolean getAll, boolean getStatic,
             boolean includeModifiers)
     {
-        List fieldStrings = new ArrayList(fields.size());
+        List<String> fieldStrings = new ArrayList<String>(fields.size());
 
         if (obj == null)
             return fieldStrings;
             
         ReferenceType cls = obj.referenceType();
-        List visible = cls.visibleFields();
+        List<Field> visible = cls.visibleFields();
 
         for (int i = 0; i < fields.size(); i++) {
             Field field = (Field) fields.get(i);
@@ -647,7 +659,7 @@ public class JdiObject extends DebuggerObject
         }
         // either null object or unavailable fields
         // lets give them an empty list of fields
-        fields = new ArrayList();
+        fields = new ArrayList<Field>();
     }
 
     private boolean checkFieldForObject(boolean getStatic, int slot)

@@ -10,7 +10,7 @@ import java.util.*;
  * construction and maintenance of assertion data.
  *
  * @author  Andrew Patterson
- * @version $Id: InvokerRecord.java 3532 2005-08-19 06:01:30Z davmac $
+ * @version $Id: InvokerRecord.java 5823 2008-08-06 11:07:18Z polle $
  */
 public abstract class InvokerRecord
 {
@@ -27,7 +27,7 @@ public abstract class InvokerRecord
      * A collection of assertion skeletons made about the invoker
      * record.
      */
-    private ArrayList assertions = new ArrayList();
+    private ArrayList<String> assertions = new ArrayList<String>();
     
     // -------------- instance methods -----------------
     
@@ -66,6 +66,23 @@ public abstract class InvokerRecord
 	 * @return a String representing the test method src
 	 */
 	public abstract String toTestMethod();
+
+    /**
+     * Construct an expression. This is an open expression which is not ended by
+     * by semicolon or line breaks. It is typically used by other InvokerRecords
+     * to created "chained" invocation records. The returned string should not
+     * include any indentation.
+     * 
+     * @return a String representing the expression
+     */
+    public abstract String toExpression();
+    
+    /**
+     * What should come after this expression if more thing are added.
+     * Examples: method calls (.), field access (.), array access ()
+     * @return
+     */
+    public abstract String getExpressionGlue();
     
     /**
      * Add the skeleton of an assertion statement to our list of

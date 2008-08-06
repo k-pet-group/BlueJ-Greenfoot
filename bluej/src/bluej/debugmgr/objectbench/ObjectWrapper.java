@@ -5,8 +5,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -48,7 +51,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: ObjectWrapper.java 5823 2008-08-06 11:07:18Z polle $
  */
 public class ObjectWrapper extends JComponent implements InvokeListener, NamedValue
 {
@@ -238,7 +241,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
      * @param cl  The class to check for accessibility
      * @return    True if the class is accessible, false otherwise
      */
-    private boolean classIsAccessible(Class cl)
+    private boolean classIsAccessible(Class<?> cl)
     {
         int clMods = cl.getModifiers();
         String classPackage = JavaNames.getPrefix(cl.getName());
@@ -259,10 +262,10 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
      * 
      * @return  The class of the chosen type.
      */
-    private Class findIType()
+    private Class<?> findIType()
     {
         String className = obj.getClassName();
-        Class cl = pkg.loadClass(className);
+        Class<?> cl = pkg.loadClass(className);
         
         // If the class is inaccessible, use the invocation type.
         if (cl != null) {
@@ -293,7 +296,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
      * Creates the popup menu structure by parsing the object's
      * class inheritance hierarchy.
      */
-    protected void createMenu(Class cl)
+    protected void createMenu(Class<?> cl)
     {
         menu = new JPopupMenu(getName() + " operations");
 
@@ -337,7 +340,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
      *            shown from (used to determine wheter to show package protected
      *            methods)
      */
-    public static void createMethodMenuItems(JPopupMenu menu, Class cl, InvokeListener il, DebuggerObject obj,
+    public static void createMethodMenuItems(JPopupMenu menu, Class<?> cl, InvokeListener il, DebuggerObject obj,
             String currentPackageName)
     {
         GenTypeClass gt = new GenTypeClass(new JavaReflective(cl));
@@ -356,14 +359,14 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
      *            shown from (used to determine wheter to show package protected
      *            methods)
      */
-    public static void createMethodMenuItems(JPopupMenu menu, Class cl, GenTypeClass gtype, InvokeListener il, DebuggerObject obj,
+    public static void createMethodMenuItems(JPopupMenu menu, Class<?> cl, GenTypeClass gtype, InvokeListener il, DebuggerObject obj,
             String currentPackageName)
     {
         if (cl != null) {
             View view = View.getView(cl);
-            Hashtable actions = new Hashtable();
-            Hashtable methodsUsed = new Hashtable();
-            List classes = getClassHierarchy(cl);
+            Hashtable<JMenuItem, MethodView> actions = new Hashtable<JMenuItem, MethodView>();
+            Hashtable<String, String> methodsUsed = new Hashtable<String, String>();
+            List<Class<?>> classes = getClassHierarchy(cl);
 
             // define two view filters for different package visibility
             ViewFilter samePackageFilter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
@@ -398,7 +401,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
 
             // create submenus for superclasses
             for(int i = 1; i < classes.size(); i++ ) {
-                Class currentClass = (Class)classes.get(i);
+                Class<?> currentClass = classes.get(i);
                 view = View.getView(currentClass);
                 
                 // Determine visibility of package private / protected members
@@ -441,7 +444,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
      * @param actions 
      */
     private static void createMenuItems(JComponent menu, MethodView[] methods, InvokeListener il, ViewFilter filter,
-            int sizeLimit, Map genericParams, Hashtable actions, Hashtable methodsUsed)
+            int sizeLimit, Map<?, ?> genericParams, Hashtable<JMenuItem, MethodView> actions, Hashtable<String, String> methodsUsed)
     {
         JMenuItem item;
         boolean menuEmpty = true;
@@ -462,7 +465,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
                     methodDescription = methodDescription
                              + "   [ " + redefinedIn + " "
                              + JavaNames.stripPrefix(
-                                   ((String)methodsUsed.get(methodSignature)))
+                                   methodsUsed.get(methodSignature))
                              + " ]";
                 }
                 else {
@@ -518,10 +521,10 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
      * @param   derivedClass    the class whose hierarchy is mapped (including self)
      * @return                  the List containng the classes in the inheritance hierarchy
      */
-    public static List getClassHierarchy(Class derivedClass)
+    public static List<Class<?>> getClassHierarchy(Class<?> derivedClass)
     {
-        Class currentClass = derivedClass;
-        List classVector = new ArrayList();
+        Class<?> currentClass = derivedClass;
+        List<Class<?>> classVector = new ArrayList<Class<?>>();
         while(currentClass != null) {
             classVector.add(currentClass);
             currentClass = currentClass.getSuperclass();
@@ -725,7 +728,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
 	/**
      * Invoke a method on this object.
      */
-    protected void invokeMethod(Object eventSource, Map actions)
+    protected void invokeMethod(Object eventSource, Map<?, ?> actions)
     {
         MethodView method = (MethodView)actions.get(eventSource);
         if(method != null)
@@ -737,7 +740,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
      */
     protected void inspectObject()
     {
-        InvokerRecord ir = new ObjectInspectInvokerRecord(getTypeName(), getName());
+        InvokerRecord ir = new ObjectInspectInvokerRecord(getTypeName(), getName(), obj.isArray());
       	pkg.getProject().getInspectorInstance(obj, getName(), pkg, ir, pmf);  // shows the inspector
     }
 

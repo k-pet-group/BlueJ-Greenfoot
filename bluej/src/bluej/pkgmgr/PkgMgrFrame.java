@@ -41,6 +41,7 @@ import bluej.pkgmgr.target.role.UnitTestClassRole;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.testmgr.TestDisplayFrame;
+import bluej.testmgr.record.GetInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.MethodInvokerRecord;
 import bluej.utility.Debug;
@@ -59,7 +60,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 5819 2008-08-01 10:23:29Z davmac $
+ * @version $Id: PkgMgrFrame.java 5823 2008-08-06 11:07:18Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -74,7 +75,6 @@ public class PkgMgrFrame extends JFrame
 
 //    private static final int SHORTCUT_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
-    private static Application macApplication = prepareMacOSApp();
     private static boolean testToolsShown = wantToSeeTestingTools();
     private static boolean teamToolsShown = wantToSeeTeamTools();
     private static boolean javaMEtoolsShown = wantToSeeJavaMEtools();
@@ -120,7 +120,7 @@ public class PkgMgrFrame extends JFrame
     private AbstractButton updateButton;
     private AbstractButton commitButton;
     private AbstractButton teamStatusButton;
-    private List teamItems;
+    private List<JComponent> teamItems;
     private JMenuItem javaMEnewProjMenuItem;
     private JMenuItem javaMEdeployMenuItem;
   
@@ -129,9 +129,9 @@ public class PkgMgrFrame extends JFrame
     private TeamActionGroup teamActions;
     
     private JMenuItem showTestResultsItem;
-    private List itemsToDisable;
-    private List actionsToDisable;
-    private List testItems;
+    private List<JComponent> itemsToDisable;
+    private List<Action> actionsToDisable;
+    private List<JComponent> testItems;
     private MachineIcon machineIcon;
     
     /* UI actions */
@@ -192,10 +192,11 @@ public class PkgMgrFrame extends JFrame
 
     // static methods to create and remove frames
 
-    private static List frames = new ArrayList(); // of PkgMgrFrames
+    private static List<PkgMgrFrame> frames = new ArrayList<PkgMgrFrame>(); // of PkgMgrFrames
 
     private static ExtensionsManager extMgr = ExtensionsManager.getInstance();
 
+    
     /**
      * Prepare MacOS specific behaviour (About menu, Preferences menu, Quit
      * menu)
@@ -225,6 +226,10 @@ public class PkgMgrFrame extends JFrame
 
         return macApp;
     }
+    
+    static { 
+        prepareMacOSApp();
+    }
 
     /**
      * Open a PkgMgrFrame with no package. Packages can be installed into this
@@ -251,7 +256,7 @@ public class PkgMgrFrame extends JFrame
             // check whether we've got an empty frame
 
             if (frames.size() == 1)
-                pmf = (PkgMgrFrame) frames.get(0);
+                pmf = frames.get(0);
 
             if ((pmf == null) || !pmf.isEmptyFrame())
                 pmf = createFrame();
@@ -287,8 +292,8 @@ public class PkgMgrFrame extends JFrame
      */
     public static PkgMgrFrame findFrame(Package pkg)
     {
-        for (Iterator i = frames.iterator(); i.hasNext();) {
-            PkgMgrFrame pmf = (PkgMgrFrame) i.next();
+        for (Iterator<PkgMgrFrame> i = frames.iterator(); i.hasNext();) {
+            PkgMgrFrame pmf = i.next();
 
             if (!pmf.isEmptyFrame() && pmf.getPackage() == pkg)
                 return pmf;
@@ -347,11 +352,11 @@ public class PkgMgrFrame extends JFrame
      */
     public static PkgMgrFrame[] getAllProjectFrames(Project proj, String pkgPrefix)
     {
-        List list = new ArrayList();
+        List<PkgMgrFrame> list = new ArrayList<PkgMgrFrame>();
         String pkgPrefixWithDot = pkgPrefix + ".";
 
-        for (Iterator i = frames.iterator(); i.hasNext();) {
-            PkgMgrFrame pmf = (PkgMgrFrame) i.next();
+        for (Iterator<PkgMgrFrame> i = frames.iterator(); i.hasNext();) {
+            PkgMgrFrame pmf = i.next();
 
             if (!pmf.isEmptyFrame() && pmf.getProject() == proj) {
 
@@ -371,7 +376,7 @@ public class PkgMgrFrame extends JFrame
         if (list.size() == 0)
             return null;
 
-        return (PkgMgrFrame[]) list.toArray(new PkgMgrFrame[list.size()]);
+        return list.toArray(new PkgMgrFrame[list.size()]);
     }
 
     /**
@@ -405,9 +410,9 @@ public class PkgMgrFrame extends JFrame
     public static void updateTestingStatus()
     {
         if (testToolsShown != wantToSeeTestingTools()) {
-            for (Iterator i = frames.iterator(); i.hasNext();) {
+            for (Iterator<PkgMgrFrame> i = frames.iterator(); i.hasNext();) {
               
-                PkgMgrFrame pmf = (PkgMgrFrame) i.next();
+                PkgMgrFrame pmf = i.next();
                 
                 //Testing tools are always hidden in Java ME packages.  
                 if ( pmf.isJavaMEpackage( ) ) {
@@ -436,8 +441,8 @@ public class PkgMgrFrame extends JFrame
     public static void updateTeamStatus()
     {
         if (teamToolsShown != wantToSeeTeamTools()) {
-            for (Iterator i = frames.iterator(); i.hasNext();) {
-                ((PkgMgrFrame) i.next()).showTeamTools(!teamToolsShown);
+            for (Iterator<PkgMgrFrame> i = frames.iterator(); i.hasNext();) {
+                i.next().showTeamTools(!teamToolsShown);
             }
             teamToolsShown = !teamToolsShown;
         }
@@ -458,8 +463,8 @@ public class PkgMgrFrame extends JFrame
     public static void updateJavaMEstatus()
     {
         if ( javaMEtoolsShown != wantToSeeJavaMEtools() )  {
-            for (Iterator i = frames.iterator(); i.hasNext();) {
-                ( (PkgMgrFrame) i.next() ).showJavaMEtools( !javaMEtoolsShown );
+            for (Iterator<PkgMgrFrame> i = frames.iterator(); i.hasNext();) {
+                i.next().showJavaMEtools( !javaMEtoolsShown );
             }
             javaMEtoolsShown = !javaMEtoolsShown;
         }
@@ -479,8 +484,8 @@ public class PkgMgrFrame extends JFrame
      */
     public static void displayMessage(String message)
     {
-        for (Iterator i = frames.iterator(); i.hasNext();) {
-            PkgMgrFrame frame = (PkgMgrFrame) i.next();
+        for (Iterator<PkgMgrFrame> i = frames.iterator(); i.hasNext();) {
+            PkgMgrFrame frame = i.next();
             frame.setStatus(message);
         }
     }
@@ -1943,6 +1948,11 @@ public class PkgMgrFrame extends JFrame
                 MethodInvokerRecord mir = (MethodInvokerRecord) ir;
                 mir.setBenchName(newInstanceName, wrapper.getObject().getClassName());
             }
+            if(ir instanceof GetInvokerRecord) {
+                GetInvokerRecord gir = (GetInvokerRecord) ir;
+                gir.setBenchName(newInstanceName, wrapper.getObject().getClassName());
+                getObjectBench().addInteraction(gir);
+            }
         }
     }
 
@@ -2370,8 +2380,8 @@ public class PkgMgrFrame extends JFrame
      */
     public void showTestingTools(boolean show)
     {
-        for (Iterator it = testItems.iterator(); it.hasNext();) {
-            JComponent component = (JComponent) it.next();
+        for (Iterator<JComponent> it = testItems.iterator(); it.hasNext();) {
+            JComponent component = it.next();
             component.setVisible(show);
         }
     }
@@ -2381,8 +2391,8 @@ public class PkgMgrFrame extends JFrame
      */
     public void showTeamTools(boolean show)
     {
-        for (Iterator it = teamItems.iterator(); it.hasNext();) {
-            JComponent component = (JComponent) it.next();
+        for (Iterator<JComponent> it = teamItems.iterator(); it.hasNext();) {
+            JComponent component = it.next();
             component.setVisible(show);
         }
     }
@@ -2554,8 +2564,8 @@ public class PkgMgrFrame extends JFrame
     {
         setFont(PkgMgrFont);
         setIconImage(BlueJTheme.getIconImage());
-        testItems = new ArrayList();
-        teamItems = new ArrayList();
+        testItems = new ArrayList<JComponent>();
+        teamItems = new ArrayList<JComponent>();
 
         setupMenus();
 
@@ -2835,7 +2845,7 @@ public class PkgMgrFrame extends JFrame
     private void setupMenus()
     {
         menubar = new JMenuBar();
-        itemsToDisable = new ArrayList();
+        itemsToDisable = new ArrayList<JComponent>();
 
         JMenu menu = new JMenu(Config.getString("menu.package"));
         int mnemonic = Config.getMnemonicKey("menu.package");
@@ -3045,7 +3055,7 @@ public class PkgMgrFrame extends JFrame
      */
     private void setupActionDisableSet()
     {
-        actionsToDisable = new ArrayList();
+        actionsToDisable = new ArrayList<Action>();
         actionsToDisable.add(closeProjectAction);
         actionsToDisable.add(saveProjectAction);
         actionsToDisable.add(saveProjectAsAction);
@@ -3123,12 +3133,12 @@ public class PkgMgrFrame extends JFrame
             teamActions.setAllDisabled();
         }
         
-        for (Iterator it = itemsToDisable.iterator(); it.hasNext();) {
-            JComponent component = (JComponent) it.next();
+        for (Iterator<JComponent> it = itemsToDisable.iterator(); it.hasNext();) {
+            JComponent component = it.next();
             component.setEnabled(enable);
         }
-        for (Iterator it = actionsToDisable.iterator(); it.hasNext();) {
-            Action action = (Action) it.next();
+        for (Iterator<Action> it = actionsToDisable.iterator(); it.hasNext();) {
+            Action action = it.next();
             action.setEnabled(enable);
         }
     }

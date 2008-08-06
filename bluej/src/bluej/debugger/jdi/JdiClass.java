@@ -15,12 +15,12 @@ import com.sun.jdi.*;
  *
  *@author     Michael Kolling
  *@created    December 26, 2000
- *@version    $Id: JdiClass.java 3324 2005-02-25 01:30:38Z davmac $
+ *@version    $Id: JdiClass.java 5823 2008-08-06 11:07:18Z polle $
  */
 public class JdiClass extends DebuggerClass
 {
     ReferenceType remoteClass;  // the remote class represented
-    List staticFields;
+    List<Field> staticFields;
 
     // -- instance methods --
 
@@ -69,6 +69,19 @@ public class JdiClass extends DebuggerClass
         return ((Field)staticFields.get(slot)).name();
     }
 
+    /**
+     * Return the type of the static field at 'slot'.
+     *
+     *@param  slot  The slot number to be checked
+     *@return       The type of the static field
+     */
+    @Override
+    public String getStaticFieldType(int slot)
+    {
+        Field field = (Field) staticFields.get(slot);
+        //POLLE check that this is the right type
+        return JdiReflective.fromField(field, remoteClass).toString(true);
+    }
 
     /**
      *  Return the object in static field 'slot'. Slot must exist and
@@ -92,7 +105,7 @@ public class JdiClass extends DebuggerClass
      *@param  includeModifiers  Description of Parameter
      *@return                   The StaticFields value
      */
-    public List getStaticFields(boolean includeModifiers)
+    public List<String> getStaticFields(boolean includeModifiers)
     {
         return getFields(includeModifiers);
     }
@@ -149,10 +162,10 @@ public class JdiClass extends DebuggerClass
      *  Return a list of strings with the description of each field
      *  in the format "<modifier> <type> <name> = <value>".
      */
-    private List getFields(boolean includeModifiers)
+    private List<String> getFields(boolean includeModifiers)
     {
-        List fieldStrings = new ArrayList(staticFields.size());
-        List visible = remoteClass.visibleFields();
+        List<String> fieldStrings = new ArrayList<String>(staticFields.size());
+        List<Field> visible = remoteClass.visibleFields();
 
         for (int i = 0; i < staticFields.size(); i++) {
             Field field = (Field) staticFields.get(i);
@@ -191,10 +204,10 @@ public class JdiClass extends DebuggerClass
      */
     private void getRemoteFields()
     {
-        staticFields = new ArrayList();
+        staticFields = new ArrayList<Field>();
 
         if (remoteClass != null) {
-            List allFields = remoteClass.allFields();
+            List<Field> allFields = remoteClass.allFields();
             for (int i = 0; i < allFields.size(); i++) {
                 Field field = (Field) allFields.get(i);
                 if (field.isStatic())
@@ -205,4 +218,5 @@ public class JdiClass extends DebuggerClass
             Debug.reportError("cannot get fields for remote class");
         }
     }
+
 }

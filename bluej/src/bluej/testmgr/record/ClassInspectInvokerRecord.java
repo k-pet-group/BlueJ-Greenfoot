@@ -8,7 +8,7 @@ package bluej.testmgr.record;
  * (not currently working).
  *
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassInspectInvokerRecord.java 2533 2004-05-17 09:09:35Z polle $
+ * @version $Id: ClassInspectInvokerRecord.java 5823 2008-08-06 11:07:18Z polle $
  *
  */
 public class ClassInspectInvokerRecord extends InvokerRecord
@@ -38,6 +38,19 @@ public class ClassInspectInvokerRecord extends InvokerRecord
     public String toTestMethod()
     {
         return firstIndent + className + statementEnd;
+    }
+    
+    @Override
+    public String toExpression()
+    {
+        return className;       
+    }
+    
+
+    @Override
+    public String getExpressionGlue()
+    {
+        return ".";
     }
 
 }

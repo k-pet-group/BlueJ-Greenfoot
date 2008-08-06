@@ -9,7 +9,7 @@ import bluej.debugger.gentype.GenTypeClass;
  *  A class representing an object in the debugged VM.
  *
  *@author     Michael Kolling
- *@version    $Id: DebuggerObject.java 4770 2006-12-14 00:57:49Z davmac $
+ *@version    $Id: DebuggerObject.java 5823 2008-08-06 11:07:18Z polle $
  */
 public abstract class DebuggerObject
 {
@@ -93,7 +93,14 @@ public abstract class DebuggerObject
      */
     public abstract String getInstanceFieldName(int slot);
 
-
+    /**
+     * Return the type of the object field at 'slot'.
+     *
+     *@param  slot  The slot number to be checked
+     *@return       The type of the field
+     */
+    public abstract String getInstanceFieldType(int slot);
+    
     /**
      *  Return the object in static field 'slot'.
      *
@@ -177,7 +184,7 @@ public abstract class DebuggerObject
      *@param  includeModifiers  Description of Parameter
      *@return                   The StaticFields value
      */
-    public abstract List getStaticFields(boolean includeModifiers);
+    public abstract List<String> getStaticFields(boolean includeModifiers);
 
     /**
      * Return a list of strings with the description of each instance field
@@ -198,7 +205,7 @@ public abstract class DebuggerObject
      *@param  includeModifiers  Whether to include the access modifier
      *@return                   The InstanceFields value
      */
-    public abstract List getInstanceFields(boolean includeModifiers);
+    public abstract List<String> getInstanceFields(boolean includeModifiers);
 
     /**
      *  Return a list of strings with the description of each field
@@ -209,7 +216,7 @@ public abstract class DebuggerObject
      *@param  includeModifiers  Description of Parameter
      *@return                   The AllFields value
      */
-    public abstract List getAllFields(boolean includeModifiers);
+    public abstract List<String> getAllFields(boolean includeModifiers);
 
 
     /**

@@ -23,8 +23,8 @@ public class DragAndDropHelper
         Config.getImageAsIcon("image.eval.dragobject-plus").getImage();
     private static final Image noPlusDragImage =
         Config.getImageAsIcon("image.eval.dragobject-noplus").getImage();
-    private static final int imageWidth = plusDragImage.getWidth(null);
-    private static final int imageHeight = plusDragImage.getHeight(null);
+   // private static final int imageWidth = plusDragImage.getWidth(null);
+   // private static final int imageHeight = plusDragImage.getHeight(null);
 
     private static DragAndDropHelper instance;
     
@@ -90,6 +90,7 @@ public class DragAndDropHelper
         deregisterListeners();
         
         if(pointInTarget(x, y)) {
+            // POLLE Create invoker record for this that allows "Get"?
             frame.getPackage().getEditor().raisePutOnBenchEvent(target, object, object.getGenType(), invokerRecord);
         }
         target.showFocusHiLight(false);

@@ -15,9 +15,9 @@ import javax.swing.border.EmptyBorder;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
-import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameterizable;
+import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
@@ -33,7 +33,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 4726 2006-11-30 00:10:40Z davmac $
+ * @version $Id: ResultInspector.java 5823 2008-08-06 11:07:18Z polle $
  */
 public class ResultInspector extends Inspector
 {
@@ -263,7 +263,8 @@ public class ResultInspector extends Inspector
                 newInspectedName = obj.getInstanceFieldName(slot);
             }
 
-            setCurrentObj(obj.getInstanceFieldObject(slot, resultType), newInspectedName);
+            // Don't use the name, since it is meaningless anyway (it is always "result")
+            setCurrentObj(obj.getInstanceFieldObject(slot, resultType), null, resultType.toString(true));
 
             if (obj.instanceFieldIsPublic(slot)) {
                 setButtonsEnabled(true, true);
@@ -273,7 +274,7 @@ public class ResultInspector extends Inspector
             }
         }
         else {
-            setCurrentObj(null, null);
+            setCurrentObj(null, null, null);
             setButtonsEnabled(false, false);
         }
     }

@@ -16,7 +16,7 @@ import com.sun.jdi.Value;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 4721 2006-11-28 04:19:41Z davmac $
+ * @version    $Id: JdiArray.java 5823 2008-08-06 11:07:18Z polle $
  */
 public class JdiArray extends JdiObject
 {    
@@ -186,6 +186,31 @@ public class JdiArray extends JdiObject
     {
         return "[" + String.valueOf(slot) + "]";
     }
+    
+    /**
+     *  Return the type of the object field at 'slot'.
+     *
+     *@param  slot  The slot number to be checked
+     *@return       The type of the field
+     */
+    @Override
+    public String getInstanceFieldType(int slot)
+    {    
+        //POLLE check that this is the right type
+//        Value val = ((ArrayReference) obj).getValue(slot);
+        
+       /* if(componentType != null)
+            return JdiObject.getDebuggerObject((ObjectReference) val, componentType);
+        else
+            return JdiObject.getDebuggerObject((ObjectReference) val);*/
+        
+        //return "ass"; //JdiReflective.fromField(getField(false, slot), this).toString(true);
+        
+
+        if(componentType == null)
+            return JavaNames.stripPrefix(getClassName());
+        return componentType.toString(true);
+    }
 
     /**
      *  Return the object in static field 'slot'.
@@ -221,7 +246,7 @@ public class JdiArray extends JdiObject
      *@param  includeModifiers  Description of Parameter
      *@return                   The StaticFields value
      */
-    public List getStaticFields(boolean includeModifiers)
+    public List<String> getStaticFields(boolean includeModifiers)
     {
         throw new UnsupportedOperationException("getStaticFields");
         //        return new ArrayList(0);
@@ -234,16 +259,16 @@ public class JdiArray extends JdiObject
      *@param  includeModifiers  Description of Parameter
      *@return                   The InstanceFields value
      */
-    public List getInstanceFields(boolean includeModifiers)
+    public List<String> getInstanceFields(boolean includeModifiers)
     {
-        List values;
+        List<Value> values;
 
         if (((ArrayReference) obj).length() > 0) {
             values = ((ArrayReference) obj).getValues();
         } else {
-            values = new ArrayList();
+            values = new ArrayList<Value>();
         }
-        List fields = new ArrayList(values.size());
+        List<String> fields = new ArrayList<String>(values.size());
 
         for (int i = 0; i < values.size(); i++) {
             Value val = (Value) values.get(i);

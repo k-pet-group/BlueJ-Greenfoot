@@ -19,6 +19,7 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.pkgmgr.Package;
+import bluej.testmgr.record.GetInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.DialogManager;
@@ -32,7 +33,7 @@ import bluej.utility.DialogManager;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: Inspector.java 5734 2008-05-01 13:22:39Z polle $
+ * @version $Id: Inspector.java 5823 2008-08-06 11:07:18Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -54,10 +55,12 @@ public abstract class Inspector extends JFrame
     protected JButton getButton;
     protected AssertPanel assertPanel;
 
+	// POLLE create new type to encapsulate selected obejct
     protected DebuggerObject selectedObject; // the object currently selected in
     // the list
-    protected String selectedObjectName; // the name of the field of the
+    protected String selectedFieldName; // the name of the field of the
     // currently selected object
+    protected String selectedFieldType;
     protected InvokerRecord selectedInvokerRecord; // an InvokerRecord for the
     // selected
     // object (if possible, else null)
@@ -310,12 +313,18 @@ public abstract class Inspector extends JFrame
      * @param object
      *            The new CurrentObj value
      * @param name
-     *            The new CurrentObj value
+     *            The name of the selected field
+     * @param type
+     *            The type of the selected field
      */
-    protected void setCurrentObj(DebuggerObject object, String name)
+    protected void setCurrentObj(DebuggerObject object, String name, String type)
     {
         selectedObject = object;
-        selectedObjectName = name;
+        //POLLE rename selectedObject to selectedField
+        selectedFieldName = name;
+        
+        //POLLE 1 urgent! fieldtype is BlaBLa[] for array items instead of BlaBla
+        selectedFieldType = type;
     }
 
     /**
@@ -341,10 +350,10 @@ public abstract class Inspector extends JFrame
 
         if (selectedObject != null) {
             boolean isPublic = getButton.isEnabled();
-
-            InvokerRecord newIr = new ObjectInspectInvokerRecord("Math", selectedObjectName, ir);
-
-            inspectorManager.getInspectorInstance(selectedObject, selectedObjectName, pkg, isPublic ? newIr : null, this);
+            
+            // POLLE check that this type is right. Make sure this getClassName works with generics and stuff as well, and that the type is correct - maybe we need typecasts too?
+            InvokerRecord newIr = new ObjectInspectInvokerRecord(selectedObject.getStrippedGenClassName(), selectedFieldName, selectedObject.isArray(), ir);
+            inspectorManager.getInspectorInstance(selectedObject, selectedFieldName, pkg, isPublic ? newIr : null, this);
         }
     }
 
@@ -355,7 +364,8 @@ public abstract class Inspector extends JFrame
     protected void doGet()
     {
         if (selectedObject != null) {
-            pkg.getEditor().raisePutOnBenchEvent(this, selectedObject, selectedObject.getGenType(), ir);
+            GetInvokerRecord getIr = new GetInvokerRecord(selectedFieldType, selectedFieldName, ir);
+            pkg.getEditor().raisePutOnBenchEvent(this, selectedObject, selectedObject.getGenType(), getIr);
         }
     }
 
