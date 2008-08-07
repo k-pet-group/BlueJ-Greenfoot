@@ -38,8 +38,15 @@ public class SvnStatusHandle implements StatusHandle
             forceFileSet.add(i.next().getFile());
         }
         
-        return new SvnCommitCommand(repository, newFiles, binaryNewFiles, deletedFiles,
-                files, forceFileSet, version, commitComment);
+        if (version != -1) {
+            return new SvnCommitCommand(repository, newFiles, binaryNewFiles, deletedFiles,
+                    files, forceFileSet, version, commitComment);
+        }
+        else {
+            // The working copy is up-to-date
+            return new SvnCommitAllCommand(repository, newFiles, binaryNewFiles,
+                    deletedFiles, files, commitComment);
+        }
     }
 
     /* (non-Javadoc)

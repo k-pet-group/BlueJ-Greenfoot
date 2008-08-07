@@ -47,10 +47,10 @@ public class SvnStatusCommand extends SvnCommand
              */
             
             // The set of directories for which we have status
-            Set completed = new HashSet();
+            Set<File> completed = new HashSet<File>();
             // A map (File->Set<TeamStatusInfo>) from directories for which
             // we don't yet have status, to the status of files within
-            Map unreported = new HashMap();
+            Map<File,Set<TeamStatusInfo>> unreported = new HashMap<File,Set<TeamStatusInfo>>();
             
             for (int i = 0; i < status.length; i++) {
                 File file = new File(status[i].getPath());
@@ -67,10 +67,6 @@ public class SvnStatusCommand extends SvnCommand
                 if (reposRev > currentRevision) {
                     currentRevision = reposRev;
                 }
-                long revNumber = status[i].getRevisionNumber();
-                if (revNumber > currentRevision) {
-                    currentRevision = revNumber;
-                }
                 
                 TeamStatusInfo rinfo = null;
                 
@@ -80,7 +76,13 @@ public class SvnStatusCommand extends SvnCommand
                 }
                 else if (textStat == StatusKind.unversioned) {
                     if (filter.accept(file)) {
-                        rinfo = new TeamStatusInfo(file, "", "", TeamStatusInfo.STATUS_NEEDSADD);
+                        if (reposStat != StatusKind.added) {
+                            rinfo = new TeamStatusInfo(file, "", "", TeamStatusInfo.STATUS_NEEDSADD);
+                        }
+                        else {
+                            // conflict: added locally and in repository
+                            rinfo = new TeamStatusInfo(file, "", "" + status[i].getReposLastCmtRevisionNumber(), TeamStatusInfo.STATUS_CONFLICT_ADD);
+                        }
                         if (file.isDirectory()) {
                             statLocalDir(file);
                         }
@@ -155,9 +157,9 @@ public class SvnStatusCommand extends SvnCommand
                         // yet. If the parent has been removed, the status we have
                         // now is incorrect; we need to cache the result into the
                         // parent status is reported.
-                        Set s = (Set) unreported.get(file.getParentFile());
+                        Set<TeamStatusInfo> s = unreported.get(file.getParentFile());
                         if (s == null) {
-                            s = new HashSet();
+                            s = new HashSet<TeamStatusInfo>();
                         }
                         s.add(rinfo);
                         unreported.put(file.getParentFile(), s);
@@ -193,7 +195,8 @@ public class SvnStatusCommand extends SvnCommand
         }
     }
     
-    private void complete(Set completed, Map unreported, TeamStatusInfo rinfo)
+    private void complete(Set<File> completed, Map<File,Set<TeamStatusInfo>> unreported,
+            TeamStatusInfo rinfo)
     {
         listener.gotStatus(rinfo);
 
@@ -203,12 +206,12 @@ public class SvnStatusCommand extends SvnCommand
         if (file.isDirectory()) {
             completed.add(file);
 
-            Set entries = (Set) unreported.remove(file);
+            Set<TeamStatusInfo> entries = unreported.remove(file);
             if (entries == null) {
-                entries = Collections.EMPTY_SET;
+                entries = Collections.emptySet();
             }
-            for (Iterator i = entries.iterator(); i.hasNext(); ) {
-                TeamStatusInfo status = (TeamStatusInfo) i.next();
+            for (Iterator<TeamStatusInfo> i = entries.iterator(); i.hasNext(); ) {
+                TeamStatusInfo status = i.next();
                 int einfoStat = status.getStatus();
                 if (rinfoStat == TeamStatusInfo.STATUS_CONFLICT_LMRD
                         || rinfoStat == TeamStatusInfo.STATUS_REMOVED) {

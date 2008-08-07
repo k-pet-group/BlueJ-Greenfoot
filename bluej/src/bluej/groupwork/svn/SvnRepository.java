@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.tigris.subversion.javahl.ClientException;
+import org.tigris.subversion.javahl.NodeKind;
 import org.tigris.subversion.javahl.SVNClientInterface;
 import org.tigris.subversion.javahl.Status;
 
@@ -134,7 +135,10 @@ public class SvnRepository
     public void prepareCreateDir(File dir)
     {
         try {
-            client.add(dir.getAbsolutePath(), false);
+            Status stat = client.singleStatus(dir.getAbsolutePath(), false);
+            if (!stat.isManaged()) {
+                client.add(dir.getAbsolutePath(), false);
+            }
         }
         catch (ClientException ce) {
             Debug.message("Exception while doing svn add on directory: "
