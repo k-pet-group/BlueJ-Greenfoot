@@ -9,7 +9,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 5829 2008-08-06 13:56:11Z polle $
+ * @version $Id: JavaUtils15.java 5832 2008-08-07 06:57:25Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -45,10 +45,6 @@ public class JavaUtils15 extends JavaUtils {
     
     /**
      * Convert an array of types to an array of strings representing those types.
-     * Optionally convert the last type to var-args ellipsis form ("int ...").
-     * 
-     * @param types     The array of types to convert
-     * @param isVarArgs True if the last arg should be treated as having var-arity
      */
     private static String [] typeArrayToStrings(Type [] types)
     {
