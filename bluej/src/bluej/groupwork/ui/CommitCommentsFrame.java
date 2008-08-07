@@ -9,9 +9,11 @@ import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
@@ -28,14 +30,13 @@ import javax.swing.JTextArea;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.groupwork.CommitFilter;
-import bluej.groupwork.StatusHandle;
 import bluej.groupwork.Repository;
+import bluej.groupwork.StatusHandle;
 import bluej.groupwork.StatusListener;
 import bluej.groupwork.TeamStatusInfo;
 import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
-import bluej.groupwork.TeamViewFilter;
 import bluej.groupwork.actions.CommitAction;
 import bluej.pkgmgr.BlueJPackageFile;
 import bluej.pkgmgr.Project;
@@ -69,6 +70,9 @@ public class CommitCommentsFrame extends EscapeDialog
     private DefaultListModel commitListModel;
     
     private Set<TeamStatusInfo> changedLayoutFiles;
+    
+    /** The packages whose layout should be committed compulsorily */
+    private Set<File> packagesToCommmit = new HashSet<File>();
     
     private static String noFilesToCommit = Config.getString("team.nocommitfiles"); 
 
@@ -251,10 +255,13 @@ public class CommitCommentsFrame extends EscapeDialog
     private void removeModifiedLayouts()
     {
         // remove modified layouts from list of files shown for commit
-        for(Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator();it.hasNext();) {
-            commitListModel.removeElement(it.next());
+        for(Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator(); it.hasNext(); ) {
+            TeamStatusInfo info = it.next();
+            if (! packagesToCommmit.contains(info.getFile().getParentFile())) {
+                commitListModel.removeElement(info);
+            }
         }
-        if(commitListModel.isEmpty()) {
+        if (commitListModel.isEmpty()) {
             commitListModel.addElement(noFilesToCommit);
             commitText.setEnabled(false);
         }
@@ -271,12 +278,15 @@ public class CommitCommentsFrame extends EscapeDialog
             commitListModel.removeElement(noFilesToCommit);
             commitText.setEnabled(true);
         }
-        TeamViewFilter filter = new TeamViewFilter();
         // add diagram layout files to list of files to be committed
+        Set<File> displayedLayouts = new HashSet<File>();
         for(Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator(); it.hasNext(); ) {
             TeamStatusInfo info = it.next();
-            if (filter.accept(info)) {
+            File parentFile = info.getFile().getParentFile();
+            if (! displayedLayouts.contains(parentFile)
+                    && ! packagesToCommmit.contains(parentFile)) {
                 commitListModel.addElement(info);
+                displayedLayouts.add(info.getFile().getParentFile());
             }
         }
     }
@@ -288,10 +298,24 @@ public class CommitCommentsFrame extends EscapeDialog
     {
         Set<File> files = new HashSet<File>();
         for(Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator(); it.hasNext(); ) {
-            TeamStatusInfo info = (TeamStatusInfo)it.next();
+            TeamStatusInfo info = it.next();
             files.add(info.getFile());
         }
         return files;
+    }
+    
+    /**
+     * Remove a file from the list of changes layout files.
+     */
+    private void removeChangedLayoutFile(File file)
+    {
+        for(Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator(); it.hasNext(); ) {
+            TeamStatusInfo info = it.next();
+            if (info.getFile().equals(file)) {
+                it.remove();
+                return;
+            }
+        }        
     }
     
     /**
@@ -504,17 +528,45 @@ public class CommitCommentsFrame extends EscapeDialog
             //boolean includeLayout = project.getTeamSettingsController().includeLayout();
             
             CommitFilter filter = new CommitFilter();
+            Map<File,File> modifiedLayoutDirs = new HashMap<File,File>();
 
             for (Iterator<TeamStatusInfo> it = info.iterator(); it.hasNext();) {
                 TeamStatusInfo statusInfo = it.next();
+                File file = statusInfo.getFile();
+                boolean isPkgFile = BlueJPackageFile.isPackageFileName(file.getName());
                 int status = statusInfo.getStatus();
                 if(filter.accept(statusInfo)) {
-                    if (! BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName()) 
-                            || status == TeamStatusInfo.STATUS_NEEDSADD 
-                            || status == TeamStatusInfo.STATUS_DELETED ) {
-                        
+                    if (! isPkgFile) {
                         commitListModel.addElement(statusInfo);
+                        filesToCommit.add(file);
+                    }
+                    else if (status == TeamStatusInfo.STATUS_NEEDSADD
+                                || status == TeamStatusInfo.STATUS_DELETED
+                                || status == TeamStatusInfo.STATUS_CONFLICT_LDRM) {
+                        // Package file which must be committed.
+                        if (packagesToCommmit.add(statusInfo.getFile().getParentFile())) {
+                            commitListModel.addElement(statusInfo);
+                            File otherPkgFile = modifiedLayoutDirs.remove(file.getParentFile());
+                            if (otherPkgFile != null) {
+                                removeChangedLayoutFile(otherPkgFile);
+                                filesToCommit.add(otherPkgFile);
+                            }
+                        }
                         filesToCommit.add(statusInfo.getFile());
+                    }
+                    else {
+                        // add file to list of files that may be added to commit
+                        File parentFile = file.getParentFile();
+                        if (! packagesToCommmit.contains(parentFile)) {
+                            modifiedLayoutFiles.add(file);
+                            modifiedLayoutDirs.put(parentFile, file);
+                            // keep track of StatusInfo objects representing changed diagrams
+                            changedLayoutFiles.add(statusInfo);
+                        }
+                        else {
+                            // We must commit the file unconditionally
+                            filesToCommit.add(file);
+                        }
                     }
                     
                     if (status == TeamStatusInfo.STATUS_NEEDSADD) {
@@ -524,18 +576,9 @@ public class CommitCommentsFrame extends EscapeDialog
                             || status == TeamStatusInfo.STATUS_CONFLICT_LDRM) {
                         filesToRemove.add(statusInfo.getFile());
                     }
-                    else if(BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) {
-                        // add file to list of files that may be added to commit
-                        modifiedLayoutFiles.add(statusInfo.getFile());
-                        // keep track of StatusInfo objects representing changed diagrams
-                        changedLayoutFiles.add(statusInfo);
-                       
-                        setLayoutChanged(true);
-                    }
                 }
                 else {
-                    if(! BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())
-                            || includeLayout()) {
+                    if(! isPkgFile) {
                         if (status == TeamStatusInfo.STATUS_HASCONFLICTS) {
                             mergeConflicts.add(statusInfo.getFile());
                         }
@@ -553,6 +596,8 @@ public class CommitCommentsFrame extends EscapeDialog
                     }
                 }
             }
+            
+            setLayoutChanged (! changedLayoutFiles.isEmpty());
         }
     }
 }
