@@ -1,7 +1,11 @@
 package bluej.testmgr.record;
 
+import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeArray;
 import bluej.debugger.gentype.JavaType;
+import bluej.debugmgr.objectbench.ObjectBench;
+import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.JavaNames;
 
 /**
@@ -11,7 +15,7 @@ import bluej.utility.JavaNames;
  * This record is for method calls that return a result.
  *
  * @author  Andrew Patterson
- * @version $Id: MethodInvokerRecord.java 5829 2008-08-06 13:56:11Z polle $
+ * @version $Id: MethodInvokerRecord.java 5833 2008-08-13 15:48:14Z polle $
  */
 public class MethodInvokerRecord extends VoidMethodInvokerRecord
 {
@@ -19,19 +23,28 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
 	private String benchType;
 	protected String benchName;
 	
+	/** How many times has this record been used. */
+    private int usageCount;
+    
+    /** Has the method call been initialised? */
+    private boolean methodCallInited = false;
+    
+    private PkgMgrFrame pkgMgrFrame;
+	
     /**
      * Records a method call that returns a result to the user.
      * 
      * @param returnType  the Class of the return type of the method
      * @param command     the method statement to execute
      */
-    public MethodInvokerRecord(JavaType returnType, String command, String [] argumentValues)
+    public MethodInvokerRecord(JavaType returnType, String command, String [] argumentValues, PkgMgrFrame pkgMgrFrame)
     {
     	super(command, argumentValues);
     	
         this.returnType = returnType;
         this.benchType = returnType.toString(false);
         this.benchName = null;
+        this.pkgMgrFrame = pkgMgrFrame;
     }
 
     /**
@@ -92,104 +105,92 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
 		
 		return sb.toString();
     }
-
-	/**
-	 * Construct a portion of a test method for this
-	 * invoker record.
-	 * 
-	 * @return a String representing the test method src
-	 */
-	public String toTestMethod()
-	{
-		StringBuffer sb = new StringBuffer();
-
-		// an assignment to the bench changes the way we do things
-		// first we construct an assignment statement for it
-		if (benchName != null) {
-			sb.append(secondIndent);
-			sb.append(benchDeclaration());
-			sb.append(benchAssignmentTypecast());
-			sb.append(statementEnd);		
-		}
-
-		// first, with no assertions we either need to just do the
-		// assignment made above, or just do the statement by itself
-		if (getAssertionCount() == 0) {
-			if (benchName == null)
-				sb.append(secondIndent + command + statementEnd);
-		}
-		
-		// with only one assertion we can merge the assertion
-		// with the statement or the name
-		if (getAssertionCount() == 1) {		
-			if (benchName == null) {
-				sb.append(secondIndent);
-                sb.append(insertCommandIntoAssertionStatement(getAssertion(0), command));
-				sb.append(statementEnd);
-			}
-			else {
-				sb.append(secondIndent);
-                sb.append(insertCommandIntoAssertionStatement(getAssertion(0), benchName));
-				sb.append(statementEnd);
-			}
-		}			
-
-		// with multiple assertions we need to do some fancy
-		// scoping
-		if (getAssertionCount() > 1) {
-			String indentLevel;
-			String assertAgainstName;
-
-			if (benchName == null) {
-				indentLevel = thirdIndent;
-				assertAgainstName = "result";
-			} else {
-				indentLevel = secondIndent;
-				assertAgainstName = benchName;
-			}
-
-			// with no bench assignment, introduce a new scope
-			if (benchName == null) {
-				sb.append(secondIndent);
-				sb.append("{\n");			
-
-				sb.append(thirdIndent);
-				sb.append(returnType.toString(false));
-				sb.append(" result = ");
-				sb.append(command);
-				sb.append(";\n");
-
-			}
-			
-			// here are all the assertions
-			for(int i=0; i<getAssertionCount(); i++) {
-				sb.append(indentLevel);
-                sb.append(insertCommandIntoAssertionStatement(getAssertion(i), assertAgainstName));
-				sb.append(statementEnd);
-			}
-
-			// with no bench assignment, end the result scope
-			if (benchName == null) {
-				sb.append(secondIndent);
-				sb.append("}\n");		
-			}			
-		}
-
-		return sb.toString();
-	}
     
-	@Override
-    public String toExpression()
+    /**
+     * Construct a portion of a test method for this invoker record.
+     * 
+     * @return a String representing the test method src
+     */
+    public String toTestMethod()
     {
-	    StringBuffer sb = new StringBuffer();
-        if (benchName == null)  
-            //POLLE if the result is inspected, and two or more fields are Gotten, it will result in several invocations of the method. It should detect this, and crate a local variable for that case.
-            sb.append(command);
-        else {
-            sb.append(benchName);
+        String resultRef = toExpression();
+
+        // with no uses of the result, just invoke the method.
+        if (getUsageCount() == 0) {
+            return secondIndent + resultRef + statementEnd;
+        }
+
+        StringBuffer sb = new StringBuffer();
+        // here are all the assertions
+        for (int i = 0; i < getAssertionCount(); i++) {
+            sb.append(secondIndent);
+            sb.append(insertCommandIntoAssertionStatement(getAssertion(i), resultRef));
+            sb.append(statementEnd);
         }
 
         return sb.toString();
+    }
+
+    /**
+     * Do any initialisation needed for creating the test method. This will set
+     * up local variables if the result of the method is used more than once or
+     * placed on the bench by using "Get".
+     */
+    public String toTestMethodInit()
+    {
+        // If we have already prepared the method call, we return the name that
+        // references it.
+        if (methodCallInited) {
+            return "";
+        }
+
+        // Method result has not been put on the bench by using "Get".
+        if (benchName == null) {
+            if (getUsageCount() > 1) {
+                // If the method result is not "Get" onto the bench, and we use the
+                // method result more than once, we need to put it on the bench to
+                // give it a unique name.
+                DebuggerObject result = getResultObject();
+                assert (result != null);
+                ObjectBench bench = pkgMgrFrame.getObjectBench();
+                ObjectWrapper wrapper = ObjectWrapper.getWrapper(pkgMgrFrame, bench, result, result.getGenType(),
+                        "result");
+                bench.addObject(wrapper); // might change name
+                benchName = wrapper.getName();            
+            }
+            else {
+                // Nothing to prepare
+                return "";
+            }
+        }
+        else {
+            // We used "Get" on the result, so increase usage count.
+            incUsageCount();
+        }
+        
+        assert (benchName != null);
+        methodCallInited = true;
+        // assign result to a local variable with the given benchName.
+        return secondIndent + benchDeclaration() + benchAssignmentTypecast() + statementEnd;
+    }
+
+    /**
+     * This will return a string containing a reference to the method result.
+     * Either as the command itself, or the name of a local variable containing
+     * the result.
+     * 
+     * @return Reference to the method result
+     */
+    @Override
+    public String toExpression()
+    {
+        assert (methodCallInited);
+
+        // Method result has not been put on the bench by using "Get".
+        if (benchName == null) {
+            return command;
+        }
+        return benchName;
     }
 	
     @Override
@@ -232,4 +233,25 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
 
 		return sb.toString();
 	}
+
+	@Override
+    public void addAssertion(String assertion)
+    {
+        super.addAssertion(assertion);
+        usageCount++;        
+    }
+
+    /**
+     * Call when using this invoker record as a parent for another invoker
+     * record. Increases usage count.
+     */
+    public void incUsageCount()
+    {
+        usageCount++;
+    }
+
+    private int getUsageCount()
+    {
+        return usageCount;
+    }    
 }

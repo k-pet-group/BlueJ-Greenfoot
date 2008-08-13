@@ -21,7 +21,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 5816 2008-07-25 15:54:42Z polle $
+ * @version $Id: ObjectBench.java 5833 2008-08-13 15:48:14Z polle $
  */
 public class ObjectBench extends JPanel implements ValueCollection,
     FocusListener, KeyListener, MouseListener, ObjectBenchInterface
@@ -500,9 +500,12 @@ public class ObjectBench extends JPanel implements ValueCollection,
         
         while(it.hasNext()) {
             InvokerRecord ir = it.next();
-            
-			if (ir.toTestMethod() != null)
-	            sb.append(ir.toTestMethod());
+
+            sb.append(ir.toTestMethodInit());
+            String testMethod = ir.toTestMethod();
+			if (testMethod != null) {
+	            sb.append(testMethod);
+			}
         }                    
 
         return sb.toString();

@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 5829 2008-08-06 13:56:11Z polle $
+ * @version $Id: Invoker.java 5833 2008-08-13 15:48:14Z polle $
  */
 
 public class Invoker
@@ -471,7 +471,7 @@ public class Invoker
                 instanceName = null;
             }
             else {
-                ir = new MethodInvokerRecord(method.getGenericReturnType(), command + actualArgString, args);
+                ir = new MethodInvokerRecord(method.getGenericReturnType(), command + actualArgString, args, pmf);
                 instanceName = "result";
             }
 
@@ -1125,7 +1125,7 @@ public class Invoker
                 case Debugger.NORMAL_EXIT :
                     // result will be null here for a void call
                     watcher.putResult(result.getResultObject(), instanceName, ir);
-                    
+                    ir.setResultObject(result.getResultObject());   
                     executionEvent.setResultObject(result.getResultObject());
                     executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
                     break;

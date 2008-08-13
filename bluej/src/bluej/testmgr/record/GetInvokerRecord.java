@@ -29,6 +29,7 @@ public class GetInvokerRecord extends InvokerRecord
         this.parentIr = parentIr;
         this.fieldName = fieldName;
         this.fieldType = fieldType;
+        parentIr.incUsageCount();
     }
 
     /**
@@ -96,5 +97,10 @@ public class GetInvokerRecord extends InvokerRecord
     public String getExpressionGlue()
     {
         throw new RuntimeException("Method not implemented for this type.");
+    }    
+
+    public String toTestMethodInit() 
+    {
+        return parentIr.toTestMethodInit();
     }
 }

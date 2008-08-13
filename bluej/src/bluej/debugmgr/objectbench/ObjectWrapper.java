@@ -51,7 +51,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 5823 2008-08-06 11:07:18Z polle $
+ * @version $Id: ObjectWrapper.java 5833 2008-08-13 15:48:14Z polle $
  */
 public class ObjectWrapper extends JComponent implements InvokeListener, NamedValue
 {
@@ -740,7 +740,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
      */
     protected void inspectObject()
     {
-        InvokerRecord ir = new ObjectInspectInvokerRecord(getTypeName(), getName(), obj.isArray());
+        InvokerRecord ir = new ObjectInspectInvokerRecord(getName(), obj.isArray());
       	pkg.getProject().getInspectorInstance(obj, getName(), pkg, ir, pmf);  // shows the inspector
     }
 

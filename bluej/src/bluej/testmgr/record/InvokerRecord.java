@@ -2,6 +2,8 @@ package bluej.testmgr.record;
 
 import java.util.*;
 
+import bluej.debugger.DebuggerObject;
+
 /**
  * Records a single user interaction with the object
  * construction/method call mechanisms of BlueJ.
@@ -10,7 +12,7 @@ import java.util.*;
  * construction and maintenance of assertion data.
  *
  * @author  Andrew Patterson
- * @version $Id: InvokerRecord.java 5823 2008-08-06 11:07:18Z polle $
+ * @version $Id: InvokerRecord.java 5833 2008-08-13 15:48:14Z polle $
  */
 public abstract class InvokerRecord
 {
@@ -28,6 +30,7 @@ public abstract class InvokerRecord
      * record.
      */
     private ArrayList<String> assertions = new ArrayList<String>();
+    private DebuggerObject resultObject;
     
     // -------------- instance methods -----------------
     
@@ -58,6 +61,17 @@ public abstract class InvokerRecord
 	 *         src or null if there is none. 
 	 */    
 	public abstract String toFixtureSetup();
+    
+    
+    /**
+     * Do any initialisation needed for creating the test method.
+     * This implementation returns an empty string. Overide for 
+     * subclasses that need different functionality.
+     */
+    public String toTestMethodInit()
+    {
+        return "";
+    }
     
 	/**
 	 * Construct a portion of a test method for this
@@ -92,7 +106,7 @@ public abstract class InvokerRecord
      */
     public void addAssertion(String assertion)
     {
-        assertions.add(assertion);        
+        assertions.add(assertion);  
     }
     
     public int getAssertionCount()
@@ -206,5 +220,36 @@ public abstract class InvokerRecord
         assertCommand.replace(insertionSpot, insertionSpot + 2, command);
             
         return assertCommand.toString();
+    }
+
+    /**
+     * If a result is related to this invoker record, it can be set here. This
+     * is mostly here for the MethodInvokerRecord, so that we can refer to the
+     * object by a unique name, by adding it to the object bench.
+     * 
+     * @param resultObject Result object or null
+     */
+    public void setResultObject(DebuggerObject resultObject)
+    {
+        this.resultObject = resultObject;
+    }
+    
+    /**
+     * Get the result object.
+     * 
+     * @return The result object or null.
+     */
+    protected DebuggerObject getResultObject() 
+    {
+        return resultObject;
+    }
+    
+    /**
+     * Call when using this invoker record as a parent for another invoker
+     * record. This implementation does nothing - overide for subclasses 
+     * that need this.
+     */
+    public void incUsageCount()
+    {
     }
 }

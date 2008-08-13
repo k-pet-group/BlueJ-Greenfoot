@@ -33,7 +33,7 @@ import bluej.utility.DialogManager;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: Inspector.java 5826 2008-08-06 12:17:12Z polle $
+ * @version $Id: Inspector.java 5833 2008-08-13 15:48:14Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -55,7 +55,6 @@ public abstract class Inspector extends JFrame
     protected JButton getButton;
     protected AssertPanel assertPanel;
 
-	// POLLE create new type to encapsulate selected obejct
     protected DebuggerObject selectedField; // the object currently selected in
     // the list
     protected String selectedFieldName; // the name of the field of the
@@ -348,8 +347,8 @@ public abstract class Inspector extends JFrame
         if (selectedField != null) {
             boolean isPublic = getButton.isEnabled();
             
-            // POLLE check that this type is right. Should it always be stripped?
-            InvokerRecord newIr = new ObjectInspectInvokerRecord(selectedFieldType, selectedFieldName, selectedField.isArray(), ir);
+            //POLLE what about classInspector record?
+            InvokerRecord newIr = new ObjectInspectInvokerRecord(selectedFieldName, selectedField.isArray(), ir);
             inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? newIr : null, this);
         }
     }

@@ -9,7 +9,7 @@ import bluej.utility.JavaUtils;
  * This record is for method calls with no result.
  *
  * @author  Bruce Quig
- * @version $Id: ExpressionInvokerRecord.java 5829 2008-08-06 13:56:11Z polle $
+ * @version $Id: ExpressionInvokerRecord.java 5833 2008-08-13 15:48:14Z polle $
  */
 public class ExpressionInvokerRecord extends MethodInvokerRecord 
 {
@@ -19,7 +19,7 @@ public class ExpressionInvokerRecord extends MethodInvokerRecord
 	 */
 	public ExpressionInvokerRecord(String command) 
     {
-		super(JavaUtils.getJavaUtils().genTypeFromClass(Object.class), command, null);
+		super(JavaUtils.getJavaUtils().genTypeFromClass(Object.class), command, null, null);
 	}
     
     /**

@@ -8,11 +8,10 @@ package bluej.testmgr.record;
  * (not currently working).
  *
  * @author  Andrew Patterson
- * @version $Id: ObjectInspectInvokerRecord.java 5823 2008-08-06 11:07:18Z polle $
+ * @version $Id: ObjectInspectInvokerRecord.java 5833 2008-08-13 15:48:14Z polle $
  */
 public class ObjectInspectInvokerRecord extends InvokerRecord
 {
-    private String type;
     private String name;
     private InvokerRecord parentIr;
     private boolean isArray;
@@ -23,11 +22,10 @@ public class ObjectInspectInvokerRecord extends InvokerRecord
 	 * @param type
 	 * @param name
 	 */    
-    public ObjectInspectInvokerRecord(String type, String name, boolean isArray)
+    public ObjectInspectInvokerRecord(String name, boolean isArray)
     {
-        this.type = type;
         this.name = name;
-        //POLLE create a ArrayInspectInvokerRecord?
+        //TODO create an ArrayInspectInvokerRecord instead?
         this.isArray = isArray;
     }
 
@@ -38,9 +36,8 @@ public class ObjectInspectInvokerRecord extends InvokerRecord
 	 * @param name
 	 * @param ir
 	 */
-    public ObjectInspectInvokerRecord(String type, String name,  boolean isArray, InvokerRecord ir)
+    public ObjectInspectInvokerRecord(String name,  boolean isArray, InvokerRecord ir)
     {
-        this.type = type;
         this.name = name;
         this.isArray = isArray;
         this.parentIr = ir;
@@ -48,17 +45,17 @@ public class ObjectInspectInvokerRecord extends InvokerRecord
 
     public String toFixtureDeclaration()
     {
-        return null;
+        throw new UnsupportedOperationException();
     }
     
     public String toFixtureSetup()
     {
-        return secondIndent + type + statementEnd;
+        throw new UnsupportedOperationException();
     }
 
 	public String toTestMethod()
 	{
-		return firstIndent + type + statementEnd;
+        throw new UnsupportedOperationException();
 	}
 	
 	@Override
@@ -85,5 +82,15 @@ public class ObjectInspectInvokerRecord extends InvokerRecord
         } else {
             return ".";
         }
+    }
+
+    public void incUsageCount()
+    {
+        parentIr.incUsageCount();        
+    }
+    
+    public String toTestMethodInit() 
+    {
+        return parentIr.toTestMethodInit();
     }
 }
