@@ -47,7 +47,7 @@ import bluej.utility.SwingWorker;
  * A Swing based user interface for showing files to be updated
  * @author Bruce Quig
  * @author Davin McCall
- * @version $Id: UpdateFilesFrame.java 5820 2008-08-06 09:01:38Z davmac $
+ * @version $Id: UpdateFilesFrame.java 5836 2008-08-22 14:33:09Z polle $
  */
 public class UpdateFilesFrame extends EscapeDialog
 {
@@ -251,14 +251,6 @@ public class UpdateFilesFrame extends EscapeDialog
         if(updateListModel.contains(noFilesToUpdate)) {
             updateListModel.removeElement(noFilesToUpdate);
         }
-        TeamViewFilter filter = new TeamViewFilter();
-        // add diagram layout files to list of files to be committed
-        for(Iterator<TeamStatusInfo> it = changedLayoutFiles.iterator(); it.hasNext(); ) {
-            TeamStatusInfo info = it.next();
-            if (filter.accept(info)) {
-                updateListModel.addElement(info);
-            }
-        }
     }
     
     /**
@@ -455,7 +447,7 @@ public class UpdateFilesFrame extends EscapeDialog
         private void getUpdateFileSet(List<TeamStatusInfo> info, Set<File> filesToUpdate, Set<File> conflicts, Set<File> modifiedLayoutFiles)
         {
             UpdateFilter filter = new UpdateFilter();
-
+            TeamViewFilter viewFilter = new TeamViewFilter();
             for (Iterator<TeamStatusInfo> it = info.iterator(); it.hasNext();) {
                 TeamStatusInfo statusInfo = it.next();
                 int status = statusInfo.getStatus();
@@ -465,7 +457,10 @@ public class UpdateFilesFrame extends EscapeDialog
                         filesToUpdate.add(statusInfo.getFile());
                     }
                     else {
-                        if (filter.updateAlways(statusInfo)) {
+                        if( !viewFilter.accept(statusInfo)) {
+                            // If the file should not be viewed, just ignore it.
+                        }
+                        else if (filter.updateAlways(statusInfo)) {
                             // The package file is new or removed. There is no
                             // option not to include it in the update.
                             updateListModel.addElement(statusInfo);
