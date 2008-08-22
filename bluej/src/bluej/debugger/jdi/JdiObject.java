@@ -17,7 +17,7 @@ import com.sun.jdi.*;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 5826 2008-08-06 12:17:12Z polle $
+ * @version $Id: JdiObject.java 5834 2008-08-22 12:26:14Z polle $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -325,7 +325,6 @@ public class JdiObject extends DebuggerObject
     @Override
     public String getInstanceFieldType(int slot)
     {    
-        //POLLE check that this is the right type. should it be stripped?
         return JdiReflective.fromField(getField(false, slot), this).toString(false);
     }
 

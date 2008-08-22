@@ -16,7 +16,7 @@ import com.sun.jdi.Value;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 5826 2008-08-06 12:17:12Z polle $
+ * @version    $Id: JdiArray.java 5834 2008-08-22 12:26:14Z polle $
  */
 public class JdiArray extends JdiObject
 {    
@@ -198,7 +198,6 @@ public class JdiArray extends JdiObject
     {            
         String arrayType = null;
         if(componentType == null) {
-            //POLLE check that this is the right type. Generics? handled by else? Should prefix be stripped?
             arrayType = getClassName();
         }
         else {
