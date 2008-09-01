@@ -89,7 +89,7 @@ public class UnitTestAnalyzerTest extends junit.framework.TestCase
        assertEquals(26, testXXXSpan.getEndColumn());
     } 
 
-	\u0070ublic void testFindingMethods()
+	public void testFindingMethods()
 	{
 	    SourceSpan setUpSpan = uta.getMethodBlockSpan("setUp");
 

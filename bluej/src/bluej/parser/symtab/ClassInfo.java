@@ -34,21 +34,20 @@ public final class ClassInfo
     private String name;
     private String superclass;
 
-    private List implemented = new ArrayList();
-    private List imported = new ArrayList();
-    private List used = new ArrayList();
-    private List comments = new LinkedList();
+    private List<String> implemented = new ArrayList<String>();
+    private List<String> imported = new ArrayList<String>();
+    private List<String> used = new ArrayList<String>();
+    private List<SavedComment> comments = new LinkedList<SavedComment>();
     
-    private List typeParameterTexts;
+    private List<String> typeParameterTexts;
     private Selection typeParametersSelection;
 
     private class SavedComment
     {
         public String target;   // the method signature of the item we have a
-                                // comment for. Can be
-                                // class name      or
-                                // interface name
-                                // in the case of a comment for a whole class/interface
+                                // comment for. Can be class name or interface
+                                // name in the case of a comment for a whole
+                                // class/interface
 
         public String comment;  // the actual text of the comment
 
@@ -336,25 +335,25 @@ public final class ClassInfo
     // ... or an interface's "extends" clause ie.
     //     "extends" "InterfaceA" "," "InterfaceB"
     // ... or null if there is no clause
-    private List interfaceSelections;
+    private List<Selection> interfaceSelections;
 
-    public void setInterfaceSelections(List selections)
+    public void setInterfaceSelections(List<Selection> selections)
     {
         interfaceSelections = selections;
     }
     
-    public void setTypeParameterTexts(List newTexts)
+    public void setTypeParameterTexts(List<String> newTexts)
     {
         typeParameterTexts = newTexts;
     }
     
-    public List getTypeParameterTexts()
+    public List<String> getTypeParameterTexts()
     {
         return typeParameterTexts;
     }
 
 
-    public List getInterfaceSelections()
+    public List<Selection> getInterfaceSelections()
     {
         return interfaceSelections;
     }
@@ -444,7 +443,7 @@ public final class ClassInfo
         return name;
     }
 
-    public List getImplements()
+    public List<String> getImplements()
     {
         return implemented;
     }
@@ -467,7 +466,7 @@ public final class ClassInfo
     /**
      * Get the list of referenced classes (a list of String).
      */
-    public List getUsed()
+    public List<String> getUsed()
     {
         return used;
     }
@@ -476,10 +475,10 @@ public final class ClassInfo
     {
         Properties props = new SortedProperties();
         props.setProperty("numComments", String.valueOf(comments.size()));
-        Iterator it = comments.iterator();
+        Iterator<SavedComment> it = comments.iterator();
         for(int i = 0; it.hasNext(); i++)
         {
-            SavedComment c = (SavedComment)it.next();
+            SavedComment c = it.next();
             c.save(props, "comment" + i);
         }
         return props;
@@ -523,20 +522,20 @@ public final class ClassInfo
 
         System.out.println();
         System.out.println("implements:");
-        Iterator it = implemented.iterator();
+        Iterator<String> it = implemented.iterator();
         while(it.hasNext())
-        System.out.println("   " + (String)it.next());
+            System.out.println("   " + (String)it.next());
 
         System.out.println();
         System.out.println("uses:");
         it = used.iterator();
         while(it.hasNext())
-        System.out.println("   " + (String)it.next());
+            System.out.println("   " + (String)it.next());
 
         System.out.println();
         System.out.println("imports:");
         it = imported.iterator();
         while(it.hasNext())
-        System.out.println("   " + (String)it.next());
+            System.out.println("   " + (String)it.next());
     }
 }

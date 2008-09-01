@@ -35,7 +35,7 @@ import bluej.utility.Debug;
  * create dependencies to existing classes in the same package (as supplied).
  * 
  * @author Davin McCall
- * @version $Id: ClassParser.java 3750 2006-01-26 23:44:25Z davmac $
+ * @version $Id: ClassParser.java 5841 2008-09-01 04:42:16Z davmac $
  */
 public class ClassParser
 {
@@ -867,7 +867,8 @@ public class ClassParser
      * @param varArg  true if the parameter is the final parameter and is marked as variable
      *                arity (eg. int ... x)
      */
-    private void processParameterDef(AST node, Scope scope, List paramTypeList, List paramNameList)
+    private void processParameterDef(AST node, Scope scope, List<String> paramTypeList,
+            List<String> paramNameList)
     {
         // PARAMETER_DEF
         //   MODIFIERS TYPE identifier
@@ -876,7 +877,7 @@ public class ClassParser
         
         AST tnode = node.getFirstChild().getNextSibling();
         String typeName = getFirstLevelName(tnode.getFirstChild());
-        scope.checkType(typeName);
+        scope.checkType(typeName); // for dependency tracking
         if (paramTypeList != null) {
             String paramType = getCompleteTypeString(tnode.getFirstChild());
             if (isVarArg)
@@ -1140,8 +1141,8 @@ public class ClassParser
 
         boolean isConstructor = node.getType() == JavaTokenTypes.CTOR_DEF;
         
-        List paramTypes = new ArrayList();
-        List paramNames = new ArrayList();
+        List<String> paramTypes = new ArrayList<String>();
+        List<String> paramNames = new ArrayList<String>();
         String typeParams = null;
         Token commentToken;
         
@@ -1275,7 +1276,7 @@ public class ClassParser
         // check array declarators
         while(arrayNode != null && arrayNode.getType() == JavaTokenTypes.ARRAY_DECLARATOR) {
             tstring += "[]";
-            arrayNode = arrayNode.getNextSibling();
+            arrayNode = arrayNode.getFirstChild();
         }
         
         return tstring;
