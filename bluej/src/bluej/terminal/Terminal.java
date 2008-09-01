@@ -18,14 +18,16 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
+import bluej.utility.Utility;
 
 /**
  * The Frame part of the Terminal window used for I/O when running programs
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 5306 2007-10-05 05:34:10Z davmac $
+ * @version $Id: Terminal.java 5845 2008-09-01 18:29:46Z polle $
  */
+@SuppressWarnings("serial")
 public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
 {
@@ -319,12 +321,16 @@ public final class Terminal extends JFrame
     // ---- KeyListener interface ----
 
     public void keyPressed(KeyEvent event) {
-        if(event.getModifiers() != SHORTCUT_MASK)  // let menu commands pass
+        // Let menu commands and dead keys (if active) pass
+        // Dead keys are passed because they wont work on Windows otherwise
+        if(event.getModifiers() != SHORTCUT_MASK && !(Utility.isDeadKey(event) && isActive) )  
             event.consume();
     }
-
+    
     public void keyReleased(KeyEvent event) {
-        if(event.getModifiers() != SHORTCUT_MASK)
+        // Let menu commands and dead keys (if active) pass
+        // Dead keys are passed because they wont work on Windows otherwise
+        if(event.getModifiers() != SHORTCUT_MASK && !(Utility.isDeadKey(event) && isActive) )  
             event.consume();
     }
 

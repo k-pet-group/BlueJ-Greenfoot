@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Shape;
 import java.awt.Window;
+import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +31,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 5835 2008-08-22 12:28:15Z polle $
+ * @version $Id: Utility.java 5845 2008-09-01 18:29:46Z polle $
  */
 public class Utility
 {
@@ -727,4 +728,30 @@ public class Utility
         }
     }
 
+    /**
+     * Determines whether the given key is a dead key.
+     */
+    public static boolean isDeadKey(KeyEvent event)
+    {
+        switch(event.getKeyCode()) {
+            case KeyEvent.VK_DEAD_GRAVE:
+            case KeyEvent.VK_DEAD_ACUTE:
+            case KeyEvent.VK_DEAD_CIRCUMFLEX:
+            case KeyEvent.VK_DEAD_TILDE:
+            case KeyEvent.VK_DEAD_MACRON:
+            case KeyEvent.VK_DEAD_BREVE:
+            case KeyEvent.VK_DEAD_ABOVEDOT:
+            case KeyEvent.VK_DEAD_DIAERESIS:
+            case KeyEvent.VK_DEAD_ABOVERING:
+            case KeyEvent.VK_DEAD_DOUBLEACUTE:
+            case KeyEvent.VK_DEAD_CARON:
+            case KeyEvent.VK_DEAD_CEDILLA:
+            case KeyEvent.VK_DEAD_OGONEK:
+            case KeyEvent.VK_DEAD_IOTA:
+            case KeyEvent.VK_DEAD_VOICED_SOUND:
+            case KeyEvent.VK_DEAD_SEMIVOICED_SOUND:
+                return true;                
+        }
+        return false;
+    }
 }
