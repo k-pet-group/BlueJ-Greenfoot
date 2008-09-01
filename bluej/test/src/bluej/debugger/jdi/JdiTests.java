@@ -30,7 +30,7 @@ import bluej.views.View;
  * Tests for the debugger.
  *  
  * @author Davin McCall
- * @version $Id: JdiTests.java 5346 2007-10-29 05:00:43Z davmac $
+ * @version $Id: JdiTests.java 5837 2008-09-01 03:38:28Z davmac $
  */
 public class JdiTests extends TestCase
 {
@@ -228,7 +228,7 @@ public class JdiTests extends TestCase
         launchDir = new File(launchDir, "test2");
         String projectPath = launchDir.getPath();
         
-        Project.createNewProject(projectPath); // may already exist
+        Project.createNewProject(projectPath, false); // may already exist
         Project proj = Project.openProject(projectPath);
         if(proj == null)
             throw new NullPointerException();

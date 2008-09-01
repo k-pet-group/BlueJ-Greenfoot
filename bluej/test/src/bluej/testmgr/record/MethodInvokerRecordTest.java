@@ -1,5 +1,8 @@
 package bluej.testmgr.record;
 
+import bluej.debugger.gentype.JavaType;
+import bluej.utility.JavaUtils;
+
 /**
  * Write a description of the test class $CLASSNAME here.
  *
@@ -18,7 +21,8 @@ public class MethodInvokerRecordTest extends junit.framework.TestCase
     @Override
     protected void setUp()
     {
-        lotsOfAssertions = new MethodInvokerRecord(java.lang.Math.class,
+        JavaType mathType = JavaUtils.getJavaUtils().genTypeFromClass(java.lang.Math.class);
+        lotsOfAssertions = new MethodInvokerRecord(mathType,
                                                     "Math.pow(4,3)", new String [] {"3", "4"});
         lotsOfAssertions.addAssertion(
             InvokerRecord.makeAssertionStatement("assertNotNull"));
