@@ -23,7 +23,8 @@ public class MethodInvokerRecordTest extends junit.framework.TestCase
     {
         JavaType mathType = JavaUtils.getJavaUtils().genTypeFromClass(java.lang.Math.class);
         lotsOfAssertions = new MethodInvokerRecord(mathType,
-                                                    "Math.pow(4,3)", new String [] {"3", "4"});
+                                                    "Math.pow(4,3)", new String [] {"3", "4"},
+                                                    null);
         lotsOfAssertions.addAssertion(
             InvokerRecord.makeAssertionStatement("assertNotNull"));
         lotsOfAssertions.addAssertion(
