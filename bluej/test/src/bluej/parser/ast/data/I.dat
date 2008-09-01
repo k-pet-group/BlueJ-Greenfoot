@@ -1,0 +1,10 @@
+class I
+{
+    /**
+     * Multi-dimensional array argument
+     */
+    public void method(int [][] args)
+    {
+        return;
+    }
+}

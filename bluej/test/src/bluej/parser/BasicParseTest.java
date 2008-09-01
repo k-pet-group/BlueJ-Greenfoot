@@ -230,6 +230,27 @@ public class BasicParseTest extends junit.framework.TestCase
         
     }
     
+    public void testMultiDimensionalArrayParam() throws Exception
+    {
+        File file = getFile("AffinedTransformer.dat");
+        List<String> packageClasses = new ArrayList<String>();
+        ClassInfo info = ClassParser.parse(file, packageClasses);
+        
+        // Check that comment is created with parameter names
+        Properties comments = info.getComments();
+        
+        String wantedComment = "void method(int [][] args)";
+        for (int commentNum = 0; ; commentNum++) {
+            String comment = comments.getProperty("comment" + commentNum + ".target");
+            if (comment.equals(wantedComment)) {
+                String paramNames = comments.getProperty("comment" + commentNum + ".params");
+                assertEquals(paramNames, "args");
+                break;
+            }
+            assertNotNull(comment);
+        }
+    }
+    
     public void testDependencyAnalysis()
         throws Exception
     {
