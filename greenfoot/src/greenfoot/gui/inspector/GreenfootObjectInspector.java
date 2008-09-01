@@ -41,7 +41,7 @@ public class GreenfootObjectInspector extends ObjectInspector
     @Override
     protected boolean isGetEnabled()
     {
-        return GreenfootInspector.isGetEnabled(selectedObject);
+        return GreenfootInspector.isGetEnabled(selectedField);
     }
 
     /**
@@ -50,6 +50,6 @@ public class GreenfootObjectInspector extends ObjectInspector
     @Override
     protected void doGet()
     {
-        GreenfootInspector.doGet(selectedObject);
+        GreenfootInspector.doGet(selectedField);
     }
 }

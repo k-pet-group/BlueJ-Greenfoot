@@ -38,7 +38,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
 import bluej.Config;
-import bluej.groupwork.ui.MiksGridLayout;
+import bluej.utility.MiksGridLayout;
 import bluej.utility.SwingWorker;
 
 /**
@@ -46,7 +46,7 @@ import bluej.utility.SwingWorker;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ExportPublishPane.java 5786 2008-07-01 03:16:59Z davmac $
+ * @version $Id: ExportPublishPane.java 5843 2008-09-01 12:53:33Z polle $
  */
 public class ExportPublishPane extends ExportPane
 {
