@@ -30,7 +30,7 @@ import com.sun.jdi.ObjectReference;
  * A class to represent a local object as a DebuggerObject
  *  
  * @author Davin McCall
- * @version $Id: LocalObject.java 5726 2008-05-01 01:27:03Z polle $
+ * @version $Id: LocalObject.java 5844 2008-09-01 13:11:51Z polle $
  */
 public class LocalObject extends DebuggerObject
 {
@@ -370,6 +370,20 @@ public class LocalObject extends DebuggerObject
     public String getInstanceFieldName(int slot)
     {
         return getInstanceFieldSlot(slot).getName();
+    }
+
+    /**
+     *  Return the type of the object field at 'slot'.
+     *
+     *@param  slot  The slot number to be checked
+     *@return       The type of the field
+     */
+    @Override
+    public String getInstanceFieldType(int slot)
+    {
+        Field f = getInstanceFieldSlot(slot);
+        JavaType fieldType = JavaUtils.getJavaUtils().getFieldType(f);
+        return fieldType.toString();
     }
 
     /**

@@ -13,12 +13,15 @@ import java.util.List;
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.gentype.JavaType;
+import bluej.debugger.jdi.JdiReflective;
+import bluej.utility.JavaUtils;
 
 /**
  * Represent a local class as a DebuggerClass.
  * 
  * @author Davin McCall
- * @version $Id: LocalClass.java 5621 2008-02-29 18:24:46Z polle $
+ * @version $Id: LocalClass.java 5844 2008-09-01 13:11:51Z polle $
  */
 public class LocalClass extends DebuggerClass
 {
@@ -40,7 +43,21 @@ public class LocalClass extends DebuggerClass
     {
         return cl.getName();
     }
-
+    
+    /**
+     *  Return the type of the static field at 'slot'.
+     *
+     *@param  slot  The slot number to be checked
+     *@return       The type of the static field
+     */
+    @Override
+    public String getStaticFieldType(int slot)
+    {
+        Field f = getFields()[slot];
+        JavaType fieldType = JavaUtils.getJavaUtils().getFieldType(f);
+        return fieldType.toString();
+    }
+    
     /* (non-Javadoc)
      * @see bluej.debugger.DebuggerClass#getStaticFieldCount()
      */
