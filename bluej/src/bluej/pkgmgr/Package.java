@@ -64,7 +64,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 5819 2008-08-01 10:23:29Z davmac $
+ * @version $Id: Package.java 5853 2008-09-02 13:58:28Z polle $
  */
 public final class Package extends Graph
 {
@@ -1911,7 +1911,7 @@ public final class Package extends Graph
     }
 
     /**
-     * Test whether a file instance denotes a BlueJ package directory.
+     * Test whether a file instance denotes a BlueJ or Greenfoot package directory depending on which mode we are in.
      * 
      * @param f
      *            the file instance that is tested for denoting a BlueJ package.
@@ -1919,7 +1919,10 @@ public final class Package extends Graph
      */
     public static boolean isBlueJPackage(File f)
     {
-        return BlueJPackageFile.exists(f);
+        if(Config.isGreenfoot())
+            return GreenfootProjectFile.exists(f);
+        else 
+            return BlueJPackageFile.exists(f);
     }
 
     /**

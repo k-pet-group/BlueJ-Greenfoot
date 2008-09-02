@@ -89,5 +89,25 @@ public class GreenfootProjectFile
             }
         }
     }
+    
+    /**
+     * Whether a Greenfoot package file exists in this directory.
+     */
+    public static boolean exists(File dir)
+    {
+        if (dir == null)
+            return false;
+
+        // don't try to test Windows root directories (you'll get in
+        // trouble with disks that are not in drives...).
+        if (dir.getPath().endsWith(":\\"))
+            return false;
+
+        if (!dir.isDirectory())
+            return false;
+
+        File packageFile = new File(dir, pkgfileName);
+        return packageFile.exists();
+    }
 
 }
