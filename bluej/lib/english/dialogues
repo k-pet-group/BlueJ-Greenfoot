@@ -412,6 +412,10 @@ The output directory for the archive being extracted already
 exists. You must remove the existing directory before you can
 extract the archive.
 
+jar-output-no-write
+The output directory cannot be created. Make sure you copy the 
+archive to a writable folder first.
+
 jar-extraction-error
 An error occurred in extracting the archive contents. The debug
 log may contain more information.

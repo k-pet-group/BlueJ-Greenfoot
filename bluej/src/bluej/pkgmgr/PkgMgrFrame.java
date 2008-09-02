@@ -60,7 +60,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 5829 2008-08-06 13:56:11Z polle $
+ * @version $Id: PkgMgrFrame.java 5849 2008-09-02 10:51:06Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1287,14 +1287,22 @@ public class PkgMgrFrame extends JFrame
                 // file, with the .jar extension stripped.
                 
                 oPath = new File(oPath, jarName.getName().substring(0, jarName.getName().length() - 4));
-                if (! oPath.mkdir()) {
+                if (! oPath.canWrite()) {
+                    DialogManager.showErrorWithText(this, "jar-output-no-write", jarName.toString());
+                    return;
+                }
+                else if (! oPath.mkdir()) {
                     DialogManager.showErrorWithText(this, "jar-output-dir-exists", oPath.toString());
                     return;
                 }
             }
             else {
                 File prefixFolderFile = new File(oPath, prefixFolder);
-                if (! prefixFolderFile.mkdir()) {
+                if (! prefixFolderFile.canWrite()) {
+                    DialogManager.showErrorWithText(this, "jar-output-no-write", jarName.toString());
+                    return;
+                }
+                else if (! prefixFolderFile.mkdir()) {
                     DialogManager.showErrorWithText(this, "jar-output-dir-exists", prefixFolderFile.toString());
                     return;
                 }
