@@ -153,7 +153,7 @@ public final class MoeEditor extends JFrame
      * Property map, allows BlueJ extensions to assosciate property values with
      * this editor instance; otherwise unused.
      */
-    private HashMap propertyMap = new HashMap();
+    private HashMap<String,Object> propertyMap = new HashMap<String,Object>();
 
     
     /**
@@ -1700,6 +1700,19 @@ public final class MoeEditor extends JFrame
         htmlPane.setEditorKit(new HTMLEditorKit());
         htmlPane.setEditable(false);
         htmlPane.addHyperlinkListener(this);
+        htmlPane.setInputMap(JComponent.WHEN_FOCUSED, new InputMap() {
+            public Object get(KeyStroke keyStroke)
+            {
+                // Define no action for up/down, which allows the parent scroll
+                // pane to process the keys instead. This means the view will scroll,
+                // rather than just moving an invisible cursor.
+                Object action = super.get(keyStroke);
+                if ("caret-up".equals(action) || "caret-down".equals(action)) {
+                    return null;
+                }
+                return action;
+            }
+        });
     }
 
     // --------------------------------------------------------------------
