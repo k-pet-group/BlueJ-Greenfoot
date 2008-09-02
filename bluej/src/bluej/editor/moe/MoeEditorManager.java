@@ -180,8 +180,6 @@ public final class MoeEditorManager
         editor = new MoeEditor(windowTitle, isCode, watcher, showToolBar,
                                showLineNum, resources);
         editors.add(editor);
-        if (watcher!=null && filename==null)	// editor for class interface
-            return editor;
         if (editor.showFile(filename, compiled, docFilename, bounds))
             return editor;
         else {

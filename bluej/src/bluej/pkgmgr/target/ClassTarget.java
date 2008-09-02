@@ -59,7 +59,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 5819 2008-08-01 10:23:29Z davmac $
+ * @version $Id: ClassTarget.java 5847 2008-09-02 04:44:21Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -314,7 +314,7 @@ public class ClassTarget extends DependentTarget
      * 
      * @param cl Description of the Parameter
      */
-    public void determineRole(Class cl)
+    public void determineRole(Class<?> cl)
     {
         isAbstract = false;
         
@@ -322,9 +322,9 @@ public class ClassTarget extends DependentTarget
             isAbstract = Modifier.isAbstract(cl.getModifiers());
             
             ClassLoader clLoader = cl.getClassLoader();
-            Class junitClass = null;
-            Class appletClass = null;
-            Class midletClass = null;
+            Class<?> junitClass = null;
+            Class<?> appletClass = null;
+            Class<?> midletClass = null;
 
             // It shouldn't ever be the case that the class is on the bootstrap
             // class path (and was loaded by the bootstrap class loader), unless
@@ -725,9 +725,17 @@ public class ClassTarget extends DependentTarget
     private Editor getEditor(boolean showInterface)
     {
         // ClassTarget must have source code if it is to provide an editor
-        if (editor == null && hasSourceCode()) {
+        if (editor == null) {
             String filename = getSourceFile().getPath();
             String docFilename = getPackage().getProject().getDocumentationFile(filename);
+            if (! hasSourceCode()) {
+                filename = null; // no source - show docs only
+                showInterface = true;
+                if (! new File(docFilename).exists()) {
+                    return null;
+                }
+            }
+            
             editor = EditorManager.getEditorManager().openClass(filename, docFilename, getBaseName(), this,
                     isCompiled(), editorBounds);
             
@@ -1341,7 +1349,8 @@ public class ClassTarget extends DependentTarget
                 menu.addSeparator();
             }
         }
-        role.addMenuItem(menu, new EditAction(), hasSourceCode());
+        boolean sourceOrDocExists = hasSourceCode() || getDocumentationFile().exists();
+        role.addMenuItem(menu, new EditAction(), sourceOrDocExists);
         role.addMenuItem(menu, new CompileAction(), hasSourceCode());
         role.addMenuItem(menu, new InspectAction(), cl != null);
         role.addMenuItem(menu, new RemoveAction(), true);

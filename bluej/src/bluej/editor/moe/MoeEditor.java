@@ -249,21 +249,18 @@ public final class MoeEditor extends JFrame
                 readError = true;
             }
         }
+        else {
+            if (docFilename != null) {
+                if (new File(docFilename).exists()) {
+                    showInterface(true);
+                    loaded = true;
+                    interfaceToggle.setEnabled(false);
+                }
+            }
+        }
 
         if (!loaded)             // should exist, but didn't
             return false;
-
-        //     if (loaded) ## NYI
-        //       if (newFile.canWrite()) { // have write permission
-        // 	  save_state = Saved;
-        // 	  statusLabel.setText("saved");
-        //       }
-        //       else {
-        // 	  save_state = ReadOnly;
-        // 	  statusLabel.setText("read only");
-        //       }
-        //     else
-        //       save_state = Saved;
 
         if (loaded)
             info.message(Config.getString("editor.info.version") + " " + versionString);
@@ -665,6 +662,9 @@ public final class MoeEditor extends JFrame
      */
     private void checkForChangeOnDisk()
     {
+        if (filename == null) {
+            return;
+        }
         File file = new File(filename);
         long modified = file.lastModified();
         if(modified != lastModified) {
@@ -1633,6 +1633,9 @@ public final class MoeEditor extends JFrame
      */
     private boolean docUpToDate()
     {
+        if (filename == null) {
+            return true;
+        }
         try {
             File src = new File(filename);
             File doc = new File(docFilename);
