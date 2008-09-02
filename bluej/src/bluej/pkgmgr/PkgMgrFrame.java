@@ -60,7 +60,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 5849 2008-09-02 10:51:06Z polle $
+ * @version $Id: PkgMgrFrame.java 5850 2008-09-02 11:06:00Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1157,7 +1157,7 @@ public class PkgMgrFrame extends JFrame
             return false;
 
         if( ! newProject( newname, isJavaMEproject ) ) {
-            DialogManager.showError(null, "directory-exists");
+            DialogManager.showErrorWithText(null, "cannot-create-directory", newname);
             return false;
         }
 

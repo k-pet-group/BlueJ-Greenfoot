@@ -118,6 +118,11 @@ directory-exists
 A file or directory with this
 name already exists.
 
+cannot-create-directory
+Cannot create the directory. Check that 
+it has a valid name and that the parent 
+directories exist and are writable.
+
 cannot-copy-package
 There was a problem copying the
 package files. The package was
