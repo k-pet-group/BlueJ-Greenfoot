@@ -31,7 +31,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 5845 2008-09-01 18:29:46Z polle $
+ * @version $Id: Utility.java 5852 2008-09-02 12:57:36Z polle $
  */
 public class Utility
 {
@@ -546,7 +546,7 @@ public class Utility
                 commandAsStr.append(command[i] + " ");
             }
             
-            System.out.print("toFront executing command: " + commandAsStr);
+            //System.out.print("toFront executing command: " + commandAsStr);
             
             try {
                 Process p = Runtime.getRuntime().exec(command);
