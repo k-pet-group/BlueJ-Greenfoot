@@ -34,8 +34,8 @@ public final class MoeEditorManager
     // private variables
 
     private Properties resources;
-    private List editors;			// open editors
-    private Finder finder;			// the finder object
+    private List<MoeEditor> editors; // open editors
+    private Finder finder;           // the finder object
 
     // user preferences
 
@@ -46,7 +46,7 @@ public final class MoeEditorManager
 
     public MoeEditorManager()
     {
-        editors = new ArrayList(4);
+        editors = new ArrayList<MoeEditor>(4);
         finder = new Finder();
                
         showToolBar = true;
@@ -106,13 +106,14 @@ public final class MoeEditorManager
 
     public void refreshAll()
     {
-        Iterator e = editors.iterator();
+        Iterator<MoeEditor> e = editors.iterator();
 
         while(e.hasNext()) {
-            Editor ed = (Editor)e.next();
+            Editor ed = e.next();
 
-            if(ed.isShowing())
+            if(ed.isShowing()) {
                 ed.refresh();
+            }
        }
     }
 
