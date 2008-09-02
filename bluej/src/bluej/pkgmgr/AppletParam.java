@@ -8,7 +8,7 @@ import java.util.StringTokenizer;
  * saved project properties.
  *
  * @author  Bruce Quig
- * @version $Id: AppletParam.java 1418 2002-10-18 09:38:56Z mik $
+ * @version $Id: AppletParam.java 5851 2008-09-02 12:36:28Z polle $
  */
 public final class AppletParam 
 {
@@ -30,8 +30,7 @@ public final class AppletParam
     {
         paramName = key;
         paramValue = value;
-    }    
-    
+    }        
     
     /**
      * Constructor for creating from a stored parameter String
@@ -41,22 +40,15 @@ public final class AppletParam
     public AppletParam(String parameterString) 
     {
         //need to parse parameter line and recreate AppletParam object
-       
-        StringTokenizer st = new StringTokenizer(parameterString, " <>=");
-        while (st.hasMoreTokens()) {
-            String token = st.nextToken();
-            if(NAME.equalsIgnoreCase(token)) {
-                paramName = st.nextToken();
-            }
-            else if(VALUE.equalsIgnoreCase(token)) {
-                paramValue = st.nextToken();
-            }
-        }
-     }
- 
- 
-    
-    
+        // (?i) ignore case
+        String nameRegEx = "(?i)\\s*<\\s*PARAM NAME\\s*=\\s*\"?|\"?\\s*VALUE\\s*=.*";        
+        String[] names = parameterString.split(nameRegEx);
+        paramName = names[1];
+        
+        String valueRegEx = "(?i).*VALUE\\s*=\\s*\"?|\"?\\s*>\\s*";
+        String[] values = parameterString.split(valueRegEx);
+        paramValue = values[1];
+    }    
     
     /** 
      * Getter for property paramValue.
@@ -98,9 +90,8 @@ public final class AppletParam
      * the html page
      */
     public String toString() {
-        return "<" + PARAM_NAME + " = " + paramName
-        + "   " + VALUE + " = " + paramValue + ">";
-        
+        return "<" + PARAM_NAME + " = \"" + paramName
+        + "\"   " + VALUE + " = \"" + paramValue + "\">";        
     }
     
 }
