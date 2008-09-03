@@ -15,6 +15,8 @@ import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.SwingUtilities;
+
 import rmiextension.wrappers.RObject;
 import bluej.debugmgr.CallDialog;
 import bluej.debugmgr.CallDialogWatcher;
@@ -198,6 +200,11 @@ public class WorldInvokeListener
         }
     }
     
+    /**
+     * Callback method that will be called when Ok or Cancel has been pressed in
+     * a method call dialog. This method will execute the method call on a
+     * different thread.
+     */
     public void callDialogEvent(CallDialog dlg, int event)
     {
         if (event == CallDialog.CANCEL) {
@@ -232,13 +239,6 @@ public class WorldInvokeListener
                 e1.printStackTrace();
             }
 
-            CallableView callv = mv == null ? (CallableView)cv : mv;
-            Class [] cparams = callv.getParameters();
-            String [] params = new String[cparams.length];
-            for (int i = 0; i < params.length; i++) {
-                params[i] = cparams[i].getName();
-            }
-
             GPackage pkg = null;
             try {
                 pkg = project.getDefaultPackage();
@@ -254,88 +254,153 @@ public class WorldInvokeListener
             
             if(pkg == null) {
                 return;
-            }
+            }      
             
-            if (mv != null) {
-                // method call
-                try {
-                    String resultName;
-                    if (rObj != null)
-                        resultName = rObj.invokeMethod(mv.getName(), params, mdlg.getArgs());
-                    else
-                        resultName = pkg.invokeMethod(cl.getName(), mv.getName(), params, mdlg.getArgs());
-                    
-                    // error is indicated by result beginning with "!"
-                    if (resultName != null && resultName.charAt(0) == '!') {
-                        String errorMsg = resultName.substring(1);
-                        mdlg.setErrorMessage(errorMsg);
-                        mdlg.setWaitCursor(false);
-                        mdlg.setEnabled(true);
-                    }
-                    else {
-                        mdlg.setVisible(false);
-                        mdlg.dispose(); // dispose to prevent leaks
-                        Method m = mv.getMethod();
-                        if (m.getReturnType() != void.class) {
-                            // Non-void result, display it in a result inspector.
-                            
-                            String instanceName;
-                            if (rObj != null)
-                                instanceName = rObj.getInstanceName();
-                            else
-                                instanceName = cl.getName();
-                            ExpressionInformation ei = new ExpressionInformation(mv, instanceName);
-                            
-                            try {
-                                RObject rresult = pkg.getObject(resultName);
-                                Object resultw =  ObjectTracker.getRealObject(rresult);
-                                rresult.removeFromBench();
-                                
-                                ResultInspector ri = inspectorManager.getResultInspectorInstance(LocalObject.getLocalObject(resultw), instanceName, null, null, ei, GreenfootMain.getInstance().getFrame());
-                                ri.setVisible(true);
-                            }
-                            catch (PackageNotFoundException pnfe) {}
-                            catch (ProjectNotOpenException pnoe) {}
-                        }
-                    }
-                }
-                catch (RemoteException re) {
-                    // shouldn't happen.
-                    re.printStackTrace(System.out);
-                }
-            }
-            else if (cv != null) {
-                // Constructor call
-                                
-                try {
-                    String resultName = pkg.invokeConstructor(cl.getName(), params, mdlg.getArgs());
-                    if (resultName != null && resultName.charAt(0) == '!') {
-                        String errorMsg = resultName.substring(1);
-                        mdlg.setErrorMessage(errorMsg);
-                        mdlg.setWaitCursor(false);                        
-                        mdlg.setEnabled(true);
-                    }
-                    else {
-                        // Construction went ok (or there was a runtime error).
-                        mdlg.setVisible(false);
-                        MouseEvent location = (MouseEvent) dialogToLocationMap.remove(mdlg);
-                        if (resultName != null) {
-                            RObject rresult = pkg.getObject(resultName);
-                            Object resultw =  ObjectTracker.getRealObject(rresult);
-                            rresult.removeFromBench();
-                            ActorInstantiationListener invocListener = GreenfootMain.getInstance().getInvocationListener();
-                            invocListener.localObjectCreated(resultw, location);
-                        }
-                    }
-                }
-                catch (RemoteException re) {
-                    re.printStackTrace();
-                }
-                catch (ProjectNotOpenException pnoe) {}
-                catch (PackageNotFoundException pnfe) {}
-            }
-            update();
+            executeMethod(mdlg, rObj, pkg);
         }
+    }
+
+    /**
+     * Execute a method or constructor (async) that was invoked via the given
+     * method dialog on the given object in the package pkg.
+     * 
+     * TODO: The methods should maybe be invoked via reflection instead of
+     * through the BlueJ extensions. Using the BlueJ extension makes it
+     * impossible to do a compile until the execution has finished. If Compile
+     * All is pressed in Greenfoot while a method is being invoked, and error
+     * will appear and the button will be disabled.
+     * 
+     * @param mdlg MethodDialog used for the invocation.
+     * @param rObj Object to invoke method on
+     * @param pkg Package used for invocation
+     */
+    private void executeMethod(final MethodDialog mdlg, final RObject rObj, final GPackage pkg)
+    {
+
+        CallableView callv = mv == null ? (CallableView)cv : mv;
+        Class [] cparams = callv.getParameters();
+        final String [] params = new String[cparams.length];
+        for (int i = 0; i < params.length; i++) {
+            params[i] = cparams[i].getName();
+        }
+
+        Thread t = new Thread() {
+            public void run()
+            {
+                if (mv != null) {
+                    // method call
+                    try {
+                        // Hide the method dialog so the execution can be seen.
+                        SwingUtilities.invokeLater(new Runnable() {
+                            public void run()
+                            {
+                                mdlg.setVisible(false);
+                            }
+                        });
+                        
+                        String resultName;
+                        if (rObj != null)
+                            resultName = rObj.invokeMethod(mv.getName(), params, mdlg.getArgs());
+                        else
+                            resultName = pkg.invokeMethod(cl.getName(), mv.getName(), params, mdlg.getArgs());
+
+                        // error is indicated by result beginning with "!"
+                        if (resultName != null && resultName.charAt(0) == '!') {
+                            final String errorMsg = resultName.substring(1);
+                            
+                            SwingUtilities.invokeLater(new Runnable() {
+                                public void run()
+                                {
+                                    mdlg.setErrorMessage(errorMsg);
+                                    mdlg.setWaitCursor(false);
+                                    mdlg.setEnabled(true);
+                                    // relayout and display the dialog again.
+                                    mdlg.pack();
+                                    mdlg.setVisible(true);
+                                }
+                            });
+                        }
+                        else {
+                            SwingUtilities.invokeLater(new Runnable() {
+                                public void run()
+                                {
+                                    mdlg.dispose(); // dispose to prevent leaks
+                                }
+                            });
+                            Method m = mv.getMethod();
+                            if (m.getReturnType() != void.class) {
+                                // Non-void result, display it in a result
+                                // inspector.
+
+                                String instanceName;
+                                if (rObj != null)
+                                    instanceName = rObj.getInstanceName();
+                                else
+                                    instanceName = cl.getName();
+                                ExpressionInformation ei = new ExpressionInformation(mv, instanceName);
+
+                                try {
+                                    RObject rresult = pkg.getObject(resultName);
+                                    Object resultw = ObjectTracker.getRealObject(rresult);
+                                    rresult.removeFromBench();
+
+                                    ResultInspector ri = inspectorManager.getResultInspectorInstance(LocalObject
+                                            .getLocalObject(resultw), instanceName, null, null, ei, GreenfootMain
+                                            .getInstance().getFrame());
+                                    ri.setVisible(true);
+                                }
+                                catch (PackageNotFoundException pnfe) {}
+                                catch (ProjectNotOpenException pnoe) {}
+                            }
+                        }
+                    }
+                    catch (RemoteException re) {
+                        // shouldn't happen.
+                        re.printStackTrace(System.out);
+                    }
+                }
+                else if (cv != null) {
+                    // Constructor call
+
+                    try {
+                        String resultName = pkg.invokeConstructor(cl.getName(), params, mdlg.getArgs());
+                        if (resultName != null && resultName.charAt(0) == '!') {
+                            final String errorMsg = resultName.substring(1);
+
+                            SwingUtilities.invokeLater(new Runnable() {
+                                public void run()
+                                {
+                                    mdlg.setErrorMessage(errorMsg);
+                                    mdlg.setWaitCursor(false);
+                                    mdlg.setEnabled(true);
+                                }
+                            });
+                        }
+                        else {
+                            // Construction went ok (or there was a runtime
+                            // error).
+                            mdlg.setVisible(false);
+                            MouseEvent location = (MouseEvent) dialogToLocationMap.remove(mdlg);
+                            if (resultName != null) {
+                                RObject rresult = pkg.getObject(resultName);
+                                Object resultw = ObjectTracker.getRealObject(rresult);
+                                rresult.removeFromBench();
+                                ActorInstantiationListener invocListener = GreenfootMain.getInstance()
+                                        .getInvocationListener();
+                                invocListener.localObjectCreated(resultw, location);
+                            }
+                        }
+                    }
+                    catch (RemoteException re) {
+                        re.printStackTrace();
+                    }
+                    catch (ProjectNotOpenException pnoe) {}
+                    catch (PackageNotFoundException pnfe) {}
+                }
+                update();
+            }
+        };
+        t.start();
     }
 
     private void update()
