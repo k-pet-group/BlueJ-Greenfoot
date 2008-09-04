@@ -6,7 +6,6 @@ import greenfoot.platforms.ActorDelegate;
 import greenfoot.util.Circle;
 import greenfoot.util.GreenfootUtil;
 
-import java.awt.image.BufferedImage;
 import java.util.List;
 
 
