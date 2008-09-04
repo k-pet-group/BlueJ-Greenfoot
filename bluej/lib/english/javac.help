@@ -802,3 +802,7 @@ No help available
 * conflicts with a compiler-synthesized symbol in *
 No help available
 
+reached end of file while parsing
+This means you have opened a block using '{' but not closed it with '}'. You
+might either have a '{' where you don't need one, or you have left out a '}'
+where you do need one.
