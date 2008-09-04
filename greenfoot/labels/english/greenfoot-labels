@@ -19,7 +19,7 @@ project.version.older.part1=The scenario that you are trying to open appears to 
 # project version inserted here by Greenfoot
 project.version.older.part2=). The scenario will be updated to the current version (API version 
 # api version inserted here by Greenfoot
-project.version.older.part3=). The range of the speed slider has changed in this release, so you might want to adjust the speed setting for this scenario.
+project.version.older.part3=). The range of the speed slider has changed since, so you might want to adjust the speed setting for this scenario.
 project.version.newer.part1=The scenario that you are trying to open appears to be a Greenfoot scenario created with a newer version of the Greenfoot API (version 
 # project version inserted here by Greenfoot
 project.version.newer.part2=). Opening the scenario with this version might result in some errors that will have to be fixed manually.\n\nDo you want to continue opening the scenario?

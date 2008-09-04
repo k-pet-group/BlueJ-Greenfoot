@@ -43,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 5811 2008-07-23 16:45:17Z polle $
+ * @version $Id: GreenfootMain.java 5856 2008-09-04 13:09:30Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -54,7 +54,10 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     public static final int VERSION_UPDATED = 1;
     /** The project was not a greenfoot project, or the user chose to cancel the open */
     public static final int VERSION_BAD = 2;
-    
+
+    /** Version of the API for this Greenfoot release. */
+    private static Version version = null;
+
     /** Greenfoot is a singleton - this is the instance. */
     private static GreenfootMain instance;
 
@@ -72,7 +75,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
     /** The path to the dummy startup project */
     private File startupProject;
-    
+
     /**
      * Forwards compile events to all the compileListeners that has registered
      * to reccieve compile events.
@@ -99,10 +102,9 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             return name.toLowerCase().endsWith(".class");
         }
     };
-    
+
     private ClassLoader currentLoader;
-    
-  
+
     // ----------- static methods ------------
 
     /**
@@ -164,7 +166,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
                     // Config is initialized in GreenfootLauncherDebugVM
 
-                    if(!isStartupProject()) {
+                    if (!isStartupProject()) {
                         try {
                             instantiationListener = new ActorInstantiationListener(WorldHandler.getInstance());
 
@@ -174,7 +176,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
                             compileListenerForwarder = new CompileListenerForwarder(compileListeners);
                             GreenfootMain.this.rBlueJ.addCompileListener(compileListenerForwarder, pkg.getProject().getDir());
-                            
+
                             classStateManager = new ClassStateManager(project);
                             rBlueJ.addClassListener(classStateManager);
                         }
@@ -185,7 +187,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     else {
                         Utility.bringToFront(frame);
                     }
-            	}
+                }
             });
         }
         catch (Exception exc) {
@@ -193,12 +195,11 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         }
 
     }
-    
-    
+
     /**
      * Check whether this instance of greenfoot is running the dummy
      * startup project.
-     * @return  true if this is the startup project
+     * @return true if this is the startup project
      */
     private boolean isStartupProject()
     {
@@ -212,7 +213,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             return false;
         }
     }
-    
+
     /**
      * Opens the project in the given directory. The project launches in a
      * new VM.
@@ -220,48 +221,48 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     public void openProject(String projectDir)
         throws RemoteException
     {
-    	File projectDirFile = new File(projectDir);
-    	
-    	// Display msg dialog of project does not exist.
-    	if (!projectDirFile.exists()) {
+        File projectDirFile = new File(projectDir);
+
+        // Display msg dialog of project does not exist.
+        if (!projectDirFile.exists()) {
             JButton[] buttons = new JButton[]{new JButton(Config.getString("greenfoot.continue"))};
             MessageDialog confirmRemove = new MessageDialog(frame, Config.getString("noproject.dialog.msg")
                     + System.getProperty("line.separator") + projectDir, Config.getString("noproject.dialog.title"),
                     200, buttons);
             confirmRemove.display();
-    	    return;
-    	}
-    	
+            return;
+        }
+
         try {
     		// It's possible that the user re-opened a project which they previously closed,
     		// resulting in an empty frame (because no other open projects). In that case the
     		// project is actually still running, behind the scenes; so just re-display it.
-    		if (project.getDir().equals(projectDirFile)) {
-    			frame.openProject(project);
-    			return;
-    		}
-    	}
-    	catch (ProjectNotOpenException pnoe) {}
-    	
+            if (project.getDir().equals(projectDirFile)) {
+                frame.openProject(project);
+                return;
+            }
+        }
+        catch (ProjectNotOpenException pnoe) {}
+
         int versionStatus = GreenfootMain.updateApi(projectDirFile, frame);
         boolean doOpen = versionStatus != VERSION_BAD;
         if (doOpen) {
             rBlueJ.openProject(projectDir);
 
             // if this is the dummy startup project, close it now.
-            if(frame.getProject() == null) {
+            if (frame.getProject() == null) {
                 project.close();
             }
         }
     }
-    
+
     /**
      * Opens a file browser to find a greenfoot project
      */
     public void openProjectBrowser()
     {
         File dirName = GreenfootUtil.getScenarioFromFileBrowser(frame);
-    
+
         if (dirName != null) {
             try {
                 openProject(dirName.getAbsolutePath());
@@ -296,8 +297,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     rBlueJ.exit();
                 } else {
                     frame.closeProject();
-                    //getInstance().openProject(startupProject.getPath());
-                    //project.close();
+                    // getInstance().openProject(startupProject.getPath());
+                    // project.close();
                 }
             } else {
                 project.close();
@@ -306,7 +307,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             re.printStackTrace();
         }
     }
-    
+
     /**
      * Close the project in the given frame. This will also close the frame, or (if
      * the windowClosing parameter is false, and no other projects are open) make it
@@ -314,16 +315,16 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      */
     public static void closeProject(GreenfootFrame frame, boolean windowClosing)
     {
-    	instance.closeThisInstance(windowClosing);
+        instance.closeThisInstance(windowClosing);
     }
-    
+
     /* (non-Javadoc)
      * @see rmiextension.wrappers.event.RProjectListener#projectClosing()
      */
     public void projectClosing()
     {
         try {
-            if(!isStartupProject()) {
+            if (!isStartupProject()) {
                 rBlueJ.removeCompileListener(compileListenerForwarder);
                 rBlueJ.removeClassListener(classStateManager);
                 storeFrameState();
@@ -336,7 +337,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             re.printStackTrace();
         }
     }
-        
+
     /**
      * Close all open Greenfoot project instances, i.e. exit the application.
      */
@@ -349,25 +350,25 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             re.printStackTrace();
         }
     }
-    
+
     /**
      * Store the current main window size to the project properties.
      */
     private void storeFrameState()
     {
         ProjectProperties projectProperties = project.getProjectProperties();
-        
+
         projectProperties.setInt("mainWindow.width", frame.getWidth());
         projectProperties.setInt("mainWindow.height", frame.getHeight());
         Point loc = frame.getLocation();
         projectProperties.setInt("mainWindow.x", loc.x);
         projectProperties.setInt("mainWindow.y", loc.y);
-        
+
         Class cls = WorldHandler.getInstance().getLastWorldClass();
-        if(cls != null) {
+        if (cls != null) {
             projectProperties.setString("world.lastInstantiated", WorldHandler.getInstance().getLastWorldClass().getName());
         }
-        
+
         projectProperties.save();
     }
 
@@ -379,10 +380,10 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     private void addCompileListener(CompileListener listener)
     {
         synchronized (compileListeners) {
-            compileListeners.add(0, listener);            
+            compileListeners.add(0, listener);
         }
     }
-    
+
     /**
      * Adds a listener for invocation events
      * 
@@ -409,7 +410,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 // ProjectManager on the BlueJ VM.
 
                 // if the project that is already open is the dummy startup project, close it now.
-                if(isStartupProject()) {
+                if (isStartupProject()) {
                     project.close();
                 }
             }
@@ -458,7 +459,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         File dst = projectDir;
 
         deleteAllClassFiles(dst);
-        
+
         // Since Greenfoot 1.3.0 we no longer use the bluej.pkg file, so if it
         // exists it should now be deleted.
         try {
@@ -474,20 +475,20 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         catch (SecurityException e) {
             // If we don't have permission to delete, just leave them there.
         }
-        
+
         GreenfootUtil.copyDir(src, dst);
-        
+
         touchApiClasses(dst);
-        
+
         p.setApiVersion(getAPIVersion().toString());
         p.save();
     }
-    
+
     /**
      * "Touch" the actor and world class files to ensure that BlueJ/
      * Greenfoot think they are compiled.
      * 
-     * @param projectDir  The Greenfoot project directory
+     * @param projectDir The Greenfoot project directory
      */
     private static void touchApiClasses(File projectDir)
     {
@@ -505,8 +506,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      * Checks whether the API version this project was created with is
      * compatible with the current API version. If it is not, it will attempt to
      * update the project to the current version of the API and present the user
-     * with a dialog with instructions on what to do if there is a changes in
-     * API version that requires manual modifications of the API.
+     * with a dialog with instructions on what to do if there are changes in API
+     * version that requires manual modifications of the API.
      * <p>
      * If is considered safe to open this project with the current API version
      * the method will return true.
@@ -524,31 +525,27 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
         Version apiVersion = GreenfootMain.getAPIVersion();
 
-        if (projectVersion.equals(apiVersion)) {
-            // If the version number matches everything should be ok.
-            //
-            // Just to be sure, we check that the greenfoot subdirectory is
-            // actually there. This makes it easier to work with, since it will
-            // then reinstall the classes after cleaning the scenarios with the
-            // ant script.
-            File greenfootDir = new File(projectDir, "greenfoot");
-            if(! greenfootDir.exists()) {
-                GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties);
-            }
-            return VERSION_OK;
+        if(apiVersion == null) {
+            String message = Config.getString("project.version.notGreenfoot") + projectDir;
+            JButton continueButton = new JButton(Config.getString("greenfoot.continue"));
+            MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 50,
+                    new JButton[]{continueButton});
+            dialog.displayModal();
+            return VERSION_BAD;
         }
-
-        if (projectVersion == Version.NO_VERSION) {
+        else if (projectVersion.isBad()) {
             String message = Config.getString("project.version.none");
             JButton continueButton = new JButton(Config.getString("greenfoot.continue"));
             MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 50,
                     new JButton[]{continueButton});
             dialog.displayModal();
-            System.out.println(message);
+            Debug.message("Bad version number in project: " + greenfootLibDir);
             GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties);
+
+            System.out.println("BAD VERSION");
             return VERSION_UPDATED;
         }
-        else if (projectVersion.compareTo(apiVersion) < 0) {
+        else if (projectVersion.isOlderAndBreaking(apiVersion)) {
             String message = Config.getString("project.version.older.part1") + projectVersion
                     + Config.getString("project.version.older.part2") + apiVersion
                     + Config.getString("project.version.older.part3");
@@ -557,17 +554,19 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     new JButton[]{continueButton});
             dialog.displayModal();
             GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties);
+
             return VERSION_UPDATED;
         }
-        else if (projectVersion.compareTo(apiVersion) > 0) { //
-            String message = Config.getString("project.version.newer.part1") + projectVersion 
-                + Config.getString("project.version.newer.part2");
+        else if (apiVersion.isOlderAndBreaking(projectVersion)) {
+            String message = Config.getString("project.version.newer.part1") + projectVersion
+                    + Config.getString("project.version.newer.part2");
 
             JButton cancelButton = new JButton(Config.getString("greenfoot.cancel"));
             JButton continueButton = new JButton(Config.getString("greenfoot.continue"));
-            MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 50, new JButton[]{
-                    continueButton, cancelButton});
+            MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 50,
+                    new JButton[]{continueButton, cancelButton});
             JButton pressed = dialog.displayModal();
+
             if (pressed == cancelButton) {
                 return VERSION_BAD;
             }
@@ -576,24 +575,36 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 return VERSION_UPDATED;
             }
         }
-        else {
-            String message = Config.getString("project.version.notGreenfoot") + projectDir;
-            JButton continueButton = new JButton(Config.getString("greenfoot.continue"));
-            MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 50,
-                    new JButton[]{continueButton});
-            dialog.displayModal();
-            return VERSION_BAD;
+        else if (projectVersion.isNonBreaking(apiVersion) || projectVersion.isInternal(apiVersion)) {
+            // For now, we treat non breaking changes and internal change the
+            // same way. But this might change in the future so we still keep
+            // the information.
+            prepareGreenfootProject(greenfootLibDir, projectDir, newProperties);
+            return VERSION_UPDATED;
         }
+        else {
+            // Versions match
+            // Just to be sure, we check that the greenfoot subdirectory is
+            // actually there. This makes it easier to work with, since it will
+            // then reinstall the classes after cleaning the scenarios with the
+            // ant script.
+            File greenfootDir = new File(projectDir, "greenfoot");
 
+            if (!greenfootDir.exists()) {
+                GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties);
+            }
+
+            return VERSION_OK;
+        }
     }
 
     /**
      * Deletes all class files in the directory, including the greenfoot subdirectory.
      */
-    public static void deleteAllClassFiles(File dst) 
+    public static void deleteAllClassFiles(File dst)
     {
         deleteClassFiles(dst);
-        
+
         File greenfootDir = new File(dst, "greenfoot");
         // the greenfoot dir does not necessarily exist
         if (greenfootDir.canRead()) {
@@ -610,7 +621,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     {
         String[] classFiles = dir.list(classFilter);
         if(classFiles == null) return;
-        
+
         for (int i = 0; i < classFiles.length; i++) {
             String fileName = classFiles[i];
             File file = new File(dir, fileName);
@@ -618,7 +629,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         }
     }
 
-   
     /**
      * Checks if the project is the default startup project that is used when no
      * other project is open. It is necessary to have this dummy project,
@@ -635,25 +645,22 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         return false;
     }
 
-    private static Version VERSION = null;
-    
     /**
-     * Gets the version number of the greenfoot API.
+     * Gets the version number of the Greenfoot API for this Greenfoot release.
      * 
-     * @return
      */
     public static Version getAPIVersion()
     {
-        if (VERSION == null) {
-            try{
+        if (version == null) {
+            try {
                 Class bootCls = Class.forName("bluej.Boot");
                 Field field = bootCls.getField("GREENFOOT_API_VERSION");
                 String versionStr = (String) field.get(null);
-                VERSION = new Version(versionStr);
+                version = new Version(versionStr);
             }
             catch (ClassNotFoundException e) {
-                VERSION = new Version("0");
-                //It's fine - running in standalone.
+                version = new Version("0.0.0");
+                // It's fine - running in standalone.
             }
             catch (SecurityException e) {
                 // TODO Auto-generated catch block
@@ -673,14 +680,14 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             }
         }
 
-        return VERSION;
+        return version;
     }
-    
+
     public static Class loadAndInitClass(String name)
     {
         return null;
     }
-    
+
     /**
      * See if there is a new class loader in place. If so, we want to
      * clear all views (BlueJ views) which refer to classes loaded by the previous
@@ -695,25 +702,25 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             ObjectTracker.clearRObjectCache();
         }
     }
-    
+
     // ------------ CompileListener interface -------------
-        
+
     public void compileStarted(RCompileEvent event)
     {
         checkClassLoader();
     }
-        
+
     public void compileSucceeded(RCompileEvent event)
     {
         checkClassLoader();
-        
+
     }
-    
+
     public void compileFailed(RCompileEvent event)
     {
         checkClassLoader();
     }
-        
+
     public void compileError(RCompileEvent event) {}
 
     public void compileWarning(RCompileEvent event){}

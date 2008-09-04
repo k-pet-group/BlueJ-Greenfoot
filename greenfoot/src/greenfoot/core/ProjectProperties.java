@@ -290,11 +290,8 @@ public class ProjectProperties
      */
     public Version getAPIVersion()
     {
-        Version version = Version.NO_VERSION;
         String versionString = properties.getProperty("version");
-        if(versionString != null) {
-            version = new Version(versionString);
-        }
+        Version version = new Version(versionString);
         return version;
     }
 }
