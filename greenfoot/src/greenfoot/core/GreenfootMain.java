@@ -43,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 5856 2008-09-04 13:09:30Z polle $
+ * @version $Id: GreenfootMain.java 5859 2008-09-04 14:40:35Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -448,9 +448,11 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      * Makes a project a greenfoot project. That is, copy the system classes to
      * the users library.
      * 
-     * @param projectDir absolute path to the project
+     * @param deleteClassFiles whether the class files in the destination should
+     *            be deleted. If true, they will be deleted and appear as
+     *            needing a recompile in the Greenfoot class browser.
      */
-    private static void prepareGreenfootProject(File greenfootLibDir, File projectDir, ProjectProperties p)
+    private static void prepareGreenfootProject(File greenfootLibDir, File projectDir, ProjectProperties p, boolean deleteClassFiles)
     {
         if (isStartupProject(greenfootLibDir, projectDir)) {
             return;
@@ -458,8 +460,10 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         File src = new File(greenfootLibDir, "skeletonProject");
         File dst = projectDir;
 
-        deleteAllClassFiles(dst);
-
+        if(deleteClassFiles) {
+            deleteAllClassFiles(dst);
+        }
+        
         // Since Greenfoot 1.3.0 we no longer use the bluej.pkg file, so if it
         // exists it should now be deleted.
         try {
@@ -540,7 +544,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     new JButton[]{continueButton});
             dialog.displayModal();
             Debug.message("Bad version number in project: " + greenfootLibDir);
-            GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties);
+            GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, true);
 
             System.out.println("BAD VERSION");
             return VERSION_UPDATED;
@@ -553,7 +557,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 50,
                     new JButton[]{continueButton});
             dialog.displayModal();
-            GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties);
+            GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, true);
 
             return VERSION_UPDATED;
         }
@@ -571,15 +575,16 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 return VERSION_BAD;
             }
             else {
-                prepareGreenfootProject(greenfootLibDir, projectDir, newProperties);
+                prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, true);
                 return VERSION_UPDATED;
             }
         }
-        else if (projectVersion.isNonBreaking(apiVersion) || projectVersion.isInternal(apiVersion)) {
-            // For now, we treat non breaking changes and internal change the
-            // same way. But this might change in the future so we still keep
-            // the information.
-            prepareGreenfootProject(greenfootLibDir, projectDir, newProperties);
+        else if (projectVersion.isNonBreaking(apiVersion) ) {
+            prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, true);
+            return VERSION_UPDATED;
+        }
+        else if (projectVersion.isInternal(apiVersion)) {
+            prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, false);
             return VERSION_UPDATED;
         }
         else {
@@ -591,7 +596,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             File greenfootDir = new File(projectDir, "greenfoot");
 
             if (!greenfootDir.exists()) {
-                GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties);
+                GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, false);
             }
 
             return VERSION_OK;
