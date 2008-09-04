@@ -16,7 +16,21 @@
     <property name="greenfoot.version.major" value="1"/>
     <property name="greenfoot.version.minor" value="4"/>
     <property name="greenfoot.version.micro" value="6 dev"/>
-    <property name="greenfoot.apiversion" value="1.4.5"/>
+    
+    <!-- Change when API has changed in a way that is likely to break some scenarios -->
+    <property name="greenfoot.version.breaking" value="1"/>
+    
+    <!-- Change when API has changed in a way that is visible to the user, but is very 
+    unlikely to break scenarios (documentation changes, addition of method). -->
+    <property name="greenfoot.version.nonbreaking" value="5"/>
+    
+    <!-- Change when API has only changed internally and not in any way visible to the user. 
+    It should not be possible for this cahgne to break existing scenarios. -->
+    <property name="greenfoot.version.internal" value="0"/>
+        
+    <property name="greenfoot.apiversion" value="${greenfoot.version.breaking}.${greenfoot.version.nonbreaking}.${greenfoot.version.internal}"/>
+
+    <property name="greenfoot.apiversion.public" value="${greenfoot.version.breaking}.${greenfoot.version.nonbreaking}"/>
 
     <property name="greenfoot.version" value="${greenfoot.version.major}.${greenfoot.version.minor}.${greenfoot.version.micro}"/>
     <property name="greenfoot.version.nodots" value="${greenfoot.version.major}${greenfoot.version.minor}${greenfoot.version.micro}"/>
@@ -588,7 +602,7 @@ target="1.5">
     <target name="update-version-number" description="updates the version number in all files where it appears" >
         <replaceregexp byline="true">
             <regexp pattern="@version .*"/>
-            <substitution expression="@version ${greenfoot.apiversion}"/>
+            <substitution expression="@version ${greenfoot.apiversion.public}"/>
             <fileset dir="${src}/greenfoot" includes="Greenfoot.java,GreenfootImage.java,Actor.java,World.java,MouseInfo.java"/>
         </replaceregexp>
         <replaceregexp byline="true">
