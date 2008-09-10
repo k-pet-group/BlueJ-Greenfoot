@@ -17,7 +17,8 @@
     <property name="greenfoot.version.minor" value="4"/>
     <property name="greenfoot.version.micro" value="6 dev"/>
     
-    <!-- Change when API has changed in a way that is likely to break some scenarios -->
+    <!-- Change when API has changed in a way that is likely to break some scenarios. 
+    A warning will be shown to the user - update the the labels file to change the warning.-->
     <property name="greenfoot.version.breaking" value="1"/>
     
     <!-- Change when API has changed in a way that is visible to the user, but is very 
@@ -25,7 +26,7 @@
     <property name="greenfoot.version.nonbreaking" value="5"/>
     
     <!-- Change when API has only changed internally and not in any way visible to the user. 
-    It should not be possible for this cahgne to break existing scenarios. -->
+    It should not be possible for this change to break existing scenarios. -->
     <property name="greenfoot.version.internal" value="0"/>
         
     <property name="greenfoot.apiversion" value="${greenfoot.version.breaking}.${greenfoot.version.nonbreaking}.${greenfoot.version.internal}"/>
