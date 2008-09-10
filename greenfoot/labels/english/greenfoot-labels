@@ -100,6 +100,8 @@ export.web.choose=Choose Export Directory Name
 export.icontab.publish=Publish
 export.icontab.webpage=Webpage
 export.icontab.application=Application
+export.noworld.dialog.title=Error: No world class found.
+export.noworld.dialog.msg=No world class could be found in the scenario. To export, a subclass of World is required.
 
 publish.event.error=Error: 
 publish.event.status=Status: 
