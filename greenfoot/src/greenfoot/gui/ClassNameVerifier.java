@@ -80,7 +80,7 @@ public class ClassNameVerifier extends InputVerifier
             return false;
         }
         String className = this.textField.getText();
-        return JavaNames.isIdentifier(className) && !classNameExist(className);
+        return JavaNames.isIdentifier(className) && !classNameExist(className) && !isGreenfootClassName(className);
     }
 
     @Override
@@ -89,6 +89,11 @@ public class ClassNameVerifier extends InputVerifier
         return checkValidity();
     }
 
+    private boolean isGreenfootClassName(String className)
+    {
+        return className.equals("Actor") || className.equals("World");
+    }
+    
     /**
      * Returns true if a class with the given name already exists.
      * 
@@ -118,7 +123,7 @@ public class ClassNameVerifier extends InputVerifier
             else {
                 String className = textField.getText();
                 ValidityEvent validityEvent = null;
-                if (classNameExist(className)) {
+                if (classNameExist(className) || isGreenfootClassName(className)) {
                     validityEvent = new ValidityEvent(textField, classExists);
                 }
                 else {
