@@ -71,7 +71,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 5819 2008-08-01 10:23:29Z davmac $
+ * @version $Id: Project.java 5861 2008-09-10 14:00:54Z polle $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -374,8 +374,9 @@ public class Project implements DebuggerListener, InspectorManager
                         }
                     } 
                 }
+                PackageFile pkgFile = PackageFileFactory.getPackageFile(dir);
                 try {
-                    if (BlueJPackageFile.create(dir)) {
+                    if (pkgFile.create()) {
                         try {
                             FileUtility.copyFile(Config.getTemplateFile(
                                     "readme"), newreadmeFile);
@@ -820,9 +821,9 @@ public class Project implements DebuggerListener, InspectorManager
         if (newPkgDir.isDirectory() || newPkgDir.mkdirs()) {
             st = new StringTokenizer(fullName, ".");
             newPkgDir = getProjectDir();
-
+            PackageFile pkgFile = PackageFileFactory.getPackageFile(newPkgDir);
             try {
-                BlueJPackageFile.create(newPkgDir);
+                pkgFile.create();
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
@@ -831,8 +832,9 @@ public class Project implements DebuggerListener, InspectorManager
                 newPkgDir = new File(newPkgDir, st.nextToken());
                 prepareCreateDir(newPkgDir);
 
+                pkgFile = PackageFileFactory.getPackageFile(newPkgDir);
                 try {
-                    BlueJPackageFile.create(newPkgDir);
+                    pkgFile.create();
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
                 }

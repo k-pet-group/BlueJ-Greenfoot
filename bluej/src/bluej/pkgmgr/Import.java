@@ -23,7 +23,7 @@ import bluej.utility.JavaNames;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Import.java 5811 2008-07-23 16:45:17Z polle $
+ * @version $Id: Import.java 5861 2008-09-10 14:00:54Z polle $
  */
 public class Import
 {
@@ -193,7 +193,7 @@ public class Import
         while(i.hasNext()) {
             File f = (File) i.next();
             try {
-                BlueJPackageFile.create(f);
+                PackageFileFactory.getPackageFile(f).create();
             }
             catch (IOException e) {
                 Debug.reportError("Could not create package files in dir: " + f, e);

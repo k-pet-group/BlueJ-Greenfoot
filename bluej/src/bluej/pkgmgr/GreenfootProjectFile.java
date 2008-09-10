@@ -19,7 +19,10 @@ public class GreenfootProjectFile
     private File dir;
     private File pkgFile;
 
-    public GreenfootProjectFile(File dir)
+    /**
+     * @see PackageFileFactory
+     */
+    GreenfootProjectFile(File dir)
     {
         this.dir = dir;
         this.pkgFile = new File(dir, pkgfileName);
@@ -108,6 +111,28 @@ public class GreenfootProjectFile
 
         File packageFile = new File(dir, pkgfileName);
         return packageFile.exists();
+    }
+    
+    /**
+     * Creates the Greenfoot project file if it does not already exist. 
+     * 
+     * @return true if it created a package file, false if it didn't create any package files.
+     * @param dir The directory to create package file in.
+     * @throws IOException If the package file could not be created.
+     * 
+     */
+    public boolean create()
+        throws IOException
+    {
+        File pkgFile = new File(dir, pkgfileName);
+
+        if (pkgFile.exists()) {
+            return false;
+        }
+        else {
+            pkgFile.createNewFile();
+            return true;
+        }     
     }
 
 }

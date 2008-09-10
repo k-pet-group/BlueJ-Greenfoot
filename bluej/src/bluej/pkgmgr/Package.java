@@ -64,7 +64,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 5853 2008-09-02 13:58:28Z polle $
+ * @version $Id: Package.java 5861 2008-09-10 14:00:54Z polle $
  */
 public final class Package extends Graph
 {
@@ -734,12 +734,7 @@ public final class Package extends Graph
     private PackageFile getPkgFile()
     {
         File dir = getPath();
-        if(Config.isGreenfoot()) {
-            return new GreenfootProjectFile(dir);            
-        } 
-        else { 
-            return new BlueJPackageFile(dir);
-        }
+        return PackageFileFactory.getPackageFile(dir);
     }
 
     /**

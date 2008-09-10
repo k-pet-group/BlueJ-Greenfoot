@@ -46,7 +46,10 @@ public class BlueJPackageFile
     private File pkgFile;
     private File oldPkgFile;
 
-    public BlueJPackageFile(File dir)
+    /**
+     * @see PackageFileFactory
+     */
+    BlueJPackageFile(File dir)
     {
         this.dir = dir;
         this.pkgFile = new File(dir, pkgfileName);
@@ -218,11 +221,12 @@ public class BlueJPackageFile
      * Creates the two package files if they don't already exist. If only
      * package.bluej exists it will not create bluej.pkg.
      * 
+     * @return true if it created a package file, false if it didn't create any package files.
      * @param dir The directory to create package files in.
      * @throws IOException If the package file(s) could not be created.
      * 
      */
-    public static boolean create(File dir)
+    public boolean create()
         throws IOException
     {
         File pkgFile = new File(dir, pkgfileName);
