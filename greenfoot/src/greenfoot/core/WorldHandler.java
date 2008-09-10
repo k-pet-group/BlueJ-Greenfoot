@@ -662,6 +662,8 @@ public class WorldHandler
     /**
      * Get a snapshot of the currently instantiated world or null if no world is
      * instantiated.
+     * 
+     * Must be called on the EDT.
      */
     public BufferedImage getSnapShot()
     {

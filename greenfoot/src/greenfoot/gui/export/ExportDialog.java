@@ -4,6 +4,7 @@ import greenfoot.core.GProject;
 import greenfoot.core.WorldHandler;
 import greenfoot.export.Exporter;
 import greenfoot.gui.GreenfootFrame;
+import greenfoot.gui.MessageDialog;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -34,6 +35,9 @@ public class ExportDialog extends EscapeDialog
     // Internationalisation
     private static final String dialogTitle =Config.getString("export.dialog.title");
 
+    private static final String noWorldDialogTitle = Config.getString("export.noworld.dialog.title");
+    private static final String noWorldDialogMsg = Config.getString("export.noworld.dialog.msg");
+    
     private Frame parent;
     private GProject project;
     private JPanel contentPane;
@@ -71,8 +75,8 @@ public class ExportDialog extends EscapeDialog
     }
 
     /**
-     * Show this dialog and return true if "OK" was pressed, false if
-     * cancelled.
+     * Show this dialog.
+     * 
      */
     public void display()
     {
@@ -82,13 +86,26 @@ public class ExportDialog extends EscapeDialog
                 return;         // Cancel export
             }
         }
-        ExportPublishPane publishPane = (ExportPublishPane) panes.get(ExportPublishPane.FUNCTION);
-        BufferedImage snapShot = WorldHandler.getInstance().getSnapShot();
-        if(snapShot != null) {
-            publishPane.setImage(snapShot);
-        }        
-        clearStatus();
-        setVisible(true);  // returns after OK or Cancel, which set 'ok'
+        if(WorldHandler.getInstance().getLastWorldClass() == null) {
+            JButton[] buttons = new JButton[]{new JButton(Config.getString("greenfoot.continue"))};
+            MessageDialog errorDialog = new MessageDialog(parent, noWorldDialogMsg, noWorldDialogTitle, 50 , buttons);
+            errorDialog.display();
+            return;
+        }
+        
+        final ExportPublishPane publishPane = (ExportPublishPane) panes.get(ExportPublishPane.FUNCTION);
+        
+        // getSnapShot has to be invoked on the EDT.
+        SwingUtilities.invokeLater(new Runnable(){
+            public void run()
+            {
+                BufferedImage snapShot = WorldHandler.getInstance().getSnapShot();
+                if(snapShot != null) {
+                    publishPane.setImage(snapShot);
+                }        
+                clearStatus();
+                setVisible(true);  // returns after OK or Cancel, which set 'ok'
+            }});
     }
 
     /**
