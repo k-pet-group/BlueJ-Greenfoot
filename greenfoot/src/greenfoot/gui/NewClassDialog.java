@@ -96,6 +96,7 @@ public class NewClassDialog extends EscapeDialog
                 ok();
             }
         });
+        okButton.setEnabled(false);
         buttonPanel.add(okButton);
 
         buttonPanel.add(Box.createHorizontalStrut(BlueJTheme.generalSpacingWidth));
