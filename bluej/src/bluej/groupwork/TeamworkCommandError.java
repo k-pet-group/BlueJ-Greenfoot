@@ -37,6 +37,9 @@ public class TeamworkCommandError extends TeamworkCommandResult
         messageIdMap.put("svn: File not found:", "team-cant-find-group");
         messageIdMap.put("svn: URL ", "team-cant-find-module");
         messageIdMap.put("svn: Authentication required for", "team-authentication-problem");
+
+        // When no internet access (or probably also if the server doesn't exist, or is down)
+        // messageIdMap.put("svn: Cannot connect to", "team-no-connection"); 
     }
         
     /**

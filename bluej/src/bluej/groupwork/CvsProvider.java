@@ -27,7 +27,7 @@ public class CvsProvider
         return "CVS";
     }
     
-    public boolean checkConnection(TeamSettings settings)
+    public TeamworkCommandResult checkConnection(TeamSettings settings)
     {
         String cvsRoot = makeCvsRoot(settings);
         return CvsRepository.validateConnection(cvsRoot);

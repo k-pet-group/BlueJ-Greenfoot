@@ -36,7 +36,7 @@ public interface TeamworkProvider
      * Check that supplied information can be used to connect to a repository.
      * This might take some time to execute.
      */
-    public boolean checkConnection(TeamSettings settings);
+    public TeamworkCommandResult checkConnection(TeamSettings settings);
     
     /**
      * Get a repository from the given settings

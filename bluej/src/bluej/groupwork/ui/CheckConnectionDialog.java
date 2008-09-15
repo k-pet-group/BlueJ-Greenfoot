@@ -6,14 +6,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
-import javax.swing.JLabel;
 
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.groupwork.TeamSettings;
+import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.TeamworkProvider;
 import bluej.utility.DBox;
 import bluej.utility.EscapeDialog;
+import bluej.utility.MultiWrapLabel;
 
 /**
  * A dialog which displays an activity indicator while connection settings are
@@ -24,7 +25,7 @@ import bluej.utility.EscapeDialog;
 public class CheckConnectionDialog extends EscapeDialog
 {
     private ActivityIndicator activityIndicator;
-    private JLabel connLabel;
+    private MultiWrapLabel connLabel;
     private JButton closeButton;
     
     private TeamSettings settings;
@@ -49,7 +50,8 @@ public class CheckConnectionDialog extends EscapeDialog
         contentPane.setBorder(BlueJTheme.dialogBorder);
         setContentPane(contentPane);
         
-        connLabel = new JLabel(Config.getString("team.checkconn.checking"));
+        connLabel = new MultiWrapLabel(Config.getString("team.checkconn.checking"));
+        
         contentPane.add(connLabel);
         
         activityIndicator = new ActivityIndicator();
@@ -76,15 +78,17 @@ public class CheckConnectionDialog extends EscapeDialog
             new Thread() {
                 public void run()
                 {
-                    final boolean res = validateConnection();
+                    final TeamworkCommandResult res = validateConnection();
                     EventQueue.invokeLater(new Runnable() {
                         public void run()
                         {
-                            if (res) {
+                            if (!res.isError()) {
                                 connLabel.setText(Config.getString("team.checkconn.ok"));
                             }
                             else {
-                                connLabel.setText(Config.getString("team.checkconn.bad"));
+                                connLabel.setText(Config.getString("team.checkconn.bad")
+                                        + System.getProperty("line.separator") + System.getProperty("line.separator")
+                                        + res.getErrorMessage());
                             }
                             
                             activityIndicator.setRunning(false);
@@ -98,7 +102,7 @@ public class CheckConnectionDialog extends EscapeDialog
         super.setVisible(vis);
     }
     
-    private boolean validateConnection()
+    private TeamworkCommandResult validateConnection()
     {
         return provider.checkConnection(settings);
     }   

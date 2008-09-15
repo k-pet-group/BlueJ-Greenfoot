@@ -65,7 +65,7 @@ public class SubversionProvider implements TeamworkProvider
         return "Subversion";
     }
     
-    public boolean checkConnection(TeamSettings settings)
+    public TeamworkCommandResult checkConnection(TeamSettings settings)
     {
         SVNClientInterface client = getClient();
         client.username(settings.getUserName());
@@ -73,11 +73,10 @@ public class SubversionProvider implements TeamworkProvider
         
         try {
             client.info2(makeSvnUrl(settings), Revision.HEAD, Revision.HEAD, false);
-            return true;
+            return new TeamworkCommandResult();
         }
         catch (ClientException ce) {
-            Debug.message("Check SVN connection: " + ce.getLocalizedMessage());
-            return false;
+            return new TeamworkCommandError(ce.getMessage(), ce.getLocalizedMessage());
         }
     }
     

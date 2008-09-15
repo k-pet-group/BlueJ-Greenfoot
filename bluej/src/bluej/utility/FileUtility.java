@@ -16,7 +16,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 5529 2008-02-04 04:39:56Z davmac $
+ * @version $Id: FileUtility.java 5869 2008-09-15 20:31:12Z polle $
  */
 public class FileUtility
 {
@@ -98,7 +98,9 @@ public class FileUtility
         int result = newChooser.showDialog(parent, buttonLabel);
 
         if (result == JFileChooser.APPROVE_OPTION) {
-            if(rememberDir) {
+            if (rememberDir) {
+                // TODO: It is possible to approve without a selection which
+                // will throw a NPE below.
                 PrefMgr.setProjectDirectory(
                       newChooser.getSelectedFile().getParentFile().getPath());
             }

@@ -666,8 +666,8 @@ team.sharing=Sharing project...
 team.shared=Sharing project... Done.
 
 team.checkconn.checking=Checking connection...
-team.checkconn.ok=Connection is ok
-team.checkconn.bad=Could not connect to server
+team.checkconn.ok=Connection is ok.
+team.checkconn.bad=Could not connect to server.
 
 midlet.deployment.title=Java ME Deploy
 midlet.deployment.runWTK=Run midlet suite in Sun Java Wireless Toolkit

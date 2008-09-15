@@ -37,7 +37,7 @@ import bluej.utility.filefilter.DirectoryFilter;
  * This class handles communication with the repository.
  *
  * @author fisker
- * @version $Id: CvsRepository.java 5825 2008-08-06 12:14:59Z davmac $
+ * @version $Id: CvsRepository.java 5869 2008-09-15 20:31:12Z polle $
  */
 public class CvsRepository implements Repository
 {
@@ -599,9 +599,9 @@ public class CvsRepository implements Repository
      *
      * @return true if the connection could be made
      */
-    public static boolean validateConnection(String cvsrootStr)
+    public static TeamworkCommandResult validateConnection(String cvsrootStr)
     {
-        boolean status = false;
+        TeamworkCommandResult status = null;
         Connection connection = null;
 
         try {
@@ -610,14 +610,14 @@ public class CvsRepository implements Repository
 
             if (connection != null) {
                 connection.verify();
-                status = true;
+                status = new TeamworkCommandResult();
             }
         } catch (AuthenticationException e) {
             // problem verifying connection
-            status = false;
+            status = new TeamworkCommandError(e.getMessage(), e.getLocalizedMessage());
         } catch (IllegalArgumentException iae) {
             // problem parsing CVSRoot
-            status = false;
+            status = new TeamworkCommandError(iae.getMessage(), iae.getLocalizedMessage());
         }
 
         return status;
