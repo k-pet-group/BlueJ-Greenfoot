@@ -55,12 +55,7 @@ public abstract class CvsCommand
             BasicServerResponse response = doCommand();
 
             if (response.isError()) {
-                String message = response.getMessage();
-                String translatedMessage = CvsServerMessageTranslator.translate(message);
-                if (translatedMessage == null) {
-                    translatedMessage = message;
-                }
-                return new TeamworkCommandError(translatedMessage);
+                return new TeamworkCommandError(response.getMessage(), null);
             }
 
             // command completed successfully
@@ -70,7 +65,7 @@ public abstract class CvsCommand
             return new TeamworkCommandAborted();
         }
         catch (CommandException ce) {
-            return new TeamworkCommandError(ce.getLocalizedMessage());
+            return new TeamworkCommandError(ce.getMessage(), ce.getLocalizedMessage());
         }
         catch (AuthenticationException ae) {
             return new TeamworkCommandAuthFailure();

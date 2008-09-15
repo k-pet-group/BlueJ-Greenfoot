@@ -78,11 +78,11 @@ public class SvnCommitCommand extends SvnCommitAllCommand
             return result; // finally clause below restores backups
         }
         catch (IOException ioe) {
-            return new TeamworkCommandError("File I/O error: " + ioe.getLocalizedMessage());
+            return new TeamworkCommandError(ioe.getMessage(), "File I/O error: " + ioe.getLocalizedMessage());
         }
         catch (ClientException ce) {
             if (! isCancelled()) {
-                return new TeamworkCommandError(ce.getLocalizedMessage());
+                return new TeamworkCommandError(ce.getMessage(), ce.getLocalizedMessage());
             }
             else {
                 return new TeamworkCommandAborted();

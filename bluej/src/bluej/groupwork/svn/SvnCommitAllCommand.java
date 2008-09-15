@@ -97,7 +97,7 @@ public class SvnCommitAllCommand extends SvnCommand
         }
         catch (ClientException ce) {
             if (! isCancelled()) {
-                return new TeamworkCommandError(ce.getLocalizedMessage());
+                return new TeamworkCommandError(ce.getMessage(), ce.getLocalizedMessage());
             }
         }
 

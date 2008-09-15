@@ -469,6 +469,10 @@ team-cant-find-module
 Project not in repository. A project must be shared (put 
 in the repository) before you can check it out.
 
+team-cant-find-group
+Cannot find the group. Check that the correct group name 
+is given and that it exists on the server.
+
 team-empty-message
 An unknown error occurred. Check the team settings to make sure your
 repository settings are correct.
