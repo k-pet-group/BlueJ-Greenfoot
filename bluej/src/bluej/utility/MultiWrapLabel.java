@@ -13,7 +13,7 @@ import javax.swing.JComponent;
  * can also be specified.
  * 
  * @author Davin McCall
- * @version $Id: MultiWrapLabel.java 4708 2006-11-27 00:47:57Z bquig $
+ * @version $Id: MultiWrapLabel.java 5868 2008-09-15 20:14:38Z polle $
  */
 public class MultiWrapLabel extends JComponent
 {
@@ -37,6 +37,7 @@ public class MultiWrapLabel extends JComponent
     public MultiWrapLabel(String text)
     {
         this.text = text;
+        wrapWidth = -1;
     }
     
     /**
@@ -111,7 +112,7 @@ public class MultiWrapLabel extends JComponent
             FontMetrics metrics = getFontMetrics(getFont());
             int npos = 0;
             while (npos < text.length()) {
-                int end = text.indexOf(lineSep);
+                int end = text.indexOf(lineSep, npos);
                 if (end == -1) {
                     end = text.length();
                 }
