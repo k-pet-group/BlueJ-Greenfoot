@@ -20,7 +20,7 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 5856 2008-09-04 13:09:30Z polle $
+ * @version $Id: Boot.java 5870 2008-09-15 22:14:18Z davmac $
  */
 public class Boot
 {
@@ -144,6 +144,16 @@ public static final int BLUEJ_VERSION_MAJOR = 2;
         catch (Throwable t) {
             t.printStackTrace();
             System.exit(1);
+        }
+        
+        // Make sure we don't return until the VM is exited
+        synchronized (instance) {
+            while (true) {
+                try {
+                    instance.wait();
+                }
+                catch (InterruptedException ie) {}
+            }
         }
     }
 
