@@ -465,13 +465,19 @@ team-uptodate-failed
 Your local copy is out of date. Update from repository
 before committing your local changes.
 
+team-cant-connect
+Cannot connect to the server. Check that server
+address is correct in the Team Settings.
+
+team-cant-find-path
+The path cannot be found on the server. This might be because
+the specified group or project doesn't exist on the server.
+Check that these are correct in the Team Settings, and that 
+they exist on the server.
+
 team-cant-find-module
 Project not in repository. A project must be shared (put 
 in the repository) before you can check it out.
-
-team-cant-find-group
-Cannot find the group. Check that the correct group name 
-is given and that it exists on the server.
 
 team-cant-find-repository
 The repository could not be found. Check the path to 
