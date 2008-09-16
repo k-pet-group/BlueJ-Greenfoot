@@ -469,6 +469,11 @@ team-cant-connect
 Cannot connect to the server. Check that server
 address is correct in the Team Settings.
 
+team-project-exists
+The project already exists on the server. Maybe you 
+want to use Checkout, to check out the existing project
+or rename your project and commit again.
+
 team-cant-find-path
 The path cannot be found on the server. This might be because
 the specified group or project doesn't exist on the server.

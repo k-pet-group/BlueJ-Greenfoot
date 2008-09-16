@@ -38,6 +38,8 @@ public class TeamworkCommandError extends TeamworkCommandResult
         messageIdMap.put("svn: File not found:", "team-cant-find-path");
         messageIdMap.put("svn: URL ", "team-cant-find-path");
         messageIdMap.put("svn: Authentication required for", "team-authentication-problem");
+        messageIdMap.put("svn: File already exists:", "team-project-exists");
+        
     }
         
     /**
