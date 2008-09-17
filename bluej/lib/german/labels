@@ -185,8 +185,8 @@ editor.find.down=Vorw\u00E4rts suchen
 editor.find.ignoreCase=Gro\u00DF/klein egal
 editor.find.wholeWord=Ganze Worte
 
-editor.find.backward=Rückwärts
-editor.find.forward=Vorwärts
+editor.find.backward=R\u00fcckw\u00e4rts
+editor.find.forward=Vorw\u00e4rts
 editor.find.wrapAround=Von neuem
 
 #Messages shown as a result of a search with replace all
@@ -315,7 +315,7 @@ callLibraryDialog.clickHere2=Enter zur Anzeige der Konstruktoren und Methoden.
 callLibraryDialog.classNotFound1=Klasse konnte nicht gefunden werden.
 callLibraryDialog.classNotFound2=(Bitte Klassennamen pr\u00FCfen und nochmal "Enter" dr\u00FCcken.)
 pkgmgr.export.title=BlueJ\:  Als jar-Archiv speichern
-pkgmgr.export.helpLine1=Erzeugt ein jar-Archiv, das das Projekt enthält. Es ist ausführ-
+pkgmgr.export.helpLine1=Erzeugt ein jar-Archiv, das das Projekt enth\u00e4lt. Es ist ausf\u00fchr-
 pkgmgr.export.helpLine2=bar, wenn eine Klasse mit "main"-Methode angegeben wird.
 pkgmgr.export.classLabel=Klasse mit "main"-Methode\:
 pkgmgr.export.includeLibs=Benutzerbibliotheken mitspeichern
@@ -471,15 +471,15 @@ menu.view.showTestDisplay=_Testergebnisse anzeigen
 
 team.project.marker=Gemeinsames Projekt
 team.commit=Abgeben@I
-team.menu.commit=Änderungen abgeben@I
-team.commit.title=Änderungen an Arbeitskopie abgeben
+team.menu.commit=\u00c4nderungen abgeben@I
+team.commit.title=\u00c4nderungen an Arbeitskopie abgeben
 team.commit.files=Abzugebene Dateien:
 team.commit.comment=Kommentar zur Abgabe:
 team.commit.layout=(Diagrammlayout)
 team.commit.includelayout=Diagrammlayout abgeben
-team.commit.statusMessage=Änderungen an der Arbeitskopie abgeben...
-team.commit.statusDone=Änderungen an der Arbeitskopie abgeben... Fertig.
-team.commit.moreFiles=(und mehr - Überprüfe Status)
+team.commit.statusMessage=\u00c4nderungen an der Arbeitskopie abgeben...
+team.commit.statusDone=\u00c4nderungen an der Arbeitskopie abgeben... Fertig.
+team.commit.moreFiles=(und mehr - \u00dcberpr\u00fcfe Status)
 team.update=Aktualisieren@U
 team.menu.update=Aktualisierung holen@U
 team.update.statusMessage=Aktualisiere Projekt...
@@ -497,7 +497,7 @@ team.history.filefilter=Zeige Datei:
 team.history.userfilter=Zeige Benutzer:
 team.import=Projekt gemeinsam nutzen...
 team.import.statusMessage=Projekt wird gemeinsam genutzt
-team.includeLayout=Berücksichtige Diagrammlayout beim Aktualisieren
+team.includeLayout=Ber\u00fccksichtige Diagrammlayout beim Aktualisieren
 team.settings=Teamarbeitseinstellungen
 team.status=Status
 team.status.status=Status
@@ -510,32 +510,32 @@ team.conflicts.show=Zeige Konflikte
 
 # The following appear in brackets after a filename, in the
 # update/commit dialogs.
-team.status.delete=Aus Repository löschen
-team.status.add=Zum Repository hinzufügen
+team.status.delete=Aus Repository l\u00f6schen
+team.status.add=Zum Repository hinzuf\u00fcgen
 team.status.new=Neue Datei
-team.status.removed=Gelöscht
-team.status.needsmerge=Zusammenführen
+team.status.removed=Gel\u00f6scht
+team.status.needsmerge=Zusammenf\u00fchren
 
 team.nocommitfiles=Keine Dateien zum Abgeben
 team.noupdatefiles=Keine Dateien zum Aktualisieren
 
 team.statusinfo.upToDate=Aktuell
-team.statusinfo.needsCheckout=Zu Repository hinzugefügt
-team.statusinfo.needsUpdate=Im Repository geändert
-team.statusinfo.removed=Aus Repository gelöscht
-team.statusinfo.needsAdd=Zu Arbeitskopie hinzugefügt
-team.statusinfo.needsCommit=In Arbeitskopie geändert
-team.statusinfo.deleted=Aus Arbeitskopie gelöscht
-team.statusinfo.needsMerge=Aus Arbeitskopie und Repository gelöscht
-team.statusinfo.unresolved=Unaufgelöster Konflikt
+team.statusinfo.needsCheckout=Zu Repository hinzugef\u00fcgt
+team.statusinfo.needsUpdate=Im Repository ge\u00e4ndert
+team.statusinfo.removed=Aus Repository gel\u00f6scht
+team.statusinfo.needsAdd=Zu Arbeitskopie hinzugef\u00fcgt
+team.statusinfo.needsCommit=In Arbeitskopie ge\u00e4ndert
+team.statusinfo.deleted=Aus Arbeitskopie gel\u00f6scht
+team.statusinfo.needsMerge=Aus Arbeitskopie und Repository gel\u00f6scht
+team.statusinfo.unresolved=Unaufgel\u00f6ster Konflikt
 team.statusinfo.hasConflicts=Hat Konflikte
 team.statusinfo.weird=???
-team.statusinfo.conflictAdd=Zu Arbeitskopie und Repository hinzugefügt (Konflikt)
-team.statusinfo.conflictLMRD=In Arbeitskopie geändert und aus Repository gelöscht (Konflikt)
-team.statusinfo.conflictLDRM=Aus Arbeitskopie gelöscht und im Repository geändert (Konflikt)
+team.statusinfo.conflictAdd=Zu Arbeitskopie und Repository hinzugef\u00fcgt (Konflikt)
+team.statusinfo.conflictLMRD=In Arbeitskopie ge\u00e4ndert und aus Repository gel\u00f6scht (Konflikt)
+team.statusinfo.conflictLDRM=Aus Arbeitskopie gel\u00f6scht und im Repository ge\u00e4ndert (Konflikt)
 
 team.settings.title = Teamarbeitseinstellungen
-team.settings.personal=Persönlich
+team.settings.personal=Pers\u00f6nlich
 team.settings.location=Repository
 team.settings.user=Benutzer
 team.settings.password=Passwort
@@ -545,17 +545,17 @@ team.settings.prefix=Verzeichnis
 team.settings.ext=ext (verwende SSH)
 team.settings.pserver=pserver
 team.settings.protocol=Protokoll
-team.settings.rememberSettings=Einstellungen für zukünftige Projekte speichern
+team.settings.rememberSettings=Einstellungen f\u00fcr zuk\u00fcnftige Projekte speichern
 team.settings.checkConnection=Teste Verbindung
 
-team.moduleselect.title=Gemeinsames Projekt auswählen
-team.moduleselect.label=Auswählen oder Eintippen des Projektnamens:
-team.moduleselect.available=Verfügbare Projekte:
+team.moduleselect.title=Gemeinsames Projekt ausw\u00e4hlen
+team.moduleselect.label=Ausw\u00e4hlen oder Eintippen des Projektnamens:
+team.moduleselect.available=Verf\u00fcgbare Projekte:
 team.moduleselect.show=Anzeigen
 
 team.checkingout=Erzeuge Arbeitskopie...
 team.checkedout=Erzeuge Arbeitskopie... Fertig.
-team.checkout.filechooser.title=Verzeichnis für Arbeitskopie wählen
+team.checkout.filechooser.title=Verzeichnis f\u00fcr Arbeitskopie w\u00e4hlen
 team.checkout.filechooser.button=Erzeugen
 
 team.import.initialMessage=Gemeinsames Projekt angelegt
@@ -584,12 +584,12 @@ tooltip.test=Starte alle \u00FCbersetzten Testklassen in diesem Paket
 tooltip.progress=Ablaufindikator\: zeigt an, wenn die Java-VM arbeitet
 tooltip.test.end=Aufzeichnen einer Testmethode beenden und speichern.
 tooltip.test.cancel=Aufzeichnen einer Testmethode abbrechen (nicht speichern).
-tooltip.commit=Änderungen an der Arbeitskopie beim Repository abgeben
-tooltip.update=Arbeitskopie mit Änderungen aus dem Repository aktualisieren
+tooltip.commit=\u00c4nderungen an der Arbeitskopie beim Repository abgeben
+tooltip.update=Arbeitskopie mit \u00c4nderungen aus dem Repository aktualisieren
 tooltip.status=Zeige den Status aller Dateien im gemeinsamen Projekt
 
 menu.help.copyright.title=BlueJ-Copyright, Lizensierung und Weiterverbreitung
-menu.help.copyright.line1=BlueJ ist 'wie es ist' gratis für die Verwendung und nicht-kommerzielle
+menu.help.copyright.line1=BlueJ ist 'wie es ist' gratis f\u00fcr die Verwendung und nicht-kommerzielle
 menu.help.copyright.line2=Verbreitung verf\u00FCgbar. Die Disassemblierung des Systems ist verboten.
 menu.help.copyright.line3=Ohne schriftliche Genehmigung darf es jedoch weder direkt noch als
 menu.help.copyright.line4=Teil anderer Pakete kommerziell vertrieben werden.

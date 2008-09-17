@@ -1,14 +1,14 @@
 NullPointerException*
-Usted trató de acceder a un objeto (tanto un campo
+Usted trat\u00f3 de acceder a un objeto (tanto un campo
 en un objeto o un mensaje de un objeto). Esto
-no funcionará debido a que la referencia al objeto que
-usted utilizó para acceder al objeto fue 'null'. Por
-ejemplo: Usted escribió "thing.print()", y "thing"
+no funcionar\u00e1 debido a que la referencia al objeto que
+usted utiliz\u00f3 para acceder al objeto fue 'null'. Por
+ejemplo: Usted escribi\u00f3 "thing.print()", y "thing"
 era null en este momento.
 
 ArithmeticException*
-Algo fue mal durante un cálculo
-aritmético, tal como una división por 0 o
+Algo fue mal durante un c\u00e1lculo
+aritm\u00e9tico, tal como una divisi\u00f3n por 0 o
 algo similar.
 
 StringIndexOutOfBoundsException*
@@ -118,7 +118,7 @@ UnsupportedOperationException*
 No help available - sorry.
 
 Exception
-Esta es una excepción general que sólo dice
+Esta es una excepci\u00f3n general que s\u00f3lo dice
 que algo va mal. No tengo idea
-de qué se trata...
+de qu\u00e9 se trata...
 

@@ -47,7 +47,7 @@ debugger.objectwrapper.inspect=Inspect
 debugger.objectwrapper.remove=Verwijderen
 debugger.objectwrapper.serializable=Serialize
 debugger.objectwrapper.redefined=opnieuw gedefinieerd in
-debugger.objectwrapper.inherited=geërfd van
+debugger.objectwrapper.inherited=ge\u00ebrfd van
 
 debugger.threadstatus.finished=afgesloten
 debugger.threadstatus.breakpoint=op breakpoint
@@ -147,7 +147,7 @@ editor.title=BlueJ: Editor
 editor.compileLabel = Compileren
 editor.undoLabel = Ongedaan maken
 editor.cutLabel = Knippen
-editor.copyLabel = Kopieëren
+editor.copyLabel = Kopie\u00ebren
 editor.pasteLabel = Plakken
 editor.closeLabel = Sluiten
 editor.page-setupLabel = Pagina instelling...
@@ -168,7 +168,7 @@ editor.closeLabel =Sluiten
 
 editor.redoLabel = Herhalen
 editor.cut-to-clipboardLabel = Knippen
-editor.copy-to-clipboardLabel = Kopieëren
+editor.copy-to-clipboardLabel = Kopie\u00ebren
 editor.paste-from-clipboardLabel = Plakken
 editor.indent-blockLabel = Meer inspringen
 editor.deindent-blockLabel = Minder inspringen
@@ -209,7 +209,7 @@ editor.functions.customisation = Instellingen
 editor.functions.help = Help
 editor.functions.misc = Diverse functies
 editor.functions.defaults=Standaardkoppelingen
-editor.functions.categories=Categorieën:
+editor.functions.categories=Categorie\u00ebn:
 editor.functions.keys=Bijbehorende toetsen
 editor.functions.addkey=Toets toevoegen
 editor.functions.delkey=Toets verwijderen
@@ -375,7 +375,7 @@ pkgmgr.importmismatch.helpLine9=Wil je toch doorgaan om het package te openen en
 
 # "import" failure dialog
 pkgmgr.importfailed.title=BlueJ:  Importeren status
-pkgmgr.importfailed.helpLine1=Bij het importeren zijn de volgende files niet gekopieërd,
+pkgmgr.importfailed.helpLine1=Bij het importeren zijn de volgende files niet gekopie\u00ebrd,
 pkgmgr.importfailed.helpLine2=omdat ze waarschijnlijk al aanwezig waren in het project.
 pkgmgr.importfailed.helpLine3=
 
@@ -450,7 +450,7 @@ dialogmgr.message = BlueJ: Bericht
 terminal.options = Options
 terminal.title = BlueJ Terminal Window
 terminal.clear = Wissen
-terminal.copy = Kopieëren
+terminal.copy = Kopie\u00ebren
 terminal.save = Opslaan in file...
 terminal.close = Sluiten
 terminal.clearScreen = Window wissen bij aanroepen method

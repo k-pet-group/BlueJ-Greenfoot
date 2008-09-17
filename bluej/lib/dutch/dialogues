@@ -109,7 +109,7 @@ directory-exists
 Er bestaat al een file of map met deze naam.
 
 cannot-copy-package
-Er ging iets fout met het kopieëren
+Er ging iets fout met het kopie\u00ebren
 van de files in het package. Het package
 bestaat niet of is niet compleet.
 

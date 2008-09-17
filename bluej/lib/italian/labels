@@ -12,8 +12,8 @@ main.invalidPackage=Package non trovato
 
 compileException=Eccezione durante la compilazione
 compiler.thread.title=Thread del compilatore di BlueJ
-compiler.invalidcompiler=bluej.compiler.type non è configurato con un compilatore valido
-compiler.nocompiler=Il compilatore non può essere eseguito
+compiler.invalidcompiler=bluej.compiler.type non \u00e8 configurato con un compilatore valido
+compiler.nocompiler=Il compilatore non pu\u00f2 essere eseguito
 compiler.warningDialog.title=Warning del compilatore
 compiler.warningDialog.label=Warning dall'ultima compilazione
 compiler.warningDialog.noWarnings=Nessun warning
@@ -21,7 +21,7 @@ compiler.warningDialog.noWarnings=Nessun warning
 debugger.null=nullo
 
 debugger.assert.assertThat=Asserisce che:
-debugger.assert.resultIs=il risultato è
+debugger.assert.resultIs=il risultato \u00e8
 debugger.assert.equalTo=uguale a
 debugger.assert.equalToFloatingPoint= uguale a (double o float)
 debugger.assert.sameAs=lo stesso di
@@ -66,10 +66,10 @@ debugger.threadstatus.waiting=in attesa
 debugger.threadstatus.zombie=zombie
 
 #Debugger messages
-debugger.jdiDebugger.noBreakpointMsg=Togliere il breakpoint: su questa linea non c'è nessun breakpoint.
-debugger.jdiDebugger.noLineNumberMsg=Questa classe è stata compilata senza informazioni\nsui numeri di riga. Non puoi mettere breakpoint.
-debugger.jdiDebugger.noCodeMsg=Non puoi mettere un breakpoint: in questa linea non c'è codice
-debugger.jdiDebugger.internalErrorMsg=Si è verificato un errore interno\nmentre si tentava di mettere un breakpoint
+debugger.jdiDebugger.noBreakpointMsg=Togliere il breakpoint: su questa linea non c'\u00e8 nessun breakpoint.
+debugger.jdiDebugger.noLineNumberMsg=Questa classe \u00e8 stata compilata senza informazioni\nsui numeri di riga. Non puoi mettere breakpoint.
+debugger.jdiDebugger.noCodeMsg=Non puoi mettere un breakpoint: in questa linea non c'\u00e8 codice
+debugger.jdiDebugger.internalErrorMsg=Si \u00e8 verificato un errore interno\nmentre si tentava di mettere un breakpoint
 
 # Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Librerie
@@ -95,12 +95,12 @@ prefmgr.misc.prefpaneltitle=Varie
 prefmgr.misc.documentation.title=Preferenze della documentazione
 prefmgr.misc.jdkurlpath=URL della documentazione del JDK
 prefmgr.misc.linkToLib=Utilizza questo URL quando viene generata la documentazione del progetto
-prefmgr.misc.linkToLibNoteLine1=Se per generare la documentazione si utilizza questo URL, è necessario  che sia corretto e accessibile.
+prefmgr.misc.linkToLibNoteLine1=Se per generare la documentazione si utilizza questo URL, \u00e8 necessario  che sia corretto e accessibile.
 prefmgr.misc.linkToLibNoteLine2=Per lavorare offline, deselezionare questa opzione.
-prefmgr.misc.testing.title=Preferenze dell'unità di test
-prefmgr.misc.showTesting=Mostra gli strumenti dell'unità di test
+prefmgr.misc.testing.title=Preferenze dell'unit\u00e0 di test
+prefmgr.misc.showTesting=Mostra gli strumenti dell'unit\u00e0 di test
 prefmgr.misc.vm.title=Preferenze della Virtual Machine
-prefmgr.misc.optimiseVM=Usa l'ottimizzazione (l'esecuzione è più veloce, ma può dare qualche problema nel debug)
+prefmgr.misc.optimiseVM=Usa l'ottimizzazione (l'esecuzione \u00e8 pi\u00f9 veloce, ma pu\u00f2 dare qualche problema nel debug)
 prefmgr.misc.addLibTitle=Scegli la  directory o il file jar/zip
 prefmgr.misc.libFileFilter=File di libreria (*.jar;*.zip) o directory di classe
 prefmgr.misc.showUnchecked=Mostra i warning di compilazione quando sono usate collezioni pericolose
@@ -141,8 +141,8 @@ extensions.nodescription=Non specificato.
 # Extension errors
 extmgr.error.nomanifest=Nessun file Manifesto
 extmgr.error.nomain=il Manifesto non contiene l'attributo Main-Class
-extmgr.error.notsubclass=Main class non è una sottoclasse di Extension
-extmgr.error.cannotload=Extension non può essere caricata
+extmgr.error.notsubclass=Main class non \u00e8 una sottoclasse di Extension
+extmgr.error.cannotload=Extension non pu\u00f2 essere caricata
 
 #---------------
 #Editor labels
@@ -246,20 +246,20 @@ editor.keypressed.callsTheFunction=\ chiamate alla funzione "
 
 #Messages, warnings, etc that is displayed by Info.java
 editor.info.version = versione Moe
-editor.info.readingProblem = Si è verificato un problema nella lettura del file.
+editor.info.readingProblem = Si \u00e8 verificato un problema nella lettura del file.
 editor.info.regularFile = (E' un file normale? Hai i permessi di lettura?)
 editor.info.newFile = Nuovo file
 editor.info.errorSaving = Errore nel salvataggio del file!
 editor.info.compiled = Classe compilata - nessun errore sintattico
 editor.info.noChanges = Non ci sono cambiamenti da salvare
-editor.info.cannotReload = Non è possibile ricaricare - questo testo non è stato mai salvato!
+editor.info.cannotReload = Non \u00e8 possibile ricaricare - questo testo non \u00e8 stato mai salvato!
 editor.info.reload = (\"Ricarica\" ricarica da disco l'ultimo stato salvato.)
 editor.info.emptySearchString = Stringa di ricerca vuota.
 editor.info.notFound = Non trovato.
 editor.info.compiling = Compilo...
-editor.info.cannotSetBreak = Non è possibile mettere breakpoint:\nA questo Editor non è associato alcun codice.
+editor.info.cannotSetBreak = Non \u00e8 possibile mettere breakpoint:\nA questo Editor non \u00e8 associato alcun codice.
 editor.info.fileDisappeared = ERRORE: Il file sembra sparito!
-editor.info.fileReadError = ERRORE: C'è stato un problema durante la lettura del file.
+editor.info.fileReadError = ERRORE: C'\u00e8 stato un problema durante la lettura del file.
 editor.info.saved = File salvato
 editor.info.printing = In stampa...
 editor.info.printed = In stampa... fatto.
@@ -267,9 +267,9 @@ editor.info.cancelled = Cancellato.
 editor.info.generatingDoc = Genero le specifiche della classe...
 editor.info.loadingDoc = Carico le specifiche di classe...
 editor.info.docLoaded = Carico le specifiche di classe... fatto.
-editor.info.docAborted = Si è verificato un grave problema durante la generazione\ndelle specifiche javadoc. Interrompo.
+editor.info.docAborted = Si \u00e8 verificato un grave problema durante la generazione\ndelle specifiche javadoc. Interrompo.
 editor.info.docDisappeared = Non riesco a trovare il file HTML:
-editor.info.docNoFrames = La visualizzazione a frame è disabilitata durante l'anteprima dell'Editor.
+editor.info.docNoFrames = La visualizzazione a frame \u00e8 disabilitata durante l'anteprima dell'Editor.
 editor.info.tabsExpanded = Tutti i TAB convertiti a spazi.\n(Stai lavorando con soft TABs,\nil file conteneva hard TABs.)
 editor.printer.continued=continuato
 #End Editor labels
@@ -346,7 +346,7 @@ pkgmgr.codepad.uninitialized=Nota: Le variabili sono automaticamente inizializat
 pkgmgr.codepad.vmTerminated=Occore riavviare la VM
 # The "variable has already been defined" error message in the codepad. The '$' symbol will be
 # replaced by the name of the problematic variable.
-pkgmgr.codepad.redefinedVar=$ è gia definita
+pkgmgr.codepad.redefinedVar=$ \u00e8 gia definita
 
 # "new class" dialog
 pkgmgr.newClass.title=BlueJ:  Crea un nuova classe
@@ -378,20 +378,20 @@ callLibraryDialog.classNotFound2=Controlla il nome della classe e premi nuovamen
 # "export" dialog
 pkgmgr.export.title=BlueJ:  Crea File Jar
 pkgmgr.export.helpLine1=Crea un singolo file d'archivio Java (jar) contenente
-pkgmgr.export.helpLine2=il progetto. Eseguibile se la classe principale è specificata.
+pkgmgr.export.helpLine2=il progetto. Eseguibile se la classe principale \u00e8 specificata.
 pkgmgr.export.classLabel=classe principale:
 pkgmgr.export.includeLibs=Includi librerie utente
 pkgmgr.export.sourceLabel=includi sorgente
 pkgmgr.export.pkgFilesLabel=Includi i file del progetto BlueJ
-pkgmgr.export.noClassText=nessuna (non può essere eseguito)
+pkgmgr.export.noClassText=nessuna (non pu\u00f2 essere eseguito)
 pkgmgr.export.specifyJar=Specifica un nome per il file Jar
 pkgmgr.export.createJarText=Crea
 
 # "open-non-bluej" mismatch dialog
 pkgmgr.importmismatch.title=BlueJ:  La linea del package non corrisponde
-pkgmgr.importmismatch.helpLine1=WARNING: Questo non è il livello più alto di questo progetto Java come
+pkgmgr.importmismatch.helpLine1=WARNING: Questo non \u00e8 il livello pi\u00f9 alto di questo progetto Java come
 pkgmgr.importmismatch.helpLine2=descritto in alcune dichiarazioni di package delle classi del progetto.
-pkgmgr.importmismatch.helpLine3=L'apertura di questa directory cambierà tutte le dichiarazioni del
+pkgmgr.importmismatch.helpLine3=L'apertura di questa directory cambier\u00e0 tutte le dichiarazioni del
 pkgmgr.importmismatch.helpLine4=package nei successivi file sorgente del progetto.
 pkgmgr.importmismatch.helpLine5=Probabilmente dovresti aprire la directory superiore a quella che
 pkgmgr.importmismatch.helpLine6=hai scelto. Ad esempio, per aprire un progetto Java che contiene
@@ -401,18 +401,18 @@ pkgmgr.importmismatch.helpLine9=Vuoi continuare e cambiare la dichiarazione del 
 
 # "import" failure dialog
 pkgmgr.importfailed.title=BlueJ:  Stato dell'importazione
-pkgmgr.importfailed.helpLine1=Durante l'importazione non è stato possibile copiare i file
-pkgmgr.importfailed.helpLine2=elencati di seguito. Probabilmente ciò è dovuto al fatto che
-pkgmgr.importfailed.helpLine3=tali file sono già presenti nel progetto di destinazione.
+pkgmgr.importfailed.helpLine1=Durante l'importazione non \u00e8 stato possibile copiare i file
+pkgmgr.importfailed.helpLine2=elencati di seguito. Probabilmente ci\u00f2 \u00e8 dovuto al fatto che
+pkgmgr.importfailed.helpLine3=tali file sono gi\u00e0 presenti nel progetto di destinazione.
 
 # "version check" dialog
 pkgmgr.versionDlg.title=BlueJ:  Verifica se esistono nuove versioni
-pkgmgr.versionDlg.helpLine1=Verifica la disponibilità di nuove versioni di Bluej.
-pkgmgr.versionDlg.helpLine2=Devi essere online perché funzioni.
+pkgmgr.versionDlg.helpLine1=Verifica la disponibilit\u00e0 di nuove versioni di Bluej.
+pkgmgr.versionDlg.helpLine2=Devi essere online perch\u00e9 funzioni.
 pkgmgr.versionDlg.check=Verifica della versione
-pkgmgr.versionDlg.upToDate=La versione corrente è aggiornata.
-pkgmgr.versionDlg.currentVersion=La tua versione corrente di BlueJ è
-pkgmgr.versionDlg.newVersion=La più recente versione di BlueJ è
+pkgmgr.versionDlg.upToDate=La versione corrente \u00e8 aggiornata.
+pkgmgr.versionDlg.currentVersion=La tua versione corrente di BlueJ \u00e8
+pkgmgr.versionDlg.newVersion=La pi\u00f9 recente versione di BlueJ \u00e8
 
 # run applet dialog
 pkgmgr.runApplet.title=BlueJ:  Esegui applet
@@ -428,8 +428,8 @@ pkgmgr.runApplet.nameLbl=Nome =
 pkgmgr.runApplet.valueLbl=Valore =
 pkgmgr.runApplet.paramName=NOME DEL PARAMETRO
 pkgmgr.runApplet.value=VALORE
-pkgmgr.runApplet.htmlComment=<!-- ****** Generato da BlueJ Java Development Environment ****** -->\n<!-- Questo file viene rigenerato automaticamente ogni volta che  -->\n<!-- l'applet è avviato. Ogni variazione manuale al file viene    -->\n<!-- persa quando l'applet è riavviata in BlueJ. Salvalo in una   -->\n<!-- directory al di fuori di quella del package se non vuoi      -->\n<!-- perdere le variazioni che apporti.                           -->
-pkgmgr.runApplet.htmlExportedComment=<!-- ************ Generato da BlueJ Java Development Environment ************ -->\n<!-- Quando questa pagina è stata generata, la variabile codebase puntava al  -->\n<!-- path assoluto della directory del package BlueJ dell'applet. Se muovi    -->\n<!-- altrove il package, devi anche modificare il valore di questa variabile. -->
+pkgmgr.runApplet.htmlComment=<!-- ****** Generato da BlueJ Java Development Environment ****** -->\n<!-- Questo file viene rigenerato automaticamente ogni volta che  -->\n<!-- l'applet \u00e8 avviato. Ogni variazione manuale al file viene    -->\n<!-- persa quando l'applet \u00e8 riavviata in BlueJ. Salvalo in una   -->\n<!-- directory al di fuori di quella del package se non vuoi      -->\n<!-- perdere le variazioni che apporti.                           -->
+pkgmgr.runApplet.htmlExportedComment=<!-- ************ Generato da BlueJ Java Development Environment ************ -->\n<!-- Quando questa pagina \u00e8 stata generata, la variabile codebase puntava al  -->\n<!-- path assoluto della directory del package BlueJ dell'applet. Se muovi    -->\n<!-- altrove il package, devi anche modificare il valore di questa variabile. -->
 
 #print project dialog
 pkgmgr.printDialog.title=BlueJ:  Stampa il progetto
@@ -446,7 +446,7 @@ pkgmgr.methodCall.typeParameterPrompt=Tipo parametro:
 error.methodCall.emptyField=Campo di parametro vuoto
 error.methodCall.emptyTypeField=Error: Trovato campo di parametro vuoto.\nOppure tutti i camppi dei parametri sono vuoti.
 error.methodCall.illegalName=Il nome dell'istanza deve essere un identificatore Java.
-error.methodCall.duplicateName=Un oggetto con questo nome esiste già.\nScegli un altro nome non ancora utilizzato.
+error.methodCall.duplicateName=Un oggetto con questo nome esiste gi\u00e0.\nScegli un altro nome non ancora utilizzato.
 
 # Debugger dialog (ExecControls.java)
 debugger.execControls.windowTitle = BlueJ:  Debugger
@@ -501,18 +501,18 @@ pkgmgr.creatingVMDone=Inizializzo la virtual machine... fatto
 pkgmgr.generatingDocu=Genero la documentazione...
 pkgmgr.docuGenerated=Genero la documentazione... fatto
 pkgmgr.docuAborted=Genero la documentazione... interrotto
-pkgmgr.webBrowserMsg=Il browser web è stato avviato.
+pkgmgr.webBrowserMsg=Il browser web \u00e8 stato avviato.
 pkgmgr.webBrowserError=Errore nell'avvio del browser web.
 pkgmgr.usesArrowMsg=Dipendenza "Usa" dichiarata ma mai usata:
 pkgmgr.breakpointMsg=La classe deve essere compilata prima di poter mettere breakpoint.
 pkgmgr.appletInViewer=Eseguo l'applet nell'appletviewer
 pkgmgr.appletInBrowser=Eseguo l'applet nel browser web
 pkgmgr.exported.jar=Esportazione verso file jar completata.
-pkgmgr.error.open=Il progetto non esiste (non più)
+pkgmgr.error.open=Il progetto non esiste (non pi\u00f9)
 pkgmgr.checkingVersion=Connessione al server in corso...
 
-properties.heading.bluej=Proprietà di BlueJ. Le configurazioni in questo file hanno la precedenza su quelle in \"bluej.defs\"
-properties.heading.moe=Proprietà dell'Editor Moe. Le configurazioni in questo file hanno la precedenza su quelle in \"moe.defs\"
+properties.heading.bluej=Propriet\u00e0 di BlueJ. Le configurazioni in questo file hanno la precedenza su quelle in \"bluej.defs\"
+properties.heading.moe=Propriet\u00e0 dell'Editor Moe. Le configurazioni in questo file hanno la precedenza su quelle in \"moe.defs\"
 
 # menus and menu items
 
@@ -536,7 +536,7 @@ menu.edit.newPackage=Nuovo package@R
 menu.edit.addClass=_Aggiungi una classe da file
 menu.edit.remove=Elimina@BACK_SPACE
 menu.edit.newUses=Nuova relazione '_Usa'
-menu.edit.newInherits=Nuova relazione '_Eredità'
+menu.edit.newInherits=Nuova relazione '_Eredit\u00e0'
 menu.edit.removeArrow=Elimina relazione
 
 menu.tools=_Strumenti
@@ -553,7 +553,7 @@ menu.tools.preferences=_Preferenze...@,
 
 menu.view=_Visualizza
 menu.view.showUses=Relazioni 'usa'@U
-menu.view.showInherits=Relazioni 'eredità'@I
+menu.view.showInherits=Relazioni 'eredit\u00e0'@I
 menu.view.showExecControls=Debugger@D
 menu.view.showTerminal=Terminale@T
 menu.view.showTextEval=Mostra il Code Pad@E
@@ -563,13 +563,13 @@ team.project.marker=Progetti Condivisi
 team.commit=Pubblica@I
 team.menu.commit=Pubblica nel registro@I
 team.commit.title=Pubblica File nel Registro
-team.commit.files=Il files è stato pubblicato
+team.commit.files=Il files \u00e8 stato pubblicato
 team.commit.comment=Pubblica commenti
 team.commit.layout=(Diagrammi Layout)
 team.commit.includelayout=Pubblica diagrammi layout
 team.commit.statusMessage=Pubblica progetto nel registro...
 team.commit.statusDone=Pubblicazione progetto nel registro... fatto.
-team.commit.moreFiles=(e più - controllare la condizione)
+team.commit.moreFiles=(e pi\u00f9 - controllare la condizione)
 team.update=Aggiorna@U
 team.menu.update=Aggiorna dal registro@U
 team.update.statusMessage=Aggiorna progetto...
@@ -649,7 +649,7 @@ team.sharing=Condivi progetto...
 team.shared=Progetto condiviso...
 
 team.checkconn.checking=Verifico connessione...
-team.checkconn.ok=Connessione è ok
+team.checkconn.ok=Connessione \u00e8 ok
 team.checkconn.bad=Impossibile connettersi al server
 
 menu.help=_Aiuto
@@ -665,11 +665,11 @@ menu.help.standardApi=Librerie di classe _Java
 
 tooltip.newClass=Crea una nuova classe in questo package
 tooltip.newUses=Inserisci una relazione 'usa'
-tooltip.newExtends=Inserisci una relazione 'eredità'
+tooltip.newExtends=Inserisci una relazione 'eredit\u00e0'
 tooltip.test=Carica tutte le classi di test compilate di questo package
 tooltip.compile=Compila tutte le classi di questo package non compilate
 tooltip.test=Compila tutte le classi test del package
-tooltip.progress=Indicatore di esecuzione: indica quando la virtual machine è in esecuzione
+tooltip.progress=Indicatore di esecuzione: indica quando la virtual machine \u00e8 in esecuzione
 tooltip.test.end=Termina la registrazione di un metodo di test e lo salva.
 tooltip.test.cancel=Cancella ed elimina la registrazione di un metodo di test.
 tooltip.commit=Pubblica i cambiamenti locali nel registro
@@ -679,8 +679,8 @@ tooltip.status=Mostra lo stato deifile del progetto di tutto il team di lavoro
 #Copyright
 
 menu.help.copyright.title=BlueJ Copyright
-menu.help.copyright.line1=BlueJ è disponibile gratuitamente e può essere
-menu.help.copyright.line2=liberamente redistribuito. Non può essere venduto a
+menu.help.copyright.line1=BlueJ \u00e8 disponibile gratuitamente e pu\u00f2 essere
+menu.help.copyright.line2=liberamente redistribuito. Non pu\u00f2 essere venduto a
 menu.help.copyright.line3=scopo di lucro o incluso in altri pacchetti venduti
 menu.help.copyright.line4=a scopo di lucro senza una autorizzazione scritta.
 

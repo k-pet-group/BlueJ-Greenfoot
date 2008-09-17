@@ -8,23 +8,23 @@
 
 delete-previous=\n Cancella il carattere a sinistra del cursore.
 delete-next=\n Cancella il carattere a destra del cursore.
-copy-to-clipboard=\n Copia il testo selezionato negli appunti. Da qui può poi\n essere incollato altrove (vedi paste-from-clipboard).
-cut-to-clipboard=\n Taglia il testo selezionato e lo salva negli appunti.\n Da qui può poi essere incollato altrove (vedi paste-from-clipboard).
+copy-to-clipboard=\n Copia il testo selezionato negli appunti. Da qui pu\u00f2 poi\n essere incollato altrove (vedi paste-from-clipboard).
+cut-to-clipboard=\n Taglia il testo selezionato e lo salva negli appunti.\n Da qui pu\u00f2 poi essere incollato altrove (vedi paste-from-clipboard).
 copy-line=\n Copia la linea corrente negli appunti. Operazioni\n successive di copia si aggiungono agli appunti.
 cut-line=\n Taglia la linea corrente e la salva negli appunti.\n Operazioni successive di taglio si aggiungono agli appunti.
 cut-end-of-line=\n Taglia la fine della linea corrente e la salva negli appunti.\n Operazioni successive di taglio si aggiungono agli appunti.
 cut-word=\n Taglia la parola corrente e la copia negli appunti.\n Operazioni successive di taglio si aggiungono agli appunti.
 cut-end-of-word=\n Taglia la fine della parola corrente e la salva negli appunti.\n Operazioni successive di taglio si aggiungono agli appunti.
 paste-from-clipboard=\n Incolla il contenuto degli appunti nel testo,\n subito dopo il cursore.
-indent=Se nelle preferenze dell'editor è attivato il rientro automatico,\n aggiunge un rientro come nelle linee precedenti. Altrimenti\n inserisce un TAB (composto di spazi).
+indent=Se nelle preferenze dell'editor \u00e8 attivato il rientro automatico,\n aggiunge un rientro come nelle linee precedenti. Altrimenti\n inserisce un TAB (composto di spazi).
 insert-tab=\n Inserisce un carattere TAB.
-new-line=\n Inserisce un accapo. Se nelle preferenze dell'editor è selezionato\n il rientro automatico, aggiunge un rientro come nelle linee precedenti
+new-line=\n Inserisce un accapo. Se nelle preferenze dell'editor \u00e8 selezionato\n il rientro automatico, aggiunge un rientro come nelle linee precedenti
 insert-break=\n Inserisce un accapo senza mettere rientro.
 insert-method=\n Inserisce nel testo lo schema di un metodo Java.
-comment-block=\n Commenta le linee selezionate. Il commento può facilmente\n essere rimosso successivamente (vedi uncomment-block)
+comment-block=\n Commenta le linee selezionate. Il commento pu\u00f2 facilmente\n essere rimosso successivamente (vedi uncomment-block)
 uncomment-block=\n Rimuove i simboli di commento dall'inizio delle line selezionate.\n Vedi anche comment-block.
-indent-block=\n Aggiunge un livello di rientro a ciascuna delle linee selezionate\n (o alla linea corrente se non è stato selezionato nulla).
-deindent-block=\n Elimina un livello di rientro da ciascuna delle linee selezionate\n (o dalla linea corrente se non è stato selezionato nulla).
+indent-block=\n Aggiunge un livello di rientro a ciascuna delle linee selezionate\n (o alla linea corrente se non \u00e8 stato selezionato nulla).
+deindent-block=\n Elimina un livello di rientro da ciascuna delle linee selezionate\n (o dalla linea corrente se non \u00e8 stato selezionato nulla).
 
 select-word=\n Seleziona la parola corrente (anche con\n un doppio click del tasto sinistro del mouse).
 select-line=\n Seleziona la linea corrente (anche con\n un triplo click del tasto sinistro del mouse).
@@ -69,9 +69,9 @@ caret-end=\n Sposta il cursore alla fine del testo.
 
 ## funzioni di classe
 
-save=\n Salva la classe. Da notare che raramente è necessario salvare esplicitamente\n la classe, dato che viene salvata automaticamente alla chiusura.
+save=\n Salva la classe. Da notare che raramente \u00e8 necessario salvare esplicitamente\n la classe, dato che viene salvata automaticamente alla chiusura.
 reload=\n Ricarica la classe dal file sorgente. Questa operazione annulla tutti\n i cambiamenti fatti dall'ultimo salvataggio (implicito o esplicito).
-close=\n Chiude la classe. Il testo sorgente è salvato automaticamente.
+close=\n Chiude la classe. Il testo sorgente \u00e8 salvato automaticamente.
 print=\n Apre una finestra di dialogo per iniziare una stampa.
 page-setup=\n Apre una finestra di dialogo per specificare le impostazioni della pagina.
 
@@ -84,7 +84,7 @@ preferences=\n Specifica alcune impostazioni per l'editor.
 
 ## funzioni d'aiuto
 
-describe-key=\n Dopo aver richiamato questa funzione, premi un tasto.\n Verrà mostrato il nome della funzione collegata al tasto.
+describe-key=\n Dopo aver richiamato questa funzione, premi un tasto.\n Verr\u00e0 mostrato il nome della funzione collegata al tasto.
 help-mouse=\n Mostra le associazioni del tasto del mouse.
 show-manual=\n Apre il Manuale Utente dell'editor Moe in un browser web.
 about-editor=\n Mostra una breve nota riguardo Moe.
@@ -92,15 +92,15 @@ about-editor=\n Mostra una breve nota riguardo Moe.
 
 ## funzioni varie
 
-undo=\n Annulla l'ultima modifica (che può però essere ripetuta con 'redo').
-redo=\n Ripete l'ultima operazione che è stata annullata.
+undo=\n Annulla l'ultima modifica (che pu\u00f2 per\u00f2 essere ripetuta con 'redo').
+redo=\n Ripete l'ultima operazione che \u00e8 stata annullata.
 
 find=\n Apre una finestra di dialogo per la ricerca di una stringa in un testo.\n E' possibile fare ricerche sia in avanti che indietro.
-find-next= Se è selezionato qualcosa, ricerca la successiva occorrenza del testo selezionato.\n Se non è selezionato nulla, ricerca nuovamente l'ultima stringa che è stata\n usata per la ricerca. Si ferma alla fine del file, ma se richiamato ancora\n riparte dall'inizio.
-find-next-backward=\n Come find-next, ma ricerca indietro anziché in avanti.
+find-next= Se \u00e8 selezionato qualcosa, ricerca la successiva occorrenza del testo selezionato.\n Se non \u00e8 selezionato nulla, ricerca nuovamente l'ultima stringa che \u00e8 stata\n usata per la ricerca. Si ferma alla fine del file, ma se richiamato ancora\n riparte dall'inizio.
+find-next-backward=\n Come find-next, ma ricerca indietro anzich\u00e9 in avanti.
 replace=\n Sostituisce una stringa con un'altra.
 
-compile=\n Compila la classe corrente. La classe è automaticamente\n salvata prima della compilazione.
+compile=\n Compila la classe corrente. La classe \u00e8 automaticamente\n salvata prima della compilazione.
 toggle-interface-view=\n Mostra o le specifiche o il codice sorgente dell'implementazione.\n Le specifiche di classe sono mostrate in formato Javadoc.
 toggle-breakpoint=\n Aggiunge o rimuove un breakpoint nella linea corrente.
 

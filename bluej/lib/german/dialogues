@@ -1,19 +1,19 @@
 compile-while-executing
-Während das Programm ausgeführt wird, kann 
-nicht kompiliert werden. Dies könnte sonst
-zu eigenartigen Problemen führen!
+W\u00e4hrend das Programm ausgef\u00fchrt wird, kann 
+nicht kompiliert werden. Dies k\u00f6nnte sonst
+zu eigenartigen Problemen f\u00fchren!
 
 exception-thrown
 Eine Exception (exception)
-wurde ausgelöst:
+wurde ausgel\u00f6st:
 
 break-no-source
-In einer Datei, für die keine Sourcedatei
+In einer Datei, f\u00fcr die keine Sourcedatei
 gefunden werden kann, wurde ein Haltepunkt
 erreicht. Dateiname:
 
 error-in-file
-In einer Datei, für die kein Sourcetext
+In einer Datei, f\u00fcr die kein Sourcetext
 gefunden werden kann, ist ein Fehler 
 aufgetreten.
 Klasse: Zeilennummer:
@@ -21,29 +21,29 @@ Klasse: Zeilennummer:
 system-exit
 Die Methode wurde durch eine explizite
 "exit"-Anweisung beendet. Es gibt keinen
-Rückgabewert. Der Exitcode lautet:
+R\u00fcckgabewert. Der Exitcode lautet:
 
 no-help
-Für diese Meldung ist kein Hilfetext 
-verfügbar. Bitte senden Sie den Text 
+F\u00fcr diese Meldung ist kein Hilfetext 
+verf\u00fcgbar. Bitte senden Sie den Text 
 der Fehlermeldung an mik@bluej.org -
 wir werden dann einen Hilfetext in unserer
 Hilfedatenbank anlegen. Danke!
 
 editor-crashed
-BlueJ scheint abgestürzt zu sein, während 
+BlueJ scheint abgest\u00fcrzt zu sein, w\u00e4hrend 
 diese Klasse zuletzt auf Festplatte 
-gespeichert wurde. Möglicherweise fehlt der
-Sourcetext, oder er ist unvollständig. Ein
+gespeichert wurde. M\u00f6glicherweise fehlt der
+Sourcetext, oder er ist unvollst\u00e4ndig. Ein
 Backup dieser Klasse sollte sich im Projekt-
 verzeichnis befinden. Wenn diese Klasse 
-beschädigt zu sein scheint, 
+besch\u00e4digt zu sein scheint, 
    1 - beenden Sie BlueJ
    2 - machen Sie sicherheitshalber ein 
        Backup Ihres Projektverzeichnisses
    3 - suchen Sie in Ihrem Projektverzeichnis
        das Backup dieser Java-Datei und 
-       benennen Sie es in den ursprünglichen 
+       benennen Sie es in den urspr\u00fcnglichen 
        Dateinamen um (mit '.java'-Erweiterung)
 
 cannot-run-compiler
@@ -56,22 +56,22 @@ Compilerfehler:
 
 stream-incomplete
 Compilerfehler. Der "error stream"
-ist unvollständig.
+ist unvollst\u00e4ndig.
 
 out-of-bounds
 Der angegebene Arrayindex liegt
-außerhalb der Arraygrenzen.
+au\u00dferhalb der Arraygrenzen.
 
 cannot-access-element
 Auf das angegebene Arrayelement kann 
 nicht zugegriffen werde.
 
 appletviewer-error
-Bei der Ausführung des Applets im
+Bei der Ausf\u00fchrung des Applets im
 Applet-Viewer ist ein Fehler aufgetreten.
 
 error-no-name
-Sie müssen einen gültigen Namen angeben.
+Sie m\u00fcssen einen g\u00fcltigen Namen angeben.
 
 error-save-file
 Beim Versuch, die Datei zu speichern, ist
@@ -89,44 +89,44 @@ Das angegebene Vorlagenverzeichnis (das Verzeichnis,
 in dem BlueJ die Klassenvorlagen findet) ist nicht
 virhanden. Es ist unter der Eigenschaft "bluej.templatePath" 
 in der Datei <bluej-home>/lib/bluej.defs definiert.
-Überprüfen Sie diese Eigenschaft und stellen Sie sie
+\u00dcberpr\u00fcfen Sie diese Eigenschaft und stellen Sie sie
 richtig.
 
 skeleton-error
-Das Defaultskelett für die Klasse konnte nicht erzeugt
+Das Defaultskelett f\u00fcr die Klasse konnte nicht erzeugt
 werden. Die Ursache kann ein Fehler in der Konfiguration
 von BlueJ sein oder ein Dateizugriffsproblem.
 
 error-open-source
-Die Sourcedatei dieser Klasse kann nicht geöffnet werden.
+Die Sourcedatei dieser Klasse kann nicht ge\u00f6ffnet werden.
 
 error-writing-readme
 Die README-Datei zu diesem Projekt konnte nicht mit den
 Informationen zur Hauptklasse aktualisiert werden. Beim
-Ändern der Datei gab es einen Fehler.
+\u00c4ndern der Datei gab es einen Fehler.
 
 error-exporting
 Beim Versuch, das Projekt zu exportieren, ist ein 
 Fehler aufgetreten. Einige oder alle Dateien wurden
-möglicherweise nicht richtig kopiert.
+m\u00f6glicherweise nicht richtig kopiert.
 
 error-writing-jar
 Die jar-Datei konnte nicht richtig geschrieben werden. 
-(Überprüfen Sie das Dateisystem im Hinblick auf Zugriffs-
+(\u00dcberpr\u00fcfen Sie das Dateisystem im Hinblick auf Zugriffs-
 rechte und freien Plattenspeicherplatz.)
 
 error-jar-exists
-Die gewünschte jar-Datei ist bereits vorhanden.
-Wollen Sie sie überschreiben?
-Überschreiben
+Die gew\u00fcnschte jar-Datei ist bereits vorhanden.
+Wollen Sie sie \u00fcberschreiben?
+\u00dcberschreiben
 Abbrechen
 null
 
 invalid-class-name
-Ungültiger Klassenname.
+Ung\u00fcltiger Klassenname.
 
 invalid-package-name
-Ungültiger Paket-Name.
+Ung\u00fcltiger Paket-Name.
 
 must-be-identifier
 Der Name ist nicht erlaubt. Er
@@ -139,8 +139,8 @@ Namen ist bereits vorhanden.
 cannot-copy-package
 Es gab ein Problem beim Kopieren der 
 Paket-Dateien. Das Paket wurde nicht
-geschrieben oder ist möglicherweise 
-unvollständig.
+geschrieben oder ist m\u00f6glicherweise 
+unvollst\u00e4ndig.
 
 file-does-not-exist
 Die angegebene Datei ist nicht vorhanden.
@@ -151,17 +151,17 @@ Die Datei muss eine Java-Sourcedatei
 sein (die Bezeichnung muss auf ".java" enden).
 
 docdir-blocked-by-file
-Das Verzeichnis für die Interface-Doku konnte
+Das Verzeichnis f\u00fcr die Interface-Doku konnte
 nicht erstellt werden, weil es bereits eine
 Datei mit demselben Namen gibt.
 
 docdir-not-created
-Das Verzeichnis für die Interface-Doku konnte
+Das Verzeichnis f\u00fcr die Interface-Doku konnte
 im Projektverzeichnis nicht erstellt werden.
 
 no-permission-for-docdir
-Wegen ungenügender Zugriffsrechte konnte das 
-Verzeichnis für die Interface-Doku im Projekt-
+Wegen ungen\u00fcgender Zugriffsrechte konnte das 
+Verzeichnis f\u00fcr die Interface-Doku im Projekt-
 verzeichnis nicht erstellt werden.
 
 show-or-generate
@@ -173,17 +173,17 @@ Neu erstellen
 Abbrechen
 
 doctool-error
-Javadoc meldete einen Fehler. Möglicherweise weist 
-eine der Dateien, für die Sie die Interface-Doku 
-erzeugen wollten, einen Syntaxfehler auf. Es könnte
+Javadoc meldete einen Fehler. M\u00f6glicherweise weist 
+eine der Dateien, f\u00fcr die Sie die Interface-Doku 
+erzeugen wollten, einen Syntaxfehler auf. Es k\u00f6nnte
 auch sein, dass der in "Einstellungen" angegebene
-URL für die JDK-Dokumentation unrichtig ist.
+URL f\u00fcr die JDK-Dokumentation unrichtig ist.
 Vergewissern Sie sich, dass alle Ihre Java-Dateien
-übersetzt sind und dass der URL für die JDK-Dokumentation
-erreichbar oder unterdrückt ist, und versuchen Sie es
+\u00fcbersetzt sind und dass der URL f\u00fcr die JDK-Dokumentation
+erreichbar oder unterdr\u00fcckt ist, und versuchen Sie es
 dann erneut. Wenn diese Meldung wieder erscheint, 
 sollten Sie die Log-Datei mit den javadoc-Fehlermeldungen
-überprüfen:
+\u00fcberpr\u00fcfen:
 
 severe-doc-trouble
 Beim Aufruf des externen Dokumentationstools trat 
@@ -195,22 +195,22 @@ gefunden.
 
 duplicate-name
 Eine Klasse oder ein Paket mit diesem Namen existiert
-bereits in diesem Paket. Sie können keine zwei Klassen
+bereits in diesem Paket. Sie k\u00f6nnen keine zwei Klassen
 mit demselben Namen haben.
 
 error-in-import
 Beim Versuch, die Datei zu importieren, ist ein 
-Fehler aufgetreten. Überprüfen Sie die Zugriffsrechte
+Fehler aufgetreten. \u00dcberpr\u00fcfen Sie die Zugriffsrechte
 und den freien Plattenspeicherplatz.
 
 no-class-selected
 Keine Klasse oder Paket zum Entfernen markiert.
-Wählen Sie eine Klasse oder ein Paket durch 
+W\u00e4hlen Sie eine Klasse oder ein Paket durch 
 Anklicken, bevor Sie versuchen, diese zu entfernen.
 
 really-remove-class
 Beim Entfernen von Klassen werden auch ihre Sourcedateien
-unwiderruflich gelöscht.
+unwiderruflich gel\u00f6scht.
 Wollen Sie fortfahren?
 Entfernen
 Abbrechen
@@ -218,7 +218,7 @@ null
 
 really-remove-package
 Beim Entfernen dieses Paket wird auch das Paket-
-Verzeichnis unwiderruflich gelöscht, inklusive seines
+Verzeichnis unwiderruflich gel\u00f6scht, inklusive seines
 GESAMTEN Inhalts.
 Wollen Sie fortfahren?
 Entfernen
@@ -226,22 +226,22 @@ Abbrechen
 null
 
 remove-package-open
-In BlueJ sind einige Pakete geöffnet, die dem Paket
-untergeordnet sind, das Sie zum Entfernen ausgewählt haben.
-Sie müssen die untergeordneten Pakete schliessen, bevor 
-Sie dieses Paket entfernen können.
+In BlueJ sind einige Pakete ge\u00f6ffnet, die dem Paket
+untergeordnet sind, das Sie zum Entfernen ausgew\u00e4hlt haben.
+Sie m\u00fcssen die untergeordneten Pakete schliessen, bevor 
+Sie dieses Paket entfernen k\u00f6nnen.
 
 package-does-not-exist
-Fehler beim Öffnen eines Pakets.
+Fehler beim \u00d6ffnen eines Pakets.
 Paket ist nicht vorhanden:
 
 no-bluej-package
-Fehler beim Öffnen eines Pakets.
+Fehler beim \u00d6ffnen eines Pakets.
 Die Datei/das Verzeichnis ist kein
 BlueJ-Paket:
 
 applet-height-width
-Höhe und Breite des Applets müssen angegeben werden.
+H\u00f6he und Breite des Applets m\u00fcssen angegeben werden.
 
 cannot-read-help
 Hilfedatei kann nicht gelesen werden:
@@ -250,13 +250,13 @@ not-yet-implemented
 Leider nocht nicht implementiert.
 
 quit-all
-Alle geöffneten Projekte beenden?
+Alle ge\u00f6ffneten Projekte beenden?
 Alle beenden
 Abbrechen
 null
 
 really-reload
-"Neu laden" nimmt alle Änderungen zurück, die
+"Neu laden" nimmt alle \u00c4nderungen zur\u00fcck, die
 seit dem letzten Speichern vorgenommen wurden.
 Sind Sie sicher?
 Neu laden
@@ -264,25 +264,25 @@ Abbrechen
 null
 
 changed-on-disk
-Die Quelldatei auf der Platte wurde verändert. Wollen
+Die Quelldatei auf der Platte wurde ver\u00e4ndert. Wollen
 Sie sie wirklich neu laden? Dadurch gehen alle
-im Editor gemachten Änderungen verloren.
+im Editor gemachten \u00c4nderungen verloren.
 Neu laden
 Abbrechen
 null
 
 really-print
-Dieser Text überschreitet die Papierbreite.
-Längere Zeilen werden abgeschnitten. Sie können
+Dieser Text \u00fcberschreitet die Papierbreite.
+L\u00e4ngere Zeilen werden abgeschnitten. Sie k\u00f6nnen
 das vermeiden, indem Sie das Editorfenster
-schmäler machen.
+schm\u00e4ler machen.
 Wollen Sie trotzdem drucken?
 Drucken
 Abbrechen
 null
 
 open-non-bluej-already-bluej
-Das ausgewählte Verzeichnis enthält bereits 
+Das ausgew\u00e4hlte Verzeichnis enth\u00e4lt bereits 
 ein BlueJ-Projekt.
 
 open-non-bluej-no-java
@@ -291,20 +291,20 @@ Java-Sourcedateien gefunden.
 
 open-non-bluej-invalid
 Sie wollen dieses Verzeichnis als BlueJ-Projekt
-öffnen, aber es wurde eine Datei mit einer
+\u00f6ffnen, aber es wurde eine Datei mit einer
 "package"-Anweisung gefunden, die nicht mit
 der bestehenden Verzeichnisstruktur zusammen-
 passt. (Wenn z.B. die Java-Klasse "Shape"
-eine "package"-Anweisung mit "com.aa" enthält,
+eine "package"-Anweisung mit "com.aa" enth\u00e4lt,
 dann muss sich die Datei "Shape.java" im 
 Verzeichnis "aa" befinden, und dieses wieder 
 im Verzeichnis "com". Das Verzeichnis "com"
 schliesslich muss in demjenigen Verzeichnis
-stehen, das Sie auswählen, wenn Sie das 
-Projekt öffnen wollen.)
+stehen, das Sie ausw\u00e4hlen, wenn Sie das 
+Projekt \u00f6ffnen wollen.)
 
 import-into-current
-In diesem Fenster ist derzeit ein Paket geöffnet.
+In diesem Fenster ist derzeit ein Paket ge\u00f6ffnet.
 Wollen Sie in dieses Paket importieren, oder
 wollen Sie ein neues Projekt erstellen und dorthin
 importieren?
@@ -314,28 +314,28 @@ Abbrechen
 
 package-name-invalid
 Sie haben die "package"-Anweisung auf ein Paket
-geändert, das es in diesem Projekt nicht gibt.
+ge\u00e4ndert, das es in diesem Projekt nicht gibt.
 Wenn Sie diese Klasse in ein anderes Paket 
-verschieben wollen, müssen sie das Ziel-Paket
+verschieben wollen, m\u00fcssen sie das Ziel-Paket
 zuerst erstellen. Die "package"-Anweisung wurde
-in ihre ursprüngliche Form zurückversetzt.
+in ihre urspr\u00fcngliche Form zur\u00fcckversetzt.
 
 package-name-clash
 Sie haben die "package"-Anweisung auf ein Paket
-geändert, das bereits eine Klasse oder ein Paket
-dieses Namens enthält. Wenn Sie die Klasse verschoben
+ge\u00e4ndert, das bereits eine Klasse oder ein Paket
+dieses Namens enth\u00e4lt. Wenn Sie die Klasse verschoben
 wird, werden die existierende Klasse oder das Paket 
-überschrieben. Daher wurde die "package"-Anweisung
-in ihre ursprüngliche Form zurückversetzt.
+\u00fcberschrieben. Daher wurde die "package"-Anweisung
+in ihre urspr\u00fcngliche Form zur\u00fcckversetzt.
 
 package-name-changed
-Sie haben die "package"-Anweisung geändert, die
-für Java angibt, in welchem Paket sich die
+Sie haben die "package"-Anweisung ge\u00e4ndert, die
+f\u00fcr Java angibt, in welchem Paket sich die
 Klasse befindet. Wollen Sie diese Klasse in das
 angegebene Paket verschieben, oder wollen Sie
 sie dort belassen, wo sie ist (d.h. die
-"package"-Anweisung wird in ihre ursprüngliche 
-Form zurückversetzt)?
+"package"-Anweisung wird in ihre urspr\u00fcngliche 
+Form zur\u00fcckversetzt)?
 Verschieben
 Belassen
 null
@@ -346,8 +346,8 @@ Array betrachten
 null
 
 classmgr-changes-no-effect
-Ihre Änderungen an den Klassenbibliotheken werden
-erst nach dem nächsten Übersetzen oder dem Neustart
+Ihre \u00c4nderungen an den Klassenbibliotheken werden
+erst nach dem n\u00e4chsten \u00dcbersetzen oder dem Neustart
 der virtuellen Maschine wirksam.
 
 unittest-new-test-method
@@ -357,14 +357,14 @@ Neue Testmethode
 null
 
 getobject-new-name
-Geben Sie den Namen für das neue Objekt ein.
+Geben Sie den Namen f\u00fcr das neue Objekt ein.
 Neuer Objektname
 null
 
 unittest-fixture-present
 Diese Testklasse hat bereits einen Objektzustand gespeichert.
 Wenn Sie fortfahren, wird die Definition ersetzt und 
-möglicherweise unbrauchbar.
+m\u00f6glicherweise unbrauchbar.
 Wollen Sie fortfahren?
 Ersetzen
 Abbrechen
@@ -374,7 +374,7 @@ unittest-method-present
 Diese Testklasse hat bereits eine Testmethode mit diesem 
 Namen deklariert. Falls Sie weitermachen, wird die 
 Definition dieser Methode ersetzt.
-Möchten Sie weitermachen?
+M\u00f6chten Sie weitermachen?
 Ersetzen
 Abbrechen
 null
@@ -393,114 +393,114 @@ null
 
 error-create-vm
 BlueJ war nicht in der Lage, eine virtuelle Maschine (VM) zu erzeugen,
-um Projekte auszuführen. Dies ist ein ernstes Problem - Sie werden
+um Projekte auszuf\u00fchren. Dies ist ein ernstes Problem - Sie werden
 nicht in der Lage sein, Objekte zu erzeugen oder Methoden aufzurufen,
-ohne das Problem zu lösen.
+ohne das Problem zu l\u00f6sen.
 Normalerweise wird dieses Problem durch spezielle Netzwerkeinstellungen
 auf Ihrer Maschine verursacht. BlueJ nutzt TCP/IP und Sockets, um die
-Erzeugung einer VM zu erreichen. Die häufigste Ursache ist eine zu 
+Erzeugung einer VM zu erreichen. Die h\u00e4ufigste Ursache ist eine zu 
 restriktive Firewall, die keine Verbindungen von 'localhost' erlaubt.
-Andere Ursachen können ungültige Netzwerkeinstellungen sein. Überprüfen
-Sie, dass TCP/IP korrekt eingerichtet ist. Überprüfen sie auch andere
+Andere Ursachen k\u00f6nnen ung\u00fcltige Netzwerkeinstellungen sein. \u00dcberpr\u00fcfen
+Sie, dass TCP/IP korrekt eingerichtet ist. \u00dcberpr\u00fcfen sie auch andere
 Netzwerkparameter.
 
 project-is-readonly
-Das Projekt ist schreibgeschützt. Sie werden nicht in der Lage sein,
+Das Projekt ist schreibgesch\u00fctzt. Sie werden nicht in der Lage sein,
 Objekte zu erzeugen oder Methoden aufzurufen.
 Entweder sind die Zugriffrechte im Projektverzeichnis auf 
-'schreibgeschützt' für Sie gesetzt, oder das gesamte Dateisystem ist
+'schreibgesch\u00fctzt' f\u00fcr Sie gesetzt, oder das gesamte Dateisystem ist
 nicht beschreibbar (ist es eine CD?).
-Um dieses Projekt vollständig nutzen zu können, müssen Sie dafür
+Um dieses Projekt vollst\u00e4ndig nutzen zu k\u00f6nnen, m\u00fcssen Sie daf\u00fcr
 sorgen, dass es sich auf einem beschreibbaren Dateisystem
 (normalerweise eine Festplatte) befindet und dass Sie Schreibrechte
-für das Projektverzeichnis und alle darin enthaltenen Dateien haben.
-Das kann oft erreicht werden, indem "Speichern unter" im Projektmenü
-nach dem Schließen dieses Dialogs ausgewählt wird.
+f\u00fcr das Projektverzeichnis und alle darin enthaltenen Dateien haben.
+Das kann oft erreicht werden, indem "Speichern unter" im Projektmen\u00fc
+nach dem Schlie\u00dfen dieses Dialogs ausgew\u00e4hlt wird.
 
 could-not-write-shell-file
-Die Ausführung hat versagt, weil das Projektverzeichnis nicht
-beschreibbar ist. Um Objekte erzeugen und Methoden aufrufen zu können,
+Die Ausf\u00fchrung hat versagt, weil das Projektverzeichnis nicht
+beschreibbar ist. Um Objekte erzeugen und Methoden aufrufen zu k\u00f6nnen,
 muss BlueJ in der Lage sein, in das Projektverzeichnis zu schreiben.
 Stellen Sie sicher, dass Ihr Projekt auf einem beschreibbaren 
 Dateisystem (keine CD!) abgelegt ist und dass Sie die 
-Schreibrechte für das Projektverzeichnis und die darin enthaltenen
+Schreibrechte f\u00fcr das Projektverzeichnis und die darin enthaltenen
 Dateien besitzen.
 
 jar-output-dir-exists
-Das Ausgabeverzeichnis für das Archive, das gerade entpackt wird,
-existiert bereits. Sie müssen das Verzeichnis löschen, bevor Sie 
-das Archiv entpacken können.
+Das Ausgabeverzeichnis f\u00fcr das Archive, das gerade entpackt wird,
+existiert bereits. Sie m\u00fcssen das Verzeichnis l\u00f6schen, bevor Sie 
+das Archiv entpacken k\u00f6nnen.
 
 jar-extraction-error
-Während des Entpackens des Archivs trat ein Fehler auf. Die
-Debug-Logdatei enthält möglicherweise weitere Informationen.
+W\u00e4hrend des Entpackens des Archivs trat ein Fehler auf. Die
+Debug-Logdatei enth\u00e4lt m\u00f6glicherweise weitere Informationen.
 
 file-save-error-before-compile
 Eine oder mehrere Dateien konnten nicht gespeichert werden. Daher
-wurde die Übersetzung abgebrochen.
+wurde die \u00dcbersetzung abgebrochen.
 
 generic-file-save-error
-Während des Versuchs, eine Datei zu speichern, ist ein Fehler aufgetreten.
+W\u00e4hrend des Versuchs, eine Datei zu speichern, ist ein Fehler aufgetreten.
 
 empty-assertion-text
-Sie haben kein Ergebnis für diesen Methodenaufruf eingegeben.
-Ohne dieses Ergebnis ist Ihr Test unvollständig und Ihre Testklasse
-wird sich nicht übersetzen lassen. Sind Sie sicher, dass Sie ohne die 
-Eingabe eines Ergebniswertes fortfahren möchten?
-Zurück
+Sie haben kein Ergebnis f\u00fcr diesen Methodenaufruf eingegeben.
+Ohne dieses Ergebnis ist Ihr Test unvollst\u00e4ndig und Ihre Testklasse
+wird sich nicht \u00fcbersetzen lassen. Sind Sie sicher, dass Sie ohne die 
+Eingabe eines Ergebniswertes fortfahren m\u00f6chten?
+Zur\u00fcck
 Fortsetzen
 null
 
 team-update-first
-Es wurden Änderungen an Dateien im Repository vorgenommen, die
-in Ihrer Arbeitskopie gelöscht wurden. Das ist ein Konflikt.
-Bevor Sie ihre Änderungen abgeben können, müssen sich eine Aktualisierung 
+Es wurden \u00c4nderungen an Dateien im Repository vorgenommen, die
+in Ihrer Arbeitskopie gel\u00f6scht wurden. Das ist ein Konflikt.
+Bevor Sie ihre \u00c4nderungen abgeben k\u00f6nnen, m\u00fcssen sich eine Aktualisierung 
 holen, die die Dateien aus dem Repository wiederherstellt. Die folgenden
 Dateien sind betroffen:
 
 team-resolve-conflicts-delete
 Es gibt Konflikte bei einigen Dateien, die sowohl im Repository als auch 
-in Ihrer Arbeitskopie verändert wurden. Sie müssen ihre Versionen der 
-folgenden Dateien löschen und dann eine Aktualisierung holen, um die 
+in Ihrer Arbeitskopie ver\u00e4ndert wurden. Sie m\u00fcssen ihre Versionen der 
+folgenden Dateien l\u00f6schen und dann eine Aktualisierung holen, um die 
 Konflikte zu beseitigen:
 
 team-resolve-merge-conflicts
-Bei der vorherigen Aktualisierung gab es Konflikte bei Zusammenführen
-einiger Dateien. Sie müssen die folgenden Dateien bearbeiten und die
-Konflikte auflösen, bevor Sie die Dateien wieder abgeben können:
+Bei der vorherigen Aktualisierung gab es Konflikte bei Zusammenf\u00fchren
+einiger Dateien. Sie m\u00fcssen die folgenden Dateien bearbeiten und die
+Konflikte aufl\u00f6sen, bevor Sie die Dateien wieder abgeben k\u00f6nnen:
 
 team-unresolved-conflicts
-Es gibt unaufgelöste Konflikte bei den folgenden Dateien. Sie müssen
-die Dateien in ihrer Arbeitskopie löschen, um die Konflikte zu lösen:
+Es gibt unaufgel\u00f6ste Konflikte bei den folgenden Dateien. Sie m\u00fcssen
+die Dateien in ihrer Arbeitskopie l\u00f6schen, um die Konflikte zu l\u00f6sen:
 
 team-uptodate-failed
 Ihre Arbeitskopie ist nicht mehr aktuell. Holen Sie eine 
 Aktualisierung aus dem Repository bevor Sie ihre lokalen
-Änderungen abgeben können.
+\u00c4nderungen abgeben k\u00f6nnen.
 
 team-cant-find-module
 Ihr Projekt ist nicht im Repository. Ein Projekt muss gemeinsam 
 genutzt werden (in das Repository gestellt werden), bevor Sie eine
-Arbeitskopie davon erstellen können.
+Arbeitskopie davon erstellen k\u00f6nnen.
 
 team-empty-message
-Ein unbekannter Fehler ist aufgetreten. Überprüfen Sie die Teamarbeits-
+Ein unbekannter Fehler ist aufgetreten. \u00dcberpr\u00fcfen Sie die Teamarbeits-
 einstellungen, um sicherzustellen, dass Ihre Repository-Einstellungen
 korrekt sind.
 
 team-invalid-cvsroot
-Ungültiges CVS-Wurzelverzeichnis - Überprüfen Sie Ihre Teamarbeits-
+Ung\u00fcltiges CVS-Wurzelverzeichnis - \u00dcberpr\u00fcfen Sie Ihre Teamarbeits-
 einstellungen.
 
 team-authentication-problem
-Sie konnten sich nicht beim Server anmelden - Überprüfen Sie die Werte
-für Benutzername, Passwort und Repository in den Teamarbeitseinstellungen.
+Sie konnten sich nicht beim Server anmelden - \u00dcberpr\u00fcfen Sie die Werte
+f\u00fcr Benutzername, Passwort und Repository in den Teamarbeitseinstellungen.
 
 team-binary-conflict
 Ein Konflikt wurde beim Akualisieren der folgenden Datei festgestellt:
     $
-Die Datei wurde in der Arbeitskopie geändert, aber es gibt auch 
-Änderungen im Repository.
+Die Datei wurde in der Arbeitskopie ge\u00e4ndert, aber es gibt auch 
+\u00c4nderungen im Repository.
 Meine Version behalten
 Repository-Version verwenden
 null
