@@ -31,7 +31,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 5390 2007-11-21 05:06:41Z davmac $
+ * @version $Id: VMReference.java 5873 2008-09-17 07:13:08Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -145,16 +145,13 @@ class VMReference
         File [] filesPath = BPClassLoader.toFiles(boot.getRuntimeUserClassPath());
         String allClassPath = BPClassLoader.toClasspathString(filesPath);
         
-        ArrayList paramList = new ArrayList(10);
+        ArrayList<String> paramList = new ArrayList<String>(10);
         paramList.add(Config.getJDKExecutablePath(null, "java"));
         
         //check if any vm args are specified in Config, at the moment these
         //are only Locale options: user.language and user.country
         
-        List configArgs = Config.getDebugVMArgs();
-        if (!configArgs.isEmpty()) {
-            paramList.addAll(configArgs);
-        }
+        paramList.addAll(Config.getDebugVMArgs());
         
         paramList.add("-classpath");
         paramList.add(allClassPath);
