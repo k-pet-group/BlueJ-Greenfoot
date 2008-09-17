@@ -20,14 +20,17 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 5870 2008-09-15 22:14:18Z davmac $
+ * @version $Id: Boot.java 5876 2008-09-17 11:02:54Z polle $
  */
 public class Boot
 {
-public static final int BLUEJ_VERSION_MAJOR = 2;
-    public static final int BLUEJ_VERSION_MINOR = 3;
+
+    // The version numbers for BlueJ are changed in the BlueJ build.xml
+    // and then the update-version target should be executed.
+    public static final int BLUEJ_VERSION_MAJOR = 2;
+    public static final int BLUEJ_VERSION_MINOR = 5;
     public static final int BLUEJ_VERSION_RELEASE = 0;
-    public static final String BLUEJ_VERSION_SUFFIX = " dev";
+    public static final String BLUEJ_VERSION_SUFFIX = "";
 
     // public static final int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
     //                                                BLUEJ_VERSION_MINOR * 100 +
