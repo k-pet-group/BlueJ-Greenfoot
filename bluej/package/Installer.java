@@ -30,7 +30,7 @@ import javax.swing.text.Keymap;
   *
   *   java Installer
   *
-  * @version $Id: Installer.java 3971 2006-03-31 02:59:22Z davmac $
+  * @version $Id: Installer.java 5874 2008-09-17 09:58:53Z davmac $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -601,27 +601,23 @@ public class Installer extends JFrame
         FileWriter out = new FileWriter(outputFile.toString());
         out.write("#!/bin/sh\n");
         out.write("APPBASE=\"" + installationDir + "\"\n");
+        out.write("JAVAPATH=\"" + javaPath + "\"\n");
         String commands;
-        String javaName;
+        String javaName = "$JAVAPATH/bin/java";
         if(isMacOS) {
             commands = getProperty("commands.mac").toString();
-            javaName = "java";
         }
         else {
             commands = getProperty("commands.unix").toString();
-            javaName = javaPath + "/bin/java";
         }
 
         if(commands != null) {
-            commands = replace(commands, '~', "$APPBASE");
-            commands = replace(commands, '!', javaPath);
-            commands = replace(commands, '@', architecture);
             out.write(commands);
             out.write("\n");
         }
         out.write("\"" + javaName + "\" " + getProperty("javaOpts.unix") + " " +
                   getProperty("mainClass") + " " +
-                  getProperty("arguments") + " $*\n");
+                  getProperty("arguments") + " \"$@\"\n");
         out.close();
 
         try {
