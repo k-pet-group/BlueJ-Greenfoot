@@ -8,7 +8,7 @@ package bluej.testmgr.record;
  * (not currently working).
  *
  * @author  Andrew Patterson
- * @version $Id: ObjectInspectInvokerRecord.java 5833 2008-08-13 15:48:14Z polle $
+ * @version $Id: ObjectInspectInvokerRecord.java 5877 2008-09-17 13:40:13Z polle $
  */
 public class ObjectInspectInvokerRecord extends InvokerRecord
 {
@@ -86,11 +86,18 @@ public class ObjectInspectInvokerRecord extends InvokerRecord
 
     public void incUsageCount()
     {
-        parentIr.incUsageCount();        
+        if(parentIr != null) {
+            parentIr.incUsageCount();     
+        }
     }
     
     public String toTestMethodInit() 
     {
-        return parentIr.toTestMethodInit();
+        if(parentIr != null) {
+            return parentIr.toTestMethodInit();
+        }
+        else {
+            return "";
+        }
     }
 }
