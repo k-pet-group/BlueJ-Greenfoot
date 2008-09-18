@@ -21,6 +21,8 @@
         <include name="lib/sshconnection.jar" />
         <include name="lib/org-netbeans-lib-cvsclient.jar" />
         <include name="lib/jsch.jar" />
+        <include name="lib/svnkit.jar" />
+        <include name="lib/trilead.jar" />
         <include name="lib/bluej.defs" />
         <include name="lib/moe.defs" />
         <include name="lib/userlib/README.TXT" />
