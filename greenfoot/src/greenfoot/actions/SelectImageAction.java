@@ -24,7 +24,7 @@ import bluej.utility.FileUtility;
  * Action to select an image for a class.
  * 
  * @author Davin McCall
- * @version $Id: SelectImageAction.java 5474 2008-01-22 12:16:16Z polle $
+ * @version $Id: SelectImageAction.java 5883 2008-09-19 14:58:01Z polle $
  */
 public class SelectImageAction extends AbstractAction
 {
@@ -51,10 +51,8 @@ public class SelectImageAction extends AbstractAction
     public static void setClassImage(ClassView classView, ImageClassRole gclassRole, File imageFile)
     {
         try {
-        	GProject project = classView.getGClass().getPackage().getProject();
-            File projDir = project.getDir().getAbsoluteFile();
-            File projImagesDir = new File(projDir, "images");
-            
+            GClass gclass = classView.getGClass();
+        	File projImagesDir = gclass.getPackage().getProject().getImageDir();            
             if (imageFile != null) {
                 if (! imageFile.getParentFile().getAbsoluteFile().equals(projImagesDir)) {
                     // An image was selected from an external dir. We need
@@ -69,7 +67,6 @@ public class SelectImageAction extends AbstractAction
                     }
                 }
                 
-                GClass gclass = classView.getGClass();
                 gclass.setClassProperty("image", imageFile.getName());
                 gclassRole.changeImage();
             }

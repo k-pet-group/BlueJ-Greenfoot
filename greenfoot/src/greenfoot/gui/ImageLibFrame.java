@@ -64,7 +64,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 5558 2008-02-12 15:46:34Z polle $
+ * @version $Id: ImageLibFrame.java 5883 2008-09-19 14:58:01Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
@@ -669,7 +669,14 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     private File writeGeneratedImage()
         throws IOException
     {
-        File f = new File(new File("images"), gclass.getName() + ".png");
+        File imageDir = null;
+        try {
+            imageDir = gclass.getPackage().getProject().getImageDir();
+        }
+        catch (ProjectNotOpenException e) {
+            e.printStackTrace();
+        }
+        File f = new File(imageDir, gclass.getName() + ".png");
         if (f.exists()) {
             int r = JOptionPane.showOptionDialog(this, 
                                                  Config.getString("imagelib.write.exists.part1") + f 

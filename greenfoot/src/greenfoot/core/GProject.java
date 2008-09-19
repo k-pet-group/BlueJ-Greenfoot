@@ -3,6 +3,7 @@ package greenfoot.core;
 import greenfoot.event.CompileListener;
 
 import java.io.File;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -359,5 +360,28 @@ public class GProject extends RProjectListenerImpl
     			}
     		}
     	}
+    }
+
+    /**
+     * Gets the image library for this project. If the directory does not
+     * exist, it is created.
+     * 
+     */
+    public File getImageDir()
+    {
+        File projDir;
+        try {
+            projDir = getDir().getAbsoluteFile();
+            File projImagesDir = new File(projDir, "images");
+            projImagesDir.mkdir();
+            return projImagesDir;
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (ProjectNotOpenException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
