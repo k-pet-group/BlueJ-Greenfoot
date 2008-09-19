@@ -10,7 +10,7 @@ import java.util.List;
 
 
 /**
- * An Actor is an object that exists in the greenfoot world. 
+ * An Actor is an object that exists in the Greenfoot world. 
  * Every Actor has a location in the world, and an appearance (that is:
  * an icon).
  * 
@@ -20,7 +20,7 @@ import java.util.List;
  * appearance and behaviour.
  * 
  * One of the most important aspects of this class is the 'act' method. This method
- * is called when the 'Act' or 'Play' buttons are activated in the greenfoot interface.
+ * is called when the 'Act' or 'Play' buttons are activated in the Greenfoot interface.
  * The method here is empty, and subclasses normally provide their own implementations.
  * 
  * @author Poul Henriksen
