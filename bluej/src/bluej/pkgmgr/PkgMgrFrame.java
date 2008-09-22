@@ -60,7 +60,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 5890 2008-09-22 10:47:47Z davmac $
+ * @version $Id: PkgMgrFrame.java 5891 2008-09-22 11:31:58Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1434,7 +1434,7 @@ public class PkgMgrFrame extends JFrame
 
         if (frames != null) {
             for (int i = 0; i < frames.length; i++) {
-                frames[i].doClose(true);
+                frames[i].doClose(true, true);
             }
         }
     }
@@ -1446,9 +1446,11 @@ public class PkgMgrFrame extends JFrame
      * through the "Close" menu item and the other is with the windows close
      * button. We want slightly different behaviour for these two cases.
      */
-    public void doClose(boolean keepLastFrame)
+    public void doClose(boolean keepLastFrame, boolean doSave)
     {
-        doSave();
+        if (doSave) {
+            doSave();
+        }
 
         // If only one frame and this was from the menu
         // "close", close should close existing package rather
@@ -2761,7 +2763,7 @@ public class PkgMgrFrame extends JFrame
             public void windowClosing(WindowEvent E)
             {
                 PkgMgrFrame pmf = (PkgMgrFrame) E.getWindow();
-                pmf.doClose(false);
+                pmf.doClose(false, true);
             }
         });
 

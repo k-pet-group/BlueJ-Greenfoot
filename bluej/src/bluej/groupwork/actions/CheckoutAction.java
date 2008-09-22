@@ -21,7 +21,7 @@ import bluej.utility.SwingWorker;
  * project.
  * 
  * @author Kasper
- * @version $Id: CheckoutAction.java 5884 2008-09-22 07:56:55Z davmac $
+ * @version $Id: CheckoutAction.java 5891 2008-09-22 11:31:58Z davmac $
  */
 public class CheckoutAction extends TeamAction
 {
@@ -179,7 +179,7 @@ public class CheckoutAction extends TeamAction
         public void cleanup()
         {
             projDir.delete();
-            newFrame.doClose(true);
+            newFrame.doClose(true, false);
             // The frame might not have closed if it was the
             // last frame. In that case we want to enable it.
             newFrame.setEnabled(true);

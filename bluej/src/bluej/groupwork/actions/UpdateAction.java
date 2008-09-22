@@ -462,10 +462,13 @@ public class UpdateAction extends AbstractAction
                 if (! packageDir.exists()) {
                     // Close the package window, if open
                     Package pkg = project.getCachedPackage(packageName);
-                    pkg.closeAllEditors();
-                    PkgMgrFrame frame = PkgMgrFrame.findFrame(pkg);
-                    if (frame != null) {
-                        frame.doClose(true);
+                    if (pkg != null) {
+                        pkg.closeAllEditors();
+                        PkgMgrFrame frame = PkgMgrFrame.findFrame(pkg);
+                        if (frame != null) {
+                            frame.doClose(true, false);
+                        }
+                        project.removePackage(packageName);
                     }
                     
                     // Get the parent package so we can remove the child.

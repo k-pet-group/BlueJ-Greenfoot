@@ -8,7 +8,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * the window regardless.
  * 
  * @author Davin McCall
- * @version $Id: CloseProjectAction.java 4905 2007-03-29 06:06:30Z davmac $
+ * @version $Id: CloseProjectAction.java 5891 2008-09-22 11:31:58Z davmac $
  */
 final public class CloseProjectAction extends PkgMgrAction
 {
@@ -20,6 +20,6 @@ final public class CloseProjectAction extends PkgMgrAction
     public void actionPerformed(PkgMgrFrame pmf)
     {
         pmf.menuCall();
-        pmf.doClose(true);
+        pmf.doClose(true, true);
     }
 }
