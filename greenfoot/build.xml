@@ -15,18 +15,20 @@
     <!-- Greenfoot Version Number -->
     <property name="greenfoot.version.major" value="1"/>
     <property name="greenfoot.version.minor" value="4"/>
-    <property name="greenfoot.version.micro" value="6 dev"/>
+    <property name="greenfoot.version.micro" value="6"/>
     
     <!-- Change when API has changed in a way that is likely to break some scenarios. 
     A warning will be shown to the user - update the the labels file to change the warning.-->
     <property name="greenfoot.version.breaking" value="1"/>
     
     <!-- Change when API has changed in a way that is visible to the user, but is very 
-    unlikely to break scenarios (documentation changes, addition of method). -->
+    unlikely to break scenarios (documentation changes, addition of method).
+    Changing this number will stripe the user's classes and require a recompile. -->
     <property name="greenfoot.version.nonbreaking" value="5"/>
     
     <!-- Change when API has only changed internally and not in any way visible to the user. 
-    It should not be possible for this change to break existing scenarios. -->
+    It should not be possible for this change to break existing scenarios. 
+    Changing this number will NOT stripe the user's classes nor require a recompile.-->
     <property name="greenfoot.version.internal" value="0"/>
         
     <property name="greenfoot.apiversion" value="${greenfoot.version.breaking}.${greenfoot.version.nonbreaking}.${greenfoot.version.internal}"/>
