@@ -7,7 +7,7 @@ language        last update     next update    comment         translator
 afrikaans       2.0.0                x                         Petri Jooste        <RKWJPJ@puknet.puk.ac.za>
 chinese         2.0.4                                          Gu Zhifeng          <gu_zhifeng@263.net>
 catalan         2.0.0                x          only labels    Santiago Manrique   <smanriqu@pie.xtec.es>
-czech           2.0.0                x                         Petr Skoda          <petr.skoda@vslib.cz> (or Rudolf: rudolf@pecinovsky.cz)
+czech           2.5.0                x          tmpl in UTF8   Rudolf Pecinovsky   Rudolf: rudolf@pecinovsky.cz (or <petr.skoda@vslib.cz>)
 danish          2.2.0preview         x                         Kenneth Johnson     <kenneth@kennethjohnsen.dk>
 dutch           2.0.0                x                         Peter van Diepen    <pvdiepen@tiscali.nl>
 english         2.0.5                x      
