@@ -29,7 +29,7 @@ import bluej.views.View;
  * @see bluej.extensions.BPackage
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RPackageImpl.java 4346 2006-06-09 04:33:01Z davmac $
+ * @version $Id: RPackageImpl.java 5892 2008-09-22 14:30:29Z polle $
  */
 public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     implements RPackage
@@ -370,7 +370,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         //Make sure that we first close "greenfoot" package becuase we don't want that to auto open the next time.
         try {
             PkgMgrFrame pkgMgrFrame = (PkgMgrFrame) bPackage.getFrame();
-            pkgMgrFrame.doClose(false);
+            pkgMgrFrame.doClose(false, true);
         }
         catch (ProjectNotOpenException e) {
             // TODO Auto-generated catch block

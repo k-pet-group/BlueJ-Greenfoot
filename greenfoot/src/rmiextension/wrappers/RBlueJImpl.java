@@ -15,7 +15,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJImpl.java 5644 2008-03-13 16:25:04Z polle $
+ * @version $Id: RBlueJImpl.java 5892 2008-09-22 14:30:29Z polle $
  */
 public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     implements RBlueJ
@@ -203,7 +203,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         
         PkgMgrFrame [] frames = PkgMgrFrame.getAllFrames();
         for (int i = 0; i < frames.length; i++) {
-            frames[i].doClose(false);
+            frames[i].doClose(false, true);
         }
     }
 }

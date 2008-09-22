@@ -22,7 +22,7 @@ import bluej.utility.Debug;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 5144 2007-08-03 06:15:53Z davmac $
+ * @version $Id: ProjectManager.java 5892 2008-09-22 14:30:29Z polle $
  */
 public class ProjectManager
     implements PackageListener
@@ -98,7 +98,7 @@ public class ProjectManager
                 // If this was the only open project, open the startup project
                 // instead.
                 if (bluej.getOpenProjects().length == 1) {
-                    ((PkgMgrFrame) bluej.getCurrentFrame()).doClose(true);
+                    ((PkgMgrFrame) bluej.getCurrentFrame()).doClose(true, true);
                     File startupProject = new File(bluej.getSystemLibDir(), "startupProject");
                     bluej.openProject(startupProject);
                 }
