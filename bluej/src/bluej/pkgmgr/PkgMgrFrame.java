@@ -60,7 +60,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 5850 2008-09-02 11:06:00Z polle $
+ * @version $Id: PkgMgrFrame.java 5890 2008-09-22 10:47:47Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -745,7 +745,7 @@ public class PkgMgrFrame extends JFrame
     /**
      * Closes the current package.
      */
-    public void closePackage()
+    private void closePackage()
     {
         if (isEmptyFrame()) {
             return;

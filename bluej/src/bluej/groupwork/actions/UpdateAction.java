@@ -465,7 +465,7 @@ public class UpdateAction extends AbstractAction
                     pkg.closeAllEditors();
                     PkgMgrFrame frame = PkgMgrFrame.findFrame(pkg);
                     if (frame != null) {
-                        frame.closePackage();
+                        frame.doClose(true);
                     }
                     
                     // Get the parent package so we can remove the child.
