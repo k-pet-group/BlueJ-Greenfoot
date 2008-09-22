@@ -9,7 +9,7 @@ qualified new of static class
 kvalifikovan\u00E9 new p\u0159i konstrukci instance statick\u00E9 t\u0159\u00EDdy
 |
 Kvalifikovan\u00E9 oper\u00E1tory new se pou\u017E\u00EDvaj\u00ED pouze p\u0159i
-vytv\u00E1\u0159en\u00ED instanc\u00ED vnit\u0159n\u00EDch t\u0159\u00EDd, tj. t\u0159\u00EDd, kter\u00E9 
+vytv\u00E1\u0159en\u00ED instanc\u00ED vnit\u0159n\u00EDch t\u0159\u00EDd, tj. t\u0159\u00EDd, kter\u00E9
 jsou deklarovan\u00E9 uvnit\u0159 jin\u00E9 t\u0159\u00EDdy, av\u0161ak bez
 modifik\u00E1toru static.
 
@@ -18,11 +18,11 @@ modifik\u00E1toru static.
 |
 Tato t\u0159\u00EDda je deklarov\u00E1na jako abstraktn\u00ED
 (pomoc\u00ED kl\u00ED\u010Dov\u00E9ho slova "abstract").
-Abstraktn\u00ED t\u0159\u00EDdy nemohou vytv\u00E1\u0159et instance. 
+Abstraktn\u00ED t\u0159\u00EDdy nemohou vytv\u00E1\u0159et instance.
 To mohou a\u017E jejich konkr\u00E9tn\u00ED dce\u0159in\u00E9 t\u0159\u00EDdy.
-Konkr\u00E9tn\u00ED t\u0159\u00EDdou je t\u0159\u00EDda, kter\u00E1 m\u00E1 implementov\u00E1ny 
+Konkr\u00E9tn\u00ED t\u0159\u00EDdou je t\u0159\u00EDda, kter\u00E1 m\u00E1 implementov\u00E1ny
 v\u0161echny metody implementovan\u00FDch rozhran\u00ED a abstraktn\u00ED
-metody rodi\u010Dovsk\u00FDch t\u0159\u00EDd. Tuto implementaci v\u0161ak 
+metody rodi\u010Dovsk\u00FDch t\u0159\u00EDd. Tuto implementaci v\u0161ak
 m\u016F\u017Ee i zd\u011Bdit.
 
 abstract methods cannot have a body
@@ -50,7 +50,9 @@ parametr odstra\u0148te typ prom\u011Bnn\u00E9/odkazu.
 anonymous class implements interface; cannot have arguments
 anonymn\u00ED t\u0159\u00EDda inplementuj\u00EDc\u00ED rozhran\u00ED nesm\u00ED m\u00EDt parametry
 |
-Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+P\u0159esn\u011Bji \u0159e\u010Deno v definici anonymn\u00ED t\u0159\u00EDdy mus\u00EDte v hlavi\u010Dce
+za deklarac\u00ED implementovan\u00E9ho rozhran\u00ED uv\u00E9st pouze
+pr\u00E1zdn\u00E9 kulat\u00E9 z\u00E1vorky ().
 
 anonymous class implements interface; cannot have qualifier for new
 nonymn\u00ED t\u0159\u00EDda inplementuj\u00EDc\u00ED rozhran\u00ED nesm\u00ED m\u00EDt kvalifikovan\u00E9 new
@@ -83,7 +85,7 @@ Jsou povoleny pouze b\u00EDl\u00E9 znaky a koment\u00E1\u0159e.
 cannot access *
 Nelze p\u0159istupovat k ...
 |
-Pravd\u011Bpodobn\u011B se sna\u017E\u00EDte p\u0159istupovat k metod\u011B 
+Pravd\u011Bpodobn\u011B se sna\u017E\u00EDte p\u0159istupovat k metod\u011B
 \u010Di objektu, kter\u00FD nen\u00ED z tohoto m\u00EDsta viditeln\u00FD.
 Nej\u010Dast\u011Bj\u0161\u00EDm d\u016Fvodem je pokus a pou\u017Eit\u00ED prom\u011Bnn\u00E9
 vn\u011B bloku, v n\u011Bm\u017E byl definov\u00E1na.
@@ -177,7 +179,7 @@ a zavolejte ji z tohoto bloku.
 constant expression required
 Je vy\u017Eadov\u00E1n konstantn\u00ED v\u00FDraz
 |
-Na tomto m\u00EDst\u011B je vy\u017Eadov\u00E1no pou\u017Eit\u00ED konstantn\u00EDho 
+Na tomto m\u00EDst\u011B je vy\u017Eadov\u00E1no pou\u017Eit\u00ED konstantn\u00EDho
 v\u00FDrazu, kter\u00FD je mo\u017Eno vyhodnotit ji\u017E v dob\u011B p\u0159ekladu.
 Jako konstatn\u00ED v\u00FDraz je mo\u017Eno pou\u017E\u00EDt v\u00FDraz obsahuj\u00EDc\u00ED
 pouze liter\u00E1ly a jin\u00E9 konstantn\u00ED v\u00FDrazy.
@@ -257,7 +259,7 @@ Pr\u00E1zdn\u00FD znak neexistuje.
 * has already been caught
 ... v\u00FDjimka ji\u017E byla zachycena
 |
-Tento "catch" je zbyte\u010Dn\u00FD, 
+Tento "catch" je zbyte\u010Dn\u00FD,
 proto\u017Ee se do tohoto m\u00EDsta v\u00FDjimka nikdy nedostane.
 V\u0161echny deklarovan\u00E9 v\u00FDjimky budou zachyceny
 pomoc\u00ED p\u0159edchoz\u00EDch "catch".
@@ -298,9 +300,9 @@ dan\u00E9ho typu.
 inner classes cannot have static declarations
 Vnit\u0159n\u00ED t\u0159\u00EDda nem\u016F\u017Ee m\u00EDt statick\u00E9 deklarace
 |
-Ve vnit\u0159n\u00ED t\u0159\u00EDd\u011B nelze deklarovat statick\u00E9 \u010Dleny. 
-Pot\u0159ebujete-li statick\u00FD atribut nebo metodu, 
-rozmyslete si, zda dan\u00E1 t\u0159\u00EDda nem\u016F\u017Ee b\u00FDt 
+Ve vnit\u0159n\u00ED t\u0159\u00EDd\u011B nelze deklarovat statick\u00E9 \u010Dleny.
+Pot\u0159ebujete-li statick\u00FD atribut nebo metodu,
+rozmyslete si, zda dan\u00E1 t\u0159\u00EDda nem\u016F\u017Ee b\u00FDt
 deklarov\u00E1na pouze jako vno\u0159en\u00E1 (tj. s modifik\u00E1torem
 static), anebo vytvo\u0159te po\u017Eadovan\u00FD atribut
 \u010Di metodu ve vn\u011Bj\u0161\u00ED t\u0159\u00EDd\u011B.
@@ -411,7 +413,7 @@ Jm\u00E9no, kter\u00E9 jste uvedli po "extends" nen\u00ED rozhran\u00ED.
 interface methods cannot have body
 Metoda deklrovan\u00E1 v rozhran\u00ED nem\u016F\u017Ee m\u00EDt t\u011Blo
 |
-Rozhran\u00ED m\u016F\u017Ee obsahovat pouze hlavi\u010Dky metod 
+Rozhran\u00ED m\u016F\u017Ee obsahovat pouze hlavi\u010Dky metod
 ukon\u010Den\u00E9 st\u0159edn\u00EDkem. Metody deklarovan\u00E9 v rozhran\u00ED
 nesm\u00ED m\u00EDt definov\u00E1no t\u011Blo ve slo\u017Een\u00FDch z\u00E1vork\u00E1ch.
 
@@ -431,6 +433,10 @@ Vrac\u00ED-li nap\u0159. mojeMetoda() textov\u00FD \u0159et\u011Bzec, mus\u00ED 
 Metody, kter\u00E9 nic nevrac\u00ED maj\u00ED uveden\u00FD typ "void" - nap\u0159.:
     public void jinaMetoda();
 N\u011Bco v\u0161ak v\u017Edy m\u00EDt uvedeno mus\u00ED.
+.
+\u010Castou p\u0159\u00ED\u010Dinou t\u00E9to chyby b\u00FDv\u00E1 \u0161patn\u00E9 pojmenov\u00E1n\u00ED konstruktoru,
+kter\u00E9 neodpov\u00EDd\u00E1 n\u00E1zvu t\u0159\u00EDdy, tak\u017Ee jej pak p\u0159eklada\u010D omylem
+pova\u017Euje za standardn\u00ED metodu.
 
 * already in use
 ... u\u017E je pou\u017Eito
@@ -559,11 +565,11 @@ Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 * cannot be applied to *
  ... oper\u00E1tor \u010Di metoda nem\u016F\u017Ee b\u00FDt pou\u017Eit(a) pro ...
 |
-Oper\u00E1tor, resp. metoda, kterou se zde pokou\u0161\u00EDte pou\u017E\u00EDt, 
+Oper\u00E1tor, resp. metoda, kterou se zde pokou\u0161\u00EDte pou\u017E\u00EDt,
 nem\u016F\u017Ee b\u00FDt pro tento datov\u00FD typ pou\u017Eit(a).
 Pou\u017E\u00EDv\u00E1te bu\u010Fto \u0161patn\u00FD typ dat, nebo nevhodn\u00FD oper\u00E1tor.
 Chyba je \u010Dasto vyvol\u00E1na t\u00EDm, \u017Ee pou\u017E\u00EDjete takovou
-sadu parametr\u016F, pro kterou nen\u00ED definov\u00E1na pot\u0159ebn\u00E1 
+sadu parametr\u016F, pro kterou nen\u00ED definov\u00E1na pot\u0159ebn\u00E1
 p\u0159et\u00ED\u017Een\u00E1 verze dan\u00E9 metody.
 
 * clashes with class of same name
@@ -638,16 +644,25 @@ Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
  ... by m\u011Bla b\u00FDt deklarov\u00E1na jako 'abstract'; nen\u00ED definov\u00E1no ...
 |
 Tato t\u0159\u00EDda nedefinuje v\u0161echny metody uveden\u00E9
-v pou\u017Eit\u00FDch rozhran\u00EDch nebo chyb\u00ED implementace
-abstraktn\u00EDch metod  rodi\u010Dovsk\u00E9 t\u0159\u00EDdy.
+v pou\u017Eit\u00FDch rozhran\u00EDch nebo neimplementuje
+n\u011Bjakou abstraktn\u00ED metodu rodi\u010Dovsk\u00E9 t\u0159\u00EDdy.
+Bu\u010F mus\u00EDte tuto metodu implementovat
+nebo deklarovat t\u0159\u00EDdu jako abstraktn\u00ED
 
 * is not abstract and does not override abstract method *
 ... nen\u00ED abstraktn\u00ED a p\u0159itom neimplementuje abstratn\u00ED metodu ...
 |
-Definovali jste t\u0159\u00EDdu, kter\u00E1 implementuje n\u011Bjak\u00E9 rozhran\u00ED, 
-resp. je potomkem n\u011Bjak\u00E9 abstraktn\u00ED t\u0159\u00EDdy, a p\u0159itom jste
-neimplementovali v\u0161echny metody deklarovan\u00E9 v dan\u00E9m rozhran\u00ED,
+Nej\u010Dast\u011Bj\u0161\u00ED p\u0159\u00ED\u010Dinou chyby je nedefinovan\u00E1 metoda
+vy\u017Eadovan\u00E1 implementovan\u00FDm rozhran\u00EDm.
+|
+Obecn\u011B tato chybov\u00E9 hl\u00E1\u0161ka tvrd\u00ED,
+\u017Ee jste definovali konkr\u00E9tn\u00ED (tj. ne abstraktn\u00ED) t\u0159\u00EDdu,
+kter\u00E1 implementuje n\u011Bjak\u00E9 rozhran\u00ED,
+resp. je potomkem n\u011Bjak\u00E9 abstraktn\u00ED t\u0159\u00EDdy,
+a p\u0159itom jste neimplementovali v\u0161echny metody
+deklarovan\u00E9 v dan\u00E9m rozhran\u00ED,
 resp. nep\u0159ekryli v\u0161echny abstraktn\u00ED metody dan\u00E9 t\u0159\u00EDdy.
+|
 V chybov\u00E9m hl\u00E1\u0161en\u00ED je uvedena konkr\u00E9tn\u00ED neimplementovan\u00E1 metoda.
 Mus\u00EDte t\u0159\u00EDdu definovat jako abstraktn\u00ED
 nebo implementovat p\u0159\u00EDslu\u0161nou metodu.
@@ -733,7 +748,7 @@ vykon\u00E1v\u00E1n\u00ED k\u00F3du, pop\u0159\u00EDpad\u011B tento k\u00F3d vym
 initializer must be able to complete normally
 Statick\u00FD blok mus\u00ED b\u00FDt ukon\u010Den norm\u00E1ln\u011B
 |
-Statick\u00FD blok zastupuj\u00EDc\u00ED statick\u00FD konstruktor nesm\u00ED vyvolat 
+Statick\u00FD blok zastupuj\u00EDc\u00ED statick\u00FD konstruktor nesm\u00ED vyvolat
 kontrolovanou v\u00FDjimku, tj. v\u00FDjimku, kter\u00E1 je potomkem t\u0159\u00EDdy
 Exception a nen\u00ED potomkem t\u0159\u00EDdy RuntimeException.
 
@@ -922,6 +937,16 @@ pou\u017E\u00EDv\u00E1ny pouze v metod\u00E1ch instanc\u00ED. P\u0159i pou\u017E
 ve statick\u00FDm metod\u00E1ch mus\u00EDte explicitn\u011B uv\u00E9st
 jejich objekt.
 
+cannot find symbol*
+nelze naj\u00EDt symbol...
+|
+Na tomto m\u00EDst\u011B pou\u017E\u00EDv\u00E1te symbol (n\u00E1zev prom\u011Bnn\u00E9, metody \u010Di t\u0159\u00EDdy),
+kter\u00FD nebyl deklarov\u00E1n nikde, kam je odsud "ved\u011Bt".
+Ov\u011B\u0159te, zda se jedn\u00E1 o p\u0159eklep nebo zda jste pouze zapomn\u011Bli
+dan\u00FD symbol deklarovat.
+Dal\u0161\u00ED mo\u017Enost\u00ED je, \u017Ee jste jej deklarovali n\u011Bkde,
+kam odsud "nen\u00ED vid\u011Bt" - nap\u0159. uvnit\u0159 n\u011Bkter\u00E9ho z p\u0159edchoz\u00EDch blok\u016F.
+
 cannot resolve symbol *
 Nelze rozpoznat symbol ...
 |
@@ -974,3 +999,13 @@ Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
 ... koliduje se symbolem vytvo\u0159en\u00FDm p\u0159eklada\u010Dem v ...
 |
 Podrobn\u011Bj\u0161\u00ED n\u00E1pov\u011Bda nen\u00ED k dispozici.
+
+reached end of file while parsing
+p\u0159i anal\u00FDze bylo dosa\u017Eeno konce souboru
+|
+Nejsp\u00ED\u0161e jste pomoc\u00ED '{' otev\u0159eli n\u011Bjak\u00FD blok,
+kter\u00FD jste pak zapomn\u011Bli zav\u0159\u00EDt odpov\u00EDdaj\u00EDc\u00ED '}'.
+Bu\u010Fto v\u00E1m n\u011Bkde p\u0159eb\u00FDv\u00E1 otev\u00EDrac\u00ED z\u00E1vorka,
+nebo jste zapomn\u011Bli napsat z\u00E1vorku zav\u00EDrac\u00ED.
+P\u0159i hled\u00E1n\u00ED chyby m\u016F\u017Eete v editoru vyu\u017E\u00EDt funkce
+zv\u00E1razn\u011Bn\u00ED p\u00E1rov\u00FDch z\u00E1vorek.

@@ -1,10 +1,10 @@
 #
-# Popis u\u017Eivatelsk\u00FDch funkc\u00ED Moe editoru.
+# Moe user function help texts.
 #
-# Sou\u010D\u00E1st v\u00FDvojov\u00E9ho prost\u0159ed\u00ED BlueJ.
+# Part of the BlueJ program development environment.
 #
 
-## funkce \u00DApravy
+## edit functions
 
 delete-previous=\n Smazat znak vlevo p\u0159ed kurzorem.
 delete-next=\n Smazat znak vpravo za kurzorem.
@@ -48,7 +48,7 @@ selection-begin=\n Posunout konec v\u00FDb\u011Bru na za\u010D\u00E1tek textu.
 selection-end=\n Posunout konec v\u00FDb\u011Bru na konec textu.
 unselect=\n Zru\u0161it ozna\u010Den\u00ED textu.
 
-## funkce pro pohyb a posun
+## move and scroll functions
 
 caret-backward=\n Posunout kurzor o jeden znak zp\u011Bt.
 caret-forward=\n Posunout kurzor o jeden znak dop\u0159edu.
@@ -67,22 +67,22 @@ page-down=\n Posunout kurzor o str\u00E1nku dolu.
 caret-begin=\n Posunout kurzor na za\u010D\u00E1tek textu.
 caret-end=\n Posunout kurzor na konec textu.
 
-## funkce t\u0159\u00EDdy
+## class functions
 
 save=\n Ulo\u017Eit t\u0159\u00EDdu. Norm\u00E1ln\u011B nen\u00ED t\u0159eba t\u0159\u00EDdu ukl\u00E1dat ru\u010Dn\u011B,\n t\u0159\u00EDda je ulo\u017Eena automaticky p\u0159ed p\u0159ekladem a p\u0159i zav\u0159en\u00ED editoru.
 reload=\n Znovu nahr\u00E1t t\u0159\u00EDdu ze souboru. P\u0159i t\u00E9to operaci\n jsou zapomenuty v\u0161echny zm\u011Bny od posledn\u00EDho ulo\u017Een\u00ED.
-close=\n zav\u0159\u00EDt t\u0159\u00EDdu. Zdrojov\u00FD k\u00F3d je automaticky ulo\u017Een.
+close=\n Zav\u0159\u00EDt t\u0159\u00EDdu. Zdrojov\u00FD k\u00F3d je automaticky ulo\u017Een.
 print=\n Otev\u0159\u00EDt tiskov\u00FD dialog.
 page-setup=\n Otev\u0159\u00EDt dialog s nastaven\u00EDm vzhledu tiskov\u00E9 str\u00E1nky.
 
 
-## funkce p\u0159izp\u016Fsoben\u00ED
+## customisation functions
 
 key-bindings=\n Prohl\u00E9dnout a nastavit p\u0159i\u0159azen\u00ED kl\u00E1vesov\u00FDch zkratek Moe editoru.
 preferences=\n Nastavit p\u0159edvolby editoru.
 
 
-## funkce n\u00E1pov\u011Bdy
+## help functions
 
 describe-key=\n Po vyvol\u00E1n\u00ED t\u00E9to akce a n\u00E1sledn\u00E9m stisku kl\u00E1vesov\u00E9 zkratky\n se zobraz\u00ED popis funkce p\u0159i\u0159azen\u00E9 t\u00E9to kl\u00E1vesov\u00E9 zkratce.
 help-mouse=\n Zobrazit p\u0159i\u0159azen\u00ED tla\u010D\u00EDtek my\u0161i.
@@ -90,7 +90,7 @@ show-manual=\n Otev\u0159\u00EDt prohl\u00ED\u017Ee\u010D a zobrazit n\u00E1vod 
 about-editor=\n Zobrazit kr\u00E1tkou pozn\u00E1mku k Moe editoru.
 
 
-## r\u016Fzn\u00E9 funkce
+## misc functions
 
 undo=\n Zp\u011Bt - vr\u00E1tit zp\u011Bt posledn\u00ED akci.
 redo=\n Zru\u0161it zp\u011Bt - zru\u0161it p\u0159edchoz\u00ED p\u0159\u00EDkaz Zp\u011Bt.

@@ -1,5 +1,5 @@
 compile-while-executing
-Nem\u016F\u017Eete p\u0159ekl\u00E1dat, 
+Nem\u016F\u017Eete p\u0159ekl\u00E1dat,
 dokud b\u011B\u017E\u00ED virtu\u00E1ln\u00ED stroj Javy.
 Mohly by nastat nep\u0159edv\u00EDdateln\u00E9 probl\u00E9my!
 
@@ -24,7 +24,7 @@ K\u00F3d ukon\u010Den\u00ED je:
 no-help
 Pro tuto zpr\u00E1vu nen\u00ED \u017E\u00E1dn\u00E1 n\u00E1pov\u011Bda.
 Po\u0161lete pros\u00EDm text t\u00E9to zpr\u00E1vy na email
-mik@bluej.org - n\u00E1pov\u011Bda bude p\u0159id\u00E1na
+mik@mip.sdu.dk - n\u00E1pov\u011Bda bude p\u0159id\u00E1na
 do datab\u00E1ze. D\u011Bkujeme.
 
 editor-crashed
@@ -71,7 +71,7 @@ P\u0159i ukl\u00E1d\u00E1n\u00ED kl\u00E1vesov\u00FDch zkratek nastala chyba.
 Zm\u011Bny nebyly ulo\u017Eeny.
 
 error-no-templates
-Slo\u017Eka s \u0161ablonami (slo\u017Eka, v n\u00ED\u017E BlueJ hled\u00E1 \u0161ablony t\u0159\u00EDd) 
+Slo\u017Eka s \u0161ablonami (slo\u017Eka, v n\u00ED\u017E BlueJ hled\u00E1 \u0161ablony t\u0159\u00EDd)
 neexistuje. Zkontrolujete pros\u00EDm nastaven\u00ED polo\u017Eky
 "bluej.templatePath" v souboru <bluej-home>/lib/bluej.defs.
 
@@ -123,6 +123,13 @@ jazyka Java.
 directory-exists
 Soubor nebo slo\u017Eka s t\u00EDmto
 jm\u00E9nem ji\u017E existuje.
+
+cannot-create-directory
+Nezle vytvo\u0159it slo\u017Eku (adres\u00E1\u0159).
+Zkontroluje, zda m\u00E1 platn\u00E9 jm\u00E9no,
+zda existuje jej\u00ED rodi\u010Dovsk\u00E1 slo\u017Eka
+a neplat\u00ED-li pro rodi\u010Dovskou slo\u017Eku
+z\u00E1kaz z\u00E1pisu.
 
 cannot-copy-package
 Nastal probl\u00E9m p\u0159i kop\u00EDrov\u00E1n\u00ED soubor\u016F bal\u00ED\u010Dku.
@@ -177,7 +184,7 @@ V zadan\u00E9 slo\u017Ece nebyly nalezeny
 duplicate-name
 T\u0159\u00EDda nebo bal\u00ED\u010Dek se stejn\u00FDm jm\u00E9nem
 ji\u017E v tomto bal\u00ED\u010Dku existuje.
-V tomto bal\u00ED\u010Dku nem\u016F\u017Eete m\u00EDt druhou 
+V tomto bal\u00ED\u010Dku nem\u016F\u017Eete m\u00EDt druhou
 t\u0159\u00EDdu \u010Di bal\u00ED\u010Dek se stejn\u00FDm jm\u00E9nem.
 
 error-in-import
@@ -186,7 +193,7 @@ p\u0159\u00EDstupov\u00E1 pr\u00E1va a m\u00EDsto na disku.
 
 no-class-selected-compile
 Nebyla vybr\u00E1na t\u0159\u00EDda k p\u0159ekladu.
-P\u0159ed spu\u0161t\u011Bn\u00EDm p\u0159ekladu vyberte 
+P\u0159ed spu\u0161t\u011Bn\u00EDm p\u0159ekladu vyberte
 klepnut\u00EDm t\u0159\u00EDdu, kter\u00E1 se m\u00E1 p\u0159elo\u017Eit.
 
 no-class-selected
@@ -245,6 +252,16 @@ Znovu na\u010D\u00EDst
 Storno
 null
 
+changed-on-disk
+Zdrojov\u00FD text na disku byl zm\u011Bn\u011Bn.
+Budete cht\u00EDt na\u010D\u00EDt aktu\u00E1ln\u00ED verzi z disku?
+Pokud ano, tak p\u0159ijdete o v\u0161echny zm\u011Bny,
+kter\u00E9 jste v editoru u\u010Dinili
+od posledn\u00EDho ulo\u017Een\u00ED souboru.
+Na\u010D\u00EDst z disku
+Storno
+null
+
 really-print
 Text je \u0161ir\u0161\u00ED ne\u017E pap\u00EDr. Dlouh\u00E9 \u0159\u00E1dky budou
 o\u0159\u00EDznuty. Tento probl\u00E9m m\u016F\u017Eete odstranit t\u00EDm,
@@ -262,8 +279,8 @@ V t\u00E9to slo\u017Ece nebyly nalezeny
 \u017E\u00E1dn\u00E9 zdrojov\u00E9 soubory v Jav\u011B.
 
 open-non-bluej-invalid
-P\u0159\u00E1li jste si otev\u0159\u00EDt tuto slo\u017Eku jako BlueJ
-projekt. V n\u011Bkter\u00E9m souboru je ozna\u010Den\u00ED 'package',
+P\u0159\u00E1li jste si otev\u0159\u00EDt tuto slo\u017Eku jako BlueJ projekt.
+V n\u011Bkter\u00E9m souboru je ozna\u010Den\u00ED 'package',
 kter\u00E9 neodpov\u00EDd\u00E1 slo\u017Ece, ve kter\u00E9 je soubor
 um\u00EDst\u011Bn - nap\u0159. soubor za\u010D\u00EDnaj\u00EDc\u00ED p\u0159\u00EDkazem
 package com.aa;
@@ -330,7 +347,7 @@ Jm\u00E9no odkazu
 null
 
 unittest-fixture-present
-Tato testovac\u00ED t\u0159\u00EDda u\u017E m\u00E1 deklarovan\u00FD p\u0159\u00EDpravek. 
+Tato testovac\u00ED t\u0159\u00EDda u\u017E m\u00E1 deklarovan\u00FD p\u0159\u00EDpravek.
 Jestli\u017Ee budete pokra\u010Dovat, sou\u010Dasn\u00FD p\u0159\u00EDpravek bude nahrazen.
 P\u0159ejete si pokra\u010Dovat?
 Nahradit
@@ -391,3 +408,130 @@ Mus\u00EDte b\u00FDt schopni zapisovat do slo\u017Eky projektu.
 Zajist\u011Bte, aby byl v\u00E1\u0161 projekt na zapisovateln\u00E9m za\u0159\u00EDzen\u00ED
 (ne na CD-ROM) a abyste m\u011Bli pr\u00E1vo z\u00E1pisu do slo\u017Eky
 projektu a jej\u00EDch soubor\u016F.
+
+jar-output-dir-exists
+Slo\u017Eka, kam by chete rozbalit archiv JAR, ji\u017E existuje.
+Ne\u017E po\u017E\u00E1d\u00E1te o rozbalen\u00EDt archivu,
+mus\u00EDte slo\u017Eku nejprve odstranit.
+
+jar-output-no-write
+Nepoda\u0159ilo se vytvo\u0159it v\u00FDstupn\u00ED slo\u017Eku.
+Ov\u011B\u0159te si, \u017Ee chete archiv rozbalit do slo\u017Eky,
+do kter\u00E9 m\u00E1te povolen z\u00E1pis.
+
+jar-extraction-error
+P\u0159i rozbalov\u00E1n\u00ED obsahu souboru JAR vznikla chyba.
+V\u00EDce informac\u00ED najdete lad\u00EDc\u00EDm logovac\u00EDm souboru
+bluej-debuglog.txt um\u00EDst\u011Bn\u00E9m ve slo\u017Ece bluej
+domovsk\u00E9ho adres\u00E1\u0159e aktu\u00E1ln\u00EDho u\u017Eivatele.
+
+file-save-error-before-compile
+Jeden \u010Di v\u00EDce soubor\u016F nemohlo b\u00FDt ulo\u017Eeno,
+a proto byl p\u0159eklad stornov\u00E1n.
+
+generic-file-save-error
+P\u0159i pokusu o ulo\u017Een\u00ED souboru nastala chyba.
+
+empty-assertion-text
+Nezadali jste o\u010Dek\u00E1van\u00FD v\u00FDsledek tohoto vol\u00E1n\u00ED metody.
+Bez n\u011Bj nen\u00ED v\u00E1\u0161 test kompletn\u00ED a testovac\u00ED t\u0159\u00EDda se nebude p\u0159ekl\u00E1dat.
+Jste si jisti, \u017Ee chete pokra\u010Dovat bez zad\u00E1n\u00ED v\u00FDsledn\u00E9 hodnoty?
+Zp\u011Bt
+Pokra\u010Duj
+null
+
+team-update-first
+Ve va\u0161\u00ED pracovn\u00ED kopii byly smaz\u00E1ny soubory
+jejich\u017E ekvivalenty v \u00FAlo\u017Ei\u0161ti byly zm\u011Bn\u011Bny.
+To vyvol\u00E1v\u00E1 konflikt.
+Ne\u017E ode\u0161lete (commit) svoje zm\u011Bny,
+mus\u00EDte nejprve akutalizovat (update) svoji pracovn\u00ED kopii,
+abyste ji synchonizovali s obsahem \u00FAlo\u017Ei\u0161t\u011B (repository).
+Aktualizace ovlivn\u00ED n\u00E1sleduj\u00EDc\u00ED soubory:
+
+team-resolve-conflicts-delete
+Nastal konflikt soubor\u016F, kter\u00E9 byly paraleln\u011B upraveny
+v \u00FAlo\u017Ei\u0161ti (repository) i ve va\u0161\u00ED pracovn\u00ED kopii.
+Abyste vy\u0159e\u0161ili (resolve) tento konflikt,
+mus\u00EDte nejprve smazat sv\u00E9 upraven\u00E9 verze t\u011Bctho soubor\u016F
+a pak akutalizovat (update) soubory z \u00FAlo\u017Ei\u0161t\u011B.
+Pot\u00E9 m\u016F\u017Eete vy\u0159e\u0161it vznikl\u00FD konflikt.
+
+team-resolve-merge-conflicts
+B\u011Bhem p\u0159edchoz\u00ED aktualizace vznikly konflikty
+p\u0159i slu\u010Dov\u00E1n\u00ED (merge) n\u011Bkter\u00FDch soubor\u016F.
+P\u0159ed t\u00EDm, ne\u017E ode\u0161lete (commit) novou verzi,
+mus\u00EDte otev\u0159\u00EDt n\u00E1sleduj\u00EDc\u00ED soubory
+a vy\u0159e\u0161it v\u0161echny konflikty:
+
+team-unresolved-conflicts
+Abyste vy\u0159e\u0161ily vznikl\u00E9 konflikty,
+mus\u00EDte lok\u00E1ln\u011B smazat n\u00E1sleduj\u00EDc\u00ED soubory,
+kter\u00E9 maj\u00ED nevy\u0159e\u0161en\u00E9 konflikty:
+
+team-uptodate-failed
+Va\u0161e lok\u00E1ln\u00ED kopie ji\u017E nen\u00ED platn\u00E1.
+P\u0159ed p\u0159\u00EDpadn\u00FDm odesl\u00E1n\u00EDm zm\u011Bn
+ji proto mus\u00EDte nejprve aktualizovat.
+
+team-cant-connect
+P\u0159ipojen\u00ED k serveru se nepoda\u0159ilo.
+V nastaven\u00ED pro t\u00FDmovou pr\u00E1ci ov\u011B\u0159te,
+\u017Ee adresa serveru je korektn\u00ED
+
+team-project-exists
+Projekt ji\u017E na serveru existuje.
+M\u016F\u017Eete jej st\u00E1hnout (checkout),
+prov\u011B\u0159it a p\u0159\u00EDpadn\u011B slou\u010Dit,
+nebo mus\u00EDte sv\u016Fj projekt p\u0159ed odesl\u00E1n\u00EDm (commit)
+p\u0159ejmenovat.
+
+team-cant-find-path
+Cesta nebyla na serveru nalezena.
+To m\u016F\u017Ee b\u00FDt zap\u0159\u00ED\u010Din\u011Bno neexistenc\u00ED zadan\u00E9 skupiny \u010Di projektu.
+V Nastaven\u00ED pro t\u00FDmovou pr\u00E1ci ov\u011B\u0159te,
+\u017Ee skupina i projekt jsou zad\u00E1ny spr\u00E1vn\u011B.
+
+team-cant-find-module
+Projekt nen\u00ED v \u00FAlo\u017Ei\u0161ti.
+P\u0159ed sta\u017Een\u00EDm (checkout) projektu mus\u00ED b\u00FDt
+projekt sd\u00EDlen (shared) a ulo\u017Een do \u00FAlo\u017Ei\u0161t\u011B (repository).
+
+team-cant-find-repository
+\u00DAlo\u017Eit\u011B nebylo nalezeno.
+V Nastaven\u00ED pro t\u00FDmovou pr\u00E1ci ov\u011B\u0159te,
+\u017Ee je v\u0161e spr\u00E1vn\u011B nastaveno.
+
+team-empty-message
+Objevila se nezn\u00E1m\u00E1\u00ED chyba.
+Zkontrolujte nastaven\u00ED v Nastaven\u00ED pro t\u00FDmovou pr\u00E1ci.
+
+team-invalid-cvsroot
+Neplatn\u00FD ko\u0159en CVS.
+Zkontrolujte nastaven\u00ED v Nastaven\u00ED pro t\u00FDmovou pr\u00E1ci.
+
+team-authentication-problem
+Server v\u00E1s odm\u00EDtl p\u0159ihl\u00E1sit (log in).
+V Nastaven\u00ED pro t\u00FDmovou pr\u00E1ci
+ov\u011B\u0159te svoje u\u017Eivatelsk\u00E9 jm\u00E9no a heslo
+
+team-binary-conflict
+P\u0159i pokusu o aktualizaci n\u00E1\u00FDsleduj\u00EDc\u00EDho souboru byl detekov\u00E1n konflikt:
+    $
+Soubor byl zm\u011Bn\u011Bn lok\u00E1ln\u011B a sou\u010Dasn\u011B v \u00FAlo\u017Ei\u0161ti.
+Pou\u017Eij moji verzi
+Pou\u017Eij vezi z \u00FAlo\u017Ei\u0161t\u011B
+null
+
+not-all-compiled
+V\u0161echny t\u0159\u00EDdy z dan\u00E9ho projektu nebyly p\u0159elo\u017Eeny.
+Chcete-li ulo\u017Eit skupinu MIDlet\u016F (MIDlet suite)
+tohoto projektu, mus\u00EDte v\u0161echny t\u0159\u00EDdy p\u0159elo\u017Eit.
+
+error-midleticon-exists
+Soubor, kter\u00FD jste vybrali,
+je ji\u017E ve slo\u017Ece res/icons tohoto projektu.
+Chcete je p\u0159epsat?
+P\u0159epsat
+Storno
+null

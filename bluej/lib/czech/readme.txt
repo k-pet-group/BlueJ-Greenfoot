@@ -1,8 +1,8 @@
 
- Ceska lokalizace pro BlueJ 2.0
-================================
+ Ceska lokalizace pro BlueJ 2.1.2
+=================================
 
-Verze 1.00 ze dne 31.8.2004.
+Verze 1.00 ze dne 11.1.2006.
 
 Lokalizaci vytvorili Petr Skoda a Rudolf Pecinovsky.
 
