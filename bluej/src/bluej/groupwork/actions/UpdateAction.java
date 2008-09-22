@@ -460,8 +460,16 @@ public class UpdateAction extends AbstractAction
                 
                 File packageDir = JavaNames.convertQualifiedNameToFile(packageName);
                 if (! packageDir.exists()) {
+                    // Close the package window, if open
+                    Package pkg = project.getCachedPackage(packageName);
+                    pkg.closeAllEditors();
+                    PkgMgrFrame frame = PkgMgrFrame.findFrame(pkg);
+                    if (frame != null) {
+                        frame.closePackage();
+                    }
+                    
                     // Get the parent package so we can remove the child.
-                    Package pkg = project.getCachedPackage(parentPackage);
+                    pkg = project.getCachedPackage(parentPackage);
                     if (pkg != null) {
                         Target target = pkg.getTarget(baseName);
                         if (target instanceof PackageTarget) {
