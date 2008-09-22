@@ -45,7 +45,7 @@ import bluej.utility.Utility;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 5798 2008-07-03 15:56:38Z polle $
+ * @version $Id: Config.java 5884 2008-09-22 07:56:55Z davmac $
  */
 
 public final class Config
@@ -117,7 +117,7 @@ public final class Config
                     new Color(195, 195, 195)));
    
     private static Color selectionColour;
-    private static List debugVMArgs = new ArrayList();
+    private static List<String> debugVMArgs = new ArrayList<String>();
     
     /** whether this is the debug vm or not. */
     private static boolean isDebugVm = true;
@@ -1388,7 +1388,7 @@ public final class Config
         String args = getPropString("bluej.vm.args");
         if(args != null && !args.equals("bluej.vm.args")) {
             // if there is more than one arg set
-            List splitArgs = splitVMArgs(args);
+            List<String> splitArgs = splitVMArgs(args);
 	        debugVMArgs.addAll(splitArgs);
         }        
     }
@@ -1399,10 +1399,10 @@ public final class Config
      * @param str - the string to be split
      * @returns	an array of Strings
      */
-    private static List splitVMArgs(String str)
+    private static List<String> splitVMArgs(String str)
     {
         boolean inQuote = false;
-        List strings = new ArrayList();
+        List<String> strings = new ArrayList<String>();
         StringTokenizer t = new StringTokenizer(str, " ", true);
         while(t.hasMoreTokens()) {
             String arg = t.nextToken();
@@ -1412,13 +1412,15 @@ public final class Config
                 while(t.hasMoreTokens() && inQuote == true) {
                     String next = t.nextToken();
                     arg = arg + next;
-                    if(next.indexOf("\"") != -1)
+                    if(next.indexOf("\"") != -1) {
                         inQuote = false;
+                    }
                 }
                 strings.add(arg); 
             }
-            else if(!arg.equals(" "))
+            else if(!arg.equals(" ")) {
                 strings.add(arg);
+            }
         }
         return strings;
     }
@@ -1426,7 +1428,7 @@ public final class Config
     /**
      * debug vm args used for launch of debug vm
      */
-    public static List getDebugVMArgs()
+    public static List<String> getDebugVMArgs()
     {
         return debugVMArgs;
     }

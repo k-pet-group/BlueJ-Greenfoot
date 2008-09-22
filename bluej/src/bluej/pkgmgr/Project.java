@@ -71,7 +71,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 5861 2008-09-10 14:00:54Z polle $
+ * @version $Id: Project.java 5884 2008-09-22 07:56:55Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -690,7 +690,7 @@ public class Project implements DebuggerListener, InspectorManager
     public Repository getRepository()
     {
     	if (isSharedProject) {
-    	    return getTeamSettingsController().getRepository();
+    	    return getTeamSettingsController().getRepository(true);
         }
         else {
             return null;

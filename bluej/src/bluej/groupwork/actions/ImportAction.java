@@ -14,7 +14,7 @@ import bluej.pkgmgr.Project;
  * An action to perform an import into a repository, i.e. to share a project.
  * 
  * @author Kasper
- * @version $Id: ImportAction.java 5101 2007-06-18 01:16:24Z davmac $
+ * @version $Id: ImportAction.java 5884 2008-09-22 07:56:55Z davmac $
  */
 public class ImportAction extends TeamAction 
 {
@@ -42,7 +42,7 @@ public class ImportAction extends TeamAction
         // The team settings controller is not initially associated with the
         // project, so you can still modify the repository location
         final TeamSettingsController tsc = new TeamSettingsController(project.getProjectDir());
-        final Repository repository = tsc.getRepository();
+        final Repository repository = tsc.getRepository(true);
         
         if (repository == null) {
             // user cancelled

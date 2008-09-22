@@ -21,7 +21,7 @@ import bluej.utility.SwingWorker;
  * project.
  * 
  * @author Kasper
- * @version $Id: CheckoutAction.java 5486 2008-01-23 03:39:36Z davmac $
+ * @version $Id: CheckoutAction.java 5884 2008-09-22 07:56:55Z davmac $
  */
 public class CheckoutAction extends TeamAction
 {
@@ -61,7 +61,7 @@ public class CheckoutAction extends TeamAction
         tsd.setLocationRelativeTo(oldFrame);
         
         if (tsd.doTeamSettings() == TeamSettingsDialog.OK) {
-            ModuleSelectDialog moduleDialog = new ModuleSelectDialog(oldFrame, tsc.getRepository());
+            ModuleSelectDialog moduleDialog = new ModuleSelectDialog(oldFrame, tsc.getRepository(true));
             moduleDialog.setLocationRelativeTo(oldFrame);
             moduleDialog.setVisible(true);
             
@@ -93,7 +93,7 @@ public class CheckoutAction extends TeamAction
                         newFrame.setEnabled(false);
                     }
                     
-                    new CheckoutWorker(newFrame, tsc.getRepository(), projectDir, tsc).start();
+                    new CheckoutWorker(newFrame, tsc.getRepository(true), projectDir, tsc).start();
                 }
             }
         }

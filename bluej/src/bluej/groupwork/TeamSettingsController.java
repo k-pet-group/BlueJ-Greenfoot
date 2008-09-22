@@ -16,7 +16,7 @@ import bluej.utility.Debug;
  * the top-level folder of a team project, and the bluej.properties
  *
  * @author fisker
- * @version $Id: TeamSettingsController.java 5547 2008-02-11 11:53:24Z davmac $
+ * @version $Id: TeamSettingsController.java 5884 2008-09-22 07:56:55Z davmac $
  */
 public class TeamSettingsController
 {
@@ -101,9 +101,9 @@ public class TeamSettingsController
      * Get the repository. Returns null if user credentials are required
      * but the user chooses to cancel.
      */
-    public Repository getRepository()
+    public Repository getRepository(boolean authRequired)
     {
-        if (password == null) {
+        if (authRequired && password == null) {
             // If we don't yet know the password, prompt the user
             getTeamSettingsDialog().doTeamSettings();
 
@@ -263,7 +263,7 @@ public class TeamSettingsController
      */
     public boolean  prepareDeleteDir(File dir)
     {
-        return getRepository().prepareDeleteDir(dir);
+        return getRepository(false).prepareDeleteDir(dir);
     }
     
     /**
@@ -271,7 +271,7 @@ public class TeamSettingsController
      */
     public void prepareCreateDir(File dir)
     {
-        getRepository().prepareCreateDir(dir);
+        getRepository(false).prepareCreateDir(dir);
     }
 
     /**
