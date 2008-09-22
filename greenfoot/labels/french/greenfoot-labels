@@ -1,0 +1,195 @@
+#French Greenfoot interface labels - (Translation: GB, sept.08)
+
+greenfoot.nyi=Pas encore impl\u00e9ment\u00e9 - d\u00e9sol\u00e9.
+greenfoot.preferences=Pr\u00e9f\u00e9rences...
+greenfoot.copyright=Droit d'auteur...
+greenfoot.quit=Quitter
+greenfoot.continue=Continuer
+greenfoot.cancel=Annuler
+
+# About dialog
+about.title=A propos de Greenfoot
+about.moreInfo=Plus d'informations peuvent \u00eatre obtenues sur www.greenfoot.org
+
+# Greenfoot project version info
+project.version.none=Le sc\u00e9nario que vous essayez d'ouvrir semble \u00eatre un sc\u00e9nario d'une version ant\u00e9rieure de Greenfoot (ant\u00e9rieure \u00e0 la version 0.5). Cela va sÃ»rement causer des erreurs qu'il faudra corriger manuellement.
+project.version.notGreenfoot=Ce n'est pas un sc\u00e9nario Greenfoot: 
+project.version.mismatch=Les versions ne sont pas identiques
+project.version.older.part1=La sc\u00e9nario que vous essayez d'ouvrir semble \u00eatre un sc\u00e9nario d'une vesion ant\u00e9rieur de Greenfoot (API version 
+# project version inserted here by Greenfoot
+project.version.older.part2=). Le sc\u00e9nario va \u00eatre mis \u00e0 jour vers la version courante (API version 
+# api version inserted here by Greenfoot
+project.version.older.part3=). L'\u00e9tendue du s\u00e9lecteur de vitesse a chang\u00e9 dans cette version, veillez \u00e0 ajuster la vitesse pour ce sc\u00e9nario.
+project.version.newer.part1=Le sc\u00e9nario que vous essayez d'ouvrir a \u00e9t\u00e9 cr\u00e9\u00e9 avec une version plus r\u00e9cente de l'API Greenfoot (version 
+# project version inserted here by Greenfoot
+project.version.newer.part2=). Ouvrir le sc\u00e9nario avec cette version peut aboutir \u00e0 des erreurs qui devront \u00eatre corrig\u00e9es manuellement.\n\nVoulez-vous continuer l'ouverture du sc\u00e9nario?
+project.close=Fermer
+
+# Actions
+greenfoot.about=A propos de Greenfoot...
+compile.all=Tout compiler
+compile.class=Compiler
+edit.class=Ouvrir l'\u00e9diteur
+new.class=Nouvelle classe...
+new.project=Nouveau...
+new.subclass=Nouvelle sous-classe...
+open.project=Ouvrir...
+open.recentProject=Ouvrir un projet r\u00e9cent
+remove.class=Enlever
+remove.selected=Enlever classe
+inspect.class=Inspecter
+reset.world=Remettre \u00e0 z\u00e9ro
+run.once=Action
+run.simulation=Ex\u00e9cution
+project.save=Enregistrer
+project.savecopy=Enregistrer sous...
+select.image=Set image...
+show.readme=Informations du sc\u00e9nario
+pause.simulation=Pause
+
+# Remove class confirmation
+remove.confirm.title=Confirmer l'enlÃ¨vement de la classe
+remove.confirm.text1=Va enlever la classe
+remove.confirm.text2=Continuer ?
+
+
+# Save project copy dialog
+project.savecopy.title=Enregistrer une copie du sc\u00e9nario
+
+# Export scenario dialog
+export.project=Exporter...
+export.progress.bundling=Incorporation du sc\u00e9nario...
+export.progress.publishing=Publication...
+export.progress.writingHTML=Ecriture de la page Web...
+export.progress.writingJar=Ecriture du fichier jar...
+export.progress.complete=Exportation termin\u00e9e.
+export.publish.fail=Publication \u00e9chou\u00e9e:
+export.publish.unknownHost=Publication \u00e9chou\u00e9e: H\u00f4te inconnu
+export.publish.complete=Publication termin\u00e9e
+export.app.help=Cr\u00e9er un fichier jar ex\u00e9cutable qui peut \u00eatre ex\u00e9cut\u00e9 seul.
+export.app.location=Enregister sous: 
+export.app.browse=Naviguer
+export.compile.help=Toutes les classes de ce sc\u00e9nario ne sont pas compil\u00e9es. Pour continuer l'exportation, compiler maintenant les classes.
+export.compile.notCompiled=Sc\u00e9nario non compil\u00e9.
+export.dialog.title=Greenfoot: Exporter
+export.dialog.continue=Exporter
+export.dialog.continue.update=(mettre \u00e0 jour)
+export.lock.label=Verrouiller le sc\u00e9nario
+export.lock.description=Pr\u00e9vient: Changement de vitesse, bouton Action et modification de l'emplacement des acteurs pendant la pause.
+export.publish.help=Publication du sc\u00e9nario vers:
+export.publish.info=Information pour l'affichage de
+export.publish.image1=Ic\u00f6ne du sc\u00e9nario:
+export.publish.image2=(mettre \u00e0 l'\u00e9chelle et d\u00e9placer)
+export.publish.title=Titre:
+export.publish.tags.additional1=\u00c9tiquettes suppl\u00e9mentaires:
+export.publish.tags.additional2=(une \u00e9tiquette par ligne)
+export.publish.tags.popular=\u00c9tiquettes populaires:
+export.publish.tags.loading=chargement...
+export.publish.shortDescription=Description en une ligne:
+export.publish.longDescription=Description longue:
+export.publish.url=Adresse de votre propre page (URL):
+export.publish.login=Identification
+export.publish.username=Nom d'utilisateur:
+export.publish.password=Mot de passe:
+export.publish.createAccount=Cr\u00e9er un compte
+export.publish.includeSource=Publier le code source
+export.web.help=Cr\u00e9er une page Web avec un applet.
+export.web.exportLocation=Emplacement pour l'exportation: 
+export.web.browse=Parcourir
+export.web.choose=Choisir le nom du r\u00e9pertoire d'exportation
+export.icontab.publish=Publier
+export.icontab.webpage=Page Web
+export.icontab.application=Application
+
+publish.event.error=Erreur: 
+publish.event.status=Statut: 
+
+world.handlerDelegate.inspect=Inspecter
+world.handlerDelegate.remove=Enlever
+
+greenfoot.utilDelegate.newScenario=Nouveau sc\u00e9nario
+
+#File choosers
+chooser.newFile.button=Choisir
+chooser.scenario.title=Ouvrir un sc\u00e9nario
+chooser.scenario.button=Ouvrir
+
+#New Class dialog
+newclass.dialog.title=Cr\u00e9er une nouvelle classe
+newclass.dialog.help1=Un nom de classe ne doit pas pas contenir d'espaces ou de ponctuation, 
+newclass.dialog.help2=et ne doivent pas commencer par une lettre majuscule.
+newclass.dialog.className=Nouveau nom de classe: 
+newclass.dialog.err.classExists=Une classe avec ce nom existe d\u00e9j\u00e0.
+newclass.dialog.err.classNameIllegal=Nom de classe Java invalide.
+
+# Initial startup dialog
+startup.header=Welcome to Greenfoot!
+startup.welcome=Vous pouvez travailler avec des projets dans Greenfoot (aussi appel\u00e9s 'sc\u00e9narios'). Pour utiliser Greenfot, il faut ouvrir un sc\u00e9nario existant, ou en cr\u00e9er un nouveau. Plusieurs exemples de sc\u00e9narios sont inclus avec l'installation standard de Greenfoot.
+startup.question=Que voulez-vous faire?
+startup.tutorial.button=Ouvrir un tutoriel et son sc\u00e9nario
+startup.open.button=Choisir un sc\u00e9nario
+startup.create.button=Cr\u00e9er un nouveau sc\u00e9nario
+startup.continue.button=Continuer sans sc\u00e9nario
+
+# Image Lib Preview
+imagelib.title=Choisir l'image de la classe:
+imagelib.newClass=Nouvelle classe
+imagelib.projectImages=Images du sc\u00e9nario:
+imagelib.categories=Cat\u00e9gories d'image:
+imagelib.images=Images de la librairie:
+imagelib.browse.button=Chercher d'autres images ...
+imagelib.className=Nouveau nom de classe:
+imagelib.help.autoImage=Cliquer sur Ok pour accepter l'image auto-g\u00e9n\u00e9r\u00e9e, ou choisir une image de la liste ci-dessous.
+imagelib.help.selectImage=Choisir une image pour la classe \u00e0 partir de la liste ci-dessous.
+imagelib.newClass.image=Nouvelle image de classe:
+imagelib.image.autoGenerated=(g\u00e9n\u00e9r\u00e9e automatiquement)
+imagelib.file.noPreview=Pas d'aperÃ§u
+imagelib.choose.button=S\u00e9lectionner
+imagelib.write.exists.part1=Le fichier \"
+# Greenfoot inserts filename here
+imagelib.write.exists.part2=\" existe d\u00e9j\u00e0. Voulez-vous l'\u00e9craser ?
+imagelib.write.exists.title=Confirmer le remplacement du fichier
+
+scenario.viewer.appletInfo=Applet g\u00e9n\u00e9r\u00e9e avec Greenfoot (www.greenfoot.org). Nom du sc\u00e9nario:
+
+# Simulation Control Panel
+controls.runonce.shortDescription=Appeller la fonction 'act' pour chaque acteur.
+controls.runonce.longDescription=Appeller la fonction 'act' une fois pour chaque acteur.
+controls.run.shortDescription=Ex\u00e9cuter la simulation.
+controls.run.longDescription=Ex\u00e9cuter la simulation jusqu'\u00e0 l'arr\u00eat.
+controls.pause.shortDescription=Mettre la simulation en pause.
+controls.pause.longDescription=Mettre la simulation en pause, en la laissant dans son \u00e9tat actuel.
+controls.run.button=Ex\u00e9cuter
+controls.pause.button=Pause
+controls.reset.shortDescription=Instancier un nouveau monde.
+controls.reset.longDescription=Cr\u00e9er une nouvelle instance du monde.
+controls.speed.label=Vitesse:
+controls.speedSlider.tooltip=Ajuster la vitesse d'ex\u00e9cution
+
+# Class browser
+browser.border.world=Classes de mondes
+browser.border.actors=Classes d'acteurs
+browser.border.others=Autres classes
+
+# Menus
+
+menu.openRecent=Ouvrir un fichier r\u00e9cent
+
+menu.scenario=Sc\u00e9nario
+
+menu.edit=Editer
+
+menu.controls=Contr\u00f4les
+
+menu.help=Aide
+menu.help.about=A propos de Greenfoot...
+menu.help.classDoc=Documentation des classes de Greenfoot
+menu.help.javadoc=Documentation de la librairie Java
+menu.help.tutorial=Tutoriel de Greenfoot
+menu.help.website=Site Web de Greenfoot
+menu.help.moreScenarios=Obtenir plus de sc\u00e9narios
+
+# Project does not exist dialog
+noproject.dialog.title=Erreur lors de l'ouverture du projet
+noproject.dialog.msg=Le projet n'existe pas: 
+ 
