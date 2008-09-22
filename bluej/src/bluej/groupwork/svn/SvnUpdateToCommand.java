@@ -20,14 +20,14 @@ import bluej.utility.Debug;
 public class SvnUpdateToCommand extends SvnCommand implements UpdateResults
 {
     private long version;
-    private Set files;
-    private Set forceFiles;
+    private Set<File> files;
+    private Set<File> forceFiles;
     private UpdateListener listener;
-    private List conflicts = new ArrayList();
-    private Set binaryConflicts = new HashSet();
+    private List<File> conflicts = new ArrayList<File>();
+    private Set<File> binaryConflicts = new HashSet<File>();
     
     public SvnUpdateToCommand(SvnRepository repository, UpdateListener listener,
-            long version, Set files, Set forceFiles)
+            long version, Set<File> files, Set<File> forceFiles)
     {
         super(repository);
         this.version = version;
@@ -44,21 +44,22 @@ public class SvnUpdateToCommand extends SvnCommand implements UpdateResults
         // the notifications have actually been performed. So, we save the
         // list of updated files and notify the listener only once the update
         // is complete.
-        final List addedList = new ArrayList();
-        final List updatedList = new ArrayList();
-        final List removedList = new ArrayList();
+        final List<File> addedList = new ArrayList<File>();
+        final List<File> updatedList = new ArrayList<File>();
+        final List<File> removedList = new ArrayList<File>();
+        final List<File> removedDirs = new ArrayList<File>();
         
         try {
             String [] paths = new String[forceFiles.size() + files.size()];
             int j = 0;
-            for (Iterator i = forceFiles.iterator(); i.hasNext(); ) {
-                File file = (File) i.next();
+            for (Iterator<File> i = forceFiles.iterator(); i.hasNext(); ) {
+                File file = i.next();
                 paths[j++] = file.getAbsolutePath();
                 // Delete the file, so the update cannot conflict
                 file.delete();
             }
-            for (Iterator i = files.iterator(); i.hasNext(); ) {
-                File file = (File) i.next();
+            for (Iterator<File> i = files.iterator(); i.hasNext(); ) {
+                File file = i.next();
                 paths[j++] = file.getAbsolutePath();
             }
 
@@ -93,6 +94,12 @@ public class SvnUpdateToCommand extends SvnCommand implements UpdateResults
                             }
                         }
                     }
+                    else if (ninfo.getKind() == NodeKind.dir) {
+                        int action = ninfo.getAction();
+                        if (action == NotifyAction.update_delete) {
+                            removedDirs.add(new File(ninfo.getPath()));
+                        }
+                    }
                     
                 }
             });
@@ -107,15 +114,18 @@ public class SvnUpdateToCommand extends SvnCommand implements UpdateResults
         finally {
             client.notification2(null);
             
-            Iterator i;
+            Iterator<File> i;
             for (i = addedList.iterator(); i.hasNext(); ) {
-                listener.fileAdded((File) i.next());
+                listener.fileAdded(i.next());
             }
             for (i = updatedList.iterator(); i.hasNext(); ) {
-                listener.fileUpdated((File) i.next());
+                listener.fileUpdated(i.next());
             }
             for (i = removedList.iterator(); i.hasNext(); ) {
-                listener.fileRemoved((File) i.next());
+                listener.fileRemoved(i.next());
+            }
+            for (i = removedDirs.iterator(); i.hasNext(); ) {
+                listener.dirRemoved(i.next());
             }
             
             if (! conflicts.isEmpty()) {
@@ -162,8 +172,8 @@ public class SvnUpdateToCommand extends SvnCommand implements UpdateResults
     {
         SVNClientInterface client = getRepository().getClient();
         
-        for (Iterator i = binaryConflicts.iterator(); i.hasNext(); ) {
-            File file = (File) i.next();
+        for (Iterator<File> i = binaryConflicts.iterator(); i.hasNext(); ) {
+            File file = i.next();
             try {
                 Status status = client.singleStatus(file.getAbsolutePath(), false);
                 File working = new File(file.getParent(), status.getConflictWorking());

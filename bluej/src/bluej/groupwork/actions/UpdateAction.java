@@ -47,7 +47,7 @@ public class UpdateAction extends AbstractAction
     private StatusHandle statusHandle;
     
     /** A list of packages whose bluej.pkg file has been removed */
-    private List removedPackages;
+    private List<String> removedPackages;
     
     public UpdateAction(UpdateFilesFrame updateFrame)
     {
@@ -60,7 +60,7 @@ public class UpdateAction extends AbstractAction
      * Set the files to be updated (changes merged if necessary).
      * @files a Set of File
      */
-    public void setFilesToUpdate(Set files)
+    public void setFilesToUpdate(Set<File> files)
     {
         filesToUpdate = files;
     }
@@ -69,7 +69,7 @@ public class UpdateAction extends AbstractAction
      * Set the files to be updated with a clean copy of the repository
      * @files a Set of File
      */
-    public void setFilesToForceUpdate(Set files)
+    public void setFilesToForceUpdate(Set<File> files)
     {
         filesToForceUpdate = files;
     }
@@ -126,7 +126,7 @@ public class UpdateAction extends AbstractAction
         
         public Object construct()
         {
-            removedPackages = new ArrayList();
+            removedPackages = new ArrayList<String>();
             result = command.getResult();
             return result;
         }
@@ -298,6 +298,21 @@ public class UpdateAction extends AbstractAction
         }
         
         /* (non-Javadoc)
+         * @see bluej.groupwork.UpdateListener#dirRemoved(java.io.File)
+         */
+        public void dirRemoved(final File f)
+        {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run()
+                {
+                    String path = makeRelativePath(project.getProjectDir(), f);
+                    String pkgName = path.replace(File.separatorChar, '.');
+                    removedPackages.add(pkgName);
+                }
+            });
+        }
+        
+        /* (non-Javadoc)
          * @see bluej.groupwork.UpdateListener#handleConflicts(bluej.groupwork.UpdateServerResponse)
          */
         public void handleConflicts(final UpdateResults updateServerResponse)
@@ -316,7 +331,7 @@ public class UpdateAction extends AbstractAction
                     public void run()
                     {
                         /** A list of files to replace with repository version */
-                        Set filesToOverride = new HashSet();
+                        Set<File> filesToOverride = new HashSet<File>();
 
                         // Binary conflicts
                         for (Iterator i = updateServerResponse.getBinaryConflicts().iterator();
@@ -343,9 +358,9 @@ public class UpdateAction extends AbstractAction
 
                         updateServerResponse.overrideFiles(filesToOverride);
 
-                        List blueJconflicts = new LinkedList();
-                        List nonBlueJConflicts = new LinkedList();
-                        List targets = new LinkedList();
+                        List<String> blueJconflicts = new LinkedList<String>();
+                        List<String> nonBlueJConflicts = new LinkedList<String>();
+                        List<Target> targets = new LinkedList<Target>();
 
                         for (Iterator i = updateServerResponse.getConflicts().iterator();
                                 i.hasNext();) {
@@ -438,21 +453,20 @@ public class UpdateAction extends AbstractAction
          */
         private void handleRemovedPkgs()
         {
-            for (Iterator i = removedPackages.iterator(); i.hasNext(); ) {
-                String packageName = i.next().toString();
+            for (Iterator<String> i = removedPackages.iterator(); i.hasNext(); ) {
+                String packageName = i.next();
                 String parentPackage = JavaNames.getPrefix(packageName);
                 String baseName = JavaNames.getBase(packageName);
                 
                 File packageDir = JavaNames.convertQualifiedNameToFile(packageName);
                 if (! packageDir.exists()) {
                     // Get the parent package so we can remove the child.
-                    Package pkg = project.getPackage(parentPackage);
-                    if (pkg == null) {
-                        return;
-                    }
-                    Target target = pkg.getTarget(baseName);
-                    if (target instanceof PackageTarget) {
-                        pkg.removeTarget(target);
+                    Package pkg = project.getCachedPackage(parentPackage);
+                    if (pkg != null) {
+                        Target target = pkg.getTarget(baseName);
+                        if (target instanceof PackageTarget) {
+                            pkg.removeTarget(target);
+                        }
                     }
                 }
             }
