@@ -68,11 +68,16 @@
         <include name="examples/file-reader/" />
         <include name="examples/shapes/" />
     </patternset>
+    
+    <patternset id="bluej.icons">
+        <include name="icons/*" />
+    </patternset>
 
     <patternset id="bluej.examples.classes">
         <include name="examples/people/*.class" />
     </patternset>
 
+    <!-- These are files which should be made to have system line endings -->
     <patternset id="bluej.textfiles">
         <include name="examples/**/*.java" />
         <include name="examples/**/README.*" />
@@ -94,6 +99,7 @@
                 <patternset refid="bluej.libfiles"/>
                 <patternset refid="bluej.libdirs"/>
                 <patternset refid="bluej.examples"/>
+                <patternset refid="bluej.icons" />
             </fileset>
         </copy>
 
