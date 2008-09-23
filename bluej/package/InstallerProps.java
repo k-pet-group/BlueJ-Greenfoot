@@ -20,7 +20,7 @@ public class InstallerProps
             props.load(is);
             
             File installTmp = new File("install_tmp");
-            File distJar = new File(installTmp, props.getProperty("install.pkgJar"));
+            File distJar = new File(props.getProperty("install.pkgJar"));
             long length = distJar.length();
             
             props.put("install.pkgJarSize", Long.toString(length));

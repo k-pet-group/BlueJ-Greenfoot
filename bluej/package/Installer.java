@@ -30,7 +30,7 @@ import javax.swing.text.Keymap;
   *
   *   java Installer
   *
-  * @version $Id: Installer.java 5874 2008-09-17 09:58:53Z davmac $
+  * @version $Id: Installer.java 5896 2008-09-23 04:01:17Z davmac $
   *
   * @author  Michael Kolling
   * @author  based partly on code by Andrew Hunt, Toolshed Technologies Inc.
@@ -69,7 +69,7 @@ public class Installer extends JFrame
     JButton cancelButton;
     JProgressBar progress;
 
-    UpdateProgress progressUpdater = new UpdateProgress();
+    UpdateProgress progressUpdater;
 
     String currentDirectory;    // the user's working dir
     String osname;              // "SunOS", "Windows*", "Linux*", etc
@@ -82,7 +82,7 @@ public class Installer extends JFrame
     String javaPath = "";
 
     Properties properties;
-    long myTotalBytes = 2402789;
+    long myTotalBytes = 400000;
 
 
     /*
@@ -139,6 +139,12 @@ public class Installer extends JFrame
         else
             installationDir = currentDirectory + File.separator + installDirName;
         
+        try {
+            myTotalBytes = Integer.parseInt(getProperty("pkgJarSize"));
+        }
+        catch (NumberFormatException nfe) {}
+        
+        progressUpdater = new UpdateProgress();
         makeWindow();
 
         String requiredJavaVersion = getProperty("requiredJavaVersion");
