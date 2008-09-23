@@ -1,0 +1,15 @@
+BlueJ interface translations and translators
+
+The next update column indicates whether it is likely that the translator will do the next update.
+
+language        last update     next update    comment         translator
+--------------------------------------------------------------------------------------------------------------
+french          1.4.6                x          labels         Guillaume Baudoin <gbaudoin@gmail.com>
+german          1.4?                                           Michael Kolling
+indian?                              x                         Kiran Kumar D <mail2dkiran@gmail.com>
+malayalam                            x                         K.R.Arun <code333@gmail.com> 
+
+IMPORTANT: 
+When adding a new translation, it should be added in the build script: package/build.xml
+It should also be added to bluej.defs so users can see the available languages.
+This is only true if the translation does not exist in BlueJ - which it should, preferably.
