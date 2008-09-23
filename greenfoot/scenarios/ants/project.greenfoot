@@ -103,5 +103,5 @@ target7.type=ClassTarget
 target7.width=60
 target7.x=0
 target7.y=0
-version=1.4.5
+version=1.5.0
 world.lastInstantiated=AntWorld

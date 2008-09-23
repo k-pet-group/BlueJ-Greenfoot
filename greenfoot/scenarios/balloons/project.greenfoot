@@ -115,5 +115,5 @@ target8.type=ClassTarget
 target8.width=80
 target8.x=100
 target8.y=130
-version=1.4.5
+version=1.5.0
 world.lastInstantiated=BalloonWorld
