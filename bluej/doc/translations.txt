@@ -17,9 +17,11 @@ greek           2.1.1                x          labels=2.1.3   Ioannis G. Baltop
 italian         2.2.0                x          only labels    Luzio Menna         <luzio@dazeroadieci.org> (or: Angelo Papadia: <angelo.papadia@libero.it>)
 japanese        1.3.5                           partially
 korean          1.2.x                                            
+montenegrin     first time, will need instructions             Omer Djokic         <omer@itdirect.net>
 portuguese      2.0.0                x                         Fred Guedes Pereira <fredguedespereira@yahoo.com.br> (or: Fernando Kronbauer <fernandoak@gmail.com>)
 persian                              x                         M. Shahdoost        <persianshadow2003@yahoo.com>
 russian         2.2.0preview         x          labels+dialog  Alexey Vasiltchenko <ddp@sevgtu.sebastopol.ua>
+serbian                                                        Omer Djokic         <omer@itdirect.net>
 spanish         1.2.x                                                
 swedish         1.3.5                x          later          Markus ?stman       <markus@gnistra.se>
 trad. chinese                        ?                         Ma Wing Ho          <mawingho@netvigator.com>
