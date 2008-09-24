@@ -71,7 +71,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 5884 2008-09-22 07:56:55Z davmac $
+ * @version $Id: Project.java 5905 2008-09-24 03:24:24Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -158,6 +158,8 @@ public class Project implements DebuggerListener, InspectorManager
             throw new NullPointerException();
         }
 
+        Debug.log("Opening project: " + projectDir.toString());
+        
         this.projectDir = projectDir;
         inspectors = new HashMap();
         packages = new TreeMap<String, Package>();
