@@ -1,4 +1,4 @@
-Copyright (c) 2000, 2005 BlueJ Group, Deakin University
+Copyright (c) 2000, 2008 BlueJ Group, University of Kent
 
 This majority of the editor component is made available under the terms of the "MIT License"
 
