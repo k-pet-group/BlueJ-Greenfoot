@@ -31,7 +31,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 5852 2008-09-02 12:57:36Z polle $
+ * @version $Id: Utility.java 5908 2008-09-26 11:14:25Z polle $
  */
 public class Utility
 {
@@ -718,13 +718,7 @@ public class Utility
         else {
             // if we get to this point, the square button type is available, and
             // we can continue configuring for that one.
-            if (!Config.isJava16()) {
-                button.setMargin(new Insets(8, 8, 8, 8));
-            }
-            else {
-                // They changed the insets in Java 1.6....
-                button.setMargin(new Insets(3, 1, 3, 1));
-            }
+            button.setMargin(new Insets(3, 1, 3, 1));
         }
     }
 
