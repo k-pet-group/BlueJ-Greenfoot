@@ -36,8 +36,8 @@ Type: files; Name: "{app}\lib\extensions\submission.jar"
 
 [Files]
 Source: "..\install_tmp\*.*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
-Source: "..\winlaunch\vmselect.exe"; DestDir: "{app}"; DestName: "greenfoot.exe"
-Source: "..\winlaunch\README.TXT"; DestDir: "{app}"
+Source: "..\winlaunch\gflaunch.exe"; DestDir: "{app}"; DestName: "greenfoot.exe"
+Source: "..\winlaunch\Greenfoot-README.TXT"; DestDir: "{app}"; DestName: "README.TXT"
 
 [Run]
 Filename: "{app}\README.TXT"; Description: "View the README file"; Flags: postinstall shellexec skipifsilent

@@ -205,7 +205,7 @@
         <unzip src="greenfoot-dist.jar" dest="install_tmp" />
 
         <exec dir="winsetup" executable="C:\Program Files\Inno Setup 5\ISCC.exe">
-            <arg line="bluej.iss" />
+            <arg line="greenfoot.iss" />
         </exec>
 
         <delete dir="install_tmp" />
