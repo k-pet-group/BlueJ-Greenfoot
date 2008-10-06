@@ -1,0 +1,195 @@
+#i18n for greenfoot
+
+greenfoot.nyi=Spiacente, questa funzionalità non è implementata.
+greenfoot.preferences=Preferenze...
+greenfoot.copyright=Copyright...
+greenfoot.quit=Esci
+greenfoot.continue=Continua
+greenfoot.cancel=Annulla
+
+# About dialog
+about.title=Informazioni su Greenfoot
+about.moreInfo=Altre informazioni possono essere trovate sul sito www.greenfoot.org
+
+# Greenfoot project version info
+project.version.none=Lo scenario che stai cercando di aprire sembra uno scenario di una vecchia versione di greenfoot (precedente alla versione 0.5 di greenfoot). Il caricamento di questo scenario comporterà molto probabilmente alcuni errori che dovranno essere corretti manualmente.
+project.version.notGreenfoot=Il file non è uno scenario di Greenfoot: 
+project.version.mismatch=Le versioni non corrispondono
+project.version.older.part1=Lo scenario che stai cercando di aprire sembra uno scenario di una vecchia versione di greenfoot (version API 
+# project version inserted here by Greenfoot
+project.version.older.part2=). Lo scenario sarà aggiornato alla versione attuale (versione API 
+# api version inserted here by Greenfoot
+project.version.older.part3=). L'intervallo del cursore della velocità è cambiato in questa versione, ti consigliamo quindi di regolare la velocità di questo scenarioso.
+project.version.newer.part1=Lo scenario che stai cercando di aprire sembra uno scenario creato con una versione più recente dell'API di greenfoot (versione 
+# project version inserted here by Greenfoot
+project.version.newer.part2=). Aprire lo scenario in questa versiond i greenfoot comporterà probabilmente alcuni errori che dovranno essere corretti manualmente.\n\nVuoi procedere ugualmente con l'apertura dello scenario?
+project.close=Chiudi
+
+# Actions
+greenfoot.about=Informazioni su Greenfoot...
+compile.all=Compila tutto
+compile.class=Compila
+edit.class=Apri editor
+new.class=Nuova Classe...
+new.project=Nuovo...
+new.subclass=Nuova sottoclasse...
+open.project=Apri...
+open.recentProject=Apri recente
+remove.class=Rimuovi
+remove.selected=Elimina Classe
+inspect.class=Ispeziona
+reset.world=Resetta
+run.once=Azione
+run.simulation=Esegui
+project.save=Salva
+project.savecopy=Salva una Copia come...
+select.image=Definisci immagine...
+show.readme=Informazioni Scenario
+pause.simulation=Sospendi
+
+# Remove class confirmation
+remove.confirm.title=Conferma l'eliminazione della classe
+remove.confirm.text1=La classe sta per essere rimossa
+remove.confirm.text2=Continuare?
+
+
+# Save project copy dialog
+project.savecopy.title=Salva Copia Scenario
+
+# Export scenario dialog
+export.project=Esporta...
+export.progress.bundling=Aggiunta dello scenario...
+export.progress.publishing=Pubblicazione...
+export.progress.writingHTML=Scrittura della pagina web...
+export.progress.writingJar=Scrittura del file jar...
+export.progress.complete=Esportazione completata.
+export.publish.fail=Pubblicazione fallita:
+export.publish.unknownHost=Pubblicazione fallita: Host sconosciuto
+export.publish.complete=Pubblicazione completata
+export.app.help=Crea file jar eseguibile che può essere eseguito direttamente (senza bisogno dell'ambiente greefoot).
+export.app.location=Salva in: 
+export.app.browse=Sfoglia
+export.compile.help=Non tutte le classi dello scenario sono state compilate. Per continuare con l'esportazione, compila le classi ora.
+export.compile.notCompiled=Lo scenario non è stato compilato.
+export.dialog.title=Greenfoot: Esporta
+export.dialog.continue=Esporta
+export.dialog.continue.update=(aggiorna)
+export.lock.label=Blocca scenario
+export.lock.description=Previene: Cambio di velocità, pulsante-Azione e cambiamento della posizione dell'attore durante la sospensione.
+export.publish.help=Pubblica lo scenario in:
+export.publish.info=Informazioni per visualizzazione su
+export.publish.image1=Icona scenario:
+export.publish.image2=(scala e sposta)
+export.publish.title=Titolo:
+export.publish.tags.additional1=Etichette aggiuntive:
+export.publish.tags.additional2=(una etichetta per linea)
+export.publish.tags.popular=Etichette popolari:
+export.publish.tags.loading=caricamento...
+export.publish.shortDescription=Descrizione breve:
+export.publish.longDescription=Descrizione estesa:
+export.publish.url=La tua pagina (URL):
+export.publish.login=Accedi
+export.publish.username=Nome utente:
+export.publish.password=Password:
+export.publish.createAccount=Crea account
+export.publish.includeSource=Pubblica il codice sorgente
+export.web.help=Crea una pagina web contenente un'applet.
+export.web.exportLocation=Esporta nella cartella: 
+export.web.browse=Sfoglia
+export.web.choose=Seleziona il nome della cartella per l'esportazione
+export.icontab.publish=Pubblica
+export.icontab.webpage=Pagina web
+export.icontab.application=Applicazione
+
+publish.event.error=Errore: 
+publish.event.status=Stato: 
+
+world.handlerDelegate.inspect=Ispeziona
+world.handlerDelegate.remove=Elimina
+
+greenfoot.utilDelegate.newScenario=Nuovo Scenario
+
+#File choosers
+chooser.newFile.button=Seleziona
+chooser.scenario.title=Apri Scenario
+chooser.scenario.button=Apri
+
+#New Class dialog
+newclass.dialog.title=Crea nuova classe
+newclass.dialog.help1=Il nome della classe non può contenere spazi o caratteri di 
+newclass.dialog.help2=punteggiatura e dovrebbe iniziare con una lettera maiuscola.
+newclass.dialog.className=Nuovo nome classe: 
+newclass.dialog.err.classExists=Una classe con questa nome esiste già.
+newclass.dialog.err.classNameIllegal=Nome di classe Java non valido.
+
+# Initial startup dialog
+startup.header=Benvenuto a Greenfoot!
+startup.welcome=Greenfoot ti permette di lavorare su progetti (chiamati anche 'scenari'). Per usare Greenfoot, devi aprire uno scenario già esistente, o crearne uno nuovo. Alcuni scenari di esempio sono inclusi nell'installazione standard di Greenfoot.
+startup.question=Cosa vuoi fare?
+startup.tutorial.button=Aprire il tutorial e lo scenario del tutorial
+startup.open.button=Selezionare uno scenario
+startup.create.button=Creare un nuovo scenario
+startup.continue.button=Continuare senza scenario
+
+# Image Lib Preview
+imagelib.title=Seleziona l'immagine della classe:
+imagelib.newClass=Nuova classe
+imagelib.projectImages=Immagini dello scenario:
+imagelib.categories=Categorie delle immagini:
+imagelib.images=Libreria di immagini:
+imagelib.browse.button=Sfoglia per trovare altre immagini ...
+imagelib.className=Nuovo nome classe:
+imagelib.help.autoImage=Clicca su Ok per accettare il nome suggerito automaticamente, o seleziona un'immagine dalla lista sottostante.
+imagelib.help.selectImage=Seleziona un'immagine per la classe dalla lista sottostante.
+imagelib.newClass.image=Nuova immagine della classe:
+imagelib.image.autoGenerated=(suggerito automaticamente)
+imagelib.file.noPreview=Nessuna anteprima
+imagelib.choose.button=Seleziona
+imagelib.write.exists.part1=Il file \"
+# Greenfoot inserts filename here
+imagelib.write.exists.part2=\" già esiste. Vuoi sostituirlo?
+imagelib.write.exists.title=Conferma sostituzione del file
+
+scenario.viewer.appletInfo=Applet generata con Greenfoot (www.greenfoot.org). Nome dello scenario:
+
+# Simulation Control Panel
+controls.runonce.shortDescription=Chiama 'azione' per ognuno degli attori.
+controls.runonce.longDescription=Chiama 'azione' per ognuno degli attori.
+controls.run.shortDescription=Esegue la simulazione.
+controls.run.longDescription=Esegue la simulazione fino a che non viene arrestata.
+controls.pause.shortDescription=Sospende la simuzione.
+controls.pause.longDescription=Sospende la simuzione, lasciandola nello stato attuale.
+controls.run.button=Esegui
+controls.pause.button=Sospendi
+controls.reset.shortDescription=Istanzia un nuovo mondo.
+controls.reset.longDescription=Istanzia un nuovo mondo.
+controls.speed.label=Velocità:
+controls.speedSlider.tooltip=Regola la velocità di esecuzione
+
+# Class browser
+browser.border.world=Classi Mondo
+browser.border.actors=Classi Attore
+browser.border.others=Altre classi
+
+# Menus
+
+menu.openRecent=Apri recente
+
+menu.scenario=Scenario
+
+menu.edit=Modifica
+
+menu.controls=Controlli
+
+menu.help=Aiuto
+menu.help.about=Informazioni su Greenfoot...
+menu.help.classDoc=Documentazione Classi Greenfoot
+menu.help.javadoc=Documentazione Libreria Java
+menu.help.tutorial=Tutorial Greenfoot 
+menu.help.website=Sito Web Greenfoot
+menu.help.moreScenarios=Altri scenari
+
+# Project does not exist dialog
+noproject.dialog.title=Errore durante l'apertura del progetto
+noproject.dialog.msg=Il progetto non esiste: 
+ 
