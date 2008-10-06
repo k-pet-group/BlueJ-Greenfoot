@@ -91,10 +91,10 @@ El archivo jar no pudo ser escrito correctamente.
 acceso y disponibilidad en espacio en disco.)
 
 error-jar-exists
-The jar file you have selected already exists.
-Do you want to continue?
-Overwrite
-Cancel
+El Archivo jar que seleccion\u00f3 ya esiste.
+Desea continuar?
+Sobreescribir
+Cancelar
 null
 
 invalid-class-name
@@ -139,177 +139,176 @@ est\u00e1 ejecutando. Esto podr\u00eda causar problemas
 extra\u00f1os!
 
 show-or-generate
-Do you want to show the documentation
-generated previously, or do you want
-to regenerate the whole documentation?
-Just Show
-Regenerate
-Cancel
+Desea mostrar la documentaci\u00f3n
+generada previamente, o desea
+regenerar toda la documentaci\u00f3n?
+Solo Mostrar
+Regenerar
+Cancelar
 
 doctool-error
-Javadoc reported an error. It could be that there is a
-syntax error in one of the files you tried to generate
-a documentation for. It could also be that the JDK
-documentation URL specified in the preferences is incorrect.
-Make sure that all your Java files are compiled and the
-documentation URL is accessible or disabled. Then try again.
-If this message appears again you should check the log file
-with the error messages from Javadoc:
+Javadoc report\u00f3 un error. Puede ser que exista un
+error de sintaxis en uno de los archivos para los que
+trato de generar una documentaci\u00f3n. Tambien puede ser
+que la URL de documentaci\u00f3n especificada en las
+preferencias sea incorrecta. Asegurese que todos
+sus archivos java han sido compilados y que la URL
+de documentaci\u00f3n esta accesible o desactivada.
+Despues intente de nuevo. Si este mesaje aparece de
+nuevo deber\u00eda revisar la bit\u00e1cora con mesajes de error
+provenientes de Javadoc:
 
 severe-doc-trouble
-An exception occured during the call
-to the external documentation tool.
+Ocurri\u00f3 una excepci\u00f3n durante una llamada
+a una herramienta de documentaci\u00f3n externa.
 
 no-java-sources-found
-No Java source files were
-found in this directory.
+Ningun archivo fuente de Java se
+encontr\u00f3 en este directorio.
 
 duplicate-name
-A class with this name already exists
-in this package. You cannot have two
-classes with the same name.
+Una clase con este nombre ya existe
+en este paquete. No puede tener dos
+clases con el mismo nombre.
 
 error-in-import
-An error occured during the attempt to
-import the file. Check access rights and
-disk space.
+Ocurri\u00f3 un error durante un intento de
+importar un archivo. Revise los derechos
+de aceso y el espacio en disco.
 
 no-class-selected
-No class or package selected for removal.
-Select a class or package by clicking on
-it before trying to remove.
+No ha seleccionado una clase o un paquete
+para eliminar. Seleccione una clase o un
+paquete haciendo clic sobre el antes de
+intentar borrar
 
 really-remove-class
-Removing this class will permanently
-delete the source file.
-Do you want to continue?
-Remove
-Cancel
+Borrando esta esta clase eliminara de
+forma definitiva el archivo fuente.
+Desea continuar?
+Eliminar
+Cancelar
 null
 
 really-remove-package
-Removing this package will permanently
-delete the package directory (including ALL
-the contents of that directory).
-Do you want to continue?
-Remove
-Cancel
+Borrando este paquete eliminara el
+directorio y TODO lo que contiene
+Desea continuar?
+Eliminar
+Cancelar
 null
 
 remove-package-open
-The package you have selected for
-deletion has some sub-packages opened
-within BlueJ. You must close these
-packages before you will be allowed
-to delete this package.
+EL paquete que seleccion\u00f3 para eliminar
+tiene algunos subpaquetes abiertos en
+BlueJ. Debe cerrarlos para poder eliminar.
 
 package-does-not-exist
-Error in opening package.
-Package does not exist:
+Error abriendo paquete.
+El paquete no existe:
 
 no-bluej-package
-Error in opening package.
-The file/directory is not
-a BlueJ package:
+Error abriendo paquete.
+El Archivo o directorio no es
+un paquete BlueJ:
 
 applet-height-width
-Applet height and width
-must be specified.
+Alto y ancho del Applet
+deben ser especificados.
 
 cannot-read-help
-Cannot read help file:
+No puedo leer archivo de ayuda:
 
 not-yet-implemented
-Not Yet Implemented - sorry.
+No esta implementado todavia - Lo siento!
 
 quit-all
-Quit all open projects?
-Quit All
-Cancel
+Abandonar todos los proyectos abiertos?
+Abandonar todo
+Cancelar
 null
 
 really-reload
-Reload discards all changes since the last edit.
-Are you sure?
-Reload
-Cancel
+Recargar descarta todos los cambios desde la
+ultima edici\u00f3n.
+Esta seguro?
+Recargar
+Cancelar
 null
 
 really-print
-The text is wider than the paper. Long lines
-will be cut off. You can avoid this by resizing
-the editor window to make it narrower. Do you
-want to print anyway?
-Print
-Cancel
+La anchura del texto es mayor que la anchura
+del papel. Lineas anchas deben ser recortadas.
+Puede evitar esto cambiando el tama\u00f1o de la
+ventana del editor para hacerla mas estrecha.
+quiere imprimir de todas maneras?
+Imprimir
+Cancelar
 null
 
 open-non-bluej-already-bluej
-The directory you have selected is already
-a BlueJ project.
+El directorio seleccionado ya es un proyecto
+BlueJ.
 
 open-non-bluej-invalid
-You have indicated you wish to open this
-directory as a BlueJ project, however a file
-has been found with a package statement that
-is incompatible with the current directory
-structure. (For example, if the Java class
-Shape has a package line of com.aa, then the
-file Shape.java must be in a directory aa
-which is itself in a directory com. This com
-directory in turn must be in another directory
-which is the directory you should point BlueJ
-to when attempting to open it).
+Ud. indico abrir este directorio como un proyecto
+BlueJ, pero se encontr\u00f3 un archivo con una sentencia
+de paquete que es incompatible con la estructura de
+direcorio actual. (Por ejemplo, si la clase de Java
+Shape tiene una linea de paquete de com.aa, entonces
+el archivo Shape.java debe estar dentro de un directorio
+aa que a su vez es un derectorio de com. Este directorio
+com debe estar a su vez en otro directorio el cual Ud.
+indicar\u00e1 a BlueJ cuando desee abrirlo).
 
 import-into-current
-You currently have a package open in this window.
-Do you want to import into the current package
-or would you like to create a new project and
-import into that?
-Current
-New Project
-Cancel
+Tiene un paquete abierto actualmente en esta ventana.
+Desea importar en el paquete actual o desea crear
+un proyecto nuevo e importar alli?
+
+Actual
+Proyecto Nuevo
+Cancelar
 
 package-name-invalid
-You have changed the package statement
-to a package which does not exist in this project.
-If you wish to move this class to another
-package you must create the destination
-package first. The package statement has been
-reverted back to its original form.
+Cambio la sentencia del paquete hacia un
+paquete que no existe en este proyecto.
+Si desea mover esta clase a otro paquete debe
+crear el paquete destino primero.
+La sentencia fue revertida a su forma original.
 
 package-name-changed
-You have changed the package statement which
-tells Java the package this class is in. Do you
-want to move this class to the indicated package
-or do you want to leave the class where it is
-(the package statement will be reverted back to
-its original form)?
-Move
-Revert
+Cambio la sentencia de paquete que le dice a
+Java en que clase esta este paquete. Quiere
+mover esta clase al paquete indicado o dejarlo
+donde esta? (La sentencia sera revertida a su
+forma original)
+
+Mover
+Revertir
 null
 
 ask-index
-Enter array element index [...]
-Array Inspection
+Ingrese un indice de elemento [...]
+Examinar Arreglo
 null
 
 classmgr-changes-no-effect
-The changes you have made to the class libraries
-will not take effect until the next time you
-start BlueJ.
+Los cambios hechos a la libreria de clases
+no surtiran efecto hasta que reinicie BlueJ.
 
 # editor:
 #########
 
 no-search-string
-No search string is defined.
-(Highlight some text or use 'Find' first.)
+No hay cadena de busqueda definida.
+(Resalte algun texto o use 'Buscar' primero.)
+
 
 default-keys
-Do you really want to discard all your
-key bindings and set the default
-bindings?
+Desea realmente descartar todos los
+enlaces clave y colocar los que vienen
+por defecto?
 Set defaults
-Cancel
+Cancelar
 null
