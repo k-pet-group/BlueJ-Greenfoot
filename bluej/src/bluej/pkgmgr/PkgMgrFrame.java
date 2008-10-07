@@ -60,7 +60,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 5907 2008-09-26 10:20:21Z polle $
+ * @version $Id: PkgMgrFrame.java 5922 2008-10-07 15:31:06Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1287,23 +1287,23 @@ public class PkgMgrFrame extends JFrame
                 // file, with the .jar extension stripped.
                 
                 oPath = new File(oPath, jarName.getName().substring(0, jarName.getName().length() - 4));
-                if (! oPath.canWrite()) {
-                    DialogManager.showErrorWithText(this, "jar-output-no-write", jarName.toString());
+                if (oPath.exists()) {
+                    DialogManager.showErrorWithText(this, "jar-output-dir-exists", oPath.toString());
                     return;
                 }
                 else if (! oPath.mkdir()) {
-                    DialogManager.showErrorWithText(this, "jar-output-dir-exists", oPath.toString());
+                    DialogManager.showErrorWithText(this, "jar-output-no-write", jarName.toString());
                     return;
                 }
             }
             else {
                 File prefixFolderFile = new File(oPath, prefixFolder);
-                if (! prefixFolderFile.canWrite()) {
-                    DialogManager.showErrorWithText(this, "jar-output-no-write", jarName.toString());
+                if (prefixFolderFile.exists()) {
+                    DialogManager.showErrorWithText(this, "jar-output-dir-exists", prefixFolderFile.toString());
                     return;
                 }
-                else if (! prefixFolderFile.mkdir()) {
-                    DialogManager.showErrorWithText(this, "jar-output-dir-exists", prefixFolderFile.toString());
+                if (! prefixFolderFile.mkdir()) {
+                    DialogManager.showErrorWithText(this, "jar-output-no-write", jarName.toString());
                     return;
                 }
             }
