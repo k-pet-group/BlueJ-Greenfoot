@@ -5,11 +5,13 @@ The next update column indicates whether it is likely that the translator will d
 language        last update     next update    comment         translator
 --------------------------------------------------------------------------------------------------------------
 brazilian                            x          tutorial       Herodoto Bento-DeMello <herodotomello@yahoo.com.br>
-french          1.4.6                x          labels         Guillaume Baudoin <gbaudoin@gmail.com>
+french          1.5.0                x          labels         Guillaume Baudoin <gbaudoin@gmail.com>
 german          1.4?                                           Michael Kolling
+greek           1.5.0                x                         Dragon Turtle <super_provato@hotmail.com>
 indian?                              x                         Kiran Kumar D <mail2dkiran@gmail.com>
+italian         1.5.0                x                         Stefano Federici <s_federici@yahoo.com>
 malayalam                            x                         K.R.Arun <code333@gmail.com> 
-spanish                              x                         Iris Gutierrez <igutierrez@cubecorp.com.ar> AND Luis Mijangos <mijangos3@msn.com>
+spanish                              x                         Kenneth Daly <kennethdaly@gmail.com> (AND Iris Gutierrez <igutierrez@cubecorp.com.ar> AND Luis Mijangos <mijangos3@msn.com>)
 
 IMPORTANT: 
 When adding a new translation, it should be added in the build script: package/build.xml
