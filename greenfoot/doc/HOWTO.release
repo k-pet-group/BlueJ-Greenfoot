@@ -9,12 +9,14 @@ Building Greenfoot:
  
  
 Subversion:
- Create tag dir:
+ Create tag dir (not needed when using Eclipse):
    svn+ssh://cvs.bluej.org/home/bluej/svnroot/tags/GREENFOOT_RELEASE_X_Y_Z
- Tag BlueJ
+ Tag BlueJ 
+  Don't forget bluej at the end of the path
   from: svn+ssh://cvs.bluej.org/home/bluej/svnroot/trunk/bluej
   to: svn+ssh://cvs.bluej.org/home/bluej/svnroot/tags/GREENFOOT_RELEASE_X_Y_Z/bluej
- Tag Greenfoot
+ Tag Greenfoot 
+  Don't forget greenfoot at the end of the path
   from: svn+ssh://cvs.bluej.org/home/bluej/svnroot/trunk/greenfoot
   to: svn+ssh://cvs.bluej.org/home/bluej/svnroot/tags/GREENFOOT_RELEASE_X_Y_Z/greenfoot
  
