@@ -789,3 +789,8 @@ Leider kein Hilfetext verf\u00fcgbar.
 
 * conflicts with a compiler-synthesized symbol in *
 Leider kein Hilfetext verf\u00fcgbar.
+
+reached end of file while parsing
+Das bedeutet, dass ein Block mit '{' ge\u00f6ffnet aber nicht mit '}' geschlossen
+wurde. Es gibt also entweder ein '{', wo es nicht ben\u00f6tigt wird, oder es
+fehlt ein '}', wo es gebraucht wird.

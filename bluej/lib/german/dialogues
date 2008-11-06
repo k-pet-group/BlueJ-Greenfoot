@@ -136,6 +136,12 @@ directory-exists
 Eine Datei oder ein Verzeichnis mit diesem
 Namen ist bereits vorhanden.
 
+cannot-create-directory
+Kann Verzeichnis nicht erzeugen. \u00dcberpr\u00fcfen
+Sie, dass es einen g\u00fcltigen Namen hat und
+dass das Elternverzeichnis existiert und
+beschreibbar ist.
+
 cannot-copy-package
 Es gab ein Problem beim Kopieren der 
 Paket-Dateien. Das Paket wurde nicht
@@ -431,6 +437,11 @@ Das Ausgabeverzeichnis f\u00fcr das Archive, das gerade entpackt wird,
 existiert bereits. Sie m\u00fcssen das Verzeichnis l\u00f6schen, bevor Sie 
 das Archiv entpacken k\u00f6nnen.
 
+jar-output-no-write
+Das Ausgabeverzeichnis kann nicht erzeugt werden. Stellen Sie
+sicher, dass Sie das Archiv zuerst in ein beschreibbares 
+Verzeichnis kopieren.
+
 jar-extraction-error
 W\u00e4hrend des Entpackens des Archivs trat ein Fehler auf. Die
 Debug-Logdatei enth\u00e4lt m\u00f6glicherweise weitere Informationen.
@@ -478,10 +489,32 @@ Ihre Arbeitskopie ist nicht mehr aktuell. Holen Sie eine
 Aktualisierung aus dem Repository bevor Sie ihre lokalen
 \u00c4nderungen abgeben k\u00f6nnen.
 
+team-cant-connect
+Kann nicht mit dem Server verbinden. \u00dcberpr\u00fcfen Sie,
+ob die Adresse korrekt in die Team-Einstellungen
+eingetragen wurde.
+
+team-project-exists
+Da Projekt existiert bereits auf dem Server. Entweder
+Sie erstellen von dem existierenden Projekt eine 
+Arbeitskopie oder Sie benennen Ihr Projekt um und 
+stellen es danach zur gemeinsamen Nutzung bereit.
+
+team-cant-find-path
+Der Pfad kann auch dem Server nicht gefunden werden. Entweder
+die angegebene Gruppe oder das Projekt existiert nicht auf
+dem Server. \u00dcberpr\u00fcfen Sie, ob diese korrekt in die 
+Team-Einstellungen eingetragen wurden und ob sie auf dem 
+Server existieren.
+
 team-cant-find-module
 Ihr Projekt ist nicht im Repository. Ein Projekt muss gemeinsam 
 genutzt werden (in das Repository gestellt werden), bevor Sie eine
 Arbeitskopie davon erstellen k\u00f6nnen.
+
+team-cant-find-repository
+Das Repository kann nicht gefunden werden. \u00dcberpr\u00fcfen
+Sie den Pfad zum Repository in den Team-Einstellungen.
 
 team-empty-message
 Ein unbekannter Fehler ist aufgetreten. \u00dcberpr\u00fcfen Sie die Teamarbeits-
@@ -503,4 +536,15 @@ Die Datei wurde in der Arbeitskopie ge\u00e4ndert, aber es gibt auch
 \u00c4nderungen im Repository.
 Meine Version behalten
 Repository-Version verwenden
+null
+
+not-all-compiled
+Nicht alle Klassen dieses Projekts sind kompiliert. Um die MIDlet-Suite
+bereitstellen zu k\u00f6nnen, m\u00fcssen Sie alle Klassen des Projekts kompilieren.
+
+error-midleticon-exists
+Die Datei, die Sie ausgew\u00e4hlt haben, ist bereits im res/icons-Verzeichnis
+dieses Projekts. M\u00f6chten Sie sie \u00fcberschreiben?
+\u00dcberschreiben
+Abbrechen
 null
