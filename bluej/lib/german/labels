@@ -90,7 +90,7 @@ prefmgr.misc.libFileFilter=Bibliotheksdateien (*.jar;*.zip) oder Klassenverzeich
 prefmgr.misc.showUnchecked=Warnungen des Compilers anzeigen, falls unsichere Collections verwendet werden
 prefmgr.misc.wtk.dir.label=Drahtloswerkzeug-Verzeichnis
 prefmgr.misc.wtk.button=Durchsuchen...
-prefmgr.misc.filechooser.title=Wähle Drahtloswerkzeug-Verzeichnis
+prefmgr.misc.filechooser.title=W\u00e4hle Drahtloswerkzeug-Verzeichnis
 
 prefmgr.edit.prefpaneltitle=Editor
 prefmgr.edit.editor.title=Editoreinstellungen
