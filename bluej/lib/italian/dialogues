@@ -1,405 +1,314 @@
 compile-while-executing
-Non puoi compilare mentre la macchina
-\u00e8 in esecuzione: potresti ottenere
-strani problemi.
+Usted no puede compilar mientras la m\u00e1quina
+est\u00e1 ejecutando. Esto podr\u00eda causar problemas
+extra\u00f1os!
 
 exception-thrown
-Si \u00e8 verificata una eccezione:
+Una excepci\u00f3n fue lanzada:
 
 break-no-source
-C'\u00e8 un breakpoint in un file di cui non
-si trova il sorgente. Il nome del file \u00e8:
+Se alcanz\u00f3 un Breakpoint en un archivo para el
+cual no se encontr\u00f3 c\u00f3digo fuente.  Nombre de Archivo:
 
 error-in-file
-Si \u00e8 verificato un errore in un file di
-cui non si trova il sorgente.
-classe: numero di linea nel sorgente:
+Un error ocurri\u00f3 en un archivo para el cual el
+c\u00f3digo fuente no pudo ser encontrado.
+NombredeArchivo:n\u00famero de l\u00ednea / mensaje de error:
 
 system-exit
-Il metodo \u00e8 terminato con una istruzione
-"exit" esplicita. Non \u00e8 stato restituito
-nessun valore. Il codice di uscita \u00e8:
+El m\u00e9todo finaliz\u00f3 a trav\u00e9s de una instrucci\u00f3n
+"exit" expl\u00edcita. Ning\u00fan resultado fue
+retornado. El c\u00f3digo de salida es:
 
 no-help
-Per questo messaggio non \u00e8 disponibile nessun aiuto.
-Per favore, invia il testo di questo messaggio
-all'indirizzo: mik@bluej.org - il relativo testo di
-aiuto sar\u00e0 aggiunto al nostro database. Grazie.
-
-editor-crashed
-Probabilmente BlueJ \u00e8 andato in crash mentre salvava
-su disco questa classe. Il codice sorgente potrebbe
-essere incompleto o mancante. Dovrebbe esserci una copia
-di sicurezza di questa classe nella directory del
-progetto. Se ti sembra che il codice sia danneggiato:
-   1 - chiudi BlueJ
-   2 - fai una copia di sicurezza della directory
-       del progetto (se esiste)
-   3 - cerca nella directory del progetto la copia
-       del file java di questa classe; rinominalo col
-       nome del file originale (con estensione '.java').
+NO existe ayuda disponible para este mensaje.
+Por favor env\u00ede por e-mail el mensaje de error a
+mik@bluej.org - luego nosotros le agregaremos un
+texto de ayuda a nuestra base de datos de ayuda. Gracias.
 
 cannot-run-compiler
-Non \u00e8 possibile avviare il compilatore.
-Verifica se il programma \u00e8 nel path.
-Il nome del compilatore \u00e8:
+No puede ejecutar el compilador. El programa
+est\u00e1 en su ruta de acceso?
+Nombre del compilador:
 
 compiler-error
-Errore del compilatore:
+Error de Compilador:
 
 stream-incomplete
-Errore del compilatore. Stream incompleto.
+Error de Compilador. Error flujo incompeto.
 
 out-of-bounds
-L'elemento specificato non
-\u00e8 nei limiti dell'array.
+El elemento especificado no est\u00e1
+dentro de los l\u00edmites del arreglo.
 
 cannot-access-element
-Non \u00e8 possibile accedere
-all'elemento specificato dell'array.
+No disponible para acceder el
+elemento especificado del arreglo.
 
 appletviewer-error
-Errore nell'esecuzione dell'applet nell'appletviewer.
+Error ejecutando applet en appletviewer.
 
 error-no-name
-Hai specificato un nome non valido.
+Usted debe especificar un nombre v\u00e1lido.
 
 error-save-file
-Si \u00e8 verificato un errore durante il
-salvataggio del file. Salvataggio non eseguito.
+Un error ocuri\u00f3 cuando trataba de guardar
+el archivo. El archivo no fue guardado.
 
 cannot-save-keys
-Si \u00e8 verificatoun errore durante il salvataggio
-delle combinazioni di tasti. Le combinazioni
-non sono state salvate.
-
-error-no-templates
-La directory specificata del template (quella in cui
-BlueJ trova i template di classe) non esiste.
-E' definita dalla propriet\u00e0 "bluej.templatePath" in
-<bluej-home>/lib/bluej.defs. Verifica questa propriet\u00e0.
+Un error occurri\u00f3 mientras trataba de guardar
+los enlaces clave. Los enlaces no fueron
+guardados.
 
 skeleton-error
-Lo schema predefinito della classe non pu\u00f2 essere
-generato. Ci\u00f2 pu\u00f2 essere dovuto a configurazioni
-errate in BlueJ, oppure a problemi di accesso
-al file system.
+El esqueleto por defecto para la clase no pudo ser
+generado. Esto puede ser debido a un error de configuraci\u00f3n
+en la instalaci\u00f3n de BlueJ, o debido a problemas de acceso
+a archivos del sistema.
 
 error-open-source
-Non \u00e8 possibile aprire
-il sorgente di questa classe.
+No puede abrir el c\u00f3digo fuente
+de esta clase.
+
+error-open-readme
+Existe un problema abriendo la nota de texto
+de este proyecto. Una nueva nota de texto
+vac\u00eda ha sido creada.
 
 error-writing-readme
-Si \u00e8 verificato un errore nell'aggiornamento
-del file README di questo progetto: non \u00e8 possibile
-aggiungere le informazioni della classe main.
+El archivo README para este proyecto no pudo ser
+actualizado para agregar la informaci\u00f3n de la clase principal.
+Hubo un error cambiando este archivo.
 
 error-exporting
-Si \u00e8 verificato un errore durante l'esportazione
-dell'applicazione. Alcuni o tutti i file potrebbero
-non essere stati copiati correttamente.
+Un error ocurri\u00f3 mientras trataba de exportar la
+aplicaci\u00f3n. Algunos o todos los archivos npudieron no
+haber sido copiados correctamente.
 
 error-writing-jar
-Il file jar non pu\u00f2 essere scritto correttamente.
-Verifica i diritti di accesso al file system e
-la disponibilit\u00e0 di spazio disco.
+El archivo jar no pudo ser escrito correctamente.
+(Chequee el sistema de archivos por derechos de
+acceso y disponibilidad en espacio en disco.)
 
 error-jar-exists
-Un file jar col nome scelto esiste gi\u00e0.
-Vuoi continuare comunque?
-Sovrascrivi
-Annulla
+El Archivo jar que seleccion\u00f3 ya esiste.
+Desea continuar?
+Sobreescribir
+Cancelar
 null
 
 invalid-class-name
-Nome di classe non valido.
+Nombre de Clase Inv\u00e1lido.
 
 invalid-package-name
-Nome di package non valido.
+Nombre de Paquete Inv\u00e1lido.
 
 directory-exists
-Un file o una directory con
-questo nome esiste gi\u00e0.
+Un archivo o directorio con este
+nombre ya existe.
 
 cannot-copy-package
-Si \u00e8 verificato un problema durante
-la copia dei file del package. Potrebbero
-essere incompleti o mancanti.
+Hubo un problema copiando los archivos
+del paquete. El paquete no fue
+escrito o puede estar incompleto.
 
 file-does-not-exist
-Il file specificato
-non esiste.
+El archivo especificado
+no existe.
 
 cannot-import
-Non riesco ad importare il file.
-Deve essere un file sorgente Java
-(deve terminare con estensione ".java").
+No puede importar el archivo. El archivo debe
+ser un archivo fuente Java (su nombre
+debe terminar en ".java").
 
 docdir-blocked-by-file
-Non riesco a creare la directory della 
-documentazione nella directory del progetto
-perch\u00e9 esiste gi\u00e0 un file con lo stesso nome.
+El directorio para la documentaci\u00f3n no pudo ser
+creado en el directorio de proyecto debido a
+que existe un archivo con el mismo nombre.
 
 docdir-not-created
-Non riesco a creare la directory della 
-documentazione nella directory del progetto.
+El directorio para la documentaci\u00f3n no pudo
+ser creado en el directorio del proyecto.
 
 no-permission-for-docdir
-Non riesco a creare la directory della 
-documentazione nella directory del progetto
-perch\u00e9 i diritti d'accesso sono insufficienti.
+El directorio para la documentaci\u00f3n no pudo
+ser creado en el directorio de proyectos
+compile-while-executing
+Usted no puede compilar mientras la m\u00e1quina
+est\u00e1 ejecutando. Esto podr\u00eda causar problemas
+extra\u00f1os!
 
 show-or-generate
-Vuoi utilizzare la documentazione preesistente,
-o preferisci rigenerarla interamente?
-Utilizza la preesistente
-Rigenerala
-Annulla
+Desea mostrar la documentaci\u00f3n
+generada previamente, o desea
+regenerar toda la documentaci\u00f3n?
+Solo Mostrar
+Regenerar
+Cancelar
 
 doctool-error
-Javadoc ha riportato un errore. Potrebbe esserci un errore
-di sintassi in uno dei file per i quali hai tentato di
-generare la documentazione, oppure l'URL della documentazione
-del JDK specificato nelle preferenze non \u00e8 corretto.
-Assicurati che tutti i tuoi file Java siano compilati e che
-l'URL della documentazione \u00e8 accessibile o disabilitato, quindi
-prova di nuovo. Se questo messaggio appare ancora cerca maggiori
-informazioni sugli errori da Javadoc nel file di log:
+Javadoc report\u00f3 un error. Puede ser que exista un
+error de sintaxis en uno de los archivos para los que
+trato de generar una documentaci\u00f3n. Tambien puede ser
+que la URL de documentaci\u00f3n especificada en las
+preferencias sea incorrecta. Asegurese que todos
+sus archivos java han sido compilados y que la URL
+de documentaci\u00f3n esta accesible o desactivada.
+Despues intente de nuevo. Si este mesaje aparece de
+nuevo deber\u00eda revisar la bit\u00e1cora con mesajes de error
+provenientes de Javadoc:
 
 severe-doc-trouble
-Si \u00e8 verificata una eccezione nella chiamata
-allo strumento di documentazione esterno.
+Ocurri\u00f3 una excepci\u00f3n durante una llamada
+a una herramienta de documentaci\u00f3n externa.
 
 no-java-sources-found
-Non trovo file sorgenti
-Java in questa directory.
+Ningun archivo fuente de Java se
+encontr\u00f3 en este directorio.
 
 duplicate-name
-In questo package esiste gi\u00e0 una classe
-con questo nome. Non puoi usare lo stesso
-nome per due classi.
+Una clase con este nombre ya existe
+en este paquete. No puede tener dos
+clases con el mismo nombre.
 
 error-in-import
-Si \u00e8 verificato un errore durante il
-tentativo di importazione del file.
-Verifica i diritti d'accesso e lo spazio disco.
-
-no-class-selected-compile
-Non \u00e8 stata scelta nessuna classe da
-compilare. Prima di provare a compilare
-scegli una classe facendo click su essa.
+Ocurri\u00f3 un error durante un intento de
+importar un archivo. Revise los derechos
+de aceso y el espacio en disco.
 
 no-class-selected
-Non sono stati selezionati classi o package
-da rimuovere. Scegli le classi e i package
-da rimuovere facendo click su essi.
+No ha seleccionado una clase o un paquete
+para eliminar. Seleccione una clase o un
+paquete haciendo clic sobre el antes de
+intentar borrar
 
 really-remove-class
-L'eliminazione delle classi canceller\u00e0
-definitivamente i relativi file sorgente.
-Vuoi continuare?
-Elimina
-Annulla
+Borrando esta esta clase eliminara de
+forma definitiva el archivo fuente.
+Desea continuar?
+Eliminar
+Cancelar
 null
 
 really-remove-package
-L'eliminazione di questo package canceller\u00e0
-definitivamente la directory relativa
-(compreso TUTTO il contenuto della directory).
-Vuoi continuare?
-Elimina
-Annulla
+Borrando este paquete eliminara el
+directorio y TODO lo que contiene
+Desea continuar?
+Eliminar
+Cancelar
 null
 
 remove-package-open
-Alcuni dei sub package del package
-che hai scelto di cancellare sono
-aperti con BlueJ. Devi chiuderli
-prima che ti sia permesso
-cancellare il package.
+EL paquete que seleccion\u00f3 para eliminar
+tiene algunos subpaquetes abiertos en
+BlueJ. Debe cerrarlos para poder eliminar.
 
 package-does-not-exist
-Errore nell'apertura del package.
-Il package non esiste:
+Error abriendo paquete.
+El paquete no existe:
 
 no-bluej-package
-Errore nell'apertura del package.
-Il file o directory non \u00e8 un
-package di BlueJ:
+Error abriendo paquete.
+El Archivo o directorio no es
+un paquete BlueJ:
 
 applet-height-width
-Devi specificare l'altezza
-e la larghezza del package.
+Alto y ancho del Applet
+deben ser especificados.
 
 cannot-read-help
-Non riesco a leggere il file di aiuto:
+No puedo leer archivo de ayuda:
 
 not-yet-implemented
-Spiacente: non ancora implementato.
+No esta implementado todavia - Lo siento!
 
 quit-all
-Chiudo tutti i progetti aperti?
-Chiudi tutto
-Annulla
+Abandonar todos los proyectos abiertos?
+Abandonar todo
+Cancelar
 null
 
 really-reload
-Ricaricando perderai tutti i cambiamenti
-fatti dall'ultimo salvataggio.
-Sei sicuro?
-Ricarica
-Annulla
+Recargar descarta todos los cambios desde la
+ultima edici\u00f3n.
+Esta seguro?
+Recargar
+Cancelar
 null
 
 really-print
-Il testo \u00e8 pi\u00f9 ampio della carta, per cui le
-linee lunghe saranno troncate. Per evitarlo
-rimpicciolisci la finestra dell'Editor.
-Vuoi stampare comunque?
-Stampa
-Annulla
+La anchura del texto es mayor que la anchura
+del papel. Lineas anchas deben ser recortadas.
+Puede evitar esto cambiando el tama\u00f1o de la
+ventana del editor para hacerla mas estrecha.
+quiere imprimir de todas maneras?
+Imprimir
+Cancelar
 null
 
 open-non-bluej-already-bluej
-La directory che hai scelto \u00e8 gi\u00e0
-un progetto BlueJ.
-
-open-non-bluej-no-java
-In questa directory non ci
-sono file sorgenti Java.
+El directorio seleccionado ya es un proyecto
+BlueJ.
 
 open-non-bluej-invalid
-La directory che hai indicato di voler aprire
-come un progetto BlueJ contiene un file con
-una istruzione di package incompatibile con la
-struttura corrente di directory (ad esempio,
-se la classe Java Shape.java ha una riga con
-l'istruzione di package com.aa, allora il file
-Shape.java deve essere in una directory aa
-contenuta in una directory com. A sua volta la
-directory com deve essere in un'altra directory
-che \u00e8 quella da indicare a BlueJ quando si
-tenta di aprire il progetto).
+Ud. indico abrir este directorio como un proyecto
+BlueJ, pero se encontr\u00f3 un archivo con una sentencia
+de paquete que es incompatible con la estructura de
+direcorio actual. (Por ejemplo, si la clase de Java
+Shape tiene una linea de paquete de com.aa, entonces
+el archivo Shape.java debe estar dentro de un directorio
+aa que a su vez es un derectorio de com. Este directorio
+com debe estar a su vez en otro directorio el cual Ud.
+indicar\u00e1 a BlueJ cuando desee abrirlo).
 
 import-into-current
-In questa finestra \u00e8 gi\u00e0 aperto un package.
-Vuoi importare nel package corrente,
-o preferisci creare un nuovo progetto
-e importare in quest'ultimo?
-Nel corrente
-In un nuovo progetto
-Annulla
+Tiene un paquete abierto actualmente en esta ventana.
+Desea importar en el paquete actual o desea crear
+un proyecto nuevo e importar alli?
+
+Actual
+Proyecto Nuevo
+Cancelar
 
 package-name-invalid
-Il package indicato nell'istruzione di package
-che hai modificato non esiste in questo progetto.
-Se vuoi spostare questa classe in un altro package
-devi prima creare il package di destinazione.
-L'istruzione di package \u00e8 stata riportata
-alla forma originale.
-
-package-name-clash
-Hai modificato l'istruzione di package usando
-un nome gi\u00e0 utilizzato per una classe o un
-altro package. Spostando la classe, la classe
-o il package originario sarebbero sovrascritti, 
-per cui l'istruzione di package \u00e8 stata
-riportata alla sua forma originale.
+Cambio la sentencia del paquete hacia un
+paquete que no existe en este proyecto.
+Si desea mover esta clase a otro paquete debe
+crear el paquete destino primero.
+La sentencia fue revertida a su forma original.
 
 package-name-changed
-Hai modificato l'istruzione di package che
-specifica in quale package si trova la classe.
-Vuoi spostare questa classe nel package indicato
-o vuoi lasciare la classe dove si trova
-(l'istruzione di package sar\u00e0 riportata alla
-sua forma originale)?
-Sposta
-Lascia dov'\u00e8
+Cambio la sentencia de paquete que le dice a
+Java en que clase esta este paquete. Quiere
+mover esta clase al paquete indicado o dejarlo
+donde esta? (La sentencia sera revertida a su
+forma original)
+
+Mover
+Revertir
 null
 
 ask-index
-Immetti l'indice dell'elemento dell'array [...]
-Ispeziona l'Array
+Ingrese un indice de elemento [...]
+Examinar Arreglo
 null
 
 classmgr-changes-no-effect
-I cambiamenti che hai fatto alle librerie di
-classe non avranno effetto sino al successivo
-riavvio di BlueJ.
+Los cambios hechos a la libreria de clases
+no surtiran efecto hasta que reinicie BlueJ.
 
-pref-optimise-no-effect
-Le modifiche nella configurazione della virtual machine
-avranno effetto solo sui progetti che apri successivamente
-(a meno di non riavviare la virtual machine).
-
-unittest-new-test-method
-Indica un nome per questo test,
-poi comincer\u00e0 la registrazione.
-Nuovo metodo Test
-null
-
-getobject-new-name
-Specifica il nome del nuovo oggetto
-nella barra degli oggetti
-Nuovo nome dell'oggetto
-null
-
-unittest-fixture-present
-Questa classe unit\u00e0 di test contiene gi\u00e0 una
-fixture, la cui definizione sar\u00e0 sostituita,
-se continui.
-Vuoi continuare?
-Sostituisci
-Annulla
-null
-
-unittest-method-present
-Questa classe unit\u00e0 di test contiene gi\u00e0 un metodo
-test dichiarato con lo stesso nome. Se continui la 
-definizione del metodo verr\u00e0 sostituita.
-Vuoi continuare?
-Sostituisci
-Annulla
-null
+# editor:
+#########
 
 no-search-string
-Non \u00e8 definita alcuna stringa di ricerca.
-(Evidenzia del testo, oppure prima usa 'Trova').
+No hay cadena de busqueda definida.
+(Resalte algun texto o use 'Buscar' primero.)
+
 
 default-keys
-Vuoi davvero annullare tutte le
-combinazioni di tasti e tornare
-alla configurazione iniziale?
-Configurazione iniziale
-Annulla
+Desea realmente descartar todos los
+enlaces clave y colocar los que vienen
+por defecto?
+Set defaults
+Cancelar
 null
-
-error-create-vm
-BlueJ non ha potuto creare una Virtual Machine (VM) per eseguire i progetti.
-Questo \u00e8 un problema grave: se non lo risolvi non potrai creare oggetti o
-eseguire metodi.
-Spesso questo problema \u00e8 dovuto a particolari configurazioni di rete del
-tuo computer, in quanto BlueJ usa TCP/IP e socket per la creazione della VM.
-Una causa molto comune per questi problemi \u00e8 la presenza di un firewall
-che non permette connessioni dal localhost. Se hai un firewall, prova a
-disabilitarlo, e se ci\u00f2 risolve cerca una configurazione del firewall che
-consenta connessioni dal localhots.
-Un'altra possibile causa \u00e8 data da configurazioni di rete errate. Verifica
-che il TCP/IP e gli altri parametri di rete siano configurati correttamente.
-Se ancora non riesci a risolvere il problema, chiedi aiuto (prova
-all'indirizzo http://www.bluej.org/help/ask-help.html).
-
-project-is-readonly
-Il progetto \u00e8 di sola lettura: non potrai creare oggetti o eseguire metodi.
-Forse hai diritto di sola lettura per la directory del progetto, oppure
-l'intero file system \u00e8 di sola lettura (ad esempio se \u00e8 un CD).
-Per poter usare completamente il progetto, devi assicurarti che sia in un
-file system scrivibile (tipicamente un hard disk), e che tu abbia diritto
-di scrittura sulla directory del progetto e tutti i suoi file.
-
-could-not-write-shell-file
-L'esecuzione \u00e8 fallita perch\u00e8 non \u00e8 possibile scrivere nella directory
-del progetto, il che \u00e8 necessario per creare oggetti o eseguire metodi.
-Assicurati che il progetto sia in un file system scrivibile (ad esempio
-non in un CD) e di avere diritti di scrittura per la directory del 
-progetto e per tutti i suoi file.

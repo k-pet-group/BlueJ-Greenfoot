@@ -1,12 +1,12 @@
 NullPointerException*
-Du försökte accessa ett objekt (antingen ett fält
+Du f\u00f6rs\u00f6kte accessa ett objekt (antingen ett f\u00e4lt
 i ett objekt eller ett objekts meddelande). Det gick
-inte på grund av att referensen du använde för att
-nå objektet var 'null'. Till exempel: Du skrev
+inte p\u00e5 grund av att referensen du anv\u00e4nde f\u00f6r att
+n\u00e5 objektet var 'null'. Till exempel: Du skrev
 "thing.print()", and "thing" var 'null'.
 
 ArithmeticException*
-Något gick fel vid en aritmetisk operation,
+N\u00e5got gick fel vid en aritmetisk operation,
 tex. division med 0.
 
 StringIndexOutOfBoundsException*
@@ -116,6 +116,6 @@ UnsupportedOperationException*
 No help available - sorry.
 
 Exception
-Det här är ett generellt undantag som bara
-anger att något har gått fel. Jag har ingen
+Det h\u00e4r \u00e4r ett generellt undantag som bara
+anger att n\u00e5got har g\u00e5tt fel. Jag har ingen
 aning om vad...

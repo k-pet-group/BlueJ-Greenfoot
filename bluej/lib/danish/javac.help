@@ -1,3 +1,5 @@
+#BlueJ/Greenfoot dialogues.
+#Sat Nov 08 17:57:20 GMT 2008
 as of release 1.4, 'assert' is a keyword, and may not be used as an identifier
 Ordet 'assert' er nu en del af Java sproget
 og har en speciel betydning (det er et n\u00F8gleord).
@@ -61,7 +63,7 @@ Fors\u00F8g p\u00E5 at kalde medlems-metoderne af superklassen f\u00F8r
 dens konstrukt\u00F8r, skal g\u00E5 galt!
 
 cannot access *
-Ingen tilg\u00E6ngelig hj\u00E6lp.
+Ingen tilg\u00E6ngelig hj\u00E6lp
 
 cannot assign a value to final variable *
 Variablen du pr\u00F8ver at tildele en v\u00E6rdi her, er
@@ -708,9 +710,6 @@ symbol. Pr\u00F8v at overveje hvorfor dette
 symbol kan v\u00E6re forventet her.
 
 orphaned *
-Ingen tilg\u00E6ngelig hj\u00E6lp
-
-cannot access *
 Ingen tilg\u00E6ngelig hj\u00E6lp
 
 type parameter {0} is not within its bound *

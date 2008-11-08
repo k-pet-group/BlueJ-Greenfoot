@@ -6,34 +6,34 @@
 
 ## edit functions
 
-delete-previous=\n Radera tecknet närmast föregående markören.
-delete-next=\n Radera tecknet närmast efter markören.
-copy-to-clipboard=\n Kopiera markerad text till klippboken. Därifrån kan den\n sedan klistras in någon annanstans (se paste-from-clipboard).
-cut-to-clipboard=\n Klipp ut markerad text till klippboken. Därifrån kan den\n sedan klistras in någon annanstans (se paste-from-clipboard).
+delete-previous=\n Radera tecknet n\u00e4rmast f\u00f6reg\u00e5ende mark\u00f6ren.
+delete-next=\n Radera tecknet n\u00e4rmast efter mark\u00f6ren.
+copy-to-clipboard=\n Kopiera markerad text till klippboken. D\u00e4rifr\u00e5n kan den\n sedan klistras in n\u00e5gon annanstans (se paste-from-clipboard).
+cut-to-clipboard=\n Klipp ut markerad text till klippboken. D\u00e4rifr\u00e5n kan den\n sedan klistras in n\u00e5gon annanstans (se paste-from-clipboard).
 copy-line=\n Copy the current line to the clipboard. Successive \n copy operations add to the clipbord.
 cut-line=\n Cut the current line to the clipboard. Successive \n cut operations add to the clipbord.
 cut-end-of-line=\n Cut the end of the current line to the clipboard.\n Successive cut operations add to the clipbord.
 cut-word=\n Cut the current word to the clipboard. Successive \n cut operations add to the clipbord.
 cut-end-of-word=\n Cut the end of the current word to the clipboard.\n Successive cut operations add to the clipbord.
-paste-from-clipboard=\n Klistra in den text som för närvarande finns i klippboken.\n Inklippet kommer hamna där markören befinner sig.
+paste-from-clipboard=\n Klistra in den text som f\u00f6r n\u00e4rvarande finns i klippboken.\n Inklippet kommer hamna d\u00e4r mark\u00f6ren befinner sig.
 insert-tab=\n Infoga ett tabulatortecken.
 insert-spaced-tab=\n Insert spaces to the next TAB position. (That is: perform\n a TAB operation using spaces instead of a real TAB character).
-insert-break=\n Infoga ett radslutstecken där markören befinner sig.
+insert-break=\n Infoga ett radslutstecken d\u00e4r mark\u00f6ren befinner sig.
 insert-break-and-indent=\n Insert a line break at the caret position\n and indent as the line above.
 indent=\n Adjust the indentation of the current line to be the same as that\n of the line above.
-insert-method=\n Infoga mall för Java metod.
-comment=\n Kommentera bort markerad kod.\n Koden kan lätt återställas senare (se uncomment).
-uncomment=\n Ta bort kommentarsymboler från markerad text. (se comment)
+insert-method=\n Infoga mall f\u00f6r Java metod.
+comment=\n Kommentera bort markerad kod.\n Koden kan l\u00e4tt \u00e5terst\u00e4llas senare (se uncomment).
+uncomment=\n Ta bort kommentarsymboler fr\u00e5n markerad text. (se comment)
 
-select-word=\n Markera aktuellt ord (även bundet till vänster musknapp: dubbelklick).
-select-line=\n Markera aktuell rad (även bundet till vänster musknapp: trippelklick).
+select-word=\n Markera aktuellt ord (\u00e4ven bundet till v\u00e4nster musknapp: dubbelklick).
+select-line=\n Markera aktuell rad (\u00e4ven bundet till v\u00e4nster musknapp: trippelklick).
 select-paragraph=\n Markera aktuell paragraf.
 select-all=\n Markera hela texten
-selection-backward=\n Utöka markering ett tecken bakåt.
-selection-forward=\n Utöka markering ett tecken framåt.
-selection-up=\n Utöka markering en rad uppåt.
-selection-down=\n Utöka markering en rad nedåt.
-selection-begin-word=\n Flytta slutet av markeringen till början av\n aktuellt ord.
+selection-backward=\n Ut\u00f6ka markering ett tecken bak\u00e5t.
+selection-forward=\n Ut\u00f6ka markering ett tecken fram\u00e5t.
+selection-up=\n Ut\u00f6ka markering en rad upp\u00e5t.
+selection-down=\n Ut\u00f6ka markering en rad ned\u00e5t.
+selection-begin-word=\n Flytta slutet av markeringen till b\u00f6rjan av\n aktuellt ord.
 selection-end-word=\n Flytta slutet av markeringen till slutet av\n aktuellt ord.
 selection-previous-word=\n Move the end of the selection to the beginning of\n the previous word.
 selection-next-word=\n Move the end of the selection to the beginning of\n the next word.
@@ -105,8 +105,8 @@ toggle-breakpoint=\n Set or clear a breakpoint in the current line.
 
 ## help texts for adding key bindings
 
-press-key=\n Ange önskat tangentkommando genom att trycka ner tangenterna...
-cannot-redefine=\n Tangenter som resulterar i utskrift på skärmen kan inte omdefinieras.
+press-key=\n Ange \u00f6nskat tangentkommando genom att trycka ner tangenterna...
+cannot-redefine=\n Tangenter som resulterar i utskrift p\u00e5 sk\u00e4rmen kan inte omdefinieras.
 
 
 

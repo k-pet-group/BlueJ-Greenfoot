@@ -21,8 +21,8 @@ abstract methods cannot have a body
 U het 'n metode as abstrak gedeklareer en toe
 nogtans 'n metodelyf geskryf. Dit is teenstrydig.
 Abstrakte metodes het slegs 'n metodekopstuk 
-gevolg deur 'n kommapunt.  U moet òf die woord 
-"abstract" òf die metodelyf verwyder.
+gevolg deur 'n kommapunt.  U moet \u00f2f die woord 
+"abstract" \u00f2f die metodelyf verwyder.
 
 * is already defined in *
 Daar is reeds 'n veranderlike (of dalk 
@@ -54,7 +54,7 @@ buitekan so 'n blok gebruik word nie.
 * must be first statement in constructorDie heel eerste wat moet gebeur in elke klas
 wat 'n superklas het, is dat die superklas se
 konstruktor geroep moet word. Dit kan eksplisiet
-gedoen word deur 'n reëltjie 
+gedoen word deur 'n re\u00ebltjie 
     super(...);
 as die eerste instruksie van die konstruktor
 te skryf (vervang die kolletjies met die nodige
@@ -88,14 +88,14 @@ cannot inherit from final *
 Die superklas (die klasnaam wat kom net na die
 "extends" sleutelwoord) is as "final" gedeklareer.
 Dit beteken dat hierdie klas geen subklasse
-mag hê nie.  Jammer - u kan nie daarvan af
+mag h\u00ea nie.  Jammer - u kan nie daarvan af
 oorerf as die klas dit nie toelaat nie ...
 
 * before supertype constructor has been called
 Die heel eerste wat moet gebeur in elke klas
 wat 'n superklas het, is dat die superklas se
 konstruktor geroep moet word. Dit kan eksplisiet
-gedoen word deur 'n reëltjie
+gedoen word deur 'n re\u00ebltjie
     super(...);
 as die eerste instruksie van die konstruktor
 te skryf (vervang die kolletjies met die nodige
@@ -219,7 +219,7 @@ dat sodanige uitsondering aangemeld word nie.
 
 'finally' without 'try'
 "finally" is 'n Java sleutelwoord wat slegs 
-ná 'n "try"-blok kan voorkom. Die korrekte patroon is
+n\u00e1 'n "try"-blok kan voorkom. Die korrekte patroon is
    try {
       stellings;
    }
@@ -244,7 +244,7 @@ benodig, moet dit in die buitenste klas gedeklareer word.
 
 illegal character:*
 Daar kom 'n ontoelaatbare karakter op hierdie
-plek indie bronkodelêer voor. 
+plek indie bronkodel\u00eaer voor. 
 Die karakter is moontlik onsigbaar. As u dit nie
 kan opspoor om uit te vee nie, vee dan die hele
 lyntjie uit en tik dit oor.
@@ -319,7 +319,7 @@ Dit gebeur waarskynlik omdat die klas twee koppelvlakke
 implementeer.  Albei koppelvlakke het 'n metode met
 dieselfde naam en parameters, maar verskillende antwoord-tipes.
 As dit die geval is kan hierdie koppelvlakke nie albei 
-geïmplementeer word nie, tensy een van hulle verander word.
+ge\u00efmplementeer word nie, tensy een van hulle verander word.
 Een opsie is om een van die metodes 'n ander naam te gee,
 en 'n ander opsie is om hulle antwoord-tipes dieselfde te maak.
 
@@ -369,8 +369,8 @@ Voorbeelde van korrekte skryfwyses is soos volg:
 18.0      18.     1.8e1     .18E2
 
 missing method body, or declare abstract
-Metodes moet òf geskryf word met 'n metodelyf,
-òf hulle moet as abstrak gedeklareer word.
+Metodes moet \u00f2f geskryf word met 'n metodelyf,
+\u00f2f hulle moet as abstrak gedeklareer word.
 'n Metodelyf is die blok kode tussen krulhakies { }
 wat direk na die metode-opskrif gegee word.
 As 'n metode nie 'n lyf het nie, moet die deklarasie
@@ -526,7 +526,7 @@ Abtrakte klasse of koppelvlakke definieer metodes sonder om
 'n implementering voor te skryf.  Hierdie konkrete klas moet
 dus die implementering verskaf vir al die metodes wat nog nie
 elkeen 'n lyf het nie.
-As al die oorgeërfde metodes nie geïmplementeer word nie,
+As al die oorge\u00ebrfde metodes nie ge\u00efmplementeer word nie,
 dan moet hierdie klas ook nog as abstrak gedefinieer word.
 
 error writing source; cannot overwrite input file *
@@ -534,7 +534,7 @@ Geen verdere hulp beskikbaar.
 
 'try' without 'catch' or 'finally'
 As daar 'n "try"-blok in die kode is, dan moet dit
-opgevolg word deur òf 'n "catch"-blok, òf 'n
+opgevolg word deur \u00f2f 'n "catch"-blok, \u00f2f 'n
 "finally"-blok, of albei. Die regte patroon is soos volg:
    try {
       statements;
@@ -564,7 +564,7 @@ Hier is moontlik 'n karakterkonstante wat nie afgesluit is deur
 'n elkel-aanhalingsteken aan die einde nie: '.
 
 unclosed comment
-Hier is moontlik kommentaar wat nie beëindig word met
+Hier is moontlik kommentaar wat nie be\u00ebindig word met
 die nodige */ karakters nie.
 
 unclosed string literal
@@ -630,7 +630,7 @@ albei uitgevoer kan word.
 
 * might not have been initialized
 Hier word 'n lokale veranderlike gebruik sonder dat
-dit gewaarborg is om eers geïnisialiseer te wees.
+dit gewaarborg is om eers ge\u00efnisialiseer te wees.
 Dit het dus dalk op hierdie stadium nog nie 'n waarde nie.
 As u twyfel, dan is dit beter om dit 'n waarde te gee
 tesame met die deklarasie.
@@ -643,11 +643,11 @@ Geen verdere hulp beskikbaar.
 
 * is public, should be declared in a file named *
 'n Klas wat as "public" gedeklareer is, moet gestoor 
-word in 'n lêer met dieselfde naam as die klas 
+word in 'n l\u00eaer met dieselfde naam as die klas 
 (let ook op die gebruik van hoof- en kleinletters).
-Verder moet die lêernaam die uitgang ".java" hê.
+Verder moet die l\u00eaernaam die uitgang ".java" h\u00ea.
 Byvoorbeerd: "public class Foo" moet gestoor word
-'n 'n lêer genaamd "Foo.java".
+'n 'n l\u00eaer genaamd "Foo.java".
 
 cannot read: *
 Geen verdere hulp beskikbaar.
@@ -676,7 +676,7 @@ Geen verdere hulp beskikbaar.
 
 'class' or 'interface' expected
 Die sleutelwoord "class" of "interface" word verwag
-naby die begin van die bronkodelêer.
+naby die begin van die bronkodel\u00eaer.
 Dit is moontlik hier uitgelaat, of daar is ander teks
 voor dit wat nie daar hoort nie.
 
@@ -764,7 +764,7 @@ Natuurlik is dit ook toelaatbaar om dit te onveranderd weer te gee.
 
 * overridden method does not throw *
 U herdefinieer hier 'n metode en meld 'n uitsondering aan. 
-Herdefiniërende metodes mag nie uitsonderings aanmeld 
+Herdefini\u00ebrende metodes mag nie uitsonderings aanmeld 
 as die superklas se metode dit nie ook aanmeld nie.
 Die metode in die subklas mag dus minder uitsonderings aanmeld,
 maar nie meer nie.

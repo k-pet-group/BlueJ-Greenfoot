@@ -6,106 +6,106 @@
 
 ## edit functions
 
-delete-previous=\n Supprime le caractère précédant le curseur.
-delete-next=\n Supprime le caractère suivant le curseur.
-copy-to-clipboard=\n Copie la sélection au presse-papiers.
-cut-to-clipboard=\n Coupe la sélection (i.e. supprime la sélection après l'avoir copiée au presse-papiers).
-copy-line=\n Copie la ligne courante au presse-papiers.\n Lorsqu'invoqué à répétition, les lignes s'accumulent dans le presse-papiers.
-cut-line=\n Coupe la ligne courante.\n Lorsqu'invoqué à répétition, les lignes s'accumulent dans le presse-papiers.
-cut-end-of-line=\n Coupe le reste de la ligne (du curseur jusqu'à la fin).\n Lorsqu'invoqué à répétition, les lignes s'accumulent dans le presse-papiers.
-cut-word=\n Coupe le mot courant (en amont).\n Lorsqu'invoqué à répétition, les mots s'accumulent dans le presse-papiers en ordre inverse.
-cut-end-of-word=\n Coupe la fin du mot.\n Lorsqu'invoqué à répétition, les mots s'accumulent dans le presse-papiers.
-paste-from-clipboard=\n Remplace la sélection courante par une copie du contenu du presse-papiers.
-indent=\n Si l'auto-indentation est cochée parmi les préférences de l'éditeur,\n aligne la ligne courante avec celle au-dessus.  Sinon insère quelques espaces.
-insert-tab=\n Insère un caractère de tabulation.
-new-line=\n Insère un alinéa.  Si l'auto-indentation est cochée parmi les\n préférences de l'éditeur, indente la nouvelle ligne comme la courante.
-insert-break=\n Insère un alinéa sans indentation.
-insert-method=\n Insère le squelette d'une méthode Java dans le texte.
-comment-block=\n Préfixe les lignes courantes avec '//'.\n L'opération est aisément réversible (cf. uncomment-block).
-uncomment-block=\n Supprime le préfixe '//' des lignes courantes.\n Voir aussi comment-block.
+delete-previous=\n Supprime le caract\u00e8re pr\u00e9c\u00e9dant le curseur.
+delete-next=\n Supprime le caract\u00e8re suivant le curseur.
+copy-to-clipboard=\n Copie la s\u00e9lection au presse-papiers.
+cut-to-clipboard=\n Coupe la s\u00e9lection (i.e. supprime la s\u00e9lection apr\u00e8s l'avoir copi\u00e9e au presse-papiers).
+copy-line=\n Copie la ligne courante au presse-papiers.\n Lorsqu'invoqu\u00e9 \u00e0 r\u00e9p\u00e9tition, les lignes s'accumulent dans le presse-papiers.
+cut-line=\n Coupe la ligne courante.\n Lorsqu'invoqu\u00e9 \u00e0 r\u00e9p\u00e9tition, les lignes s'accumulent dans le presse-papiers.
+cut-end-of-line=\n Coupe le reste de la ligne (du curseur jusqu'\u00e0 la fin).\n Lorsqu'invoqu\u00e9 \u00e0 r\u00e9p\u00e9tition, les lignes s'accumulent dans le presse-papiers.
+cut-word=\n Coupe le mot courant (en amont).\n Lorsqu'invoqu\u00e9 \u00e0 r\u00e9p\u00e9tition, les mots s'accumulent dans le presse-papiers en ordre inverse.
+cut-end-of-word=\n Coupe la fin du mot.\n Lorsqu'invoqu\u00e9 \u00e0 r\u00e9p\u00e9tition, les mots s'accumulent dans le presse-papiers.
+paste-from-clipboard=\n Remplace la s\u00e9lection courante par une copie du contenu du presse-papiers.
+indent=\n Si l'auto-indentation est coch\u00e9e parmi les pr\u00e9f\u00e9rences de l'\u00e9diteur,\n aligne la ligne courante avec celle au-dessus.  Sinon ins\u00e8re quelques espaces.
+insert-tab=\n Ins\u00e8re un caract\u00e8re de tabulation.
+new-line=\n Ins\u00e8re un alin\u00e9a.  Si l'auto-indentation est coch\u00e9e parmi les\n pr\u00e9f\u00e9rences de l'\u00e9diteur, indente la nouvelle ligne comme la courante.
+insert-break=\n Ins\u00e8re un alin\u00e9a sans indentation.
+insert-method=\n Ins\u00e8re le squelette d'une m\u00e9thode Java dans le texte.
+comment-block=\n Pr\u00e9fixe les lignes courantes avec '//'.\n L'op\u00e9ration est ais\u00e9ment r\u00e9versible (cf. uncomment-block).
+uncomment-block=\n Supprime le pr\u00e9fixe '//' des lignes courantes.\n Voir aussi comment-block.
 indent-block=\n Ajoute un niveau d'indentation aux lignes courantes.
-deindent-block=\n Enlève un niveau d'indentation des lignes courantes.
+deindent-block=\n Enl\u00e8ve un niveau d'indentation des lignes courantes.
 
-select-word=\n Sélectionne le mot courant (correspond également au double-clic).
-select-line=\n Sélectionne la ligne courante (correspond également au triple-clic).
-select-paragraph=\n Sélectionne le paragraphe courant.
-select-all=\n Sélectionne tout le texte.
-selection-backward=\n Recule le curseur d'un caractère\n sans déplacer l'autre bout de la sélection.
-selection-forward=\n Avance le curseur d'un caractère\n sans déplacer l'autre bout de la sélection.
-selection-up=\n Recule le curseur d'une ligne\n sans déplacer l'autre bout de la sélection.
-selection-down=\n Avance le curseur d'une ligne\n sans déplacer l'autre bout de la sélection.
-selection-begin-word=\n Recule le curseur au début du mot\n sans déplacer l'autre bout de la sélection.
-selection-end-word=\n Avance le curseur à la fin du mot\n sans déplacer l'autre bout de la sélection.
-selection-previous-word=\n Recule le curseur au début du mot précédent\n sans déplacer l'autre bout de la sélection.
-selection-next-word=\n Avance le curseur au début du mot suivant\n sans déplacer l'autre bout de la sélection.
-selection-begin-line=\n Recule le curseur au début de la ligne\n sans déplacer l'autre bout de la sélection.
-selection-end-line=\n Avance le curseur à la fin de la ligne\n sans déplacer l'autre bout de la sélection.
-selection-begin-paragraph=\n Recule le curseur au début du paragraphe\n sans déplacer l'autre bout de la sélection.
-selection-end-paragraph=\n Avance le curseur à la fin du paragraphe\n sans déplacer l'autre bout de la sélection.
-selection-page-up=\n Recule le curseur d'une page\n sans déplacer l'autre bout de la sélection.
-selection-page-down=\n Avance le curseur d'une page\n sans déplacer l'autre bout de la sélection.
-selection-begin=\n Recule le curseur au début du texte\n sans déplacer l'autre bout de la sélection.
-selection-end=\n Avance le curseur à la fin du texte\n sans déplacer l'autre bout de la sélection.
-unselect=\n Réduit la sélection à néant (sans affecter le texte).
+select-word=\n S\u00e9lectionne le mot courant (correspond \u00e9galement au double-clic).
+select-line=\n S\u00e9lectionne la ligne courante (correspond \u00e9galement au triple-clic).
+select-paragraph=\n S\u00e9lectionne le paragraphe courant.
+select-all=\n S\u00e9lectionne tout le texte.
+selection-backward=\n Recule le curseur d'un caract\u00e8re\n sans d\u00e9placer l'autre bout de la s\u00e9lection.
+selection-forward=\n Avance le curseur d'un caract\u00e8re\n sans d\u00e9placer l'autre bout de la s\u00e9lection.
+selection-up=\n Recule le curseur d'une ligne\n sans d\u00e9placer l'autre bout de la s\u00e9lection.
+selection-down=\n Avance le curseur d'une ligne\n sans d\u00e9placer l'autre bout de la s\u00e9lection.
+selection-begin-word=\n Recule le curseur au d\u00e9but du mot\n sans d\u00e9placer l'autre bout de la s\u00e9lection.
+selection-end-word=\n Avance le curseur \u00e0 la fin du mot\n sans d\u00e9placer l'autre bout de la s\u00e9lection.
+selection-previous-word=\n Recule le curseur au d\u00e9but du mot pr\u00e9c\u00e9dent\n sans d\u00e9placer l'autre bout de la s\u00e9lection.
+selection-next-word=\n Avance le curseur au d\u00e9but du mot suivant\n sans d\u00e9placer l'autre bout de la s\u00e9lection.
+selection-begin-line=\n Recule le curseur au d\u00e9but de la ligne\n sans d\u00e9placer l'autre bout de la s\u00e9lection.
+selection-end-line=\n Avance le curseur \u00e0 la fin de la ligne\n sans d\u00e9placer l'autre bout de la s\u00e9lection.
+selection-begin-paragraph=\n Recule le curseur au d\u00e9but du paragraphe\n sans d\u00e9placer l'autre bout de la s\u00e9lection.
+selection-end-paragraph=\n Avance le curseur \u00e0 la fin du paragraphe\n sans d\u00e9placer l'autre bout de la s\u00e9lection.
+selection-page-up=\n Recule le curseur d'une page\n sans d\u00e9placer l'autre bout de la s\u00e9lection.
+selection-page-down=\n Avance le curseur d'une page\n sans d\u00e9placer l'autre bout de la s\u00e9lection.
+selection-begin=\n Recule le curseur au d\u00e9but du texte\n sans d\u00e9placer l'autre bout de la s\u00e9lection.
+selection-end=\n Avance le curseur \u00e0 la fin du texte\n sans d\u00e9placer l'autre bout de la s\u00e9lection.
+unselect=\n R\u00e9duit la s\u00e9lection \u00e0 n\u00e9ant (sans affecter le texte).
 
 ## move and scroll functions
 
-caret-backward=\n Recule le curseur d'un caractère.
-caret-forward=\n Avance le curseur d'un caractère.
+caret-backward=\n Recule le curseur d'un caract\u00e8re.
+caret-forward=\n Avance le curseur d'un caract\u00e8re.
 caret-up=\n Recule le curseur d'une ligne.
 caret-down=\n Avance le curseur d'une ligne.
-caret-begin-word=\n Recule le curseur au début du mot.
-caret-end-word=\n Avance le curseur à la fin du mot.
-caret-previous-word=\n Recule le curseur au début du mot précédent.
-caret-next-word=\n Avance le curseur au début du mot suivant.
-caret-begin-line=\n Recule le curseur au début de la ligne.
-caret-end-line=\n Avance le curseur à la fin de la ligne.
-caret-begin-paragraph=\n Recule le curseur au début du paragraphe.
-caret-end-paragraph=\n Avance le curseur à la fin du paragraphe.
+caret-begin-word=\n Recule le curseur au d\u00e9but du mot.
+caret-end-word=\n Avance le curseur \u00e0 la fin du mot.
+caret-previous-word=\n Recule le curseur au d\u00e9but du mot pr\u00e9c\u00e9dent.
+caret-next-word=\n Avance le curseur au d\u00e9but du mot suivant.
+caret-begin-line=\n Recule le curseur au d\u00e9but de la ligne.
+caret-end-line=\n Avance le curseur \u00e0 la fin de la ligne.
+caret-begin-paragraph=\n Recule le curseur au d\u00e9but du paragraphe.
+caret-end-paragraph=\n Avance le curseur \u00e0 la fin du paragraphe.
 page-up=\n Recule le curseur d'une page.
 page-down=\n Avance le curseur d'une page.
-caret-begin=\n Recule le curseur au début du texte.
-caret-end=\n Avance le curseur à la fin du texte.
+caret-begin=\n Recule le curseur au d\u00e9but du texte.
+caret-end=\n Avance le curseur \u00e0 la fin du texte.
 
 ## class functions
 
-save=\n Enregistre cette classe.  Ceci est rarement nécessaire car elle\n est enregistrée automatiquement à sa fermeture ou compilation.
-reload=\n Rétablit la classe depuis son fichier source.  Cette opération supprime\n tous les changements apportés depuis le plus récent enregistrement.
-close=\n Ferme cette classe.  Le fichier source est automatiquement enregistré.
+save=\n Enregistre cette classe.  Ceci est rarement n\u00e9cessaire car elle\n est enregistr\u00e9e automatiquement \u00e0 sa fermeture ou compilation.
+reload=\n R\u00e9tablit la classe depuis son fichier source.  Cette op\u00e9ration supprime\n tous les changements apport\u00e9s depuis le plus r\u00e9cent enregistrement.
+close=\n Ferme cette classe.  Le fichier source est automatiquement enregistr\u00e9.
 print=\n Invoque le dialogue d'impression.
 page-setup=\n Invoque le dialogue de mise en page.
 
 
 ## customisation functions
 
-key-bindings=\n Permet d'examiner et de changer les raccourcis-clavier ayant trait à l'éditeur.
-preferences=\n Permet de spécifier certaines préférences ayant trait à l'éditeur.
+key-bindings=\n Permet d'examiner et de changer les raccourcis-clavier ayant trait \u00e0 l'\u00e9diteur.
+preferences=\n Permet de sp\u00e9cifier certaines pr\u00e9f\u00e9rences ayant trait \u00e0 l'\u00e9diteur.
 
 
 ## help functions
 
-describe-key=\n Après avoir invoqué cette fonction, tapez un raccourci-clavier.\n La fonction associée s'affichera.
+describe-key=\n Apr\u00e8s avoir invoqu\u00e9 cette fonction, tapez un raccourci-clavier.\n La fonction associ\u00e9e s'affichera.
 help-mouse=\n Affiche les raccourcis-souris.
 show-manual=\n Ouvre le manuel de l'usager de Moe.
-about-editor=\n Affiche quelques commentaires à propos de l'éditeur Moe.
+about-editor=\n Affiche quelques commentaires \u00e0 propos de l'\u00e9diteur Moe.
 
 
 ## misc functions
 
-undo=\n Défait la plus récente édition.  Elle pourra alors être refaite.
-redo=\n Refait la plus récente édition défaite.
+undo=\n D\u00e9fait la plus r\u00e9cente \u00e9dition.  Elle pourra alors \u00eatre refaite.
+redo=\n Refait la plus r\u00e9cente \u00e9dition d\u00e9faite.
 
-find=\n Invoque un dialogue permettant de chercher une chaîne dans le texte.\n La recherche peut se faire vers l'amont ou l'aval.
-find-next=\n Cherche la prochaine occurrence de la sélection ou de la chaîne le plus récemment\n cherchée.  S'arrête à la fin du texte; invoquer de nouveau pour recommencer la\n recherche à son début.
+find=\n Invoque un dialogue permettant de chercher une cha\u00eene dans le texte.\n La recherche peut se faire vers l'amont ou l'aval.
+find-next=\n Cherche la prochaine occurrence de la s\u00e9lection ou de la cha\u00eene le plus r\u00e9cemment\n cherch\u00e9e.  S'arr\u00eate \u00e0 la fin du texte; invoquer de nouveau pour recommencer la\n recherche \u00e0 son d\u00e9but.
 find-next-backward=\n Comme find-next, mais vers l'aval.
-replace=\n Remplace une chaîne par une autre.
+replace=\n Remplace une cha\u00eene par une autre.
 
-compile=\n Compile la classe courante.\n  La classe est automatiquement enregistrée auparavant.
+compile=\n Compile la classe courante.\n  La classe est automatiquement enregistr\u00e9e auparavant.
 toggle-interface-view=\n Bascule l'affichage entre la vue interface et la vue source.\n La vue interface montre la classe en format Javadoc.
-toggle-breakpoint=\n Place ou supprime un point d'arrêt sur la ligne courante.
-go-to-line=\n Atteint la ligne spécifiée.
+toggle-breakpoint=\n Place ou supprime un point d'arr\u00eat sur la ligne courante.
+go-to-line=\n Atteint la ligne sp\u00e9cifi\u00e9e.
 
 ## help texts for adding key bindings
 
-press-key=\n  Saisissez le raccourci-clavier désiré...
+press-key=\n  Saisissez le raccourci-clavier d\u00e9sir\u00e9...
 cannot-redefine=\n  Les frappes imprimables ne peuvent servir de raccourcis-clavier.

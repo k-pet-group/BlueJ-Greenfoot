@@ -1,6 +1,6 @@
 NullPointerException*
-Jy het probeer om na 'n objek te verwys (òf na 'n veld 
-binne 'n objek òf na 'n metode van 'n objek). Dit wou nie 
+Jy het probeer om na 'n objek te verwys (\u00f2f na 'n veld 
+binne 'n objek \u00f2f na 'n metode van 'n objek). Dit wou nie 
 werk nie omdat die objekverwysing 'null' was, byvoorbeeld:
 Jy het geskryf "thing.print()", en "thing"
 was null op daardie stadium.
@@ -25,7 +25,7 @@ voorbeeld:
        (String)someObject
 Hier word "someObject" gedring om 'n "String" te wees. Dit is wettig
 slegs as die objek wat in die objek gestoor, wel van tipe "String" is
-Dit wil sê: jy kan slegs dwangtipe T gebruik as die objek wat gedwing word
+Dit wil s\u00ea: jy kan slegs dwangtipe T gebruik as die objek wat gedwing word
 'n String is of een van die subtipes.  In hierdie geval was dit nie so nie.
 
 IndexOutOfBoundsException*
@@ -56,7 +56,7 @@ AssertionError*
 'n Handhawing het misluk. Dit beteken dat die uitdrukking
 binne die 'assert'-stelling
     assert(uitdrukking)
-geëvalueer is as vals. Die handhawingstelling is waarskynlik
+ge\u00ebvalueer is as vals. Die handhawingstelling is waarskynlik
 daar geplaas om te verseker dat die handhawing bevestig moet
 word as waar, wanneer hierdie punt bereik word, en aangesien dit
 vals is dui dit op een of ander soort fout.
@@ -69,7 +69,7 @@ laat loop kon nie gevind word nie.  Dit wil voorkom of dit
 wel beskikbaar was tydens kompilering, maar nou is dit weg.
 Moontlike oorsake is dat die Java stelsel nie behoorlik
 opgestel is nie (as die betrokke klas 'n stelselklas is)
-of dat die projek beskadig is deurdat sommige klaslêers
+of dat die projek beskadig is deurdat sommige klasl\u00eaers
 verlore of korrup geraak het.
 Probeer om die hele projek te herbou.  As die probleem
 aanhou, vergelyk dit met ander projekte.  As dit met meer

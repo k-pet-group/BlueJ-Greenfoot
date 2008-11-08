@@ -1,183 +1,183 @@
 NullPointerException*
-Vous avez tenté d'accéder à un objet (soit un
-champ ou une méthode d'un objet).  Ceci a échoué
-parce que la référence utilisée avait la valeur
+Vous avez tent\u00e9 d'acc\u00e9der \u00e0 un objet (soit un
+champ ou une m\u00e9thode d'un objet).  Ceci a \u00e9chou\u00e9
+parce que la r\u00e9f\u00e9rence utilis\u00e9e avait la valeur
 'null'.
-Par exemple : Vous écrivez "thing.print()", et
+Par exemple : Vous \u00e9crivez "thing.print()", et
 "thing" est 'null'.
 
 ArithmeticException*
-Quelque chose a cloché pendant un calcul
-arithmétique, comme une division par zéro
-ou un débordement de valeur entière.
+Quelque chose a cloch\u00e9 pendant un calcul
+arithm\u00e9tique, comme une division par z\u00e9ro
+ou un d\u00e9bordement de valeur enti\u00e8re.
 
 StringIndexOutOfBoundsException*
-Vous avez tenté d'accéder à un caractère ou à une
-sous-chaîne d'une chaîne de caractères, et l'indice
-utilisé n'existe pas dans cette chaîne.  Par exemple,
-le cinquième caractère d'une chaîne qui n'en compte
+Vous avez tent\u00e9 d'acc\u00e9der \u00e0 un caract\u00e8re ou \u00e0 une
+sous-cha\u00eene d'une cha\u00eene de caract\u00e8res, et l'indice
+utilis\u00e9 n'existe pas dans cette cha\u00eene.  Par exemple,
+le cinqui\u00e8me caract\u00e8re d'une cha\u00eene qui n'en compte
 que trois.
-Dans le cas de la méthode 'substring', le second
-paramètre spécifie l'indice du premier caractère au
-delà de la fin de la sous-chaîne et non sa longueur.
+Dans le cas de la m\u00e9thode 'substring', le second
+param\u00e8tre sp\u00e9cifie l'indice du premier caract\u00e8re au
+del\u00e0 de la fin de la sous-cha\u00eene et non sa longueur.
 
 ClassCastException*
-Vous avez tenté de forcer le type - d'assigner un
-type statique différent à un objet, comme dans cet
+Vous avez tent\u00e9 de forcer le type - d'assigner un
+type statique diff\u00e9rent \u00e0 un objet, comme dans cet
 exemple :
        (String)someObject
-Le type de "someObject" est forcé à "String".
-Ceci n'est légal que si le type de l'objet contenu
+Le type de "someObject" est forc\u00e9 \u00e0 "String".
+Ceci n'est l\u00e9gal que si le type de l'objet contenu
 dans "someObject" est String ou un sous-type de
 String.  En d'autres mots : vous pouvez forcer le
-type d'un objet à T seulement si l'objet est de type
+type d'un objet \u00e0 T seulement si l'objet est de type
 T ou un de ses sous-types.
 
 IndexOutOfBoundsException*
-Un index quelconque (dans un tableau, une chaîne ou
-un vecteur) déborde.  Il y a débordement lorsque
+Un index quelconque (dans un tableau, une cha\u00eene ou
+un vecteur) d\u00e9borde.  Il y a d\u00e9bordement lorsque
 l'indice n'existe pas dans le tableau ou collection
-(e.g. vous spécifiez l'élément 5, mais il n'en existe
+(e.g. vous sp\u00e9cifiez l'\u00e9l\u00e9ment 5, mais il n'en existe
 que trois).
 
 ArrayIndexOutOfBoundsException*
-Un indice dans un tableau déborde.  Il y a débordement
+Un indice dans un tableau d\u00e9borde.  Il y a d\u00e9bordement
 lorsque l'indice n'existe pas dans le tableau (e.g.
-vous spécifiez l'élément 5, mais il n'en existe que
-trois).  Les indices courent de 0 à longueur-1.
+vous sp\u00e9cifiez l'\u00e9l\u00e9ment 5, mais il n'en existe que
+trois).  Les indices courent de 0 \u00e0 longueur-1.
 
 ConcurrentModificationException*
-Tandis que vous itériez sur une collection, elle a
-été modifiée, d'où problème.  Vous ne pouvez pas
-modifier une collection pendant une itération.  Ni
+Tandis que vous it\u00e9riez sur une collection, elle a
+\u00e9t\u00e9 modifi\u00e9e, d'o\u00f9 probl\u00e8me.  Vous ne pouvez pas
+modifier une collection pendant une it\u00e9ration.  Ni
 l'inverse : vous ne pouvez pas poursuivre une
-itération après avoir modifié une collection.
-La seule modification permise pendant une itération
-est la suppression d'éléments à l'aide de la méthode
-"remove" de l'itérateur (et non celle de la
-collection elle-même).
+it\u00e9ration apr\u00e8s avoir modifi\u00e9 une collection.
+La seule modification permise pendant une it\u00e9ration
+est la suppression d'\u00e9l\u00e9ments \u00e0 l'aide de la m\u00e9thode
+"remove" de l'it\u00e9rateur (et non celle de la
+collection elle-m\u00eame).
 
 AssertionError*
-Une assertion a échoué.  Ce qui veut dire que
+Une assertion a \u00e9chou\u00e9.  Ce qui veut dire que
 l'expression argument de "assert"
     assert(assertion-expression)
 a la valeur 'false'.  L'assertion a pour but de
-s'assurer de la véracité de l'expression en question,
-aussi est-ce considéré une erreur.  La nature exacte
-de cette erreur dépend du programme.  Vous devriez
-chercher à savoir pourquoi cela s'est produit.
+s'assurer de la v\u00e9racit\u00e9 de l'expression en question,
+aussi est-ce consid\u00e9r\u00e9 une erreur.  La nature exacte
+de cette erreur d\u00e9pend du programme.  Vous devriez
+chercher \u00e0 savoir pourquoi cela s'est produit.
 
 ClassNotFoundException*
-Une classe nécessaire à l'exécution de cette
-application est introuvable.  Elle était présente
+Une classe n\u00e9cessaire \u00e0 l'ex\u00e9cution de cette
+application est introuvable.  Elle \u00e9tait pr\u00e9sente
 lors de la compilation, mais ce n'est plus le cas.
-Il pourrait y avoir un problème de configuration
-de votre système Java (s'il s'agit d'une classe
-système) ou votre projet pourrait être endommagé
+Il pourrait y avoir un probl\u00e8me de configuration
+de votre syst\u00e8me Java (s'il s'agit d'une classe
+syst\u00e8me) ou votre projet pourrait \u00eatre endommag\u00e9
 (des fichiers '.class' sont disparus ou corrompus).
-Si le problème survient avec d'autres projets, le
-premier cas est probable - ré-installez le JDK.
+Si le probl\u00e8me survient avec d'autres projets, le
+premier cas est probable - r\u00e9-installez le JDK.
 Sinon, essayez de recompiler votre projet en
 entier.
 
 ArrayStoreException*
-Vous avez tenté d'assigner un objet d'un certain
-type à un tableau d'objets d'un autre type.
+Vous avez tent\u00e9 d'assigner un objet d'un certain
+type \u00e0 un tableau d'objets d'un autre type.
 Par exemple, un Integer dans un String[].
 
 CannotRedoException*
-Vous avez tenté de répéter ou rétablir un changement
-(méthode 'redo' de javax.swing.text ou
-javax.swing.undo) et cela s'est avéré impossible.
+Vous avez tent\u00e9 de r\u00e9p\u00e9ter ou r\u00e9tablir un changement
+(m\u00e9thode 'redo' de javax.swing.text ou
+javax.swing.undo) et cela s'est av\u00e9r\u00e9 impossible.
 
 CannotUndoException*
-Vous avez tenté d'annuler un changement (méthode
+Vous avez tent\u00e9 d'annuler un changement (m\u00e9thode
 'undo' de javax.swing.text ou javax.swing.undo) et
-cela s'est avéré impossible.
+cela s'est av\u00e9r\u00e9 impossible.
 
 CMMException*
 Une erreur s'est produite dans le CMM
 (Module de gestion des couleurs).
 
 EmptyStackException*
-Une méthode de la classe 'Stack' a tenté de
-récupérer un élément de la pile alors que
-cette dernière était vide.
+Une m\u00e9thode de la classe 'Stack' a tent\u00e9 de
+r\u00e9cup\u00e9rer un \u00e9l\u00e9ment de la pile alors que
+cette derni\u00e8re \u00e9tait vide.
 
 IllegalArgumentException*
-Une méthode a reçu un argument illégal ou
-inapproprié.  (Erreur générique)
+Une m\u00e9thode a re\u00e7u un argument ill\u00e9gal ou
+inappropri\u00e9.  (Erreur g\u00e9n\u00e9rique)
 
 IllegalMonitorStateException*
-Un fil a tenté d'attendre le moniteur d'un objet ou
+Un fil a tent\u00e9 d'attendre le moniteur d'un objet ou
 d'aviser d'autres fils attendant le moniteur d'un
-objet sans être le propriétaire du moniteur en
+objet sans \u00eatre le propri\u00e9taire du moniteur en
 question.
 
 IllegalPathStateException*
-Un chemin géométrique était dans un état illégal
-pour l'opération tentée.  Par exemple, vous tentez
-d'ajouter (méthode 'append') à un chemin
-('GeneralPath') sans avoir d'abord effectué un
+Un chemin g\u00e9om\u00e9trique \u00e9tait dans un \u00e9tat ill\u00e9gal
+pour l'op\u00e9ration tent\u00e9e.  Par exemple, vous tentez
+d'ajouter (m\u00e9thode 'append') \u00e0 un chemin
+('GeneralPath') sans avoir d'abord effectu\u00e9 un
 'moveto'.
 
 IllegalStateException*
-Une méthode a été invoquée sur un objet qui se
-trouvait dans un état illégal ou inapproprié pour
-cette méthode.  (Erreur générique)
+Une m\u00e9thode a \u00e9t\u00e9 invoqu\u00e9e sur un objet qui se
+trouvait dans un \u00e9tat ill\u00e9gal ou inappropri\u00e9 pour
+cette m\u00e9thode.  (Erreur g\u00e9n\u00e9rique)
 
 ImagingOpException*
-Une méthode de filtrage d'image (interfaces
-'BufferedImageOp' ou 'RasterOp') a échoué.
+Une m\u00e9thode de filtrage d'image (interfaces
+'BufferedImageOp' ou 'RasterOp') a \u00e9chou\u00e9.
 
 MissingResourceException*
-Une ressource nécessaire n'est pas disponible.
+Une ressource n\u00e9cessaire n'est pas disponible.
 
 NegativeArraySizeException*
-Vous avez tenté de créer un tableau dont au moins
-une dimension est négative.
+Vous avez tent\u00e9 de cr\u00e9er un tableau dont au moins
+une dimension est n\u00e9gative.
 
 NoSuchElementException*
-Vous avez invoqué la méthode 'nextElement' d'une
-énumération épuisée.
+Vous avez invoqu\u00e9 la m\u00e9thode 'nextElement' d'une
+\u00e9num\u00e9ration \u00e9puis\u00e9e.
 
 ProfileDataException*
-Une erreur est survenue lors d'un accès à ou
-d'un traitement sur un profil colorimétrique
+Une erreur est survenue lors d'un acc\u00e8s \u00e0 ou
+d'un traitement sur un profil colorim\u00e9trique
 (objet 'ICC_Profile').
 
 ProviderException*
 Une erreur est survenue dans un fournisseur de
 service (objet 'Provider'), comme par exemple un
-problème de configuration.  (Erreur générique)
+probl\u00e8me de configuration.  (Erreur g\u00e9n\u00e9rique)
 
 RasterFormatException*
-Une trame (objet 'Raster') contient des données
+Une trame (objet 'Raster') contient des donn\u00e9es
 de disposition invalides.
 
 SecurityException*
-Une violation de sécurité est survenue.
-(Erreur générique)
+Une violation de s\u00e9curit\u00e9 est survenue.
+(Erreur g\u00e9n\u00e9rique)
 
 SystemException*
-Une exception standard CORBA a été levée.
-(Erreur générique)
+Une exception standard CORBA a \u00e9t\u00e9 lev\u00e9e.
+(Erreur g\u00e9n\u00e9rique)
 
 UndeclaredThrowableException*
 Un gestionnaire d'invocation mis en place pour un
-mandataire quelconque utilise sa méthode 'invoke'
-pour invoquer les méthodes du mandataire.  Si un
-'Throwable' est levé qui ne peut être assigné à
-'Error', à 'RuntimeException' ni à une des exceptions
-spécifiées par la clause 'throws' de la méthode
-invoquée, cette exception l'encapsule.
+mandataire quelconque utilise sa m\u00e9thode 'invoke'
+pour invoquer les m\u00e9thodes du mandataire.  Si un
+'Throwable' est lev\u00e9 qui ne peut \u00eatre assign\u00e9 \u00e0
+'Error', \u00e0 'RuntimeException' ni \u00e0 une des exceptions
+sp\u00e9cifi\u00e9es par la clause 'throws' de la m\u00e9thode
+invoqu\u00e9e, cette exception l'encapsule.
 (Du moins c'est ce que je crois avoir compris)
 
 UnsupportedOperationException*
-Une opération non supportée a été demandée.
-(Erreur générique)
+Une op\u00e9ration non support\u00e9e a \u00e9t\u00e9 demand\u00e9e.
+(Erreur g\u00e9n\u00e9rique)
 
 Exception
-Quelque chose est allé de travers.
-(Erreur générique)
+Quelque chose est all\u00e9 de travers.
+(Erreur g\u00e9n\u00e9rique)
 

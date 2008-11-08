@@ -4,107 +4,107 @@
 # Parte do ambiente de desenvolvimento de programas BlueJ.
 #
 
-## funções de edição
+## fun\u00e7\u00f5es de edi\u00e7\u00e3o
 
 delete-previous=\n Apaga o caractere antes do cursor.
-delete-next=\n Apaga o caractere após o cursor.
-copy-to-clipboard=\n Copia o  texto selecionado para a área de transferência. De lá, ele pode ser\n colado em outro local posteriormente(veja paste-from-clipboard).
-cut-to-clipboard= Recorta o texto selecionado e move-o para a área de transferência.\n De lá, ele pode ser colado em outro lugar (veja\n paste-from-clipboard).
-copy-line=\n Copia a linha corrente para a área de transferência. Cópias sucessivas \n são adicionadas à área de transferência.
-cut-line=\n Recorta a linha corrente para a área de transferência. \n Recortes sucessivos são adicionadas à área de transferência.
-cut-end-of-line=\n Recorta o final da linha corrente para a área de transferência.
-cut-word=\n Recorta a palavra corrente para a área de transferência. \n Recortes sucessivos são adicionados à área de transferência.
-cut-end-of-word=\n Recorta o final da palavra corrente para a área de transferência.\n Recortes sucessivos são adicionados à área de transferência.
-paste-from-clipboard=\n Colam o texto da área de transferência para\n a posição atual do cursor.
-indent=\n Se 'endentar' estiver selecionado nas preferências do editor, endenta as\n linhas acima. Do contrário, insere um caractere de tabulação (tab). 
+delete-next=\n Apaga o caractere ap\u00f3s o cursor.
+copy-to-clipboard=\n Copia o  texto selecionado para a \u00e1rea de transfer\u00eancia. De l\u00e1, ele pode ser\n colado em outro local posteriormente(veja paste-from-clipboard).
+cut-to-clipboard= Recorta o texto selecionado e move-o para a \u00e1rea de transfer\u00eancia.\n De l\u00e1, ele pode ser colado em outro lugar (veja\n paste-from-clipboard).
+copy-line=\n Copia a linha corrente para a \u00e1rea de transfer\u00eancia. C\u00f3pias sucessivas \n s\u00e3o adicionadas \u00e0 \u00e1rea de transfer\u00eancia.
+cut-line=\n Recorta a linha corrente para a \u00e1rea de transfer\u00eancia. \n Recortes sucessivos s\u00e3o adicionadas \u00e0 \u00e1rea de transfer\u00eancia.
+cut-end-of-line=\n Recorta o final da linha corrente para a \u00e1rea de transfer\u00eancia.
+cut-word=\n Recorta a palavra corrente para a \u00e1rea de transfer\u00eancia. \n Recortes sucessivos s\u00e3o adicionados \u00e0 \u00e1rea de transfer\u00eancia.
+cut-end-of-word=\n Recorta o final da palavra corrente para a \u00e1rea de transfer\u00eancia.\n Recortes sucessivos s\u00e3o adicionados \u00e0 \u00e1rea de transfer\u00eancia.
+paste-from-clipboard=\n Colam o texto da \u00e1rea de transfer\u00eancia para\n a posi\u00e7\u00e3o atual do cursor.
+indent=\n Se 'endentar' estiver selecionado nas prefer\u00eancias do editor, endenta as\n linhas acima. Do contr\u00e1rio, insere um caractere de tabula\u00e7\u00e3o (tab). 
 insert-tab=\n Insere um caractere TAB.
-new-line=\n Insere uma quebra de linha. Se 'endentar' estiver selecionado\n nas preferências do editor, segue a endentação da linha acima.
+new-line=\n Insere uma quebra de linha. Se 'endentar' estiver selecionado\n nas prefer\u00eancias do editor, segue a endenta\u00e7\u00e3o da linha acima.
 insert-break=\n Insere uma quebra de linha sem tentar endentar.
-insert-method=\n Insere um esqueleto de método Java no texto.
-comment-block=\n Comenta as linhas selecionadas. O comentário pode ser facilmente\n removido posteriormente (veja uncomment-block).
-uncomment-block=\n Remove símbolos de comentários do início das linhas selecionadas.\n Veja também comment-block.
-indent-block=\n Adiciona um nível de endentação a cada linha selecionada\n (ou à linha corrente, se não houver nenhuma seleção).
-deindent-block=\n Remove um nível de endentação de cada linha selecionada\n (ou à linha corrente, se não houver nenhuma seleção).
+insert-method=\n Insere um esqueleto de m\u00e9todo Java no texto.
+comment-block=\n Comenta as linhas selecionadas. O coment\u00e1rio pode ser facilmente\n removido posteriormente (veja uncomment-block).
+uncomment-block=\n Remove s\u00edmbolos de coment\u00e1rios do in\u00edcio das linhas selecionadas.\n Veja tamb\u00e9m comment-block.
+indent-block=\n Adiciona um n\u00edvel de endenta\u00e7\u00e3o a cada linha selecionada\n (ou \u00e0 linha corrente, se n\u00e3o houver nenhuma sele\u00e7\u00e3o).
+deindent-block=\n Remove um n\u00edvel de endenta\u00e7\u00e3o de cada linha selecionada\n (ou \u00e0 linha corrente, se n\u00e3o houver nenhuma sele\u00e7\u00e3o).
 
-select-word=\n Seleciona a palavra corrente (disponível também com\n left-mouse-button: double-click).
-select-line=\n Seleciona a linha corrente (disponível também com\n left-mouse-button: triple-click).
-select-paragraph=\n Seleciona o parágrafo corrente.
+select-word=\n Seleciona a palavra corrente (dispon\u00edvel tamb\u00e9m com\n left-mouse-button: double-click).
+select-line=\n Seleciona a linha corrente (dispon\u00edvel tamb\u00e9m com\n left-mouse-button: triple-click).
+select-paragraph=\n Seleciona o par\u00e1grafo corrente.
 select-all=\n Seleciona todo o texto.
-selection-backward=\n Recua o final da seleção em um caractere.
-selection-forward=\n Avança o final da seleção um caractere.
-selection-up=\n Move a seleção uma linha para cima.
-selection-down=\n Move a seleção uma linha para baixo.
-selection-begin-word=\n Move o final da seleção para o início da\n palavra corrente.
-selection-end-word=\n Move o final da seleção para o final\n da palavra corrente.
-selection-previous-word=\n Move o final da seleção para o início\n da palavra anterior.
-selection-next-word=\n Move o final da seleção para o início\n da próxima palavra.
-selection-begin-line=\n Move o final da seleção para o início da\n linha corrente.
-selection-end-line=\n Move o final da seleção para o final\n da linha corrente.
-selection-begin-paragraph=\n Move o final da seleção para o início\n do parágrafo corrente.
-selection-end-paragraph=\n Move o final da seleção para o final do\n parágrafo corrente.
-selection-page-up=\n Move o final da seleção uma página acima.
-selection-page-down=\n Move o final da seleção uma página para baixo.
-selection-begin=\n Move o final da seleção para o início do texto.
-selection-end=\n Move o final da seleção para o final do texto.
-unselect=\n Remove a seleção (não o texto selecionado!).
+selection-backward=\n Recua o final da sele\u00e7\u00e3o em um caractere.
+selection-forward=\n Avan\u00e7a o final da sele\u00e7\u00e3o um caractere.
+selection-up=\n Move a sele\u00e7\u00e3o uma linha para cima.
+selection-down=\n Move a sele\u00e7\u00e3o uma linha para baixo.
+selection-begin-word=\n Move o final da sele\u00e7\u00e3o para o in\u00edcio da\n palavra corrente.
+selection-end-word=\n Move o final da sele\u00e7\u00e3o para o final\n da palavra corrente.
+selection-previous-word=\n Move o final da sele\u00e7\u00e3o para o in\u00edcio\n da palavra anterior.
+selection-next-word=\n Move o final da sele\u00e7\u00e3o para o in\u00edcio\n da pr\u00f3xima palavra.
+selection-begin-line=\n Move o final da sele\u00e7\u00e3o para o in\u00edcio da\n linha corrente.
+selection-end-line=\n Move o final da sele\u00e7\u00e3o para o final\n da linha corrente.
+selection-begin-paragraph=\n Move o final da sele\u00e7\u00e3o para o in\u00edcio\n do par\u00e1grafo corrente.
+selection-end-paragraph=\n Move o final da sele\u00e7\u00e3o para o final do\n par\u00e1grafo corrente.
+selection-page-up=\n Move o final da sele\u00e7\u00e3o uma p\u00e1gina acima.
+selection-page-down=\n Move o final da sele\u00e7\u00e3o uma p\u00e1gina para baixo.
+selection-begin=\n Move o final da sele\u00e7\u00e3o para o in\u00edcio do texto.
+selection-end=\n Move o final da sele\u00e7\u00e3o para o final do texto.
+unselect=\n Remove a sele\u00e7\u00e3o (n\u00e3o o texto selecionado!).
 
-## funções de movimentação e rolagem
+## fun\u00e7\u00f5es de movimenta\u00e7\u00e3o e rolagem
 
-caret-backward=\n Move o cursor um caratere para trás.
+caret-backward=\n Move o cursor um caratere para tr\u00e1s.
 caret-forward=\n Move o cursor um caratere para frente.
 caret-up=\n Move o cursor uma linha para cima.
 caret-down=\n Move o cursor uma linha para baixo.
-caret-begin-word=\n Move o cursor para o início da palavra corrente.
+caret-begin-word=\n Move o cursor para o in\u00edcio da palavra corrente.
 caret-end-word=\n Move o cursor para o final da palavra corrente.
-caret-previous-word=\n Move o cursor para o início da palavra anterior.
-caret-next-word=\n Move o cursor para o início da próxima palavra.
-caret-begin-line=\n Move o cursor para o início da linha corrente.
+caret-previous-word=\n Move o cursor para o in\u00edcio da palavra anterior.
+caret-next-word=\n Move o cursor para o in\u00edcio da pr\u00f3xima palavra.
+caret-begin-line=\n Move o cursor para o in\u00edcio da linha corrente.
 caret-end-line=\n Move o cursor para o final da linha corrente.
-caret-begin-paragraph=\n Move o cursor para o início do parágrafo corrente.
-caret-end-paragraph=\n Move o cursor para o final do parágrafo corrente.
-page-up=\n Move o cursor uma página para acima.
-page-down=\n Move o cursor uma página para baixo.
-caret-begin=\n Move o cursor para o início do texto.
+caret-begin-paragraph=\n Move o cursor para o in\u00edcio do par\u00e1grafo corrente.
+caret-end-paragraph=\n Move o cursor para o final do par\u00e1grafo corrente.
+page-up=\n Move o cursor uma p\u00e1gina para acima.
+page-down=\n Move o cursor uma p\u00e1gina para baixo.
+caret-begin=\n Move o cursor para o in\u00edcio do texto.
 caret-end=\n Move o cursor para o final do texto.
 
-## funções de classe
+## fun\u00e7\u00f5es de classe
 
-save=\n Salva esta classe. Note que é raro salvar explicitamente\n uma classe porque a operação fechar faz isso automaticamente.
-reload=\n Recarrega a class a partir do arquivo fonte. Esta operação descartará\n todas as modificações feitas após a última operação de salvamento.
-close=\n Salva a classe. O código é salvo automaticamente.
-print=\n Abre o diálogo imprimir para iniciar a impressão
-page-setup=\n Abre um diálogo de configuração da página para definição de um layout.
-
-
-## funções de customização
-
-key-bindings=\n Visualiza e troca os atalhos de teclas das funções do Moe.
-preferences=\n Especifica algumas configurações de preferências para o editor.
+save=\n Salva esta classe. Note que \u00e9 raro salvar explicitamente\n uma classe porque a opera\u00e7\u00e3o fechar faz isso automaticamente.
+reload=\n Recarrega a class a partir do arquivo fonte. Esta opera\u00e7\u00e3o descartar\u00e1\n todas as modifica\u00e7\u00f5es feitas ap\u00f3s a \u00faltima opera\u00e7\u00e3o de salvamento.
+close=\n Salva a classe. O c\u00f3digo \u00e9 salvo automaticamente.
+print=\n Abre o di\u00e1logo imprimir para iniciar a impress\u00e3o
+page-setup=\n Abre um di\u00e1logo de configura\u00e7\u00e3o da p\u00e1gina para defini\u00e7\u00e3o de um layout.
 
 
-## funções de ajuda
+## fun\u00e7\u00f5es de customiza\u00e7\u00e3o
 
-describe-key=\n Após chamar esta função, pressione uma tecla. O nome da\n função associada a esta tecla é exibido.
-help-mouse=\n Exibe as associações dos botões do mouse.
-show-manual=\n Abre um browser web com o Manual do Usuário do Moe.
+key-bindings=\n Visualiza e troca os atalhos de teclas das fun\u00e7\u00f5es do Moe.
+preferences=\n Especifica algumas configura\u00e7\u00f5es de prefer\u00eancias para o editor.
+
+
+## fun\u00e7\u00f5es de ajuda
+
+describe-key=\n Ap\u00f3s chamar esta fun\u00e7\u00e3o, pressione uma tecla. O nome da\n fun\u00e7\u00e3o associada a esta tecla \u00e9 exibido.
+help-mouse=\n Exibe as associa\u00e7\u00f5es dos bot\u00f5es do mouse.
+show-manual=\n Abre um browser web com o Manual do Usu\u00e1rio do Moe.
 about-editor=\n Exibe uma nota curta sobre o Moe.
 
 
-## funções miscelâneas
+## fun\u00e7\u00f5es miscel\u00e2neas
 
-undo=\n Desfaz as últimas operações de edição. (Elas podem ser refeitas com 'redo'.)
-redo=\n Refaz as últimas operações que foram desfeitas.
+undo=\n Desfaz as \u00faltimas opera\u00e7\u00f5es de edi\u00e7\u00e3o. (Elas podem ser refeitas com 'redo'.)
+redo=\n Refaz as \u00faltimas opera\u00e7\u00f5es que foram desfeitas.
 
-find=\n Abre um diálogo para pesquisa de strings no texto. O diálogo\n permite que a pesquisa seja iniciada para frente ou para trás.
-find-next= Se houver uma seleção, procura por uma nova ocorrência do texto selecionado. Se não\n houver nenhuma seleção, procura novamente pelo mesmo string usado na\n última pesquisa. Pára no final do texto. Se for chamada novamente no final do texto,\n volta a procurar a partir do início.
-find-next-backward=\n O mesmo que find-next, mas pesquisa para cima e não para baixo.
+find=\n Abre um di\u00e1logo para pesquisa de strings no texto. O di\u00e1logo\n permite que a pesquisa seja iniciada para frente ou para tr\u00e1s.
+find-next= Se houver uma sele\u00e7\u00e3o, procura por uma nova ocorr\u00eancia do texto selecionado. Se n\u00e3o\n houver nenhuma sele\u00e7\u00e3o, procura novamente pelo mesmo string usado na\n \u00faltima pesquisa. P\u00e1ra no final do texto. Se for chamada novamente no final do texto,\n volta a procurar a partir do in\u00edcio.
+find-next-backward=\n O mesmo que find-next, mas pesquisa para cima e n\u00e3o para baixo.
 replace=\n Substitui um string por outro.
 
-compile=\n Compila a classe corrente. A classe é salva automaticamente\n antes da compilação.
-toggle-interface-view=\n Alterna a exibição do editor entre interface e código fonte.\n A interface exibe a documentação Javadoc da classe.
-toggle-breakpoint=\n Põe ou retira um breakpoint na linha corrente.
+compile=\n Compila a classe corrente. A classe \u00e9 salva automaticamente\n antes da compila\u00e7\u00e3o.
+toggle-interface-view=\n Alterna a exibi\u00e7\u00e3o do editor entre interface e c\u00f3digo fonte.\n A interface exibe a documenta\u00e7\u00e3o Javadoc da classe.
+toggle-breakpoint=\n P\u00f5e ou retira um breakpoint na linha corrente.
 
-## Texto de ajuda para associações de teclas
+## Texto de ajuda para associa\u00e7\u00f5es de teclas
 
-press-key=\n  Pressione a tecla que você deseja adicionar...
-cannot-redefine=\n  Teclas de caracteres imprimíveis não podem ser redefinidas.
+press-key=\n  Pressione a tecla que voc\u00ea deseja adicionar...
+cannot-redefine=\n  Teclas de caracteres imprim\u00edveis n\u00e3o podem ser redefinidas.

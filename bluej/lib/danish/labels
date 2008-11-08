@@ -1,10 +1,10 @@
+#BlueJ/Greenfoot properties.
+#Sat Nov 08 17:57:20 GMT 2008
 okay=Ok
 cancel=Fortryd
 close=Luk
 continue=Forts\u00E6t
-
 main.invalidPackage=Pakke ikke fundet
-
 compileException=Undtagelse under overs\u00E6ttelse
 compiler.thread.title=BlueJ overs\u00E6tter-tr\u00E5d
 compiler.invalidcompiler=bluej.compiler.type er ikke sat til en gyldig overs\u00E6tter-type
@@ -12,35 +12,31 @@ compiler.nocompiler=Overs\u00E6tter kunne ikke k\u00F8res
 compiler.warningDialog.title=Overs\u00E6tter Advarsler
 compiler.warningDialog.label=Advarsler fra sidste overs\u00E6ttelse 
 compiler.warningDialog.noWarnings=Ingen advarsler
-
 debugger.null=null
-
-debugger.assert.assertThat=Antag at:
+debugger.assert.assertThat=Antag at\:
 debugger.assert.resultIs=resultatet er
 debugger.assert.equalTo=lig med
-debugger.assert.equalToFloatingPoint= lig med (double eller float)
+debugger.assert.equalToFloatingPoint=lig med (double eller float)
 debugger.assert.sameAs=det samme som
 debugger.assert.notSameAs=ikke det samme som
 debugger.assert.notNull=ikke null
 debugger.assert.null=null
 debugger.assert.delta=delta
-
-debugger.inspector.title=BlueJ:  Inspekt\u00F8r
-debugger.inspector.object.title=BlueJ:  Objekt Inspekt\u00F8r
-debugger.inspector.class.title=BlueJ:  Klasse Inspekt\u00F8r
-debugger.inspector.enum.title=BlueJ:  Enum Inspekt\u00F8r
-debugger.inspector.interface.title=BlueJ:  Interface Inspekt\u00F8r
-debugger.inspector.result.title=BlueJ:  Metode Resultat
-debugger.inspector.result.returned=returneret:
+debugger.inspector.title=BlueJ\:  Inspekt\u00F8r
+debugger.inspector.object.title=BlueJ\:  Objekt Inspekt\u00F8r
+debugger.inspector.class.title=BlueJ\:  Klasse Inspekt\u00F8r
+debugger.inspector.enum.title=BlueJ\:  Enum Inspekt\u00F8r
+debugger.inspector.interface.title=BlueJ\:  Interface Inspekt\u00F8r
+debugger.inspector.result.title=BlueJ\:  Metode Resultat
+debugger.inspector.result.returned=returneret\:
 debugger.inspector.showClass=Vis statiske felter
 debugger.inspector.inspect=Inspicer
 debugger.inspector.get=Hent
 debugger.inspector.class.nameLabel=Klasse
 debugger.inspector.enum.nameLabel=Enum
 debugger.inspector.interface.nameLabel=Interface
-
-debugger.objectwrapper.methodException=Undtagelse ved tilgang til metoder:
-debugger.objectwrapper.invocationException=Undtagelse under kald:
+debugger.objectwrapper.methodException=Undtagelse ved tilgang til metoder\:
+debugger.objectwrapper.invocationException=Undtagelse under kald\:
 debugger.objectwrapper.inspect=Inspicer
 debugger.objectwrapper.remove=Fjern
 debugger.objectwrapper.serializable=Serialiser
@@ -48,7 +44,6 @@ debugger.objectwrapper.redefined=redefineret i
 debugger.objectwrapper.inherited=arvet fra
 debugger.objectwrapper.noMethods=(Ingen tilg\u00E6ngelige metoder)
 debugger.objectwrapper.moreMethods=flere metoder
-
 debugger.threadstatus.finished=f\u00E6rdig
 debugger.threadstatus.breakpoint=ved breakpoint
 debugger.threadstatus.stopped=stoppet
@@ -59,14 +54,10 @@ debugger.threadstatus.sleeping=sover
 debugger.threadstatus.unknown=ukendt status
 debugger.threadstatus.waiting=venter
 debugger.threadstatus.zombie=zombie
-
-#Debugger messages
-debugger.jdiDebugger.noBreakpointMsg=Ryd breakpoint: intet breakpoint fundet i denne linie.
+debugger.jdiDebugger.noBreakpointMsg=Ryd breakpoint\: intet breakpoint fundet i denne linie.
 debugger.jdiDebugger.noLineNumberMsg=Denne klasse er oversat uden linie-nummer\ninformation. Du kan ikke s\u00E6tte breakpoints.
-debugger.jdiDebugger.noCodeMsg=Kan ikke s\u00E6tte breakpoint: ingen kode p\u00E5 denne linie
+debugger.jdiDebugger.noCodeMsg=Kan ikke s\u00E6tte breakpoint\: ingen kode p\u00E5 denne linie
 debugger.jdiDebugger.internalErrorMsg=Der opstod en intern fejl under fors\u00F8get p\u00E5 at s\u00E6tte dette breakpoint
-
-# Class Manager panel user interface elements and error messages
 classmgr.prefpaneltitle=Biblioteker
 classmgr.userlibraries=Bruger-Biblioteker
 classmgr.userliblibraries=Bruger-Biblioteker fra
@@ -81,11 +72,7 @@ classmgr.error.unresolvable=Ubestemt Sti
 classmgr.error.nodescription=Ingen beskrivelse
 classmgr.error.missingclasspath=Ingen Java classpath. Klasse-indl\u00E6sning opf\u00F8rsel kan v\u00E6re underlig fordi\nklasser i den nuv\u00E6rende mappe vil blive bestemt f\u00F8rst.
 classmgr.error.missingbootclasspath=Ingen Sun boot classpath. BlueJ b\u00F8r ikke k\u00F8res p\u00E5 et pre-JDK 1.2 milj\u00F8.
-
-# Preferences Manager user interface elements and error messages
-prefmgr.title=BlueJ:  Indstillinger
-
-# Miscellaneous Preferences panel
+prefmgr.title=BlueJ\:  Indstillinger
 prefmgr.misc.prefpaneltitle=Diverse
 prefmgr.misc.documentation.title=Dokumentationsindstillinger
 prefmgr.misc.jdkurlpath=JDK dokumentation URL
@@ -100,8 +87,6 @@ prefmgr.misc.optimiseVM=Brug optimering (hurtigere k\u00F8rsel, men kan give pro
 prefmgr.misc.addLibTitle=V\u00E6lg mappe eller jar/zip fil
 prefmgr.misc.libFileFilter=Biblioteks filer (*.jar;*.zip) eller klasse mapper
 prefmgr.misc.showUnchecked=Vis overs\u00E6tter advarsler n\u00E5r usikre samlinger bruges
-
-# Editor Preferences panel
 prefmgr.edit.prefpaneltitle=Editor
 prefmgr.edit.editor.title=Editor indstillinger
 prefmgr.edit.editorfontsize=Font st\u00F8rrelse
@@ -110,10 +95,7 @@ prefmgr.edit.autoindent=Auto-indryk (Enter og Tab tasterne)
 prefmgr.edit.displaylinenumbers=Vis linie-numre
 prefmgr.edit.makeBackup=Lav sikkerhedskopi af kildekode filer
 prefmgr.edit.matchBrackets=Parring af parenteser
-
-
-# Extensions Manager Help panel
-extmgr.title=BlueJ:  Installerede Udvidelser
+extmgr.title=BlueJ\:  Installerede Udvidelser
 extmgr.extensions=Udvidelser
 extmgr.systemExtensionShort=System
 extmgr.systemExtensionLong=System udvidelser (aktive for alle projekter)
@@ -123,102 +105,77 @@ extmgr.statuscolumn=Status
 extmgr.namecolumn=Navn
 extmgr.typecolumn=Type
 extmgr.details=Udvidelse detaljer
-extmgr.details.location=Placering:
+extmgr.details.location=Placering\:
 extmgr.details.version=version
-extmgr.details.url=Mere information:
-
+extmgr.details.url=Mere information\:
 extmgr.status.notused=ikke brugt
 extmgr.status.loaded=indl\u00E6st
 extmgr.status.error=fejl
 extmgr.status.unloaded=ikke indl\u00E6st
 extmgr.version.unknown=ukendt
 extensions.nodescription=Ingen angivet.
-
-# Extension errors
 extmgr.error.nomanifest=Ingen manifest fil
 extmgr.error.nomain=Manifest indeholder ikke Main-Class attribut
 extmgr.error.notsubclass=Main klasse er ikke en subklasse af Extension
 extmgr.error.cannotload=Udvidelse kunne ikke indl\u00E6ses
-
-#---------------
-#Editor labels
-#---------------
-editor.title=BlueJ: Editor
-
-#button lables for toolbar commands
-editor.compileLabel = Overs\u00E6t
-editor.undoLabel = Fortryd
-editor.cutLabel = Klip
-editor.copyLabel = Kopier
-editor.pasteLabel = S\u00E6t ind
-editor.closeLabel = Luk
-editor.page-setupLabel = Side ops\u00E6tning...
-
-# menu labels (MUST be defined)
-editor.classLabel = Klasse
-editor.editLabel = Rediger
-editor.toolsLabel = V\u00E6rkt\u00F8jer
-editor.debugLabel = Debug
-editor.optionLabel = Indstillinger
-editor.helpLabel = Hj\u00E6lp
-
-# item labels (can be omitted if same as action name)
-editor.saveLabel = Gem
-editor.reloadLabel = Genindl\u00E6s
-editor.printLabel = Udskriv...
-editor.closeLabel =Luk
-
-editor.redoLabel = Gentag
-editor.cut-to-clipboardLabel = Klip
-editor.copy-to-clipboardLabel = Kopier
-editor.paste-from-clipboardLabel = S\u00E6t ind
-editor.indent-blockLabel = Indryk mere
-editor.deindent-blockLabel = Indryk mindre
-editor.comment-blockLabel = Kommenter
-editor.uncomment-blockLabel = Fjern kommentar
-editor.insert-methodLabel = Inds\u00E6t metode
-
-editor.findLabel = Find...
-editor.find-nextLabel = Find N\u00E6ste
-editor.find-next-backwardLabel = Find N\u00E6ste Bagl\u00E6ns
-editor.go-to-lineLabel = G\u00E5 til linie...
-editor.replaceLabel = Erstat...
-editor.compileLabel = Overs\u00E6t
-editor.toggle-breakpointLabel = S\u00E6t/Fjern Breakpoint
-editor.toggle-interface-viewLabel = Skift Interface Visning
-
-editor.go-to-lineLabel = G\u00E5 til linie...
-editor.gotoline.title = G\u00E5 til linie
-editor.gotoline.label = Indtast linie nummer
-editor.gotoline.notNumericMessage = Input skal v\u00E6re numerisk
-
-editor.implementationLabel = Implementation
-editor.interfaceLabel = Interface
-
-editor.state.readOnly = skrivebeskyttet
-editor.state.saved = gemt
-editor.state.changed = \u00E6ndret
-
-editor.key-bindingsLabel = Tastatur Bindinger...
-editor.preferencesLabel = Indstillinger...
-
-# Dialog titles and texts
-editor.functions.title = Editor Funktioner
-editor.functions.editFunctions = Rediger Funktioner
-editor.functions.moveScroll = Flyt & Scroll
-editor.functions.classFunctions = Klasse Funktion
-editor.functions.customisation = Tilpasning
-editor.functions.help = Hj\u00E6lp
-editor.functions.misc = Diverse
+editor.title=BlueJ\: Editor
+editor.compileLabel=Overs\u00E6t
+editor.undoLabel=Fortryd
+editor.cutLabel=Klip
+editor.copyLabel=Kopier
+editor.pasteLabel=S\u00E6t ind
+editor.closeLabel=Luk
+editor.page-setupLabel=Side ops\u00E6tning...
+editor.classLabel=Klasse
+editor.editLabel=Rediger
+editor.toolsLabel=V\u00E6rkt\u00F8jer
+editor.debugLabel=Debug
+editor.optionLabel=Indstillinger
+editor.helpLabel=Hj\u00E6lp
+editor.saveLabel=Gem
+editor.reloadLabel=Genindl\u00E6s
+editor.printLabel=Udskriv...
+editor.redoLabel=Gentag
+editor.cut-to-clipboardLabel=Klip
+editor.copy-to-clipboardLabel=Kopier
+editor.paste-from-clipboardLabel=S\u00E6t ind
+editor.indent-blockLabel=Indryk mere
+editor.deindent-blockLabel=Indryk mindre
+editor.comment-blockLabel=Kommenter
+editor.uncomment-blockLabel=Fjern kommentar
+editor.insert-methodLabel=Inds\u00E6t metode
+editor.findLabel=Find...
+editor.find-nextLabel=Find N\u00E6ste
+editor.find-next-backwardLabel=Find N\u00E6ste Bagl\u00E6ns
+editor.go-to-lineLabel=G\u00E5 til linie...
+editor.replaceLabel=Erstat...
+editor.toggle-breakpointLabel=S\u00E6t/Fjern Breakpoint
+editor.toggle-interface-viewLabel=Skift Interface Visning
+editor.gotoline.title=G\u00E5 til linie
+editor.gotoline.label=Indtast linie nummer
+editor.gotoline.notNumericMessage=Input skal v\u00E6re numerisk
+editor.implementationLabel=Implementation
+editor.interfaceLabel=Interface
+editor.state.readOnly=skrivebeskyttet
+editor.state.saved=gemt
+editor.state.changed=\u00E6ndret
+editor.key-bindingsLabel=Tastatur Bindinger...
+editor.preferencesLabel=Indstillinger...
+editor.functions.title=Editor Funktioner
+editor.functions.editFunctions=Rediger Funktioner
+editor.functions.moveScroll=Flyt & Scroll
+editor.functions.classFunctions=Klasse Funktion
+editor.functions.customisation=Tilpasning
+editor.functions.help=Hj\u00E6lp
+editor.functions.misc=Diverse
 editor.functions.defaults=Standarder
-editor.functions.categories=Kategorier:
+editor.functions.categories=Kategorier\:
 editor.functions.keys=Tastatur Bindinger
 editor.functions.addkey=Tilf\u00F8j Tast
 editor.functions.delkey=Slet Tast
-
-editor.find.title = Find
-editor.find.find.label = Find:
-editor.find.replace.label = Erstat:
+editor.find.title=Find
+editor.find.find.label=Find\:
+editor.find.replace.label=Erstat\:
 editor.find.findNext=Find N\u00E6ste
 editor.find.replace=Erstat
 editor.find.replaceAll=Erstat alle
@@ -229,62 +186,50 @@ editor.find.wholeWord=Helt ord
 editor.find.backward=bagl\u00E6ns
 editor.find.forward=forl\u00E6ns
 editor.find.wrapAround=Gentag fra top
-
-#Messages shown as a result of a search with replace all
 editor.replaceAll.replaced=Erstattet 
 editor.replaceAll.intancesOf=\ instanser af 
 editor.replaceAll.string=Streng 
 editor.replaceAll.notFoundNothingReplaced=\ ikke fundet. Intet erstattet.
-
-#Messages shown when determining what function is bound to a given key
 editor.keypressed.keyIsNotBound=\ er ikke bundet til en funktion.
 editor.keypressed.callsTheFunction=\ kalder funktionen "
-
-#Messages, warnings, etc that is displayed by Info.java
-editor.info.version = Moe version
-editor.info.readingProblem = Der var et problem med at l\u00E6se denne fil.
-editor.info.regularFile = (Er det en normal fil? Har du l\u00E6se-adgang?)
-editor.info.newFile = Ny fil
-editor.info.errorSaving = Fejl ved gemning af fil!
-editor.info.compiled = Klasse oversat - ingen syntaks fejl
-editor.info.noChanges = Ingen \u00E6ndringer skal gemmes
-editor.info.cannotReload = Kan ikke genindl\u00E6se - denne tekst blev aldrig gemt!
-editor.info.reload = (\"Genindl\u00E6s\" genindl\u00E6ser den sidst gemte tilstand fra disken.)
-editor.info.emptySearchString = Tom s\u00F8ge-streng.
-editor.info.notFound = Ikke fundet (s\u00F8g igen for at gentage fra toppen).
-editor.info.compiling = Overs\u00E6tter...
-editor.info.cannotSetBreak = Kan ikke s\u00E6tte breakpoint:\nIngen kode tilknyttet denne editor.
-editor.info.fileDisappeared = FEJL: Filen ser ud til at v\u00E6re forsvundet!
-editor.info.fileReadError = FEJL: Der var en fejl under l\u00E6sning af denne fil.
-editor.info.saved = Fil gemt
-editor.info.printing = Udskriver...
-editor.info.printed = Udskriver... F\u00E6rdig.
-editor.info.cancelled = Afbrudt.
-editor.info.generatingDoc = Genererer klasse interface...
-editor.info.loadingDoc = Indl\u00E6ser klasse interface...
-editor.info.docLoaded = Indl\u00E6ser klasse interface... F\u00E6rdig.
-editor.info.docAborted = Der opstod et alvorligt problem under generering af javadoc\ninterface. Afbrudt.
-editor.info.docDisappeared = Kan ikke finde HTML fil:
-editor.info.docNoFrames = Frame-visning er sl\u00E5et fra i editor preview.
-editor.info.tabsExpanded = Konverterede alle TABs til mellemrum. (Du arbejder\nmed bl\u00F8de TABs, filen indeholdt h\u00E5rde TABs.)
+editor.info.version=Moe version
+editor.info.readingProblem=Der var et problem med at l\u00E6se denne fil.
+editor.info.regularFile=(Er det en normal fil? Har du l\u00E6se-adgang?)
+editor.info.newFile=Ny fil
+editor.info.errorSaving=Fejl ved gemning af fil\!
+editor.info.compiled=Klasse oversat - ingen syntaks fejl
+editor.info.noChanges=Ingen \u00E6ndringer skal gemmes
+editor.info.cannotReload=Kan ikke genindl\u00E6se - denne tekst blev aldrig gemt\!
+editor.info.reload=("Genindl\u00E6s" genindl\u00E6ser den sidst gemte tilstand fra disken.)
+editor.info.emptySearchString=Tom s\u00F8ge-streng.
+editor.info.notFound=Ikke fundet (s\u00F8g igen for at gentage fra toppen).
+editor.info.compiling=Overs\u00E6tter...
+editor.info.cannotSetBreak=Kan ikke s\u00E6tte breakpoint\:\nIngen kode tilknyttet denne editor.
+editor.info.fileDisappeared=FEJL\: Filen ser ud til at v\u00E6re forsvundet\!
+editor.info.fileReadError=FEJL\: Der var en fejl under l\u00E6sning af denne fil.
+editor.info.saved=Fil gemt
+editor.info.printing=Udskriver...
+editor.info.printed=Udskriver... F\u00E6rdig.
+editor.info.cancelled=Afbrudt.
+editor.info.generatingDoc=Genererer klasse interface...
+editor.info.loadingDoc=Indl\u00E6ser klasse interface...
+editor.info.docLoaded=Indl\u00E6ser klasse interface... F\u00E6rdig.
+editor.info.docAborted=Der opstod et alvorligt problem under generering af javadoc\ninterface. Afbrudt.
+editor.info.docDisappeared=Kan ikke finde HTML fil\:
+editor.info.docNoFrames=Frame-visning er sl\u00E5et fra i editor preview.
+editor.info.tabsExpanded=Konverterede alle TABs til mellemrum. (Du arbejder\nmed bl\u00F8de TABs, filen indeholdt h\u00E5rde TABs.)
 editor.printer.continued=fortsat
-#End Editor labels
-
 pkgmgr.chooseUsesFrom=V\u00E6lg den klasse der er afh\u00E6ngig af en anden
 pkgmgr.chooseUsesTo=V\u00E6lg den klasse den er afh\u00E6ngig af
 pkgmgr.chooseInhFrom=V\u00E6lg subklassen
 pkgmgr.chooseInhTo=V\u00E6lg superklassen
 pkgmgr.chooseArrow=V\u00E6lg en pil for at slette
 pkgmgr.packageSaved=Pakke gemt
-pkgmgr.info.printing = Udskriver...
-pkgmgr.info.printed = Udskriver... F\u00E6rdig.
-
+pkgmgr.info.printing=Udskriver...
+pkgmgr.info.printed=Udskriver... F\u00E6rdig.
 utility.packageChooser.previewPane1=Forh\u00E5ndsvisning af mulig
 utility.packageChooser.previewPane2=pakke struktur
-
-# dialog titles and texts
-pkgmgr.title=BlueJ:  
-
+pkgmgr.title=BlueJ\:  
 pkgmgr.newPkg.title=Nyt Projekt
 pkgmgr.newPkg.buttonLabel=Opret
 pkgmgr.openPkg.title=\u00C5bn Projekt
@@ -299,7 +244,6 @@ pkgmgr.importPkg.title=V\u00E6lg mappe der skal importeres
 pkgmgr.importPkg.buttonLabel=Importer
 pkgmgr.importPkgNew.title=Nyt Projekt der skal Importeres ind i
 pkgmgr.importPkgNew.buttonLabel=Opret
-
 pkgmgr.newClass.msg=Indtast navnet p\u00E5 klassen
 pkgmgr.newUses=Ny Anvender-pil
 pkgmgr.newExtends=Ny Udvider-pil
@@ -307,20 +251,16 @@ pkgmgr.unimplemented=Desv\u00E6rre - den funktionalitet er ikke implementeret en
 pkgmgr.pkgChooseError=Fejl ved valg af gyldigt pakke navn
 pkgmgr.chooseWebPage.title=V\u00E6lg HTML-side destination
 pkgmgr.chooseWebPage.buttonLabel=Gem HTML-side
-
 pkgmgr.parentpackagetarget.open=\u00C5bn
 pkgmgr.parentpackagetarget.openunamed=\u00C5bn unavngiven pakke
-
 pkgmgr.packagemenu.open=\u00C5bn
 pkgmgr.packagemenu.remove=Fjern
-
 pkgmgr.classmenu.runApplet=K\u00F8r Applet
 pkgmgr.classmenu.edit=\u00C5bn Editor
 pkgmgr.classmenu.compile=Overs\u00E6t
 pkgmgr.classmenu.inspect=Inspicer
 pkgmgr.classmenu.remove=Fjern
 pkgmgr.classmenu.createTest=Opret Test-Klasser
-
 pkgmgr.test.label=Tester
 pkgmgr.test.record=optager
 pkgmgr.test.run=K\u00F8r Tests
@@ -329,7 +269,6 @@ pkgmgr.test.succeeded=lykkedes
 pkgmgr.test.noTestName=Du skal specificere et navn til testen
 pkgmgr.test.invalidTestName=Test navnet skal v\u00E6re en gyldig Java identifier
 pkgmgr.test.recording=optager
-
 pkgmgr.test.popup.testAll=Test Alle
 pkgmgr.test.popup.noTests=Ingen test metoder
 pkgmgr.test.popup.abstract=Test klasse er abstrakt
@@ -337,17 +276,11 @@ pkgmgr.test.popup.testPrefix=Test
 pkgmgr.test.popup.createTest=Opret Test Metode...
 pkgmgr.test.popup.benchToFixture=Objekt-B\u00E6nk til Test Fikstur
 pkgmgr.test.popup.fixtureToBench=Test Fikstur til Objekt-B\u00E6nk
-
-# codepad messages
-pkgmgr.codepad.uninitialized=Note: Codepad variable bliver automatisk initialiseret\n p\u00E5 samme m\u00E5de som instans felter.
+pkgmgr.codepad.uninitialized=Note\: Codepad variable bliver automatisk initialiseret\n p\u00E5 samme m\u00E5de som instans felter.
 pkgmgr.codepad.vmTerminated=VM reset opstod
-# The "variable has already been defined" error message in the codepad. The '$' symbol will be
-# replaced by the name of the problematic variable.
 pkgmgr.codepad.redefinedVar=$ er allerede defineret
-
-# "new class" dialog
-pkgmgr.newClass.title=BlueJ:  Opret ny klasse
-pkgmgr.newClass.label=Klasse navn:
+pkgmgr.newClass.title=BlueJ\:  Opret ny klasse
+pkgmgr.newClass.label=Klasse navn\:
 pkgmgr.newClass.classType=Klasse type
 pkgmgr.newClass.stdclass=Klasse
 pkgmgr.newClass.abstract=Abstrakt Klasse
@@ -356,139 +289,109 @@ pkgmgr.newClass.applet=Applet
 pkgmgr.newClass.appletj=Applet
 pkgmgr.newClass.unittest=Unit Test
 pkgmgr.newClass.enum=Enum
-
-# "new package" dialog
-pkgmgr.newPackage.title=BlueJ:  Opret Ny Pakke
-pkgmgr.newPackage.label=Pakke Navn:
+pkgmgr.newPackage.title=BlueJ\:  Opret Ny Pakke
+pkgmgr.newPackage.label=Pakke Navn\:
 pkgmgr.newPackage.newPackage=Pakke
-
-# "Use Library Class" dialog
-callLibraryDialog.title=BlueJ:  Kald Biblioteks klasse
-callLibraryDialog.classLabel=Klasse:
+callLibraryDialog.title=BlueJ\:  Kald Biblioteks klasse
+callLibraryDialog.classLabel=Klasse\:
 callLibraryDialog.docButton=Dokumentation
 callLibraryDialog.listHeading=Konstrukt\u00F8rer og statiske metoder
 callLibraryDialog.clickHere1=Indtast helt klasse navn, tryk derefter Retur
 callLibraryDialog.clickHere2=for at vise konstrukt\u00F8rer og metoder.
 callLibraryDialog.classNotFound1=Kunne ikke finde klassen.
 callLibraryDialog.classNotFound2=(Check klasse-navnet og tryk Retur igen.)
-
-# "export" dialog
-pkgmgr.export.title=BlueJ:  Opret Jar Fil
+pkgmgr.export.title=BlueJ\:  Opret Jar Fil
 pkgmgr.export.helpLine1=Opret en enkelt Java arkiv (jar) fil indeholdende
 pkgmgr.export.helpLine2=projektet. K\u00F8rbar hvis main-klasse er specificeret.
-pkgmgr.export.classLabel=Main klasse:
+pkgmgr.export.classLabel=Main klasse\:
 pkgmgr.export.includeLibs=Inkluder bruger-biblioteker
 pkgmgr.export.sourceLabel=Inkluder kildekode
 pkgmgr.export.pkgFilesLabel=Inkluder Bluej projekt filer
 pkgmgr.export.noClassText=ingen (kan ikke k\u00F8res)
 pkgmgr.export.specifyJar=Specificer navn til jar fil
 pkgmgr.export.createJarText=Opret
-
-# "open-non-bluej" mismatch dialog
-pkgmgr.importmismatch.title=BlueJ:  Pakke-Linie passer ikke
-pkgmgr.importmismatch.helpLine1=ADVARSEL: Dette er ikke den forventede top-mappe for dette Java
+pkgmgr.importmismatch.title=BlueJ\:  Pakke-Linie passer ikke
+pkgmgr.importmismatch.helpLine1=ADVARSEL\: Dette er ikke den forventede top-mappe for dette Java
 pkgmgr.importmismatch.helpLine2=projekt som erkl\u00E6ret i nogle af projektets klassers pakke-erkl\u00E6ringer.
 pkgmgr.importmismatch.helpLine3=\u00C5bning af denne mappe vil \u00E6ndre alle pakke-erkl\u00E6ringer i
 pkgmgr.importmismatch.helpLine4=f\u00F8lgende kildekode filer i projektet.
 pkgmgr.importmismatch.helpLine5=H\u00F8jst sandsynligt b\u00F8r du \u00E5bne mappen oven over den du
-pkgmgr.importmismatch.helpLine6=har valgt. For eksempel: for at \u00E5bne et Java projekt der indeholder
+pkgmgr.importmismatch.helpLine6=har valgt. For eksempel\: for at \u00E5bne et Java projekt der indeholder
 pkgmgr.importmismatch.helpLine7=pakken "org.bluej", skal du v\u00E6lge mappen der
 pkgmgr.importmismatch.helpLine8=_indeholder_ "org",  ikke selve "org" eller "bluej" mappen.
 pkgmgr.importmismatch.helpLine9=Vil du forts\u00E6tte med at \u00E5bne og \u00E6ndre pakke erkl\u00E6ringerne?
-
-# "import" failure dialog
-pkgmgr.importfailed.title=BlueJ:  Importerings Status
+pkgmgr.importfailed.title=BlueJ\:  Importerings Status
 pkgmgr.importfailed.helpLine1=Import kunne ikke kopiere f\u00F8lgende filer.
 pkgmgr.importfailed.helpLine2=Dette er h\u00F8jst sandsynligt fordi disse filer allerede
 pkgmgr.importfailed.helpLine3=er til stede i destinations-projektet.
-
-# "version check" dialog
-pkgmgr.versionDlg.title=BlueJ:  Check for ny version
+pkgmgr.versionDlg.title=BlueJ\:  Check for ny version
 pkgmgr.versionDlg.helpLine1=Denne funktion vil checke om der er en ny BlueJ version
 pkgmgr.versionDlg.helpLine2=tilg\u00E6ngelig. Du skal v\u00E6re online for at dette virker.
 pkgmgr.versionDlg.check=Check Version
 pkgmgr.versionDlg.upToDate=Den nuv\u00E6rende version er up-to-date.
 pkgmgr.versionDlg.currentVersion=Din nuv\u00E6rende BlueJ version er
 pkgmgr.versionDlg.newVersion=Den nyeste BlueJ version er
-
-# run applet dialog
-pkgmgr.runApplet.title=BlueJ:  K\u00E6r Applet
+pkgmgr.runApplet.title=BlueJ\:  K\u00E6r Applet
 pkgmgr.runApplet.webPageLabel=Opret Webside
 pkgmgr.runApplet.webPage=Generer kun webside
 pkgmgr.runApplet.appletviewer=K\u00F8r Applet i appletviewer
 pkgmgr.runApplet.webBrowser=K\u00F8r Applet i web browser
-pkgmgr.runApplet.heightLbl=H\u00F8jde =
-pkgmgr.runApplet.widthLbl=Bredde =
+pkgmgr.runApplet.heightLbl=H\u00F8jde \=
+pkgmgr.runApplet.widthLbl=Bredde \=
 pkgmgr.runApplet.newParameterLbl=Tilf\u00F8j Ny Parameter
-pkgmgr.runApplet.appletParameterLbl= Applet Parametre
-pkgmgr.runApplet.nameLbl=Navn =
-pkgmgr.runApplet.valueLbl=V\u00E6rdi =
+pkgmgr.runApplet.appletParameterLbl=Applet Parametre
+pkgmgr.runApplet.nameLbl=Navn \=
+pkgmgr.runApplet.valueLbl=V\u00E6rdi \=
 pkgmgr.runApplet.paramName=PARAM NAME
 pkgmgr.runApplet.value=VALUE
-pkgmgr.runApplet.htmlComment=<!-- Denne fil er automatisk genereret af BlueJ Java Development  -->\n<!-- Environment.  Den genereres automatisk hver gang  -->\n<!-- applet'en k\u00F8res.  Manuelle \u00E6ndringer vil blive overskrevet -->\n<!-- n\u00E6ste gang applet'en k\u00F8res i BlueJ.  Gem i en       -->\n<!-- mappe udenfor pakke-mappen hvis du vil    -->\n<!-- bevare denne fil. -->
-pkgmgr.runApplet.htmlExportedComment=<!-- Denne fil er automatisk genereret af BlueJ Java Development  -->\n<!-- Environment.  codebase variablen er sat til den absolutte sti til   -->\n<!-- bluej pakke-mappen til applet'en p\u00E5 det tidspunkt denne side genereres. -->\n<!-- Hvis placeringen af den pakke skifter, skal du redigere codebase v\u00E6rdien.       -->
-
-#print project dialog
-pkgmgr.printDialog.title=BlueJ:  Print Projekt
+pkgmgr.runApplet.htmlComment=<\!-- Denne fil er automatisk genereret af BlueJ Java Development  -->\n<\!-- Environment.  Den genereres automatisk hver gang  -->\n<\!-- applet'en k\u00F8res.  Manuelle \u00E6ndringer vil blive overskrevet -->\n<\!-- n\u00E6ste gang applet'en k\u00F8res i BlueJ.  Gem i en       -->\n<\!-- mappe udenfor pakke-mappen hvis du vil    -->\n<\!-- bevare denne fil. -->
+pkgmgr.runApplet.htmlExportedComment=<\!-- Denne fil er automatisk genereret af BlueJ Java Development  -->\n<\!-- Environment.  codebase variablen er sat til den absolutte sti til   -->\n<\!-- bluej pakke-mappen til applet'en p\u00E5 det tidspunkt denne side genereres. -->\n<\!-- Hvis placeringen af den pakke skifter, skal du redigere codebase v\u00E6rdien.       -->
+pkgmgr.printDialog.title=BlueJ\:  Print Projekt
 pkgmgr.printDialog.printDiagram=Print klasse diagram
 pkgmgr.printDialog.printSource=Print kildekode
 pkgmgr.printDialog.printReadme=Print projekt readme 
-
-# method call dialog
-pkgmgr.methodCall.titleCreate=BlueJ:  Opret Objekt
-pkgmgr.methodCall.titleCall=BlueJ:  Metode Kald
-pkgmgr.methodCall.namePrompt=Navn p\u00E5 Instans:
-pkgmgr.methodCall.typeParametersPrompt=Type Parametre:
-pkgmgr.methodCall.typeParameterPrompt=Type Parameter:
-error.methodCall.emptyField=Error: Tomt parameter felt.
-error.methodCall.emptyTypeField=Error: Tomt type parameter felt.\nUdfyld enten alle type parametre eller ingen af dem.
+pkgmgr.methodCall.titleCreate=BlueJ\:  Opret Objekt
+pkgmgr.methodCall.titleCall=BlueJ\:  Metode Kald
+pkgmgr.methodCall.namePrompt=Navn p\u00E5 Instans\:
+pkgmgr.methodCall.typeParametersPrompt=Type Parametre\:
+pkgmgr.methodCall.typeParameterPrompt=Type Parameter\:
+error.methodCall.emptyField=Error\: Tomt parameter felt.
+error.methodCall.emptyTypeField=Error\: Tomt type parameter felt.\nUdfyld enten alle type parametre eller ingen af dem.
 error.methodCall.illegalName=Instans-navnet skal v\u00E6re en Java identifikator.
 error.methodCall.duplicateName=Et objekt med dette navn eksisterer allerede.\nV\u00E6lg et unikt navn.
-
-# Debugger dialog (ExecControls.java)
-debugger.execControls.windowTitle = BlueJ:  Debugger
-debugger.execControls.stackTitle = Kalde-Sekvens
-debugger.execControls.staticTitle = Statiske variable
-debugger.execControls.instanceTitle = Instans variable
-debugger.execControls.localTitle = Lokale variable
-debugger.execControls.threadTitle = Tr\u00E5de
-debugger.execControls.haltButtonText = Stop
-debugger.execControls.stepButtonText = Step
-debugger.execControls.stepIntoButtonText = Step ind i
-debugger.execControls.continueButtonText = Forts\u00E6t
-debugger.execControls.terminateButtonText = Terminer
-
-debugger.options = Indstillinger
-debugger.hideSystemThreads = Skjul system-tr\u00E5de
-debugger.threadRunning = <html><center>Tr\u00E5d k\u00F8rer.<br>Tr\u00E5de skal stoppes for at vise detaljer.</html>
-
-# DialogManager labels
-
-dialogmgr.error = BlueJ:  Fejl
-dialogmgr.question = BlueJ:  Sp\u00F8rgsm\u00E5l
-dialogmgr.message = BlueJ:  Besked
-
-#Terminal Window
-terminal.options = Indstillinger
-terminal.title = BlueJ:  Terminal Vindue
-terminal.clear = Ryd
-terminal.copy = Kopier
-terminal.save = Gem til fil...
-terminal.close = Luk
-terminal.clearScreen = Ryd sk\u00E6rm ved metode-kald
-terminal.recordCalls = Optag metode-kald
-terminal.buffering = Ubegr\u00E6nset buffering
-terminal.save.title = Gem terminal tekst
-terminal.save.buttonText = Gem
-
-#TestDisplay Window
-testdisplay.title = BlueJ:  Test Resultater
-testdisplay.counter.runs=K\u00F8rsler:
-testdisplay.counter.errors=Fejl:
-testdisplay.counter.failures=Ikke best\u00E5et:
+debugger.execControls.windowTitle=BlueJ\:  Debugger
+debugger.execControls.stackTitle=Kalde-Sekvens
+debugger.execControls.staticTitle=Statiske variable
+debugger.execControls.instanceTitle=Instans variable
+debugger.execControls.localTitle=Lokale variable
+debugger.execControls.threadTitle=Tr\u00E5de
+debugger.execControls.haltButtonText=Stop
+debugger.execControls.stepButtonText=Step
+debugger.execControls.stepIntoButtonText=Step ind i
+debugger.execControls.continueButtonText=Forts\u00E6t
+debugger.execControls.terminateButtonText=Terminer
+debugger.options=Indstillinger
+debugger.hideSystemThreads=Skjul system-tr\u00E5de
+debugger.threadRunning=<html><center>Tr\u00E5d k\u00F8rer.<br>Tr\u00E5de skal stoppes for at vise detaljer.</html>
+dialogmgr.error=BlueJ\:  Fejl
+dialogmgr.question=BlueJ\:  Sp\u00F8rgsm\u00E5l
+dialogmgr.message=BlueJ\:  Besked
+terminal.options=Indstillinger
+terminal.title=BlueJ\:  Terminal Vindue
+terminal.clear=Ryd
+terminal.copy=Kopier
+terminal.save=Gem til fil...
+terminal.close=Luk
+terminal.clearScreen=Ryd sk\u00E6rm ved metode-kald
+terminal.recordCalls=Optag metode-kald
+terminal.buffering=Ubegr\u00E6nset buffering
+terminal.save.title=Gem terminal tekst
+terminal.save.buttonText=Gem
+testdisplay.title=BlueJ\:  Test Resultater
+testdisplay.counter.runs=K\u00F8rsler\:
+testdisplay.counter.errors=Fejl\:
+testdisplay.counter.failures=Ikke best\u00E5et\:
 testdisplay.showsource=Vis kilde
-
-# status messages
 pkgmgr.compiling=Overs\u00E6tter...
 pkgmgr.compileDone=Overs\u00E6tter... F\u00E6rdig.
 pkgmgr.creating=Opretter objekt...
@@ -500,19 +403,15 @@ pkgmgr.docuGenerated=Genererer dokumentation... F\u00E6rdig.
 pkgmgr.docuAborted=Genererer dokumentation... Afbrudt.
 pkgmgr.webBrowserMsg=Web browser startet.
 pkgmgr.webBrowserError=Fejl ved start af web browser.
-pkgmgr.usesArrowMsg="Anvender" afh\u00E6ngighed erkl\u00E6ret men aldrig brugt:
+pkgmgr.usesArrowMsg="Anvender" afh\u00E6ngighed erkl\u00E6ret men aldrig brugt\:
 pkgmgr.breakpointMsg=Klasse skal overs\u00E6ttes for at s\u00E6tte breakpoints.
 pkgmgr.appletInViewer=K\u00F8rer Applet i appletviewer
 pkgmgr.appletInBrowser=K\u00F8rer Applet i web browser
 pkgmgr.exported.jar=Eksportering til jar fil f\u00E6rdig.
 pkgmgr.error.open=Projektet eksisterer ikke (mere)
 pkgmgr.checkingVersion=Opretter forbindelse til versions server...
-
-properties.heading.bluej=BlueJ egenskaber. Indstillinger i denne fil vil g\u00E6lde f\u00F8r \"bluej.defs\"
-properties.heading.moe=Moe Editor egenskaber. Indstillinger i denne fil vil g\u00E6lde f\u00F8r \"moe.defs\"
-
-# menus and menu items
-
+properties.heading.bluej=BlueJ egenskaber. Indstillinger i denne fil vil g\u00E6lde f\u00F8r "bluej.defs"
+properties.heading.moe=Moe Editor egenskaber. Indstillinger i denne fil vil g\u00E6lde f\u00F8r "moe.defs"
 menu.package=_Projekt
 menu.package.new=_Nyt Projekt...
 menu.package.open=_\u00C5bn Projekt...@O
@@ -526,7 +425,6 @@ menu.package.export=Lav _Jar Fil...
 menu.package.pageSetup=Side _ops\u00E6tning...@^P
 menu.package.print=_Udskriv...@P
 menu.package.quit=_Afslut@Q
-
 menu.edit=_Rediger
 menu.edit.newClass=Ny klasse...@N
 menu.edit.newPackage=Ny Pakke...@R
@@ -535,7 +433,6 @@ menu.edit.remove=Fjern@BACK_SPACE
 menu.edit.newUses=Ny _Anvender-Pil...
 menu.edit.newInherits=Ny _Udvider-Pil...
 menu.edit.removeArrow=Fjern Pil...
-
 menu.tools=_V\u00E6rkt\u00F8jer
 menu.tools.compile=Overs\u00E6t@K
 menu.tools.compileSelected=Overs\u00E6t Valgt@^K
@@ -547,10 +444,7 @@ menu.tools.run=K\u00F8r Tests
 menu.tools.end=Slut Optagelse
 menu.tools.cancel=Fortryd Optagelse
 menu.tools.teamwork=Team
-
 menu.tools.preferences=_Indstillinger...@,
-
-
 menu.view=_Vis
 menu.view.showUses=Vis Anvender@U
 menu.view.showInherits=Vis Udvider@I
@@ -558,8 +452,6 @@ menu.view.showExecControls=Vis Debugger@D
 menu.view.showTerminal=Vis Terminal@T
 menu.view.showTextEval=Vis Code Pad@E
 menu.view.showTestDisplay=Vis Test _Resultater
-#menu.view.showTeamControls=Vis Team Komponenter@G
-
 team.project.marker=Delt Projekt
 team.commit=Aflever
 team.menu.commit=Aflever til repository
@@ -582,8 +474,8 @@ team.checkout=Check projekt ud
 team.checkout.statusMessage=Checker Delt Projekt ud
 team.history=Vis Projekt Historie
 team.history.title=Projekt Historie
-team.history.filefilter=Vis fil:
-team.history.userfilter=Vis bruger:
+team.history.filefilter=Vis fil\:
+team.history.userfilter=Vis bruger\:
 team.import=Del dette Projekt
 team.import.statusMessage=Deler dette Projekt
 team.includeLayout=Inkluder Diagram Layout
@@ -593,18 +485,13 @@ team.status.status=Teamwork status
 team.status.resource=Team resurser
 team.status.version=Revision
 team.status.refresh=Genindl\u00E6s
-
-# The following appear in brackets after a filename, in the
-# update/commit dialogs.
 team.status.delete=slet fra repository
 team.status.add=tilf\u00F8j til repository
 team.status.new=ny fil
 team.status.removed=slet
 team.status.needsmerge=flet opdateringer
-
 team.nocommitfiles=Ingen filer at aflevere
 team.noupdatefiles=Ingen filer at opdatere
-
 team.statusinfo.upToDate=Up-to-date
 team.statusinfo.needsCheckout=Ny i repository
 team.statusinfo.needsUpdate=Opdateret i repository
@@ -619,8 +506,7 @@ team.statusinfo.weird=???
 team.statusinfo.conflictAdd=Tilf\u00F8jet lokalt og i repository (konflikt)
 team.statusinfo.conflictLMRD=Modificeret lokalt og fjernet fra repository (konflikt)
 team.statusinfo.conflictLDRM=Fjernet lokalt og modificeret i repository (konflikt)
-
-team.settings.title = Team Indstillinger
+team.settings.title=Team Indstillinger
 team.settings.personal=Personlig
 team.settings.location=Placering
 team.settings.user=Bruger
@@ -633,26 +519,20 @@ team.settings.pserver=pserver
 team.settings.protocol=Protocol
 team.settings.rememberSettings=Husk indstillinger til fremtidige projekter
 team.settings.checkConnection=Check forbindelse
-
 team.moduleselect.title=V\u00E6lg projekt der skal checkes ud
-team.moduleselect.label=V\u00E6lg eller indtast projekt navn:
-team.moduleselect.available=Tilg\u00E6ngelige projekter:
+team.moduleselect.label=V\u00E6lg eller indtast projekt navn\:
+team.moduleselect.available=Tilg\u00E6ngelige projekter\:
 team.moduleselect.show=Vis
-
 team.checkingout=Checker projekt ud...
 team.checkedout=Checker projekt ud... F\u00E6rdig.
 team.checkout.filechooser.title=V\u00E6lg check-ud placering
 team.checkout.filechooser.button=Check-ud
-
 team.import.initialMessage=F\u00F8rste deling af projekt
-
 team.sharing=Deler projekt...
 team.shared=Deler projekt... F\u00E6rdig.
-
 team.checkconn.checking=Checker forbindelse...
 team.checkconn.ok=Forbindelse er ok
 team.checkconn.bad=Kunne ikke forbinde til server
-
 menu.help=_Hj\u00E6lp
 menu.help.about=_Om BlueJ
 menu.help.extensions=Installerede _Udvidelser
@@ -661,39 +541,28 @@ menu.help.copyright=_Copyright
 menu.help.website=BlueJ _Web Side
 menu.help.tutorial=BlueJ _Tutorial
 menu.help.standardApi=Java _Klasse Biblioteker
-
-# tool tips
-
 tooltip.newClass=Opret en ny klasse i denne pakke
 tooltip.newUses=Inds\u00E6t en 'anvender' relation
 tooltip.newExtends=Inds\u00E6t en 'udvider' relation
 tooltip.compile=Overs\u00E6t alle uoversatte klasser i denne pakke
 tooltip.test=K\u00F8r alle oversatte test-klasser i denne pakke
-tooltip.progress=Arbejds indikator: indikerer n\u00E5r virtual machine k\u00F8rer
+tooltip.progress=Arbejds indikator\: indikerer n\u00E5r virtual machine k\u00F8rer
 tooltip.test.end=Afslut optagelse af en test-metode og gem den.
 tooltip.test.cancel=Fortryd en optagelse af en test-metode, og smid den ud.
 tooltip.commit=Aflever lokale \u00E6ndringer tilbage til repository
 tooltip.update=Opdater lokale filer der er blevet \u00E6ndret i repository
 tooltip.status=Vis status p\u00E5 alle teamwork-filer i projektet
-
-#Copyright
-
 menu.help.copyright.title=BlueJ Copyright, Licensing and Redistribution
 menu.help.copyright.line1=BlueJ is available 'as is' free of charge for use and non-commercial
 menu.help.copyright.line2=re-distribution. Disassembly of the system is prohibited. 
 menu.help.copyright.line3=This software may not be sold for profit or included in other
 menu.help.copyright.line4=packages which are sold for profit without written authorisation.
-
-# About
-
 about.bluej.version=BlueJ version
 about.java.version=Java version
-about.vm=Virtual machine:
-about.runningOn=K\u00F8rer p\u00E5:
-about.javahome=Java Home:
-about.logfile=Debug log fil:
+about.vm=Virtual machine\:
+about.runningOn=K\u00F8rer p\u00E5\:
+about.javahome=Java Home\:
+about.logfile=Debug log fil\:
 about.moreInfo=Mere information p\u00E5 www.bluej.org.
-about.theTeam=BlueJ teamet:
-
-# Work Indicator
+about.theTeam=BlueJ teamet\:
 workIndicator.resetMachine=Reset Maskine@^R
