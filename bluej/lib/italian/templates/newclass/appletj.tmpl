@@ -15,12 +15,12 @@ public class $CLASSNAME extends JApplet
 
 	 /**
 	 * Richiamato dal browser o dall'appletviewer per informare il JApplet che
-	 * è stato caricato nel sistema. E' sempre richiamato prima che il metodo
+	 * Ã¨ stato caricato nel sistema. E' sempre richiamato prima che il metodo
 	 * start sia richiamato per la prima volta.
 	 */
 	public void init()
 	{
-		// questo è un trucco per aggirare un conflitto di sicurezza con i browser
+		// questo Ã¨ un trucco per aggirare un conflitto di sicurezza con i browser
 		// attuali, compresi Netscape e Internet Explorer, i quali non consentono
 		// l'accesso alla coda di eventi di sistema di AWT tentato dai JApplet.
 		JRootPane rootPane = this.getRootPane();	
@@ -33,24 +33,24 @@ public class $CLASSNAME extends JApplet
 	/**
 	 * Richiamato dal browser o dall'appletviewer per informare il JApplet che
 	 * dovrebbe essere avviata l'esecuzione. E' richiamato dopo il metodo init
-	 * e ogni volta che il JApplet è caricato in una pagina Web.
+	 * e ogni volta che il JApplet Ã¨ caricato in una pagina Web.
 	 */
 	public void start()
 	{
 		// aggiungi il codice necessario all'avvio
-		// ogni volta che è caricata una pagina web
+		// ogni volta che Ã¨ caricata una pagina web
 
 	}
 
 	/** 
 	 * Richiamato dal browser o dall'appletviewer per informare il JApplet che
 	 * dovrebbe fermare la sua esecuzione. E' richiamato quando la pagina Web
-	 * che contiene questo JApplet è stata sostituita da un'altra pagina, e anche
+	 * che contiene questo JApplet Ã¨ stata sostituita da un'altra pagina, e anche
 	 * subito prima che il JApplet sia distrutto. 
 	 */
 	public void stop()
 	{
-		// aggiungi il codice da eseguire quando la pagina è
+		// aggiungi il codice da eseguire quando la pagina Ã¨
 		// sostituita da un'altra pagina o prima che il JApplet sia distrutto
 	
 	}
@@ -74,8 +74,8 @@ public class $CLASSNAME extends JApplet
 
 	/**
 	 * Richiamato dal browser o dall'appletviewer per informare il JApplet che
-	 * deve rilasciare qualsiasi risorsa è stata allocata prima di essere
-	 * distrutto. Prima del metodo destroy è sempre richiamato il metodo stop. 
+	 * deve rilasciare qualsiasi risorsa Ã¨ stata allocata prima di essere
+	 * distrutto. Prima del metodo destroy Ã¨ sempre richiamato il metodo stop. 
 	 */
 	public void destroy()
 	{

@@ -3,19 +3,19 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
- * Class $CLASSNAME - ¿©±â¿¡ Å¬·¡½º ¼³¸íÀ» ÀÛ¼ºÇÏ½Ã¿À.
+ * Class $CLASSNAME - ì—¬ê¸°ì— í´ëž˜ìŠ¤ ì„¤ëª…ì„ ìž‘ì„±í•˜ì‹œì˜¤.
  * 
  * @author
  * @version 
  */
 public class $CLASSNAME extends JApplet
 {
-	// ÀÎ½ºÅÏ½º º¯¼ö - ´ÙÀ½ÀÇ ¿¹Á¦¸¦ »ç¿ëÀÚ¿¡ ¸Â°Ô ¹Ù²Ù½Ã¿À.
+	// ì¸ìŠ¤í„´ìŠ¤ ë³€ìˆ˜ - ë‹¤ìŒì˜ ì˜ˆì œë¥¼ ì‚¬ìš©ìžì— ë§žê²Œ ë°”ê¾¸ì‹œì˜¤.
 	private int x;
 
 	 /**
-	 * ½Ã½ºÅÛ¿¡ ·ÎµåµÇ¾îÁø JAppletÀ» ¾Ë·ÁÁÖ±â À§ÇØ
-	 * ºê¶ó¿ìÀú³ª ¾ÖÇÃ¸´ ºä¾î¿¡ ÀÇÇØ È£ÃâµË´Ï´Ù. 
+	 * ì‹œìŠ¤í…œì— ë¡œë“œë˜ì–´ì§„ JAppletì„ ì•Œë ¤ì£¼ê¸° ìœ„í•´
+	 * ë¸Œë¼ìš°ì €ë‚˜ ì• í”Œë¦¿ ë·°ì–´ì— ì˜í•´ í˜¸ì¶œë©ë‹ˆë‹¤. 
 	 */ 
 
 	public void init()
@@ -24,84 +24,84 @@ public class $CLASSNAME extends JApplet
 		// including Netscape & Internet Explorer which do not allow access to 
 		// AWT system event queuen which JApplets do on startup to check access. 
 
-                // ÀÌ ¸Þ¼Òµå´Â, JAppletµéÀÌ ¿¢¼¼½º¸¦ Ã¼Å©ÇÏ±â À§ÇÏ¿© ±âµ¿µÇ´Â  AWT ½Ã½ºÅÛ ÀÌº¥Æ® Å¥¿¡ 
-		      Á¢±ÙÀ» Çã¿ëÇÏÁö ¾Ê´Â ³Ý½ºÄÉÀÌÇÁ ¹× ÀÎÅÍ³Ý ÀÍ½ºÇÃ·Î·¯µî°ú °°Àº ºê¶ó¿ìÀúµé°úÀÇ 
-		      º¸¾È »çÇ×ÀÌ Ãæµ¹µÇ´Â ¿©ºÎ¿¡ °ü·ÃµÈ ÀÛ¾÷À» ½ÃÀÛÇÑ´Ù.
+                // ì´ ë©”ì†Œë“œëŠ”, JAppletë“¤ì´ ì—‘ì„¸ìŠ¤ë¥¼ ì²´í¬í•˜ê¸° ìœ„í•˜ì—¬ ê¸°ë™ë˜ëŠ”  AWT ì‹œìŠ¤í…œ ì´ë²¤íŠ¸ íì— 
+		      ì ‘ê·¼ì„ í—ˆìš©í•˜ì§€ ì•ŠëŠ” ë„·ìŠ¤ì¼€ì´í”„ ë° ì¸í„°ë„· ìµìŠ¤í”Œë¡œëŸ¬ë“±ê³¼ ê°™ì€ ë¸Œë¼ìš°ì €ë“¤ê³¼ì˜ 
+		      ë³´ì•ˆ ì‚¬í•­ì´ ì¶©ëŒë˜ëŠ” ì—¬ë¶€ì— ê´€ë ¨ëœ ìž‘ì—…ì„ ì‹œìž‘í•œë‹¤.
 		      
                 
 		JRootPane rootPane = this.getRootPane();	
 		rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
 	
-		// JApplet¿¡ ÇÊ¿äÇÑ ÃÊ±âÈ­¸¦ Á¦°øÇÏ½Ã¿À.
+		// JAppletì— í•„ìš”í•œ ì´ˆê¸°í™”ë¥¼ ì œê³µí•˜ì‹œì˜¤.
 
 	}
 
 	/**
-	 * ¾ÖÇÃ¸´ ½ÇÇàÀÌ ½ÃÀÛµÇ¾î¾ß ÇÏ´Â JApplet¸¦ ¾Ë·ÁÁÖ±â À§ÇØ 
-	 * ºê¶ó¿ìÀú³ª ¾ÖÇÃ¸´ ºä¾î¿¡ ÀÇÇØ È£ÃâµÇ¾îÁý´Ï´Ù.
-	 * init ¸Þ¼Òµå°¡ È£ÃâµÈ ÀÌÈÄ¿¡ JAppletÀÌ À¥ÆäÀÌÁö¿¡ Àç¹æ¹®µÇ¾îÁú¶§¸¶´Ù È£ÃâµË´Ï´Ù.
+	 * ì• í”Œë¦¿ ì‹¤í–‰ì´ ì‹œìž‘ë˜ì–´ì•¼ í•˜ëŠ” JAppletë¥¼ ì•Œë ¤ì£¼ê¸° ìœ„í•´ 
+	 * ë¸Œë¼ìš°ì €ë‚˜ ì• í”Œë¦¿ ë·°ì–´ì— ì˜í•´ í˜¸ì¶œë˜ì–´ì§‘ë‹ˆë‹¤.
+	 * init ë©”ì†Œë“œê°€ í˜¸ì¶œëœ ì´í›„ì— JAppletì´ ì›¹íŽ˜ì´ì§€ì— ìž¬ë°©ë¬¸ë˜ì–´ì§ˆë•Œë§ˆë‹¤ í˜¸ì¶œë©ë‹ˆë‹¤.
 	 */
 	public void start()
 	{
-		//À¥ ÆäÀÌÁö°¡ ¹æ¹®µÇ¾îÁú ¶§¸¶´Ù ½ÇÇàµÉ
-		//ÄÚµå¸¦ Á¦°øÇÏ½Ã¿À.
+		//ì›¹ íŽ˜ì´ì§€ê°€ ë°©ë¬¸ë˜ì–´ì§ˆ ë•Œë§ˆë‹¤ ì‹¤í–‰ë 
+		//ì½”ë“œë¥¼ ì œê³µí•˜ì‹œì˜¤.
 
 	}
 
 	/** 
-	 * ½ÇÇàÀ» ¸ØÃß¾î¾ß ÇÒ JAppletÀ» ¾Ë·ÁÁÖ±â À§ÇØ ºê¶ó¿ìÀú³ª ¾ÖÇÃ¸´ ºä¾î¿¡ 
-	 * ÀÇÇØ È£ÃâµË´Ï´Ù. stop ¸Þ¼Òµå´Â ÀÌ JAppletÀ» Æ÷ÇÔÇÏ´Â À¥ ÆäÀÌÁö°¡ 
-	 * ´Ù¸¥ À¥ ÆäÀÌÁö·Î ¹Ù²î°Å³ª JAppletÀÌ Á¾·áµÇ¾îÁö±â ¹Ù·Î Á÷Àü¿¡ È£ÃâµË´Ï´Ù.
+	 * ì‹¤í–‰ì„ ë©ˆì¶”ì–´ì•¼ í•  JAppletì„ ì•Œë ¤ì£¼ê¸° ìœ„í•´ ë¸Œë¼ìš°ì €ë‚˜ ì• í”Œë¦¿ ë·°ì–´ì— 
+	 * ì˜í•´ í˜¸ì¶œë©ë‹ˆë‹¤. stop ë©”ì†Œë“œëŠ” ì´ JAppletì„ í¬í•¨í•˜ëŠ” ì›¹ íŽ˜ì´ì§€ê°€ 
+	 * ë‹¤ë¥¸ ì›¹ íŽ˜ì´ì§€ë¡œ ë°”ë€Œê±°ë‚˜ JAppletì´ ì¢…ë£Œë˜ì–´ì§€ê¸° ë°”ë¡œ ì§ì „ì— í˜¸ì¶œë©ë‹ˆë‹¤.
 	 */
 	public void stop()
 	{
-		// JAppletÀÌ Á¾·áµÇ±â ÀüÀÌ³ª ´Ù¸¥ ÆäÀÌÁö¿¡ ÀÇÇØ 
-		// ½ÇÇàÇØ¾ßÇÒ ÄÚµåµéÀ» Á¦°øÇÏ½Ã¿À.
+		// JAppletì´ ì¢…ë£Œë˜ê¸° ì „ì´ë‚˜ ë‹¤ë¥¸ íŽ˜ì´ì§€ì— ì˜í•´ 
+		// ì‹¤í–‰í•´ì•¼í•  ì½”ë“œë“¤ì„ ì œê³µí•˜ì‹œì˜¤.
 
 	}
 
 	/**
-	 * ÇÒ´çµÈ ¸ðµç ÀÚ¿øµéÀÌ Á¾·áµÇ°Å³ª ¹ÝÈ¯µÇ¾î¾ß ÇÏ´Â JAppletÀ» ¾Ë·ÁÁÖ±â À§ÇØ
-	 * ºê¶ó¿ìÀú³ª ¾ÖÇÃ¸´ ºä¾î¿¡ ÀÇÇØ È£ÃâµË´Ï´Ù. stop ¸Þ¼Òµå´Â Ç×»ó Á¾·áµÇ±â Àü¿¡ 
-	 * È£ÃâµÇ¾îÁú °ÍÀÔ´Ï´Ù.
+	 * í• ë‹¹ëœ ëª¨ë“  ìžì›ë“¤ì´ ì¢…ë£Œë˜ê±°ë‚˜ ë°˜í™˜ë˜ì–´ì•¼ í•˜ëŠ” JAppletì„ ì•Œë ¤ì£¼ê¸° ìœ„í•´
+	 * ë¸Œë¼ìš°ì €ë‚˜ ì• í”Œë¦¿ ë·°ì–´ì— ì˜í•´ í˜¸ì¶œë©ë‹ˆë‹¤. stop ë©”ì†Œë“œëŠ” í•­ìƒ ì¢…ë£Œë˜ê¸° ì „ì— 
+	 * í˜¸ì¶œë˜ì–´ì§ˆ ê²ƒìž…ë‹ˆë‹¤.
 	 */
 	public void destroy()
 	{
-		// JApppletÀÌ Á¾·áµÉ ¶§ ½ÇÇàÇÒ ÄÚµå¸¦ Á¦°øÇÏ½Ã¿À.
+		// JApppletì´ ì¢…ë£Œë  ë•Œ ì‹¤í–‰í•  ì½”ë“œë¥¼ ì œê³µí•˜ì‹œì˜¤.
 	
 	}
 
 
 	/**
-	 * ÀÌ ¾ÖÇÃ¸´¿¡ ´ëÇÑ Á¤º¸¸¦ ¹ÝÈ¯ÇÕ´Ï´Ù.
-	 * ¾ÖÇÃ¸´Àº JAppletÀÇ ÀúÀÚ, ¹öÀü, ÀúÀÛ±Ç¿¡ ´ëÇÑ Á¤º¸¸¦ Æ÷ÇÔÇÏ´Â ¹®ÀÚ¿­À»
-	 * ¹ÝÈ¯ÇÏ´Â ÀÌ ¸Þ¼Òµå¸¦ ¿À¹ö¶óÀÌµå ÇØ¾ßÇÒ °ÍÀÔ´Ï´Ù.
+	 * ì´ ì• í”Œë¦¿ì— ëŒ€í•œ ì •ë³´ë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
+	 * ì• í”Œë¦¿ì€ JAppletì˜ ì €ìž, ë²„ì „, ì €ìž‘ê¶Œì— ëŒ€í•œ ì •ë³´ë¥¼ í¬í•¨í•˜ëŠ” ë¬¸ìžì—´ì„
+	 * ë°˜í™˜í•˜ëŠ” ì´ ë©”ì†Œë“œë¥¼ ì˜¤ë²„ë¼ì´ë“œ í•´ì•¼í•  ê²ƒìž…ë‹ˆë‹¤.
 	 *
-	 * @return ÀÌ JApplet¿¡ ´ëÇÑ Á¤º¸¸¦ ³ªÅ¸³»´Â ¹®ÀÚ¿­
+	 * @return ì´ JAppletì— ëŒ€í•œ ì •ë³´ë¥¼ ë‚˜íƒ€ë‚´ëŠ” ë¬¸ìžì—´
 	 */
 
 	public String getAppletInfo()
 	{
-		// ¾ÖÇÃ¸´¿¡ ´ëÇÑ Á¤º¸¸¦ Á¦°øÇÏ½Ã¿À
-		return "Title:   \nAuthor:   \nA °£´ÜÇÑ ¾ÖÇÃ¸´ ¿¹Á¦ ¼³¸í. ";
+		// ì• í”Œë¦¿ì— ëŒ€í•œ ì •ë³´ë¥¼ ì œê³µí•˜ì‹œì˜¤
+		return "Title:   \nAuthor:   \nA ê°„ë‹¨í•œ ì• í”Œë¦¿ ì˜ˆì œ ì„¤ëª…. ";
 
 
 	}
 
 
 	/**
-	 * ÀÌ JApplet¿¡ ´ëÇÑ ¸Å°³º¯¼ö Á¤º¸¸¦ ¹ÝÈ¯ÇÕ´Ï´Ù.
-	 * ÀÌ JAppletÀ¸·Î ÀÌÇØµÇ´Â °Íº¸´Ù ´õ ¸¹Àº ¸Å°³º¯¼ö¿¡ °üÇÑ Á¤º¸¸¦ ¹ÝÈ¯ÇÕ´Ï´Ù.
-	 * ¾ÖÇÃ¸´Àº ¸Å°³º¯¼öµéÀ» ¼³¸íÇÒ ¹®ÀÚ¿­ ¹è¿­À» ¹ÝÈ¯ÇÏ´Â ÀÌ ¸Þ¼Òµå¸¦ ¿À¹ö¶óÀÌµå 
-	 * ÇØ¾ßÇÕ´Ï´Ù.
-	 * ¹è¿­ÀÇ °¢ ¿ä¼Ò´Â ÀÌ¸§, Çü, ¼³¸íÀÌ Æ÷ÇÔµÈ 3°³ÀÇ ¹®ÀÚ¿­ ÁýÇÕÀ¸·Î
-	 * ±¸¼ºµÇ¾î¾ß ÇÕ´Ï´Ù.
+	 * ì´ JAppletì— ëŒ€í•œ ë§¤ê°œë³€ìˆ˜ ì •ë³´ë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
+	 * ì´ JAppletìœ¼ë¡œ ì´í•´ë˜ëŠ” ê²ƒë³´ë‹¤ ë” ë§Žì€ ë§¤ê°œë³€ìˆ˜ì— ê´€í•œ ì •ë³´ë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
+	 * ì• í”Œë¦¿ì€ ë§¤ê°œë³€ìˆ˜ë“¤ì„ ì„¤ëª…í•  ë¬¸ìžì—´ ë°°ì—´ì„ ë°˜í™˜í•˜ëŠ” ì´ ë©”ì†Œë“œë¥¼ ì˜¤ë²„ë¼ì´ë“œ 
+	 * í•´ì•¼í•©ë‹ˆë‹¤.
+	 * ë°°ì—´ì˜ ê° ìš”ì†ŒëŠ” ì´ë¦„, í˜•, ì„¤ëª…ì´ í¬í•¨ëœ 3ê°œì˜ ë¬¸ìžì—´ ì§‘í•©ìœ¼ë¡œ
+	 * êµ¬ì„±ë˜ì–´ì•¼ í•©ë‹ˆë‹¤.
 	 *
-	 * @return JApplet¿¡ ´ëÇÑ ¸Å°³º¯¼ö Á¤º¸¸¦ ³ªÅ¸³»´Â String[]
+	 * @return JAppletì— ëŒ€í•œ ë§¤ê°œë³€ìˆ˜ ì •ë³´ë¥¼ ë‚˜íƒ€ë‚´ëŠ” String[]
 	 */
 	public String[][] getParameterInfo()
 	{
-		// ¾ÖÇÃ¸´¿¡ ´ëÇÑ ¸Å°³º¯¼ö Á¤º¸¸¦ Á¦°øÇÏ½Ã¿À.
+		// ì• í”Œë¦¿ì— ëŒ€í•œ ë§¤ê°œë³€ìˆ˜ ì •ë³´ë¥¼ ì œê³µí•˜ì‹œì˜¤.
 		String paramInfo[][] = {
 				 {"firstParameter",	"1-10",	"description of first parameter"},
 				 {"status", "boolean", "description of second parameter"},
@@ -111,26 +111,26 @@ public class $CLASSNAME extends JApplet
 	}
 
 	/**
-	 * ¾ÖÇÃ¸´¿¡ ´ëÇÑ Paint ¸Þ¼Òµå
+	 * ì• í”Œë¦¿ì— ëŒ€í•œ Paint ë©”ì†Œë“œ
 	 * 
-	 * @param  g   ÀÌ ¾ÖÇÃ¸´¿¡ ´ëÇÑ Graphics °´Ã¼
+	 * @param  g   ì´ ì• í”Œë¦¿ì— ëŒ€í•œ Graphics ê°ì²´
 	 */
 	public void paint(Graphics g)
 	{
-		// ¾ÖÇÃ¸´»ó¿¡ º¸¿©Áö´Â °£´ÜÇÑ ÅØ½ºÆ®
+		// ì• í”Œë¦¿ìƒì— ë³´ì—¬ì§€ëŠ” ê°„ë‹¨í•œ í…ìŠ¤íŠ¸
 		g.drawString("Sample JApplet", 20, 20);
 	}
 
 
 	/**
-	 * ¿¹Á¦ ¸Þ¼Òµå - ÀÌ ÁÖ¼®À» »ç¿ëÀÚ¿¡ ¸Â°Ô ¹Ù²Ù½Ã¿À.
+	 * ì˜ˆì œ ë©”ì†Œë“œ - ì´ ì£¼ì„ì„ ì‚¬ìš©ìžì— ë§žê²Œ ë°”ê¾¸ì‹œì˜¤.
 	 * 
-	 * @param  y   ¸Þ¼Òµå¿¡ ´ëÇÑ ¿¹Á¦ ¸Å°³º¯¼ö
-	 * @return     x ¿Í y ÀÇ ÇÕ
+	 * @param  y   ë©”ì†Œë“œì— ëŒ€í•œ ì˜ˆì œ ë§¤ê°œë³€ìˆ˜
+	 * @return     x ì™€ y ì˜ í•©
 	 */
 	public int sampleMethod(int y)
 	{
-		// »ç¿ëÀÚÀÇ ÄÚµå¸¦ ¿©±â¿¡ ÀÔ·ÂÇÏ½Ã¿À.
+		// ì‚¬ìš©ìžì˜ ì½”ë“œë¥¼ ì—¬ê¸°ì— ìž…ë ¥í•˜ì‹œì˜¤.
 		return x + y;
 	}
 }

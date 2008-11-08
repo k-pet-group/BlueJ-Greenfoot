@@ -1,39 +1,49 @@
 README - <bluej-home>/lib/<language>/templates/newclass/README
 --------------------------------------------------------------
 
-Tato slozka obsahuje sablony trid BlueJ.
+Tato složka obsahuje šablony tříd BlueJ.
 
-Tyto sablony trid jsou zobrazeny jako moznosti pri vytvareni novych trid
-v prostredi BlueJ - volba v menu "Upravy -> Nova trida ..."
+Tyto šablony tříd jsou zobrazeny jako možnosti při vytváření nových tříd
+v prostředí BlueJ - volba v menu "Úpravy/Nová třída ..."
 
 
-Zmeny sablon
+Změny šablon
 ------------
-Pozadavanych zmen dosahnete prostym editovanim techto souboru.
+Editováním těchto souborů provedete potřebné změny šablon.
 
 
-Pridavani sablon
+Přidáváni šablon
 ----------------
-Vytvorte v teto slozce soubor s priponou ".tmpl" (napr. mainclass.tmpl).
+Vytvořte v teto složce soubor s příponou ".tmpl" (pr.: "mainclass.tmpl")
 
-Jmena sablon pro aplety, rozhrani, abstraktni tridy a vyctove typy musi 
-zacinat predponou "applet", "interface", "abstract" a "enum". 
-Jinak je bude system povazovat za sablony standardnich trid.
+Bude-li jméno třídy začínat některou ze speciálních předpon, 
+bude soubor považován za šablonu příslušnoho typu třídy, resp. rozhraní. 
+Speciálními předponami jsou:
 
-Pridana sablona bude implicitne uvedena na konci seznamu v dialogu 
-"Nova trida ..." pod jmenem shodnym se jmenem souboru sablony bez pripony 
-(napr. mainclass).
+abstract   - označuje šablonu abstraktní třídy
+applet     - označuje šablonu apletu
+enum       - označuje šablonu výčtového typu
+interface  - označuje šablonu rozhraní
+unittest   - označuje šablonu testovací třídy
 
-Jmeno zobrazene v tomto seznamu muze byt nastaveno pomoci vlastnosti
-"pkgmgr.newClass.<template-name>" v konfiguracnim souboru "labels" 
-(umisteni <bluej-home>/lib/<language>/labels). 
+Bude-li název začínat jakkoliv jinak, bude soubor považován 
+za šablonu standardní třídy.
 
-Napr. nastaveni
+Implicitně budou přidané šablony šablona uvedeny na konci seznamu 
+v dialogu "Nova třída ..." pod jménem shodným se jménem šablony bez přípony 
+(např. "mainclass").
 
-   pkgmgr.newClass.mainclass=Trida s metodou Main
+Jméno zobrazené v tomto seznamu muže byt nastaveno pomoci vlastnosti
+"pkgmgr.newClass.<template-name>" v konfiguračním souboru "labels" 
+(umístěni <bluej-home>/lib/<language>/labels). 
+Příklad:
 
-zpusobi, ze se v seznamu objevi polozka "Trida s metodou Main".
+   pkgmgr.newClass.mainclass=Třída s metodou main
 
-Pozice v seznamu muze byt specifikovana pomoci polozky
-"bluej.classTemplates" v konfiguracnim souboru (<bluej-home>/lib/bluej.defs).
-Vsechny nazvy sablon zde uvedene budou zobrazeny v danem poradi.
+způsobí, ze se v seznamu objeví položka "Třída s metodou main".
+
+Pořadí, v němž budou názvy šablon v seznamu zobrazeny 
+může byt specifikována v konfiguračním souboru <bluej-home>/lib/bluej.defs 
+pomoci položky "bluej.classTemplates".
+Názvy šablon uvedené v této položce budou zobrazeny před zbylými
+šablonami a v zadaném pořadí.

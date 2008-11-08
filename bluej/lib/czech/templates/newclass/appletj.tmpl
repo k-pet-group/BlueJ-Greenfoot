@@ -1,120 +1,167 @@
 $PKGLINE
-import java.awt.*;
-import javax.swing.*;
 
-/**
- * Aplet $CLASSNAME ... doplnte vlastni komentar
+import java.awt.Graphics;
+import javax.swing.JApplet;
+import javax.swing.JRootPane;
+
+
+/*******************************************************************************
+ * Třída {@code $CLASSNAME} slouží k ...
  *
- * @author     jmeno autora
- * @version    cislo verze, datum
+ * @author    jméno autora
+ * @version   0.00.000
  */
-public class $CLASSNAME extends JApplet 
+public class $CLASSNAME extends JApplet
 {
+//== KONSTANTNÍ ATRIBUTY TŘÍDY =================================================
+//== PROMĚNNÉ ATRIBUTY TŘÍDY ===================================================
+//== KONSTANTNÍ ATRIBUTY INSTANCÍ ==============================================
+//== PROMĚNNÉ ATRIBUTY INSTANCÍ ================================================
+//== PŘÍSTUPOVÉ METODY ATRIBUTŮ TŘÍDY ==========================================
+//== OSTATNÍ NESOUKROMÉ METODY TŘÍDY ===========================================
 
-    //Atributy instance - nahradte ukazkovy kod vasim vlastnim
-    private int x;
+//##############################################################################
+//== KONSTRUKTORY A TOVÁRNÍ METODY =============================================
 
-    
-    /**
-     * Tato metoda je volana prohlizecem nebo appletviewerem. 
-     * Informuje aplet o tom, ze byl nahran do systemu. 
-     * Je volana jeste pred prvnim zavolanim metody <code>start</code>.
+    /***************************************************************************
+     * Bezparametrický konstruktor ...
+     * <p>
+     * Poznámka: Většina metod by měla být volána až poté, co bude daný objekt
+     *           zkonstruován. V konstruktoru bychom proto neměli volat metody
+     *           z {@link java.applet.Applet}.                    
      */
-    public void init() 
+    public $CLASSNAME()
     {
-        /* Toto je pouze docasne reseni bezpecnostniho konfliktu soucasnych
-         * prohlizecu vcetne Netscape & Internet Exploreru, ktere nepovoluji
-         * pristup k AWT systemove fronte udalosti o ktery se  
-         * JApplet pri svem startu pokousi. */
+    }
+
+
+//== ABSTRAKTNÍ METODY =========================================================
+//== PŘÍSTUPOVÉ METODY INSTANCÍ ================================================
+//== PŘEKRYTÉ METODY RODIČOVSKÉ TŘÍDY DEFINOVANÉ ŠABLONOU ======================
+
+    /***************************************************************************
+     * Tato metoda je volána prohlížecem nebo appletviewerem, který takto
+     * informuje aplet o tom, ze byl nahrán do systému.
+     * Je volaná ještě před prvním zavolánim metody {@link &start()}.
+     */
+    @Override
+    public void init()
+    {
+        /* Toto je pouze dočasné řešeni bezpečnostního konfliktu současných
+         * prohlížečů včetně Netscape & Internet Exploreru, které nepovolují
+         * přistup k AWT systémové frontě události o který se
+         * JApplet při svém startu pokouší. 
+         * Není vyloučeno, že váš prohlížeč už jeho použití nevyžaduje. */
         JRootPane rootPane = this.getRootPane();
         rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
-        
-        /*# Doplnte dalsi potrebnou inicializaci vaseho apletu. */
+
+        /*# Zde doplňte další potřebnou inicializaci vašeho apletu. */
     }
-    
-    
-    /**
-     * Tato metoda je volana prohlizecem nebo appletviewerem, ktery takto
-     * informuje aplet, ze byl spusten. Je volana po metode <code>init</code>
-     * a pri kazdem opetovnem navstiveni stranky.
+
+
+    /***************************************************************************
+     * Tato metoda je volána prohlížečem nebo appletviewerem, který takto
+     * informuje aplet, že byl spuštěn. Je volaná po metodě {@link #init()}
+     * a při každém opětovném navštívení stránky.
      */
-    public void start() 
+    @Override
+    public void start()
     {
-        /*# Kod potrebny pro spusteni apletu pri kazde navsteve stranky. */
+        /*# Kód potřebný pro spuštení apletu při každé návštěvě stránky. */
     }
 
-    
-    /**
-     * Tato metoda je volana prohlizecem nebo appletviewerem, kter� takto
-     * oznamuje apletu, ze se ma svoji cinnost ukoncit. 
-     * Je volana pri nahrazeni stranky s apletem jinou strankou 
-     * a pred tim nez je aplet volana metoda <code>destroy</code>.
-     * V teto metode jsou ukoncovana spustena vlakna.
-     */
-    public void stop() 
-    {
-        /*# Kod potrebny pro zastaveni cinnosti apletu. */
-    }
 
-    
-    /**
-     * Tato metoda je volana prohlizecem nebo appletviewerem, ktery takto
-     * oznamuje apletu, ze ma uvolnit v�echny alokovane zdroje. 
-     * Pred touto metodou je vzdy volana metoda <code>stop</code>.
-     * /
-    public void destroy() 
-    {
-        /*# Kod potrebny pro uvolneni alokovanych zdroju. */
-    }
-
-    
-    /**
-     * Vraci informace o apletu.
-     * Aplet by mel tuto metodu prekryt a vratit retezec obsahujici
-     * informace o autorovi, verzi a autorskych pravech k apletu.
+    /***************************************************************************
+     * Toto je pravděpodobně nejdůležitější metoda appletu -
+     * zde je uveden kód pro vykreslení appletu na obrazovku.
      *
-     * @return Retezec obsahujici informace o apletu.
+     * @param kreslítko  Objekt třídy {@link java.awt.Graphics}
+     *                   jehož prostřednictvím je na obrazovku kresleno.
      */
-    public String getAppletInfo() 
+    @Override
+    public void paint(Graphics kreslítko)
     {
-        /*# Sem vlozte informace o apletu. */
-        return "Nazev:   \n" +
+        //Aplet zobrazí jednoduchý text
+        kreslítko.drawString("Ukázkový aplet", 20, 20);
+    }
+
+
+    /***************************************************************************
+     * Tato metoda je volána prohlížečem nebo appletviewerem, který takto
+     * oznamuje apletu, že se má svoji činnost ukončit.
+     * Je volaná při nahrazení stránky s apletem jinou stránkou
+     * a před tím než je appletem volána metoda <code>destroy</code>.
+     * V teto metodě jsou ukončována spuštěná vlákna.
+     */
+    @Override
+    public void stop()
+    {
+        /*# Vložte kód potřebný pro zastaveni činnosti apletu. */
+    }
+
+
+    /***************************************************************************
+     * Tato metoda je volána prohlížečem nebo appletviewerem, který takto
+     * oznamuje apletu, že má uvolnit všechny alokované zdroje.
+     * Před touto metodou je vždy volána metoda {@link #stop()}.
+     */
+    @Override
+    public void destroy()
+    {
+        /*# Vložte kód potřebný pro uvolněni alokovaných zdrojů. */
+    }
+
+
+    /***************************************************************************
+     * Vrací informace o appletu.
+     * Applet by měl tuto metodu překrýt a vrátit řetězec obsahující
+     * informace o autorovi, verzi a autorských právech k appletu.
+     *
+     * @return Řetězec obsahuji informace o appletu
+     */
+    @Override
+    public String getAppletInfo()
+    {
+        /*# Zde vložte informace o appletu. */
+        return "Název:   \n" +
                "Autor:   \n" +
-               "Popis: Jednoduchy ukazkovy aplet. ";
+               "Jednoduchý ukázkový applet. ";
     }
-    
-    
-    /**
-     * Vraci informace o parametrech, ktere tento aplet umi zpracovat.
-     * Aplet by mel prekryt tuto metodu tak, aby vracela pole poli
-     * textovych retezcu popisujicich tyto parametry.
-     * Kazdy prvek tohoto pole se sklada ze tri retezcu obsahujicich
-     * jmeno, typ a popis.
+
+
+    /***************************************************************************
+     * Vrací informace o parametrech, které tento applet umí zpracovat.
+     * Applet by měl překryt tuto metodu tak, aby vracela pole polí
+     * textových řetězců popisujících tyto parametry.
+     * Každý prvek tohoto pole se skládá ze tři řetězců obsahujících
+     * jméno, typ a popis.
      *
-     * @return Pole retezcu reprezentujici parametry tohoto apletu.
+     * @return Pole trojic řetězců reprezentující parametry tohoto appletu
      */
-    public String[][] getParameterInfo() 
+    @Override
+    public String[][] getParameterInfo()
     {
-        /*# Sem vlozte informace o apletu. */
+        /*# Zde vložte informace o appletu. */
         String paramInfo[][] = {
-            {"prvniParametr", "1-10",    "popis prvniho parametru"},
-            {"stav",          "boolean", "popis druheho parametru"},
-            {"obrazky",       "url",     "popis tretiho parametru"}
+            { "prvniParametr", "1-10",     "popis prvního parametru" },
+            { "stav",          "boolean",  "popis druhého parametru" },
+            { "obrázky",       "url",      "popis třetího parametru" }
         };
         return paramInfo;
     }
-    
 
-    /**
-     * Toto je pravdepodobne nejdulezitejsi metoda apletu - 
-     * zde je uveden kod pro vykresleni apletu na obrazovku.
-     *
-     * @param  g   objekt tridy Graphics pro vykresleni na obrazovku
-     */
-    public void paint(Graphics g) 
-    {
-        /*# Nasledujici ukazkovy kod nahradte kodem pro zobrazeni. */
-        g.drawString("Ukazkovy aplet", 20, 20);
-    }
 
+//== OSTATNÍ NESOUKROMÉ  METODY INSTANCÍ =======================================
+//== SOUKROMÉ A POMOCNÉ METODY TŘÍDY ===========================================
+//== SOUKROMÉ A POMOCNÉ METODY INSTANCÍ ========================================
+//== VNOŘENÉ A VNITŘNÍ TŘÍDY ===================================================
+//== TESTOVACÍ METODY A TŘÍDY ==================================================
+//
+//     /***************************************************************************
+//      * Testovací metoda.
+//      */
+//     public static void test()
+//     {
+//          $CLASSNAME instance = new $CLASSNAME();
+//     }
 }

@@ -1,40 +1,40 @@
 README - <bluej-home>/lib/<language>/templates/newclass/README
 --------------------------------------------------------------
 
-Este diretório contém templates de classes do BleuJ.
+Este diret\u0443rio cont\u0439m templates de classes do BleuJ.
 
-Este templates aparecem como opções no diálogo "Nova Classe" 
+Este templates aparecem como op\u0437\u0445es no di\u0431logo "Nova Classe" 
 do ambiente BlueJ
 
 
 Mudando templates
 ------------------
-Os templates podem ser alterados facilmente pela edição destes arquivos.
+Os templates podem ser alterados facilmente pela edi\u0437\u0433o destes arquivos.
 
 
 Adicionando novos templates
 --------------------
-Para adicionar um template, crie um novo arquivo neste diretório com uma
-extensão ".tmpl" (por exemplo, mainclass.tmpl").
+Para adicionar um template, crie um novo arquivo neste diret\u0443rio com uma
+extens\u0433o ".tmpl" (por exemplo, mainclass.tmpl").
 
-Nomes de applets, interfaces ou classes abstratas devem começar com
+Nomes de applets, interfaces ou classes abstratas devem come\u0437ar com
 "applet", "interface" ou "abstract", respectivamente. Qualquer outra coisa
-será tratada como uma classe padrão.
+ser\u0431 tratada como uma classe padr\u0433o.
 
-Por default, este template será listado no diálogo Nova Classe, ao final da
-lista de opções e com o nome base do arquivo ("mainclass").
+Por default, este template ser\u0431 listado no di\u0431logo Nova Classe, ao final da
+lista de op\u0437\u0445es e com o nome base do arquivo ("mainclass").
 
-O nome que aparece no diálogo pode ser definido pela propriedade
+O nome que aparece no di\u0431logo pode ser definido pela propriedade
 "pkgmgr.newClass.<template-name>" no arquivo labels (o arquivo labels
 encontra-se em <bluej-home>/lib/<language>/labels). Por exemplo, definindo
 
    pkgmgr.newClass.mainclass=Classe com Main
 
-resultará no string "Classe com Main" aparecendo no diálogo como uma
-nova opção.
+resultar\u0431 no string "Classe com Main" aparecendo no di\u0431logo como uma
+nova op\u0437\u0433o.
 
-A posição na lista pode ser especificada adicionando este template à
+A posi\u0437\u0433o na lista pode ser especificada adicionando este template \u0430
 lista especificada na propriedade "bluej.classTemplates" do arquivo de
-definições do BlueJ (<bluej-home>/lib/bluej.defs). Todos os templates
-listados ali aparecerão na ordem especificada. Outros templates neste 
-diretório aparecerão na lista numa ordem aleatória
+defini\u0437\u0445es do BlueJ (<bluej-home>/lib/bluej.defs). Todos os templates
+listados ali aparecer\u0433o na ordem especificada. Outros templates neste 
+diret\u0443rio aparecer\u0433o na lista numa ordem aleat\u0443ria

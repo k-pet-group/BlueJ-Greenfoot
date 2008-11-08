@@ -1,35 +1,64 @@
 $PKGLINE
-/**
- * Testovaci trida $CLASSNAME ... doplnte vlastni komentar
+
+/*******************************************************************************
+ * Testovací třída {@code $CLASSNAME} slouží
+ * ke komplexnímu otestování třídy {@link $CLASSNAME}.
  *
- * @author     jmeno autora
- * @version    cislo verze, datum
+ * @author    jméno autora
+ * @version   0.00.000
  */
 public class $CLASSNAME extends junit.framework.TestCase
 {
+//== KONSTANTNÍ ATRIBUTY TŘÍDY =================================================
+//== PROMĚNNÉ ATRIBUTY TŘÍDY ===================================================
+//== KONSTANTNÍ ATRIBUTY INSTANCÍ ==============================================
+//== PROMĚNNÉ ATRIBUTY INSTANCÍ ================================================
 
-    /**
-     * Konstruktor umoznujici spustit definovany test.
+//##############################################################################
+//== KONSTRUKTORY A TOVÁRNÍ METODY =============================================
+
+    /***************************************************************************
+     * Vytvoří test se zadaným názvem.
+     *
+     * @param název  Název konstruovaného testu
      */
-    public $CLASSNAME( String nazevTestu )
+    public $CLASSNAME( String název )
     {
-        super( nazevTestu );
+        super( název );
     }
 
 
-    /**
-     * Vytvoreni pripravku (fixture), tj. sady objektu, s nimiz budou vsechny
-     * testy pracovat a ktera se proto vytvori pred spustenim kazdeho testu.         
+
+//== PŘÍPRAVA A ÚKLID PŘÍPRAVDKU ===============================================
+
+    /***************************************************************************
+     * Inicializace předcházející spuštění každého testu a připravující tzv. 
+     * přípravek (fixture), což je sada objektů, s nimiž budou testy pracovat.         
      */
+    @Override
     protected void setUp()
     {
     }
 
 
-    /**
-     * Uklid po testu - tato metoda se spusti po vykonani kazdeho testu.
+    /***************************************************************************
+     * Úklid po testu - tato metoda se spustí po vykonání každého testu.
      */
+    @Override
     protected void tearDown()
     {
     }
+
+
+//== SOUKROMÉ A POMOCNÉ METODY TŘÍDY ===========================================
+//== SOUKROMÉ A POMOCNÉ METODY INSTANCÍ ========================================
+//== VNOŘENÉ A VNITŘNÍ TŘÍDY ===================================================
+//== VLASTNÍ TESTY =============================================================
+//
+//     /***************************************************************************
+//      * 
+//      */
+//     public void testXXX()
+//     {
+//     }
 }

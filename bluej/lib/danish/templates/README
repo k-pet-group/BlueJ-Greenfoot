@@ -1,12 +1,12 @@
 Denne mappe indeholder nogle skabeloner der bruges af BlueJ til at generere filer.
-Disse skabeloner kan redigeres for at ændre standard-indholdet af genererede
+Disse skabeloner kan redigeres for at \u00e6ndre standard-indholdet af genererede
 filer.
 
  - readme og readmeexp skabelonerne kan frit redigeres.
  - html skabelonen skal redigeres med forsigtighed - det er ikke sikkert at tingene
    virker hvis den er beskadiget.
- - shell skabelonen bør sikkert IKKE redigeres (med mindre du VIRKELIG
-   ved hvad du gør).
+ - shell skabelonen b\u00f8r sikkert IKKE redigeres (med mindre du VIRKELIG
+   ved hvad du g\u00f8r).
 
 Undermappen "newclass" indeholder skabeloner for klasser genereret 
 via "Ny klasse" funktionen i BlueJ.

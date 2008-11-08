@@ -3,127 +3,127 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
- * Classe $CLASSNAME - décrivez la classe ici
+ * Classe $CLASSNAME - dÃ©crivez la classe ici
  * 
  * @author:  (votre nom)
- * @version: (un numéro de version ou une date)
+ * @version: (un numÃ©ro de version ou une date)
  */
 public class $CLASSNAME extends JApplet
 {
-	// variables d'instance - remplacez cet exemple par le vôtre
+	// variables d'instance - remplacez cet exemple par le vÃ´tre
 	private int x;
 
 	 /**
-	 * Appelée par le navigateur ou le visualiseur afin de signaler à l'Applet
-	 * qu'il est maintenant pris en charge par le système.
-	 * Il est garanti que ceci précédera le premier appel de la méthode start.
+	 * AppelÃ©e par le navigateur ou le visualiseur afin de signaler Å• l'Applet
+	 * qu'il est maintenant pris en charge par le systÄme.
+	 * Il est garanti que ceci prÃ©cÃ©dera le premier appel de la mÃ©thode start.
 	 */
 	public void init()
 	{
-		// Il y a un conflit de sécurité avec les navigateurs courants (incluant
-		// Netscape & Internet Explorer) qui interdisent l'accès à la queue 
-		// d'événements d'AWT --ce dont les JApplets ont besoin au démarrage.
+		// Il y a un conflit de sÃ©curitÃ© avec les navigateurs courants (incluant
+		// Netscape & Internet Explorer) qui interdisent l'accÄs Å• la queue 
+		// d'Ã©vÃ©nements d'AWT --ce dont les JApplets ont besoin au dÃ©marrage.
 		JRootPane rootPane = this.getRootPane();	
 		rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
 
-		// autre initialisation nécessaire pour votre JApplet
+		// autre initialisation nÃ©cessaire pour votre JApplet
 
 	}
 
 	/**
-	 * Appelée par le navigateur ou le visualiseur pour signaler à l'Applet
-	 * qu'il devrait commencer à s'exécuter.  Ceci se produit après l'appel
-	 * de init et chaque fois que la page Web est actualisée.
+	 * AppelÃ©e par le navigateur ou le visualiseur pour signaler Å• l'Applet
+	 * qu'il devrait commencer Å• s'exÃ©cuter.  Ceci se produit aprÄs l'appel
+	 * de init et chaque fois que la page Web est actualisÃ©e.
 	 */
 	public void start()
 	{
-		// Insérez ici le code qui doit s'exécuter chaque fois
-		// que la page Web est actualisée.
+		// InsÃ©rez ici le code qui doit s'exÃ©cuter chaque fois
+		// que la page Web est actualisÃ©e.
 
 	}
 
 	/** 
-	 * Appelée par le navigateur ou le visualiseur afin de signaler à l'Applet
-	 * qu'il doit arrêter de s'exécuter.  Ceci se produit lorsque la page
-	 * Web qui contient l'Applet est remplacée par une autre, ainsi que
-	 * juste avant que l'Applet soit détruit.  Si vous n'avez pas de
-	 * ressources à libérer (comme des fils d'exécution à stopper),
-	 * vous pouvez supprimer cette méthode.
+	 * AppelÃ©e par le navigateur ou le visualiseur afin de signaler Å• l'Applet
+	 * qu'il doit arrÄ™ter de s'exÃ©cuter.  Ceci se produit lorsque la page
+	 * Web qui contient l'Applet est remplacÃ©e par une autre, ainsi que
+	 * juste avant que l'Applet soit dÃ©truit.  Si vous n'avez pas de
+	 * ressources Å• libÃ©rer (comme des fils d'exÃ©cution Å• stopper),
+	 * vous pouvez supprimer cette mÃ©thode.
 	 */
 	public void stop()
 	{
-		// Insérez le code à exécuter lorsque l'Applet est arrêté 
+		// InsÃ©rez le code Å• exÃ©cuter lorsque l'Applet est arrÄ™tÃ© 
 	}
 
 	/**
-	 * Appelée par le navigateur ou le visualiseur afin de signaler à l'Applet
-	 * qu'il est sur le point d'être détruit.  Cette méthode précède toujours
-	 * destroy.  Si vous n'avez pas de ressources à libérer, vous pouvez
-	 * supprimer cette méthode.
+	 * AppelÃ©e par le navigateur ou le visualiseur afin de signaler Å• l'Applet
+	 * qu'il est sur le point d'Ä™tre dÃ©truit.  Cette mÃ©thode prÃ©cÄde toujours
+	 * destroy.  Si vous n'avez pas de ressources Å• libÃ©rer, vous pouvez
+	 * supprimer cette mÃ©thode.
 	 */
 	public void destroy()
 	{
-		// Insérez le code à exécuter lorsque l'Applet est détruit.
+		// InsÃ©rez le code Å• exÃ©cuter lorsque l'Applet est dÃ©truit.
 	}
 
 
 	/**
-	 * Retourne quelques renseignements à propos de cet applet. 
-	 * Un applet devrait remplacer cette méthode afin de retourner un String
-	 * décrivant l'auteur, la version et les droits d'auteur.
+	 * Retourne quelques renseignements Å• propos de cet applet. 
+	 * Un applet devrait remplacer cette mÃ©thode afin de retourner un String
+	 * dÃ©crivant l'auteur, la version et les droits d'auteur.
 	 *
-	 * @return un String décrivant l'Applet
+	 * @return un String dÃ©crivant l'Applet
 	 */
 	public String getAppletInfo()
 	{
 		// remplacez ceci par votre code
-		return "Titre : Applet démo BlueJ\n" + 
+		return "Titre : Applet dÃ©mo BlueJ\n" + 
 			   "Auteur : Bruce Quig\n" +
 			   "Une description d'applet typique.";
 	}
 
 
 	/**
-	 * Retourne quelques renseignements à propos des paramètres acceptés
-	 * par l'Applet.  Vous devriez retourner un tableau de Strings décrivant
-	 * chaque paramètre séparément (premier indice).
+	 * Retourne quelques renseignements Å• propos des paramÄtres acceptÃ©s
+	 * par l'Applet.  Vous devriez retourner un tableau de Strings dÃ©crivant
+	 * chaque paramÄtre sÃ©parÃ©ment (premier indice).
 	 * Le second indice du tableau correspond aux nom, type et description
-	 * de chaque paramètre.
+	 * de chaque paramÄtre.
 	 *
-	 * @return  un String[][] décrivant l'Applet
+	 * @return  un String[][] dÃ©crivant l'Applet
 	 */
 	public String[][] getParameterInfo()
 	{
-		// Décrivez vos paramètres ici
+		// DÃ©crivez vos paramÄtres ici
 		String paramInfo[][] = {
-			 {"firstParameter",  "1-10",    "description du premier paramètre"},
-			 {"secondParameter", "boolean", "description du second paramètre"}
-			 {"images",          "url",     "description du troisième paramètre"}
+			 {"firstParameter",  "1-10",    "description du premier paramÄtre"},
+			 {"secondParameter", "boolean", "description du second paramÄtre"}
+			 {"images",          "url",     "description du troisiÄme paramÄtre"}
 		};
 		return paramInfo;
 	}
 
 	/**
-	 * Méthode Paint de l'applet.
+	 * MÃ©thode Paint de l'applet.
 	 * 
 	 * @param  g   l'objet Graphics de cet applet
 	 */
 	public void paint(Graphics g)
 	{
-		// texte affiché par l'applet
-		g.drawString("JApplet modèle", 20, 20);
+		// texte affichÃ© par l'applet
+		g.drawString("JApplet modÄle", 20, 20);
 	}
 
 
 	/**
-	 * Un exemple de méthode - remplacez ce commentaire par le vôtre
+	 * Un exemple de mÃ©thode - remplacez ce commentaire par le vÃ´tre
 	 *
-	 * @param  y   un paramètre pour cette méthode
+	 * @param  y   un paramÄtre pour cette mÃ©thode
 	 * @return     la somme de x et de y
 	 */
 	public int sampleMethod(int y)
 	{
-		// Insérez votre code ici
+		// InsÃ©rez votre code ici
 		return x+y;
 	}
 }

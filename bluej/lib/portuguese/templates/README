@@ -1,11 +1,11 @@
-Este diretório contém alguns modelos (templates) usados pelo BLueJ para gerar arquivos.
-Estes modelos podem ser editados para mudar o conteúdo padrão dos arquivos gerados.
+Este diret\u0443rio cont\u0439m alguns modelos (templates) usados pelo BLueJ para gerar arquivos.
+Estes modelos podem ser editados para mudar o conte\u044ado padr\u0433o dos arquivos gerados.
 
  - Os templates readme e readmeexp podem ser editados livremente.
  - O template html deve ser editado com cuidado - coisas podem deixar de
    funcionar se ele estiver incorreto.
- - O template Shell provavelmente NÂO deve ser editado (a menos que você saiba REALMENTE
-   o que está fazendo).
+ - O template Shell provavelmente N\u0412O deve ser editado (a menos que voc\u043a saiba REALMENTE
+   o que est\u0431 fazendo).
 
-O subdiretório "newclass" contém templates para classes geradas através
-da função "newclass" do BlueJ.
+O subdiret\u0443rio "newclass" cont\u0439m templates para classes geradas atrav\u0439s
+da fun\u0437\u0433o "newclass" do BlueJ.

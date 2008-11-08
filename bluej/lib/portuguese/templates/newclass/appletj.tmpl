@@ -3,107 +3,107 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
- * Classe $CLASSNAME - escreva uma descriÁ„o da classe aqui!
+ * Classe $CLASSNAME - escreva uma descri–∑–≥o da classe aqui!
  * 
  * @author  
  * @version 
  */
 public class $CLASSNAME extends JApplet
 {
-	// variaveis de inst‚ncia - substitua o exemplo abaixo pelo seu cÛdigo
+	// variaveis de inst–≤ncia - substitua o exemplo abaixo pelo seu c—Édigo
 	private int x;
 
 	 /**
 	 * Chamado pelo browser ou appletviewer para informar a este JApplet que ele
-	 * foi carregado no sistema. Este mÈtodo È sempre chamado antes da primeira
-	 * chamada ao mÈtodo start.
+	 * foi carregado no sistema. Este m–πtodo –π sempre chamado antes da primeira
+	 * chamada ao m–πtodo start.
 	 */
 	public void init()
 	{
-		// isto È uma precauÁ„o para evitar conflitos de seguranÁa com os browsers atuais
-		// incluindo o Netscape e o Internet Explorer que n„o permitem o acesso a
+		// isto –π uma precau–∑–≥o para evitar conflitos de seguran–∑a com os browsers atuais
+		// incluindo o Netscape e o Internet Explorer que n–≥o permitem o acesso a
 		// fila de eventos do sistema AWT que JApplets fazem no startup para checar acessos. 
 		JRootPane rootPane = this.getRootPane();	
 		rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
 	
-		// forneÁa uma inicializaÁ„o adequada para o seu JApplet
+		// forne–∑a uma inicializa–∑–≥o adequada para o seu JApplet
 
 	}
 
 	/**
 	 * Chamado pelo browser ou appletviewer para informar ao JApplet que
-	 * ele deve iniciar sua execuÁ„o. Ele È chamado apÛs o mÈtodo init
-	 * a cada vez que a p·gina do JApplet È revisitada. 
+	 * ele deve iniciar sua execu–∑–≥o. Ele –π chamado ap—És o m–πtodo init
+	 * a cada vez que a p–±gina do JApplet –π revisitada. 
 	 */
 	public void start()
 	{
-		// forneÁa o cÛdigo a ser executado cada vez
-		// que a p·gina for revisitada
+		// forne–∑a o c—Édigo a ser executado cada vez
+		// que a p–±gina for revisitada
 
 	}
 
 	/** 
 	 * Chamado pelo browser ou appletviewer para informar ao JApplet que
-	 * ele deve parar sua execuÁ„o. Ele È chamado quando a p·gina web que
-	 * contÈm o JApplet tem que ser substituÌda por outra p·gina, e tambÈm
-	 * imediatamente antes do JApplet ser destruÌdo.
+	 * ele deve parar sua execu–∑–≥o. Ele –π chamado quando a p–±gina web que
+	 * cont–πm o JApplet tem que ser substitu–Ωda por outra p–±gina, e tamb–πm
+	 * imediatamente antes do JApplet ser destru–Ωdo.
 	 */
 	public void stop()
 	{
-		// forneÁa o cÛdigo a ser executado quando
-		// a p·gina tiver que ser substituÌda ou o JAPplet destruÌdo
+		// forne–∑a o c—Édigo a ser executado quando
+		// a p–±gina tiver que ser substitu–Ωda ou o JAPplet destru–Ωdo
 	
 	}
 
 	/**
 	 * Chamado pelo browser ou appletviewer para informar a este JApplet que
-	 * sua ·rea de memÛria est· sendo desapropriada e que ele deve liberar os recursos
-	 * que foram alocados. O mÈtodo stop sempre ser· chamado antes de destroy.
+	 * sua –±rea de mem—Éria est–± sendo desapropriada e que ele deve liberar os recursos
+	 * que foram alocados. O m–πtodo stop sempre ser–± chamado antes de destroy.
 	 */
 	public void destroy()
 	{
-		// forneÁa o cÛdigo a ser executado quando o JApplet tiver que ser destruÌdo.
+		// forne–∑a o c—Édigo a ser executado quando o JApplet tiver que ser destru–Ωdo.
 	
 	}
 
 
 	/**
-	 * Retorna uma informaÁ„o sobre este applet. 
-	 * Um applet deve sobrescrever este mÈtodo para retornar um String contendo
-	 * informaÁ„o sobre o autor, vers„o e copyright do JApplet.
+	 * Retorna uma informa–∑–≥o sobre este applet. 
+	 * Um applet deve sobrescrever este m–πtodo para retornar um String contendo
+	 * informa–∑–≥o sobre o autor, vers–≥o e copyright do JApplet.
 	 *
-	 * @return uma representaÁ„o String das informaÁıes do JApplet
+	 * @return uma representa–∑–≥o String das informa–∑—Öes do JApplet
 	 */
 	public String getAppletInfo()
 	{
-		// forneÁa informaÁıes sobre o applet
-		return "Titulo:   \nAutor:   \nUm exemplo simples de descriÁ„o de um applet. ";
+		// forne–∑a informa–∑—Öes sobre o applet
+		return "Titulo:   \nAutor:   \nUm exemplo simples de descri–∑–≥o de um applet. ";
 	}
 
 
 	/**
-	 * Retorna informaÁıes de par‚metros deste JApplet. 
-	 * Retorna informaÁıes sobre os par‚metros que s„o reconhecidos pelo JApplet.
-	 * Um JApplet deve sobrescerver este mÈtodo para retornar um arranjo de Strings 
-	 * que descreva estes par‚metros. 
-	 * Cada elemento do arranjo deve ser um conjunto de trÍs informaÁıes que contenham
-	 * o nome, o tipo e uma descriÁ„o.
+	 * Retorna informa–∑—Öes de par–≤metros deste JApplet. 
+	 * Retorna informa–∑—Öes sobre os par–≤metros que s–≥o reconhecidos pelo JApplet.
+	 * Um JApplet deve sobrescerver este m–πtodo para retornar um arranjo de Strings 
+	 * que descreva estes par–≤metros. 
+	 * Cada elemento do arranjo deve ser um conjunto de tr–∫s informa–∑—Öes que contenham
+	 * o nome, o tipo e uma descri–∑–≥o.
 	 *
-	 * @return um String[] representaÁ„o das informaÁıes dos par‚metros deste JApplet
+	 * @return um String[] representa–∑–≥o das informa–∑—Öes dos par–≤metros deste JApplet
 	 */
 	public String[][] getParameterInfo()
 	{
-		// forneÁa o arranjo de informaÁıes de par‚metros deste applet
+		// forne–∑a o arranjo de informa–∑—Öes de par–≤metros deste applet
 		String paramInfo[][] = {
-				 {"primeiroParametro",	"1-10",	"descriÁ„o do primeiro par‚metro"},
-				 {"status", "boolean", "descriÁ„o do segundo par‚metro"},
-				 {"imagens",   "url",	 "descriÁ„o do terceiro par‚metro"}
+				 {"primeiroParametro",	"1-10",	"descri–∑–≥o do primeiro par–≤metro"},
+				 {"status", "boolean", "descri–∑–≥o do segundo par–≤metro"},
+				 {"imagens",   "url",	 "descri–∑–≥o do terceiro par–≤metro"}
 		};
 		return paramInfo;
 	}
 
 	/**
-	 * MÈtodo paint do JApplet.
+	 * M–πtodo paint do JApplet.
 	 * 
 	 * @param  g   o objeto Graphics deste applet.
 	 */
@@ -115,14 +115,14 @@ public class $CLASSNAME extends JApplet
 
 
 	/**
-	 * Um exemplo de mÈtodo - substitua este coment·rio pelo seu prÛprio
+	 * Um exemplo de m–πtodo - substitua este coment–±rio pelo seu pr—Éprio
 	 * 	
-	 * @param  y   um par‚metro do mÈtodo
+	 * @param  y   um par–≤metro do m–πtodo
 	 * @return	 a soma de x com y 
 	 */
 	public int sampleMethod(int y)
 	{
-		// ponha seu cÛdigo aqui
+		// ponha seu c—Édigo aqui
 		return x + y;
 	}
 }

@@ -14,26 +14,26 @@ public class $CLASSNAME extends JApplet
 	private int x;
 
 	/**
-	 * Wird vom Browser oder Applet-Viewer aufgerufen, um dieses Applet darüber 
+	 * Wird vom Browser oder Applet-Viewer aufgerufen, um dieses Applet darÃ¼ber 
 	 * zu informieren, dass es in das System geladen wurde. Wird stets vor dem
 	 * ersten Aufruf der start-Methode aufgerufen.
 	 */
 	public void init()
 	{
-		// Workaround für einen Sicherheitskonflikt mit einigen Browsern wie
+		// Workaround fÃ¼r einen Sicherheitskonflikt mit einigen Browsern wie
 		// einige Versionen von Netscape & Internet Explorer, die keinen Zugriff
 		// auf die AWT-Systemevent-Queue erlauben, wie ihn JApplets beim Starten
-		// vornehmen. Ist für Ihren Browser möglicherweise unnötig.
+		// vornehmen. Ist fÃ¼r Ihren Browser mÃ¶glicherweise unnÃ¶tig.
 		JRootPane rootPane = this.getRootPane();	
 		rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
 	
-		// tragen Sie hier die Initialisierungen ein, die Ihr Applet benötigt
+		// tragen Sie hier die Initialisierungen ein, die Ihr Applet benÃ¶tigt
 
 	}
 
 	/**
-	 * Wird vom Browser oder Applet-Viewer aufgerufen, um dieses Applet darüber 
-	 * zu informieren, dass es seine Ausführung beginnen soll. Wird nach der
+	 * Wird vom Browser oder Applet-Viewer aufgerufen, um dieses Applet darÃ¼ber 
+	 * zu informieren, dass es seine AusfÃ¼hrung beginnen soll. Wird nach der
 	 * init-Methode aufgerufen, und jedes Mal, wenn das Applet auf einer Webseite
 	 * wieder besucht wird.
 	 */
@@ -45,39 +45,39 @@ public class $CLASSNAME extends JApplet
 	}
 
 	/** 
-	 * Wird vom Browser oder Applet-Viewer aufgerufen, um dieses Applet darüber 
-	 * zu informieren, dass es seine Ausführung beenden soll. Wird aufgerufen,
-	 * wenn die Webseite, die dieses Applet enthält, durch eine andere ersetzt
-	 * wurde, und auch unmittelbar bevor das Applet zerstört wird. Wenn es keine
-	 * Ressourcen gibt, die Sie freigeben müssen (wie etwa Threads, die Sie 
-	 * anhalten wollen), können Sie diese Methode entfernen.
+	 * Wird vom Browser oder Applet-Viewer aufgerufen, um dieses Applet darÃ¼ber 
+	 * zu informieren, dass es seine AusfÃ¼hrung beenden soll. Wird aufgerufen,
+	 * wenn die Webseite, die dieses Applet enthÃ¤lt, durch eine andere ersetzt
+	 * wurde, und auch unmittelbar bevor das Applet zerstÃ¶rt wird. Wenn es keine
+	 * Ressourcen gibt, die Sie freigeben mÃ¼ssen (wie etwa Threads, die Sie 
+	 * anhalten wollen), kÃ¶nnen Sie diese Methode entfernen.
 	 */
 	public void stop()
 	{
 		// tragen Sie hier den Code ein, der jedes Mal ablaufen soll, wenn die Webseite
-		// durch eine andere ersetzt wird oder bevor das Applet zerstört wird
+		// durch eine andere ersetzt wird oder bevor das Applet zerstÃ¶rt wird
 	
 	}
 
 	/**
-	 * Wird vom Browser oder Applet-Viewer aufgerufen, um dieses Applet darüber 
-	 * zu informieren, dass es zurückgefordert wird und dass es jegliche 
-	 * Ressourcen zerstören soll, die es angelegt hat. Die stop-Methode wird
+	 * Wird vom Browser oder Applet-Viewer aufgerufen, um dieses Applet darÃ¼ber 
+	 * zu informieren, dass es zurÃ¼ckgefordert wird und dass es jegliche 
+	 * Ressourcen zerstÃ¶ren soll, die es angelegt hat. Die stop-Methode wird
 	 * stets vor der destroy-Methode aufgerufen.
 	 */
 	public void destroy()
 	{
-		// tragen Sie hier den Code ein, der ablaufen soll, wenn das Applet zerstört wird
+		// tragen Sie hier den Code ein, der ablaufen soll, wenn das Applet zerstÃ¶rt wird
 	
 	}
 
 
 	/**
-	 * Liefert Informationen über dieses Applet.
-	 * Ein Applet sollte diese Methode überschreiben, um einen String zu liefern,
-	 * der Informationen über Autor, Version und Copyright des Applets enthält.
+	 * Liefert Informationen Ã¼ber dieses Applet.
+	 * Ein Applet sollte diese Methode Ã¼berschreiben, um einen String zu liefern,
+	 * der Informationen Ã¼ber Autor, Version und Copyright des Applets enthÃ¤lt.
 	 *
-	 * @return Informationen über dieses Applet in Form eines Strings
+	 * @return Informationen Ã¼ber dieses Applet in Form eines Strings
 	 */
 	public String getAppletInfo()
 	{
@@ -87,8 +87,8 @@ public class $CLASSNAME extends JApplet
 
 
 	/**
-	 * Liefert Informationen über die Parameter, die von diesem Applet verstanden
-	 * werden. Sie sollten ein Array von Strings zurückgeben mit Details, getrennt
+	 * Liefert Informationen Ã¼ber die Parameter, die von diesem Applet verstanden
+	 * werden. Sie sollten ein Array von Strings zurÃ¼ckgeben mit Details, getrennt
 	 * nach Parametern.
 	 * Jedes Element des Arrays sollte eine Menge von drei Strings sein, die den 
 	 * Namen, den Typ und eine Beschreibung des Parameters darstellen.
@@ -111,7 +111,7 @@ public class $CLASSNAME extends JApplet
 	 * das Applet auf dem Bildschirm gezeichnet werden soll. Tragen Sie daher 
 	 * hier den Code ein, der das Applet darstellt.
 	 *
-	 * @param  g   das Graphics-Objekt für dieses Applet
+	 * @param  g   das Graphics-Objekt fÃ¼r dieses Applet
 	 */
 	public void paint(Graphics g)
 	{
@@ -123,7 +123,7 @@ public class $CLASSNAME extends JApplet
 	/**
 	 * Ein Beispiel einer Methode - ersetzen Sie diesen Kommentar mit Ihrem eigenen
 	 * 
-	 * @param  y	ein Beispielparameter für eine Methode
+	 * @param  y	ein Beispielparameter fÃ¼r eine Methode
 	 * @return		die Summe aus x und y
 	 */
 	public int beispMethode(int y)
