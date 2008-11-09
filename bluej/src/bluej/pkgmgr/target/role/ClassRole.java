@@ -3,6 +3,7 @@ package bluej.pkgmgr.target.role;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -33,7 +34,7 @@ import bluej.views.ViewFilter;
  * class types
  * 
  * @author Bruce Quig
- * @version $Id: ClassRole.java 4746 2006-12-07 02:26:53Z davmac $
+ * @version $Id: ClassRole.java 5943 2008-11-09 19:00:39Z polle $
  */
 public abstract class ClassRole
 {
@@ -121,7 +122,7 @@ public abstract class ClassRole
                 pkg.showError("duplicate-name");
                 return false;
             }
-            BlueJFileReader.translateFile(Config.getClassTemplateFile(template), new File(sourceFile), translations);
+            BlueJFileReader.translateFile(Config.getClassTemplateFile(template), new File(sourceFile), translations, Charset.forName("UTF-8"));
             return true;
         }
         catch (IOException e) {

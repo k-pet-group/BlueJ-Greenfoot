@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.io.*;
 import java.util.*;
 import java.net.MalformedURLException;
+import java.nio.charset.Charset;
 
 import javax.swing.*;
 
@@ -19,7 +20,7 @@ import bluej.utility.*;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 5402 2007-11-27 03:39:54Z davmac $
+ * @version $Id: AppletClassRole.java 5943 2008-11-09 19:00:39Z polle $
  */
 public class AppletClassRole extends StdClassRole
 {
@@ -324,7 +325,7 @@ public class AppletClassRole extends StdClassRole
         File tmplFile = Config.getTemplateFile("html");
 
         try {
-            BlueJFileReader.translateFile(tmplFile, outputFile, translations);
+            BlueJFileReader.translateFile(tmplFile, outputFile, translations, Charset.forName("UTF-8"));
         } catch(IOException e) {
             Debug.reportError("Exception during file translation from " +
                               tmplFile + " to " + outputFile);

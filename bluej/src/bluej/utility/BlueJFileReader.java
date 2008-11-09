@@ -2,6 +2,7 @@ package bluej.utility;
 
 import java.util.*;
 import java.io.*;
+import java.nio.charset.Charset;
 
 import bluej.Config;
 
@@ -29,7 +30,7 @@ import bluej.Config;
  * to and from other character encodings.
  * 
  * @author Michael Kolling
- * @version $Id: BlueJFileReader.java 5341 2007-10-24 12:43:43Z davmac $
+ * @version $Id: BlueJFileReader.java 5943 2008-11-09 19:00:39Z polle $
  */
 public class BlueJFileReader
 {
@@ -134,19 +135,20 @@ public class BlueJFileReader
     }
 
     /**
-     * Copy a file while replacing special keywords
-     * within the file by definitions.
-     *
-     * Keywords are marked with a dollar
-     * sign and a name ($KEYWORD). 'translations' contains definitions
-     * to be used as replacements.
-     * This is used to create shell files from the shell file template.
+     * Copy a file while replacing special keywords within the file by
+     * definitions.
+     * 
+     * Keywords are marked with a dollar sign and a name ($KEYWORD).
+     * 'translations' contains definitions to be used as replacements. This is
+     * used to create shell files from the shell file template.
+     * 
+     * @param templateCharset Charset that should be used to read the template file.
      */
     public static void translateFile(File template, File dest,
-                                     Dictionary translations)
+                                     Dictionary translations, Charset templateCharset)
         throws IOException
     {
-        translateFile(template, dest, translations, true);
+        translateFile(template, dest, translations, true, templateCharset);
     }
     
     /**
@@ -157,19 +159,21 @@ public class BlueJFileReader
      * sign and a name ($KEYWORD). 'translations' contains definitions
      * to be used as replacements.
      * This is used to create shell files from the shell file template.
+     * 
+     * @param templateCharset Charset that should be used to read the template file.
      */
-    public static void translateFile(File template, File dest,
-                                     Dictionary translations, boolean replaceTabs)
+    private static void translateFile(File template, File dest,
+                                     Dictionary translations, boolean replaceTabs, Charset templateCharset)
         throws IOException
     {
-        FileReader in = null;
+        InputStreamReader in = null;
         FileWriter out = null;
         String newline = System.getProperty("line.separator");
-
+      
         try {
-            in = new FileReader(template);
+            in = new InputStreamReader(new FileInputStream(template), templateCharset);
             out = new FileWriter(dest);
-
+            
             for(int c; (c = in.read()) != -1; ) {
                 if(c == '$') {
                     StringBuffer buf = new StringBuffer();
@@ -253,7 +257,9 @@ public class BlueJFileReader
     }
     
     /**
-     * Convert Unicode based characters in \udddd format
+     * Converts encoded &#92;uxxxx to unicode chars <br> 
+     * 
+     * Copied large chunks from java.util.Properties#loadConvert
      */
     private static String convert(String theString)
     {
