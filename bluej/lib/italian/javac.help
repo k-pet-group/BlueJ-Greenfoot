@@ -1,3 +1,5 @@
+#BlueJ/Greenfoot dialogues.
+#Mon Nov 10 12:25:22 GMT 2008
 as of release 1.4, 'assert' is a keyword, and may not be used as an identifier
 La parola 'assert' \u00e8 diventata parte del linguaggio
 Java, e quindi ha un significato speciale: \u00e8 una
@@ -541,9 +543,6 @@ seguito o da un blocco "catch" o da un blocco
 Il tipo che hai usato non \u00e8 parametrizzato:
 non puoi usare un parametro.
 
-type variables cannot be dereferenced
-Non \u00e8 disponibile nessun aiuto
-
 type variable {0} occurs more than once in result type of {1}; cannot be left uninstantiated
 Non \u00e8 disponibile nessun aiuto
 
@@ -694,9 +693,6 @@ capire perch\u00e9 dovrebbe esserci il simbolo.
 orphaned *
 Non \u00e8 disponibile nessun aiuto
 
-cannot access *
-Non \u00e8 disponibile nessun aiuto
-
 type parameter {0} is not within its bound *
 Non \u00e8 disponibile nessun aiuto
 
@@ -716,7 +712,7 @@ automaticamente al tipo richiesto.
 possible loss of precision
 Non \u00e8 disponibile nessun aiuto
 
-unexpected type 
+unexpected type
 Qui \u00e8 richiesta una espressione di un certo tipo,
 ma hai messo una espressione di un altro tipo non
 compatibile (ad esempio c'\u00e8 una String dove
@@ -777,3 +773,4 @@ Non \u00e8 disponibile nessun aiuto
 
 * conflicts with a compiler-synthesized symbol in *
 Non \u00e8 disponibile nessun aiuto
+
