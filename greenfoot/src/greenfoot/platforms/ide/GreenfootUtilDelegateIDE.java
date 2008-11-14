@@ -6,6 +6,7 @@ import greenfoot.util.FileChoosers;
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
@@ -29,7 +30,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         }
         File libDir = Config.getGreenfootLibDir();
         File template = new File(libDir, "templates/" +  templateFileName);  
-        BlueJFileReader.translateFile(template, file, translations);
+        BlueJFileReader.translateFile(template, file, translations, Charset.forName("UTF-8"));
     }
     
     /**

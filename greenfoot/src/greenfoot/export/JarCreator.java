@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -571,7 +572,7 @@ public class JarCreator
         File template = new File(libDir, "templates/html.tmpl"); 
         
         try {
-            BlueJFileReader.translateFile(template, outputFile, translations);
+            BlueJFileReader.translateFile(template, outputFile, translations, Charset.forName("UTF-8"));
         }
         catch (IOException e) {
             Debug.reportError("Exception during file translation from " + template + " to " + outputFile);
