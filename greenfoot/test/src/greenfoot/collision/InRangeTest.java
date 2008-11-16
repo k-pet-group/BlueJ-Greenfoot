@@ -28,26 +28,39 @@ public class InRangeTest extends TestCase
         
         Collection inRange = actor1.getObjectsInRangeP(3, TestObject.class);
         assertTrue(inRange.contains(actor2));
+        inRange = actor2.getObjectsInRangeP(3, TestObject.class);
+        assertTrue(inRange.contains(actor1));
+
 
         actor2.setLocation(2, 5);
         inRange = actor1.getObjectsInRangeP(3, TestObject.class);
         assertTrue(inRange.contains(actor2));
+        inRange = actor2.getObjectsInRangeP(3, TestObject.class);
+        assertTrue(inRange.contains(actor1));
 
         actor2.setLocation(2, 6);
         inRange = actor1.getObjectsInRangeP(3, TestObject.class);
         assertFalse(inRange.contains(actor2));
+        inRange = actor2.getObjectsInRangeP(3, TestObject.class);
+        assertFalse(inRange.contains(actor1));
 
         actor2.setLocation(4, 4);
         inRange = actor1.getObjectsInRangeP(3, TestObject.class);
         assertTrue(inRange.contains(actor2));
+        inRange = actor2.getObjectsInRangeP(3, TestObject.class);
+        assertTrue(inRange.contains(actor1));
 
         actor2.setLocation(5, 5);
         inRange = actor1.getObjectsInRangeP(3, TestObject.class);
         assertFalse(inRange.contains(actor2));
+        inRange = actor2.getObjectsInRangeP(3, TestObject.class);
+        assertFalse(inRange.contains(actor1));
 
         actor2.setLocation(5, 5);
         inRange = actor1.getObjectsInRangeP(10000, TestObject.class);
         assertTrue(inRange.contains(actor2));
+        inRange = actor2.getObjectsInRangeP(10000, TestObject.class);
+        assertTrue(inRange.contains(actor1));
     }
     
     
