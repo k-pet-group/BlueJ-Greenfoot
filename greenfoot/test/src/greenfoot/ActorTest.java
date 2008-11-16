@@ -41,8 +41,8 @@ public class ActorTest extends TestCase
         } catch (IndexOutOfBoundsException e) {
             exception = e;
         }
-        assertNotNull(exception);
-        assertEquals(x, o.getX());
-        assertEquals(y, o.getY());        
+        assertNull(exception);
+        assertEquals(9, o.getX());
+        assertEquals(9, o.getY());        
     }
 }
