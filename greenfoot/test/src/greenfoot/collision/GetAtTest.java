@@ -5,14 +5,24 @@ package greenfoot.collision;
 
 import java.util.List;
 
+import greenfoot.TestUtilDelegate;
 import greenfoot.World;
 import greenfoot.TestObject;
+import greenfoot.util.GreenfootUtil;
 import junit.framework.TestCase;
 
 public class GetAtTest extends TestCase
 {
     private World world;
 
+    
+    @Override
+    protected void setUp()
+        throws Exception
+    {
+        GreenfootUtil.initialise(new TestUtilDelegate());        
+    }
+    
     public void testPixelOdd()
     {
         world = new World(100, 100, 1){};

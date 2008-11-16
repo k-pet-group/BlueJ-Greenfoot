@@ -3,6 +3,7 @@ package greenfoot.mouse;
 import greenfoot.Actor;
 import greenfoot.MouseInfo;
 import greenfoot.TestObject;
+import greenfoot.TestUtilDelegate;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.gui.input.mouse.MousePollingManager;
@@ -46,47 +47,7 @@ public class MousePollTest extends TestCase
     protected void setUp()
         throws Exception
     {
-        GreenfootUtil.initialise(new GreenfootUtilDelegate( ) {
-            public void createSkeleton(String className, String superClassName, File file, String templateFileName)
-                throws IOException
-            {
-                return;
-            }
-
-            public ClassLoader getCurrentClassLoader()
-            {
-                return getClass().getClassLoader();
-            }
-
-            public String getGreenfootLogoPath()
-            {
-                String classes = getClass().getClassLoader().getResource(".").toString();
-                File startingDir = null;
-                try {
-                    startingDir = (new File(new URI(classes)).getParentFile());
-                }
-                catch (URISyntaxException e) {
-                    e.printStackTrace();
-                }
-                while((startingDir != null) &&
-                        !(new File(startingDir, "images").isDirectory())) {
-                    startingDir = startingDir.getParentFile();
-                }
-                File imageFile = new File(startingDir, "images/greenfoot.png");
-                return imageFile.toString();
-            }
-
-            public String getNewProjectName(Component parent)
-            {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            public File getScenarioFromFileBrowser(Component parent)
-            {
-                // TODO Auto-generated method stub
-                return null;
-            }});
+        GreenfootUtil.initialise(new TestUtilDelegate());
         
         //set up world with two actors
         world = new World(200, 200, 1) {};
