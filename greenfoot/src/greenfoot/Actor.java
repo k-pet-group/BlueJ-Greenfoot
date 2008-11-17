@@ -70,7 +70,7 @@ public abstract class Actor
     /** The image for this actor. */
     private GreenfootImage image;
 
-    /** Bounding circle. Used for collision checking. */
+    /** Bounding circle. Used for collision checking. In PIXELS, not cells. */
     private Circle boundingCircle;
     
     /** Field used to store some extra data in an object. Used by collision checkers. */
@@ -356,7 +356,7 @@ public abstract class Actor
     {
         this.world = world;
         if(world != null) {
-            boundingCircle = new Circle(x,y,calcBoundingRadius());
+            boundingCircle = new Circle(toPixel(x), toPixel(y), calcBoundingRadius());
         }
     }
 
@@ -378,7 +378,7 @@ public abstract class Actor
     
     /**
      * Get the bounding circle of the object. Taking into consideration that the
-     * object can rotate.
+     * object can rotate. This is in pixels.
      * 
      */
     Circle getBoundingCircle() {        
@@ -571,8 +571,8 @@ public abstract class Actor
     private void locationChanged(int oldX, int oldY)
     {
         if(boundingCircle != null) {
-            boundingCircle.setX(x);
-            boundingCircle.setY(y);
+            boundingCircle.setX(toPixel(x));
+            boundingCircle.setY(toPixel(y));
         }
         if(world != null) {
             world.updateObjectLocation(this, oldX, oldY);
@@ -580,19 +580,34 @@ public abstract class Actor
     }
     
     /**
-     * Calculate the bounding radius. In grid coordinates.
+     * Translate a cell coordinate into a pixel.
+     */
+    private int toPixel(int x)
+    {
+        //
+        
+        World aWorld = world;
+        if(aWorld == null) {
+            aWorld = getActiveWorld();
+        }
+        if(aWorld == null) {
+            // Should never happen
+            throw new IllegalStateException(NO_WORLD);
+        }
+        return x * aWorld.getCellSize() +  aWorld.getCellSize()/2;
+    }
+
+    /**
+     * Calculate the bounding radius. In pixels coordinates.
      */
     private int calcBoundingRadius() {
         if(world == null) return -1;
-        // An explanation of why +3 is needed:
-        // +1 comes form the fact that Max - Min is not the width of the objects,
-        //  but the difference in max an min location which for instance can be 0.
-        // +2 we need  to cover the boundary cases in both ends.
-        int dy = getYMax() - getYMin() + 3;
-        int dx = getXMax() - getXMin() + 3;
+
+        int dx = image.getHeight();
+        int dy = image.getWidth();
         return (int) (Math.sqrt(dx*dx + dy*dy) / 2 );
     }
-
+    
     /**
      * Throws an exception if the actor is not in a world.
      * 
