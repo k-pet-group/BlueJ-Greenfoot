@@ -238,16 +238,25 @@ public class Simulation extends Thread
             try {
                 synchronized(this) {
                     if (repaintRate <= MIN_FRAME_RATE) {
+                        repaintTimes.offer(System.currentTimeMillis());
+
                         // Waiting here makes sure the WorldCanvas gets a chance to
                         // repaint. It also lets the rest of the UI be responsive, even if
                         // we are running at maximum speed, by making sure events on the
                         // event queue are processed.
+
                         while (paintPending) {
                             wait();
                         }
+                        
+                        doRepaint();
                     }
-
-                    triggerRepaint();
+                    else {
+                        if (! paintPending) {
+                            repaintTimes.offer(System.currentTimeMillis());
+                            doRepaint();
+                        }
+                    }
                 }
             }
             catch (InterruptedException ie) {}
@@ -261,25 +270,27 @@ public class Simulation extends Thread
     {
         synchronized (this) {
             if (! paintPending) {
-                paintPending = true;
-                worldHandler.repaint();
-
-                synchronized (repaintTimes) {
-                    repaintTimes.offer(System.currentTimeMillis());
-                }
-
-                EventQueue.invokeLater(new Runnable() {
-                    public void run()
-                    {
-                        synchronized (Simulation.this) {
-                            paintPending = false;
-                            // worldHandler.paintImmediately();
-                            Simulation.this.notifyAll();
-                        }
-                    }
-                });
+                repaintTimes.offer(System.currentTimeMillis());
+                doRepaint();
             }
         }
+    }
+    
+    private void doRepaint()
+    {
+        paintPending = true;
+        worldHandler.repaint();
+
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                synchronized (Simulation.this) {
+                    paintPending = false;
+                    // worldHandler.paintImmediately();
+                    Simulation.this.notifyAll();
+                }
+            }
+        });
     }
     
     /**
@@ -317,9 +328,6 @@ public class Simulation extends Thread
 
         long timeSinceUpdate = currentTime - lastUpdate;
         if (timeSinceUpdate > 3000000000L) {
-            // DAV
-            System.out.println("Updates: " + updates);
-            // System.out.println("Repaints: " + worldHandler.getAndResetPaintCount());
             lastUpdate = currentTime;
             updates = 0;
         }
