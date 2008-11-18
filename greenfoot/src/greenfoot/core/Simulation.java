@@ -10,6 +10,7 @@ import greenfoot.event.WorldListener;
 import greenfoot.platforms.SimulationDelegate;
 import greenfoot.util.HDTimer;
 
+import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,6 +31,7 @@ public class Simulation extends Thread
     // MAX_FRAME_RATE. This makes the high speeds run faster, since we avoid
     // repaints that can't be seen anyway.
     private static int MAX_FRAME_RATE = 60;
+    private static int MIN_FRAME_RATE = 30;
     private WorldHandler worldHandler;
     private boolean paused;
 
@@ -57,14 +59,15 @@ public class Simulation extends Thread
 
     private long updates; // used for debugging to calculate update rate
     private long lastUpdate; // used for debugging to calculate update rate
-
+    
     /**
      * The last few times at which repaints were requested. These are used to
-     * calculate the frame rate.
+     * calculate the frame rate. Accessed only from the simulation thread.
      */
     private Queue<Long> repaintTimes = new LinkedList<Long>();
     private volatile boolean interruptedForSpeedChange = false;
     private SimulationDelegate delegate;
+    private boolean paintPending;
 
     /**
      * Create new simulation. Leaves the simulation in paused state
@@ -162,9 +165,7 @@ public class Simulation extends Thread
                 throw new ActInterruptedException(e1);
             }
             if (!paused) {
-                synchronized (repaintTimes) {
-                    repaintTimes.clear();
-                }
+                repaintTimes.clear();
                 fireSimulationEvent(startedEvent);
             }
         }
@@ -234,22 +235,53 @@ public class Simulation extends Thread
     {
         int repaintRate = getRepaintRate();
         if (repaintRate <= MAX_FRAME_RATE) {
-            worldHandler.repaint();
+            try {
+                synchronized(this) {
+                    if (repaintRate <= MIN_FRAME_RATE) {
+                        // Waiting here makes sure the WorldCanvas gets a chance to
+                        // repaint. It also lets the rest of the UI be responsive, even if
+                        // we are running at maximum speed, by making sure events on the
+                        // event queue are processed.
+                        while (paintPending) {
+                            wait();
+                        }
+                    }
 
-            synchronized (repaintTimes) {
-                repaintTimes.offer(System.currentTimeMillis());
+                    triggerRepaint();
+                }
             }
-
-            // Yielding here makes sure the WorldCanvas gets a chance to
-            // repaint. It also lets the rest of the UI be responsive, even if
-            // we are running at maximum speed, since we will do a yield at
-            // every repaint. We could maybe speed up things by not yielding
-            // every time, maybe only once per second or so. But that would
-            // probably make the animation less fluid.
-            Thread.yield();
+            catch (InterruptedException ie) {}
         }
     }
 
+    /**
+     * Force the world to be repainted (by putting a repaint job on the event queue).
+     */
+    private void triggerRepaint()
+    {
+        synchronized (this) {
+            if (! paintPending) {
+                paintPending = true;
+                worldHandler.repaint();
+
+                synchronized (repaintTimes) {
+                    repaintTimes.offer(System.currentTimeMillis());
+                }
+
+                EventQueue.invokeLater(new Runnable() {
+                    public void run()
+                    {
+                        synchronized (Simulation.this) {
+                            paintPending = false;
+                            // worldHandler.paintImmediately();
+                            Simulation.this.notifyAll();
+                        }
+                    }
+                });
+            }
+        }
+    }
+    
     /**
      * Returns the current repaint rate. Calculated from the time since a
      * previous repaint and the current time.
@@ -258,17 +290,15 @@ public class Simulation extends Thread
     {
         long currentTime = System.currentTimeMillis();
         long lastRepaintTime = 0;
-        int knownRepaintTimes = 0;
-        synchronized (repaintTimes) {
-            knownRepaintTimes = repaintTimes.size();
+        int knownRepaintTimes = repaintTimes.size();
 
-            if (knownRepaintTimes >= 100) {
-                lastRepaintTime = repaintTimes.poll();
-            }
-            else if (knownRepaintTimes > 0) {
-                lastRepaintTime = repaintTimes.peek();
-            }
+        if (knownRepaintTimes >= 100) {
+            lastRepaintTime = repaintTimes.poll();
         }
+        else if (knownRepaintTimes > 0) {
+            lastRepaintTime = repaintTimes.peek();
+        }
+        
         long timeSinceRepaint = currentTime - lastRepaintTime;
         // Avoid divide by zero
         if (timeSinceRepaint == 0)
@@ -287,6 +317,9 @@ public class Simulation extends Thread
 
         long timeSinceUpdate = currentTime - lastUpdate;
         if (timeSinceUpdate > 3000000000L) {
+            // DAV
+            System.out.println("Updates: " + updates);
+            // System.out.println("Repaints: " + worldHandler.getAndResetPaintCount());
             lastUpdate = currentTime;
             updates = 0;
         }
@@ -408,9 +441,8 @@ public class Simulation extends Thread
             
             this.delay = calculateDelay(speed);
 
-            synchronized (repaintTimes) {
-                repaintTimes.clear();
-            }
+            repaintTimes.clear();
+            
             // If simulation is running we should interrupt any waiting or
             // sleeping that is currently happening.
             if(!paused) {
