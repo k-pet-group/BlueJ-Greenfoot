@@ -28,7 +28,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldCanvas.java 5954 2008-11-18 00:31:48Z davmac $
+ * @version $Id: WorldCanvas.java 5958 2008-11-18 23:27:29Z polle $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -119,7 +119,6 @@ public class WorldCanvas extends JPanel
         try {
             if (world.lock.readLock().tryLock(World.READ_LOCK_TIMEOUT, TimeUnit.MILLISECONDS)) {
                 try {
-                    // super.paintComponent(g); // No need - I think. And it slows us down.
                     paintBackground(g);
                     paintObjects(g);
                     paintDraggedObject(g);
@@ -181,6 +180,9 @@ public class WorldCanvas extends JPanel
                 else {
                     ImageVisitor.drawImage(backgroundImage, g, 0, 0, this);
                 }
+            }
+            else {
+                g.clearRect(0, 0, this.getWidth(), this.getHeight());
             }
         }
     }
