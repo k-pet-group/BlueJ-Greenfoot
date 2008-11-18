@@ -67,6 +67,11 @@ public class Simulation extends Thread
     private Queue<Long> repaintTimes = new LinkedList<Long>();
     private volatile boolean interruptedForSpeedChange = false;
     private SimulationDelegate delegate;
+
+    /**
+     * Track whether a repaint operation on the world canvas is pending.
+     * Used in keeping track of the repaint rate.
+     */
     private boolean paintPending;
 
     /**
@@ -264,18 +269,8 @@ public class Simulation extends Thread
     }
 
     /**
-     * Force the world to be repainted (by putting a repaint job on the event queue).
+     * Issue a repaint of the world canvas.
      */
-    private void triggerRepaint()
-    {
-        synchronized (this) {
-            if (! paintPending) {
-                repaintTimes.offer(System.currentTimeMillis());
-                doRepaint();
-            }
-        }
-    }
-    
     private void doRepaint()
     {
         paintPending = true;
@@ -449,8 +444,6 @@ public class Simulation extends Thread
             
             this.delay = calculateDelay(speed);
 
-            repaintTimes.clear();
-            
             // If simulation is running we should interrupt any waiting or
             // sleeping that is currently happening.
             if(!paused) {
