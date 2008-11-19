@@ -163,10 +163,22 @@ public abstract class World
     {
         if (backgroundImage == null) {
             backgroundImage = new GreenfootImage(getWidthInPixels(), getHeightInPixels());
+            backgroundImage.setColor(Color.WHITE);
+            backgroundImage.fill();
         }
         return backgroundImage;
     }
     
+    /**
+     * Return the world's background image but without intialising it first
+     * 
+     * @return The background image or null if not initialised yet.
+     */
+    public GreenfootImage getBackgroundNoInit()
+    {
+        return backgroundImage;
+    }
+      
     /**
      * Return the color at the center of the cell. To paint a color, you need to
      * get the background image for the world and paint on that.

@@ -28,7 +28,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldCanvas.java 5958 2008-11-18 23:27:29Z polle $
+ * @version $Id: WorldCanvas.java 5960 2008-11-19 15:15:47Z polle $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -171,8 +171,8 @@ public class WorldCanvas extends JPanel
      */
     public void paintBackground(Graphics g)
     {
-        if (world != null) {
-            GreenfootImage backgroundImage = world.getBackground();
+        if (world != null) {            
+            GreenfootImage backgroundImage = WorldVisitor.getBackgroundImage(world);
             if (backgroundImage != null) {
                 if (world.isTiled()) {
                     paintTiledBackground(g, backgroundImage);
@@ -180,9 +180,11 @@ public class WorldCanvas extends JPanel
                 else {
                     ImageVisitor.drawImage(backgroundImage, g, 0, 0, this);
                 }
-            }
-            else {
-                g.clearRect(0, 0, this.getWidth(), this.getHeight());
+            } else {
+                Color oldColor = g.getColor();
+                g.setColor(getBackground());
+                g.fillRect(0, 0, this.getWidth(), this.getHeight());
+                g.setColor(oldColor);
             }
         }
     }

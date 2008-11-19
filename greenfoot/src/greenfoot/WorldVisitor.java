@@ -10,7 +10,7 @@ import java.util.Collection;
  * in the public interface visible to users.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldVisitor.java 5736 2008-05-01 13:37:23Z polle $
+ * @version $Id: WorldVisitor.java 5960 2008-11-19 15:15:47Z polle $
  */
 public class WorldVisitor
 {
@@ -86,6 +86,16 @@ public class WorldVisitor
     public static TreeActorSet getObjectsListInActOrder(World world)
     {
         return world.getObjectsListInActOrder(); 
+    }
+
+    /**
+     * Get the background image for the world, but without initialising it if it is not yet created.
+     * 
+     * @return Background of the world or null if not create yet.
+     */
+    public static GreenfootImage getBackgroundImage(World world)
+    {
+        return world.getBackgroundNoInit();
     }
 
 }
