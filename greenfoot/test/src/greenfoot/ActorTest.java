@@ -1,5 +1,6 @@
 package greenfoot;
 
+import greenfoot.util.GreenfootUtil;
 import junit.framework.TestCase;
 
 /**
@@ -13,6 +14,15 @@ public class ActorTest extends TestCase
 
     private World world;
 
+
+    @Override
+    protected void setUp()
+        throws Exception
+    {
+        GreenfootUtil.initialise(new TestUtilDelegate());        
+    }
+    
+    
     public void testSize()
     {
         world = new World(10, 10, 10) {};
@@ -25,6 +35,37 @@ public class ActorTest extends TestCase
         world.addObject(o, 0, 0);
         assertEquals(3, o.getWidth());
         assertEquals(5, o.getHeight());
+    }
+    
+    public void testRotatedSizeSmall()
+    {
+        world = new World(100, 100, 1) {};
+        TestObject o = new TestObject(20, 20);
+        world.addObject(o, 0, 0);
+        o.setRotation(45);
+        
+        //Width and height should now be sqrt(800) = 28.2842
+        assertEquals(29, o.getWidth());
+        assertEquals(29, o.getHeight());
+    }
+    
+    public void testRotatedSizeBig()
+    {
+        world = new World(10, 10, 20) {};
+        TestObject o = new TestObject(60, 60);
+        world.addObject(o, 0, 0);
+
+        assertEquals(3, o.getWidth());
+        assertEquals(3, o.getHeight());
+        o.setRotation(45);
+        // It now spans 84.85 pixels, which should cover 5 cells of 20.
+        assertEquals(5, o.getWidth());
+        assertEquals(5, o.getHeight());        
+
+        TestObject o1 = new TestObject(6, 6);
+        world.addObject(o1, 0, 0);
+        assertEquals(1, o1.getWidth());
+        assertEquals(1, o1.getHeight());
     }
     
     public void testOutOfBounds()
