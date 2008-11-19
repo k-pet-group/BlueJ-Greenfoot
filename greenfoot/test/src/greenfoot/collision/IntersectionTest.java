@@ -78,4 +78,15 @@ public class IntersectionTest extends TestCase
         assertFalse(o1.intersectsP(o2));
         assertFalse(o2.intersectsP(o1));
     }
+    
+    public void testRotationIntersection()
+    {
+        world = new World(10, 10, 50){};
+        TestObject o1 = new TestObject(50,50);
+        world.addObject(o1, 0 ,0);
+        TestObject o2 = new TestObject(50,50);
+        world.addObject(o2, 1 ,0);
+        o2.setRotation(45);
+        assertEquals(o1, o2.getOneIntersectingObjectP(TestObject.class));
+    }
 }
