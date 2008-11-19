@@ -10,7 +10,6 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.PathIterator;
 import java.util.List;
 
 
@@ -220,10 +219,15 @@ public abstract class Actor
             oldHeight = getHeight();
         }
 
-        this.rotation = rotation;
-
-        if (world != null && (oldHeight != getHeight() || oldWidth != getWidth())) {
-            sizeChanged();
+        if(this.rotation != rotation) {
+            this.rotation = rotation;    
+          // Doesn't work until getHeight and Width considers rotation
+          //  if (world != null && (oldHeight != getHeight() || oldWidth != getWidth())) {
+          //      sizeChanged();
+          //  }
+            if(world != null) {
+                world.updateObjectSize(this);
+            }
         }
     }
 
@@ -398,11 +402,21 @@ public abstract class Actor
      */
     Rect getBoundingRect() {    
         if(world == null) return null;
-        int x = getPaintX();
-        int y = getPaintY();
-        int width = image.getWidth();
-        int height = image.getHeight();
-        return new Rect(x, y, width, height);
+        if(getRotation() == 0) {
+            int x = getPaintX();
+            int y = getPaintY();
+            int width = image.getWidth();
+            int height = image.getHeight();
+            Rect rect = new Rect(x, y, width, height);
+            return rect;
+        } else {
+            Shape rotatedImageBounds = getRotatedShape();
+            Rectangle bounds = rotatedImageBounds.getBounds();
+            int x =  (int) Math.floor(getCellCenter(getX()) + bounds.x);
+            int y =  (int) Math.floor(getCellCenter(getY()) + bounds.y);
+            Rect rect = new Rect(x, y , bounds.width,  bounds.height);
+            return rect;
+        }
     }
 
     void setData(Object o) {
@@ -463,6 +477,7 @@ public abstract class Actor
      */
     private int getXMin()
     {
+        //todo rotation
         return toCellFloor(getPaintX());
     }
 
@@ -474,6 +489,7 @@ public abstract class Actor
      */
     private int getXMax()
     {
+        //todo rotation
         return toCellFloor(getPaintX() + image.getWidth() - 1);
     }
 
@@ -485,6 +501,7 @@ public abstract class Actor
      */
     private int getYMin()
     {
+        //todo rotation
         return toCellFloor(getPaintY());
     }
 
@@ -495,6 +512,7 @@ public abstract class Actor
      */
     private int getYMax()
     {
+        // todo rotation
         return toCellFloor(getPaintY() + image.getHeight() - 1);
     }
     
@@ -507,6 +525,7 @@ public abstract class Actor
      */
     private final int getPaintX()
     {
+        //todo rotation
         double cellCenter = getCellCenter(x);
         double paintX = cellCenter - image.getWidth() / 2.;
         return (int) Math.floor(paintX);
@@ -521,6 +540,7 @@ public abstract class Actor
      */
     private final int getPaintY()
     {
+        // todo rotation
         double cellCenter = getCellCenter(y);
         double paintY = cellCenter - image.getHeight() / 2.;
 		return (int) Math.floor(paintY);
@@ -554,6 +574,7 @@ public abstract class Actor
      */
     private void sizeChanged()
     {
+        
         int newSize = calcBoundingRadius();
         if(boundingCircle != null && newSize == boundingCircle.getRadius()) {
             //If the size have not changed we just return
@@ -817,22 +838,38 @@ public abstract class Actor
         }
         int cellSize = getWorld().getCellSize();
 
-        //System.out.println("Imagesize: " + image.getWidth() + "," + image.getHeight());
-        int xMin = (int) Math.ceil(-image.getWidth() / 2d);
-        int yMin = (int) Math.ceil(-image.getHeight() / 2d);
-        int xMax = xMin + image.getWidth();
-        int yMax = yMin + image.getHeight();
+        Shape rotatedImageBounds = getRotatedShape();
+        Rectangle cellBounds = new Rectangle(dx * cellSize - cellSize / 2, dy * cellSize - cellSize / 2, cellSize,
+                cellSize);       
+        
+        // Rectangle cellBounds = new Rectangle(dx * cellSize - (int) Math.floor(cellSize / 2d), dy * cellSize - (int) Math.floor(cellSize / 2d), cellSize, cellSize);
+        // System.out.println("dx, dy: " + dx + ", " + dy);
+        // System.out.println("Cell: " + cellBounds);
+        return rotatedImageBounds.intersects(cellBounds);
+    }
 
-        // Create polygon representing the bounding box of the unrotated image
-        // in pixels.
-        int[] xCoords = new int[]{xMin, xMin, xMax, xMax};
-        int[] yCoords = new int[]{yMin, yMax, yMax, yMin};
-        Polygon imageBounds = new Polygon(xCoords, yCoords, 4);
+    /**
+     * Get the shape of the image after it has been rotated.
+     * 
+     */
+    private Shape getRotatedShape()
+    {
 
-        Shape rotatedImageBounds = null;
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int xMin = - (width / 2);
+        int yMin = - (height / 2);        
+        
         if(getRotation() != 0) {
+            int xMax = xMin + width;
+            int yMax = yMin + height;
+            // Create polygon representing the bounding box of the unrotated image
+            // in pixels.
+            int[] xCoords = new int[]{xMin, xMin, xMax, xMax};
+            int[] yCoords = new int[]{yMin, yMax, yMax, yMin};
+            Polygon imageBounds = new Polygon(xCoords, yCoords, 4);
             AffineTransform transform = AffineTransform.getRotateInstance(Math.toRadians(getRotation()));       
-            rotatedImageBounds = transform.createTransformedShape(imageBounds);
+            Shape rotatedImageBounds = transform.createTransformedShape(imageBounds);
             /*   System.out.println("Rotated Image: " + rotatedImageBounds);
             it = rotatedImageBounds.getPathIterator(null);
             while (!it.isDone()) {
@@ -841,17 +878,11 @@ public abstract class Actor
                 it.next();
                 System.out.println(" coords: " + coords[0] + "," + coords[1]);
             }*/
+
+            return rotatedImageBounds;
         } else {
-            rotatedImageBounds = imageBounds;
+            return new Rectangle(xMin, yMin, width, height);
         }
-        Rectangle cellBounds = new Rectangle(dx * cellSize - cellSize / 2, dy * cellSize - cellSize / 2, cellSize,
-                cellSize);
-        
-        
-    //    Rectangle cellBounds = new Rectangle(dx * cellSize - (int) Math.floor(cellSize / 2d), dy * cellSize - (int) Math.floor(cellSize / 2d), cellSize, cellSize);
-        // System.out.println("dx, dy: " + dx + ", " + dy);
-        // System.out.println("Cell: " + cellBounds);
-        return rotatedImageBounds.intersects(cellBounds);
     }
     
     /**
