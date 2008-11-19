@@ -6,6 +6,11 @@ import greenfoot.platforms.ActorDelegate;
 import greenfoot.util.Circle;
 import greenfoot.util.GreenfootUtil;
 
+import java.awt.Polygon;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.PathIterator;
 import java.util.List;
 
 
@@ -393,8 +398,6 @@ public abstract class Actor
      */
     Rect getBoundingRect() {    
         if(world == null) return null;
-        // +1 comes form the fact that Max - Min is not the width of the objects,
-        //  but the difference in max an min location which for instance can be 0.
         int x = getPaintX();
         int y = getPaintY();
         int width = image.getWidth();
@@ -580,12 +583,10 @@ public abstract class Actor
     }
     
     /**
-     * Translate a cell coordinate into a pixel.
+     * Translate a cell coordinate into a pixel. This will return the coordinate of the center of he cell.
      */
     private int toPixel(int x)
-    {
-        //
-        
+    {        
         World aWorld = world;
         if(aWorld == null) {
             aWorld = getActiveWorld();
@@ -794,11 +795,10 @@ public abstract class Actor
      * overlaps at least partially with that cell.
      * <p>
      * 
-     * This method is used by collision checking methods. Therefor, this method
+     * This method is used by collision checking methods. Therefore, this method
      * can be overridden if, for example, other than rectangular image shapes
      * should be considered. <p>
      * 
-     * NOTE: Does not take rotation into consideration. <br>
      * NOTE: No longer public,
      * since no scenarios have used it so far, and we might want to do it
      * sligthly different if we want collision checkers to only do most of the
@@ -811,19 +811,47 @@ public abstract class Actor
      */
     boolean contains(int dx, int dy)
     {
-        // TODO this disregards rotations. maybe this should be updated in the
-        // getWidth/height methods
         failIfNotInWorld();
-        if (image != null) {
-            int width = getXMax() - getXMin() + 1;
-            int height = getYMax() - getYMin() + 1;
-            int left = getXMin() - getX();
-            int top = getYMin() - getY();
-            return intersects(dx, dy, left, top, width, height);
-        }
-        else {
+        if (image == null) {
             return false;
         }
+        int cellSize = getWorld().getCellSize();
+
+        //System.out.println("Imagesize: " + image.getWidth() + "," + image.getHeight());
+        int xMin = (int) Math.ceil(-image.getWidth() / 2d);
+        int yMin = (int) Math.ceil(-image.getHeight() / 2d);
+        int xMax = xMin + image.getWidth();
+        int yMax = yMin + image.getHeight();
+
+        // Create polygon representing the bounding box of the unrotated image
+        // in pixels.
+        int[] xCoords = new int[]{xMin, xMin, xMax, xMax};
+        int[] yCoords = new int[]{yMin, yMax, yMax, yMin};
+        Polygon imageBounds = new Polygon(xCoords, yCoords, 4);
+
+        Shape rotatedImageBounds = null;
+        if(getRotation() != 0) {
+            AffineTransform transform = AffineTransform.getRotateInstance(Math.toRadians(getRotation()));       
+            rotatedImageBounds = transform.createTransformedShape(imageBounds);
+            /*   System.out.println("Rotated Image: " + rotatedImageBounds);
+            it = rotatedImageBounds.getPathIterator(null);
+            while (!it.isDone()) {
+                double[] coords = new double[6];
+                it.currentSegment(coords);
+                it.next();
+                System.out.println(" coords: " + coords[0] + "," + coords[1]);
+            }*/
+        } else {
+            rotatedImageBounds = imageBounds;
+        }
+        Rectangle cellBounds = new Rectangle(dx * cellSize - cellSize / 2, dy * cellSize - cellSize / 2, cellSize,
+                cellSize);
+        
+        
+    //    Rectangle cellBounds = new Rectangle(dx * cellSize - (int) Math.floor(cellSize / 2d), dy * cellSize - (int) Math.floor(cellSize / 2d), cellSize, cellSize);
+        // System.out.println("dx, dy: " + dx + ", " + dy);
+        // System.out.println("Cell: " + cellBounds);
+        return rotatedImageBounds.intersects(cellBounds);
     }
     
     /**
