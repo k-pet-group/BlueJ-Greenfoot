@@ -95,10 +95,72 @@ public class GetAtTest extends TestCase
         result = world.getObjectsAt(57, 67, TestObject.class);
         assertTrue(result.contains(actor1));
         
+        
+
         // TODO also try negative degress and odd degrees like 55 or something.
         // And some values outside the rotation
     
     }
+    
+    /** 
+     * Test that the IBSP collision checker can handle rotated actors. 
+     */
+    public void testIBSPDynamicRotationBug() 
+    {
+        world = new World(10, 10, 50) {};
+        // Test a second object forced to be on the bounds of the areas in the IBSPColChecker
+
+        TestObject actor1 = new TestObject(50, 50);
+        world.addObject(actor1, 0, 0);
+        TestObject actor2 = new TestObject(50, 50);
+        world.addObject(actor2, 5, 0);
+
+        actor2.setRotation(45);
+        
+        List result = world.getObjectsAt(5, 0, TestObject.class);
+        assertTrue(result.contains(actor2));
+
+        //After the rotation, it should now overlap surrounding cells.
+        
+        result = world.getObjectsAt(6, 0, TestObject.class);
+        assertTrue(result.contains(actor2));
+        result = world.getObjectsAt(5, 1, TestObject.class);
+        assertTrue(result.contains(actor2));
+        
+        // This one will fail if the bounding box does not consider rotation.
+        result = world.getObjectsAt(4, 0, TestObject.class);
+        assertTrue(result.contains(actor2));
+    }
+    
+    /** 
+     * Test that the IBSP collision checker can handle rotated actors. 
+     */
+    public void testIBSPRotationBug() 
+    {
+        world = new World(10, 10, 50) {};
+        // Test a second object forced to be on the bounds of the areas in the IBSPColChecker
+
+        TestObject actor1 = new TestObject(50, 50);
+        world.addObject(actor1, 0, 0);
+        TestObject actor2 = new TestObject(50, 50);
+        actor2.setRotation(45);
+        world.addObject(actor2, 5, 0);
+        
+        List result = world.getObjectsAt(5, 0, TestObject.class);
+        assertTrue(result.contains(actor2));
+
+        //After the rotation, it should now overlap surrounding cells.
+        
+        result = world.getObjectsAt(6, 0, TestObject.class);
+        assertTrue(result.contains(actor2));
+        result = world.getObjectsAt(5, 1, TestObject.class);
+        assertTrue(result.contains(actor2));
+        
+        // This one will fail if the bounding box does not consider rotation.
+        result = world.getObjectsAt(4, 0, TestObject.class);
+        assertTrue(result.contains(actor2));
+    }
+    
     
     public void testBigCells() 
     {
@@ -120,6 +182,11 @@ public class GetAtTest extends TestCase
         result = world.getObjectsAt(1, 2, TestObject.class);
         assertFalse(result.contains(actor1));
         result = world.getObjectsAt(2, 1, TestObject.class);
-        assertFalse(result.contains(actor1));        
+        assertFalse(result.contains(actor1));  
+        
     }
+    
+    
+
+    
 }
