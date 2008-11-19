@@ -155,8 +155,9 @@ public abstract class Actor
     }
 
     /**
-     * Return the width of the object. The width is the number of cells
-     * that an object's image overlaps horizontally.
+     * Return the width of the object. The width is the number of cells that an
+     * object's image overlaps horizontally. This will take the rotation into
+     * account.
      * 
      * @return The width of the object, or -1 if it has no image.
      * @throws IllegalStateException If there is no world instantiated.
@@ -166,14 +167,34 @@ public abstract class Actor
         if (image == null) {
             return -1;
         }
-        else {
+
+        if (getRotation() == 0) {
             return getXMax() - getXMin() + 1;
+        }
+        else {
+            World aWorld = world;
+            if (aWorld == null) {
+                aWorld = getActiveWorld();
+            }
+            if (aWorld == null) {
+                // Should never happen
+                throw new IllegalStateException(NO_WORLD);
+            }
+            Shape shape = getRotatedShape();
+            int width = (int) Math.ceil(shape.getBounds2D().getWidth() / aWorld.getCellSize());
+            if (width % 2 == 0) {
+                return width + 1;
+            }
+            else {
+                return width;
+            }
         }
     }
 
     /**
-     * Return the height of the object. The height is the number of cells
-     * that an object's image overlaps vertically.
+     * Return the height of the object. The height is the number of cells that
+     * an object's image overlaps vertically. This will take the rotation into
+     * account.
      * 
      * @return The height of the object, or -1 if it has no image.
      * @throws IllegalStateException If there is no world instantiated.
@@ -183,8 +204,28 @@ public abstract class Actor
         if (image == null) {
             return -1;
         }
-        else {
+
+        if (getRotation() == 0) {
             return getYMax() - getYMin() + 1;
+        }
+        else {
+            World aWorld = world;
+            if (aWorld == null) {
+                aWorld = getActiveWorld();
+            }
+            if (aWorld == null) {
+                // Should never happen
+                throw new IllegalStateException(NO_WORLD);
+            }
+
+            Shape shape = getRotatedShape();
+            int height = (int) Math.ceil(shape.getBounds2D().getHeight() / aWorld.getCellSize());
+            if (height % 2 == 0) {
+                return height + 1;
+            }
+            else {
+                return height;
+            }
         }
     }
 
@@ -661,6 +702,7 @@ public abstract class Actor
     {
         // TODO: Rotation, we could just increase the bounding box, or we could
         // deal with the rotated bounding box.
+       
         int thisX = getXMin();
         int otherX = other.getXMin();
         int thisW = getWidth();
