@@ -218,6 +218,9 @@ public class GraphicsUtilities {
     public static BufferedImage loadCompatibleTranslucentImage(URL resource)
             throws IOException {
         BufferedImage image = ImageIO.read(resource);
+        if (image == null) {
+            throw new IOException("Image format not supported");
+        }
         return toCompatibleTranslucentImage(image);
     }
 
