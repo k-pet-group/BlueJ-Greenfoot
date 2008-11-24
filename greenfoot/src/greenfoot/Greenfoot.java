@@ -94,17 +94,17 @@ public class Greenfoot
     }
     
     /**
-     * Pause the simulation.
+     * Pause the execution.
      */
-    public static void stopSimulation()
+    public static void stop()
     {
         Simulation.getInstance().setPaused(true);
     }
     
     /**
-     * Run (or resume) the simulation.
+     * Run (or resume) the execution.
      */
-    public static void startSimulation()
+    public static void start()
     {
         Simulation.getInstance().setPaused(false);
     }
