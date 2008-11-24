@@ -700,6 +700,7 @@ public abstract class Actor
      */
     protected boolean intersects(Actor other)
     {
+        // check p101 in collision check book. and p156     
         // TODO: Rotation, we could just increase the bounding box, or we could
         // deal with the rotated bounding box.
        
@@ -788,7 +789,7 @@ public abstract class Actor
      * An object is within range if the distance between its centre and this
      * object's centre is less than or equal to r.
      * 
-     * @param r Radius of the cirle (in pixels)
+     * @param r Radius of the cirle (in cells)
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
     protected List getObjectsInRange(int r, Class cls)
