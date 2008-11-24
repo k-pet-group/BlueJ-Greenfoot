@@ -73,7 +73,7 @@ public class Greenfoot
      * Delay the current execution by a number of time steps. 
      * The size of one time step is defined by the Greenfoot environment (the speed slider).
      * 
-     * @see #setSimulationSpeed(int)
+     * @see #setSpeed(int)
      */
     public static void delay(int time)
     {
@@ -84,11 +84,11 @@ public class Greenfoot
     }
     
     /**
-     * Set the speed of the simulation execution.
+     * Set the speed of the execution.
      *  
      * @param speed  The new speed. the value must be in the range (1..100)
      */
-    public static void setSimulationSpeed(int speed)
+    public static void setSpeed(int speed)
     {
         Simulation.getInstance().setSpeed(speed);
     }
