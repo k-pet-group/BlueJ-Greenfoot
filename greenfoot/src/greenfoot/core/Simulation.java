@@ -20,7 +20,7 @@ import javax.swing.event.EventListenerList;
 
 /**
  * The main class of the simulation. It drives the simulation and calls act()
- * obejcts in the world and then paints them.
+ * on the objects in the world and then paints them.
  * 
  * @author Poul Henriksen
  */
@@ -33,6 +33,8 @@ public class Simulation extends Thread
     private static int MAX_FRAME_RATE = 60;
     private static int MIN_FRAME_RATE = 30;
     private WorldHandler worldHandler;
+    
+    
     private boolean paused;
 
     /** Whether the simulation is enabled (world installed) */
@@ -73,6 +75,15 @@ public class Simulation extends Thread
      * Used in keeping track of the repaint rate.
      */
     private boolean paintPending;
+
+    /**
+     * Lock to synchronize access to the two feilds: delaying and interruptDelay
+     */
+    private Object interruptLock = new Object();
+    /** Whether we are currently delaying between act-loops. */
+    private boolean delaying;
+    /** Whether a delay between act-loops should be interrupted. */
+    private boolean interruptDelay;
 
     /**
      * Create new simulation. Leaves the simulation in paused state
@@ -125,6 +136,8 @@ public class Simulation extends Thread
         while (true) {
             try {
                 if(interruptedForSpeedChange) {
+                    // If it was interrupted because of a speed change, then we
+                    // delay an amount equal to the new delay.
                     interruptedForSpeedChange = false;
                     delay();
                 }                
@@ -142,8 +155,6 @@ public class Simulation extends Thread
             catch (ActInterruptedException e) {
                 // Someone interrupted the user code. We ignore it and let
                 // maybePause() handle whatever needs to be done.
-                // Unless it was interrupted because of a speed change, then we
-                // delay an amount equal to the new delay:
                 
             }
         }
@@ -167,10 +178,11 @@ public class Simulation extends Thread
                 this.wait();
             }
             catch (InterruptedException e1) {
-                throw new ActInterruptedException(e1);
+                // Swallow the interrupt
             }
             if (!paused) {
                 repaintTimes.clear();
+                lastDelayTime = System.nanoTime();
                 fireSimulationEvent(startedEvent);
             }
         }
@@ -191,24 +203,39 @@ public class Simulation extends Thread
 
         fireSimulationEvent(newActEvent);
 
+        // We don't want to be interrupted in the middle of an act-loop
+        // so we remember the first interrupted exception and throw it
+        // when all the actors have acted.
+        ActInterruptedException interruptedException = null;
+        
         List<? extends Actor> objects = null;
 
         // We need to sync to avoid ConcurrentModificationException
         try {
             world.lock.writeLock().lockInterruptibly();
             try {
-                world.act();
+                try {
+                    world.act();
+                }
+                catch (ActInterruptedException e) {
+                    interruptedException = e;
+                }
                 // We need to make a copy so that the original collection can be
-                // modified by the actors act() methods
+                // modified by the actors' act() methods.
                 objects = new ArrayList<Actor>(WorldVisitor.getObjectsListInActOrder(world));
                 for (Actor actor : objects) {
                     if (actor.getWorld() != null) {
-                        actor.act();
+                        try {
+                            actor.act();
+                        }
+                        catch (ActInterruptedException e) {
+                            if (interruptedException == null) {
+                                interruptedException = e;
+                            }
+                        }
                     }
+
                 }
-            }
-            catch (ActInterruptedException e) {
-                throw e;
             }
             catch (Throwable t) {
                 // If any other exceptions occur, halt the simulation
@@ -228,6 +255,11 @@ public class Simulation extends Thread
             throw new ActInterruptedException(e);
         }    
 
+        // We were interrupted while running through the act-loop. Throw now.
+        if(interruptedException != null) {
+            throw interruptedException;
+        }
+        
         printUpdateRate(System.nanoTime());
 
         repaintIfNeeded();
@@ -346,21 +378,43 @@ public class Simulation extends Thread
      */
     public synchronized void setPaused(boolean b)
     {
+        if(paused == b) {
+            //Nothing to do for us.
+            return;
+        }
         paused = b;
         if (enabled) {
+            if(!paused) 
+            {
+                synchronized (interruptLock) {
+                    interruptDelay = false;
+                }
+            }
+            
             notifyAll();
 
             // Interrupt thread to make sure it stops.
             if (paused) {
-                instance.interrupt();
-                // TODO: check if the thread is still running now, we should
-                // force
-                // it to quit. Maybe using the deprecated stop() and then
-                // restarting
-                // the thread. Maybe making sim a runnable instead of thread and
-                // then creating a new thread and start that.
-                // instance.stop();
-                // reinit
+                interruptDelay();                
+            }
+        }
+    }
+
+    /**
+     * Interrupt if we are currently delaying between act-loops. This will
+     * basically skip the current delay and jump to the next act-loop. Used by
+     * setPaused() and setSpeed() to interrupt current delays.
+     */
+    private void interruptDelay()
+    {
+        synchronized (interruptLock) {
+            if (delaying) {
+                interrupt();
+            }
+            else {
+                // Called outside the delaying, so make sure it doesn't go into
+                // the delay by signaling with this flag
+                interruptDelay = true;
             }
         }
     }
@@ -446,9 +500,10 @@ public class Simulation extends Thread
 
             // If simulation is running we should interrupt any waiting or
             // sleeping that is currently happening.
+            
             if(!paused) {
                 interruptedForSpeedChange = true;
-                interrupt();
+                interruptDelay();
             }
             fireSimulationEvent(speedChangeEvent);
         }
@@ -490,7 +545,7 @@ public class Simulation extends Thread
      * simulation. This will wait without considering previous waits, as opposed
      * to delay().
      */
-    public void sleep()
+    public void sleep() throws ActInterruptedException
     {
         World world = WorldHandler.getInstance().getWorld();
 
@@ -518,7 +573,7 @@ public class Simulation extends Thread
      * 
      * This method is used for timing the animation.
      */
-    private void delay()
+    private void delay() throws ActInterruptedException
     {
         try {
             long currentTime = System.nanoTime();
@@ -529,27 +584,47 @@ public class Simulation extends Thread
             if (actualDelay < 0) {
                 actualDelay = 0;
             }
-
+            
             if (actualDelay > 0) {
+                // Signal that we are now in the delay part of the code, by setting delaying=true
+                synchronized (interruptLock) {
+                    if(interruptDelay) {
+                        // interruptDelay was issued before entering this sync, so interrupt now.
+                        interruptDelay = false;
+                        throw new InterruptedException("Interrupted in Simulation.delay() before sleep.");
+                    }
+                    delaying = true;
+                }                
+                
                 HDTimer.sleep(actualDelay);
+                
             }
             else {
                 // If we get to this point, it means that we have trouble
                 // keeping up with chosen speed, and that we are probably
                 // starving the CPU. Running at full speed means infinite speed
                 // and hence we will always end here when running at full speed.
-            }
+            }            
+
             // This is the time at which the delay should be over. Instead of
             // using the time after sleep we use the time measured at the
             // beginning, so that the bad precision of sleep() will not have too
             // big an impact.
+            // The reason we put it here (and not before the sleep), is so that
+            // it is not set if we are interrupted, because an interruption will
+            // get back to this point (if interrupted for speed) or will be
+            // reset (if interrupted for pausing).
             this.lastDelayTime = currentTime + actualDelay;
         }
-        catch (InterruptedException e) {
+        catch (InterruptedException e) {            
             throw new ActInterruptedException(e);
         }
         catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            synchronized (interruptLock) {
+                delaying = false;
+            }
         }
     }
 

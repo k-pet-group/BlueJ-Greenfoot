@@ -115,6 +115,9 @@ public class HDTimer
         // Second, yield in a busy loop if precise enough
         while ((System.nanoTime() - tStart + worstYieldTime) < nanos) {
             long t1 = System.nanoTime();
+            if(Thread.interrupted()) {
+                throw new InterruptedException("HDTimer.sleepFromTime interrupted in yield.");
+            }
             Thread.yield();
             yieldCount++;
             long yieldTime = System.nanoTime() - t1;
@@ -124,8 +127,12 @@ public class HDTimer
         }
 
         // Third, run a busy loop for the rest of the time
-        while ((System.nanoTime() - tStart) < nanos)
+        while ((System.nanoTime() - tStart) < nanos) {
+            if(Thread.interrupted()) {
+                throw new InterruptedException("HDTimer.sleepFromTime interrupted in busy loop.");
+            }
             loopCount++;
+        }
 
         /*
          * long tEnd = System.nanoTime(); System.out.println("sleep error when
