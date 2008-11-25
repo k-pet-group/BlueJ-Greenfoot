@@ -505,6 +505,30 @@ public abstract class World
         // by default, do nothing
     }
 
+    /**
+     * This method will be called by the Greenfoot system when the execution has
+     * started. This method can be overridden to implement custom behaviour when
+     * the execution is started.
+     * <p>
+     * This default implementation is empty.
+     */
+    public void started()
+    {
+        // by default, do nothing
+    }   
+    
+    /**
+     * This method will be called by the Greenfoot system when the execution has
+     * stopped. This method can be overridden to implement custom behaviour when
+     * the execution is stopped.
+     * <p>
+     * This default implementation is empty.
+     */
+    public void stopped()
+    {
+        // by default, do nothing
+    }   
+    
     // =================================================
     //
     // COLLISION STUFF
@@ -544,7 +568,7 @@ public abstract class World
     /**
      * Returns all objects with the logical location within the specified
      * circle. In other words an object A is within the range of an object B if
-     * the distance between the center of the two objects is less thatn r.
+     * the distance between the center of the two objects is less than r.
      * 
      * @param x Center of the cirle
      * @param y Center of the cirle
@@ -781,7 +805,7 @@ public abstract class World
      * g.setColor(Color.BLACK); g.drawString("# of Objects: " + objects.size(),
      * 50,50);
      */
-    /* collisionChecker.paintDebug(g); */
+   //  collisionChecker.paintDebug(g); 
     }
     
     
@@ -812,6 +836,5 @@ public abstract class World
     static void setTransportField(Object obj)
     {
         transportField = obj;
-    }   
-    
+    }    
 }

@@ -85,6 +85,10 @@ public class Simulation extends Thread
     /** Whether a delay between act-loops should be interrupted. */
     private boolean interruptDelay;
 
+    
+    /** Used to figure out when we are transitioning from running to pause stated and vice versa. */
+    private boolean isRunning = false;
+    
     /**
      * Create new simulation. Leaves the simulation in paused state
      * 
@@ -171,6 +175,14 @@ public class Simulation extends Thread
             System.gc();
         }
         while (paused && !runOnce) {
+
+            if(isRunning) {
+                World world = worldHandler.getWorld();
+                if (world != null) {
+                    world.stopped();
+                }
+                isRunning = false;
+            }
             // Make sure we repaint before pausing.
             worldHandler.repaint();
             try {
@@ -181,9 +193,16 @@ public class Simulation extends Thread
                 // Swallow the interrupt
             }
             if (!paused) {
+                // No longer paused, get ready to run:
+                isRunning = true;
                 repaintTimes.clear();
                 lastDelayTime = System.nanoTime();
                 fireSimulationEvent(startedEvent);
+
+                World world = worldHandler.getWorld();
+                if (world != null) {
+                    world.started();
+                }
             }
         }
 
