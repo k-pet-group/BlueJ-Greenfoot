@@ -75,8 +75,8 @@ public abstract class Actor
     private GreenfootImage image;
 
     /** Bounding circle. Used for collision checking. In PIXELS, not cells. */
-    private Circle boundingCircle;
-    
+    private Circle boundingCircle;    
+
     /** Field used to store some extra data in an object. Used by collision checkers. */
     private Object data;
 
@@ -251,8 +251,7 @@ public abstract class Actor
      * @param rotation The rotation in degrees.
      */
     public void setRotation(int rotation)
-    {
-        
+    {        
         int oldWidth = 0;
         int oldHeight = 0;
         if(world != null) {
@@ -364,7 +363,7 @@ public abstract class Actor
      * @param image The image.
      */
     public void setImage(GreenfootImage image)
-    {
+    {        
         this.image = image;
         sizeChanged();
     }
@@ -441,7 +440,7 @@ public abstract class Actor
      * 
      * @return A new Rect specified in pixels!
      */
-    Rect getBoundingRect() {    
+    Rect getBoundingRect() {
         if(world == null) return null;
         if(getRotation() == 0) {
             int x = getPaintX();
@@ -466,6 +465,22 @@ public abstract class Actor
     
     Object getData() {
         return data;
+    }
+    
+    /**
+     * Translate a cell coordinate into a pixel. This will return the coordinate of the centre of he cell.
+     */
+    int toPixel(int x)
+    {        
+        World aWorld = world;
+        if(aWorld == null) {
+            aWorld = getActiveWorld();
+        }
+        if(aWorld == null) {
+            // Should never happen
+            throw new IllegalStateException(NO_WORLD);
+        }
+        return x * aWorld.getCellSize() +  aWorld.getCellSize()/2;
     }
 
     
@@ -642,22 +657,6 @@ public abstract class Actor
         if(world != null) {
             world.updateObjectLocation(this, oldX, oldY);
         }
-    }
-    
-    /**
-     * Translate a cell coordinate into a pixel. This will return the coordinate of the center of he cell.
-     */
-    private int toPixel(int x)
-    {        
-        World aWorld = world;
-        if(aWorld == null) {
-            aWorld = getActiveWorld();
-        }
-        if(aWorld == null) {
-            // Should never happen
-            throw new IllegalStateException(NO_WORLD);
-        }
-        return x * aWorld.getCellSize() +  aWorld.getCellSize()/2;
     }
 
     /**

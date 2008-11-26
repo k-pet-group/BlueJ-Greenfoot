@@ -42,9 +42,7 @@ public class InRangeTest extends TestCase
         inRange = actor1.getObjectsInRangeP(3, TestObject.class);
         assertFalse(inRange.contains(actor2));
         inRange = actor2.getObjectsInRangeP(3, TestObject.class);
-        // Because actor1 is bigger than actor2 it should collide even though it
-        // is not true the other way around.
-        assertTrue(inRange.contains(actor1));
+        assertFalse(inRange.contains(actor1));
 
         actor2.setLocation(4, 4);
         inRange = actor1.getObjectsInRangeP(3, TestObject.class);
@@ -56,9 +54,7 @@ public class InRangeTest extends TestCase
         inRange = actor1.getObjectsInRangeP(3, TestObject.class);
         assertFalse(inRange.contains(actor2));
         inRange = actor2.getObjectsInRangeP(3, TestObject.class);
-        // Because actor1 is bigger than actor2 it should collide even though it
-        // is not true the other way around.
-        assertTrue(inRange.contains(actor1));
+        assertFalse(inRange.contains(actor1));
 
         actor2.setLocation(5, 5);
         inRange = actor1.getObjectsInRangeP(10000, TestObject.class);

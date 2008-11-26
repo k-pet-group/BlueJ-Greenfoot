@@ -35,6 +35,11 @@ public class ActorVisitor
         return actor.getBoundingCircle();
     }
     
+    public static int toPixel(Actor actor, int x) 
+    {
+        return actor.toPixel(x);
+    }
+    
     public static Rect getBoundingRect(Actor actor) 
     {
         return actor.getBoundingRect();

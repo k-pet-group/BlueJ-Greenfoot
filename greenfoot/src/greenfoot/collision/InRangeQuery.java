@@ -36,13 +36,14 @@ public class InRangeQuery
      */
     public boolean checkCollision(Actor actor)
     {
-        Circle c = ActorVisitor.getBoundingCircle(actor);
-
-		int dx = c.getX() - x;
-        int dy = c.getY() - y;
+        int actorX = ActorVisitor.toPixel(actor, actor.getX());
+        int actorY = ActorVisitor.toPixel(actor, actor.getY());   
+        
+		int dx = actorX - x;
+        int dy = actorY - y;
         int dist = (int) Math.sqrt(dx * dx + dy * dy);
 
-        return (dist - c.getRadius()) <= r;
+        return (dist) <= r;
     }
 
 }
