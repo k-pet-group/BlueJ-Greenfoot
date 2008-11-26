@@ -10,6 +10,7 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.util.List;
 
 
@@ -78,6 +79,9 @@ public abstract class Actor
     private Object data;
 
     private static GreenfootImage greenfootImage;
+    
+    /** Bounding rectangle of the object. In pixels. */
+    private Rect boundingRect;
     
     static {
         //Do this in a 'try' since a failure at this point will crash greenfoot.
@@ -177,8 +181,11 @@ public abstract class Actor
                 // Should never happen
                 throw new IllegalStateException(NO_WORLD);
             }
-            Shape shape = getRotatedShape();
-            int width = (int) Math.ceil(shape.getBounds2D().getWidth() / aWorld.getCellSize());
+            
+            if(boundingRect == null) {
+                boundingRect = calcBoundingRect();
+            }
+            int width = (int) Math.ceil(boundingRect.getWidth() / aWorld.getCellSize());
             if (width % 2 == 0) {
                 return width + 1;
             }
@@ -213,10 +220,11 @@ public abstract class Actor
             if (aWorld == null) {
                 // Should never happen
                 throw new IllegalStateException(NO_WORLD);
+            }            
+            if(boundingRect == null) {
+                boundingRect = calcBoundingRect();
             }
-
-            Shape shape = getRotatedShape();
-            int height = (int) Math.ceil(shape.getBounds2D().getHeight() / aWorld.getCellSize());
+            int height =  (int) Math.ceil(boundingRect.getHeight() / aWorld.getCellSize());
             if (height % 2 == 0) {
                 return height + 1;
             }
@@ -248,23 +256,13 @@ public abstract class Actor
      * @param rotation The rotation in degrees.
      */
     public void setRotation(int rotation)
-    {        
-        int oldWidth = 0;
-        int oldHeight = 0;
-        if(world != null) {
-            oldWidth = getWidth();
-            oldHeight = getHeight();
-        }
-
+    {
         if(this.rotation != rotation) {
-            this.rotation = rotation;    
-          // Doesn't work until getHeight and Width considers rotation
-          //  if (world != null && (oldHeight != getHeight() || oldWidth != getWidth())) {
-          //      sizeChanged();
-          //  }
-            if(world != null) {
-                world.updateObjectSize(this);
-            }
+            this.rotation = rotation; 
+            // Recalculate the bounding rect.
+            boundingRect = calcBoundingRect();
+            //since the rotation have changed, the size probably has too.
+            sizeChanged();
         }
     }
 
@@ -287,7 +285,13 @@ public abstract class Actor
         
         this.x = limitValue(x, world.getWidth());
         this.y = limitValue(y, world.getHeight());
-
+        if(boundingRect != null) {            
+            int dx = (this.x - oldX) * world.getCellSize();
+            int dy = (this.y - oldY) * world.getCellSize();
+            
+            boundingRect.setX(boundingRect.getX() + dx);
+            boundingRect.setY(boundingRect.getY() + dy);
+        }
         locationChanged(oldX, oldY);
     }
 
@@ -349,8 +353,7 @@ public abstract class Actor
      */
     public void setImage(String filename) throws IllegalArgumentException
     {
-        image = new GreenfootImage(filename);
-        sizeChanged();
+        setImage(image);
     }
 
     /**
@@ -365,18 +368,18 @@ public abstract class Actor
             return;
         }
 
-        boolean sizeChanged = false;
+        boolean sizeChanged = true;
 
-        if( (image == null && this.image != null) || (image != null && this.image == null)) {
-            sizeChanged = true;
-        }
-        else if(image.getWidth() == this.image.getWidth() && image.getHeight() == this.image.getHeight()) {
-            sizeChanged = false;
-        }
+        if (image != null && this.image != null) {
+            if (image.getWidth() == this.image.getWidth() && image.getHeight() == this.image.getHeight()) {
+                sizeChanged = false;
+            }            
+        }            
         
         this.image = image;
         
         if(sizeChanged) {
+            boundingRect = calcBoundingRect();
             sizeChanged();
         }
     }
@@ -443,6 +446,14 @@ public abstract class Actor
      */
     Rect getBoundingRect() {
         if(world == null) return null;
+        if(boundingRect == null) {
+            boundingRect = calcBoundingRect();
+        }
+        return boundingRect;
+    }
+
+    private Rect calcBoundingRect() {
+        if(world == null) return null;
         if(getRotation() == 0) {
             int x = getPaintX();
             int y = getPaintY();
@@ -450,16 +461,30 @@ public abstract class Actor
             int height = image.getHeight();
             Rect rect = new Rect(x, y, width, height);
             return rect;
-        } else {
+        } else {                     
             Shape rotatedImageBounds = getRotatedShape();
-            Rectangle bounds = rotatedImageBounds.getBounds();
-            int x =  (int) Math.floor(getCellCenter(getX()) + bounds.x);
-            int y =  (int) Math.floor(getCellCenter(getY()) + bounds.y);
-            Rect rect = new Rect(x, y , bounds.width,  bounds.height);
+            Rectangle2D bounds = rotatedImageBounds.getBounds2D();  
+            int x =  (int) Math.floor(getX() * world.getCellSize() + bounds.getX());
+            int y =  (int) Math.floor(getY() * world.getCellSize() + bounds.getY());
+            int width = (int) Math.ceil(bounds.getWidth());
+            int height = (int) Math.ceil(bounds.getHeight());
+            // since we can't span an even number of cells, we add one
+            // TODO: Is this true?
+            // what do we actually do with odd/even shapes? we could have
+            // something that is 2x2. Easy to draw. And 3x3. But for the
+            // collisionchecker, how do we want to handle it?
+            if (width % 2 == 0) {
+                width++;
+            }
+            if (height % 2 == 0) {
+                height++;
+            }            
+            
+            Rect rect = new Rect(x, y , width, height);
             return rect;
         }
     }
-
+    
     void setData(Object o) {
         this.data = o;
     }
