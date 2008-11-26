@@ -30,11 +30,6 @@ public class ActorVisitor
         return actor.intersects(other);
     }
     
-    public static Circle getBoundingCircle(Actor actor) 
-    {
-        return actor.getBoundingCircle();
-    }
-    
     public static int toPixel(Actor actor, int x) 
     {
         return actor.toPixel(x);

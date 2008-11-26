@@ -782,11 +782,12 @@ public class BVHInsChecker
     public synchronized void updateObjectSize(Actor object)
     {
         Node n = (Node) ActorVisitor.getData(object);
-        Circle c = ActorVisitor.getBoundingCircle(object);
+        throw new RuntimeException("No longer working because of missing bounding circle");
+        /*Circle c = ActorVisitor.getBoundingCircle(object);
         if (c != null && n != null) {
             n.circle.setRadius(c.getRadius() * cellSize);
             tree.repairNode(n);
-        }
+        }*/
     }
 
     public List getObjectsAt(int x, int y, Class cls)
@@ -810,12 +811,13 @@ public class BVHInsChecker
 
     private Circle getCircle(Actor actor)
     {
-        Circle c = ActorVisitor.getBoundingCircle(actor);
+        throw new RuntimeException("No longer working because of missing bounding circle");
+       /* Circle c = ActorVisitor.getBoundingCircle(actor);
         if (c == null) {
             return null;
         }
         Circle b = new Circle(c.getX() * cellSize, c.getY() * cellSize, c.getRadius() * cellSize);
-        return b;
+        return b;*/
     }
 
     public List getObjectsInRange(int x, int y, int r, Class cls)

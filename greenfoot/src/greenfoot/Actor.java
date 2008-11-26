@@ -74,9 +74,6 @@ public abstract class Actor
     /** The image for this actor. */
     private GreenfootImage image;
 
-    /** Bounding circle. Used for collision checking. In PIXELS, not cells. */
-    private Circle boundingCircle;    
-
     /** Field used to store some extra data in an object. Used by collision checkers. */
     private Object data;
 
@@ -364,8 +361,24 @@ public abstract class Actor
      */
     public void setImage(GreenfootImage image)
     {        
+        if(image == null && this.image == null) {
+            return;
+        }
+
+        boolean sizeChanged = false;
+
+        if( (image == null && this.image != null) || (image != null && this.image == null)) {
+            sizeChanged = true;
+        }
+        else if(image.getWidth() == this.image.getWidth() && image.getHeight() == this.image.getHeight()) {
+            sizeChanged = false;
+        }
+        
         this.image = image;
-        sizeChanged();
+        
+        if(sizeChanged) {
+            sizeChanged();
+        }
     }
     
     // ==================================
@@ -404,9 +417,6 @@ public abstract class Actor
     void setWorld(World world)
     {
         this.world = world;
-        if(world != null) {
-            boundingCircle = new Circle(toPixel(x), toPixel(y), calcBoundingRadius());
-        }
     }
 
     /**
@@ -423,15 +433,6 @@ public abstract class Actor
         // so it must still be called. (Asteroids scenario relies on setLocation
         // being called when the object is added to the world...)
         this.setLocation(x, y);
-    }
-    
-    /**
-     * Get the bounding circle of the object. Taking into consideration that the
-     * object can rotate. This is in pixels.
-     * 
-     */
-    Circle getBoundingCircle() {        
-        return boundingCircle;
     }
     
     /**
@@ -630,15 +631,6 @@ public abstract class Actor
      */
     private void sizeChanged()
     {
-        
-        int newSize = calcBoundingRadius();
-        if(boundingCircle != null && newSize == boundingCircle.getRadius()) {
-            //If the size have not changed we just return
-            return;
-        }
-        if(boundingCircle != null) {
-            boundingCircle.setRadius(newSize);
-        }
         if(world != null) {
             world.updateObjectSize(this);
         }
@@ -650,24 +642,9 @@ public abstract class Actor
      */
     private void locationChanged(int oldX, int oldY)
     {
-        if(boundingCircle != null) {
-            boundingCircle.setX(toPixel(x));
-            boundingCircle.setY(toPixel(y));
-        }
         if(world != null) {
             world.updateObjectLocation(this, oldX, oldY);
         }
-    }
-
-    /**
-     * Calculate the bounding radius. In pixels coordinates.
-     */
-    private int calcBoundingRadius() {
-        if(world == null) return -1;
-
-        int dx = image.getHeight();
-        int dy = image.getWidth();
-        return (int) (Math.sqrt(dx*dx + dy*dy) / 2 );
     }
     
     /**
@@ -932,20 +909,6 @@ public abstract class Actor
             return rotatedImageBounds;
         } else {
             return new Rectangle(xMin, yMin, width, height);
-        }
-    }
-    
-    /**
-     * Determines if the given position intersects with the rectangle.<br>
-     * 
-     */
-    private boolean intersects(int x, int y, int rectX, int rectY, int rectWidth, int rectHeight)
-    {
-        if (x >= rectX && x < (rectX + rectWidth) && y >= rectY && y < (rectY + rectHeight)) {
-            return true;
-        }
-        else {
-            return false;
         }
     }
 
