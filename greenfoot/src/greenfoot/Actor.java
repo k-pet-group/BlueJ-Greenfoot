@@ -323,7 +323,7 @@ public abstract class Actor
     /**
      * This method will be called by the Greenfoot system when the object has
      * been inserted into the world. This method can be overridden to implement
-     * custom behavoiur when the actor is inserted into the world.
+     * custom behaviour when the actor is inserted into the world.
      * <p>
      * This default implementation is empty.
      * 
@@ -911,15 +911,23 @@ public abstract class Actor
             int[] xCoords = new int[]{xMin, xMin, xMax, xMax};
             int[] yCoords = new int[]{yMin, yMax, yMax, yMin};
             Polygon imageBounds = new Polygon(xCoords, yCoords, 4);
-            AffineTransform transform = AffineTransform.getRotateInstance(Math.toRadians(getRotation()));       
+
+            // The location around which the object should be rotated
+            // This will be either 0.0 or 0.5 for even and odd sizes
+            // respectively.
+            double xOrigin = xMin + image.getWidth() / 2.;
+            double yOrigin = yMin + image.getHeight() / 2.;
+            
+            AffineTransform transform = AffineTransform.getRotateInstance(Math.toRadians(getRotation()), xOrigin, yOrigin);       
             Shape rotatedImageBounds = transform.createTransformedShape(imageBounds);
-            /*   System.out.println("Rotated Image: " + rotatedImageBounds);
-            it = rotatedImageBounds.getPathIterator(null);
+          //  System.out.println("Rotated Image: " + rotatedImageBounds);
+          
+          /*  it = rotatedImageBounds.getPathIterator(null);
             while (!it.isDone()) {
                 double[] coords = new double[6];
                 it.currentSegment(coords);
                 it.next();
-                System.out.println(" coords: " + coords[0] + "," + coords[1]);
+                System.out.println(" coords: " + coords[0] + ", " + coords[1]+ ", " + coords[2]+ ", " + coords[3]+ ", " + coords[4] + ", " + coords[5]);
             }*/
 
             return rotatedImageBounds;
