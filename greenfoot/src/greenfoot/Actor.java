@@ -447,14 +447,29 @@ public abstract class Actor
 
     private Rect calcBoundingRect() {
         if(world == null) return null;
-        if(getRotation() == 0) {
+        
+        if(getRotation() % 180 == 0) {
+            // Special fast calculation when rotated a multiple of 180
             int x = getPaintX();
             int y = getPaintY();
             int width = image.getWidth();
             int height = image.getHeight();
             Rect rect = new Rect(x, y, width, height);
             return rect;
-        } else {                     
+        }
+        else if ((getRotation() + 90) % 180 == 0) {
+            // Special fast calculation when rotated a multiple of 90
+            // Swaps width and height since image is rotated by 90
+            double cellCenterX = getCellCenter(x);
+            double cellCenterY = getCellCenter(y);
+            int width = image.getHeight();
+            int height = image.getWidth();
+            int x = (int) Math.floor(cellCenterX - width / 2.);
+            int y = (int) Math.floor(cellCenterY - height / 2.);            
+            Rect rect = new Rect(x, y, width, height);
+            return rect;
+        }
+        else {                     
             Shape rotatedImageBounds = getRotatedShape();
             Rectangle2D bounds = rotatedImageBounds.getBounds2D();  
             int x =  (int) Math.floor(getX() * world.getCellSize() + bounds.getX());
