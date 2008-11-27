@@ -707,7 +707,7 @@ public abstract class Actor
     /**
      * Check whether this object intersects with another given object.
      * 
-     * NOTE: Does not take rotation into consideration.
+     * NOTE: When rotated, it only uses the axis alligned bounds of the rotated image.
      * 
      * @return True if the object's intersect, false otherwise.
      */
@@ -716,20 +716,13 @@ public abstract class Actor
         // check p101 in collision check book. and p156     
         // TODO: Rotation, we could just increase the bounding box, or we could
         // deal with the rotated bounding box.
+        Rect thisBounds = getBoundingRect();
+        Rect otherBounds = other.getBoundingRect();
        
-        int thisX = getXMin();
-        int otherX = other.getXMin();
-        int thisW = getWidth();
-        int otherW = other.getWidth();
-        if (!intersects(thisX, otherX, thisW, otherW)) {
+        if (!intersects(thisBounds.getX(), otherBounds.getX(), thisBounds.getWidth(), otherBounds.getWidth())) {
             return false;
         }
-
-        int thisY = getYMin();
-        int otherY = other.getYMin();
-        int thisH = getHeight();
-        int otherH = other.getHeight();
-        if (!intersects(thisY, otherY, thisH, otherH)) {
+        if (!intersects(thisBounds.getY(), otherBounds.getY(), thisBounds.getHeight(), otherBounds.getHeight())) {
             return false;
         }
 
