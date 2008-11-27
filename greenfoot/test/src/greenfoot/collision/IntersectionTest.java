@@ -75,6 +75,10 @@ public class IntersectionTest extends TestCase
         assertEquals(1, c.size());
         
         o2.setLocation(8,8);
+        assertTrue(o1.intersectsP(o2));
+        assertTrue(o2.intersectsP(o1));
+        
+        o2.setLocation(9,9);
         assertFalse(o1.intersectsP(o2));
         assertFalse(o2.intersectsP(o1));
     }

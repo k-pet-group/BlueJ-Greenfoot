@@ -29,13 +29,26 @@ public class ActorTest extends TestCase
         world = new World(10, 10, 10) {};
         TestObject o = new TestObject(11, 31);
         world.addObject(o, 0, 0);
-        assertEquals(2, o.getWidth());
-        assertEquals(4, o.getHeight());
+        assertEquals(3, o.getWidth());
+        assertEquals(5, o.getHeight());
 
         o = new TestObject(12, 32);
         world.addObject(o, 0, 0);
         assertEquals(3, o.getWidth());
         assertEquals(5, o.getHeight());
+    }
+    
+    public void testNoImage()
+    {
+        world = new World(10, 10, 10) {};
+        TestObject o = new TestObject(11, 31);
+        o.setImage((GreenfootImage) null);
+        
+        world.addObject(o, 0, 0);
+        assertNull(o.getImage());
+        assertEquals(-1, o.getWidth());
+        assertEquals(-1, o.getHeight());
+        assertNull(o.getBoundingRect());
     }
     
     public void testRotatedSizeSmall()
@@ -48,6 +61,9 @@ public class ActorTest extends TestCase
         //Width and height should now be sqrt(800) = 28.2842
         assertEquals(29, o.getWidth());
         assertEquals(29, o.getHeight());
+        Rect r = o.getBoundingRect();
+        assertEquals(30, r.getWidth());
+        assertEquals(30, r.getHeight());
     }
     
     public void testRotatedSizeBig()
@@ -103,9 +119,11 @@ public class ActorTest extends TestCase
         world.addObject(o, 0, 0);
         o.setLocation(0, 0);
         Rect rect = o.getBoundingRect();
+        System.out.println("Rect: " + rect);
         assertEquals(-1 , rect.getX());
         assertEquals(-1 , rect.getY());
         assertEquals(2 , rect.getTop());
         assertEquals(2 , rect.getRight());        
     }
 }
+  
