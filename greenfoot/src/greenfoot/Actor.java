@@ -3,7 +3,6 @@ package greenfoot;
 import greenfoot.collision.ibsp.Rect;
 import greenfoot.core.WorldHandler;
 import greenfoot.platforms.ActorDelegate;
-import greenfoot.util.Circle;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Polygon;
@@ -13,7 +12,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 
-
 /**
  * An Actor is an object that exists in the Greenfoot world. 
  * Every Actor has a location in the world, and an appearance (that is:
@@ -21,7 +19,7 @@ import java.util.List;
  * 
  * An Actor is not normally instantiated, but instead used as a superclass
  * to more specific objects in the world. Every object that is intended to appear
- * in the world must extend Actor. Subclasses can then define their own 
+ * in the world must extend Actor. Subclasses can then define their own
  * appearance and behaviour.
  * 
  * One of the most important aspects of this class is the 'act' method. This method
@@ -31,18 +29,18 @@ import java.util.List;
  * @author Poul Henriksen
  * @version 1.5
  */
-public abstract class Actor 
+public abstract class Actor
 {
-    
+
     /** Error message to display when trying to use methods that requires a world. */
     private static final String NO_WORLD = "An actor is trying to access the world, when no world has been instantiated.";
 
     /** Error message to display when trying to use methods that requires the actor be in a world. */
     private static final String ACTOR_NOT_IN_WORLD = "The actor has not been inserted into a world so it has no location yet. You might want to look at the method addedToWorld on the Actor class.";
-    
+
     /** Counter of number of actors constructed, used as a hash value */
     static int sequenceNumber = 0;
-    
+
     /**
      * x-coordinate of the object's location in the world. The object is
      * centered around this location.
@@ -54,12 +52,12 @@ public abstract class Actor
      * centered aroudn this location.
      */
     int y;
-    
+
     /**
      * Sequence number of this actor
      */
     private int mySequenceNumber;
-    
+
     /**
      * The last time objects in the world were painted, where was this object
      * in the sequence?
@@ -71,7 +69,7 @@ public abstract class Actor
 
     /** Reference to the world that this actor is a part of. */
     World world;
-    
+
     /** The image for this actor. */
     private GreenfootImage image;
 
@@ -79,22 +77,24 @@ public abstract class Actor
     private Object data;
 
     private static GreenfootImage greenfootImage;
-    
+
     /** Bounding rectangle of the object. In pixels. */
     private Rect boundingRect;
-    
+    private int width = -1;
+    private int height = -1;
+
     static {
         //Do this in a 'try' since a failure at this point will crash greenfoot.
-        try {            
+        try {
             greenfootImage = new GreenfootImage(GreenfootUtil.getGreenfootLogoPath().toString());
         }
-        catch(Exception e) {
+        catch (Exception e) {
             // Should not happen unless the greenfoot installation is seriously broken.
             e.printStackTrace();
             System.err.println("Greenfoot installation is broken - reinstalling Greenfoot might help.");
         }
     }
-    
+
     /**
      * Construct an Actor.
      * The object will have a default image.
@@ -109,11 +109,11 @@ public abstract class Actor
         if (image == null) {
             image = greenfootImage;
         }
-        
+
         // Make the image a copy of the original to avoid modifications to the
-        // original. 
+        // original.
         image = image.getCopyOnWriteClone();
-        
+
         setImage(image);
     }
 
@@ -150,7 +150,7 @@ public abstract class Actor
      * @throws IllegalStateException If the actor has not been added into a world.
      */
     public int getY()
-    {       
+    {
         failIfNotInWorld();
         return y;
     }
@@ -165,31 +165,7 @@ public abstract class Actor
      */
     public int getWidth()
     {
-        if (image == null) {
-            return -1;
-        }
-
-        if (getRotation() == 0) {
-            return getXMax() - getXMin() + 1;
-        }
-        else {
-            World aWorld = world;
-            if (aWorld == null) {
-                aWorld = getActiveWorld();
-            }
-            if (aWorld == null) {
-                // Should never happen
-                throw new IllegalStateException(NO_WORLD);
-            }
-            
-            int width = (int) Math.ceil(getBoundingRect().getWidth() / aWorld.getCellSize());
-            if (width % 2 == 0) {
-                return width + 1;
-            }
-            else {
-                return width;
-            }
-        }
+        return width;
     }
 
     /**
@@ -202,30 +178,7 @@ public abstract class Actor
      */
     public int getHeight()
     {
-        if (image == null) {
-            return -1;
-        }
-
-        if (getRotation() == 0) {
-            return getYMax() - getYMin() + 1;
-        }
-        else {
-            World aWorld = world;
-            if (aWorld == null) {
-                aWorld = getActiveWorld();
-            }
-            if (aWorld == null) {
-                // Should never happen
-                throw new IllegalStateException(NO_WORLD);
-            }            
-            int height =  (int) Math.ceil(getBoundingRect().getHeight() / aWorld.getCellSize());
-            if (height % 2 == 0) {
-                return height + 1;
-            }
-            else {
-                return height;
-            }
-        }
+        return height;
     }
 
     /**
@@ -251,11 +204,11 @@ public abstract class Actor
      */
     public void setRotation(int rotation)
     {
-        if(this.rotation != rotation) {
-            this.rotation = rotation; 
+        if (this.rotation != rotation) {
+            this.rotation = rotation;
             // Recalculate the bounding rect.
-            boundingRect = calcBoundingRect();
-            //since the rotation have changed, the size probably has too.
+            calcBounds();
+            // since the rotation have changed, the size probably has too.
             sizeChanged();
         }
     }
@@ -276,13 +229,13 @@ public abstract class Actor
         failIfNotInWorld();
         int oldX = this.x;
         int oldY = this.y;
-        
+
         this.x = limitValue(x, world.getWidth());
         this.y = limitValue(y, world.getHeight());
-        if(boundingRect != null) {            
+        if (boundingRect != null) {
             int dx = (this.x - oldX) * world.getCellSize();
             int dy = (this.y - oldY) * world.getCellSize();
-            
+
             boundingRect.setX(boundingRect.getX() + dx);
             boundingRect.setY(boundingRect.getY() + dy);
         }
@@ -311,7 +264,7 @@ public abstract class Actor
      */
     public World getWorld()
     {
-        return world; 
+        return world;
     }
 
     /**
@@ -325,10 +278,10 @@ public abstract class Actor
      */
     protected void addedToWorld(World world)
     {}
-    
+
     /**
-     * Returns the image used to represent this Actor. This image can be 
-     * modified to change the object's appearance. 
+     * Returns the image used to represent this Actor. This image can be
+     * modified to change the object's appearance.
      * 
      * @return The object's image.
      */
@@ -357,8 +310,8 @@ public abstract class Actor
      * @param image The image.
      */
     public void setImage(GreenfootImage image)
-    {        
-        if(image == null && this.image == null) {
+    {
+        if (image == null && this.image == null) {
             return;
         }
 
@@ -367,17 +320,17 @@ public abstract class Actor
         if (image != null && this.image != null) {
             if (image.getWidth() == this.image.getWidth() && image.getHeight() == this.image.getHeight()) {
                 sizeChanged = false;
-            }            
-        }            
-        
+            }
+        }
+
         this.image = image;
-        
-        if(sizeChanged) {
-            boundingRect = calcBoundingRect();
+
+        if (sizeChanged) {
+            calcBounds();
             sizeChanged();
         }
     }
-    
+
     // ==================================
     //
     // PACKAGE PROTECTED METHODS
@@ -431,31 +384,68 @@ public abstract class Actor
         // being called when the object is added to the world...)
         this.setLocation(x, y);
     }
-    
+
     /**
      * Get the bounding rectangle of the object. Taking into consideration that the
      * object can rotate. 
      * 
-     * @return A new Rect specified in pixels!
+     * @return A rect specified in pixels!
      */
-    Rect getBoundingRect() {
-        if(boundingRect == null) {
-            boundingRect = calcBoundingRect();
+    Rect getBoundingRect() 
+    {
+        if (boundingRect == null) {
+            calcBounds();
         }
         return boundingRect;
     }
 
-    private Rect calcBoundingRect() {
-        if(world == null) return null;
+    /**
+     * Calculates the bounds. This includes the bounding rectangle and the width
+     * and height of the actor.
+     */
+    private void calcBounds()
+    {
+        if (image == null) {
+            this.width = -1;
+            this.height = -1;
+            boundingRect = null;
+            return;
+        }
+        if (world == null) {
+            return;
+        } 
         
-        if(getRotation() % 180 == 0) {
-            // Special fast calculation when rotated a multiple of 180
-            int x = getPaintX();
-            int y = getPaintY();
-            int width = image.getWidth();
-            int height = image.getHeight();
-            Rect rect = new Rect(x, y, width, height);
-            return rect;
+        int cellSize = world.getCellSize();
+        
+        if (getRotation() % 90 == 0) {
+            // Special fast calculation when rotated a multiple of 90
+            int width = 0;
+            int height = 0;
+            
+            if(getRotation() % 180 == 0) {
+                // Rotated by 180 multiple
+                width = image.getWidth();
+                height = image.getHeight();
+            } else {
+                // Swaps width and height since image is rotated by 90 (+/- multiple of 180)
+                width = image.getHeight();
+                height = image.getWidth();                
+            }
+            double cellCenterX = getCellCenter(getX());
+            double cellCenterY = getCellCenter(getY());
+            int x = (int) Math.floor(cellCenterX - width / 2.);
+            int y = (int) Math.floor(cellCenterY - height / 2.);
+            
+            boundingRect = new Rect(x, y, width, height);
+
+            this.width = (int) Math.ceil((double) width / cellSize);
+            this.height = (int) Math.ceil((double) height / cellSize);
+            if (this.width % 2 == 0) {
+                this.width++;
+            }
+            if (this.height % 2 == 0) {
+                this.height++;
+            }
         }
         else if ((getRotation() + 90) % 180 == 0) {
             // Special fast calculation when rotated a multiple of 90
@@ -465,33 +455,56 @@ public abstract class Actor
             int width = image.getHeight();
             int height = image.getWidth();
             int x = (int) Math.floor(cellCenterX - width / 2.);
-            int y = (int) Math.floor(cellCenterY - height / 2.);            
-            Rect rect = new Rect(x, y, width, height);
-            return rect;
-        }
-        else {                     
-            Shape rotatedImageBounds = getRotatedShape();
-            Rectangle2D bounds = rotatedImageBounds.getBounds2D();  
-            int x =  (int) Math.floor(getX() * world.getCellSize() + bounds.getX());
-            int y =  (int) Math.floor(getY() * world.getCellSize() + bounds.getY());
-            int width = (int) Math.ceil(bounds.getWidth());
-            int height = (int) Math.ceil(bounds.getHeight());
-            // since we can't span an even number of cells, we add one
-            // TODO: Is this true?
-            // what do we actually do with odd/even shapes? we could have
-            // something that is 2x2. Easy to draw. And 3x3. But for the
-            // collisionchecker, how do we want to handle it?
-            if (width % 2 == 0) {
-                width++;
+            int y = (int) Math.floor(cellCenterY - height / 2.);
+            boundingRect = new Rect(x, y, width, height);
+
+            this.width = (int) Math.ceil((double) width / cellSize);
+            this.height = (int) Math.ceil((double) height / cellSize);
+            if (this.width % 2 == 0) {
+                this.width++;
             }
-            if (height % 2 == 0) {
-                height++;
-            }            
-            
-            Rect rect = new Rect(x, y , width, height);
-            return rect;
+            if (this.height % 2 == 0) {
+                this.height++;
+            }
+        }
+        else {
+            Shape rotatedImageBounds = getRotatedShape();
+            Rectangle2D bounds2d = rotatedImageBounds.getBounds2D();
+            Rectangle bounds = bounds2d.getBounds();
+            int x = this.x * cellSize + bounds.x;
+            int y = this.y * cellSize + bounds.y;
+            int width = bounds.width;
+            int height = bounds.height;
+            // This rect will be bit big to include all pixels that is covered.
+            // We loose a bit of precision by using integers and might get
+            // collisions that wouldn't be there if using floating point. But
+            // making it a big bigger, we will get all the collision that we
+            // would get with floating point.
+            // For instance, if something has the width 28.2, it might cover 30
+            // pixels.
+            boundingRect = new Rect(x, y, width, height);
+
+            // The width and height of the object might be smaller than that of
+            // the bounding rect.
+            // This is because we can paint things at (0.5, 0.5)
+            // So, using the example above, we know the width is 28.2 and that
+            // it can be painted in
+            // 29 pixels, covering 29 cells if the cellsize is 1.
+            this.width = (int) Math.ceil(bounds2d.getWidth() / cellSize);
+            this.height = (int) Math.ceil(bounds2d.getHeight() / cellSize);
+
+            // We can't have something that spans an even number of cells
+            // though, because the location of the object is the centre of the
+            // cell and it expands out equally from there to all sides.
+            if (this.width % 2 == 0) {
+                this.width++;
+            }
+            if (this.height % 2 == 0) {
+                this.height++;
+            }
         }
     }
+
     
     void setData(Object o) {
         this.data = o;
@@ -506,10 +519,7 @@ public abstract class Actor
      */
     int toPixel(int x)
     {        
-        World aWorld = world;
-        if(aWorld == null) {
-            aWorld = getActiveWorld();
-        }
+        World aWorld = getActiveWorld();
         if(aWorld == null) {
             // Should never happen
             throw new IllegalStateException(NO_WORLD);
@@ -549,10 +559,7 @@ public abstract class Actor
     
     private int toCellFloor(int i)
     {
-        World aWorld = world;
-        if(aWorld == null) {
-            aWorld = getActiveWorld();
-        }
+        World aWorld  = getActiveWorld();
         if(aWorld == null) {
             // Should never happen
             throw new IllegalStateException(NO_WORLD);
@@ -633,7 +640,7 @@ public abstract class Actor
         // todo rotation
         double cellCenter = getCellCenter(y);
         double paintY = cellCenter - image.getHeight() / 2.;
-		return (int) Math.floor(paintY);
+        return (int) Math.floor(paintY);
     }
 
 
@@ -647,10 +654,7 @@ public abstract class Actor
     private double getCellCenter(int cell)
         throws IllegalStateException
     {
-        World aWorld = world;
-        if (aWorld == null) {
-            aWorld = getActiveWorld();
-        } 
+        World aWorld = getActiveWorld();
         if (aWorld == null) {
             // Should never happen.
             throw new IllegalStateException(NO_WORLD);
@@ -1025,22 +1029,31 @@ public abstract class Actor
      */
     World getActiveWorld()
     {
-        return WorldHandler.getInstance().getWorld();
+        if(world != null) {
+            return world;
+        }
+        WorldHandler handler = WorldHandler.getInstance();
+        if (handler != null) {
+            return handler.getWorld();
+        }
+        else {
+            return null;
+        }
     }
-       
-    //============================================================================
+
+    // ============================================================================
     //  
-    //  Object Transporting - between the two VMs
+    // Object Transporting - between the two VMs
     //  
-    //  IMPORTANT: This code is duplicated in greenfoot.World!
-    //============================================================================    
-    
+    // IMPORTANT: This code is duplicated in greenfoot.World!
+    // ============================================================================
+
     /** The object we want to get a remote version of */
     private static Object transportField;
-    
+
     /** Remote version of this class. Will be of type RClass. */
     private static Object remoteObjectTracker;
-    
+
     static Object getRemoteObjectTracker()
     {
         return remoteObjectTracker;
@@ -1049,5 +1062,5 @@ public abstract class Actor
     static void setTransportField(Object obj)
     {
         transportField = obj;
-    }       
+    }
 }
