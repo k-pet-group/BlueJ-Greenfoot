@@ -75,22 +75,44 @@ public class IntersectionTest extends TestCase
         assertEquals(1, c.size());
         
         o2.setLocation(8,8);
-        assertTrue(o1.intersectsP(o2));
-        assertTrue(o2.intersectsP(o1));
+        assertFalse(o1.intersectsP(o2));
+        assertFalse(o2.intersectsP(o1));
         
         o2.setLocation(9,9);
         assertFalse(o1.intersectsP(o2));
         assertFalse(o2.intersectsP(o1));
     }
     
-    public void testRotationIntersection()
+    public void testRotationIntersection45()
     {
-        world = new World(10, 10, 50){};
+        world = new World(200, 200, 1){};
         TestObject o1 = new TestObject(50,50);
         world.addObject(o1, 0 ,0);
         TestObject o2 = new TestObject(50,50);
-        world.addObject(o2, 1 ,0);
+        world.addObject(o2, 55 ,0);
+
+        assertNull( o2.getOneIntersectingObjectP(TestObject.class));        
         o2.setRotation(45);
         assertEquals(o1, o2.getOneIntersectingObjectP(TestObject.class));
+        o2.setLocation(55, 55);
+
+        // Now the axis aligned bounding boxes will collide, so only a
+        // intersection test that uses rotated bounding boxes will succeed here
+        assertNull(o2.getOneIntersectingObjectP(TestObject.class));
+        o1.setRotation(45);
+        assertEquals(o1, o2.getOneIntersectingObjectP(TestObject.class));        
+    }
+    
+    public void testRotationIntersection90()
+    {
+        world = new World(200, 200, 1){};
+        TestObject o1 = new TestObject(100,10);
+        world.addObject(o1, 0 ,0);
+        TestObject o2 = new TestObject(10,10);
+        world.addObject(o2, 0, 40);
+
+        assertNull( o2.getOneIntersectingObjectP(TestObject.class));        
+        o1.setRotation(90);
+        assertEquals(o1, o2.getOneIntersectingObjectP(TestObject.class));      
     }
 }
