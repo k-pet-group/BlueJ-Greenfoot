@@ -717,16 +717,9 @@ public abstract class Actor
         // TODO: Rotation, we could just increase the bounding box, or we could
         // deal with the rotated bounding box.
         Rect thisBounds = getBoundingRect();
-        Rect otherBounds = other.getBoundingRect();
-       
-        if (!intersects(thisBounds.getX(), otherBounds.getX(), thisBounds.getWidth(), otherBounds.getWidth())) {
-            return false;
-        }
-        if (!intersects(thisBounds.getY(), otherBounds.getY(), thisBounds.getHeight(), otherBounds.getHeight())) {
-            return false;
-        }
+        Rect otherBounds = other.getBoundingRect();       
 
-        return true;
+        return thisBounds.intersects(otherBounds);
     }
 
     /**
@@ -941,23 +934,6 @@ public abstract class Actor
             return new Rectangle(xMin, yMin, width, height);
         }
     }
-
-    /**
-     * Determines if two lines intersects.
-     * 
-     */
-    private boolean intersects(int x1, int x2, int w1, int w2)
-    {
-        if (x1 <= x2 && x2 < x1 + w1)
-            return true;
-        if (x1 < x2 + w2 && x2 + w2 <= x1 + w1)
-            return true;
-        if (x2 <= x1 && x1 < x2 + w2)
-            return true;
-        if (x2 < x1 + w1 && x1 + w1 <= x2 + w2)
-            return true;
-        return false;
-    } 
     
     /**
      * Get the sequence number of this actor. This can be used as a

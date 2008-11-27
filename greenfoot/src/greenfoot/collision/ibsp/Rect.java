@@ -115,4 +115,19 @@ public class Rect
     {
         this.height = height;
     }
+
+    public boolean intersects(Rect otherBounds)
+    {        
+        if(x <= otherBounds.x && otherBounds.x >= getRight()) {
+            return false;
+        } else if (otherBounds.x < x && x >= otherBounds.getRight()) {
+            return false;
+        }         
+        if(y <= otherBounds.y && otherBounds.y >= getTop()) {
+            return false;
+        } else if (otherBounds.y < y && y >= otherBounds.getTop()) {
+            return false;
+        }
+        return true;
+    }
 }
