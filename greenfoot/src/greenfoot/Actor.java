@@ -182,10 +182,7 @@ public abstract class Actor
                 throw new IllegalStateException(NO_WORLD);
             }
             
-            if(boundingRect == null) {
-                boundingRect = calcBoundingRect();
-            }
-            int width = (int) Math.ceil(boundingRect.getWidth() / aWorld.getCellSize());
+            int width = (int) Math.ceil(getBoundingRect().getWidth() / aWorld.getCellSize());
             if (width % 2 == 0) {
                 return width + 1;
             }
@@ -221,10 +218,7 @@ public abstract class Actor
                 // Should never happen
                 throw new IllegalStateException(NO_WORLD);
             }            
-            if(boundingRect == null) {
-                boundingRect = calcBoundingRect();
-            }
-            int height =  (int) Math.ceil(boundingRect.getHeight() / aWorld.getCellSize());
+            int height =  (int) Math.ceil(getBoundingRect().getHeight() / aWorld.getCellSize());
             if (height % 2 == 0) {
                 return height + 1;
             }
@@ -445,7 +439,6 @@ public abstract class Actor
      * @return A new Rect specified in pixels!
      */
     Rect getBoundingRect() {
-        if(world == null) return null;
         if(boundingRect == null) {
             boundingRect = calcBoundingRect();
         }
