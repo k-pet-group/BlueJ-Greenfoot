@@ -281,9 +281,7 @@ public class InputManager
     public void mouseDragged(MouseEvent e)
     {
 		checkShift(e);
-        if (SwingUtilities.isLeftMouseButton(e)) {
-            activeMouseMotionListener.mouseDragged(e);
-        }
+		activeMouseMotionListener.mouseDragged(e);
     }
 
     public void mouseMoved(MouseEvent e)
