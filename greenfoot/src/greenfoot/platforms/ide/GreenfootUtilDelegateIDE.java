@@ -26,7 +26,9 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         Dictionary<String, String> translations = new Hashtable<String, String>();
         translations.put("CLASSNAME", className);
         if(superClassName != null) {
-            translations.put("SUPERCLASSNAME", superClassName);
+            translations.put("EXTENDSANDSUPERCLASSNAME", " extends " + superClassName);
+        } else {
+            translations.put("EXTENDSANDSUPERCLASSNAME", "");
         }
         File libDir = Config.getGreenfootLibDir();
         File template = new File(libDir, "templates/" +  templateFileName);  
