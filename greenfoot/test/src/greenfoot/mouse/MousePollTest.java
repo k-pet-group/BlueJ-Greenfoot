@@ -5,6 +5,7 @@ import greenfoot.MouseInfo;
 import greenfoot.TestObject;
 import greenfoot.TestUtilDelegate;
 import greenfoot.World;
+import greenfoot.WorldCreator;
 import greenfoot.WorldVisitor;
 import greenfoot.gui.input.mouse.MousePollingManager;
 import greenfoot.gui.input.mouse.WorldLocator;
@@ -50,7 +51,7 @@ public class MousePollTest extends TestCase
         GreenfootUtil.initialise(new TestUtilDelegate());
         
         //set up world with two actors
-        world = new World(200, 200, 1) {};
+        world = WorldCreator.createWorld(200, 200, 1);
         actorAtClick = new TestObject(10,10);
         world.addObject(actorAtClick, 5,5);
         actorOutsideClick = new TestObject(10,10);
@@ -304,7 +305,7 @@ public class MousePollTest extends TestCase
     public void testBigCellSize() 
     {
 
-        final World world = new World(20, 20, 10) {};
+        final World world = WorldCreator.createWorld(20, 20, 10);
         final MousePollingManager mouseMan = new MousePollingManager(new WorldLocator(){
             public Actor getTopMostActorAt(MouseEvent e)
             { 

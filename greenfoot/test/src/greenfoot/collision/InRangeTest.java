@@ -2,6 +2,7 @@ package greenfoot.collision;
 
 import greenfoot.World;
 import greenfoot.TestObject;
+import greenfoot.WorldCreator;
 
 import java.util.Collection;
 
@@ -18,7 +19,7 @@ public class InRangeTest extends TestCase
 
     public void testNoWrap()
     {
-        world = new World(10, 10, 10){};
+        world = WorldCreator.createWorld(10, 10, 10);
 
         TestObject actor1 = new TestObject(20, 20);
         world.addObject(actor1, 2, 2);
@@ -66,7 +67,7 @@ public class InRangeTest extends TestCase
     
    /* public void testWrap()
     {
-        world = new World(10, 10, 10){};
+        world = WorldCreator.createWorld(10, 10, 10){};
         world.setWrapped(true);
 
         TestObject actor1 = new TestObject(20, 20);

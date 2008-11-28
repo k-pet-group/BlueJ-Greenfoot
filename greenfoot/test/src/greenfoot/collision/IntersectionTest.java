@@ -2,6 +2,8 @@ package greenfoot.collision;
 
 import greenfoot.World;
 import greenfoot.TestObject;
+import greenfoot.WorldCreator;
+import greenfoot.core.WorldHandler;
 
 import java.util.Collection;
 
@@ -18,7 +20,7 @@ public class IntersectionTest extends TestCase
 
     public void testIntersectingSingleCell()
     {
-        world = new World(10, 10, 10){};
+        world = WorldCreator.createWorld(10, 10, 10);
         TestObject o1 = new TestObject(10,10);
         world.addObject(o1, 2, 2);
         
@@ -39,7 +41,11 @@ public class IntersectionTest extends TestCase
     
     public void testIntersectingPixelLevelOdd()
     {
-        world = new World(70, 70, 1){};
+        world = WorldCreator.createWorld(70, 70, 1);
+
+        WorldHandler.initialise();
+        WorldHandler.getInstance().setWorld(world);
+        
         TestObject o1 = new TestObject(7,7);
         world.addObject(o1, 0 ,0);
         
@@ -60,7 +66,7 @@ public class IntersectionTest extends TestCase
     
     public void testIntersectingPixelLevelEven()
     {
-        world = new World(80, 80, 1){};
+        world = WorldCreator.createWorld(80, 80, 1);
         TestObject o1 = new TestObject(8,8);
         world.addObject(o1, 0 ,0);
         
@@ -85,7 +91,7 @@ public class IntersectionTest extends TestCase
     
     public void testRotationIntersection45()
     {
-        world = new World(200, 200, 1){};
+        world = WorldCreator.createWorld(200, 200, 1);
         TestObject o1 = new TestObject(50,50);
         world.addObject(o1, 0 ,0);
         TestObject o2 = new TestObject(50,50);
@@ -105,7 +111,7 @@ public class IntersectionTest extends TestCase
     
     public void testRotationIntersection90()
     {
-        world = new World(200, 200, 1){};
+        world = WorldCreator.createWorld(200, 200, 1);
         TestObject o1 = new TestObject(100,10);
         world.addObject(o1, 0 ,0);
         TestObject o2 = new TestObject(10,10);

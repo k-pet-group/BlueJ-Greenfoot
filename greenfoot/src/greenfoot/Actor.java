@@ -238,6 +238,8 @@ public abstract class Actor
 
             boundingRect.setX(boundingRect.getX() + dx);
             boundingRect.setY(boundingRect.getY() + dy);
+        } else {
+            calcBounds();
         }
         locationChanged(oldX, oldY);
     }
@@ -376,7 +378,7 @@ public abstract class Actor
     {
         this.x = limitValue(x, world.getWidth());
         this.y = limitValue(y, world.getHeight());
-
+        calcBounds();
         this.setWorld(world);
 
         // This call is not necessary, however setLocation may be overriden
@@ -411,11 +413,12 @@ public abstract class Actor
             boundingRect = null;
             return;
         }
-        if (world == null) {
-            return;
-        } 
         
-        int cellSize = world.getCellSize();
+        World w = getActiveWorld();
+        if(w == null) {
+            return;
+        }
+        int cellSize = w.getCellSize();
         
         if (getRotation() % 90 == 0) {
             // Special fast calculation when rotated a multiple of 90
@@ -431,8 +434,8 @@ public abstract class Actor
                 width = image.getHeight();
                 height = image.getWidth();                
             }
-            double cellCenterX = getCellCenter(getX());
-            double cellCenterY = getCellCenter(getY());
+            double cellCenterX = getCellCenter(this.x);
+            double cellCenterY = getCellCenter(this.y);
             int x = (int) Math.floor(cellCenterX - width / 2.);
             int y = (int) Math.floor(cellCenterY - height / 2.);
             

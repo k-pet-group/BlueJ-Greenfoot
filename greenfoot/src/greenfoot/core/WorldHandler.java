@@ -79,7 +79,15 @@ public class WorldHandler
     {
         instance = new WorldHandler(worldCanvas, helper);
     }
-
+    
+    /**
+     * Initialiser for unit testing.
+     */
+    public static synchronized void initialise()
+    {
+        instance = new WorldHandler();
+    }
+    
     /**
      * Return the singleton instance.
      */
@@ -88,6 +96,54 @@ public class WorldHandler
         return instance;
     }
 
+    /**
+     * Constructor used for unit testing.
+     */
+    private WorldHandler() 
+    {
+        instance = this;
+        handlerDelegate = new WorldHandlerDelegate(){
+
+            public void discardWorld(World world)
+            {                
+            }
+
+            public void dragFinished(Object o)
+            {
+            }
+
+            public InputManager getInputManager()
+            {
+                return null;
+            }
+
+            public Class getLastWorldClass()
+            {
+                return null;
+            }
+
+            public void instantiateNewWorld()
+            {
+            }
+
+            public boolean maybeShowPopup(MouseEvent e)
+            {
+                return false;
+            }
+
+            public void mouseClicked(MouseEvent e)
+            {
+            }
+
+            public void setWorld(World oldWorld, World newWorld)
+            {
+            }
+
+            public void setWorldHandler(WorldHandler handler)
+            {
+            }};
+    }
+        
     /**
      * Creates a new worldHandler and sets up the connection between worldCanvas
      * and world.
@@ -366,7 +422,9 @@ public class WorldHandler
         EventQueue.invokeLater(new Runnable() {
             public void run()
             {
-                worldCanvas.setWorld(world);
+                if(worldCanvas != null) {
+                    worldCanvas.setWorld(world);
+                }
                 if (WorldHandler.this.world != null) {
                     fireWorldCreatedEvent();
                 }

@@ -1,6 +1,8 @@
 package greenfoot;
 
 import greenfoot.collision.ibsp.Rect;
+import greenfoot.core.WorldHandler;
+import greenfoot.platforms.WorldHandlerDelegate;
 import greenfoot.util.GreenfootUtil;
 import junit.framework.TestCase;
 
@@ -26,7 +28,7 @@ public class ActorTest extends TestCase
     
     public void testSize()
     {
-        world = new World(10, 10, 10) {};
+        world = WorldCreator.createWorld(10, 10, 10);
         TestObject o = new TestObject(11, 31);
         world.addObject(o, 0, 0);
         assertEquals(3, o.getWidth());
@@ -40,7 +42,7 @@ public class ActorTest extends TestCase
     
     public void testNoImage()
     {
-        world = new World(10, 10, 10) {};
+        world = WorldCreator.createWorld(10, 10, 10);
         TestObject o = new TestObject(11, 31);
         o.setImage((GreenfootImage) null);
         
@@ -53,7 +55,7 @@ public class ActorTest extends TestCase
     
     public void testRotatedSizeSmall()
     {
-        world = new World(100, 100, 1) {};
+        world = WorldCreator.createWorld(100, 100, 1);
         TestObject o = new TestObject(20, 20);
         world.addObject(o, 0, 0);
         o.setRotation(45);
@@ -68,7 +70,7 @@ public class ActorTest extends TestCase
     
     public void testRotatedSizeBig()
     {
-        world = new World(10, 10, 20) {};
+        world = WorldCreator.createWorld(10, 10, 20);
         TestObject o = new TestObject(60, 60);
         world.addObject(o, 0, 0);
 
@@ -87,7 +89,7 @@ public class ActorTest extends TestCase
     
     public void testOutOfBounds()
     {
-        world = new World(10, 10, 10) {};
+        world = WorldCreator.createWorld(10, 10, 10);
         TestObject o = new TestObject(11, 31);
         
         int x = 2;
@@ -113,7 +115,7 @@ public class ActorTest extends TestCase
      */
     public void testRotationCenter()
     {
-        world = new World(700, 480, 1) {};
+        world = WorldCreator.createWorld(700, 480, 1);
         TestObject o = new TestObject(1, 1);
         o.setRotation(-173); // Using -173 because it used to give a wrong result
         world.addObject(o, 0, 0);
@@ -124,6 +126,19 @@ public class ActorTest extends TestCase
         assertEquals(-1 , rect.getY());
         assertEquals(2 , rect.getTop());
         assertEquals(2 , rect.getRight());        
+    }
+    
+    /**
+     * Test that it is possible ot get the width and height of an object not yet in the world
+     */
+    public void testObjectNotInWorld() 
+    {
+        world = WorldCreator.createWorld(70, 40, 4);
+        WorldHandler.initialise();
+        WorldHandler.getInstance().setWorld(world);
+        TestObject o = new TestObject(5, 5);
+        assertEquals(3, o.getWidth());
+        assertEquals(3, o.getHeight());
     }
 }
   

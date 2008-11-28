@@ -5,6 +5,7 @@ import java.util.List;
 import junit.framework.TestCase;
 import greenfoot.World;
 import greenfoot.TestObject;
+import greenfoot.WorldCreator;
 
 /**
  * Common tests for the Collision API in greenfoot.
@@ -18,7 +19,7 @@ public class CommonTest extends TestCase
     private TestObject obj1;
     protected void setUp()        
     {
-        world = new World(10,10,10) {};
+        world = WorldCreator.createWorld(10,10,10);
         obj1 = new TestObject(10,10);
         world.addObject(obj1, 0, 0);
     }

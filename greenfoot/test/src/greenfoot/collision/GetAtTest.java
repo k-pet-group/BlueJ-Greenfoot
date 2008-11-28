@@ -8,6 +8,7 @@ import java.util.List;
 import greenfoot.TestUtilDelegate;
 import greenfoot.World;
 import greenfoot.TestObject;
+import greenfoot.WorldCreator;
 import greenfoot.util.GreenfootUtil;
 import junit.framework.TestCase;
 
@@ -25,7 +26,7 @@ public class GetAtTest extends TestCase
     
     public void testPixelOdd()
     {
-        world = new World(100, 100, 1){};
+        world = WorldCreator.createWorld(100, 100, 1);
 
         TestObject actor1 = new TestObject(21, 21);
         world.addObject(actor1, 50 , 50);
@@ -50,7 +51,7 @@ public class GetAtTest extends TestCase
 
     public void testPixelEven()
     {
-        world = new World(100, 100, 1) {};
+        world = WorldCreator.createWorld(100, 100, 1);
 
         TestObject actor1 = new TestObject(20, 20);
         world.addObject(actor1, 50, 50);
@@ -77,7 +78,7 @@ public class GetAtTest extends TestCase
      */
     public void testRotation()
     {
-        world = new World(100, 100, 1) {};
+        world = WorldCreator.createWorld(100, 100, 1);
 
         // add object spanning (30, 40)-(69, 59)
         TestObject actor1 = new TestObject(40, 20);
@@ -107,7 +108,7 @@ public class GetAtTest extends TestCase
      */
     public void testIBSPDynamicRotationBug() 
     {
-        world = new World(10, 10, 50) {};
+        world = WorldCreator.createWorld(10, 10, 50);
         // Test a second object forced to be on the bounds of the areas in the IBSPColChecker
 
         TestObject actor1 = new TestObject(50, 50);
@@ -137,7 +138,7 @@ public class GetAtTest extends TestCase
      */
     public void testIBSPRotationBug() 
     {
-        world = new World(10, 10, 50) {};
+        world = WorldCreator.createWorld(10, 10, 50);
         // Test a second object forced to be on the bounds of the areas in the IBSPColChecker
 
         TestObject actor1 = new TestObject(50, 50);
@@ -164,7 +165,7 @@ public class GetAtTest extends TestCase
     
     public void testBigCells() 
     {
-        world = new World(10, 10, 50) {};
+        world = WorldCreator.createWorld(10, 10, 50);
 
         TestObject actor1 = new TestObject(50, 50);
         world.addObject(actor1, 1, 1);
