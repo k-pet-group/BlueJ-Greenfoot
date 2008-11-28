@@ -8,7 +8,9 @@ import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.util.GreenfootUtil;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -28,7 +30,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldCanvas.java 5960 2008-11-19 15:15:47Z polle $
+ * @version $Id: WorldCanvas.java 5991 2008-11-28 17:34:14Z polle $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -92,11 +94,33 @@ public class WorldCanvas extends JPanel
                 double yCenter = thing.getY() * cellSize + cellSize / 2.;
                 int paintY = (int) Math.floor(yCenter - halfHeight);
 
-                Graphics2D g2 = (Graphics2D) g;
-                AffineTransform oldTx = g2.getTransform();
-                g2.rotate(Math.toRadians(thing.getRotation()), xCenter, yCenter);
+                Graphics2D g2 = (Graphics2D) g;                
+                
+                float opacity = (float) (1 - image.getTransparency());
+                Composite oldComposite = null;
+                if(opacity < 1) {
+                    // Don't bother with the composite if completely opaque.
+                    if(opacity < 0) opacity = 0;
+                    oldComposite = g2.getComposite();
+                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+                }
+                
+                AffineTransform oldTx = null;
+                if(thing.getRotation() % 360 != 0) {
+                    // don't bother transforming if it is not rotated at all.
+                    oldTx = g2.getTransform();
+                    g2.rotate(Math.toRadians(thing.getRotation()), xCenter, yCenter);
+                }
+                
                 ImageVisitor.drawImage(image, g, paintX, paintY, this);
-                g2.setTransform(oldTx);
+                
+                // Restore the old state of the graphics
+                if(oldTx != null) {
+                    g2.setTransform(oldTx);
+                }
+                if(oldComposite != null) {
+                    g2.setComposite(oldComposite);
+                }
             }
         }
 
