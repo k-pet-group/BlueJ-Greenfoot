@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.security.AccessControlException;
 import java.util.Map;
@@ -45,7 +46,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 5731 2008-05-01 11:15:53Z polle $
+ * @version $Id: GreenfootUtil.java 5989 2008-11-28 15:51:36Z polle $
  */
 public class GreenfootUtil
 {
@@ -460,11 +461,11 @@ public class GreenfootUtil
         } 
         
         if (url == null) {
-            // Second, try the project directory
+            // First, try the project directory
             url = currentLoader.getResource(filename);
         }
         if(url == null && !dirSearched) {
-            // First, try the specified dir
+            // Second, try the specified dir
             url = currentLoader.getResource(dir + "/" + filename);
             dirSearched = true;
         }
@@ -510,12 +511,44 @@ public class GreenfootUtil
                 }
             }
         }
+        
+        checkCase(url);
+        
         if(url == null) {
             throw new IllegalArgumentException("Could not find file: " + filename);
         }
         return url;
     }
-        
+
+    /**
+     * Checks whether the case is correct for the given URL. If it is detected
+     * NOT to be the right case a IllegalArgumentException will be thrown.
+     * 
+     * @throws IllegalArgumentException If the case is wrong.
+     */
+    private static void checkCase(URL url)
+    {
+        if (url != null) {
+            String errMsg = null;
+            try {
+                File f = new File(url.toURI());
+                String givenName = f.getName();
+                String realName = f.getCanonicalFile().getName();
+                if (!realName.equals(givenName) && realName.equalsIgnoreCase(givenName)) {
+                    errMsg = "Filename \'" + givenName + "\' has the wrong case. It should be: \'" + realName + "\'";
+                }
+
+            }
+            catch (Throwable e) {
+                // things might go wrong if we are running in an applet or from
+                // a jar. Just ignore all exceptions.
+            }
+            if (errMsg != null) {
+                throw new IllegalArgumentException(errMsg);
+            }
+        }
+    }
+
     /**
      * 
      * Creates the skeleton for a new class
