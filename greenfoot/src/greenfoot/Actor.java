@@ -302,7 +302,7 @@ public abstract class Actor
      */
     public void setImage(String filename) throws IllegalArgumentException
     {
-        setImage(image);
+        setImage(new GreenfootImage(filename));
     }
 
     /**
