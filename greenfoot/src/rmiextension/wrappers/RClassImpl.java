@@ -18,7 +18,7 @@ import bluej.extensions.editor.Editor;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 5808 2008-07-16 13:00:36Z davmac $
+ * @version $Id: RClassImpl.java 5997 2008-12-02 16:57:16Z polle $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -226,7 +226,9 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
 
     public void setReadOnly(boolean b) throws RemoteException, ProjectNotOpenException, PackageNotFoundException 
     {
-        bClass.getEditor().setReadOnly(b);
+        if(bClass != null && bClass.getEditor() != null) {
+            bClass.getEditor().setReadOnly(b);
+        }
     }
 
 }
