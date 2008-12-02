@@ -5,6 +5,7 @@
         <exclude name="**/.#*" />
         <include name="doc/NOTICE.txt" />
         <include name="doc/APACHE-LICENSE.txt" />
+        <include name="doc/apidoc/**" />
     </patternset>
     
     <patternset id="bluej.libfiles">
