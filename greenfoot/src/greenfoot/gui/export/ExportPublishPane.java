@@ -13,6 +13,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -46,7 +48,7 @@ import bluej.utility.SwingWorker;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ExportPublishPane.java 5843 2008-09-01 12:53:33Z polle $
+ * @version $Id: ExportPublishPane.java 5996 2008-12-02 16:21:40Z polle $
  */
 public class ExportPublishPane extends ExportPane
 {
@@ -63,6 +65,7 @@ public class ExportPublishPane extends ExportPane
     private static final String serverName = Config.getPropString("greenfoot.gameserver.name", "Greenfoot Gallery");
 
     private static final String helpLine1 = Config.getString("export.publish.help") + " " + serverName;
+    private static final String WITH_SOURCE_TAG = "with-source";
 
     private JTextField titleField;
     private JTextField shortDescriptionField;
@@ -183,6 +186,10 @@ public class ExportPublishPane extends ExportPane
         boolean isFirstNewTag = true;;
         for (Iterator<String> iterator = tags.iterator(); iterator.hasNext();) {
             String tag = (String) iterator.next();
+            if(WITH_SOURCE_TAG.equals(tag)) {
+                // we never want the with-source tag to show up.
+                continue;
+            }
             boolean isPopTag = false;
             for (int i = 0; i < popTags.length; i++) {
                 JCheckBox popTag = popTags[i];
@@ -493,6 +500,12 @@ public class ExportPublishPane extends ExportPane
                 tagList.add(tag);
             }
         }
+        
+        if(includeSourceCode() && !tagList.contains(WITH_SOURCE_TAG)) {
+            tagList.add(WITH_SOURCE_TAG);
+        } else if (!includeSourceCode()){
+            tagList.remove(WITH_SOURCE_TAG);
+        }
         return tagList;
     }
 
@@ -625,7 +638,15 @@ public class ExportPublishPane extends ExportPane
                         if (!hostAddress.endsWith("/")) {
                             hostAddress += "/";
                         }
-                        tags = client.getCommonTags(hostAddress, popTags.length);
+                        // We add one to the number, because WITH_SOURCE is
+                        // likely to be among them and we then will filter it
+                        // out.
+                        tags = client.getCommonTags(hostAddress, popTags.length + 1);
+                        if(tags.contains(WITH_SOURCE_TAG)) {
+                            tags.remove(WITH_SOURCE_TAG);
+                        } else {
+                            tags.remove(tags.size() - 1);
+                        }
                     }
                     catch (UnknownHostException e) {
                         e.printStackTrace();
