@@ -30,7 +30,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldCanvas.java 5991 2008-11-28 17:34:14Z polle $
+ * @version $Id: WorldCanvas.java 5995 2008-12-02 15:30:49Z polle $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -96,7 +96,7 @@ public class WorldCanvas extends JPanel
 
                 Graphics2D g2 = (Graphics2D) g;                
                 
-                float opacity = (float) (1 - image.getTransparency());
+                float opacity = image.getTransparency() / 255f;
                 Composite oldComposite = null;
                 if(opacity < 1) {
                     // Don't bother with the composite if completely opaque.

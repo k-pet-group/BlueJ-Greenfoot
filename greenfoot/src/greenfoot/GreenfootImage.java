@@ -53,9 +53,9 @@ public class GreenfootImage
     private boolean copyOnWrite = false;
     
     /**
-     * Value from 0 to 1, with 1 being completely transparent and 0 being opaque.
+     * Value from 0 to 255, with 0 being completely transparent and 255 being opaque.
      */
-    private double transparency = 0;
+    private int transparency = 255;
 
     /**
      * Create an image from an image file. Supported file formats are JPEG, GIF
@@ -395,25 +395,25 @@ public class GreenfootImage
     /**
      * Set the transparency of the image.
      * 
-     * @param t A value in the range 0 to 1. 0 is completely opaque (the
-     *            default) and 1 is completely transparent (invisible).
+     * @param t A value in the range 0 to 255. 0 is completely transparent
+     *            (invisible) and 255 is completely opaque (the default).
      */
-    public void setTransparency(double t)
+    public void setTransparency(int t)
     {
-        if(t < 0 || t > 1) {
-            throw new IllegalArgumentException("The transparency value has to be in the range 0 to 1. It was: " + t);
+        if (t < 0 || t > 255) {
+            throw new IllegalArgumentException("The transparency value has to be in the range 0 to 255. It was: " + t);
         }
-        
+
         this.transparency = t;
     }
 
     /**
      * Return the current transparency of the image.
      * 
-     * @return A value in the range 0 to 1. 0 is completely opaque (the default)
-     *         and 1 is completely transparent (invisible).
+     * @return A value in the range 0 to 255. 0 is completely transparent
+     *         (invisible) and 255 is completely opaque (the default).
      */
-    public double getTransparency()
+    public int getTransparency()
     {
         return transparency;
     }    
