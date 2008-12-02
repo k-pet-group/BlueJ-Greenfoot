@@ -272,9 +272,6 @@ public class GreenfootScenarioViewer extends JApplet
      */
     public void start()
     {
-    // provide any code requred to run each time
-    // web page is visited
-
         canvas.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e)
             {
@@ -283,7 +280,7 @@ public class GreenfootScenarioViewer extends JApplet
                 // make it work in some browsers (Ubuntu's Firefox 1.5
                 // and 2.0)
                 canvas.requestFocus();
-            }});
+            }});        
     }
 
     /**
@@ -294,8 +291,7 @@ public class GreenfootScenarioViewer extends JApplet
      */
     public void stop()
     {
-    // provide any code that needs to be run when page
-    // is replaced by another page or before JApplet is destroyed
+    	sim.setPaused(true);
     }
 
     /**
@@ -305,8 +301,8 @@ public class GreenfootScenarioViewer extends JApplet
      */
     public void destroy()
     {
-    // provide code to be run when JApplet is about to be destroyed.
-    }
+		sim.abort();
+	}
 
     /**
      * Returns information about this applet. An applet should override this

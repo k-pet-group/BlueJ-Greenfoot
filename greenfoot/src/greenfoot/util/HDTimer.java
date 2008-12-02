@@ -109,6 +109,9 @@ public class HDTimer
         if (nanos / sleepPrecision >= 2) {
             long actualDelayMillis = (sleepNanos) / 1000000L;
             int nanoRest = (int) (sleepNanos % 1000000L);
+            if(Thread.interrupted()) {
+                throw new InterruptedException("HDTimer.sleepFromTime interrupted in sleep.");
+            }
             Thread.sleep(actualDelayMillis, nanoRest);
         }
 
@@ -214,9 +217,6 @@ public class HDTimer
      * Object.wait(), this method will not finish when the lock receives a
      * notify or notifyAll, but will instead continue waiting.
      * 
-     * This method is less precise than sleep, since it always has to invoke
-     * Object.wait() to release the lock and is hence limited by the precision
-     * of wait.
      * 
      * @param nanos Time to wait in nanoseconds.
      * @param lock The lock to release while waiting.
@@ -228,7 +228,7 @@ public class HDTimer
     {
         long tStart = System.nanoTime();
         if(!lock.isWriteLockedByCurrentThread()) {
-            // We do not hold the lock, so use sleep instead:
+            // We do not hold the lock, so just sleep
             sleepFromTime(nanos, tStart);
             return;
         }

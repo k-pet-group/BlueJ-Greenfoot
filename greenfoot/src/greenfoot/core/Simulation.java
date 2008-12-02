@@ -89,6 +89,9 @@ public class Simulation extends Thread
     /** Used to figure out when we are transitioning from running to pause stated and vice versa. */
     private boolean isRunning = false;
     
+    /** flag to indicate that we want to abort the simulation and never start it again. */
+    private volatile boolean abort;
+    
     /**
      * Create new simulation. Leaves the simulation in paused state
      * 
@@ -137,16 +140,17 @@ public class Simulation extends Thread
     public void run()
     {
         System.gc();
-        while (true) {
+        while (!abort) {
             try {
                 if(interruptedForSpeedChange) {
                     // If it was interrupted because of a speed change, then we
                     // delay an amount equal to the new delay.
                     interruptedForSpeedChange = false;
                     delay();
-                }                
+                }    
+                
                 maybePause();
-
+                
                 World world = worldHandler.getWorld();
                 if (world != null) {
                     WorldVisitor.startSequence(world);
@@ -154,6 +158,7 @@ public class Simulation extends Thread
                     runOneLoop();
 
                 }
+
                 delay();
             }
             catch (ActInterruptedException e) {
@@ -162,8 +167,22 @@ public class Simulation extends Thread
                 
             }
         }
-    }
 
+        // The simulations has been aborted. But, we might still have to notify the world.
+        synchronized (this) {
+            if(isRunning) {
+                World world = worldHandler.getWorld();
+                if (world != null) {
+                    world.stopped();
+                }
+                isRunning = false;
+            } 
+        }
+    }   
+  
+    
+   
+    
     /**
      * Block if the simulation is paused. This will block until the simulation
      * is resumed.
@@ -177,12 +196,23 @@ public class Simulation extends Thread
         while (paused && !runOnce) {
 
             if(isRunning) {
+                // This code will be executed when:
+                //  setPaused(true)
+                //  setEnabled(false)
+                //  abort() (sometimes, depending on timing)
                 World world = worldHandler.getWorld();
                 if (world != null) {
                     world.stopped();
                 }
                 isRunning = false;
             }
+            
+            if(abort) {
+                // if we are about to abort, now is the time. We have notified
+                // the world.stopped and there is nothing else to do here.
+                return;
+            }
+            
             // Make sure we repaint before pausing.
             worldHandler.repaint();
             try {
@@ -192,7 +222,8 @@ public class Simulation extends Thread
             catch (InterruptedException e1) {
                 // Swallow the interrupt
             }
-            if (!paused) {
+                
+            if (!paused && enabled && !abort) {
                 // No longer paused, get ready to run:
                 isRunning = true;
                 repaintTimes.clear();
@@ -243,6 +274,9 @@ public class Simulation extends Thread
                 // modified by the actors' act() methods.
                 objects = new ArrayList<Actor>(WorldVisitor.getObjectsListInActOrder(world));
                 for (Actor actor : objects) {
+                    if(!enabled) {
+                        return;
+                    }
                     if (actor.getWorld() != null) {
                         try {
                             actor.act();
@@ -420,9 +454,11 @@ public class Simulation extends Thread
     }
 
     /**
-     * Interrupt if we are currently delaying between act-loops. This will
-     * basically skip the current delay and jump to the next act-loop. Used by
-     * setPaused() and setSpeed() to interrupt current delays.
+     * Interrupt if we are currently delaying between act-loops or the user is
+     * using the Greenfoot.delay() method. This will basically jump to the next
+     * act-loop as fast as possible while still excuting the rest of actors in
+     * the current loop. Used by setPaused() and setSpeed() to interrupt current
+     * delays.
      */
     private void interruptDelay()
     {
@@ -432,7 +468,7 @@ public class Simulation extends Thread
             }
             else {
                 // Called outside the delaying, so make sure it doesn't go into
-                // the delay by signaling with this flag
+                // the delay by signalling with this flag
                 interruptDelay = true;
             }
         }
@@ -450,6 +486,7 @@ public class Simulation extends Thread
             enabled = b;
             if (!enabled) {
                 paused = true;
+                interrupt();
                 fireSimulationEvent(disabledEvent);
             }
             else {
@@ -567,8 +604,19 @@ public class Simulation extends Thread
     public void sleep() throws ActInterruptedException
     {
         World world = WorldHandler.getInstance().getWorld();
-
+        if(paused && !runOnce) {
+            // We don't want the user code to delay if we are paused.
+        }
         try {
+            synchronized (interruptLock) {
+                if (interruptDelay) {
+                    // interruptDelay was issued before entering this sync, so
+                    // interrupt now.
+                    interruptDelay = false;
+                    throw new InterruptedException("Interrupted in Simulation.delay() before sleep.");
+                }
+                delaying = true;
+            }
             if (world != null) {
                 // The WorldCanvas may be trying to synchronize on the world in
                 // order to do a repaint. So, we use wait() here in order
@@ -582,6 +630,11 @@ public class Simulation extends Thread
         }
         catch (InterruptedException e) {
             throw new ActInterruptedException(e);
+        }
+        finally {
+            synchronized (interruptLock) {
+                delaying = false;
+            }
         }
     }
 
@@ -646,6 +699,17 @@ public class Simulation extends Thread
             }
         }
     }
+
+    /**
+     * Abort the simulation. It abruptly stops what is running and ends the
+     * simulation thread, and it is not possible to start it again.
+     */
+    public void abort()
+    {
+        abort = true;
+        setEnabled(false);
+    }
+
 
     // ---------- WorldListener interface -----------
 
