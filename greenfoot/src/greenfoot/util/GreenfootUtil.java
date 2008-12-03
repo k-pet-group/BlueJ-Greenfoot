@@ -38,6 +38,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import bluej.Config;
 import bluej.utility.Utility;
 
 
@@ -46,7 +47,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 5989 2008-11-28 15:51:36Z polle $
+ * @version $Id: GreenfootUtil.java 5999 2008-12-03 16:31:24Z polle $
  */
 public class GreenfootUtil
 {
@@ -658,4 +659,45 @@ public class GreenfootUtil
         String newTitle = title.replaceAll("BlueJ", "Greenfoot");
         dialog.setTitle(newTitle);
     }    
+    
+    
+    /**
+     * Tries to locate the top level greenfoot dir. This method takes the
+     * different platforms into account. Specifically the Mac has a different
+     * structure.
+     * 
+     * @throws IOException If it can't read the greenfoot dir.
+     * 
+     */
+    public static File getGreenfootDir()
+        throws IOException
+    {
+        File libDir = Config.getBlueJLibDir();
+        System.out.println("libDir: " + libDir);
+        // The parent dir of the lib dir is the top level dir of greenfoot
+        File greenfootDir = libDir.getParentFile();
+        // But on the mac it is further back in the hierarchy.
+        if (Config.isMacOS()) {
+            greenfootDir = greenfootDir.getParentFile().getParentFile().getParentFile();
+        }
+        if (!(greenfootDir.isDirectory() && greenfootDir.canRead())) {
+            throw new IOException("Could not read from greenfoot directory: " + greenfootDir);
+        }
+        return greenfootDir;
+    }
+
+    /**
+     * Opens the given page of the Greenfoot API documentation in a web browser.
+     * @param page name of the page relative to the root of the API doc.
+     * @throws IOException If the greenfoot directory can not be read
+     */
+    public static void showApiDoc(String page)
+        throws IOException
+    {
+        File greenfootDir = GreenfootUtil.getGreenfootDir();
+        File location = new File(greenfootDir, "/doc/apidoc/" + page);
+        if (location.canRead()) {
+            Utility.openWebBrowser(location);
+        }
+    }
 }

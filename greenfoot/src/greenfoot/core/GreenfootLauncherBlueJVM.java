@@ -3,6 +3,7 @@ package greenfoot.core;
 import greenfoot.gui.FirstStartupDialog;
 import greenfoot.gui.FirstStartupDialog.Result;
 import greenfoot.util.FileChoosers;
+import greenfoot.util.GreenfootUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -127,7 +128,7 @@ public class GreenfootLauncherBlueJVM
 
         File greenfootDir = null;
         try {
-            greenfootDir = getGreenfootDir();
+            greenfootDir = GreenfootUtil.getGreenfootDir();
         }
         catch (IOException e) {
             Debug.reportError("Error when attempting to open tutorial on first startup", e);
@@ -228,7 +229,7 @@ public class GreenfootLauncherBlueJVM
         // This is useful when running greenfoot from an IDE.
         String alternativeScenarios = Config.getPropString("greenfoot.scenarios", null);
         if (alternativeScenarios == null) {
-            File greenfootDir = getGreenfootDir();
+            File greenfootDir = GreenfootUtil.getGreenfootDir();
             return new File(greenfootDir, "scenarios");
         }
         else {
@@ -256,27 +257,5 @@ public class GreenfootLauncherBlueJVM
         }
     }
 
-    /**
-     * Tries to locate the top level greenfoot dir. This method takes the
-     * different platforms into account. Specifically the Mac has a different
-     * structure.
-     * 
-     * @throws IOException If it can't read the greenfoot dir.
-     * 
-     */
-    private File getGreenfootDir()
-        throws IOException
-    {
-        File libDir = Config.getBlueJLibDir();
-        // The parent dir of the lib dir is the top level dir of greenfoot
-        File greenfootDir = libDir.getParentFile();
-        // But on the mac it is further back in the hierarchy.
-        if (Config.isMacOS()) {
-            greenfootDir = greenfootDir.getParentFile().getParentFile().getParentFile();
-        }
-        if (!(greenfootDir.isDirectory() && greenfootDir.canRead())) {
-            throw new IOException("Could not read from greenfoot directory: " + greenfootDir);
-        }
-        return greenfootDir;
-    }
+
 }
