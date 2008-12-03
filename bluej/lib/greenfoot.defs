@@ -27,9 +27,14 @@
 #####################################################################
 
 greenfoot.url.greenfoot=http://www.greenfoot.org
-greenfoot.url.tutorial=http://www.greenfoot.org/doc/tutorial.html
-greenfoot.url.javadoc=http://www.greenfoot.org/doc/javadoc/
 greenfoot.url.scenarios=http://www.greenfoot.org/scenarios/index.html
+greenfoot.url.tutorial=http://www.greenfoot.org/doc/tutorial.html
+
+# The Greenfoot API documentation is now included in the Greenfoot 
+# distribution, so this URL should only be used if you want to change 
+# it to something else
+#greenfoot.url.javadoc=http://www.greenfoot.org/doc/javadoc/
+
 
 # The URL for the Java API documentation can be specified here, however
 # this will only apply the first time you use Greenfoot. After that, the

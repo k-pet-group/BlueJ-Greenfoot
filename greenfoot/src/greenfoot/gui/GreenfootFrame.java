@@ -18,6 +18,7 @@ import greenfoot.actions.RunOnceSimulationAction;
 import greenfoot.actions.RunSimulationAction;
 import greenfoot.actions.SaveCopyAction;
 import greenfoot.actions.SaveProjectAction;
+import greenfoot.actions.ShowApiDocAction;
 import greenfoot.actions.ShowCopyrightAction;
 import greenfoot.actions.ShowReadMeAction;
 import greenfoot.actions.ShowWebsiteAction;
@@ -102,7 +103,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 5802 2008-07-14 11:43:27Z polle $
+ * @version $Id: GreenfootFrame.java 6000 2008-12-03 16:57:23Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener,
@@ -611,7 +612,7 @@ public class GreenfootFrame extends JFrame
         }
         addMenuItem(ShowCopyrightAction.getInstance(this), helpMenu, -1, false, -1);
         helpMenu.addSeparator();
-        addMenuItem(new ShowWebsiteAction(Config.getString("menu.help.classDoc"), Config.getPropString("greenfoot.url.javadoc")), helpMenu, -1, false, -1);
+        addMenuItem(new ShowApiDocAction(Config.getString("menu.help.classDoc")), helpMenu, -1, false, -1);
         addMenuItem(new ShowWebsiteAction(Config.getString("menu.help.javadoc"), Config.getPropString("greenfoot.url.javaStdLib")), helpMenu, -1, false, -1);
         helpMenu.addSeparator();
         addMenuItem(new ShowWebsiteAction(Config.getString("menu.help.tutorial"), Config.getPropString("greenfoot.url.tutorial")), helpMenu, -1, false, -1);

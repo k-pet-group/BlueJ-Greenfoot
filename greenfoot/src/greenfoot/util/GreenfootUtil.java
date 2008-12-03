@@ -47,7 +47,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 5999 2008-12-03 16:31:24Z polle $
+ * @version $Id: GreenfootUtil.java 6000 2008-12-03 16:57:23Z polle $
  */
 public class GreenfootUtil
 {
@@ -694,10 +694,17 @@ public class GreenfootUtil
     public static void showApiDoc(String page)
         throws IOException
     {
-        File greenfootDir = GreenfootUtil.getGreenfootDir();
-        File location = new File(greenfootDir, "/doc/apidoc/" + page);
-        if (location.canRead()) {
-            Utility.openWebBrowser(location);
+        String customUrl = Config.getPropString("greenfoot.url.javadoc", null);
+        if(customUrl != null) {
+            Utility.openWebBrowser(customUrl);
+        }
+        else {
+            // TODO: i18n
+            File greenfootDir = GreenfootUtil.getGreenfootDir();
+            File location = new File(greenfootDir, "/doc/apidoc/" + page);
+            if (location.canRead()) {
+                Utility.openWebBrowser(location);
+            }
         }
     }
 }

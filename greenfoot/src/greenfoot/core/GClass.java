@@ -1,10 +1,10 @@
 package greenfoot.core;
 
-import bluej.Config;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.EventQueue;
+import java.io.IOException;
 import java.rmi.RemoteException;
 
 import rmiextension.wrappers.RClass;
@@ -164,9 +164,17 @@ public class GClass
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
         if(isWorldClass() || isActorClass()) {
-            rmiClass.setReadOnly(true);
+            String page = isWorldClass() ? "greenfoot/World.html" : "greenfoot/Actor.html";
+            try {
+                GreenfootUtil.showApiDoc(page);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }            
         }
-        rmiClass.edit();
+        else {
+            rmiClass.edit();
+        }
     }
 
 
