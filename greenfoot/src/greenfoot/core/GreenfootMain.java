@@ -43,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 5859 2008-09-04 14:40:35Z polle $
+ * @version $Id: GreenfootMain.java 6005 2008-12-03 18:05:14Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -482,28 +482,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
         GreenfootUtil.copyDir(src, dst);
 
-        touchApiClasses(dst);
-
         p.setApiVersion(getAPIVersion().toString());
         p.save();
-    }
-
-    /**
-     * "Touch" the actor and world class files to ensure that BlueJ/
-     * Greenfoot think they are compiled.
-     * 
-     * @param projectDir The Greenfoot project directory
-     */
-    private static void touchApiClasses(File projectDir)
-    {
-        // touch the Actor and World classes to ensure that they show
-        // as being compiled
-        File greenfootPkgDir = new File(projectDir, "greenfoot");
-        File actorClassFile = new File(greenfootPkgDir, "Actor.class");
-        File worldClassFile = new File(greenfootPkgDir, "World.class");
-        long currentTime = System.currentTimeMillis();
-        actorClassFile.setLastModified(currentTime);
-        worldClassFile.setLastModified(currentTime);
     }
 
     /**
