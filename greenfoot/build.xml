@@ -372,9 +372,18 @@ target="1.5">
                 <exclude name=".cvsignore"/>
             </fileset>
         </delete>
+
+        <delete includeEmptyDirs="true">
+            <fileset dir="${bluej.projectdir}/" >
+            	<include name="lib/*/greenfoot-labels" />
+            	<include name="lib/*/greenfootAPI/**" />
+            </fileset>
+        </delete>
+        
         <delete dir="${package}/scenarios"/>
     </target>
 
+	<!--include name="lib/*/greenfootAPI/**" /-->
 
 
     <target name="run-greenfoot"  depends="ready-to-run">
