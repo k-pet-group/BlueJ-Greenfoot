@@ -55,6 +55,7 @@
         <include name="lib/swedish/" />
         <include name="lib/extensions/" />
     	<exclude name="lib/*/greenfoot-labels" />
+    	<exclude name="lib/*/greenfootAPI" />
     </patternset>
 
     <patternset id="bluej.examples">
