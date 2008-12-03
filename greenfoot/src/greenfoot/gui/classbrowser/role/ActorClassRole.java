@@ -1,12 +1,12 @@
 package greenfoot.gui.classbrowser.role;
 
 import greenfoot.actions.SelectImageAction;
+import greenfoot.actions.ShowApiDocAction;
 import greenfoot.core.GProject;
 import greenfoot.event.WorldEvent;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.Action;
@@ -19,7 +19,7 @@ import bluej.Config;
  * A role for Actor classes 
  * 
  * @author Poul Henriksen
- * @version $Id: ActorClassRole.java 5477 2008-01-22 14:05:55Z polle $
+ * @version $Id: ActorClassRole.java 6002 2008-12-03 17:24:17Z polle $
  */
 public class ActorClassRole extends ImageClassRole
 {
@@ -60,8 +60,11 @@ public class ActorClassRole extends ImageClassRole
      */
     public void addPopupMenuItems(JPopupMenu menu, boolean coreClass)
     {
-        if (! coreClass) {
+        if (!coreClass) {
             menu.add(createMenuItem(new SelectImageAction(classView, this)));
+        }
+        else {
+            menu.add(createMenuItem(new ShowApiDocAction(Config.getString("show.apidoc"), "greenfoot/Actor.html")));
         }
     }
 

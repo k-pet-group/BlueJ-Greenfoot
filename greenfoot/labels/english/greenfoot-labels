@@ -46,6 +46,7 @@ project.savecopy=Save a Copy As...
 select.image=Set image...
 show.readme=Scenario Information
 pause.simulation=Pause
+show.apidoc=Open Documentation
 
 # Remove class confirmation
 remove.confirm.title=Confirm removal of class

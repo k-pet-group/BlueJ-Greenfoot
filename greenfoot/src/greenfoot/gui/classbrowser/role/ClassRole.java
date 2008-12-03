@@ -4,6 +4,7 @@ import greenfoot.actions.EditClassAction;
 import greenfoot.actions.InspectClassAction;
 import greenfoot.actions.NewSubclassAction;
 import greenfoot.actions.RemoveClassAction;
+import greenfoot.actions.ShowApiDocAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
@@ -40,7 +41,7 @@ import bluej.views.ViewFilter;
  * "normal" classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassRole.java 5781 2008-06-23 08:27:01Z polle $
+ * @version $Id: ClassRole.java 6002 2008-12-03 17:24:17Z polle $
  */
 public abstract class ClassRole implements WorldListener
 {
@@ -136,16 +137,21 @@ public abstract class ClassRole implements WorldListener
                 popupMenu.addSeparator();
         }
 
-        popupMenu.add(createMenuItem(new EditClassAction(classBrowser)));
 
-        addPopupMenuItems(popupMenu, classView.isCoreClass());
-        
-        if(classView.getRealClass() != null) { 
-            popupMenu.add(createMenuItem(new InspectClassAction(new LocalClass(classView.getRealClass()), null, classBrowser.getFrame(), classBrowser.getFrame() )));
-        }
-        
-        if (! classView.isCoreClass()) {
+        if (!classView.isCoreClass()) {
+            popupMenu.add(createMenuItem(new EditClassAction(classBrowser)));
+
+            addPopupMenuItems(popupMenu, false);
+
+            if (classView.getRealClass() != null) {
+                popupMenu.add(createMenuItem(new InspectClassAction(new LocalClass(classView.getRealClass()), null,
+                        classBrowser.getFrame(), classBrowser.getFrame())));
+            }
+
             popupMenu.add(createMenuItem(new RemoveClassAction(classView, classBrowser.getFrame())));
+        }
+        else {
+            addPopupMenuItems(popupMenu, true);
         }
         
         popupMenu.addSeparator();
