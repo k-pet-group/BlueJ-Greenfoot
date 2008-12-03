@@ -45,7 +45,7 @@ import bluej.utility.Utility;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 5884 2008-09-22 07:56:55Z davmac $
+ * @version $Id: Config.java 6006 2008-12-03 19:08:29Z polle $
  */
 
 public final class Config
@@ -59,7 +59,10 @@ public final class Config
     private static Properties userProps;        // <user home>/bluej.properties
     private static Properties greenfootProps;   // greenfoot.defs
     private static Properties commandProps;     // specified on the command line
-    
+
+    private static Properties initialCommandLineProps; // The properties
+                                                       // specified on the
+                                                       // command line
     public static Properties moeSystemProps;  // moe (editor) properties
     public static Properties moeUserProps;    // moe (editor) properties
     
@@ -122,6 +125,7 @@ public final class Config
     /** whether this is the debug vm or not. */
     private static boolean isDebugVm = true;
 
+
     /**
      * Initialisation of BlueJ configuration. Must be called at startup.
      * This method finds and opens the configuration files.<p>
@@ -137,6 +141,8 @@ public final class Config
         initialised = true;
 
         isDebugVm = false;
+        
+        initialCommandLineProps = tempCommandLineProps;
         
         isGreenfoot = bootingGreenfoot;
 
@@ -234,82 +240,26 @@ public final class Config
      * Alternative to "initialise", to be used in the debugee-VM by
      * applications which require it (ie. greenfoot).
      */
-    public static void initializeVMside(File bluejLibDir, BlueJPropStringSource propSource)
-    {
-        if(initialised)
-            return;
     
-        initialised = true;
-        
+    public static void initializeVMside(File bluejLibDir, Properties tempCommandLineProps, boolean bootingGreenfoot)
+    {
+        initialise(bluejLibDir, tempCommandLineProps, bootingGreenfoot);
         isDebugVm = true;
-        
-        Config.bluejLibDir = bluejLibDir;
-        Config.greenfootLibDir = new File(bluejLibDir, "greenfoot");
-        Config.propSource = propSource;
-        // Initialise on debug vm to show its part of greenfoot
-        // This method is only used in Greenfoot
-        Config.isGreenfoot = true;
-        
-        screenBounds = calculateScreenBounds();
-        
-        systemProps = new Properties() {
-          public String getProperty(String key)
-          {
-              return Config.propSource.getBlueJPropertyString(key, null);
-          }
-          
-          public String getProperty(String key, String def)
-          {
-              return Config.propSource.getBlueJPropertyString(key, def);
-          }
-        };
-        userProps = new Properties(systemProps) {
-            public Object setProperty(String key, String val) {
-                String rval = getProperty(key);
-                Config.propSource.setUserProperty(key, val);
-                return rval;
-            }
-        };
-        commandProps = new Properties(userProps);
-        
-        langProps =  new Properties() {
-            public String getProperty(String key)
-            {
-                return Config.propSource.getLabel(key);
-            }
-            
-            public String getProperty(String key, String def)
-            {
-                return Config.propSource.getLabel(key);
-            }
-        };
-
-        // get user home directory
-        {
-            File userHome;
-            String homeDir = commandProps.getProperty("bluej.userHome", null);
-            if(homeDir == null)
-                userHome = new File(System.getProperty("user.home"));
-            else
-                userHome = new File(homeDir);
-
-            // get user specific bluej property directory (in user home)
-            userPrefDir = new File(userHome, getBlueJPrefDirName());
-
-            if(!userPrefDir.isDirectory())
-                userPrefDir.mkdirs();
-        }
-
-        // compiler type
-        
-        compilertype = Config.getPropString("bluej.compiler.type");
-        if(compilertype.equals("internal"))
-            compilertype = "javac";
     }
+    
 
     /**
+     * Get the properties that were given on the command line and used 
+     * to initialise bluej.Config.
+     */
+    public static Properties getInitialCommandLineProperties()
+    {
+        return initialCommandLineProps;
+    }    
+    
+    /**
      * Initializer for use in Greenfoot's standalone scenario viewer if you 
-     * export a sceanrio as an app or applet.
+     * export a scenario as an app or applet.
      */
     public static void initializeStandalone(BlueJPropStringSource propSource)
     {

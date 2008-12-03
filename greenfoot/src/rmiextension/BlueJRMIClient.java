@@ -5,18 +5,20 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.Properties;
 
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.RPackage;
 import rmiextension.wrappers.RProject;
 import bluej.BlueJPropStringSource;
+import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
 
 /**
  * The RMI client that establishes the initial connection to the BlueJ RMI server
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: BlueJRMIClient.java 5268 2007-10-03 18:32:44Z polle $
+ * @version $Id: BlueJRMIClient.java 6006 2008-12-03 19:08:29Z polle $
  */
 public class BlueJRMIClient implements BlueJPropStringSource
 {
@@ -79,7 +81,6 @@ public class BlueJRMIClient implements BlueJPropStringSource
     {
         return blueJ;
     }
-
     
     /**
      * Returns the remote BlueJ package.
@@ -106,12 +107,7 @@ public class BlueJRMIClient implements BlueJPropStringSource
 
     public String getLabel(String key)
     {
-        try {
-            return blueJ.getLabel(key);
-        }
-        catch (RemoteException re) {
-            return key;
-        }
+        return Config.getString(key, key);
     }
     
     public void setUserProperty(String property, String val)
@@ -120,5 +116,15 @@ public class BlueJRMIClient implements BlueJPropStringSource
             blueJ.setExtensionPropertyString(property, val);
         }
         catch (RemoteException re) {}
+    }
+    
+    public Properties getInitialCommandLineProperties()
+    {
+        try {
+            return blueJ.getInitialCommandLineProperties();
+        }
+        catch (RemoteException e) {
+            return null;
+        }
     }
 }

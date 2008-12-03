@@ -2,6 +2,7 @@ package rmiextension.wrappers;
 
 import java.io.File;
 import java.rmi.RemoteException;
+import java.util.Properties;
 
 import rmiextension.wrappers.event.RClassListener;
 import rmiextension.wrappers.event.RCompileListener;
@@ -12,7 +13,7 @@ import rmiextension.wrappers.event.RInvocationListener;
  * Interface for accessing BlueJ-functionality
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJ.java 5644 2008-03-13 16:25:04Z polle $
+ * @version $Id: RBlueJ.java 6006 2008-12-03 19:08:29Z polle $
  */
 public interface RBlueJ
     extends java.rmi.Remote
@@ -52,13 +53,6 @@ public interface RBlueJ
     public String getExtensionPropertyString(String property, String def)
         throws RemoteException;
 
-    /**
-     * Get a language label
-     * @param key  The label key
-     * @return     The label value
-     */
-    public String getLabel(String key)
-        throws RemoteException;
 
     /**
      * Get a list of all open projects.
@@ -122,6 +116,13 @@ public interface RBlueJ
      * @throws RemoteException
      */
     public void exit()
+        throws RemoteException;
+
+    /**
+     * Get the properties that were given on the command line and used 
+     * to initialise bluej.Config.
+     */
+    public Properties getInitialCommandLineProperties()
         throws RemoteException;
 
 }

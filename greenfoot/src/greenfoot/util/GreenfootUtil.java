@@ -27,7 +27,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.security.AccessControlException;
 import java.util.Map;
@@ -47,7 +46,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 6001 2008-12-03 16:59:16Z polle $
+ * @version $Id: GreenfootUtil.java 6006 2008-12-03 19:08:29Z polle $
  */
 public class GreenfootUtil
 {
@@ -698,11 +697,16 @@ public class GreenfootUtil
             Utility.openWebBrowser(customUrl);
         }
         else {
-            // TODO: i18n
-            File greenfootDir = GreenfootUtil.getGreenfootDir();
-            File location = new File(greenfootDir, "/doc/apidoc/" + page);
+            String baseName = "greenfootAPI/" + page;
+            File location = Config.getLanguageFile(baseName);
             if (location.canRead()) {
                 Utility.openWebBrowser(location);
+            } else {
+                // In case the localised version doesn't exist
+                location = Config.getDefaultLanguageFile(baseName);
+                if (location.canRead()) {
+                    Utility.openWebBrowser(location);
+                }
             }
         }
     }

@@ -4,9 +4,11 @@ import java.io.File;
 import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Properties;
 
 import rmiextension.ProjectManager;
 import rmiextension.wrappers.event.*;
+import bluej.Config;
 import bluej.extensions.BProject;
 import bluej.extensions.BlueJ;
 import bluej.extensions.ProjectNotOpenException;
@@ -15,7 +17,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJImpl.java 5892 2008-09-22 14:30:29Z polle $
+ * @version $Id: RBlueJImpl.java 6006 2008-12-03 19:08:29Z polle $
  */
 public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     implements RBlueJ
@@ -89,14 +91,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     public String getExtensionPropertyString(String property, String def)
     {
         return blueJ.getExtensionPropertyString(property, def);
-    }
-
-    /* (non-Javadoc)
-     * @see rmiextension.wrappers.RBlueJ#getLabel(java.lang.String)
-     */
-    public String getLabel(String key)
-    {
-        return blueJ.getLabel(key);
     }
 
     /* (non-Javadoc)
@@ -205,5 +199,11 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         for (int i = 0; i < frames.length; i++) {
             frames[i].doClose(false, true);
         }
+    }
+
+    public Properties getInitialCommandLineProperties()
+        throws RemoteException
+    {
+        return Config.getInitialCommandLineProperties();
     }
 }
