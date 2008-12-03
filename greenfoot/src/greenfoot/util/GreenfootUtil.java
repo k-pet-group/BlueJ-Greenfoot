@@ -47,7 +47,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 6000 2008-12-03 16:57:23Z polle $
+ * @version $Id: GreenfootUtil.java 6001 2008-12-03 16:59:16Z polle $
  */
 public class GreenfootUtil
 {
@@ -673,7 +673,6 @@ public class GreenfootUtil
         throws IOException
     {
         File libDir = Config.getBlueJLibDir();
-        System.out.println("libDir: " + libDir);
         // The parent dir of the lib dir is the top level dir of greenfoot
         File greenfootDir = libDir.getParentFile();
         // But on the mac it is further back in the hierarchy.
