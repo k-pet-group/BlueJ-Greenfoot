@@ -10,7 +10,7 @@ import bluej.Config;
 
 /**
  * @author Poul Henriksen
- * @version $Id: WorldClassRole.java 6002 2008-12-03 17:24:17Z polle $
+ * @version $Id: WorldClassRole.java 6003 2008-12-03 17:47:41Z polle $
  */
 public class WorldClassRole extends ImageClassRole
 {
@@ -36,7 +36,7 @@ public class WorldClassRole extends ImageClassRole
             menu.add(createMenuItem(new SelectImageAction(classView, this)));
         }
         else {
-            menu.add(createMenuItem(new ShowApiDocAction(Config.getString("show.apidoc"), "greenfoot/Actor.html")));
+            menu.add(createMenuItem(new ShowApiDocAction(Config.getString("show.apidoc"), "greenfoot/World.html")));
         }
     }
 
