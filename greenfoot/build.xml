@@ -83,8 +83,8 @@
 
     <!-- Files that are used in the skeleton project. These are the user-visible framework files   -->
     <patternset id="skeleton.files">
-        <include name="greenfoot/World.*"/>
-        <include name="greenfoot/Actor.*"/>
+        <include name="greenfoot/World.class"/>
+        <include name="greenfoot/Actor.class"/>
     </patternset>
 
     <!-- Files that are used in tutorial -->
@@ -246,9 +246,6 @@ target="1.5">
 
     <target name="skeleton" depends="compile"  description="Copy the framework files from the build-dir to the skeletonproject." >
         <copy todir="projects/skeletonProject" preservelastmodified="true">
-            <fileset dir="${src}">
-                <patternset refid="skeleton.files"/>
-            </fileset>
             <fileset dir="${build}">
                 <patternset refid="skeleton.files"/>
             </fileset>
@@ -347,7 +344,9 @@ target="1.5">
     <target name="clean" description="clean up" >
         <delete >
             <fileset dir="projects/skeletonProject">
-                <patternset refid="skeleton.files"/>
+                <include name="**"/>
+                <exclude name="greenfoot/project.greenfoot"/>
+                <exclude name="project.greenfoot"/>
             </fileset>
         </delete>
 
