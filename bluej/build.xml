@@ -8,7 +8,7 @@
 
     <!-- user specific properties that are edited to match local build environment-->
     <property file="build.properties"/>
-	<property name="bluej_home" value="${basedir}" />
+    <property name="bluej_home" value="${basedir}" />
 
     <!-- 
      This is the only place you need to change the version number.
@@ -20,8 +20,8 @@
     <property name="bluej.version" value="${bluej.version.major}.${bluej.version.minor}.${bluej.version.release}${bluej.version.suffix}" />
 
     <!-- user specific properties that are edited to match local build environment-->
-    <property file="build.properties"/>   
-      
+    <property file="build.properties"/>
+
     <!-- Set up common directories -->
     <property name="core.doc" value="doc/all"/>
     <property name="extension.doc" value="doc/extensions"/>
@@ -33,7 +33,7 @@
     <property name="test.src" value="test/src"/>
     <property name="test.build" value="test/classes"/>
     <property name="test.report" value="test/report"/>
-    
+
     <property name="extensions.lib"  location="${bluej_home}/lib/extensions"/>
 
     <property name="boot.jar" value="${bluej_home}/lib/bluej.jar"/>
@@ -46,12 +46,12 @@
         <pathelement location="${bluej_home}/lib/MRJ141Stubs.jar"/>
         <pathelement location="${bluej_home}/lib/antlr.jar"/>
         <pathelement location="${bluej_home}/lib/junit.jar"/>
-    	<pathelement location="${bluej_home}/lib/org-netbeans-lib-cvsclient.jar"/>
+        <pathelement location="${bluej_home}/lib/org-netbeans-lib-cvsclient.jar"/>
         <pathelement location="${bluej_home}/lib/jsch.jar"/>
         <pathelement location="${bluej_home}/lib/sshconnection.jar"/>
         <pathelement location="${bluej_home}/lib/svnkit-javahl.jar"/>
     </path>
-    
+
     <!-- taskdef name="jarbundler"
         classname="com.loomcom.ant.tasks.jarbundler.JarBundler" / -->
 
@@ -153,8 +153,8 @@
                 <include name="bluej/GreenfootLabel.class"/>
             </fileset>
             <fileset dir="${boot.src}">
-            	<include name="bluej/splash.jpg"/>
-            	<include name="bluej/greenfootsplash.jpg"/>
+                <include name="bluej/splash.jpg"/>
+                <include name="bluej/greenfootsplash.jpg"/>
             </fileset>
             <manifest>
                 <attribute name="Main-Class" value="bluej.Boot"/>
@@ -182,7 +182,7 @@
                 <include name="bluej/editor/**" />
                 <include name="org/**" />
                 <exclude name="bluej/editor/*.txt" />
-                <exclude name="bluej/editor/*.xml" />   
+                <exclude name="bluej/editor/*.xml" />
             </fileset>
         </jar>
     </target>
@@ -204,12 +204,12 @@
         <!-- delete the greenfoot jar (if it exists) since it screws up BlueJ -->
         <delete quiet="true" file="${extensions.lib}/greenfoot.jar"/>
         <!-- run the java code built into the jar files -->
-        <java classname="bluej.Boot" fork="yes" jvm="${run_java_home}/bin/java">        
+        <java classname="bluej.Boot" fork="yes" jvm="${run_java_home}/bin/java">
             <classpath>
                 <pathelement location="${boot.jar}"/>
                 <pathelement location="${run_java_home}/lib/tools.jar"/>
                 <pathelement location="/System/Library/Java"/>
-            </classpath>                	
+            </classpath>
         </java>
     </target>
 
@@ -222,11 +222,11 @@
                 <pathelement location="/System/Library/Java"/>
             </classpath>
         </nbprofiledirect>
-        
+
         <!-- delete the greenfoot jar (if it exists) since it screws up BlueJ -->
         <delete quiet="true" file="${extensions.lib}/greenfoot.jar"/>
         <!-- run the java code built into the jar files -->
-        <java classname="bluej.Boot" fork="yes" jvm="${run_java_home}/bin/java">        
+        <java classname="bluej.Boot" fork="yes" jvm="${run_java_home}/bin/java">
             <classpath>
                 <pathelement location="${boot.jar}"/>
                 <pathelement location="${run_java_home}/lib/tools.jar"/>
@@ -249,11 +249,11 @@
     <target name="dist-greenfoot" depends="ready-to-run">
         <ant dir="package" antfile="greenfoot-build.xml" target="dist"/>
     </target>
-	
+
     <target name="windows-dist">
         <ant dir="package" target="windows-dist"/>
     </target>
-    
+
     <target name="mac-dist">
         <jarbundler dir="package"
             name="BlueJ"
@@ -264,9 +264,9 @@
             <jarfileset dir="lib">
                 <include name="**/*.jar" />
                 <exclude name="*/CVS" />
-            </jarfileset>  
+            </jarfileset>
         </jarbundler>
-            
+
     </target>
 
     <target name="test" depends="compile-core, compile-test">
@@ -364,14 +364,35 @@
         <delete quiet="true" file="${boot.jar}"/>
     </target>
 
-    <target name="clean-core">
-        <delete quiet="true" dir="${core.build}"/>
-        <delete quiet="true" file="${core.jar}"/>
-        <delete quiet="true" file="${editor.jar}"/>
-        <delete quiet="true" file="${extension.jar}"/>
+    <target name="clean-greenfoot" description="clean up greenfoot related stuff" >
+        <!-- Installer image windows: greenfoot-install.bmp -->
+        <delete file="package/greenfoot-install.bmp" />
+        <!-- Installer image jar: greenfoot-install.png -->
+        <delete file="package/greenfoot-install.png" />
+        <delete file="boot/src/bluej/greenfootsplash.jpg" />
+        <delete dir="lib/greenfoot" />
+        <delete dir="package/scenarios" />
+        <delete>
+            <fileset file="lib/extensions/greenfoot.jar"/>
+        </delete>
+
+        <delete includeEmptyDirs="true">
+            <fileset dir="lib">
+                <include name="*/greenfoot-labels" />
+                <include name="*/greenfootAPI/**" />
+            </fileset>
+        </delete>
     </target>
 
-    <target name="clean" depends="clean-boot, clean-core">
+    <target name="clean-core">
+        <delete quiet="true" dir="${core.build}" />
+        <delete quiet="true" file="${core.jar}" />
+        <delete quiet="true" file="${editor.jar}" />
+        <delete quiet="true" file="${extension.jar}" />
+
+    </target>
+
+    <target name="clean" depends="clean-boot, clean-core, clean-greenfoot">
         <ant dir="package" target="clean"/>
     </target>
 
