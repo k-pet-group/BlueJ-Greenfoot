@@ -31,7 +31,7 @@ import greenfoot.sound.SoundPlayer;
  * </ul>
  * 
  * @author Davin McCall
- * @version 1.5
+ * @version 2.0
  */
 public class Greenfoot
 {

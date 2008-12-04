@@ -34,7 +34,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @see greenfoot.Actor
  * @author Poul Henriksen
  * @author Michael Kolling
- * @version 1.5
+ * @version 2.0
  */
 public abstract class World
 {    

@@ -5,7 +5,7 @@ package greenfoot;
  * 
  * @see Greenfoot.#getMouseInfo()
  * @author Poul Henriksen
- * @version 1.5
+ * @version 2.0
  */
 public class MouseInfo
 {    
