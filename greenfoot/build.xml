@@ -132,7 +132,10 @@
         </copy>
         <mkdir dir="${bluej.projectdir}/doc" />
         <copy todir="${bluej.projectdir}/doc">
-            <fileset dir="doc" />
+            <fileset dir="doc" >
+                <include name="APACHE-LICENSE.txt"/>
+                <include name="NOTICE.txt"/>
+            </fileset>
         </copy>
         <mkdir dir="${package}"/>
     </target>
@@ -210,7 +213,7 @@ target="1.5">
         <compile-scenario scenario="wombats2" />
     </target>
 
-    <target name="ready-to-run" depends="update-images, compile, copy-imagelib, copy-projects, copy-templates, copy-labels, compile-standalone, copy-api-doc" description="Builds everything so it is ready to run" >
+    <target name="ready-to-run" depends="update-images, compile, copy-imagelib, copy-projects, copy-templates, copy-labels, compile-standalone" description="Builds everything so it is ready to run" >
         <!-- Put everything in ${build} into the the jar file-->
         <jar jarfile="${bluej.extensions.lib}/greenfoot.jar" basedir="${build}">
             <manifest>
@@ -218,14 +221,8 @@ target="1.5">
                 <attribute name="Class-Path" value="." />
             </manifest>
         </jar>
-    </target>
+    </target>   
 
-    <target name="copy-api-doc" depends="create-api-doc">
-        <mkdir dir="${bluej.projectdir}/doc" />
-        <copy todir="${bluej.projectdir}/doc">
-            <fileset dir="doc" />
-        </copy>
-   </target>
     
     <target name="create-api-doc">
         <mkdir dir="${apidoc}"/>
