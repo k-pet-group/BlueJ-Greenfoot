@@ -43,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 6005 2008-12-03 18:05:14Z polle $
+ * @version $Id: GreenfootMain.java 6014 2008-12-04 18:08:53Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -509,8 +509,9 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
         Version apiVersion = GreenfootMain.getAPIVersion();
 
-        if(apiVersion == null) {
-            String message = Config.getString("project.version.notGreenfoot") + projectDir;
+        if(projectVersion == null) {
+            // Poul: I don't actually think this can happen anymore, but leaving it in just in case.
+            String message = apiVersion.getNotGreenfootMessage(projectDir);
             JButton continueButton = new JButton(Config.getString("greenfoot.continue"));
             MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 50,
                     new JButton[]{continueButton});
@@ -518,7 +519,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             return VERSION_BAD;
         }
         else if (projectVersion.isBad()) {
-            String message = Config.getString("project.version.none");
+            String message = projectVersion.getBadMessage();
             JButton continueButton = new JButton(Config.getString("greenfoot.continue"));
             MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 50,
                     new JButton[]{continueButton});
@@ -530,11 +531,9 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             return VERSION_UPDATED;
         }
         else if (projectVersion.isOlderAndBreaking(apiVersion)) {
-            String message = Config.getString("project.version.older.part1") + projectVersion
-                    + Config.getString("project.version.older.part2") + apiVersion
-                    + Config.getString("project.version.older.part3");
+            String message = projectVersion.getChangesMessage(apiVersion);
             JButton continueButton = new JButton(Config.getString("greenfoot.continue"));
-            MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 50,
+            MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 80,
                     new JButton[]{continueButton});
             dialog.displayModal();
             GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, true);
@@ -542,8 +541,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             return VERSION_UPDATED;
         }
         else if (apiVersion.isOlderAndBreaking(projectVersion)) {
-            String message = Config.getString("project.version.newer.part1") + projectVersion
-                    + Config.getString("project.version.newer.part2");
+            String message = projectVersion.getNewerMessage();
 
             JButton cancelButton = new JButton(Config.getString("greenfoot.cancel"));
             JButton continueButton = new JButton(Config.getString("greenfoot.continue"));

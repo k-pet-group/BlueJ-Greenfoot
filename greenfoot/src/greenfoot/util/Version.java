@@ -1,10 +1,13 @@
 package greenfoot.util;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import bluej.Config;
+
 /**
- * Represents a version number. A version is a sequence o numbers separated by
+ * Represents a version number. A version is a sequence of numbers separated by
  * full stops and an optional string at the end.
  * 
  * @author Poul Henriksen
@@ -92,7 +95,6 @@ public class Version
      */
     public boolean isOlderAndBreaking(Version other)
     {
-
         return this.breakingNumber < other.breakingNumber || this.badVersion || other.badVersion;
     }
 
@@ -132,6 +134,68 @@ public class Version
     public String toString()
     {
         return breakingNumber + "." + nonBreakingNumber + "." + internalNumber;
+    }
+
+    /**
+     * Return a message that shows the changes introduced in apiVersion compared to this version.
+     * 
+     * @param apiVersion The API version that for which the changes should be shown.
+     * @return
+     */
+    public String getChangesMessage(Version apiVersion)
+    {
+        StringBuffer message = new StringBuffer(Config.getString("project.version.older.part1") + this
+                + Config.getString("project.version.older.part2") + apiVersion
+                + Config.getString("project.version.older.part3") + "\n");
+        
+        int changeNumber = 1;
+        String changesString = Config.getString("project.version.changes." + changeNumber, "EMPTY").trim();
+        
+        while(!changesString.equals("EMPTY")) {
+            int spaceIndex = changesString.indexOf(' ');
+            if(spaceIndex < 5) {
+                // Incorrect version number format
+                return "";
+            }
+            String versionString = changesString.substring(0,spaceIndex);
+            Version changeVersion = new Version(versionString);
+            if(this.isOlderAndBreaking(changeVersion)) {
+                String text = changesString.substring(spaceIndex + 1);  
+                message.append("\n \n  " + text);
+            }
+            changeNumber++;
+            changesString = Config.getString("project.version.changes." + changeNumber, "EMPTY");
+        }
+        
+
+        return message.toString();
+    }
+
+    /**
+     * This will return a message about the version being VERY old (before we
+     * introduced version numbers). This is very unlikely to ever be used.
+     * 
+     */
+    public String getBadMessage()
+    {
+        return Config.getString("project.version.none");
+    }
+
+    /**
+     * Return a message that says that this project is a newer version.
+     */
+    public String getNewerMessage()
+    {
+        return Config.getString("project.version.newer.part1") + this
+        + Config.getString("project.version.newer.part2");
+    }
+
+    /**
+     * Get message if this is not a Greenfoot version number.
+     */
+    public String getNotGreenfootMessage(File projectDir)
+    {
+        return Config.getString("project.version.notGreenfoot") + projectDir;
     }
 
 }

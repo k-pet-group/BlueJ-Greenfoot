@@ -286,7 +286,7 @@ public class ProjectProperties
      * project was created with. If it can not find a version number, it will
      * return Version.NO_VERSION.
      * 
-     * @return API version or Version.NO_VERSION
+     * @return API version
      */
     public Version getAPIVersion()
     {

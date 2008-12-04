@@ -11,18 +11,28 @@ greenfoot.cancel=Cancel
 about.title=About Greenfoot
 about.moreInfo=More information can be found at www.greenfoot.org
 
+
 # Greenfoot project version info
-project.version.none=The scenario that you are trying to open appears to be an old greenfoot scenario (before greenfoot version 0.5). This will most likely result in some errors that will have to be fixed manually.
+project.version.none=The scenario that you are trying to open appears to be an old Greenfoot scenario (before greenfoot version 0.5). This will most likely result in some errors that will have to be fixed manually.
 project.version.notGreenfoot=This is not a Greenfoot scenario: 
 project.version.mismatch=Versions do not match
-project.version.older.part1=The scenario that you are trying to open appears to be an old greenfoot scenario (API version 
+# The next 3 items will be shown if the major digit in the version number has changed. 
+# part3 should be updated to describe the changes that has happened.
+project.version.older.part1=The scenario that you are trying to open appears to be an old Greenfoot scenario (API version 
 # project version inserted here by Greenfoot
 project.version.older.part2=). The scenario will be updated to the current version (API version 
 # api version inserted here by Greenfoot
-project.version.older.part3=). The range of the speed slider has changed since, so you might want to adjust the speed setting for this scenario.
+
+#Info about changes in this new version of the API that might break existing scenarios.
+project.version.older.part3=). The following changes to the Greenfoot API might break this scenario:
+
+project.version.changes.1=2.0.0 The methods 'stopSimulation', 'startSimulation' and 'setSimulationSpeed' in the Greenfoot class has been renamed to 'start', 'stop' and 'setSpeed'. 
+project.version.changes.2=2.0.0 Actor's method 'getObjectsInRange' now uses cells instead of pixels as the unit for the range. 
+project.version.changes.3=2.0.0 Greenfoot has been made case sensitive when dealing with sound and image files.
+
 project.version.newer.part1=The scenario that you are trying to open appears to be a Greenfoot scenario created with a newer version of the Greenfoot API (version 
 # project version inserted here by Greenfoot
-project.version.newer.part2=). Opening the scenario with this version might result in some errors that will have to be fixed manually.\n\nDo you want to continue opening the scenario?
+project.version.newer.part2=). Opening the scenario with this your current version of Greenfoot might result in some errors that will have to be fixed manually.\n\nDo you want to continue opening the scenario?
 project.close=Close
 
 # Actions
