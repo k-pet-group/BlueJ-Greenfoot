@@ -30,8 +30,9 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         } else {
             translations.put("EXTENDSANDSUPERCLASSNAME", "");
         }
-        File libDir = Config.getGreenfootLibDir();
-        File template = new File(libDir, "templates/" +  templateFileName);  
+        String baseName = "greenfoot/templates/" +  templateFileName;
+        File template = Config.getLanguageFile(baseName);
+        
         BlueJFileReader.translateFile(template, file, translations, Charset.forName("UTF-8"));
     }
     

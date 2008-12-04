@@ -568,8 +568,8 @@ public class JarCreator
         translations.put("ARCHIVE", jarName);
 
 
-        File libDir = Config.getGreenfootLibDir();
-        File template = new File(libDir, "templates/html.tmpl"); 
+        String baseName = "greenfoot/templates/html.tmpl";
+        File template = Config.getLanguageFile(baseName);
         
         try {
             BlueJFileReader.translateFile(template, outputFile, translations, Charset.forName("UTF-8"));

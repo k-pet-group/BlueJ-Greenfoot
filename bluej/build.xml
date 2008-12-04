@@ -375,11 +375,10 @@
         <delete>
             <fileset file="lib/extensions/greenfoot.jar"/>
         </delete>
-
+        
         <delete includeEmptyDirs="true">
             <fileset dir="lib">
-                <include name="*/greenfoot-labels" />
-                <include name="*/greenfootAPI/**" />
+                <include name="*/greenfoot/" />
             </fileset>
         </delete>
     </target>

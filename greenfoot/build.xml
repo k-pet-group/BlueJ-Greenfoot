@@ -76,7 +76,7 @@
     <property name="images" location="images"/>
 
     <!-- Location where javadoc for the API classes will be stored. -->
-    <property name="apidoc" location="labels/english/greenfootAPI"/>
+    <property name="apidoc" location="labels/english/greenfoot/API"/>
     <!-- Location of the build-dir where the class files will be stored -->
     <property name="build" location="classes"/>
     <!-- Location of the packed files for distribution -->
@@ -214,7 +214,7 @@ target="1.5">
         <compile-scenario scenario="wombats2" />
     </target>
 
-    <target name="ready-to-run" depends="update-images, compile, copy-imagelib, copy-projects, copy-templates, copy-labels, compile-standalone" description="Builds everything so it is ready to run" >
+    <target name="ready-to-run" depends="update-images, compile, copy-imagelib, copy-projects, copy-labels, compile-standalone" description="Builds everything so it is ready to run" >
         <!-- Put everything in ${build} into the the jar file-->
         <jar jarfile="${bluej.extensions.lib}/greenfoot.jar" basedir="${build}">
             <manifest>
@@ -285,11 +285,11 @@ target="1.5">
     </target>
 
 
-    <target name="copy-templates" description="Copies the templates for new class files to bluej">
+    <!--target name="copy-templates" description="Copies the templates for new class files to bluej">
         <copy todir="${bluej.lib.greenfoot}/templates">
             <fileset dir="resources/templates"/>
         </copy>
-    </target>
+    </target-->
 
     <target name="update-images" description="Copies the images from the resource directory out into the various places where the images are required.">
         <!-- Installer image windows: greenfoot-install.bmp -->
@@ -363,7 +363,6 @@ target="1.5">
 
         <delete dir="${bluej.lib.greenfoot}"/>
         <delete dir="${bluej.projectdir}/package/scenarios"/>
-        <delete dir="${bluej.projectdir}/doc/apidoc"/>
         <delete dir="${build}"/>
         <delete >
             <fileset dir="${bluej.extensions.lib}">
@@ -373,8 +372,7 @@ target="1.5">
 
         <delete includeEmptyDirs="true">
             <fileset dir="${bluej.projectdir}/" >
-            	<include name="lib/*/greenfoot-labels" />
-            	<include name="lib/*/greenfootAPI/**" />
+            	<include name="lib/*/greenfoot/" />
             </fileset>
         </delete>
         

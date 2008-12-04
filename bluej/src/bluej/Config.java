@@ -45,7 +45,7 @@ import bluej.utility.Utility;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 6006 2008-12-03 19:08:29Z polle $
+ * @version $Id: Config.java 6017 2008-12-04 18:56:17Z polle $
  */
 
 public final class Config
@@ -535,7 +535,7 @@ public final class Config
         if(isGreenfoot())
         {
             // load greenfoot labels to default lanbels
-            String greenfootLabels = DEFAULT_LANGUAGE + File.separator + "greenfoot-labels";
+            String greenfootLabels = DEFAULT_LANGUAGE + File.separator + "greenfoot/greenfoot-labels";
             File greenfootLabelFile = new File(bluejLibDir, greenfootLabels);
             try{
                 labels.load(new FileInputStream(greenfootLabelFile));
@@ -555,7 +555,7 @@ public final class Config
                 Debug.reportError("Unable to load definitions file: " + languageFile);
             }
             if(isGreenfoot()) {
-                File greenfootLabels = new File(bluejLibDir, language + File.separator + "greenfoot-labels");
+                File greenfootLabels = new File(bluejLibDir, language + File.separator + "greenfoot/greenfoot-labels");
                 try{
                     labels.load(new FileInputStream(greenfootLabels));
                 }
