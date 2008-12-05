@@ -32,7 +32,7 @@ project.version.changes.3=2.0.0 Greenfoot has been made case sensitive when deal
 
 project.version.newer.part1=The scenario that you are trying to open appears to be a Greenfoot scenario created with a newer version of the Greenfoot API (version 
 # project version inserted here by Greenfoot
-project.version.newer.part2=). Opening the scenario with this your current version of Greenfoot might result in some errors that will have to be fixed manually.\n\nDo you want to continue opening the scenario?
+project.version.newer.part2=). Opening the scenario with your current version of Greenfoot might result in some errors that will have to be fixed manually.\n\nDo you want to continue opening the scenario?
 project.close=Close
 
 # Actions
