@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bluej.debugger.DebuggerObject;
+import bluej.utility.JavaNames;
 
 /**
  * A DebuggerObject to represent arrays. This base class is for object arrays;
@@ -55,6 +56,19 @@ public class LocalArray extends LocalObject
         Object val = ((Object []) object)[slot];
         return getLocalObject(val);
     }
+    
+    /**
+     * Return the type of the object field at 'slot'.
+     *
+     *@param  slot  The slot number to be checked
+     *@return       The type of the field
+     */
+    @Override
+    public String getInstanceFieldType(int slot)
+    {            
+        String arrayType = getClassName();
+        return JavaNames.getArrayElementType(arrayType);
+    }
 
     public List getInstanceFields(boolean includeModifiers)
     {
@@ -92,4 +106,73 @@ public class LocalArray extends LocalObject
     {
         return ((Object []) object)[slot] != null; 
     }
+    
+
+    /**
+     *  Return the name of the static field at 'slot'.
+     *
+     *@param  slot  The slot number to be checked
+     *@return       The StaticFieldName value
+     */
+    public String getStaticFieldName(int slot)
+    {
+        throw new UnsupportedOperationException("getStaticFieldName");
+    }
+    
+
+    /**
+     *  Return the object in static field 'slot'.
+     *
+     *@param  slot  The slot number to be returned
+     *@return       the object at slot or null if slot does not exist
+     */
+    public DebuggerObject getStaticFieldObject(int slot)
+    {
+        throw new UnsupportedOperationException("getStaticFieldObject");
+    }
+    
+
+
+    /**
+     *  Return an array of strings with the description of each static field
+     *  in the format "<modifier> <type> <name> = <value>".
+     *
+     *@param  includeModifiers  Description of Parameter
+     *@return                   The StaticFields value
+     */
+    public List<String> getStaticFields(boolean includeModifiers)
+    {
+        throw new UnsupportedOperationException("getStaticFields");
+        //        return new ArrayList(0);
+    }
+    
+
+
+    /**
+     *  Return true if the static field 'slot' is public.
+     *
+     *@param  slot  Description of Parameter
+     *@return       Description of the Returned Value
+     *@arg          slot The slot number to be checked
+     */
+    public boolean staticFieldIsPublic(int slot)
+    {
+        throw new UnsupportedOperationException("getStaticFieldObject");
+    }
+
+
+    /**
+     *  Return true if the static field 'slot' is an object (and not
+     *  a simple type).
+     *
+     *@param  slot  The slot number to be checked
+     *@return       Description of the Returned Value
+     */
+    public boolean staticFieldIsObject(int slot)
+    {
+        throw new UnsupportedOperationException("getStaticFieldObject");
+    }
+    
+
+
 }
