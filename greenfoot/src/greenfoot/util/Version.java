@@ -53,7 +53,7 @@ public class Version
         String lastString = null;
         for (String s : split) {
             try {
-                numbers.add(new Integer(Integer.parseInt(s)));
+                numbers.add(Integer.valueOf(Integer.parseInt(s)));
             }
             catch (NumberFormatException nfe) {
                 lastString = s;
@@ -72,7 +72,7 @@ public class Version
                 // if the candidate number is matching the beginning, we have
                 // found a part of the version number.
                 if (lastString.startsWith(candidate)) {
-                    numbers.add(new Integer(Integer.parseInt(candidate)));
+                    numbers.add(Integer.valueOf(Integer.parseInt(candidate)));
                 }
             }
         }

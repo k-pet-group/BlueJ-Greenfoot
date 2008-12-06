@@ -64,7 +64,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 5883 2008-09-19 14:58:01Z polle $
+ * @version $Id: ImageLibFrame.java 6025 2008-12-06 13:40:42Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
@@ -82,8 +82,8 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     private File selectedImageFile;
     private File projImagesDir;
     
-    public static int OK = 0;
-    public static int CANCEL = 1;
+    public static final int OK = 0;
+    public static final int CANCEL = 1;
     private int result = CANCEL;
     
     private Image generatedImage;

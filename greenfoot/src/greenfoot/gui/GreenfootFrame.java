@@ -103,7 +103,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 6000 2008-12-03 16:57:23Z polle $
+ * @version $Id: GreenfootFrame.java 6025 2008-12-06 13:40:42Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener,
@@ -648,7 +648,7 @@ public class GreenfootFrame extends JFrame
                 action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(accelKey, accelModifier));
         }
         if(!Config.isMacOS() && mnemonicKey != -1)
-            action.putValue(Action.MNEMONIC_KEY, new Integer(mnemonicKey));
+            action.putValue(Action.MNEMONIC_KEY, Integer.valueOf(mnemonicKey));
         menu.add(action);
     }
     

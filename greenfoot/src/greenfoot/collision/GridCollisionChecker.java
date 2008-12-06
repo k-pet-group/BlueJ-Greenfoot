@@ -186,12 +186,12 @@ public class GridCollisionChecker
         
         public String toString() {
             return String.format(format, new Object[] {
-                    new Long(startTime),
-                    new Long(objectsAt),
-                    new Long(intersectionObjects),
-                    new Long(objectsInRange),
-                    new Long(neighbours),
-                    new Long(objectsInDirection)
+                    Long.valueOf(startTime),
+                    Long.valueOf(objectsAt),
+                    Long.valueOf(intersectionObjects),
+                    Long.valueOf(objectsInRange),
+                    Long.valueOf(neighbours),
+                    Long.valueOf(objectsInDirection)
                     });
         }
         
