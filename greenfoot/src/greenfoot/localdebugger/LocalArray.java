@@ -173,6 +173,15 @@ public class LocalArray extends LocalObject
         throw new UnsupportedOperationException("getStaticFieldObject");
     }
     
+    public int hashCode() 
+    {
+        return super.hashCode();
+    }
+    
+    public boolean equals(Object other)
+    {
+        return super.equals(other);
+    }
 
 
 }
