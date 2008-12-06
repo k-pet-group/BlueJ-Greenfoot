@@ -38,6 +38,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public abstract class World
 {    
+    private static final Color DEFAULT_BACKGROUND_COLOR = Color.WHITE;
+
     // private CollisionChecker collisionChecker = new GridCollisionChecker();
     // private CollisionChecker collisionChecker = new BVHInsChecker();
     private CollisionChecker collisionChecker = new IBSPColChecker();
@@ -65,8 +67,8 @@ public abstract class World
     /** Image painted in the background. */
     private GreenfootImage backgroundImage;
     
-    /** Should the image be tiled to fill the entire background */
-    private boolean tiled = true;    
+    /** Whether the backgroundImage is the class image */
+    private boolean backgroundIsClassImage = true;
 
     /** Lock used for iterating over actors. */
     public ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
@@ -86,13 +88,8 @@ public abstract class World
     {
         initialize(worldWidth, worldHeight, cellSize);
         
-        GreenfootImage image = getClassImage();
-        if (image != null) {
-            // Make the image a copy of the original to avoid modifications to the
-            // original. 
-            image = image.getCopyOnWriteClone();
-            setBackground(image);
-        }
+        backgroundIsClassImage = true;
+        setBackground(getClassImage());
         
         // Now, the WorldHandler must be informed of the new world, so it can be
         // used immediately. This is important for actors that are created by
@@ -114,40 +111,67 @@ public abstract class World
         this.width = width;
         this.height = height;
         this.cellSize = cellSize;
-        this.tiled = true;
         collisionChecker.initialize(width, height, cellSize, false);
     }
 
     /**
      * Set a background image for the world. If the image size is larger than
      * the world in pixels, it is clipped. If it is smaller than the world, it
-     * is tiled unless specifically stated to do otherwise (see setTiled()). A
-     * pattern showing the cells can easily be shown by setting a background
-     * image with a size equal to the cell size.
+     * is tiled. A pattern showing the cells can easily be shown by setting a
+     * background image with a size equal to the cell size.
      * 
      * @see #setBackground(String)
-     * @see #setTiled(boolean)
      * @param image The image to be shown
      */
     final public void setBackground(GreenfootImage image)
-    {
-        backgroundImage = image;
+    {        
+        if (image != null) {
+            int imgWidth = image.getWidth();
+            int imgHeight = image.getHeight();
+            int worldWidth = getWidthInPixels();
+            int worldHeight = getHeightInPixels();
+            boolean tile = imgWidth < worldWidth || imgHeight < worldHeight;
+
+            if (tile) {
+                backgroundIsClassImage = false;
+                backgroundImage = new GreenfootImage(worldWidth, worldHeight);
+                backgroundImage.setColor(DEFAULT_BACKGROUND_COLOR);
+                backgroundImage.fill();
+
+                for (int x = 0; x < worldWidth; x += imgWidth) {
+                    for (int y = 0; y < worldHeight; y += imgHeight) {
+                        backgroundImage.drawImage(image, x, y);
+                    }
+                }
+            }
+            else {
+                // To make it behave exactly the same way as when tiling we
+                // should make a clone here. But it performs better when not
+                // cloning.
+                // Performance will be an issue for people changing the
+                // background image all the time for animated backgrounds
+                backgroundImage = image;
+            }
+        }
+        else {
+            backgroundIsClassImage = false;
+            backgroundImage = null;
+        }
     }
 
     /**
      * Set a background image for the world from an image file. Images of type
      * 'jpeg', 'gif' and 'png' are supported. If the image size is larger than
-     * the world in pixels, it is clipped. If it is smaller than the world, it
-     * is tiled unless specifically stated to do otherwise (see setTiled()). A
-     * pattern showing the cells can easily be shown by setting a background
-     * image with a size equal to the cell size.
+     * the world in pixels, it is clipped. A pattern showing the cells can
+     * easily be shown by setting a background image with a size equal to the
+     * cell size.
      * 
      * @see #setBackground(GreenfootImage)
-     * @see #setTiled(boolean)
      * @param filename The file holding the image to be shown
      * @throws IllegalArgumentException If the image can not be loaded.
      */
-    final public void setBackground(String filename) throws IllegalArgumentException
+    final public void setBackground(String filename)
+        throws IllegalArgumentException
     {
         GreenfootImage bg = new GreenfootImage(filename);
         setBackground(bg);
@@ -163,8 +187,15 @@ public abstract class World
     {
         if (backgroundImage == null) {
             backgroundImage = new GreenfootImage(getWidthInPixels(), getHeightInPixels());
-            backgroundImage.setColor(Color.WHITE);
+            backgroundImage.setColor(DEFAULT_BACKGROUND_COLOR);
             backgroundImage.fill();
+            backgroundIsClassImage = false;
+        }
+        else if (backgroundIsClassImage) {
+            // Make the image a copy of the original to avoid modifications
+            // to the original.
+            backgroundImage = backgroundImage.getCopyOnWriteClone();
+            backgroundIsClassImage = false;
         }
         return backgroundImage;
     }
@@ -180,9 +211,11 @@ public abstract class World
     }
       
     /**
-     * Return the color at the center of the cell. To paint a color, you need to
+     * Return the color at the centre of the cell. To paint a color, you need to
      * get the background image for the world and paint on that.
-     * 
+     *
+     * @param x The x coordinate of the cell.
+     * @param y The y coordinate of the cell.
      * @see #getBackground()
      * @throws IndexOutOfBoundsException If the location is not within the world
      *             bounds. If there is no background image at the location it
@@ -194,45 +227,15 @@ public abstract class World
         
         int xPixel = (int) Math.floor(getCellCenter(x));
         int yPixel = (int) Math.floor(getCellCenter(y));        
-        
-        // Take tiling into account
-        if(isTiled()) {
-            xPixel = xPixel % backgroundImage.getWidth();
-            yPixel = yPixel % backgroundImage.getHeight();
-        }
-        
-        // TODO if it is not tiled, and outside, what should be returned? BGcolor? Null?
+                
         if(xPixel >= backgroundImage.getWidth()) {
-            return Color.WHITE;
+            return DEFAULT_BACKGROUND_COLOR;
         }
         if(yPixel >= backgroundImage.getHeight()) {
-            return Color.WHITE;
+            return DEFAULT_BACKGROUND_COLOR;
         }        
         
         return backgroundImage.getColorAt(xPixel, yPixel);
-    }
-
-    /**
-     * If set to true, the background image will be tiled to fill out the entire
-     * background of the world. If false, the image is shown only one in the top 
-     * left corner of the world. The default is 'true'.
-     * 
-     * @param tiled Whether it should tile the image or not.
-     */
-    public void setTiled(boolean tiled)
-    {
-        this.tiled = tiled;
-    }
-
-    /**
-     * Returns true if the world is tiled.
-     * 
-     * @return Whether the image is tilled.
-     * @see #setTiled(boolean)
-     */
-    public boolean isTiled()
-    {
-        return tiled;
     }
 
     /**
@@ -568,10 +571,10 @@ public abstract class World
     /**
      * Returns all objects with the logical location within the specified
      * circle. In other words an object A is within the range of an object B if
-     * the distance between the center of the two objects is less than r.
+     * the distance between the centre of the two objects is less than r.
      * 
-     * @param x Center of the cirle
-     * @param y Center of the cirle
+     * @param x Centre of the cirle
+     * @param y Centre of the cirle
      * @param r Radius of the cirle
      * @param cls Class of objects to look for (null or Object.class will find
      *            all classes)
@@ -658,9 +661,9 @@ public abstract class World
     }        
 
     /**
-     * Returns the center of the cell. It should be rounded down with Math.floor() if the integer version is needed.
+     * Returns the centre of the cell. It should be rounded down with Math.floor() if the integer version is needed.
      * @param l Cell location.
-     * @return Absolute location of the cell center in pixels.
+     * @return Absolute location of the cell centre in pixels.
      */
     double getCellCenter(int l)
     {

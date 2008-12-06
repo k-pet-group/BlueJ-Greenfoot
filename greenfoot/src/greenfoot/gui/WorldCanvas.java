@@ -30,7 +30,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldCanvas.java 5995 2008-12-02 15:30:49Z polle $
+ * @version $Id: WorldCanvas.java 6020 2008-12-06 13:06:08Z polle $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -195,16 +195,12 @@ public class WorldCanvas extends JPanel
      */
     public void paintBackground(Graphics g)
     {
-        if (world != null) {            
+        if (world != null) {
             GreenfootImage backgroundImage = WorldVisitor.getBackgroundImage(world);
             if (backgroundImage != null) {
-                if (world.isTiled()) {
-                    paintTiledBackground(g, backgroundImage);
-                }
-                else {
-                    ImageVisitor.drawImage(backgroundImage, g, 0, 0, this);
-                }
-            } else {
+                ImageVisitor.drawImage(backgroundImage, g, 0, 0, this);
+            }
+            else {
                 Color oldColor = g.getColor();
                 g.setColor(getBackground());
                 g.fillRect(0, 0, this.getWidth(), this.getHeight());
@@ -213,32 +209,7 @@ public class WorldCanvas extends JPanel
         }
     }
 
-    
-    /**
-     * Paint the world background image onto this component in tiles
-     * so that it will fill the whole world size.
-     */
-    private void paintTiledBackground(Graphics g, GreenfootImage backgroundImage)
-    {
-        if (backgroundImage == null || world == null) {
-            return;
-        }
-        int imgWidth = backgroundImage.getWidth();
-        int imgHeight = backgroundImage.getHeight();
-
-        int width = WorldVisitor.getWidthInPixels(world);
-        int height = WorldVisitor.getHeightInPixels(world);
-
-        int xTiles = (int) Math.ceil((double) width / imgWidth);
-        int yTiles = (int) Math.ceil((double) height / imgHeight);
-
-        for (int x = 0; x < xTiles; x++) {
-            for (int y = 0; y < yTiles; y++) {
-                ImageVisitor.drawImage(backgroundImage, g, x * imgWidth, y * imgHeight, this);
-            }
-        }
-
-    }
+  
 
     public Dimension getMinimumSize()
     {
