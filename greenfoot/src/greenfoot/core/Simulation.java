@@ -35,13 +35,13 @@ public class Simulation extends Thread
     private WorldHandler worldHandler;
     
     
-    private boolean paused;
+    private volatile boolean paused;
 
     /** Whether the simulation is enabled (world installed) */
-    private boolean enabled;
+    private volatile boolean enabled;
 
     /** Whether to run one loop when paused */
-    private boolean runOnce;
+    private volatile boolean runOnce;
 
     private EventListenerList listenerList = new EventListenerList();
 
@@ -98,9 +98,18 @@ public class Simulation extends Thread
      * @param worldHandler
      *            The handler for the world that is simulated
      */
-    private Simulation()
+    private Simulation(WorldHandler worldHandler, SimulationDelegate simulationDelegate)
     {
         this.setName("SimulationThread");
+        this.worldHandler = worldHandler;
+        this.delegate = simulationDelegate;
+        startedEvent = new SimulationEvent(this, SimulationEvent.STARTED);
+        stoppedEvent = new SimulationEvent(this, SimulationEvent.STOPPED);
+        speedChangeEvent = new SimulationEvent(this, SimulationEvent.CHANGED_SPEED);
+        disabledEvent = new SimulationEvent(this, SimulationEvent.DISABLED);
+        newActEvent = new SimulationEvent(this, SimulationEvent.NEW_ACT);
+        setPriority(Thread.MIN_PRIORITY);
+        paused = true;
         speed = 50;
         delay = calculateDelay(speed);
         HDTimer.init();
@@ -108,17 +117,7 @@ public class Simulation extends Thread
     
     public static void initialize(WorldHandler worldHandler, SimulationDelegate simulationDelegate)
     {
-        instance = new Simulation();
-        instance.worldHandler = worldHandler;
-        instance.delegate = simulationDelegate;
-        instance.startedEvent = new SimulationEvent(instance, SimulationEvent.STARTED);
-        instance.stoppedEvent = new SimulationEvent(instance, SimulationEvent.STOPPED);
-        instance.speedChangeEvent = new SimulationEvent(instance, SimulationEvent.CHANGED_SPEED);
-        instance.disabledEvent = new SimulationEvent(instance, SimulationEvent.DISABLED);
-        instance.newActEvent = new SimulationEvent(instance, SimulationEvent.NEW_ACT);
-        instance.setPriority(Thread.MIN_PRIORITY);
-        instance.paused = true;
-
+        instance = new Simulation(worldHandler, simulationDelegate);
         worldHandler.addWorldListener(instance);
         instance.addSimulationListener(worldHandler);
         instance.start();
@@ -189,6 +188,7 @@ public class Simulation extends Thread
      */
     private synchronized void maybePause()
     {
+        runOnce = false;
         if (paused && enabled) {
             fireSimulationEvent(stoppedEvent);
             System.gc();
@@ -236,8 +236,6 @@ public class Simulation extends Thread
                 }
             }
         }
-
-        runOnce = false;
     }
 
     /**
@@ -274,7 +272,7 @@ public class Simulation extends Thread
                 // modified by the actors' act() methods.
                 objects = new ArrayList<Actor>(WorldVisitor.getObjectsListInActOrder(world));
                 for (Actor actor : objects) {
-                    if(!enabled) {
+                    if (!enabled) {
                         return;
                     }
                     if (actor.getWorld() != null) {
@@ -560,7 +558,7 @@ public class Simulation extends Thread
             if(!paused) {
                 interruptedForSpeedChange = true;
                 interruptDelay();
-            }
+            }    
             fireSimulationEvent(speedChangeEvent);
         }
     }
@@ -604,9 +602,12 @@ public class Simulation extends Thread
     public void sleep() throws ActInterruptedException
     {
         World world = WorldHandler.getInstance().getWorld();
-        if(paused && !runOnce) {
+        if (paused && !runOnce) {
             // We don't want the user code to delay if we are paused.
+           return;
         }
+        
+    
         try {
             synchronized (interruptLock) {
                 if (interruptDelay) {
