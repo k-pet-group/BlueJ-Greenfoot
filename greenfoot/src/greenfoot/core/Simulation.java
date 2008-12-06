@@ -188,26 +188,30 @@ public class Simulation extends Thread
      */
     private synchronized void maybePause()
     {
-        runOnce = false;
+
+        if(runOnce || paused) {
+            // This code will be executed when:
+            //  runOnce is over
+            //  setPaused(true)
+            //  setEnabled(false)
+            //  abort() (sometimes, depending on timing)
+            World world = worldHandler.getWorld();
+            if (world != null) {
+                world.stopped();
+            }
+            isRunning = false;
+            runOnce = false;
+        }
+        
         if (paused && enabled) {
             fireSimulationEvent(stoppedEvent);
             System.gc();
         }
-        while (paused && !runOnce) {
 
-            if(isRunning) {
-                // This code will be executed when:
-                //  setPaused(true)
-                //  setEnabled(false)
-                //  abort() (sometimes, depending on timing)
-                World world = worldHandler.getWorld();
-                if (world != null) {
-                    world.stopped();
-                }
-                isRunning = false;
-            }
-            
-            if(abort) {
+        // Wait loop that waits until no longer pause or if we need to run the
+        // simulation once because the user pressed 'Act'
+        while (paused && !runOnce) {
+            if (abort) {
                 // if we are about to abort, now is the time. We have notified
                 // the world.stopped and there is nothing else to do here.
                 return;
@@ -224,16 +228,18 @@ public class Simulation extends Thread
             }
                 
             if (!paused && enabled && !abort) {
-                // No longer paused, get ready to run:
-                isRunning = true;
                 repaintTimes.clear();
                 lastDelayTime = System.nanoTime();
                 fireSimulationEvent(startedEvent);
-
-                World world = worldHandler.getWorld();
-                if (world != null) {
-                    world.started();
-                }
+            }
+        }
+        
+        if(!isRunning && enabled && !abort) {
+            // No longer paused, get ready to run:
+            isRunning = true;
+            World world = worldHandler.getWorld();
+            if (world != null) {
+                world.started();
             }
         }
     }
@@ -605,8 +611,7 @@ public class Simulation extends Thread
         if (paused && !runOnce) {
             // We don't want the user code to delay if we are paused.
            return;
-        }
-        
+        }        
     
         try {
             synchronized (interruptLock) {
