@@ -23,7 +23,6 @@ import javax.swing.JSlider;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.EventListenerList;
 
 import bluej.Config;
 
@@ -31,7 +30,7 @@ import bluej.Config;
  * Panel that holds the buttons that controls the simulation.
  * 
  * @author Poul Henriksen
- * @version $Id: ControlPanel.java 5676 2008-04-16 16:51:38Z polle $
+ * @version $Id: ControlPanel.java 6024 2008-12-06 13:35:12Z polle $
  */
 public class ControlPanel extends Box
     implements ChangeListener, SimulationListener
@@ -42,8 +41,6 @@ public class ControlPanel extends Box
 
     private ResetWorldAction resetWorldAction ;
     private JSlider speedSlider;
-
-    protected EventListenerList listenerList = new EventListenerList();
  
     private Simulation simulation;
     private JPanel buttonPanel;
