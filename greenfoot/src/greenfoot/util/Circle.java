@@ -36,6 +36,15 @@ public class Circle
         return false;
     }
     
+    public int hashCode()
+    {
+        int result = 17;
+        result = 37 * result + x;
+        result = 37 * result + y;
+        result = 37 * result + radius;
+        return result;
+    }
+    
     public double getVolume()
     {
         return Math.PI * radius * radius;
