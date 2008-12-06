@@ -16,7 +16,7 @@ import java.util.TreeSet;
  * A forest of trees. The roots are sorted alphabetically on their keys
  * 
  * @author Poul Henriksen
- * @version $Id: ClassForest.java 5269 2007-10-04 02:02:36Z davmac $
+ * @version $Id: ClassForest.java 6029 2008-12-06 14:05:33Z polle $
  */
 public class ClassForest
 {
@@ -74,6 +74,20 @@ public class ClassForest
             String name1 = this.getKey();
             String name2 = o.getKey();
             return name1.compareTo(name2);
+        }
+        
+        public boolean equals(Object o) 
+        {
+            if(o instanceof TreeEntry) {
+                TreeEntry other = (TreeEntry) o;                
+                return getKey().equals(other.getKey());
+            }
+            return false;
+        }
+        
+        public int hashCode() 
+        {
+            return getKey().hashCode();
         }
     }
 
