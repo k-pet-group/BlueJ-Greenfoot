@@ -86,7 +86,7 @@ public abstract class Actor
     static {
         //Do this in a 'try' since a failure at this point will crash greenfoot.
         try {
-            greenfootImage = new GreenfootImage(GreenfootUtil.getGreenfootLogoPath().toString());
+            greenfootImage = new GreenfootImage(GreenfootUtil.getGreenfootLogoPath());
         }
         catch (Exception e) {
             // Should not happen unless the greenfoot installation is seriously broken.

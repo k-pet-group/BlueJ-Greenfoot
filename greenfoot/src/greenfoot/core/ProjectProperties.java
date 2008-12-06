@@ -237,7 +237,7 @@ public class ProjectProperties
             if (image == null) {
                 // If it is the Actor class the image is always the same:
                 if (className.equals("Actor")) {
-                    image = new GreenfootImage(GreenfootUtil.getGreenfootLogoPath().toString());
+                    image = new GreenfootImage(GreenfootUtil.getGreenfootLogoPath());
                 }
                 else {
                     String imageName = getString("class." + className + ".image");

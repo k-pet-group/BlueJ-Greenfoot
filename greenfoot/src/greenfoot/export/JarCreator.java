@@ -142,7 +142,7 @@ public class JarCreator
         addSkipDir(projectDir.getPath() + System.getProperty("file.separator") + "doc");
         
         // skip the export dir (in case it is in the projectDir)
-        addSkipDir(exportDir.getAbsolutePath().toString());
+        addSkipDir(exportDir.getAbsolutePath());
         
         // skip the greenfoot subdir that are in the projects
         addSkipDir(projectDir.getPath() + System.getProperty("file.separator") + "greenfoot");
@@ -232,7 +232,7 @@ public class JarCreator
         addSkipDir(projectDir.getPath() + System.getProperty("file.separator") + "doc");
         
         // skip the export dir (in case it is in the projectDir)
-        addSkipDir(exportDir.getAbsolutePath().toString());
+        addSkipDir(exportDir.getAbsolutePath());
         
         // skip the greenfoot subdir that are in the projects
         addSkipDir(projectDir.getPath() + System.getProperty("file.separator") + "greenfoot");
