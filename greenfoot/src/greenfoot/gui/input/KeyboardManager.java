@@ -348,7 +348,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
 	/**
 	 * Release all the keys.
 	 */
-    private void releaseAllKeys()
+    private synchronized void releaseAllKeys()
     {
         for (int keyCode = 0; keyCode < keyDown.length; keyCode++) {
 			keyDown[keyCode] = false;
