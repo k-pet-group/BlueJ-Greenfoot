@@ -79,8 +79,8 @@ public class ImageEditPanel extends JPanel
         else {
             double oldMinScale = imageCanvas.getMinimumScale();
             imageCanvas.setImage(snapShot); 
-            double newMinScale = imageCanvas.getMinimumScale();
-            if(newMinScale != oldMinScale) {
+            double newMinScale = imageCanvas.getMinimumScale();            
+            if(Math.abs(newMinScale - oldMinScale) > .0000001 ) {
                 // Only re-fit scaling if there was a change in size.
                 imageCanvas.fit();
                 adjustSlider();    

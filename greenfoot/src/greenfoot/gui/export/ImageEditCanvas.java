@@ -1,22 +1,12 @@
 package greenfoot.gui.export;
 
-import greenfoot.util.GraphicsUtilities;
-
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 /**
  * Component that shows an image and supplies methods for scaling and cropping the view.
@@ -101,8 +91,8 @@ public class ImageEditCanvas extends JPanel
 
         // Snap if size fits
         double xSnapped = x;
-        double ySnapped = y;
-        if (scaleFactor == minScaleFactor) {
+        double ySnapped = y; 
+        if (Math.abs(scaleFactor - minScaleFactor) < .0000001) {
             double xs = (image.getWidth() / 2 + xSnapped) * scaleFactor;
             double ys = (image.getHeight() / 2 + ySnapped) * scaleFactor;
             if (Math.abs(xs) < snapThreshold && Math.abs(ys) < snapThreshold) {
