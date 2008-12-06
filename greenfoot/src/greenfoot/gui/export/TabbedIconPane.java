@@ -7,7 +7,7 @@ package greenfoot.gui.export;
  * Currently hardcoded for one set of icons. Could be generalised if needed.
  *
  * @author Michael Kolling
- * @version $Id: TabbedIconPane.java 5219 2007-09-26 04:23:24Z bquig $
+ * @version $Id: TabbedIconPane.java 6026 2008-12-06 13:49:57Z polle $
  */
 
 import bluej.Config;
@@ -72,9 +72,9 @@ public class TabbedIconPane extends JPanel
 
         ButtonGroup group = new ButtonGroup();
 
-        JRadioButton toggle1 = makeButton(Config.getString("export.icontab.publish"), "export-publish", ExportPublishPane.FUNCTION, initialSelect, group, panel);
-        JRadioButton toggle2 = makeButton(Config.getString("export.icontab.webpage"), "export-webpage", ExportWebPagePane.FUNCTION, initialSelect, group, panel);
-        JRadioButton toggle3 = makeButton(Config.getString("export.icontab.application"), "export-app", ExportAppPane.FUNCTION, initialSelect, group, panel);
+        makeButton(Config.getString("export.icontab.publish"), "export-publish", ExportPublishPane.FUNCTION, initialSelect, group, panel);
+        makeButton(Config.getString("export.icontab.webpage"), "export-webpage", ExportWebPagePane.FUNCTION, initialSelect, group, panel);
+        makeButton(Config.getString("export.icontab.application"), "export-app", ExportAppPane.FUNCTION, initialSelect, group, panel);
 
         return panel;
     }

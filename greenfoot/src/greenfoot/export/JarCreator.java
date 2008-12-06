@@ -215,7 +215,6 @@ public class JarCreator
             e.printStackTrace();
         }
         
-        String scenarioName = project.getName();
         
         addDir(projectDir);        
         

@@ -28,27 +28,27 @@ public class CenterLayout extends FlowLayout {
     /**
      * Layout the target container.
      */
-    public void layoutContainer(Container target) {
-      synchronized (target.getTreeLock()) {
-	Insets insets = target.getInsets();
-	int maxwidth = target.getWidth() - (insets.left + insets.right + getHgap()*2);
-	int maxheight = target.getHeight() - (insets.top + insets.bottom + getVgap()*2);
-        int y = insets.top + getVgap();
+    public void layoutContainer(Container target)
+    {
+        synchronized (target.getTreeLock()) {
+            Insets insets = target.getInsets();
+            int maxwidth = target.getWidth() - (insets.left + insets.right + getHgap() * 2);
+            int maxheight = target.getHeight() - (insets.top + insets.bottom + getVgap() * 2);
 
-        Component m = target.getComponent(0);
-        if (m.isVisible()) {
-            Dimension d = m.getPreferredSize();
-            m.setSize(d.width, d.height);
-            
-            int hspace = maxwidth - d.width;
-            int xpos = insets.left + getHgap() + (hspace / 2);
-            
-            int vspace = maxheight - d.height;
-            int ypos = insets.top + getVgap() + (vspace / 2);
-            
-            m.setLocation(xpos, ypos);
+            Component m = target.getComponent(0);
+            if (m.isVisible()) {
+                Dimension d = m.getPreferredSize();
+                m.setSize(d.width, d.height);
 
-	}
-      }
+                int hspace = maxwidth - d.width;
+                int xpos = insets.left + getHgap() + (hspace / 2);
+
+                int vspace = maxheight - d.height;
+                int ypos = insets.top + getVgap() + (vspace / 2);
+
+                m.setLocation(xpos, ypos);
+
+            }
+        }
     }
 }

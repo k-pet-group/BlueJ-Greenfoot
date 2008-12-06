@@ -60,14 +60,14 @@ public class MessageDialog extends EscapeDialog implements ActionListener
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         createDialog(message, buttons, width);
     }
+    
     private void createDialog(String message, JButton[] buttons, int width)
     {
         this.buttons = buttons;
         JPanel contentPane = new JPanel(new BorderLayout());
         setContentPane(contentPane);
         contentPane.setBorder(BlueJTheme.dialogBorder);
-        
-        int rows = (int) Math.ceil((double)message.length() / (double) width);
+
         WrappingMultiLineLabel messageLabel = new WrappingMultiLineLabel(message,width);
         
         contentPane.add(messageLabel, BorderLayout.CENTER);

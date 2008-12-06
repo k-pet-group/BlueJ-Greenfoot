@@ -29,7 +29,7 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 5620 2008-02-29 15:13:52Z polle $
+ * @version $Id: ClassBrowser.java 6026 2008-12-06 13:49:57Z polle $
  */
 public class ClassBrowser extends JPanel
 {
@@ -106,14 +106,19 @@ public class ClassBrowser extends JPanel
         buttonGroup.remove(classView);
         classView.deselect();
 
-    	boolean found = greenfootClasses.remove(classView);        
-        if(!found)
-            found = worldClasses.remove(classView);
-        if(!found)
-            found = otherClasses.remove(classView);
+        removeFromForest(classView);
         
         classView.removeSelectionChangeListener(selectionManager);
         updateLayout();
+    }
+
+    private void removeFromForest(ClassView classView)
+    {
+        if(! greenfootClasses.remove(classView)) {
+            if(! worldClasses.remove(classView)) {
+                otherClasses.remove(classView);
+            }
+        }
     }
     
     /**
@@ -301,11 +306,8 @@ public class ClassBrowser extends JPanel
         // Only change the role if we have been initialised
         if (greenfootClasses != null) {
             // Remove it from the forest since it is in the wrong forest.
-            boolean found = greenfootClasses.remove(classView);
-            if (!found)
-                found = worldClasses.remove(classView);
-            if (!found)
-                found = otherClasses.remove(classView);
+
+            removeFromForest(classView);
 
             // Add it to the right forest.
             if (classView.getRole() instanceof ActorClassRole) {
