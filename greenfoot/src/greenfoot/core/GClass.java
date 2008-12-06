@@ -325,7 +325,7 @@ public class GClass
      */
     public void setSuperclassGuess(String superclassName)
     {
-        if(superclassGuess != superclassName) {
+        if(!superclassGuess.equals(superclassName)) {
             superclassGuess = superclassName;
             setClassProperty("superclass", superclassGuess);
         }
