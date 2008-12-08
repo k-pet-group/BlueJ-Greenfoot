@@ -23,7 +23,7 @@ public class ScenarioInfo
     
     public void setTitle(String title)
     {
-        this.title = title;
+        this.title = title.trim();
     }
     
     public String getTitle()
