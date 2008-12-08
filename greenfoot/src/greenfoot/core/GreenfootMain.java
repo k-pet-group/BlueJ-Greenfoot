@@ -43,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 6014 2008-12-04 18:08:53Z polle $
+ * @version $Id: GreenfootMain.java 6034 2008-12-08 10:42:28Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -464,9 +464,10 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             deleteAllClassFiles(dst);
         }
         
-        // Since Greenfoot 1.3.0 we no longer use the bluej.pkg file, so if it
-        // exists it should now be deleted.
         try {
+            
+            // Since Greenfoot 1.3.0 we no longer use the bluej.pkg file, so if it
+            // exists it should now be deleted.
             File pkgFile = new File(dst, "bluej.pkg");
             if (pkgFile.exists()) {
                 pkgFile.delete();
@@ -474,6 +475,16 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             File pkhFile = new File(dst, "bluej.pkh");
             if (pkhFile.exists()) {
                 pkhFile.delete();
+            }
+            // And, since Greenfoot 1.5.0 we no longer require World.java and
+            // Actor.java to be in the scenario, so delete them.
+            File actorJava = new File(dst, "greenfoot/Actor.java");
+            if (actorJava.exists()) {
+                actorJava.delete();
+            }
+            File worldJava = new File(dst, "greenfoot/World.java");
+            if (worldJava.exists()) {
+                worldJava.delete();
             }
         }
         catch (SecurityException e) {
