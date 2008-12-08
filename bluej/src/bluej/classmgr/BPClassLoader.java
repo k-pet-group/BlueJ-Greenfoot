@@ -19,7 +19,7 @@ import java.util.List;
  * having a correct working version. This is the reason for this class being named BPClassLoader.
  * it will be renamed when the new classloading is refactored and tested.
  *
- * @version    $Id: BPClassLoader.java 5819 2008-08-01 10:23:29Z davmac $
+ * @version    $Id: BPClassLoader.java 6036 2008-12-08 20:35:29Z iau $
  * @author  Damiano Bolla
  */
 
@@ -183,23 +183,24 @@ public final class BPClassLoader extends URLClassLoader
     
     /**
      * Concatenates the Java ME libraries, both core and optional, into a single
-     * semicolon-separated String.
+     * colon/semicolon-separated String.
      * @return all the Java ME libraries in a String
      */
     public String getJavaMElibsAsPath( ) 
     {
-        String risul = "";
+        StringBuffer risul = new StringBuffer();
+
         Iterator iter = getJavaMEcoreLibs( ).iterator( );
         while ( iter.hasNext( ) ) 
-            risul = risul + (String) iter.next( ) + ";";
+            risul.append((String) iter.next( )).append(File.pathSeparatorChar);
         
         iter = getJavaMEoptLibs( ).iterator( );
         while ( iter.hasNext( ) ) 
-            risul = risul + (String) iter.next( ) + ";"; 
+            risul.append((String) iter.next( )).append(File.pathSeparatorChar);
         
-        if ( ! risul.equals("") ) //Remove last semicolon.
-            risul = risul.substring( 0, risul.length( ) - 1 ); 
+        if ( risul.length() > 0 ) //Remove trailing separator.
+            risul.delete( risul.length( ) - 1, risul.length() );
         
-        return risul;
+        return risul.toString();
     }
 }
