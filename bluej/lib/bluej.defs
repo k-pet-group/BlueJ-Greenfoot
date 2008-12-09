@@ -99,7 +99,7 @@ bluej.url.reference=http://www.bluej.org/reference/manual.pdf
 # setting is saved in the user preferences file (and the setting here
 # is ignored). You can adjust the user preferences via the preferences
 # dialog (found under the "tools" menu) in BlueJ.
-bluej.url.javaStdLib=http://java.sun.com/j2se/1.5/docs/api/index.html
+bluej.url.javaStdLib=http://java.sun.com/javase/6/docs/api/index.html
 
 # do not change the following:
 bluej.url.versionCheck=http://www.bluej.org/version.info
