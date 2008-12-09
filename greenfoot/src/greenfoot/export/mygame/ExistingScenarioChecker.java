@@ -1,12 +1,13 @@
 package greenfoot.export.mygame;
 
+import greenfoot.export.WebPublisher;
+
 import java.io.IOException;
 import java.net.UnknownHostException;
 
 import javax.swing.SwingUtilities;
 
 import bluej.utility.SwingWorker;
-import greenfoot.export.WebPublisher;
 
 /**
  * Class that can be used to check whether a scenario already exists on the
@@ -29,9 +30,9 @@ public abstract class ExistingScenarioChecker
     /** Indicates that the checking has finished. */
     private boolean finished = false;
 
-    private String hostName;
-    private String userName;
-    private String scenarioName;
+    private volatile String hostName;
+    private volatile String userName;
+    private volatile String scenarioName;
 
     class ScenarioWorker extends SwingWorker
     {
@@ -59,34 +60,38 @@ public abstract class ExistingScenarioChecker
      * @param scenarioName
      * @param forceRecheck 
      */
-    public synchronized void startScenarioExistenceCheck(final String hostName, final String userName,
+    public void startScenarioExistenceCheck(final String hostName, final String userName,
             final String scenarioName, boolean forceRecheck)
     {
-        boolean sameScenario = hostName.equals(this.hostName) && userName.equals(this.userName)
-                && scenarioName.equals(this.scenarioName);
-        if (sameScenario && !forceRecheck) {
-            // Scenario already checked, but make sure finished is invoked to
-            // update status (continue button)
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run()
-                {
-                    worker.finished();
-                }
-            });
-            return;
-        }
-        if (checking) {
-            abort();
+        synchronized (this) {
+            boolean sameScenario = hostName.equals(this.hostName) && userName.equals(this.userName)
+                    && scenarioName.equals(this.scenarioName);
+            if (sameScenario && !forceRecheck) {
+                // Scenario already checked, but make sure finished is invoked
+                // to
+                // update status (continue button)
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run()
+                    {
+                        worker.finished();
+                    }
+                });
+                return;
+            }
+            if (checking) {
+                abort();
+            }
+
+            this.hostName = hostName;
+            this.userName = userName;
+            this.scenarioName = scenarioName;
+
+            checking = true;
+            abort = false;
+            finished = false;
+            worker = new ScenarioWorker();
         }
 
-        this.hostName = hostName;
-        this.userName = userName;
-        this.scenarioName = scenarioName;
-
-        checking = true;
-        abort = false;
-        finished = false;
-        worker = new ScenarioWorker();
         worker.start();
     }
 
@@ -97,20 +102,22 @@ public abstract class ExistingScenarioChecker
      *         (because it already finished the check)
      * @throws IllegalStateException If the check has not started yet.
      */
-    public synchronized boolean abort()
+    public boolean abort()
     {
-        // pre: is checking
-        // should sync with calling the hook methods, so that they do not get
-        // called after this method has been called.
-        if (finished) {
-            return false;
+        synchronized (this) {            
+            // pre: is checking
+            // should sync with calling the hook methods, so that they do not get
+            // called after this method has been called.
+            if (finished) {
+                return false;
+            }
+    
+            if (!checking) {
+                throw new IllegalStateException("Check not started yet. Nothing to abort.");
+            }
+    
+            abort = true;
         }
-
-        if (!checking) {
-            throw new IllegalStateException("Check not started yet. Nothing to abort.");
-        }
-
-        abort = true;
         worker.interrupt();
         return true;
     }
