@@ -20,17 +20,9 @@ import bluej.Config;
  * Class skeletons (handled by the "translateFile" method) are text files with
  * place holders (variables) in them that will be replaced using a dictionary.
  * 
- * <br>
- * 
- * The files are expected to be in ISO 8859-1 character encoding. For characters
- * that cannot be directly represented in this encoding, <a
- * href="http://java.sun.com/docs/books/jls/html/3.doc.html#100850">Unicode
- * escapes </a> are used; however, only a single 'u' character is allowed in an
- * escape sequence. The native2ascii tool can be used to convert property files
- * to and from other character encodings.
  * 
  * @author Michael Kolling
- * @version $Id: BlueJFileReader.java 5943 2008-11-09 19:00:39Z polle $
+ * @version $Id: BlueJFileReader.java 6045 2008-12-09 17:20:28Z polle $
  */
 public class BlueJFileReader
 {
@@ -185,14 +177,14 @@ public class BlueJFileReader
                     if (key.length() != 0) {
                         String value = (String)translations.get(key);
 
-                        // If there are tabs, replace
-                        if(replaceTabs && value.indexOf(TAB_CHAR) != -1) {
-                            value = convertTabsToSpaces(value);
-                        }
-
                         if(value == null) {
                             out.write('$');
                             value = key;
+                        }
+
+                        // If there are tabs, replace
+                        if(replaceTabs && value.indexOf(TAB_CHAR) != -1) {
+                            value = convertTabsToSpaces(value);
                         }
 
                         out.write(value);
