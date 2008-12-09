@@ -91,8 +91,6 @@ public class WorldHandlerDelegateIDE
 
         // "inspect" menu item
         JMenuItem m = getInspectMenuItem(obj);
-        m.setFont(PrefMgr.getStandoutMenuFont());
-        m.setForeground(envOpColour);
         menu.add(m);
 
         // "remove" menu item
@@ -141,6 +139,8 @@ public class WorldHandlerDelegateIDE
                 frame.getInspectorInstance(dObj, instanceName, null, null, parent);
             }
         });
+        m.setFont(PrefMgr.getStandoutMenuFont());
+        m.setForeground(envOpColour);
         return m;
     }
 
