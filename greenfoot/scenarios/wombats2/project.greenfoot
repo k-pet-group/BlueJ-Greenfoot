@@ -72,5 +72,5 @@ target7.type=PackageTarget
 target7.width=90
 target7.x=60
 target7.y=10
-version=1.5.0
+version=2.0.0
 world.lastInstantiated=WombatWorld
