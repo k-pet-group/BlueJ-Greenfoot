@@ -15,7 +15,7 @@ import bluej.utility.filefilter.DirectoryFilter;
  * various miscellaneous settings
  *
  * @author  Andrew Patterson
- * @version $Id: MiscPrefPanel.java 5819 2008-08-01 10:23:29Z davmac $
+ * @version $Id: MiscPrefPanel.java 6040 2008-12-09 16:12:34Z polle $
  */
 public class MiscPrefPanel extends JPanel 
                            implements PrefPanelListener, ItemListener, ActionListener
@@ -193,9 +193,12 @@ public class MiscPrefPanel extends JPanel
         
         String jdkURL = jdkURLField.getText();
         Config.putPropString(jdkURLPropertyName, jdkURL);
-        String tkDir = toolkitDirField.getText( ); 
-        if ( ! tkDir.equals( "" ) )
-            Config.putPropString( toolkitDir, tkDir );
+
+        if(!Config.isGreenfoot()) {
+            String tkDir = toolkitDirField.getText( ); 
+            if ( ! tkDir.equals( "" ) )
+                Config.putPropString( toolkitDir, tkDir );
+        }
     }
     
     /**
