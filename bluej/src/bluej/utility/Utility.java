@@ -31,7 +31,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 5908 2008-09-26 11:14:25Z polle $
+ * @version $Id: Utility.java 6046 2008-12-09 17:21:54Z polle $
  */
 public class Utility
 {
@@ -547,15 +547,15 @@ public class Utility
             }
             
             //System.out.print("toFront executing command: " + commandAsStr);
-            
+
+            StringBuffer extra = new StringBuffer();
             try {
                 Process p = Runtime.getRuntime().exec(command);
                 
-                BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                BufferedReader br = null;
                 // grab anything else
                 try {
                     br = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-                    StringBuffer extra = new StringBuffer();
 
                     char[] buf = new char[1024];
                     for (int i = 0; i < 5; i++) {
@@ -571,14 +571,25 @@ public class Utility
                         extra.append(buf, 0, len);
                     }
                     if (extra.length() != 0) {
-                        Debug.message("When trying to launch osascript:" + extra);
-                        Debug.message(" This error was recieved: " + commandAsStr);
+                        Debug.message("When trying to launch osascript:" + commandAsStr);
+                        Debug.message(" This error output was recieved: " + extra);
+                    }                    
+                }
+                catch (InterruptedException ie) {
+                    Debug.message("When trying to launch osascript:" + commandAsStr);
+                    Debug.message(" This error output was recieved: " + extra);
+                    Debug.reportError(" And got InterruptedException: ", ie);
+                }
+                finally {
+                    if(br != null) {
+                        br.close();
                     }
                 }
-                catch (InterruptedException ie) {}
-
             }
             catch (IOException e) {
+                Debug.message("When trying to launch osascript:" + commandAsStr);
+                Debug.message(" This error output was recieved: " + extra);
+                Debug.reportError(" And got IOException: ", e);
             }
         }        
 
