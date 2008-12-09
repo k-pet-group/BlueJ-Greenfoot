@@ -52,7 +52,7 @@ public class BalloonWorld extends World
     {
         addObject(new ScoreBoard(counter.getValue()), getWidth()/2, getHeight()/2);
         Greenfoot.playSound("buzz.wav");
-        Greenfoot.stopSimulation();
+        Greenfoot.stop();
     }
 
     /**
