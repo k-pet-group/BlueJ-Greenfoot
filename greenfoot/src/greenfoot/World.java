@@ -445,7 +445,7 @@ public abstract class World
      * 
      * @return A list of objects.
      */
-    public List getObjects(Class<?> cls)
+    public List getObjects(Class cls)
     {
         List<Actor> result = new ArrayList<Actor>();
         
