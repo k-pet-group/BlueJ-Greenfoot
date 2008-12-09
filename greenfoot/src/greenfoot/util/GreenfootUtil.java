@@ -46,7 +46,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 6017 2008-12-04 18:56:17Z polle $
+ * @version $Id: GreenfootUtil.java 6042 2008-12-09 16:59:08Z polle $
  */
 public class GreenfootUtil
 {
@@ -698,7 +698,7 @@ public class GreenfootUtil
         }
         else {
             String baseName = "greenfoot/API/" + page;
-            File location = Config.getLanguageFile(baseName);
+            File location = Config.getDefaultLanguageFile(baseName);
             if (location.canRead()) {
                 Utility.openWebBrowser(location);
             } else {
