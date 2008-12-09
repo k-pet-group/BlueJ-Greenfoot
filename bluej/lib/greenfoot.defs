@@ -21,6 +21,25 @@
 
 
 #####################################################################
+## The interface language. A directory must exist for the language in
+## <GREENFOOT_HOME>/lib. Language directories can be created by copying
+## an existing language directory and translating the contents of the
+## text files in that directory. If you make a language version for
+## a new language, please send it to support@greenfoot.org
+#####################################################################
+bluej.language=english
+#bluej.language=french
+#bluej.language=german
+#bluej.language=greek
+#bluej.language=italian
+
+#####################################################################
+## If you have a translated version of the Greenfoot API documentation
+## you can change this URL to point at it.
+#####################################################################
+#greenfoot.url.javadoc=file:///Greenfoot/labels/german/greenfoot/API/index.html
+
+#####################################################################
 ## URLs for the Greenfoot manuals and documentation. If you have the
 ## documents installed locally and want to use your local version,
 ## edit these URLs.
@@ -29,11 +48,6 @@
 greenfoot.url.greenfoot=http://www.greenfoot.org
 greenfoot.url.scenarios=http://www.greenfoot.org/scenarios/index.html
 greenfoot.url.tutorial=http://www.greenfoot.org/doc/tutorial.html
-
-# The Greenfoot API documentation is now included in the Greenfoot 
-# distribution, so this URL should only be used if you want to change 
-# it to something else
-#greenfoot.url.javadoc=http://www.greenfoot.org/doc/javadoc/
 
 
 # The URL for the Java API documentation can be specified here, however
