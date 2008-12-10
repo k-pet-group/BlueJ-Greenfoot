@@ -45,7 +45,7 @@ import bluej.utility.Utility;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 6017 2008-12-04 18:56:17Z polle $
+ * @version $Id: Config.java 6053 2008-12-10 17:10:38Z polle $
  */
 
 public final class Config
@@ -123,7 +123,7 @@ public final class Config
     private static List<String> debugVMArgs = new ArrayList<String>();
     
     /** whether this is the debug vm or not. */
-    private static boolean isDebugVm = true;
+    private static boolean isDebugVm = false;
 
 
     /**
@@ -140,7 +140,6 @@ public final class Config
 
         initialised = true;
 
-        isDebugVm = false;
         
         initialCommandLineProps = tempCommandLineProps;
         
@@ -243,8 +242,8 @@ public final class Config
     
     public static void initializeVMside(File bluejLibDir, Properties tempCommandLineProps, boolean bootingGreenfoot)
     {
-        initialise(bluejLibDir, tempCommandLineProps, bootingGreenfoot);
         isDebugVm = true;
+        initialise(bluejLibDir, tempCommandLineProps, bootingGreenfoot);
     }
     
 
@@ -451,7 +450,7 @@ public final class Config
      */
     private static void checkDebug(File userdir)
     {
-        if (!"true".equals(commandProps.getProperty("bluej.debug"))) {
+        if (!isDebugVM() && !"true".equals(commandProps.getProperty("bluej.debug"))) {
             File debugLogFile = new File(userdir, debugLogName);
             // simple diversion of output stream to a log file
             try {
