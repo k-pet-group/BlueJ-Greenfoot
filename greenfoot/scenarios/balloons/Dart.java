@@ -20,7 +20,9 @@ public class Dart extends Actor
         
         // Pop
         if(Greenfoot.mouseClicked(null)) {
-            Balloon balloon = (Balloon) getOneObjectAtOffset(-getWidth()/2, getHeight()/2, Balloon.class);
+            int x = -getImage().getWidth()/2;
+            int y = getImage().getHeight()/2;
+            Balloon balloon = (Balloon) getOneObjectAtOffset(x , y, Balloon.class);
             if(balloon != null) {
                 balloon.pop();
             }
