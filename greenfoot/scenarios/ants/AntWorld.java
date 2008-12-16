@@ -14,13 +14,6 @@ public class AntWorld extends World
     public static final int RESOLUTION = 1;
     public static final int SIZE = 640;
 
-    private static Random randomizer = new Random();
-
-    public static Random getRandomizer()
-    {
-        return randomizer;
-    }
-
     /**
      * Create a new world. It will be initialised with a few ant hills
      * and food sources

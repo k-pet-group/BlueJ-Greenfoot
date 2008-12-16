@@ -10,8 +10,6 @@ import java.util.Random;
  */
 public class AntHill extends Actor
 {
-    /** Random number genrator */
-    private final static Random randomizer = AntWorld.getRandomizer();
     
     /** Number of ants created so far. */
     private int ants = 0;
@@ -32,7 +30,7 @@ public class AntHill extends Actor
     public void act()
     {
         if(ants < maxAnts) {
-            if(randomizer.nextInt(100) < 10) {            
+            if(Greenfoot.getRandomNumber(100) < 10) {            
                 getWorld().addObject(new Ant(this), getX(), getY());
                 ants++;
             }

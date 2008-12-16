@@ -13,8 +13,6 @@ import java.util.Iterator;
  */
 public class Ant extends Actor
 {
-    /** Random number generator. */
-    private static final Random randomizer = AntWorld.getRandomizer();
 
     /** Every how many steps can we place a pheromone drop. */
     private static final int MAX_PH_LEVEL = 18;
@@ -108,8 +106,8 @@ public class Ant extends Actor
         else {
             int distanceX = Math.abs(getX() - homeHill.getX());
             int distanceY = Math.abs(getY() - homeHill.getY());
-            boolean moveX = (distanceX > 0) && (randomizer.nextInt(distanceX + distanceY) < distanceX);
-            boolean moveY = (distanceY > 0) && (randomizer.nextInt(distanceX + distanceY) < distanceY);
+            boolean moveX = (distanceX > 0) && (Greenfoot.getRandomNumber(distanceX + distanceY) < distanceX);
+            boolean moveY = (distanceY > 0) && (Greenfoot.getRandomNumber(distanceX + distanceY) < distanceY);
 
             deltaX = computeHomeDelta(moveX, getX(), homeHill.getX());
             deltaY = computeHomeDelta(moveY, getY(), homeHill.getY());
@@ -141,8 +139,8 @@ public class Ant extends Actor
         else {
             int distanceX = Math.abs(getX() - homeHill.getX());
             int distanceY = Math.abs(getY() - homeHill.getY());
-            boolean moveX = (distanceX > 0) && (randomizer.nextInt(distanceX + distanceY) < distanceX);
-            boolean moveY = (distanceY > 0) && (randomizer.nextInt(distanceX + distanceY) < distanceY);
+            boolean moveX = (distanceX > 0) && (Greenfoot.getRandomNumber(distanceX + distanceY) < distanceX);
+            boolean moveY = (distanceY > 0) && (Greenfoot.getRandomNumber(distanceX + distanceY) < distanceY);
 
             deltaX = computeHomeDelta(moveX, getX(), homeHill.getX()) * -1;
             deltaY = computeHomeDelta(moveY, getY(), homeHill.getY()) * -1;
@@ -257,7 +255,7 @@ public class Ant extends Actor
      */
     private int adjustSpeed(int speed)
     {
-        speed = speed + randomizer.nextInt(2 * SPEED - 1) - SPEED + 1;
+        speed = speed + Greenfoot.getRandomNumber(2 * SPEED - 1) - SPEED + 1;
         return capSpeed(speed);
     }
 
@@ -294,6 +292,6 @@ public class Ant extends Actor
      */
     private boolean randomChance(int percent)
     {
-        return randomizer.nextInt(100) < percent;
+        return Greenfoot.getRandomNumber(100) < percent;
     }
 }

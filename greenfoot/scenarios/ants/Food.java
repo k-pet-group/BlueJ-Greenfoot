@@ -12,7 +12,6 @@ import java.util.Random;
  */
 public class Food extends Actor
 {
-    private static Random randomizer = AntWorld.getRandomizer();
 
     private static final int SIZE = 30;
     private static final int HALFSIZE = SIZE / 2;
@@ -22,6 +21,8 @@ public class Food extends Actor
 
     private int crumbs = 100;
 
+    public static Random randomizer = new Random();
+    
     public Food()
     {
         updateImage();
@@ -66,6 +67,7 @@ public class Food extends Actor
     private int randomCoord()
     {
         int val = HALFSIZE + (int) (randomizer.nextGaussian() * (HALFSIZE / 2));
+      
         if (val < 0)
             return 0;
         if (val > SIZE - 2)
