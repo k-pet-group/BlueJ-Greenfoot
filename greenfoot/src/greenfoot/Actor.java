@@ -80,8 +80,6 @@ public abstract class Actor
 
     /** Bounding rectangle of the object. In pixels. */
     private Rect boundingRect;
-    private int width = -1;
-    private int height = -1;
 
     static {
         //Do this in a 'try' since a failure at this point will crash greenfoot.
@@ -153,32 +151,6 @@ public abstract class Actor
     {
         failIfNotInWorld();
         return y;
-    }
-
-    /**
-     * Return the width of the object. The width is the number of cells that an
-     * object's image overlaps horizontally. This will take the rotation into
-     * account.
-     * 
-     * @return The width of the object, or -1 if it has no image.
-     * @throws IllegalStateException If there is no world instantiated.
-     */
-    public int getWidth()
-    {
-        return width;
-    }
-
-    /**
-     * Return the height of the object. The height is the number of cells that
-     * an object's image overlaps vertically. This will take the rotation into
-     * account.
-     * 
-     * @return The height of the object, or -1 if it has no image.
-     * @throws IllegalStateException If there is no world instantiated.
-     */
-    public int getHeight()
-    {
-        return height;
     }
 
     /**
@@ -408,8 +380,6 @@ public abstract class Actor
     private void calcBounds()
     {
         if (image == null) {
-            this.width = -1;
-            this.height = -1;
             boundingRect = null;
             return;
         }
@@ -440,35 +410,6 @@ public abstract class Actor
             int y = (int) Math.floor(cellCenterY - height / 2.);
             
             boundingRect = new Rect(x, y, width, height);
-
-            this.width = (int) Math.ceil((double) width / cellSize);
-            this.height = (int) Math.ceil((double) height / cellSize);
-            if (this.width % 2 == 0) {
-                this.width++;
-            }
-            if (this.height % 2 == 0) {
-                this.height++;
-            }
-        }
-        else if ((getRotation() + 90) % 180 == 0) {
-            // Special fast calculation when rotated a multiple of 90
-            // Swaps width and height since image is rotated by 90
-            double cellCenterX = getCellCenter(x);
-            double cellCenterY = getCellCenter(y);
-            int width = image.getHeight();
-            int height = image.getWidth();
-            int x = (int) Math.floor(cellCenterX - width / 2.);
-            int y = (int) Math.floor(cellCenterY - height / 2.);
-            boundingRect = new Rect(x, y, width, height);
-
-            this.width = (int) Math.ceil((double) width / cellSize);
-            this.height = (int) Math.ceil((double) height / cellSize);
-            if (this.width % 2 == 0) {
-                this.width++;
-            }
-            if (this.height % 2 == 0) {
-                this.height++;
-            }
         }
         else {
             Shape rotatedImageBounds = getRotatedShape();
@@ -486,25 +427,6 @@ public abstract class Actor
             // For instance, if something has the width 28.2, it might cover 30
             // pixels.
             boundingRect = new Rect(x, y, width, height);
-
-            // The width and height of the object might be smaller than that of
-            // the bounding rect.
-            // This is because we can paint things at (0.5, 0.5)
-            // So, using the example above, we know the width is 28.2 and that
-            // it can be painted in
-            // 29 pixels, covering 29 cells if the cellsize is 1.
-            this.width = (int) Math.ceil(bounds2d.getWidth() / cellSize);
-            this.height = (int) Math.ceil(bounds2d.getHeight() / cellSize);
-
-            // We can't have something that spans an even number of cells
-            // though, because the location of the object is the centre of the
-            // cell and it expands out equally from there to all sides.
-            if (this.width % 2 == 0) {
-                this.width++;
-            }
-            if (this.height % 2 == 0) {
-                this.height++;
-            }
         }
     }
 

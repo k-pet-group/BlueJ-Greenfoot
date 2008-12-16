@@ -27,10 +27,11 @@ project.version.older.part2=). The scenario will be updated to the current versi
 project.version.older.part3=). The following changes to the Greenfoot API might break this scenario:
 
 project.version.changes.1=2.0.0 The methods 'stopSimulation', 'startSimulation' and 'setSimulationSpeed' in the Greenfoot class has been renamed to 'start', 'stop' and 'setSpeed'. 
-project.version.changes.2=2.0.0 Actor's method 'getObjectsInRange' now uses cells instead of pixels as the unit for the range. 
-project.version.changes.3=2.0.0 Greenfoot has been made case sensitive when dealing with sound and image files.
-project.version.changes.4=2.0.0 World's methods 'setTiled' and 'getTiled' has been removed.
-project.version.changes.5=2.0.0 World's 'getBackground' now returns an image that is the size of the entire background.
+project.version.changes.2=2.0.0 Actor's methods 'getWidth' and 'getHeight' has been removed. Use 'getImage().getWidth' and 'getImage.getHeight' instead.
+project.version.changes.3=2.0.0 Actor's method 'getObjectsInRange' now uses cells instead of pixels as the unit for the range. 
+project.version.changes.4=2.0.0 Greenfoot has been made case sensitive when dealing with sound and image files.
+project.version.changes.5=2.0.0 World's methods 'setTiled' and 'getTiled' has been removed.
+project.version.changes.6=2.0.0 World's 'getBackground' now returns an image that is the size of the entire background.
 
 project.version.newer.part1=The scenario that you are trying to open appears to be a Greenfoot scenario created with a newer version of the Greenfoot API (version 
 # project version inserted here by Greenfoot

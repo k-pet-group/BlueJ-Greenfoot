@@ -9,17 +9,10 @@ import greenfoot.WorldCreator;
 import greenfoot.WorldVisitor;
 import greenfoot.gui.input.mouse.MousePollingManager;
 import greenfoot.gui.input.mouse.WorldLocator;
-import greenfoot.platforms.GreenfootUtilDelegate;
 import greenfoot.util.GreenfootUtil;
 
-import java.awt.Component;
 import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.List;
 
 import javax.swing.JPanel;
 
@@ -241,8 +234,8 @@ public class MousePollTest extends TestCase
 
     /**
      * Tests behaviour when several buttons are pressed and dragged at the same
-     * time. We just want to ensure that nothing crashes or produecs exceptions.
-     * Otherwise the behaiour is undefined.
+     * time. We just want to ensure that nothing crashes or produces exceptions.
+     * Otherwise the behaviour is undefined.
      */
     public void testMultipleButtons()
     {
@@ -291,7 +284,42 @@ public class MousePollTest extends TestCase
     }
     
     public void testButton2() {
+        mouseMan.newActStarted();
         
+        MouseEvent event = new MouseEvent(panel, MouseEvent.MOUSE_PRESSED,  System.currentTimeMillis(), 0, 5, 5, 1, false, MouseEvent.BUTTON2);        
+        dispatch(event); 
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 6, 6, 0, false, MouseEvent.BUTTON2);          
+        dispatch(event);           
+        assertNotNull(mouseMan.getMouseInfo());
+     //   assertFalse(mouseMan.isMouseDragged(actorAtClick));
+     //   assertTrue(mouseMan.isMousePressed(actorAtClick));
+            
+        
+        // act
+        mouseMan.newActStarted();
+        
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 5, 5, 0, false, MouseEvent.BUTTON2);          
+        dispatch(event);  
+
+        
+        // act
+        mouseMan.newActStarted();
+        assertNotNull(mouseMan.getMouseInfo());
+        
+
+        mouseMan.newActStarted();
+        
+        event = new MouseEvent(panel, MouseEvent.MOUSE_DRAGGED,  System.currentTimeMillis(), 0, 8, 8, 0, false, MouseEvent.BUTTON2);          
+        dispatch(event);  
+
+        assertNotNull(mouseMan.getMouseInfo());
+        
+        
+        // act
+        mouseMan.newActStarted();
+        event = new MouseEvent(panel, MouseEvent.MOUSE_RELEASED,  System.currentTimeMillis(), 0, 7, 7, 1, false, MouseEvent.BUTTON2);        
+        dispatch(event);
+        assertTrue(mouseMan.isMouseDragEnded(actorAtClick));
     }
 
     public void testButton3() {
