@@ -76,7 +76,7 @@
     <property name="images" location="images"/>
 
     <!-- Location where javadoc for the API classes will be stored. -->
-    <property name="apidoc" location="labels/english/greenfoot/API"/>
+    <property name="apidoc" location="doc/API"/>
     <!-- Location of the build-dir where the class files will be stored -->
     <property name="build" location="classes"/>
     <!-- Location of the packed files for distribution -->
@@ -136,6 +136,7 @@
             <fileset dir="doc" >
                 <include name="APACHE-LICENSE.txt"/>
                 <include name="NOTICE.txt"/>
+                <include name="API/**"/>
             </fileset>
         </copy>
         <mkdir dir="${package}"/>

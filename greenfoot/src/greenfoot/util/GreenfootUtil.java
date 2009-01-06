@@ -46,7 +46,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 6042 2008-12-09 16:59:08Z polle $
+ * @version $Id: GreenfootUtil.java 6059 2009-01-06 10:13:27Z polle $
  */
 public class GreenfootUtil
 {
@@ -675,10 +675,10 @@ public class GreenfootUtil
         // The parent dir of the lib dir is the top level dir of greenfoot
         File greenfootDir = libDir.getParentFile();
         // But on the mac it is further back in the hierarchy.
-        if (Config.isMacOS()) {
+        if (Config.isMacOS() && greenfootDir != null && greenfootDir.toString().endsWith(".app/Contents/Resources")) {
             greenfootDir = greenfootDir.getParentFile().getParentFile().getParentFile();
         }
-        if (!(greenfootDir.isDirectory() && greenfootDir.canRead())) {
+        if (greenfootDir == null || !(greenfootDir.isDirectory() && greenfootDir.canRead())) {
             throw new IOException("Could not read from greenfoot directory: " + greenfootDir);
         }
         return greenfootDir;
@@ -697,16 +697,10 @@ public class GreenfootUtil
             Utility.openWebBrowser(customUrl);
         }
         else {
-            String baseName = "greenfoot/API/" + page;
-            File location = Config.getDefaultLanguageFile(baseName);
+            File greenfootDir = GreenfootUtil.getGreenfootDir();
+            File location = new File(greenfootDir, "/doc/API/" + page);
             if (location.canRead()) {
                 Utility.openWebBrowser(location);
-            } else {
-                // In case the localised version doesn't exist
-                location = Config.getDefaultLanguageFile(baseName);
-                if (location.canRead()) {
-                    Utility.openWebBrowser(location);
-                }
             }
         }
     }
