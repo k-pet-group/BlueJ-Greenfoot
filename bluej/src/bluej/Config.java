@@ -45,7 +45,7 @@ import bluej.utility.Utility;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 6053 2008-12-10 17:10:38Z polle $
+ * @version $Id: Config.java 6060 2009-01-09 16:55:40Z polle $
  */
 
 public final class Config
@@ -151,19 +151,21 @@ public final class Config
         Config.bluejLibDir = bluejLibDir;
         Config.greenfootLibDir = new File(bluejLibDir, "greenfoot");
         
-        // setup our heirarchy of property objects
-        
-        // top level is the system properties loaded from bluej.defs
-        systemProps = loadDefs("bluej.defs", System.getProperties());
-        
-        // next level is the greenfoot propeties (if we are running greenfoot)
-        // and then the user propeties (not loaded yet)
-        if(isGreenfoot()) {
-            greenfootProps = loadDefs("greenfoot.defs", systemProps);
-            userProps = new Properties(greenfootProps);
-        }
-        else {
-            userProps = new Properties(systemProps);
+        // setup our heirarchy of property objects if it is not done yet:
+        if(systemProps == null)
+        {
+            // top level is the system properties loaded from bluej.defs
+            systemProps = loadDefs("bluej.defs", System.getProperties());
+            
+            // next level is the greenfoot propeties (if we are running greenfoot)
+            // and then the user propeties (not loaded yet)
+            if(isGreenfoot()) {
+                greenfootProps = loadDefs("greenfoot.defs", systemProps);
+                userProps = new Properties(greenfootProps);
+            }
+            else {
+                userProps = new Properties(systemProps);
+            }
         }
         
         // then there is the command line properties
@@ -238,12 +240,35 @@ public final class Config
     /**
      * Alternative to "initialise", to be used in the debugee-VM by
      * applications which require it (ie. greenfoot).
-     */
-    
-    public static void initializeVMside(File bluejLibDir, Properties tempCommandLineProps, boolean bootingGreenfoot)
+     */    
+    public static void initializeVMside(File bluejLibDir, Properties tempCommandLineProps, boolean bootingGreenfoot, BlueJPropStringSource propSource)
     {
         isDebugVm = true;
+        Config.propSource = propSource;
+
+        // Set up the properties so that they use the properties from the
+        // BlueJVM
+        systemProps = new Properties() {
+            public String getProperty(String key)
+            {
+                return Config.propSource.getBlueJPropertyString(key, null);
+            }
+
+            public String getProperty(String key, String def)
+            {
+                return Config.propSource.getBlueJPropertyString(key, def);
+            }
+        };
+        userProps = new Properties(systemProps) {
+            public Object setProperty(String key, String val)
+            {
+                String rval = getProperty(key);
+                Config.propSource.setUserProperty(key, val);
+                return rval;
+            }
+        };
         initialise(bluejLibDir, tempCommandLineProps, bootingGreenfoot);
+
     }
     
 
@@ -479,23 +504,15 @@ public final class Config
             }
         }
     }
-
+    
     /**
      * Called on system exit. Do whatever there is to do before exiting.
      */
     public static void handleExit()
     {
         final String name = getApplicationName().toLowerCase();
-        // The following can be used once we have i18n labels for Greenfoot:
-        //   saveProperties(name, "properties.heading." + name, userProps);
-        // unitl then:
-        if(isGreenfoot()) {
-            saveProperties(name, "Greenfoot properties. Settings in this file override \"bluej.defs\" and \"greenfoot.defs\"", userProps);
-        }
-        else {
-            saveProperties(name, "properties.heading." + name, userProps);            
-        }
-        saveProperties("moe", "properties.heading.moe", moeUserProps);
+        saveProperties(name, "properties.heading." + name, userProps);     
+        saveProperties("moe", "properties.heading.moe", moeUserProps);    
     }
 
     /**

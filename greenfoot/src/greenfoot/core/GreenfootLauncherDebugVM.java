@@ -32,7 +32,7 @@ public class GreenfootLauncherDebugVM
         RBlueJ blueJ = client.getBlueJ();
         try {
             File libdir = blueJ.getSystemLibDir();
-            Config.initializeVMside(libdir, blueJ.getInitialCommandLineProperties(), true);
+            Config.initializeVMside(libdir, blueJ.getInitialCommandLineProperties(), true, client);
             GreenfootUtil.initialise(new GreenfootUtilDelegateIDE());
             
             ImageIcon icon = new ImageIcon(GreenfootUtil.getGreenfootLogoPath());
