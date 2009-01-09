@@ -45,7 +45,7 @@ import bluej.utility.Utility;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 6060 2009-01-09 16:55:40Z polle $
+ * @version $Id: Config.java 6062 2009-01-09 18:52:00Z polle $
  */
 
 public final class Config
@@ -265,6 +265,16 @@ public final class Config
                 String rval = getProperty(key);
                 Config.propSource.setUserProperty(key, val);
                 return rval;
+            }
+            
+            public String getProperty(String key)
+            {
+                return Config.propSource.getBlueJPropertyString(key, null);
+            }
+
+            public String getProperty(String key, String def)
+            {
+                return Config.propSource.getBlueJPropertyString(key, def);
             }
         };
         initialise(bluejLibDir, tempCommandLineProps, bootingGreenfoot);
