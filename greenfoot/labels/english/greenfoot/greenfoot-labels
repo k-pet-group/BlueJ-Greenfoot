@@ -209,3 +209,5 @@ menu.help.moreScenarios=Get more scenarios
 noproject.dialog.title=Error opening project
 noproject.dialog.msg=Project does not exist: 
  
+# Header for the properties file
+properties.heading.greenfoot=Greenfoot properties. Settings in this file override \"bluej.defs\" and \"greenfoot.defs\"
