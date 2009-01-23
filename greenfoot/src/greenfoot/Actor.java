@@ -179,7 +179,7 @@ public abstract class Actor
         if (this.rotation != rotation) {
             this.rotation = rotation;
             // Recalculate the bounding rect.
-            calcBounds();
+            boundingRect = null;
             // since the rotation have changed, the size probably has too.
             sizeChanged();
         }
@@ -210,8 +210,6 @@ public abstract class Actor
 
             boundingRect.setX(boundingRect.getX() + dx);
             boundingRect.setY(boundingRect.getY() + dy);
-        } else {
-            calcBounds();
         }
         locationChanged(oldX, oldY);
     }
@@ -300,7 +298,7 @@ public abstract class Actor
         this.image = image;
 
         if (sizeChanged) {
-            calcBounds();
+            boundingRect = null;
             sizeChanged();
         }
     }
@@ -350,7 +348,7 @@ public abstract class Actor
     {
         this.x = limitValue(x, world.getWidth());
         this.y = limitValue(y, world.getHeight());
-        calcBounds();
+        boundingRect = null;
         this.setWorld(world);
 
         // This call is not necessary, however setLocation may be overriden
@@ -374,8 +372,7 @@ public abstract class Actor
     }
 
     /**
-     * Calculates the bounds. This includes the bounding rectangle and the width
-     * and height of the actor.
+     * Calculates the bounds.
      */
     private void calcBounds()
     {

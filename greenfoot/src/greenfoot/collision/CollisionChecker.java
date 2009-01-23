@@ -125,11 +125,15 @@ public interface CollisionChecker
     public <T extends Actor> List<T> getObjectsInDirection(int x, int y, int angle, int length, Class<T> cls);
     
     /**
-     * Returns all objects of a particular class
+     * Get all the objects in the world, or all the objects of a particular class.
+     * <p>
+     * If a class is specified as a parameter, only objects of that class (or
+     * its subclasses) will be returned.
+     * <p>
      * 
-     * @param cls
-     *            Class of objects to look for (null or Actor.class will find
-     *            all classes)
+     * @param cls Class of objects to look for ('null' will find all objects).
+     * 
+     * @return A list of objects.
      */
     public <T extends Actor> List<T> getObjects(Class<T> cls);
     

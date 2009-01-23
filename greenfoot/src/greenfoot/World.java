@@ -1,8 +1,10 @@
 package greenfoot;
 
 
+import greenfoot.collision.ColManager;
 import greenfoot.collision.CollisionChecker;
 import greenfoot.collision.ibsp.IBSPColChecker;
+import greenfoot.collision.ibsp.Rect;
 import greenfoot.core.ActInterruptedException;
 import greenfoot.core.WorldHandler;
 
@@ -11,6 +13,7 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -42,7 +45,7 @@ public abstract class World
 
     // private CollisionChecker collisionChecker = new GridCollisionChecker();
     // private CollisionChecker collisionChecker = new BVHInsChecker();
-    private CollisionChecker collisionChecker = new IBSPColChecker();
+    private CollisionChecker collisionChecker = new ColManager();
     
     //{
     //    collisionChecker = new CollisionProfiler(collisionChecker);
@@ -673,8 +676,39 @@ public abstract class World
     
     Collection getObjectsAtPixel(int x, int y)
     {
-        return collisionChecker.getObjectsAt(toCellFloor(x), toCellFloor(y), null);
+        // This is a very naive and slow way of getting the objects at a given
+        // pixel.
+        // However, it makes sure that it doesn't use the collision checker
+        // which we want to keep optimised.
+        // It will be very slow with a lot of rotated objects. It is only used
+        // when using the mouse to select objects, which is not a time-critical
+        // task.
+        
+        //long start = System.nanoTime();
+        
+        List<Actor> result = new LinkedList<Actor>();
+        TreeActorSet objects = getObjectsListInPaintOrder();
+        for (Actor actor : objects) {
+            Rect bounds = actor.getBoundingRect();
+            if(x >= bounds.getX()  && x <= bounds.getRight() && y>=bounds.getY() && y<= bounds.getTop()) {
+                int actorX = (int) Math.floor(getCellCenter(actor.getX()));
+                int actorY = (int) Math.floor(getCellCenter(actor.getY()));
+                if(actor.contains(x - actorX, y - actorY)){
+                   result.add(actor);
+                }
+            }
+        } 
+        //long end = System.nanoTime();
+
+        //System.out.println("getObjectsAt took: " + (end - start)/1000000000d );
+      
+        return result;
+        // return collisionChecker.getObjectsAt(Floor(x), toCellFloor(y), null);
     }
+    
+    
+
+   
 
     void updateObjectLocation(Actor object, int oldX, int oldY)
     {
