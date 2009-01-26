@@ -20,7 +20,7 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 6015 2008-12-04 18:16:08Z polle $
+ * @version $Id: Boot.java 6071 2009-01-26 12:03:19Z polle $
  */
 public class Boot
 {
@@ -46,7 +46,7 @@ public class Boot
     // The version numbers for Greenfoot are changed in the Greenfoot build.xml
     // and then the update-version target should be executed.
     public static String GREENFOOT_VERSION = "1.5.0";
-    public static String GREENFOOT_API_VERSION = "2.0.0";
+    public static String GREENFOOT_API_VERSION = "2.0.1";
     
     // A singleton boot object so the rest of BlueJ can pick up args etc.
     private static Boot instance;
