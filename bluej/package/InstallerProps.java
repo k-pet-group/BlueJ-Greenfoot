@@ -3,6 +3,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Properties;
 
+/**
+ * This is a small program to get the size of the jar file which is extracted during the
+ * BlueJ installation (unix installer), and write the size to a property in a properties
+ * file.
+ * 
+ * @author Davin McCall
+ */
 public class InstallerProps
 {
     public static void main(String [] args)
