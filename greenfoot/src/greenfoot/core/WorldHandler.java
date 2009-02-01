@@ -33,6 +33,7 @@ import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
@@ -734,15 +735,17 @@ public class WorldHandler
         g.setColor(canvas.getBackground());
         g.fillRect(0, 0, img.getWidth(), img.getHeight());
         canvas.paintBackground(g);
-        
+
+        ReentrantReadWriteLock lock = WorldVisitor.getLock(world);
+        int timeout = WorldVisitor.getReadLockTimeout(world);
         // We need to sync when calling the paintObjects
         try {
-            if (world.lock.readLock().tryLock(World.READ_LOCK_TIMEOUT, TimeUnit.MILLISECONDS)) {
+            if (lock.readLock().tryLock(timeout, TimeUnit.MILLISECONDS)) {
                 try {
                     canvas.paintObjects(g);
                 }
                 finally {
-                    world.lock.readLock().unlock();
+                    lock.readLock().unlock();
                 }
             }
         }

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.swing.event.EventListenerList;
 
@@ -266,7 +267,8 @@ public class Simulation extends Thread
 
         // We need to sync to avoid ConcurrentModificationException
         try {
-            world.lock.writeLock().lockInterruptibly();
+            ReentrantReadWriteLock lock = WorldVisitor.getLock(world);
+            lock.writeLock().lockInterruptibly();
             try {
                 try {
                     world.act();
@@ -302,8 +304,8 @@ public class Simulation extends Thread
             finally {
                 // Release lock if we have it (we might not have the lock if
                 // interrupted)
-                if(world.lock.isWriteLockedByCurrentThread()){
-                    world.lock.writeLock().unlock();
+                if(lock.isWriteLockedByCurrentThread()){
+                    lock.writeLock().unlock();
                 }
             }
         }
@@ -607,19 +609,27 @@ public class Simulation extends Thread
      */
     public void sleep() throws ActInterruptedException
     {
-        World world = WorldHandler.getInstance().getWorld();
-        if (paused && !runOnce) {
-            // We don't want the user code to delay if we are paused.
-           return;
-        }        
+        World world = WorldHandler.getInstance().getWorld();  
     
+        if (paused && isRunning && !runOnce) {
+            // If it should be paused but is still running, it means that we
+            // should try to end as quickly as possible and hence should NOT
+            // delay.
+            // If the user is interactively invoking a method that calls this
+            // method, it will not be caught here, which is the correct
+            // behaviour. Otherwise the call to sleep() will have no visible
+            // effect at all.
+            return;
+        }
+        
         try {
+            
             synchronized (interruptLock) {
                 if (interruptDelay) {
-                    // interruptDelay was issued before entering this sync, so
-                    // interrupt now.
-                    interruptDelay = false;
-                    throw new InterruptedException("Interrupted in Simulation.delay() before sleep.");
+                    // If interrupted, we just want to return now. We do not
+                    // want to abort by throwing an exception, because that will
+                    // leave the user code execution in an incosistent state.
+                    return;
                 }
                 delaying = true;
             }
@@ -627,7 +637,7 @@ public class Simulation extends Thread
                 // The WorldCanvas may be trying to synchronize on the world in
                 // order to do a repaint. So, we use wait() here in order
                 // to release the world lock temporarily.
-                HDTimer.wait(delay, world.lock);
+                HDTimer.wait(delay, WorldVisitor.getLock(world));
             }
             else {
                 // shouldn't really happen
@@ -635,7 +645,10 @@ public class Simulation extends Thread
             }
         }
         catch (InterruptedException e) {
-            throw new ActInterruptedException(e);
+            // If interrupted, we just want to return now. We do not
+            // want to abort by throwing an exception, because that will
+            // leave the user code execution in an incosistent state.
+            //throw new ActInterruptedException(e);
         }
         finally {
             synchronized (interruptLock) {

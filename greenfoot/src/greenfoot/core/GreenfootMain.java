@@ -43,7 +43,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 6034 2008-12-08 10:42:28Z polle $
+ * @version $Id: GreenfootMain.java 6081 2009-02-01 15:37:06Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -460,28 +460,18 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         File src = new File(greenfootLibDir, "skeletonProject");
         File dst = projectDir;
 
-        if(deleteClassFiles) {
-            deleteAllClassFiles(dst);
-        }
-        
+        // Since Greenfoot 1.5.0 we no longer require World.java and
+        // Actor.java to be in the scenario, so delete them.
         try {
-            
-            // Since Greenfoot 1.3.0 we no longer use the bluej.pkg file, so if it
-            // exists it should now be deleted.
-            File pkgFile = new File(dst, "bluej.pkg");
-            if (pkgFile.exists()) {
-                pkgFile.delete();
-            }
-            File pkhFile = new File(dst, "bluej.pkh");
-            if (pkhFile.exists()) {
-                pkhFile.delete();
-            }
-            // And, since Greenfoot 1.5.0 we no longer require World.java and
-            // Actor.java to be in the scenario, so delete them.
             File actorJava = new File(dst, "greenfoot/Actor.java");
             if (actorJava.exists()) {
                 actorJava.delete();
             }
+        }
+        catch (SecurityException e) {
+            // If we don't have permission to delete, just leave them there.
+        }        
+        try {
             File worldJava = new File(dst, "greenfoot/World.java");
             if (worldJava.exists()) {
                 worldJava.delete();
@@ -490,9 +480,31 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         catch (SecurityException e) {
             // If we don't have permission to delete, just leave them there.
         }
+        
+        
+        if(deleteClassFiles) {
+            deleteAllClassFiles(dst);
+        }
+        
+        // Since Greenfoot 1.3.0 we no longer use the bluej.pkg file, so if it
+        // exists it should now be deleted.
+        try {
+            File pkgFile = new File(dst, "bluej.pkg");
+            if (pkgFile.exists()) {
+                pkgFile.delete();
+            }   
+            File pkhFile = new File(dst, "bluej.pkh");
+            if (pkhFile.exists()) {
+                pkhFile.delete();
+            }
+        }
+        catch (SecurityException e) {
+            // If we don't have permission to delete, just leave them there.
+        }   
+
+       
 
         GreenfootUtil.copyDir(src, dst);
-
         p.setApiVersion(getAPIVersion().toString());
         p.save();
     }
@@ -537,8 +549,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             dialog.displayModal();
             Debug.message("Bad version number in project: " + greenfootLibDir);
             GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, true);
-
-            System.out.println("BAD VERSION");
             return VERSION_UPDATED;
         }
         else if (projectVersion.isOlderAndBreaking(apiVersion)) {
@@ -582,13 +592,27 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             // actually there. This makes it easier to work with, since it will
             // then reinstall the classes after cleaning the scenarios with the
             // ant script.
+            // It will also make it easier to fix problems with wrong files in 
+            // this directory, by just telling the users to delete the entire
+            // greenfoot dir in the scenario.
+            // Also, it is very important that the two .java classes are not 
+            // present any more since that can result in strange problems, like
+            // the World and Actor class being stripped and that those classes
+            // are never updated. Can for instance result in runtime-exceptions
+            // that should have been handled at compile time. I haven't been
+            // able to reproduce this problem though, but have had several
+            // reports from users. And this should solve the problem.
+            
             File greenfootDir = new File(projectDir, "greenfoot");
-
-            if (!greenfootDir.exists()) {
-                GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, false);
+            File actorJava = new File(projectDir, "greenfoot/Actor.java");
+            File worldJava = new File(projectDir, "greenfoot/World.java");                
+            if (!greenfootDir.exists() || actorJava.exists() || worldJava.exists()) {
+                GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, true);
+                return VERSION_UPDATED;
             }
-
-            return VERSION_OK;
+            else {
+                return VERSION_OK;
+            }
         }
     }
 

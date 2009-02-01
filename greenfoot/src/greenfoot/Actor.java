@@ -240,7 +240,7 @@ public abstract class Actor
     }
 
     /**
-     * This method will be called by the Greenfoot system when the object has
+     * This method is called by the Greenfoot system when the object has
      * been inserted into the world. This method can be overridden to implement
      * custom behaviour when the actor is inserted into the world.
      * <p>

@@ -74,9 +74,9 @@ public abstract class World
     private boolean backgroundIsClassImage = true;
 
     /** Lock used for iterating over actors. */
-    public ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     /** Timeout used for readers attempting to acquire lock */
-    public static final int READ_LOCK_TIMEOUT = 500;
+    static final int READ_LOCK_TIMEOUT = 500;
     
     /**
      * Construct a new world. The size of the world (in number of cells) and the
@@ -208,7 +208,7 @@ public abstract class World
      * 
      * @return The background image or null if not initialised yet.
      */
-    public GreenfootImage getBackgroundNoInit()
+    GreenfootImage getBackgroundNoInit()
     {
         return backgroundImage;
     }
@@ -512,7 +512,7 @@ public abstract class World
     }
 
     /**
-     * This method will be called by the Greenfoot system when the execution has
+     * This method is called by the Greenfoot system when the execution has
      * started. This method can be overridden to implement custom behaviour when
      * the execution is started.
      * <p>
@@ -524,7 +524,7 @@ public abstract class World
     }   
     
     /**
-     * This method will be called by the Greenfoot system when the execution has
+     * This method is called by the Greenfoot system when the execution has
      * stopped. This method can be overridden to implement custom behaviour when
      * the execution is stopped.
      * <p>

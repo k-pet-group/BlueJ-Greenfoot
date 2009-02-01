@@ -2,6 +2,7 @@ package greenfoot;
 
 import java.awt.Graphics;
 import java.util.Collection;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Class that makes it possible for classes outside the greenfoot package to get
@@ -10,7 +11,7 @@ import java.util.Collection;
  * in the public interface visible to users.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldVisitor.java 5960 2008-11-19 15:15:47Z polle $
+ * @version $Id: WorldVisitor.java 6081 2009-02-01 15:37:06Z polle $
  */
 public class WorldVisitor
 {
@@ -98,4 +99,13 @@ public class WorldVisitor
         return world.getBackgroundNoInit();
     }
 
+    public static ReentrantReadWriteLock getLock(World world) 
+    {
+        return world.lock;    
+    }
+    
+    public static int getReadLockTimeout(World world) 
+    {
+        return world.READ_LOCK_TIMEOUT;    
+    }
 }

@@ -21,6 +21,7 @@ import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.swing.JPanel;
 import javax.swing.Scrollable;
@@ -30,7 +31,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldCanvas.java 6020 2008-12-06 13:06:08Z polle $
+ * @version $Id: WorldCanvas.java 6081 2009-02-01 15:37:06Z polle $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -141,7 +142,9 @@ public class WorldCanvas extends JPanel
         // in a slightly broken look, if the user code is sleeping (with
         // Thread.sleep).
         try {
-            if (world.lock.readLock().tryLock(World.READ_LOCK_TIMEOUT, TimeUnit.MILLISECONDS)) {
+            ReentrantReadWriteLock lock = WorldVisitor.getLock(world);
+            int timeout = WorldVisitor.getReadLockTimeout(world);
+            if (lock.readLock().tryLock(timeout, TimeUnit.MILLISECONDS)) {
                 try {
                     paintBackground(g);
                     paintObjects(g);
@@ -149,16 +152,16 @@ public class WorldCanvas extends JPanel
                     WorldVisitor.paintDebug(world, g);
                 }
                 finally {
-                    world.lock.readLock().unlock();
+                    lock.readLock().unlock();
 
                     // Wake up any threads waiting. For instance the
                     // World.repaint() call.
-                    if (world.lock.writeLock().tryLock()) {
+                    if (lock.writeLock().tryLock()) {
                         try {
-                            world.lock.writeLock().newCondition().signalAll();
+                            lock.writeLock().newCondition().signalAll();
                         }
                         finally {
-                            world.lock.writeLock().unlock();
+                            lock.writeLock().unlock();
                         }
                     }
                 }
