@@ -252,8 +252,10 @@ public abstract class Greep extends Actor
         if (mode == MODE_FLIPPED)
             return;
         
-        mode = MODE_WALKING; // can't be blocking if we're moving
-            
+        if(mode != MODE_WALKING) {
+            mode = MODE_WALKING; // can't be blocking if we're moving
+            setImage(getCurrentImage());
+        }
         double angle = Math.toRadians( getRotation() );
         int x = (int) Math.round(getX() + Math.cos(angle) * WALKING_SPEED);
         int y = (int) Math.round(getY() + Math.sin(angle) * WALKING_SPEED);
@@ -435,9 +437,6 @@ public abstract class Greep extends Actor
             return flags[flagNo-1];
     }
     
-    /**
-     * This method specifies the image we want displayed at any time.
-     */
      /**
      * This method specifies the image we want displayed at any time.
      */
@@ -454,8 +453,10 @@ public abstract class Greep extends Actor
         if (mode == MODE_FLIPPED) {
             return base + "-flipped.png";   
         }
-        else
-        if(carryingTomato()) {
+        else if(mode == MODE_BLOCKING) {
+            return base + "-blocking.png";
+        }
+        else if(carryingTomato()) {
             return base + "-with-food.png";
         }
         else {
@@ -548,8 +549,9 @@ public abstract class Greep extends Actor
         
         if (mode == MODE_FLIPPED)
             return;
-            
-        mode = MODE_BLOCKING;
+        
+        mode = MODE_BLOCKING;            
+        setImage(getCurrentImage());
     }
     
     final private void keelOver()
