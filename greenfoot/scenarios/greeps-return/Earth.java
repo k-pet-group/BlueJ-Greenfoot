@@ -12,15 +12,11 @@ import java.awt.Font;
  */
 public class Earth extends World
 {
-    public static final int RESOLUTION = 1;
-    public static final int WIDTH = 800;
-    public static final int HEIGHT = 600;
-
     public static final int SCORE_DISPLAY_TIME = 240;
     
     /** Names of the greep classes */
-    public static final String GREEP1 = "Greep6";
-    public static final String GREEP2 = "PolleGreep6";
+    public static final String GREEP1 = "DavinGreep6";
+    public static final String GREEP2 = "PolleGreep4";
     
 
     private GreenfootImage map;
@@ -28,6 +24,7 @@ public class Earth extends World
     private Ship ship2;
     private Timer timer;
     private int currentMap;
+    private boolean firstStart;
     
     /* The first two 3-tuples are the ships: target (landing) y-coordinate, then initial x and y. */
     /* Remaining 3-tuples: number of tomatoes, x co-ordinate, y co-ordinate */
@@ -73,10 +70,19 @@ public class Earth extends World
      */
     public Earth()
     {
-        super(WIDTH / RESOLUTION, HEIGHT / RESOLUTION, RESOLUTION);
+        super(800, 600, 1);
         currentMap = 0;
+        firstStart = true;
         scores = new int[2][mapData.length];    // one score for each map
-        showMap(currentMap);
+    }
+    
+    public void started()
+    {   
+        if (firstStart) {
+            showMap(currentMap);
+            firstStart = false;
+            Greenfoot.delay(50);
+        }
     }
     
     /**

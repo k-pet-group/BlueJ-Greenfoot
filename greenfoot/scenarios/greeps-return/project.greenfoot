@@ -1,5 +1,5 @@
 #Greenfoot properties
-#Sat Feb 07 14:18:56 GMT 2009
+#Sat Feb 07 15:34:18 GMT 2009
 target16.name=greenfoot
 target2.name=Ship
 target9.name=Timer
@@ -96,9 +96,9 @@ dependency20.from=Greep
 class.Ship.superclass=greenfoot.Actor
 target19.type=ClassTarget
 target4.width=80
-target9.showInterface=false
 dependency27.from=Greep6
 target18.showInterface=false
+target9.showInterface=false
 target10.showInterface=false
 target1.showInterface=false
 class.MyGreep.image=greep.png
@@ -287,11 +287,11 @@ target4.y=150
 target4.x=10
 class.Greep2.superclass=Greep
 target20.height=50
-dependency9.type=UsesDependency
-dependency6.from=Ship
 target12.height=50
+dependency6.from=Ship
+dependency9.type=UsesDependency
 world.lastInstantiated=Earth
 dependency14.to=TomatoPile
 target19.showInterface=false
-class.SimpleGreep.image=greep.png
 target1.height=50
+class.SimpleGreep.image=greep.png
