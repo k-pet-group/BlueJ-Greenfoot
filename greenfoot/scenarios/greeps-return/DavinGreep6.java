@@ -312,7 +312,7 @@ public class DavinGreep6 extends Greep
     /**
      * This method specifies the name of the author (for display on the result board).
      */
-    public static String getAuthorName()
+    public String getAuthorName()
     {
         return "Davin 6";  // write your name here!
     }

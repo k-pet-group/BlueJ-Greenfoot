@@ -501,7 +501,7 @@ public class PolleGreep4 extends Greep
     /**
      * This method specifies the name of the author (for display on the result board).
      */
-    public static String getAuthorName()
+    public String getAuthorName()
     {
         return "Assassin";  // write your name here!
     }

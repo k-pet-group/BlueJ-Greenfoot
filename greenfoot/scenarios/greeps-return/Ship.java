@@ -21,27 +21,32 @@ public class Ship extends Actor
     private int stepCount = 0;
     private boolean hatchOpen = false;    // Whether the greeps can deploy yet
     
-    private Class inhabitantClass;        // What type of inhabitant this ship carries.
     private int[] dataBank = new int[1000];    // Ship's databank. Holds a large amount of information.
     
+    private int teamNumber; // Team number. Should be 1 or 2.
+    
+    private String authorName; // Author of the Greeps produced by this ship.
+    
+    private Greep createGreep() 
+    {
+        if(teamNumber == 1) {
+            return new PolleGreep4();
+        }
+        else {
+            return new DavinGreep6();
+        }        
+    }
     
     /**
      * Create a space ship. The parameter specifies at what height to land.
      */
-    public Ship(String imageName, int position, Class inhabitant)
+    public Ship(String imageName, int position, int teamNumber)
     {
         targetPosition = position;
-        inhabitantClass = inhabitant;
+        this.teamNumber = teamNumber;
         GreenfootImage im = new GreenfootImage(imageName);
+        authorName = createGreep().getAuthorName();
         setImage(im);
-    }
-
-    /**
-     * Get the class of inhabitants of this ship.
-     */
-    public Class getInhabitantClass()
-    {
-        return inhabitantClass;
     }
     
     /**
@@ -101,19 +106,10 @@ public class Ship extends Actor
         if(passengersReleased < totalPassengers) {
             stepCount++;
             if(stepCount == 10) {
-                try {
-                    Greep newGreep = (Greep) inhabitantClass.newInstance();
-                    newGreep.setShip(this);
-                    getWorld().addObject(newGreep, getX(), getY() + 30);
-                    passengersReleased++;
-                    stepCount = 0;
-                }
-                catch (InstantiationException ie) {
-                    throw new Error(ie);
-                }
-                catch (IllegalAccessException iae) {
-                    throw new Error(iae);
-                }
+                Greep newGreep = createGreep();
+                getWorld().addObject(newGreep, getX(), getY() + 30);
+                passengersReleased++;
+                stepCount = 0;               
             }
         }
     }
@@ -162,21 +158,12 @@ public class Ship extends Actor
      * Return the author name of this ship's Greeps.
      */
     public String getAuthor() 
-    {        
-        Class greepClass = getInhabitantClass();
-        try {
-            Method authorMethod = greepClass.getMethod("getAuthorName", new Class[]{});              
-            return (String) authorMethod.invoke((Object) null, new Object[]{});
-        }
-        catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-        catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return "";
+    {               
+        return authorName;
     }
+    
+    public boolean isTeamTwo() 
+    {
+        return teamNumber == 2;    
+    }   
 }

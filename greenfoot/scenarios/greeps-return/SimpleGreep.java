@@ -80,7 +80,7 @@ public class SimpleGreep extends Greep
     /**
      * This method specifies the name of the author (for display on the result board).
      */
-    public static String getAuthorName()
+    public String getAuthorName()
     {
         return "Anonymous";  // write your name here!
     }

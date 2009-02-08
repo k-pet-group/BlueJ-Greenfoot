@@ -14,11 +14,6 @@ public class Earth extends World
 {
     public static final int SCORE_DISPLAY_TIME = 240;
     
-    /** Names of the greep classes */
-    public static final String GREEP1 = "Greep6";
-    public static final String GREEP2 = "PolleGreep7";
-    
-
     private GreenfootImage map;
     private Ship ship1;
     private Ship ship2;
@@ -126,25 +121,15 @@ public class Earth extends World
         if (Greenfoot.getRandomNumber(2) == 0) {
             shipData2 = thisMap[0];
             shipData1 = thisMap[1];
-        }
+        }        
         
-        try {
-            Class greep1class = Class.forName(GREEP1);
+        // First ship
+        ship1 = new Ship("spaceship-green.png", shipData1[0], 1);
+        addObject(ship1, shipData1[1], shipData1[2]);
         
-            // First ship
-            ship1 = new Ship("spaceship-green.png", shipData1[0], greep1class);
-            addObject(ship1, shipData1[1], shipData1[2]);
-        }
-        catch (ClassNotFoundException cnfe) {}
-        
-        try {
-            Class greep2class = Class.forName(GREEP2);
-
-            // Second ship
-            ship2 = new Ship("spaceship-purple.png", shipData2[0], greep2class);
-            addObject(ship2, shipData2[1], shipData2[2]);
-        }
-        catch (ClassNotFoundException cnfe) {}
+        // Second ship
+        ship2 = new Ship("spaceship-purple.png", shipData2[0], 2);
+        addObject(ship2, shipData2[1], shipData2[2]);
         
         
         // Timer starts when both ships have landed

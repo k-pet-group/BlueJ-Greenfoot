@@ -43,29 +43,31 @@ public abstract class Greep extends Actor
     /** General purpose memory */
     private int[] memory = new int[4];
     private boolean[] flags = new boolean[2];
-    
+        
     /**
      * Create a greep.
      */
     public Greep()
     {
         setRotation(Greenfoot.getRandomNumber(360));
-        setImage(getCurrentImage());
-    }        
         
-    /**
-     * Set which ship this greep belongs to.
-     */
-    final public void setShip(Ship ship)
-    {
-        this.ship = ship;
-    }
+        //Be invisible until we know which ship we belong to.
+        getImage().setTransparency(40); 
+    }      
+    
     
     /**
      * Greenfoot's standard act method. This calls greepAct(), which can be reimplemented in subclasses.
      */
     final public void act()
     {
+        if(ship == null) {
+            // Find our mothership
+            ship = (Ship) getOneIntersectingObject(Ship.class);
+            // And update the image now that we know the ship
+            setImage(getCurrentImage());             
+        }
+        
         moved = false;
         canSeeShip = false;
 
@@ -167,7 +169,7 @@ public abstract class Greep extends Actor
     {
         boolean canSeeOpponentShip = false;
         Ship ship = (Ship) getOneIntersectingObject(Ship.class);
-        canSeeOpponentShip = (ship != null && ship.getInhabitantClass() != this.getClass());
+        canSeeOpponentShip = (ship != null && ship != this.ship);
         return canSeeOpponentShip;
     }
     
@@ -376,23 +378,7 @@ public abstract class Greep extends Actor
     {
         return Greenfoot.getRandomNumber(100) < percent;
     }
-    
-    
-    /**
-     * Spit a drop of paint onto the ground. We can spit in three colors: "red", "orange",
-     * and "purple". (All other strings will be mapped to one of these.)
-     */
-    /*
-    public void spit(String color)
-    {
-        if(timeToSpit == 0) {
-            Paint paint = new Paint(color);
-            getWorld().addObject(paint, getX(), getY());
-            timeToSpit = TIME_TO_SPIT + Greenfoot.getRandomNumber(10);
-        }
-    }
-    */
-    
+       
     
     /**
      * Store something in the greep's memory. There are four memory slots, numbered
@@ -443,6 +429,7 @@ public abstract class Greep extends Actor
     private final String getCurrentImage()
     {
         String base;
+        
         if(isTeamTwo()) {
             base = "greep-purple";
         }
@@ -469,7 +456,12 @@ public abstract class Greep extends Actor
      */
     private final boolean isTeamTwo()
     {
-        return this.getClass().getName().equals(Earth.GREEP2);
+        if(ship == null) {
+            return false;
+        }
+        else {
+            return ship.isTeamTwo();
+        }
     }    
     
     /**
@@ -593,4 +585,6 @@ public abstract class Greep extends Actor
         getWorld().addObject(new Smoke(5, isTeamTwo()), getX(), getY());
     }
 
+    abstract public String getAuthorName();    
+    
 }
