@@ -516,5 +516,21 @@ public class PolleGreep4 extends Greep
         
         super.move();
     }
-
+    /**
+     * Return the distance between this greep and an arbitrary point.
+     */
+    private int distanceTo(int x, int y)
+    {
+        int deltaX = getX() - x;
+        int deltaY = getY() - y;
+        return (int) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    }
+    
+    /**
+     * Return the angle from the origin (0,0) to some point (x,y), in degrees
+     */
+    private int getAngleTo(int x, int y)
+    {
+        return (int)(180 * Math.atan2(y, x) / Math.PI);
+    }
 }

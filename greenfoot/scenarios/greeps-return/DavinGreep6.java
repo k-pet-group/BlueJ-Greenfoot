@@ -327,5 +327,12 @@ public class DavinGreep6 extends Greep
         
         super.move();
     }
+    
+    private int distanceTo(int x, int y)
+    {
+        int deltaX = getX() - x;
+        int deltaY = getY() - y;
+        return (int) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    }
 
 }

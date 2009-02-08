@@ -145,7 +145,7 @@ public abstract class Greep extends Actor
     /**
      * Return the angle from the origin (0,0) to some point (x,y), in degrees
      */
-    final public int getAngleTo(int x, int y)
+    private int getAngleTo(int x, int y)
     {
         return (int)(180 * Math.atan2(y, x) / Math.PI);
     }
@@ -153,7 +153,7 @@ public abstract class Greep extends Actor
     /**
      * Return the distance between this greep and an arbitrary point.
      */
-    final public int distanceTo(int x, int y)
+    private int distanceTo(int x, int y)
     {
         int deltaX = getX() - x;
         int deltaY = getY() - y;
@@ -440,7 +440,7 @@ public abstract class Greep extends Actor
      /**
      * This method specifies the image we want displayed at any time.
      */
-    public final String getCurrentImage()
+    private final String getCurrentImage()
     {
         String base;
         if(isTeamTwo()) {
@@ -467,7 +467,7 @@ public abstract class Greep extends Actor
     /**
      * Return true if this is team 2, false if it is team 1.
      */
-    public final boolean isTeamTwo()
+    private final boolean isTeamTwo()
     {
         return this.getClass().getName().equals(Earth.GREEP2);
     }    

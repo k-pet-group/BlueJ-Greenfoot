@@ -15,8 +15,8 @@ public class Earth extends World
     public static final int SCORE_DISPLAY_TIME = 240;
     
     /** Names of the greep classes */
-    public static final String GREEP1 = "DavinGreep6";
-    public static final String GREEP2 = "PolleGreep4";
+    public static final String GREEP1 = "Greep6";
+    public static final String GREEP2 = "PolleGreep7";
     
 
     private GreenfootImage map;
