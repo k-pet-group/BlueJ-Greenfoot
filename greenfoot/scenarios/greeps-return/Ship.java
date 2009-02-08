@@ -117,11 +117,8 @@ public class Ship extends Actor
     /**
      * Record that we have collected another tomato.
      */
-    public void storeTomato(Greep cr)
-    {
-        if(cr.removeTomato() == false) 
-            return; // did not have a tomato
-            
+    public void storeTomato()
+    {       
         if(foodCounter == null) {
             foodCounter = new Counter("Tomatoes: ");
             int x = getX();

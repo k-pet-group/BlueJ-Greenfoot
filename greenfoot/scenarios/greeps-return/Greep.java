@@ -314,21 +314,6 @@ public abstract class Greep extends Actor
     {
         return carryingTomato;
     }
-        
-    /**
-     * Remove the tomato currently carried (and return true). Return
-     * false if we were not carrying one.
-     */
-    public final boolean removeTomato()
-    {
-        if (carryingTomato) {
-            carryingTomato = false;
-            return true;
-        }
-        else
-            return false;
-    }
-    
 
     /**
      * Receive a tomato and carry it.
@@ -338,7 +323,6 @@ public abstract class Greep extends Actor
         carryingTomato = true;
         setImage(getCurrentImage());
     }
-
     
     /**
      * Drop the tomato we are carrying. If we are at the ship, it is counted.
@@ -350,7 +334,7 @@ public abstract class Greep extends Actor
             return;
             
         if(atShip()) {
-            ship.storeTomato(this);
+            ship.storeTomato();
         }
         carryingTomato = false;
         setImage(getCurrentImage());
