@@ -169,13 +169,6 @@ public class PolleGreep4 extends Greep
                 setEnemyShipY(getEnemyShipY() -1);
                 move();
             } 
-           /* move();
-            while (atWater()) {
-                int r = getRotation();
-                setRotation (r + Greenfoot.getRandomNumber(2) * 180 - 90);
-                move();
-            }
-            move();*/
         } 
         else {
             // Since atOpponentShip depends on the greep's rotation it might end here because it is actually at the ship, but the atOpponentShip doesn't report it.
@@ -449,7 +442,7 @@ public class PolleGreep4 extends Greep
     private void moveNormally()
     {
         move();
-        while (atWater()) {
+        if (atWater()) {
             int r = getRotation();
             setRotation (r + Greenfoot.getRandomNumber(2) * 180 - 90);
             move();

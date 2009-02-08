@@ -28,8 +28,9 @@ public class DavinGreep6 extends Greep
     /**
      * Do what a greep's gotta do.
      */
-    public void greepAct()
+    public void act()
     {
+        super.act();   // do not delete! leave as first statement in act().
         if (carryingTomato()) {
             if(atShip()) {
                 dropTomato();
@@ -99,7 +100,7 @@ public class DavinGreep6 extends Greep
                     addKnownPile();
                     setMemory(0, 0);
                     checkForKnownPile();
-                    greepAct();
+                    act();
                 }
                 else {
                     headHomeward(-1, -1);    
@@ -242,7 +243,7 @@ public class DavinGreep6 extends Greep
     private void moveNormally()
     {
         move();
-        while (atWater()) {
+        if (atWater()) {
             int r = getRotation();
             setRotation (r + Greenfoot.getRandomNumber(2) * 180 - 90);
             move();

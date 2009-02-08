@@ -62,9 +62,9 @@ public abstract class Greep extends Actor
     }
     
     /**
-     * Greenfoot's standard act method. This calls greepAct(), which can be reimplemented in subclasses.
+     * Greenfoot's standard act method, which can be reimplemented in subclasses.
      */
-    final public void act()
+    public void act()
     {        
         moved = false;
         canSeeShip = false;
@@ -102,17 +102,9 @@ public abstract class Greep extends Actor
             if (timeToKablam > 0) {
                 timeToKablam--;
             }
-            greepAct();
         }
     }
-    
-    /**
-     * This is the act method for greeps. Unlike act(), above, it can reimplemented in subclasses.
-     */
-    public void greepAct()
-    {
-        
-    }
+   
     
     
     /**
@@ -120,6 +112,7 @@ public abstract class Greep extends Actor
      */
     public void turn(int angle)
     {
+        if(mode == MODE_FLIPPED) return;
         setRotation(getRotation() + angle);
     }
     
@@ -129,6 +122,7 @@ public abstract class Greep extends Actor
      */
     public void turnHome()
     {
+        if(mode == MODE_FLIPPED) return;
         turnTowards(ship.getX(), ship.getY());
     }
     
@@ -137,6 +131,7 @@ public abstract class Greep extends Actor
      */
     public void turnTowards(int x, int y)
     {
+        if(mode == MODE_FLIPPED) return;
         int deltaX = x - getX();
         int deltaY = y - getY();
         setRotation(getAngleTo(deltaX, deltaY));
@@ -289,6 +284,7 @@ public abstract class Greep extends Actor
      */
     public final void loadTomato()
     {
+        if(mode == MODE_FLIPPED) return;
         // check whether there's a tomato pile here
         TomatoPile tomatoes = (TomatoPile) getOneIntersectingObject(TomatoPile.class);
         

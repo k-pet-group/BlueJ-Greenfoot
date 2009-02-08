@@ -34,8 +34,9 @@ public class SimpleGreep extends Greep
     /**
      * Do what a greep's gotta do.
      */
-    public void greepAct()
+    public void act()
     {
+        super.act();   // do not delete! leave as first statement in act().
         if (carryingTomato()) {
             if(atShip()) {
                 dropTomato();
