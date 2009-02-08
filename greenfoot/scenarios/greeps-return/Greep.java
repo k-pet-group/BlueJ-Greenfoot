@@ -48,26 +48,24 @@ public abstract class Greep extends Actor
      * Create a greep.
      */
     public Greep()
-    {
-        setRotation(Greenfoot.getRandomNumber(360));
-        
-        //Be invisible until we know which ship we belong to.
-        getImage().setTransparency(40); 
+    { 
     }      
     
+    /**
+     * Set which ship this greep belongs to.
+     */
+    final public void setShip(Ship ship)
+    {
+        this.ship = ship;
+        setRotation(Greenfoot.getRandomNumber(360));
+        setImage(getCurrentImage());    
+    }
     
     /**
      * Greenfoot's standard act method. This calls greepAct(), which can be reimplemented in subclasses.
      */
     final public void act()
-    {
-        if(ship == null) {
-            // Find our mothership
-            ship = (Ship) getOneIntersectingObject(Ship.class);
-            // And update the image now that we know the ship
-            setImage(getCurrentImage());             
-        }
-        
+    {        
         moved = false;
         canSeeShip = false;
 

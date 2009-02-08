@@ -107,6 +107,7 @@ public class Ship extends Actor
             stepCount++;
             if(stepCount == 10) {
                 Greep newGreep = createGreep();
+                newGreep.setShip(this);
                 getWorld().addObject(newGreep, getX(), getY() + 30);
                 passengersReleased++;
                 stepCount = 0;               
