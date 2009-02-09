@@ -69,6 +69,7 @@ public class Earth extends World
         currentMap = 0;
         firstStart = true;
         scores = new int[2][mapData.length];    // one score for each map
+        setPaintOrder(ScoreBoard.class, Counter.class, Smoke.class, Greep.class, Ship.class, TomatoPile.class);
     }
     
     public void started()
