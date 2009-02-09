@@ -98,6 +98,7 @@ public class Earth extends World
         clearWorld();
         currentMap = map-1;
         showMap(currentMap);
+        firstStart = false;
     }
     
     /**
