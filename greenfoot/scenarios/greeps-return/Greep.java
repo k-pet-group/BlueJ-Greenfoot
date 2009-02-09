@@ -336,7 +336,7 @@ public abstract class Greep extends Actor
      * Leave the tomato we are carrying. 
      * It will put the tomato on the ground - forming a pile of one tomato.
      */
-    protected final void leaveTomato()
+    private final void leaveTomato()
     {
         if(!carryingTomato)
             return;
