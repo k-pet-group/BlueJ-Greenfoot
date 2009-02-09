@@ -464,21 +464,21 @@ public abstract class Greep extends Actor
         return mode == MODE_BLOCKING;
     }
     
-    /**
-     * If we can see tomatoes, this will return their co-ordinates as 2-dimensional array
-     * [x,y]; otherwise it returnes null.
+   /**
+     * If we can see tomatoes, this will return them. Otherwise it returnes null.
+     * <p>
+     * You are only allowed to call getX() and getY() on the returned tomato pile. 
      */
-    public int[] visibleTomatoes()
+    public TomatoPile getTomatoes()
     {
         TomatoPile tomatoes = (TomatoPile) getOneIntersectingObject(TomatoPile.class);
         if (tomatoes != null) {
             if (distanceTo(tomatoes.getX(), tomatoes.getY()) < 25) {
-                int[] rval = {tomatoes.getX(), tomatoes.getY()};
-                return rval;
+                return tomatoes;
             }
         }
         return null;
-    }
+    }    
     
     /**
      * Get a list of visible opponent greeps.

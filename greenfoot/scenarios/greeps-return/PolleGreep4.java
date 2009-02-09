@@ -290,7 +290,7 @@ public class PolleGreep4 extends Greep
             }
             else if (getMemory(0) == 2) {
                 // Collect tomatoes from a known location
-                if (distanceTo(getMemory(1), getMemory(2)) < 5 && visibleTomatoes() == null) {
+                if (distanceTo(getMemory(1), getMemory(2)) < 5 && getTomatoes() == null) {
                     // No more tomatoes in this pile
                     setMemory(0, 3);
                     moveNormally();
@@ -482,15 +482,15 @@ public class PolleGreep4 extends Greep
      */
     public void checkFood()
     {
-        int [] tomatoes = visibleTomatoes();
+        TomatoPile tomatoes = getTomatoes();
         if(tomatoes != null) {
             loadTomato();
             // Note: this attempts to load a tomato onto *another* Greep. It won't
             // do anything if we are alone here.
             
             setMemory(0, 1);
-            setMemory(1, tomatoes[0]);
-            setMemory(2, tomatoes[1]);
+            setMemory(1, tomatoes.getX());
+            setMemory(2, tomatoes.getY());
         }
     }
 

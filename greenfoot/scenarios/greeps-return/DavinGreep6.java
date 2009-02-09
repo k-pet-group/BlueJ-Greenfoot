@@ -65,7 +65,7 @@ public class DavinGreep6 extends Greep
             else if (getMemory(0) == 2) {
                 // Collect tomatoes from a known location
                 if (distanceTo(getMemory(1), getMemory(2)) < 5) {
-                    if (visibleTomatoes() == null) {
+                    if (getTomatoes() == null) {
                         // No more tomatoes in this pile - inform the ship
                         setMemory(0, 3);
                         moveNormally();
@@ -290,7 +290,7 @@ public class DavinGreep6 extends Greep
      */
     public void checkFood()
     {
-        int [] tomatoes = visibleTomatoes();
+        TomatoPile tomatoes = getTomatoes();
         if(tomatoes != null) {
             loadTomato();
             // Note: this attempts to load a tomato onto *another* Greep. It won't
@@ -305,8 +305,8 @@ public class DavinGreep6 extends Greep
             
             // Seeing as we found tomatoes, head back to the ship and store the location
             // in the ship's databank:
-            setMemory(1, tomatoes[0]);
-            setMemory(2, tomatoes[1]);
+            setMemory(1, tomatoes.getX());
+            setMemory(2, tomatoes.getY());
         }
     }
 
