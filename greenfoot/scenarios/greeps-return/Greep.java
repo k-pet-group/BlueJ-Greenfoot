@@ -473,12 +473,12 @@ public abstract class Greep extends Actor
     {
         TomatoPile tomatoes = (TomatoPile) getOneIntersectingObject(TomatoPile.class);
         if (tomatoes != null) {
-            if (distanceTo(tomatoes.getX(), tomatoes.getY()) < 25) {
+            if (distanceTo(tomatoes.getX(), tomatoes.getY()) < 25 && !tomatoes.isEmpty()) {
                 return tomatoes;
             }
         }
         return null;
-    }    
+    }  
     
     /**
      * Get a list of visible opponent greeps.

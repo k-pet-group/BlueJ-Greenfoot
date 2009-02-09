@@ -30,6 +30,13 @@ public class TomatoPile extends Actor
         this.tomatoes = tomatoes;
         updateImage();
     }
+    
+    public void act() 
+    {        
+        if (isEmpty()) {
+            getWorld().removeObject(this);
+        }
+    }
 
     /**
      * Remove a tomato from this pile. (If it was the last one, this pile will
@@ -38,12 +45,13 @@ public class TomatoPile extends Actor
     public void takeOne()
     {
         tomatoes = tomatoes - 1;
-        if (tomatoes <= 0) {
-            getWorld().removeObject(this);
-        }
-        else {
-            updateImage();
-        }
+        updateImage();
+        
+    }
+    
+    public boolean isEmpty() 
+    {
+        return tomatoes <= 0; 
     }
 
     /**
