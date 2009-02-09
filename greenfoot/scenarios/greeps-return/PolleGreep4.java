@@ -226,9 +226,10 @@ public class PolleGreep4 extends Greep
     /**
      * Do what a greep's gotta do.
      */
-    public void greepAct()
+    public void act()
     {
-        
+        super.act();   // do not delete! leave as first statement in act().
+       
 //        System.out.println("mac: " + Integer.MAX_VALUE);
      //   determineRole();
         // We found the ship, make sure we are an assasin
@@ -274,7 +275,7 @@ public class PolleGreep4 extends Greep
                     addKnownPile();
                     setMemory(0, 0);
                     checkForKnownPile();
-                    greepAct();
+                   // greepAct();
                 }
                 else {
                     headHomeward(-1, -1);    
