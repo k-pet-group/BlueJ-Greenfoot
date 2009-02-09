@@ -109,15 +109,17 @@ public class PolleGreep4 extends Greep
             }
         }
         
+        boolean atShip = (Math.abs(getEnemyShipX() - getX()) < 3) && (Math.abs(getEnemyShipY() - getY()) < 3); 
+       
         if(assassinFriends > 1 ) {       
             // There are too many assassins, cancel this one
             
             kablam();
             cancelAssassin();
         }
-        else if(enemyLocationKnown() && (getEnemyShipX() != getX() || getEnemyShipY() != getY()))
+        else if(enemyLocationKnown() && !atShip)
         {
-            System.out.println("Enemy known: " + getEnemyShipX() +"," + getEnemyShipY());
+           // System.out.println("Enemy known: " + getEnemyShipX() +"," + getEnemyShipY());
            /* List<GreepInfo> visibleOpponents = getVisibleOpponents();
             if( visibleOpponents.size() > 3 ) {
                 kablam();
@@ -126,14 +128,14 @@ public class PolleGreep4 extends Greep
             // if we didn't find this by spying we should move random instead
             headHomeward(getEnemyShipX(), getEnemyShipY());
         }
-        else if(atOpponentShip() || (getEnemyShipX() == getX() && getEnemyShipY() == getY())) {
+        else if(atOpponentShip() || atShip) {
             // In the above if, we need to compare the coordinates because atOpponentShip might 
             // report false if we are rotated in a different way from when we found the ship.
             
             if(!enemyLocationKnown()) {
                 setEnemyShipX(getX());
                 setEnemyShipY(getY());
-                System.out.println("Found ship: " + getMemory(0));
+              //  System.out.println("Found ship: " + getMemory(0));
             }
             
             List<GreepInfo> visibleOpponents = getVisibleOpponents();
@@ -143,7 +145,7 @@ public class PolleGreep4 extends Greep
                 kablam();
             }
             else {
-                System.out.println("Block");
+               // System.out.println("Block");
                 block();
             }
         }
@@ -160,7 +162,7 @@ public class PolleGreep4 extends Greep
                     setEnemyShipY(10);
                 }
                 if(getEnemyShipY() == 0) {
-                    //System.out.println("lost count");
+                    System.out.println("lost count");
                     // we lost track, cancel assassination mode
                     cancelAssassin();
                     return;
