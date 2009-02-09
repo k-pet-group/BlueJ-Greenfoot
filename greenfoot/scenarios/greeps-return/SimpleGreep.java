@@ -24,11 +24,11 @@ public class SimpleGreep extends Greep
     // no additional fields (other than final fields) allowed in this class!
     
     /**
-     * Default constructor for testing purposes.
+     * Default constructor. Do not remove.
      */
-    public SimpleGreep()
+    public SimpleGreep(Ship ship)
     {
-
+        super(ship);
     }
     
     /**

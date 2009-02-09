@@ -47,19 +47,12 @@ public abstract class Greep extends Actor
     /**
      * Create a greep.
      */
-    public Greep()
-    { 
-    }      
-    
-    /**
-     * Set which ship this greep belongs to.
-     */
-    final public void setShip(Ship ship)
-    {
+    public Greep(Ship ship)
+    {         
         this.ship = ship;
         setRotation(Greenfoot.getRandomNumber(360));
-        setImage(getCurrentImage());    
-    }
+        setImage(getCurrentImage());  
+    }      
     
     /**
      * Greenfoot's standard act method, which can be reimplemented in subclasses.

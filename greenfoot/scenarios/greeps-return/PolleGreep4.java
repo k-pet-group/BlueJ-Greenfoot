@@ -23,8 +23,9 @@ public class PolleGreep4 extends Greep
     /**
      * Default constructor for testing purposes.
      */
-    public PolleGreep4()
+    public PolleGreep4(Ship ship)
     {
+        super(ship);
         setFlag(1, randomChance(50));
     }
 

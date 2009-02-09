@@ -30,10 +30,10 @@ public class Ship extends Actor
     private Greep createGreep() 
     {
         if(teamNumber == 1) {
-            return new PolleGreep4();
+            return new PolleGreep4(this);
         }
         else {
-            return new DavinGreep6();
+            return new DavinGreep6(this);
         }        
     }
     
@@ -107,7 +107,6 @@ public class Ship extends Actor
             stepCount++;
             if(stepCount == 10) {
                 Greep newGreep = createGreep();
-                newGreep.setShip(this);
                 getWorld().addObject(newGreep, getX(), getY() + 30);
                 passengersReleased++;
                 stepCount = 0;               

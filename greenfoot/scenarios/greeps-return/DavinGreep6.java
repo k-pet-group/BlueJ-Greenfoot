@@ -20,8 +20,9 @@ public class DavinGreep6 extends Greep
     /**
      * Default constructor for testing purposes.
      */
-    public DavinGreep6()
+    public DavinGreep6(Ship ship)
     {
+        super(ship);
         setFlag(1, randomChance(50)); // controls which direction to turn when an obstacle is hit
     }
 
