@@ -75,6 +75,10 @@ public abstract class Greep extends Actor
         if (mode == MODE_FLIPPED) {
             if (slideSpeed != 0 || spinSpeed != 0) {
                 if (slideSpeed != 0) {
+                    if(slideSpeed < 20) {
+                        // Drop the tomato after we have been sliding for a while
+                        leaveTomato();
+                    }
                     double angle = Math.toRadians(slideDirection);
                     int speed = slideSpeed / 10;
                     int x = (int) Math.round(getX() + Math.cos(angle) * speed);
@@ -334,6 +338,22 @@ public abstract class Greep extends Actor
         setImage(getCurrentImage());
     }
     
+        
+    /**
+     * Leave the tomato we are carrying. 
+     * It will put the tomato on the ground - forming a pile of one tomato.
+     */
+    protected final void leaveTomato()
+    {
+        if(!carryingTomato)
+            return;
+            
+        getWorld().addObject(new TomatoPile(1), getX(), getY());
+        carryingTomato = false;
+        setImage(getCurrentImage());
+    }
+    
+    
     /**
      * Test if we are close to one of the edges of the world. Return true if we are.
      */
@@ -556,10 +576,10 @@ public abstract class Greep extends Actor
         }
         
         keelOver();
-        slideSpeed = 140;
-        spinSpeed = Greenfoot.getRandomNumber(40) + 40;
+        
+        slideSpeed = 20 + Greenfoot.getRandomNumber(120);
+        spinSpeed = Greenfoot.getRandomNumber(70) + 10;
         slideDirection = Greenfoot.getRandomNumber(360);
-//        getWorld().addObject(new Explosion(), getX(), getY());
         getWorld().addObject(new Smoke(5, isTeamTwo()), getX(), getY());
     }
 
