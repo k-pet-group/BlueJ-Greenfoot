@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 5833 2008-08-13 15:48:14Z polle $
+ * @version $Id: Invoker.java 6103 2009-02-10 23:39:51Z davmac $
  */
 
 public class Invoker
@@ -515,9 +515,14 @@ public class Invoker
                 argString += ';';
             
             File shell = writeInvocationFile(paramInit, command + argString, isVoid, constype);
-
-            commandString = command + actualArgString;
-            compileInvocationFile(shell);
+            if (shell != null) {
+                commandString = command + actualArgString;
+                compileInvocationFile(shell);
+            }
+            else {
+                numberCompiling++; // pretend we compiled
+                endCompile(new File[0], false);
+            }
         }
     }
 
@@ -560,8 +565,12 @@ public class Invoker
      * 
      * This method is still executed in the interface thread, while "endCompile"
      * will be executed by the CompilerThread.
+     * 
+     * Returns true if successful, or false if there was a problem (the shell
+     * file couldn't be written). In case of failure, a dialog is displayed to
+     * alert the user.
      */
-    public void doFreeFormInvocation(String resultType)
+    public boolean doFreeFormInvocation(String resultType)
     {
         boolean hasResult = resultType != null;
         if (hasResult) {
@@ -577,16 +586,24 @@ public class Invoker
         }
 
         File shell = writeInvocationFile("", commandString, !hasResult, resultType);
-
-        executionEvent.setCommand(commandString);
-        compileInvocationFile(shell);
+        if (shell != null) {
+            executionEvent.setCommand(commandString);
+            compileInvocationFile(shell);
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     /**
      * Write a source file for a class (the 'shell file') to do the interactive
-     * invocation. A shell file has the following form:<p>
+     * invocation. Returns the written file, or null if the file cannot be written
+     * (an error dialog will be shown in this case).
      * 
-     * <pre>
+     * <p>A shell file has the following form:
+     * 
+     * <p><pre>
      * $PKGLINE
      * $IMPORTS
      * public class $CLASSNAME extends bluej.runtime.Shell
@@ -757,8 +774,9 @@ public class Invoker
         String scopeSave = buffer.toString();
 
         File shellFile = new File(pkg.getPath(), shellName + ".java");
+        BufferedWriter shell = null;
         try {
-            BufferedWriter shell = new BufferedWriter(new FileWriter(shellFile));
+            shell = new BufferedWriter(new FileWriter(shellFile));
 
             shell.write(packageLine);
             shell.newLine();
@@ -785,10 +803,17 @@ public class Invoker
             shell.newLine();
             shell.write("}}");
             shell.close();
-
         }
         catch (IOException e) {
             DialogManager.showError(pmf, "could-not-write-shell-file");
+            if (shell != null) {
+                try {
+                    shell.close();
+                }
+                catch (IOException ioe) {}
+            }
+            shellFile.delete();
+            return null;
         }
         return shellFile;
     }
