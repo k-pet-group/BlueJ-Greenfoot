@@ -156,7 +156,6 @@ editor.go-to-lineLabel=Gehe zu Zeile...
 editor.replaceLabel=Ersetzen...
 editor.toggle-breakpointLabel=Haltepunkt setzen/entfernen
 editor.toggle-interface-viewLabel=Ansicht Implementierung/Dokumentation
-editor.toggle-interface-viewLabel = Toggle Documentation View
 editor.gotoline.title=BlueJ\:  Gehe zu Zeile
 editor.gotoline.label=Zeilennummer eingeben
 editor.gotoline.notNumericMessage=Eingabe muss nummerisch sein\!
