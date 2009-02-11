@@ -206,7 +206,7 @@ public class DavinGreep6 extends Greep
     {
         boolean dir = getFlag(1);
         int r = getRotation();
-        if (atWater()) {
+        if (atWater() || moveWasBlocked()) {
             setRotation (r + (dir ? 45 : -45));
             setMemory(3, 10);
         }
@@ -242,7 +242,7 @@ public class DavinGreep6 extends Greep
     private void moveNormally()
     {
         move();
-        if (atWater()) {
+        if (atWater() || moveWasBlocked()) {
             int r = getRotation();
             setRotation (r + Greenfoot.getRandomNumber(2) * 180 - 90);
             move();
