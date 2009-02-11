@@ -267,18 +267,6 @@ public class DavinGreep6 extends Greep
         return false;
     }
 
-    private int countActiveGreeps(List<GreepInfo> greeps)
-    {
-        int count= 0;
-        for (Iterator<GreepInfo> i = greeps.iterator(); i.hasNext(); ) {
-            GreepInfo info = i.next();
-            if (info.getState() != MODE_FLIPPED) {
-                count++;   
-            }
-        }
-        return count;
-    }
-    
     /**
      * Is there any food here where we are? If so, try to load some!
      */

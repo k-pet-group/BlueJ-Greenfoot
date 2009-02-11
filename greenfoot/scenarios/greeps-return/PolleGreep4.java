@@ -63,10 +63,6 @@ public class PolleGreep4 extends Greep
         return getFlag(2);   
     }
     
-    private boolean isAssassin(GreepInfo friend) 
-    {
-        return friend.getFlags()[1];   
-    }
     
     private void makeAssassin() 
     {
@@ -460,18 +456,6 @@ public class PolleGreep4 extends Greep
         checkForKnownPile(); // if at ship
     }
 
-    private int countActiveGreeps(List<GreepInfo> greeps)
-    {
-        int count= 0;
-        for (Iterator<GreepInfo> i = greeps.iterator(); i.hasNext(); ) {
-            GreepInfo info = i.next();
-            if (info.getState() != MODE_FLIPPED) {
-                count++;   
-            }
-        }
-        return count;
-    }
-    
     /**
      * Is there any food here where we are? If so, try to load some!
      */
