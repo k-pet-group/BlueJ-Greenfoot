@@ -260,7 +260,7 @@ public abstract class Greep extends Actor
     }
     
     /**
-     * Return true if we have just seen water in front of us.
+     * Return true if we have just seen water in front of us. The edge of the map is also water.
      */
     public boolean atWater()
     {
@@ -346,21 +346,6 @@ public abstract class Greep extends Actor
         carryingTomato = false;
         setImage(getCurrentImage());
     }
-    
-    
-    /**
-     * Test if we are close to one of the edges of the world. Return true if we are.
-     */
-    public boolean atWorldEdge()
-    {
-        if(getX() < 3 || getX() > getWorld().getWidth() - 3)
-            return true;
-        if(getY() < 3 || getY() > getWorld().getHeight() - 3)
-            return true;
-        else
-            return false;
-    }
-
     
     /**
      * Return 'true' in exactly 'percent' number of calls. That is: a call
