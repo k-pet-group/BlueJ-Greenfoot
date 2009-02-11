@@ -8,7 +8,7 @@ import java.util.Random;
  * A pile of tomatoes.
  * 
  * @author Michael Kolling
- * @version 1.0.1
+ * @version 2.0
  */
 public class TomatoPile extends Actor
 {
@@ -37,19 +37,50 @@ public class TomatoPile extends Actor
             getWorld().removeObject(this);
         }
     }
+    
+    /**
+     * Return the x-coordinate of the tomato pile's location.
+     * 
+     * You are allowed to call this method from the greep.
+     * 
+     * @see #Greep.getTomatoPile
+     */
+    public int getX() 
+    {
+        return super.getX();
+    }
+    
+    /**
+     * Return the x-coordinate of the tomato pile's location.
+     * 
+     * You are allowed to call this method from the greep.
+     * 
+     * @see #Greep.getTomatoPile
+     */
+    public int getY() 
+    {
+        return super.getY();
+    }
 
     /**
      * Remove a tomato from this pile. (If it was the last one, this pile will
      * disappear from the world.)
+     * 
+     * You are not allowed to call this method.
      */
-    public void takeOne()
+    protected void takeOne()
     {
         tomatoes = tomatoes - 1;
         updateImage();
         
     }
     
-    public boolean isEmpty() 
+    /**
+     * Is the pile empty?
+     * 
+     * You are not allowed to call this method.
+     */
+    protected boolean isEmpty() 
     {
         return tomatoes <= 0; 
     }
