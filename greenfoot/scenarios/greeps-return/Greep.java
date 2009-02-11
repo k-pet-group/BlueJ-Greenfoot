@@ -284,7 +284,7 @@ public abstract class Greep extends Actor
     {
         if(mode == MODE_FLIPPED) return;
         // check whether there's a tomato pile here
-        TomatoPile tomatoes = (TomatoPile) getOneIntersectingObject(TomatoPile.class);
+        TomatoPile tomatoes = getTomatoes();
         
         // check whether there's another friendly greep here
         List friendlies = getObjectsInRange(10, this.getClass());
