@@ -40,7 +40,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 6103 2009-02-10 23:39:51Z davmac $
+ * @version $Id: Invoker.java 6104 2009-02-11 03:51:41Z davmac $
  */
 
 public class Invoker
@@ -86,7 +86,6 @@ public class Invoker
     private boolean constructing;
 
     private String commandString;
-    private int numberCompiling = 0;
     private ExecutionEvent executionEvent;
     private InvokerRecord ir;
 
@@ -325,12 +324,10 @@ public class Invoker
      * After all the interactive stuff is finished, finally do the invocation of
      * the method. (This can be a constructor call or a normal method call.)
      * 
-     * Invocation here means: construct shell class and compile. The execution
-     * is done once we return from compilation (in method "endCompile").
-     * Compilation is done asynchronously by the CompilerThread.
+     * Invocation here means: construct shell class and start compiling it.
      * 
-     * This method is still executed in the interface thread, while "endCompile"
-     * will be executed by the CompilerThread.
+     * The "endCompile" method is called when the compilation has completed. If
+     * successful, the shell class will then be executed.
      *  
      * @param args  The arguments to the method/constructor as they will appear
      *              in the generated source
@@ -520,7 +517,6 @@ public class Invoker
                 compileInvocationFile(shell);
             }
             else {
-                numberCompiling++; // pretend we compiled
                 endCompile(new File[0], false);
             }
         }
@@ -987,7 +983,6 @@ public class Invoker
     private void compileInvocationFile(File shellFile)
     {
         File[] files = {shellFile};
-        numberCompiling++;
         JobQueue.getJobQueue().addJob(files, new EventqueueCompileObserver(this), pkg.getProject().getClassLoader(), pkg.getProject().getProjectDir(),true);
     }
 
@@ -1017,9 +1012,8 @@ public class Invoker
     }
 
     /**
-     * The compilation of the shell class has ended. This method is called by
-     * the CompilerThread after compilation. If all went well, execute now. Then
-     * clean up.
+     * The compilation of the shell class has ended. If all went well, execute
+     * now. Then clean up.
      */
     public synchronized void endCompile(File[] sources, boolean successful)
     {
@@ -1032,12 +1026,18 @@ public class Invoker
 
         pmf.setWaitCursor(false);
 
-        if (successful)
+        if (successful) {
             startClass();
-        else
+        }
+        else {
             finishCall(false);
+        }
     }
 
+    /**
+     * Clean up after an invocation or attempted invocation.
+     * @param successful  Whether the invocation was successful
+     */
     private void finishCall(boolean successful)
     {
         if (constructing && successful) {
@@ -1047,16 +1047,13 @@ public class Invoker
             pkg.setStatus(" ");
         }
 
-        // Careful: if we want to try again with the same invoker, don't
-        // delete the files while we are busy invoking again at the same
-        // time!
-
-        numberCompiling--;
-        if (numberCompiling == 0)
-            deleteShellFiles();
+        deleteShellFiles();
         
-        if (! successful && dialog != null)
+        if (! successful && dialog != null) {
+            // Re-enable call dialog: use can try again with
+            // different parameters.
             dialog.setEnabled(true);
+        }
     }
     
     private void closeCallDialog()
@@ -1072,8 +1069,9 @@ public class Invoker
             if (Config.isWinOS()) {
                 dialog.dispose();
             }
-            if (dialog instanceof MethodDialog)
+            if (dialog instanceof MethodDialog) {
                 ((MethodDialog) dialog).updateParameters();
+            }
         }
     }
 
@@ -1093,13 +1091,7 @@ public class Invoker
 
     /**
      * Execute an interactive method call. At this point, the shell class has
-     * been compiled and we are ready to go. If you want to extend this to
-     * support concurrency (executing in a separate thread), this is the place
-     * to do it: This could be done in another thread, which you could construct
-     * here. Careful, though: you have to make sure that the clean-up (deleting
-     * the class file) does not happen too early.
-     * 
-     * This method is executed on the GUI thread.
+     * been compiled and we are ready to go.
      */
     public void startClass()
     {
