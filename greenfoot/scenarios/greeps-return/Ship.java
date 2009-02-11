@@ -9,7 +9,9 @@ import java.awt.Font;
  * A space ship. It comes from space, lands, and releases some Greeps into the world.
  * 
  * @author Michael Kolling
- * @version 1.0
+ * @author Davin McCall
+ * @author Poul Henriksen
+ * @version 2.0
  */
 public class Ship extends Actor
 {
@@ -30,7 +32,7 @@ public class Ship extends Actor
     private Greep createGreep() 
     {
         if(teamNumber == 1) {
-            return new PolleGreep4(this);
+            return new PolleGreep7(this);
         }
         else {
             return new DavinGreep6(this);

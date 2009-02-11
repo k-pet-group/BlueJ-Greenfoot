@@ -7,8 +7,8 @@ import java.util.Calendar;
  * The ScoreBoard is used to display results on the screen. It can display some
  * text and several numbers.
  * 
- * @author M Kolling
- * @version 1.0
+ * @author Michael Kolling
+ * @version 2.0
  */
 public class ScoreBoard extends Actor
 {

@@ -5,7 +5,7 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
  * This timer also checks whether the map has been completed (either time
  * is up, or all tomatoes are gone).
  * 
- * @author M Kolling
+ * @author Michael Kolling
  * @version 1.0
  */
 public class Timer extends Counter

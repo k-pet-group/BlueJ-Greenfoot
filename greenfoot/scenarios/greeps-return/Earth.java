@@ -8,7 +8,8 @@ import java.awt.Font;
  * land and look for piles of tomatoes...
  * 
  * @author Michael Kolling
- * @version 1.0
+ * @author Davin McCall
+ * @version 2.0
  */
 public class Earth extends World
 {
