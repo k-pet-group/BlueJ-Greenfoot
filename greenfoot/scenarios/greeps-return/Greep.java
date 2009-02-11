@@ -4,8 +4,8 @@ import java.util.Iterator;
 import java.util.ArrayList;
 
 /**
- * A Creature is the base class for all alien beings in this scenario. It
- * provides the basic abilities of creatures in this world.
+ * A Greep is the base class for all alien beings in this scenario. It
+ * provides the basic abilities of greeps in this world.
  * 
  * @author Michael Kolling
  * @version 1.0
@@ -20,7 +20,7 @@ public abstract class Greep extends Actor
     /** Indicate whether we have a tomato with us */
     private boolean carryingTomato = false; 
     
-    /** The creature's home ship */
+    /** The greep's home ship */
     private Ship ship;
     private boolean canSeeShip; // can this greep currently see the ship? (cache value for atShip())
 
@@ -28,13 +28,12 @@ public abstract class Greep extends Actor
     private boolean moved = false;
     private boolean atWater = false;
     private boolean moveWasBlocked = false;
-    private int timeToSpit = 0;
     private int mode = MODE_WALKING;
     private int timeToKablam = 0;
     
     public static final int MODE_WALKING = 0;
     public static final int MODE_BLOCKING = 1;
-    public static final int MODE_FLIPPED = 2; // Flipped over
+    public static final int MODE_FLIPPED = 2;
 
     /** if flipped, will slide for some way */
     int slideSpeed = 0;
@@ -62,9 +61,6 @@ public abstract class Greep extends Actor
     {        
         moved = false;
         canSeeShip = false;
-
-        if(timeToSpit > 0)
-            timeToSpit--;
             
         if (mode == MODE_FLIPPED) {
             if (slideSpeed != 0 || spinSpeed != 0) {
@@ -101,24 +97,26 @@ public abstract class Greep extends Actor
                 timeToKablam--;
             }
         }
-    }
-   
+    }       
     
+    /**
+     * This method specifies the name of the greeps (for display on the result board).
+     */
+    abstract public String getName();    
     
     /**
      * Turn 'angle' degrees towards the right (clockwise).
      */
-    public void turn(int angle)
+    protected void turn(int angle)
     {
         if(mode == MODE_FLIPPED) return;
         setRotation(getRotation() + angle);
-    }
-    
+    }    
 
     /**
      * Turn in the direction facing the home ship.
      */
-    public void turnHome()
+    protected void turnHome()
     {
         if(mode == MODE_FLIPPED) return;
         turnTowards(ship.getX(), ship.getY());
@@ -127,7 +125,7 @@ public abstract class Greep extends Actor
     /**
      * Turn to face an arbitrary point on the map.
      */
-    public void turnTowards(int x, int y)
+    protected void turnTowards(int x, int y)
     {
         if(mode == MODE_FLIPPED) return;
         int deltaX = x - getX();
@@ -136,27 +134,9 @@ public abstract class Greep extends Actor
     }
     
     /**
-     * Return the angle from the origin (0,0) to some point (x,y), in degrees
-     */
-    private int getAngleTo(int x, int y)
-    {
-        return (int)(180 * Math.atan2(y, x) / Math.PI);
-    }
-    
-    /**
-     * Return the distance between this greep and an arbitrary point.
-     */
-    private int distanceTo(int x, int y)
-    {
-        int deltaX = getX() - x;
-        int deltaY = getY() - y;
-        return (int) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-    }
-    
-    /**
      * True if we are at the opponent's space ship.
      */
-    public final boolean atOpponentShip()
+    protected final boolean atOpponentShip()
     {
         boolean canSeeOpponentShip = false;
         Ship ship = (Ship) getOneIntersectingObject(Ship.class);
@@ -167,7 +147,7 @@ public abstract class Greep extends Actor
     /**
      * True if we are at our space ship.
      */
-    public final boolean atShip()
+    protected final boolean atShip()
     {
         if (! canSeeShip) {
             Ship ship = (Ship) getOneIntersectingObject(Ship.class);
@@ -181,7 +161,7 @@ public abstract class Greep extends Actor
      * This can only be done if the greep is at the ship.
      * The data inside the array can be freely manipulated.
      */
-    public int[] getShipData()
+    protected int[] getShipData()
     {
         if (atShip()) {
             return ship.getData();
@@ -190,6 +170,273 @@ public abstract class Greep extends Actor
             return null;
         }
     }
+    
+    /**
+     * Try and move forward in the current direction. If we are blocked (by water, or an
+     * opponent greep who is blocking), we won't move; atWater()/moveWasBlocked() can be
+     * used to check for this, and in that case, it is allowed to change direction and try
+     * move()ing again.
+     */
+    protected void move()
+    {
+        if(moved)   // can move only once per 'act' round
+            return;
+                    
+        if (mode == MODE_FLIPPED)
+            return;
+        
+        if(mode != MODE_WALKING) {
+            mode = MODE_WALKING; // can't be blocking if we're moving
+            setImage(getCurrentImage());
+        }
+        double angle = Math.toRadians( getRotation() );
+        int x = (int) Math.round(getX() + Math.cos(angle) * WALKING_SPEED);
+        int y = (int) Math.round(getY() + Math.sin(angle) * WALKING_SPEED);
+        
+        if (canMoveTo(x,y)) {
+            setLocation(x, y);
+            moved = true;
+        }
+    }
+    
+    /**
+     * Return true if we have just seen water in front of us. The edge of the map is also water.
+     */
+    protected boolean atWater()
+    {
+        return atWater;
+    }
+    
+    /**
+     * Return true if we have been blocked by an opponent greep.
+     */
+    protected boolean moveWasBlocked()
+    {
+        return moveWasBlocked;
+    }
+    
+    /**
+     * Load a tomato onto *another* greep. This works only if there is another greep
+     * and a tomato pile present, otherwise this method does nothing.
+     */
+    protected final void loadTomato()
+    {
+        if(mode == MODE_FLIPPED) return;
+        // check whether there's a tomato pile here
+        TomatoPile tomatoes = getTomatoes();
+        
+        // check whether there's another friendly greep here
+        List friendlies = getObjectsInRange(10, this.getClass());
+
+        if(! friendlies.isEmpty() && tomatoes != null) {
+            Greep greep = (Greep) friendlies.iterator().next();
+            if(!greep.carryingTomato()) {
+                tomatoes.takeOne();
+                greep.carryTomato();
+            }
+        }
+    }    
+
+    /**
+     * Check whether we are carrying a tomato.
+     */
+    protected final boolean carryingTomato()
+    {
+        return carryingTomato;
+    }
+    
+    /**
+     * Drop the tomato we are carrying. If we are at the ship, it is counted.
+     * If not, it's just gone...
+     */
+    protected final void dropTomato()
+    {
+        if(!carryingTomato)
+            return;
+            
+        if(atShip()) {
+            ship.storeTomato();
+        }
+        carryingTomato = false;
+        setImage(getCurrentImage());
+    }   
+    
+    /**
+     * If we can see tomatoes, this will return them. Otherwise it returnes null.
+     * <p>
+     * You are only allowed to call getX() and getY() on the returned tomato pile. 
+     */
+    protected TomatoPile getTomatoes()
+    {
+        TomatoPile tomatoes = (TomatoPile) getOneIntersectingObject(TomatoPile.class);
+        if (tomatoes != null) {
+            if (distanceTo(tomatoes.getX(), tomatoes.getY()) < 25 && !tomatoes.isEmpty()) {
+                return tomatoes;
+            }
+        }
+        return null;
+    }        
+    
+    /**
+     * Return the number of visible opponent greeps which are not knocked out by a stink bomb.
+     * 
+     * @param withTomatoes If true, only count the greeps that are carrying a tomato.
+     */
+    protected int getNumberOfOpponents(boolean withTomatoes)
+    {
+        int count = 0;
+        List l = getObjectsInRange(VISION_RANGE, Greep.class);
+        for (Iterator i = l.iterator(); i.hasNext(); ) {
+            Greep greep = (Greep) i.next();
+            if (greep.ship != ship) {
+                // It's an enemy greep
+                if (greep.mode != MODE_FLIPPED && (!withTomatoes || greep.carryingTomato()))                    
+                    count++;
+            }
+        }        
+        return count;
+    }
+    
+    /**
+     * Return the number of visible friendly greeps which are not knocked out by a stink bomb.
+     * 
+     * @param withTomatoes If true, only count the greeps that are carrying a tomato.
+     */
+    protected int getNumberOfFriends(boolean withTomatoes)
+    {
+        int count = 0;
+        List l = getObjectsInRange(VISION_RANGE, Greep.class);
+        for (Iterator i = l.iterator(); i.hasNext(); ) {
+            Greep greep = (Greep) i.next();
+            if (greep.ship == ship) {
+                // It's a friendly greep
+                if( greep.mode != MODE_FLIPPED && (!withTomatoes || greep.carryingTomato()))                    
+                    count++;
+            }
+        }        
+        return count;
+    }
+    
+    /**
+     * Returns a friendly greep, if there is one at our current location.
+     * Returns null otherwise.
+     * <p>
+     * You are only allowed to access the memory and flags of the friend.
+     */
+    protected Greep getFriend()
+    {
+       return (Greep) getOneIntersectingObject(this.getClass());       
+    }    
+    /**
+     * Return 'true' in exactly 'percent' number of calls. That is: a call
+     * randomChance(25) has a 25% chance to return true.
+     */
+    protected boolean randomChance(int percent)
+    {
+        return Greenfoot.getRandomNumber(100) < percent;
+    }       
+    
+    /**
+     * Store something in the greep's memory. There are four memory slots, numbered
+     * 0 to 3, each can hold an int value.
+     */
+    protected void setMemory(int slot, int val)
+    {
+        memory[slot] = val;
+    }    
+    
+    /**
+     * Retrieve a previously stored value.
+     * 
+     * Other friendly greeps are allowed to call this mehtod.
+     */
+    public int getMemory(int slot)
+    {
+        return memory[slot];
+    }
+
+    /**
+     * Store a user defined boolean value (a "flag"). Two flags are available, 
+     * i.e. 'flagNo' may be 1 or 2.
+     */
+    protected void setFlag(int flagNo, boolean val)
+    {
+        if(flagNo < 1 || flagNo > 2)
+            throw new IllegalArgumentException("flag number must be either 1 or 2");
+        else 
+            flags[flagNo-1] = val;
+    }    
+    
+    /**
+     * Retrieve the value of a flag. 'flagNo' can be 1 or 2.
+     * 
+     * Other friendly greeps are allowed to call this mehtod.
+     */
+    public boolean getFlag(int flagNo)
+    {
+        if(flagNo < 1 || flagNo > 2)
+            throw new IllegalArgumentException("flag number must be either 1 or 2");
+        else 
+            return flags[flagNo-1];
+    }
+    
+    /**
+     * Return true if this greep is in "blocking" mode - it has hunkered down to
+     * prevent opponent greeps from passing (while allowing friendly greeps through).
+     */
+    protected final boolean isBlocking()
+    {
+        return mode == MODE_BLOCKING;
+    }
+    
+    /**
+     * Block opponent greeps from passing our current location. This is only effective if
+     * we haven't moved (can't move and block in the same turn).
+     */
+    protected void block()
+    {
+        if (moved)
+            return;
+        
+        if (mode == MODE_FLIPPED)
+            return;
+        
+        mode = MODE_BLOCKING;            
+        setImage(getCurrentImage());
+    }
+    
+    /**
+     * Release a stink bomb. All greeps within a small radius will be knocked out for
+     * a small period of time.
+     */
+    protected void kablam()
+    {
+        if (mode == MODE_FLIPPED) {
+            return;   
+        }
+        
+        if (timeToKablam > 0) {
+            return;
+        }
+        
+        timeToKablam = 20; // prevent total carnage
+        
+        List l = getObjectsInRange(100, Greep.class);
+        for (Iterator i = l.iterator(); i.hasNext(); ) {
+            Greep greep = (Greep) i.next();
+            greep.keelOver();
+            greep.slideSpeed = 20 + Greenfoot.getRandomNumber(120);
+            greep.spinSpeed = Greenfoot.getRandomNumber(70) + 10;
+            greep.slideDirection = Greenfoot.getRandomNumber(360);
+        }
+        
+        keelOver();
+        
+        slideSpeed = 20 + Greenfoot.getRandomNumber(120);
+        spinSpeed = Greenfoot.getRandomNumber(70) + 10;
+        slideDirection = Greenfoot.getRandomNumber(360);
+        getWorld().addObject(new Smoke(5, isTeamTwo()), getX(), getY());
+    }    
 
     private boolean canMoveTo(int x, int y)
     {
@@ -232,81 +479,6 @@ public abstract class Greep extends Actor
     }
     
     /**
-     * Try and move forward in the current direction. If we are blocked (by water, or an
-     * opponent greep who is blocking), we won't move; atWater()/moveWasBlocked() can be
-     * used to check for this, and in that case, it is allowed to change direction and try
-     * move()ing again.
-     */
-    public void move()
-    {
-        if(moved)   // can move only once per 'act' round
-            return;
-                    
-        if (mode == MODE_FLIPPED)
-            return;
-        
-        if(mode != MODE_WALKING) {
-            mode = MODE_WALKING; // can't be blocking if we're moving
-            setImage(getCurrentImage());
-        }
-        double angle = Math.toRadians( getRotation() );
-        int x = (int) Math.round(getX() + Math.cos(angle) * WALKING_SPEED);
-        int y = (int) Math.round(getY() + Math.sin(angle) * WALKING_SPEED);
-        
-        if (canMoveTo(x,y)) {
-            setLocation(x, y);
-            moved = true;
-        }
-    }
-    
-    /**
-     * Return true if we have just seen water in front of us. The edge of the map is also water.
-     */
-    public boolean atWater()
-    {
-        return atWater;
-    }
-    
-    /**
-     * Return true if we have been blocked by an opponent greep.
-     */
-    public boolean moveWasBlocked()
-    {
-        return moveWasBlocked;
-    }
-    
-    /**
-     * Load a tomato onto *another* creature. This works only if there is another creature
-     * and a tomato pile present, otherwise this method does nothing.
-     */
-    public final void loadTomato()
-    {
-        if(mode == MODE_FLIPPED) return;
-        // check whether there's a tomato pile here
-        TomatoPile tomatoes = getTomatoes();
-        
-        // check whether there's another friendly greep here
-        List friendlies = getObjectsInRange(10, this.getClass());
-
-        if(! friendlies.isEmpty() && tomatoes != null) {
-            Greep greep = (Greep) friendlies.iterator().next();
-            if(!greep.carryingTomato()) {
-                tomatoes.takeOne();
-                greep.carryTomato();
-            }
-        }
-    }
-    
-
-    /**
-     * Check whether we are carrying a tomato.
-     */
-    public final boolean carryingTomato()
-    {
-        return carryingTomato;
-    }
-
-    /**
      * Receive a tomato and carry it.
      */
     private void carryTomato()
@@ -314,29 +486,12 @@ public abstract class Greep extends Actor
         carryingTomato = true;
         setImage(getCurrentImage());
     }
-    
-    /**
-     * Drop the tomato we are carrying. If we are at the ship, it is counted.
-     * If not, it's just gone...
-     */
-    protected final void dropTomato()
-    {
-        if(!carryingTomato)
-            return;
-            
-        if(atShip()) {
-            ship.storeTomato();
-        }
-        carryingTomato = false;
-        setImage(getCurrentImage());
-    }
-    
         
     /**
      * Leave the tomato we are carrying. 
      * It will put the tomato on the ground - forming a pile of one tomato.
      */
-    private final void leaveTomato()
+    private void leaveTomato()
     {
         if(!carryingTomato)
             return;
@@ -344,65 +499,21 @@ public abstract class Greep extends Actor
         getWorld().addObject(new TomatoPile(1), getX(), getY());
         carryingTomato = false;
         setImage(getCurrentImage());
-    }
+    }    
     
     /**
-     * Return 'true' in exactly 'percent' number of calls. That is: a call
-     * randomChance(25) has a 25% chance to return true.
+     * Make this greep flip.
      */
-    protected boolean randomChance(int percent)
+    private void keelOver()
     {
-        return Greenfoot.getRandomNumber(100) < percent;
-    }
-       
-    
-    /**
-     * Store something in the greep's memory. There are four memory slots, numbered
-     * 0 to 3, each can hold an int value.
-     */
-    public void setMemory(int slot, int val)
-    {
-        memory[slot] = val;
-    }
-    
-    
-    /**
-     * Retrieve a previously stored value.
-     */
-    public int getMemory(int slot)
-    {
-        return memory[slot];
-    }
-
-
-    /**
-     * Store a user defined boolean value (a "flag"). Two flags are available, 
-     * i.e. 'flagNo' may be 1 or 2.
-     */
-    public void setFlag(int flagNo, boolean val)
-    {
-        if(flagNo < 1 || flagNo > 2)
-            throw new IllegalArgumentException("flag number must be either 1 or 2");
-        else 
-            flags[flagNo-1] = val;
-    }
-    
-    
-    /**
-     * Retrieve the value of a flag. 'flagNo' can be 1 or 2.
-     */
-    public boolean getFlag(int flagNo)
-    {
-        if(flagNo < 1 || flagNo > 2)
-            throw new IllegalArgumentException("flag number must be either 1 or 2");
-        else 
-            return flags[flagNo-1];
+        mode = MODE_FLIPPED;
+        setImage(getCurrentImage());
     }
     
      /**
      * This method specifies the image we want displayed at any time.
      */
-    private final String getCurrentImage()
+    private String getCurrentImage()
     {
         String base;
         
@@ -430,7 +541,7 @@ public abstract class Greep extends Actor
     /**
      * Return true if this is team 2, false if it is team 1.
      */
-    private final boolean isTeamTwo()
+    private boolean isTeamTwo()
     {
         if(ship == null) {
             return false;
@@ -439,141 +550,22 @@ public abstract class Greep extends Actor
             return ship.isTeamTwo();
         }
     }    
-    
+        
     /**
-     * Return true if this greep is in "blocking" mode - it has hunkered down to
-     * prevent opponent greeps from passing (while allowing friendly greeps through).
+     * Return the angle from the origin (0,0) to some point (x,y), in degrees
      */
-    public final boolean isBlocking()
+    private int getAngleTo(int x, int y)
     {
-        return mode == MODE_BLOCKING;
-    }
-    
-   /**
-     * If we can see tomatoes, this will return them. Otherwise it returnes null.
-     * <p>
-     * You are only allowed to call getX() and getY() on the returned tomato pile. 
-     */
-    public TomatoPile getTomatoes()
-    {
-        TomatoPile tomatoes = (TomatoPile) getOneIntersectingObject(TomatoPile.class);
-        if (tomatoes != null) {
-            if (distanceTo(tomatoes.getX(), tomatoes.getY()) < 25 && !tomatoes.isEmpty()) {
-                return tomatoes;
-            }
-        }
-        return null;
-    }        
-    
-    /**
-     * Return the number of visible opponent greeps which are not knocked out by a stink bomb.
-     * 
-     * @param withTomatoes If true, only count the greeps that are carrying a tomato.
-     */
-    public int getNumberOfOpponents(boolean withTomatoes)
-    {
-        int count = 0;
-        List l = getObjectsInRange(VISION_RANGE, Greep.class);
-        for (Iterator i = l.iterator(); i.hasNext(); ) {
-            Greep greep = (Greep) i.next();
-            if (greep.ship != ship) {
-                // It's an enemy greep
-                if (greep.mode != MODE_FLIPPED && (!withTomatoes || greep.carryingTomato()))                    
-                    count++;
-            }
-        }        
-        return count;
+        return (int)(180 * Math.atan2(y, x) / Math.PI);
     }
     
     /**
-     * Return the number of visible friendly greeps which are not knocked out by a stink bomb.
-     * 
-     * @param withTomatoes If true, only count the greeps that are carrying a tomato.
+     * Return the distance between this greep and an arbitrary point.
      */
-    public int getNumberOfFriends(boolean withTomatoes)
+    private int distanceTo(int x, int y)
     {
-        int count = 0;
-        List l = getObjectsInRange(VISION_RANGE, Greep.class);
-        for (Iterator i = l.iterator(); i.hasNext(); ) {
-            Greep greep = (Greep) i.next();
-            if (greep.ship == ship) {
-                // It's a friendly greep
-                if( greep.mode != MODE_FLIPPED && (!withTomatoes || greep.carryingTomato()))                    
-                    count++;
-            }
-        }        
-        return count;
-    }
-    
-    /**
-     * Returns a friendly greep, if there is one at our current location.
-     * Returns null otherwise.
-     * <p>
-     * You are only allowed to access the memory and flags of the friend.
-     */
-    public Greep getFriend()
-    {
-       return (Greep) getOneIntersectingObject(this.getClass());       
-    }
-    
-    /**
-     * Block opponent greeps from passing our current location. This is only effective if
-     * we haven't moved (can't move and block in the same turn).
-     */
-    public void block()
-    {
-        if (moved)
-            return;
-        
-        if (mode == MODE_FLIPPED)
-            return;
-        
-        mode = MODE_BLOCKING;            
-        setImage(getCurrentImage());
-    }
-    
-    final private void keelOver()
-    {
-        mode = MODE_FLIPPED;
-        setImage(getCurrentImage());
-    }
-    
-    /**
-     * Release a stink bomb. All greeps within a small radius will be knocked out for
-     * a small period of time.
-     */
-    public void kablam()
-    {
-        if (mode == MODE_FLIPPED) {
-            return;   
-        }
-        
-        if (timeToKablam > 0) {
-            return;
-        }
-        
-        timeToKablam = 20; // prevent total carnage
-        
-        List l = getObjectsInRange(100, Greep.class);
-        for (Iterator i = l.iterator(); i.hasNext(); ) {
-            Greep greep = (Greep) i.next();
-            greep.keelOver();
-            greep.slideSpeed = 20 + Greenfoot.getRandomNumber(120);
-            greep.spinSpeed = Greenfoot.getRandomNumber(70) + 10;
-            greep.slideDirection = Greenfoot.getRandomNumber(360);
-        }
-        
-        keelOver();
-        
-        slideSpeed = 20 + Greenfoot.getRandomNumber(120);
-        spinSpeed = Greenfoot.getRandomNumber(70) + 10;
-        slideDirection = Greenfoot.getRandomNumber(360);
-        getWorld().addObject(new Smoke(5, isTeamTwo()), getX(), getY());
-    }
-
-    /**
-     * This method specifies the name of the greeps (for display on the result board).
-     */
-    abstract public String getName();    
-    
+        int deltaX = getX() - x;
+        int deltaY = getY() - y;
+        return (int) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    }    
 }
