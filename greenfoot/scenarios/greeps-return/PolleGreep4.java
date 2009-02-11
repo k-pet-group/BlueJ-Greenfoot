@@ -102,17 +102,18 @@ public class PolleGreep4 extends Greep
      */
     private void assassinAct() 
     {
-        List<GreepInfo> visibleFriends = getVisibleFriends();
+       /* List<GreepInfo> visibleFriends = getVisibleFriends();
         int assassinFriends = 0;
         for(GreepInfo friend : visibleFriends) {
             if(isAssassin(friend)) {
                 assassinFriends++;
             }
-        }
+        }*/
         
         boolean atShip = (Math.abs(getEnemyShipX() - getX()) < 3) && (Math.abs(getEnemyShipY() - getY()) < 3); 
-       
-        if(assassinFriends > 1 ) {       
+        
+        PolleGreep4 friend = (PolleGreep4) getFriend();
+        if(friend != null && friend.isAssassin() ) {       
             // There are too many assassins, cancel this one
             
             kablam();
@@ -139,8 +140,7 @@ public class PolleGreep4 extends Greep
               //  System.out.println("Found ship: " + getMemory(0));
             }
             
-            List<GreepInfo> visibleOpponents = getVisibleOpponents();
-            if( visibleOpponents.size() > 2 ) {
+            if( getNumberOfOpponents(true) > 2 ) {
          //       System.out.println("ASSASSINATION!");
                // block();
                 kablam();
@@ -196,7 +196,7 @@ public class PolleGreep4 extends Greep
     }*/
     
     private boolean tail() {
-            List<GreepInfo> visibleOpponents = getVisibleOpponents();
+           /* List<GreepInfo> visibleOpponents = getVisibleOpponents();
             for(GreepInfo opponent : visibleOpponents) {
                 if(opponent.hasTomato()) {
                     //System.out.println("saw one");
@@ -222,7 +222,7 @@ public class PolleGreep4 extends Greep
                         return true;
                     }
                 }                    
-            }   
+            }   */
             return false;
     }
     
@@ -451,12 +451,7 @@ public class PolleGreep4 extends Greep
             setRotation (r + Greenfoot.getRandomNumber(2) * 180 - 90);
             move();
         }
-        
-        List<GreepInfo> visibleOpponents = getVisibleOpponents();
-        List<GreepInfo> visibleFriends = getVisibleFriends();
-        int activeOpponents = countActiveGreeps(visibleOpponents);
-        int activeFriends = countActiveGreeps(visibleFriends) + 1;
-        if (activeOpponents > activeFriends) {
+        if (getNumberOfOpponents(false) > getNumberOfFriends(false) +1) {
             kablam();
         }
         

@@ -46,18 +46,16 @@ public class DavinGreep6 extends Greep
             
             if (getMemory(0) == 1) {
                 // We have found some tomatoes. Sit tight and guard the pile.
-                List<GreepInfo> friends = getVisibleFriends();
-                for (Iterator<GreepInfo> i = friends.iterator(); i.hasNext(); ) {
-                    GreepInfo info = i.next();
-                    if (info.getMemory()[0] == 1) {
-                        // The other greep is doing the same thing as me.
-                        // I'll go home and store info about the pile in the
-                        // ship's databank:
-                        setMemory(0, 4);
-                        headHomeward(-1, -1);
-                        return;
-                    }
+                Greep friend = getFriend();
+                if (friend != null && friend.getMemory(0) == 1) {
+                    // The other greep is doing the same thing as me.
+                    // I'll go home and store info about the pile in the
+                    // ship's databank:
+                    setMemory(0, 4);
+                    headHomeward(-1, -1);
+                    return;
                 }
+                
                 
                 headHomeward(getMemory(1), getMemory(2));
                 checkKablam();
@@ -262,11 +260,7 @@ public class DavinGreep6 extends Greep
      */
     private boolean checkKablam()
     {
-        List<GreepInfo> visibleOpponents = getVisibleOpponents();
-        List<GreepInfo> visibleFriends = getVisibleFriends();
-        int activeOpponents = countActiveGreeps(visibleOpponents);
-        int activeFriends = countActiveGreeps(visibleFriends) + 1;
-        if (activeOpponents > (activeFriends + 1)) {
+        if (getNumberOfOpponents(false) > (getNumberOfFriends(false) + 2)) {
             kablam();
             return true;
         }
@@ -296,7 +290,7 @@ public class DavinGreep6 extends Greep
             // Note: this attempts to load a tomato onto *another* Greep. It won't
             // do anything if we are alone here.
             
-            if (! getVisibleOpponents().isEmpty()) {
+            if (getNumberOfOpponents(false) > 0) {
                 setMemory(0, 1);    
             }
             else {

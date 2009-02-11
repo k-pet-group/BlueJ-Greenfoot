@@ -15,6 +15,7 @@ public abstract class Greep extends Actor
     private static final double WALKING_SPEED = 5.0;
     private static final int TIME_TO_SPIT = 10;
     private static final int KNOCK_OUT_TIME = 70;
+    private static final int VISION_RANGE = 70;
     
     /** Indicate whether we have a tomato with us */
     private boolean carryingTomato = false; 
@@ -478,47 +479,57 @@ public abstract class Greep extends Actor
             }
         }
         return null;
-    }  
+    }        
     
     /**
-     * Get a list of visible opponent greeps.
+     * Return the number of visible opponent greeps which are not knocked out by a stink bomb.
+     * 
+     * @param withTomatoes If true, only count the greeps that are carrying a tomato.
      */
-    public List<GreepInfo> getVisibleOpponents()
+    public int getNumberOfOpponents(boolean withTomatoes)
     {
-        List<GreepInfo> rlist = new ArrayList<GreepInfo>(); 
-        
-        List l = getIntersectingObjects(Greep.class);
+        int count = 0;
+        List l = getObjectsInRange(VISION_RANGE, Greep.class);
         for (Iterator i = l.iterator(); i.hasNext(); ) {
             Greep greep = (Greep) i.next();
             if (greep.ship != ship) {
                 // It's an enemy greep
-                GreepInfo details = new GreepInfo(greep, null, null, greep.mode);
-                rlist.add(details);
+                if (greep.mode != MODE_FLIPPED && (!withTomatoes || greep.carryingTomato()))                    
+                    count++;
             }
-        }
-        
-        return rlist;
+        }        
+        return count;
     }
     
     /**
-     * Get a list of visible friendly greeps.
+     * Return the number of visible friendly greeps which are not knocked out by a stink bomb.
+     * 
+     * @param withTomatoes If true, only count the greeps that are carrying a tomato.
      */
-    public List<GreepInfo> getVisibleFriends()
+    public int getNumberOfFriends(boolean withTomatoes)
     {
-        List<GreepInfo> rlist = new ArrayList<GreepInfo>(); 
-        
-        List l = getIntersectingObjects(Greep.class);
+        int count = 0;
+        List l = getObjectsInRange(VISION_RANGE, Greep.class);
         for (Iterator i = l.iterator(); i.hasNext(); ) {
             Greep greep = (Greep) i.next();
             if (greep.ship == ship) {
-                int [] memory = (int[])greep.memory.clone();
-                boolean [] flags = (boolean[])greep.flags.clone();
-                GreepInfo details = new GreepInfo(greep, memory, flags, greep.mode);
-                rlist.add(details);
+                // It's a friendly greep
+                if( greep.mode != MODE_FLIPPED && (!withTomatoes || greep.carryingTomato()))                    
+                    count++;
             }
-        }
-        
-        return rlist;
+        }        
+        return count;
+    }
+    
+    /**
+     * Returns a friendly greep, if there is one at our current location.
+     * Returns null otherwise.
+     * <p>
+     * You are only allowed to access the memory and flags of the friend.
+     */
+    public Greep getFriend()
+    {
+       return (Greep) getOneIntersectingObject(this.getClass());       
     }
     
     /**
