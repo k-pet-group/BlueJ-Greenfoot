@@ -153,7 +153,7 @@ public abstract class Greep extends Actor
         return (int) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     }
     
-     /**
+    /**
      * True if we are at the opponent's space ship.
      */
     public final boolean atOpponentShip()
@@ -268,12 +268,11 @@ public abstract class Greep extends Actor
     }
     
     /**
-     * Return true if we have seen water or anything else that blocks our path
-     * in front of us.
+     * Return true if we have been blocked by an opponent greep.
      */
     public boolean moveWasBlocked()
     {
-        return atWater || moveWasBlocked;
+        return moveWasBlocked;
     }
     
     /**
