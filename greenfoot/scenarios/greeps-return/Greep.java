@@ -587,6 +587,9 @@ public abstract class Greep extends Actor
         getWorld().addObject(new Smoke(5, isTeamTwo()), getX(), getY());
     }
 
-    abstract public String getAuthorName();    
+    /**
+     * This method specifies the name of the greeps (for display on the result board).
+     */
+    abstract public String getName();    
     
 }

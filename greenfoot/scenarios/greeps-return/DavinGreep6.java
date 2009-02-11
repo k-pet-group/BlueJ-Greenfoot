@@ -306,9 +306,9 @@ public class DavinGreep6 extends Greep
 
 
     /**
-     * This method specifies the name of the author (for display on the result board).
+     * This method specifies the name of the greep (for display on the result board).
      */
-    public String getAuthorName()
+    public String getName()
     {
         return "Davin 6";  // write your name here!
     }

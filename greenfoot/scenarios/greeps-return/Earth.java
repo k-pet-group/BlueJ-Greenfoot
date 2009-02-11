@@ -175,7 +175,7 @@ public class Earth extends World
         Font font = im.getFont();
         font = font.deriveFont(14f);
         im.setFont(font);
-        im.drawString(ship.getAuthor(), ship.getX()-40, ship.getY()-36);
+        im.drawString(ship.getGreepName(), ship.getX()-40, ship.getY()-36);
     }
     
 
@@ -185,7 +185,7 @@ public class Earth extends World
         int points2 = ship2.getTomatoCount();
         scores[0][currentMap] = points1;
         scores[1][currentMap] = points2;
-        String[] authors = new String[]{ship1.getAuthor(), ship2.getAuthor()};
+        String[] authors = new String[]{ship1.getGreepName(), ship2.getGreepName()};
         ScoreBoard board = new ScoreBoard(authors, "Map " + (currentMap+1), "Score: ", currentMap, scores);
         addObject(board, getWidth() / 2, getHeight() / 2);
     }
@@ -193,7 +193,7 @@ public class Earth extends World
     private void displayFinalScore()
     {
         clearWorld();
-        String[] authors = new String[]{ship1.getAuthor(), ship2.getAuthor()};
+        String[] authors = new String[]{ship1.getGreepName(), ship2.getGreepName()};
         ScoreBoard board = new ScoreBoard(authors, "Final score", "Total: ", scores);
         addObject(board, getWidth() / 2, getHeight() / 2);
     }

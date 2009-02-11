@@ -79,9 +79,9 @@ public class SimpleGreep extends Greep
 
 
     /**
-     * This method specifies the name of the author (for display on the result board).
+     * This method specifies the name of the greeps (for display on the result board).
      */
-    public String getAuthorName()
+    public String getName()
     {
         return "Anonymous";  // write your name here!
     }

@@ -25,7 +25,7 @@ public class Ship extends Actor
     
     private int teamNumber; // Team number. Should be 1 or 2.
     
-    private String authorName; // Author of the Greeps produced by this ship.
+    private String greepName; // Author of the Greeps produced by this ship.
     
     private Greep createGreep() 
     {
@@ -45,7 +45,7 @@ public class Ship extends Actor
         targetPosition = position;
         this.teamNumber = teamNumber;
         GreenfootImage im = new GreenfootImage(imageName);
-        authorName = createGreep().getAuthorName();
+        greepName = createGreep().getName();
         setImage(im);
     }
     
@@ -154,9 +154,9 @@ public class Ship extends Actor
     /**
      * Return the author name of this ship's Greeps.
      */
-    public String getAuthor() 
+    public String getGreepName() 
     {               
-        return authorName;
+        return greepName;
     }
     
     public boolean isTeamTwo() 
