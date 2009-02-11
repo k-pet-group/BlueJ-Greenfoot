@@ -10,7 +10,7 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
  */
 public class Timer extends Counter
 {
-    private static final int GAME_TIME = 180;
+    private static final int GAME_TIME = 160;
     private Ship ship1;
     private Ship ship2;
     private int tick;
