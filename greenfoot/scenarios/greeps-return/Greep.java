@@ -8,7 +8,9 @@ import java.util.ArrayList;
  * provides the basic abilities of greeps in this world.
  * 
  * @author Michael Kolling
- * @version 1.0
+ * @author Davin McCall
+ * @author Poul Henriksen
+ * @version 2.0
  */
 public abstract class Greep extends Actor
 {
@@ -31,9 +33,9 @@ public abstract class Greep extends Actor
     private int mode = MODE_WALKING;
     private int timeToKablam = 0;
     
-    public static final int MODE_WALKING = 0;
-    public static final int MODE_BLOCKING = 1;
-    public static final int MODE_FLIPPED = 2;
+    private static final int MODE_WALKING = 0;
+    private static final int MODE_BLOCKING = 1;
+    private static final int MODE_FLIPPED = 2;
 
     /** if flipped, will slide for some way */
     int slideSpeed = 0;
