@@ -5,18 +5,24 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
  * 
  * Rules:
  * 1. You can call any method defined in the "Greep" superclass, except act().
- * 2. You cannot call any method defined in any other class, including Actor, except:
+ * 2. You cannot call any method defined in any other class in this scenario, 
+ *    including Actor and World, except:
  *    2a.  getX() and getY()  [greeps carry a small GPS device which tells 
  *                             them their location at all times]
  *    2b.  getRotation() and setRotation()
  *    2c.  getX() and getY() on a TomatoPile object.
- * 
+ * 4. When using getFriend() to communicate with a friend you are only allowed to 
+ *    call getMemmory() and getFlag() on the friend. 
+ * 5. You are allowed to use all the classes and methods that are standard in 
+ *    Java, as long as you are not using them to circumvent any other rules.
+ *    
  * X. You may not redefine/override any methods from Actor, including getX(), getY()
  *    etc.
  * 
  * X. Your ship will deploy 20 greeps.
  * 
  * X: If you change the name of this class, you should also change it in Ship.createGreep()
+ * 
  * 
  * @author (your name here)
  * @version 0.1
@@ -81,7 +87,6 @@ public class SimpleGreep extends Greep
             // do anything if we are alone here.
         }
     }
-
 
     /**
      * This method specifies the name of the greeps (for display on the result board).
