@@ -9,11 +9,14 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
  *    2a.  getX() and getY()  [greeps carry a small GPS device which tells 
  *                             them their location at all times]
  *    2b.  getRotation() and setRotation()
+ *    2c.  getX() and getY() on a TomatoPile object.
  * 
  * X. You may not redefine/override any methods from Actor, including getX(), getY()
  *    etc.
  * 
  * X. Your ship will deploy 20 greeps.
+ * 
+ * X: If you change the name of this class, you should also change it in Ship.createGreep()
  * 
  * @author (your name here)
  * @version 0.1
@@ -47,20 +50,22 @@ public class SimpleGreep extends Greep
             }
         }
         else {
-            move();
+            randomWalk();
             checkFood();
         }
     }
     
-    /** Override method from Greep */
-    public void move()
+    /** 
+     * Move forward, with a slight chance of turning randomly
+     */
+    public void randomWalk()
     {
         // there's a 3% chance that we randomly turn a little off course
         if (randomChance(3)) {
             turn((Greenfoot.getRandomNumber(3) - 1) * 100);
         }
         
-        super.move();
+        move();
     }
 
     /**
@@ -69,7 +74,7 @@ public class SimpleGreep extends Greep
     public void checkFood()
     {
         // check whether there's a tomato pile here
-        TomatoPile tomatoes = (TomatoPile) getOneIntersectingObject(TomatoPile.class);
+        TomatoPile tomatoes = getTomatoes();
         if(tomatoes != null) {
             loadTomato();
             // Note: this attempts to load a tomato onto *another* Greep. It won't
@@ -83,7 +88,6 @@ public class SimpleGreep extends Greep
      */
     public String getName()
     {
-        return "Anonymous";  // write your name here!
+        return "Anonymous";  // write your name here! And keep it short.
     }
-
 }
