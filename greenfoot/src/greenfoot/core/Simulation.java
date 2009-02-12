@@ -87,7 +87,7 @@ public class Simulation extends Thread
     private boolean interruptDelay;
 
     
-    /** Used to figure out when we are transitioning from running to pause stated and vice versa. */
+    /** Used to figure out when we are transitioning from running to paused state and vice versa. */
     private boolean isRunning = false;
     
     /** flag to indicate that we want to abort the simulation and never start it again. */
@@ -147,16 +147,14 @@ public class Simulation extends Thread
                     // delay an amount equal to the new delay.
                     interruptedForSpeedChange = false;
                     delay();
-                }    
-                
+                }
+                                
                 maybePause();
                 
                 World world = worldHandler.getWorld();
                 if (world != null) {
                     WorldVisitor.startSequence(world);
-
                     runOneLoop();
-
                 }
 
                 delay();
@@ -165,6 +163,10 @@ public class Simulation extends Thread
                 // Someone interrupted the user code. We ignore it and let
                 // maybePause() handle whatever needs to be done.
                 
+            } catch (Throwable t) {
+                // If any other exceptions occur, halt the simulation
+                paused = true;
+                t.printStackTrace();
             }
         }
 
@@ -179,15 +181,16 @@ public class Simulation extends Thread
             } 
         }
     }   
-  
-    
-   
-    
+         
     /**
      * Block if the simulation is paused. This will block until the simulation
      * is resumed.
+     * 
+     * @throws InterruptedException If it couldn't acquire the world lock when
+     *             signalling started() stopped() to the world.
      */
     private synchronized void maybePause()
+        throws InterruptedException
     {
 
         if(runOnce || paused) {
@@ -198,7 +201,24 @@ public class Simulation extends Thread
             //  abort() (sometimes, depending on timing)
             World world = worldHandler.getWorld();
             if (world != null) {
-                world.stopped();
+                // We need to sync to avoid ConcurrentModificationException
+                ReentrantReadWriteLock lock = WorldVisitor.getLock(world);
+                lock.writeLock().lockInterruptibly();
+                try {
+                    world.stopped();
+                }
+                catch (Throwable t) {
+                    // If any exceptions occur, halt the simulation
+                    paused = true;
+                    t.printStackTrace();
+                }
+                finally {
+                    // Release lock if we have it (we might not have the
+                    // lock if interrupted)
+                    if (lock.isWriteLockedByCurrentThread()) {
+                        lock.writeLock().unlock();
+                    }
+                }
             }
             isRunning = false;
             runOnce = false;
@@ -235,12 +255,25 @@ public class Simulation extends Thread
             }
         }
         
-        if(!isRunning && enabled && !abort) {
+        if (!isRunning && enabled && !abort) {
             // No longer paused, get ready to run:
             isRunning = true;
             World world = worldHandler.getWorld();
             if (world != null) {
-                world.started();
+                // We need to sync to avoid ConcurrentModificationException
+                ReentrantReadWriteLock lock = WorldVisitor.getLock(world);
+                lock.writeLock().lockInterruptibly();
+                try {
+                    world.started();
+                }
+                finally {
+                    // Release lock if we have it (we might not have the
+                    // lock if
+                    // interrupted)
+                    if (lock.isWriteLockedByCurrentThread()) {
+                        lock.writeLock().unlock();
+                    }
+                }
             }
         }
     }
@@ -295,11 +328,6 @@ public class Simulation extends Thread
                     }
 
                 }
-            }
-            catch (Throwable t) {
-                // If any other exceptions occur, halt the simulation
-                paused = true;
-                t.printStackTrace();
             }
             finally {
                 // Release lock if we have it (we might not have the lock if
@@ -607,10 +635,10 @@ public class Simulation extends Thread
      * simulation. This will wait without considering previous waits, as opposed
      * to delay().
      */
-    public void sleep() throws ActInterruptedException
+    public void sleep()
     {
-        World world = WorldHandler.getInstance().getWorld();  
-    
+        World world = WorldHandler.getInstance().getWorld();
+
         if (paused && isRunning && !runOnce) {
             // If it should be paused but is still running, it means that we
             // should try to end as quickly as possible and hence should NOT
@@ -628,7 +656,7 @@ public class Simulation extends Thread
                 if (interruptDelay) {
                     // If interrupted, we just want to return now. We do not
                     // want to abort by throwing an exception, because that will
-                    // leave the user code execution in an incosistent state.
+                    // leave the user code execution in an inconsistent state.
                     return;
                 }
                 delaying = true;
@@ -647,8 +675,7 @@ public class Simulation extends Thread
         catch (InterruptedException e) {
             // If interrupted, we just want to return now. We do not
             // want to abort by throwing an exception, because that will
-            // leave the user code execution in an incosistent state.
-            //throw new ActInterruptedException(e);
+            // leave the user code execution in an inconsistent state.            
         }
         finally {
             synchronized (interruptLock) {
