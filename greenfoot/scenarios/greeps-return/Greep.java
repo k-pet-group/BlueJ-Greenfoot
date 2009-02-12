@@ -136,17 +136,6 @@ public abstract class Greep extends Actor
     }
     
     /**
-     * True if we are at the opponent's space ship.
-     */
-    protected final boolean atOpponentShip()
-    {
-        boolean canSeeOpponentShip = false;
-        Ship ship = (Ship) getOneIntersectingObject(Ship.class);
-        canSeeOpponentShip = (ship != null && ship != this.ship);
-        return canSeeOpponentShip;
-    }
-    
-    /**
      * True if we are at our space ship.
      */
     protected final boolean atShip()
@@ -327,7 +316,13 @@ public abstract class Greep extends Actor
      */
     protected Greep getFriend()
     {
-       return (Greep) getOneIntersectingObject(this.getClass());       
+        List greeps =  getObjectsInRange(30, this.getClass());
+        if(!greeps.isEmpty()) {
+            return (Greep) greeps.get(0);
+        }
+        else {
+            return null;
+        }
     }    
     /**
      * Return 'true' in exactly 'percent' number of calls. That is: a call
