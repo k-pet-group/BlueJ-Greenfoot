@@ -221,7 +221,7 @@ public abstract class Greep extends Actor
 
         if(! friendlies.isEmpty() && tomatoes != null) {
             Greep greep = (Greep) friendlies.iterator().next();
-            if(!greep.carryingTomato()) {
+            if(greep.ship == this.ship && !greep.carryingTomato()) {
                 tomatoes.takeOne();
                 greep.carryTomato();
             }
@@ -296,7 +296,7 @@ public abstract class Greep extends Actor
     protected int getNumberOfFriends(boolean withTomatoes)
     {
         int count = 0;
-        List l = getObjectsInRange(VISION_RANGE, Greep.class);
+        List l = getObjectsInRange(VISION_RANGE, this.getClass());
         for (Iterator i = l.iterator(); i.hasNext(); ) {
             Greep greep = (Greep) i.next();
             if (greep.ship == ship) {
@@ -317,12 +317,13 @@ public abstract class Greep extends Actor
     protected Greep getFriend()
     {
         List greeps =  getObjectsInRange(30, this.getClass());
-        if(!greeps.isEmpty()) {
-            return (Greep) greeps.get(0);
-        }
-        else {
-            return null;
-        }
+        for(Object obj : greeps) {
+            Greep greep = (Greep) obj;
+            if(greep.ship == this.ship) {
+                return greep;
+            }
+        }       
+        return null;
     }    
     /**
      * Return 'true' in exactly 'percent' number of calls. That is: a call
