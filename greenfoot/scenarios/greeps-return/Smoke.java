@@ -14,7 +14,6 @@ public class Smoke extends Actor
     private static final GreenfootImage image2 = new GreenfootImage("smoke-purple.png");
     private int delay;
     
-    private GreenfootImage image;   // the original image
     private boolean teamTwo;
     private int fade;               // the rate of fading
     private int children;
@@ -22,12 +21,13 @@ public class Smoke extends Actor
     public Smoke(int children, boolean isTeamTwo)
     {
         teamTwo = isTeamTwo;
-        if(isTeamTwo) {
-            image = image2;
+        if(isTeamTwo) {            
+            setImage(new GreenfootImage(image2));
         }
         else {
-            image = image1;
+            setImage(new GreenfootImage(image1));
         }
+        
         fade = Greenfoot.getRandomNumber(10) +5;
         
         delay = Greenfoot.getRandomNumber(4)+1;
