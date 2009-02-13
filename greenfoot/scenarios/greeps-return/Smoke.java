@@ -9,7 +9,7 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
  */
 public class Smoke extends Actor
 {
-    private static final int SPREAD = 30;
+    private static final int SPREAD = 50;
     private static final GreenfootImage image1 = new GreenfootImage("smoke-green.png");
     private static final GreenfootImage image2 = new GreenfootImage("smoke-purple.png");
     private int delay;
@@ -28,10 +28,8 @@ public class Smoke extends Actor
         else {
             image = image1;
         }
-        fade = Greenfoot.getRandomNumber(4) + 1;
-        if (fade > 3) {
-          fade = fade - 2;
-        }
+        fade = Greenfoot.getRandomNumber(10) +5;
+        
         delay = Greenfoot.getRandomNumber(4)+1;
         this.children = children;
     }
@@ -45,7 +43,9 @@ public class Smoke extends Actor
         if (delay == 0) {
             spawn();
         }
-        shrink();
+        if(Greenfoot.getRandomNumber(3) > 0) {
+            shrink();
+        }
     }    
     
     private void spawn()
@@ -53,19 +53,18 @@ public class Smoke extends Actor
         for (int i = 0; i < children; i++) {
             int x = getX() + Greenfoot.getRandomNumber(SPREAD) - (SPREAD/2);
             int y = getY() + Greenfoot.getRandomNumber(SPREAD) - (SPREAD/2);
-            getWorld().addObject( new Smoke(children-2, teamTwo), x, y);
+            getWorld().addObject( new Smoke(children-3, teamTwo), x, y);
         }
     }
 
     private void shrink()
     {
-        if(getImage().getWidth() < 10) {
+        GreenfootImage img = getImage();
+        int trans = getImage().getTransparency();
+        if(trans < 30) {
             getWorld().removeObject(this);
-        }
-        else {
-            GreenfootImage img = new GreenfootImage(image);
-            img.scale ( getImage().getWidth()-fade, getImage().getHeight()-fade );
-            setImage (img);
+        } else {
+            getImage().setTransparency(trans - fade);
         }
     }
 }
