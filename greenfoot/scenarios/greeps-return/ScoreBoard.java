@@ -17,24 +17,43 @@ public class ScoreBoard extends Actor
     private static final int HEIGHT = 500;
     
         
+    /**
+     * Constructor for testing
+     */
     public ScoreBoard()
     {
-        makeImage("The Return of the Greeps", "This time it's personal", "nobody", 100, 100);
-    }
+        int[][] scores = new int[][]{{12,43} , {45,676}};
+        int map = 1;
+        String[] authors = new String[]{"Davin 6", "House"};
+      
+      
+     
+        int total1 = 0;
+        int total2 = 0;
+        for (int i = 0; i < scores[0].length; i++) {
+            total1 += scores[0][i];
+            total2 += scores[1][i];
+        }
 
-    /**
-     * Create a score board for an interim result.
-     */
-    public ScoreBoard(String[] authors, String text, String prefix, int map, int[][] scores)
+        makeImage(authors, "Final score", total1, total2);
+        addMapScores(scores[0].length-1, scores);
+        printResultToTerminal(authors, scores, new int[]{total1, total2});
+        
+   /*     makeImage(authors, "Map " + (map + 1), scores[0][map], scores[1][map]);
+        addMapScores(map, scores);*/
+          
+    }
+    
+    public ScoreBoard(String[] authors, int map, int[][] scores)
     {
-        makeImage(getAuthorString(authors), text, prefix, scores[0][map], scores[1][map]);
+        makeImage(authors, "Map " + (map + 1), scores[0][map], scores[1][map]);
         addMapScores(map, scores);
     }
     
     /**
      * Create a score board for the final result.
      */
-    public ScoreBoard(String[] authors, String text, String prefix, int[][] scores)
+    public ScoreBoard(String[] authors, int[][] scores)
     {
         int total1 = 0;
         int total2 = 0;
@@ -43,9 +62,9 @@ public class ScoreBoard extends Actor
             total2 += scores[1][i];
         }
 
-        makeImage(getAuthorString(authors), text, prefix, total1, total2);
+        makeImage(authors, "Final score", total1, total2);
         addMapScores(scores[0].length-1, scores);
-        printResultToTerminal(authors, scores);
+        printResultToTerminal(authors, scores, new int[]{total1, total2});
     }
     
     private String getAuthorString(String[] authors)
@@ -59,7 +78,7 @@ public class ScoreBoard extends Actor
     /**
      * Make the score board image.
      */
-    private void makeImage(String title, String text, String prefix, int score1, int score2)
+    private void makeImage(String[] authors, String text, int score1, int score2)
     {
         GreenfootImage image = new GreenfootImage(WIDTH, HEIGHT);
 
@@ -68,16 +87,25 @@ public class ScoreBoard extends Actor
         image.setColor(new Color(0, 0, 0, 128));
         image.fillRect(5, 5, WIDTH-10, HEIGHT-10);
         image.setColor(Color.WHITE);
+        
+        String title = getAuthorString(authors);
         Font font = image.getFont();
         font = font.deriveFont(FONT_SIZE);
         image.setFont(font);
-        image.drawString(title, 60, 100);
+        image.drawString(title, 60, 90);
+        
         font = font.deriveFont(80.0f);
         image.setFont(font);
-        image.drawString(score1 + " - " + score2 , 80, 300);
+        image.drawString(score1 + " - " + score2 , 80, 200);      
+                
+        font = font.deriveFont(FONT_SIZE);
+        image.setFont(font);
+        image.drawString(authors[0] + " scored: " + (score1 - score2), 60, 300);        
+        
         font = font.deriveFont(30.0f);
         image.setFont(font);
         image.drawString(text, 60, 460);
+        
         setImage(image);
     }
     
@@ -96,11 +124,11 @@ public class ScoreBoard extends Actor
         for(int i = 0; i <= mapNo; i++) {
             String score1 = "" + scores[0][i];
             score1 += "    ".substring(score1.length());
-            image.drawString("Map " + (i+1) + ":   " + score1 + scores[1][i], 500, 180+(i*28));
+            image.drawString("Map " + (i+1) + ":   " + score1 + scores[1][i], 500, 380+(i*28));
         }
     }
     
-    private void printResultToTerminal(String[] authors, int[][] scores)
+    private void printResultToTerminal(String[] authors, int[][] scores, int[] totals)
     {
         Calendar now = Calendar.getInstance();
         String time = now.get(Calendar.HOUR_OF_DAY) + ":";
@@ -124,7 +152,9 @@ public class ScoreBoard extends Actor
                 else
                     System.out.print(" " + score);
             }
-            System.out.println("]  " + total + "  -- author " + authors[team]);
+            System.out.println("]  " + totals[team] + "  -- author " + authors[team] );
         }
+        System.out.println(authors[0] + " score: " + (totals[0] - totals[1]));
+  
     }
 }

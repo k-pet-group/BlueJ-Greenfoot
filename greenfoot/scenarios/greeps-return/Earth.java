@@ -174,7 +174,8 @@ public class Earth extends World
         scores[0][currentMap] = points1;
         scores[1][currentMap] = points2;
         String[] authors = new String[]{ship1.getGreepName(), ship2.getGreepName()};
-        ScoreBoard board = new ScoreBoard(authors, "Map " + (currentMap+1), "Score: ", currentMap, scores);
+        ScoreBoard board = new ScoreBoard(authors, currentMap, scores);
+       
         addObject(board, getWidth() / 2, getHeight() / 2);
     }
     
@@ -182,7 +183,7 @@ public class Earth extends World
     {
         clearWorld();
         String[] authors = new String[]{ship1.getGreepName(), ship2.getGreepName()};
-        ScoreBoard board = new ScoreBoard(authors, "Final score", "Total: ", scores);
+        ScoreBoard board = new ScoreBoard(authors,  scores);
         addObject(board, getWidth() / 2, getHeight() / 2);
     }
     
