@@ -83,6 +83,7 @@ export.publish.complete=Publish complete
 export.app.help=Create an executable jar file that can be run on its own.
 export.app.location=Save to: 
 export.app.browse=Browse
+export.app.choose=Save executable jar file
 export.compile.help=Not all the classes in the scenario are compiled. To continue with the export, compile the classes now.
 export.compile.notCompiled=Scenario not compiled.
 export.dialog.title=Greenfoot: Export

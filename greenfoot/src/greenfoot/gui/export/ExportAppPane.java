@@ -7,7 +7,7 @@
  * and open the template in the editor.
 
  * @author Michael Kolling
- * @version $Id: ExportAppPane.java 5776 2008-06-19 17:19:36Z !Snabe23 $
+ * @version $Id: ExportAppPane.java 6125 2009-02-13 13:01:42Z polle $
  */
 
 package greenfoot.gui.export;
@@ -22,7 +22,6 @@ import java.io.File;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -36,8 +35,7 @@ public class ExportAppPane extends ExportPane
     
     private static final String helpLine1 = Config.getString("export.app.help");
     private static final String exportLocationLabelText = Config.getString("export.app.location");
-
-    private JFileChooser fileChooser;
+    
     private JTextField targetDirField;
     
     /** Creates a new instance of ExportAppPane */
@@ -108,8 +106,7 @@ public class ExportAppPane extends ExportPane
      */
     private void getFileName(File targetFile)
     {
-        File file = FileChoosers.getFileName(this, targetFile,
-                                             "Save executable jar file");
+        File file = FileChoosers.getFileName(this, targetFile, Config.getString("export.app.choose"));
         if(file != null) {
             String newName = file.getPath();
             if(!newName.endsWith(".jar")) {

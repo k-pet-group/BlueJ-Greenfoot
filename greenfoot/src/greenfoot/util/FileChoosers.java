@@ -18,42 +18,21 @@ import bluej.utility.PackageChooserStrict;
  */
 public class FileChoosers
 {
-    private static JFileChooser  exportFileChooser;
     private static JFileChooser  scenarioFileChooser;
     private static JFileChooser  newFileChooser;
     
     /**
      * Let the user specify a new file name.
      * 
-     *  @return Returns a File pointing to the export directory, or null if none selected.
-     */
-    public static File getExportDir(Component parent, File defaultFile, String title) {
-        if (exportFileChooser == null) {
-            exportFileChooser = new JFileChooser();
-            exportFileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
-            exportFileChooser.setDialogTitle(title);
-            exportFileChooser.setSelectedFile(defaultFile);
-        }
-        int result = exportFileChooser.showDialog(parent, Config.getString("chooser.export.button"));
-        
-        if (result != JFileChooser.APPROVE_OPTION) {
-           return null;
-        }
-        return exportFileChooser.getSelectedFile();
-    }
-
-    /**
-     * Let the user specify a new file name.
-     * 
-     *  @return Returns a File pointing to the export directory, or null if none selected.
+     *  @return Returns a File pointing to the chosen file or directory, or null if none selected.
      */
     public static File getFileName(Component parent, File defaultFile, String title) {
         if (newFileChooser == null) {
             newFileChooser = new JFileChooser();
             newFileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
-            newFileChooser.setDialogTitle(title);
-            newFileChooser.setSelectedFile(defaultFile);
         }
+        newFileChooser.setDialogTitle(title);
+        newFileChooser.setSelectedFile(defaultFile);
         int result = newFileChooser.showDialog(parent, Config.getString("chooser.newFile.button"));
         
         if (result != JFileChooser.APPROVE_OPTION) {
@@ -72,8 +51,8 @@ public class FileChoosers
     {
         if(scenarioFileChooser == null) {
             scenarioFileChooser = new PackageChooserStrict(new File(PrefMgr.getProjectDirectory()));
+            scenarioFileChooser.setDialogTitle(Config.getString("chooser.scenario.title"));
         }
-        scenarioFileChooser.setDialogTitle(Config.getString("chooser.scenario.title"));
         int result = scenarioFileChooser.showDialog(parent, Config.getString("chooser.scenario.button"));
         
         if (result != JFileChooser.APPROVE_OPTION) {

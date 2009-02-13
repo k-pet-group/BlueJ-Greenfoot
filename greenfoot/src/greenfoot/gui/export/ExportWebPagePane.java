@@ -2,7 +2,7 @@
  * ExportWebPagePane.java
  *
  * @author Michael Kolling
- * @version $Id: ExportWebPagePane.java 5776 2008-06-19 17:19:36Z !Snabe23 $
+ * @version $Id: ExportWebPagePane.java 6125 2009-02-13 13:01:42Z polle $
  */
 
 package greenfoot.gui.export;
@@ -17,7 +17,6 @@ import java.io.File;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -32,7 +31,6 @@ public class ExportWebPagePane extends ExportPane
     private static final String helpLine1 = Config.getString("export.web.help");
     private static final String exportLocationLabelText = Config.getString("export.web.exportLocation");
 
-    private JFileChooser fileChooser;
     private JTextField targetDirField;
 
     /** 
@@ -93,7 +91,7 @@ public class ExportWebPagePane extends ExportPane
                 browse.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e)
                     {
-                        File file = FileChoosers.getExportDir(ExportWebPagePane.this, defaultDir,
+                        File file = FileChoosers.getFileName(ExportWebPagePane.this, defaultDir,
                                                               Config.getString("export.web.choose"));
                         if(file != null) {
                             targetDirField.setText(file.getPath());
