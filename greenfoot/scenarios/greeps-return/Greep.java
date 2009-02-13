@@ -107,7 +107,7 @@ public abstract class Greep extends Actor
     /**
      * Turn 'angle' degrees towards the right (clockwise).
      */
-    protected void turn(int angle)
+    protected final void turn(int angle)
     {
         if(mode == MODE_FLIPPED) return;
         setRotation(getRotation() + angle);
@@ -116,7 +116,7 @@ public abstract class Greep extends Actor
     /**
      * Turn in the direction facing the home ship.
      */
-    protected void turnHome()
+    protected final void turnHome()
     {
         if(mode == MODE_FLIPPED) return;
         turnTowards(ship.getX(), ship.getY());
@@ -125,7 +125,7 @@ public abstract class Greep extends Actor
     /**
      * Turn to face an arbitrary point on the map.
      */
-    protected void turnTowards(int x, int y)
+    protected final void turnTowards(int x, int y)
     {
         if(mode == MODE_FLIPPED) return;
         int deltaX = x - getX();
@@ -146,7 +146,7 @@ public abstract class Greep extends Actor
      * This can only be done if the greep is at the ship.
      * The data inside the array can be freely manipulated.
      */
-    protected int[] getShipData()
+    protected final int[] getShipData()
     {
         if (atShip()) {
             return ship.getData();
@@ -162,7 +162,7 @@ public abstract class Greep extends Actor
      * used to check for this, and in that case, it is allowed to change direction and try
      * move()ing again.
      */
-    protected void move()
+    protected final void move()
     {
         if(moved)   // can move only once per 'act' round
             return;
@@ -185,9 +185,10 @@ public abstract class Greep extends Actor
     }
     
     /**
-     * Return true if we have just seen water in front of us. The edge of the map is also water.
+     * Return true if we have just seen water in front of us. 
+     * The edge of the map is also water.
      */
-    protected boolean atWater()
+    protected final boolean atWater()
     {
         return atWater;
     }
@@ -195,7 +196,7 @@ public abstract class Greep extends Actor
     /**
      * Return true if we have been blocked by an opponent greep.
      */
-    protected boolean moveWasBlocked()
+    protected final boolean moveWasBlocked()
     {
         return moveWasBlocked;
     }
@@ -251,7 +252,7 @@ public abstract class Greep extends Actor
      * <p>
      * You are only allowed to call getX() and getY() on the returned tomato pile. 
      */
-    protected TomatoPile getTomatoes()
+    protected final TomatoPile getTomatoes()
     {
         TomatoPile tomatoes = (TomatoPile) getOneIntersectingObject(TomatoPile.class);
         if (tomatoes != null) {
@@ -267,7 +268,7 @@ public abstract class Greep extends Actor
      * 
      * @param withTomatoes If true, only count the greeps that are carrying a tomato.
      */
-    protected int getNumberOfOpponents(boolean withTomatoes)
+    protected final int getNumberOfOpponents(boolean withTomatoes)
     {
         int count = 0;
         List l = getObjectsInRange(VISION_RANGE, Greep.class);
@@ -287,7 +288,7 @@ public abstract class Greep extends Actor
      * 
      * @param withTomatoes If true, only count the greeps that are carrying a tomato.
      */
-    protected int getNumberOfFriends(boolean withTomatoes)
+    protected final int getNumberOfFriends(boolean withTomatoes)
     {
         int count = 0;
         List l = getObjectsInRange(VISION_RANGE, this.getClass());
@@ -308,7 +309,7 @@ public abstract class Greep extends Actor
      * <p>
      * You are only allowed to access the memory and flags of the friend.
      */
-    protected Greep getFriend()
+    protected final Greep getFriend()
     {
         List greeps =  getObjectsInRange(30, this.getClass());
         for(Object obj : greeps) {
@@ -323,7 +324,7 @@ public abstract class Greep extends Actor
      * Return 'true' in exactly 'percent' number of calls. That is: a call
      * randomChance(25) has a 25% chance to return true.
      */
-    protected boolean randomChance(int percent)
+    protected final boolean randomChance(int percent)
     {
         return Greenfoot.getRandomNumber(100) < percent;
     }       
@@ -332,7 +333,7 @@ public abstract class Greep extends Actor
      * Store something in the greep's memory. There are four memory slots, numbered
      * 0 to 3, each can hold an int value.
      */
-    protected void setMemory(int slot, int val)
+    protected final void setMemory(int slot, int val)
     {
         memory[slot] = val;
     }    
@@ -342,7 +343,7 @@ public abstract class Greep extends Actor
      * 
      * Other friendly greeps are allowed to call this mehtod.
      */
-    public int getMemory(int slot)
+    public final int getMemory(int slot)
     {
         return memory[slot];
     }
@@ -351,7 +352,7 @@ public abstract class Greep extends Actor
      * Store a user defined boolean value (a "flag"). Two flags are available, 
      * i.e. 'flagNo' may be 1 or 2.
      */
-    protected void setFlag(int flagNo, boolean val)
+    protected final void setFlag(int flagNo, boolean val)
     {
         if(flagNo < 1 || flagNo > 2)
             throw new IllegalArgumentException("flag number must be either 1 or 2");
@@ -364,7 +365,7 @@ public abstract class Greep extends Actor
      * 
      * Other friendly greeps are allowed to call this mehtod.
      */
-    public boolean getFlag(int flagNo)
+    public final boolean getFlag(int flagNo)
     {
         if(flagNo < 1 || flagNo > 2)
             throw new IllegalArgumentException("flag number must be either 1 or 2");
@@ -376,7 +377,7 @@ public abstract class Greep extends Actor
      * Return true if this greep is in "blocking" mode - it has hunkered down to
      * prevent opponent greeps from passing (while allowing friendly greeps through).
      */
-    protected final boolean isBlocking()
+    protected final final boolean isBlocking()
     {
         return mode == MODE_BLOCKING;
     }
@@ -385,7 +386,7 @@ public abstract class Greep extends Actor
      * Block opponent greeps from passing our current location. This is only effective if
      * we haven't moved (can't move and block in the same turn).
      */
-    protected void block()
+    protected final void block()
     {
         if (moved)
             return;
@@ -401,7 +402,7 @@ public abstract class Greep extends Actor
      * Release a stink bomb. All greeps within a small radius will be knocked out for
      * a small period of time.
      */
-    protected void kablam()
+    protected final void kablam()
     {
         if (mode == MODE_FLIPPED) {
             return;   
