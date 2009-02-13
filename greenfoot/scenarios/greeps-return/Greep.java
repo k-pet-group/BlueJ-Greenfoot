@@ -377,7 +377,7 @@ public abstract class Greep extends Actor
      * Return true if this greep is in "blocking" mode - it has hunkered down to
      * prevent opponent greeps from passing (while allowing friendly greeps through).
      */
-    protected final final boolean isBlocking()
+    protected final boolean isBlocking()
     {
         return mode == MODE_BLOCKING;
     }
