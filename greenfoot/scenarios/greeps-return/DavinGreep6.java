@@ -244,7 +244,7 @@ public class DavinGreep6 extends Greep
      */
     private void moveNormally()
     {
-        move();
+        randomWalk();
         if (atWater() || moveWasBlocked()) {
             int r = getRotation();
             setRotation (r + Greenfoot.getRandomNumber(2) * 180 - 90);
@@ -252,7 +252,7 @@ public class DavinGreep6 extends Greep
         }
         
         if (! checkKablam()) { 
-            move();
+            randomWalk();
             checkFood();
             checkForKnownPile(); // if at ship
         }
@@ -305,14 +305,14 @@ public class DavinGreep6 extends Greep
     }
     
     /** Override method from Greep */
-    public void move()
+    public void randomWalk()
     {
         // there's a 3% chance that we randomly turn a little off course
         if (randomChance(3)) {
             turn((Greenfoot.getRandomNumber(3) - 1) * 100);
         }
         
-        super.move();
+        move();
     }
     
     private int distanceTo(int x, int y)
