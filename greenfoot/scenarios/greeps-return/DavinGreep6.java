@@ -7,7 +7,7 @@ import java.util.Iterator;
  * 
  * - if we find a tomato patch and enemy greeps are present, hold position. This allows kablaming
  *   at appropriate times, thus sabotaging enemy efforts
- * - be slight less aggressive in kablaming. Wait until we can see an extra opponent greep.
+ * - be slightly less aggressive in kablaming. Wait until we can see an extra opponent greep.
  * 
  * @author Davin McCall
  * @version 0.1
@@ -56,9 +56,9 @@ public class DavinGreep6 extends Greep
                     return;
                 }
                 
-                
-                headHomeward(getMemory(1), getMemory(2));
-                checkKablam();
+                block();
+                // headHomeward(getMemory(1), getMemory(2));
+                // checkKablam();
             }
             else if (getMemory(0) == 2) {
                 // Collect tomatoes from a known location
@@ -229,7 +229,10 @@ public class DavinGreep6 extends Greep
                 }
             }
         }
-        move();        
+        move();
+        if (moveWasBlocked()) {
+            kablam();
+        }
     }
     
     /**

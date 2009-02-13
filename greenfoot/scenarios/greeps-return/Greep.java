@@ -464,7 +464,7 @@ public abstract class Greep extends Actor
             List otherGreeps = getWorld().getObjectsAt(x,y,Greep.class);
             for (Iterator i = otherGreeps.iterator(); i.hasNext(); ) {
                 Greep otherGreep = (Greep) i.next();
-                if (otherGreep.getClass() != this.getClass()) {
+                if (otherGreep.ship != this.ship) {
                     if (otherGreep.isBlocking() && ! greepsAtOldLoc.contains(otherGreep)) {
                         moveWasBlocked = true;
                         break;
