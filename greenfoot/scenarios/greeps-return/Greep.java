@@ -24,7 +24,6 @@ public abstract class Greep extends Actor
     
     /** The greep's home ship */
     private Ship ship;
-    private boolean canSeeShip; // can this greep currently see the ship? (cache value for atShip())
 
     /** General state */
     private boolean moved = false;
@@ -62,7 +61,6 @@ public abstract class Greep extends Actor
     public void act()
     {        
         moved = false;
-        canSeeShip = false;
             
         if (mode == MODE_FLIPPED) {
             if (slideSpeed != 0 || spinSpeed != 0) {
@@ -140,11 +138,7 @@ public abstract class Greep extends Actor
      */
     protected final boolean atShip()
     {
-        if (! canSeeShip) {
-            Ship ship = (Ship) getOneIntersectingObject(Ship.class);
-            canSeeShip = (ship == this.ship);
-        }
-        return canSeeShip;
+        return ship == getOneIntersectingObject(Ship.class);
     }
     
     /**
