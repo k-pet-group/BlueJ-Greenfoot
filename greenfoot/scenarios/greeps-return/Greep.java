@@ -92,6 +92,10 @@ public abstract class Greep extends Actor
                 setImage(getCurrentImage());
             }
         }
+        else if(mode == MODE_BLOCKING) {
+            turn(3);
+            
+        }
         else {
             if (timeToKablam > 0) {
                 timeToKablam--;
