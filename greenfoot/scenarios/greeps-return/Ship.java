@@ -27,6 +27,8 @@ public class Ship extends Actor
     
     private int teamNumber; // Team number. Should be 1 or 2.
     
+    private int direction = 1; // 1 is positive y-direction, -1 is negative.
+    
     private String greepName; // Author of the Greeps produced by this ship.
     
     private Greep createGreep() 
@@ -49,6 +51,15 @@ public class Ship extends Actor
         GreenfootImage im = new GreenfootImage(imageName);
         greepName = createGreep().getName();
         setImage(im);
+    }
+    
+    public void addedToWorld(World w) {
+        if(getY() > targetPosition) {
+            direction = -1;
+        }
+        else {
+            direction = 1;
+        }
     }
     
     /**
@@ -78,9 +89,18 @@ public class Ship extends Actor
      * Move the ship down (for movement before landing).
      */
     public void move()
-    {
-        int dist = Math.min((targetPosition - getY()) / 8, 8) + 1;
-        setLocation(getX(), getY() + dist);
+    {      
+        int dist = (targetPosition - getY())  / 16;
+        
+        if(dist == 0) {
+            dist = direction;
+        }
+        
+        setLocation(getX(), getY() + dist);        
+        if(inPosition()) {
+            // Make sure we are at exactly the right target position
+            setLocation(getX(), targetPosition);
+        }
     }
     
     /**
@@ -88,7 +108,8 @@ public class Ship extends Actor
      */
     public boolean inPosition()
     {
-        return getY() >= targetPosition;
+        int diff = (getY() - targetPosition) * direction ;
+        return diff >= 0;
     }
     
     /**
