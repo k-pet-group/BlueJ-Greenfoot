@@ -21,13 +21,13 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
  * 
  * X. Your ship will deploy 20 greeps.
  * 
- * X: If you change the name of this class, you should also change it in Ship.createGreep()
+ * X: You should change the name of this class. Also change it in Ship.createGreep().
  * 
  * 
  * @author (your name here)
  * @version 0.1
  */
-public class SimpleGreep extends Greep
+public class MyGreep extends Greep
 {
     // Remember: you cannot extend the Greep's memory. So:
     // no additional fields (other than final fields) allowed in this class!
@@ -35,7 +35,7 @@ public class SimpleGreep extends Greep
     /**
      * Default constructor. Do not remove.
      */
-    public SimpleGreep(Ship ship)
+    public MyGreep(Ship ship)
     {
         super(ship);
     }
