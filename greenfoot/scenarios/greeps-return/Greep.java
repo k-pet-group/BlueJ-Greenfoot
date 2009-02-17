@@ -105,6 +105,7 @@ public abstract class Greep extends Actor
     
     /**
      * This method specifies the name of the greeps (for display on the result board).
+     * Try to keep the name short so that it displays nicely on the result board.
      */
     abstract public String getName();    
     
