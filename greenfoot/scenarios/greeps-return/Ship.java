@@ -34,10 +34,10 @@ public class Ship extends Actor
     private Greep createGreep() 
     {
         if(teamNumber == 1) {
-            return new PolleGreep7(this);
+            return new MyGreep(this);
         }
         else {
-            return new DavinGreep6(this);
+            return new HouseGreep(this);
         }        
     }
     
