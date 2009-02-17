@@ -65,7 +65,7 @@ public class HouseGreep extends Greep
             turnTowards(getMemory(1), getMemory(2));
             move();
         }
-        else if (getNumberOfOpponents(false) > 3) {
+        else if (numberOfOpponents(false) > 3) {
             // Can we see four or more opponents?
             kablam();            
         } 

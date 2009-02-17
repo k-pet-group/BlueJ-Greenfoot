@@ -263,7 +263,7 @@ public class DavinGreep6 extends Greep
      */
     private boolean checkKablam()
     {
-        if (getNumberOfOpponents(false) > (getNumberOfFriends(false) + 2)) {
+        if (numberOfOpponents(false) > (numberOfFriends(false) + 2)) {
             kablam();
             return true;
         }
@@ -281,7 +281,7 @@ public class DavinGreep6 extends Greep
             // Note: this attempts to load a tomato onto *another* Greep. It won't
             // do anything if we are alone here.
             
-            if (getNumberOfOpponents(false) > 0) {
+            if (numberOfOpponents(false) > 0) {
                 setMemory(0, 1);    
             }
             else {

@@ -21,7 +21,7 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
  * 
  * X. Your ship will deploy 20 greeps.
  * 
- * X: You should change the name of this class. Also change it in Ship.createGreep().
+ * X: If you change the name of this class you should also change it in Ship.createGreep().
  * 
  * 
  * @author (your name here)

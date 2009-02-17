@@ -269,11 +269,11 @@ public abstract class Greep extends Actor
     }        
     
     /**
-     * Return the number of visible opponent greeps which are not knocked out by a stink bomb.
+     * Return the number of nearby opponent greeps which are not currently knocked out by a stink bomb.
      * 
      * @param withTomatoes If true, only count the greeps that are carrying a tomato.
      */
-    protected final int getNumberOfOpponents(boolean withTomatoes)
+    protected final int numberOfOpponents(boolean withTomatoes)
     {
         int count = 0;
         List l = getObjectsInRange(VISION_RANGE, Greep.class);
@@ -289,11 +289,11 @@ public abstract class Greep extends Actor
     }
     
     /**
-     * Return the number of visible friendly greeps which are not knocked out by a stink bomb.
+     * Return the number of nearby friendly greeps which are not currently knocked out by a stink bomb.
      * 
      * @param withTomatoes If true, only count the greeps that are carrying a tomato.
      */
-    protected final int getNumberOfFriends(boolean withTomatoes)
+    protected final int numberOfFriends(boolean withTomatoes)
     {
         int count = 0;
         List l = getObjectsInRange(VISION_RANGE, this.getClass());
@@ -399,8 +399,11 @@ public abstract class Greep extends Actor
         if (mode == MODE_FLIPPED)
             return;
         
-        mode = MODE_BLOCKING;            
-        setImage(getCurrentImage());
+        if(!isBlocking()) {
+            Greenfoot.playSound("greepBlock.wav");
+            mode = MODE_BLOCKING;            
+            setImage(getCurrentImage());
+        }
     }
     
     /**
@@ -417,6 +420,7 @@ public abstract class Greep extends Actor
             return;
         }
         
+        Greenfoot.playSound("greepFart.wav");
         timeToKablam = 20; // prevent total carnage
         
         List l = getObjectsInRange(100, Greep.class);
