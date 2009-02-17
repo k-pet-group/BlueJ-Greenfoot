@@ -98,14 +98,6 @@ public class HouseGreep extends Greep
             setMemory(2, tomatoes.getY());
         }
     }
-
-    /**
-     * This method specifies the name of the author (for display on the result board).
-     */
-    public String getName()
-    {
-        return "House Greep";  // write your name here!
-    }    
     
     /** 
      * Move forward, with a slight chance of turning randomly
@@ -159,4 +151,12 @@ public class HouseGreep extends Greep
         int deltaY = getY() - y;
         return (int) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     }
+    
+    /**
+     * This method specifies the name of the author (for display on the result board).
+     */
+    public String getName()
+    {
+        return "House";
+    }    
 }
