@@ -24,7 +24,7 @@ import java.util.List;
  * @author Poul Henriksen
  * @version 1.0
  */
-public class HouseGreep extends Greep
+public class SimpleGreep extends Greep
 {
     // Remember: you cannot extend the Greep's memory. So:
     // no additional fields (other than final fields) allowed in this class!
@@ -34,7 +34,7 @@ public class HouseGreep extends Greep
     /**
      * Default constructor. Do not remove.
      */
-    public HouseGreep(Ship ship)
+    public SimpleGreep(Ship ship)
     {
         super(ship);
     }
