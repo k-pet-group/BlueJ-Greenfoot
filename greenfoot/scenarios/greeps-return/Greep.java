@@ -93,8 +93,7 @@ public abstract class Greep extends Actor
             }
         }
         else if(mode == MODE_BLOCKING) {
-            turn(3);
-            
+            turn(3);            
         }
         else {
             if (timeToKablam > 0) {
@@ -464,14 +463,13 @@ public abstract class Greep extends Actor
         
         moveWasBlocked = false;
         if (! atWater) {
-            List greepsAtOldLoc = getWorld().getObjectsAt(getX(), getY(), Greep.class);
             List otherGreeps = getWorld().getObjectsAt(x,y,Greep.class);
             for (Iterator i = otherGreeps.iterator(); i.hasNext(); ) {
                 Greep otherGreep = (Greep) i.next();
-                if (otherGreep.ship != this.ship) {
-                    if (otherGreep.isBlocking() && ! greepsAtOldLoc.contains(otherGreep)) {
+                if (otherGreep.ship != this.ship) {    
+                    if (otherGreep.blocks(x,y) && ! otherGreep.blocks(getX(), getY())) {
                         moveWasBlocked = true;
-                        break;
+                        break;                   
                     }
                 }
             }
@@ -480,6 +478,14 @@ public abstract class Greep extends Actor
         return !(atWater || moveWasBlocked);
     }
     
+    /**
+     * True if this greep is blocking the given position.
+     */
+    private boolean blocks(int x, int y) 
+    {
+        return isBlocking() && distanceTo(x,y) < 30;
+    }
+
     /**
      * Receive a tomato and carry it.
      */
