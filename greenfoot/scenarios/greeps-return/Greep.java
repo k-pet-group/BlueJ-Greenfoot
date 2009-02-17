@@ -32,9 +32,13 @@ public abstract class Greep extends Actor
     private int mode = MODE_WALKING;
     private int timeToKablam = 0;
     
+    
     private static final int MODE_WALKING = 0;
     private static final int MODE_BLOCKING = 1;
-    private static final int MODE_FLIPPED = 2;
+    private static final int MODE_FLIPPED = 2;    
+    
+    /** The time at which the block sound was last played. */
+    private long blockSoundTime = 0;
 
     /** if flipped, will slide for some way */
     int slideSpeed = 0;
@@ -399,7 +403,11 @@ public abstract class Greep extends Actor
             return;
         
         if(!isBlocking()) {
-            Greenfoot.playSound("greepBlock.wav");
+            long dt = System.currentTimeMillis() - blockSoundTime;
+            if(dt > 1000) {
+                Greenfoot.playSound("greepBlock.wav");
+                blockSoundTime = System.currentTimeMillis();
+            }
             mode = MODE_BLOCKING;            
             setImage(getCurrentImage());
         }
