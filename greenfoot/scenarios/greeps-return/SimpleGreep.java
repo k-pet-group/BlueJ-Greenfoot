@@ -90,9 +90,10 @@ public class SimpleGreep extends Greep
 
     /**
      * This method specifies the name of the greeps (for display on the result board).
+     * Try to keep the name short so that it displays nicely on the result board.
      */
     public String getName()
     {
-        return "Anonymous";  // write your name here! And keep it short.
+        return "Your name here";  // write your name here!
     }
 }
