@@ -12,7 +12,7 @@ import java.util.Iterator;
  * @author Davin McCall
  * @version 0.1
  */
-public class DavinGreep6 extends Greep
+public class HouseGreep extends Greep
 {
     // Remember: you cannot extend the Greep's memory. So:
     // no additional fields (other than final fields) allowed in this class!
@@ -20,7 +20,7 @@ public class DavinGreep6 extends Greep
     /**
      * Default constructor for testing purposes.
      */
-    public DavinGreep6(Ship ship)
+    public HouseGreep(Ship ship)
     {
         super(ship);
         setFlag(1, randomChance(50)); // controls which direction to turn when an obstacle is hit
@@ -301,7 +301,7 @@ public class DavinGreep6 extends Greep
      */
     public String getName()
     {
-        return "Davin 6";  // write your name here!
+        return "House";  // write your name here!
     }
     
     /** Override method from Greep */
