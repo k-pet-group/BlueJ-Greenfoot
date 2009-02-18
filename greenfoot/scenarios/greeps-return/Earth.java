@@ -13,6 +13,8 @@ import java.awt.Font;
  */
 public class Earth extends World
 {
+    public static final boolean PLAY_SOUNDS = true;
+
     public static final int SCORE_DISPLAY_TIME = 240;
     
     private GreenfootImage map;

@@ -49,7 +49,9 @@ public class ScoreBoard extends Actor
     {
         makeImage(authors, "Map " + (map + 1), scores[0][map], scores[1][map]);
         addMapScores(map, scores);
-        Greenfoot.playSound("game-over.wav");
+        if(Earth.PLAY_SOUNDS) {
+            Greenfoot.playSound("game-over.wav");
+        }
     }
     
     /**
@@ -67,7 +69,9 @@ public class ScoreBoard extends Actor
         makeImage(authors, "Final score", total1, total2);
         addMapScores(scores[0].length-1, scores);
         printResultToTerminal(authors, scores, new int[]{total1, total2});
-        Greenfoot.playSound("game-over.wav");
+        if(Earth.PLAY_SOUNDS) {
+            Greenfoot.playSound("game-over.wav");
+        }
     }
     
     private String getAuthorString(String[] authors)

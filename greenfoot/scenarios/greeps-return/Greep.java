@@ -406,7 +406,7 @@ public abstract class Greep extends Actor
         
         if(!isBlocking()) {
             long dt = System.currentTimeMillis() - blockSoundTime;
-            if(dt > 1000) {
+            if(dt > 1000 && Earth.PLAY_SOUNDS) {
                 Greenfoot.playSound("greepBlock.wav");
                 blockSoundTime = System.currentTimeMillis();
             }
@@ -430,7 +430,10 @@ public abstract class Greep extends Actor
             return;
         }
         
-        Greenfoot.playSound("greepFart.wav");
+        if(Earth.PLAY_SOUNDS) {
+            Greenfoot.playSound("greepFart.wav");
+        }
+            
         timeToKablam = 20; // prevent total carnage
         
         List l = getObjectsInRange(100, Greep.class);
