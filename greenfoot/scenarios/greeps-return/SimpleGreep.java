@@ -157,6 +157,6 @@ public class SimpleGreep extends Greep
      */
     public String getName()
     {
-        return "House";
+        return "Simple";
     }    
 }
