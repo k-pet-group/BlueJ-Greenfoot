@@ -4,24 +4,38 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
  * A Greep is an alien creature that likes to collect tomatoes.
  * 
  * Rules:
- * 1. You can call any method defined in the "Greep" superclass, except act().
- * 2. You cannot call any method defined in any other class in this scenario, 
- *    including Actor and World, except:
- *    2a.  getX() and getY()  [greeps carry a small GPS device which tells 
- *                             them their location at all times]
- *    2b.  getRotation() and setRotation()
- *    2c.  getX() and getY() on a TomatoPile object.
- * 4. When using getFriend() to communicate with a friend you are only allowed to 
- *    call getMemmory() and getFlag() on the friend. 
- * 5. You are allowed to use all the classes and methods that are standard in 
- *    Java, as long as you are not using them to circumvent any other rules.
- *    
- * X. You may not redefine/override any methods from Actor, including getX(), getY()
- *    etc.
  * 
- * X. Your ship will deploy 20 greeps.
+ * Rule 1 
+ * Only change the class ‘MyGreep’. No other classes may be modiﬁed or created. 
+ *
+ * Rule 2 
+ * You cannot extend the Greeps’ memory. That is: you are not allowed to add 
+ * ﬁelds (other than ﬁnal ﬁelds) to the class. Some general purpose memory is
+ * provided. (The ship can also store data.) 
  * 
- * X: If you change the name of this class you should also change it in Ship.createGreep().
+ * Rule 3 
+ * You can call any method deﬁned in the "Greep" superclass, except act(). 
+ * 
+ * Rule 4 
+ * Greeps have natural GPS sensitivity. You can call getX()/getY() on any object
+ * and get/setRotation() on yourself any time. Friendly greeps can communicate. 
+ * You can call getMemory() and getFlag() on another greep to ask what they know. 
+ * 
+ * Rule 5 
+ * No creation of objects. You are not allowed to create any scenario objects 
+ * (instances of user-deﬁned classes, such as MyGreep). Greeps have no magic 
+ * powers – they cannot create things out of nothing. 
+ * 
+ * Rule 6 
+ * You are not allowed to call any methods (other than those listed in Rule 4)
+ * of any other class in this scenario (including Actor and World). 
+ *  
+ * If you change the name of this class you should also change it in
+ * Ship.createGreep().
+ * 
+ * Please do not publish your solution anywhere. We might want to run this
+ * competition again, or it might be used by teachers to run in a class, and
+ * that would be ruined if solutions were available.
  * 
  * 
  * @author (your name here)

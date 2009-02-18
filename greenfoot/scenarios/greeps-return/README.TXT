@@ -1,40 +1,49 @@
-G R E E P S   I N V A S I O N
+R E T U R N   O F   T H E   G R E E P S 
+ - 
 
 Improve the "Greeps" implementation to help the Greeps collect tomatoes!
 It's important. (At least to them...)
 
-This scenario is part of the SIGCSE'07 Greenfoot Programming Competition.
+This scenario is part of the SIGCSE'09 Greenfoot Programming Competition.
 
-Your task is to program the Greeps to collect as many tomatoes as possible.
-You may ONLY CHANGE THE GREEP class. You may not change any other class.
-
+Your task is to program the Greeps to collect as many tomatoes as possible 
+and to do it faster than the opponent Greeps.
 
 The rules are:
 
-Rule 1. Only change the class 'Greep'. No other classes may be modified or 
-    created.
+Rule 1 
+Only change the class ‘MyGreep’. No other classes may be modiﬁed or created. 
 
-Rule 2. No additional fields. You cannot extend the Greeps' memory. That is: 
-    you are not allowed to add fields to the class (except final fields). You 
-    can use the one byte memory that is provided.
+Rule 2 
+You cannot extend the Greeps’ memory. That is: you are not allowed to add 
+ﬁelds (other than ﬁnal ﬁelds) to the class. Some general purpose memory is
+provided. (The ship can also store data.) 
 
-Rule 3. You cannot move more than once per 'act' round.
+Rule 3 
+You can call any method deﬁned in the "Greep" superclass, except act(). 
 
-Rule 4. You cannot communicate directly with other Greeps. That is: no field 
-    accesses or method calls to other Greep objects are allowed. (Greeps can 
-    communicate indirectly via the paint spots on the ground.)
+Rule 4 
+Greeps have natural GPS sensitivity. You can call getX()/getY() on any object
+and get/setRotation() on yourself any time. Friendly greeps can communicate. 
+You can call getMemory() and getFlag() on another greep to ask what they know. 
 
-Rule 5. No long vision. You are allowed to look at the world only at the 
-    immediate location of the Greep. Greeps are almost blind, and cannot look 
-    any further.
+Rule 5 
+No creation of objects. You are not allowed to create any scenario objects 
+(instances of user-deﬁned classes, such as MyGreep). Greeps have no magic 
+powers – they cannot create things out of nothing. 
 
-Rule 6. No creation of objects. You are not allowed to create any scenario 
-    objects (instances of user-defined classes, such as Greep or Paint). Greeps 
-    have no magic powers - they cannot create things out of nothing.
+Rule 6 
+You are not allowed to call any methods (other than those listed in Rule 4)
+of any other class in this scenario (including Actor and World). 
+ 
 
-Rule 7. No tele-porting. Methods from Actor that cheat normal movement (such as 
-    setLocation) may not be used.
+If you change the name of the 'MyGreep' class you should also change it in 
+Ship.createGreep().
 
+
+Please do not publish your solution anywhere. We might want to run this
+competition again, or it might be used by teachers to run in a class, and
+that would be ruined if solutions were available.
 
 Version: 1.0
 Written by: Michael Kolling, Feb 2007
