@@ -14,10 +14,15 @@ import java.util.ArrayList;
  */
 public abstract class Greep extends Actor
 {
+    // Constants
     private static final double WALKING_SPEED = 5.0;
     private static final int TIME_TO_SPIT = 10;
     private static final int KNOCK_OUT_TIME = 70;
-    private static final int VISION_RANGE = 70;
+    private static final int VISION_RANGE = 70;    
+    
+    private static final int MODE_WALKING = 0;
+    private static final int MODE_BLOCKING = 1;
+    private static final int MODE_FLIPPED = 2;    
     
     /** Indicate whether we have a tomato with us */
     private boolean carryingTomato = false; 
@@ -31,11 +36,6 @@ public abstract class Greep extends Actor
     private boolean moveWasBlocked = false;
     private int mode = MODE_WALKING;
     private int timeToKablam = 0;
-    
-    
-    private static final int MODE_WALKING = 0;
-    private static final int MODE_BLOCKING = 1;
-    private static final int MODE_FLIPPED = 2;    
     
     /** The time at which the block sound was last played. */
     private long blockSoundTime = 0;
@@ -61,6 +61,7 @@ public abstract class Greep extends Actor
     
     /**
      * Greenfoot's standard act method, which can be reimplemented in subclasses.
+     * When reimplemented, the first line of the act() should always call super.act().
      */
     public void act()
     {        
@@ -328,6 +329,7 @@ public abstract class Greep extends Actor
         }       
         return null;
     }    
+    
     /**
      * Return 'true' in exactly 'percent' number of calls. That is: a call
      * randomChance(25) has a 25% chance to return true.
@@ -415,7 +417,8 @@ public abstract class Greep extends Actor
     
     /**
      * Release a stink bomb. All greeps within a small radius will be knocked out for
-     * a small period of time.
+     * a small period of time. If a greep carrying a tomato is knocked out, it will drop
+     * the tomato on the ground.
      */
     protected final void kablam()
     {
@@ -447,6 +450,11 @@ public abstract class Greep extends Actor
         getWorld().addObject(new Smoke(5, isTeamTwo()), getX(), getY());
     }    
 
+    
+    /**
+     * True if we can move to the given location without being blocked by water, the edge
+     * of the map or a blocking opponent.
+     */
     private boolean canMoveTo(int x, int y)
     {
         atWater = false;

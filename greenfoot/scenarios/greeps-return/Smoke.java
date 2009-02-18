@@ -1,7 +1,7 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 
 /**
- * A puff of smoke. Once placed into the world, it quickly evaporaes and
+ * A puff of smoke. Once placed into the world, it quickly evaporates and
  * then disappears.
  * 
  * @author Michael Kolling

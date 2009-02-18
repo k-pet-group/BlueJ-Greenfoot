@@ -24,10 +24,8 @@ public class ScoreBoard extends Actor
     {
         int[][] scores = new int[][]{{12,43} , {45,676}};
         int map = 1;
-        String[] authors = new String[]{"Davin 6", "House"};
+        String[] authors = new String[]{"Simple", "House"};    
       
-      
-     
         int total1 = 0;
         int total2 = 0;
         for (int i = 0; i < scores[0].length; i++) {
@@ -39,11 +37,14 @@ public class ScoreBoard extends Actor
         addMapScores(scores[0].length-1, scores);
         printResultToTerminal(authors, scores, new int[]{total1, total2});
         
-   /*     makeImage(authors, "Map " + (map + 1), scores[0][map], scores[1][map]);
-        addMapScores(map, scores);*/
+        //makeImage(authors, "Map " + (map + 1), scores[0][map], scores[1][map]);
+        //addMapScores(map, scores);
           
     }
     
+    /**
+     * Create a score board for the result of a specific map.
+     */
     public ScoreBoard(String[] authors, int map, int[][] scores)
     {
         makeImage(authors, "Map " + (map + 1), scores[0][map], scores[1][map]);

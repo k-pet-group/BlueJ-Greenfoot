@@ -16,21 +16,10 @@ import java.awt.Font;
 public class Ship extends Actor
 {
     
-    private int totalPassengers = 20;     // Total number of passengers in this ship.
-    private int passengersReleased = 0;   // Number of passengers that left so far.
-    private Counter foodCounter;          // Tomato counter 
-    private int targetPosition;           // The vertical position for landing
-    private int stepCount = 0;
-    private boolean hatchOpen = false;    // Whether the greeps can deploy yet
-    
-    private int[] dataBank = new int[1000];    // Ship's databank. Holds a large amount of information.
-    
-    private int teamNumber; // Team number. Should be 1 or 2.
-    
-    private int direction = 1; // 1 is positive y-direction, -1 is negative.
-    
-    private String greepName; // Author of the Greeps produced by this ship.
-    
+    /**
+     * Method that creates the Greeps. 
+     * You can change the class that objects are created from here.
+     */
     private Greep createGreep() 
     {
         if(teamNumber == 1) {
@@ -40,6 +29,17 @@ public class Ship extends Actor
             return new SimpleGreep(this);
         }        
     }
+    
+    private int totalPassengers = 20;     // Total number of passengers in this ship.
+    private int passengersReleased = 0;   // Number of passengers that left so far.
+    private Counter foodCounter;          // Tomato counter 
+    private int targetPosition;           // The vertical position for landing
+    private int stepCount = 0;
+    private boolean hatchOpen = false;    // Whether the greeps can deploy yet    
+    private int[] dataBank = new int[1000];    // Ship's databank. Holds a large amount of information.    
+    private int teamNumber; // Team number. Should be 1 or 2.    
+    private int direction = 1; // 1 is positive y-direction, -1 is negative.    
+    private String greepName; // Name of the Greeps produced by this ship.    
     
     /**
      * Create a space ship. The parameter specifies at what height to land.
@@ -53,6 +53,9 @@ public class Ship extends Actor
         setImage(im);
     }
     
+    /**
+     * Find out which direction we are moving in.
+     */
     public void addedToWorld(World w) {
         if(getY() > targetPosition) {
             direction = -1;
@@ -86,7 +89,7 @@ public class Ship extends Actor
     }
     
     /**
-     * Move the ship down (for movement before landing).
+     * Move the ship down or up (for movement before landing).
      */
     public void move()
     {      

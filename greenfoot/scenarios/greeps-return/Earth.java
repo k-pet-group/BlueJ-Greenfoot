@@ -60,6 +60,9 @@ public class Earth extends World
         setPaintOrder(ScoreBoard.class, Counter.class, Smoke.class, Ship.class, Greep.class, TomatoPile.class);
     }
     
+    /**
+     * We detect the first to have a small delay for showing the start-screen.
+     */
     public void started()
     {   
         if (firstStart) {
@@ -119,13 +122,16 @@ public class Earth extends World
         
         // Second ship
         ship2 = new Ship("spaceship-purple.png", shipData2[0], 2);
-        addObject(ship2, shipData2[1], shipData2[2]);
-        
+        addObject(ship2, shipData2[1], shipData2[2]);        
         
         // Timer starts when both ships have landed
         timer = null;
     }
     
+    /**
+     * The Earth's act method opens the ships' hatches when they are in position and 
+     * starts the timer to check when the map run on this map should end.
+     */
     public void act()
     {
         if (timer == null && ship1.inPosition() && ship2.inPosition()) {
@@ -157,6 +163,9 @@ public class Earth extends World
         }
     }
     
+    /**
+     * Write the author names on the background.
+     */
     private void showAuthor(Ship ship)
     {
         GreenfootImage im = getBackground();
@@ -166,7 +175,11 @@ public class Earth extends World
         im.drawString(ship.getGreepName(), ship.getX()-40, ship.getY()-36);
     }
     
-
+    /**
+     * Display the score board for the result on this map.
+     * 
+     * @param time How many act loops the score board should be shown for.
+     */
     private void displayScore(int time)
     {
         int points1 = ship1.getTomatoCount();
@@ -179,6 +192,9 @@ public class Earth extends World
         addObject(board, getWidth() / 2, getHeight() / 2);
     }
     
+    /**
+     * Display the score board with the final results.
+     */
     private void displayFinalScore()
     {
         clearWorld();
@@ -187,15 +203,11 @@ public class Earth extends World
         addObject(board, getWidth() / 2, getHeight() / 2);
     }
     
+    /**
+     * Remove everything from the world.
+     */
     private void clearWorld()
     {
         removeObjects(getObjects(null));
-    }
-    
-    private void wait(int time)
-    {
-        for (int i = 0; i < time; i++) {
-            Greenfoot.delay(1);
-        }
     }
 }

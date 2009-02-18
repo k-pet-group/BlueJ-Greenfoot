@@ -1,7 +1,7 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, and Greenfoot)
 
 /**
- * A timer is a conter that automatically counts up as time goes on.
+ * A timer is a counter that automatically counts up as time goes on.
  * This timer also checks whether the map has been completed (either time
  * is up, or all tomatoes are gone).
  * 
