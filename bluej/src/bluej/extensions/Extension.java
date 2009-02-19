@@ -1,3 +1,24 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 1999-2009  Michael Kšlling and John Rosenberg 
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.extensions;
 
 import java.net.URL;
@@ -7,7 +28,7 @@ import bluej.Config;
  * Defines the interface between BlueJ and an extension. All extensions must extend this class.
  * A concrete extension class must also have a no-arguments constructor.
  * 
- * @version    $Id: Extension.java 5344 2007-10-24 16:14:40Z iau $
+ * @version    $Id: Extension.java 6163 2009-02-19 18:09:55Z polle $
  */
 
 /*
