@@ -390,6 +390,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
 	        <fileset dir="." includes="**/*.java" >
 	        	<exclude name="package/Installer.java"/>
 	        	<exclude name="examples/**"/>
+	        	<exclude name="src/org/syntax/jedit/**"/>
 	        </fileset>
 	    </replaceregexp>
     </target>        
