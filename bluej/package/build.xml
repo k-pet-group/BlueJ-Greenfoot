@@ -79,6 +79,11 @@
         <include name="examples/people/*.class" />
     </patternset>
 
+    <fileset id="bluej.license.files" dir="${bluej_home}/doc/">
+        <include name="LICENSE.txt" />
+        <include name="THIRDPARTYLICENSE.txt" />
+    </fileset>
+
     <!-- These are files which should be made to have system line endings -->
     <patternset id="bluej.textfiles">
         <include name="examples/**/*.java" />
@@ -103,6 +108,7 @@
                 <patternset refid="bluej.examples"/>
                 <patternset refid="bluej.icons" />
             </fileset>
+            <fileset refid="bluej.license.files"/>
         </copy>
 
         <!-- make sure the people .class files are dated in the future so they
