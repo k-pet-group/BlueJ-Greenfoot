@@ -1,0 +1,89 @@
+How to build the BlueJ/Greenfoot launcher (and installer)
+---------------------------------------------------------
+
+The launcher is built using the MinGW (Minimalist GNU for Windows) environment:
+
+http://www.mingw.org/
+
+Any suitably recent version should do. They don't make it particularly clear what
+packages you'll need but in general:
+
+- gcc
+- binutils
+- GNU make
+- MinGW API for Windows
+- MinGW runtime
+- MSYS base system
+
+... should be a good start (please let me know if I've missed anything). 
+
+If you want to build the Windows installer, you will also need InnoSetup:
+
+http://jrsoftware.org/isinfo.php
+
+(Version 5.2.3 should be fine).
+
+
+Step 1.
+-------
+
+Edit the Makefile and select either a BlueJ or Greenfoot build. For example:
+
+  # For BlueJ
+  #APPNAME=\"BlueJ\"
+  #GREENFOOTDEF=
+
+  # For Greenfoot
+  APPNAME=\"Greenfoot\"
+  GREENFOOTDEF=-DGREENFOOT
+  
+... will build the Greenfoot launcher. If you want the BlueJ launcher, you should
+comment out the Greenfoot settings for APPNAME and GREENFOOTDEF, and uncomment the
+BlueJ settings.
+
+
+Step 2.
+-------
+
+Edit the bjlaunch.rc file and correct the version numbers. This needs to be done
+in two places. Make sure to change the information (protected by #ifdef) for the
+correct product, either BlueJ or Greenfoot.
+
+Example settings to look for:
+
+  FILEVERSION 1,5,1,0
+  PRODUCTVERSION 1,5,1,0
+
+            VALUE "FileVersion", "1.5.1"
+            VALUE "InternalName", "greenfoot"
+            VALUE "OriginalFilename", "greenfoot.exe"
+            VALUE "ProductName", "Greenfoot"
+            VALUE "ProductVersion", "1.5.1"
+
+
+
+Step 3.
+-------
+
+Run "make".
+
+This should be done from within the bash shell in the MSYS environment.
+
+The generated launcher is always called "bjlaunch.exe" (even for Greenfoot).
+
+IMPORTANT: Before you build the installer in the next step, if you are building
+Greenfoot, you should change the launcher name to "gflaunch.exe".
+
+
+Step 4.
+-------
+
+You can now build the Windows installer.
+
+First, run the "ready-to-run" ant task in the build.xml file in the root
+of the BlueJ source distribution. The "build.properties" file (in the same location)
+will need to be edited first (specify the BlueJ build location and JDK location, etc).
+
+Then run the "windows-dist" ant task in the same build file.
+
+The installer will be generated in the package/winsetup subdirectory.
