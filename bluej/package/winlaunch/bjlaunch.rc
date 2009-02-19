@@ -1,0 +1,87 @@
+#include <windows.h>
+#include "resources.h"
+
+LANGUAGE 0, 0
+
+
+// MAINICON ICON "example-vista-icon.ico"
+#ifndef GREENFOOT
+MAINICON ICON "bluej-vista.ico"
+#else
+MAINICON ICON "greenfoot-icon-256-shadow.ico"
+#endif
+2 ICON "vmselect.ico"
+
+
+DLG_MAIN DIALOGEX 0, 0, 368, 124
+#ifndef GREENFOOT
+CAPTION "BlueJ Launcher"
+#else
+CAPTION "Greenfoot Launcher"
+#endif
+STYLE  WS_POPUP | WS_SYSMENU | WS_CAPTION | DS_MODALFRAME | DS_CENTER
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Sans Serif"
+BEGIN
+  // LTEXT "", 1119, 0, 0, 204, 76, 0x40020000
+  // ICON MAINICON, ID_BJICON_CONTROL, 5, 5
+  CONTROL "MAINICON", ID_BJICON_CONTROL, "STATIC", SS_ICON | SS_CENTERIMAGE, 5, 5, 30, 30
+  
+  CTEXT "1st line", ID_TEXTLINE_1, 60, 5, 303, 10
+  CTEXT "2nd line", ID_TEXTLINE_2, 60, 15, 303, 10
+  CTEXT "3rd line", ID_TEXTLINE_3, 60, 25, 303, 10
+  
+  LISTBOX ID_JDKLISTBOX, 5, 35, 358, 80, WS_BORDER | LBS_NOTIFY
+  
+  PUSHBUTTON "Launch", ID_LAUNCHBUTTON, 280, 105, 83, 15, BS_PUSHBUTTON | WS_DISABLED
+  PUSHBUTTON "Browse...", ID_BROWSEBUTTON, 5, 105, 83, 15, BS_PUSHBUTTON
+  
+  // SS_ICON || SS_REALSIZECONTROL
+END
+
+1 VERSIONINFO
+#ifdef GREENFOOT
+FILEVERSION 1,5,1,0
+PRODUCTVERSION 1,5,1,0
+#else
+FILEVERSION 2,5,0,0
+PRODUCTVERSION 2,5,0,0
+#endif
+FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+FILEFLAGS 0
+FILEOS VOS_NT
+FILETYPE VFT_APP
+FILESUBTYPE 0
+#ifndef GREENFOOT
+BEGIN
+	BLOCK "StringFileInfo"
+	BEGIN
+		BLOCK "04091200"
+		BEGIN
+			VALUE "CompanyName", "BlueJ group"
+			VALUE "FileDescription", "BlueJ Launcher"
+			VALUE "FileVersion", "2.5.0"
+			VALUE "InternalName", "bluej"
+			VALUE "OriginalFilename", "bluej.exe"
+			VALUE "ProductName", "BlueJ"
+			VALUE "ProductVersion", "2.5.0"
+		END
+	END
+END
+#else
+BEGIN
+	BLOCK "StringFileInfo"
+	BEGIN
+		BLOCK "04091200"
+		BEGIN
+			VALUE "CompanyName", "BlueJ group"
+			VALUE "FileDescription", "Greenfoot Launcher"
+			VALUE "FileVersion", "1.5.1"
+			VALUE "InternalName", "greenfoot"
+			VALUE "OriginalFilename", "greenfoot.exe"
+			VALUE "ProductName", "Greenfoot"
+			VALUE "ProductVersion", "1.5.1"
+		END
+	END
+END
+#endif

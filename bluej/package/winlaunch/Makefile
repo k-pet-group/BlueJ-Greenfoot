@@ -1,0 +1,39 @@
+# Make file - BlueJ/Greenfoot Windows launcher
+#
+# Must set below, and edit version in bjlaunch.rc
+
+# For BlueJ
+#APPNAME=\"BlueJ\"
+#GREENFOOTDEF=
+
+# For Greenfoot
+APPNAME=\"Greenfoot\"
+GREENFOOTDEF=-DGREENFOOT
+
+JDKDIR=/c/Program Files/Java/jdk1.6.0_05
+REQUIREDJAVA=\"1.5\"
+
+OBJECTS = resources.o bjlaunch.o javatest.o javaprops.o bjdialog.o
+
+bjlaunch.exe: $(OBJECTS)
+	g++ -static -mwindows -o bjlaunch.exe $(OBJECTS) -lversion
+	strip bjlaunch.exe
+
+resources.o: bjlaunch.rc resources.h
+	windres $(GREENFOOTDEF) bjlaunch.rc resources.o
+
+bjlaunch.o: bjlaunch.cc resources.h
+	g++ $(GREENFOOTDEF) -DAPPNAME=$(APPNAME) -Os -I"$(JDKDIR)/include" -I"$(JDKDIR)/include/win32" -c bjlaunch.cc -o bjlaunch.o
+
+javaprops.o: javaprops.cc winfilebuf.h
+	g++ -DAPPNAME=$(APPNAME) -Os -c javaprops.cc -o javaprops.o
+
+javatest.o: javatest.cc
+	g++ -DAPPNAME=$(APPNAME) -Os -c javatest.cc -o javatest.o
+
+bjdialog.o: bjdialog.cc
+	g++ -DAPPNAME=$(APPNAME) -Os -c bjdialog.cc -o bjdialog.o
+
+
+clean:
+	rm $(OBJECTS)
