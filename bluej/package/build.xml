@@ -343,8 +343,9 @@
         <delete>
             <fileset dir="." includes="BlueJ-generic-*.jar"/>
             <fileset dir="." includes="BlueJ-mac-*.zip"/>
+            <fileset dir="." includes="BlueJ-source-*.zip"/>
         </delete>
-        <delete file="${dist.jar}"/>     
+        <delete file="${dist.jar}"/>       
         <delete file="winsetup/$(dist.win}.exe" />
         <delete dir="install_tmp" />
     </target>
