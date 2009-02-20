@@ -118,6 +118,31 @@
         <pathelement location="${build}"/>
     </path>
 
+
+    <!-- If you change the first or last lines of this license you might want
+     to update the 'add-license-to-sources' target as well -->    
+    <property name="license" value="/*${line.separator}
+This file is part of the Greenfoot program. ${line.separator}
+Copyright (C) 2006-2009  Poul Henriksen and Michael Kölling ${line.separator}
+${line.separator}
+This program is free software; you can redistribute it and/or ${line.separator}
+modify it under the terms of the GNU General Public License ${line.separator}
+as published by the Free Software Foundation; either version 2 ${line.separator}
+of the License, or (at your option) any later version. ${line.separator}
+${line.separator}
+This program is distributed in the hope that it will be useful, ${line.separator}
+but WITHOUT ANY WARRANTY; without even the implied warranty of ${line.separator}
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the ${line.separator}
+GNU General Public License for more details. ${line.separator}
+${line.separator}
+You should have received a copy of the GNU General Public License ${line.separator}
+along with this program; if not, write to the Free Software ${line.separator}
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. ${line.separator}
+${line.separator}
+This file is subject to the Classpath exception as provided in the  ${line.separator}
+LICENSE.txt file that accompanied this code.${line.separator}
+*/${line.separator}"/>
+    
     <target name="init">
         <!-- Create the time stamp -->
         <tstamp/>
@@ -575,9 +600,20 @@ target="1.5">
                 <include name="bluej/*.class"/>
             </fileset>
         </copy>
-
-
     </target>
+
+    <target name="add-license-to-sources" description="adds the license to each source file" >	      
+	    <replaceregexp flags="s">
+	        <regexp pattern="(^\/\*\n This file is part of the Greenfoot program.*? file that accompanied this code\.\n.\*\/\n)|^"/> 
+	        <substitution expression="${license}"/> 
+	        <fileset dir="." includes="**/*.java" >
+	        	<exclude name="src/util/GraphicsUtilities.java"/>
+	        	<exclude name="src/util/ShadowRenderer.java"/>
+	        	<exclude name="src/org/syntax/jedit/**"/>
+	        	<exclude name="scenarios/**"/>
+	        </fileset>
+	    </replaceregexp>
+    </target>   
 
     <target name="clean-scenarios" description="clean up scenarios (remove doc and greenfoot dir)" >
         <delete includeemptydirs="true">
