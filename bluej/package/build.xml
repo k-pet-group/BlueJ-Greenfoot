@@ -314,39 +314,31 @@
 
         <delete dir="install_tmp" />
     </target>
-
-
     
     <target name="zip-source"  description="create a zip of all the sources and other resources needed to build BlueJ." >
-        <delete dir="${bluej_home}/zip_tmp"/>
-        <mkdir dir="${bluej_home}/zip_tmp"/>
-        <copy todir="${bluej_home}/zip_tmp" preservelastmodified="true">
-            <fileset dir="${bluej_home}" defaultexcludes="yes">
-                <include name="src/**/*.java" />       
-                <include name="boot/src/**/*.java" />       
-                <include name="boot/src/bluej/splash.jpg" />
-                <include name="doc/HOWTO.*" />    
-                <include name="doc/THIRDPARTYLICENSE.txt" />
-                <include name="doc/LICENSE.txt" />  
-                <include name="examples/**/*" />          
-                <include name="icons/**/*" />           
-                <include name="lib/**/*" />     
-                <exclude name="lib/commons-*"/>
-                <include name="package/**/*" />     
-                <exclude name="package/commons-*"/>
-                <include name="test/**/*" />    
-                <include name="build.properties" />   
-                <include name="build.xml" />  
-                <exclude name="**/.DS_Store"/>
-            </fileset>
-        </copy>
-        
-        <zip zipfile="${bluej.source.zip}"
-                   basedir="${bluej_home}/zip_tmp"
-                   compress="yes"
-              />
-        <delete dir="${bluej_home}/zip_tmp"/>
+        <zip destfile="${bluej.source.zip}" compress="yes">
+            <zipfileset dir="${bluej_home}" defaultexcludes="yes">
+	            <include name="src/**/*.java" />       
+	            <include name="boot/src/**/*.java" />       
+	            <include name="boot/src/bluej/splash.jpg" />
+	            <include name="doc/HOWTO.*" />    
+	            <include name="doc/THIRDPARTYLICENSE.txt" />
+	            <include name="doc/LICENSE.txt" />  
+	            <include name="examples/**/*" />          
+	            <include name="icons/**/*" />           
+	            <include name="lib/**/*" />     
+	            <exclude name="lib/commons-*"/>
+	            <include name="package/**/*" />     
+	            <exclude name="package/commons-*"/>
+	            <exclude name="package/${bluej.source.zip}"/>
+	            <include name="test/**/*" />    
+	            <include name="build.properties" />   
+	            <include name="build.xml" />  
+	            <exclude name="**/.DS_Store"/>
+	        </zipfileset>
+        </zip>
     </target>
+    
     <target name="clean">
         <delete>
             <fileset dir="." includes="BlueJ-generic-*.jar"/>
