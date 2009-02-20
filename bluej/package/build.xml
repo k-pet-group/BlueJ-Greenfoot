@@ -7,7 +7,9 @@
     
     <!-- Don't know how to pass this to the Windows builder -->
     <property name="dist.win" value="BlueJ-windows-${bluej.version}"/>
-    <property name="dist.jar" value="bluej-dist.jar"/>    
+    <property name="dist.jar" value="bluej-dist.jar"/>        
+    
+    <property name="bluej.source.zip" value="BlueJ-source-${bluej.version}.zip"/>
     
     <patternset id="bluej.libfiles">
         <exclude name="**/.#*" />
@@ -187,6 +189,8 @@
              manifest="manifest"
         />
 
+        <!-- create the source zip -->
+        <antcall target="zip-source"/>
         <!-- cleanup
              leaves bluej-dist.jar for distribution to whoever is
              building the windows installer. Mac and generic installers
@@ -197,6 +201,7 @@
         <echo level="info" message="The bluej-dist.jar (for building the windows installer) is in: ${basedir}${file.separator}${dist.jar}"/>
         <echo level="info" message="The generic installer is in: ${basedir}${file.separator}${dist.jarinstaller}"/>
         <echo level="info" message="The mac installer is in: ${basedir}${file.separator}${dist.mac}"/>
+        <echo level="info" message="The source is in: ${basedir}${file.separator}${bluej.source.zip}"/>
         <echo level="warning" message="Remember to remove the dots in the version numbers when moving the files to the server. "/>
     </target>
 
@@ -310,10 +315,38 @@
         <delete dir="install_tmp" />
     </target>
 
-    <target name="put-on-server">
-        
-    </target>
+
     
+    <target name="zip-source"  description="create a zip of all the sources and other resources needed to build BlueJ." >
+        <delete dir="${bluej_home}/zip_tmp"/>
+        <mkdir dir="${bluej_home}/zip_tmp"/>
+        <copy todir="${bluej_home}/zip_tmp" preservelastmodified="true">
+            <fileset dir="${bluej_home}" defaultexcludes="yes">
+                <include name="src/**/*.java" />       
+                <include name="boot/src/**/*.java" />       
+                <include name="boot/src/bluej/splash.jpg" />
+                <include name="doc/HOWTO.*" />    
+                <include name="doc/THIRDPARTYLICENSE.txt" />
+                <include name="doc/LICENSE.txt" />  
+                <include name="examples/**/*" />          
+                <include name="icons/**/*" />           
+                <include name="lib/**/*" />     
+                <exclude name="lib/commons-*"/>
+                <include name="package/**/*" />     
+                <exclude name="package/commons-*"/>
+                <include name="test/**/*" />    
+                <include name="build.properties" />   
+                <include name="build.xml" />  
+                <exclude name="**/.DS_Store"/>
+            </fileset>
+        </copy>
+        
+        <zip zipfile="${bluej.source.zip}"
+                   basedir="${bluej_home}/zip_tmp"
+                   compress="yes"
+              />
+        <delete dir="${bluej_home}/zip_tmp"/>
+    </target>
     <target name="clean">
         <delete>
             <fileset dir="." includes="BlueJ-generic-*.jar"/>
