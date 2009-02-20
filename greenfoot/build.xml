@@ -62,7 +62,10 @@
     <property name="bluej.installer.jar"  location="${bluej.projectdir}/package/greenfoot-instaler.jar"/>
     <property name="bluej.dist.jar"  location="${bluej.projectdir}/package/greenfoot-dist.jar"/>
     <property name="bluej.dist.mac"  location="${bluej.projectdir}/package/greenfoot-instaler-mac.zip"/>
-
+    
+    <!-- Location of the zip with the sources for greenfoot -->
+    <property name="greenfoot.source.zip" location="package/greenfoot-source-${greenfoot.version}.zip"/>
+    
     <!-- Location of the source files for greenfoot -->
     <property name="src" location="src"/>
 
@@ -95,22 +98,16 @@
 
     <!-- scenarios to be included in standard distribution -->
     <patternset id="distribution.scenarios">
-        <exclude name="**/*.pkh" />
-        <exclude name="**/.#*" />
-        <exclude name="**/.cvsignore" />
-        <exclude name="**/doc/" />
-        <exclude name="**/__*" />
-        <include name="ants/" />
-        <include name="lunarlander/" />
-        <include name="balloons/" />
-        <include name="wombats/" />
-        <include name="wombats2/" />
-    </patternset>
-
-    <!-- To avoid duplicate classes when compiling scenarios we exclude the greenfoot classes here -->
-    <patternset id="compile.scenarios">
-        <patternset refid="distribution.scenarios"/>
-        <exclude name="**/greenfoot/*" />
+        <exclude name="scenarios/**/*.pkh" />
+        <exclude name="scenarios/**/.#*" />
+        <exclude name="scenarios/**/.cvsignore" />
+        <exclude name="scenarios/**/doc/" />
+        <exclude name="scenarios/**/__*" />
+        <include name="scenarios/ants/" />
+        <include name="scenarios/lunarlander/" />
+        <include name="scenarios/balloons/" />
+        <include name="scenarios/wombats/" />
+        <include name="scenarios/wombats2/" />
     </patternset>
 
     <!-- The classpath to the greenfoot classes (once they are built) -->
@@ -289,8 +286,8 @@ target="1.5">
     </target>
 
     <target name="copy-scenarios" depends="compile-scenarios"  description="Copies the scenarios to bluej" >
-        <copy todir="${bluej.projectdir}/package/scenarios" preservelastmodified="true">
-            <fileset dir="scenarios">
+        <copy todir="${bluej.projectdir}/package" preservelastmodified="true">
+            <fileset dir=".">
                 <patternset refid="distribution.scenarios"/>
             </fileset>
         </copy>
@@ -362,7 +359,7 @@ target="1.5">
         <copy file="resources/images/export-webpage.png" todir="images"/>
     </target>
 
-    <target name="dist" depends="ready-to-run, clean-scenarios, copy-scenarios, copy-license, copy-tutorial, compile-standalone" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
+    <target name="dist" depends="ready-to-run, clean-scenarios, copy-scenarios, copy-license, copy-tutorial, compile-standalone, zip-source" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
         <!-- Run the BlueJ dist-->
         <ant dir="${bluej.projectdir}" target="dist-greenfoot" />
 
@@ -612,6 +609,38 @@ target="1.5">
         </copy>
     </target>
 
+    
+    <target name="zip-source"  description="create a zip of all the sources and other resources needed to build BlueJ." >
+        <!-- And build sources for BlueJ -->
+        <ant dir="${bluej.projectdir}/package" target="zip-source"/>
+        <zip destfile="${greenfoot.source.zip}" compress="yes">
+            <zipfileset dir="." defaultexcludes="yes" prefix="greenfoot">
+                <include name="src/**/*.java" />       
+                <include name="doc/HOWTO.*" />    
+                <include name="doc/THIRDPARTYLICENSE.txt" />
+                <include name="doc/LICENSE.txt" />  
+                <patternset refid="distribution.scenarios"/>
+                <exclude name="scenarios/**/*.class" />    
+                <exclude name="scenarios/**/greenfoot/" />   
+                
+                <include name="imagelib/**/*" />           
+                <include name="images/**/*" />     
+                <include name="labels/**/*"/>
+                <include name="lib/**/*"/>
+                <include name="package/winlaunch/*" />     
+                <include name="package/commons-*.jar"/>
+                <include name="projects/**/*" />   
+                <include name="resources/**/*" />    
+                <include name="test/**/*.java" />    
+                    
+                <include name="build.properties" />   
+                <include name="build.xml" />  
+                <exclude name="**/.DS_Store"/>
+            </zipfileset>
+            <zipfileset src="${bluej.projectdir}/package/BlueJ-source-${bluej.version}.zip" prefix="bluej"/>                       
+        </zip>
+    </target>
+    
     <target name="add-license-to-sources" description="adds the license to each source file" >	      
 	    <replaceregexp flags="s">
 	        <regexp pattern="(^\/\*\n This file is part of the Greenfoot program.*? file that accompanied this code\.\n.\*\/\n)|^"/> 
