@@ -1,4 +1,25 @@
 /*
+ This file is part of the Greenfoot program. 
+ Copyright (C) 2006-2009  Poul Henriksen and Michael Kšlling 
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
+/*
  * ExportAppPane.java
  *
  * Created on April 19, 2007, 6:15 PM
@@ -7,7 +28,7 @@
  * and open the template in the editor.
 
  * @author Michael Kolling
- * @version $Id: ExportAppPane.java 6125 2009-02-13 13:01:42Z polle $
+ * @version $Id: ExportAppPane.java 6167 2009-02-20 10:42:49Z polle $
  */
 
 package greenfoot.gui.export;
