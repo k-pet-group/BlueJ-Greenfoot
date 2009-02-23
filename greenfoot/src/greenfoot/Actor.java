@@ -727,17 +727,17 @@ public abstract class Actor
     }
     
     /**
-     * Return all objects within range 'r' around this object. 
+     * Return all objects within range 'radius' around this object. 
      * An object is within range if the distance between its centre and this
-     * object's centre is less than or equal to r.
+     * object's centre is less than or equal to 'radius'.
      * 
-     * @param r Radius of the cirle (in cells)
+     * @param radius Radius of the circle (in cells)
      * @param cls Class of objects to look for (passing 'null' will find all objects).
      */
-    protected List getObjectsInRange(int r, Class cls)
+    protected List getObjectsInRange(int radius, Class cls)
     {
         failIfNotInWorld();
-        List inRange = world.getObjectsInRange(getX(), getY(), r, cls);
+        List inRange = world.getObjectsInRange(getX(), getY(), radius, cls);
         inRange.remove(this);
         return inRange;
     }
