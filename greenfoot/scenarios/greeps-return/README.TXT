@@ -46,6 +46,6 @@ competition again, or it might be used by teachers to run in a class, and
 that would be ruined if solutions were available.
 
 Version: 1.0
-Written by: Michael Kolling, Feb 2007
+Written by: Michael Kolling, Feb 2009
 Copyright (c) Michael Kolling
 License: Free for any non-commercial use, modification and distribution.
