@@ -1,6 +1,6 @@
 BlueJ
 
-The use of BlueJ are governed by the terms of the GNU General 
+The use of BlueJ is governed by the terms of the GNU General 
 Public License Version 2 with Classpath Exception.
 
 BlueJ makes use of 3rd party software which are under different 

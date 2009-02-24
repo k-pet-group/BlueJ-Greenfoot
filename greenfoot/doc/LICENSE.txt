@@ -1,6 +1,6 @@
 Greenfoot
 
-The use of Greenfoot are governed by the terms of the GNU General 
+The use of Greenfoot is governed by the terms of the GNU General 
 Public License Version 2 with Classpath Exception.
 
 Greenfoot makes use of 3rd party software which are under different 
