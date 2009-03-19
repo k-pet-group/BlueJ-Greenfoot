@@ -35,7 +35,7 @@ import greenfoot.platforms.standalone.ActorDelegateStandAlone;
 import greenfoot.platforms.standalone.GreenfootUtilDelegateStandAlone;
 import greenfoot.platforms.standalone.SimulationDelegateStandAlone;
 import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
-import greenfoot.sound.SoundPlayer;
+import greenfoot.sound.SoundFactory;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.util.StandalonePropStringManager;
 
@@ -234,8 +234,8 @@ public class GreenfootScenarioViewer extends JApplet
             sim = Simulation.getInstance();
             controls = new ControlPanel(sim, ! lockScenario);
             
-            // Make sure the SoundPlayer is initialized and listens for events
-            sim.addSimulationListener(SoundPlayer.getInstance());
+            // Make sure the SoundCollection is initialized and listens for events
+            sim.addSimulationListener(SoundFactory.getInstance().getSoundCollection());
             
             sim.addSimulationListener(new SimulationListener() {
                 public void simulationChanged(SimulationEvent e)

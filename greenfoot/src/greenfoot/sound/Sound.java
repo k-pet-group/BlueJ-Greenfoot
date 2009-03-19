@@ -48,7 +48,7 @@ public abstract class Sound
     public abstract void resume();
     
     /**
-     * Play this sound. Should only be called once.
+     * Play this sound. 
      * @throws UnsupportedAudioFileException 
      * @throws IOException 
      * @throws LineUnavailableException 
@@ -78,5 +78,11 @@ public abstract class Sound
         
         return new AudioFormat(format.getSampleRate(), format.getSampleSizeInBits(), format.getChannels(), true, false);
     }
-    
+
+
+    /**
+     * True if the sound is currently playing.
+     * 
+     */
+    public abstract boolean isPlaying();
 }

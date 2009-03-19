@@ -28,6 +28,8 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -41,29 +43,29 @@ import bluej.utility.Debug;
  * @author Poul Henriksen
  * 
  */
-public class SoundStream extends Sound
+public class SoundStream extends Sound implements Runnable
 {
     private URL url;
     private boolean stop;
     private boolean pause;
-    private SoundPlayer player;
+    private SoundCollection player;
 
-    private SourceDataLine line;
-    private AudioInputStream stream;
-    private AudioFormat format;
+    private volatile boolean playing = false;
+    
+    private Thread playThread ;
 
-    private boolean hasPlayed = false;
-
-    public SoundStream(URL url, SoundPlayer player)
+    public SoundStream(URL url, SoundCollection player)
         throws UnsupportedAudioFileException, IOException, LineUnavailableException
     {
         this.url = url;
         stop = false;
         this.player = player;
-        open();
+        playThread = new Thread(this, url.toString());
+        //open();
+        //TODO: we probably shouldn't open it already since it will allocate resources.
     }
 
-    private void open()
+   /* private void open()
         throws UnsupportedAudioFileException, IOException, LineUnavailableException
     {
         stream = AudioSystem.getAudioInputStream(url);
@@ -83,7 +85,7 @@ public class SoundStream extends Sound
 
         line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(format);
-    }
+    }*/
 
     public synchronized void stop()
     {
@@ -101,71 +103,175 @@ public class SoundStream extends Sound
         pause = false;
         notifyAll();
     }
+    
+    public boolean isPlaying() 
+    {
+        return playing;
+    }
 
     public void play()
     {
-        if(hasPlayed) {
-            throw new IllegalStateException("This sound has already been played.");
-        }
-        hasPlayed = true;
+        // TODO should be able to play again later. Right now it can't
+       synchronized (this) {
+           playing = true;
+           stop=false;
+
+           //playThread = new Thread(this, url.toString());
+           
+           if(!playThread.isAlive())
+               playThread.start();
+           notifyAll();
         
-        try {
-            int frameSize = format.getFrameSize();
-            byte[] buffer = new byte[4 * 1024 * frameSize]; // 4 * 1024 * frameSize
-            int bytesInBuffer = 0;
-
-            int bytesRead = stream.read(buffer, 0, buffer.length - bytesInBuffer);
-            while (bytesRead != -1 && !stop) {
-                line.start();
-                bytesInBuffer += bytesRead;
-
-                // Only write in multiples of frameSize
-                int bytesToWrite = (bytesInBuffer / frameSize) * frameSize;
-
-                // Play it
-                line.write(buffer, 0, bytesToWrite);
-                // Copy remaining bytes (if we did not have a multiple of
-                // frameSize)
-                int remaining = bytesInBuffer - bytesToWrite;
-                if (remaining > 0)
-                    System.arraycopy(buffer, bytesToWrite, buffer, 0, remaining);
-                bytesInBuffer = remaining;
-
-                bytesRead = stream.read(buffer, bytesInBuffer, buffer.length - bytesInBuffer);
-
-                synchronized (this) {
-                    while (pause) {
-                        try {
-                            wait();
-                        }
-                        catch (InterruptedException e) {}
-                    }
-                }
-            }
-
-            line.drain();
+    }
+       //Block
+       while(isPlaying()) {
+           try {
+            Thread.sleep(200);
         }
-        catch (IOException e1) {
-            // this should not happen, since the error should have happened in the open() method
-            Debug.reportError("Error when streaming sound.", e1);
+        catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
-        finally {
-            if (line != null) {
-                line.close();
-            }
-            if (stream != null) {
-                try {
-                    stream.close();
-                }
-                catch (IOException e) {;
-                }
-            }
-            player.soundFinished(this);
-        }
+       }
+        
     }
 
     public String toString()
     {
         return url + " " + super.toString();
+    }
+
+    public void run()
+    {
+
+        while (true) {
+            AudioInputStream stream = null;
+            SourceDataLine line = null;
+            try {
+                
+                stream = AudioSystem.getAudioInputStream(url);
+
+                AudioFormat format = stream.getFormat();
+                DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
+
+                // If the format is not supported we try to convert it.
+                if (!AudioSystem.isLineSupported(info)) {
+                    // TODO TEST THIS!!!!
+                    System.out.println("Converting");
+                    format = getCompatibleFormat(format);
+                    // Create the converter
+                    stream = AudioSystem.getAudioInputStream(format, stream);
+                    info = new DataLine.Info(SourceDataLine.class, format);
+                }
+
+                line = (SourceDataLine) AudioSystem.getLine(info);
+                line.open(format);
+                line.addLineListener(new LineListener(){
+
+                    public void update(LineEvent event)
+                    {
+                       System.out.println("Got event: " + event);
+                    }});
+                int frameSize = format.getFrameSize();
+                byte[] buffer = new byte[4 * 1024 * frameSize]; // 4 * 1024 *
+                // frameSize
+                synchronized (this) {
+                    while (stop) {
+                        System.out.println("Stopped");
+                        this.wait();
+                        System.out.println("Done waiting");
+                        
+                    }
+                }
+                playing = true;
+                System.out.println("Playing");
+                int bytesInBuffer = 0;
+                int bytesRead = stream.read(buffer, 0, buffer.length - bytesInBuffer);
+                while (bytesRead != -1) {
+                    synchronized (this) {
+                        if (stop)
+                            break;
+                    }
+                    line.start();
+                    bytesInBuffer += bytesRead;
+
+                    // Only write in multiples of frameSize
+                    int bytesToWrite = (bytesInBuffer / frameSize) * frameSize;
+                    
+          //          System.out.println("bytesToWrite: " + bytesToWrite);
+                    
+                    // Play it
+                    int written = line.write(buffer, 0, bytesToWrite);
+                    if(written != bytesToWrite) {
+         //               System.out.println("*********************   written: " + written);
+                    }
+                    // Copy remaining bytes (if we did not have a multiple of
+                    // frameSize)
+                    int remaining = bytesInBuffer - bytesToWrite;
+        //            System.out.println("remaining: " + remaining);
+                    if (remaining > 0)
+                        System.arraycopy(buffer, bytesToWrite, buffer, 0, remaining);
+                    bytesInBuffer = remaining;
+
+                    bytesRead = stream.read(buffer, bytesInBuffer, buffer.length - bytesInBuffer);
+
+                    synchronized (this) {
+                        while (pause) {
+                            
+                            try {
+                                System.out.println("pause");
+                                wait();
+                            }
+                            catch (InterruptedException e) {}
+                        }
+                    }
+                }
+                System.out.println("Finished loop");
+                synchronized (this) {
+                    // We played to the end. Stop the sound
+                    stop = true;
+                }
+                System.out.println("sync done:" + line + "  framePos: " + line.getFramePosition() + "  avail:" + line.available() + "  active:" + line.isActive() + "  open:" + line.isOpen() + "  runnig:" + line.isRunning() );
+              //  com.sun.media.sound.MixerSourceLine sunLine = (com.sun.media.sound.MixerSourceLine)   line;
+                line.drain(); // It sometimes hangs here
+                System.out.println("line drained");
+
+            }
+
+            catch (IOException e1) {
+                // this should not happen, since the error should have happened
+                // in the open() method                
+                Debug.reportError("Error when streaming sound.", e1);
+                //TODO Remove below
+                System.err.println("remove here");
+                e1.printStackTrace();
+            }
+            catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (UnsupportedAudioFileException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (LineUnavailableException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            finally {
+                if (line != null) {
+                    line.close();
+                }
+                if (stream != null) {
+                    try {
+                        stream.close();
+                    }
+                    catch (IOException e) {
+                    }
+                }
+                playing = false;
+                player.playbackStopped(this);
+            }
+        }
     }
 }

@@ -65,7 +65,7 @@ import greenfoot.gui.inspector.GreenfootClassInspector;
 import greenfoot.gui.inspector.GreenfootObjectInspector;
 import greenfoot.platforms.ide.SimulationDelegateIDE;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
-import greenfoot.sound.SoundPlayer;
+import greenfoot.sound.SoundFactory;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.BorderLayout;
@@ -124,7 +124,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 6170 2009-02-20 13:29:34Z polle $
+ * @version $Id: GreenfootFrame.java 6193 2009-03-19 13:03:18Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener,
@@ -411,8 +411,8 @@ public class GreenfootFrame extends JFrame
                 }
             }
         });
-        
-        sim.addSimulationListener(SoundPlayer.getInstance());
+
+        sim.addSimulationListener(SoundFactory.getInstance().getSoundCollection());
         
         // Panel that contains the border so that borders are not drawn on our
         // canvas, but just outside it.

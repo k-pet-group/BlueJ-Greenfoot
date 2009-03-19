@@ -29,70 +29,99 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.LineEvent;
-import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
- * Plays sound from a URL. The sound is loaded into memory before it is played.
+ * Plays sound from a URL. The sound is loaded into memory the first time it is
+ * played.
  * 
  * @author Poul Henriksen
  * 
  */
 public class SoundClip extends Sound
-    implements LineListener
 {
-    private Clip soundClip;
-    private SoundPlayer player;
-    private String name;
-    private URL url;
-    private boolean isPlaying;
-    
-    /** The time at which sound playback was started. */
-    private long startTime;
-    
+    /** Name of the file holding the sound data. Used for debugging. */
+    private final String name;
+    /** URL of the sound data. */
+    private final URL url;
+
     /**
-     * Extra delay in ms added to the sleep time before closing down the clip.
-     * This helps avoid closing down the clip too soon.
+     * The clip that this SoundClip represents. Can be null (when state is
+     * CLOSED)
+     */
+    private Clip soundClip;
+
+    /** The four states a clip can be in. */
+    private enum ClipState {
+        STOPPED, PLAYING, PAUSED, CLOSED
+    };
+
+    private ClipState clipState = ClipState.CLOSED;
+
+    // The following fields are used to determine when to close the clip.
+    /** The time at which sound playback was started. In ms. */
+    private long playBeginTimestamp;
+    /** The time at which the last pause happened. In ms. */
+    private long pauseBeginTimestamp;
+    /** The total time we have been paused sine we started playback. In ms. */
+    private long pausedTime;
+    /** Length of this clip in ms. */
+    private long clipLength;
+    /**
+     * Thread that closes this sound clip after a timeout.
+     */
+    private Thread closeThread;
+    /**
+     * How long to wait until closing the line after playback has finished. In
+     * ms.
+     */
+    private static final int CLOSE_TIMEOUT = 2000;
+
+    /**
+     * Extra delay in ms added to the sleep time before closing the clip. This
+     * is jsut an extra buffer of time to make sure we don't close it too soon.
+     * Only really needed if CLOSE_TIMEOUT is very low.
      */
     private final static int EXTEA_SLEEP_DELAY = 300;
 
+    /** Listener for state changes. */
+    private SoundPlaybackListener playbackListener;
+
     /**
      * Creates a new sound clip
-     * 
-     * @throws LineUnavailableException if a matching line is not available due to resource restrictions
-     * @throws IOException if an I/O exception occurs
-     * @throws SecurityException if a matching line is not available due to security restrictions
-     * @throws UnsupportedAudioFileException if the URL does not point to valid audio file data
-     * @throws IllegalArgumentException if the system does not support at least one line matching the specified Line.Info object through any installed mixer
      */
-    public SoundClip(String name, URL url, SoundPlayer player)
-        throws LineUnavailableException, IOException, UnsupportedAudioFileException, SecurityException, IllegalArgumentException
+    public SoundClip(String name, URL url, SoundPlaybackListener listener)
     {
         this.name = name;
-        this.player = player;
         this.url = url;
-        isPlaying = false;
+        playbackListener = listener;
     }
 
     /**
      * Load the sound file supplied by the parameter into this sound engine.
      * 
-     * @throws LineUnavailableException if a matching line is not available due to resource restrictions
+     * @throws LineUnavailableException if a matching line is not available due
+     *             to resource restrictions
      * @throws IOException if an I/O exception occurs
-     * @throws SecurityException if a matching line is not available due to security restrictions
-     * @throws UnsupportedAudioFileException if the URL does not point to valid audio file data
-     * @throws IllegalArgumentException if the system does not support at least one line matching the specified Line.Info object through any installed mixer
-     */    
+     * @throws SecurityException if a matching line is not available due to
+     *             security restrictions
+     * @throws UnsupportedAudioFileException if the URL does not point to valid
+     *             audio file data
+     * @throws IllegalArgumentException if the system does not support at least
+     *             one line matching the specified Line.Info object through any
+     *             installed mixer
+     */
     private void open()
-        throws LineUnavailableException, IOException, UnsupportedAudioFileException, IllegalArgumentException, SecurityException
+        throws LineUnavailableException, IOException, UnsupportedAudioFileException, IllegalArgumentException,
+        SecurityException
     {
         AudioInputStream stream = AudioSystem.getAudioInputStream(url);
         AudioFormat format = stream.getFormat();
         DataLine.Info info = new DataLine.Info(Clip.class, format);
 
         // Convert sound formats that are not supported
+        // TODO: Check that this works
         if (!AudioSystem.isLineSupported(info)) {
             format = getCompatibleFormat(format);
             stream = AudioSystem.getAudioInputStream(format, stream);
@@ -101,59 +130,114 @@ public class SoundClip extends Sound
         }
         soundClip = (Clip) AudioSystem.getLine(info);
         soundClip.open(stream);
-        soundClip.addLineListener(this);
+        clipLength = soundClip.getMicrosecondLength() / 1000;
+        setState(ClipState.CLOSED);
+    }
+
+    /**
+     * Play this sound from the beginning of the sound.
+     * 
+     * @throws LineUnavailableException if a matching line is not available due
+     *             to resource restrictions
+     * @throws IOException if an I/O exception occurs
+     * @throws SecurityException if a matching line is not available due to
+     *             security restrictions
+     * @throws UnsupportedAudioFileException if the URL does not point to valid
+     *             audio file data
+     * @throws IllegalArgumentException if the system does not support at least
+     *             one line matching the specified Line.Info object through any
+     *             installed mixer
+     */
+    public synchronized void play()
+        throws LineUnavailableException, IOException, UnsupportedAudioFileException, IllegalArgumentException,
+        SecurityException
+    {
+        playBeginTimestamp = System.currentTimeMillis();
+
+        if (soundClip == null) {
+            open();
+        }
+        setState(ClipState.PLAYING);
+        soundClip.stop();
+        soundClip.setMicrosecondPosition(0);
+        soundClip.start();
+        pausedTime = 0;
+        System.out.println("play: " + this);
+        startCloseThread();
     }
 
     /**
      * Stop this sound.
      * 
      */
-    public void stop()
+    public synchronized void stop()
     {
+        if (soundClip == null || isStopped()) {
+            return;
+        }
+        setState(ClipState.STOPPED);
         soundClip.stop();
         soundClip.setMicrosecondPosition(0);
-        isPlaying = false;
-        soundClip.close();
+        System.out.println("Stop: " + this);
     }
 
     /**
      * Pause the clip. Paused sounds can be resumed.
      * 
      */
-    public void pause()
+    public synchronized void pause()
     {
+        pauseBeginTimestamp = System.currentTimeMillis();
+        if (soundClip == null || isPaused()) {
+            return;
+        }
+        setState(ClipState.PAUSED);
         soundClip.stop();
+        System.out.println("Pause: " + this);
     }
 
     /**
-     * Resume a paused clip.
+     * Resume a paused clip. If the clip is not currently paused, this call will
+     * do nothing
      * 
      */
-    public void resume()
+    public synchronized void resume()
     {
+        if (soundClip == null || !isPaused()) {
+            return;
+        }
+        pausedTime += System.currentTimeMillis() - pauseBeginTimestamp;
+        System.out.println("Pausedtime: " + pausedTime);
         soundClip.start();
+        setState(ClipState.PLAYING);
+        System.out.println("Resume: " + this);
+    }
+
+    private void setState(ClipState newState)
+    {
+        if (clipState != newState) {
+            System.out.println("Setting state to: " + newState);
+            clipState = newState;
+            switch(clipState) {
+                case PLAYING :
+                    playbackListener.playbackStarted(this);
+                    break;
+                case STOPPED :
+                    playbackListener.playbackStopped(this);
+                    break;
+                case PAUSED :
+                    playbackListener.playbackPaused(this);
+                    break;
+            }
+        }
+
+        // The close thread might be waiting, so we wake it up.
+        this.notifyAll();
     }
 
     /**
-     * Play this sound.
-     * @throws LineUnavailableException if a matching line is not available due to resource restrictions
-     * @throws IOException if an I/O exception occurs
-     * @throws SecurityException if a matching line is not available due to security restrictions
-     * @throws UnsupportedAudioFileException if the URL does not point to valid audio file data
-     * @throws IllegalArgumentException if the system does not support at least one line matching the specified Line.Info object through any installed mixer
-     
-     */
-    public void play() throws IllegalArgumentException, SecurityException, LineUnavailableException, IOException, UnsupportedAudioFileException
-    {
-        open();
-        isPlaying = true;
-        soundClip.setMicrosecondPosition(0);
-        soundClip.start();
-    }
-
-    /**
-     * Get a name for this sound. The name should uniquely identify 
-     * the sound clip.
+     * Get a name for this sound. The name should uniquely identify the sound
+     * clip.
      */
     public String getName()
     {
@@ -163,57 +247,83 @@ public class SoundClip extends Sound
     /**
      * True if the sound is currently playing.
      */
-    public boolean isPlaying()
+    public synchronized boolean isPlaying()
     {
-        return isPlaying;
+        return clipState == ClipState.PLAYING;
     }
 
     /**
-     * Listener method to pick up end of play.
+     * True if the sound is currently playing.
      */
-    public void update(LineEvent event)
+    public synchronized boolean isPaused()
     {
-        if (event.getType() == LineEvent.Type.STOP) {
-            // This is a hack to make it work on Linux, where the STOP event is
-            // send BEFORE the sound has actually finished playing (probably
-            // send when some buffer is empty instead)
-            long sleepTime = soundClip.getMicrosecondLength() / 1000 - (System.currentTimeMillis() - startTime);
-            delayedClose(sleepTime);
-        }
-        else if (event.getType() == LineEvent.Type.START) {
-            startTime = System.currentTimeMillis();
-        }
-        
+        return clipState == ClipState.PAUSED;
     }
 
     /**
-     * Close the clip after the given amount of time. This will be done
+     * True if the sound is currently playing.
+     */
+    public synchronized boolean isStopped()
+    {
+        return clipState == ClipState.STOPPED;
+    }
+
+    /**
+     * Close the clip when it should have finished playing. This will be done
      * asynchronously.
      * 
-     * @param sleepTime
-     *            Minimum time to wait before closing the stream.
+     * The reason we are using this is instead of listening for LineEvent.STOP
+     * is that on some linux systems the LineEvent for stop is send before
+     * playback has actually stopped.
+     * 
+     * @param sleepTime Minimum time to wait before closing the stream.
      */
-    private void delayedClose(final long sleepTime)
+    private synchronized void startCloseThread()
     {
-        new Thread() {
-            public void run()
-            {
-                try {
-                    // We add the extra sleep time, just to make sure
-                    // that we don't close it before playback has
-                    // finished. This fixes some issues when using applets where
-                    // it seems like the sounds are stopped too early
-                    // (Linux/Firefox).
-                    Thread.sleep(sleepTime + EXTEA_SLEEP_DELAY);
+        if (closeThread == null) {
+            closeThread = new Thread("SoundClipCloseThread") {
+                public void run()
+                {
+                    SoundClip thisClip = SoundClip.this;
+                    while (thisClip.soundClip != null) {
+                        synchronized (thisClip) {
+                            long playTime = (System.currentTimeMillis() - playBeginTimestamp) - pausedTime;
+                            long timeLeftOfPlayback = clipLength - playTime + EXTEA_SLEEP_DELAY;
+                            long timeLeftToClose = timeLeftOfPlayback + CLOSE_TIMEOUT;
+                            if (isPaused()) {
+                                try {
+                                    thisClip.wait();
+                                }
+                                catch (InterruptedException e) {
+                                    // TODO Handle this!
+                                    e.printStackTrace();
+                                }
+                            }
+                            else if (timeLeftToClose > 0) {
+                                System.out.println("Waiting to close");
+                                try {
+                                    thisClip.wait(timeLeftToClose);
+                                }
+                                catch (InterruptedException e) {
+                                    // TODO Handle this!
+                                    e.printStackTrace();
+                                }
+                            }
+                            else {
+                                System.out.println("Closing clip: " + thisClip.name);
+                                thisClip.soundClip.close();
+                                thisClip.soundClip = null;
+                                thisClip.closeThread = null;
+                                setState(ClipState.CLOSED);
+                            }
+                        }
+                    }
                 }
-                catch (Throwable e) {}
-                isPlaying = false;
-                player.soundFinished(SoundClip.this);
-                SoundClip.this.stop();
-            }
-        }.start();
+            };
+            closeThread.start();
+        }
     }
-    
+
     public String toString()
     {
         return url + " " + super.toString();

@@ -29,7 +29,6 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
-import greenfoot.sound.SoundPlayer;
 
 
 /**
@@ -153,14 +152,9 @@ public class Greenfoot
     public static void playSound(final String soundFile)
     {
         try {
-            SoundPlayer.getInstance().play(soundFile);
-        }
-        catch (IOException e) {
-            throw new IllegalArgumentException("Could not open sound file: " + soundFile, e);
-        }
-        catch (UnsupportedAudioFileException e) {
-            throw new IllegalArgumentException("Format of sound file not supported: " + soundFile, e);
-        }
+            //TODO figure out how to handle exceptionss
+            new GreenfootSound(soundFile).play();
+        }        
         catch (SecurityException e) {
             // We only want to print this error message once.
             if(! securityHandled) {
@@ -188,6 +182,14 @@ public class Greenfoot
                 e.printStackTrace();
                 lineUnavailableHandled = true;
             }
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (UnsupportedAudioFileException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
     
