@@ -284,7 +284,9 @@ bool launchVMexternal(string jdkLocation)
 //       Note, if this call succeeds, it might not return at all.
 bool launchVM(string jdkLocation)
 {
-	if (externalLaunch) {
+	if (externalLaunch || ! windowsvmargs.empty()) {
+		// If there are VM arguments, do an external launch. It is too difficult
+		// to translate java.exe arguments to javavm.dll options.
 		return launchVMexternal(jdkLocation);
 	}
 
@@ -329,7 +331,7 @@ bool launchVM(string jdkLocation)
     for (std::list<LPCTSTR>::iterator i = windowsvmargs.begin(); i != windowsvmargs.end(); ) {
 		options[j].optionString = wideToUTF8(string(*i));
 		options[j].extraInfo = NULL;
-		j++;
+		j++; i++;
 	}
 	
 	vm_args.version = 0x00010002;
