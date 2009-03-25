@@ -36,7 +36,7 @@ import bluej.utility.FileUtility;
  * different name, to make a backup etc.
  * 
  * @author Davin McCall
- * @version $Id: SaveProjectAsAction.java 6164 2009-02-19 18:11:32Z polle $
+ * @version $Id: SaveProjectAsAction.java 6196 2009-03-25 19:25:06Z polle $
  */
 final public class SaveProjectAsAction extends PkgMgrAction
 {
@@ -83,7 +83,7 @@ final public class SaveProjectAsAction extends PkgMgrAction
             PkgMgrFrame.closeProject(project);
 
             // open new project
-            Project openProj = Project.openProject(newName);
+            Project openProj = Project.openProject(newName, null);
 
             if (openProj != null) {
                 Package pkg = openProj.getPackage("");

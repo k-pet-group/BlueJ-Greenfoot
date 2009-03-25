@@ -66,7 +66,7 @@ import bluej.utility.Utility;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 6163 2009-02-19 18:09:55Z polle $
+ * @version $Id: Config.java 6196 2009-03-25 19:25:06Z polle $
  */
 
 public final class Config
@@ -401,6 +401,15 @@ public final class Config
     public static boolean isWinOS()
     {
         return osname.startsWith("Windows");
+    }
+    
+    /**
+     * Tell us whether we are running on MS Windows Vista or a later Windows version
+     */
+    public static boolean isWinOSVista()
+    {
+		return isWinOS()
+				&& System.getProperty("os.version").compareTo("6.0") >= 0;
     }
     
     /**

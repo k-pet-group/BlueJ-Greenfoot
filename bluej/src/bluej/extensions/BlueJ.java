@@ -67,7 +67,7 @@ import javax.swing.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 6163 2009-02-19 18:09:55Z polle $
+ * @version    $Id: BlueJ.java 6196 2009-03-25 19:25:06Z polle $
  */
 
 /*
@@ -139,7 +139,7 @@ public final class BlueJ
         if (directory == null)
             return null;
 
-        Project openProj = Project.openProject(directory.getAbsolutePath());
+        Project openProj = Project.openProject(directory.getAbsolutePath(), null);
         if (openProj == null)
             return null;
 

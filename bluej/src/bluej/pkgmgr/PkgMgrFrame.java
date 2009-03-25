@@ -81,7 +81,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 6165 2009-02-19 19:06:05Z polle $
+ * @version $Id: PkgMgrFrame.java 6196 2009-03-25 19:25:06Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1061,7 +1061,7 @@ public class PkgMgrFrame extends JFrame
     public boolean newProject(String dirName, boolean isJavaMEproject )
     {
         if (Project.createNewProject(dirName, isJavaMEproject)) {
-            Project proj = Project.openProject(dirName);
+            Project proj = Project.openProject(dirName, this);
             
             Package unNamedPkg = proj.getPackage("");
             
@@ -1210,15 +1210,10 @@ public class PkgMgrFrame extends JFrame
      */
     private boolean openProject(String projectPath)
     {
-        Project openProj = Project.openProject(projectPath);
-
+        Project openProj = Project.openProject(projectPath, this);
         if (openProj == null)
             return false;
         else {
-            if (openProj.isReadOnly()) {
-                DialogManager.showMessage(this, "project-is-readonly");
-            }
-
             Package pkg = openProj.getPackage(openProj.getInitialPackageName());
 
             PkgMgrFrame pmf;

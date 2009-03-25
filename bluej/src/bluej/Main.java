@@ -39,7 +39,7 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  * 
  * @author Michael Kolling
- * @version $Id: Main.java 6163 2009-02-19 18:09:55Z polle $
+ * @version $Id: Main.java 6196 2009-03-25 19:25:06Z polle $
  */
 public class Main
 {
@@ -90,7 +90,7 @@ public class Main
             for (int i = 0; i < args.length; i++) {
                 if (!args[i].startsWith("-")) {
                     Project openProj;
-                    if ((openProj = Project.openProject(args[i])) != null) {
+                    if ((openProj = Project.openProject(args[i], null)) != null) {
                         oneOpened = true;
 
                         Package pkg = openProj.getPackage(openProj.getInitialPackageName());
@@ -116,7 +116,7 @@ public class Main
                     if (exists != null) {
                         Project openProj;
                         // checking all is well (project exists)
-                        if ((openProj = Project.openProject(exists)) != null) {
+                        if ((openProj = Project.openProject(exists, null)) != null) {
                             Package pkg = openProj.getPackage(openProj.getInitialPackageName());
                             PkgMgrFrame.createFrame(pkg);
                             oneOpened = true;

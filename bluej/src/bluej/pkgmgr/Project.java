@@ -21,6 +21,7 @@
  */
 package bluej.pkgmgr;
 
+import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Window;
 import java.io.File;
@@ -79,6 +80,7 @@ import bluej.terminal.Terminal;
 import bluej.testmgr.record.ClassInspectInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
+import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
@@ -92,7 +94,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 6164 2009-02-19 18:11:32Z polle $
+ * @version $Id: Project.java 6196 2009-03-25 19:25:06Z polle $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -236,11 +238,14 @@ public class Project implements DebuggerListener, InspectorManager
      * @param projectPath
      *            a string representing the path to open. This can either be a
      *            directory name or the filename of a bluej.pkg file.
+     * @param parent 
+     *            Component used as parent if we need to show any messages.
+     *            Can be null.
      * @return the Project representing the BlueJ project that has this
      *         directory within it or null if there were no bluej.pkg files in
      *         the specified directory.
      */
-    public static Project openProject(String projectPath) 
+    public static Project openProject(String projectPath, Component parent) 
     {
         String startingPackageName;
         File projectDir;
@@ -331,6 +336,13 @@ public class Project implements DebuggerListener, InspectorManager
             proj.initialPackageName = startingPackageName;
         }
 
+        if(proj.isInVistaProgramFiles()) {
+        	DialogManager.showMessage(parent, "project-in-programfiles");
+        }
+    	else if (proj.isReadOnly()) {
+            DialogManager.showMessage(parent, "project-is-readonly");
+        }
+        
         ExtensionsManager.getInstance().projectOpening(proj);
 
         return proj;
@@ -728,6 +740,16 @@ public class Project implements DebuggerListener, InspectorManager
     {
         return !projectDir.canWrite();
     }
+    
+    /**
+     * Return whether the project is located in the Program Files folder in Vista or later Windows OSes.
+     * @return
+     */
+    public boolean isInVistaProgramFiles()
+    {
+    	return Config.isWinOSVista() && FileUtility.isInProgramFiles(projectDir);
+    }
+    
 
     /**
      * A string which uniquely identifies this project

@@ -42,7 +42,7 @@ import bluej.utility.SwingWorker;
  * project.
  * 
  * @author Kasper
- * @version $Id: CheckoutAction.java 6164 2009-02-19 18:11:32Z polle $
+ * @version $Id: CheckoutAction.java 6196 2009-03-25 19:25:06Z polle $
  */
 public class CheckoutAction extends TeamAction
 {
@@ -181,7 +181,7 @@ public class CheckoutAction extends TeamAction
                     }
                 }
                 
-                Project project = Project.openProject(projDir.toString());
+                Project project = Project.openProject(projDir.toString(), newFrame);
                 
                 project.setTeamSettingsController(tsc);
                 Package initialPackage = project.getPackage(project.getInitialPackageName());

@@ -37,7 +37,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 6164 2009-02-19 18:11:32Z polle $
+ * @version $Id: FileUtility.java 6196 2009-03-25 19:25:06Z polle $
  */
 public class FileUtility
 {
@@ -558,4 +558,30 @@ public class FileUtility
         
         return filePath;
     }
+
+    /**
+	 * Returns true if the given file is in the "Program Files" directory on a
+	 * Windows OS.
+	 */
+	public static boolean isInProgramFiles(File projectDir) 
+	{
+		if (!Config.isWinOS()) {
+			return false;
+		}
+		// First we get the environment variable which will hold the path to the
+		// "Program Files" directory. We do this because on non-english versions
+		// of Windows it might be called something else.
+		String programFiles = System.getenv("programfiles").toLowerCase();
+
+		try {
+			// We use the canonical paths to ensure that the paths will be in
+			// the same form (upper/lower case etc).
+			String projectCanPath = projectDir.getCanonicalPath();
+			String programFilesCanPath = new File(programFiles).getCanonicalPath();
+			return projectCanPath.contains(programFilesCanPath);
+		} catch (IOException e) {
+			Debug.reportError("Exception when trying to determine if project was in Program Files dir.",e);
+			return false;
+		}
+	}
 }
