@@ -405,6 +405,14 @@ permission in the project directory and each file within it.
 This can often be accomplished by choosing "save as" from the
 Project menu after closing this dialog.
 
+project-in-programfiles
+The project you are opening is in the Program Files directory. 
+You might not be able to compile, create objects or execute methods.
+To fully use this project, you should move the project to a different
+location.
+This can often be accomplished by choosing "save as" from the
+Project menu after closing this dialog.
+
 could-not-write-shell-file
 Execution failed because the project directory is not writable.
 To create objects or execute methods, we must be able to write
