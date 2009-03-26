@@ -37,7 +37,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 6196 2009-03-25 19:25:06Z polle $
+ * @version $Id: FileUtility.java 6198 2009-03-26 13:51:32Z polle $
  */
 public class FileUtility
 {
@@ -583,5 +583,52 @@ public class FileUtility
 			Debug.reportError("Exception when trying to determine if project was in Program Files dir.",e);
 			return false;
 		}
+	}
+
+	/**
+	 * Checks if the given directory is writable. We consider a directory
+	 * writable if and only if the directory exists and we can create files in
+	 * it.
+	 * 
+	 * To check this, this method will actually try creating a file in the
+	 * directory because File.canWrite() does not always give the correct result
+	 * (for instance under Vista, if you use files in a subfolder of Program
+	 * Files - see trac ticket 150 for more details)
+	 * 
+	 * @param dir
+	 *            Must be a directory
+	 * @return True if the directory is writable.
+	 * @throws IllegalArgumentException
+	 *             If the argument exists and is not a directory.
+	 */
+	public static boolean canWrite(File dir) throws IllegalArgumentException {		
+		if(!dir.exists()) {
+			return false;
+		}
+		if (!dir.isDirectory()) {
+			throw new IllegalArgumentException("Not a directory: " + dir);
+		}
+				
+		boolean canCreate = false;
+		// lets try to create a file in the dir
+		File tmpFile = new File(dir, "tmpFile");
+		for (int i = 0; tmpFile.exists(); i++) {
+			Debug.message("FileUtility.canWrite(): Temp file exists: "
+					+ tmpFile);
+			tmpFile = new File(dir, "tmpFile" + i);
+		}
+		
+		tmpFile.deleteOnExit();
+		try {
+			tmpFile.createNewFile();
+			tmpFile.delete();
+			canCreate = true;
+		} catch (IOException e) {
+			// If we get any kind of IOException it means that we could not
+			// create or delete the file.
+			canCreate = false;
+		}
+
+		return canCreate;
 	}
 }

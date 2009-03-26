@@ -94,7 +94,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 6196 2009-03-25 19:25:06Z polle $
+ * @version $Id: Project.java 6198 2009-03-26 13:51:32Z polle $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -738,7 +738,12 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public boolean isReadOnly() 
     {
-        return !projectDir.canWrite();
+    	if(Config.isWinOSVista()) {
+    		// Fix for Vista bug. See trac ticket 150 for details.
+    		return !FileUtility.canWrite(projectDir);
+    	} else {
+    		return !projectDir.canWrite();
+    	}
     }
     
     /**
