@@ -84,6 +84,7 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
+import bluej.utility.FileUtility.WriteCapabilities;
 import bluej.views.View;
 
 
@@ -94,7 +95,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 6198 2009-03-26 13:51:32Z polle $
+ * @version $Id: Project.java 6199 2009-03-27 14:14:30Z polle $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -336,10 +337,22 @@ public class Project implements DebuggerListener, InspectorManager
             proj.initialPackageName = startingPackageName;
         }
 
-        if(proj.isInVistaProgramFiles()) {
-        	DialogManager.showMessage(parent, "project-in-programfiles");
+        if(Config.isWinOSVista()) {
+        	WriteCapabilities capabilities = FileUtility.getVistaWriteCapabilities(projectDir);
+        	switch (capabilities) {
+			case VIRTUALIZED_WRITE:
+	        	DialogManager.showMessage(parent, "project-is-virtualized");
+				break;
+			case READ_ONLY:
+	            DialogManager.showMessage(parent, "project-is-readonly");
+				break;
+			case NORMAL_WRITE:
+				break;
+			default:
+				break;
+			}
         }
-    	else if (proj.isReadOnly()) {
+    	else if (!projectDir.canWrite()) {
             DialogManager.showMessage(parent, "project-is-readonly");
         }
         
@@ -730,32 +743,8 @@ public class Project implements DebuggerListener, InspectorManager
         else {
             return null;
         }
-    }
-    
-    /**
-     * Return whether the project is located in a readonly directory
-     * @return
-     */
-    public boolean isReadOnly() 
-    {
-    	if(Config.isWinOSVista()) {
-    		// Fix for Vista bug. See trac ticket 150 for details.
-    		return !FileUtility.canWrite(projectDir);
-    	} else {
-    		return !projectDir.canWrite();
-    	}
-    }
-    
-    /**
-     * Return whether the project is located in the Program Files folder in Vista or later Windows OSes.
-     * @return
-     */
-    public boolean isInVistaProgramFiles()
-    {
-    	return Config.isWinOSVista() && FileUtility.isInProgramFiles(projectDir);
-    }
-    
-
+    }      
+	
     /**
      * A string which uniquely identifies this project
      */

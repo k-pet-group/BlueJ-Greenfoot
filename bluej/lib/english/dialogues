@@ -405,8 +405,10 @@ permission in the project directory and each file within it.
 This can often be accomplished by choosing "save as" from the
 Project menu after closing this dialog.
 
-project-in-programfiles
-The project you are opening is in the Program Files directory. 
+project-is-virtualized
+The project you are opening is being virtualized by Windows. This 
+usually means that the project is stored somewhere in the 
+"Program Files" directory. 
 You might not be able to compile, create objects or execute methods.
 To fully use this project, you should move the project to a different
 location.

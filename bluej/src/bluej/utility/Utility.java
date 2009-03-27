@@ -52,7 +52,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 6164 2009-02-19 18:11:32Z polle $
+ * @version $Id: Utility.java 6199 2009-03-27 14:14:30Z polle $
  */
 public class Utility
 {
@@ -472,13 +472,7 @@ public class Utility
             return;
         }
 
-        String pid = ManagementFactory.getRuntimeMXBean().getName();
-        // Strip the host name from the pid.
-        int atIndex = pid.indexOf("@");
-        if (atIndex != -1) {
-            pid = pid.substring(0, atIndex);
-        }
-
+        String pid = getProcessId();
 
         if (Config.isWinOS()) {
             // Use WSH (Windows Script Host) to execute a javascript that brings
@@ -627,6 +621,19 @@ public class Utility
         // }
 
     }
+
+    /**
+     * Get the process ID of this process.
+     */
+	public static String getProcessId() {
+		String pid = ManagementFactory.getRuntimeMXBean().getName();
+        // Strip the host name from the pid.
+        int atIndex = pid.indexOf("@");
+        if (atIndex != -1) {
+            pid = pid.substring(0, atIndex);
+        }
+		return pid;
+	}
 
    
     /**
