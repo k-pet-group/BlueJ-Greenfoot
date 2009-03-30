@@ -59,12 +59,12 @@
         <pathelement location="${bluej.projectdir}/boot/src"/>
     </path>
     <!-- Location of the files packed by BlueJ dist target -->
-    <property name="bluej.installer.jar"  location="${bluej.projectdir}/package/greenfoot-instaler.jar"/>
+    <property name="bluej.installer.jar"  location="${bluej.projectdir}/package/Greenfoot-generic.jar"/>
     <property name="bluej.dist.jar"  location="${bluej.projectdir}/package/greenfoot-dist.jar"/>
-    <property name="bluej.dist.mac"  location="${bluej.projectdir}/package/greenfoot-instaler-mac.zip"/>
+    <property name="bluej.dist.mac"  location="${bluej.projectdir}/package/Greenfoot-mac.zip"/>
     
     <!-- Location of the zip with the sources for greenfoot -->
-    <property name="greenfoot.source.zip" location="package/greenfoot-source-${greenfoot.version}.zip"/>
+    <property name="greenfoot.source.zip" location="package/Greenfoot-source-${greenfoot.version}.zip"/>
     
     <!-- Location of the source files for greenfoot -->
     <property name="src" location="src"/>
@@ -363,13 +363,13 @@ target="1.5">
         <!-- Run the BlueJ dist-->
         <ant dir="${bluej.projectdir}" target="dist-greenfoot" />
 
-        <move file="${bluej.installer.jar}" tofile="${package}/greenfoot-installer-${greenfoot.version.nodots}.jar"/>
+        <move file="${bluej.installer.jar}" tofile="${package}/Greenfoot-generic-${greenfoot.version.nodots}.jar"/>
         <move file="${bluej.dist.jar}" tofile="${package}/greenfoot-dist-${greenfoot.version.nodots}.jar"/>
-        <move file="${bluej.dist.mac}" tofile="${package}/Greenfoot-${greenfoot.version.nodots}.zip"/>
+        <move file="${bluej.dist.mac}" tofile="${package}/Greenfoot-mac-${greenfoot.version.nodots}.zip"/>
 
         <echo message="The greenfoot dist-jar (used to build windows installer)s is in ${package}/greenfoot-dist-${greenfoot.version.nodots}.jar"/>
-        <echo message="The greenfoot jar-installer is in ${package}/greenfoot-installer-${greenfoot.version.nodots}.jar"/>
-        <echo message="The greenfoot Mac-installer is in ${package}/Greenfoot-${greenfoot.version.nodots}.zip"/>
+        <echo message="The greenfoot jar-installer is in ${package}/Greenfoot-generic-${greenfoot.version.nodots}.jar"/>
+        <echo message="The greenfoot Mac-installer is in ${package}/Greenfoot-mac-${greenfoot.version.nodots}.zip"/>
     </target>
 
     <target name="clean" description="clean up" >
@@ -403,8 +403,8 @@ target="1.5">
      	<delete >
             <fileset dir="package">
                 <include name="Greenfoot-*.zip"/>
-                <include name="greenfoot-*.zip"/>
                 <include name="greenfoot-*.jar"/>
+                <include name="Greenfoot-*.jar"/>
             </fileset>
         </delete>
     	<!-- API doc -->
