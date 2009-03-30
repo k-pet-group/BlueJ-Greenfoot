@@ -37,7 +37,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 6199 2009-03-27 14:14:30Z polle $
+ * @version $Id: FileUtility.java 6212 2009-03-30 08:47:06Z polle $
  */
 public class FileUtility
 {
@@ -568,12 +568,12 @@ public class FileUtility
 
 	/**
 	 * Get the file write capabilities of the given directory. <br>
-	 * To find the capabilities, this method will actually try creating a
+	 * To find the capabilities, this method will try creating a
 	 * temporary file in the directory. <br>
 	 * See trac tickets 147 and 150 for more details.
 	 * 
 	 * @param dir
-	 *            Directory to check
+	 *            Directory to check.
 	 * @return The capabilities of this directory. Will return
 	 *         {@link WriteCapabilities#UNKNOWN} if the file is not an existing
 	 *         directory.
@@ -583,20 +583,23 @@ public class FileUtility
 		if(!dir.isDirectory()) {
 			return WriteCapabilities.UNKNOWN;
 		}
-		WriteCapabilities capabilities = WriteCapabilities.READ_ONLY;
-		
-		File tmpFile = getTmpFileIn(dir);		
-		if(canWrite(tmpFile)) {
-			if(isVirtualized(tmpFile)) {
+		WriteCapabilities capabilities = WriteCapabilities.UNKNOWN;		
+
+		File tmpFile = null;
+		try {
+		    tmpFile = File.createTempFile("bluej", null, dir);
+			tmpFile.deleteOnExit();
+		    if(isVirtualized(tmpFile)) {
 				capabilities = WriteCapabilities.VIRTUALIZED_WRITE;
 			} else {
 				capabilities = WriteCapabilities.NORMAL_WRITE;
 			}
-		} else {
+		} catch (IOException e) {
+			// We could not write the file
 			capabilities = WriteCapabilities.READ_ONLY;
+		} finally {
+			tmpFile.delete();			
 		}
-
-		tmpFile.delete();
 		return capabilities;
 	}
 
@@ -607,20 +610,22 @@ public class FileUtility
 	private static boolean isVirtualized(File file)
 	{
 		boolean isVirtualized = false;
-		try {
-			file.createNewFile();
-			String canonicalPath = file.getCanonicalPath();
-			int colonIndex = canonicalPath.indexOf(":");
-			if (colonIndex > 0) {
-				String pathPart = canonicalPath.substring(colonIndex + 1);
-				String userHome = System.getProperty("user.home");
-				String virtualStore = userHome + "/AppData/Local/VirtualStore/";
-				String virtualTmpFilePath = virtualStore + pathPart;
-				isVirtualized = new File(virtualTmpFilePath).exists();
+
+		// Virtualization only happens on Windows Vista (or later)
+		if (Config.isWinOSVista()) {
+			try {
+				String canonicalPath = file.getCanonicalPath();
+				int colonIndex = canonicalPath.indexOf(":");
+				if (colonIndex > 0) {
+					String pathPart = canonicalPath.substring(colonIndex + 1);
+					String virtualStore = System.getenv("localappdata") + File.separator  + "VirtualStore";
+					String virtualTmpFilePath = virtualStore + pathPart;
+					isVirtualized = new File(virtualTmpFilePath).exists();
+				}
+			} catch (IOException e) {
+				Debug.reportError(
+						"Error when testing for Windows virtualisation.", e);
 			}
-		} catch (IOException e) {
-			Debug.reportError(
-					"Error when testing for Windows virtualisation.", e);
 		}
 		return isVirtualized;
 	}
@@ -645,25 +650,4 @@ public class FileUtility
 		}
 		return canWrite;
 	}
-
-
-	/**
-	 * Get a temporary file in the given directory. Does not create the file on
-	 * disk.
-	 *
-	 * @param dir Directory in which to create the temporary file.
-	 */
-	private static File getTmpFileIn(File dir) 
-	{
-		String tmpFileBaseName = "tmpFile" + Utility.getProcessId();
-		File tmpFile = new File(dir, tmpFileBaseName);
-		for (int i = 0; tmpFile.exists(); i++) {
-			Debug.message("FileUtility.canWrite(): Temp file exists: "
-					+ tmpFile);
-			tmpFile = new File(dir, tmpFileBaseName + i);
-		}
-		tmpFile.deleteOnExit(); // just to make sure it is deleted
-		return tmpFile;
-	}
-
 }
