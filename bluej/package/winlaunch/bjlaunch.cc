@@ -12,7 +12,6 @@
 #include <jni.h>
 #define __cplusplus
 
-
 #ifndef APPNAME
 #define APPNAME "BlueJ"
 #endif
@@ -296,6 +295,12 @@ bool launchVM(string jdkLocation)
 	JavaVM *javaVM;
 	JNIEnv *jniEnv;
 	
+	// Try and load msvcr71.dll from the JDK directory first. Otherwise loading the jvm seems
+	// to fail on some machines.
+	HINSTANCE hMsvcrlib;
+	hMsvcrlib = LoadLibrary( (jdkLocation + TEXT("\\jre\\bin\\msvcr71.dll")).c_str() );
+	
+	// Now load the JVM.
 	HINSTANCE hJavalib;
 	hJavalib = LoadLibrary( (jdkLocation + TEXT("\\jre\\bin\\client\\jvm.dll")).c_str() );
 	if (hJavalib == NULL) {
