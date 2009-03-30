@@ -407,13 +407,13 @@ Project menu after closing this dialog.
 
 project-is-virtualized
 The project you are opening is being virtualized by Windows. This 
-usually means that the project is stored somewhere in the 
+usually happens when the project is stored somewhere in the 
 "Program Files" directory. 
-You might not be able to compile, create objects or execute methods.
+When a project is being virtualized by Windows you will get errors 
+when trying to create objects and invoke methods.
 To fully use this project, you should move the project to a different
-location.
-This can often be accomplished by choosing "save as" from the
-Project menu after closing this dialog.
+location. This can be accomplished by choosing "save as" from 
+the Project menu after closing this dialog.
 
 could-not-write-shell-file
 Execution failed because the project directory is not writable.
