@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kšlling and John Rosenberg 
+ Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -38,7 +38,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * It can also set-up an accelerator key.
  * 
  * @author Davin McCall
- * @version $Id: PkgMgrAction.java 6164 2009-02-19 18:11:32Z polle $
+ * @version $Id: PkgMgrAction.java 6215 2009-03-30 13:28:25Z polle $
  */
 public abstract class PkgMgrAction extends AbstractAction {
         

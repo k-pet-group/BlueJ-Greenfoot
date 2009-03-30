@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kšlling and John Rosenberg 
+ Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,7 +26,7 @@ import bluej.utility.Utility;
 import java.util.*;
 
 /**
-** @version $Id: Comment.java 6164 2009-02-19 18:11:32Z polle $
+** @version $Id: Comment.java 6215 2009-03-30 13:28:25Z polle $
 ** @author Michael Cahill
 **
 ** Comment class - the source information associated with a class or field

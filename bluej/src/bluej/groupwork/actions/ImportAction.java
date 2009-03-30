@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kšlling and John Rosenberg 
+ Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,7 +35,7 @@ import bluej.pkgmgr.Project;
  * An action to perform an import into a repository, i.e. to share a project.
  * 
  * @author Kasper
- * @version $Id: ImportAction.java 6164 2009-02-19 18:11:32Z polle $
+ * @version $Id: ImportAction.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class ImportAction extends TeamAction 
 {

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kšlling and John Rosenberg 
+ Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,7 +33,7 @@ import javax.swing.table.*;
 /**
  * The Extensions Manager help panel allows the user to view current extensions.
  *
- * @version    $Id: HelpDialog.java 6163 2009-02-19 18:09:55Z polle $
+ * @version    $Id: HelpDialog.java 6215 2009-03-30 13:28:25Z polle $
  */
 
  /*

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kšlling and John Rosenberg 
+ Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -56,7 +56,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 6163 2009-02-19 18:09:55Z polle $
+ * @version $Id: MethodDialog.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -134,7 +134,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 6163 2009-02-19 18:09:55Z polle $
+     * @version $Id: MethodDialog.java 6215 2009-03-30 13:28:25Z polle $
      */
     public static class ParameterList
     {

@@ -56,7 +56,7 @@
      to update the 'add-license-to-sources' target as well -->    
     <property name="license" value="/*${line.separator}
 This file is part of the BlueJ program. ${line.separator}
-Copyright (C) 1999-2009  Michael Kölling and John Rosenberg ${line.separator}
+Copyright (C) 1999-2009  Michael Kolling and John Rosenberg ${line.separator}
 ${line.separator}
 This program is free software; you can redistribute it and/or ${line.separator}
 modify it under the terms of the GNU General Public License ${line.separator}
@@ -384,7 +384,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
     </target>
     
     <target name="add-license-to-sources" description="adds the license to each source file" >	      
-	    <replaceregexp flags="s">
+	    <replaceregexp flags="s" encoding="ISO8859-1">
 	        <regexp pattern="(^\/\*\n This file is part of the BlueJ program.*? file that accompanied this code\.\n.\*\/\n)|^"/> 
 	        <substitution expression="${license}"/> 
 	        <fileset dir="." includes="**/*.java" >
