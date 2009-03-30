@@ -37,7 +37,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 6212 2009-03-30 08:47:06Z polle $
+ * @version $Id: FileUtility.java 6213 2009-03-30 09:26:20Z polle $
  */
 public class FileUtility
 {
@@ -598,7 +598,9 @@ public class FileUtility
 			// We could not write the file
 			capabilities = WriteCapabilities.READ_ONLY;
 		} finally {
-			tmpFile.delete();			
+			if(tmpFile != null) {
+				tmpFile.delete();			
+			}
 		}
 		return capabilities;
 	}
