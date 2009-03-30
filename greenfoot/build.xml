@@ -124,7 +124,7 @@
      to update the 'add-license-to-sources' target as well -->    
     <property name="license" value="/*${line.separator}
 This file is part of the Greenfoot program. ${line.separator}
-Copyright (C) 2005-2009  Poul Henriksen and Michael Kölling ${line.separator}
+Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling ${line.separator}
 ${line.separator}
 This program is free software; you can redistribute it and/or ${line.separator}
 modify it under the terms of the GNU General Public License ${line.separator}
@@ -642,12 +642,12 @@ target="1.5">
     </target>
     
     <target name="add-license-to-sources" description="adds the license to each source file" >	      
-	    <replaceregexp flags="s">
+	    <replaceregexp flags="s" encoding="ISO8859-1">
 	        <regexp pattern="(^\/\*\n This file is part of the Greenfoot program.*? file that accompanied this code\.\n.\*\/\n)|^"/> 
 	        <substitution expression="${license}"/> 
 	        <fileset dir="." includes="**/*.java" >
-	        	<exclude name="src/util/GraphicsUtilities.java"/>
-	        	<exclude name="src/util/ShadowRenderer.java"/>
+	        	<exclude name="src/greenfoot/util/GraphicsUtilities.java"/>
+	        	<exclude name="src/greenfoot/util/ShadowRenderer.java"/>
 	        	<exclude name="src/org/syntax/jedit/**"/>
 	        	<exclude name="scenarios/**"/>
 	        </fileset>
