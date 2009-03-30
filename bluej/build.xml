@@ -407,6 +407,12 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <delete file="package/greenfoot-install.png" />
         <delete file="boot/src/bluej/greenfootsplash.jpg" />
         <delete dir="lib/greenfoot" />
+        <!-- Commons libraries -->
+     	<delete >
+            <fileset dir="lib">
+                <include name="commons*.jar"/>
+            </fileset>
+        </delete>
         <delete dir="package/scenarios" />
         <delete>
             <fileset file="lib/extensions/greenfoot.jar"/>
