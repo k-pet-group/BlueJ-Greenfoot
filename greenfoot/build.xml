@@ -393,15 +393,28 @@ target="1.5">
         <delete file="imagelib/other/greenfoot.png"/>
         <!-- Greenfoot icon for application: greenfoot-16.png -->
         <delete file="images/greenfoot.png"/>
-
+        <!-- Commons libraries -->
+     	<delete >
+            <fileset dir="${bluej.projectdir}/lib">
+                <include name="commons*.jar"/>
+            </fileset>
+        </delete>
+    	 <!-- Distributables -->
+     	<delete >
+            <fileset dir="package">
+                <include name="Greenfoot-*.zip"/>
+                <include name="greenfoot-*.zip"/>
+                <include name="greenfoot-*.jar"/>
+            </fileset>
+        </delete>
+    	<!-- API doc -->
+        <delete dir="${apidoc}"/>
+        <!-- Greenfoot jar -->
+        <delete file="${bluej.extensions.lib}/greenfoot.jar"/>
+    	                
         <delete dir="${bluej.lib.greenfoot}"/>
         <delete dir="${bluej.projectdir}/package/scenarios"/>
         <delete dir="${build}"/>
-        <delete >
-            <fileset dir="${bluej.extensions.lib}">
-                <exclude name=".cvsignore"/>
-            </fileset>
-        </delete>
 
         <delete includeEmptyDirs="true">
             <fileset dir="${bluej.projectdir}/" >
