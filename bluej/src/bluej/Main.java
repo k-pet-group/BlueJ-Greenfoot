@@ -23,8 +23,11 @@ package bluej;
 
 import java.awt.EventQueue;
 import java.io.File;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Properties;
+import java.util.UUID;
 
 import bluej.extensions.event.ApplicationEvent;
 import bluej.extmgr.ExtensionsManager;
@@ -39,7 +42,7 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  * 
  * @author Michael Kolling
- * @version $Id: Main.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: Main.java 6236 2009-04-01 14:05:21Z iau $
  */
 public class Main
 {
@@ -74,6 +77,14 @@ public class Main
                 processArgs(args);
             }
         });
+        
+        // Send usage data back to bluej.org
+        new Thread() {
+            public void run()
+            {
+                updateStats();
+            }
+        }.start();
     }
 
     /**
@@ -149,6 +160,68 @@ public class Main
         PkgMgrFrame frame = PkgMgrFrame.createFrame();
         frame.setLocation(FIRST_X_LOCATION, FIRST_Y_LOCATION);
         frame.setVisible(true);
+    }
+    
+    /**
+     * Send statistics of use back to bluej.org
+     */
+    private void updateStats() 
+    {
+        // Attempt to use local proxy settings to avoid any firewalls, just
+        // for the duration of this method. False is the documented default value
+        final String useProxiesProperty = "java.net.useSystemProxies";
+
+        String oldProxySetting = System.getProperty(useProxiesProperty, "false");
+        System.setProperty(useProxiesProperty,"true");
+        
+        // Platform details, first the ones which vary between BlueJ/Greenfoot
+        String uidPropName;
+        String baseURL;
+        String appVersion;
+        if (Config.isGreenfoot()) {
+            uidPropName = "greenfoot.uid";
+            baseURL = "http://stats.greenfoot.org/updateGreenfoot.php";
+            appVersion = Boot.GREENFOOT_VERSION;
+        } else {
+            uidPropName = "bluej.uid";
+            baseURL = "http://stats.bluej.org/updateBlueJ.php";
+            // baseURL = "http://localhost:8080/BlueJStats/index.php";
+            appVersion = Boot.BLUEJ_VERSION;
+        }
+
+        // Then the common ones.
+        String javaVersion = System.getProperty("java.version");
+        String systemID = System.getProperty("os.name") +
+                "/" + System.getProperty("os.arch") +
+                "/" + System.getProperty("os.version");
+        
+        // User uid. Use the one already stored in the Property if it exists,
+        // otherwise generate one and store it for next time.
+        String uid = Config.getPropString(uidPropName, null);
+        if (uid == null) {
+            uid = UUID.randomUUID().toString();
+            Config.putPropString(uidPropName, uid);
+        }
+        
+        try {
+            URL url = new URL(baseURL +
+                "?uid=" + URLEncoder.encode(uid, "UTF-8") +
+                "&osname=" + URLEncoder.encode(systemID, "UTF-8") +
+                "&appversion=" + URLEncoder.encode(appVersion, "UTF-8") +
+                "&javaversion=" + URLEncoder.encode(javaVersion, "UTF-8")
+            );
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.connect();
+            int rc = conn.getResponseCode();
+            conn.disconnect();
+
+            if(rc != 200) Debug.reportError("Update stats failed, HTTP response code: " + rc);
+
+        } catch (Exception ex) {
+            Debug.reportError("Update stats failed", ex);
+        } finally {
+            System.setProperty(useProxiesProperty, oldProxySetting);
+        }
     }
 
     /**
