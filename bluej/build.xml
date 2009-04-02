@@ -391,6 +391,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
 	        	<exclude name="package/Installer.java"/>
 	        	<exclude name="examples/**"/>
 	        	<exclude name="src/org/syntax/jedit/**"/>
+	            <include name="package/winlaunch/**.cc"/>
+	            <include name="package/winlaunch/**.h"/>
 	        </fileset>
 	    </replaceregexp>
     </target>        
