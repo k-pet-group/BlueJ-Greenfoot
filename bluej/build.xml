@@ -18,6 +18,7 @@
     <property name="bluej.version.release" value="1" />
     <property name="bluej.version.suffix" value="" />
     <property name="bluej.version" value="${bluej.version.major}.${bluej.version.minor}.${bluej.version.release}${bluej.version.suffix}" />
+    <property name="bluej.version.nodots" value="${bluej.version.major}${bluej.version.minor}${bluej.version.release}${bluej.version.suffix}" />
 
     <!-- user specific properties that are edited to match local build environment-->
     <property file="build.properties"/>

@@ -2,14 +2,14 @@
 <project name="bluej-package" default="dist">
     
     <!-- Names of the the distributables created by the dist-target -->
-    <property name="dist.jarinstaller" value="BlueJ-generic-${bluej.version}.jar"/>
-    <property name="dist.mac" value="BlueJ-mac-${bluej.version}.zip"/>
+    <property name="dist.jarinstaller" value="BlueJ-generic-${bluej.version.nodots}.jar"/>
+    <property name="dist.mac" value="BlueJ-mac-${bluej.version.nodots}.zip"/>
     
     <!-- Don't know how to pass this to the Windows builder -->
-    <property name="dist.win" value="BlueJ-windows-${bluej.version}"/>
+    <property name="dist.win" value="BlueJ-windows-${bluej.version.nodots}"/>
     <property name="dist.jar" value="bluej-dist.jar"/>        
     
-    <property name="bluej.source.zip" value="BlueJ-source-${bluej.version}.zip"/>
+    <property name="bluej.source.zip" value="BlueJ-source-${bluej.version.nodots}.zip"/>
     
     <patternset id="bluej.libfiles">
         <exclude name="**/.#*" />
