@@ -42,7 +42,7 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  * 
  * @author Michael Kolling
- * @version $Id: Main.java 6236 2009-04-01 14:05:21Z iau $
+ * @version $Id: Main.java 6244 2009-04-02 11:01:41Z iau $
  */
 public class Main
 {
@@ -190,6 +190,7 @@ public class Main
         }
 
         // Then the common ones.
+        String language = Config.language;
         String javaVersion = System.getProperty("java.version");
         String systemID = System.getProperty("os.name") +
                 "/" + System.getProperty("os.arch") +
@@ -208,7 +209,8 @@ public class Main
                 "?uid=" + URLEncoder.encode(uid, "UTF-8") +
                 "&osname=" + URLEncoder.encode(systemID, "UTF-8") +
                 "&appversion=" + URLEncoder.encode(appVersion, "UTF-8") +
-                "&javaversion=" + URLEncoder.encode(javaVersion, "UTF-8")
+                "&javaversion=" + URLEncoder.encode(javaVersion, "UTF-8") +
+                "&language=" + URLEncoder.encode(language, "UTF-8")
             );
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.connect();
