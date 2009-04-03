@@ -96,4 +96,4 @@ bluej.compiler.options=-source 1.5 -target 1.5
 ## Settings here have the ability to stop Greenfoot running correctly
 ## if not configured properly.  
 #####################################################################
-bluej.vm.args=-Dapple.awt.graphics.UseQuartz=true
+bluej.vm.args=-Xincgc -Dapple.awt.graphics.UseQuartz=true
