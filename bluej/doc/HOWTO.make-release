@@ -20,8 +20,8 @@ How to make a BlueJ release
         bluej/package/BlueJ-generic-VERSION.jar -- the cross platform installer
         bluej/package/BlueJ-mac-VERSION.zip       -- the Mac installer
         bluej/package/BlueJ-source-VERSION.zip    -- the source bundle
-    NOTE: for some mysterious reasons, distribuitions are larger when
-    built on Windows. Preferrably build on Solaris or Mac.
+    NOTE: for some mysterious reason, distributions are larger when
+    built on Windows. Preferably build on Solaris or Mac.
 
  4. Rename (usually by adding a release candidate string like "BlueJ*rc1.???").
   
@@ -51,17 +51,29 @@ How to make a BlueJ release
         - Change the jarUrl entry for the "pure Java" release to refer to 
           the "all other systems" distribution Jar.
 
-11. In the bugs database, change status of all "RESOLVED" bugs to "CLOSED".
-    When doing this, write "closed in version XXX" into status whitebord.
-    
+11. In the bugs database (http://bugs.bluej.org/trac/bluej),
+
+   1. Add a future release milestone ("Roadmap", "New Milestone").
+   
+   2. Make sure that there are no open bugs for the new release milestone (i.e. the milestone
+      for the release which is about to happen).
+      
+      If there are any bugs open, they should be re-assigned to the (newly created) future
+      release milestone.
+   
+   3. Also check that there are no bugs against the current release which are marked as
+      FIXED but for which the milestone isn't set. Set the milestone to the new release
+      for such bugs.
+      
+   4. Mark the new release milestone as completed.  
+   
 12. Also in the bugs database, add the new version so that bugs can be reported against
     it.
     
 13. Update the support form at http://www.bluej.org/help/supportform.html - the drop-down
     version field should have the new version added as an option.
 
-14. Send a mail message to bluej-announce@bluej.org, announcing the
-    release.
+14. Send a mail message to bluej-announce@bluej.org, announcing the release.
 
 15. More public announcements. See HOWTO.announce-release.
 
