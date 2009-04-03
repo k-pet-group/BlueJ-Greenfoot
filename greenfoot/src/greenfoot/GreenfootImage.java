@@ -31,6 +31,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MediaTracker;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -550,6 +551,32 @@ public class GreenfootImage
     {
         Graphics2D g = getGraphics();
         g.drawString(string, x, y);
+        g.dispose();
+    }
+
+    /**
+     * Draw a shape directly on the image. Shapes are specified by the <a href=
+     * "http://java.sun.com/javase/6/docs/api/java/awt/Shape.html">shape
+     * interface</a>.
+     * @param shape the shape to be drawn.
+     */
+    public void drawShape(Shape shape)
+    {
+        Graphics2D g = getGraphics();
+        g.draw(shape);
+        g.dispose();
+    }
+
+    /**
+     * Draw a filled shape directly on the image. Shapes are specified by the
+     * <a href="http://java.sun.com/javase/6/docs/api/java/awt/Shape.html">shape
+     * interface</a>.
+     * @param shape the shape to be drawn.
+     */
+    public void fillShape(Shape shape)
+    {
+        Graphics2D g = getGraphics();
+        g.fill(shape);
         g.dispose();
     }
 
