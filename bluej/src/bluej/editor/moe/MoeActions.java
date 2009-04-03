@@ -31,19 +31,44 @@ package bluej.editor.moe;
 
 import java.awt.Container;
 import java.awt.Event;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.awt.datatransfer.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 
-import javax.swing.*;
+import javax.swing.Action;
+import javax.swing.InputMap;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
-import javax.swing.text.*;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Caret;
+import javax.swing.text.DefaultEditorKit;
+import javax.swing.text.Document;
+import javax.swing.text.Element;
+import javax.swing.text.JTextComponent;
+import javax.swing.text.Keymap;
+import javax.swing.text.TextAction;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
@@ -373,9 +398,19 @@ public final class MoeActions
         String prefix = doc.getText(lineStart, offset - lineStart);
         
         if(prefix.trim().length() == 0) {  // only if there is no other text before '}'
+            // Determine where the cursor appears horizontally (before insertion)
+            Rectangle r = textPane.modelToView(textPane.getCaretPosition() - 1);
+            Point p = r.getLocation();
+            
+            // Indent the line
             textPane.setCaretPosition(lineStart);
             doIndent(textPane, true);
             textPane.setCaretPosition(textPane.getCaretPosition() + 1);
+            
+            // Set the magic position to the original position. This means that
+            // cursor up will go to the beginning of the previous line, which is much
+            // nicer behaviour.
+            textPane.getCaret().setMagicCaretPosition(p);
         }
     }
 
