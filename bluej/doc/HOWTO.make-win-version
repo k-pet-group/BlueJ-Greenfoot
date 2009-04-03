@@ -7,21 +7,16 @@ How to make a BlueJ release for Windows               (last update 1.04.2002, aj
     file in the package directory. This is needs to be copied to the
     package directory of the machine building the windows release.
 
- 3. Load the winlaunch/vmselect project in Delphi.
-    Change the version string at the top of the file to the new
-    BlueJ version so that each bluej version uses a different registry
-    key for storing VM information.
+ 3. Build the Windows launcher (bjlaunch.exe).
+ 
+    See package/winlaunch/BUILD.TXT for instructions.
+    
+    The bjlaunch.exe file must be in the package/winlaunch folder before you
+    continue.
+ 
+ 4. Run "ant windows-dist" from the root of the bluej project.
 
-    In the properties of the project increment the version number that 
-    is associated with the .exe.
-
- 4. Do a "build all" of the project. Delphi will automatically
-    incremement the projects build number. Quit Delphi.
-
- 5. Change the version number in the winsetup/bluej.iss file.
-
- 6. Run "ant windows-dist" from the root of the bluej project.
-
- 7. The resulting winsetup/bluejsetup.exe is the distributable file.
+ 5. The resulting winsetup/BlueJ-windows-VERSION.exe is the distributable file
+    (where VERSION is the version number).
 
 Done.
