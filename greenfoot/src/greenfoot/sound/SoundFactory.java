@@ -23,6 +23,7 @@ package greenfoot.sound;
 
 import greenfoot.util.GreenfootUtil;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 
@@ -70,6 +71,7 @@ public class SoundFactory
      * 
      * @param file Name of a file or an url
      * @throws LineUnavailableException if a matching line is not available due to resource restrictions
+     * @throws FileNotFoundException if the file cannot be found.
      * @throws IOException if an I/O exception occurs
      * @throws SecurityException if a matching line is not available due to security restrictions
      * @throws UnsupportedAudioFileException if the URL does not point to valid audio file data
