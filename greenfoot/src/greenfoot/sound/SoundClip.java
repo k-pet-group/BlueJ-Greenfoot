@@ -41,6 +41,13 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public class SoundClip extends Sound
 {
+    private static final boolean DEBUG = false;
+    private void printDebug(String s) 
+    {
+        if(DEBUG) {
+            System.out.println(s);
+        }
+    }
     /** Name of the file holding the sound data. Used for debugging. */
     private final String name;
     /** URL of the sound data. */
@@ -80,7 +87,7 @@ public class SoundClip extends Sound
 
     /**
      * Extra delay in ms added to the sleep time before closing the clip. This
-     * is jsut an extra buffer of time to make sure we don't close it too soon.
+     * is just an extra buffer of time to make sure we don't close it too soon.
      * Only really needed if CLOSE_TIMEOUT is very low.
      */
     private final static int EXTEA_SLEEP_DELAY = 300;
@@ -128,7 +135,7 @@ public class SoundClip extends Sound
             info = new DataLine.Info(Clip.class, stream.getFormat(), ((int) stream.getFrameLength() * format
                     .getFrameSize()));
         }
-        soundClip = (Clip) AudioSystem.getLine(info);
+        soundClip = (Clip) AudioSystem.getLine(info); // getLine throws illegal argument exception if it can't find a line.
         soundClip.open(stream);
         clipLength = soundClip.getMicrosecondLength() / 1000;
         setState(ClipState.CLOSED);
@@ -152,17 +159,25 @@ public class SoundClip extends Sound
         throws LineUnavailableException, IOException, UnsupportedAudioFileException, IllegalArgumentException,
         SecurityException
     {
+
+        printDebug("00");
         playBeginTimestamp = System.currentTimeMillis();
 
         if (soundClip == null) {
             open();
         }
+        printDebug("1");
         setState(ClipState.PLAYING);
-        soundClip.stop();
+        printDebug("1.5");
+        if(soundClip.isRunning()) {
+            soundClip.stop(); // sometimes it gets stuck here on my ubuntu at home. Maybe it is already stopped? or about to be stopped? or something?
+        }
+        printDebug("2");
         soundClip.setMicrosecondPosition(0);
+        printDebug("3");
         soundClip.start();
         pausedTime = 0;
-        System.out.println("play: " + this);
+        printDebug("play: " + this);
         startCloseThread();
     }
 
@@ -178,7 +193,7 @@ public class SoundClip extends Sound
         setState(ClipState.STOPPED);
         soundClip.stop();
         soundClip.setMicrosecondPosition(0);
-        System.out.println("Stop: " + this);
+        printDebug("Stop: " + this);
     }
 
     /**
@@ -193,7 +208,7 @@ public class SoundClip extends Sound
         }
         setState(ClipState.PAUSED);
         soundClip.stop();
-        System.out.println("Pause: " + this);
+        printDebug("Pause: " + this);
     }
 
     /**
@@ -207,16 +222,16 @@ public class SoundClip extends Sound
             return;
         }
         pausedTime += System.currentTimeMillis() - pauseBeginTimestamp;
-        System.out.println("Pausedtime: " + pausedTime);
+        printDebug("Pausedtime: " + pausedTime);
         soundClip.start();
         setState(ClipState.PLAYING);
-        System.out.println("Resume: " + this);
+        printDebug("Resume: " + this);
     }
 
     private void setState(ClipState newState)
     {
         if (clipState != newState) {
-            System.out.println("Setting state to: " + newState);
+            printDebug("Setting state to: " + newState);
             clipState = newState;
             switch(clipState) {
                 case PLAYING :
@@ -253,7 +268,7 @@ public class SoundClip extends Sound
     }
 
     /**
-     * True if the sound is currently playing.
+     * True if the sound is currently paused.
      */
     public synchronized boolean isPaused()
     {
@@ -300,7 +315,7 @@ public class SoundClip extends Sound
                                 }
                             }
                             else if (timeLeftToClose > 0) {
-                                System.out.println("Waiting to close");
+                                printDebug("Waiting to close: " + timeLeftToClose);
                                 try {
                                     thisClip.wait(timeLeftToClose);
                                 }
@@ -308,9 +323,10 @@ public class SoundClip extends Sound
                                     // TODO Handle this!
                                     e.printStackTrace();
                                 }
+                                printDebug("Wait done");
                             }
                             else {
-                                System.out.println("Closing clip: " + thisClip.name);
+                                printDebug("Closing clip: " + thisClip.name);
                                 thisClip.soundClip.close();
                                 thisClip.soundClip = null;
                                 thisClip.closeThread = null;

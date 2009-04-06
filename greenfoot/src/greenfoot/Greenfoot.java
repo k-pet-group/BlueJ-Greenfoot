@@ -152,9 +152,15 @@ public class Greenfoot
     public static void playSound(final String soundFile)
     {
         try {
-            //TODO figure out how to handle exceptionss
+            //TODO figure out how to handle exceptions
             new GreenfootSound(soundFile).play();
         }        
+        catch (IOException e) {
+            throw new IllegalArgumentException("Could not open sound file: " + soundFile, e);
+        }
+        catch (UnsupportedAudioFileException e) {
+            throw new IllegalArgumentException("Format of sound file not supported: " + soundFile, e);
+        }
         catch (SecurityException e) {
             // We only want to print this error message once.
             if(! securityHandled) {
@@ -182,14 +188,6 @@ public class Greenfoot
                 e.printStackTrace();
                 lineUnavailableHandled = true;
             }
-        }
-        catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (UnsupportedAudioFileException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
     
