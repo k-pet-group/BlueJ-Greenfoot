@@ -37,6 +37,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.awt.image.VolatileImage;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 
@@ -189,7 +190,12 @@ public class GreenfootImage
             throw new NullPointerException("Filename must not be null.");
         }
         imageFileName = filename;
-        imageUrl = GreenfootUtil.getURL(filename, "images");
+        try {
+            imageUrl = GreenfootUtil.getURL(filename, "images");
+        }
+        catch (FileNotFoundException e) {
+            throw new IllegalArgumentException(e);
+        }
 
         loadURL(imageUrl);
     }

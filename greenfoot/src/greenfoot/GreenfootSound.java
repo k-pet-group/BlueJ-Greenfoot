@@ -21,6 +21,7 @@
  */
 package greenfoot;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.sound.sampled.LineUnavailableException;
@@ -51,23 +52,47 @@ import greenfoot.sound.SoundFactory;
 public class GreenfootSound
 {
 
+    // Whether we have handled certain exceptions. We use these flags to ensure
+    // we only print an error message once to avoid flooding the error output.
+    private static boolean lineUnavailableHandled;
+    private static boolean illegalArgumentHandled;
+    private static boolean securityHandled;
+    
     private Sound sound;
-
+    private String filename;
+    
     /**
      * Creates a new sound from the given file. The following formats are
      * supported: AIFF, AU and WAV.
      * 
      * @param filename Typically the name of a file in the sounds directory in
-     *            the project directory.
-     * @throws LineUnavailableException 
-     * @throws UnsupportedAudioFileException 
-     * @throws IOException 
+     *            the project directory. 
+     * @throws IllegalArgumentException If the file cannot be opened.
      */
-    public GreenfootSound(String filename) throws IOException, UnsupportedAudioFileException, LineUnavailableException
+    public GreenfootSound(String filename) throws IllegalArgumentException
     {
-        
-         sound = SoundFactory.getInstance().createSound(filename);
-       
+        this.filename = filename;
+        try {
+            sound = SoundFactory.getInstance().createSound(filename);
+        }
+        catch (SecurityException e) {
+            handleSecurityException(e);
+        }
+        catch (IllegalArgumentException e) {
+            handleIllegalArgumentException(e);
+        }
+        catch (FileNotFoundException e) {
+            handleFileNotFoundException(e);
+        }
+        catch (IOException e) {
+            handleIOException(e);
+        }
+        catch (UnsupportedAudioFileException e) {
+            handleUnsupportedAudioFileException(e);
+        }
+        catch (LineUnavailableException e) {
+            handleLineUnavailableException(e);
+        }        
     }
 
     /**
@@ -92,25 +117,72 @@ public class GreenfootSound
         try {
             sound.play();
         }
-        catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
         catch (SecurityException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            handleSecurityException(e);
         }
-        catch (LineUnavailableException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        catch (IllegalArgumentException e) {
+            handleIllegalArgumentException(e);
+        }
+        catch (FileNotFoundException e) {
+            handleFileNotFoundException(e);
         }
         catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            handleIOException(e);
         }
         catch (UnsupportedAudioFileException e) {
-            // TODO Auto-generated catch block
+            handleUnsupportedAudioFileException(e);
+        }
+        catch (LineUnavailableException e) {
+            handleLineUnavailableException(e);
+        }
+    }
+
+    private void handleUnsupportedAudioFileException(UnsupportedAudioFileException e)
+    {
+        throw new IllegalArgumentException("Format of sound file not supported: " + filename, e);
+    }
+
+    private void handleFileNotFoundException(FileNotFoundException e)
+    {
+        throw new IllegalArgumentException("Could not find sound file: " + filename, e);
+    }
+    
+    private void handleIOException(IOException e)
+    {
+        throw new IllegalArgumentException("Could not open sound file: " + filename, e);
+    }
+
+    private void handleLineUnavailableException(LineUnavailableException e)
+    {
+        // We only want to print this error message once.
+        if(! lineUnavailableHandled) {
+            System.err.println("Cannot get access to the sound card. "
+                + "If you have a sound card installed, check your system settings, "
+                + "and close down any other programs that might be using the sound card.");
             e.printStackTrace();
+            lineUnavailableHandled = true;
+        }
+    }
+
+    private void handleIllegalArgumentException(IllegalArgumentException e)
+    {
+        // We only want to print this error message once.
+        if (!illegalArgumentHandled) {
+            System.err.println("Could not play sound file: " + filename);
+            System.err.println("If you have a sound card installed, check your system settings.");
+            e.printStackTrace();
+            illegalArgumentHandled = true;
+        }
+    }
+
+    private void handleSecurityException(SecurityException e)
+    {
+        // We only want to print this error message once.
+        if (!securityHandled) {
+            System.err.println("Could not play sound file due to security restrictions: " + filename);
+            System.err.println("If you have a sound card installed, check your system settings.");
+            e.printStackTrace();
+            securityHandled = true;
         }
     }
 

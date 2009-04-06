@@ -67,7 +67,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: GreenfootUtil.java 6254 2009-04-06 14:14:49Z polle $
  */
 public class GreenfootUtil
 {
@@ -448,8 +448,9 @@ public class GreenfootUtil
      * @param filename Name of the file
      * @param dir directory to search in first
      * @return A URL that can be read or null if the URL could not be found.
+     * @throws FileNotFoundException If the file cannot be found.
      */
-    public static URL getURL(String filename, String dir)
+    public static URL getURL(String filename, String dir) throws FileNotFoundException
     {
         if (filename == null) {
             throw new NullPointerException("Filename must not be null.");
@@ -462,7 +463,11 @@ public class GreenfootUtil
         // filename alone first in order to avoid a wrong lookup for applets,
         // because this can take a while over the net.
         boolean pathContainsDir = false;
-        if(dir != null) {
+        if (dir != null) {
+            // TODO It might not actually be the file system separator that
+            // should be used. Should also check for "/" to make it work on
+            // windows. If an applet it is probably "/" that is used on all 
+            // platforms.
             int sepLoc = filename.lastIndexOf(System.getProperty("file.separator"));
             if(sepLoc > 0) {
               String pathOnly = filename.substring(0,sepLoc);
@@ -536,7 +541,7 @@ public class GreenfootUtil
         checkCase(url);
         
         if(url == null) {
-            throw new IllegalArgumentException("Could not find file: " + filename);
+            throw new FileNotFoundException("Could not find file: " + filename);
         }
         return url;
     }
