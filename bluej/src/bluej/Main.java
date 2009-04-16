@@ -42,7 +42,7 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  * 
  * @author Michael Kolling
- * @version $Id: Main.java 6244 2009-04-02 11:01:41Z iau $
+ * @version $Id: Main.java 6257 2009-04-16 13:46:52Z iau $
  */
 public class Main
 {
@@ -167,13 +167,11 @@ public class Main
      */
     private void updateStats() 
     {
-        // Attempt to use local proxy settings to avoid any firewalls, just
-        // for the duration of this method. False is the documented default value
+        // System property name for honouring web proxy settings
+        // See the JDK docs/technotes/guides/net/proxies.html
         final String useProxiesProperty = "java.net.useSystemProxies";
+        String oldProxySetting = "false";   // Documented default value
 
-        String oldProxySetting = System.getProperty(useProxiesProperty, "false");
-        System.setProperty(useProxiesProperty,"true");
-        
         // Platform details, first the ones which vary between BlueJ/Greenfoot
         String uidPropName;
         String baseURL;
@@ -202,9 +200,17 @@ public class Main
         if (uid == null) {
             uid = UUID.randomUUID().toString();
             Config.putPropString(uidPropName, uid);
+        } else if (uid.equalsIgnoreCase("private")) {
+            // Allow opt-out
+            return;
         }
         
         try {
+            // Attempt to use local proxy settings to avoid any firewalls, just
+            // for the rest of this method.
+            oldProxySetting = System.getProperty(useProxiesProperty, oldProxySetting);
+            System.setProperty(useProxiesProperty,"true");
+
             URL url = new URL(baseURL +
                 "?uid=" + URLEncoder.encode(uid, "UTF-8") +
                 "&osname=" + URLEncoder.encode(systemID, "UTF-8") +
