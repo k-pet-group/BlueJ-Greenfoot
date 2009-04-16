@@ -85,7 +85,7 @@ import bluej.utility.EscapeDialog;
  * project image library, or the greenfoot library, or an external location.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: ImageLibFrame.java 6256 2009-04-16 11:55:51Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
@@ -649,7 +649,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                     double rotateY = image.getHeight() / 2.;
                     g2.rotate(Math.toRadians(so.getRotation()), rotateX, rotateY);
 
-                    ImageVisitor.drawImage(image, g2, 0, 0, this);
+                    ImageVisitor.drawImage(image, g2, 0, 0, this, true);
 
                     return bImg;
                 }

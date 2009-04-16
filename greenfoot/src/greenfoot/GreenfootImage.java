@@ -24,8 +24,10 @@ package greenfoot;
 import greenfoot.util.GraphicsUtilities;
 import greenfoot.util.GreenfootUtil;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Composite;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -117,7 +119,9 @@ public class GreenfootImage
     {
         if (! image.copyOnWrite) {
             setImage(GraphicsUtilities.createCompatibleTranslucentImage(image.getWidth(), image.getHeight()));
-            drawImage(image, 0, 0);
+            Graphics2D g = getGraphics();
+            image.drawImage(g, 0, 0, null, false);
+            g.dispose();
         }
         else {
             // If the source image is a copy-on-write image, we can easily
@@ -159,6 +163,7 @@ public class GreenfootImage
         dst.imageUrl = src.imageUrl;
         dst.currentColor = src.currentColor;
         dst.currentFont = src.currentFont;
+        dst.transparency = src.transparency;
     }    
     
     private void loadURL(URL imageURL)
@@ -347,18 +352,35 @@ public class GreenfootImage
      */
     public void drawImage(GreenfootImage image, int x, int y)
     {
-        Graphics g = getGraphics();
-        image.drawImage(g, x, y, null);
+        Graphics2D g = getGraphics();
+        image.drawImage(g, x, y, null, true);
         g.dispose();
     }
-    
+
     /**
      * Draws this image onto the given Graphics object.
      * 
+     * @param useTransparency Whether the transparency value should be used when
+     *            drawing the image.
      */
-    void drawImage(Graphics g, int x, int y, ImageObserver observer)
+    void drawImage(Graphics2D g, int x, int y, ImageObserver observer, boolean useTransparency)
     {
+        Composite oldComposite = null;
+        if(useTransparency) {
+            float opacity = getTransparency() / 255f;
+            if(opacity < 1) {
+                // Don't bother with the composite if completely opaque.
+                if(opacity < 0) opacity = 0;
+                oldComposite = g.getComposite();
+                g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+            }
+        }
+        
         g.drawImage(image, x, y, observer);
+
+        if(oldComposite != null) {
+            g.setComposite(oldComposite);
+        }
     }
     
     /**

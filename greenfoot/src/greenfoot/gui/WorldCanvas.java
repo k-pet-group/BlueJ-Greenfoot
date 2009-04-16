@@ -29,9 +29,7 @@ import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.util.GreenfootUtil;
 
-import java.awt.AlphaComposite;
 import java.awt.Color;
-import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -52,7 +50,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldCanvas.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: WorldCanvas.java 6256 2009-04-16 11:55:51Z polle $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -96,7 +94,7 @@ public class WorldCanvas extends JPanel
      * 
      * Must be synchronized on the World.lock.
      */
-    public void paintObjects(Graphics g)
+    public void paintObjects(Graphics2D g)
     {
         Set<Actor> objects = WorldVisitor.getObjectsListInPaintOrder(world);
         int paintSeq = 0;
@@ -115,44 +113,31 @@ public class WorldCanvas extends JPanel
                 int paintX = (int) Math.floor(xCenter - halfWidth);
                 double yCenter = thing.getY() * cellSize + cellSize / 2.;
                 int paintY = (int) Math.floor(yCenter - halfHeight);
-
-                Graphics2D g2 = (Graphics2D) g;                
-                
-                float opacity = image.getTransparency() / 255f;
-                Composite oldComposite = null;
-                if(opacity < 1) {
-                    // Don't bother with the composite if completely opaque.
-                    if(opacity < 0) opacity = 0;
-                    oldComposite = g2.getComposite();
-                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
-                }
                 
                 AffineTransform oldTx = null;
                 if(thing.getRotation() % 360 != 0) {
                     // don't bother transforming if it is not rotated at all.
-                    oldTx = g2.getTransform();
-                    g2.rotate(Math.toRadians(thing.getRotation()), xCenter, yCenter);
+                    oldTx = g.getTransform();
+                    g.rotate(Math.toRadians(thing.getRotation()), xCenter, yCenter);
                 }
                 
-                ImageVisitor.drawImage(image, g, paintX, paintY, this);
+                ImageVisitor.drawImage(image, g, paintX, paintY, this, true);
                 
                 // Restore the old state of the graphics
                 if(oldTx != null) {
-                    g2.setTransform(oldTx);
-                }
-                if(oldComposite != null) {
-                    g2.setComposite(oldComposite);
+                    g.setTransform(oldTx);
                 }
             }
         }
-
     }
 
     public void paintComponent(Graphics g)
-    {         
+    {   
         if (world == null) {
             return;
         }
+        
+        
         // We need to sync, so that objects are not added and removed when we
         // traverse the list.
         // But, we only try to get the lock for a brief period to avoid
@@ -167,10 +152,11 @@ public class WorldCanvas extends JPanel
             int timeout = WorldVisitor.getReadLockTimeout(world);
             if (lock.readLock().tryLock(timeout, TimeUnit.MILLISECONDS)) {
                 try {
-                    paintBackground(g);
-                    paintObjects(g);
-                    paintDraggedObject(g);
-                    WorldVisitor.paintDebug(world, g);
+                    Graphics2D g2 = (Graphics2D) g;
+                    paintBackground(g2);
+                    paintObjects(g2);
+                    paintDraggedObject(g2);
+                    WorldVisitor.paintDebug(world, g2);
                 }
                 finally {
                     lock.readLock().unlock();
@@ -217,12 +203,12 @@ public class WorldCanvas extends JPanel
      * Paint the world background. This takes tiling into account: the
      * world image is painted either once or tiled onto this component.
      */
-    public void paintBackground(Graphics g)
+    public void paintBackground(Graphics2D g)
     {
         if (world != null) {
             GreenfootImage backgroundImage = WorldVisitor.getBackgroundImage(world);
             if (backgroundImage != null) {
-                ImageVisitor.drawImage(backgroundImage, g, 0, 0, this);
+                ImageVisitor.drawImage(backgroundImage, g, 0, 0, this, true);
             }
             else {
                 Color oldColor = g.getColor();

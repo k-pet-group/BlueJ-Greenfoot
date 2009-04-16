@@ -21,7 +21,7 @@
  */
 package greenfoot;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.ImageObserver;
 
 /**
@@ -32,13 +32,13 @@ import java.awt.image.ImageObserver;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ImageVisitor.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: ImageVisitor.java 6256 2009-04-16 11:55:51Z polle $
  */
 public class ImageVisitor
 {
-    public static void drawImage(GreenfootImage image, Graphics g, int x, int y, ImageObserver observer)
+    public static void drawImage(GreenfootImage image, Graphics2D g, int x, int y, ImageObserver observer, boolean useTranparency)
     {
-        image.drawImage(g, x, y, observer);
+        image.drawImage(g, x, y, observer, useTranparency);
     }
     
     public static boolean equal(GreenfootImage image1, GreenfootImage image2)
