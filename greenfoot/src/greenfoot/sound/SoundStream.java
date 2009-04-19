@@ -35,6 +35,7 @@ import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 
+import bluej.Config;
 import bluej.utility.Debug;
 
 /**
@@ -136,6 +137,12 @@ public class SoundStream extends Sound implements Runnable
             System.out.println(s);
         }
     }
+
+    /**
+	 * Flag that indicates whether it is safe to use open and close on the
+	 * SourceDataLine.
+	 */
+	private boolean useCloseAndOpen;
     
     /**
      * How long to wait until closing the line and stopping the playback thread
@@ -175,6 +182,13 @@ public class SoundStream extends Sound implements Runnable
 
     /** Used to keep track of when a line has engaged in playback */ 
     private boolean gotStartEvent = false;
+   
+    /**
+	 * Used to detect whether the frame position of the line decreases when it
+	 * shouldn't. This can happen on windows after playback has finished: it
+	 * will reset the frame position to 0 and go back up to the end frame.
+	 */
+	private long previousFramePosition;
     
     public SoundStream(URL url, SoundPlaybackListener playbackListener)
         throws UnsupportedAudioFileException, IOException, LineUnavailableException
@@ -182,6 +196,11 @@ public class SoundStream extends Sound implements Runnable
         this.url = url;
         stop = false;
         this.playbackListener = playbackListener;
+        if(Config.isMacOS()) {
+        	useCloseAndOpen = false;
+        } else {
+        	useCloseAndOpen = true;
+        }
     }
 
 
@@ -239,19 +258,19 @@ public class SoundStream extends Sound implements Runnable
 
     public void run()
     {
-        long totalFramesWritten = 0;
         boolean stayAlive = true; // Whether the thread should stay alive or die.
 
         AudioInputStream inputStream = null;
         try {
             while (stayAlive) {
-                
+
                 if (inputStream != null) {
                     inputStream.close();
                 }
                 inputStream = AudioSystem.getAudioInputStream(url);
                 AudioFormat format = inputStream.getFormat();
                 DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
+                
                 
                 synchronized (this) {
                     if (line == null) {
@@ -270,43 +289,64 @@ public class SoundStream extends Sound implements Runnable
                             }});
                     }
                     line.open(format);
+                    
+                    
                 }
 
                 int frameSize = format.getFrameSize();
 
                 printDebug("Stream available: " + inputStream.available() + " in frames: " + inputStream.available()
                         / frameSize);
-
-                byte[] buffer = new byte[4 * 1024 * frameSize]; // 4 * 1024 *
-                                                                // framesize
+                
+                byte[] buffer = new byte[getBufferSizeToHold500ms(format)];
 
                 int bytesInBuffer = 0;
-                totalFramesWritten = 0;
+                long totalFramesWritten = 0;
+                previousFramePosition = 0;
+                
                 // The frame at which playback was started. Used to determine if
                 // playback has begun at all.
                 long startFrame = line.getLongFramePosition();
                 synchronized (this) {
                     restart = false;
                 }
-                int bytesRead = inputStream.read(buffer, 0, buffer.length - bytesInBuffer);
+                int bytesRead = inputStream.read(buffer, 0, buffer.length);
+                bytesInBuffer = bytesRead;
                 printDebug(" read: " + bytesRead);
-                while (bytesRead != -1) {
-                    bytesInBuffer += bytesRead;
+                while (bytesInBuffer > 0) {
 
                     int written = 0;
                     // Only write in multiples of frameSize
                     int bytesToWrite = (bytesInBuffer / frameSize) * frameSize;
                     synchronized (this) {
+                    	if(useCloseAndOpen && !line.isOpen()) {
+                    		line.open(format);
+                    	}
                         line.start();
-                        while (line.available() == 0) {
-                            // No space available in buffer right now, lets wait
-                            // a bit so that we don't block when trying to write
+                        while (line.available() < line.getBufferSize()/4 ) {
+                            // Not much space available in buffer right now, lets wait
+                            // a bit until we can write a good chunk.
                             if (restart || stop || pause) {
                                 printDebug("restart: " + restart + " pause: " + pause);
                                 break;
                             }
                             try {
-                                wait(20);
+                            	int timeLeft = getTimeToPlayBytes(line.getBufferSize() - line.available(), format);
+                            	printDebug(" time left : " + timeLeft);
+                            	if (timeLeft > 16) {
+									// There is still quite a bit of time left
+									// before the data becomes available. We
+									// wait a bit.
+                            		wait(timeLeft/4);
+                            	}
+                            	else if( timeLeft < 0) {
+                            		// Could not figure out how much time was
+									// left.
+									// Waiting 20ms should be quick enough to
+									// still be able to supply the line with
+									// data at a fast enough rate
+                            		wait(20);
+                            	}
                             }
                             catch (InterruptedException e) {
                                 // TODO Auto-generated catch block
@@ -332,7 +372,9 @@ public class SoundStream extends Sound implements Runnable
                                 e.printStackTrace();
                             }
                         }
-
+                        
+                        // In case it was paused, restart it.
+                        line.start(); 
                         playing = true;
 
                         // Handle restart
@@ -340,6 +382,7 @@ public class SoundStream extends Sound implements Runnable
                             printDebug("restart in thread");
                             line.stop();
                             line.flush();
+                            line.close();
                             gotStartEvent=false;
                             try {
                                 inputStream.close();
@@ -352,6 +395,7 @@ public class SoundStream extends Sound implements Runnable
                             bytesInBuffer = 0;
                             bytesRead = 0;
                             bytesToWrite = 0;
+                            previousFramePosition = 0;
                             printDebug("inputStream available after restart in thread: " + inputStream.available());
 
                         }
@@ -380,6 +424,9 @@ public class SoundStream extends Sound implements Runnable
                     bytesInBuffer = remaining;
 
                     bytesRead = inputStream.read(buffer, bytesInBuffer, buffer.length - bytesInBuffer);
+                    if(bytesRead != -1) {
+                        bytesInBuffer += bytesRead;
+                    }
                     printDebug(" read: " + bytesRead);
                 }
 
@@ -394,24 +441,7 @@ public class SoundStream extends Sound implements Runnable
                 synchronized (this) {
                     // While we are still actively playing things, and don't
                     // receive any signals
-                    // Explanation for first part of the while expression:
-                    //
-                    // We first need to check if we haven't finished (or
-                    // started) writing stuff yet, which is true if:
-                    //
-                    // * We didn't get a start event since the last time we
-                    // stopped
-                    //
-                    // * If the line is inactive and we have not progressed
-                    // past the startFrame
-                    //
-                    // * The line is still active
-                    //
-                    // Although you might think the above should be related
-                    // somehow, it is not the case, and if we don't check each
-                    // one, we might end the plyaback to soon.
-                    // 
-                    while ((!gotStartEvent || (!line.isActive() && line.getLongFramePosition() <=startFrame ) || line.isActive() ) && !restart && !stop) {                        
+                    while (isLinePlaying(startFrame, totalFramesWritten) && !restart && !stop) {                        
                         printDebug("waiting " + line + "  framePos: " + line.getLongFramePosition() + "  msPos: "
                                 + line.getMicrosecondPosition()+ "  avail:"
                                 + line.available() + "  active:" + line.isActive() + "  open:" + line.isOpen()
@@ -424,7 +454,15 @@ public class SoundStream extends Sound implements Runnable
                                 line.start();
                             }
                             else {
-                                this.wait(50);
+                            	int bytesLeft = line.getBufferSize() - line.available();
+                            	int timeLeft = getTimeToPlayBytes(bytesLeft, format);
+                            	printDebug(" time left: " + timeLeft);
+                            	if(timeLeft > 50) {
+                            		wait(timeLeft);
+                            	}
+                            	else {
+                            		wait(20);
+                            	}
                             }
                         }
                         catch (InterruptedException e) {
@@ -456,6 +494,9 @@ public class SoundStream extends Sound implements Runnable
                     // macbook and Ubuntu in the office. Poul.
                     line.stop();
                     line.flush(); 
+                    if(useCloseAndOpen) {
+                    	line.close();
+                    }
                     gotStartEvent=false;
                     
                     if (!restart || stop) {
@@ -473,6 +514,7 @@ public class SoundStream extends Sound implements Runnable
                         // continue playback
                         if (!restart || stop) {
                             stayAlive = false;
+                            playing = false;
                             playThread = null;
                             printDebug("KILL THREAD");
                         } 
@@ -526,4 +568,80 @@ public class SoundStream extends Sound implements Runnable
             playbackListener.playbackStopped(this);
         }
     }
+
+    /**
+     * Calculate how long it will take to play the given number of bytes. 
+     * @param bytes Number of bytes.
+     * @param format The format used to play the bytes.
+     * @return time in ms or -1 if it could not be calculated.
+     */
+    private int getTimeToPlayBytes(int bytes, AudioFormat format) {
+    	if(format.getFrameRate() != AudioSystem.NOT_SPECIFIED) {
+    		return (int) (1000 * bytes  / (format.getFrameRate() * format.getFrameSize())) ;
+    	} else {
+    		return -1;
+    	}
+	}
+
+
+	/**
+     * Will attempt to calculate a buffer size that can hold half a second of audio data.
+     * If unsuccessful it will default to 64k buffer size.
+     */
+	private int getBufferSizeToHold500ms(AudioFormat format) {
+		int bufferSize;
+		if(format.getFrameRate() != AudioSystem.NOT_SPECIFIED){
+			bufferSize = (int) Math.ceil( format.getFrameSize() * format.getFrameRate() / 2);
+		} 
+		else if(format.getSampleRate() != AudioSystem.NOT_SPECIFIED) {
+			bufferSize = (int) Math.ceil( (format.getSampleSizeInBits() / 8) * format.getChannels() * format.getSampleRate() / 2);
+		}
+		else {
+			bufferSize = 64 * 1024;
+		}
+		printDebug("readbuffer Size: " + bufferSize);
+		return bufferSize;
+	}
+
+
+    /**
+     * True if the line has not yet finished playback.
+     * 
+     * Should only be called when synchronized on line.
+     * 
+     * @param startFrame The frame at which playback was started.
+     * @param framesWritten Number of frames written to the line.
+     * @return True is the line is playing, or has not started playing yet.
+     */
+	private boolean isLinePlaying(long startFrame, long framesWritten) {
+		long currentFramePosition =  line.getLongFramePosition(); 
+		if(useCloseAndOpen) {
+			// One of two things can indicate that we are still playing>
+			// 1. If the current frame position is smaller than the frame written
+			// 2. If silly Windows has not yet reset the frame index back to 0.
+			boolean res = currentFramePosition < framesWritten && previousFramePosition <= currentFramePosition;
+			previousFramePosition = currentFramePosition;
+			return res;
+		}
+		else {
+			// We first need to check if we haven't finished (or
+			// started) playback yet, which is true if:
+			//
+			// * We didn't get a start event since the last time we
+			// stopped (means that we haven't started playback yet)
+			//
+			// * If the line is inactive and we have not progressed
+			// past the startFrame (means that we haven't started
+			// playback yet)
+			//
+			// * The line is still active (means that we are currently 
+			// playing)
+			//
+			// Although you might think the above should be related
+			// somehow, it is not the case, and if we don't check each
+			// one, we might end the playback to soon.
+			// 
+			return (!gotStartEvent || (!line.isActive() && currentFramePosition <= startFrame ) || line.isActive() );
+		}
+	}
 }
