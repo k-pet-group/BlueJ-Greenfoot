@@ -48,6 +48,8 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
      */
     public void simulationChanged(SimulationEvent e)
     {
+        // TODO: RESET??? pressing reset only pauses the songs and it should stop them instead
+        
         if (e.getType() == SimulationEvent.DISABLED) {
             stop();
         }
@@ -65,6 +67,7 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
      */
     private void resume()
     {
+        
         synchronized (this) {
             ignoreEvents = true;
         }
@@ -101,7 +104,7 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
      */
     private void stop()
     {
-        System.out.println("Sounds alive: " + playingSounds.size() + " " + pausedSounds.size());
+        //System.out.println("Sounds alive: " + playingSounds.size() + " " + pausedSounds.size());
         
         synchronized (this) {
             ignoreEvents = true;
@@ -132,6 +135,7 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
 
     public synchronized void playbackStarted(Sound sound)
     {
+      //  System.out.println("playbackStarted: " + sound);
         if (!ignoreEvents) {
             playingSounds.add(sound);
             pausedSounds.remove(sound);
@@ -139,7 +143,9 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
     }
 
     public synchronized void playbackStopped(Sound sound)
-    {
+    {        
+      //  System.out.println("playbackStopped: " + sound);
+
         if (!ignoreEvents) {
             playingSounds.remove(sound);
             pausedSounds.remove(sound);
@@ -148,6 +154,8 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
 
     public synchronized void playbackPaused(Sound sound)
     {
+      //  System.out.println("playbackPaused: " + sound);
+
         if (!ignoreEvents) {
             pausedSounds.add(sound);
             playingSounds.remove(sound);

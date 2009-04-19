@@ -46,7 +46,7 @@ public class SoundFactory
     /**
      * Only use clips when the size of the clip is below this value.
      */
-    private static final int maxClipSize = 500 * 1000;
+    private static final int maxClipSize = 1;//500 * 1000;
 
     private SoundFactory()
     {
