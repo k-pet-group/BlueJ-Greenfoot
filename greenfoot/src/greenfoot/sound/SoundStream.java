@@ -49,7 +49,7 @@ import bluej.utility.Debug;
  * <p>
  * Windows XP on Poul's home PC (SP3, Sun JDK 1.6.11, SB Live Sound Card) and
  * Windows Vista on Poul's office PC (dell build in soundcard) and Windows XP on
- * Poul's office PC (SP2, dell build in soundcard)
+ * Poul's office PC (SP2, dell onboard soundcard)
  * <ul>
  * <li>Line does not receive a stop signal when end of media has been reached.</li>
  * <li>Line is reported as active even when end of media has been reached. If
@@ -57,7 +57,8 @@ import bluej.utility.Debug;
  * does not generate a START event, only a stop)</li>
  * <li>The frame position reported by line.getLongFramePosition() is incorrect.
  * After reaching the last frame, it will, after a while, start over at frame
- * position 0 and count up to the last frame again.</li>
+ * position 0 and count up to the last frame again. It will repeat this forever.
+ * </li>
  * </ul>
  * <p>
  * Linux on Poul's home PC (Ubuntu 8.10, Sun JDK 1.6.10, SB Live Sound Card):
@@ -84,8 +85,10 @@ import bluej.utility.Debug;
  * <p>
  * Mac (OS 10.5.6, JDK 1.5.0_16
  * <ul>
- * <li>Closing and opening a line repeatedly crashes the JVM with this error
- * (JDK 1.5): <br>
+ * <li>Closing and opening a line repeatedly crashes the JVM with this error.
+ * Can be reproduced in the piano scenario if you quickly press the same button
+ * about 10-20 times in row. (JDK 1.5 prints the error below, 1.6 jsut crashes
+ * silently): <br>
  * java(3382,0xb1b4e000) malloc: *** mmap(size=1073745920) failed (error
  * code=12)<br>
  * error: can't allocate region<br>
@@ -113,15 +116,15 @@ import bluej.utility.Debug;
  * On windows, we could use drain() and close() to make it work. We have to make
  * sure that the line is not stopped before invoking drain though, which could
  * be difficult. Probably need a flag to indicate whether a stop request has
- * been send. Probably better to make it more similar to Linux though to avoid
- * too many different implementations.
+ * been send. Better to make it more similar to Linux though to avoid too many
+ * different implementations.
  * 
  * <p>
  * 
- * For windows and Linux I can probably use the same implementation, by using
- * close/open and frame position. For Windows I have to be aware that it might
- * reset the frame position though, and watch for a decrease in frame position
- * to detect end of the stream in case it misses the end frame.
+ * For windows and Linux I can use the same implementation, by using close/open
+ * and frame position. For Windows I have to be aware that it might reset the
+ * frame position though, and watch for a decrease in frame position to detect
+ * end of the stream in case it misses the end frame.
  * 
  * On mac I have to avoid using open/close.
  * 
@@ -130,6 +133,7 @@ import bluej.utility.Debug;
  */
 public class SoundStream extends Sound implements Runnable
 {
+	/** Set to true to enable debug output for this class. */
     private static final boolean DEBUG = true;
     private static void printDebug(String s) 
     {
@@ -177,21 +181,21 @@ public class SoundStream extends Sound implements Runnable
     /** The line that we play the sound through */
     private SourceDataLine line;
     
-    /** Therad that handles the actual playback of the sound. */
+    /** Thread that handles the actual playback of the sound. */
     private Thread playThread ;
 
-    /** Used to keep track of when a line has engaged in playback */ 
+    /** Used to keep track of when a line has engaged in playback. Only used on macs. */ 
     private boolean gotStartEvent = false;
-   
-    /**
+
+	/**
 	 * Used to detect whether the frame position of the line decreases when it
 	 * shouldn't. This can happen on windows after playback has finished: it
-	 * will reset the frame position to 0 and go back up to the end frame.
+	 * will reset the frame position to 0 and go back up to the end frame. It
+	 * will keep doing this forever-
 	 */
 	private long previousFramePosition;
     
-    public SoundStream(URL url, SoundPlaybackListener playbackListener)
-        throws UnsupportedAudioFileException, IOException, LineUnavailableException
+	public SoundStream(URL url, SoundPlaybackListener playbackListener)
     {
         this.url = url;
         stop = false;
@@ -203,7 +207,6 @@ public class SoundStream extends Sound implements Runnable
         }
     }
 
-
     public synchronized void stop()
     {
         if (!stop) {
@@ -212,6 +215,7 @@ public class SoundStream extends Sound implements Runnable
             playbackListener.playbackStopped(this);
         }
     }
+    
     public synchronized void pause()
     {
         if (!pause) {
@@ -271,35 +275,32 @@ public class SoundStream extends Sound implements Runnable
                 AudioFormat format = inputStream.getFormat();
                 DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
                 
-                
-                synchronized (this) {
-                    if (line == null) {
-                        line = (SourceDataLine) AudioSystem.getLine(info);
-                        printDebug("buffer size: " + line.getBufferSize());
-                        line.addLineListener(new LineListener(){
-                            public void update(LineEvent event)
-                            {
-                                printDebug("Got event: " + event);
-                                if(event.getType() == LineEvent.Type.START ) {
-                                    synchronized(this){
-                                        gotStartEvent = true;
-                                    }
-                                }
-                                if(event.getType() == LineEvent.Type.STOP ) {
-                                    synchronized(this){
-                                        // Make sure it the playThread is waking up, in case it is waiting for the end of playback
-                                        notifyAll();
-                                    }
-                                }
-                                printDebug("Got event END : " + event);
-                            }});
-                    }
-                    line.open(format);
-                    
-                    
-                }
+                if (line == null) {
+					line = (SourceDataLine) AudioSystem.getLine(info);
+					printDebug("buffer size: " + line.getBufferSize());
+					line.addLineListener(new LineListener() {
+						public void update(LineEvent event) {
+							printDebug("Got event: " + event);
+							if (event.getType() == LineEvent.Type.START) {
+								synchronized (this) {
+									gotStartEvent = true;
+								}
+							}
+							if (event.getType() == LineEvent.Type.STOP) {
+								synchronized (this) {
+									// Make sure it the playThread is waking up,
+									// in case it is waiting for the end of
+									// playback
+									notifyAll();
+								}
+							}
+							printDebug("Got event END : " + event);
+						}
+					});
+				}
+				line.open(format);
 
-                int frameSize = format.getFrameSize();
+				int frameSize = format.getFrameSize();
 
                 printDebug("Stream available: " + inputStream.available() + " in frames: " + inputStream.available()
                         / frameSize);
@@ -322,13 +323,13 @@ public class SoundStream extends Sound implements Runnable
 
                     int written = 0;
                     // Only write in multiples of frameSize
-                    int bytesToWrite = (bytesInBuffer / frameSize) * frameSize;
-                    synchronized (this) {
-                    	if(useCloseAndOpen && !line.isOpen()) {
-                    		line.open(format);
-                    	}
-                        line.start();
-                        while (line.available() < line.getBufferSize()/4 ) {
+					int bytesToWrite = (bytesInBuffer / frameSize) * frameSize;
+					if (useCloseAndOpen && !line.isOpen()) {
+						line.open(format);
+					}
+					line.start();
+					synchronized (this) {
+						while (line.available() < line.getBufferSize() / 4) {
                             // Not much space available in buffer right now, lets wait
                             // a bit until we can write a good chunk.
                             if (restart || stop || pause) {
@@ -406,19 +407,19 @@ public class SoundStream extends Sound implements Runnable
                             printDebug("inputStream available after restart in thread: " + inputStream.available());
 
                         }
+					}
 
-                        // Only write what can be written without blocking
-                        if (bytesToWrite > line.available()) {
-                            bytesToWrite = line.available();
-                        }
+					// Only write what can be written without blocking
+					if (bytesToWrite > line.available()) {
+						bytesToWrite = line.available();
+					}
 
-                        // Play it
-                        written = line.write(buffer, 0, bytesToWrite);
+					// Play it
+					written = line.write(buffer, 0, bytesToWrite);
 
-                        printDebug(" wrote: " + written);
-                    }
+					printDebug(" wrote: " + written);
 
-                    totalFramesWritten += written / frameSize;
+					totalFramesWritten += written / frameSize;
 
                     // Copy remaining bytes (if we wrote less than what is in
                     // the buffer)
@@ -480,8 +481,7 @@ public class SoundStream extends Sound implements Runnable
                             }
                         }
                         catch (InterruptedException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                        	// If we are interrupted for some reason, just bail out.
                             break;
                         }
                     }
@@ -543,15 +543,10 @@ public class SoundStream extends Sound implements Runnable
                         restart = false;                       
                     }
                 }
-
             }
         }
         // TODO: only show some exceptions once, maybe create a centralised
         // sound exception handler.
-        /*catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }*/
         catch (UnsupportedAudioFileException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -567,10 +562,10 @@ public class SoundStream extends Sound implements Runnable
             synchronized (this) {
                 playing = false;
                 playThread = null;
-                if (line != null) {
-                    line.close();
-                }
-            }
+			}
+			if (line != null) {
+				line.close();
+			}
             if (inputStream != null) {
                 try {
                     inputStream.close();
@@ -599,9 +594,10 @@ public class SoundStream extends Sound implements Runnable
 
 
 	/**
-     * Will attempt to calculate a buffer size that can hold half a second of audio data.
-     * If unsuccessful it will default to 64k buffer size.
-     */
+	 * Will attempt to calculate a buffer size that can hold half a second of
+	 * audio data. If unsuccessful it will default to 64k buffer size.
+	 * @return size in bytes.
+	 */
 	private int getBufferSizeToHold500ms(AudioFormat format) {
 		int bufferSize;
 		if(format.getFrameRate() != AudioSystem.NOT_SPECIFIED){
@@ -619,9 +615,7 @@ public class SoundStream extends Sound implements Runnable
 
 
     /**
-     * True if the line has not yet finished playback.
-     * 
-     * Should only be called when synchronized on line.
+     * True if the line has not yet finished playback. 
      * 
      * @param startFrame The frame at which playback was started.
      * @param framesWritten Number of frames written to the line.
