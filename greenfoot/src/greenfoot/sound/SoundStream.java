@@ -280,9 +280,15 @@ public class SoundStream extends Sound implements Runnable
                             public void update(LineEvent event)
                             {
                                 printDebug("Got event: " + event);
-                                if(event.getType() == LineEvent.Type.START || event.getType() == LineEvent.Type.CLOSE) {
+                                if(event.getType() == LineEvent.Type.START ) {
                                     synchronized(this){
                                         gotStartEvent = true;
+                                    }
+                                }
+                                if(event.getType() == LineEvent.Type.STOP ) {
+                                    synchronized(this){
+                                        // Make sure it the playThread is waking up, in case it is waiting for the end of playback
+                                        notifyAll();
                                     }
                                 }
                                 printDebug("Got event END : " + event);
@@ -300,7 +306,6 @@ public class SoundStream extends Sound implements Runnable
                 
                 byte[] buffer = new byte[getBufferSizeToHold500ms(format)];
 
-                int bytesInBuffer = 0;
                 long totalFramesWritten = 0;
                 previousFramePosition = 0;
                 
@@ -311,7 +316,7 @@ public class SoundStream extends Sound implements Runnable
                     restart = false;
                 }
                 int bytesRead = inputStream.read(buffer, 0, buffer.length);
-                bytesInBuffer = bytesRead;
+                int bytesInBuffer = bytesRead;
                 printDebug(" read: " + bytesRead);
                 while (bytesInBuffer > 0) {
 
@@ -382,7 +387,9 @@ public class SoundStream extends Sound implements Runnable
                             printDebug("restart in thread");
                             line.stop();
                             line.flush();
-                            line.close();
+                            if(useCloseAndOpen) {
+                                line.close();
+                            }
                             gotStartEvent=false;
                             try {
                                 inputStream.close();
@@ -390,11 +397,11 @@ public class SoundStream extends Sound implements Runnable
                             catch (IOException e) {}
                             inputStream = AudioSystem.getAudioInputStream(url);
                             restart = false;
-
                             totalFramesWritten = 0;
                             bytesInBuffer = 0;
                             bytesRead = 0;
-                            bytesToWrite = 0;
+                            bytesToWrite = 0;        
+                            startFrame = line.getLongFramePosition();
                             previousFramePosition = 0;
                             printDebug("inputStream available after restart in thread: " + inputStream.available());
 
@@ -454,14 +461,21 @@ public class SoundStream extends Sound implements Runnable
                                 line.start();
                             }
                             else {
-                            	int bytesLeft = line.getBufferSize() - line.available();
-                            	int timeLeft = getTimeToPlayBytes(bytesLeft, format);
+                                // This sometimes get a bit too high when
+                                // restarting the playback repeatedly on mac.
+                                // But doesn't matter too much, because macs
+                                // seems to get the STOP events mostly right,
+                                // which will wake it up again.
+                                int bytesLeftInBuffer = (int) ((totalFramesWritten + startFrame - line
+                                        .getFramePosition()) * format.getFrameSize());
+                                printDebug("estimated end frame: " + (totalFramesWritten + startFrame));
+                                int timeLeft = getTimeToPlayBytes(bytesLeftInBuffer , format);
                             	printDebug(" time left: " + timeLeft);
                             	if(timeLeft > 50) {
                             		wait(timeLeft);
                             	}
                             	else {
-                            		wait(20);
+                            		wait(50);
                             	}
                             }
                         }
@@ -480,8 +494,6 @@ public class SoundStream extends Sound implements Runnable
                             + "  running:" + line.isRunning());
                     printDebug(" 1 restart =  " + restart + "  stop = " + stop);
 
-                    
-
                     // NOTE: If the size of the stream is a multiple of 64k (=
                     // 16k
                     // frames)
@@ -492,6 +504,8 @@ public class SoundStream extends Sound implements Runnable
                     // To make this more explicit, add a delay before line.stop.
                     // For example 4d.wav from piano scenario. Happens on my
                     // macbook and Ubuntu in the office. Poul.
+                    
+                    //TODO: On linux in the office this seems to stop a little bit too early (it stops abrubtly)
                     line.stop();
                     line.flush(); 
                     if(useCloseAndOpen) {
