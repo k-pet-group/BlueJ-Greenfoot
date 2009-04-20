@@ -21,21 +21,62 @@
  */
 package bluej.debugger.jdi;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Writer;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import bluej.Boot;
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
-import bluej.debugger.*;
+import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerObject;
+import bluej.debugger.DebuggerResult;
+import bluej.debugger.DebuggerTerminal;
+import bluej.debugger.ExceptionDescription;
+import bluej.debugger.SourceLocation;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
 
-import com.sun.jdi.*;
+import com.sun.jdi.AbsentInformationException;
+import com.sun.jdi.ArrayReference;
+import com.sun.jdi.ArrayType;
+import com.sun.jdi.Bootstrap;
+import com.sun.jdi.ClassLoaderReference;
+import com.sun.jdi.ClassNotLoadedException;
+import com.sun.jdi.ClassObjectReference;
+import com.sun.jdi.ClassType;
+import com.sun.jdi.Field;
+import com.sun.jdi.IncompatibleThreadStateException;
+import com.sun.jdi.IntegerValue;
+import com.sun.jdi.InvalidTypeException;
+import com.sun.jdi.InvocationException;
+import com.sun.jdi.Location;
+import com.sun.jdi.Method;
+import com.sun.jdi.ObjectCollectedException;
+import com.sun.jdi.ObjectReference;
+import com.sun.jdi.ReferenceType;
+import com.sun.jdi.StringReference;
+import com.sun.jdi.ThreadReference;
+import com.sun.jdi.VMDisconnectedException;
+import com.sun.jdi.VMMismatchException;
+import com.sun.jdi.Value;
+import com.sun.jdi.VirtualMachine;
+import com.sun.jdi.VirtualMachineManager;
 import com.sun.jdi.connect.AttachingConnector;
 import com.sun.jdi.connect.Connector;
+import com.sun.jdi.connect.Connector.Argument;
 import com.sun.jdi.event.ExceptionEvent;
 import com.sun.jdi.event.LocatableEvent;
 import com.sun.jdi.event.ThreadDeathEvent;
@@ -52,7 +93,7 @@ import com.sun.jdi.request.EventRequestManager;
  * machine, which gets started from here via the JDI interface.
  * 
  * @author Michael Kolling
- * @version $Id: VMReference.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: VMReference.java 6260 2009-04-20 07:20:37Z davmac $
  * 
  * The startup process is as follows:
  * 
@@ -155,7 +196,7 @@ class VMReference
      */
     public VirtualMachine localhostSocketLaunch(File initDir, DebuggerTerminal term, VirtualMachineManager mgr)
     {
-        final int CONNECT_TRIES = 10; // try to connect max of 10 times
+        final int CONNECT_TRIES = 5; // try to connect max of 5 times
         final int CONNECT_WAIT = 500; // wait half a sec between each connect
 
         int portNumber;
@@ -259,6 +300,7 @@ class VMReference
                     
                     Connector.Argument hostnameArg = (Connector.Argument) arguments.get("hostname");
                     Connector.Argument portArg = (Connector.Argument) arguments.get("port");
+                    Connector.Argument timeoutArg = (Connector.Argument) arguments.get("timeout");
                     
                     if (hostnameArg == null || portArg == null) {
                         throw new Exception() {
@@ -270,6 +312,12 @@ class VMReference
                     
                     hostnameArg.setValue("127.0.0.1");
                     portArg.setValue(Integer.toString(portNumber));
+                    if (timeoutArg != null) {
+                        // The timeout appears to be in milliseconds.
+                        // The default is apparently no timeout.
+                        timeoutArg.setValue("1000");
+                    }
+                    
                     VirtualMachine m = null;
                     
                     try {
