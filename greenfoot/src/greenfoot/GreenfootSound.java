@@ -169,6 +169,10 @@ public class GreenfootSound
         return sound.isPlaying();
     }
     
+    /**
+	 * True if the sound is currently stopped. This means that either stop() has
+	 * been called or the sound has played to the end.
+	 */
     public boolean isStopped()
     {
     	return sound.isStopped();
