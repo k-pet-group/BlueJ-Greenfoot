@@ -168,12 +168,12 @@ public class SoundStream extends Sound implements Runnable
     /**
      * Flag that indicates that the playback should stop.
      */
-    private boolean stop;
+    private volatile boolean stop;
     
     /**
      * Flag that indicates that the playback should pause.
      */
-    private boolean pause; 
+    private volatile boolean pause; 
     
     /** Flag that indicates whether the sound is currently playing. (it can be paused)*/
     private volatile boolean playing = false;
@@ -213,6 +213,23 @@ public class SoundStream extends Sound implements Runnable
         }
     }
 
+    public synchronized void play() {
+		if (pause) {
+			printDebug("resume");
+		} else {
+			restart = true;
+			stop = false;
+			if (playThread == null) {
+				printDebug("Starting new playthread");
+				playThread = new Thread(this, "SoundStream:" + url.toString());
+				playThread.start();
+			}
+		}
+		pause = false;
+		notifyAll();
+		playbackListener.playbackStarted(this);
+	}    
+
     public synchronized void stop()
     {
         if (!stop) {
@@ -231,35 +248,24 @@ public class SoundStream extends Sound implements Runnable
         }
     }
 
-    public synchronized void resume()
-    {
-        if (pause) {
-            printDebug("resume() called");
-            pause = false;
-            notifyAll();
-            playbackListener.playbackStarted(this);
-        }
-    }
     
     public boolean isPlaying() 
     {
         return playing;
     }
+    
 
-    public synchronized void play()
+    public boolean isStopped() 
     {
-        restart = true;
-        pause = false;
-        stop = false;
-        if (playThread == null) {
-            printDebug("Starting new playthread");
-            playThread = new Thread(this, "SoundStream:" + url.toString());
-            playThread.start();
-        }
-        notifyAll();
-        playbackListener.playbackStarted(this);
+        return !playing;
     }
+    
 
+    public boolean isPaused() 
+    {
+        return pause;
+    }
+    
     public String toString()
     {
         return url + " " + super.toString();
@@ -565,6 +571,8 @@ public class SoundStream extends Sound implements Runnable
         finally {
             synchronized (this) {
                 playing = false;
+                pause = false;
+                stop = true;
                 playThread = null;
 			}
 			if (line != null) {

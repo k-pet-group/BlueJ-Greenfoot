@@ -39,13 +39,11 @@ import greenfoot.sound.SoundFactory;
  *  
  * Midi (playback to start with, maybe creation later)
  * 
- * What happens if playback is started from a static method? Should it depends on whether
+ * What happens if playback is started from a static method? Should it depend on whether
  * simulation is running?
- * Should we allow playback if the simulation is not running? Probably not * 
+ * Should we allow playback if the simulation is not running? Probably not 
  * 
  * Add support MP3, OGG etc
- * 
- * Maybe don't throw exceptions in constructor?
  * 
  * @author Poul Henriksen
  * @version 2.0
@@ -61,9 +59,8 @@ public class GreenfootSound
      * 
      * @param filename Typically the name of a file in the sounds directory in
      *            the project directory. 
-     * @throws IllegalArgumentException If the file cannot be opened.
      */
-    public GreenfootSound(String filename) throws IllegalArgumentException
+    public GreenfootSound(String filename)
     {
         this.filename = filename;
         try {
@@ -144,10 +141,11 @@ public class GreenfootSound
     // Should it restart from the beginning or just continue form where it is?
     }
 
-    /**
-     * Pauses the current playback of this sound. If the sound playback is
-     * started again later, it will resume from the point where it was paused.
-     */
+	/**
+	 * Pauses the current playback of this sound. If the sound playback is
+	 * started again later, it will resume from the point where it was paused.
+	 * The resources for the sound will not be released until it is unpaused.
+	 */
     public void pause()
     {
         sound.pause();
@@ -169,5 +167,10 @@ public class GreenfootSound
     public boolean isPaused()
     {
         return sound.isPlaying();
+    }
+    
+    public boolean isStopped()
+    {
+    	return sound.isStopped();
     }
 }

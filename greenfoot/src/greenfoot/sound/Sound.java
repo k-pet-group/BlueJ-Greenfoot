@@ -40,12 +40,6 @@ public abstract class Sound
      *
      */
     public abstract void pause();
-
-    /**
-     * Resume a paused sound
-     *
-     */
-    public abstract void resume();
     
     /**
      * Play this sound. 
@@ -85,4 +79,16 @@ public abstract class Sound
      * 
      */
     public abstract boolean isPlaying();
+
+    /**
+     * True if the sound is currently paused.
+     * 
+     */
+	public abstract boolean isPaused();
+
+    /**
+     * True if the sound is currently paused.
+     * 
+     */
+	public abstract boolean isStopped();
 }
