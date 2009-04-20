@@ -28,6 +28,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import greenfoot.sound.Sound;
+import greenfoot.sound.SoundExceptionHandler;
 import greenfoot.sound.SoundFactory;
 
 /**
@@ -51,13 +52,6 @@ import greenfoot.sound.SoundFactory;
  */
 public class GreenfootSound
 {
-
-    // Whether we have handled certain exceptions. We use these flags to ensure
-    // we only print an error message once to avoid flooding the error output.
-    private static boolean lineUnavailableHandled;
-    private static boolean illegalArgumentHandled;
-    private static boolean securityHandled;
-    
     private Sound sound;
     private String filename;
     
@@ -76,23 +70,23 @@ public class GreenfootSound
             sound = SoundFactory.getInstance().createSound(filename);
         }
         catch (SecurityException e) {
-            handleSecurityException(e);
+            SoundExceptionHandler.handleSecurityException(e, filename);
         }
         catch (IllegalArgumentException e) {
-            handleIllegalArgumentException(e);
+        	SoundExceptionHandler.handleIllegalArgumentException(e, filename);
         }
         catch (FileNotFoundException e) {
-            handleFileNotFoundException(e);
+        	SoundExceptionHandler.handleFileNotFoundException(e, filename);
         }
         catch (IOException e) {
-            handleIOException(e);
+        	SoundExceptionHandler.handleIOException(e, filename);
         }
         catch (UnsupportedAudioFileException e) {
-            handleUnsupportedAudioFileException(e);
+        	SoundExceptionHandler.handleUnsupportedAudioFileException(e, filename);
         }
         catch (LineUnavailableException e) {
-            handleLineUnavailableException(e);
-        }        
+        	SoundExceptionHandler.handleLineUnavailableException(e);
+        }       
     }
 
     /**
@@ -118,71 +112,22 @@ public class GreenfootSound
             sound.play();
         }
         catch (SecurityException e) {
-            handleSecurityException(e);
+            SoundExceptionHandler.handleSecurityException(e, filename);
         }
         catch (IllegalArgumentException e) {
-            handleIllegalArgumentException(e);
+        	SoundExceptionHandler.handleIllegalArgumentException(e, filename);
         }
         catch (FileNotFoundException e) {
-            handleFileNotFoundException(e);
+        	SoundExceptionHandler.handleFileNotFoundException(e, filename);
         }
         catch (IOException e) {
-            handleIOException(e);
+        	SoundExceptionHandler.handleIOException(e, filename);
         }
         catch (UnsupportedAudioFileException e) {
-            handleUnsupportedAudioFileException(e);
+        	SoundExceptionHandler.handleUnsupportedAudioFileException(e, filename);
         }
         catch (LineUnavailableException e) {
-            handleLineUnavailableException(e);
-        }
-    }
-
-    private void handleUnsupportedAudioFileException(UnsupportedAudioFileException e)
-    {
-        throw new IllegalArgumentException("Format of sound file not supported: " + filename, e);
-    }
-
-    private void handleFileNotFoundException(FileNotFoundException e)
-    {
-        throw new IllegalArgumentException("Could not find sound file: " + filename, e);
-    }
-    
-    private void handleIOException(IOException e)
-    {
-        throw new IllegalArgumentException("Could not open sound file: " + filename, e);
-    }
-
-    private void handleLineUnavailableException(LineUnavailableException e)
-    {
-        // We only want to print this error message once.
-        if(! lineUnavailableHandled) {
-            System.err.println("Cannot get access to the sound card. "
-                + "If you have a sound card installed, check your system settings, "
-                + "and close down any other programs that might be using the sound card.");
-            e.printStackTrace();
-            lineUnavailableHandled = true;
-        }
-    }
-
-    private void handleIllegalArgumentException(IllegalArgumentException e)
-    {
-        // We only want to print this error message once.
-        if (!illegalArgumentHandled) {
-            System.err.println("Could not play sound file: " + filename);
-            System.err.println("If you have a sound card installed, check your system settings.");
-            e.printStackTrace();
-            illegalArgumentHandled = true;
-        }
-    }
-
-    private void handleSecurityException(SecurityException e)
-    {
-        // We only want to print this error message once.
-        if (!securityHandled) {
-            System.err.println("Could not play sound file due to security restrictions: " + filename);
-            System.err.println("If you have a sound card installed, check your system settings.");
-            e.printStackTrace();
-            securityHandled = true;
+        	SoundExceptionHandler.handleLineUnavailableException(e);
         }
     }
 
