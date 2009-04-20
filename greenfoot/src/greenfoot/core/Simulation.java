@@ -184,7 +184,11 @@ public class Simulation extends Thread
                 // Someone interrupted the user code. We ignore it and let
                 // maybePause() handle whatever needs to be done.
                 
-            } catch (Throwable t) {
+            }
+            catch (InterruptedException e) {
+            	//maybePause was interrupted. Do nothing, will be handled the next time we get to maybePause.
+            }
+            catch (Throwable t) {
                 // If any other exceptions occur, halt the simulation
                 paused = true;
                 t.printStackTrace();
