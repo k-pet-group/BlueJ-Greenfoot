@@ -128,6 +128,12 @@ import bluej.utility.Debug;
  * 
  * On mac I have to avoid using open/close.
  * 
+ * TODO:
+ * 
+ *  Conversions of incompatible formats.
+ *  
+ *  
+ *  
  * @author Poul Henriksen
  * 
  */
@@ -257,8 +263,7 @@ public class SoundStream extends Sound implements Runnable
     public String toString()
     {
         return url + " " + super.toString();
-    }
-    
+    }    
 
     public void run()
     {
@@ -267,7 +272,6 @@ public class SoundStream extends Sound implements Runnable
         AudioInputStream inputStream = null;
         try {
             while (stayAlive) {
-
                 if (inputStream != null) {
                     inputStream.close();
                 }
@@ -276,7 +280,7 @@ public class SoundStream extends Sound implements Runnable
                 DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
                 
                 if (line == null) {
-					line = (SourceDataLine) AudioSystem.getLine(info);
+					line = (SourceDataLine) AudioSystem.getLine(info); //Throws IllegalArgumentException if it can't find a line
 					printDebug("buffer size: " + line.getBufferSize());
 					line.addLineListener(new LineListener() {
 						public void update(LineEvent event) {
@@ -355,8 +359,7 @@ public class SoundStream extends Sound implements Runnable
                             	}
                             }
                             catch (InterruptedException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
+                                Debug.reportError("Interrupted while waiting for sound buffer to get emptier: " + url , e);
                             }
                         }
 
@@ -372,10 +375,10 @@ public class SoundStream extends Sound implements Runnable
                                 line.stop();
                                 gotStartEvent=false;
                                 printDebug("In pause loop 2");
-                                this.wait();
+                                wait();
                             }
                             catch (InterruptedException e) {
-                                e.printStackTrace();
+                                Debug.reportError("Interrupted while pausing sound: " + url , e);
                             }
                         }
                         
@@ -395,7 +398,9 @@ public class SoundStream extends Sound implements Runnable
                             try {
                                 inputStream.close();
                             }
-                            catch (IOException e) {}
+                            catch (IOException e) {
+                                Debug.reportError("Exception while closing sound input stream." , e);
+                            }
                             inputStream = AudioSystem.getAudioInputStream(url);
                             restart = false;
                             totalFramesWritten = 0;
@@ -405,7 +410,6 @@ public class SoundStream extends Sound implements Runnable
                             startFrame = line.getLongFramePosition();
                             previousFramePosition = 0;
                             printDebug("inputStream available after restart in thread: " + inputStream.available());
-
                         }
 					}
 
@@ -545,18 +549,18 @@ public class SoundStream extends Sound implements Runnable
                 }
             }
         }
-        // TODO: only show some exceptions once, maybe create a centralised
-        // sound exception handler.
+        catch (IllegalArgumentException e) {
+        	// Thrown by getLine()
+        	SoundExceptionHandler.handleIllegalArgumentException(e, url.toString());
+        }
         catch (UnsupportedAudioFileException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            SoundExceptionHandler.handleUnsupportedAudioFileException(e, url.toString());
         }
         catch (LineUnavailableException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            SoundExceptionHandler.handleLineUnavailableException(e);
         }
         catch (IOException e) {
-            Debug.reportError("Error when streaming sound.", e);
+        	SoundExceptionHandler.handleIOException(e, url.toString());
         }
         finally {
             synchronized (this) {
