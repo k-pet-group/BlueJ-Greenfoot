@@ -650,7 +650,7 @@ target="1.5">
                 <include name="build.xml" />  
                 <exclude name="**/.DS_Store"/>
             </zipfileset>
-            <zipfileset src="${bluej.projectdir}/package/BlueJ-source-${bluej.version}.zip" prefix="bluej"/>                       
+            <zipfileset src="${bluej.projectdir}/package/BlueJ-source-${bluej.version.nodots}.zip" prefix="bluej"/>                       
         </zip>
     </target>
     
