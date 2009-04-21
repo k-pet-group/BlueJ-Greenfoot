@@ -81,7 +81,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: PkgMgrFrame.java 6269 2009-04-21 07:47:57Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1164,6 +1164,7 @@ public class PkgMgrFrame extends JFrame
     /**
      * Allow the user to select a directory into which we create a project.
      * @param isJavaMEproject   Whether this is a Java Micro Edition project or not.
+     * @return true if the project was successfully created. False otherwise.
      */
     public boolean doNewProject( boolean isJavaMEproject )
     {
@@ -1177,7 +1178,11 @@ public class PkgMgrFrame extends JFrame
         if (newname == null)
             return false;
 
-        if( ! newProject( newname, isJavaMEproject ) ) {
+        if(new File(newname).exists()) {
+            DialogManager.showErrorWithText(null, "directory-exists", newname);
+            return false;
+        }
+        else if( ! newProject( newname, isJavaMEproject ) ) {
             DialogManager.showErrorWithText(null, "cannot-create-directory", newname);
             return false;
         }
