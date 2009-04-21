@@ -40,7 +40,12 @@ public abstract class Sound
      *
      */
     public abstract void pause();
-    
+
+    /**
+     * Resume the sound.
+     */
+	public abstract void resume();
+	
     /**
      * Play this sound. 
      * @throws UnsupportedAudioFileException 
@@ -91,4 +96,5 @@ public abstract class Sound
      * 
      */
 	public abstract boolean isStopped();
+
 }

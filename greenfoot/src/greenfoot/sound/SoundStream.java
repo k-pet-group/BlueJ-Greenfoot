@@ -214,9 +214,7 @@ public class SoundStream extends Sound implements Runnable
     }
 
     public synchronized void play() {
-		if (pause) {
-			printDebug("resume");
-		} else {
+		if (!pause) {
 			restart = true;
 			stop = false;
 			if (playThread == null) {
@@ -229,6 +227,20 @@ public class SoundStream extends Sound implements Runnable
 		notifyAll();
 		playbackListener.playbackStarted(this);
 	}    
+    
+    public synchronized void resume() {
+		if (pause) {
+			pause = false;
+			notifyAll();
+			playbackListener.playbackStarted(this);
+		}
+    }
+    
+    public synchronized void loop()
+    {
+    	if(pause)
+    		;
+    }
 
     public synchronized void stop()
     {
@@ -247,13 +259,11 @@ public class SoundStream extends Sound implements Runnable
             playbackListener.playbackPaused(this);
         }
     }
-
     
     public boolean isPlaying() 
     {
         return playing;
-    }
-    
+    }    
 
     public boolean isStopped() 
     {

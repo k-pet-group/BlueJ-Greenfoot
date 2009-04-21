@@ -24,14 +24,9 @@ package greenfoot.sound;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
  * Contains a collection of sounds that are currently playing. This collections is used for stopping sounds.
@@ -75,30 +70,11 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
         synchronized (this) {
             ignoreEvents = true;
         }
-        for (Sound sound : playingSounds) {
-            try {
-				sound.play();
-			} 
-            catch (SecurityException e) {
-                SoundExceptionHandler.handleSecurityException(e, sound.toString());
-            }
-            catch (IllegalArgumentException e) {
-            	SoundExceptionHandler.handleIllegalArgumentException(e, sound.toString());
-            }
-            catch (FileNotFoundException e) {
-            	SoundExceptionHandler.handleFileNotFoundException(e, sound.toString());
-            }
-            catch (IOException e) {
-            	SoundExceptionHandler.handleIOException(e, sound.toString());
-            }
-            catch (UnsupportedAudioFileException e) {
-            	SoundExceptionHandler.handleUnsupportedAudioFileException(e, sound.toString());
-            }
-            catch (LineUnavailableException e) {
-            	SoundExceptionHandler.handleLineUnavailableException(e);
-            }    
-        }
-        synchronized (this) {
+		for (Sound sound : playingSounds) {
+			sound.resume();
+
+		}
+		synchronized (this) {
             ignoreEvents = false;
         }
     }
