@@ -128,18 +128,29 @@ public class GreenfootSound
         }
     }
 
-    /**
-     * Play this sound in a loop until it is explicitly stopped, or the current
-     * execution is stopped.
-     * 
-     * NOT IMPLEMENTED YET
-     */
+	/**
+	 * Play this sound in a loop until it is explicitly stopped, or the current
+	 * execution is stopped. If called on a already looping sound, it will
+	 * restart the loop from the beginning of the sound. NOT FULLY IMPLEMENTED YET
+	 */
     public void loop()
     {
-    // TODO: check if simulation is running
-    // If it is currently playing, should it begin looping instead? Probably.
-    // Should it restart from the beginning or just continue form where it is?
-    }
+    	try {
+			sound.loop();
+		} catch (SecurityException e) {
+			SoundExceptionHandler.handleSecurityException(e, filename);
+		} catch (IllegalArgumentException e) {
+			SoundExceptionHandler.handleIllegalArgumentException(e, filename);
+		} catch (FileNotFoundException e) {
+			SoundExceptionHandler.handleFileNotFoundException(e, filename);
+		} catch (IOException e) {
+			SoundExceptionHandler.handleIOException(e, filename);
+		} catch (UnsupportedAudioFileException e) {
+			SoundExceptionHandler.handleUnsupportedAudioFileException(e, filename);
+		} catch (LineUnavailableException e) {
+			SoundExceptionHandler.handleLineUnavailableException(e);
+		}
+	}
 
 	/**
 	 * Pauses the current playback of this sound. If the sound playback is

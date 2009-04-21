@@ -61,11 +61,22 @@ public abstract class Sound
      * @throws LineUnavailableException 
      * @throws SecurityException 
      * @throws IllegalArgumentException 
-     * @throws IOException
-     * @throws UnsupportedAudioFileException
-     * @throws LineUnavailableException
      */
     public abstract void play() throws IllegalArgumentException, SecurityException, LineUnavailableException, IOException, UnsupportedAudioFileException;
+	
+    /**
+     * Plays this sound in a loop. 
+     * 
+     * After this method has been called and no exception occurs: isStopped=false, isPlaying=true, isPaused=false.
+     * If a problem occurs it should be: isStopped=true, isPlaying=false, isPaused=false.
+     * 
+     * @throws UnsupportedAudioFileException 
+     * @throws IOException 
+     * @throws LineUnavailableException 
+     * @throws SecurityException 
+     * @throws IllegalArgumentException 
+     */
+    public abstract void loop() throws IllegalArgumentException, SecurityException, LineUnavailableException, IOException, UnsupportedAudioFileException;
 
     /**
      * Converts format to a compatible format.
@@ -104,5 +115,6 @@ public abstract class Sound
      * 
      */
 	public abstract boolean isStopped();
+
 
 }

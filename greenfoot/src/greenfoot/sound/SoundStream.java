@@ -164,22 +164,31 @@ public class SoundStream extends Sound implements Runnable
      * URL of the stream of sound data.
      */
     private URL url;
+
+    /**
+     * Flag that indicates that the sound should loop.
+     */
+    private boolean loop = false;
     
     /**
-     * Flag that indicates that the playback should stop.
+     * Signals that the playback should stop.
      */
     private boolean stop = true;
     
     /**
-     * Flag that indicates that the playback should pause.
+     * Signals that the playback should pause.
      */
     private boolean pause = false; 
-    
-    /** Flag that indicates whether the sound is currently playing. (it can be paused)*/
-    private boolean playing = false;
-    
-    /** Flag that indicates that playback should start over from the beginning */
+
+    /** Signals that playback should start over from the beginning */
     private boolean restart;
+    
+    /**
+	 * Flag that indicates whether the sound is currently playing or paused.
+	 * Almost the same as the stop signal, except that this flag will be set to
+	 * false when the end of the input has been reached.
+	 */
+	private boolean playingOrPaused = false;    
 
     /** Listener for state changes. */
     private SoundPlaybackListener playbackListener;
@@ -212,7 +221,8 @@ public class SoundStream extends Sound implements Runnable
         }
     }
 
-    public synchronized void play() {
+    public synchronized void play() 
+    {
 		if (!pause) {
 			restart = true;
 			if (playThread == null) {
@@ -221,16 +231,22 @@ public class SoundStream extends Sound implements Runnable
 				playThread.start();
 			}
 		}
-		playing = true;
+		playingOrPaused = true;
 		pause = false;
 		stop = false;
+		loop = false;
 		notifyAll();
 		playbackListener.playbackStarted(this);
 	}    
     
-    public synchronized void resume() {
+    /**
+	 * Resumes playback from where it last played. If the sound is not currently
+	 * paused this call does nothing.
+	 */
+    public synchronized void resume() 
+    {
 		if (pause) {
-			playing = true;
+			playingOrPaused = true;
 			pause = false;
 			notifyAll();
 			playbackListener.playbackStarted(this);
@@ -239,15 +255,27 @@ public class SoundStream extends Sound implements Runnable
     
     public synchronized void loop()
     {
-    	if(pause)
-    		;
+		if (!pause) {
+			restart = true;
+			if (playThread == null) {
+				printDebug("Starting new playthread");
+				playThread = new Thread(this, "SoundStream:" + url.toString());
+				playThread.start();
+			}
+		}
+		playingOrPaused = true;
+		loop = true;
+		pause = false;
+		stop = false;
+		notifyAll();
+		playbackListener.playbackStarted(this);		
     }
 
     public synchronized void stop()
     {
         if (!stop) {
             stop = true;
-            playing = false;
+            playingOrPaused = false;
     		pause = false;
             notifyAll();
             playbackListener.playbackStopped(this);
@@ -256,8 +284,7 @@ public class SoundStream extends Sound implements Runnable
     
     public synchronized void pause()
     {
-        if (playing && !pause) {
-        	playing = false;
+        if (playingOrPaused && !pause) {
         	pause = true;
             notifyAll();
             playbackListener.playbackPaused(this);
@@ -266,12 +293,12 @@ public class SoundStream extends Sound implements Runnable
     
     public synchronized boolean isPlaying() 
     {
-        return playing;
+        return playingOrPaused && !pause;
     }    
 
     public synchronized boolean isStopped() 
     {
-        return !playing && !pause;
+        return !playingOrPaused && !pause;
     }
     
 
@@ -290,6 +317,7 @@ public class SoundStream extends Sound implements Runnable
         boolean stayAlive = true; // Whether the thread should stay alive or die.
 
         AudioInputStream inputStream = null;
+        long totalFramesWritten = 0;
         try {
             while (stayAlive) {
                 if (inputStream != null) {
@@ -331,7 +359,6 @@ public class SoundStream extends Sound implements Runnable
                 
                 byte[] buffer = new byte[getBufferSizeToHold500ms(format)];
 
-                long totalFramesWritten = 0;
                 previousFramePosition = 0;
                 
                 // The frame at which playback was started. Used to determine if
@@ -411,6 +438,7 @@ public class SoundStream extends Sound implements Runnable
                             line.flush();
                             if(useCloseAndOpen) {
                                 line.close();
+                                totalFramesWritten = 0;
                             }
                             gotStartEvent=false;
                             try {
@@ -421,7 +449,6 @@ public class SoundStream extends Sound implements Runnable
                             }
                             inputStream = AudioSystem.getAudioInputStream(url);
                             restart = false;
-                            totalFramesWritten = 0;
                             bytesInBuffer = 0;
                             bytesRead = 0;
                             bytesToWrite = 0;        
@@ -471,7 +498,7 @@ public class SoundStream extends Sound implements Runnable
                 synchronized (this) {
                     // While we are still actively playing things, and don't
                     // receive any signals
-                    while (isLinePlaying(startFrame, totalFramesWritten) && !restart && !stop) {                        
+                    while (isLinePlaying(startFrame, totalFramesWritten) && !restart && !stop && !loop) {                        
                         printDebug("waiting " + line + "  framePos: " + line.getLongFramePosition() + "  msPos: "
                                 + line.getMicrosecondPosition()+ "  avail:"
                                 + line.available() + "  active:" + line.isActive() + "  open:" + line.isOpen()
@@ -513,56 +540,61 @@ public class SoundStream extends Sound implements Runnable
                             + line.getMicrosecondPosition() + "  avail:"
                             + line.available() + "  active:" + line.isActive() + "  open:" + line.isOpen()
                             + "  running:" + line.isRunning());
-                    printDebug(" 1 restart =  " + restart + "  stop = " + stop);
-
+                    printDebug(" 1 restart =  " + restart + "  stop = " + stop + " loop: " + loop);
+                    
                     // NOTE: If the size of the stream is a multiple of 64k (=
-                    // 16k
-                    // frames)
-                    // then it plays the last 64k twice if I don't stop it here.
-                    // It still has a strange clicking sound at the end, which
-                    // is probably because it starts playing a bit of the extra,
-                    // but is stopped before it finishes.
-                    // To make this more explicit, add a delay before line.stop.
-                    // For example 4d.wav from piano scenario. Happens on my
-                    // macbook and Ubuntu in the office. Poul.
-                    
-                    //TODO: On linux in the office this seems to stop a little bit too early (it stops abrubtly)
-                    line.stop();
-                    line.flush(); 
-                    if(useCloseAndOpen) {
-                    	line.close();
-                    }
-                    gotStartEvent=false;
-                    
-                    if (!restart || stop) {
-                    	playing = false;
-                        // Have a short pause before we get rid of the thread,
-                        // in case the sound is played again soon after.
-                        try {
-                            printDebug("WAIT");
-                            wait(CLOSE_TIMEOUT);
-                        }
-                        catch (InterruptedException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                        // Kill thread if we have not received a signal to
-                        // continue playback
-                        if (!restart || stop) {
-                            stayAlive = false;
-                            playThread = null;
-                            printDebug("KILL THREAD");
-                        } 
-                    }
-                    
+					// 16k frames) then it plays the last 64k twice if I don't
+					// stop it here.
+					// It still has a strange clicking sound at the end, which
+					// is probably because it starts playing a bit of the extra,
+					// but is stopped before it finishes.
+					// To make this more explicit, add a delay before line.stop.
+					// For example 4d.wav from piano scenario. Happens on my
+					// macbook and Ubuntu in the office. Poul.
 
-                    printDebug(" 2 restart =  " + restart + "  stop = " + stop);
+                    
+                    if (!loop || stop) {
+						// TODO: On linux in the office this seems to stop a
+						// little
+						// bit too early (it stops abrubtly)
+						line.stop();
+						line.flush();
+						if (useCloseAndOpen) {
+							line.close();
+                            totalFramesWritten = 0;
+						}
+						gotStartEvent = false;
 
-                    // If a restart was signalled, remove the signal and
-                    // just continue. 
-                    if(restart) {
-                        restart = false;                       
-                    }
+						if (!restart || stop) {
+							playingOrPaused = false;
+							// Have a short pause before we get rid of the
+							// thread, in case the sound is played again soon
+							// after.
+							try {
+								printDebug("WAIT");
+								wait(CLOSE_TIMEOUT);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							// Kill thread if we have not received a signal to
+							// continue playback
+							if (!restart || stop) {
+								stayAlive = false;
+								playThread = null;
+								printDebug("KILL THREAD");
+							}
+						}
+
+						printDebug(" 2 restart =  " + restart + "  stop = "
+								+ stop);
+
+						// If a restart was signalled, remove the signal and
+						// just continue.
+						if (restart) {
+							restart = false;
+						}
+					}
                 }
             }
         }
@@ -581,8 +613,9 @@ public class SoundStream extends Sound implements Runnable
         }
         finally {
             synchronized (this) {
-            	playing = false;
+            	playingOrPaused = false;
                 pause = false;
+                loop = false;
                 stop = true;
                 playThread = null;
 			}
