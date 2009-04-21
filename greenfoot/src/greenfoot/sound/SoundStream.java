@@ -453,6 +453,7 @@ public class SoundStream extends Sound implements Runnable
                             bytesRead = 0;
                             bytesToWrite = 0;        
                             startFrame = line.getLongFramePosition();
+                            totalFramesWritten = startFrame;
                             previousFramePosition = 0;
                             printDebug("inputStream available after restart in thread: " + inputStream.available());
                         }
@@ -516,9 +517,9 @@ public class SoundStream extends Sound implements Runnable
                                 // But doesn't matter too much, because macs
                                 // seems to get the STOP events mostly right,
                                 // which will wake it up again.
-                                int bytesLeftInBuffer = (int) ((totalFramesWritten + startFrame - line
+                                int bytesLeftInBuffer = (int) ((totalFramesWritten - line
                                         .getFramePosition()) * format.getFrameSize());
-                                printDebug("estimated end frame: " + (totalFramesWritten + startFrame));
+                                printDebug("estimated end frame: " + totalFramesWritten);
                                 int timeLeft = getTimeToPlayBytes(bytesLeftInBuffer , format);
                             	printDebug(" time left: " + timeLeft);
                             	if(timeLeft > 50) {
