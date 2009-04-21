@@ -30,24 +30,32 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 public abstract class Sound
 {    
     /**
-     * Stop this sound.
+     * Stop this sound. 
      *
+     * After this method has been called: isStopped=true, isPlaying=false, isPaused=false.
      */
     public abstract void stop() ;
     
     /**
      * Pause the song. Paused sounds can be resumed.
      *
+     * After this method has been called: isStopped=false, isPlaying=false, isPaused=true.
      */
     public abstract void pause();
 
     /**
      * Resume the sound.
+     * 
+     * After this method has been called: isStopped=false, isPlaying=true, isPaused=false.
      */
 	public abstract void resume();
 	
     /**
      * Play this sound. 
+     * 
+     * After this method has been called and no exception occurs: isStopped=false, isPlaying=true, isPaused=false.
+     * If a problem occurs it should be: isStopped=true, isPlaying=false, isPaused=false.
+     * 
      * @throws UnsupportedAudioFileException 
      * @throws IOException 
      * @throws LineUnavailableException 

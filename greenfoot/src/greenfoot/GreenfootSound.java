@@ -166,7 +166,7 @@ public class GreenfootSound
      */
     public boolean isPaused()
     {
-        return sound.isPlaying();
+        return sound.isPaused();
     }
     
     /**

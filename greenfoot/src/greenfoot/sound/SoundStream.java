@@ -168,15 +168,15 @@ public class SoundStream extends Sound implements Runnable
     /**
      * Flag that indicates that the playback should stop.
      */
-    private volatile boolean stop;
+    private boolean stop = true;
     
     /**
      * Flag that indicates that the playback should pause.
      */
-    private volatile boolean pause; 
+    private boolean pause = false; 
     
     /** Flag that indicates whether the sound is currently playing. (it can be paused)*/
-    private volatile boolean playing = false;
+    private boolean playing = false;
     
     /** Flag that indicates that playback should start over from the beginning */
     private boolean restart;
@@ -204,7 +204,6 @@ public class SoundStream extends Sound implements Runnable
 	public SoundStream(URL url, SoundPlaybackListener playbackListener)
     {
         this.url = url;
-        stop = false;
         this.playbackListener = playbackListener;
         if(Config.isMacOS()) {
         	useCloseAndOpen = false;
@@ -216,20 +215,22 @@ public class SoundStream extends Sound implements Runnable
     public synchronized void play() {
 		if (!pause) {
 			restart = true;
-			stop = false;
 			if (playThread == null) {
 				printDebug("Starting new playthread");
 				playThread = new Thread(this, "SoundStream:" + url.toString());
 				playThread.start();
 			}
 		}
+		playing = true;
 		pause = false;
+		stop = false;
 		notifyAll();
 		playbackListener.playbackStarted(this);
 	}    
     
     public synchronized void resume() {
 		if (pause) {
+			playing = true;
 			pause = false;
 			notifyAll();
 			playbackListener.playbackStarted(this);
@@ -246,6 +247,8 @@ public class SoundStream extends Sound implements Runnable
     {
         if (!stop) {
             stop = true;
+            playing = false;
+    		pause = false;
             notifyAll();
             playbackListener.playbackStopped(this);
         }
@@ -253,25 +256,26 @@ public class SoundStream extends Sound implements Runnable
     
     public synchronized void pause()
     {
-        if (!pause) {
-            pause = true;
+        if (playing && !pause) {
+        	playing = false;
+        	pause = true;
             notifyAll();
             playbackListener.playbackPaused(this);
         }
     }
     
-    public boolean isPlaying() 
+    public synchronized boolean isPlaying() 
     {
         return playing;
     }    
 
-    public boolean isStopped() 
+    public synchronized boolean isStopped() 
     {
-        return !playing;
+        return !playing && !pause;
     }
     
 
-    public boolean isPaused() 
+    public synchronized boolean isPaused() 
     {
         return pause;
     }
@@ -387,7 +391,6 @@ public class SoundStream extends Sound implements Runnable
                         while (pause) {
                             try {
                                 printDebug("In pause loop");
-                                playing = false;
                                 line.stop();
                                 gotStartEvent=false;
                                 printDebug("In pause loop 2");
@@ -400,7 +403,6 @@ public class SoundStream extends Sound implements Runnable
                         
                         // In case it was paused, restart it.
                         line.start(); 
-                        playing = true;
 
                         // Handle restart
                         if (restart) {
@@ -506,7 +508,6 @@ public class SoundStream extends Sound implements Runnable
                         }
                     }
                     
-                    playing = false;
 
                     printDebug("after  " + line + "  framePos: " + line.getFramePosition() + "  msPos: "
                             + line.getMicrosecondPosition() + "  avail:"
@@ -534,11 +535,12 @@ public class SoundStream extends Sound implements Runnable
                     gotStartEvent=false;
                     
                     if (!restart || stop) {
+                    	playing = false;
                         // Have a short pause before we get rid of the thread,
                         // in case the sound is played again soon after.
                         try {
                             printDebug("WAIT");
-                            this.wait(CLOSE_TIMEOUT);
+                            wait(CLOSE_TIMEOUT);
                         }
                         catch (InterruptedException e) {
                             // TODO Auto-generated catch block
@@ -548,7 +550,6 @@ public class SoundStream extends Sound implements Runnable
                         // continue playback
                         if (!restart || stop) {
                             stayAlive = false;
-                            playing = false;
                             playThread = null;
                             printDebug("KILL THREAD");
                         } 
@@ -580,7 +581,7 @@ public class SoundStream extends Sound implements Runnable
         }
         finally {
             synchronized (this) {
-                playing = false;
+            	playing = false;
                 pause = false;
                 stop = true;
                 playThread = null;
