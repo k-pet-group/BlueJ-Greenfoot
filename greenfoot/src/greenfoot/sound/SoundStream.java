@@ -166,7 +166,7 @@ public class SoundStream extends Sound implements Runnable
     private URL url;
 
     /**
-     * Flag that indicates that the sound should loop.
+     * Signals that the sound should loop.
      */
     private boolean loop = false;
     
@@ -180,15 +180,15 @@ public class SoundStream extends Sound implements Runnable
      */
     private boolean pause = false; 
 
-    /** Signals that playback should start over from the beginning */
+    /** Signals that playback should start over from the beginning. */
     private boolean restart;
     
     /**
-	 * Flag that indicates whether the sound is currently playing or paused.
-	 * Almost the same as the stop signal, except that this flag will be set to
-	 * false when the end of the input has been reached.
+	 * Flag that indicates whether the sound is currently stopped (not playing
+	 * or paused). Almost the same as the stop signal, except that this flag
+	 * will be set to false when the end of the input has been reached.
 	 */
-	private boolean playingOrPaused = false;    
+	private boolean stopped = true;    
 
     /** Listener for state changes. */
     private SoundPlaybackListener playbackListener;
@@ -231,7 +231,7 @@ public class SoundStream extends Sound implements Runnable
 				playThread.start();
 			}
 		}
-		playingOrPaused = true;
+		stopped = false;
 		pause = false;
 		stop = false;
 		loop = false;
@@ -246,7 +246,7 @@ public class SoundStream extends Sound implements Runnable
     public synchronized void resume() 
     {
 		if (pause) {
-			playingOrPaused = true;
+			stopped = false;
 			pause = false;
 			notifyAll();
 			playbackListener.playbackStarted(this);
@@ -263,7 +263,7 @@ public class SoundStream extends Sound implements Runnable
 				playThread.start();
 			}
 		}
-		playingOrPaused = true;
+		stopped = false;
 		loop = true;
 		pause = false;
 		stop = false;
@@ -275,7 +275,7 @@ public class SoundStream extends Sound implements Runnable
     {
         if (!stop) {
             stop = true;
-            playingOrPaused = false;
+            stopped = true;
     		pause = false;
             notifyAll();
             playbackListener.playbackStopped(this);
@@ -284,7 +284,7 @@ public class SoundStream extends Sound implements Runnable
     
     public synchronized void pause()
     {
-        if (playingOrPaused && !pause) {
+        if (!stopped && !pause) {
         	pause = true;
             notifyAll();
             playbackListener.playbackPaused(this);
@@ -293,12 +293,12 @@ public class SoundStream extends Sound implements Runnable
     
     public synchronized boolean isPlaying() 
     {
-        return playingOrPaused && !pause;
+        return !stopped && !pause;
     }    
 
     public synchronized boolean isStopped() 
     {
-        return !playingOrPaused && !pause;
+        return stopped && !pause;
     }
     
 
@@ -572,7 +572,7 @@ public class SoundStream extends Sound implements Runnable
 						gotStartEvent = false;
 
 						if (!restart || stop) {
-							playingOrPaused = false;
+							stopped = true;
 							// Have a short pause before we get rid of the
 							// thread, in case the sound is played again soon
 							// after.
@@ -619,7 +619,7 @@ public class SoundStream extends Sound implements Runnable
         }
         finally {
             synchronized (this) {
-            	playingOrPaused = false;
+            	stopped = true;
                 pause = false;
                 loop = false;
                 stop = true;
