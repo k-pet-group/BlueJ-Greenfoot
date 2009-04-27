@@ -43,7 +43,7 @@ public class SoundClip extends Sound
 {
     private void printDebug(String s) 
     {
-       //   System.out.println(s);        
+          System.out.println(s);        
     }
     
     /** Name of the file holding the sound data. Used for debugging. */
@@ -60,7 +60,7 @@ public class SoundClip extends Sound
 
     /** The four states a clip can be in. */
     private enum ClipState {
-        STOPPED, PLAYING, PAUSED, CLOSED
+        STOPPED, PLAYING, PAUSED_LOOPING, PAUSED_PLAYING, CLOSED, LOOPING
     };
 
     private ClipState clipState = ClipState.CLOSED;
@@ -124,14 +124,6 @@ public class SoundClip extends Sound
         AudioFormat format = stream.getFormat();
         DataLine.Info info = new DataLine.Info(Clip.class, format);
 
-        // Convert sound formats that are not supported
-        // TODO: Check that this works
-        if (!AudioSystem.isLineSupported(info)) {
-            format = getCompatibleFormat(format);
-            stream = AudioSystem.getAudioInputStream(format, stream);
-            info = new DataLine.Info(Clip.class, stream.getFormat(), ((int) stream.getFrameLength() * format
-                    .getFrameSize()));
-        }
         soundClip = (Clip) AudioSystem.getLine(info); // getLine throws illegal argument exception if it can't find a line.
         soundClip.open(stream);
         clipLength = soundClip.getMicrosecondLength() / 1000;
@@ -200,7 +192,16 @@ public class SoundClip extends Sound
         throws LineUnavailableException, IOException, UnsupportedAudioFileException, IllegalArgumentException,
         SecurityException
     {
-    	
+        if (soundClip == null) {
+            open();
+        } else {
+        	soundClip.stop();
+        }    	
+    	setState(ClipState.LOOPING);
+    	notifyAll(); // Make sure the kill thread is stopped.
+    	soundClip.setMicrosecondPosition(0);
+    	soundClip.setLoopPoints(0, -1);
+    	soundClip.loop(Clip.LOOP_CONTINUOUSLY);
     }
     /**
      * Stop this sound.
@@ -227,7 +228,12 @@ public class SoundClip extends Sound
         if (soundClip == null || isPaused()) {
             return;
         }
-        setState(ClipState.PAUSED);
+        if(clipState == ClipState.PLAYING) {
+        	setState(ClipState.PAUSED_PLAYING);
+        }
+        if(clipState == ClipState.LOOPING) {
+        	setState(ClipState.PAUSED_LOOPING);
+        }
         soundClip.stop();
         printDebug("Pause: " + this);
     }
@@ -243,8 +249,21 @@ public class SoundClip extends Sound
             return;
         }
         timeTracker.start();
-        soundClip.start();
-        setState(ClipState.PLAYING);
+
+        if(clipState == ClipState.PAUSED_PLAYING) {
+        	setState(ClipState.PLAYING);
+            soundClip.start();
+        }
+        if(clipState == ClipState.PAUSED_LOOPING) {
+        	setState(ClipState.LOOPING);
+        	soundClip.setLoopPoints(0, -1);
+			// TODO: It will only loop from current frame to endframe, NOT from
+			// beginning frame as it should. To fix this, I'll probably have to
+			// use play() once instead, then detect when that has finished, and
+			// then start looping again.
+			soundClip.loop(Clip.LOOP_CONTINUOUSLY);
+			soundClip.setLoopPoints(0, -1);
+        }
         printDebug("Resume: " + this);
     }
 
@@ -260,8 +279,14 @@ public class SoundClip extends Sound
                 case STOPPED :
                     playbackListener.playbackStopped(this);
                     break;
-                case PAUSED :
+                case PAUSED_LOOPING :
                     playbackListener.playbackPaused(this);
+                    break;
+                case PAUSED_PLAYING :
+                    playbackListener.playbackPaused(this);
+                    break;
+                case LOOPING :
+                    playbackListener.playbackStarted(this);
                     break;
             }
         }
@@ -284,7 +309,7 @@ public class SoundClip extends Sound
      */
     public synchronized boolean isPlaying()
     {
-        return clipState == ClipState.PLAYING;
+        return clipState == ClipState.PLAYING || clipState == ClipState.LOOPING;
     }
 
     /**
@@ -292,7 +317,7 @@ public class SoundClip extends Sound
      */
     public synchronized boolean isPaused()
     {
-        return clipState == ClipState.PAUSED;
+        return clipState == ClipState.PAUSED_PLAYING || clipState == ClipState.PAUSED_LOOPING;
     }
 
     /**
@@ -319,13 +344,20 @@ public class SoundClip extends Sound
             closeThread = new Thread("SoundClipCloseThread") {
                 public void run()
                 {
+                	printDebug("closeThread.run()");
                     SoundClip thisClip = SoundClip.this;
                     while (thisClip.soundClip != null) {
                         synchronized (thisClip) {
                             long playTime = timeTracker.getTimeTracked();
                             long timeLeftOfPlayback = clipLength - playTime + EXTEA_SLEEP_DELAY;
                             long timeLeftToClose = timeLeftOfPlayback + CLOSE_TIMEOUT;
-                            if (isPaused()) {
+
+                        	if(clipState == ClipState.LOOPING || clipState == ClipState.PAUSED_LOOPING) {
+                        		printDebug("Cancelling close thread.");
+                                thisClip.closeThread = null;
+                        	    break;
+                        	}
+                            else if (isPaused()) {
                                 try {
                                     thisClip.wait();
                                 }
@@ -334,7 +366,19 @@ public class SoundClip extends Sound
                                     e.printStackTrace();
                                 }
                             }
+                            else if (timeLeftOfPlayback > 0) {
+                                printDebug("Waiting to stop playback: " + timeLeftToClose);
+                                try {
+                                    thisClip.wait(timeLeftOfPlayback);
+                                }
+                                catch (InterruptedException e) {
+                                    // TODO Handle this!
+                                    e.printStackTrace();
+                                }
+                                printDebug("Wait done");
+                            } 
                             else if (timeLeftToClose > 0) {
+                            	setState(ClipState.STOPPED);
                                 printDebug("Waiting to close: " + timeLeftToClose);
                                 try {
                                     thisClip.wait(timeLeftToClose);
@@ -350,7 +394,7 @@ public class SoundClip extends Sound
                                 thisClip.soundClip.close();
                                 thisClip.soundClip = null;
                                 thisClip.closeThread = null;
-                                setState(ClipState.CLOSED);
+                                setState(ClipState.CLOSED);                                
                             }
                         }
                     }
