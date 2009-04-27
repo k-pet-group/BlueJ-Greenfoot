@@ -39,98 +39,6 @@ import bluej.utility.Debug;
 /**
  * Plays sound from a URL. To avoid loading the entire sound clip into memory,
  * the sound is streamed.
- * <p>
- * There are several inconsistencies between different platforms that means that
- * this class is more complicated than it really should be if everything worked
- * as it should. Below is listed the different problems observed on various
- * platforms:
- * <p>
- * Windows XP on Poul's home PC (SP3, Sun JDK 1.6.11, SB Live Sound Card) and
- * Windows Vista on Poul's office PC (dell build in soundcard) and Windows XP on
- * Poul's office PC (SP2, dell onboard soundcard)
- * <ul>
- * <li>Line does not receive a stop signal when end of media has been reached.</li>
- * <li>Line is reported as active even when end of media has been reached. If
- * invoking stop, then start again, it seems to remain inactive though (this
- * does not generate a START event, only a stop)</li>
- * <li>The frame position reported by line.getLongFramePosition() is incorrect.
- * After reaching the last frame, it will, after a while, start over at frame
- * position 0 and count up to the last frame again. It will repeat this forever.
- * </li>
- * </ul>
- * <p>
- * Linux on Poul's home PC (Ubuntu 8.10, Sun JDK 1.6.10, SB Live Sound Card):
- * <ul>
- * <li>Line does not receive a stop signal when end of media has been reached.</li>
- * <li>Line is reported as active even when end of media has been reached.</li>
- * <li>Hangs if line.drain() is used (need to confirm this, saw it a long time
- * ago, and it might have been because of timing issues resulting in drain()
- * being invoked on a stopped line)</li>
- * <li>The frame position reported by line.getLongFramePosition() is correct and
- * seems to be the only way of detecting when the end of the media has been
- * reached.</li>
- * </ul>
- * <p>
- * <p>
- * Linux on Poul's office PC (Ubuntu 8.10, Sun JDK 1.6.10 / 1.5.16, SB Live
- * Sound Card):
- * <ul>
- * <li>Seems to work without any problems. It gets the stop event correctly, it
- * goes from active to inactive when reaching the end.</li>
- * <li>Haven't tested whether line.drain() works though.</li>
- * 
- * </ul>
- * <p>
- * Mac (OS 10.5.6, JDK 1.5.0_16
- * <ul>
- * <li>Closing and opening a line repeatedly crashes the JVM with this error.
- * Can be reproduced in the piano scenario if you quickly press the same button
- * about 10-20 times in row. (JDK 1.5 prints the error below, 1.6 jsut crashes
- * silently): <br>
- * java(3382,0xb1b4e000) malloc: *** mmap(size=1073745920) failed (error
- * code=12)<br>
- * error: can't allocate region<br>
- * set a breakpoint in malloc_error_break to debug</li>
- * <li>It skips START events if the line is closed before we have received the
- * START event.</li>
- * </ul>
- * 
- * 
- * <p>
- * So, on Linux we can only use the frame position as indicator of when the
- * playback has finished, which will only work correctly if we use line.close()
- * and line.open() to reset the frame position to 0 every time playback is
- * started or restarted. To avoid using close()/open() I tried marking the frame
- * position at which playback was restarted to offset the frame position, but
- * this is not reliable on mac at least, so I don't trust it for other systems
- * either.
- * <p>
- * On Mac we cannot use line.close()/line.open() at all because it crashes the
- * JVM badly. This also means that we cannot use line.drain() because the only
- * way of interrupting that is to call close() on the line. We do get the
- * correct START events if we don't close the line prematurely though, so this,
- * in conjunction with the frame position can be used to determine end of media.
- * <p>
- * On windows, we could use drain() and close() to make it work. We have to make
- * sure that the line is not stopped before invoking drain though, which could
- * be difficult. Probably need a flag to indicate whether a stop request has
- * been send. Better to make it more similar to Linux though to avoid too many
- * different implementations.
- * 
- * <p>
- * 
- * For windows and Linux I can use the same implementation, by using close/open
- * and frame position. For Windows I have to be aware that it might reset the
- * frame position though, and watch for a decrease in frame position to detect
- * end of the stream in case it misses the end frame.
- * 
- * On mac I have to avoid using open/close.
- * 
- * TODO:
- * 
- *  Conversions of incompatible formats.
- *  
- *  
  *  
  * @author Poul Henriksen
  * 
@@ -140,7 +48,7 @@ public class SoundStream extends Sound implements Runnable
     private static void printDebug(String s) 
     {
     	// Comment this line out if you don't want debug info.  
-    	 System.out.println(s);        
+    	// System.out.println(s);        
     }
     
     /**
@@ -185,14 +93,38 @@ public class SoundStream extends Sound implements Runnable
     
     /** The line that we play the sound through */
     private AudioLine line;
+	private AudioFormat format;
+	private Info info;
     
     /** Thread that handles the actual playback of the sound. */
     private Thread playThread ;
-    
+
 	public SoundStream(URL url, SoundPlaybackListener playbackListener)
     {
         this.url = url;
-        this.playbackListener = playbackListener;        
+		this.playbackListener = playbackListener;
+		AudioInputStream inputStream;
+		try {
+			// Preparing the line here, speeds up the first playback of the
+			// sound.
+			inputStream = AudioSystem.getAudioInputStream(url);
+			format = inputStream.getFormat();
+			info = new DataLine.Info(SourceDataLine.class, format);
+			line = initialiseLine(info, format);
+		} 
+		catch (IllegalArgumentException e) {
+            // Thrown by getLine()
+            SoundExceptionHandler.handleIllegalArgumentException(e, url.toString());
+        }
+        catch (UnsupportedAudioFileException e) {
+            SoundExceptionHandler.handleUnsupportedAudioFileException(e, url.toString());
+        }
+        catch (LineUnavailableException e) {
+            SoundExceptionHandler.handleLineUnavailableException(e);
+        }
+        catch (IOException e) {
+            SoundExceptionHandler.handleIOException(e, url.toString());
+        }  
     }
 
     public synchronized void play() 
@@ -293,16 +225,24 @@ public class SoundStream extends Sound implements Runnable
         boolean stayAlive = true;
 
         AudioInputStream inputStream = null;
-        AudioFormat format = null;
-        Info info;
         try {
             while (stayAlive) {
                 if (inputStream != null) {
                     inputStream.close();
                 }
                 inputStream = AudioSystem.getAudioInputStream(url);
-                format = inputStream.getFormat();
-                info = new DataLine.Info(SourceDataLine.class, format);
+
+                synchronized (this) {
+					if (line == null || !format.matches(inputStream.getFormat())) {
+						// If we don't have a line or the format has changed we
+						// need a new line.
+						format = inputStream.getFormat();
+						info = new DataLine.Info(SourceDataLine.class, format);
+						line = initialiseLine(info, format);
+					}
+					line.open();
+					restart = false;
+				}
                 
                 int frameSize = format.getFrameSize();
                 int bufferSize = SoundUtils.getBufferSizeToHold(format, 0.5);
@@ -312,18 +252,10 @@ public class SoundStream extends Sound implements Runnable
 
                 byte[] buffer = new byte[bufferSize];
 
-                synchronized (this) {
-                    if (line == null) {
-                        line = initialiseLine(info, format);
-                    }
-                    line.open();
-                    restart = false;
-                }
-
                 printDebug("Stream available (in bytes): " + inputStream.available() + " in frames: "
                         + inputStream.available() / frameSize);
 
-                int bytesRead = inputStream.read(buffer, 0, format.getFrameSize() * 100);
+                int bytesRead = inputStream.read(buffer, 0, bufferSize);
                 int bytesInBuffer = bytesRead;
                 printDebug(" read: " + bytesRead);
                 while (bytesInBuffer > 0) {

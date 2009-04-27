@@ -7,9 +7,71 @@ import javax.sound.sampled.SourceDataLine;
 /**
  * Wraps a SourceDataLine to work around all the different bugs that happens on
  * different systems.
+ * <p>
+ * To work around all the different problems listed below, this class minimises
+ * the use of open and close and never uses drain. Instead we use the fact that
+ * we know how long it takes to play a certain number of bytes and use this to
+ * implement our own drain method. By using this timing we also don't have to
+ * open and close on the line in order to reset the framecount of the line when
+ * restarting, since it is not used anyway.
+ * 
+ * <p>
+ * <p>
+ * There are several inconsistencies between different platforms that means that
+ * this class is more complicated than it really should be if everything worked
+ * as it should. Below is listed the different problems observed on various
+ * platforms:
+ * <p>
+ * Windows XP on Poul's home PC (SP3, Sun JDK 1.6.11, SB Live Sound Card) and
+ * Windows Vista on Poul's office PC (dell build in soundcard) and Windows XP on
+ * Poul's office PC (SP2, dell onboard soundcard)
+ * <ul>
+ * <li>Line does not receive a stop signal when end of media has been reached.</li>
+ * <li>Line is reported as active even when end of media has been reached. If
+ * invoking stop, then start again, it seems to remain inactive though (this
+ * does not generate a START event, only a stop)</li>
+ * <li>The frame position reported by line.getLongFramePosition() is incorrect.
+ * After reaching the last frame, it will, after a while, start over at frame
+ * position 0 and count up to the last frame again. It will repeat this forever.
+ * </li>
+ * </ul>
+ * <p>
+ * Linux on Poul's home PC (Ubuntu 8.10, Sun JDK 1.6.10, SB Live Sound Card):
+ * <ul>
+ * <li>Line does not receive a stop signal when end of media has been reached.</li>
+ * <li>Line is reported as active even when end of media has been reached.</li>
+ * <li>Hangs if line.drain() is used (need to confirm this, saw it a long time
+ * ago, and it might have been because of timing issues resulting in drain()
+ * being invoked on a stopped line)</li>
+ * <li>The frame position reported by line.getLongFramePosition() is correct and
+ * seems to be the only way of detecting when the end of the media has been
+ * reached.</li>
+ * </ul>
+ * <p>
+ * <p>
+ * Linux on Poul's office PC (Ubuntu 8.10, Sun JDK 1.6.10 / 1.5.16, SB Live
+ * Sound Card):
+ * <ul>
+ * <li>Repeatedly calling close and open makes it hang in close.</li>
+ * <li>Haven't tested whether line.drain() works.</li>
+ * 
+ * </ul>
+ * <p>
+ * Mac (OS 10.5.6, JDK 1.5.0_16
+ * <ul>
+ * <li>Closing and opening a line repeatedly crashes the JVM with this error.
+ * Can be reproduced in the piano scenario if you quickly press the same button
+ * about 10-20 times in row. (JDK 1.5 prints the error below, 1.6 jsut crashes
+ * silently): <br>
+ * java(3382,0xb1b4e000) malloc: *** mmap(size=1073745920) failed (error
+ * code=12)<br>
+ * error: can't allocate region<br>
+ * set a breakpoint in malloc_error_break to debug</li>
+ * <li>It skips START events if the line is closed before we have received the
+ * START event.</li>
+ * </ul>
  * 
  * 
- * Basically, we can't use open and close repeatedly or drain.
  * 
  * @author Poul Henriksen
  * 
@@ -19,7 +81,7 @@ public class AudioLine
     private static void printDebug(String s)
     {
         // Comment this line out if you don't want debug info.
-        System.out.println(s);
+       // System.out.println(s);
     }
 
     private SourceDataLine line;
@@ -39,6 +101,12 @@ public class AudioLine
      * write).
      */
     private boolean writing;
+    
+    /**
+	 * Whether the line is reset. As soon as data has been written, the line is
+	 * no longer reset.
+	 */
+	private boolean reset;
 
     /** Keeps track of how much time have been spend on active playback. */
     private TimeTracker timeTracker;
@@ -65,6 +133,7 @@ public class AudioLine
     {
         if (!open) {
             open = true;
+            reset = true;
             line.open(format);
         }
     }
@@ -124,13 +193,19 @@ public class AudioLine
         printDebug("reset() start");
 
         if (open) {
-            line.stop();
-            line.flush();
-            totalWritten = 0;
+        	if(started) {
+        		line.stop();
+        	}
+        	if(!reset) {
+        		line.flush();
+        	}      	
+        	totalWritten = 0;
+        	// TODO: totalWritten might be updated after this in write method.
             started = false;
             timeTracker.reset();
             notifyAll();
         }
+        reset = true;
         printDebug("reset() end");
     }
 
@@ -152,14 +227,20 @@ public class AudioLine
             writing = true;
             line.start();
             started = true;
+            reset = false;
             timeTracker.start();
         }
         int written = line.write(b, off, len);
         synchronized (this) {
             // drain() might be waiting, so we should wake it up.
             notifyAll();
-            totalWritten += written;
             writing = false;
+			if (!reset) {
+				totalWritten += written;
+			} else if (reset && open) {
+				// Flush what we just wrote to keep it reset.
+				line.flush();
+			}
             return written;
         }
     }
