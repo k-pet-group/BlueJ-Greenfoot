@@ -41,15 +41,14 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public class SoundClip extends Sound
 {
-    private static final boolean DEBUG = false;
     private void printDebug(String s) 
     {
-        if(DEBUG) {
-            System.out.println(s);
-        }
+       //   System.out.println(s);        
     }
+    
     /** Name of the file holding the sound data. Used for debugging. */
     private final String name;
+    
     /** URL of the sound data. */
     private final URL url;
 
@@ -65,31 +64,29 @@ public class SoundClip extends Sound
     };
 
     private ClipState clipState = ClipState.CLOSED;
-
-    // The following fields are used to determine when to close the clip.
-    /** The time at which sound playback was started. In ms. */
-    private long playBeginTimestamp;
-    /** The time at which the last pause happened. In ms. */
-    private long pauseBeginTimestamp;
-    /** The total time we have been paused sine we started playback. In ms. */
-    private long pausedTime;
+    
+    private TimeTracker timeTracker = new TimeTracker();
+    
     /** Length of this clip in ms. */
     private long clipLength;
+    
     /**
      * Thread that closes this sound clip after a timeout.
      */
     private Thread closeThread;
+    
     /**
      * How long to wait until closing the line after playback has finished. In
      * ms.
      */
     private static final int CLOSE_TIMEOUT = 2000;
 
-    /**
-     * Extra delay in ms added to the sleep time before closing the clip. This
-     * is just an extra buffer of time to make sure we don't close it too soon.
-     * Only really needed if CLOSE_TIMEOUT is very low.
-     */
+	/**
+	 * Extra delay in ms added to the sleep time before closing the clip. This
+	 * is just an extra buffer of time to make sure we don't close it too soon.
+	 * Only really needed if CLOSE_TIMEOUT is very low, and only on some
+	 * systems.
+	 */
     private final static int EXTEA_SLEEP_DELAY = 300;
 
     /** Listener for state changes. */
@@ -161,7 +158,7 @@ public class SoundClip extends Sound
     {
 
         printDebug("00");
-        playBeginTimestamp = System.currentTimeMillis();
+        timeTracker.reset();
 
         if (soundClip == null) {
             open();
@@ -176,7 +173,7 @@ public class SoundClip extends Sound
         soundClip.setMicrosecondPosition(0);
         printDebug("3");
         soundClip.start();
-        pausedTime = 0;
+        timeTracker.start();
         printDebug("play: " + this);
         startCloseThread();
     }
@@ -226,7 +223,7 @@ public class SoundClip extends Sound
      */
     public synchronized void pause()
     {
-        pauseBeginTimestamp = System.currentTimeMillis();
+        timeTracker.pause();
         if (soundClip == null || isPaused()) {
             return;
         }
@@ -245,8 +242,7 @@ public class SoundClip extends Sound
         if (soundClip == null || !isPaused()) {
             return;
         }
-        pausedTime += System.currentTimeMillis() - pauseBeginTimestamp;
-        printDebug("Pausedtime: " + pausedTime);
+        timeTracker.start();
         soundClip.start();
         setState(ClipState.PLAYING);
         printDebug("Resume: " + this);
@@ -326,7 +322,7 @@ public class SoundClip extends Sound
                     SoundClip thisClip = SoundClip.this;
                     while (thisClip.soundClip != null) {
                         synchronized (thisClip) {
-                            long playTime = (System.currentTimeMillis() - playBeginTimestamp) - pausedTime;
+                            long playTime = timeTracker.getTimeTracked();
                             long timeLeftOfPlayback = clipLength - playTime + EXTEA_SLEEP_DELAY;
                             long timeLeftToClose = timeLeftOfPlayback + CLOSE_TIMEOUT;
                             if (isPaused()) {
