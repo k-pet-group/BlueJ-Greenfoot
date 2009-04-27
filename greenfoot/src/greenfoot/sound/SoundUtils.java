@@ -15,13 +15,24 @@ public class SoundUtils
      */
     public static long getTimeToPlayBytes(long bytes, AudioFormat format)
     {
-        if (format.getFrameRate() != AudioSystem.NOT_SPECIFIED) {
-            return (long) (1000 * bytes / (format.getFrameRate() * format.getFrameSize()));
-        }
-        else {
-            return -1;
-        }
+    	return getTimeToPlayFrames(bytes / format.getFrameSize(), format);
     }
+    
+
+    /**
+     * Calculate how long it will take to play the given number of frames.
+     * 
+     * @param bytes Number of bytes.
+     * @param format The format used to play the bytes.
+     * @return time in ms or -1 if it could not be calculated.
+     */
+	public static long getTimeToPlayFrames(long frames, AudioFormat format) {
+	    if (format.getFrameRate() != AudioSystem.NOT_SPECIFIED) {
+			return (long) (1000 * frames / format.getFrameRate());
+		} else {
+			return -1;
+		}
+	}
 
     /**
      * Will attempt to calculate a buffer size that can hold the given time of

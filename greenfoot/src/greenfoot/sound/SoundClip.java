@@ -87,10 +87,12 @@ public class SoundClip extends Sound
 	 * Only really needed if CLOSE_TIMEOUT is very low, and only on some
 	 * systems.
 	 */
-    private final static int EXTEA_SLEEP_DELAY = 300;
+    private final static int EXTEA_SLEEP_DELAY = 0;
 
     /** Listener for state changes. */
     private SoundPlaybackListener playbackListener;
+
+	private boolean resumedLoop;
 
     /**
      * Creates a new sound clip
@@ -196,7 +198,8 @@ public class SoundClip extends Sound
             open();
         } else {
         	soundClip.stop();
-        }    	
+        }  
+		resumedLoop = false;  	
     	setState(ClipState.LOOPING);
     	notifyAll(); // Make sure the kill thread is stopped.
     	soundClip.setMicrosecondPosition(0);
@@ -224,6 +227,7 @@ public class SoundClip extends Sound
      */
     public synchronized void pause()
     {
+		resumedLoop = false;
         timeTracker.pause();
         if (soundClip == null || isPaused()) {
             return;
@@ -256,13 +260,14 @@ public class SoundClip extends Sound
         }
         if(clipState == ClipState.PAUSED_LOOPING) {
         	setState(ClipState.LOOPING);
-        	soundClip.setLoopPoints(0, -1);
-			// TODO: It will only loop from current frame to endframe, NOT from
-			// beginning frame as it should. To fix this, I'll probably have to
+			// TODO: Clip.loop will only loop from current frame to endframe,
+			// NOT from beginning frame as it should. To fix this, we have to
 			// use play() once instead, then detect when that has finished, and
-			// then start looping again.
-			soundClip.loop(Clip.LOOP_CONTINUOUSLY);
-			soundClip.setLoopPoints(0, -1);
+			// then start looping again. We restart looping in the closeThread.
+			timeTracker.setTimeTracked(SoundUtils.getTimeToPlayFrames(soundClip.getLongFramePosition(), soundClip.getFormat()));
+			soundClip.start();
+			startCloseThread();
+			resumedLoop = true;
         }
         printDebug("Resume: " + this);
     }
@@ -352,7 +357,7 @@ public class SoundClip extends Sound
                             long timeLeftOfPlayback = clipLength - playTime + EXTEA_SLEEP_DELAY;
                             long timeLeftToClose = timeLeftOfPlayback + CLOSE_TIMEOUT;
 
-                        	if(clipState == ClipState.LOOPING || clipState == ClipState.PAUSED_LOOPING) {
+                        	if(!resumedLoop && (clipState == ClipState.LOOPING || clipState == ClipState.PAUSED_LOOPING)) {
                         		printDebug("Cancelling close thread.");
                                 thisClip.closeThread = null;
                         	    break;
@@ -377,6 +382,16 @@ public class SoundClip extends Sound
                                 }
                                 printDebug("Wait done");
                             } 
+                            else if(resumedLoop && clipState == ClipState.LOOPING ) {
+                            	printDebug(" Resuming loop in closethread.");
+                            	soundClip.stop();
+                            	soundClip.setFramePosition(0);
+                            	soundClip.setLoopPoints(0, -1);
+                    			soundClip.loop(Clip.LOOP_CONTINUOUSLY);
+                    			resumedLoop = false;
+                                thisClip.closeThread = null;
+                    			break;
+                            }
                             else if (timeLeftToClose > 0) {
                             	setState(ClipState.STOPPED);
                                 printDebug("Waiting to close: " + timeLeftToClose);
