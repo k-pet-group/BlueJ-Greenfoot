@@ -36,14 +36,22 @@ import greenfoot.sound.SoundFactory;
  * one sound that can be played, stopped, looped etc.
  * 
  * TODO:
- *  
- * Midi (playback to start with, maybe creation later)
  * 
- * What happens if playback is started from a static method? Should it depend on whether
- * simulation is running?
- * Should we allow playback if the simulation is not running? Probably not 
+ * Midi (playback of a file to start with, maybe creation later)
  * 
- * Add support MP3, OGG etc
+ * What happens if playback is started from a static method? Should it depend on
+ * whether simulation is running? Should we allow playback if the simulation is
+ * not running? Probably not
+ * 
+ * Add support for MP3, OGG etc
+ * 
+ * Currently play and loop are inconsistent in behaviour because they behave
+ * differently depending on whether the sound is paused or not. Maybe we need a
+ * resume() method to resume playback from a paused sound?
+ * 
+ * Do we need a isLooping() method?
+ * 
+ * Do we need a close() to release resources? Do we then need an open as well?
  * 
  * @author Poul Henriksen
  * @version 2.0
@@ -97,12 +105,12 @@ public class GreenfootSound
     }
 
     /**
-     * Start playback of this sound if it is not currently playing. If it is
-     * playing already, it will restart playback from the beginning. It will
-     * play the sound once.
-     * 
-     */
-    public void play()
+	 * Start playback of this sound. If it is playing already, it will restart
+	 * playback from the beginning. If the sound is currently paused, it will
+	 * resume playback from the point where it was paused. The sound will be
+	 * played once.
+	 */
+	public void play()
     {
         // TODO: check if simulation is running
         try {
@@ -130,11 +138,13 @@ public class GreenfootSound
 
 	/**
 	 * Play this sound in a loop until it is explicitly stopped, or the current
-	 * execution is stopped. If called on a already looping sound, it will
-	 * restart the loop from the beginning of the sound. NOT FULLY IMPLEMENTED YET
+	 * execution is stopped. If called on an already looping sound, it will
+	 * restart the loop from the beginning of the sound. If the sound is
+	 * currently paused, it will resume playback from the point where it was
+	 * paused.
 	 */
-    public void loop()
-    {
+	public void loop() 
+	{
     	try {
 			sound.loop();
 		} catch (SecurityException e) {
