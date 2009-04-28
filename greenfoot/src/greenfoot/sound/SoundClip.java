@@ -338,11 +338,11 @@ public class SoundClip extends Sound
     }
 
     /**
-     * True if the sound is currently playing.
+     * True if the sound is currently stopped.
      */
     public synchronized boolean isStopped()
     {
-        return clipState == ClipState.STOPPED;
+        return clipState == ClipState.STOPPED || clipState == ClipState.CLOSED;
     }
 
     /**
@@ -397,7 +397,7 @@ public class SoundClip extends Sound
 										// TODO Handle this!
 										e.printStackTrace();
 									}
-									printDebug("Wait done");
+									printDebug("Wait done playback");
 								} else {
 									setState(ClipState.STOPPED);
 									stoppedTimeTracker.reset();
@@ -407,6 +407,7 @@ public class SoundClip extends Sound
 								
 							case PAUSED_PLAYING:
 							case PAUSED_LOOPING:
+								printDebug(" waiting in pause: " + clipState);
 								try {
 									thisClip.wait();
 								} catch (InterruptedException e) {
@@ -425,7 +426,7 @@ public class SoundClip extends Sound
 										// TODO Handle this!
 										e.printStackTrace();
 									}
-									printDebug("Wait done");
+									printDebug("Wait done close");
 								} else {									
 									setState(ClipState.CLOSED);
 								}
