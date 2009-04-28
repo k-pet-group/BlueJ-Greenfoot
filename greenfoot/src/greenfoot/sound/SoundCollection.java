@@ -29,7 +29,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Contains a collection of sounds that are currently playing. This collections is used for stopping sounds.
+ * Contains a collection of sounds that are currently playing. 
  * 
  * @author Poul Henriksen
  */
@@ -48,8 +48,6 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
      */
     public void simulationChanged(SimulationEvent e)
     {
-        // TODO: RESET??? pressing reset only pauses the songs and it should stop them instead
-        
         if (e.getType() == SimulationEvent.DISABLED) {
             stop();
         }
@@ -106,6 +104,8 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
     {
         //System.out.println("Sounds alive: " + playingSounds.size() + " " + pausedSounds.size());
         
+    	//TODO: Should close sounds immediately instead of stopping them.
+    	
         synchronized (this) {
             ignoreEvents = true;
         }
