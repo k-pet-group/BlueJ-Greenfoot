@@ -70,7 +70,7 @@ public class ResetWorldAction extends AbstractAction implements SimulationListen
         if(simulation == null)
             Debug.reportError("attempt to reset a simulation while none exists.");
         else
-            simulation.setPaused(true);
+            simulation.setEnabled(false);
         WorldHandler.getInstance().instantiateNewWorld();
     }
 
