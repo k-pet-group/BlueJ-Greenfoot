@@ -129,8 +129,13 @@ public class SoundStream extends Sound implements Runnable
 
     public synchronized void play() 
     {
-		loop = false;
-		startPlayback();
+    	if(isPlaying()) {
+    		// Make sure we no longer loop.
+    		loop = false;
+    	} else {
+    		// We are not playing, so we should start playing.
+    		startPlayback();
+    	} 
 	}    
     
     /**
@@ -146,8 +151,12 @@ public class SoundStream extends Sound implements Runnable
     
     public synchronized void loop()
     {
-		loop = true;		
-		startPlayback();		
+		// Make sure we loop.
+		loop = true;
+    	if(!isPlaying()) {
+    		// We are not playing, so we should start playing.
+    		startPlayback();
+    	} 		
     }
 
     /**

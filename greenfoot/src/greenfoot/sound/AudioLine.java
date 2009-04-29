@@ -209,19 +209,19 @@ public class AudioLine
         printDebug("reset() end");
     }
 
-    /**
-     * Will attempt to write the given bytes to the line. This method might
-     * block if it can't write it all at once. The line has to be open before
-     * this method is called.
-     * 
-     * @return The number of bytes written (different from len if the line was
-     *         stopped while writing).
-     */
+	/**
+	 * Will attempt to write the given bytes to the line. This method might
+	 * block if it can't write it all at once. If the line is not open then this
+	 * method will return 0 immediately.
+	 * 
+	 * @return The number of bytes written (different from len if the line was
+	 *         stopped while writing).
+	 */
     public int write(byte[] b, int off, int len)
     {
         synchronized (this) {
             if (!open) {
-                throw new IllegalStateException("Line not open.");
+                return 0;
             }
 
             writing = true;

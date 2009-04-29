@@ -105,10 +105,10 @@ public class GreenfootSound
     }
 
     /**
-	 * Start playback of this sound. If it is playing already, it will restart
-	 * playback from the beginning. If the sound is currently paused, it will
-	 * resume playback from the point where it was paused. The sound will be
-	 * played once.
+	 * Start playback of this sound. If it is playing already, it will do
+	 * nothing. If the sound is currently looping, it will finish the current
+	 * loop and stop. If the sound is currently paused, it will resume playback
+	 * from the point where it was paused. The sound will be played once.
 	 */
 	public void play()
     {
@@ -138,10 +138,10 @@ public class GreenfootSound
 
 	/**
 	 * Play this sound in a loop until it is explicitly stopped, or the current
-	 * execution is stopped. If called on an already looping sound, it will
-	 * restart the loop from the beginning of the sound. If the sound is
-	 * currently paused, it will resume playback from the point where it was
-	 * paused.
+	 * execution is stopped. If called on an already looping sound, it will do
+	 * nothing. If the sound is already playing once, it will start looping
+	 * instead. If the sound is currently paused, it will resume playback from
+	 * the point where it was paused.
 	 */
 	public void loop() 
 	{
