@@ -49,7 +49,7 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
     public void simulationChanged(SimulationEvent e)
     {
         if (e.getType() == SimulationEvent.DISABLED) {
-            stop();
+            close();
         }
         else if (e.getType() == SimulationEvent.STOPPED) {
             pause();
@@ -100,7 +100,7 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
      * Stops all sounds.
      * 
      */
-    private void stop()
+    private void close()
     {
         //System.out.println("Sounds alive: " + playingSounds.size() + " " + pausedSounds.size());
         
@@ -114,14 +114,14 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
         while (iter.hasNext() ) {
             Sound sound = iter.next();
             iter.remove();
-            sound.stop();
+            sound.close();
         }
         
         iter = pausedSounds.iterator();
         while (iter.hasNext() ) {
             Sound sound = iter.next();
             iter.remove();
-            sound.stop();
+            sound.close();
         }
         playingSounds.clear();
         pausedSounds.clear();

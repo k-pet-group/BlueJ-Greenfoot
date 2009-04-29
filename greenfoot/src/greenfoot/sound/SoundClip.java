@@ -182,7 +182,7 @@ public class SoundClip extends Sound
     
     /**
 	 * Play this sound from the beginning of the sound and loop around when the
-	 * end have been reached. NOT IMPLEMENTED YET.
+	 * end have been reached.
 	 * 
 	 * @throws LineUnavailableException
 	 *             if a matching line is not available due to resource
@@ -215,6 +215,7 @@ public class SoundClip extends Sound
         stoppedTimeTracker.reset();
     	soundClip.loop(Clip.LOOP_CONTINUOUSLY);
     }
+    
     /**
      * Stop this sound.
      * 
@@ -231,6 +232,25 @@ public class SoundClip extends Sound
         soundClip.stop();
         soundClip.setMicrosecondPosition(0);
         printDebug("Stop: " + this);
+    }
+    
+    /**
+	 * Closes this sound. It will release all the resources for this sound
+	 * immediately.
+	 * 
+	 */
+    public synchronized void close()
+    {
+        if (soundClip == null) {
+            return;
+        }
+        setState(ClipState.CLOSED);
+        playedTimeTracker.reset();
+        stoppedTimeTracker.reset();
+        soundClip.close();
+        soundClip = null;
+		closeThread = null;
+        printDebug("Closed: " + this);
     }
 
     /**

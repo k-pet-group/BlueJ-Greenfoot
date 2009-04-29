@@ -28,13 +28,18 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public abstract class Sound
-{    
-    /**
+{
+	/**
+	 * Closes this sound. Will immediately release any resources for the sound.
+	 */
+	public abstract void close();
+   
+	/**
      * Stop this sound. 
      *
      * After this method has been called: isStopped=true, isPlaying=false, isPaused=false.
      */
-    public abstract void stop() ;
+    public abstract void stop();
     
     /**
      * Pause the song. Paused sounds can be resumed.
@@ -77,26 +82,6 @@ public abstract class Sound
      * @throws IllegalArgumentException 
      */
     public abstract void loop() throws IllegalArgumentException, SecurityException, LineUnavailableException, IOException, UnsupportedAudioFileException;
-
-    /**
-     * Converts format to a compatible format.
-     * <p>
-     * TODO: needs testing! haven't tried with a non-compatible sound yet. 
-     * 
-     * @param format Original format
-     * @return New compatible format.
-     */
-
-    protected AudioFormat getCompatibleFormat(AudioFormat format) {
-      /*		AudioFormat tmp = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-                                format.getSampleRate(), format.getSampleSizeInBits() * 2,
-                                format.getChannels(), format.getFrameSize() * 2, format
-                                                .getFrameRate(), true);*/
-        //    AudioFormat supportedFormat = new AudioFormat(format.getSampleRate(), format.getSampleSizeInBits(), format.getChannels(), true, false);
-        
-        return new AudioFormat(format.getSampleRate(), format.getSampleSizeInBits(), format.getChannels(), true, false);
-    }
-
 
     /**
      * True if the sound is currently playing.

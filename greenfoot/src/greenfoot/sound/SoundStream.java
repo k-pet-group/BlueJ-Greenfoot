@@ -176,6 +176,16 @@ public class SoundStream extends Sound implements Runnable
 		playbackListener.playbackStarted(this);
 	}
 
+	public synchronized void close()
+    {
+		if (line != null) {
+			reset();
+			line.close();
+			notifyAll();
+			playbackListener.playbackStopped(this);
+		}
+    }
+	
     public synchronized void stop()
     {
         if (!stop) {
@@ -339,8 +349,10 @@ public class SoundStream extends Sound implements Runnable
                         // thread, in case the sound is played again soon
                         // after.
                         try {
-                            printDebug("WAIT");
-                            wait(CLOSE_TIMEOUT);
+                        	if(line.isOpen()) {
+	                            printDebug("WAIT");
+	                            wait(CLOSE_TIMEOUT);
+                        	}
                         }
                         catch (InterruptedException e) {}
                         // Kill thread if we have not received a signal to

@@ -258,7 +258,7 @@ public class AudioLine
         printDebug("Draining start");
         printDebug(" totalWritten: " + totalWritten);
         long timeLeft = getTimeLeft();
-        while (timeLeft > 0 ) {
+        while (timeLeft > 0 && open ) {
             printDebug(" timeLeft: " + timeLeft);
             if (started && timeLeft > 0) {
                 try {
@@ -277,9 +277,6 @@ public class AudioLine
                 }
             }
             timeLeft = getTimeLeft();
-            if (!open) {
-                break;
-            }
         }
 
         printDebug("Draining end: " + timeLeft);
@@ -289,6 +286,10 @@ public class AudioLine
         else {
             return true;
         }
+    }
+    
+    public synchronized boolean isOpen() {
+    	return open;
     }
 
     private synchronized long getTimeLeft()
