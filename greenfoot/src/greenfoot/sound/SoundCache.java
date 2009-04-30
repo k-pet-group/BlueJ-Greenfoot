@@ -31,7 +31,7 @@ package greenfoot.sound;
 
 public class SoundCache 
 {
-    private static final int CACHE_SIZE = 20;
+    private static final int CACHE_SIZE = 4; //20
 
     private SoundClip[] cache = new SoundClip[CACHE_SIZE];
     private int nextEntry;
@@ -49,6 +49,9 @@ public class SoundCache
      */
     public void put(SoundClip sound)
     {
+    	if(cache[nextEntry] != null) {
+    		cache[nextEntry].setCloseWhenFinished(true);
+    	}
         cache[nextEntry] = sound;
         nextEntry = (nextEntry+1) % CACHE_SIZE;
     }

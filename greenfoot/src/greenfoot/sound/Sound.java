@@ -21,11 +21,6 @@
  */
 package greenfoot.sound;
 
-import java.io.IOException;
-
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
 public abstract class Sound
 {
@@ -61,13 +56,8 @@ public abstract class Sound
      * After this method has been called and no exception occurs: isStopped=false, isPlaying=true, isPaused=false.
      * If a problem occurs it should be: isStopped=true, isPlaying=false, isPaused=false.
      * 
-     * @throws UnsupportedAudioFileException 
-     * @throws IOException 
-     * @throws LineUnavailableException 
-     * @throws SecurityException 
-     * @throws IllegalArgumentException 
      */
-    public abstract void play() throws IllegalArgumentException, SecurityException, LineUnavailableException, IOException, UnsupportedAudioFileException;
+    public abstract void play();
 	
     /**
      * Plays this sound in a loop. 
@@ -75,13 +65,8 @@ public abstract class Sound
      * After this method has been called and no exception occurs: isStopped=false, isPlaying=true, isPaused=false.
      * If a problem occurs it should be: isStopped=true, isPlaying=false, isPaused=false.
      * 
-     * @throws UnsupportedAudioFileException 
-     * @throws IOException 
-     * @throws LineUnavailableException 
-     * @throws SecurityException 
-     * @throws IllegalArgumentException 
      */
-    public abstract void loop() throws IllegalArgumentException, SecurityException, LineUnavailableException, IOException, UnsupportedAudioFileException;
+    public abstract void loop() ;
 
     /**
      * True if the sound is currently playing.

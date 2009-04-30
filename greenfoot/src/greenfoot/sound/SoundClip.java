@@ -21,6 +21,7 @@
  */
 package greenfoot.sound;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 
@@ -81,7 +82,14 @@ public class SoundClip extends Sound
      * How long to wait until closing the clip after playback has finished. In
      * ms.
      */
-    private static final int CLOSE_TIMEOUT = 2000;
+    private static final int CLOSE_TIMEOUT = 20000;
+    
+
+	/**
+	 * Indicates that the clips should be closed as soon as playback has
+	 * finished. This will effectively ignore the CLOSE_TIMEOUT.
+	 */
+	private boolean closeWhenFinished = false;
 
 	/**
 	 * Extra delay in ms added to the sleep time before closing the clip. This
@@ -109,48 +117,38 @@ public class SoundClip extends Sound
     /**
      * Load the sound file supplied by the parameter into this sound engine.
      * 
-     * @throws LineUnavailableException if a matching line is not available due
-     *             to resource restrictions
-     * @throws IOException if an I/O exception occurs
-     * @throws SecurityException if a matching line is not available due to
-     *             security restrictions
-     * @throws UnsupportedAudioFileException if the URL does not point to valid
-     *             audio file data
-     * @throws IllegalArgumentException if the system does not support at least
-     *             one line matching the specified Line.Info object through any
-     *             installed mixer
      */
     private void open()
-        throws LineUnavailableException, IOException, UnsupportedAudioFileException, IllegalArgumentException,
-        SecurityException
     {
-        AudioInputStream stream = AudioSystem.getAudioInputStream(url);
-        AudioFormat format = stream.getFormat();
-        DataLine.Info info = new DataLine.Info(Clip.class, format);
-
-        soundClip = (Clip) AudioSystem.getLine(info); // getLine throws illegal argument exception if it can't find a line.
-        soundClip.open(stream);
-        clipLength = soundClip.getMicrosecondLength() / 1000;
-        setState(ClipState.STOPPED);
-    }
+    	try {
+			AudioInputStream stream = AudioSystem.getAudioInputStream(url);
+			AudioFormat format = stream.getFormat();
+			DataLine.Info info = new DataLine.Info(Clip.class, format);
+			// getLine throws illegal argument exception if it can't find a line.
+			soundClip = (Clip) AudioSystem.getLine(info); 
+			soundClip.open(stream);
+			clipLength = soundClip.getMicrosecondLength() / 1000;
+			setState(ClipState.STOPPED);
+		} catch (SecurityException e) {
+			SoundExceptionHandler.handleSecurityException(e, url.toString());
+		} catch (IllegalArgumentException e) {
+			SoundExceptionHandler.handleIllegalArgumentException(e, url.toString());
+		} catch (FileNotFoundException e) {
+			SoundExceptionHandler.handleFileNotFoundException(e, url.toString());
+		} catch (IOException e) {
+			SoundExceptionHandler.handleIOException(e, url.toString());
+		} catch (UnsupportedAudioFileException e) {
+			SoundExceptionHandler.handleUnsupportedAudioFileException(e,
+					url.toString());
+		} catch (LineUnavailableException e) {
+			SoundExceptionHandler.handleLineUnavailableException(e);
+		}
+	}
 
     /**
-     * Play this sound from the beginning of the sound. 
-     * 
-     * @throws LineUnavailableException if a matching line is not available due
-     *             to resource restrictions
-     * @throws IOException if an I/O exception occurs
-     * @throws SecurityException if a matching line is not available due to
-     *             security restrictions
-     * @throws UnsupportedAudioFileException if the URL does not point to valid
-     *             audio file data
-     * @throws IllegalArgumentException if the system does not support at least
-     *             one line matching the specified Line.Info object through any
-     *             installed mixer
+     * Play this sound from the beginning of the sound.    
      */
     public synchronized void play()
-        throws LineUnavailableException, IOException, UnsupportedAudioFileException, IllegalArgumentException,
-        SecurityException
     {
 
         printDebug("00");
@@ -164,15 +162,6 @@ public class SoundClip extends Sound
         }
         printDebug("1");
         
-        /*if(!isPaused()) {
-            playedTimeTracker.reset();
-	        if(soundClip.isRunning()) {
-	            soundClip.stop(); // sometimes it gets stuck here on my ubuntu at home. Maybe it is already stopped? or about to be stopped? or something?
-	        }
-	        printDebug("2");
-	        soundClip.setMicrosecondPosition(0);
-        }*/
-
         if(clipState == ClipState.LOOPING) {
         	// Play the current loop till the end, then stop.
         	playedTimeTracker.setTimeTracked(SoundUtils.getTimeToPlayFrames(soundClip.getLongFramePosition() % soundClip.getFrameLength(), soundClip.getFormat()));
@@ -217,8 +206,6 @@ public class SoundClip extends Sound
 	 *             specified Line.Info object through any installed mixer
 	 */
     public synchronized void loop()
-        throws LineUnavailableException, IOException, UnsupportedAudioFileException, IllegalArgumentException,
-        SecurityException
     {
     	if(clipState == ClipState.LOOPING) {
     		return;
@@ -287,6 +274,12 @@ public class SoundClip extends Sound
         soundClip = null;
 		closeThread = null;
         printDebug("Closed: " + this);
+    }
+    
+    public synchronized void setCloseWhenFinished(boolean b) 
+    {
+    	closeWhenFinished = b;
+    	notifyAll();
     }
 
     /**
@@ -480,7 +473,7 @@ public class SoundClip extends Sound
 								break;
 								
 							case STOPPED:
-								if (timeLeftToClose > 0) {
+								if (timeLeftToClose > 0 && !closeWhenFinished) {
 									printDebug("Waiting to close: "
 											+ timeLeftToClose);
 									try {
@@ -490,12 +483,13 @@ public class SoundClip extends Sound
 										e.printStackTrace();
 									}
 									printDebug("Wait done close");
-								} else {		
+								} else {	
+									printDebug("Autoclosing clip: " + thisClip.name);
 									thisClip.close();
 								}
 								break;
 							case CLOSED:
-								printDebug("Auto Closing clip: " + thisClip.name);
+								printDebug("Closing clip: " + thisClip.name);
 								stayAlive = false;
 								break;
 							}                            

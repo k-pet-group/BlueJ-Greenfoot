@@ -21,12 +21,6 @@
  */
 package greenfoot;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
-
 import greenfoot.sound.Sound;
 import greenfoot.sound.SoundExceptionHandler;
 import greenfoot.sound.SoundFactory;
@@ -71,27 +65,8 @@ public class GreenfootSound
     public GreenfootSound(String filename)
     {
         this.filename = filename;
-        try {
-            sound = SoundFactory.getInstance().createSound(filename);
-        }
-        catch (SecurityException e) {
-            SoundExceptionHandler.handleSecurityException(e, filename);
-        }
-        catch (IllegalArgumentException e) {
-        	SoundExceptionHandler.handleIllegalArgumentException(e, filename);
-        }
-        catch (FileNotFoundException e) {
-        	SoundExceptionHandler.handleFileNotFoundException(e, filename);
-        }
-        catch (IOException e) {
-        	SoundExceptionHandler.handleIOException(e, filename);
-        }
-        catch (UnsupportedAudioFileException e) {
-        	SoundExceptionHandler.handleUnsupportedAudioFileException(e, filename);
-        }
-        catch (LineUnavailableException e) {
-        	SoundExceptionHandler.handleLineUnavailableException(e);
-        }       
+        sound = SoundFactory.getInstance().createSound(filename);
+        
     }
 
     /**
@@ -122,18 +97,6 @@ public class GreenfootSound
         catch (IllegalArgumentException e) {
         	SoundExceptionHandler.handleIllegalArgumentException(e, filename);
         }
-        catch (FileNotFoundException e) {
-        	SoundExceptionHandler.handleFileNotFoundException(e, filename);
-        }
-        catch (IOException e) {
-        	SoundExceptionHandler.handleIOException(e, filename);
-        }
-        catch (UnsupportedAudioFileException e) {
-        	SoundExceptionHandler.handleUnsupportedAudioFileException(e, filename);
-        }
-        catch (LineUnavailableException e) {
-        	SoundExceptionHandler.handleLineUnavailableException(e);
-        }
     }
 
 	/**
@@ -151,14 +114,6 @@ public class GreenfootSound
 			SoundExceptionHandler.handleSecurityException(e, filename);
 		} catch (IllegalArgumentException e) {
 			SoundExceptionHandler.handleIllegalArgumentException(e, filename);
-		} catch (FileNotFoundException e) {
-			SoundExceptionHandler.handleFileNotFoundException(e, filename);
-		} catch (IOException e) {
-			SoundExceptionHandler.handleIOException(e, filename);
-		} catch (UnsupportedAudioFileException e) {
-			SoundExceptionHandler.handleUnsupportedAudioFileException(e, filename);
-		} catch (LineUnavailableException e) {
-			SoundExceptionHandler.handleLineUnavailableException(e);
 		}
 	}
 
