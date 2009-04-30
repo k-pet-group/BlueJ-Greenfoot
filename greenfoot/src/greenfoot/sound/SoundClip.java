@@ -131,7 +131,7 @@ public class SoundClip extends Sound
         soundClip = (Clip) AudioSystem.getLine(info); // getLine throws illegal argument exception if it can't find a line.
         soundClip.open(stream);
         clipLength = soundClip.getMicrosecondLength() / 1000;
-        setState(ClipState.CLOSED);
+        setState(ClipState.STOPPED);
     }
 
     /**
@@ -159,7 +159,7 @@ public class SoundClip extends Sound
         	return;
         }
         
-        if (soundClip == null) {
+        if (soundClip == null || clipState == ClipState.CLOSED) {
             open();
         }
         printDebug("1");
@@ -428,6 +428,7 @@ public class SoundClip extends Sound
 
                             switch (clipState) {
 							case LOOPING:
+								printDebug("looping");
 								if (resumedLoop && timeLeftOfPlayback <= 0) {
 									printDebug("Resuming loop in closethread.");
 									soundClip.stop();
@@ -441,6 +442,14 @@ public class SoundClip extends Sound
 									printDebug("Cancelling close thread because of loop started.");
 									thisClip.closeThread = null;
 									stayAlive = false;
+								} else {
+									printDebug("Waiting for loop to finish: " + timeLeftOfPlayback);
+									try {
+										thisClip.wait(timeLeftOfPlayback);
+									} catch (InterruptedException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
 								}
 								break;
 							case PLAYING:
@@ -455,10 +464,7 @@ public class SoundClip extends Sound
 									}
 									printDebug("Wait done playback");
 								} else {
-									setState(ClipState.STOPPED);
-									playedTimeTracker.reset();
-									stoppedTimeTracker.reset();
-									stoppedTimeTracker.start();
+									thisClip.stop();
 								}
 								break;
 								
@@ -484,18 +490,12 @@ public class SoundClip extends Sound
 										e.printStackTrace();
 									}
 									printDebug("Wait done close");
-								} else {			
-									stoppedTimeTracker.reset();
-									setState(ClipState.CLOSED);
+								} else {		
+									thisClip.close();
 								}
 								break;
 							case CLOSED:
-								printDebug("Closing clip: " + thisClip.name);
-								if(thisClip.soundClip != null) {
-									thisClip.soundClip.close();
-								}
-								thisClip.soundClip = null;
-								thisClip.closeThread = null;
+								printDebug("Auto Closing clip: " + thisClip.name);
 								stayAlive = false;
 								break;
 							}                            
