@@ -29,6 +29,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
+import greenfoot.sound.Sound;
+import greenfoot.sound.SoundFactory;
 
 
 /**
@@ -145,7 +147,11 @@ public class Greenfoot
      */
     public static void playSound(final String soundFile)
     {
-        new GreenfootSound(soundFile).play();      
+    	Sound sound = SoundFactory.getInstance().getCachedSound(soundFile);
+
+		if( sound != null) {
+			sound.play();
+		}		
     }
     
     

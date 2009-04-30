@@ -23,12 +23,8 @@ package greenfoot.sound;
 
 import greenfoot.util.GreenfootUtil;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
-
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
  * Class responsible for creating Sounds and loading them.
@@ -43,10 +39,15 @@ public class SoundFactory
 
     private SoundCollection soundCollection;
     
-    /**
-     * Only use clips when the size of the clip is below this value.
-     */
-    private static final int maxClipSize = 1;//500 * 1000;
+    private SoundCache soundCache = new SoundCache();
+
+	/**
+	 * Only use clips when the size of the clip is below this value (size of the
+	 * file in bytes). 
+	 * TODO: make this user configurable for platforms where
+	 * clips don't work so well. What about applets?
+	 */
+	private static final int maxClipSize = 500 * 1000;
 
     private SoundFactory()
     {
@@ -64,41 +65,61 @@ public class SoundFactory
     public SoundCollection getSoundCollection() {
         return soundCollection;
     }
-
    
     /**
      * Creates the sound from file.
      * 
      * @param file Name of a file or an url
-     * @throws LineUnavailableException if a matching line is not available due to resource restrictions
-     * @throws FileNotFoundException if the file cannot be found.
-     * @throws IOException if an I/O exception occurs
-     * @throws SecurityException if a matching line is not available due to security restrictions
-     * @throws UnsupportedAudioFileException if the URL does not point to valid audio file data
-     * @throws IllegalArgumentException if the system does not support at least one line matching the specified Line.Info object through any installed mixer
      */
-    public Sound createSound(final String file) throws IOException, UnsupportedAudioFileException, LineUnavailableException 
-    {
-      
-            // First, determine the size of the sound, if possible
-            URL url = GreenfootUtil.getURL(file, "sounds");
-            int size = url.openConnection().getContentLength();
+    public Sound createSound(final String file) 
+    {      
+    	try {
+			// First, determine the size of the sound, if possible
+			URL url = GreenfootUtil.getURL(file, "sounds");
 
-            if (size == -1 || size > maxClipSize) {
-                // If we can not get the size, or if it is a big file we stream it
-                // in a thread.
+			int size = url.openConnection().getContentLength();
 
-                System.out.println("Creating stream: " + file);
-                final Sound soundStream = new SoundStream(url, soundCollection);
-                return soundStream;
-            }
-            else {
-                System.out.println("Creating clip: " + file);
-                // The sound is small enough to be loaded into memory as a clip.
-                SoundClip sound = new SoundClip(file, url, soundCollection);
-                return sound;
-            }
-        
+			if (isStream(size)) {
+				// If we can not get the size, or if it is a big file we stream
+				// it in a thread.
+
+				System.out.println("Creating stream: " + file);
+				final Sound soundStream = new SoundStream(url, soundCollection);
+				return soundStream;
+			} else {
+				System.out.println("Creating clip: " + file);
+				// The sound is small enough to be loaded into memory as a clip.
+				SoundClip sound = new SoundClip(file, url, soundCollection);
+				return sound;
+			}
+		} catch (IOException e) {
+			SoundExceptionHandler.handleIOException(e, file);
+		}  
+		return null;
     }
+    
+    /**
+     * Gets a cached sound file if possible. If not possible, it will return a new sound.
+     * 
+     */
+    public Sound getCachedSound(final String file)  
+    {      
+    	Sound sound = soundCache.get(file);
+        if(sound == null) {
+        	sound = createSound(file);
+        	if(sound instanceof SoundClip) {
+        		soundCache.put((SoundClip) sound);
+        	}
+        	System.out.println("Cache miss on: " + file);
+        } 
+        else {
+        	System.out.println("Cache hit on: " + file);
+        }
+        return sound;
+    }     
+
+	private boolean isStream(int size) {
+		return size == -1 || size > maxClipSize;
+	}
 
 }
