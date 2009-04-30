@@ -110,11 +110,7 @@ public class SoundFactory
         	if(sound instanceof SoundClip) {
         		soundCache.put((SoundClip) sound);
         	}
-        	System.out.println("Cache miss on: " + file);
         } 
-        else {
-        	System.out.println("Cache hit on: " + file);
-        }
         return sound;
     }     
 
