@@ -39,19 +39,19 @@ import greenfoot.sound.SoundFactory;
  * 
  * Midi (playback of a file to start with, maybe creation later)
  * 
+ * 
+ * Add support for MP3, OGG etc
+ * 
  * What happens if playback is started from a static method? Should it depend on
  * whether simulation is running? Should we allow playback if the simulation is
  * not running? Probably not
  * 
- * Add support for MP3, OGG etc
+ * Do we need an isLooping() method? In general, should we have a lot of isXXX
+ * methods or only a few. Except for isStopped, the user could keep track of
+ * this himself.
  * 
- * Currently play and loop are inconsistent in behaviour because they behave
- * differently depending on whether the sound is paused or not. Maybe we need a
- * resume() method to resume playback from a paused sound?
- * 
- * Do we need a isLooping() method?
- * 
- * Do we need a close() to release resources? Do we then need an open as well?
+ * Do we need a close() to release resources (maybe not for now, can always be
+ * added later if needed)? Do we then need an open as well?
  * 
  * @author Poul Henriksen
  * @version 2.0
