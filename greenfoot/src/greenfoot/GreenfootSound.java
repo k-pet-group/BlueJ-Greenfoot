@@ -65,8 +65,7 @@ public class GreenfootSound
     public GreenfootSound(String filename)
     {
         this.filename = filename;
-        sound = SoundFactory.getInstance().createSound(filename);
-        
+        sound = SoundFactory.getInstance().createSound(filename);        
     }
 
     /**
@@ -152,5 +151,18 @@ public class GreenfootSound
     public boolean isStopped()
     {
     	return sound.isStopped();
+    }
+    
+    /**
+     * Returns a string representation of this sound.
+     */
+    public String toString() {
+    	String s = super.toString() + " file: " + filename + " ";
+    	if(sound != null) {
+    		s += " playing: " + isPlaying() + " paused: " + isPaused() + " stopped: " + isStopped();
+    	} else {
+    		s += " sound is null";
+    	}
+    	return s;
     }
 }
