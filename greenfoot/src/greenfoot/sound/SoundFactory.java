@@ -76,21 +76,21 @@ public class SoundFactory
     	try {
 			// First, determine the size of the sound, if possible
 			URL url = GreenfootUtil.getURL(file, "sounds");
-
 			int size = url.openConnection().getContentLength();
 
-			if (isStream(size)) {
-				// If we can not get the size, or if it is a big file we stream
-				// it in a thread.
+			if (isMidi(url)) {
+
+				System.out.println("Creating midi: " + file);
+			    return new MidiFileSound(url, soundCollection);
+			}
+			else if (isStream(size)) {
 
 				System.out.println("Creating stream: " + file);
-				final Sound soundStream = new SoundStream(url, soundCollection);
-				return soundStream;
+			    return new SoundStream(url, soundCollection);
 			} else {
 				System.out.println("Creating clip: " + file);
 				// The sound is small enough to be loaded into memory as a clip.
-				SoundClip sound = new SoundClip(file, url, soundCollection);
-				return sound;
+				return new SoundClip(file, url, soundCollection);
 			}
 		} catch (IOException e) {
 			SoundExceptionHandler.handleIOException(e, file);
@@ -98,7 +98,8 @@ public class SoundFactory
 		return null;
     }
     
-    /**
+
+	/**
      * Gets a cached sound file if possible. If not possible, it will return a new sound.
      * 
      */
@@ -115,7 +116,15 @@ public class SoundFactory
     }     
 
 	private boolean isStream(int size) {
+		// If we can not get the size, or if it is a big file we stream
+		// it in a thread.
 		return size == -1 || size > maxClipSize;
+	}	
+
+    private boolean isMidi(URL url)
+	{
+    	String lowerCaseName = url.toString().toLowerCase();
+		return lowerCaseName.endsWith("mid") || lowerCaseName.endsWith("midi");
 	}
 
 }

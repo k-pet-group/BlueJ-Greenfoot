@@ -24,7 +24,7 @@ package greenfoot.sound;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import javax.sound.sampled.LineUnavailableException;
+import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
@@ -61,7 +61,7 @@ public class SoundExceptionHandler
         throw new IllegalArgumentException("Could not open sound file: " + filename, e);
     }
 
-    public static void handleLineUnavailableException(LineUnavailableException e)
+    public static void handleLineUnavailableException(Exception e)
     {
         // We only want to print this error message once.
         if(! lineUnavailableHandled) {
@@ -94,6 +94,12 @@ public class SoundExceptionHandler
             e.printStackTrace();
         }
     }
+
+	public static void handleInvalidMidiDataException(
+			InvalidMidiDataException e, String filename)
+	{
+        throw new IllegalArgumentException("Invalid data in MIDI file: " + filename, e);
+	}
 
     
 }
