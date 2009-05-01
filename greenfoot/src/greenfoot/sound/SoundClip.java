@@ -59,7 +59,7 @@ public class SoundClip extends Sound
      */
     private Clip soundClip;
 
-    /** The four states a clip can be in. */
+    /** The states a clip can be in. */
     private enum ClipState {
         STOPPED, PLAYING, PAUSED_LOOPING, PAUSED_PLAYING, CLOSED, LOOPING
     };
@@ -94,10 +94,10 @@ public class SoundClip extends Sound
 	/**
 	 * Extra delay in ms added to the sleep time before closing the clip. This
 	 * is just an extra buffer of time to make sure we don't close it too soon.
-	 * Only really needed if CLOSE_TIMEOUT is very low, and only on some
-	 * systems.
+	 * This helps avoid stopping the sound too soon which seems to happen on
+	 * some Linux systems.
 	 */
-    private final static int EXTEA_SLEEP_DELAY = 0;
+	private final static int EXTRA_SLEEP_DELAY = 50;
 
     /** Listener for state changes. */
     private SoundPlaybackListener playbackListener;
@@ -416,7 +416,7 @@ public class SoundClip extends Sound
                     while (stayAlive && thisClip.soundClip != null) {
                         synchronized (thisClip) {
                             long playTime = playedTimeTracker.getTimeTracked();                           
-                            long timeLeftOfPlayback = clipLength - playTime + EXTEA_SLEEP_DELAY;
+                            long timeLeftOfPlayback = clipLength - playTime + EXTRA_SLEEP_DELAY;
                             long timeLeftToClose = CLOSE_TIMEOUT - stoppedTimeTracker.getTimeTracked();
 
                             switch (clipState) {
