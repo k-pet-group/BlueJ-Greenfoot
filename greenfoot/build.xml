@@ -30,7 +30,7 @@
     <!-- Change when API has only changed internally and not in any way visible to the user. 
     It should not be possible for this change to break existing scenarios. 
     Changing this number will NOT stripe the user's classes nor require a recompile.-->
-    <property name="greenfoot.apiversion.internal" value="1"/>
+    <property name="greenfoot.apiversion.internal" value="2"/>
         
     <property name="greenfoot.apiversion" value="${greenfoot.apiversion.breaking}.${greenfoot.apiversion.nonbreaking}.${greenfoot.apiversion.internal}"/>
 
@@ -263,6 +263,7 @@ target="1.5">
                 <include name="greenfoot/Actor.java" />
                 <include name="greenfoot/World.java" />
                 <include name="greenfoot/GreenfootImage.java" />
+                <include name="greenfoot/GreenfootSound.java" />
                 <include name="greenfoot/Greenfoot.java" />
                 <include name="greenfoot/MouseInfo.java" />
             </fileset>
@@ -707,7 +708,7 @@ target="1.5">
         <replaceregexp byline="true">
             <regexp pattern="@version .*"/>
             <substitution expression="@version ${greenfoot.apiversion.public}"/>
-            <fileset dir="${src}/greenfoot" includes="Greenfoot.java,GreenfootImage.java,Actor.java,World.java,MouseInfo.java"/>
+            <fileset dir="${src}/greenfoot" includes="Greenfoot.java,GreenfootImage.java,GreenfootSound.java,Actor.java,World.java,MouseInfo.java"/>
         </replaceregexp>
         <replaceregexp byline="true">
             <regexp pattern="GREENFOOT_VERSION = .*"/>
