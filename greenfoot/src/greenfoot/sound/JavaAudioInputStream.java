@@ -32,7 +32,13 @@ public class JavaAudioInputStream implements GreenfootAudioInputStream
 
 	public void restart() throws UnsupportedAudioFileException, IOException
 	{
-		if (stream != null) {
+		if(! readingHasStarted() && stream != null) {
+			return;
+		}
+
+		readingHasStarted = false;
+		
+		if (stream != null ) {
 			try {
 				stream.close();
 			} catch (IOException e) {
@@ -41,10 +47,9 @@ public class JavaAudioInputStream implements GreenfootAudioInputStream
 				Debug.reportError(
 						"Exception while closing java audio input stream.", e);
 			}
-		} else if (stream == null || readingHasStarted()) {
-			stream = AudioSystem.getAudioInputStream(url);
-		}
-		readingHasStarted = false;
+		} 
+		stream = AudioSystem.getAudioInputStream(url);
+		
 	}
 
 	/**
@@ -70,7 +75,6 @@ public class JavaAudioInputStream implements GreenfootAudioInputStream
 
 	public void close() throws IOException
 	{
-		readingHasStarted = false;
 		stream.close();
 	}
 
