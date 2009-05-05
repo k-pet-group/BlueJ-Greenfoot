@@ -21,6 +21,7 @@ public class JavaAudioInputStream implements GreenfootAudioInputStream
 {
 	private AudioInputStream stream;
 	private URL url;
+	private boolean readingHasStarted = false;
 
 	public JavaAudioInputStream(URL url) throws UnsupportedAudioFileException,
 			IOException
@@ -40,24 +41,24 @@ public class JavaAudioInputStream implements GreenfootAudioInputStream
 				Debug.reportError(
 						"Exception while closing java audio input stream.", e);
 			}
-		}
-		else if(stream == null || readingHasStarted()) 
-		{
+		} else if (stream == null || readingHasStarted()) {
 			stream = AudioSystem.getAudioInputStream(url);
 		}
+		readingHasStarted = false;
 	}
-	
+
 	/**
 	 * Whether reading from this stream has begun.
-	 * @return True if it has been restarted and no reading has been done since. False otherwise.
+	 * 
+	 * @return True if it has been restarted and no reading has been done since.
+	 *         False otherwise.
 	 */
 	private boolean readingHasStarted()
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return readingHasStarted;
 	}
 
-	public String getSource() 
+	public String getSource()
 	{
 		return url.toString();
 	}
@@ -69,6 +70,7 @@ public class JavaAudioInputStream implements GreenfootAudioInputStream
 
 	public void close() throws IOException
 	{
+		readingHasStarted = false;
 		stream.close();
 	}
 
@@ -104,16 +106,19 @@ public class JavaAudioInputStream implements GreenfootAudioInputStream
 
 	public int read() throws IOException
 	{
+		readingHasStarted = true;
 		return stream.read();
 	}
 
 	public int read(byte[] b, int off, int len) throws IOException
 	{
+		readingHasStarted = true;
 		return stream.read(b, off, len);
 	}
 
 	public int read(byte[] b) throws IOException
 	{
+		readingHasStarted = true;
 		return stream.read(b);
 	}
 
@@ -124,6 +129,7 @@ public class JavaAudioInputStream implements GreenfootAudioInputStream
 
 	public long skip(long n) throws IOException
 	{
+		readingHasStarted = true;
 		return stream.skip(n);
 	}
 
