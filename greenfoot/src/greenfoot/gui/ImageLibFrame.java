@@ -87,7 +87,7 @@ import java.awt.FlowLayout;
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 6305 2009-05-05 14:53:41Z mjrb4 $
+ * @version $Id: ImageLibFrame.java 6309 2009-05-05 19:13:46Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
@@ -329,7 +329,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 {
                     String imageEditor = editButton.getEditor();
 
-                    if(new File(imageEditor).exists() && new File(imageEditor).canExecute()) {
+                    if(new File(imageEditor).exists() /*&& new File(imageEditor).canExecute()*/) {
                         String[] command = new String[2];
                         command[0] = imageEditor;
                         command[1] = selectedImageFile.getAbsolutePath();
