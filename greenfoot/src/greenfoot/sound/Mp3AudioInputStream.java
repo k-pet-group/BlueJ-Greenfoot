@@ -172,14 +172,17 @@ public class Mp3AudioInputStream implements GreenfootAudioInputStream
 		
 		Header header = null;
 
-		
-		
 		int read = 0;
 		if(unreadSample != null) {
-			
-			toByteArray(unreadSample.getBuffer(), unreadSample.getBufferLength(), b, off);
+            int sampleLength = unreadSample.getBufferLength();
+            int sampleLengthInBytes = sampleLength * 2;
+            if(sampleLengthInBytes > len) {
+                printDebug("unreadSample too big. ");
+                return 0;
+            }            
+			toByteArray(unreadSample.getBuffer(), sampleLength, b, off);
 			printDebug("UNREAD SAMPLE just read.");
-			read += unreadSample.getBufferLength() * 2;
+			read += sampleLengthInBytes;
 			unreadSample = null;
 			bitstream.closeFrame();
 		}
