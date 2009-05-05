@@ -48,7 +48,7 @@ public class Mp3AudioInputStream implements GreenfootAudioInputStream
 			bitstream.unreadFrame();
 
 		} catch (BitstreamException e) {
-			throw new IOException(e);
+			throw new IOException(e.toString());
 		}
 		if (header == null) {
 			bitstream.closeFrame();
@@ -63,13 +63,11 @@ public class Mp3AudioInputStream implements GreenfootAudioInputStream
 		printDebug(" Created mp3 stream with audioFormat: " + format);
 	}
 
-	@Override
 	public String getSource()
 	{
 		return url.toString();
 	}
 
-	@Override
 	public void restart() throws IOException, UnsupportedAudioFileException
 	{
 		if (!readingHasStarted() && bitstream != null) {
@@ -106,42 +104,36 @@ public class Mp3AudioInputStream implements GreenfootAudioInputStream
 		return readingHasStarted;
 	}
 
-	@Override
 	public int available() throws IOException
 	{
 		return inputStream.available();
 	}
 
-	@Override
 	public void close() throws IOException
 	{
 		try {
 			bitstream.close();
 		} catch (BitstreamException e) {
-			throw new IOException(e);
+			throw new IOException(e.toString());
 		}
 	}
 
-	@Override
 	public AudioFormat getFormat()
 	{
 		return format;
 
 	}
 
-	@Override
 	public void mark(int readlimit)
 	{
 		// not supported
 	}
 
-	@Override
 	public boolean markSupported()
 	{
 		return false;
 	}
 
-	@Override
 	public int read() throws IOException
 	{
 		byte [] b = new byte[1];
@@ -157,13 +149,11 @@ public class Mp3AudioInputStream implements GreenfootAudioInputStream
 		}
 	}
 
-	@Override
 	public int read(byte[] b) throws IOException
 	{
 		return read(b, 0, b.length);
 	}
 
-	@Override
 	public int read(final byte[] b, final int off, final int len) throws IOException
 	{
 		
@@ -196,7 +186,7 @@ public class Mp3AudioInputStream implements GreenfootAudioInputStream
 		try {
 			header = bitstream.readFrame();
 		} catch (BitstreamException e) {
-			throw new IOException(e);
+			throw new IOException(e.toString());
 		}
 		while (header != null) {
 
@@ -205,7 +195,7 @@ public class Mp3AudioInputStream implements GreenfootAudioInputStream
 			try {
 				sample = (SampleBuffer) decoder.decodeFrame(header, bitstream);
 			} catch (DecoderException e) {
-				throw new IOException(e);
+				throw new IOException(e.toString());
 			}
 
 			printDebug("Read: " + read);
@@ -224,7 +214,7 @@ public class Mp3AudioInputStream implements GreenfootAudioInputStream
 			try {
 				header = bitstream.readFrame();
 			} catch (BitstreamException e) {
-				throw new IOException(e);
+				throw new IOException(e.toString());
 			}
 		}
 		
@@ -242,14 +232,11 @@ public class Mp3AudioInputStream implements GreenfootAudioInputStream
 		}
 	}
 
-	@Override
 	public void reset() throws IOException
 	{
-
 		throw new UnsupportedOperationException();
 	}
 
-	@Override
 	public long skip(long n) throws IOException
 	{
 		throw new UnsupportedOperationException();
