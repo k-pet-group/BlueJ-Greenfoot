@@ -26,6 +26,8 @@ import greenfoot.util.GreenfootUtil;
 import java.io.IOException;
 import java.net.URL;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 /**
  * Class responsible for creating Sounds and loading them.
  * 
@@ -83,10 +85,9 @@ public class SoundFactory
 				System.out.println("Creating midi: " + file);
 			    return new MidiFileSound(url, soundCollection);
 			}
-			else if (isStream(size)) {
-
+			else if (isJavaAudioStream(size)) {
 				System.out.println("Creating stream: " + file);
-			    return new SoundStream(url, soundCollection);
+			    return new SoundStream(new JavaAudioInputStream(url), soundCollection);
 			} else {
 				System.out.println("Creating clip: " + file);
 				// The sound is small enough to be loaded into memory as a clip.
@@ -94,6 +95,8 @@ public class SoundFactory
 			}
 		} catch (IOException e) {
 			SoundExceptionHandler.handleIOException(e, file);
+		} catch (UnsupportedAudioFileException e) {
+			SoundExceptionHandler.handleUnsupportedAudioFileException(e, file);
 		}  
 		return null;
     }
@@ -115,7 +118,7 @@ public class SoundFactory
         return sound;
     }     
 
-	private boolean isStream(int size) {
+	private boolean isJavaAudioStream(int size) {
 		// If we can not get the size, or if it is a big file we stream
 		// it in a thread.
 		return size == -1 || size > maxClipSize;

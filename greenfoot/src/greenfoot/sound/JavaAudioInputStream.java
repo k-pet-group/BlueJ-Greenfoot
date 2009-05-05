@@ -1,0 +1,135 @@
+package greenfoot.sound;
+
+import java.io.IOException;
+import java.net.URL;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
+import bluej.utility.Debug;
+
+/**
+ * Wrapper classer for a AudioInputStream. It just delegates all method to the
+ * wrapped class except for restart().
+ * 
+ * @author Poul Henriksen
+ * 
+ */
+public class JavaAudioInputStream implements GreenfootAudioInputStream
+{
+	private AudioInputStream stream;
+	private URL url;
+
+	public JavaAudioInputStream(URL url) throws UnsupportedAudioFileException,
+			IOException
+	{
+		this.url = url;
+		restart();
+	}
+
+	public void restart() throws UnsupportedAudioFileException, IOException
+	{
+		if (stream != null) {
+			try {
+				stream.close();
+			} catch (IOException e) {
+				// An exception here is probably not fatal, so we just log it
+				// and continue.
+				Debug.reportError(
+						"Exception while closing java audio input stream.", e);
+			}
+		}
+		else if(stream == null || readingHasStarted()) 
+		{
+			stream = AudioSystem.getAudioInputStream(url);
+		}
+	}
+	
+	/**
+	 * Whether reading from this stream has begun.
+	 * @return True if it has been restarted and no reading has been done since. False otherwise.
+	 */
+	private boolean readingHasStarted()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public String getSource() 
+	{
+		return url.toString();
+	}
+
+	public int available() throws IOException
+	{
+		return stream.available();
+	}
+
+	public void close() throws IOException
+	{
+		stream.close();
+	}
+
+	public boolean equals(Object obj)
+	{
+		return stream.equals(obj);
+	}
+
+	public AudioFormat getFormat()
+	{
+		return stream.getFormat();
+	}
+
+	public long getFrameLength()
+	{
+		return stream.getFrameLength();
+	}
+
+	public int hashCode()
+	{
+		return stream.hashCode();
+	}
+
+	public void mark(int readlimit)
+	{
+		stream.mark(readlimit);
+	}
+
+	public boolean markSupported()
+	{
+		return stream.markSupported();
+	}
+
+	public int read() throws IOException
+	{
+		return stream.read();
+	}
+
+	public int read(byte[] b, int off, int len) throws IOException
+	{
+		return stream.read(b, off, len);
+	}
+
+	public int read(byte[] b) throws IOException
+	{
+		return stream.read(b);
+	}
+
+	public void reset() throws IOException
+	{
+		stream.reset();
+	}
+
+	public long skip(long n) throws IOException
+	{
+		return stream.skip(n);
+	}
+
+	public String toString()
+	{
+		return stream.toString();
+	}
+
+}

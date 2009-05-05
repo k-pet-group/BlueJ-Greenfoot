@@ -22,17 +22,14 @@
 package greenfoot.sound;
 
 import java.io.IOException;
-import java.net.URL;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.DataLine.Info;
-
 
 import bluej.utility.Debug;
 
@@ -58,11 +55,6 @@ public class SoundStream extends Sound implements Runnable
     private static final int CLOSE_TIMEOUT = 1000;
     
     /**
-     * URL of the stream of sound data.
-     */
-    private URL url;
-
-    /**
      * Signals that the sound should loop.
      */
     private boolean loop = false;
@@ -87,7 +79,9 @@ public class SoundStream extends Sound implements Runnable
 	 */
 	private boolean stopped = true;    
 
-   
+	/** Stream where data is read from */
+	private GreenfootAudioInputStream inputStream;
+	
     /** Listener for state changes. */
     private SoundPlaybackListener playbackListener;
     
@@ -99,32 +93,25 @@ public class SoundStream extends Sound implements Runnable
     /** Thread that handles the actual playback of the sound. */
     private Thread playThread ;
 
-	public SoundStream(URL url, SoundPlaybackListener playbackListener)
+
+	public SoundStream(GreenfootAudioInputStream inputStream, SoundPlaybackListener playbackListener)
     {
-        this.url = url;
 		this.playbackListener = playbackListener;
-		AudioInputStream inputStream;
+		this.inputStream = inputStream;
 		try {
 			// Preparing the line here, speeds up the first playback of the
 			// sound.
-			inputStream = AudioSystem.getAudioInputStream(url);
 			format = inputStream.getFormat();
 			info = new DataLine.Info(SourceDataLine.class, format);
 			line = initialiseLine(info, format);
 		} 
 		catch (IllegalArgumentException e) {
             // Thrown by getLine()
-            SoundExceptionHandler.handleIllegalArgumentException(e, url.toString());
-        }
-        catch (UnsupportedAudioFileException e) {
-            SoundExceptionHandler.handleUnsupportedAudioFileException(e, url.toString());
+            SoundExceptionHandler.handleIllegalArgumentException(e, inputStream.getSource());
         }
         catch (LineUnavailableException e) {
             SoundExceptionHandler.handleLineUnavailableException(e);
         }
-        catch (IOException e) {
-            SoundExceptionHandler.handleIOException(e, url.toString());
-        }  
     }
 
     public synchronized void play() 
@@ -168,7 +155,7 @@ public class SoundStream extends Sound implements Runnable
 			restart = true;
 			if (playThread == null) {
 				printDebug("Starting new playthread");
-				playThread = new Thread(this, "SoundStream:" + url.toString());
+				playThread = new Thread(this, "SoundStream:" + inputStream.getSource());
 				playThread.start();
 			}
 			if(line != null) {
@@ -235,7 +222,7 @@ public class SoundStream extends Sound implements Runnable
     
     public String toString()
     {
-        return url + " " + super.toString();
+        return inputStream.getSource() + " " + super.toString();
     }    
 
     public void run()
@@ -243,13 +230,10 @@ public class SoundStream extends Sound implements Runnable
         // Whether the thread should stay alive or die.
         boolean stayAlive = true;
 
-        AudioInputStream inputStream = null;
         try {
             while (stayAlive) {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-                inputStream = AudioSystem.getAudioInputStream(url);
+            	inputStream.restart();
+            	
 
                 synchronized (this) {
 					if (line == null || !format.matches(inputStream.getFormat())) {
@@ -294,14 +278,8 @@ public class SoundStream extends Sound implements Runnable
                         // Handle restart
                         if (restart) {
                             printDebug("restart in thread");
-                            line.reset();
-                            try {
-                                inputStream.close();
-                            }
-                            catch (IOException e) {
-                                Debug.reportError("Exception while closing sound input stream.", e);
-                            }
-                            inputStream = AudioSystem.getAudioInputStream(url);
+                            line.reset();                            
+                            inputStream.restart();
                             restart = false;
                             bytesInBuffer = 0;
                             bytesRead = 0;
@@ -387,16 +365,16 @@ public class SoundStream extends Sound implements Runnable
         }
         catch (IllegalArgumentException e) {
             // Thrown by getLine()
-            SoundExceptionHandler.handleIllegalArgumentException(e, url.toString());
+            SoundExceptionHandler.handleIllegalArgumentException(e, inputStream.getSource());
         }
         catch (UnsupportedAudioFileException e) {
-            SoundExceptionHandler.handleUnsupportedAudioFileException(e, url.toString());
+            SoundExceptionHandler.handleUnsupportedAudioFileException(e, inputStream.getSource());
         }
         catch (LineUnavailableException e) {
             SoundExceptionHandler.handleLineUnavailableException(e);
         }
         catch (IOException e) {
-            SoundExceptionHandler.handleIOException(e, url.toString());
+            SoundExceptionHandler.handleIOException(e, inputStream.getSource());
         }
         finally {
             if (stayAlive == true) {
@@ -432,7 +410,7 @@ public class SoundStream extends Sound implements Runnable
 					wait();
 				} catch (InterruptedException e) {
 					Debug.reportError(
-							"Interrupted while pausing sound: " + url, e);
+							"Interrupted while pausing sound: " + inputStream.getSource(), e);
 				}
 			}
 			line.start();
