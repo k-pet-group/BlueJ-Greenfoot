@@ -41,7 +41,7 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 6217 2009-03-30 13:44:08Z polle $
+ * @version $Id: Boot.java 6307 2009-05-05 17:55:10Z polle $
  */
 public class Boot
 {
@@ -100,7 +100,7 @@ public class Boot
         "antlr.jar", "MRJ141Stubs.jar",
         "junit.jar", "bluej.jar",
         "commons-httpclient-3.1.jar", "commons-logging-api-1.1.1.jar",
-        "commons-codec-1.3.jar"};
+        "commons-codec-1.3.jar", "jl1.0.1.jar"};
     
     private static final int greenfootUserBuildJars = 4;
     

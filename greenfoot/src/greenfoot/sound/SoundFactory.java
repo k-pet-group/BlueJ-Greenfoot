@@ -81,9 +81,12 @@ public class SoundFactory
 			int size = url.openConnection().getContentLength();
 
 			if (isMidi(url)) {
-
 				System.out.println("Creating midi: " + file);
 			    return new MidiFileSound(url, soundCollection);
+			}
+			else if(isMp3(url)) {
+				System.out.println("Creating mp3: " + file);
+			    return new SoundStream(new Mp3AudioInputStream(url), soundCollection);
 			}
 			else if (isJavaAudioStream(size)) {
 				System.out.println("Creating stream: " + file);
@@ -100,8 +103,6 @@ public class SoundFactory
 		}  
 		return null;
     }
-    
-
 	/**
      * Gets a cached sound file if possible. If not possible, it will return a new sound.
      * 
@@ -129,5 +130,13 @@ public class SoundFactory
     	String lowerCaseName = url.toString().toLowerCase();
 		return lowerCaseName.endsWith("mid") || lowerCaseName.endsWith("midi");
 	}
+    
+
+	private boolean isMp3(URL url)
+	{
+    	String lowerCaseName = url.toString().toLowerCase();
+		return lowerCaseName.endsWith("mp3");
+	}
+
 
 }
