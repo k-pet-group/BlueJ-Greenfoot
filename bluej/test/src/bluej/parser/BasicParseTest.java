@@ -280,13 +280,13 @@ public class BasicParseTest extends junit.framework.TestCase
     public void testDependencyAnalysis()
         throws Exception
     {
-        List packages = new ArrayList();
-        packages.add("I");
-        packages.add("J");
-        packages.add("K");
-        packages.add("L");
-        packages.add("M");
-        ClassInfo info = ClassParser.parse(getFile("H.dat"), packages);
+        List classes = new ArrayList();
+        classes.add("I");
+        classes.add("J");
+        classes.add("K");
+        classes.add("L");
+        classes.add("M");
+        ClassInfo info = ClassParser.parse(getFile("H.dat"), classes);
         
         List used = info.getUsed();
         assertTrue(used.contains("I")); 
