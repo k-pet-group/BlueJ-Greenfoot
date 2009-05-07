@@ -29,7 +29,7 @@ package bluej.testmgr.record;
  * (not currently working).
  *
  * @author  Andrew Patterson
- * @version $Id: ObjectInspectInvokerRecord.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ObjectInspectInvokerRecord.java 6312 2009-05-07 04:44:13Z davmac $
  */
 public class ObjectInspectInvokerRecord extends InvokerRecord
 {
@@ -112,13 +112,4 @@ public class ObjectInspectInvokerRecord extends InvokerRecord
         }
     }
     
-    public String toTestMethodInit() 
-    {
-        if(parentIr != null) {
-            return parentIr.toTestMethodInit();
-        }
-        else {
-            return "";
-        }
-    }
 }

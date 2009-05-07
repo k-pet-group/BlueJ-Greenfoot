@@ -33,7 +33,7 @@ import bluej.debugger.DebuggerObject;
  * construction and maintenance of assertion data.
  *
  * @author  Andrew Patterson
- * @version $Id: InvokerRecord.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: InvokerRecord.java 6312 2009-05-07 04:44:13Z davmac $
  */
 public abstract class InvokerRecord
 {
@@ -82,18 +82,7 @@ public abstract class InvokerRecord
 	 *         src or null if there is none. 
 	 */    
 	public abstract String toFixtureSetup();
-    
-    
-    /**
-     * Do any initialisation needed for creating the test method.
-     * This implementation returns an empty string. Overide for 
-     * subclasses that need different functionality.
-     */
-    public String toTestMethodInit()
-    {
-        return "";
-    }
-    
+        
 	/**
 	 * Construct a portion of a test method for this
 	 * invoker record.

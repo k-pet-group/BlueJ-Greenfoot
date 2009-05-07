@@ -120,8 +120,4 @@ public class GetInvokerRecord extends InvokerRecord
         throw new RuntimeException("Method not implemented for this type.");
     }    
 
-    public String toTestMethodInit() 
-    {
-        return parentIr.toTestMethodInit();
-    }
 }

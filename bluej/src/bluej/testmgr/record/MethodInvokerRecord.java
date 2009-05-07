@@ -36,7 +36,7 @@ import bluej.utility.JavaNames;
  * This record is for method calls that return a result.
  *
  * @author  Andrew Patterson
- * @version $Id: MethodInvokerRecord.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: MethodInvokerRecord.java 6312 2009-05-07 04:44:13Z davmac $
  */
 public class MethodInvokerRecord extends VoidMethodInvokerRecord
 {
@@ -134,19 +134,22 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
      */
     public String toTestMethod()
     {
+        StringBuffer sb = new StringBuffer();
+        sb.append(toTestMethodInit());
+    	
         String resultRef = toExpression();
 
         // with no uses of the result, just invoke the method.
         if (getUsageCount() == 0) {
-            return secondIndent + resultRef + statementEnd;
+        	sb.append(secondIndent + resultRef + statementEnd);
         }
-
-        StringBuffer sb = new StringBuffer();
-        // here are all the assertions
-        for (int i = 0; i < getAssertionCount(); i++) {
-            sb.append(secondIndent);
-            sb.append(insertCommandIntoAssertionStatement(getAssertion(i), resultRef));
-            sb.append(statementEnd);
+        else {
+        	// here are all the assertions
+        	for (int i = 0; i < getAssertionCount(); i++) {
+        		sb.append(secondIndent);
+        		sb.append(insertCommandIntoAssertionStatement(getAssertion(i), resultRef));
+        		sb.append(statementEnd);
+        	}
         }
 
         return sb.toString();
@@ -157,7 +160,7 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
      * up local variables if the result of the method is used more than once or
      * placed on the bench by using "Get".
      */
-    public String toTestMethodInit()
+    private String toTestMethodInit()
     {
         // If we have already prepared the method call, we return the name that
         // references it.
@@ -271,6 +274,10 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
         usageCount++;
     }
 
+    /**
+     * Get the number of times the result of this record is used (by another record,
+     * or by an assertion).
+     */
     private int getUsageCount()
     {
         return usageCount;
