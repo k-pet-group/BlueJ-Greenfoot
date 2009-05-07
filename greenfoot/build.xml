@@ -104,7 +104,6 @@
         <exclude name="scenarios/**/.cvsignore" />
         <exclude name="scenarios/**/doc/" />
         <exclude name="scenarios/**/__*" />
-        <include name="scenarios/ants/" />
         <include name="scenarios/lunarlander/" />
         <include name="scenarios/balloons/" />
         <include name="scenarios/wombats/" />
@@ -235,7 +234,6 @@ target="1.5">
             </sequential>
         </macrodef>
 
-        <compile-scenario scenario="ants" />
         <compile-scenario scenario="lunarlander" />
         <compile-scenario scenario="balloons" />
         <compile-scenario scenario="wombats" />
