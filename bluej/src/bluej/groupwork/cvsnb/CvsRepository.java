@@ -47,7 +47,6 @@ import org.netbeans.lib.cvsclient.command.update.UpdateCommand;
 import org.netbeans.lib.cvsclient.connection.AuthenticationException;
 import org.netbeans.lib.cvsclient.connection.Connection;
 import org.netbeans.lib.cvsclient.connection.PServerConnection;
-import org.netbeans.modules.versioning.system.cvss.SSHConnection;
 
 import bluej.groupwork.*;
 import bluej.utility.Debug;
@@ -58,7 +57,7 @@ import bluej.utility.filefilter.DirectoryFilter;
  * This class handles communication with the repository.
  *
  * @author fisker
- * @version $Id: CvsRepository.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: CvsRepository.java 6313 2009-05-07 06:03:39Z davmac $
  */
 public class CvsRepository implements Repository
 {
@@ -661,7 +660,7 @@ public class CvsRepository implements Repository
                 port = cvsRoot.getPort();
             }
 
-            SSHConnection sshConnection = new SSHConnection(socketFactory,
+            GSSHConnection sshConnection = new GSSHConnection(socketFactory,
                     cvsRoot.getHostName(), port, cvsRoot.getUserName(),
                     cvsRoot.getPassword());
             sshConnection.setRepository(cvsRoot.getRepository());
