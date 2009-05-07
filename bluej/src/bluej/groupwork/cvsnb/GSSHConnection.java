@@ -64,7 +64,6 @@ public class GSSHConnection extends AbstractConnection
         	if (! auth) {
         		// Try the "keyboard interactive" method instead.
         		auth = connection.authenticateWithKeyboardInteractive(username, new InteractiveCallback() {
-        			@Override
         			public String[] replyToChallenge(String name, String instruction,
         					int numPrompts, String[] prompt, boolean[] echo)
         					throws Exception {
