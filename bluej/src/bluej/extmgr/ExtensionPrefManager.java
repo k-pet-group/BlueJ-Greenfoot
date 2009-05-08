@@ -35,7 +35,7 @@ import javax.swing.border.*;
  * @author  Damiano Bolla: University of Kent at Canterbury
  * @author  Michael Kolling
  * 
- * @version $Id: ExtensionPrefManager.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ExtensionPrefManager.java 6319 2009-05-08 15:05:53Z polle $
  */
 public class ExtensionPrefManager implements PrefPanelListener
 {
@@ -95,8 +95,10 @@ public class ExtensionPrefManager implements PrefPanelListener
         if (doAction == DO_panelUpdate) 
             drawPanel.removeAll();
       
-        for (Iterator iter=extensionsList.iterator(); iter.hasNext(); ) {
-            doWorkItem ((ExtensionWrapper)iter.next(),doAction);
+        synchronized (extensionsList) {
+            for (Iterator iter=extensionsList.iterator(); iter.hasNext(); ) {
+                doWorkItem ((ExtensionWrapper)iter.next(),doAction);
+            }            
         }
     }
 

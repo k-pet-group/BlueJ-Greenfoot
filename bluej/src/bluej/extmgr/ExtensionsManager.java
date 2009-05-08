@@ -42,7 +42,7 @@ import javax.swing.*;
  * @author Damiano Bolla, University of Kent at Canterbury, 2003
  * @author Michael Kolling
  * 
- * @version $Id: ExtensionsManager.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ExtensionsManager.java 6319 2009-05-08 15:05:53Z polle $
  */
 public class ExtensionsManager
     implements BlueJEventListener
@@ -73,7 +73,7 @@ public class ExtensionsManager
     private ExtensionsManager()
     {
         // Sync issues should be clear...
-        extensions = new ArrayList();
+        extensions = Collections.synchronizedList(new ArrayList());
 
         // This must be here, after all has been initialized.
         BlueJEvent.addListener(this);
@@ -104,13 +104,15 @@ public class ExtensionsManager
      * Unloads all extensions that are loaded. Normally called just before bluej
      * is closing.
      */
-    public synchronized void unloadExtensions()
+    public void unloadExtensions()
     {
-        for (Iterator iter = extensions.iterator(); iter.hasNext();) {
-            ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
-
-            aWrapper.terminate(); // The following terminated the Extension
-            iter.remove();
+        synchronized(extensions) {
+            for (Iterator iter = extensions.iterator(); iter.hasNext();) {
+                ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
+    
+                aWrapper.terminate(); // The following terminated the Extension
+                iter.remove();
+            }
         }
     }
 
@@ -127,7 +129,7 @@ public class ExtensionsManager
      * @param project
      *            A project this extension is bound to
      */
-    private synchronized void loadDirectoryExtensions(File directory, Project project)
+    private void loadDirectoryExtensions(File directory, Project project)
     {
         if (directory == null)
             return;
@@ -190,17 +192,19 @@ public class ExtensionsManager
         String thisClassName = thisWrapper.getExtensionClassName();
         String thisJarName = thisWrapper.getExtensionFileName();
 
-        for (Iterator iter = extensions.iterator(); iter.hasNext();) {
-            ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
-
-            String aClassName = aWrapper.getExtensionClassName();
-            if (aClassName == null)
-                continue;
-
-            // Found it, this wrapper is already loaded...
-            if (thisClassName.equals(aClassName)) {
-                Debug.message("Extension is already loaded: " + thisClassName + " jarName=" + thisJarName);
-                return true;
+        synchronized(extensions) {            
+            for (Iterator iter = extensions.iterator(); iter.hasNext();) {
+                ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
+    
+                String aClassName = aWrapper.getExtensionClassName();
+                if (aClassName == null)
+                    continue;
+    
+                // Found it, this wrapper is already loaded...
+                if (thisClassName.equals(aClassName)) {
+                    Debug.message("Extension is already loaded: " + thisClassName + " jarName=" + thisJarName);
+                    return true;
+                }
             }
         }
 
@@ -251,7 +255,7 @@ public class ExtensionsManager
      * extension if this is the right time to do it. NOTA: This must be
      * syncronized since it changes the extensionslist
      */
-    public synchronized void packageClosing(Package pkg)
+    public void packageClosing(Package pkg)
     {
         // Before removing the extension let signl that this package is closing
         delegateEvent(new PackageEvent(PackageEvent.PACKAGE_CLOSING, pkg));
@@ -279,18 +283,20 @@ public class ExtensionsManager
         if (!invalidateExtension)
             return;
 
-        // I am closing the last frame of the project, time to invalidate the
-        // right extensions
-        for (Iterator iter = extensions.iterator(); iter.hasNext();) {
-            ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
-
-            // If the extension did not got loaded with this project skip it...
-            if (thisProject != aWrapper.getProject())
-                continue;
-
-            // The following terminated the Extension
-            aWrapper.terminate();
-            iter.remove();
+        synchronized(extensions) {            
+            // I am closing the last frame of the project, time to invalidate the
+            // right extensions
+            for (Iterator iter = extensions.iterator(); iter.hasNext();) {
+                ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
+    
+                // If the extension did not got loaded with this project skip it...
+                if (thisProject != aWrapper.getProject())
+                    continue;
+    
+                // The following terminated the Extension
+                aWrapper.terminate();
+                iter.remove();
+            }
         }
     }
 
@@ -328,22 +334,24 @@ public class ExtensionsManager
     {
         LinkedList menuItems = new LinkedList();
 
-        for (Iterator iter = extensions.iterator(); iter.hasNext();) {
-            ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
-
-            if (!aWrapper.isValid())
-                continue;
-
-            if (skipThisMenu(onThisProject, aWrapper.getProject()))
-                continue;
-
-            JMenuItem anItem = aWrapper.safeGetMenuItem(attachedObject);
-            if (anItem == null)
-                continue;
-
-            anItem.putClientProperty("bluej.extmgr.ExtensionWrapper", aWrapper);
-
-            menuItems.add(anItem);
+        synchronized(extensions) {                
+            for (Iterator iter = extensions.iterator(); iter.hasNext();) {
+                ExtensionWrapper aWrapper = (ExtensionWrapper) iter.next();
+    
+                if (!aWrapper.isValid())
+                    continue;
+    
+                if (skipThisMenu(onThisProject, aWrapper.getProject()))
+                    continue;
+    
+                JMenuItem anItem = aWrapper.safeGetMenuItem(attachedObject);
+                if (anItem == null)
+                    continue;
+    
+                anItem.putClientProperty("bluej.extmgr.ExtensionWrapper", aWrapper);
+    
+                menuItems.add(anItem);
+            }
         }
 
         return menuItems;
@@ -354,9 +362,11 @@ public class ExtensionsManager
      */
     public void delegateEvent(ExtensionEvent event)
     {
-        for (Iterator it = extensions.iterator(); it.hasNext();) {
-            ExtensionWrapper wrapper = (ExtensionWrapper) it.next();
-            wrapper.safeEventOccurred(event);
+        synchronized(extensions) {            
+            for (Iterator it = extensions.iterator(); it.hasNext();) {
+                ExtensionWrapper wrapper = (ExtensionWrapper) it.next();
+                wrapper.safeEventOccurred(event);
+            }
         }
     }
 
