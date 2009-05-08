@@ -23,6 +23,7 @@ package greenfoot.export;
 
 import greenfoot.core.GProject;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -44,6 +45,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
 
+import bluej.Boot;
 import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.Project;
@@ -145,9 +147,20 @@ public class JarCreator
         addDir(projectDir);
 
         // Add the Greenfoot standalone classes
-        File libDir = Config.getGreenfootLibDir();        
-        File greenfootDir = new File(libDir, "standalone");        
-        addDir(greenfootDir);
+        File greenfootLibDir = Config.getGreenfootLibDir();        
+        
+        File greenfootDir = new File(greenfootLibDir, "standalone");        
+        addDir(greenfootDir);        
+
+        // Add 3rd party libraries used by Greenfoot.
+
+        File bluejLibDir = Config.getBlueJLibDir();        
+        String[] thirdPartyLibs = Boot.GREENFOOT_EXPORT_JARS;
+        for (int i = 0; i < thirdPartyLibs.length; i++) {
+            String lib = thirdPartyLibs[i];
+            addJar(new File(bluejLibDir,lib));
+        }
+        
         
         // skip CVS stuff
         addSkipDir("CVS");
@@ -296,7 +309,7 @@ public class JarCreator
                 writeDirToJar(dir, pathPrefix, jStream, jarFile.getCanonicalFile());
             }
             
-            copyLibsToJar(extraJars, exportDir);            
+            copyLibsToDir(extraJars, exportDir);            
         }
         catch (IOException exc) {
             Debug.reportError("problen writing jar file: " + exc);
@@ -385,7 +398,7 @@ public class JarCreator
         // Construct classpath with used library jars
         String classpath = "";
 
-        // add extra jar to classpath
+        // add extra jars to classpath
         for (Iterator<File> it = extraJars.iterator(); it.hasNext();) {
             classpath += " " + it.next().getName();
         }
@@ -488,7 +501,7 @@ public class JarCreator
     /**
      * Copy all files specified in the given list to the new jar directory.
      */
-    private void copyLibsToJar(List<File> userLibs, File destDir)
+    private void copyLibsToDir(List<File> userLibs, File destDir)
     {
         for (Iterator<File> it = userLibs.iterator(); it.hasNext();) {
             File lib = (File) it.next();
@@ -546,7 +559,7 @@ public class JarCreator
     {
         InputStream in = null;
         try {
-            in = new FileInputStream(file);
+            in = new BufferedInputStream(new FileInputStream(file));
             stream.putNextEntry(new ZipEntry(entryName));
             FileUtility.copyStream(in, stream);
         }
