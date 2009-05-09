@@ -41,7 +41,7 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 6313 2009-05-07 06:03:39Z davmac $
+ * @version $Id: Boot.java 6321 2009-05-09 13:12:49Z polle $
  */
 public class Boot
 {
@@ -94,12 +94,16 @@ public class Boot
     
     // In greenfoot we need access to the BlueJ classes.
     // When running from eclipse, the first jar files will be excluded as explained above at the bluejBuildJars field.
+    public static final String JLAYER_MP3_JAR = "jl1.0.1.jar";
     private static final String[] greenfootUserJars = {"extensions" + File.separatorChar + "greenfoot.jar", 
         "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
         "antlr.jar", "MRJ141Stubs.jar",
         "junit.jar", "bluej.jar",
         "commons-httpclient-3.1.jar", "commons-logging-api-1.1.1.jar",
-        "commons-codec-1.3.jar", "jl1.0.1.jar"};
+        "commons-codec-1.3.jar", JLAYER_MP3_JAR};
+
+    // Jars that should be included with exported scenarios
+    public static final String[] GREENFOOT_EXPORT_JARS = {JLAYER_MP3_JAR};
     
     private static final int greenfootUserBuildJars = 4;
     
