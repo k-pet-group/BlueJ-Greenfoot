@@ -61,6 +61,13 @@ public class GClass
     private ClassView classView;
     private Class realClass;
 
+	/**
+     * Constructor used by GCoreClass only
+     */
+    protected GClass() {
+    	
+    }
+    
     /**
      * Constructor for GClass. You should generally not use this -
      * GPackage maintains a class pool which needs to be updated. Use
@@ -406,11 +413,11 @@ public class GClass
         }
         
         // If the class is compiled, but we did not get a superclass back, then
-        // the superclass is not from this project and we set it 
+		// the superclass is not from this project, but we can get it from the
+		// real class
         if (realSuperclass == null && isCompiled()) {
-            // no super class that we are interested in.
-            setSuperclassGuess("");
-            return;
+        	setSuperclassGuess(realClass.getSuperclass().getName());
+        	return;
         }
 
         

@@ -64,7 +64,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: GreenfootMain.java 6322 2009-05-09 17:50:58Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -478,30 +478,14 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         if (isStartupProject(greenfootLibDir, projectDir)) {
             return;
         }
-        File src = new File(greenfootLibDir, "skeletonProject");
         File dst = projectDir;
 
-        // Since Greenfoot 1.5.0 we no longer require World.java and
-        // Actor.java to be in the scenario, so delete them.
-        try {
-            File actorJava = new File(dst, "greenfoot/Actor.java");
-            if (actorJava.exists()) {
-                actorJava.delete();
-            }
-        }
-        catch (SecurityException e) {
-            // If we don't have permission to delete, just leave them there.
-        }        
-        try {
-            File worldJava = new File(dst, "greenfoot/World.java");
-            if (worldJava.exists()) {
-                worldJava.delete();
-            }
-        }
-        catch (SecurityException e) {
-            // If we don't have permission to delete, just leave them there.
-        }
+        File greenfootDir = new File(dst, "greenfoot");
         
+        // Since Greenfoot 1.5.2 we no longer require the greenfoot directory,
+		// so we delete everything that we might have had in there previously,
+		// and delete the dir if it is empty after that.
+        deleteGreenfootDir(greenfootDir);        
         
         if(deleteClassFiles) {
             deleteAllClassFiles(dst);
@@ -523,12 +507,65 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             // If we don't have permission to delete, just leave them there.
         }   
 
-       
-
-        GreenfootUtil.copyDir(src, dst);
+        File images = new File(dst, "images");
+        images.mkdir();
+        File sounds = new File(dst, "sounds");
+        sounds.mkdir();
+        
         p.setApiVersion(getAPIVersion().toString());
         p.save();
     }
+
+	private static void deleteGreenfootDir(File greenfootDir) 
+	{
+		if (greenfootDir.exists()) {
+			try {
+				File actorJava = new File(greenfootDir, "Actor.java");
+				if (actorJava.exists()) {
+					actorJava.delete();
+				}
+			} catch (SecurityException e) {
+				// If we don't have permission to delete, just leave them there.
+			}
+			try {
+				File worldJava = new File(greenfootDir, "World.java");
+				if (worldJava.exists()) {
+					worldJava.delete();
+				}
+			} catch (SecurityException e) {
+				// If we don't have permission to delete, just leave them there.
+			}
+			try {
+				File actorJava = new File(greenfootDir, "Actor.class");
+				if (actorJava.exists()) {
+					actorJava.delete();
+				}
+			} catch (SecurityException e) {
+				// If we don't have permission to delete, just leave them there.
+			}
+			try {
+				File worldJava = new File(greenfootDir, "World.class");
+				if (worldJava.exists()) {
+					worldJava.delete();
+				}
+			} catch (SecurityException e) {
+				// If we don't have permission to delete, just leave them there.
+			}
+			try {
+				File worldJava = new File(greenfootDir, "project.greenfoot");
+				if (worldJava.exists()) {
+					worldJava.delete();
+				}
+			} catch (SecurityException e) {
+				// If we don't have permission to delete, just leave them there.
+			}
+			try {
+				greenfootDir.delete();
+			} catch (SecurityException e) {
+				// If we don't have permission to delete, just leave them there.
+			}
+		}
+	}
 
     /**
      * Checks whether the API version this project was created with is
@@ -607,58 +644,17 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, false);
             return VERSION_UPDATED;
         }
-        else {
-            // Versions match
-            // Just to be sure, we check that the greenfoot subdirectory is
-            // actually there. This makes it easier to work with, since it will
-            // then reinstall the classes after cleaning the scenarios with the
-            // ant script.
-            // It will also make it easier to fix problems with wrong files in 
-            // this directory, by just telling the users to delete the entire
-            // greenfoot dir in the scenario.
-            // Also, it is very important that the two .java classes are not 
-            // present any more since that can result in strange problems, like
-            // the World and Actor class being stripped and that those classes
-            // are never updated. Can for instance result in runtime-exceptions
-            // that should have been handled at compile time. I haven't been
-            // able to reproduce this problem though, but have had several
-            // reports from users. And this should solve the problem.
-            
-            File greenfootDir = new File(projectDir, "greenfoot");
-            File actorJava = new File(projectDir, "greenfoot/Actor.java");
-            File worldJava = new File(projectDir, "greenfoot/World.java");                
-            if (!greenfootDir.exists() || actorJava.exists() || worldJava.exists()) {
-                GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, true);
-                return VERSION_UPDATED;
-            }
-            else {
-                return VERSION_OK;
-            }
+        else {            
+            return VERSION_OK;            
         }
     }
 
     /**
      * Deletes all class files in the directory, including the greenfoot subdirectory.
      */
-    public static void deleteAllClassFiles(File dst)
+    public static void deleteAllClassFiles(File dir)
     {
-        deleteClassFiles(dst);
-
-        File greenfootDir = new File(dst, "greenfoot");
-        // the greenfoot dir does not necessarily exist
-        if (greenfootDir.canRead()) {
-            deleteClassFiles(greenfootDir);
-        }
-    }
-
-    /**
-     * Deletes all class files in the given directory.
-     * 
-     * @param dir The directory MUST exist
-     */
-    private static void deleteClassFiles(File dir)
-    {
-        String[] classFiles = dir.list(classFilter);
+    	String[] classFiles = dir.list(classFilter);
         if(classFiles == null) return;
 
         for (int i = 0; i < classFiles.length; i++) {

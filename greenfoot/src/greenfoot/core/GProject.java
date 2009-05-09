@@ -104,14 +104,6 @@ public class GProject extends RProjectListenerImpl
     public GPackage getDefaultPackage() throws ProjectNotOpenException, RemoteException {
     	return getPackage("");
     }
-
-    /**
-     * returns the greenfoot package.
-     * 
-     */
-    public GPackage getGreenfootPackage() throws ProjectNotOpenException, RemoteException {
-        return getPackage("greenfoot");
-    }
     
     /**
      * returns the named package.
@@ -144,13 +136,6 @@ public class GProject extends RProjectListenerImpl
         throws ProjectNotOpenException, RemoteException
     {
         return rProject.getPackages();
-    }
-
-
-    public GPackage newPackage(String fullyQualifiedName)
-        throws ProjectNotOpenException, PackageAlreadyExistsException, RemoteException
-    {
-        return getPackage(rProject.newPackage(fullyQualifiedName));
     }
 
     /**

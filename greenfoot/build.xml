@@ -86,12 +86,6 @@
     <!-- Location of the packed files for distribution -->
     <property name="package" location="package"/>
 
-    <!-- Files that are used in the skeleton project. These are the user-visible framework files   -->
-    <patternset id="skeleton.files">
-        <include name="greenfoot/World.class"/>
-        <include name="greenfoot/Actor.class"/>
-    </patternset>
-
     <!-- Files that are used in tutorial -->
     <fileset id="tutorial.files" dir="resources/tutorial/">
         <include name="**"/>
@@ -212,18 +206,12 @@ LICENSE.txt file that accompanied this code.${line.separator}
         </junit>
     </target>
 
-    <target name="compile-scenarios" depends="compile, skeleton" description="Compile the scenarios">
+    <target name="compile-scenarios" depends="compile" description="Compile the scenarios">
         <!-- Should first delete all class files in scenario, and the greenfoot dir (depend on clean-scenarios) -->
 
         <macrodef name="compile-scenario">
             <attribute name="scenario" />
             <sequential>
-                <copy todir="scenarios/@{scenario}" preservelastmodified="true" >
-                    <fileset dir="projects/skeletonProject">
-                        <include name="greenfoot/**" />
-                        <include name="images/**" />
-                    </fileset>
-                </copy>
                 <javac srcdir="scenarios/@{scenario}" debug="true"
 target="1.5">
                     <classpath>
@@ -269,17 +257,7 @@ target="1.5">
         </javadoc>
     </target>
 
-    <target name="skeleton" depends="compile"  description="Copy the framework files from the build-dir to the skeletonproject." >
-        <copy todir="projects/skeletonProject" preservelastmodified="true">
-            <fileset dir="${build}">
-                <patternset refid="skeleton.files"/>
-            </fileset>
-        </copy>
-        <mkdir dir="projects/skeletonProject/images"/>
-        <mkdir dir="projects/skeletonProject/sounds"/>
-    </target>
-
-    <target name="copy-projects" depends="skeleton"  description="Copies the projects skeletonProject and startupProject to bluej" >
+    <target name="copy-projects" description="Copies the startupProject to bluej" >
         <copy todir="${bluej.lib.greenfoot}" preservelastmodified="true">
             <fileset dir="projects"/>
         </copy>
@@ -373,14 +351,6 @@ target="1.5">
     </target>
 
     <target name="clean" description="clean up" >
-        <delete >
-            <fileset dir="projects/skeletonProject">
-                <include name="**"/>
-                <exclude name="greenfoot/project.greenfoot"/>
-                <exclude name="project.greenfoot"/>
-            </fileset>
-        </delete>
-
         <!-- Installer image windows: greenfoot-install.bmp -->
         <delete file="${bluej.projectdir}/package/greenfoot-install.bmp"/>
         <!-- Installer image jar: greenfoot-install.png -->

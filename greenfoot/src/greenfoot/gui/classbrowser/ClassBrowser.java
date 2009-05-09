@@ -24,6 +24,7 @@ package greenfoot.gui.classbrowser;
 import bluej.Config;
 import greenfoot.core.GProject;
 import greenfoot.gui.GreenfootFrame;
+import greenfoot.gui.classbrowser.ClassForest.TreeEntry;
 import greenfoot.gui.classbrowser.role.ActorClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
 
@@ -50,7 +51,7 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: ClassBrowser.java 6322 2009-05-09 17:50:58Z polle $
  */
 public class ClassBrowser extends JPanel
 {
@@ -127,22 +128,30 @@ public class ClassBrowser extends JPanel
         buttonGroup.remove(classView);
         classView.deselect();
 
-        removeFromForest(classView);
+        TreeEntry treeEntry = removeFromForest(classView);
+        List<TreeEntry> children = treeEntry.getChildren();
+        for (TreeEntry child : children) {
+            otherClasses.add(child);
+		}
         
         classView.removeSelectionChangeListener(selectionManager);
         updateLayout();
     }
 
-    private void removeFromForest(ClassView classView)
+    private TreeEntry removeFromForest(ClassView classView)
     {
-        if(! greenfootClasses.remove(classView)) {
-            if(! worldClasses.remove(classView)) {
-                otherClasses.remove(classView);
-            }
-        }
+    	TreeEntry removedEntry = greenfootClasses.remove(classView);
+    	if(removedEntry == null) {
+    		removedEntry = worldClasses.remove(classView);
+    	}
+    	if(removedEntry == null) {
+    		removedEntry = otherClasses.remove(classView);
+    	}    	
+    	return removedEntry;
     }
     
-    /**
+
+	/**
      * Notify the class browser that a class has changed name
      * @param classView  The classView of the class which name has named
      * @param oldName    The original name of the class
@@ -328,20 +337,22 @@ public class ClassBrowser extends JPanel
         if (greenfootClasses != null) {
             // Remove it from the forest since it is in the wrong forest.
 
-            removeFromForest(classView);
+            TreeEntry removed = removeFromForest(classView);
 
             // Add it to the right forest.
             if (classView.getRole() instanceof ActorClassRole) {
-                greenfootClasses.add(classView);
+                greenfootClasses.add(removed);
             }
             else if (classView.getRole() instanceof WorldClassRole) {
-                worldClasses.add(classView);
+                worldClasses.add(removed);
             }
             else {
                 // everything else
-                otherClasses.add(classView);
+                otherClasses.add(removed);
             }
-        }                
+        }      
+        updateLayout();
+        
     }
     
     public GProject getProject()

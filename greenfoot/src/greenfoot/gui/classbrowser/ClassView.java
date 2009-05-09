@@ -21,7 +21,9 @@
  */
 package greenfoot.gui.classbrowser;
 
+import greenfoot.World;
 import greenfoot.core.GClass;
+import greenfoot.core.GCoreClass;
 import greenfoot.core.GPackage;
 import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
@@ -58,7 +60,7 @@ import bluej.utility.Utility;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: ClassView.java 6322 2009-05-09 17:50:58Z polle $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -81,33 +83,18 @@ public class ClassView extends JToggleButton
     private ClassBrowser classBrowser;
     private JPopupMenu popupMenu;
     private String superclass; //Holds the current superclass. Used to determine wether the superclass has changed.
-    
-    /** Whether this class is a "core" class (can't be removed or have image set) */
-    private boolean coreClass;
-    
+        
     /**
      * Creates a new ClassView with the role determined from gClass.
      */
     public ClassView(ClassBrowser classBrowser, GClass gClass)
     {
-        coreClass = false;
         this.classBrowser = classBrowser;
         init(gClass);
-    }
+    }    
     
-    /**
-     * Creates a new ClassView with the role determined from gClass. The
-     * ClassView optionally represents a "core" class which can't be removed
-     * from the project.
-     */
-    public ClassView(ClassBrowser classBrowser, GClass gClass, boolean coreClass)
-    {
-        this.coreClass = coreClass;
-        this.classBrowser = classBrowser;
-        init(gClass);
-    }
-    
-    public boolean isFocusable() 
+
+	public boolean isFocusable() 
     {
         return false;
     }
@@ -118,7 +105,7 @@ public class ClassView extends JToggleButton
      */
     public boolean isCoreClass()
     {
-        return coreClass;
+        return gClass.isActorClass() || gClass.isWorldClass();
     }
     
     /**
@@ -251,9 +238,6 @@ public class ClassView extends JToggleButton
     public void updateView()
     {
         update();
-        if (classBrowser != null) {
-            classBrowser.updateLayout();
-        }
 
         JRootPane rootPane = getRootPane();
         if(rootPane != null) {

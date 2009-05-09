@@ -21,6 +21,7 @@
  */
 package greenfoot.gui;
 
+import greenfoot.Actor;
 import greenfoot.World;
 import greenfoot.actions.AboutGreenfootAction;
 import greenfoot.actions.CloseProjectAction;
@@ -44,6 +45,7 @@ import greenfoot.actions.ShowCopyrightAction;
 import greenfoot.actions.ShowReadMeAction;
 import greenfoot.actions.ShowWebsiteAction;
 import greenfoot.core.GClass;
+import greenfoot.core.GCoreClass;
 import greenfoot.core.GPackage;
 import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
@@ -124,7 +126,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: GreenfootFrame.java 6322 2009-05-09 17:50:58Z polle $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener,
@@ -541,17 +543,9 @@ public class GreenfootFrame extends JFrame
 
     			GClass[] classes = pkg.getClasses();
     			//add the system classes
-    			GPackage sysPkg = project.getGreenfootPackage();
-    			if (sysPkg == null) {
-    				sysPkg = project.newPackage("greenfoot");
-    			}
-
-    			GClass[] gClasses = sysPkg.getClasses();
-    			for (int i = 0; i < gClasses.length; i++) {
-    				GClass gClass = gClasses[i];
-    				classBrowser.quickAddClass(new ClassView(classBrowser, gClass, true));
-    			}
-
+    			classBrowser.quickAddClass(new ClassView(classBrowser, new GCoreClass(World.class, project)));
+    			classBrowser.quickAddClass(new ClassView(classBrowser, new GCoreClass(Actor.class, project)));
+    			
     			for (int i = 0; i < classes.length; i++) {
     				GClass gClass = classes[i];
     				classBrowser.quickAddClass(new ClassView(classBrowser, gClass));
