@@ -41,7 +41,7 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 6321 2009-05-09 13:12:49Z polle $
+ * @version $Id: Boot.java 6323 2009-05-11 14:20:03Z polle $
  */
 public class Boot
 {
@@ -67,7 +67,7 @@ public class Boot
     // The version numbers for Greenfoot are changed in the Greenfoot build.xml
     // and then the update-version target should be executed.
     public static String GREENFOOT_VERSION = "1.5.1";
-    public static String GREENFOOT_API_VERSION = "2.0.1";
+    public static String GREENFOOT_API_VERSION = "2.0.2";
     
     // A singleton boot object so the rest of BlueJ can pick up args etc.
     private static Boot instance;
@@ -94,7 +94,7 @@ public class Boot
     
     // In greenfoot we need access to the BlueJ classes.
     // When running from eclipse, the first jar files will be excluded as explained above at the bluejBuildJars field.
-    public static final String JLAYER_MP3_JAR = "jl1.0.1.jar";
+    private static final String JLAYER_MP3_JAR = "jl1.0.1.jar";
     private static final String[] greenfootUserJars = {"extensions" + File.separatorChar + "greenfoot.jar", 
         "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
         "antlr.jar", "MRJ141Stubs.jar",
