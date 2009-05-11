@@ -24,6 +24,7 @@ package greenfoot.export;
 import greenfoot.core.GProject;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -278,7 +279,7 @@ public class JarCreator
         ZipOutputStream jStream = null;
 
         try {
-            oStream = new FileOutputStream(jarFile);
+            oStream = new BufferedOutputStream(new FileOutputStream(jarFile));
             String pathPrefix = ""; // Put everything in top level of jar
             if (! isZip) {
                 // It is a jar file so we write the manifest and the properties.
@@ -326,7 +327,7 @@ public class JarCreator
         OutputStream os = null;
         try {
             file.createNewFile();
-            os = new FileOutputStream(file);
+            os = new BufferedOutputStream(new FileOutputStream(file));
             properties.store(os, "Properties for running Greenfoot scenarios alone.");
         }
         catch (FileNotFoundException e) {
