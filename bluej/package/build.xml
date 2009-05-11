@@ -328,6 +328,7 @@
 	            <include name="icons/**/*" />           
 	            <include name="lib/**/*" />     
 	            <exclude name="lib/commons-*"/>
+	            <exclude name="lib/jl*"/>
 	            <exclude name="lib/bluej.jar"/>
 	            <exclude name="lib/bluejcore.jar"/>
 	            <exclude name="lib/bluejeditor.jar"/>
