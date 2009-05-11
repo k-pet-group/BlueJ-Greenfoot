@@ -43,6 +43,10 @@
     <property name="bluej.lib.greenfoot"  location="${bluej.projectdir}/lib/greenfoot"/>
     <!-- Location of the where the greenfoot.jar should be placed-->
     <property name="bluej.extensions.lib"  location="${bluej.projectdir}/lib/extensions"/>
+    
+    <!-- Name of the jlayer jar -->
+    <property name="jlayer.jar" value="jl1.0.1.jar"/>        
+        
     <!-- The classpath to the bluej classes-->
     <path id="bluej.class.path">
         <pathelement location="${bluej.projectdir}/classes"/>
@@ -52,7 +56,7 @@
         <pathelement location="${bluej.projectdir}/lib/MRJ141Stubs.jar"/>
         <pathelement location="${bluej.projectdir}/lib/commons-httpclient-3.1.jar"/>
         <pathelement location="${bluej.projectdir}/lib/commons-logging-api-1.1.1.jar"/>
-        <pathelement location="${bluej.projectdir}/lib/jl1.0.1.jar"/>
+        <pathelement location="${bluej.projectdir}/lib/${jlayer.jar}"/>
     </path>
     <!-- The sourcepath to the bluej classes-->
     <path id="bluej.src.path">
@@ -337,7 +341,7 @@ target="1.5">
         <copy file="resources/images/export-webpage.png" todir="images"/>
     </target>
 
-    <target name="dist" depends="ready-to-run, clean-scenarios, copy-scenarios, copy-license, copy-tutorial, compile-standalone, zip-source" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
+    <target name="dist" depends="ready-to-run, clean-scenarios, copy-scenarios, copy-license, copy-tutorial, compile-standalone, build-standalone-jar, zip-source" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
         <!-- Run the BlueJ dist-->
         <ant dir="${bluej.projectdir}" target="dist-greenfoot" />
 
@@ -348,6 +352,7 @@ target="1.5">
         <echo message="The greenfoot dist-jar (used to build windows installer)s is in ${package}/greenfoot-dist-${greenfoot.version.nodots}.jar"/>
         <echo message="The greenfoot jar-installer is in ${package}/Greenfoot-generic-${greenfoot.version.nodots}.jar"/>
         <echo message="The greenfoot Mac-installer is in ${package}/Greenfoot-mac-${greenfoot.version.nodots}.zip"/>
+        <echo message="And don't forget to copy this to the gallery (if API version has changed): ${package}/Greenfoot-core-${greenfoot.apiversion}.jar"/>
     </target>
 
     <target name="clean" description="clean up" >
@@ -594,6 +599,14 @@ target="1.5">
         </copy>
     </target>
 
+
+    <target name="build-standalone-jar"  depends="compile-standalone" description="Create a jar with all the Greenfoot classes and resources needed for an exported scenario." >
+        <jar jarfile="${package}/Greenfoot-core-${greenfoot.apiversion}.jar" basedir="${standalone.build}">
+            <manifest>
+                <attribute name="Main-Class" value="greenfoot.export.GreenfootScenarioViewer" />
+            </manifest>
+        </jar>
+    </target>
     
     <target name="zip-source"  description="create a zip of all the sources and other resources needed to build BlueJ." >
         <!-- And build sources for BlueJ -->

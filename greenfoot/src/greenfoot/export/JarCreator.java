@@ -45,7 +45,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
 
-import bluej.Boot;
 import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.Project;
@@ -80,8 +79,12 @@ public class JarCreator
     
     /** List of extra jars that should be put in the same dir as the created jar (the exportDir)*/
     private List<File> extraJars = new LinkedList<File>();
+
+    /** List of paths to external jars that should be included in the manifest's classpath. */
+    private List<String> extraExternalJars = new LinkedList<String>();
     
     private List<File> dirs = new LinkedList<File>();
+    private List<PrefixedFile> prefixDirs = new LinkedList<PrefixedFile>();
 
     /** array of directory names not to be included in jar file * */
     private List<String> skipDirs = new LinkedList<String>();
@@ -96,6 +99,7 @@ public class JarCreator
     private Properties properties;
  
     private boolean isZip = false;
+
     /**
      * Prepares a new jar creator. Once everything is set up, call create()
      * 
@@ -124,7 +128,7 @@ public class JarCreator
      * @param exportDir The directory to export to.
      * @param jarName Name of the jar file that should be created.
      * @param worldClass Name of the main class.
-     * @param includeExtraControls Should the exported scenario include 'act'
+     * @param lockScenario Should the exported scenario include 'act'
      *            and speedslider.
      */
     public JarCreator(GProject project, File exportDir, String jarName, String worldClass, boolean lockScenario) 
@@ -146,22 +150,6 @@ public class JarCreator
         
         addDir(projectDir);
 
-        // Add the Greenfoot standalone classes
-        File greenfootLibDir = Config.getGreenfootLibDir();        
-        
-        File greenfootDir = new File(greenfootLibDir, "standalone");        
-        addDir(greenfootDir);        
-
-        // Add 3rd party libraries used by Greenfoot.
-
-        File bluejLibDir = Config.getBlueJLibDir();        
-        String[] thirdPartyLibs = Boot.GREENFOOT_EXPORT_JARS;
-        for (int i = 0; i < thirdPartyLibs.length; i++) {
-            String lib = thirdPartyLibs[i];
-            addJar(new File(bluejLibDir,lib));
-        }
-        
-        
         // skip CVS stuff
         addSkipDir("CVS");
         addSkipFile(".cvsignore");
@@ -304,9 +292,12 @@ public class JarCreator
                 pathPrefix = projectDir.getName() + "/";
                 jStream = new ZipOutputStream(oStream);
             }
-            // Write contents of project-dir
+            // Write contents of directories added
             for(File dir : dirs) {
                 writeDirToJar(dir, pathPrefix, jStream, jarFile.getCanonicalFile());
+            }
+            for(PrefixedFile dir : prefixDirs) {
+                writeDirToJar(dir.getFile(), pathPrefix + dir.getPrefix(), jStream, jarFile.getCanonicalFile());
             }
             
             copyLibsToDir(extraJars, exportDir);            
@@ -403,6 +394,11 @@ public class JarCreator
             classpath += " " + it.next().getName();
         }
         
+        // add extra external jars to classpath
+        for (Iterator<String> it = extraExternalJars.iterator(); it.hasNext();) {
+            classpath += " " + it.next();
+        }
+        
         Attributes attr = manifest.getMainAttributes();
         attr.put(Attributes.Name.MANIFEST_VERSION, "1.0");
         attr.put(Attributes.Name.MAIN_CLASS, mainClass);
@@ -443,6 +439,17 @@ public class JarCreator
     }
 
     /**
+     * Adds a location of an external jar file. This will be added to the
+     * classpath of the manifest.
+     * 
+     * @param  path Usually a URL or a relative path.
+     */
+    public void addExternalJar(String path)
+    {
+        extraExternalJars.add(path);
+    }
+    
+    /**
      * Directory to include in export.
      * 
      * @param dir
@@ -450,6 +457,17 @@ public class JarCreator
     public void addDir(File dir)
     {
         dirs.add(dir);
+    }
+
+    
+    /**
+     * Directory to include in export, with the given prefix added when putting
+     * it into the jar.
+     * 
+     */
+    public void addDir(String prefix, File dir)
+    {
+        prefixDirs.add(new PrefixedFile(prefix, dir));
     }
     
     /**
@@ -612,4 +630,27 @@ public class JarCreator
             e.printStackTrace();
         }
     }
+    
+    static class PrefixedFile 
+    {
+        private File file;
+        public File getFile()
+        {
+            return file;
+        }
+
+        public String getPrefix()
+        {
+            return prefix;
+        }
+
+        private String prefix;
+
+        public PrefixedFile(String prefix, File file) 
+        {
+            this.prefix = prefix;
+            this.file = file;
+        }    
+    }
+    
 }

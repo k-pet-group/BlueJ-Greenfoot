@@ -10,7 +10,8 @@ Building Greenfoot:
  4. Run "ant ready-to-run" in the BlueJ directory.
  5. Run "ant dist" in the Greenfoot directory
  6. Copy the builds and source to greenfoot.org.
- 7. Make someone build the windows installer.
+ 7. If the API version has changed, copy Greenfoot-core-X.X.X-jar to the gallery: /home/mygame/mygame/public/sharedjars/
+ 8. Make someone build the windows installer.
  
  
 Subversion:

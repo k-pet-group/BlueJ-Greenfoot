@@ -26,7 +26,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: Exporter.java 6326 2009-05-11 15:01:30Z polle $
  */
 
 package greenfoot.export;
@@ -57,6 +57,9 @@ import bluej.Config;
 public class Exporter 
         implements PublishListener
 {
+    private static final String GREENFOOT_CORE_JAR = "Greenfoot-core-" + Boot.GREENFOOT_API_VERSION + ".jar";
+    private static final String GALLERY_SHARED_JARS = "http://www.greenfootgallery.org/sharedjars/";
+    
     private static Exporter instance;
     
     public static synchronized Exporter getInstance()
@@ -108,6 +111,15 @@ public class Exporter
         
         // do not include source
         jarCreator.includeSource(false);
+       
+        // Add the Greenfoot standalone classes as a separate external jar
+        jarCreator.addExternalJar(GALLERY_SHARED_JARS + GREENFOOT_CORE_JAR);   
+       
+        // Add 3rd party libraries used by Greenfoot.      
+        String[] thirdPartyLibs = Boot.GREENFOOT_EXPORT_JARS;
+        for (String lib : thirdPartyLibs) {
+            jarCreator.addExternalJar(GALLERY_SHARED_JARS + lib);  
+        }
         
         // Extra entries for the manifest
         jarCreator.putManifestEntry("title", pane.getTitle());
@@ -238,8 +250,21 @@ public class Exporter
         JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, includeControls);            
         
         // do not include source
-        jarCreator.includeSource(false);
+        jarCreator.includeSource(false);        
+
+        // Add the Greenfoot standalone classes
+        File greenfootLibDir = Config.getGreenfootLibDir();        
+        File greenfootDir = new File(greenfootLibDir, "standalone");        
+        jarCreator.addDir(greenfootDir);   
         
+        // Add 3rd party libraries used by Greenfoot.
+        File bluejLibDir = Config.getBlueJLibDir();        
+        String[] thirdPartyLibs = Boot.GREENFOOT_EXPORT_JARS;
+        for (int i = 0; i < thirdPartyLibs.length; i++) {
+            String lib = thirdPartyLibs[i];
+            jarCreator.addJar(new File(bluejLibDir,lib));
+        }
+       
         Dimension size = getSize(includeControls);
 
         // Make sure the current properties are saved before they are exported.
@@ -271,6 +296,19 @@ public class Exporter
         JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, includeControls); 
         // do not include source
         jarCreator.includeSource(false);  
+        
+        // Add the Greenfoot standalone classes
+        File greenfootLibDir = Config.getGreenfootLibDir();        
+        File greenfootDir = new File(greenfootLibDir, "standalone");        
+        jarCreator.addDir(greenfootDir);     
+        
+        // Add 3rd party libraries used by Greenfoot.
+        File bluejLibDir = Config.getBlueJLibDir();        
+        String[] thirdPartyLibs = Boot.GREENFOOT_EXPORT_JARS;
+        for (int i = 0; i < thirdPartyLibs.length; i++) {
+            String lib = thirdPartyLibs[i];
+            jarCreator.addJar(new File(bluejLibDir,lib));
+        }
 
         // Make sure the current properties are saved before they are exported.
         project.getProjectProperties().save();
