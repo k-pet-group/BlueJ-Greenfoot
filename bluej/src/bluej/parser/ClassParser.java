@@ -56,7 +56,7 @@ import bluej.utility.Debug;
  * create dependencies to existing classes in the same package (as supplied).
  * 
  * @author Davin McCall
- * @version $Id: ClassParser.java 6301 2009-05-05 06:21:59Z davmac $
+ * @version $Id: ClassParser.java 6328 2009-05-13 06:42:19Z davmac $
  */
 public class ClassParser
 {
@@ -69,7 +69,7 @@ public class ClassParser
         return parse(file, null);
     }
     
-    public static ClassInfo parse(File file, List packageClasses)
+    public static ClassInfo parse(File file, List<String> packageClasses)
         throws RecognitionException
     {
         FileInputStream fr = null;
@@ -89,19 +89,19 @@ public class ClassParser
         }
     }
     
-    public static ClassInfo parse(InputStreamReader ir, List packageClasses)
+    public static ClassInfo parse(InputStreamReader ir, List<String> packageClasses)
         throws RecognitionException
     {
         return getClassParser(ir, packageClasses).getInfo();
     }
     
-    public static List parseList(InputStreamReader ir, List packageClasses)
+    public static List<ClassInfo> parseList(InputStreamReader ir, List<String> packageClasses)
         throws RecognitionException
     {
         return getClassParser(ir, packageClasses).getInfoList();
     }
     
-    public static ClassParser getClassParser(InputStreamReader ir, List packageClasses)
+    public static ClassParser getClassParser(InputStreamReader ir, List<String> packageClasses)
         throws RecognitionException
     {
     // Debug.message("Parsing file: " + file);
@@ -168,7 +168,7 @@ public class ClassParser
     /****************** instance members ***********************/
     
     private ClassInfo classInfo;
-    private List classInfoList = new ArrayList();
+    private List<ClassInfo> classInfoList = new ArrayList<ClassInfo>();
     
     private ClassParser()
     {
@@ -180,12 +180,12 @@ public class ClassParser
         return classInfo;
     }
     
-    public List getInfoList()
+    public List<ClassInfo> getInfoList()
     {
         return classInfoList;
     }
     
-    public void getClassInfo(AST node, List packageClasses) throws RecognitionException
+    public void getClassInfo(AST node, List<String> packageClasses) throws RecognitionException
     {
         if (node == null)
             return;
@@ -199,7 +199,7 @@ public class ClassParser
         
         PackageScope packageScope = new PackageScope();
         if (packageClasses != null) {
-            Iterator i = packageClasses.iterator();
+            Iterator<String> i = packageClasses.iterator();
             while (i.hasNext()) {
                 String className = (String) i.next();
                 packageScope.addType(className);
@@ -290,12 +290,11 @@ public class ClassParser
                     
                     //getTypeParamString(null);
                     // Also get the type parameter names
-                    List tpNames = new ArrayList();
+                    List<String> tpNames = new ArrayList<String>();
                     AST tpAst = tparsNode.getFirstChild();
                     while (tpAst != null) {
                         if (tpAst.getType() == JavaTokenTypes.IDENT) {
                             tpNames.add(getTypeParamString(tpAst));
-                            //tpNames.add(tpAst.getText());
                         }
                         tpAst = tpAst.getNextSibling();
                     }
@@ -337,12 +336,12 @@ public class ClassParser
             node = node.getNextSibling();
         }
         
-        Iterator ci = classInfoList.iterator();
+        Iterator<ClassInfo> ci = classInfoList.iterator();
         while (ci.hasNext()) {
             ClassInfo cinfo = (ClassInfo) ci.next();
-            Iterator i = packageScope.getReferences().iterator();
+            Iterator<String> i = packageScope.getReferences().iterator();
             while (i.hasNext()) {
-                cinfo.addUsed(i.next().toString());
+                cinfo.addUsed(i.next());
             }
             if (packageDefNode != null) {
                 storePackageInfo(packageDefNode, cinfo);
@@ -387,7 +386,7 @@ public class ClassParser
             LocatableAST extendsN = (LocatableAST) cnode;
             LocatableToken extendsTok = extendsN.getImportantToken(0);
             Selection sel = new Selection(extendsTok.getLine(), extendsTok.getColumn(), extendsTok.getLength());
-            ArrayList superInterfaces = new ArrayList();
+            ArrayList<Selection> superInterfaces = new ArrayList<Selection>();
             //info.setExtendsReplaceSelection(sel);
 
             superInterfaces.add(sel);
@@ -445,7 +444,7 @@ public class ClassParser
         LocatableAST superNode = (LocatableAST) cnode.getFirstChild();
         if (superNode != null) {
             
-            ArrayList superInterfaces = new ArrayList();
+            ArrayList<Selection> superInterfaces = new ArrayList<Selection>();
             
             LocatableAST implementsN = (LocatableAST) cnode;
             Token implementsTok = implementsN.getImportantToken(0);

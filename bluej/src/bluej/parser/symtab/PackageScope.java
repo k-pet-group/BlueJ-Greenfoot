@@ -27,7 +27,7 @@ import java.util.List;
 public class PackageScope extends Scope
 {
     // private ClassInfo info;
-    private List references = new ArrayList();
+    private List<String> references = new ArrayList<String>();
     
     public PackageScope()
     {
@@ -44,7 +44,7 @@ public class PackageScope extends Scope
         return r;
     }
     
-    public List getReferences()
+    public List<String> getReferences()
     {
         return references;
     }
