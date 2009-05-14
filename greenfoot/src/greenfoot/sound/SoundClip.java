@@ -118,7 +118,7 @@ public class SoundClip extends Sound
      * Load the sound file supplied by the parameter into this sound engine.
      * 
      */
-    private void open()
+    private boolean open()
     {
     	try {
 			AudioInputStream stream = AudioSystem.getAudioInputStream(url);
@@ -129,6 +129,7 @@ public class SoundClip extends Sound
 			soundClip.open(stream);
 			clipLength = soundClip.getMicrosecondLength() / 1000;
 			setState(ClipState.STOPPED);
+			return true;
 		} catch (SecurityException e) {
 			SoundExceptionHandler.handleSecurityException(e, url.toString());
 		} catch (IllegalArgumentException e) {
@@ -143,6 +144,7 @@ public class SoundClip extends Sound
 		} catch (LineUnavailableException e) {
 			SoundExceptionHandler.handleLineUnavailableException(e);
 		}
+		return false;
 	}
 
     /**
@@ -158,8 +160,11 @@ public class SoundClip extends Sound
         }
         
         if (soundClip == null || clipState == ClipState.CLOSED) {
-            open();
+            if(! open()) {
+            	return;
+            }
         }
+        
         printDebug("1");
         
         if(clipState == ClipState.LOOPING) {
@@ -194,14 +199,17 @@ public class SoundClip extends Sound
 	 */
     public synchronized void loop()
     {
-    	if(clipState == ClipState.LOOPING) {
-    		return;
-    	}
-        if (soundClip == null) {
-            open();
-        } else {
+        if(clipState == ClipState.LOOPING) {
+            return;
+        }
+        if (soundClip == null || clipState == ClipState.CLOSED) {
+            if(! open()) {
+            	return;
+            }
+        } else if(soundClip != null) {
         	soundClip.stop();
-        }  
+        }          
+        
         if(clipState == ClipState.PLAYING || isPaused()) {
 			// Clip.loop will only loop from current frame to endframe,
 			// NOT from beginning frame as it should. To fix this, we have to
