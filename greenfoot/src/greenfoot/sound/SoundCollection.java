@@ -29,7 +29,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Contains a collection of sounds that are currently playing. 
+ * Contains a collection of sounds that are currently open (playing or paused).
  * 
  * @author Poul Henriksen
  */
@@ -70,7 +70,6 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
         }
 		for (Sound sound : playingSounds) {
 			sound.resume();
-
 		}
 		synchronized (this) {
             ignoreEvents = false;
@@ -97,15 +96,11 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
     
 
     /**
-     * Stops all sounds.
+     * Stops all sounds and makes them release the resources.
      * 
      */
     private void close()
-    {
-        //System.out.println("Sounds alive: " + playingSounds.size() + " " + pausedSounds.size());
-        
-    	//TODO: Should close sounds immediately instead of stopping them.
-    	
+    {    	
         synchronized (this) {
             ignoreEvents = true;
         }
@@ -113,14 +108,12 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
         Iterator<Sound> iter = playingSounds.iterator();
         while (iter.hasNext() ) {
             Sound sound = iter.next();
-            iter.remove();
             sound.close();
         }
         
         iter = pausedSounds.iterator();
         while (iter.hasNext() ) {
             Sound sound = iter.next();
-            iter.remove();
             sound.close();
         }
         playingSounds.clear();
@@ -135,7 +128,6 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
 
     public synchronized void playbackStarted(Sound sound)
     {
-      //  System.out.println("playbackStarted: " + sound);
         if (!ignoreEvents) {
             playingSounds.add(sound);
             pausedSounds.remove(sound);
@@ -143,9 +135,7 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
     }
 
     public synchronized void playbackStopped(Sound sound)
-    {        
-      //  System.out.println("playbackStopped: " + sound);
-
+    {       
         if (!ignoreEvents) {
             playingSounds.remove(sound);
             pausedSounds.remove(sound);
@@ -154,11 +144,11 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
 
     public synchronized void playbackPaused(Sound sound)
     {
-      //  System.out.println("playbackPaused: " + sound);
-
         if (!ignoreEvents) {
             pausedSounds.add(sound);
             playingSounds.remove(sound);
         }
     }
+    
+    // TODO: Need a soundClosed to find out when sounds have been close. 
 }

@@ -191,19 +191,6 @@ public class SoundClip extends Sound
 	 * Play this sound from the beginning of the sound and loop around when the
 	 * end have been reached.
 	 * 
-	 * @throws LineUnavailableException
-	 *             if a matching line is not available due to resource
-	 *             restrictions
-	 * @throws IOException
-	 *             if an I/O exception occurs
-	 * @throws SecurityException
-	 *             if a matching line is not available due to security
-	 *             restrictions
-	 * @throws UnsupportedAudioFileException
-	 *             if the URL does not point to valid audio file data
-	 * @throws IllegalArgumentException
-	 *             if the system does not support at least one line matching the
-	 *             specified Line.Info object through any installed mixer
 	 */
     public synchronized void loop()
     {

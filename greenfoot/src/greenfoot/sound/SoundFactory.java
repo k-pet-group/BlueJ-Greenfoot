@@ -39,6 +39,10 @@ public class SoundFactory
     /** singleton */
     private static SoundFactory instance;    
 
+    /**
+	 * Collection of all sounds, which can be used to affect the state of all
+	 * sounds, for instance it can pause/resume all sounds.
+	 */
     private SoundCollection soundCollection;
     
     private SoundCache soundCache = new SoundCache();
@@ -81,18 +85,14 @@ public class SoundFactory
 			int size = url.openConnection().getContentLength();
 
 			if (isMidi(url)) {
-				System.out.println("Creating midi: " + file);
-			    return new MidiFileSound(url, soundCollection);
+				return new MidiFileSound(url, soundCollection);
 			}
 			else if(isMp3(url)) {
-				System.out.println("Creating mp3: " + file);
-			    return new SoundStream(new Mp3AudioInputStream(url), soundCollection);
+				return new SoundStream(new Mp3AudioInputStream(url), soundCollection);
 			}
 			else if (isJavaAudioStream(size)) {
-				System.out.println("Creating stream: " + file);
-			    return new SoundStream(new JavaAudioInputStream(url), soundCollection);
+				return new SoundStream(new JavaAudioInputStream(url), soundCollection);
 			} else {
-				System.out.println("Creating clip: " + file);
 				// The sound is small enough to be loaded into memory as a clip.
 				return new SoundClip(file, url, soundCollection);
 			}
@@ -129,14 +129,11 @@ public class SoundFactory
 	{
     	String lowerCaseName = url.toString().toLowerCase();
 		return lowerCaseName.endsWith("mid") || lowerCaseName.endsWith("midi");
-	}
-    
+	}    
 
 	private boolean isMp3(URL url)
 	{
     	String lowerCaseName = url.toString().toLowerCase();
 		return lowerCaseName.endsWith("mp3");
 	}
-
-
 }
