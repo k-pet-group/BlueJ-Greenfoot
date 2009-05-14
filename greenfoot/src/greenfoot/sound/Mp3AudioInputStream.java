@@ -33,20 +33,21 @@ public class Mp3AudioInputStream implements GreenfootAudioInputStream
 	private BufferedInputStream inputStream;
 	private AudioFormat format;
 	private SampleBuffer unreadSample;
+	
+	/** Whether the stream is open or not. */
+	private boolean open;
 
 	public Mp3AudioInputStream(URL url) throws IOException,
 			UnsupportedAudioFileException
 	{
 		this.url = url;
-		restart();
+		open();
 
 		// TODO: is this the correct way to get the format?
 		Header header = null;
 		try {
 			header = bitstream.readFrame();
-
 			bitstream.unreadFrame();
-
 		} catch (BitstreamException e) {
 			throw new IOException(e.toString());
 		}
@@ -68,29 +69,38 @@ public class Mp3AudioInputStream implements GreenfootAudioInputStream
 		return url.toString();
 	}
 
+	
+	public void open() throws IOException, UnsupportedAudioFileException
+	{
+		if (!open) {
+			readingHasStarted = false;
+			unreadSample = null;
+
+			if (bitstream != null) {
+				try {
+					bitstream.close();
+				} catch (BitstreamException e) {
+					// An exception here is probably not fatal, so we just log
+					// it and continue.) {
+					Debug.reportError(
+							"Exception while closing mp3 audio input stream.",
+							e);
+				}
+			}
+			inputStream = new BufferedInputStream(url.openStream());
+			bitstream = new Bitstream(inputStream);
+
+			decoder = new Decoder();
+			open = true;
+		}
+	}
+	
 	public void restart() throws IOException, UnsupportedAudioFileException
 	{
-		if (!readingHasStarted() && bitstream != null) {
-			return;
+		if(!open || readingHasStarted() || bitstream == null) {
+			open = false;
+			open();
 		}
-		
-		readingHasStarted = false;
-		unreadSample = null;
-
-		if (bitstream != null) {
-			try {
-				bitstream.close();
-			} catch (BitstreamException e) {
-				// An exception here is probably not fatal, so we just log it
-				// and continue.) {
-				Debug.reportError(
-						"Exception while closing mp3 audio input stream.", e);
-			}
-		}
-		inputStream = new BufferedInputStream(url.openStream());
-		bitstream = new Bitstream(inputStream);
-
-		decoder = new Decoder();
 	}
 
 	/**
@@ -111,6 +121,7 @@ public class Mp3AudioInputStream implements GreenfootAudioInputStream
 
 	public void close() throws IOException
 	{
+		open = false;
 		try {
 			bitstream.close();
 		} catch (BitstreamException e) {
@@ -121,7 +132,6 @@ public class Mp3AudioInputStream implements GreenfootAudioInputStream
 	public AudioFormat getFormat()
 	{
 		return format;
-
 	}
 
 	public void mark(int readlimit)

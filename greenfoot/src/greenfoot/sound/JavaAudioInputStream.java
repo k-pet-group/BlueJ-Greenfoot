@@ -22,34 +22,43 @@ public class JavaAudioInputStream implements GreenfootAudioInputStream
 	private AudioInputStream stream;
 	private URL url;
 	private boolean readingHasStarted = false;
+	private boolean open;
 
 	public JavaAudioInputStream(URL url) throws UnsupportedAudioFileException,
 			IOException
 	{
 		this.url = url;
-		restart();
+		open();
 	}
 
-	public void restart() throws UnsupportedAudioFileException, IOException
+	public void open() throws UnsupportedAudioFileException, IOException
 	{
-		if(! readingHasStarted() && stream != null) {
-			return;
+		if (!open) {
+			readingHasStarted = false;
+
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					// An exception here is probably not fatal, so we just log
+					// it and continue.
+					Debug.reportError(
+							"Exception while closing java audio input stream.",
+							e);
+				}
+			}
+			stream = AudioSystem.getAudioInputStream(url);
+			open = true;
 		}
 
-		readingHasStarted = false;
-		
-		if (stream != null ) {
-			try {
-				stream.close();
-			} catch (IOException e) {
-				// An exception here is probably not fatal, so we just log it
-				// and continue.
-				Debug.reportError(
-						"Exception while closing java audio input stream.", e);
-			}
-		} 
-		stream = AudioSystem.getAudioInputStream(url);
-		
+	}
+	
+	public void restart() throws UnsupportedAudioFileException, IOException
+	{
+		if(!open || readingHasStarted() || stream == null) {
+			open = false;
+			open();
+		}		
 	}
 
 	/**
@@ -75,6 +84,7 @@ public class JavaAudioInputStream implements GreenfootAudioInputStream
 
 	public void close() throws IOException
 	{
+		open = false;
 		stream.close();
 	}
 

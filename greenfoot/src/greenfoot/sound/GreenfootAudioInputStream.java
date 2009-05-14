@@ -9,7 +9,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 /**
  * Interface for AudioInputStreams as used in Greenfoot. It is basically just an
  * interface for InputStream but with the getFormat method from AudioInputStream
- * added and two other useful methods: restart and getSource.
+ * added and three other useful methods: open, restart and getSource.
  * 
  * @author Poul Henriksen
  * 
@@ -17,11 +17,22 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 public interface GreenfootAudioInputStream extends Closeable
 {
 	/**
+	 * Opens this stream.
+	 * 
+	 * @throws UnsupportedAudioFileException
+	 *             if the stream does not point to valid audio file data
+	 *             recognised by the system
+	 * @throws IOException
+	 *             if an I/O exception occurs
+	 */
+	public void open() throws IOException, UnsupportedAudioFileException;
+ 	
+	/**
 	 * Restarts this stream by repositioning to the beginning of the stream.
 	 * 
 	 * @throws UnsupportedAudioFileException
 	 *             if the stream does not point to valid audio file data
-	 *             recognized by the system
+	 *             recognised by the system
 	 * @throws IOException
 	 *             if an I/O exception occurs
 	 */
@@ -143,7 +154,7 @@ public interface GreenfootAudioInputStream extends Closeable
      * Closes this audio input stream and releases any system resources associated
      * with the stream.
      * @throws IOException if an input or output error occurs
-	 * @see jjavax.sound.sampled.AudioInputStream#close
+	 * @see javax.sound.sampled.AudioInputStream#close
 	 */
 	public void close() throws IOException;
 

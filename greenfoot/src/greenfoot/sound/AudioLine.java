@@ -83,9 +83,22 @@ public class AudioLine
         // Comment this line out if you don't want debug info.
        // System.out.println(s);
     }
+    
+	/**
+	 * Extra delay in ms added to the sleep time before stopping the sound. This
+	 * is just an extra buffer of time to make sure we don't close it too soon.
+	 * This helps avoid stopping the sound too soon which seems to happen on
+	 * some Linux systems.
+	 */
+	private final static int EXTRA_SLEEP_DELAY = 50;
 
-    private SourceDataLine line;
-    private AudioFormat format;
+	/**
+	 * The actual line that we wrap. I assume this object is thread-safe,
+	 * because it has methods that only makes sense in a multi-threaded
+	 * environment (drain()).
+	 */
+	private volatile SourceDataLine line;
+	private AudioFormat format;
 
     /** Total bytes written since playback started. */
     private long totalWritten;
@@ -132,9 +145,9 @@ public class AudioLine
         throws LineUnavailableException, IllegalArgumentException, IllegalStateException, SecurityException
     {
         if (!open) {
+            line.open(format);
             open = true;
             reset = true;
-            line.open(format);
         }
     }
 
@@ -225,11 +238,11 @@ public class AudioLine
             }
 
             writing = true;
-            line.start();
             started = true;
             reset = false;
             timeTracker.start();
         }
+        line.start();
         int written = line.write(b, off, len);
         synchronized (this) {
             // drain() might be waiting, so we should wake it up.
@@ -294,7 +307,7 @@ public class AudioLine
 
     private synchronized long getTimeLeft()
     {
-        return SoundUtils.getTimeToPlayBytes(totalWritten, format) - timeTracker.getTimeTracked();
+        return SoundUtils.getTimeToPlayBytes(totalWritten, format) - timeTracker.getTimeTracked() + EXTRA_SLEEP_DELAY;
     }
 
 }

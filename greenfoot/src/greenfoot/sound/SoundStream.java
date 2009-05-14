@@ -79,14 +79,17 @@ public class SoundStream extends Sound implements Runnable
 	 */
 	private boolean stopped = true;    
 
-	/** Stream where data is read from */
-	private GreenfootAudioInputStream inputStream;
+	/**
+	 * Stream where data is read from. This stream should only be accessed from
+	 * the playThread.
+	 */
+	private final GreenfootAudioInputStream inputStream;
 	
     /** Listener for state changes. */
-    private SoundPlaybackListener playbackListener;
+    private final SoundPlaybackListener playbackListener;
     
     /** The line that we play the sound through */
-    private AudioLine line;
+    private volatile AudioLine line;
 	private AudioFormat format;
 	private Info info;
     
@@ -231,11 +234,9 @@ public class SoundStream extends Sound implements Runnable
         boolean stayAlive = true;
 
         try {
-            while (stayAlive) {
-            	inputStream.restart();
-            	
-
-                synchronized (this) {
+            while (stayAlive) {      
+            	inputStream.restart();  
+                synchronized (this) {  
 					if (line == null || !format.matches(inputStream.getFormat())) {
 						// If we don't have a line or the format has changed we
 						// need a new line.
