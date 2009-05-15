@@ -445,7 +445,7 @@ public class JarCreator
      * 
      * @param  path Usually a URL or a relative path.
      */
-    public void addExternalJar(String path)
+    public void addToClassPath(String path)
     {
         extraExternalJars.add(path);
     }

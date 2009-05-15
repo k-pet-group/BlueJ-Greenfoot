@@ -26,7 +26,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 6326 2009-05-11 15:01:30Z polle $
+ * @version $Id: Exporter.java 6336 2009-05-15 13:53:12Z polle $
  */
 
 package greenfoot.export;
@@ -45,14 +45,19 @@ import greenfoot.gui.export.ExportWebPagePane;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.rmi.RemoteException;
 
 import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
 
 import bluej.Boot;
 import bluej.Config;
+import bluej.extensions.ProjectNotOpenException;
+import bluej.pkgmgr.Project;
+import bluej.utility.FileUtility;
 
 public class Exporter 
         implements PublishListener
@@ -113,12 +118,12 @@ public class Exporter
         jarCreator.includeSource(false);
        
         // Add the Greenfoot standalone classes as a separate external jar
-        jarCreator.addExternalJar(GALLERY_SHARED_JARS + GREENFOOT_CORE_JAR);   
+        jarCreator.addToClassPath(GALLERY_SHARED_JARS + GREENFOOT_CORE_JAR);   
        
         // Add 3rd party libraries used by Greenfoot.      
         String[] thirdPartyLibs = Boot.GREENFOOT_EXPORT_JARS;
         for (String lib : thirdPartyLibs) {
-            jarCreator.addExternalJar(GALLERY_SHARED_JARS + lib);  
+            jarCreator.addToClassPath(GALLERY_SHARED_JARS + lib);  
         }
         
         // Extra entries for the manifest
@@ -264,7 +269,15 @@ public class Exporter
             String lib = thirdPartyLibs[i];
             jarCreator.addJar(new File(bluejLibDir,lib));
         }
-       
+        
+        // Add jars in +libs dir in project directory
+        File[] jarFiles = getJarsInPlusLib(project);
+        if (jarFiles != null) {
+            for (File file : jarFiles) {
+                jarCreator.addJar(file);
+            }
+        }                    
+        
         Dimension size = getSize(includeControls);
 
         // Make sure the current properties are saved before they are exported.
@@ -277,6 +290,23 @@ public class Exporter
         File outputFile = new File(exportDir, htmlName);
         jarCreator.generateHTMLSkeleton(outputFile, title, size.width, size.height);
         dlg.setProgress(false, Config.getString("export.progress.complete")); 
+    }
+
+    private File[] getJarsInPlusLib(GProject project)
+    {
+        File[] jarFiles = null;
+        try {
+            File plusLibsDir = new File(project.getDir(), Project.projectLibDirName);
+            jarFiles = plusLibsDir.listFiles(new FilenameFilter() {
+                public boolean accept(File dir, String name)
+                {
+                    return name.toLowerCase().endsWith(".jar");
+                }
+            });
+        }
+        catch (ProjectNotOpenException e) {}
+        catch (RemoteException e) {}
+        return jarFiles;
     }
         
     /**
@@ -310,6 +340,14 @@ public class Exporter
             jarCreator.addJar(new File(bluejLibDir,lib));
         }
 
+        // Add jars in +libs dir in project directory
+        File[] jarFiles = getJarsInPlusLib(project);
+        if (jarFiles != null) {
+            for (File file : jarFiles) {
+                jarCreator.addJar(file);
+            }
+        }         
+        
         // Make sure the current properties are saved before they are exported.
         project.getProjectProperties().save();
         
