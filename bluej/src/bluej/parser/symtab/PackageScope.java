@@ -35,13 +35,11 @@ public class PackageScope extends Scope
         // this.info = info;
     }
     
-    public boolean checkType(String name)
+    public void addTypeReference(String name)
     {
-        boolean r = super.checkType(name);
-        if (r) {
-            references.add(name);
-        }
-        return r;
+    	if (hasType(name)) {
+    		references.add(name);
+    	}
     }
     
     public List<String> getReferences()

@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -56,7 +57,7 @@ import bluej.utility.Debug;
  * create dependencies to existing classes in the same package (as supplied).
  * 
  * @author Davin McCall
- * @version $Id: ClassParser.java 6328 2009-05-13 06:42:19Z davmac $
+ * @version $Id: ClassParser.java 6332 2009-05-15 05:21:25Z davmac $
  */
 public class ClassParser
 {
@@ -89,19 +90,19 @@ public class ClassParser
         }
     }
     
-    public static ClassInfo parse(InputStreamReader ir, List<String> packageClasses)
+    public static ClassInfo parse(Reader ir, List<String> packageClasses)
         throws RecognitionException
     {
         return getClassParser(ir, packageClasses).getInfo();
     }
     
-    public static List<ClassInfo> parseList(InputStreamReader ir, List<String> packageClasses)
+    public static List<ClassInfo> parseList(Reader ir, List<String> packageClasses)
         throws RecognitionException
     {
         return getClassParser(ir, packageClasses).getInfoList();
     }
     
-    public static ClassParser getClassParser(InputStreamReader ir, List<String> packageClasses)
+    public static ClassParser getClassParser(Reader ir, List<String> packageClasses)
         throws RecognitionException
     {
     // Debug.message("Parsing file: " + file);
@@ -202,7 +203,7 @@ public class ClassParser
             Iterator<String> i = packageClasses.iterator();
             while (i.hasNext()) {
                 String className = (String) i.next();
-                packageScope.addType(className);
+                packageScope.addType(className, null);
             }
         }
         Scope compUnitScope = new Scope(packageScope);
@@ -221,7 +222,7 @@ public class ClassParser
                         // we're only interested in explicit identifiers.
                         if (impSecond.getType() == JavaTokenTypes.IDENT) {
                             String importName = TextParser.combineDotNames(importNode, '.');
-                            compUnitScope.addType(importName);
+                            compUnitScope.addType(importName, null);
                         }
                     }
                 }
@@ -269,12 +270,13 @@ public class ClassParser
             if (cnode != null && cnode.getType() == JavaTokenTypes.IDENT) {
                 LocatableAST nameNode = (LocatableAST) cnode;
                 String name = nameNode.getText();
-                compUnitScope.addType(name);
                 ClassInfo info = new ClassInfo();
                 info.setName(name, isPublic);
                 info.setAbstract(isAbstract);
                 info.setInterface(ntype == JavaTokenTypes.INTERFACE_DEF);
                 info.setEnum(ntype == JavaTokenTypes.ENUM_DEF);
+                ClassScope classScope = new ClassScope(info, compUnitScope);
+                compUnitScope.addType(name, classScope);
                 
                 cnode = cnode.getNextSibling();
                 
@@ -322,19 +324,24 @@ public class ClassParser
                 
                 // Class/interface body
                 if (cnode != null && cnode.getType() == JavaTokenTypes.OBJBLOCK) {
-                    processObjBlock(cnode, new ClassScope(info, compUnitScope));
+                    processObjBlock(cnode, classScope);
                 }
+                
+                classScope.closeScope();
                 
                 classInfoList.add(info);
                 
                 // If this is the first class, or it's a public class, store it.
-                if (classInfo == null || isPublic)
+                if (classInfo == null || isPublic) {
                     classInfo = info;
+                }
             }
 
             // Go onto next node
             node = node.getNextSibling();
         }
+        
+        compUnitScope.closeScope();
         
         Iterator<ClassInfo> ci = classInfoList.iterator();
         while (ci.hasNext()) {
@@ -554,7 +561,7 @@ public class ClassParser
         AST cnode = node.getFirstChild();
  
         // First we want to do a pass where we add all appropriate symbol names to
-        // the scope.
+        // the scope. FIXME no longer needed, handled in scopes.
         while (cnode != null) {
             int cnodeType = cnode.getType();
             switch (cnodeType) {
@@ -597,7 +604,9 @@ public class ClassParser
                     
                 case JavaTokenTypes.INSTANCE_INIT:
                 case JavaTokenTypes.STATIC_INIT:
-                    processCodeBlock(cnode.getFirstChild(), new Scope(scope));
+                	Scope staticInitScope = new Scope(scope);
+                    processCodeBlock(cnode.getFirstChild(), staticInitScope);
+                    staticInitScope.closeScope();
                     break;
 
                 case JavaTokenTypes.CLASS_DEF:
@@ -635,6 +644,7 @@ public class ClassParser
         if (node != null && node.getType() == JavaTokenTypes.OBJBLOCK) {
             Scope newScope = new Scope(scope);
             processObjBlock(node, newScope);
+            newScope.closeScope();
         }
     }
     
@@ -642,18 +652,26 @@ public class ClassParser
     {
         // A class, interface or enum definition.
         // Find the OBJBLOCK node and process that.
+    	
+        AST cnode = node.getFirstChild(); // MODIFIERS
+        cnode = cnode.getNextSibling(); // Should be the identifier
+        String typeName = cnode.getText();
         
-        AST cnode = node.getFirstChild();
-        while (cnode.getType() != JavaTokenTypes.OBJBLOCK)
+        while (cnode.getType() != JavaTokenTypes.OBJBLOCK) {
             cnode = cnode.getNextSibling();
+        }
         
-        processObjBlock(cnode, new Scope(scope));
+        Scope typeDefScope = new Scope(scope);
+        scope.addType(typeName, typeDefScope);
+        processObjBlock(cnode, typeDefScope);
+        typeDefScope.closeScope();
     }
     
     /**
      * Process a code block, generally surrounded by '{ }' brackets in code.
      * In general the scope passed in should be a newly created scope, but it
      * may contain method/constructor parameter names for instance.
+     * 
      * @param node   The node representing the code block
      * @param scope  The (newly created) scope for this code block
      */
@@ -685,7 +703,9 @@ public class ClassParser
                 break;
                 
             case JavaTokenTypes.SLIST:
-                processCodeBlock(node, new Scope(scope));
+            	Scope slistScope = new Scope(scope);
+                processCodeBlock(node, slistScope);
+                slistScope.closeScope();
                 break;
                 
             case JavaTokenTypes.VARIABLE_DEF:
@@ -741,6 +761,7 @@ public class ClassParser
                 }
                 node = node.getNextSibling();
                 processStatement(node, forScope);
+                forScope.closeScope();
                 break;
             }
                 
@@ -759,6 +780,7 @@ public class ClassParser
                 processExpression(node, scope);
                 node = node.getNextSibling();
                 processStatement(node, forScope);
+                forScope.closeScope();
                 break;
             }
             
@@ -806,6 +828,7 @@ public class ClassParser
                     }
                     node = node.getNextSibling();
                 }
+                switchScope.closeScope();
                 break;
             }
             
@@ -820,12 +843,13 @@ public class ClassParser
                         AST tnode = cnode.getFirstChild().getNextSibling(); // type
                         String catchTypeName = getFirstLevelName(tnode.getFirstChild());
                         String catchVarName = tnode.getNextSibling().getText();
-                        scope.checkType(catchTypeName);
+                        scope.addTypeReference(catchTypeName);
                         
                         // catch block
                         Scope catchBlockScope = new Scope(scope);
                         catchBlockScope.addVariable(catchVarName);
                         processStatement(cnode.getNextSibling(), catchBlockScope);
+                        catchBlockScope.closeScope();
                     }
                     node = node.getNextSibling();
                 }
@@ -897,7 +921,7 @@ public class ClassParser
         
         AST tnode = node.getFirstChild().getNextSibling();
         String typeName = getFirstLevelName(tnode.getFirstChild());
-        scope.checkType(typeName); // for dependency tracking
+        scope.addTypeReference(typeName); // for dependency tracking
         if (paramTypeList != null) {
             String paramType = getCompleteTypeString(tnode.getFirstChild());
             if (isVarArg)
@@ -933,7 +957,7 @@ public class ClassParser
         
         // Generate a reference.
         String typeName = getFirstLevelName(cnode.getFirstChild());
-        scope.checkType(typeName);
+        scope.addTypeReference(typeName);
         
         AST initializerNode = cnode.getNextSibling().getNextSibling();
         if (initializerNode != null) {
@@ -954,9 +978,7 @@ public class ClassParser
             {
                 // A simple type or variable name
                 String name = node.getText();
-                if (! scope.checkVariable(name)) {
-                    scope.checkType(name);
-                }
+                scope.addVarOrClassReference(name);
                 break;
             }
             
@@ -970,7 +992,7 @@ public class ClassParser
                     while (node.getType() == JavaTokenTypes.ARRAY_DECLARATOR)
                         node = node.getFirstChild();
                     String className = getFirstLevelName(node);
-                    scope.checkType(className);
+                    scope.addTypeReference(className);
                     break;
                 }
                 
@@ -1070,7 +1092,7 @@ public class ClassParser
                 processExpression(node, scope);
                 node = node.getNextSibling();
                 String tname = getFirstLevelName(node.getFirstChild());
-                scope.checkType(tname);
+                scope.addTypeReference(tname);
                 break;
             }
             
@@ -1088,7 +1110,7 @@ public class ClassParser
                 //  TYPE expr
                 node = node.getFirstChild();
                 String typeName = getFirstLevelName(node.getFirstChild());
-                scope.checkType(typeName);
+                scope.addTypeReference(typeName);
                 processExpression(node.getNextSibling(), scope);
                 break;
             }
@@ -1098,7 +1120,7 @@ public class ClassParser
                 // "new" node: type, ELIST (or array declarators)
                 node = node.getFirstChild();  // type
                 String typeName = getFirstLevelName(node);
-                scope.checkType(typeName); // create reference
+                scope.addTypeReference(typeName); // create reference
                 node = node.getNextSibling(); // argument list
                 if (node.getType() == JavaTokenTypes.ELIST) {
                     processExpressionList(node, scope);
@@ -1192,7 +1214,7 @@ public class ClassParser
         if (! isConstructor) {
             // Generate a reference to the return type
             rtypeName = getFirstLevelName(cnode.getFirstChild());
-            scope.checkType(rtypeName);
+            scope.addTypeReference(rtypeName);
             rtypeName = getCompleteTypeString(cnode.getFirstChild());
             cnode = cnode.getNextSibling();  // identifier
         }
@@ -1217,6 +1239,7 @@ public class ClassParser
             }
             cnode = cnode.getNextSibling();
         }
+        methodScope.closeScope();
         
         // Add the method into the scope (with attached comment)
         String commentText = null;

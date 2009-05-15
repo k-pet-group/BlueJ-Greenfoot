@@ -29,8 +29,10 @@ public class Scope
 {
     private Scope parentScope;
     
-    private Set types;
-    private Set variables;
+    private Set<String> types;
+    private Set<String> variables;
+    private Set<String> varOrClassRefs;  // unresolved references to a class or variable
+    private Set<String> classRefs; // unresolved references to a class
     
     /**
      * Construct a new scope with the given parent. The parent may be null to indicate
@@ -39,8 +41,10 @@ public class Scope
     public Scope(Scope parent)
     {
         parentScope = parent;
-        types = new HashSet();
-        variables = new HashSet();
+        types = new HashSet<String>();
+        variables = new HashSet<String>();
+        varOrClassRefs = new HashSet<String>();
+        classRefs = new HashSet<String>();
     }
     
     /**
@@ -49,45 +53,40 @@ public class Scope
     public void addVariable(String name)
     {
         variables.add(name);
+        varOrClassRefs.remove(name);
     }
     
     /**
-     * Check to see whether a variable with the given name is defined in this scope
-     * or a parent scope.
+     * Add a reference to an entity which might be either a variable or a class.
      */
-    public boolean checkVariable(String name)
+    public void addVarOrClassReference(String name)
     {
-        if (variables.contains(name))
-            return true;
-        
-        if (parentScope == null)
-            return false;
-        
-        return parentScope.checkVariable(name);
+    	if (variables.contains(name) || types.contains(name)) {
+    		return;
+    	}
+    	
+    	varOrClassRefs.add(name);
     }
     
     /**
-     * Add a type into the current scope.
+     * Add a type into the current scope. The subscope is the scope within the type
+     * declaration.
      */
-    public void addType(String name)
+    public void addType(String name, Scope subscope)
     {
         types.add(name);
+        classRefs.remove(name);
+        varOrClassRefs.remove(name);
     }
-    
+        
     /**
-     * Check to see whether a type (class or interface) with the given name is defined
-     * in this scope or a parent scope. In general, a name should be resolved as a variable
-     * first (checkVariable method) unless context excludes variables.
+     * Add a reference to a type.
      */
-    public boolean checkType(String name)
+    public void addTypeReference(String name)
     {
-        if (types.contains(name))
-            return true;
-        
-        if (parentScope == null)
-            return false;
-        
-        return parentScope.checkType(name);
+    	if (! types.contains(name)) {
+    		classRefs.add(name);
+    	}
     }
     
     /**
@@ -101,8 +100,29 @@ public class Scope
      *                    (may be null)
      * @param comment   The attached javadoc comment, if any, or null.
      */
-    public void addMethod(String name, String tpars, String retType, List paramTypes, List paramNames, String comment)
+    public void addMethod(String name, String tpars, String retType, List<?> paramTypes, List<?> paramNames, String comment)
     {
         // By default, don't do anything.
+    }
+    
+    /**
+     * Close this scope, i.e. indicate that no new variables/types/methods will be added to it.
+     */
+    public void closeScope()
+    {
+    	for (String varRef : varOrClassRefs) {
+    		parentScope.addVarOrClassReference(varRef);
+    	}
+    	for (String classRef : classRefs) {
+    		parentScope.addTypeReference(classRef);
+    	}
+    }
+    
+    /**
+     * Check whether the given type is defined in this scope.
+     */
+    public boolean hasType(String name)
+    {
+    	return types.contains(name);
     }
 }
