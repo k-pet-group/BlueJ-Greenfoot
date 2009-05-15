@@ -22,6 +22,7 @@
 package bluej.parser;
 
 import java.io.File;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -294,5 +295,28 @@ public class BasicParseTest extends junit.framework.TestCase
         assertTrue(used.contains("K")); 
         assertTrue(used.contains("L")); 
         assertTrue(used.contains("M")); 
+    }
+    
+    /**
+     * Test dependency analysis works correctly in the presence of inner classes.
+     * In this example, the "I" in the method body refers to the inner class "I" and
+     * should not generate an external reference.
+     */
+    public void testDependencyAnalysis2() throws Exception
+    {
+    	List<String> classes = new ArrayList<String>();
+    	classes.add("I");
+    	StringReader sr = new StringReader(
+    			"class A {" +
+    			"  void someMethod() {" +
+    			"    I i = new I();" +
+    			"  } " +
+    			"  class I { }" +
+    			"}"
+    	);
+    	ClassInfo info = ClassParser.parse(sr, classes);
+    	List<String> used = info.getUsed();
+    	
+    	assertFalse(used.contains("I"));
     }
 }
