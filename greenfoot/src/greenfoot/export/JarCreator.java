@@ -40,10 +40,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import bluej.Config;
@@ -80,6 +83,9 @@ public class JarCreator
     
     /** List of extra jars that should be put in the same dir as the created jar (the exportDir)*/
     private List<File> extraJars = new LinkedList<File>();
+    
+    /** List of extra jars whose contents should be put into the created jar */
+    private List<File> extraJarsInJar = new LinkedList<File>();
 
     /** List of paths to external jars that should be included in the manifest's classpath. */
     private List<String> extraExternalJars = new LinkedList<String>();
@@ -300,7 +306,9 @@ public class JarCreator
             for(PrefixedFile dir : prefixDirs) {
                 writeDirToJar(dir.getFile(), pathPrefix + dir.getPrefix(), jStream, jarFile.getCanonicalFile());
             }
-            
+            for(File jar : extraJarsInJar) {
+                writeJarToJar(jar, jStream);
+            }
             copyLibsToDir(extraJars, exportDir);            
         }
         catch (IOException exc) {
@@ -438,6 +446,18 @@ public class JarCreator
     {
         extraJars.add(jar);
     }
+    
+    /** 
+     * Add a jar to the list of extra jars whose contents should be put into the created jar 
+     * <br>
+     * 
+     * This will usually be the jars +libs dir and userlib jars
+     * @param jar A jar file.
+     */
+    public void addJarToJar(File jar)
+    {
+        extraJarsInJar.add(jar);
+    }
 
     /**
      * Adds a location of an external jar file. This will be added to the
@@ -515,6 +535,29 @@ public class JarCreator
                 }
             }
         }
+    }
+    
+    /**
+     * Write the contents of a jar into another jar stream. 
+     */
+    private void writeJarToJar(File inputJar, ZipOutputStream outputStream)
+        throws IOException
+    {
+        
+        JarInputStream inputStream = new JarInputStream(
+                new BufferedInputStream(new FileInputStream(inputJar)));
+        
+        ZipEntry inputEntry = inputStream.getNextJarEntry();
+        while(inputEntry != null) {
+            //TODO: What if we have duplicate files????
+            outputStream.putNextEntry(inputEntry);
+            FileUtility.copyStream(inputStream, outputStream);
+            inputStream.closeEntry();
+            inputEntry = inputStream.getNextJarEntry();
+        }        
+        inputStream.close();
+        
+     
     }
 
     /**

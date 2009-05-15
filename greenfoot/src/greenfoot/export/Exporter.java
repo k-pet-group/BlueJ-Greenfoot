@@ -26,7 +26,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 6336 2009-05-15 13:53:12Z polle $
+ * @version $Id: Exporter.java 6337 2009-05-15 15:26:25Z polle $
  */
 
 package greenfoot.export;
@@ -337,14 +337,14 @@ public class Exporter
         String[] thirdPartyLibs = Boot.GREENFOOT_EXPORT_JARS;
         for (int i = 0; i < thirdPartyLibs.length; i++) {
             String lib = thirdPartyLibs[i];
-            jarCreator.addJar(new File(bluejLibDir,lib));
+            jarCreator.addJarToJar(new File(bluejLibDir,lib));
         }
 
         // Add jars in +libs dir in project directory
         File[] jarFiles = getJarsInPlusLib(project);
         if (jarFiles != null) {
             for (File file : jarFiles) {
-                jarCreator.addJar(file);
+                jarCreator.addJarToJar(file);
             }
         }         
         
