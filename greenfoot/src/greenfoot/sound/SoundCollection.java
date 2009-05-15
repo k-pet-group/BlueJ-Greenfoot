@@ -39,7 +39,10 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
     private Set<Sound> playingSounds = new HashSet<Sound>();
     
     /** Sounds paused by the user code. */
-    private Set<Sound> pausedSounds = new HashSet<Sound>();    
+    private Set<Sound> pausedSounds = new HashSet<Sound>(); 
+    
+    /** Sounds closed by the user code. */
+    private Set<Sound> stoppedSounds = new HashSet<Sound>();     
     
     private volatile boolean ignoreEvents = false;
     
@@ -116,8 +119,17 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
             Sound sound = iter.next();
             sound.close();
         }
+        
+
+        iter = stoppedSounds.iterator();
+        while (iter.hasNext() ) {
+            Sound sound = iter.next();
+            sound.close();
+        }
+        
         playingSounds.clear();
         pausedSounds.clear();
+        stoppedSounds.clear();
 
         synchronized (this) {
             ignoreEvents = false;
@@ -131,6 +143,7 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
         if (!ignoreEvents) {
             playingSounds.add(sound);
             pausedSounds.remove(sound);
+            stoppedSounds.remove(sound);
         }
     }
 
@@ -139,6 +152,7 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
         if (!ignoreEvents) {
             playingSounds.remove(sound);
             pausedSounds.remove(sound);
+            stoppedSounds.add(sound);
         }
     }
 
@@ -147,10 +161,16 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
         if (!ignoreEvents) {
             pausedSounds.add(sound);
             playingSounds.remove(sound);
+            stoppedSounds.remove(sound);
         }
     }
     
-    // TODO: Need a soundClosed to find out when sounds have been closed. When
-	// they have been stopped, we still need to find the sounds that are not
-	// closed in order to close them if we get a reset.
+    public synchronized void soundClosed(Sound sound) 
+    {
+        if (!ignoreEvents) {
+            pausedSounds.remove(sound);
+            playingSounds.remove(sound);
+            stoppedSounds.remove(sound);
+        }
+    }
 }

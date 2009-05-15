@@ -35,12 +35,12 @@ import bluej.utility.Debug;
 
 /**
  * Plays sound from a URL. To avoid loading the entire sound clip into memory,
- * the sound is streamed. Teh sound can either be a standard sound supported by
+ * the sound is streamed. The sound can either be a standard sound supported by
  * the core Java libraries or an MP3.
- * 
  * 
  * @see Mp3AudioInputStream
  * @see JavaAudioInputStream
+ * 
  * @author Poul Henriksen
  * 
  */
@@ -49,7 +49,7 @@ public class SoundStream implements Sound, Runnable
     private static void printDebug(String s) 
     {
     	// Comment this line out if you don't want debug info.  
-    	// System.out.println(s);        
+    	 System.out.println(s);        
     }
     
     /**
@@ -337,6 +337,7 @@ public class SoundStream implements Sound, Runnable
 
                     if ((!restart && !loop) || stop) {
                         stopped = true;
+                        playbackListener.playbackStopped(this);
                         // Have a short pause before we get rid of the
                         // thread, in case the sound is played again soon
                         // after.
@@ -397,7 +398,7 @@ public class SoundStream implements Sound, Runnable
                     e.printStackTrace();
                 }
             }
-            playbackListener.playbackStopped(this);
+            playbackListener.soundClosed(this);
         }
     }
 

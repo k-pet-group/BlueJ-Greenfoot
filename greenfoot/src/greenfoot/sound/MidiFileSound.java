@@ -159,15 +159,13 @@ public class MidiFileSound implements Sound
 	public synchronized void stop()
 	{
 		pause = false;
-		/*sequencer.stop();
-		sequencer.setMicrosecondPosition(0);
-		playbackListener.playbackStopped(this);*/
 		close();
 	}
 
 	@Override
 	public synchronized void close()
 	{
+        playbackListener.playbackStopped(this);
 		pause = false;
 		printDebug(" playback ended: " + url);
 		if (sequencer != null) {
@@ -176,7 +174,7 @@ public class MidiFileSound implements Sound
 		if (synthesizer != null) {
 			synthesizer.close();
 		}
-		playbackListener.playbackStopped(this);
+        playbackListener.soundClosed(this);
 	}
 
 	@Override

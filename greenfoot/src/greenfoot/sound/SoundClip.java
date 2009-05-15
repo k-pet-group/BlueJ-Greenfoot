@@ -349,6 +349,8 @@ public class SoundClip implements Sound
                 case LOOPING :
                     playbackListener.playbackStarted(this);
                     break;
+                case CLOSED :
+                    playbackListener.soundClosed(this);
             }
         }
 

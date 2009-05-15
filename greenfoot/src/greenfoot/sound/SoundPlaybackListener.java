@@ -31,4 +31,5 @@ public interface SoundPlaybackListener
     public void playbackStarted(Sound sound);
     public void playbackPaused(Sound sound);
     public void playbackStopped(Sound sound);
+    public void soundClosed(Sound sound);
 }
