@@ -23,7 +23,7 @@ import javax.sound.midi.Transmitter;
  * @author Poul Henriksen
  * 
  */
-public class MidiFileSound extends Sound
+public class MidiFileSound implements Sound
 {
 	private void printDebug(String s)
 	{

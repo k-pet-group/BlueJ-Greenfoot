@@ -150,5 +150,7 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
         }
     }
     
-    // TODO: Need a soundClosed to find out when sounds have been close. 
+    // TODO: Need a soundClosed to find out when sounds have been closed. When
+	// they have been stopped, we still need to find the sounds that are not
+	// closed in order to close them if we get a reset.
 }

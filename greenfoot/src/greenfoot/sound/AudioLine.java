@@ -61,7 +61,7 @@ import javax.sound.sampled.SourceDataLine;
  * <ul>
  * <li>Closing and opening a line repeatedly crashes the JVM with this error.
  * Can be reproduced in the piano scenario if you quickly press the same button
- * about 10-20 times in row. (JDK 1.5 prints the error below, 1.6 jsut crashes
+ * about 10-20 times in row. (JDK 1.5 prints the error below, 1.6 just crashes
  * silently): <br>
  * java(3382,0xb1b4e000) malloc: *** mmap(size=1073745920) failed (error
  * code=12)<br>

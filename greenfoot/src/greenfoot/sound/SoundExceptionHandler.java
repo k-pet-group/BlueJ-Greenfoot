@@ -31,7 +31,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  * This class should be forwarded some of the common sound exceptions. It keeps
  * track of which type of exceptions has already been shown to the user, and
  * makes sure not to repeatedly show the same exception which would otherwise
- * be like ly to happen. For instance, it is enough to tell the user once, if a
+ * be likely to happen. For instance, it is enough to tell the user once, if a
  * soundcard can't be found, not every time a sound is attempted to be played.
  * 
  * @author Poul Henriksen

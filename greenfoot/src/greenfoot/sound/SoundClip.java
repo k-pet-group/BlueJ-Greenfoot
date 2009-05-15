@@ -40,7 +40,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  * @author Poul Henriksen
  * 
  */
-public class SoundClip extends Sound
+public class SoundClip implements Sound
 {
     private void printDebug(String s) 
     {

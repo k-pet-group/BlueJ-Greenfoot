@@ -21,8 +21,16 @@
  */
 package greenfoot.sound;
 
-
-public abstract class Sound
+/**
+ * Interface for different types of sounds supported by Greenfoot.
+ * 
+ * @see SoundStream
+ * @see MidiFileSound
+ * @see SoundClip
+ * @author Poul Henriksen 
+ *
+ */
+public interface Sound
 {
 	/**
 	 * Closes this sound. Will immediately release any resources for the sound.

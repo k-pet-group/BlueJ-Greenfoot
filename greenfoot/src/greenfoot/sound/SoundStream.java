@@ -35,12 +35,16 @@ import bluej.utility.Debug;
 
 /**
  * Plays sound from a URL. To avoid loading the entire sound clip into memory,
- * the sound is streamed.
- *  
+ * the sound is streamed. Teh sound can either be a standard sound supported by
+ * the core Java libraries or an MP3.
+ * 
+ * 
+ * @see Mp3AudioInputStream
+ * @see JavaAudioInputStream
  * @author Poul Henriksen
  * 
  */
-public class SoundStream extends Sound implements Runnable
+public class SoundStream implements Sound, Runnable
 {
     private static void printDebug(String s) 
     {
