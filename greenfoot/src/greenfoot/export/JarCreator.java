@@ -155,7 +155,7 @@ public class JarCreator
         
         String scenarioName = project.getName();
         
-        addDir(projectDir);
+        addFile(projectDir);
 
         // skip CVS stuff
         addSkipDir("CVS");
@@ -245,7 +245,7 @@ public class JarCreator
         }
         
         
-        addDir(projectDir);        
+        addFile(projectDir);        
         
         // skip CVS stuff
         addSkipDir("CVS");
@@ -301,10 +301,10 @@ public class JarCreator
             }
             // Write contents of directories added
             for(File dir : dirs) {
-                writeDirToJar(dir, pathPrefix, jStream, jarFile.getCanonicalFile());
+                writeFileToJar(dir, pathPrefix, jStream, jarFile.getCanonicalFile(), true);
             }
             for(PrefixedFile dir : prefixDirs) {
-                writeDirToJar(dir.getFile(), pathPrefix + dir.getPrefix(), jStream, jarFile.getCanonicalFile());
+                writeFileToJar(dir.getFile(), pathPrefix + dir.getPrefix(), jStream, jarFile.getCanonicalFile(), true);
             }
             for(File jar : extraJarsInJar) {
                 writeJarToJar(jar, jStream);
@@ -471,24 +471,23 @@ public class JarCreator
     }
     
     /**
-     * Directory to include in export.
+     * Directory or file to include in export.
      * 
-     * @param dir
      */
-    public void addDir(File dir)
+    public void addFile(File file)
     {
-        dirs.add(dir);
+        dirs.add(file);
     }
 
     
     /**
-     * Directory to include in export, with the given prefix added when putting
+     * Directory or file to include in export, with the given prefix added when putting
      * it into the jar.
      * 
      */
-    public void addDir(String prefix, File dir)
+    public void addFile(String prefix, File file)
     {
-        prefixDirs.add(new PrefixedFile(prefix, dir));
+        prefixDirs.add(new PrefixedFile(prefix, file));
     }
     
     /**
@@ -508,7 +507,7 @@ public class JarCreator
     {
         skipFiles.add(file);
     }
-    
+
     /**
      * Write the contents of a directory to a jar stream. Recursively called for
      * subdirectories. outputFile should be the canonical file representation of
@@ -518,21 +517,37 @@ public class JarCreator
     private void writeDirToJar(File sourceDir, String pathPrefix, ZipOutputStream stream, File outputFile)
         throws IOException
     {
-        File[] dir = sourceDir.listFiles();
-        for (int i = 0; i < dir.length; i++) {
-            if (dir[i].isDirectory()) {
-                if (!skipDir(dir[i])) {
-                    writeDirToJar(dir[i], pathPrefix + dir[i].getName() + "/", stream, outputFile);
-                }
+        if (!skipDir(sourceDir)) {
+            File[] dir = sourceDir.listFiles();
+            for (int i = 0; i < dir.length; i++) {
+                writeFileToJar(dir[i], pathPrefix, stream, outputFile, false);
             }
-            else {
-                // check against a list of file we don't want to export and also
-                // check that we don't try to export the jar file we are writing
-                // (hangs the machine)
-                if (!skipFile(dir[i].getName(), !includeSource)
-                        && !outputFile.equals(dir[i].getCanonicalFile())) {
-                    writeJarEntry(dir[i], stream, pathPrefix + dir[i].getName());
-                }
+        }
+    }
+    
+    /**
+     * Writes a file or directory to a jar. Recursively called for
+     * subdirectories. outputFile should be the canonical file representation of
+     * the Jar file we are creating (to prevent including itself in the Jar
+     * file)
+     * @param onlyDirContents If sourceFile is a dir, this parameter indicates that the contents of the dir should be added, not the dir itself.
+     */
+    private void writeFileToJar(File sourceFile, String pathPrefix, ZipOutputStream stream, File outputFile, boolean onlyDirContents)
+        throws IOException
+    {
+        if(sourceFile.isDirectory()) {
+            if(!onlyDirContents) {
+                pathPrefix += sourceFile.getName()  + "/";
+            }
+            writeDirToJar(sourceFile, pathPrefix, stream, outputFile);
+        }
+        else {
+            // check against a list of files we don't want to export and also
+            // check that we don't try to export the jar file we are writing
+            // (hangs the machine)
+            if (!skipFile(sourceFile.getName(), !includeSource)
+                    && !outputFile.equals(sourceFile.getCanonicalFile())) {
+                writeJarEntry(sourceFile, stream, pathPrefix + sourceFile.getName());
             }
         }
     }
@@ -556,8 +571,6 @@ public class JarCreator
             inputEntry = inputStream.getNextJarEntry();
         }        
         inputStream.close();
-        
-     
     }
 
     /**
@@ -649,7 +662,9 @@ public class JarCreator
         translations.put("APPLETHEIGHT", "" + height);
 
         // add libraries from <project>/+libs/ to archives
-        /*String archives = jarName;
+        /*
+        This does not work on Safari (and maybe other browser as well)
+        String archives = jarName;
         try {
             for (int i = 0; i < libs.length; i++) {
                 if (archives.length() == 0)

@@ -26,7 +26,7 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 6337 2009-05-15 15:26:25Z polle $
+ * @version $Id: Exporter.java 6339 2009-05-18 11:53:07Z polle $
  */
 
 package greenfoot.export;
@@ -41,6 +41,7 @@ import greenfoot.gui.export.ExportAppPane;
 import greenfoot.gui.export.ExportDialog;
 import greenfoot.gui.export.ExportPublishPane;
 import greenfoot.gui.export.ExportWebPagePane;
+import greenfoot.util.GreenfootUtil;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
@@ -77,6 +78,7 @@ public class Exporter
     
     private File tmpJarFile;
     private File tmpImgFile;
+    private File tmpZipFile;
     private WebPublisher webPublisher;
     private ExportDialog dlg;
     
@@ -152,7 +154,6 @@ public class Exporter
         
         jarCreator.create();
             
-        File tmpZipFile = null;
         // Build zip with source code if needed
         if(pane.includeSourceCode()) { 
             //Create temporary zip file for the source code        
@@ -232,10 +233,6 @@ public class Exporter
             dlg.setProgress(false, Config.getString("export.publish.fail") + " " + e.getMessage());
             return;
         }
-        finally {
-            tmpImgFile.delete();
-            tmpImgFile = null;
-        }
     }
 
     /**
@@ -260,7 +257,7 @@ public class Exporter
         // Add the Greenfoot standalone classes
         File greenfootLibDir = Config.getGreenfootLibDir();        
         File greenfootDir = new File(greenfootLibDir, "standalone");        
-        jarCreator.addDir(greenfootDir);   
+        jarCreator.addFile(greenfootDir);   
         
         // Add 3rd party libraries used by Greenfoot.
         File bluejLibDir = Config.getBlueJLibDir();        
@@ -330,7 +327,7 @@ public class Exporter
         // Add the Greenfoot standalone classes
         File greenfootLibDir = Config.getGreenfootLibDir();        
         File greenfootDir = new File(greenfootLibDir, "standalone");        
-        jarCreator.addDir(greenfootDir);     
+        jarCreator.addFile(greenfootDir);     
         
         // Add 3rd party libraries used by Greenfoot.
         File bluejLibDir = Config.getBlueJLibDir();        
@@ -347,6 +344,16 @@ public class Exporter
                 jarCreator.addJarToJar(file);
             }
         }         
+        
+        // Add text file with license information
+        try {
+            File license = new File(GreenfootUtil.getGreenfootDir(), "GREENFOOT_LICENSES.txt");
+            if(license.exists()) {
+                jarCreator.addFile(license);
+            }
+        } catch (IOException e) {
+            // Ignore exceptions with license file since it is not a crucial thing to include.
+        }
         
         // Make sure the current properties are saved before they are exported.
         project.getProjectProperties().save();
@@ -387,8 +394,7 @@ public class Exporter
      */
     public void errorRecieved(final PublishEvent event)
     {
-        tmpJarFile.delete();
-        tmpImgFile.delete();
+        deleteTmpFiles();
         SwingUtilities.invokeLater(new Runnable() {
             public void run()
             {
@@ -402,14 +408,29 @@ public class Exporter
      */    
     public void statusRecieved(PublishEvent event)
     {
-        tmpJarFile.delete();
-        tmpImgFile.delete();
+        deleteTmpFiles();
         SwingUtilities.invokeLater(new Runnable() {
             public void run()
             {
                 dlg.publishFinished(true, Config.getString("export.publish.complete"));
             }
         });
+    }
+
+    private void deleteTmpFiles()
+    {
+        if (tmpJarFile != null) {
+            tmpJarFile.delete();
+            tmpJarFile = null;
+        }
+        if (tmpImgFile != null) {
+            tmpImgFile.delete();
+            tmpImgFile = null;
+        }
+        if (tmpZipFile != null) {
+            tmpZipFile.delete();
+            tmpZipFile = null;
+        }
     }
     
     /**
