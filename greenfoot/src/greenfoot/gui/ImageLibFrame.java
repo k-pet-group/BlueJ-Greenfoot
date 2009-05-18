@@ -87,7 +87,7 @@ import java.awt.FlowLayout;
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 6309 2009-05-05 19:13:46Z polle $
+ * @version $Id: ImageLibFrame.java 6340 2009-05-18 12:59:35Z mjrb4 $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
@@ -363,8 +363,8 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 
             contentPane.add(fixHeight(Box.createVerticalStrut(spacingLarge)));
             flowPanel.setAlignmentX(0.0f);
-            flowPanel.add(fixHeight(editButton));
-            flowPanel.add(fixHeight(deleteButton));
+            //flowPanel.add(fixHeight(editButton));
+            //flowPanel.add(fixHeight(deleteButton));
             flowPanel.add(fixHeight(browseButton));
 
             contentPane.add(fixHeight(flowPanel));
