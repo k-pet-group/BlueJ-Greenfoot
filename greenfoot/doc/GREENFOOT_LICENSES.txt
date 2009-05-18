@@ -1,0 +1,11 @@
+For the full license texts go to: 
+  http://www.greenfoot.org/about/license.html
+
+Greenfoot: Released under the GNU GPL v2 with Classpath Exception license.
+
+Greenfoot makes use of the following 3rd party libraries:
+ BlueJ: Released under the GNU GPL v2 with Classpath Exception license.
+ Antlr Parser Generator: Released under a BSD style license. 
+ Apache Jakarta HttpClient, Logging and Codec: Release under the Apache License.
+ GraphicsUtilities by Romain Guy: Released under a BSD style license.
+ JLayer: Released under the GNU LGPL v2.1

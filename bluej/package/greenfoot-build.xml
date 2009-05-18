@@ -61,8 +61,7 @@
     </patternset>
 
     <patternset id="greenfoot.license.files">
-        <include name="LICENSE.txt" />
-        <include name="THIRDPARTYLICENSE.txt" />
+        <include name="GREENFOOT_LICENSES.txt" />
     </patternset>
 
     <target name="dist">
