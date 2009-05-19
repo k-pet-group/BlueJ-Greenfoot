@@ -81,7 +81,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 6269 2009-04-21 07:47:57Z polle $
+ * @version $Id: PkgMgrFrame.java 6342 2009-05-19 15:46:47Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -242,6 +242,17 @@ public class PkgMgrFrame extends JFrame
             public void handleQuit(ApplicationEvent e)
             {
                 QuitAction.getInstance().actionPerformed(getMostRecent());
+            }
+            
+            public void handleOpenFile(ApplicationEvent event) 
+            {                
+                String projectPath = event.getFilename();
+                Project openProj = Project.openProject(projectPath, null);
+                if (openProj != null) {                  
+                    Package pkg = openProj.getPackage(openProj.getInitialPackageName());
+                    PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
+                    pmf.setVisible(true);
+                }
             }
         });
 

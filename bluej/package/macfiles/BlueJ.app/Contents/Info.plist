@@ -11,13 +11,12 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>bjp</string>
-				<string>*</string>
+				<string>bluej</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string>bluejproj.icns</string>
+			<string>bluej.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>bluejproj</string>
+			<string>bluejproject</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 		</dict>
