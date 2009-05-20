@@ -31,6 +31,7 @@ package bluej.editor.moe;
 
 import java.awt.Container;
 import java.awt.Event;
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -339,12 +340,14 @@ public final class MoeActions
                         (Action) (actions.get("new-line")));
                 keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, Event.SHIFT_MASK),
                         (Action) (actions.get("insert-break")));
+
             }
             if (version < 200) {
                 keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, Event.SHIFT_MASK), 
                         (Action) (actions.get("de-indent")));
                 keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_I, SHORTCUT_MASK), 
                         (Action) (actions.get("insert-tab")));
+
             }
             return true;
         }
@@ -821,6 +824,49 @@ public final class MoeActions
             else
                 getActionByName("cut-to-clipboard").actionPerformed(e);
             lastActionWasCut = true;
+        }
+    }
+    
+ // --------------------------------------------------------------------
+
+    class IncreaseFontAction extends MoeAbstractAction
+    {
+
+        public IncreaseFontAction()
+        {
+            super("increase-font");
+        }
+
+        public void actionPerformed(ActionEvent e)
+        {
+        	
+        	JTextComponent textPane = getTextComponent(e);
+            Font textPFont= textPane.getFont();           
+            int newFont=textPFont.getSize()+1;
+            //PrefMgr.setEditorFontSize(newFont);
+            getTextComponent(e).setFont(textPane.getFont().deriveFont((float)newFont));
+            
+        }
+    }
+    
+ // --------------------------------------------------------------------
+
+    class DecreaseFontAction extends MoeAbstractAction
+    {
+
+        public DecreaseFontAction()
+        {
+            super("decrease-font");
+        }
+
+        public void actionPerformed(ActionEvent e)
+        {
+     
+            JTextComponent textPane = getTextComponent(e);
+            Font textPFont= textPane.getFont();            
+            int newFont=textPFont.getSize()-1;
+            //PrefMgr.setEditorFontSize(newFont);
+            getTextComponent(e).setFont(textPFont.deriveFont((float)newFont));
         }
     }
 
@@ -1680,6 +1726,10 @@ public final class MoeActions
                 new DescribeKeyAction(), 
                 new HelpMouseAction(), 
                 new ShowManualAction(),
+
+                new IncreaseFontAction(),
+                new DecreaseFontAction(),
+               
             };
 
         // insert all actions into a hashtable
@@ -1700,6 +1750,7 @@ public final class MoeActions
         // sort all actions into a big, ordered table
 
         actionTable = new Action[] {
+        		
 
         // edit functions
 
@@ -1793,16 +1844,21 @@ public final class MoeActions
                 (Action) (actions.get("toggle-interface-view")),
                 (Action) (actions.get("toggle-breakpoint")), 
                 (Action) (actions.get("go-to-line")),
-        }; // 78
+                (Action) (actions.get("increase-font")),
+                (Action) (actions.get("decrease-font")),
+                
+        }; // 80
 
         categories = new String[] { 
                 Config.getString("editor.functions.editFunctions"),
-                Config.getString("editor.functions.moveScroll"), Config.getString("editor.functions.classFunctions"),
-                Config.getString("editor.functions.customisation"), Config.getString("editor.functions.help"),
+                Config.getString("editor.functions.moveScroll"), 
+                Config.getString("editor.functions.classFunctions"),
+                Config.getString("editor.functions.customisation"), 
+                Config.getString("editor.functions.help"),
                 Config.getString("editor.functions.misc")
         };
 
-        categoryIndex = new int[] { 0, 41, 57, 62, 64, 68, 78 };
+        categoryIndex = new int[] { 0, 41, 57, 62, 64, 68, 80 };
     }
 
     /**
@@ -1897,6 +1953,11 @@ public final class MoeActions
                 .get("cut-word")));
         keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, DOUBLE_SHORTCUT_MASK), (Action) (actions
                 .get("cut-end-of-word")));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, SHORTCUT_MASK), (Action) (actions
+                .get("increase-font")));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, SHORTCUT_MASK), (Action) (actions
+                .get("decrease-font")));
+       
     }
 
     /**
