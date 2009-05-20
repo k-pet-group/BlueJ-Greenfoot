@@ -37,7 +37,7 @@ import java.io.File;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Markus Ostman
- * @version $Id: PackageChooserStrict.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: PackageChooserStrict.java 6347 2009-05-20 15:22:43Z polle $
  */
 public class PackageChooserStrict extends PackageChooser
 {
@@ -62,7 +62,7 @@ public class PackageChooserStrict extends PackageChooser
             // it must be an archive (jar or zip)
             approved();
         }
-        else if (Package.isBlueJPackage(getSelectedFile())) {
+        else if (Package.isPackage(getSelectedFile())) {
     	    approved();
         }
         else {

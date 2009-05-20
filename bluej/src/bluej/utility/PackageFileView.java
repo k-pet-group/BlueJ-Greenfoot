@@ -34,7 +34,7 @@ import java.io.File;
  *
  * @author Michael Kolling
  * @see FileUtility
- * @version $Id: PackageFileView.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: PackageFileView.java 6347 2009-05-20 15:22:43Z polle $
  */
 public class PackageFileView extends FileView
 {
@@ -72,7 +72,7 @@ public class PackageFileView extends FileView
      */
     public Icon getIcon(File f)
     {
-        if(Package.isBlueJPackage(f))
+        if(Package.isPackage(f))
             return packageIcon;
         else
             return null;

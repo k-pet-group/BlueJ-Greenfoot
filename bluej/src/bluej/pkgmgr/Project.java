@@ -95,7 +95,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: Project.java 6347 2009-05-20 15:22:43Z polle $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -209,12 +209,12 @@ public class Project implements DebuggerListener, InspectorManager
     }
 
     /**
-     * Check if the path given is either a directory with a bluej pkg file or
-     * the name of a bluej pkg file.
-     *
-     * @param projectPath
-     *            a string representing the path to check. This can either be a
-     *            directory name or the filename of a bluej.pkg file.
+     * Check if the path given is either a directory with a project file or if
+     * it is the project file itself (project.greenfoot or package.bluej).
+     * 
+     * @param projectPath a string representing the path to check. This can
+     *            either be a directory name or the filename of a project
+     *            file.
      */
     public static boolean isProject(String projectPath) 
     {
@@ -230,7 +230,7 @@ public class Project implements DebuggerListener, InspectorManager
             return false;
         }
 
-        return (Package.isBlueJPackage(startingDir));
+        return (Package.isPackage(startingDir));
     }
 
     /**
@@ -271,13 +271,13 @@ public class Project implements DebuggerListener, InspectorManager
         // (and while we are at it we will construct the qualified
         //  package name that lets us open the PkgMgrFrame at the
         //  right point)
-        if (Package.isBlueJPackage(startingDir)) {
+        if (Package.isPackage(startingDir)) {
             File curDir = startingDir;
             File lastDir = null;
 
             startingPackageName = "";
 
-            while ((curDir != null) && Package.isBlueJPackage(curDir)) {
+            while ((curDir != null) && Package.isPackage(curDir)) {
                 if (lastDir != null) {
                     String lastdirName = lastDir.getName();
 
@@ -467,29 +467,6 @@ public class Project implements DebuggerListener, InspectorManager
     {
         return (Project) projects.get(projectKey);
     }
-
-    /**
-     * Check if the given path contains a BlueJ project.
-     * 
-     * @param projectPath
-     */
-    public static boolean isBlueJProject(String projectPath) 
-    {
-        File startingDir = null;
-        try {
-            startingDir = pathIntoStartingDirectory(projectPath);
-        }
-        catch(IOException ioe)
-        {
-            return false;
-        }
-
-        if (startingDir == null) {
-            return false;
-        }
-
-        return Package.isBlueJPackage(startingDir);
-    }
    
     /**
      * Set this project as a Java Micro Edition project. This method has package
@@ -522,7 +499,7 @@ public class Project implements DebuggerListener, InspectorManager
            we immediately find the parent directory and use that as the
            starting directory */
         if (startingDir.isFile()) {
-            if (BlueJPackageFile.isPackageFileName(startingDir.getName())) {
+            if (Package.isPackageFileName(startingDir.getName())) {
                 return startingDir.getParentFile();
             }
         }

@@ -44,7 +44,7 @@ import bluej.utility.filefilter.*;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Markus Ostman
- * @version $Id: PackageChooser.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: PackageChooser.java 6347 2009-05-20 15:22:43Z polle $
  */
 class PackageChooser extends JFileChooser
 {
@@ -119,7 +119,7 @@ class PackageChooser extends JFileChooser
      */
     public void setCurrentDirectory(File dir)   // redefined
     {
-        if (Package.isBlueJPackage(dir)) {
+        if (Package.isPackage(dir)) {
             setSelectedFile(dir);
             super.approveSelection();
         }

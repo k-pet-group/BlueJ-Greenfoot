@@ -135,6 +135,14 @@ public class GreenfootProjectFile
     }
     
     /**
+     * Whether this file is the name has the name of a Greenfoot project file.
+     */
+    public static boolean isProjectFileName(String fileName)
+    {
+        return fileName.endsWith(pkgfileName);
+    }
+    
+    /**
      * Creates the Greenfoot project file if it does not already exist. 
      * 
      * @return true if it created a package file, false if it didn't create any package files.

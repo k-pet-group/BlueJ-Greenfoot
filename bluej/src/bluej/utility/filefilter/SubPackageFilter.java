@@ -31,7 +31,7 @@ import bluej.pkgmgr.Package;
  * the listFiles method of class File.
  *
  * @author  Axel Schmolitzky
- * @version $Id: SubPackageFilter.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: SubPackageFilter.java 6347 2009-05-20 15:22:43Z polle $
  */
 public class SubPackageFilter implements FileFilter
 {
@@ -41,6 +41,6 @@ public class SubPackageFilter implements FileFilter
     public boolean accept(File pathname)
     {
         return (pathname.isDirectory() &&
-                 Package.isBlueJPackage(pathname));
+                 Package.isPackage(pathname));
     }
 }

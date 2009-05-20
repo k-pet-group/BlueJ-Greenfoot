@@ -11,15 +11,26 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>bjp</string>
-				<string>*</string>
+				<string>greenfoot</string>
+				<string>jar</string>
+				<string>gfar</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string>bluejproj.icns</string>
+			<string>greenfoot.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>bluejproj</string>
+			<string>greenfootproject</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Folder</string>
+			<key>CFBundleTypeOSTypes</key>
+			<array>
+				<string>fold</string>
+			</array>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
 		</dict>
 	</array>
 	<key>CFBundleExecutable</key>

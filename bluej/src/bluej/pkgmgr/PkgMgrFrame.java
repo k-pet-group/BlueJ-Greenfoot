@@ -81,7 +81,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 6345 2009-05-20 13:54:59Z polle $
+ * @version $Id: PkgMgrFrame.java 6347 2009-05-20 15:22:43Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1208,7 +1208,7 @@ public class PkgMgrFrame extends JFrame
             pmf = PkgMgrFrame.frames.get(0);
         }
         if (projectPath != null) {
-            if (projectPath.isDirectory()) {
+            if (projectPath.isDirectory() || Project.isProject(projectPath.toString())) {
                 pmf.openProject(projectPath.getAbsolutePath());
             }
             else {
@@ -1595,7 +1595,7 @@ public class PkgMgrFrame extends JFrame
         for (int i = 1; dir != null; i++) {
             dir = Config.getPropString(Config.BLUEJ_OPENPACKAGE + i, null);
             if (dir != null) {
-                if(Project.isBlueJProject(dir)) {
+                if(Project.isProject(dir)) {
                     return true;
                 }
             }

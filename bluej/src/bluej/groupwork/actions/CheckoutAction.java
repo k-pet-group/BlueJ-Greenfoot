@@ -42,7 +42,7 @@ import bluej.utility.SwingWorker;
  * project.
  * 
  * @author Kasper
- * @version $Id: CheckoutAction.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: CheckoutAction.java 6347 2009-05-20 15:22:43Z polle $
  */
 public class CheckoutAction extends TeamAction
 {
@@ -173,7 +173,7 @@ public class CheckoutAction extends TeamAction
         public void finished()
         {
             if (! failed) {
-                if (! Project.isBlueJProject(projDir.toString())) {
+                if (! Project.isProject(projDir.toString())) {
                     // Try and convert it to a project
                     if (! Import.convertNonBlueJ(newFrame, projDir)) {
                         cleanup();
