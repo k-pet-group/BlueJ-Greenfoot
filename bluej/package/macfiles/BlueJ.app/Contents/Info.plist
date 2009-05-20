@@ -12,6 +12,8 @@
 			<key>CFBundleTypeExtensions</key>
 			<array>
 				<string>bluej</string>
+				<string>jar</string>
+				<string>bjar</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
 			<string>bluej.icns</string>
