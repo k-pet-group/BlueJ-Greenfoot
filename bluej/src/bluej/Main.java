@@ -42,7 +42,7 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  * 
  * @author Michael Kolling
- * @version $Id: Main.java 6257 2009-04-16 13:46:52Z iau $
+ * @version $Id: Main.java 6349 2009-05-22 14:49:01Z polle $
  */
 public class Main
 {
@@ -58,7 +58,7 @@ public class Main
         Boot boot = Boot.getInstance();
         final String[] args = boot.getArgs();
         Properties commandLineProps = boot.getCommandLineProperties();
-        File bluejLibDir = boot.getBluejLibDir();
+        File bluejLibDir = Boot.getBluejLibDir();
 
         Config.initialise(bluejLibDir, commandLineProps, boot.isGreenfoot());
 
@@ -100,16 +100,8 @@ public class Main
         if (args.length > 0) {
             for (int i = 0; i < args.length; i++) {
                 if (!args[i].startsWith("-")) {
-                    Project openProj;
-                    if ((openProj = Project.openProject(args[i], null)) != null) {
-                        oneOpened = true;
-
-                        Package pkg = openProj.getPackage(openProj.getInitialPackageName());
-
-                        PkgMgrFrame pmf = PkgMgrFrame.createFrame(pkg);
-
-                        pmf.setLocation(i * 30 + FIRST_X_LOCATION, i * 30 + FIRST_Y_LOCATION);
-                        pmf.setVisible(true);
+                    if(PkgMgrFrame.doOpen(new File(args[i]), null)) {
+                        oneOpened = true;                        
                     }
                 }
             }

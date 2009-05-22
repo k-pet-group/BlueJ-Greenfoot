@@ -81,7 +81,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 6347 2009-05-20 15:22:43Z polle $
+ * @version $Id: PkgMgrFrame.java 6349 2009-05-22 14:49:01Z polle $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1202,19 +1202,35 @@ public class PkgMgrFrame extends JFrame
      * @param pmf Optional parameter. Used for displaying dialogs and reuse
      *            if it is the empty frame.
      */
-    public static void doOpen(File projectPath, PkgMgrFrame pmf)
-    {             
+    public static boolean doOpen(File projectPath, PkgMgrFrame pmf)
+    {     
+        boolean createdNewFrame = false;
         if(pmf == null && PkgMgrFrame.frames.size() > 0) {
             pmf = PkgMgrFrame.frames.get(0);
         }
+        else if(pmf == null) {
+            pmf = PkgMgrFrame.createFrame();
+            createdNewFrame = true;
+        }
+
+        boolean openedProject = false;
         if (projectPath != null) {
             if (projectPath.isDirectory() || Project.isProject(projectPath.toString())) {
-                pmf.openProject(projectPath.getAbsolutePath());
+                if(pmf.openProject(projectPath.getAbsolutePath())) {
+                    openedProject = true;
+                }
             }
             else {
-                pmf.openArchive(projectPath);
+                if(pmf.openArchive(projectPath)) {
+                    openedProject = true;
+                }
             }
         }
+        if(createdNewFrame && !openedProject) {
+            // Close newly created frame if it was never used.
+            PkgMgrFrame.closeFrame(pmf);
+        }
+        return openedProject;
     }
     
     /**
@@ -1240,9 +1256,9 @@ public class PkgMgrFrame extends JFrame
         else {
             Package pkg = openProj.getPackage(openProj.getInitialPackageName());
 
-            PkgMgrFrame pmf;
+            PkgMgrFrame pmf = findFrame(pkg);
 
-            if ((pmf = findFrame(pkg)) == null) {
+            if (pmf == null) {
                 if (isEmptyFrame()) {
                     pmf = this;
                     openPackage(pkg);
@@ -1307,7 +1323,7 @@ public class PkgMgrFrame extends JFrame
      * BlueJ project. The file contents are extracted, the containing directory
      * is then converted into a BlueJ project if necessary, and opened.
      */
-    private void openArchive(File archive)
+    private boolean openArchive(File archive)
     {
         JarInputStream jarInStream = null;
 
@@ -1336,22 +1352,22 @@ public class PkgMgrFrame extends JFrame
                 oPath = new File(oPath, strippedName);
                 if (oPath.exists()) {
                     DialogManager.showErrorWithText(this, "jar-output-dir-exists", oPath.toString());
-                    return;
+                    return false;
                 }
                 else if (! oPath.mkdir()) {
                     DialogManager.showErrorWithText(this, "jar-output-no-write", archive.toString());
-                    return;
+                    return false;
                 }
             }
             else {
                 File prefixFolderFile = new File(oPath, prefixFolder);
                 if (prefixFolderFile.exists()) {
                     DialogManager.showErrorWithText(this, "jar-output-dir-exists", prefixFolderFile.toString());
-                    return;
+                    return false;
                 }
                 if (! prefixFolderFile.mkdir()) {
                     DialogManager.showErrorWithText(this, "jar-output-no-write", archive.toString());
-                    return;
+                    return false;
                 }
             }
             
@@ -1391,15 +1407,14 @@ public class PkgMgrFrame extends JFrame
             if (prefixFolder != null)
                 oPath = new File(oPath, prefixFolder);
             if (Project.isProject(oPath.getPath())) {
-                openProject(oPath.getPath());
+                return openProject(oPath.getPath());
             }
             else {
                 // Convert to a BlueJ project
-                if (Import.convertNonBlueJ(this, oPath))
-                    openProject(oPath.getPath());
-            }
-            return;
-            
+                if (Import.convertNonBlueJ(this, oPath)) {
+                    return openProject(oPath.getPath());
+                }
+            }            
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -1412,6 +1427,8 @@ public class PkgMgrFrame extends JFrame
             }
             catch (IOException ioe) {}
         }
+
+        return false;
     }
     
     /**
