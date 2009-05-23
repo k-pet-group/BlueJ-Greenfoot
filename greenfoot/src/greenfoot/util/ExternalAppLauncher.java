@@ -21,7 +21,10 @@
  */
 package greenfoot.util;
 
+import bluej.Config;
 import java.io.IOException;
+import java.io.File;
+import java.lang.reflect.Method;
 
 /**
  * A class containing static methods for the purposes of launching external programs.
@@ -33,6 +36,38 @@ import java.io.IOException;
  */
 public class ExternalAppLauncher
 {
+
+    /**
+     * Opens a file for editing using the OS default editor for that file type.
+     * @param file the file to open for editing.
+     */
+    public static void editFile(File file)
+    {
+        //If we're running Java 6, we can use the Desktop class for ease of use
+        if(Config.isJava16()) {
+            try {
+                Class desktopClass = Class.forName("java.awt.Desktop");
+                Method isDesktopSupported = desktopClass.getMethod("isDesktopSupported");
+                boolean supported = (Boolean)isDesktopSupported.invoke(null);
+                if(supported) {
+                    Method getDesktop = desktopClass.getMethod("getDesktop");
+                    Object desktop = getDesktop.invoke(null);
+                    Method edit = desktopClass.getMethod("edit", File.class);
+                    edit.invoke(desktop, file);
+                }
+                else {
+                    throw new Exception("Desktop class is not supported on this platform.");
+                }
+            }
+            catch(Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        //Otherwise if we can't get to the desktop class, do things another way
+        else {
+            //launchProgram(program, file);
+        }
+    }
 
     /**
      * Launch an external application without any parameters.
