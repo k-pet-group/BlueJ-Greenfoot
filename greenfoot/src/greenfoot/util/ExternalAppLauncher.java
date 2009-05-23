@@ -22,9 +22,13 @@
 package greenfoot.util;
 
 import bluej.Config;
+
 import java.io.IOException;
 import java.io.File;
+
 import java.lang.reflect.Method;
+
+import javax.swing.JFileChooser;
 
 /**
  * A class containing static methods for the purposes of launching external programs.
@@ -63,9 +67,14 @@ public class ExternalAppLauncher
                 ex.printStackTrace();
             }
         }
-        //Otherwise if we can't get to the desktop class, do things another way
+        //If we're running an old version of Java, ask what program to use
         else {
-            //launchProgram(program, file);
+            JFileChooser fc = new JFileChooser();
+            String program = null;
+            if(fc.showDialog(null, "Open with...")==JFileChooser.APPROVE_OPTION) {
+                program = fc.getSelectedFile().toString();
+                launchProgram(program, file.toString());
+            }
         }
     }
 
