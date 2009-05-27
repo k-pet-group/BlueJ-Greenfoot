@@ -349,6 +349,13 @@ public final class MoeActions
                         (Action) (actions.get("insert-tab")));
 
             }
+            if (version <= 252) {
+                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, SHORTCUT_MASK), (Action) (actions
+                        .get("increase-font")));
+                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, SHORTCUT_MASK), (Action) (actions
+                        .get("decrease-font")));
+
+            }
             return true;
         }
         catch (Exception exc) {
