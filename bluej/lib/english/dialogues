@@ -528,3 +528,14 @@ Do you want to overwrite it?
 Overwrite
 Cancel
 null
+
+debugger-running-options
+Your program is already running, but it is stopped at a breakpoint
+Here are your options
+Terminate: Terminate the current running code
+Continue Debugging: Equivalent to the Continue button in the Debugger
+Open Debugger: Cancel current request and open the Debugger window
+Terminate
+Continue
+Open Debugger
+Cancel 

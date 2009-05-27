@@ -80,7 +80,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ClassTarget.java 6353 2009-05-27 04:26:36Z marionz $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -1451,7 +1451,9 @@ public class ClassTarget extends DependentTarget
          */
         public void actionPerformed(ActionEvent e)
         {
-            open();
+        	
+        	open();
+        	
         }
     }
 
@@ -1475,7 +1477,8 @@ public class ClassTarget extends DependentTarget
          */
         public void actionPerformed(ActionEvent e)
         {
-            getPackage().compile(ClassTarget.this);
+        	getPackage().compile(ClassTarget.this);
+
         }
     }
 
@@ -1499,10 +1502,10 @@ public class ClassTarget extends DependentTarget
          */
         public void actionPerformed(ActionEvent e)
         {
-            PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
-            if (pmf.askRemoveClass()) {
-                getPackage().getEditor().raiseRemoveTargetEvent(ClassTarget.this);
-            }
+        	PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
+        	if (pmf.askRemoveClass()) {
+        		getPackage().getEditor().raiseRemoveTargetEvent(ClassTarget.this);
+        	}
         }
     }
 
@@ -1525,8 +1528,10 @@ public class ClassTarget extends DependentTarget
          * @param e Description of the Parameter
          */
         public void actionPerformed(ActionEvent e)
-        {
-            inspect();
+        {	
+        	if (doAction()){
+        		inspect();
+        	}
         }
     }
 
@@ -1769,7 +1774,27 @@ public class ClassTarget extends DependentTarget
      */
     public void callConstructor(ConstructorView cv)
     {
-        getPackage().getEditor().raiseMethodCallEvent(this, cv);
+    	if (doAction()){
+    		getPackage().getEditor().raiseMethodCallEvent(this, cv);
+    	}
     }
+    
+    /**
+     * Method to check state of debug VM (currently running may cause problems)
+     * and then give options accordingly. 
+     * Returns a value from user about how to continue i.e should the original requested be executed.
+     * 
+     * @return Whether the original request should be executed (dependent on how the user wants to proceed)
+     */
+    public boolean doAction()
+    {
+    	boolean continueAction=true;
+    	if (!getPackage().isDebuggerIdle()){
+    		continueAction=getPackage().getProject().getExecControls().processDebuggerState();
+    	}
+    	return continueAction;
+    }
+       
+   
     
 }

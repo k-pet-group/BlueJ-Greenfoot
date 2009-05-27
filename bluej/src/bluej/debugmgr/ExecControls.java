@@ -38,12 +38,13 @@ import bluej.debugger.DebuggerThreadTreeModel.SyncMechanism;
 import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
+import bluej.utility.DialogManager;
 
 /**
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ExecControls.java 6353 2009-05-27 04:26:36Z marionz $
  */
 public class ExecControls extends JFrame
     implements ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -626,9 +627,11 @@ public class ExecControls extends JFrame
         // Close Action when close button is pressed
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent event){
-                Window win = (Window)event.getSource();
-                win.setVisible(false);
+            	
+                    Window win = (Window)event.getSource();
+                    win.setVisible(false);
             }
+            	
         });
 
         // save position when window is moved
@@ -824,4 +827,56 @@ public class ExecControls extends JFrame
             debugger.hideSystemThreads(systemThreadItem.isSelected());
         }
     }
+    
+    /** 
+     * This method provides the user with an elegant way to decide on how to proceed if there is
+     * a debugger running in the background (Bug#138)
+     * returns boolean to whether it should continue processing original request
+     * (dependent on user choice)
+     */
+    public boolean processDebuggerState(){
+    	//whether or not the original action should be executed. This is dependent on the response from the user
+    	boolean processCallingAction=false;
+    	//only need to give user warnings if debugger is already initiated, double check status
+	    if (debugger.getStatus()==Debugger.IDLE || debugger.getStatus()==Debugger.NOTREADY){
+	    	processCallingAction=true;
+	    	return processCallingAction;
+	    }
+	    int numResponses=4;
+	    int response=DialogManager.askQuestion(this, "debugger-running-options", numResponses);
+       	switch (response) {
+            case 0:  //Terminate
+                //this should reset the debug VM, and ideally run the recently 
+           	 	//invoked code immediately once the new debug VM has started
+           	 try {
+                    project.restartVM();
+                    processCallingAction=true;
+                }
+                catch (IllegalStateException ise) { }
+                break;
+            case 1: //Continue
+           	  if (selectedThread == null)
+                     return processCallingAction;
+                 clearThreadDetails();
+                 project.removeStepMarks();
+                 if (selectedThread.isSuspended()) {
+                     selectedThread.cont();
+                 }
+                break;
+            case 2: //Open Debugger: This will make the debugger visible
+            	setVisible(true);                   	
+                break;
+            case 3://Cancel
+            	break;
+            default:
+                //... If we get here, something is wrong.
+                JOptionPane.showMessageDialog(null, "Unexpected response " + response);
+            	
+        }  
+       	return processCallingAction;
+   	
+   }
+    
+  
+     
 }
