@@ -108,10 +108,7 @@ public class NewParser
 					if (token.getType() == JavaTokenTypes.EOF) {
 						break;
 					}
-					if (isModifier(token) ||
-							token.getType() == JavaTokenTypes.LITERAL_class ||
-							token.getType() == JavaTokenTypes.LITERAL_enum ||
-							token.getType() == JavaTokenTypes.LITERAL_interface) {
+					if (isModifier(token) || isTypeDeclarator(token)) {
 						tokenStream.pushBack(token);
 						parseTypeDef();
 					}
@@ -129,6 +126,33 @@ public class NewParser
 	
 	/** reached a compilation unit state */
 	protected void reachedCUstate(int i) { }
+	
+	/**
+	 * Check whether a particular token is a type declaration initiator, i.e "class", "interface"
+	 * or "enum"
+	 */
+	public boolean isTypeDeclarator(LocatableToken token)
+	{
+		return token.getType() == JavaTokenTypes.LITERAL_class
+			|| token.getType() == JavaTokenTypes.LITERAL_enum
+			|| token.getType() == JavaTokenTypes.LITERAL_interface;
+	}
+	
+	/**
+	 * Check whether a token is a primitive type - "int" "float" etc
+	 */
+	public boolean isPrimitiveType(LocatableToken token)
+	{
+		return token.getType() == JavaTokenTypes.LITERAL_void
+			|| token.getType() == JavaTokenTypes.LITERAL_boolean
+			|| token.getType() == JavaTokenTypes.LITERAL_byte
+			|| token.getType() == JavaTokenTypes.LITERAL_char
+			|| token.getType() == JavaTokenTypes.LITERAL_short
+			|| token.getType() == JavaTokenTypes.LITERAL_int
+			|| token.getType() == JavaTokenTypes.LITERAL_long
+			|| token.getType() == JavaTokenTypes.LITERAL_float
+			|| token.getType() == JavaTokenTypes.LITERAL_double;
+	}
 	
 	/**
 	 * Parse a type definition (class, interface, enum).
@@ -220,7 +244,8 @@ public class NewParser
 				|| tokType == JavaTokenTypes.ABSTRACT
 				|| tokType == JavaTokenTypes.FINAL
 				|| tokType == JavaTokenTypes.LITERAL_static
-				|| tokType == JavaTokenTypes.LITERAL_volatile);
+				|| tokType == JavaTokenTypes.LITERAL_volatile
+				|| tokType == JavaTokenTypes.LITERAL_native);
 	}
 	
 	/**
@@ -393,6 +418,49 @@ public class NewParser
 			else if (token.getType() == JavaTokenTypes.LITERAL_case) {
 				error("XXX"); // TODO
 			}
+			else if (token.getType() == JavaTokenTypes.LITERAL_try) {
+				token = tokenStream.nextToken();
+				if (token.getType() != JavaTokenTypes.LCURLY) {
+					error ("Expecting '{' after 'try'");
+					tokenStream.pushBack(token);
+					return;
+				}
+				parseStatement(token);
+				int laType = tokenStream.LA(1).getType();
+				while (laType == JavaTokenTypes.LITERAL_catch
+						|| laType == JavaTokenTypes.LITERAL_finally) {
+					token = tokenStream.nextToken();
+					if (laType == JavaTokenTypes.LITERAL_catch) {
+						token = tokenStream.nextToken();
+						if (token.getType() != JavaTokenTypes.LPAREN) {
+							error("Expecting '(' after 'catch'");
+							tokenStream.pushBack(token);
+							return;
+						}
+						parseTypeSpec(false);
+						token = tokenStream.nextToken();
+						if (token.getType() != JavaTokenTypes.IDENT) {
+							error("Expecting identifier after type (in 'catch' expression)");
+							tokenStream.pushBack(token);
+							return;
+						}
+						token = tokenStream.nextToken();
+						if (token.getType() != JavaTokenTypes.RPAREN) {
+							error("Expecting ')' after identifier (in 'catch' expression)");
+							tokenStream.pushBack(token);
+							return;
+						}
+					}
+					token = tokenStream.nextToken();
+					if (token.getType() != JavaTokenTypes.LCURLY) {
+						error("Expecting '{' after 'catch'/'finally'");
+						tokenStream.pushBack(token);
+						return;
+					}
+					parseStatement(token); // parse as a statement block
+					laType = tokenStream.LA(1).getType();
+				}
+			}
 			else if (token.getType() == JavaTokenTypes.IDENT) {
 				// A label?
 				LocatableToken ctoken = tokenStream.nextToken();
@@ -420,6 +488,20 @@ public class NewParser
 					}
 				}
 			}
+			else if (isModifier(token)) {
+				// Variable declaration or inner class
+				parseModifiers();
+				if (isTypeDeclarator(tokenStream.LA(1))) {
+					parseTypeDef();
+				}
+				else {
+					parseVariableDeclaration();
+				}
+			}
+			else if (isPrimitiveType(token)) {
+				tokenStream.pushBack(token);
+				parseVariableDeclaration();
+			}
 			else if (token.getType() == JavaTokenTypes.LCURLY) {
 				parseStmtBlock();
 				token = tokenStream.nextToken();
@@ -431,6 +513,7 @@ public class NewParser
 				}
 			}
 			else {
+				tokenStream.pushBack(token);
 				parseExpression();
 				token = tokenStream.nextToken();
 				if (token.getType() != JavaTokenTypes.SEMI) {
@@ -575,6 +658,24 @@ public class NewParser
 		}
 	}
 	
+	// TODO comment
+	public boolean parseTypeSpec(boolean speculative)
+	{
+		return parseTypeSpec(speculative, true);
+	}
+	
+	// TODO comment
+	public boolean parseTypeSpec(boolean speculative, boolean idMayFollow)
+	{
+		List<LocatableToken> tokens = new LinkedList<LocatableToken>();
+		boolean rval = parseTypeSpec(speculative, idMayFollow, tokens);
+		if (rval == false) {
+			pushBackAll(tokens);
+		}
+		return rval;
+	}
+	
+	
 	/**
 	 * Parse a type specification. This could be a primitive type (including void),
 	 * or a class type (qualified or not, possibly with type parameters). This can
@@ -589,20 +690,12 @@ public class NewParser
 	 * 		               contains errors), or false if it does not appear to be
 	 *                     a type specification. (only meaningful if speculative == true).
 	 */
-	public boolean parseTypeSpec(boolean speculative)
+	public boolean parseTypeSpec(boolean speculative, boolean idMayFollow, List<LocatableToken> ttokens)
 	{
 		try {
-			List<LocatableToken> ttokens = parseModifiers();
+			ttokens.addAll(parseModifiers());
 			LocatableToken token = tokenStream.nextToken();
-			if (token.getType() == JavaTokenTypes.LITERAL_void
-					|| token.getType() == JavaTokenTypes.LITERAL_boolean
-					|| token.getType() == JavaTokenTypes.LITERAL_byte
-					|| token.getType() == JavaTokenTypes.LITERAL_char
-					|| token.getType() == JavaTokenTypes.LITERAL_short
-					|| token.getType() == JavaTokenTypes.LITERAL_int
-					|| token.getType() == JavaTokenTypes.LITERAL_long
-					|| token.getType() == JavaTokenTypes.LITERAL_float
-					|| token.getType() == JavaTokenTypes.LITERAL_double) {
+			if (isPrimitiveType(token)) {
 				// Ok, we have a base type
 				speculative = false;
 				ttokens.add(token);
@@ -614,30 +707,38 @@ public class NewParser
 						error("Expected type identifier");
 					}
 					tokenStream.pushBack(token);
-					pushBackAll(ttokens);
 					return false;
 				}
 
-				List<LocatableToken> identTokens = parseDottedIdent(token);
-				ttokens.addAll(identTokens);
+				ttokens.addAll(parseDottedIdent(token));
 
 				token = tokenStream.nextToken();
 				// TODO must handle '>>' tokens, urgh (and '>>>?')
 				if (token.getType() == JavaTokenTypes.LT) {
-					// Type parameters
-					speculative = false;
+					// Type parameters? (or is it a "less than" comparison?)
 					ttokens.add(token);
 					while (true) {
 						//token = tokenStream.LA(1);
 						// TODO wildcards
-						parseTypeSpec(false);
+						boolean rval = parseTypeSpec(speculative, false, ttokens);
+						if (rval == false) {
+							return false;
+						}
 						token = tokenStream.nextToken();
 						if (token.getType() == JavaTokenTypes.GT) {
+							if (speculative && !idMayFollow) {
+								if (tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
+									return false;
+								}
+							}
 							break;
 						}
 						if (token.getType() != JavaTokenTypes.COMMA) {
-							error("Expecting ',' in type parameter list");
+							if (!speculative) {
+								error("Expecting ',' in type parameter list");
+							}
 							tokenStream.pushBack(token);
+							return false;
 						}
 					}
 					token = tokenStream.nextToken();
@@ -738,8 +839,41 @@ public class NewParser
 						|| token.getType() == JavaTokenTypes.NUM_INT
 						|| token.getType() == JavaTokenTypes.NUM_LONG
 						|| token.getType() == JavaTokenTypes.NUM_DOUBLE
-						|| token.getType() == JavaTokenTypes.NUM_FLOAT) {
+						|| token.getType() == JavaTokenTypes.NUM_FLOAT
+						|| token.getType() == JavaTokenTypes.LITERAL_null
+						|| token.getType() == JavaTokenTypes.LITERAL_this
+						|| token.getType() == JavaTokenTypes.LITERAL_super
+						|| token.getType() == JavaTokenTypes.LITERAL_true
+						|| token.getType() == JavaTokenTypes.LITERAL_false) {
 					// Literals need no further processing
+				}
+				else if (token.getType() == JavaTokenTypes.MINUS
+						|| token.getType() == JavaTokenTypes.PLUS) {
+					// Unary operator
+					token = tokenStream.nextToken();
+					continue;
+				}
+				else if (token.getType() == JavaTokenTypes.LPAREN) {
+					// Either a parenthesized expression, or a type cast
+					boolean isTypeSpec = parseTypeSpec(true, false);
+					if (isTypeSpec) {
+						token = tokenStream.nextToken();
+						if (token.getType() != JavaTokenTypes.RPAREN) {
+							error("Expecting ')' after type specification (in type cast expression)");
+							tokenStream.pushBack(token);
+						}
+					}
+					else {
+						parseExpression();
+						token = tokenStream.nextToken();
+						if (token.getType() != ')') {
+							error("Unmatched '(' in expression; expecting ')'");
+							tokenStream.pushBack(token);
+							return;
+						}
+					}
+					token = tokenStream.nextToken();
+					continue;
 				}
 				else {
 					// TODO
@@ -777,11 +911,27 @@ public class NewParser
 							}
 						}
 					}
+					else if (token.getType() == JavaTokenTypes.LBRACK) {
+						// Arrary subscript
+						parseExpression();
+						token = tokenStream.nextToken();
+						if (token.getType() != JavaTokenTypes.RBRACK) {
+							error("Expected ']' after array subscript expression");
+							tokenStream.pushBack(token);
+						}
+					}
 					else if (token.getType() == JavaTokenTypes.PLUS
 							|| token.getType() == JavaTokenTypes.MINUS
+							|| token.getType() == JavaTokenTypes.STAR
+							|| token.getType() == JavaTokenTypes.DIV
 							|| token.getType() == JavaTokenTypes.ASSIGN
 							|| token.getType() == JavaTokenTypes.LT
-							|| token.getType() == JavaTokenTypes.GT) {
+							|| token.getType() == JavaTokenTypes.GT
+							|| token.getType() == JavaTokenTypes.DOT
+							|| token.getType() == JavaTokenTypes.PLUS_ASSIGN
+							|| token.getType() == JavaTokenTypes.MINUS_ASSIGN
+							|| token.getType() == JavaTokenTypes.STAR_ASSIGN
+							|| token.getType() == JavaTokenTypes.DIV_ASSIGN) {
 						// Binary operators - need another operand
 						token = tokenStream.nextToken();
 						break;
