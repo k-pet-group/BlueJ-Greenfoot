@@ -7,9 +7,11 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
 
+import antlr.TokenStreamException;
 import bluej.parser.ast.LocatableToken;
 import bluej.parser.ast.gen.JavaTokenTypes;
 import bluej.parser.symtab.ClassInfo;
+import bluej.parser.symtab.Selection;
 
 public class InfoParser extends NewParser
 {
@@ -17,6 +19,12 @@ public class InfoParser extends NewParser
 	private int classLevel = 0; // number of nested classes
 	private boolean gotTypeDef; // whether we just reach a type def
 	private boolean isPublic;
+	private boolean storeCurrentClassInfo;
+	
+	private boolean gotExtends; // next type spec is the superclass/superinterfaces
+	private boolean gotImplements; // next type spec(s) are interfaces
+	
+	private boolean hadError;
 	
 	public InfoParser(Reader r) {
 		super(r);
@@ -33,11 +41,18 @@ public class InfoParser extends NewParser
 		return parse(r);
 	}
 	
+	public static ClassInfo parse(File f) throws FileNotFoundException
+	{
+		return parse(f, null);
+	}
+	
 	public static ClassInfo parse(Reader r)
 	{
-		InfoParser infoParser = new InfoParser(r);
+		InfoParser infoParser = null;
+		infoParser = new InfoParser(r);
 		infoParser.parseCU();
-		if (infoParser != null) {
+		
+		if (infoParser.info != null) {
 			return infoParser.info;
 		}
 		else {
@@ -45,11 +60,21 @@ public class InfoParser extends NewParser
 		}
 	}
 	
-//	@Override
-//	protected void error(String msg)
-//	{
-//		// Just try and recover.
-//	}
+	@Override
+	protected void error(String msg)
+	{
+		if (! hadError) {
+			//try {
+				super.error(msg);
+			//}
+			//catch (RuntimeException re) {
+			//	re.printStackTrace(System.out);
+				// throw re;
+			//}
+			hadError = true;
+		}
+		// Just try and recover.
+	}
 	
 	@Override
 	public void parseTypeDef()
@@ -70,9 +95,44 @@ public class InfoParser extends NewParser
 			if (info == null || isPublic && !info.foundPublicClass()) {
 				info = new ClassInfo();
 				info.setName(nameToken.getText(), isPublic);
+				info.setExtendsInsertSelection(new Selection(nameToken.getLine(), nameToken.getEndColumn()));
+				storeCurrentClassInfo = true;
+			} else {
+				storeCurrentClassInfo = false;
 			}
 		}
 		super.gotTypeDefName(nameToken);
+	}
+	
+	@Override
+	protected void gotTypeDefExtends(LocatableToken extendsToken)
+	{
+		try {
+			if (classLevel == 1 && storeCurrentClassInfo) {
+				// info.setExtendsReplaceSelection(s)
+				gotExtends = true;
+				SourceLocation extendsStart = info.getExtendsInsertSelection().getStartLocation();
+				int extendsEndCol = tokenStream.LA(1).getColumn();
+				int extendsEndLine = tokenStream.LA(1).getLine();
+				if (extendsStart.getLine() == extendsEndLine) {
+					info.setExtendsReplaceSelection(new Selection(extendsEndLine, extendsStart.getColumn(), extendsEndCol - extendsStart.getColumn()));
+				}
+				else {
+					info.setExtendsReplaceSelection(new Selection(extendsEndLine, extendsStart.getColumn(), extendsToken.getEndColumn() - extendsStart.getColumn()));
+				}
+			}
+		}
+		catch (TokenStreamException tse) {
+			tse.printStackTrace(); // TODO
+		}
+	}
+	
+	@Override
+	protected void gotTypeDefImplements(LocatableToken implementsToken)
+	{
+		if (classLevel == 1 && storeCurrentClassInfo) {
+			gotImplements = true;
+		}
 	}
 	
 	@Override

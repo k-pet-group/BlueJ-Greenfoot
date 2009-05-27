@@ -78,7 +78,27 @@ public class JavaTokenFilter implements TokenStream
     	buffer.add(token);
     }
     
-    private Token nextToken2() throws TokenStreamException
+    /**
+     * Look ahead a certain number of tokens (without actually consuming them).
+     * @param distance  The distance to look ahead (1 or greater).
+     */
+    public LocatableToken LA(int distance) throws TokenStreamException
+    {
+    	if (cachedToken != null) {
+    		buffer.add(0, (LocatableToken) cachedToken);
+    		cachedToken = null;
+    	}
+    	
+    	int numToAdd = distance - buffer.size();
+    	while (numToAdd > 0) {
+    		buffer.add(0, nextToken2());
+    		numToAdd--;
+    	}
+    
+    	return buffer.get(buffer.size() - distance);
+    }
+    
+    private LocatableToken nextToken2() throws TokenStreamException
     {    	
     	LocatableToken t = null;
         
