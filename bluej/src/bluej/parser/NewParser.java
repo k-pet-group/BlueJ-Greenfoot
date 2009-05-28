@@ -165,9 +165,7 @@ public class NewParser
 			
 			// [class|interface|enum]
 			LocatableToken token = tokenStream.nextToken();
-			if (token.getType() == JavaTokenTypes.LITERAL_class
-					|| token.getType() == JavaTokenTypes.LITERAL_interface
-					|| token.getType() == JavaTokenTypes.LITERAL_enum) {
+			if (isTypeDeclarator(token)) {
 				String typeDesc;
 				if (token.getType() == JavaTokenTypes.LITERAL_class) {
 					typeDesc = "class";
@@ -258,7 +256,8 @@ public class NewParser
 				|| tokType == JavaTokenTypes.FINAL
 				|| tokType == JavaTokenTypes.LITERAL_static
 				|| tokType == JavaTokenTypes.LITERAL_volatile
-				|| tokType == JavaTokenTypes.LITERAL_native);
+				|| tokType == JavaTokenTypes.LITERAL_native
+				|| tokType == JavaTokenTypes.STRICTFP);
 	}
 	
 	/**
@@ -542,13 +541,14 @@ public class NewParser
 					return;
 				}
 				tokenStream.pushBack(ctoken);
+				tokenStream.pushBack(token);
 
 				// A declaration of a variable?
-				List<LocatableToken> identTokens = parseDottedIdent(token);
-				// TODO above is wrong; it's a type spec, not a dotted ident
+				List<LocatableToken> tlist = new LinkedList<LocatableToken>();
+				boolean isTypeSpec = parseTypeSpec(true, tlist);
 				token = tokenStream.nextToken();
 				tokenStream.pushBack(token);
-				pushBackAll(identTokens);
+				pushBackAll(tlist);
 				if (token.getType() == JavaTokenTypes.IDENT) {
 					parseVariableDeclaration();
 				}
@@ -571,9 +571,24 @@ public class NewParser
 					parseVariableDeclaration();
 				}
 			}
+			else if (isTypeDeclarator(token)) {
+				tokenStream.pushBack(token);
+				parseTypeDef();
+			}
 			else if (isPrimitiveType(token)) {
 				tokenStream.pushBack(token);
-				parseVariableDeclaration();
+				List<LocatableToken> tlist = new LinkedList<LocatableToken>();
+				parseTypeSpec(false, tlist);
+				
+				if (tokenStream.LA(1).getType() == JavaTokenTypes.DOT) {
+					// int.class, or int[].class are possible
+					pushBackAll(tlist);
+					parseExpression();
+				}
+				else {
+					pushBackAll(tlist);
+					parseVariableDeclaration();
+				}
 			}
 			else if (token.getType() == JavaTokenTypes.LCURLY) {
 				parseStmtBlock();
@@ -731,6 +746,9 @@ public class NewParser
 					token = tokenStream.nextToken();
 					parseStatement(token);
 				}
+			}
+			else {
+				token = tokenStream.nextToken(); // SEMI
 			}
 			
 			// We're expecting a regular (old-style) statement at this point
@@ -892,6 +910,7 @@ public class NewParser
 							return false;
 						}
 						token = tokenStream.nextToken();
+						ttokens.add(token);
 						if (token.getType() == JavaTokenTypes.GT) {
 							break;
 						}
@@ -899,7 +918,6 @@ public class NewParser
 							if (!speculative) {
 								error("Expecting ',' in type parameter list");
 							}
-							tokenStream.pushBack(token);
 							return false;
 						}
 					}
@@ -910,7 +928,9 @@ public class NewParser
 			// check for array declarators
 			while (token.getType() == JavaTokenTypes.LBRACK
 					&& tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
+				ttokens.add(token);
 				token = tokenStream.nextToken(); // RBRACK
+				ttokens.add(token);
 				token = tokenStream.nextToken();
 			}
 			
@@ -1132,7 +1152,9 @@ public class NewParser
 					}
 				}
 				else if (token.getType() == JavaTokenTypes.IDENT) {
+					// tokenStream.pushBack(token);
 					parseDottedIdent(token);
+					//parseTypeSpec(false); // call it a type, it might actually be a value
 				}
 				else if (token.getType() == JavaTokenTypes.STRING_LITERAL
 						|| token.getType() == JavaTokenTypes.CHAR_LITERAL
@@ -1146,6 +1168,10 @@ public class NewParser
 						|| token.getType() == JavaTokenTypes.LITERAL_true
 						|| token.getType() == JavaTokenTypes.LITERAL_false) {
 					// Literals need no further processing
+				}
+				else if (isPrimitiveType(token)) {
+					// Not really part of an expression, but may be followed by
+					// .class or [].class  (eg int.class, int[][].class)
 				}
 				else if (isUnaryOperator(token)) {
 					// Unary operator
@@ -1190,7 +1216,8 @@ public class NewParser
 							|| token.getType() == JavaTokenTypes.RBRACK
 							|| token.getType() == JavaTokenTypes.COMMA
 							|| token.getType() == JavaTokenTypes.COLON
-							|| token.getType() == JavaTokenTypes.EOF)
+							|| token.getType() == JavaTokenTypes.EOF
+							|| token.getType() == JavaTokenTypes.RCURLY)
 					{
 						// These are all legitimate expression endings
 						tokenStream.pushBack(token);
@@ -1215,7 +1242,13 @@ public class NewParser
 						}
 					}
 					else if (token.getType() == JavaTokenTypes.LBRACK) {
-						// Arrary subscript
+						// Arrary subscript?
+						if (tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
+							// No subscript means that this is a type - must be followed by
+							// ".class" normally. Eg Object[].class
+							token = tokenStream.nextToken(); // RBRACK
+							continue;
+						}
 						parseExpression();
 						token = tokenStream.nextToken();
 						if (token.getType() != JavaTokenTypes.RBRACK) {
@@ -1225,6 +1258,13 @@ public class NewParser
 					}
 					else if (token.getType() == JavaTokenTypes.LITERAL_instanceof) {
 						parseTypeSpec(false);
+					}
+					else if (token.getType() == JavaTokenTypes.DOT) {
+						// Handle dot operator specially, as there are some special cases
+						token = tokenStream.nextToken();
+						if (token.getType() != JavaTokenTypes.LITERAL_class) {
+							break;
+						}
 					}
 					else if (isBinaryOperator(token)) {
 						// Binary operators - need another operand
@@ -1292,6 +1332,13 @@ public class NewParser
 					return;
 				}
 				token = tokenStream.nextToken();
+				while (token.getType() == JavaTokenTypes.LBRACK) {
+					token = tokenStream.nextToken();
+					if (token.getType() != JavaTokenTypes.RBRACK) {
+						error("Expected ']' (after '[') in parameter declaration");
+					}
+					token = tokenStream.nextToken();
+				}
 				if (token.getType() != JavaTokenTypes.COMMA) {
 					break;
 				}
