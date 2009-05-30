@@ -26,9 +26,7 @@ import bluej.Config;
 import java.io.IOException;
 import java.io.File;
 
-import java.lang.reflect.Method;
-
-import javax.swing.JFileChooser;
+import java.awt.Desktop;
 
 /**
  * A class containing static methods for the purposes of launching external programs.
@@ -47,7 +45,20 @@ public class ExternalAppLauncher
      */
     public static void editFile(File file)
     {
-        //If we're running Java 6, we can use the Desktop class for ease of use
+        try {
+            if(Desktop.isDesktopSupported()) {
+                Desktop desktop = Desktop.getDesktop();
+                desktop.edit(file);
+            }
+            else {
+                throw new RuntimeException("Desktop class is not supported on this platform.");
+            }
+        }
+        catch(IOException ex) {
+            ex.printStackTrace();
+        }
+
+        /* Old stuff so it compiled on Java 5 - probably not needed anymore but here just in case
         if(Config.isJava16()) {
             try {
                 Class desktopClass = Class.forName("java.awt.Desktop");
@@ -66,16 +77,7 @@ public class ExternalAppLauncher
             catch(Exception ex) {
                 ex.printStackTrace();
             }
-        }
-        //If we're running an old version of Java, ask what program to use
-        else {
-            JFileChooser fc = new JFileChooser();
-            String program = null;
-            if(fc.showDialog(null, "Open with...")==JFileChooser.APPROVE_OPTION) {
-                program = fc.getSelectedFile().toString();
-                launchProgram(program, file.toString());
-            }
-        }
+        }*/
     }
 
     /**
