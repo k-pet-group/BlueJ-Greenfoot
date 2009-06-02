@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.File;
 
 import java.awt.Desktop;
+import javax.swing.JFileChooser;
 
 /**
  * A class containing static methods for the purposes of launching external programs.
@@ -55,7 +56,14 @@ public class ExternalAppLauncher
             }
         }
         catch(IOException ex) {
-            ex.printStackTrace();
+            JFileChooser jfc = new JFileChooser();
+            jfc.setMultiSelectionEnabled(false);
+            jfc.setDialogTitle("Open with...");
+            int returnVal = jfc.showOpenDialog(null);
+            if(returnVal==JFileChooser.APPROVE_OPTION) {
+                File program = jfc.getSelectedFile();
+                launchProgram(program.toString(), file.toString());
+            }
         }
     }
 
@@ -75,7 +83,14 @@ public class ExternalAppLauncher
             }
         }
         catch(IOException ex) {
-            ex.printStackTrace();
+            JFileChooser jfc = new JFileChooser();
+            jfc.setMultiSelectionEnabled(false);
+            jfc.setDialogTitle("Open with...");
+            int returnVal = jfc.showOpenDialog(null);
+            if(returnVal==JFileChooser.APPROVE_OPTION) {
+                File program = jfc.getSelectedFile();
+                launchProgram(program.toString(), file.toString());
+            }
         }
 
         /* Old stuff so it compiled on Java 5 - probably not needed anymore but here just in case
