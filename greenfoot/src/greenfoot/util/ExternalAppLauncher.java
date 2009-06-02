@@ -86,10 +86,15 @@ public class ExternalAppLauncher
      */
     public static void launchProgram(String program)
     {
-        try {
-            Runtime.getRuntime().exec(program);
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        if(new File(program).canExecute()) {
+            try {
+                Runtime.getRuntime().exec(program);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        else {
+            System.err.println(program + " is not executable.");
         }
     }
 
@@ -101,13 +106,18 @@ public class ExternalAppLauncher
      */
     public static void launchProgram(String program, String file)
     {
-        String[] cmd = new String[2];
-        cmd[0] = program;
-        cmd[1] = file;
-        try {
-            Runtime.getRuntime().exec(cmd);
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        if(new File(program).canExecute()) {
+            String[] cmd = new String[2];
+            cmd[0] = program;
+            cmd[1] = file;
+            try {
+                Runtime.getRuntime().exec(cmd);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        else {
+            System.err.println(program + " is not executable.");
         }
     }
 
@@ -120,12 +130,18 @@ public class ExternalAppLauncher
      */
     public static int waitForProgram(String program)
     {
-        try {
-            Process p = Runtime.getRuntime().exec(program);
-            p.waitFor();
-            return p.exitValue();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        if(new File(program).canExecute()) {
+            try {
+                Process p = Runtime.getRuntime().exec(program);
+                p.waitFor();
+                return p.exitValue();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return -1;
+            }
+        }
+        else {
+            System.err.println(program + " is not executable.");
             return -1;
         }
     }
@@ -140,15 +156,21 @@ public class ExternalAppLauncher
      */
     public static int waitForProgram(String program, String file)
     {
-        String[] cmd = new String[2];
-        cmd[0] = program;
-        cmd[1] = file;
-        try {
-            Process p = Runtime.getRuntime().exec(cmd);
-            p.waitFor();
-            return p.exitValue();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        if(new File(program).canExecute()) {
+            String[] cmd = new String[2];
+            cmd[0] = program;
+            cmd[1] = file;
+            try {
+                Process p = Runtime.getRuntime().exec(cmd);
+                p.waitFor();
+                return p.exitValue();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return -1;
+            }
+        }
+        else {
+            System.err.println(program + " is not executable.");
             return -1;
         }
     }
