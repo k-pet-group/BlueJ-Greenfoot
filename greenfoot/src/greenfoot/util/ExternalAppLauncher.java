@@ -40,6 +40,26 @@ public class ExternalAppLauncher
 {
 
     /**
+     * Opens a file using the OS default program for that file type.
+     * @param file the file to open.
+     */
+    public static void openFile(File file)
+    {
+        try {
+            if(Desktop.isDesktopSupported()) {
+                Desktop desktop = Desktop.getDesktop();
+                desktop.open(file);
+            }
+            else {
+                throw new RuntimeException("Desktop class is not supported on this platform.");
+            }
+        }
+        catch(IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
      * Opens a file for editing using the OS default editor for that file type.
      * @param file the file to open for editing.
      */
