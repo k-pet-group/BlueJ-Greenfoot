@@ -712,9 +712,9 @@ public abstract class World
         for (Actor actor : objects) {
             Rect bounds = actor.getBoundingRect();
             if(x >= bounds.getX()  && x <= bounds.getRight() && y>=bounds.getY() && y<= bounds.getTop()) {
-                int actorX = (int) Math.floor(getCellCenter(actor.getX()));
-                int actorY = (int) Math.floor(getCellCenter(actor.getY()));
-                if(actor.contains(x - actorX, y - actorY)){
+                int xClickCell = toCellFloor(x);
+                int yClickCell = toCellFloor(y);
+                if(actor.contains(xClickCell - actor.getX(), yClickCell - actor.getY())){
                    result.add(actor);
                 }
             }
