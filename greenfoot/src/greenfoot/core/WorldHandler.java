@@ -59,6 +59,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 
+import bluej.debugmgr.objectbench.ObjectBenchInterface;
+
 /**
  * The worldhandler handles the connection between the World and the
  * WorldCanvas.
@@ -718,6 +720,19 @@ public class WorldHandler
         }
     }
 
+    /**
+     * Get the object bench if it exists. Otherwise return null.
+     */
+    public ObjectBenchInterface getObjectBench()
+    {
+        if(handlerDelegate instanceof ObjectBenchInterface) {
+            return (ObjectBenchInterface) handlerDelegate;
+        }
+        else {
+            return null;
+        }
+    }
+    
     public InputManager getInputManager()
     {
         return inputManager;
@@ -792,6 +807,6 @@ public class WorldHandler
             Point p = new Point(x, y);
             startDrag(actor, p);
         }
-    }
+    } 
 
 }

@@ -95,8 +95,9 @@ public class WorldInvokeListener
         this.project = project;
     }
     
-    public WorldInvokeListener(Class cl, InspectorManager inspectorManager, GProject project)
+    public WorldInvokeListener(Class cl, ObjectBenchInterface bench, InspectorManager inspectorManager, GProject project)
     {
+        this.objectBench = bench;
         this.cl = cl;
         this.project = project;
         this.inspectorManager = inspectorManager;
