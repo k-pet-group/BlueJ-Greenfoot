@@ -50,7 +50,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldCanvas.java 6256 2009-04-16 11:55:51Z polle $
+ * @version $Id: WorldCanvas.java 6369 2009-06-15 11:47:14Z polle $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -109,22 +109,31 @@ public class WorldCanvas extends JPanel
                 double halfWidth = image.getWidth() / 2.;
                 double halfHeight = image.getHeight() / 2.;
 
-                double xCenter = thing.getX() * cellSize + cellSize / 2.;
-                int paintX = (int) Math.floor(xCenter - halfWidth);
-                double yCenter = thing.getY() * cellSize + cellSize / 2.;
-                int paintY = (int) Math.floor(yCenter - halfHeight);
-                
                 AffineTransform oldTx = null;
-                if(thing.getRotation() % 360 != 0) {
-                    // don't bother transforming if it is not rotated at all.
-                    oldTx = g.getTransform();
-                    g.rotate(Math.toRadians(thing.getRotation()), xCenter, yCenter);
+                try {
+                    double xCenter = thing.getX() * cellSize + cellSize / 2.;
+                    int paintX = (int) Math.floor(xCenter - halfWidth);
+                    double yCenter = thing.getY() * cellSize + cellSize / 2.;
+                    int paintY = (int) Math.floor(yCenter - halfHeight);
+
+                    if (thing.getRotation() % 360 != 0) {
+                        // don't bother transforming if it is not rotated at
+                        // all.
+                        oldTx = g.getTransform();
+                        g.rotate(Math.toRadians(thing.getRotation()), xCenter, yCenter);
+                    }
+
+                    ImageVisitor.drawImage(image, g, paintX, paintY, this, true);
                 }
-                
-                ImageVisitor.drawImage(image, g, paintX, paintY, this, true);
-                
+                catch (IllegalStateException e) {
+                    // We get this if the object has been removed from the
+                    // world. That can happen when interactively invoking a
+                    // method that removes an object from the world, while the
+                    // scenario is executing.
+                }
+
                 // Restore the old state of the graphics
-                if(oldTx != null) {
+                if (oldTx != null) {
                     g.setTransform(oldTx);
                 }
             }
