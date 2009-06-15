@@ -89,10 +89,21 @@ public class GreenfootProjectFile
 
         // This is Greenfoot, this file will contain Greenfoot specific
         // properties as well that we don't want to overwrite, so we load the
-        // file first.
+        // file first. The greenfoot properties will be loaded through the class
+        // greenfoot.core.ProjectProperties. 
+
+        // TODO: It would probably be better to always forward to the BlueJ
+        // version of the properties instead of writing to the same file from
+        // two VMs. That would fix the issue with things not being written from
+        // the Greenfoot VM if exited in the BlueJ vm.
         try {
+            Properties greenfootProps = new Properties();
             FileInputStream input = new FileInputStream(pkgFile);
-            props.load(input);
+            greenfootProps.load(input);
+            
+            // Make sure that we do not overwrite any values in props.
+            greenfootProps.putAll(props);
+            props.putAll(greenfootProps);
         }
         catch (IOException e) {
             // If we can't load it for some reason, we just continue.
