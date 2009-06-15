@@ -54,7 +54,11 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         String baseName = "greenfoot/templates/" +  templateFileName;
         File template = Config.getLanguageFile(baseName);
         
+        if(!template.canRead()) {
+            template = Config.getDefaultLanguageFile(baseName);
+        }
         BlueJFileReader.translateFile(template, file, translations, Charset.forName("UTF-8"));
+        
     }
     
     /**
