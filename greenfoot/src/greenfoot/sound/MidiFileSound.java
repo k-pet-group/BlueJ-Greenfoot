@@ -86,7 +86,6 @@ public class MidiFileSound implements Sound
 		}
 	}
 
-	@Override
 	public synchronized void play()
 	{
 		sequencer.setLoopCount(0);
@@ -130,7 +129,6 @@ public class MidiFileSound implements Sound
 		}
 	}
 
-	@Override
 	public synchronized void loop()
 	{
 		sequencer.setLoopStartPoint(0);
@@ -139,7 +137,6 @@ public class MidiFileSound implements Sound
 		startPlayback();
 	}
 
-	@Override
 	public synchronized void resume()
 	{
 		pause = false;
@@ -147,7 +144,6 @@ public class MidiFileSound implements Sound
 		playbackListener.playbackStarted(this);
 	}
 
-	@Override
 	public synchronized void pause()
 	{
 		pause = true;
@@ -155,14 +151,12 @@ public class MidiFileSound implements Sound
 		playbackListener.playbackPaused(this);
 	}
 
-	@Override
 	public synchronized void stop()
 	{
 		pause = false;
 		close();
 	}
 
-	@Override
 	public synchronized void close()
 	{
         playbackListener.playbackStopped(this);
@@ -177,22 +171,18 @@ public class MidiFileSound implements Sound
         playbackListener.soundClosed(this);
 	}
 
-	@Override
 	public synchronized boolean isPaused()
 	{
 		return pause;
 	}
 
-	@Override
 	public synchronized boolean isPlaying()
 	{
 		return sequencer.isRunning();
 	}
 
-	@Override
 	public synchronized boolean isStopped()
 	{
 		return !isPaused() && !isPlaying();
 	}
-
 }
