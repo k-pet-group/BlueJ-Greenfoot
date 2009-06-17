@@ -430,19 +430,23 @@ public class WorldHandlerDelegateIDE
         }
         catch (LinkageError e) { }
         catch (InstantiationException e) {
-            JButton button = new JButton(continueButtonText);
-            MessageDialog msgDialog = new MessageDialog(frame, missingConstructorMsg, missingConstructorTitle, 50, new JButton[]{button});
-            msgDialog.display();
+            showMissingConstructorDialog();
         }
         catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            showMissingConstructorDialog();
         }
         catch (Throwable ise) {
             // This can happen if a static initializer block throws a Throwable.
             // Or for other reasons.
             ise.printStackTrace();
         }
+    }
+
+    private void showMissingConstructorDialog()
+    {
+        JButton button = new JButton(continueButtonText);
+        MessageDialog msgDialog = new MessageDialog(frame, missingConstructorMsg, missingConstructorTitle, 50, new JButton[]{button});
+        msgDialog.display();
     }
 
     public Class<?> getLastWorldClass()
