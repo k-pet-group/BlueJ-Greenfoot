@@ -33,8 +33,15 @@ import greenfoot.sound.SoundFactory;
  * @author Poul Henriksen
  * @version 2.0
  */
-public class GreenfootSound
+class GreenfootSound
 {
+    /*
+     * TODO: Make class public when we want to include GreenfootSound support
+     * Also modify: SoundFactory, build.xml and
+     * BlueJ/package/greenfoot-build.xml. Just search for "GreenfoundSound" in
+     * those files to find out what needs to be done
+     */
+
     private Sound sound;
     
     /**

@@ -45,7 +45,10 @@
     <property name="bluej.extensions.lib"  location="${bluej.projectdir}/lib/extensions"/>
     
     <!-- Name of the jlayer jar -->
-    <property name="jlayer.jar" value="jl1.0.1.jar"/>        
+
+	         
+    <!-- TODO: Remove comment when we want to include GreenfootSound support   
+    property name="jlayer.jar" value="jl1.0.1.jar"/-->        
         
     <!-- The classpath to the bluej classes-->
     <path id="bluej.class.path">
@@ -56,7 +59,8 @@
         <pathelement location="${bluej.projectdir}/lib/MRJ141Stubs.jar"/>
         <pathelement location="${bluej.projectdir}/lib/commons-httpclient-3.1.jar"/>
         <pathelement location="${bluej.projectdir}/lib/commons-logging-api-1.1.1.jar"/>
-        <pathelement location="${bluej.projectdir}/lib/${jlayer.jar}"/>
+        <!-- TODO: Remove comment when we want to include GreenfootSound support   
+            <pathelement location="${bluej.projectdir}/lib/${jlayer.jar}"/> -->
     </path>
     <!-- The sourcepath to the bluej classes-->
     <path id="bluej.src.path">
@@ -176,6 +180,12 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 classpathref="bluej.class.path" 
                 debug="true">
             <compilerarg line="-target 1.5" />
+            <exclude name="greenfoot/util/ExternalAppLauncher.java"/>
+            
+            <!-- TODO: Remove  when we want to include GreenfootSound support -->
+            <exclude name="greenfoot/sound/Mp3AudioInputStream.java"/>
+              
+            
         </javac>
         <!-- Compile the RMI-classes -->
         <rmic base="${build}" includes="**/*Impl.class" excludes="bluej/**">
@@ -254,7 +264,9 @@ target="1.5">
                 <include name="greenfoot/Actor.java" />
                 <include name="greenfoot/World.java" />
                 <include name="greenfoot/GreenfootImage.java" />
-                <include name="greenfoot/GreenfootSound.java" />
+                <!--
+                TODO: Remove comment when we want to include GreenfootSound support   
+                include name="greenfoot/GreenfootSound.java" -->
                 <include name="greenfoot/Greenfoot.java" />
                 <include name="greenfoot/MouseInfo.java" />
             </fileset>
@@ -571,8 +583,15 @@ target="1.5">
             <include name="greenfoot/platforms/standalone/*.java"/>
 
             <include name="greenfoot/sound/**/*.java"/>
-
+            
+            <!-- TODO: Remove  when we want to include GreenfootSound support -->
+            <exclude name="greenfoot/sound/Mp3AudioInputStream.java"/>
+            
             <include name="greenfoot/util/**/*.java"/>
+
+            <exclude name="greenfoot/util/ExternalAppLauncher.java"/>
+            
+            
         </javac>
 
         <!-- Greenfoot icon for classes: greenfoot-16.png -->
