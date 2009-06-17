@@ -31,6 +31,7 @@ import greenfoot.core.WorldHandler;
 import greenfoot.core.WorldInvokeListener;
 import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.GreenfootFrame;
+import greenfoot.gui.MessageDialog;
 import greenfoot.gui.input.InputManager;
 import greenfoot.localdebugger.LocalObject;
 import greenfoot.platforms.WorldHandlerDelegate;
@@ -49,6 +50,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -68,6 +70,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.prefmgr.PrefMgr;
+import bluej.utility.Debug;
 
 
 /**
@@ -80,6 +83,10 @@ public class WorldHandlerDelegateIDE
     implements WorldHandlerDelegate, ObjectBenchInterface
 {
     protected final Color envOpColour = Config.getItemColour("colour.menu.environOp");
+
+    private final static String missingConstructorTitle = Config.getString("world.missing.constructor.title");
+    private final static String missingConstructorMsg = Config.getString("world.missing.constructor.msg");
+    private final static String continueButtonText = Config.getString("greenfoot.continue");
 
     private WorldHandler worldHandler;
 
@@ -423,8 +430,9 @@ public class WorldHandlerDelegateIDE
         }
         catch (LinkageError e) { }
         catch (InstantiationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            JButton button = new JButton(continueButtonText);
+            MessageDialog msgDialog = new MessageDialog(frame, missingConstructorMsg, missingConstructorTitle, 50, new JButton[]{button});
+            msgDialog.display();
         }
         catch (IllegalAccessException e) {
             // TODO Auto-generated catch block
