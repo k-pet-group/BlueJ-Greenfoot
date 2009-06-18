@@ -21,6 +21,8 @@
  */
 package greenfoot.event;
 
+import greenfoot.World;
+
 import java.util.EventObject;
 
 /**
@@ -32,9 +34,16 @@ import java.util.EventObject;
 public class WorldEvent extends EventObject
 {
     private int type;
+    private World world;
 
-    public WorldEvent(Object source)
+    public WorldEvent(Object source, World world)
     {
         super(source);
+        this.world = world;
+    }
+    
+    public World getWorld() 
+    {
+        return world;
     }
 }

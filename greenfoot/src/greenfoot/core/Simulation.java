@@ -798,6 +798,13 @@ public class Simulation extends Thread
      */
     public void worldRemoved(WorldEvent e)
     {
+        synchronized(this) {
+            if (!paused) {
+                // If the simulation is currently running, we want to make sure
+                // that the world is told that it will now be stopped.
+                e.getWorld().stopped();
+            }
+        }
         setEnabled(false);
     }
 

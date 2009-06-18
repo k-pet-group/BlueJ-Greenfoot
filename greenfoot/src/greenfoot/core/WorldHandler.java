@@ -87,7 +87,6 @@ public class WorldHandler
     private KeyboardManager keyboardManager;
     private static WorldHandler instance;
     private EventListenerList listenerList = new EventListenerList();
-    private WorldEvent worldEvent;
     private WorldHandlerDelegate handlerDelegate;
     private MousePollingManager mousePollingManager;
     private InputManager inputManager;
@@ -181,7 +180,6 @@ public class WorldHandler
         this.handlerDelegate.setWorldHandler(this);
 
         this.worldCanvas = worldCanvas;
-        worldEvent = new WorldEvent(this);
         mousePollingManager = new MousePollingManager(new WorldLocator() {
             public Actor getTopMostActorAt(MouseEvent e)
             {
@@ -416,12 +414,13 @@ public class WorldHandler
     public synchronized void discardWorld() {
         if(world == null) return;
         handlerDelegate.discardWorld(world); 
+        final World discardedWorld = world;
         world = null;
 
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 worldCanvas.setWorld(null);
-                fireWorldRemovedEvent();
+                fireWorldRemovedEvent(discardedWorld);
             }
         });
     }
@@ -448,9 +447,9 @@ public class WorldHandler
             {
                 if(worldCanvas != null) {
                     worldCanvas.setWorld(world);
-                }
-                if (WorldHandler.this.world != null) {
-                    fireWorldCreatedEvent();
+                }                
+                if (world != null) {
+                    fireWorldCreatedEvent(world);
                 }
             }
         });
@@ -616,12 +615,13 @@ public class WorldHandler
         handlerDelegate.dragFinished(o);
     }
 
-    protected void fireWorldCreatedEvent()
+    protected void fireWorldCreatedEvent(World discardedWorld)
     {
         // Guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
         // Process the listeners last to first, notifying
         // those that are interested in this event
+        WorldEvent worldEvent = new WorldEvent(this, discardedWorld);
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
             if (listeners[i] == WorldListener.class) {
                 ((WorldListener) listeners[i + 1]).worldCreated(worldEvent);
@@ -629,12 +629,13 @@ public class WorldHandler
         }
     }
 
-    public void fireWorldRemovedEvent()
+    public void fireWorldRemovedEvent(World discardedWorld)
     {
         // Guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
         // Process the listeners last to first, notifying
         // those that are interested in this event
+        WorldEvent worldEvent = new WorldEvent(this, discardedWorld);
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
             if (listeners[i] == WorldListener.class) {
                 ((WorldListener) listeners[i + 1]).worldRemoved(worldEvent);
