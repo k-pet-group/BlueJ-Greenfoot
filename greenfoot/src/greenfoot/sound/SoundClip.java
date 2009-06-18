@@ -44,7 +44,7 @@ public class SoundClip implements Sound
 {
     private void printDebug(String s) 
     {
-          System.out.println(s);        
+          //System.out.println(s);        
     }
     
     /** Name of the file holding the sound data. Used for debugging. */

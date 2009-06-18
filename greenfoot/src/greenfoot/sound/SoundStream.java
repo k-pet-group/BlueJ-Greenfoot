@@ -49,7 +49,7 @@ public class SoundStream implements Sound, Runnable
     private static void printDebug(String s) 
     {
     	// Comment this line out if you don't want debug info.  
-    	 System.out.println(s);        
+    	// System.out.println(s);        
     }
     
     /**
