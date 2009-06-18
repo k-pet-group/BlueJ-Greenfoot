@@ -48,7 +48,7 @@ import java.util.List;
  * The method here is empty, and subclasses normally provide their own implementations.
  * 
  * @author Poul Henriksen
- * @version 2.0
+ * @version 2.1
  */
 public abstract class Actor
 {

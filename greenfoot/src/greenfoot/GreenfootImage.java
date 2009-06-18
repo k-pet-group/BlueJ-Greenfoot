@@ -49,7 +49,7 @@ import java.net.URL;
  * and/or drawn by using various drawing methods.
  * 
  * @author Poul Henriksen
- * @version 2.0
+ * @version 2.1
  */
 public class GreenfootImage
 {
