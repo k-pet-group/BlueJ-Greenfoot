@@ -50,7 +50,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>VERSION</string>
 	<key>CFBundleSignature</key>
-	<string>BluJ</string>
+	<string>bluJ</string>
 	<key>CFBundleVersion</key>
 	<string>VERSION</string>
 	<key>Java</key>
