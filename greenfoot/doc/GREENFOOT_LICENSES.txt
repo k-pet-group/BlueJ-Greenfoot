@@ -8,4 +8,3 @@ Greenfoot makes use of the following 3rd party libraries:
  Antlr Parser Generator: Released under a BSD style license. 
  Apache Jakarta HttpClient, Logging and Codec: Release under the Apache License.
  GraphicsUtilities by Romain Guy: Released under a BSD style license.
- JLayer: Released under the GNU LGPL v2.1
