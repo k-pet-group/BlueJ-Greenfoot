@@ -639,6 +639,7 @@ target="1.5">
                 <include name="doc/HOWTO.*" />    
                 <include name="doc/THIRDPARTYLICENSE.txt" />
                 <include name="doc/LICENSE.txt" />  
+                <include name="doc/GREENFOOT_LICENSES.txt" />  
                 <patternset refid="distribution.scenarios"/>
                 <exclude name="scenarios/**/*.class" />    
                 <exclude name="scenarios/**/greenfoot/" />   

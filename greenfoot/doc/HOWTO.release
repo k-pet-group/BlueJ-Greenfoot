@@ -15,7 +15,7 @@ Building Greenfoot:
 If necessary:
  8. If the API version has changed, copy Greenfoot-core-X.X.X-jar to the gallery: /home/mygame/mygame/public/sharedjars/
  9. If any of the 3rd party libraries have changed copy them to: /home/mygame/mygame/public/sharedjars/
-10. If the licenses have changed, copy LICENSE.txt and/or THIRDPARTYLICENSE.txt to: www.greenfoot.org/about.
+10. If the licenses have changed, update GREENFOOT_LICENSES and copy LICENSE.txt and/or THIRDPARTYLICENSE.txt to: www.greenfoot.org/about
  
  
 Subversion:
