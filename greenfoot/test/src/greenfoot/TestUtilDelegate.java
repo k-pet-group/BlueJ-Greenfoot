@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 import greenfoot.platforms.GreenfootUtilDelegate;
 
@@ -40,9 +41,9 @@ public class TestUtilDelegate implements GreenfootUtilDelegate
         return;
     }
 
-    public ClassLoader getCurrentClassLoader()
+    public URL getResource(String path)
     {
-        return getClass().getClassLoader();
+        return getClass().getClassLoader().getResource(path);
     }
 
     public String getGreenfootLogoPath()

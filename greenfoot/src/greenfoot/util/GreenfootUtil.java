@@ -67,7 +67,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 6254 2009-04-06 14:14:49Z polle $
+ * @version $Id: GreenfootUtil.java 6380 2009-06-19 14:07:10Z polle $
  */
 public class GreenfootUtil
 {
@@ -450,13 +450,12 @@ public class GreenfootUtil
      * @return A URL that can be read or null if the URL could not be found.
      * @throws FileNotFoundException If the file cannot be found.
      */
-    public static URL getURL(String filename, String dir) throws FileNotFoundException
+    public static URL getURL(final String filename, final String dir) throws FileNotFoundException
     {
         if (filename == null) {
             throw new NullPointerException("Filename must not be null.");
         }
-
-        ClassLoader currentLoader = delegate.getCurrentClassLoader();
+        
         URL url = null;
        
         // If the 'dir' is part of the filename already, we attempt to use the
@@ -482,23 +481,22 @@ public class GreenfootUtil
         
         boolean dirSearched = false;     
         if (!pathContainsColon && !pathContainsDir) {
-            url = currentLoader.getResource(dir + "/" + filename);
+            // First, try the project directory, unless it is already part of the filename or an absolute path.
+            url = delegate.getResource(dir + "/" + filename);
             dirSearched = true;
         } 
-        
+
         if (url == null) {
-            // First, try the project directory
-            url = currentLoader.getResource(filename);
+            url = delegate.getResource(filename);
         }
-        if(url == null && !dirSearched) {
+        if (url == null && !dirSearched) {
             // Second, try the specified dir
-            url = currentLoader.getResource(dir + "/" + filename);
+            url = delegate.getResource(dir + "/" + filename);
             dirSearched = true;
         }
         if (url == null) {
             // Third, try as an absolute file
             File f = new File(filename);
-
             
             try {
                 if (f.canRead()) {
@@ -537,15 +535,16 @@ public class GreenfootUtil
                 }
             }
         }
-        
+
         checkCase(url);
-        
+
         if(url == null) {
             throw new FileNotFoundException("Could not find file: " + filename);
         }
         return url;
     }
 
+    
     /**
      * Checks whether the case is correct for the given URL. If it is detected
      * NOT to be the right case a IllegalArgumentException will be thrown.

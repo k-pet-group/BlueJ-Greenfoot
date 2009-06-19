@@ -24,6 +24,7 @@ package greenfoot.platforms.standalone;
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 
 import greenfoot.platforms.GreenfootUtilDelegate;
@@ -37,9 +38,21 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         // Not needed in stand alone
     }
 
-    public ClassLoader getCurrentClassLoader()
+    public URL getResource(String path)
     {
-        return this.getClass().getClassLoader();
+        // Resources from the standalone should always be in a jar, which means
+        // they should contain the character "!". If we do get a URL back, and
+        // it doesn't contain a ! it is probably because it didn't exists, but
+        // the webserver produced an error page at the given URL instead of
+        // returning a fail. Therefore, we need to explicitly test for the
+        // existence of a ! in the returned URL.
+        URL res = this.getClass().getClassLoader().getResource(path);
+        if (res != null && res.toString().contains("!")) {  
+            return res;
+        }
+        else {
+            return null;
+        }
     }
 
     public String getNewProjectName(Component parent)

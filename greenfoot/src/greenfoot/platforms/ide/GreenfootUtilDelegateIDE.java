@@ -27,6 +27,7 @@ import greenfoot.util.FileChoosers;
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -76,9 +77,9 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     }
 
 
-    public ClassLoader getCurrentClassLoader() 
+    public URL getResource(String path) 
     {
-        return ExecServer.getCurrentClassLoader();
+        return ExecServer.getCurrentClassLoader().getResource(path);
     }
     
     /**
