@@ -367,7 +367,7 @@ target="1.5">
         <echo message="The greenfoot dist-jar (used to build windows installer)s is in ${package}/greenfoot-dist-${greenfoot.version.nodots}.jar"/>
         <echo message="The greenfoot jar-installer is in ${package}/Greenfoot-generic-${greenfoot.version.nodots}.jar"/>
         <echo message="The greenfoot Mac-installer is in ${package}/Greenfoot-mac-${greenfoot.version.nodots}.zip"/>
-        <echo message="And don't forget to copy this to the gallery (if API version has changed): ${package}/Greenfoot-core-${greenfoot.apiversion}.jar"/>
+        <echo message="And don't forget to copy this to the gallery: ${package}/Greenfoot-core-${greenfoot.apiversion}.jar"/>
     </target>
 
     <target name="clean" description="clean up" >
@@ -645,7 +645,7 @@ target="1.5">
                 <exclude name="scenarios/**/greenfoot/" />   
                 
                 <include name="imagelib/**/*" />           
-                <include name="images/**/*" />     
+                <exclude name="images/**/*" />     
                 <include name="labels/**/*"/>
                 <include name="lib/**/*"/>
                 <include name="package/winlaunch/*" />     
