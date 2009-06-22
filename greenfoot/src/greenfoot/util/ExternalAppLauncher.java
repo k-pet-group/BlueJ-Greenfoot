@@ -92,27 +92,6 @@ public class ExternalAppLauncher
                 launchProgram(program.toString(), file.toString());
             }
         }
-
-        /* Old stuff so it compiled on Java 5 - probably not needed anymore but here just in case
-        if(Config.isJava16()) {
-            try {
-                Class desktopClass = Class.forName("java.awt.Desktop");
-                Method isDesktopSupported = desktopClass.getMethod("isDesktopSupported");
-                boolean supported = (Boolean)isDesktopSupported.invoke(null);
-                if(supported) {
-                    Method getDesktop = desktopClass.getMethod("getDesktop");
-                    Object desktop = getDesktop.invoke(null);
-                    Method edit = desktopClass.getMethod("edit", File.class);
-                    edit.invoke(desktop, file);
-                }
-                else {
-                    throw new Exception("Desktop class is not supported on this platform.");
-                }
-            }
-            catch(Exception ex) {
-                ex.printStackTrace();
-            }
-        }*/
     }
 
     /**
