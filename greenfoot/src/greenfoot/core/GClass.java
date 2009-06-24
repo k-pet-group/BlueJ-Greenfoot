@@ -171,7 +171,13 @@ public class GClass
     public void setClassProperty(String propertyName, String value)
     {
         try {
-            pkg.getProject().getProjectProperties().setString("class." + getName() + "." + propertyName, value);
+        	String key = "class." + getName() + "." + propertyName;
+        	if (value != null) {
+        		pkg.getProject().getProjectProperties().setString(key, value);
+        	}
+        	else {
+        		pkg.getProject().getProjectProperties().removeProperty(key);
+        	}
         }
         catch (Exception exc) {
             exc.printStackTrace();
@@ -416,10 +422,15 @@ public class GClass
 		// the superclass is not from this project, but we can get it from the
 		// real class
         if (realSuperclass == null && isCompiled()) {
-        	setSuperclassGuess(realClass.getSuperclass().getName());
-        	return;
+        	Class<?> superclass = realClass.getSuperclass();
+        	if (superclass != null) {
+        		setSuperclassGuess(realClass.getSuperclass().getName());
+        		return;
+        	}
+        	else {
+        		setSuperclassGuess(null);
+        	}
         }
-
         
         //Second, try to parse the file
         String parsedSuperclass = null;
