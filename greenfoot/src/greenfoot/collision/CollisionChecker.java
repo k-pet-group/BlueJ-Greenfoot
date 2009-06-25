@@ -181,7 +181,7 @@ public interface CollisionChecker
 
     public <T extends Actor> T getOneObjectAt(Actor object, int dx, int dy, Class<T> cls);
 
-    public Actor getOneIntersectingObject(Actor object, Class cls);
+    public <T extends Actor> T  getOneIntersectingObject(Actor object, Class<T> cls);
 
     public void paintDebug(Graphics g);
 

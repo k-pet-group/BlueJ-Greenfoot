@@ -56,6 +56,15 @@ public class SubClassTests extends TestCase
         
     }
     
+    class SubSubClass extends SubClass {
+
+        public SubSubClass(int w, int h)
+        {
+            super(w, h);
+        }
+        
+    }
+    
     class IndependentClass extends TestObject {
 
         public IndependentClass(int w, int h)
@@ -112,8 +121,31 @@ public class SubClassTests extends TestCase
 
         res = indepObj.getIntersectingObjectsP(SuperClass.class);
         assertEquals(2,res.size());        
-    
-
     }
 
+    public void testSubSubClassing()
+    {
+        World world = WorldCreator.createWorld(10, 10, 10);
+
+        TestObject superObj = new SuperClass(20, 20);
+        world.addObject(superObj, 2, 2);
+        TestObject subSubObj = new SubSubClass(10, 10);
+        world.addObject(subSubObj, 2, 2);
+        TestObject indepObj = new IndependentClass(10, 10);
+        world.addObject(indepObj, 2, 2);
+        
+       
+        
+        List res = superObj.getIntersectingObjectsP(IndependentClass.class);
+        assertEquals(1,res.size());        
+
+        // test if it works when there is no objects of class SubClass, but we
+        // still should get the object of type SubSubClass
+        res = indepObj.getIntersectingObjectsP(SubClass.class);
+        assertEquals(1,res.size());   
+        
+        res = indepObj.getIntersectingObjectsP(SuperClass.class);
+        assertEquals(2,res.size());        
+    }
+    
 }
