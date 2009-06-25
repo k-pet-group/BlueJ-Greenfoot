@@ -61,7 +61,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: Invoker.java 6393 2009-06-25 05:12:33Z davmac $
  */
 
 public class Invoker
@@ -95,6 +95,7 @@ public class Invoker
     private Map<?, ?> typeMap; // map type parameter names to types
     private ValueCollection localVars;
     private String imports; // import statements to include in shell file
+    private boolean doTryAgain = false; // whether to re-try
     
     /**
      * The instance name for any object we create. For a constructed object the
@@ -285,11 +286,11 @@ public class Invoker
     /**
      * After attempting a free form invocation, and getting an error, we try
      * again. First time round, we tried interpreting the input as an
-     * expression, now we try as a statement.
+     * expression, the second time we try as a statement (i.e. without a result type).
      */
-    public synchronized void tryAgain()
+    public void tryAgain()
     {
-        doFreeFormInvocation(null);
+    	doTryAgain = true;
     }
 
     // -- CallDialogWatcher interface --
@@ -327,6 +328,8 @@ public class Invoker
 
     /**
      * Invokes a constructor or method with the given parameters.
+     * 
+     * @param params The arguments to the method/constructor (Java expressions)
      */
     public void invokeDirect(String[] params)
     {
@@ -509,6 +512,12 @@ public class Invoker
             // goes into an infinite loop can hang BlueJ.
             new Thread() {
                 public void run() {
+                	EventQueue.invokeLater(new Runnable() {
+                		public void run() {
+                            closeCallDialog();
+                		}
+                	});
+                	
                     final DebuggerResult result = pkg.getProject().getDebugger().instantiateClass(className);
                     
                     EventQueue.invokeLater(new Runnable() {
@@ -518,7 +527,6 @@ public class Invoker
                             
                             handleResult(result); // handles error situations
                                 
-                            closeCallDialog();
                             pmf.setWaitCursor(false);
                             
                             // update all open inspect windows
@@ -1069,6 +1077,12 @@ public class Invoker
         }
 
         deleteShellFiles();
+        
+        if (! successful && doTryAgain) {
+        	doTryAgain = false;
+        	doFreeFormInvocation(null);
+        	return;
+        }
         
         if (! successful && dialog != null) {
             // Re-enable call dialog: use can try again with
