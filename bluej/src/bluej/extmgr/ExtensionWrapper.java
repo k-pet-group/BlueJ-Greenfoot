@@ -45,8 +45,8 @@ import java.lang.ClassNotFoundException;
  *  the following 
  *  
  *  - The creation of an extension Wrapper is disjoint from the "creation" of an extension 
- *  In ANY case we crete a wrapper for the given filename 
- *  We then load the extension ONLY if somebody else requets it...
+ *  In ANY case we create a wrapper for the given filename 
+ *  We then load the extension ONLY if somebody else requests it...
  *  </PRE>
  *  
  *  Author: Damiano Bolla: 2002,2003,2004
@@ -104,7 +104,7 @@ public class ExtensionWrapper
         Class classRisul = null;
         extensionStatusString = Config.getString("extmgr.status.loading");
 
-        // It may happen, no reaso to core dump for this...
+        // It may happen, no reason to core dump for this...
         if (jarFileName == null) return null;
 
         // Also this may happen, again, no reason to continue further
@@ -147,12 +147,18 @@ public class ExtensionWrapper
     }
 
     /**
-     * It is a bit of magic, really :-)
+     * A ClassLoader which only finds bluej.* classes and system classes. This is used to
+     * prevent extensions from seeing other libraries which might be bundled with and used by
+     * BlueJ, so that they can use their own versions of those libraries if they wish.
      */
     class FirewallLoader extends ClassLoader
     {
         ClassLoader myParent;
       
+        /**
+         * Constructor. Note that this classloader breaks from the delegation model; the parent
+         * is not the actual parent classloader, it is only used by findClass() below. 
+         */
         FirewallLoader ( ClassLoader parent )
         {
             myParent = parent;
@@ -171,12 +177,12 @@ public class ExtensionWrapper
     }
   
     /**
-     *  Now, assume you have the class and you want to "istantiate" the
+     *  Now, assume you have the class and you want to "instantiate" the
      *  extension You have to call this. NOTE that the extension wrapper is
      *  ALREADY UP and running. I do not return a value, you may check
      *  how this went by using the isValid() method...
      *
-     * @param  project  The project this extensionis linked to, null if none
+     * @param  project  The project this extension is linked to, null if none
      */
     void newExtension(Project aProject)
     {
@@ -201,7 +207,7 @@ public class ExtensionWrapper
             return;
         }
 
-        // Ok, time to really start everything... This MUST be here.... after all is initialzed
+        // Ok, time to really start everything... This MUST be here.... after all is initialised
         safeStartup(extensionBluej);
         extensionStatusString = Config.getString("extmgr.status.loaded");
     }
@@ -212,7 +218,7 @@ public class ExtensionWrapper
     /**
      *  Gets the project this extension is associated with.
      *  This happens in case of extensions loaded with a Project.
-     *  If it is a systemwhide extension this will be null.
+     *  If it is a system wide extension this will be null.
      *
      * @return    the project owning this extension.
      */
@@ -225,7 +231,7 @@ public class ExtensionWrapper
     /**
      *  Checks if a this extension is valid
      *
-     * @return true if it is istantiated, false if it is not.
+     * @return true if it is instantiated, false if it is not.
      */
     public boolean isValid()
     {
@@ -292,7 +298,7 @@ public class ExtensionWrapper
 
 
     /**
-     * Tryes to return a reasonable Properties instance of the extension labels
+     * Tries to return a reasonable Properties instance of the extension labels
      * It MAY return null if nothing reasonable can be found in the EXTENSION jar
      * 
      * @return the properties or null if nothing can be found
@@ -315,7 +321,7 @@ public class ExtensionWrapper
 
     
     /**
-     * Returns the label that are language dependents as a Properies instance
+     * Returns the label that are language dependents as a Properties instance
      * 
      * @return the equivalent properties if found, null if nothing
      */
@@ -346,8 +352,8 @@ public class ExtensionWrapper
 
 
     /**
-     * UFF, this is here but it really ougth to be in a public util 
-     * SImply close a stream without complaining too much.
+     * UFF, this is here but it really aught to be in a public util 
+     * Simply close a stream without complaining too much.
      * Just to avoid the Nth level of try catch with no value added
      */
     public static void closeInputStream ( InputStream aStream )
@@ -498,7 +504,7 @@ public class ExtensionWrapper
 
 
     /**
-     *  Ask to the extension if it thinks if it si compatible.
+     *  Ask the extension if it thinks it is compatible.
      *
      * @return  true if it is, false otherwise
      */
