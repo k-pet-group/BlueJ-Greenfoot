@@ -10,12 +10,22 @@ Building Greenfoot:
  4. Run "ant ready-to-run" in the BlueJ directory.
  5. Run "ant dist" in the Greenfoot directory
  6. Copy the builds and source to greenfoot.org.
- 7. Make someone build the windows installer.
- 
+ 7. Build the windows installer.
+
 If necessary:
  8. If the API version has changed, copy Greenfoot-core-X.X.X-jar to the gallery: /home/mygame/mygame/public/sharedjars/
  9. If any of the 3rd party libraries have changed copy them to: /home/mygame/mygame/public/sharedjars/
 10. If the licenses have changed, update GREENFOOT_LICENSES and copy LICENSE.txt and/or THIRDPARTYLICENSE.txt to: www.greenfoot.org/about
+ 
+Building the Windows installer:
+ 1. Copy the "greenfoot-dist-XXX.jar" to the bluej/package directory
+    as "greenfoot-dist.jar"
+ 2. Build the executable launcher (see bluej/package/winlaunch/BUILD.TXT).
+ 2. Copy the launcher as "gflaunch.exe" to bluej/package/winlaunch
+ 2. Update the Greenfoot version number in bluej/package/winlaunch/Greenfoot-README.TXT
+ 3. Update AppVerName and OutputBaseFilename in bluej/package/winsetup/greenfoot.iss
+ 4. Run the bluej/package/greenfoot-build.xml ant script's "windows-dist" target
+ 
  
  
 Subversion:

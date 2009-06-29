@@ -80,6 +80,8 @@ Step 4.
 
 You can now build the Windows installer.
 
+For BlueJ:
+
 First, run the "ready-to-run" ant task in the build.xml file in the root
 of the BlueJ source distribution. The "build.properties" file (in the same location)
 will need to be edited first (specify the BlueJ build location and JDK location, etc).
