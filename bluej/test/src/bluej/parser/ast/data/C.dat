@@ -2,7 +2,7 @@ public class C {
 	int x;
   public static void main( String args[] ) {
     Class c = Integer.class;
-    int.class;
+    Class i = int.class;
     boolean.class.equals(T.class);
   }
 }
