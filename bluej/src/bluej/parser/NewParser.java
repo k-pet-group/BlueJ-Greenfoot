@@ -418,6 +418,14 @@ public class NewParser
 		}
 	}
 	
+	public void parseStatement()
+	{
+		try {
+			parseStatement(tokenStream.nextToken());
+		} catch (TokenStreamException e) {
+		}
+	}
+	
 	public void parseStatement(LocatableToken token)
 	{
 		try {
@@ -705,7 +713,6 @@ public class NewParser
 			}
 			if (tokenStream.LA(1).getType() != JavaTokenTypes.SEMI) {
 				// Could be an old or new style for-loop.
-				// for ( System.out.println("yu"); ;);
 				List<LocatableToken> tlist = new LinkedList<LocatableToken>();
 				boolean isTypeSpec = parseTypeSpec(true, tlist);
 				if (isTypeSpec && tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
@@ -864,8 +871,7 @@ public class NewParser
 	 * Parse a type specification. This could be a primitive type (including void),
 	 * or a class type (qualified or not, possibly with type parameters). This can
 	 * do a speculative parse if the following tokens might either be a type specification
-	 * or a statement-expression. (In particular, if 'identifier <' is a valid initial
-	 * expression sequence, don't use this method).
+	 * or a statement-expression.
 	 * 
 	 * @param speculative  Whether this is a speculative parse, i.e. we might not actually
 	 *                     have a type specification. If this is set some parse errors will
@@ -879,53 +885,103 @@ public class NewParser
 	{
 		try {
 			ttokens.addAll(parseModifiers());
-			LocatableToken token = tokenStream.nextToken();
-			if (isPrimitiveType(token)) {
-				// Ok, we have a base type
+			int ttype = parseBaseType(speculative, ttokens);
+			if (ttype == TYPE_ERROR) {
+				return false;
+			}
+			else if (ttype == TYPE_PRIMITIVE) {
 				speculative = false;
-				ttokens.add(token);
-				token = tokenStream.nextToken();
 			}
 			else {
-				if (token.getType() != JavaTokenTypes.IDENT) {
-					if (! speculative) {
-						error("Expected type identifier");
-					}
-					tokenStream.pushBack(token);
-					return false;
-				}
+//				if (token.getType() != JavaTokenTypes.IDENT) {
+//					if (! speculative) {
+//						error("Expected type identifier");
+//					}
+//					tokenStream.pushBack(token);
+//					return false;
+//				}
 
-				ttokens.addAll(parseDottedIdent(token));
+//				ttokens.addAll(parseDottedIdent(token));
 
-				token = tokenStream.nextToken();
+				LocatableToken token = tokenStream.nextToken();
 				// TODO must handle '>>' tokens, urgh (and '>>>?')
 				if (token.getType() == JavaTokenTypes.LT) {
 					// Type parameters? (or is it a "less than" comparison?)
 					ttokens.add(token);
-					while (true) {
+					int tparDepth = 1;
+					while (tparDepth > 0) {
 						//token = tokenStream.LA(1);
 						// TODO wildcards
-						boolean rval = parseTypeSpec(speculative, ttokens);
-						if (rval == false) {
+						
+						ttype = parseBaseType(speculative, ttokens);
+						if (ttype == TYPE_ERROR) {
 							return false;
 						}
+						
+						if (ttype == TYPE_OTHER) {
+							// May be type parameters
+							if (tokenStream.LA(1).getType() == JavaTokenTypes.LT) {
+								tparDepth++;
+								ttokens.add(tokenStream.nextToken());
+								continue;
+							}
+						}
+						
+						// Array declarators?
 						token = tokenStream.nextToken();
-						ttokens.add(token);
-						if (token.getType() == JavaTokenTypes.GT) {
+						while (token.getType() == JavaTokenTypes.LBRACK
+								&& tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
+							ttokens.add(token);
+							token = tokenStream.nextToken(); // RBRACK
+							ttokens.add(token);
+							token = tokenStream.nextToken();
+						}
+
+						// Type parameters?
+						while (token.getType() == JavaTokenTypes.GT
+								|| token.getType() == JavaTokenTypes.SR
+								|| token.getType() == JavaTokenTypes.BSR) {
+							ttokens.add(token);
+							if (token.getType() == JavaTokenTypes.GT) {
+								tparDepth--;
+							}
+							else if (token.getType() == JavaTokenTypes.SR) {
+								tparDepth -= 2;
+							}
+							else if (token.getType() == JavaTokenTypes.BSR) {
+								tparDepth -= 3;
+							}
+							
+							token = tokenStream.nextToken();
+							
+							while (token.getType() == JavaTokenTypes.LBRACK
+									&& tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
+								ttokens.add(token);
+								token = tokenStream.nextToken(); // RBRACK
+								ttokens.add(token);
+								token = tokenStream.nextToken();
+							}
+						}
+						
+						if (tparDepth <= 0) {
 							break;
 						}
 						if (token.getType() != JavaTokenTypes.COMMA) {
 							if (!speculative) {
 								error("Expecting ',' in type parameter list");
 							}
+							tokenStream.pushBack(token);
 							return false;
 						}
+						ttokens.add(token);
 					}
-					token = tokenStream.nextToken();
+					// token = tokenStream.nextToken();
 				}
+				tokenStream.pushBack(token);
 			}
 			
 			// check for array declarators
+			LocatableToken token = tokenStream.nextToken();
 			while (token.getType() == JavaTokenTypes.LBRACK
 					&& tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
 				ttokens.add(token);
@@ -942,6 +998,42 @@ public class NewParser
 			tse.printStackTrace(); // TODO
 			return false;
 		}
+	}
+	
+	private static final int TYPE_PRIMITIVE = 0;
+	private static final int TYPE_OTHER = 1;
+	private static final int TYPE_ERROR = 2;
+	
+	/**
+	 * Parse a type "base" - a primitive type or a class type without type parameters.
+	 * The type parameters may follow.
+	 * 
+	 * @param speculative
+	 * @param ttokens
+	 * @return
+	 * @throws TokenStreamException
+	 */
+	private int parseBaseType(boolean speculative, List<LocatableToken> ttokens)
+		throws TokenStreamException
+	{
+		LocatableToken token = tokenStream.nextToken();
+		if (isPrimitiveType(token)) {
+			// Ok, we have a base type
+			ttokens.add(token);
+			return TYPE_PRIMITIVE;
+		}
+		else {
+			if (token.getType() != JavaTokenTypes.IDENT) {
+				if (! speculative) {
+					error("Expected type identifier");
+				}
+				tokenStream.pushBack(token);
+				return TYPE_ERROR;
+			}
+
+			ttokens.addAll(parseDottedIdent(token));
+		}
+		return TYPE_OTHER;
 	}
 	
 	/**
