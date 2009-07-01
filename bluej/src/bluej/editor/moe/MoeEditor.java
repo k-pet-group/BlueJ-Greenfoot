@@ -1582,6 +1582,38 @@ public final class MoeEditor extends JFrame
 
     }
 
+    
+    
+   
+    
+    /**
+     * Allow the enabling/disabling of a specified set of actions.
+     * Can be overwritten using the enableAction method 
+     * 
+     * @param flag  true to enable action from menu.
+     */
+    
+    public void enableActions (boolean flag){
+        actions.enableAction("print",flag);
+        actions.enableAction("page-setup",flag);
+        actions.enableAction("undo", flag);
+        actions.enableAction("compile", flag);
+        actions.enableAction("cut-to-clipboard", flag);        
+        actions.enableAction("indent-block", flag);
+        actions.enableAction("deindent-block", flag);
+        actions.enableAction("comment-block", flag);
+        actions.enableAction("uncomment-block", flag);        
+        actions.enableAction("insert-method", flag);
+        actions.enableAction("find", flag);
+        actions.enableAction("find-next", flag);
+        actions.enableAction("find-next-backward", flag);
+        actions.enableAction("replace", flag);
+        actions.enableAction("go-to-line", flag);
+  
+        actions.setPasteEnabled(flag);
+    	
+    }
+    
     // --------------------------------------------------------------------
     /**
      * Switch on the source view (it it isn't showing already).
@@ -1591,9 +1623,7 @@ public final class MoeEditor extends JFrame
         if (!viewingHTML) {
             return;
         }
-
-        // enable print option
-        enablePrinting(true);
+        enableActions(true);
         document = sourceDocument;
         currentTextPane = sourcePane;
         viewingHTML = false;
@@ -1612,9 +1642,7 @@ public final class MoeEditor extends JFrame
         if (viewingHTML) {
             return;
         }
-
-        // disable print menu option until implemented
-        enablePrinting(false);
+        enableActions(false);
         try {
             save();
             displayInterface();

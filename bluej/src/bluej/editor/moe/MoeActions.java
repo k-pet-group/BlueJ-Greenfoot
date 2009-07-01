@@ -188,6 +188,26 @@ public final class MoeActions
         redoAction.setEnabled(enabled);
     }
     
+    public void setPasteEnabled(boolean enabled)
+    {
+    	actions.get(DefaultEditorKit.pasteAction).setEnabled(enabled);
+    }
+    
+    /**
+     * Allow the enabling/disabling of an action. 
+     * @param action  String representing name of action
+     * @param flag  true to enable action from menu.
+     */
+    
+    public void enableAction(String action, boolean flag)
+    {
+        Action moeAction = getActionByName(action);
+        if (moeAction != null) {
+            moeAction.setEnabled(flag);
+        }
+    }
+    
+    
     /**
      * Return an action with a given name.
      */
