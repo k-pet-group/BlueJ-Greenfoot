@@ -39,6 +39,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -1580,40 +1581,58 @@ public final class MoeEditor extends JFrame
             pageSetupAction.setEnabled(flag);
         }
 
-    }
-
-    
-    
-   
+    }   
     
     /**
-     * Allow the enabling/disabling of a specified set of actions.
-     * Can be overwritten using the enableAction method 
-     * 
-     * @param flag  true to enable action from menu.
+     * Check if an item is in the reserved list for disabled interface options
+     *  
+     * @return boolean reflects if it is enabled ie false=disabled
+     * @param buttonText  String with button text name
      */
     
-    public void enableActions (boolean flag){
-        actions.enableAction("print",flag);
-        actions.enableAction("page-setup",flag);
-        actions.enableAction("undo", flag);
-        actions.enableAction("compile", flag);
-        actions.enableAction("cut-to-clipboard", flag);        
-        actions.enableAction("indent-block", flag);
-        actions.enableAction("deindent-block", flag);
-        actions.enableAction("comment-block", flag);
-        actions.enableAction("uncomment-block", flag);        
-        actions.enableAction("insert-method", flag);
-        actions.enableAction("find", flag);
-        actions.enableAction("find-next", flag);
-        actions.enableAction("find-next-backward", flag);
-        actions.enableAction("replace", flag);
-        actions.enableAction("go-to-line", flag);
-  
-        actions.setPasteEnabled(flag);
+    private boolean isFlaggedAction(String text){
     	
+    	ArrayList flaggedActions=getFlaggedActions();
+    	
+    	if (flaggedActions!=null && flaggedActions.contains(text)){
+    		return true;
+    	}
+    	return false;
+    
     }
     
+    /**
+     * Returns a list of flagged items 
+     *  
+     * @return ArrayList list of flagged items
+     */
+    
+    private ArrayList getFlaggedActions(){
+    	
+    	ArrayList flaggedActions=new ArrayList();
+    	flaggedActions.add("save");
+    	flaggedActions.add("reload");
+    	flaggedActions.add("print");
+    	flaggedActions.add("page-setup");
+    	flaggedActions.add("compile");
+    	flaggedActions.add("cut-to-clipboard");
+    	flaggedActions.add("indent-block");
+    	flaggedActions.add("deindent-block");
+    	flaggedActions.add("comment-block");
+    	flaggedActions.add("uncomment-block");
+    	flaggedActions.add("insert-method");
+    	flaggedActions.add("find");
+    	flaggedActions.add("find-next");
+    	flaggedActions.add("find-next-backward");
+    	flaggedActions.add("replace");
+    	flaggedActions.add("go-to-line");
+    	flaggedActions.add("paste-from-clipboard");
+    	flaggedActions.add("toggle-breakpoint");
+    	
+    	
+    	return flaggedActions;
+    
+    }
     // --------------------------------------------------------------------
     /**
      * Switch on the source view (it it isn't showing already).
@@ -1623,7 +1642,8 @@ public final class MoeEditor extends JFrame
         if (!viewingHTML) {
             return;
         }
-        enableActions(true);
+        displayMenubar(true);
+        displayToolbar(true);
         document = sourceDocument;
         currentTextPane = sourcePane;
         viewingHTML = false;
@@ -1642,7 +1662,8 @@ public final class MoeEditor extends JFrame
         if (viewingHTML) {
             return;
         }
-        enableActions(false);
+        displayMenubar(false);
+        displayToolbar(false);
         try {
             save();
             displayInterface();
@@ -1702,6 +1723,69 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
+     * This method changes the display of the menubar based on the interface that is selected
+     * 
+     * @param sourceView true if called from sourceView setup; false from documentation View setup
+     */
+    
+    private void displayMenubar(boolean sourceView){
+    	    	
+    	JMenuBar menuBar=(JMenuBar) getJMenuBar(); 
+    	JMenu menu=null;
+    	JMenuItem menuItem;
+    	Component[] menubarComponent = menuBar.getComponents();
+    	for (int i=0;i<menubarComponent.length; i++ ){
+    			if (menubarComponent[i] instanceof JMenu){
+    				menu=(JMenu)menubarComponent[i]; 
+    				for (int j=0; j<menu.getMenuComponentCount(); j++){
+    					if (menu.getMenuComponent(j) instanceof JMenuItem){
+    						menuItem=(JMenuItem)menu.getMenuComponent(j);
+    						if (isFlaggedAction(menuItem.getName())){   				
+    							menuItem.setEnabled(sourceView);
+    						}
+        				}
+    						
+    				}
+    				
+    				
+    			}
+    				
+    	}
+    }
+    
+    /**
+     * This method changes the display of the toolbar based on the interface that is selected
+     * 
+     * @param sourceView true if called from sourceView setup; false from documentation View setup
+     */
+    
+    private void displayToolbar(boolean sourceView){
+    	
+    	JPanel toolbar=null;
+    	Component contentPaneItem;
+    	Component[] c = getContentPane().getComponents();
+    	for (int i=0;i<c.length; i++ ){
+    		contentPaneItem=c[i];
+    		if(contentPaneItem.getName()!=null && contentPaneItem.getName().equals("toolbar")) 
+    			toolbar=(JPanel)contentPaneItem;
+    	}
+    
+    	if (toolbar==null)
+    		return;
+    	Component[] toolbarComponent = toolbar.getComponents();
+    	for (int i=0;i<toolbarComponent.length; i++ ){
+    		if (toolbarComponent[i] instanceof JButton){   				
+    			JButton actionButton=(JButton)toolbarComponent[i];
+    			if (isFlaggedAction(actionButton.getName())){
+    				actionButton.setEnabled(sourceView);
+    			}
+    				
+    		}
+    		
+    	}
+    }
+    
+    /**
      * We want to display the interface view. This will generate the
      * documentation if necessary.
      * 
@@ -1710,6 +1794,9 @@ public final class MoeEditor extends JFrame
      */
     private void displayInterface()
     {
+    	
+        	
+    	
         info.message(Config.getString("editor.info.loadingDoc"));
         boolean generateDoc = ! docUpToDate();
         
@@ -1725,6 +1812,8 @@ public final class MoeEditor extends JFrame
             info.message(Config.getString("editor.info.docLoaded"));
         }
 
+       
+        
         if (generateDoc) {
             // clear the existing document
             htmlDocument = new HTMLDocument();
@@ -2304,6 +2393,7 @@ public final class MoeEditor extends JFrame
         // create toolbar
 
         toolbar = createToolbar();
+        toolbar.setName("toolbar");
         contentPane.add(toolbar, BorderLayout.NORTH);
 
         // add event listener to handle the window close requests
@@ -2387,6 +2477,7 @@ public final class MoeEditor extends JFrame
                     if (keys != null) {
                         item.setAccelerator(chooseKey(keys));
                     }
+                    item.setName(itemKeys[i]);
                 }
             }
         }
@@ -2414,8 +2505,7 @@ public final class MoeEditor extends JFrame
         }
     }
 
-    // --------------------------------------------------------------------
-
+   
     /**
      * Create the toolbar.
      * 
@@ -2438,6 +2528,8 @@ public final class MoeEditor extends JFrame
 
         return toolbar;
     }
+    
+    
 
     // --------------------------------------------------------------------
 
@@ -2454,7 +2546,9 @@ public final class MoeEditor extends JFrame
             if(!Config.isMacOSLeopard()) toolbar.add(Box.createHorizontalStrut(3));
         }
     }
-
+    
+    
+    
     // --------------------------------------------------------------------
 
     /**
@@ -2476,7 +2570,9 @@ public final class MoeEditor extends JFrame
         Action action = actions.getActionByName(actionName);
         Action tbAction = new ToolbarAction(action, label);
         
+        
         button = new JButton(tbAction);
+        button.setName(actionName);
         
         if (action == null) {
             button.setEnabled(false);
@@ -2499,6 +2595,9 @@ public final class MoeEditor extends JFrame
         button.setFont(PrefMgr.getStandardFont());
         return button;
     }
+    
+    
+   
 
     // --------------------------------------------------------------------
 
