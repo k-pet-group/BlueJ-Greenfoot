@@ -371,7 +371,6 @@ public class GProject extends RProjectListenerImpl
     /**
      * Gets the image library for this project. If the directory does not
      * exist, it is created.
-     * 
      */
     public File getImageDir()
     {
@@ -381,6 +380,28 @@ public class GProject extends RProjectListenerImpl
             File projImagesDir = new File(projDir, "images");
             projImagesDir.mkdir();
             return projImagesDir;
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (ProjectNotOpenException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Gets the sound library for this project. If the directory does not
+     * exist, it is created.
+     */
+    public File getSoundDir()
+    {
+        File projDir;
+        try {
+            projDir = getDir().getAbsoluteFile();
+            File projSoundsDir = new File(projDir, "sounds");
+            projSoundsDir.mkdir();
+            return projSoundsDir;
         }
         catch (IOException e) {
             e.printStackTrace();
