@@ -52,7 +52,7 @@ import bluej.BlueJTheme;
  * filenames.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibList.java 6415 2009-07-03 22:57:20Z mjrb4 $
+ * @version $Id: ImageLibList.java 6416 2009-07-04 16:56:55Z mjrb4 $
  */
 public class ImageLibList extends JList
 {
@@ -75,7 +75,7 @@ public class ImageLibList extends JList
             public void mouseClicked(MouseEvent e)
             {
                 if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() >= 2) {
-                    if (getSelectedEntry() != null) {
+                    if (getSelectedEntry() != null && getRootPane().getDefaultButton()!=null) {
                         getRootPane().getDefaultButton().doClick();
                     }
                 }
