@@ -26,6 +26,7 @@ import greenfoot.World;
 import greenfoot.actions.AboutGreenfootAction;
 import greenfoot.actions.CloseProjectAction;
 import greenfoot.actions.CompileAllAction;
+//import greenfoot.actions.EditImagesAction;
 import greenfoot.actions.ExportProjectAction;
 import greenfoot.actions.NewClassAction;
 import greenfoot.actions.NewProjectAction;
@@ -126,7 +127,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 6322 2009-05-09 17:50:58Z polle $
+ * @version $Id: GreenfootFrame.java 6417 2009-07-04 17:16:59Z mjrb4 $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener,
@@ -162,6 +163,7 @@ public class GreenfootFrame extends JFrame
     private CloseProjectAction closeProjectAction;
     private RemoveSelectedClassAction removeSelectedClassAction;
     private CompileAllAction compileAllAction;
+    //private EditImagesAction editImagesAction;
     
     private JMenu recentProjectsMenu;
     
@@ -571,6 +573,7 @@ public class GreenfootFrame extends JFrame
     	removeSelectedClassAction = new RemoveSelectedClassAction(this);
     	removeSelectedClassAction.setEnabled(false);
     	compileAllAction = new CompileAllAction(project);
+        //editImagesAction = new EditImagesAction(project);
     }
     
     /**
@@ -608,6 +611,7 @@ public class GreenfootFrame extends JFrame
         
         addMenuItem(newClassAction, editMenu, KeyEvent.VK_N, false, KeyEvent.VK_N);
         addMenuItem(removeSelectedClassAction, editMenu, KeyEvent.VK_D, false, KeyEvent.VK_R);
+        //addMenuItem(editImagesAction, editMenu, KeyEvent.VK_I, false, KeyEvent.VK_I);
         
         JMenu ctrlMenu = addMenu(Config.getString("menu.controls"), menuBar, 'c');
         
@@ -693,6 +697,7 @@ public class GreenfootFrame extends JFrame
         saveProjectAction.setEnabled(state);
         saveCopyAction.setEnabled(state);
         newClassAction.setEnabled(state);
+        //editImagesAction.setEnabled(state);
         showReadMeAction.setEnabled(state);
         exportProjectAction.setEnabled(state);
         
@@ -703,6 +708,7 @@ public class GreenfootFrame extends JFrame
         }
         
         compileAllAction.setProject(project);
+        //editImagesAction.setProject(project);
     }
 
     /**
@@ -866,7 +872,14 @@ public class GreenfootFrame extends JFrame
     public void selectionChange(Selectable source)
     {
     	if (source instanceof ClassView) {
-    		removeSelectedClassAction.setEnabled(true);
+            ClassView classView = (ClassView)source;
+            if(! (classView.getRealClass().getName().equals("greenfoot.Actor")) &&
+                    ! (classView.getRealClass().getName().equals("greenfoot.World")))  {
+                removeSelectedClassAction.setEnabled(true);
+            }
+            else {
+                removeSelectedClassAction.setEnabled(false);
+            }
     	}
     	else {
     		removeSelectedClassAction.setEnabled(false);
