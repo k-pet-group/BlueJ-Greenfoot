@@ -127,7 +127,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 6417 2009-07-04 17:16:59Z mjrb4 $
+ * @version $Id: GreenfootFrame.java 6418 2009-07-05 11:49:26Z mjrb4 $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener,
@@ -573,7 +573,7 @@ public class GreenfootFrame extends JFrame
     	removeSelectedClassAction = new RemoveSelectedClassAction(this);
     	removeSelectedClassAction.setEnabled(false);
     	compileAllAction = new CompileAllAction(project);
-        //editImagesAction = new EditImagesAction(project);
+        //editImagesAction = new EditImagesAction(project, this);
     }
     
     /**
@@ -873,7 +873,10 @@ public class GreenfootFrame extends JFrame
     {
     	if (source instanceof ClassView) {
             ClassView classView = (ClassView)source;
-            if(! (classView.getRealClass().getName().equals("greenfoot.Actor")) &&
+            if(classView.getRealClass() == null) {
+                removeSelectedClassAction.setEnabled(true);
+            }
+            else if(! (classView.getRealClass().getName().equals("greenfoot.Actor")) &&
                     ! (classView.getRealClass().getName().equals("greenfoot.World")))  {
                 removeSelectedClassAction.setEnabled(true);
             }
