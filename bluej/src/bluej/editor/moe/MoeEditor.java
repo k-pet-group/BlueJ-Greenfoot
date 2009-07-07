@@ -170,8 +170,12 @@ public final class MoeEditor extends JFrame
     private MoePrinter printer;
 
     private TextInsertNotifier doTextInsert = new TextInsertNotifier();
+    
+    //list of actions that are dis/enabled depending on the view
+    private ArrayList<String> flaggedActions;
 
-    /**
+   
+	/**
      * Property map, allows BlueJ extensions to assosciate property values with
      * this editor instance; otherwise unused.
      */
@@ -1609,25 +1613,27 @@ public final class MoeEditor extends JFrame
     
     private ArrayList getFlaggedActions(){
     	
-    	ArrayList flaggedActions=new ArrayList();
-    	flaggedActions.add("save");
-    	flaggedActions.add("reload");
-    	flaggedActions.add("print");
-    	flaggedActions.add("page-setup");
-    	flaggedActions.add("compile");
-    	flaggedActions.add("cut-to-clipboard");
-    	flaggedActions.add("indent-block");
-    	flaggedActions.add("deindent-block");
-    	flaggedActions.add("comment-block");
-    	flaggedActions.add("uncomment-block");
-    	flaggedActions.add("insert-method");
-    	flaggedActions.add("find");
-    	flaggedActions.add("find-next");
-    	flaggedActions.add("find-next-backward");
-    	flaggedActions.add("replace");
-    	flaggedActions.add("go-to-line");
-    	flaggedActions.add("paste-from-clipboard");
-    	flaggedActions.add("toggle-breakpoint");
+    	if (flaggedActions==null){
+    		flaggedActions=new ArrayList<String>();
+    		flaggedActions.add("save");
+    		flaggedActions.add("reload");
+    		flaggedActions.add("print");
+    		flaggedActions.add("page-setup");
+    		flaggedActions.add("compile");
+    		flaggedActions.add("cut-to-clipboard");
+    		flaggedActions.add("indent-block");
+    		flaggedActions.add("deindent-block");
+    		flaggedActions.add("comment-block");
+    		flaggedActions.add("uncomment-block");
+    		flaggedActions.add("insert-method");
+    		flaggedActions.add("find");
+    		flaggedActions.add("find-next");
+    		flaggedActions.add("find-next-backward");
+    		flaggedActions.add("replace");
+    		flaggedActions.add("go-to-line");
+    		flaggedActions.add("paste-from-clipboard");
+    		flaggedActions.add("toggle-breakpoint");
+    	}
     	
     	
     	return flaggedActions;
