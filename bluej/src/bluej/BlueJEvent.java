@@ -48,7 +48,7 @@ import java.util.List;
   *  METHOD_CALL    a String representing   an interactive method call
   *                      the call           was started or completed
   *
-  *  EXECUTION_RESULT  bluej.debugmgr.ExpressionInformation   VM execution finished
+  *  EXECUTION_RESULT  bluej.debugmgr.ExecutionEvent   VM execution finished
   *
   *  GENERATING_DOCU    (unused)        documentation generation started
   *
@@ -58,7 +58,7 @@ import java.util.List;
   *
   * </PRE>
   * @author Michael Kolling
-  * @version $Id: BlueJEvent.java 6215 2009-03-30 13:28:25Z polle $
+  * @version $Id: BlueJEvent.java 6421 2009-07-08 04:47:39Z davmac $
   *
   */
 

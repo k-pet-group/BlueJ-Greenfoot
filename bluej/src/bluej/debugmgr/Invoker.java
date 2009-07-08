@@ -61,7 +61,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 6393 2009-06-25 05:12:33Z davmac $
+ * @version $Id: Invoker.java 6421 2009-07-08 04:47:39Z davmac $
  */
 
 public class Invoker
@@ -166,29 +166,17 @@ public class Invoker
 
         // in the case of a constructor, we need to construct an object name
         if (member instanceof ConstructorView) {
-
             this.objName = pmf.getProject().getDebugger().guessNewName(member.getClassName());
-
             constructing = true;
-            executionEvent = new ExecutionEvent(member.getClassName(),null);
+            executionEvent = new ExecutionEvent(pkg, member.getClassName(), null);
         }
         else if (member instanceof MethodView) {
-
-            // in the case of a static method call, we use the class name as an
-            // object name
-            if (((MethodView) member).isStatic()) {
-                this.objName = JavaNames.stripPrefix(member.getClassName());
-                executionEvent = new ExecutionEvent(member.getClassName(), null );
-            }
-            else {
-                executionEvent = new ExecutionEvent(member.getClassName(), objName);
-            }
-
             constructing = false;
+        	executionEvent = new ExecutionEvent(pkg, member.getClassName(), null );
         }
-        else
+        else {
             Debug.reportError("illegal member type in invocation");
-        executionEvent.setPackage(pkg);
+        }
     }
 
     /**
@@ -228,10 +216,9 @@ public class Invoker
         this.objName = objWrapper.getName();
         this.typeMap = objWrapper.getObject().getGenType().mapToSuper(member.getClassName()).getMap();
 
-        executionEvent = new ExecutionEvent(member.getClassName(), objName);
+        executionEvent = new ExecutionEvent(pkg, member.getClassName(), objName);
         
         constructing = false;
-        executionEvent.setPackage(pkg);
     }
 
     /**

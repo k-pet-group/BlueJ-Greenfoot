@@ -30,7 +30,7 @@ import bluej.pkgmgr.Package;
  * an execution.
  *
  * @author  Clive Miller
- * @version $Id: ExecutionEvent.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ExecutionEvent.java 6421 2009-07-08 04:47:39Z davmac $
  */
 
 public class ExecutionEvent
@@ -68,18 +68,20 @@ public class ExecutionEvent
      * Constructs an ExecutionEvent where className and objName are null and only the package is set.
      * @param pkg The package this event is bound to.
      */
-    ExecutionEvent ( Package pkg )
+    ExecutionEvent(Package pkg)
     {
         this.pkg = pkg;
     }
     
     /**
      * Constructs an ExecutionEvent given a className and objName.
-     * @param className  the className of the event.
-     * @param objectName the object name, as in the object bench, of the event, can be null.
+     * @param pkg        The package this event is bound to.
+     * @param className  The className of the event.
+     * @param objectName The object name, as in the object bench, of the event, can be null.
      */
-    ExecutionEvent (String className, String objectName)
+    ExecutionEvent(Package pkg, String className, String objectName)
     {
+    	this.pkg = pkg;
         this.className = className;
         this.objectName = objectName;
     }
@@ -100,6 +102,13 @@ public class ExecutionEvent
         this.parameters = parameters;
     }
 
+    /**
+     * Set the result of the execution. This should be one of:
+     * NORMAL_EXIT - the execution terminated successfully
+     * FORCED_EXIT - System.exit() was called
+     * EXCEPTION_EXIT - the execution failed due to an exception
+     * TERMINATED_EXIT - the user terminated the VM before execution completed
+     */
     void setResult (String result)
     {
         this.result = result;
@@ -113,41 +122,67 @@ public class ExecutionEvent
         this.resultObject = resultObject;
     }
 
-    void setPackage (Package pkg)
-    {
-        this.pkg = pkg;
-    }
-    
     void setCommand (String cmd)
     {
         this.command = cmd;
     }
     
+    /**
+     * Get the name of the class on which the invocation occurred.
+     * For an instance method invocation, this returns the class of the object on
+     *   which the method was invoked.
+     * For a static method or constructor call, this returns the class name.
+     * For a free-form invocation, this returns null.
+     */
     public String getClassName()
     {
         return className;
     }
     
+    /**
+     * Get the name of the object on which the invocation occurred.
+     * For constructor calls, returns the name of the constructed object.
+     * For static method calls or free-form invocations returns null.
+     */
     public String getObjectName()
     {
         return objectName;
     }
     
+    /**
+     * Get the name of the method which was invoked.
+     * For a constructor or free-form invocation, this returns null.
+     */
     public String getMethodName()
     {
         return methodName;
     }
     
+    /**
+     * Get the method/constructor parameter types.
+     * For a free-form invocation this returns null. 
+     */
     public JavaType[] getSignature()
     {
         return signature;
     }
     
+    /**
+     * Gets the arguments to the method/constructor (as java expressions).
+     * For a free-form invocation this returns null.
+     */
     public String[] getParameters()
     {
         return parameters;
     }
     
+    /**
+     * Get the result of the execution. This will be one of:
+     * NORMAL_EXIT - the execution terminated successfully
+     * FORCED_EXIT - System.exit() was called
+     * EXCEPTION_EXIT - the execution failed due to an exception
+     * TERMINATED_EXIT - the user terminated the VM before execution completed
+     */
     public String getResult()
     {
         return result;
