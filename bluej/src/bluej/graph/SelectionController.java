@@ -229,7 +229,7 @@ public class SelectionController
                     if(resizing) {
                         selection.resize(deltaX, deltaY);
                     }
-                    else { // moving
+                    else if (moving) {
                         selection.move(deltaX, deltaY);
                     }
                 }

@@ -34,7 +34,7 @@ import javax.swing.SwingUtilities;
  * @author fisker
  * @author Michael Kolling
  * 
- * @version $Id: SelectionSet.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: SelectionSet.java 6422 2009-07-09 06:32:47Z davmac $
  */
 public final class SelectionSet
 {
@@ -116,7 +116,7 @@ public final class SelectionSet
     }
     
     /**
-     * 
+     * Move the selected elements by the specified deltas.
      */
     public void move(int deltaX, int deltaY)
     {
