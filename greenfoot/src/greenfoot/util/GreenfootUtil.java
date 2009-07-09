@@ -60,6 +60,7 @@ import javax.swing.JPanel;
 
 import bluej.Config;
 import bluej.utility.Utility;
+import javax.imageio.ImageIO;
 
 
 
@@ -67,7 +68,7 @@ import bluej.utility.Utility;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 6380 2009-06-19 14:07:10Z polle $
+ * @version $Id: GreenfootUtil.java 6423 2009-07-09 13:35:24Z mjrb4 $
  */
 public class GreenfootUtil
 {
@@ -150,6 +151,23 @@ public class GreenfootUtil
         Font smallFont = helpLabel.getFont().deriveFont(Font.ITALIC, 11.0f);
         helpLabel.setFont(smallFont);
         return helpLabel;
+    }
+
+    /**
+     * Check whether a given file is an image that can be read by Java.
+     * @param file the file to check
+     * @return true if the file is a valid image, false otherwise.
+     */
+    public static boolean isImage(File file)
+    {
+        try {
+            BufferedImage img = ImageIO.read(file);
+            if(img==null) return false;
+            return true;
+        }
+        catch(Exception ex) {
+            return false;
+        }
     }
     
     /**
