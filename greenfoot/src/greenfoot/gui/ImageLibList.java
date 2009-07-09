@@ -52,7 +52,7 @@ import bluej.BlueJTheme;
  * filenames.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibList.java 6419 2009-07-05 12:06:52Z mjrb4 $
+ * @version $Id: ImageLibList.java 6424 2009-07-09 15:23:40Z mjrb4 $
  */
 public class ImageLibList extends JList
 {
@@ -140,14 +140,16 @@ public class ImageLibList extends JList
     /**
      * Get the current directory this list is pointing to.
      */
-    public File getDirectory() {
+    public File getDirectory()
+    {
         return directory;
     }
 
     /**
      * Refresh the contents of the list.
      */
-    public void refresh() {
+    public void refresh()
+    {
         if(getDirectory()!=null) {
             setDirectory(getDirectory());
         }
