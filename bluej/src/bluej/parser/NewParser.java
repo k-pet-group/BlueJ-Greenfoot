@@ -557,7 +557,7 @@ public class NewParser
 				token = tokenStream.nextToken();
 				tokenStream.pushBack(token);
 				pushBackAll(tlist);
-				if (token.getType() == JavaTokenTypes.IDENT) {
+				if (isTypeSpec && token.getType() == JavaTokenTypes.IDENT) {
 					parseVariableDeclaration();
 				}
 				else {
@@ -893,24 +893,13 @@ public class NewParser
 				speculative = false;
 			}
 			else {
-//				if (token.getType() != JavaTokenTypes.IDENT) {
-//					if (! speculative) {
-//						error("Expected type identifier");
-//					}
-//					tokenStream.pushBack(token);
-//					return false;
-//				}
-
-//				ttokens.addAll(parseDottedIdent(token));
-
 				LocatableToken token = tokenStream.nextToken();
-				// TODO must handle '>>' tokens, urgh (and '>>>?')
 				if (token.getType() == JavaTokenTypes.LT) {
 					// Type parameters? (or is it a "less than" comparison?)
 					ttokens.add(token);
 					int tparDepth = 1;
-					while (tparDepth > 0) {
-						//token = tokenStream.LA(1);
+					typeLoop:
+					while (true) {
 						// TODO wildcards
 						
 						ttype = parseBaseType(speculative, ttokens);
@@ -960,6 +949,13 @@ public class NewParser
 								token = tokenStream.nextToken(); // RBRACK
 								ttokens.add(token);
 								token = tokenStream.nextToken();
+							}
+							
+							if (token.getType() == JavaTokenTypes.DOT
+									&& tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
+								ttokens.add(token);
+								// Inner type (could also be field access etc)
+								continue typeLoop;
 							}
 						}
 						
