@@ -80,7 +80,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 6353 2009-05-27 04:26:36Z marionz $
+ * @version $Id: ClassTarget.java 6430 2009-07-14 05:42:05Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -1311,8 +1311,9 @@ public class ClassTarget extends DependentTarget
         Class cl = null;
 
         if (state == S_NORMAL) {
-            // handle error causes when loading 1.4 compiled classes
-            // on a 1.3 VM
+            // handle error causes when loading classes which are compiled
+        	// but not loadable in the current VM. (Eg if they were compiled
+        	// for a later VM).
             // we detect the error, remove the class file, and invalidate
             // to allow them to be recompiled
             cl = getPackage().loadClass(getQualifiedName());
@@ -1325,10 +1326,6 @@ public class ClassTarget extends DependentTarget
                 }
             }
         }
-
-        //if (menu != null) {
-        //    editor.remove(menu);
-        //}
 
         // check that the class loading hasn't changed out state
         if (state == S_NORMAL) {
