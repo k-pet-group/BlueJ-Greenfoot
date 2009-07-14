@@ -23,7 +23,9 @@ package greenfoot.core;
 
 import greenfoot.Actor;
 import greenfoot.World;
+import greenfoot.util.GreenfootUtil;
 
+import java.io.IOException;
 import java.rmi.RemoteException;
 
 import rmiextension.wrappers.RConstructor;
@@ -68,7 +70,13 @@ public class GCoreClass extends GClass
 	public void edit() throws ProjectNotOpenException,
 			PackageNotFoundException, RemoteException
 	{
-		return;
+        String page = isWorldClass() ? "greenfoot/World.html" : "greenfoot/Actor.html";
+	    try {
+            GreenfootUtil.showApiDoc(page);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }    
 	}
 
 	@Override

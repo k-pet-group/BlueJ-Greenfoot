@@ -197,18 +197,8 @@ public class GClass
     public void edit()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
-        if(isWorldClass() || isActorClass()) {
-            String page = isWorldClass() ? "greenfoot/World.html" : "greenfoot/Actor.html";
-            try {
-                GreenfootUtil.showApiDoc(page);
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }            
-        }
-        else {
-            rmiClass.edit();
-        }
+        rmiClass.edit();
+        
     }
 
 
