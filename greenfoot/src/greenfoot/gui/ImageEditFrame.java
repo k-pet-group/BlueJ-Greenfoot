@@ -22,7 +22,6 @@
 package greenfoot.gui;
 
 
-import bluej.utility.EscapeDialog;
 import bluej.BlueJTheme;
 import bluej.Config;
 
