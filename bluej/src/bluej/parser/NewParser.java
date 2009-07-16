@@ -901,32 +901,50 @@ public class NewParser
 					typeLoop:
 					while (true) {
 						// TODO wildcards
-						
-						ttype = parseBaseType(speculative, ttokens);
-						if (ttype == TYPE_ERROR) {
-							return false;
-						}
-						
-						if (ttype == TYPE_OTHER) {
-							// May be type parameters
-							if (tokenStream.LA(1).getType() == JavaTokenTypes.LT) {
-								tparDepth++;
-								ttokens.add(tokenStream.nextToken());
-								continue;
-							}
-						}
-						
-						// Array declarators?
-						token = tokenStream.nextToken();
-						while (token.getType() == JavaTokenTypes.LBRACK
-								&& tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
-							ttokens.add(token);
-							token = tokenStream.nextToken(); // RBRACK
+						boolean needBaseType = true;
+						if (tokenStream.LA(1).getType() == JavaTokenTypes.QUESTION) {
+							// Wildcard
+							token = tokenStream.nextToken();
 							ttokens.add(token);
 							token = tokenStream.nextToken();
+							if (token.getType() == JavaTokenTypes.LITERAL_extends
+									|| token.getType() == JavaTokenTypes.LITERAL_super) {
+								ttokens.add(token);
+								needBaseType = true;
+							}
+							else {
+								tokenStream.pushBack(token);
+								needBaseType = false;
+							}
 						}
 
-						// Type parameters?
+						if (needBaseType) {
+							ttype = parseBaseType(speculative, ttokens);
+							if (ttype == TYPE_ERROR) {
+								return false;
+							}
+
+							if (ttype == TYPE_OTHER) {
+								// May be type parameters
+								if (tokenStream.LA(1).getType() == JavaTokenTypes.LT) {
+									tparDepth++;
+									ttokens.add(tokenStream.nextToken());
+									continue;
+								}
+							}
+
+							// Array declarators?
+							token = tokenStream.nextToken();
+							while (token.getType() == JavaTokenTypes.LBRACK
+									&& tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
+								ttokens.add(token);
+								token = tokenStream.nextToken(); // RBRACK
+								ttokens.add(token);
+								token = tokenStream.nextToken();
+							}
+						}
+
+						// Type parameters being closed
 						while (token.getType() == JavaTokenTypes.GT
 								|| token.getType() == JavaTokenTypes.SR
 								|| token.getType() == JavaTokenTypes.BSR) {
