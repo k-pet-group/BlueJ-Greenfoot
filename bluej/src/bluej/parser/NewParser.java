@@ -189,6 +189,15 @@ public class NewParser
 				gotTypeDefName(token);
 				
 				// TODO: template arguments
+				if (tokenStream.LA(1).getType() == JavaTokenTypes.LT) {
+					token = tokenStream.nextToken();
+					token = tokenStream.nextToken();
+					if (token.getType() != JavaTokenTypes.IDENT) {
+						error("Expected identifier (in type parameter list)");
+						tokenStream.pushBack(token);
+						return;
+					}
+				}
 				
 				// extends...
 				token = tokenStream.nextToken();
@@ -228,6 +237,31 @@ public class NewParser
 				// TODO: interface, enum
 				error("Unexpected token, type = " + token.getType() + ", text=\"" + token.getText() + "\""); // TODO improve
 			}
+		}
+		catch (TokenStreamException tse) {
+			tse.printStackTrace(); // TODO
+		}
+	}
+	
+	// Parse template parameters. The '<' should have been read already.
+	public void parseTemplateParams()
+	{
+		try {
+			LocatableToken token = tokenStream.nextToken();
+			if (token.getType() != JavaTokenTypes.IDENT) {
+				error("Expected identifier (in type parameter list)");
+				tokenStream.pushBack(token);
+				return;
+			}
+			
+			token = tokenStream.nextToken();
+			if (token.getType() == JavaTokenTypes.LITERAL_extends) {
+				parseTypeSpec(false);
+				token = tokenStream.nextToken();
+			}
+			
+			// if (token.getType())
+			// DAV
 		}
 		catch (TokenStreamException tse) {
 			tse.printStackTrace(); // TODO
@@ -895,103 +929,16 @@ public class NewParser
 			else {
 				LocatableToken token = tokenStream.nextToken();
 				if (token.getType() == JavaTokenTypes.LT) {
-					// Type parameters? (or is it a "less than" comparison?)
 					ttokens.add(token);
-					int tparDepth = 1;
-					typeLoop:
-					while (true) {
-						// TODO wildcards
-						boolean needBaseType = true;
-						if (tokenStream.LA(1).getType() == JavaTokenTypes.QUESTION) {
-							// Wildcard
-							token = tokenStream.nextToken();
-							ttokens.add(token);
-							token = tokenStream.nextToken();
-							if (token.getType() == JavaTokenTypes.LITERAL_extends
-									|| token.getType() == JavaTokenTypes.LITERAL_super) {
-								ttokens.add(token);
-								needBaseType = true;
-							}
-							else {
-								tokenStream.pushBack(token);
-								needBaseType = false;
-							}
-						}
 
-						if (needBaseType) {
-							ttype = parseBaseType(speculative, ttokens);
-							if (ttype == TYPE_ERROR) {
-								return false;
-							}
-
-							if (ttype == TYPE_OTHER) {
-								// May be type parameters
-								if (tokenStream.LA(1).getType() == JavaTokenTypes.LT) {
-									tparDepth++;
-									ttokens.add(tokenStream.nextToken());
-									continue;
-								}
-							}
-
-							// Array declarators?
-							token = tokenStream.nextToken();
-							while (token.getType() == JavaTokenTypes.LBRACK
-									&& tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
-								ttokens.add(token);
-								token = tokenStream.nextToken(); // RBRACK
-								ttokens.add(token);
-								token = tokenStream.nextToken();
-							}
-						}
-
-						// Type parameters being closed
-						while (token.getType() == JavaTokenTypes.GT
-								|| token.getType() == JavaTokenTypes.SR
-								|| token.getType() == JavaTokenTypes.BSR) {
-							ttokens.add(token);
-							if (token.getType() == JavaTokenTypes.GT) {
-								tparDepth--;
-							}
-							else if (token.getType() == JavaTokenTypes.SR) {
-								tparDepth -= 2;
-							}
-							else if (token.getType() == JavaTokenTypes.BSR) {
-								tparDepth -= 3;
-							}
-							
-							token = tokenStream.nextToken();
-							
-							while (token.getType() == JavaTokenTypes.LBRACK
-									&& tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
-								ttokens.add(token);
-								token = tokenStream.nextToken(); // RBRACK
-								ttokens.add(token);
-								token = tokenStream.nextToken();
-							}
-							
-							if (token.getType() == JavaTokenTypes.DOT
-									&& tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
-								ttokens.add(token);
-								// Inner type (could also be field access etc)
-								continue typeLoop;
-							}
-						}
-						
-						if (tparDepth <= 0) {
-							break;
-						}
-						if (token.getType() != JavaTokenTypes.COMMA) {
-							if (!speculative) {
-								error("Expecting ',' in type parameter list");
-							}
-							tokenStream.pushBack(token);
-							return false;
-						}
-						ttokens.add(token);
-					}
-					// token = tokenStream.nextToken();
+					// Type parameters? (or is it a "less than" comparison?)
+					DepthRef dr = new DepthRef();
+					dr.depth = 1;
+					parseTpars(speculative, ttokens, dr);
 				}
-				tokenStream.pushBack(token);
+				else {
+					tokenStream.pushBack(token);
+				}
 			}
 			
 			// check for array declarators
@@ -1048,6 +995,134 @@ public class NewParser
 			ttokens.addAll(parseDottedIdent(token));
 		}
 		return TYPE_OTHER;
+	}
+	
+	private boolean parseTpars(boolean speculative, List<LocatableToken> ttokens, DepthRef dr)
+	{
+		// We already have opening '<' and depth reflects this.
+		
+		try {
+
+			int beginDepth = dr.depth;
+			LocatableToken token;
+			boolean needBaseType = true;
+
+			while (dr.depth >= beginDepth) {
+
+				if (tokenStream.LA(1).getType() == JavaTokenTypes.QUESTION) {
+					// Wildcard
+					token = tokenStream.nextToken();
+					ttokens.add(token);
+					token = tokenStream.nextToken();
+					if (token.getType() == JavaTokenTypes.LITERAL_extends
+							|| token.getType() == JavaTokenTypes.LITERAL_super) {
+						ttokens.add(token);
+						needBaseType = true;
+					}
+					else {
+						tokenStream.pushBack(token);
+						needBaseType = false;
+					}
+				}
+
+				if (needBaseType) {
+					boolean r = parseTargType(speculative, ttokens, dr);
+					if (!r) {
+						return false;
+					}
+					if (dr.depth < beginDepth) {
+						break;
+					}
+
+					token = tokenStream.nextToken();
+					
+					while (token.getType() == JavaTokenTypes.LBRACK
+							&& tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
+						ttokens.add(token);
+						token = tokenStream.nextToken(); // RBRACK
+						ttokens.add(token);
+						token = tokenStream.nextToken();
+					}
+					
+					if (token.getType() == JavaTokenTypes.DOT
+							&& tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
+						ttokens.add(token);
+						// Inner type (could also be field access etc)
+						if (!parseTargType(speculative, ttokens, dr)) {
+							return false;
+						}
+					}
+				}
+				
+				token = tokenStream.nextToken();
+				// Type parameters being closed
+				if (token.getType() == JavaTokenTypes.GT
+						|| token.getType() == JavaTokenTypes.SR
+						|| token.getType() == JavaTokenTypes.BSR) {
+					ttokens.add(token);
+					if (token.getType() == JavaTokenTypes.GT) {
+						dr.depth--;
+					}
+					else if (token.getType() == JavaTokenTypes.SR) {
+						dr.depth -= 2;
+					}
+					else if (token.getType() == JavaTokenTypes.BSR) {
+						dr.depth -= 3;
+					}
+				}
+				else if (token.getType() == JavaTokenTypes.COMMA) {
+					ttokens.add(token);
+				}
+				else {
+					error("Expected '>' to close type parameter list");
+					tokenStream.pushBack(token);
+					return false;
+				}
+			}
+			return true;
+		}
+		catch (TokenStreamException tse) {
+			tse.printStackTrace(); // TODO
+			return false;
+		}
+	}
+	
+	// TODO comments
+	private boolean parseTargType(boolean speculative, List<LocatableToken> ttokens, DepthRef dr)
+	{
+		try {
+			int ttype = parseBaseType(speculative, ttokens);
+			if (ttype == TYPE_ERROR) {
+				return false;
+			}
+
+			if (ttype == TYPE_OTHER) {
+				// May be type parameters
+				if (tokenStream.LA(1).getType() == JavaTokenTypes.LT) {
+					dr.depth++;
+					ttokens.add(tokenStream.nextToken());
+					if (!parseTpars(speculative, ttokens, dr)) {
+						return false;
+					}
+				}
+			}
+
+			// Array declarators?
+			LocatableToken token = tokenStream.nextToken();
+			while (token.getType() == JavaTokenTypes.LBRACK
+					&& tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
+				ttokens.add(token);
+				token = tokenStream.nextToken(); // RBRACK
+				ttokens.add(token);
+				token = tokenStream.nextToken();
+			}
+			
+			return true;
+		}
+		catch (TokenStreamException tse) {
+			tse.printStackTrace(); // TODO
+			return false;
+		}
 	}
 	
 	/**
@@ -1462,5 +1537,10 @@ public class NewParser
 		while (i.hasPrevious()) {
 			tokenStream.pushBack(i.previous());
 		}
+	}
+	
+	private class DepthRef
+	{
+		int depth;
 	}
 }
