@@ -55,7 +55,7 @@ public class ExternalAppLauncher
                 throw new RuntimeException("Desktop class is not supported on this platform.");
             }
         }
-        catch(IOException ex) {
+        catch(Exception ex) {
             JFileChooser jfc = new JFileChooser();
             jfc.setMultiSelectionEnabled(false);
             jfc.setDialogTitle("Open with...");
@@ -82,7 +82,7 @@ public class ExternalAppLauncher
                 throw new RuntimeException("Desktop class is not supported on this platform.");
             }
         }
-        catch(IOException ex) {
+        catch(Exception ex) {
             JFileChooser jfc = new JFileChooser();
             jfc.setMultiSelectionEnabled(false);
             jfc.setDialogTitle("Open with...");
