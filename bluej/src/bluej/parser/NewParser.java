@@ -113,13 +113,12 @@ public class NewParser
 						parseTypeDef();
 					}
 					else {
-						error("Unexpected token"); // TODO improve
+						error("Invalid; expected type definition (class, interface or enum)");
 					}
 				}
 			}
 		}
 		catch (TokenStreamException tse) {
-			// TODO
 			tse.printStackTrace();
 		}
 	}
@@ -188,19 +187,14 @@ public class NewParser
 				}
 				gotTypeDefName(token);
 				
-				// TODO: template arguments
-				if (tokenStream.LA(1).getType() == JavaTokenTypes.LT) {
+				// template arguments
+				token = tokenStream.nextToken();
+				if (token.getType() == JavaTokenTypes.LT) {
+					parseTemplateParams();
 					token = tokenStream.nextToken();
-					token = tokenStream.nextToken();
-					if (token.getType() != JavaTokenTypes.IDENT) {
-						error("Expected identifier (in type parameter list)");
-						tokenStream.pushBack(token);
-						return;
-					}
 				}
 				
 				// extends...
-				token = tokenStream.nextToken();
 				if (token.getType() == JavaTokenTypes.LITERAL_extends) {
 					gotTypeDefExtends(token);
 					parseTypeSpec(false);
@@ -234,12 +228,11 @@ public class NewParser
 				}
 			}
 			else {
-				// TODO: interface, enum
-				error("Unexpected token, type = " + token.getType() + ", text=\"" + token.getText() + "\""); // TODO improve
+				error("Expected type declarator: 'class', 'interface', or 'enum'");
 			}
 		}
 		catch (TokenStreamException tse) {
-			tse.printStackTrace(); // TODO
+			tse.printStackTrace();
 		}
 	}
 	
@@ -247,24 +240,39 @@ public class NewParser
 	public void parseTemplateParams()
 	{
 		try {
-			LocatableToken token = tokenStream.nextToken();
-			if (token.getType() != JavaTokenTypes.IDENT) {
-				error("Expected identifier (in type parameter list)");
-				tokenStream.pushBack(token);
-				return;
-			}
+			DepthRef dr = new DepthRef();
+			dr.depth = 1;
 			
-			token = tokenStream.nextToken();
-			if (token.getType() == JavaTokenTypes.LITERAL_extends) {
-				parseTypeSpec(false);
+			while (true) {
+				LocatableToken token = tokenStream.nextToken();
+				if (token.getType() != JavaTokenTypes.IDENT) {
+					error("Expected identifier (in type parameter list)");
+					tokenStream.pushBack(token);
+					return;
+				}
+
 				token = tokenStream.nextToken();
+				if (token.getType() == JavaTokenTypes.LITERAL_extends) {
+					do {
+						parseTargType(false, new LinkedList<LocatableToken>(), dr);
+						if (dr.depth <= 0) {
+							return;
+						}
+						token = tokenStream.nextToken();
+					} while (token.getType() == JavaTokenTypes.BAND);
+				}
+				
+				if (token.getType() != JavaTokenTypes.COMMA) {
+					if (token.getType() != JavaTokenTypes.GT) {
+						error("Expecting '>' at end of type parameter list");
+						tokenStream.pushBack(token);
+					}
+					break;
+				}
 			}
-			
-			// if (token.getType())
-			// DAV
 		}
 		catch (TokenStreamException tse) {
-			tse.printStackTrace(); // TODO
+			tse.printStackTrace();
 		}
 	}
 	
@@ -308,7 +316,7 @@ public class NewParser
 			}
 			tokenStream.pushBack(token);
 		} catch (TokenStreamException tse) {
-			tse.printStackTrace(); // TODO
+			tse.printStackTrace();
 		}
 		return rval;
 	}
@@ -332,7 +340,10 @@ public class NewParser
 				else {
 					// Not an inner type: should be a method/constructor or field,
 					// or (possibly static) a initialisation block
-					if (token.getType() == JavaTokenTypes.LCURLY) {
+					if (token.getType() == JavaTokenTypes.SEMI) {
+						// A spurious semicolon.
+					}
+					else if (token.getType() == JavaTokenTypes.LCURLY) {
 						// initialisation block
 						parseStmtBlock();
 						token = tokenStream.nextToken();
@@ -348,7 +359,13 @@ public class NewParser
 					}
 					else {
 						// method, field
-						tokenStream.pushBack(token);
+						if (token.getType() == JavaTokenTypes.LT) {
+							// generic method
+							parseTemplateParams();
+						}
+						else {
+							tokenStream.pushBack(token);
+						}
 						parseTypeSpec(false);
 						token = tokenStream.nextToken(); // identifier
 						if (token.getType() != JavaTokenTypes.IDENT) {
@@ -387,7 +404,6 @@ public class NewParser
 		}
 		catch (TokenStreamException tse) {
 			tse.printStackTrace();
-			// TODO
 		}
 	}
 	
@@ -427,7 +443,7 @@ public class NewParser
 			}
 		}
 		catch (TokenStreamException tse) {
-			tse.printStackTrace(); // TODO
+			tse.printStackTrace();
 		}
 	}
 	
@@ -448,7 +464,7 @@ public class NewParser
 				parseStatement(token);
 			}
 		} catch (TokenStreamException e) {
-			e.printStackTrace(); // TODO
+			e.printStackTrace();
 		}
 	}
 	
@@ -491,7 +507,7 @@ public class NewParser
 				parseDoWhileStatement(token);
 			}
 			else if (token.getType() == JavaTokenTypes.LITERAL_assert) {
-				error("XXX"); // TODO
+				parseAssertStatement(token);
 			}
 			else if (token.getType() == JavaTokenTypes.LITERAL_switch) {
 				parseSwitchStatement(token);
@@ -653,7 +669,26 @@ public class NewParser
 			}
 		}
 		catch (TokenStreamException tse) {
-			tse.printStackTrace(); // TODO
+			tse.printStackTrace();
+		}
+	}
+	
+	public void parseAssertStatement(LocatableToken token)
+	{
+		try {
+			parseExpression();
+			token = tokenStream.nextToken();
+			if (token.getType() == JavaTokenTypes.COLON) {
+				// Should be followed by a string
+				parseExpression();
+				token = tokenStream.nextToken();
+			}
+			if (token.getType() != JavaTokenTypes.SEMI) {
+				error("Expected ';' at end of assertion statement");
+				tokenStream.pushBack(token);
+			}
+		} catch (TokenStreamException e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -677,7 +712,7 @@ public class NewParser
 			parseStatement(token);
 		}
 		catch (TokenStreamException tse) {
-			tse.printStackTrace(); // TODO
+			tse.printStackTrace();
 		}
 	}
 	
@@ -707,7 +742,7 @@ public class NewParser
 			token = tokenStream.nextToken();
 		}
 		catch (TokenStreamException tse) {
-			tse.printStackTrace(); // TODO
+			tse.printStackTrace();
 		}
 	}
 	
@@ -730,7 +765,7 @@ public class NewParser
 			parseStatement(token);
 		}
 		catch (TokenStreamException tse) {
-			tse.printStackTrace(); // TODO
+			tse.printStackTrace();
 		}
 	}
 	
@@ -822,7 +857,7 @@ public class NewParser
 			parseStatement(token);
 		}
 		catch (TokenStreamException tse) {
-			tse.printStackTrace(); // TODO
+			tse.printStackTrace();
 		}
 	}
 	
@@ -853,7 +888,7 @@ public class NewParser
 			}
 		}
 		catch (TokenStreamException tse) {
-			tse.printStackTrace(); // TODO
+			tse.printStackTrace();
 		}
 	}
 	
@@ -885,7 +920,7 @@ public class NewParser
 				tokenStream.pushBack(token);
 			}
 		} catch (TokenStreamException e) {
-			e.printStackTrace(); // TODO
+			e.printStackTrace();
 		}
 	}
 	
@@ -934,15 +969,30 @@ public class NewParser
 					// Type parameters? (or is it a "less than" comparison?)
 					DepthRef dr = new DepthRef();
 					dr.depth = 1;
-					parseTpars(speculative, ttokens, dr);
+					if (!parseTpars(speculative, ttokens, dr)) {
+						return false;
+					}
 				}
 				else {
 					tokenStream.pushBack(token);
 				}
 			}
 			
-			// check for array declarators
+			// check for inner type
 			LocatableToken token = tokenStream.nextToken();
+			if (token.getType() == JavaTokenTypes.DOT) {
+				if (tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
+					ttokens.add(token);
+					return parseTypeSpec(speculative, ttokens);
+				}
+				else {
+					tokenStream.pushBack(token);
+					return true;
+				}
+			}
+			else
+			
+			// check for array declarators
 			while (token.getType() == JavaTokenTypes.LBRACK
 					&& tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
 				ttokens.add(token);
@@ -956,7 +1006,7 @@ public class NewParser
 
 		}
 		catch (TokenStreamException tse) {
-			tse.printStackTrace(); // TODO
+			tse.printStackTrace();
 			return false;
 		}
 	}
@@ -1033,25 +1083,6 @@ public class NewParser
 					if (dr.depth < beginDepth) {
 						break;
 					}
-
-					token = tokenStream.nextToken();
-					
-					while (token.getType() == JavaTokenTypes.LBRACK
-							&& tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
-						ttokens.add(token);
-						token = tokenStream.nextToken(); // RBRACK
-						ttokens.add(token);
-						token = tokenStream.nextToken();
-					}
-					
-					if (token.getType() == JavaTokenTypes.DOT
-							&& tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
-						ttokens.add(token);
-						// Inner type (could also be field access etc)
-						if (!parseTargType(speculative, ttokens, dr)) {
-							return false;
-						}
-					}
 				}
 				
 				token = tokenStream.nextToken();
@@ -1074,7 +1105,9 @@ public class NewParser
 					ttokens.add(token);
 				}
 				else {
-					error("Expected '>' to close type parameter list");
+					if (! speculative) {
+						error("Expected '>' to close type parameter list");
+					}
 					tokenStream.pushBack(token);
 					return false;
 				}
@@ -1082,7 +1115,7 @@ public class NewParser
 			return true;
 		}
 		catch (TokenStreamException tse) {
-			tse.printStackTrace(); // TODO
+			tse.printStackTrace();
 			return false;
 		}
 	}
@@ -1091,6 +1124,7 @@ public class NewParser
 	private boolean parseTargType(boolean speculative, List<LocatableToken> ttokens, DepthRef dr)
 	{
 		try {
+			int beginDepth = dr.depth;
 			int ttype = parseBaseType(speculative, ttokens);
 			if (ttype == TYPE_ERROR) {
 				return false;
@@ -1104,23 +1138,35 @@ public class NewParser
 					if (!parseTpars(speculative, ttokens, dr)) {
 						return false;
 					}
+					if (dr.depth < beginDepth) {
+						return true;
+					}
 				}
-			}
-
-			// Array declarators?
-			LocatableToken token = tokenStream.nextToken();
-			while (token.getType() == JavaTokenTypes.LBRACK
-					&& tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
-				ttokens.add(token);
-				token = tokenStream.nextToken(); // RBRACK
-				ttokens.add(token);
-				token = tokenStream.nextToken();
+				
+				LocatableToken token = tokenStream.nextToken();
+				if (token.getType() == JavaTokenTypes.DOT && tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
+					ttokens.add(token);
+					if (!parseTargType(speculative, ttokens, dr)) {
+						return false;
+					}
+				}
+				else 
+				// Array declarators?
+				while (token.getType() == JavaTokenTypes.LBRACK
+						&& tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
+					ttokens.add(token);
+					token = tokenStream.nextToken(); // RBRACK
+					ttokens.add(token);
+					token = tokenStream.nextToken();
+				}
+				
+				tokenStream.pushBack(token);
 			}
 			
 			return true;
 		}
 		catch (TokenStreamException tse) {
-			tse.printStackTrace(); // TODO
+			tse.printStackTrace();
 			return false;
 		}
 	}
@@ -1149,7 +1195,7 @@ public class NewParser
 			}
 			tokenStream.pushBack(token);
 		} catch (TokenStreamException e) {
-			e.printStackTrace(); // TODO
+			e.printStackTrace();
 		}
 		return rval;
 	}
@@ -1384,8 +1430,7 @@ public class NewParser
 					}
 				}
 				else {
-					// TODO
-					error("Unexpected token in expression, type=" + token.getType() + ", text=\"" + token.getText() + "\"");
+					error("Invalid expression");
 					return;
 				}
 				
@@ -1459,14 +1504,14 @@ public class NewParser
 					}
 					else {
 						// TODO
-						error("Unexpected token in expression, type=" + token.getType() + ", text=\"" + token.getText() + "\"");
+						error("Expected operator");
 						return;
 					}
 				}
 			}
 		}
 		catch (TokenStreamException tse) {
-			tse.printStackTrace(); // TODO
+			tse.printStackTrace();
 		}
 	}
 	
@@ -1491,7 +1536,7 @@ public class NewParser
 			return;
 		}
 		catch (TokenStreamException tse) {
-			tse.printStackTrace(); // TODO
+			tse.printStackTrace();
 		}
 	}
 	
@@ -1527,7 +1572,7 @@ public class NewParser
 			}
 			tokenStream.pushBack(token);
 		} catch (TokenStreamException e) {
-			e.printStackTrace(); // TODO
+			e.printStackTrace();
 		}
 	}
 	
