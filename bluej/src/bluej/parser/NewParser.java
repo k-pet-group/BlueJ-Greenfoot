@@ -54,13 +54,17 @@ public class NewParser
 			case 0:
 				// optional: package statement
 				if (tokenStream.LA(1).getType() == JavaTokenTypes.LITERAL_package) {
-					tokenStream.nextToken();
+					gotPackageStatement(tokenStream.nextToken());
 					LocatableToken token = tokenStream.nextToken();
-					parseDottedIdent(token);
+					List<LocatableToken> pkgTokens = parseDottedIdent(token);
+					gotPackage(pkgTokens);
 					token = tokenStream.nextToken();
 					if (token.getType() != JavaTokenTypes.SEMI) {
 						error("Expecting ';' at end of package declaration");
 						tokenStream.pushBack(token);
+					}
+					else {
+						gotPackageSemi(token);
 					}
 				}
 				reachedCUstate(1);
@@ -126,6 +130,15 @@ public class NewParser
 	/** reached a compilation unit state */
 	protected void reachedCUstate(int i) { }
 	
+	/** Saw a "package" statement; the package name will be given to "gotPackage" */
+	protected void gotPackageStatement(LocatableToken token) { }
+	
+	/** We have the package name for this source */
+	protected void gotPackage(List<LocatableToken> pkgTokens) { }
+	
+	/** We've seen the semicolon at the end of a "package" statement. */
+	protected void gotPackageSemi(LocatableToken token) { }
+	
 	/**
 	 * Check whether a particular token is a type declaration initiator, i.e "class", "interface"
 	 * or "enum"
@@ -165,6 +178,7 @@ public class NewParser
 			// [class|interface|enum]
 			LocatableToken token = tokenStream.nextToken();
 			if (isTypeDeclarator(token)) {
+				boolean isEnum = false;
 				String typeDesc;
 				if (token.getType() == JavaTokenTypes.LITERAL_class) {
 					typeDesc = "class";
@@ -174,6 +188,7 @@ public class NewParser
 				}
 				else {
 					typeDesc = "enum";
+					isEnum = true;
 				}
 				
 				gotClassTypeDef();
@@ -196,6 +211,7 @@ public class NewParser
 				
 				// extends...
 				if (token.getType() == JavaTokenTypes.LITERAL_extends) {
+					// TODO generate an error for enums, they cannot extend
 					gotTypeDefExtends(token);
 					parseTypeSpec(false);
 					token = tokenStream.nextToken();
@@ -219,6 +235,9 @@ public class NewParser
 					return;
 				}
 				
+				if (isEnum) {
+					parseEnumConstants();
+				}
 				parseClassBody();
 				
 				token = tokenStream.nextToken();
@@ -233,6 +252,46 @@ public class NewParser
 		}
 		catch (TokenStreamException tse) {
 			tse.printStackTrace();
+		}
+	}
+	
+	public void parseEnumConstants()
+	{
+		try {
+			LocatableToken token = tokenStream.nextToken();
+			while (token.getType() == JavaTokenTypes.IDENT) {
+				// The identifier is the constant name - there may be constructor arguments as well
+				token = tokenStream.nextToken();
+				if (token.getType() == JavaTokenTypes.LPAREN) {
+					parseArgumentList();
+					token = tokenStream.nextToken();
+					if (token.getType() != JavaTokenTypes.RPAREN) {
+						error("Expecting ')' at end of enum constant constructor arguments");
+						if (token.getType() != JavaTokenTypes.COMMA
+								&& token.getType() != JavaTokenTypes.SEMI) {
+							tokenStream.pushBack(token);
+							return;
+						}
+					}
+					else {
+						token = tokenStream.nextToken();
+					}
+				}
+				
+				if (token.getType() == JavaTokenTypes.SEMI) {
+					return;
+				}
+				
+				if (token.getType() != JavaTokenTypes.COMMA) {
+					error("Expecting ',' or ';' after enum constant declaration");
+					tokenStream.pushBack(token);
+					return;
+				}
+				token = tokenStream.nextToken();
+			}
+		} catch (TokenStreamException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
@@ -282,7 +341,10 @@ public class NewParser
 	/** Called when we have the identifier token for a class/interface/enum definition */
 	protected void gotTypeDefName(LocatableToken nameToken) { }
 	
+	/** Called when we have seen the "extends" literal token */
 	protected void gotTypeDefExtends(LocatableToken extendsToken) { }
+	
+	/** Called when we have seen the "implements" literal token */
 	protected void gotTypeDefImplements(LocatableToken implementsToken) { }
 	
 	/**
@@ -929,7 +991,7 @@ public class NewParser
 	{
 		List<LocatableToken> tokens = new LinkedList<LocatableToken>();
 		boolean rval = parseTypeSpec(speculative, tokens);
-		if (rval == false) {
+		if (rval == false && speculative) {
 			pushBackAll(tokens);
 		}
 		return rval;

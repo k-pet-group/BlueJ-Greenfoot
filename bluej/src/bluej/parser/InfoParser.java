@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import antlr.TokenStreamException;
@@ -25,6 +27,10 @@ public class InfoParser extends NewParser
 	private boolean gotImplements; // next type spec(s) are interfaces
 	
 	private boolean hadError;
+	
+	private LocatableToken pkgLiteralToken;
+	private List<LocatableToken> packageTokens;
+	private LocatableToken pkgSemiToken;
 	
 	public InfoParser(Reader r) {
 		super(r);
@@ -60,7 +66,6 @@ public class InfoParser extends NewParser
 		}
 	}
 	
-	@Override
 	protected void error(String msg)
 	{
 		if (! hadError) {
@@ -76,7 +81,6 @@ public class InfoParser extends NewParser
 		// Just try and recover.
 	}
 	
-	@Override
 	public void parseTypeDef()
 	{
 		if (classLevel == 0) {
@@ -88,14 +92,40 @@ public class InfoParser extends NewParser
 		gotTypeDef = false;
 	}
 	
-	@Override
+	public boolean parseTypeSpec(boolean speculative)
+	{
+		boolean r;
+		if (! speculative) {
+			try {
+				if (isPrimitiveType(tokenStream.LA(1))) {
+					return super.parseTypeSpec(speculative);
+				}
+			}
+			catch (TokenStreamException tse) {}
+			List<LocatableToken> ttokens = new LinkedList<LocatableToken>();
+			r = parseTypeSpec(speculative, ttokens);
+			if (r && info != null) {
+				info.addUsed(getClassName(ttokens));
+			}
+		}
+		else {
+			r = super.parseTypeSpec(speculative);
+		}
+		return r;
+	}
+	
 	protected void gotTypeDefName(LocatableToken nameToken)
 	{
+		gotExtends = false; // haven't seen "extends ..." yet
 		if (classLevel == 1) {
 			if (info == null || isPublic && !info.foundPublicClass()) {
 				info = new ClassInfo();
 				info.setName(nameToken.getText(), isPublic);
 				info.setExtendsInsertSelection(new Selection(nameToken.getLine(), nameToken.getEndColumn()));
+				if (pkgSemiToken != null) {
+					info.setPackageSelections(getSelection(pkgLiteralToken), getSelection(packageTokens),
+							getClassName(packageTokens), getSelection(pkgSemiToken));
+				}
 				storeCurrentClassInfo = true;
 			} else {
 				storeCurrentClassInfo = false;
@@ -104,7 +134,6 @@ public class InfoParser extends NewParser
 		super.gotTypeDefName(nameToken);
 	}
 	
-	@Override
 	protected void gotTypeDefExtends(LocatableToken extendsToken)
 	{
 		try {
@@ -120,6 +149,7 @@ public class InfoParser extends NewParser
 				else {
 					info.setExtendsReplaceSelection(new Selection(extendsEndLine, extendsStart.getColumn(), extendsToken.getEndColumn() - extendsStart.getColumn()));
 				}
+				info.setExtendsInsertSelection(null);
 			}
 		}
 		catch (TokenStreamException tse) {
@@ -127,7 +157,37 @@ public class InfoParser extends NewParser
 		}
 	}
 	
-	@Override
+	protected void gotPackageStatement(LocatableToken token)
+	{
+		pkgLiteralToken = token;
+	}
+	
+	protected void gotPackage(List<LocatableToken> pkgTokens)
+	{
+		packageTokens = pkgTokens;
+	}
+	
+	protected void gotPackageSemi(LocatableToken token)
+	{
+		pkgSemiToken = token;
+	}
+	
+	
+	public boolean parseTypeSpec(boolean speculative, List<LocatableToken> ttokens)
+	{
+		boolean result = super.parseTypeSpec(speculative, ttokens);
+		if (gotExtends) {
+			// The list of tokens gives us the name of the class that we extend
+			info.setSuperclass(getClassName(ttokens));
+			Selection superClassSelection = getSelection(ttokens);
+			info.setSuperReplaceSelection(superClassSelection);
+			info.setImplementsInsertSelection(new Selection(superClassSelection.getEndLine(),
+					superClassSelection.getEndColumn()));
+			gotExtends = false;
+		}
+		return result;
+	}
+	
 	protected void gotTypeDefImplements(LocatableToken implementsToken)
 	{
 		if (classLevel == 1 && storeCurrentClassInfo) {
@@ -135,7 +195,6 @@ public class InfoParser extends NewParser
 		}
 	}
 	
-	@Override
 	public List<LocatableToken> parseModifiers()
 	{
 		List<LocatableToken> rval = super.parseModifiers();
@@ -148,5 +207,73 @@ public class InfoParser extends NewParser
 			gotTypeDef = false;
 		}
 		return rval;
+	}
+	
+	private Selection getSelection(LocatableToken token)
+	{
+		return new Selection(token.getLine(), token.getColumn(), token.getLength());
+	}
+	
+	private Selection getSelection(List<LocatableToken> tokens)
+	{
+		Iterator<LocatableToken> i = tokens.iterator();
+		Selection s = getSelection(i.next());
+		if (i.hasNext()) {
+			LocatableToken last = i.next();
+			while (i.hasNext()) {
+				last = i.next();
+			}
+			s.combineWith(getSelection(last));
+		}
+		return s;
+	}
+	
+	
+	/**
+	 * Convert a list of tokens specifying a type, which may include type parameters, into a class name
+	 * without type parameters.
+	 */
+	private String getClassName(List<LocatableToken> tokens)
+	{
+		String name = "";
+		for (Iterator<LocatableToken> i = tokens.iterator(); i.hasNext(); ) {
+			name += i.next().getText();
+			if (i.hasNext()) {
+				// there may be type parameters, array
+				LocatableToken tok = i.next();
+				if (tok.getType() == JavaTokenTypes.LT) {
+					skipTypePars(i);
+					if (!i.hasNext()) {
+						return name;
+					}
+					tok = i.next(); // DOT
+				}
+				else if (tok.getType() == JavaTokenTypes.LBRACK) {
+					return name;
+				}
+				name += ".";
+			}
+		}
+		return name;
+	}
+	
+	private void skipTypePars(Iterator<LocatableToken> i)
+	{
+		int level = 1;
+		while (level > 0 && i.hasNext()) {
+			LocatableToken tok = i.next();
+			if (tok.getType() == JavaTokenTypes.LT) {
+				level++;
+			}
+			else if (tok.getType() == JavaTokenTypes.GT) {
+				level--;
+			}
+			else if (tok.getType() == JavaTokenTypes.SR) {
+				level -= 2;
+			}
+			else if (tok.getType() == JavaTokenTypes.BSR) {
+				level -= 3;
+			}
+		}
 	}
 }
