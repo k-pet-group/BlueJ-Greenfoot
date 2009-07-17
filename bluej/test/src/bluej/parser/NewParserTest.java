@@ -78,4 +78,66 @@ public class NewParserTest extends TestCase
 		ip.parseStatement();
 	}
 	
+	/**
+	 * Test less-than operator.
+	 */
+	public void test6()
+	{
+		StringReader sr = new StringReader(
+				"b = (i < j);"
+		);
+		InfoParser ip = new InfoParser(sr);
+		ip.parseStatement();
+	}
+	
+	/**
+	 * Test a funky statement.
+	 */
+	public void test7()
+	{
+		StringReader sr = new StringReader(
+				"boolean.class.equals(T.class);"
+		);
+		InfoParser ip = new InfoParser(sr);
+		ip.parseStatement();
+	}
+	
+	/**
+	 * Test a class declaration with a single type parameter.
+	 */
+	public void test8()
+	{
+		StringReader sr = new StringReader(
+				"class A<T>{}"
+		);
+		InfoParser ip = new InfoParser(sr);
+		ip.parseTypeDef();
+	}
+	
+	/**
+	 * Test a class declaration containing a semi-colon
+	 */
+	public void test9()
+	{
+		StringReader sr = new StringReader(
+				"class A{;}"
+		);
+		InfoParser ip = new InfoParser(sr);
+		ip.parseTypeDef();
+	}
+	
+	/**
+	 * Test a simple enum
+	 */
+	public void test10()
+	{
+		StringReader sr = new StringReader(
+				"enum A {" +
+				"    one, two, three;" +
+				"    private int x;" +
+				"}"
+		);
+		InfoParser ip = new InfoParser(sr);
+		ip.parseTypeDef();
+	}
 }
