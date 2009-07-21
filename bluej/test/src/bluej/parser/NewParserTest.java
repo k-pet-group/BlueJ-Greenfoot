@@ -140,4 +140,53 @@ public class NewParserTest extends TestCase
 		InfoParser ip = new InfoParser(sr);
 		ip.parseTypeDef();
 	}
+	
+	/**
+	 * Test array declarators after a variable name.
+	 */
+	public void test11()
+	{
+		StringReader sr = new StringReader(
+				"int a[] = {1, 2, 3};"
+		);
+		InfoParser ip = new InfoParser(sr);
+		ip.parseStatement();
+	}
+	
+	/**
+	 * Test array declarators after a method parameter name.
+	 */
+	public void test12()
+	{
+		StringReader sr = new StringReader(
+				"int a[], int[] b);"
+		);
+		InfoParser ip = new InfoParser(sr);
+		ip.parseMethodParamsBody();
+	}
+	
+	/** 
+	 * Test array declarators after a field name.
+	 */
+	public void test13()
+	{
+		StringReader sr = new StringReader(
+				"class A { int x[] = {1,2,3}, y = 5; }"
+		);
+		InfoParser ip = new InfoParser(sr);
+		ip.parseTypeDef();
+	}
+	
+	/**
+	 * Test multiple variable declaration in a single statement.
+	 */
+	public void test14()
+	{
+		StringReader sr = new StringReader(
+				"int x[], y = 3, z, q;"
+		);
+		InfoParser ip = new InfoParser(sr);
+		ip.parseStatement();
+	}
+	
 }
