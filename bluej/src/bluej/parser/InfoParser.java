@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import antlr.Token;
 import antlr.TokenStreamException;
 import bluej.parser.ast.LocatableToken;
 import bluej.parser.ast.gen.JavaTokenTypes;
@@ -22,6 +23,7 @@ public class InfoParser extends NewParser
 	private boolean gotTypeDef; // whether we just reach a type def
 	private boolean isPublic;
 	private boolean storeCurrentClassInfo;
+	private String lastComment; // last (javadoc) comment text we saw
 	
 	private boolean gotExtends; // next type spec is the superclass/superinterfaces
 	private boolean gotImplements; // next type spec(s) are interfaces
@@ -114,6 +116,12 @@ public class InfoParser extends NewParser
 		return r;
 	}
 	
+	protected void gotMethodDeclaration(LocatableToken token)
+	{
+		// DAV !
+		//System.out.println("Saw method: " + token.getText());
+	}
+	
 	protected void gotTypeDefName(LocatableToken nameToken)
 	{
 		gotExtends = false; // haven't seen "extends ..." yet
@@ -197,6 +205,16 @@ public class InfoParser extends NewParser
 	
 	public List<LocatableToken> parseModifiers()
 	{
+		try {
+			Token hiddenToken = tokenStream.LA(1).getHiddenBefore();
+			if (hiddenToken != null && hiddenToken.getType() == JavaTokenTypes.ML_COMMENT) {
+				lastComment = hiddenToken.getText();
+				// DAV !
+				//System.out.println("Saw comment: " + lastComment);
+			}
+		}
+		catch (TokenStreamException tse) {}
+		
 		List<LocatableToken> rval = super.parseModifiers();
 		if (gotTypeDef) {
 			for (LocatableToken lt: rval) {

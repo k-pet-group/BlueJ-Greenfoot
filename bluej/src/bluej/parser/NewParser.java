@@ -211,7 +211,6 @@ public class NewParser
 				
 				// extends...
 				if (token.getType() == JavaTokenTypes.LITERAL_extends) {
-					// TODO generate an error for enums, they cannot extend
 					gotTypeDefExtends(token);
 					parseTypeSpec(false);
 					token = tokenStream.nextToken();
@@ -429,9 +428,9 @@ public class NewParser
 							tokenStream.pushBack(token);
 						}
 						parseTypeSpec(false);
-						token = tokenStream.nextToken(); // identifier
-						if (token.getType() != JavaTokenTypes.IDENT) {
-							error("Expected identifier (method or field name), got token type " + token.getType());
+						LocatableToken idToken = tokenStream.nextToken(); // identifier
+						if (idToken.getType() != JavaTokenTypes.IDENT) {
+							error("Expected identifier (method or field name).");
 							return;
 						}
 						parseArrayDeclarators();
@@ -446,15 +445,12 @@ public class NewParser
 							// field declaration
 							parseExpression();
 							parseSubsequentDeclarations();
-							//token = tokenStream.nextToken();
-							//if (token.getType() != JavaTokenTypes.SEMI) { 
-							//	error("Expected ';' at end of declaration");
-							//}
 							token = tokenStream.nextToken();
 							continue;
 						}
 						else if (token.getType() == JavaTokenTypes.LPAREN) {
 							// method declaration
+							gotMethodDeclaration(idToken);
 							parseMethodParamsBody();
 						}
 						else {
@@ -472,6 +468,9 @@ public class NewParser
 		}
 	}
 	
+	/** We've seen a method declaration; the token parameter is the method name */
+	protected void gotMethodDeclaration(LocatableToken token) {}
+	
 	protected void parseArrayDeclarators()
 	{
 		try {
@@ -483,7 +482,7 @@ public class NewParser
 			while (token.getType() == JavaTokenTypes.LBRACK) {
 				token = tokenStream.nextToken();
 				if (token.getType() != JavaTokenTypes.RBRACK) {
-					error("Expecting ']'");
+					error("Expecting ']' (to match '[')");
 					if (tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
 						// Try and recover
 						token = tokenStream.nextToken(); // ']'
@@ -1633,6 +1632,17 @@ public class NewParser
 						// post operators (unary)
 						continue;
 					}
+					else if (token.getType() == JavaTokenTypes.QUESTION) {
+						parseExpression();
+						token = tokenStream.nextToken();
+						if (token.getType() != JavaTokenTypes.COLON) {
+							error("Expecting ':' (in ?: operator)");
+							tokenStream.pushBack(token);
+							return;
+						}
+						token = tokenStream.nextToken();
+						break;
+					}
 					else {
 						// TODO
 						error("Expected operator");
@@ -1681,21 +1691,17 @@ public class NewParser
 			while (token.getType() != JavaTokenTypes.RPAREN
 					&& token.getType() != JavaTokenTypes.RCURLY) {
 				tokenStream.pushBack(token);
+				
 				parseTypeSpec(false);
-				token = tokenStream.nextToken(); // identifier
-				if (token.getType() != JavaTokenTypes.IDENT) {
+				LocatableToken idToken = tokenStream.nextToken(); // identifier
+				if (idToken.getType() != JavaTokenTypes.IDENT) {
 					error("Expected parameter identifier (in method parameter)");
 					// skip to next ',', ')' or '}' TODO
 					return;
 				}
+				gotMethodParameter(idToken);
+				parseArrayDeclarators();
 				token = tokenStream.nextToken();
-				while (token.getType() == JavaTokenTypes.LBRACK) {
-					token = tokenStream.nextToken();
-					if (token.getType() != JavaTokenTypes.RBRACK) {
-						error("Expected ']' (after '[') in parameter declaration");
-					}
-					token = tokenStream.nextToken();
-				}
 				if (token.getType() != JavaTokenTypes.COMMA) {
 					break;
 				}
@@ -1706,6 +1712,13 @@ public class NewParser
 			e.printStackTrace();
 		}
 	}
+	
+	/** 
+	 * We saw a method (or constructor) parameter. The given token specifies the parameter name. 
+	 * The last type parsed by parseTypeSpec(boolean) is the parameter type, however, there may
+	 * be array declarators (after the identifier) yet to be parsed.
+	 */
+	protected void gotMethodParameter(LocatableToken token) { }
 	
 	private void pushBackAll(List<LocatableToken> tokens)
 	{
