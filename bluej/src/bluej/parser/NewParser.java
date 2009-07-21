@@ -434,6 +434,8 @@ public class NewParser
 							error("Expected identifier (method or field name), got token type " + token.getType());
 							return;
 						}
+						parseArrayDeclarators();
+						
 						token = tokenStream.nextToken();
 						if (token.getType() == JavaTokenTypes.SEMI) {
 							// field declaration: done
@@ -443,10 +445,11 @@ public class NewParser
 						else if (token.getType() == JavaTokenTypes.ASSIGN) {
 							// field declaration
 							parseExpression();
-							token = tokenStream.nextToken();
-							if (token.getType() != JavaTokenTypes.SEMI) { 
-								error("Expected ';' at end of declaration");
-							}
+							parseSubsequentDeclarations();
+							//token = tokenStream.nextToken();
+							//if (token.getType() != JavaTokenTypes.SEMI) { 
+							//	error("Expected ';' at end of declaration");
+							//}
 							token = tokenStream.nextToken();
 							continue;
 						}
@@ -467,6 +470,34 @@ public class NewParser
 		catch (TokenStreamException tse) {
 			tse.printStackTrace();
 		}
+	}
+	
+	protected void parseArrayDeclarators()
+	{
+		try {
+			if (tokenStream.LA(1).getType() != JavaTokenTypes.LBRACK) {
+				return;
+			}
+			
+			LocatableToken token = tokenStream.nextToken();
+			while (token.getType() == JavaTokenTypes.LBRACK) {
+				token = tokenStream.nextToken();
+				if (token.getType() != JavaTokenTypes.RBRACK) {
+					error("Expecting ']'");
+					if (tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
+						// Try and recover
+						token = tokenStream.nextToken(); // ']'
+					}
+					else {
+						tokenStream.pushBack(token);
+						return;
+					}
+				}
+				token = tokenStream.nextToken();
+			}
+			tokenStream.pushBack(token);
+		}
+		catch (TokenStreamException tse) {}
 	}
 	
 	/**
@@ -670,7 +701,7 @@ public class NewParser
 				tokenStream.pushBack(token);
 				pushBackAll(tlist);
 				if (isTypeSpec && token.getType() == JavaTokenTypes.IDENT) {
-					parseVariableDeclaration();
+					parseVariableDeclarations();
 				}
 				else {
 					parseExpression();						
@@ -688,7 +719,7 @@ public class NewParser
 					parseTypeDef();
 				}
 				else {
-					parseVariableDeclaration();
+					parseVariableDeclarations();
 				}
 			}
 			else if (isTypeDeclarator(token)) {
@@ -707,7 +738,7 @@ public class NewParser
 				}
 				else {
 					pushBackAll(tlist);
-					parseVariableDeclaration();
+					parseVariableDeclarations();
 				}
 			}
 			else if (token.getType() == JavaTokenTypes.LCURLY) {
@@ -957,9 +988,49 @@ public class NewParser
 	/**
 	 * Parse a variable declaration, possibly with an initialiser, always followed by ';'
 	 */
-	public void parseVariableDeclaration()
+	public void parseVariableDeclarations()
 	{
 		parseModifiers();
+		parseVariableDeclaration();
+		parseSubsequentDeclarations();
+	}
+	
+	/**
+	 * After seeing a type and identifier declaration, this will parse any
+	 * the subsequent declarations, and check for a terminating semicolon.
+	 */
+	protected void parseSubsequentDeclarations()
+	{
+		try {
+			LocatableToken token = tokenStream.nextToken();
+			while (token.getType() == JavaTokenTypes.COMMA) {
+				token = tokenStream.nextToken();
+				if (token.getType() != JavaTokenTypes.IDENT) {
+					error("Expecting variable identifier (or change ',' to ';')");
+					return;
+				}
+				parseArrayDeclarators();
+				token = tokenStream.nextToken();
+				if (token.getType() == JavaTokenTypes.ASSIGN) {
+					parseExpression();
+					token = tokenStream.nextToken();
+				}
+			}
+
+			if (token.getType() != JavaTokenTypes.SEMI) {
+				error("Expecting ';' at end of variable declaration");
+				tokenStream.pushBack(token);
+			}
+		}
+		catch (TokenStreamException tse) {}
+	}
+	
+	/**
+	 * Parse a variable (or field or parameter) declaration, possibly including an initialiser
+	 * (but not including modifiers)
+	 */
+	public void parseVariableDeclaration()
+	{
 		parseTypeSpec(false);
 		try {
 			LocatableToken token = tokenStream.nextToken();
@@ -968,17 +1039,15 @@ public class NewParser
 				tokenStream.pushBack(token);
 				return;
 			}
+			
+			// Array declarators can follow name
+			parseArrayDeclarators();
+			
 			token = tokenStream.nextToken();
 			if (token.getType() == JavaTokenTypes.ASSIGN) {
 				parseExpression();
-				token = tokenStream.nextToken();
-				if (token.getType() != JavaTokenTypes.SEMI) {
-					error("Expecting ';' at end of variable declaration");
-					tokenStream.pushBack(token);
-				}
 			}
-			else if (token.getType() != JavaTokenTypes.SEMI) {
-				error("Expecting ';' or '=' (in variable declaration)");
+			else {
 				tokenStream.pushBack(token);
 			}
 		} catch (TokenStreamException e) {
