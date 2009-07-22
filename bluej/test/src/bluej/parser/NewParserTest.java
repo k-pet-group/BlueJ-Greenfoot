@@ -189,4 +189,42 @@ public class NewParserTest extends TestCase
 		ip.parseStatement();
 	}
 	
+	/**
+	 * Test annotation declaration
+	 */
+	public void test15()
+	{
+		StringReader sr = new StringReader(
+				"public @interface Copyright{  String value();}"
+		);
+		InfoParser ip = new InfoParser(sr);
+		ip.parseStatement();
+	}
+	
+	/**
+	 * Test use of a marker annotation
+
+	 */
+	public void test16()
+	{
+		StringReader sr = new StringReader(
+				"@Preliminary public class TimeTravel { }"
+		);
+		InfoParser ip = new InfoParser(sr);
+		ip.parseStatement();
+	}
+	
+	/**
+	 * Test the use of an annotation.
+
+	 */
+	public void test17()
+	{
+		StringReader sr = new StringReader(
+				"@Copyright(\"2002 Yoyodyne Propulsion Systems\")"
+		);
+		InfoParser ip = new InfoParser(sr);
+		ip.parseStatement();
+	}
+	
 }
