@@ -221,7 +221,8 @@ public class NewParserTest extends TestCase
 	public void test17()
 	{
 		StringReader sr = new StringReader(
-				"@Copyright(\"2002 Yoyodyne Propulsion Systems\")"
+				"@Copyright(\"2002 Yoyodyne Propulsion Systems\")"+
+				"public class NewParserTest { }"
 		);
 		InfoParser ip = new InfoParser(sr);
 		ip.parseStatement();
@@ -257,7 +258,8 @@ public class NewParserTest extends TestCase
 					"synopsis = \"Enable time-travel\","+
 					"engineer = \"Mr. Peabody\", "+
 					"date     = \"4/1/3007\""+
-				"}"
+				"}"+
+				"public static void travelThroughTime(Date destination) { }"
 		);
 		InfoParser ip = new InfoParser(sr);
 		ip.parseStatement();
