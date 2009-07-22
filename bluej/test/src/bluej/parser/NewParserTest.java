@@ -198,11 +198,11 @@ public class NewParserTest extends TestCase
 				"public @interface Copyright{  String value();}"
 		);
 		InfoParser ip = new InfoParser(sr);
-		ip.parseStatement();
+		ip.parseTypeDef();
 	}
 	
 	/**
-	 * Test use of a marker annotation
+	 * Test use of marker annotation
 
 	 */
 	public void test16()
@@ -211,7 +211,7 @@ public class NewParserTest extends TestCase
 				"@Preliminary public class TimeTravel { }"
 		);
 		InfoParser ip = new InfoParser(sr);
-		ip.parseStatement();
+		ip.parseTypeDef();
 	}
 	
 	/**
@@ -222,6 +222,54 @@ public class NewParserTest extends TestCase
 	{
 		StringReader sr = new StringReader(
 				"@Copyright(\"2002 Yoyodyne Propulsion Systems\")"
+		);
+		InfoParser ip = new InfoParser(sr);
+		ip.parseStatement();
+	}
+	
+	/**
+	 * Test the declaration of an annotation.
+
+	 */
+	public void test18()
+	{
+		StringReader sr = new StringReader(
+				"public @interface RequestForEnhancement { " +
+					"int id();" +
+					"String synopsis();"+
+					"String engineer();  default \"[unassigned]\"; "+
+					"String date();      default \"[unimplemented]\"; "+
+				"}"
+		);
+		InfoParser ip = new InfoParser(sr);
+		ip.parseTypeDef();
+	}
+	
+		
+	/**
+	 * Test the use of an annotation.
+	 */
+	public void test19()
+	{
+		StringReader sr = new StringReader(
+				"@RequestForEnhancement(" +
+					"id       = 2868724," +
+					"synopsis = \"Enable time-travel\","+
+					"engineer = \"Mr. Peabody\", "+
+					"date     = \"4/1/3007\""+
+				"}"
+		);
+		InfoParser ip = new InfoParser(sr);
+		ip.parseStatement();
+	}
+	
+	/**
+	 * Test the use of an annotation for a method.
+	 */
+	public void test20()
+	{
+		StringReader sr = new StringReader(
+				"@Test public static void m1() { }"
 		);
 		InfoParser ip = new InfoParser(sr);
 		ip.parseStatement();
