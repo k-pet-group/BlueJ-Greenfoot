@@ -212,17 +212,17 @@ public class NewParser
 				// extends...
 				if (token.getType() == JavaTokenTypes.LITERAL_extends) {
 					gotTypeDefExtends(token);
-					parseTypeSpec(false);
+					parseTypeSpec();
 					token = tokenStream.nextToken();
 				}
 				
 				// implements...
 				if (token.getType() == JavaTokenTypes.LITERAL_implements) {
 					gotTypeDefImplements(token);
-					parseTypeSpec(false);
+					parseTypeSpec();
 					token = tokenStream.nextToken();
 					while (token.getType() == JavaTokenTypes.COMMA) {
-						parseTypeSpec(false);
+						parseTypeSpec();
 						token = tokenStream.nextToken();
 					}
 				}
@@ -388,6 +388,7 @@ public class NewParser
 			LocatableToken token = tokenStream.nextToken();
 			while (token.getType() != JavaTokenTypes.RCURLY) {
 				tokenStream.pushBack(token);
+				LocatableToken hiddenToken = (LocatableToken) token.getHiddenBefore();
 				// field declaration, method declaration, inner class
 				List<LocatableToken> modifiers = parseModifiers();
 				token = tokenStream.nextToken();
@@ -415,6 +416,7 @@ public class NewParser
 					}
 					else if (tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
 						// constructor
+						gotConstructorDecl(token, hiddenToken);
 						tokenStream.nextToken();
 						parseMethodParamsBody();
 					}
@@ -427,7 +429,7 @@ public class NewParser
 						else {
 							tokenStream.pushBack(token);
 						}
-						parseTypeSpec(false);
+						parseTypeSpec();
 						LocatableToken idToken = tokenStream.nextToken(); // identifier
 						if (idToken.getType() != JavaTokenTypes.IDENT) {
 							error("Expected identifier (method or field name).");
@@ -450,7 +452,7 @@ public class NewParser
 						}
 						else if (token.getType() == JavaTokenTypes.LPAREN) {
 							// method declaration
-							gotMethodDeclaration(idToken);
+							gotMethodDeclaration(idToken, hiddenToken);
 							parseMethodParamsBody();
 						}
 						else {
@@ -467,10 +469,7 @@ public class NewParser
 			tse.printStackTrace();
 		}
 	}
-	
-	/** We've seen a method declaration; the token parameter is the method name */
-	protected void gotMethodDeclaration(LocatableToken token) {}
-	
+		
 	protected void parseArrayDeclarators()
 	{
 		try {
@@ -507,6 +506,7 @@ public class NewParser
 	{
 		try {
 			parseParameterList();
+			gotAllMethodParameters();
 			LocatableToken token = tokenStream.nextToken();
 			if (token.getType() != JavaTokenTypes.RPAREN) {
 				error("Expected ')' at end of parameter list (in method declaration)");
@@ -516,7 +516,7 @@ public class NewParser
 			token = tokenStream.nextToken();
 			if (token.getType() == JavaTokenTypes.LITERAL_throws) {
 				do {
-					parseTypeSpec(false);
+					parseTypeSpec();
 					token = tokenStream.nextToken();
 				} while (token.getType() == JavaTokenTypes.COMMA);
 			}
@@ -660,7 +660,7 @@ public class NewParser
 							tokenStream.pushBack(token);
 							return;
 						}
-						parseTypeSpec(false);
+						parseTypeSpec();
 						token = tokenStream.nextToken();
 						if (token.getType() != JavaTokenTypes.IDENT) {
 							error("Expecting identifier after type (in 'catch' expression)");
@@ -1030,7 +1030,7 @@ public class NewParser
 	 */
 	public void parseVariableDeclaration()
 	{
-		parseTypeSpec(false);
+		parseTypeSpec();
 		try {
 			LocatableToken token = tokenStream.nextToken();
 			if (token.getType() != JavaTokenTypes.IDENT) {
@@ -1054,13 +1054,19 @@ public class NewParser
 		}
 	}
 	
+	/**
+	 * We've seen a type specification or something that looks a lot like one.
+	 * (It's not resolved, so it might actually be referencing a field or variable).
+	 */
+	protected void gotTypeSpec(List<LocatableToken> tokens) { }
+	
 	// TODO comment
-	public boolean parseTypeSpec(boolean speculative)
+	public boolean parseTypeSpec()
 	{
 		List<LocatableToken> tokens = new LinkedList<LocatableToken>();
-		boolean rval = parseTypeSpec(speculative, tokens);
-		if (rval == false && speculative) {
-			pushBackAll(tokens);
+		boolean rval = parseTypeSpec(false, tokens);
+		if (rval) {
+			gotTypeSpec(tokens);
 		}
 		return rval;
 	}
@@ -1444,7 +1450,7 @@ public class NewParser
 						return;
 					}
 					tokenStream.pushBack(token);
-					parseTypeSpec(false);
+					parseTypeSpec();
 					token = tokenStream.nextToken();
 					boolean gotArrayDimension = false;
 					while (token.getType() == JavaTokenTypes.LBRACK) {
@@ -1613,7 +1619,7 @@ public class NewParser
 						}
 					}
 					else if (token.getType() == JavaTokenTypes.LITERAL_instanceof) {
-						parseTypeSpec(false);
+						parseTypeSpec();
 					}
 					else if (token.getType() == JavaTokenTypes.DOT) {
 						// Handle dot operator specially, as there are some special cases
@@ -1692,7 +1698,7 @@ public class NewParser
 					&& token.getType() != JavaTokenTypes.RCURLY) {
 				tokenStream.pushBack(token);
 				
-				parseTypeSpec(false);
+				parseTypeSpec();
 				LocatableToken idToken = tokenStream.nextToken(); // identifier
 				if (idToken.getType() != JavaTokenTypes.IDENT) {
 					error("Expected parameter identifier (in method parameter)");
@@ -1713,12 +1719,26 @@ public class NewParser
 		}
 	}
 	
+	/**
+	 * We've seen a constructor declaration. The token supplied is the constructor name.
+	 * The hiddenToken is the comment before the constructor.
+	 */
+	protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken) {}
+	
+	/**
+	 * We've seen a method declaration; the token parameter is the method name;
+	 * the hiddenToken parameter is the comment before the method
+	 */
+	protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken) {}
+
 	/** 
 	 * We saw a method (or constructor) parameter. The given token specifies the parameter name. 
 	 * The last type parsed by parseTypeSpec(boolean) is the parameter type, however, there may
 	 * be array declarators (after the identifier) yet to be parsed.
 	 */
 	protected void gotMethodParameter(LocatableToken token) { }
+	
+	protected void gotAllMethodParameters() { }
 	
 	private void pushBackAll(List<LocatableToken> tokens)
 	{

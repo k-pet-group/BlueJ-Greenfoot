@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import antlr.Token;
 import antlr.TokenStreamException;
 import bluej.parser.ast.LocatableToken;
 import bluej.parser.ast.gen.JavaTokenTypes;
@@ -23,10 +22,18 @@ public class InfoParser extends NewParser
 	private boolean gotTypeDef; // whether we just reach a type def
 	private boolean isPublic;
 	private boolean storeCurrentClassInfo;
+	
 	private String lastComment; // last (javadoc) comment text we saw
+	private String lastMethodName;
+	private String lastMethodReturnType;
+	private String lastTypespec; // last type specification we saw
+	String methodParamNames; // method params as "<type> <name>"
+	private List<String> methodParamTypes; // method params as "<type> <name>"
 	
 	private boolean gotExtends; // next type spec is the superclass/superinterfaces
 	private boolean gotImplements; // next type spec(s) are interfaces
+	private List<Selection> interfaceSelections;
+	private Selection lastCommaSelection;
 	
 	private boolean hadError;
 	
@@ -34,7 +41,8 @@ public class InfoParser extends NewParser
 	private List<LocatableToken> packageTokens;
 	private LocatableToken pkgSemiToken;
 	
-	public InfoParser(Reader r) {
+	public InfoParser(Reader r)
+	{
 		super(r);
 	}
 	
@@ -94,42 +102,124 @@ public class InfoParser extends NewParser
 		gotTypeDef = false;
 	}
 	
-	public boolean parseTypeSpec(boolean speculative)
+	protected void gotTypeSpec(List<LocatableToken> tokens)
 	{
-		boolean r;
-		if (! speculative) {
+		LocatableToken first = tokens.get(0);
+		if (!isPrimitiveType(first)) {
+			if (storeCurrentClassInfo && ! gotExtends && ! gotImplements) {
+				info.addUsed(first.getText());
+			}
+		}
+
+		if (gotExtends) {
+			// The list of tokens gives us the name of the class that we extend
+			info.setSuperclass(getClassName(tokens));
+			Selection superClassSelection = getSelection(tokens);
+			info.setSuperReplaceSelection(superClassSelection);
+			info.setImplementsInsertSelection(new Selection(superClassSelection.getEndLine(),
+					superClassSelection.getEndColumn()));
+			gotExtends = false;
+		}
+		else if (gotImplements && interfaceSelections != null) {
+			Selection interfaceSel = getSelection(tokens);
+			if (lastCommaSelection != null) {
+				lastCommaSelection.extendEnd(interfaceSel.getLine(), interfaceSel.getColumn());
+				interfaceSelections.add(lastCommaSelection);
+				lastCommaSelection = null;
+			}
+			interfaceSelections.add(interfaceSel);
+			info.addImplements(getClassName(tokens));
 			try {
-				if (isPrimitiveType(tokenStream.LA(1))) {
-					return super.parseTypeSpec(speculative);
+				if (tokenStream.LA(1).getType() == JavaTokenTypes.COMMA) {
+					lastCommaSelection = getSelection(tokenStream.LA(1));
 				}
-			}
-			catch (TokenStreamException tse) {}
-			List<LocatableToken> ttokens = new LinkedList<LocatableToken>();
-			r = parseTypeSpec(speculative, ttokens);
-			if (r && info != null) {
-				info.addUsed(getClassName(ttokens));
-			}
+				else {
+					gotImplements = false;
+					info.setInterfaceSelections(interfaceSelections);
+					info.setImplementsInsertSelection(new Selection(interfaceSel.getEndLine(),
+							interfaceSel.getEndColumn()));
+				}
+			} catch (TokenStreamException e) {}
+		}
+		
+		if (storeCurrentClassInfo) {
+			lastTypespec = concatenate(tokens);
+		}
+	}
+
+	protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken)
+	{
+		if (hiddenToken != null) {
+			lastComment = hiddenToken.getText();
 		}
 		else {
-			r = super.parseTypeSpec(speculative);
+			lastComment = null;
 		}
-		return r;
+		lastMethodReturnType = lastTypespec;
+		lastMethodName = token.getText();
+		methodParamNames = "";
+		methodParamTypes = new LinkedList<String>();
 	}
 	
-	protected void gotMethodDeclaration(LocatableToken token)
+	protected void gotConstructorDecl(LocatableToken token,	LocatableToken hiddenToken)
 	{
-		// DAV !
-		//System.out.println("Saw method: " + token.getText());
+		if (hiddenToken != null) {
+			lastComment = hiddenToken.getText();
+		}
+		else {
+			lastComment = null;
+		}
+		lastMethodReturnType = null;
+		lastMethodName = token.getText();
+		methodParamNames = "";
+		methodParamTypes = new LinkedList<String>();
+	}
+	
+	protected void gotMethodParameter(LocatableToken token)
+	{
+		if (methodParamTypes != null) {
+			methodParamNames += token.getText() + " ";
+			methodParamTypes.add(lastTypespec);
+		}
+	}
+	
+	protected void gotAllMethodParameters()
+	{
+		if (storeCurrentClassInfo && classLevel == 1) {
+			// Build the method signature
+			String methodSig;
+			if (lastMethodReturnType != null) {
+				methodSig = lastMethodReturnType + " " + lastMethodName + "(";
+			}
+			else {
+				// constructor
+				methodSig = lastMethodName + "(";
+			}
+			Iterator<String> i = methodParamTypes.iterator();
+			while (i.hasNext()) {
+				methodSig += i.next();
+				if (i.hasNext()) {
+					methodSig += ", ";
+				}
+			}
+			methodSig += ")";
+			methodParamNames = methodParamNames.trim();
+			info.addComment(methodSig, lastComment, methodParamNames);
+		}
+		methodParamTypes = null;
 	}
 	
 	protected void gotTypeDefName(LocatableToken nameToken)
 	{
 		gotExtends = false; // haven't seen "extends ..." yet
+		gotImplements = false;
 		if (classLevel == 1) {
 			if (info == null || isPublic && !info.foundPublicClass()) {
 				info = new ClassInfo();
 				info.setName(nameToken.getText(), isPublic);
-				info.setExtendsInsertSelection(new Selection(nameToken.getLine(), nameToken.getEndColumn()));
+				Selection insertSelection = new Selection(nameToken.getLine(), nameToken.getEndColumn());
+				info.setExtendsInsertSelection(insertSelection);
+				info.setImplementsInsertSelection(insertSelection);
 				if (pkgSemiToken != null) {
 					info.setPackageSelections(getSelection(pkgLiteralToken), getSelection(packageTokens),
 							getClassName(packageTokens), getSelection(pkgSemiToken));
@@ -165,6 +255,15 @@ public class InfoParser extends NewParser
 		}
 	}
 	
+	protected void gotTypeDefImplements(LocatableToken implementsToken)
+	{
+		if (classLevel == 1 && storeCurrentClassInfo) {
+			gotImplements = true;
+			interfaceSelections = new LinkedList<Selection>();
+			interfaceSelections.add(getSelection(implementsToken));
+		}
+	}
+	
 	protected void gotPackageStatement(LocatableToken token)
 	{
 		pkgLiteralToken = token;
@@ -179,42 +278,9 @@ public class InfoParser extends NewParser
 	{
 		pkgSemiToken = token;
 	}
-	
-	
-	public boolean parseTypeSpec(boolean speculative, List<LocatableToken> ttokens)
-	{
-		boolean result = super.parseTypeSpec(speculative, ttokens);
-		if (gotExtends) {
-			// The list of tokens gives us the name of the class that we extend
-			info.setSuperclass(getClassName(ttokens));
-			Selection superClassSelection = getSelection(ttokens);
-			info.setSuperReplaceSelection(superClassSelection);
-			info.setImplementsInsertSelection(new Selection(superClassSelection.getEndLine(),
-					superClassSelection.getEndColumn()));
-			gotExtends = false;
-		}
-		return result;
-	}
-	
-	protected void gotTypeDefImplements(LocatableToken implementsToken)
-	{
-		if (classLevel == 1 && storeCurrentClassInfo) {
-			gotImplements = true;
-		}
-	}
-	
+		
 	public List<LocatableToken> parseModifiers()
 	{
-		try {
-			Token hiddenToken = tokenStream.LA(1).getHiddenBefore();
-			if (hiddenToken != null && hiddenToken.getType() == JavaTokenTypes.ML_COMMENT) {
-				lastComment = hiddenToken.getText();
-				// DAV !
-				//System.out.println("Saw comment: " + lastComment);
-			}
-		}
-		catch (TokenStreamException tse) {}
-		
 		List<LocatableToken> rval = super.parseModifiers();
 		if (gotTypeDef) {
 			for (LocatableToken lt: rval) {
@@ -229,6 +295,13 @@ public class InfoParser extends NewParser
 	
 	private Selection getSelection(LocatableToken token)
 	{
+		if (token.getLine() <= 0 || token.getColumn() <= 0) {
+			System.out.println("" + token);
+		}
+		if (token.getLength() < 0) {
+			System.out.println("Bad length: " + token.getLength());
+			System.out.println("" + token);
+		}
 		return new Selection(token.getLine(), token.getColumn(), token.getLength());
 	}
 	
@@ -246,6 +319,14 @@ public class InfoParser extends NewParser
 		return s;
 	}
 	
+	private String concatenate(List<LocatableToken> tokens)
+	{
+		String result = "";
+		for (LocatableToken tok : tokens) {
+			result += tok.getText();
+		}
+		return result;
+	}
 	
 	/**
 	 * Convert a list of tokens specifying a type, which may include type parameters, into a class name
