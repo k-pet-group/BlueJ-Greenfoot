@@ -92,13 +92,13 @@ public class Parse15Test extends junit.framework.TestCase
     {
         ClassInfo info = ClassParser.parse(getFile("generic_selections.dat"));
         
-        Selection testSel = info.getTypeParametersSelection();
-        assertEquals(3, testSel.getLine());
-        assertEquals(19, testSel.getColumn());
-        assertEquals(3, testSel.getEndLine());
-        assertEquals(40, testSel.getEndColumn());
+//        Selection testSel = info.getTypeParametersSelection();
+//        assertEquals(3, testSel.getLine());
+//        assertEquals(19, testSel.getColumn());
+//        assertEquals(3, testSel.getEndLine());
+//        assertEquals(40, testSel.getEndColumn());
         
-        testSel = info.getSuperReplaceSelection();
+        Selection testSel = info.getSuperReplaceSelection();
         assertEquals(3, testSel.getLine());
         assertEquals(49, testSel.getColumn());
         assertEquals(4, testSel.getEndLine());
