@@ -259,7 +259,7 @@ public class BasicParseTest extends junit.framework.TestCase
         assertEquals(32, interfaceSel.getEndColumn());
     }
     
-    public void testValidClassInfo2()
+    public void testValidClassInfo2() throws Exception
     {
     	List<String> classes = new ArrayList<String>();
     	StringReader sr = new StringReader(
@@ -280,7 +280,7 @@ public class BasicParseTest extends junit.framework.TestCase
     /**
      * Test recognition of interfaces
      */
-    public void testValidClassInfo3()
+    public void testValidClassInfo3() throws Exception
     {
     	List<String> classes = new ArrayList<String>();
     	StringReader sr = new StringReader(
@@ -293,7 +293,7 @@ public class BasicParseTest extends junit.framework.TestCase
     /**
      * Test recognition of enumerations
      */
-    public void testValidClassInfo4()
+    public void testValidClassInfo4() throws Exception
     {
     	List<String> classes = new ArrayList<String>();
     	StringReader sr = new StringReader(
