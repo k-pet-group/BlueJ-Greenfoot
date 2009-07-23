@@ -166,6 +166,10 @@ public class NewParser
 			|| token.getType() == JavaTokenTypes.LITERAL_double;
 	}
 	
+	public static int TYPEDEF_CLASS = 0;
+	public static int TYPEDEF_INTERFACE = 1;
+	public static int TYPEDEF_ENUM = 2;
+	
 	/**
 	 * Parse a type definition (class, interface, enum).
 	 */
@@ -178,20 +182,22 @@ public class NewParser
 			// [class|interface|enum]
 			LocatableToken token = tokenStream.nextToken();
 			if (isTypeDeclarator(token)) {
-				boolean isEnum = false;
+				int tdType = -1;
 				String typeDesc;
 				if (token.getType() == JavaTokenTypes.LITERAL_class) {
 					typeDesc = "class";
+					tdType = TYPEDEF_CLASS;
 				}
 				else if (token.getType() == JavaTokenTypes.LITERAL_interface) {
 					typeDesc = "interface";
+					tdType = TYPEDEF_INTERFACE;
 				}
 				else {
 					typeDesc = "enum";
-					isEnum = true;
+					tdType = TYPEDEF_ENUM;
 				}
 				
-				gotClassTypeDef();
+				gotTypeDef(tdType);
 				
 				// Class name
 				token = tokenStream.nextToken();
@@ -234,7 +240,7 @@ public class NewParser
 					return;
 				}
 				
-				if (isEnum) {
+				if (tdType == TYPEDEF_ENUM) {
 					parseEnumConstants();
 				}
 				parseClassBody();
@@ -278,6 +284,12 @@ public class NewParser
 				}
 				
 				if (token.getType() == JavaTokenTypes.SEMI) {
+					return;
+				}
+				
+				if (token.getType() == JavaTokenTypes.RCURLY) {
+					// This is valid
+					tokenStream.pushBack(token);
 					return;
 				}
 				
@@ -334,8 +346,9 @@ public class NewParser
 		}
 	}
 	
-	/** Called when the type definition is a class definition */
-	protected void gotClassTypeDef() { }
+	/** Called when the type definition is a class definition 
+	 * @param tdType TODO*/
+	protected void gotTypeDef(int tdType) { }
 	
 	/** Called when we have the identifier token for a class/interface/enum definition */
 	protected void gotTypeDefName(LocatableToken nameToken) { }
@@ -347,7 +360,8 @@ public class NewParser
 	protected void gotTypeDefImplements(LocatableToken implementsToken) { }
 	
 	/**
-	 * Check whether a token represents a modifier.
+	 * Check whether a token represents a modifier (or an "at" symbol,
+	 * denoting an annotation).
 	 */
 	protected boolean isModifier(LocatableToken token)
 	{

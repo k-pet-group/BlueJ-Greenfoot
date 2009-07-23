@@ -21,6 +21,7 @@ public class InfoParser extends NewParser
 	private int classLevel = 0; // number of nested classes
 	private boolean gotTypeDef; // whether we just reach a type def
 	private boolean isPublic;
+	private int lastTdType; // last typedef type (TYPEDEF_CLASS, _INTERFACE etc)
 	private boolean storeCurrentClassInfo;
 	
 	private String lastComment; // last (javadoc) comment text we saw
@@ -209,6 +210,11 @@ public class InfoParser extends NewParser
 		methodParamTypes = null;
 	}
 	
+	protected void gotTypeDef(int tdType)
+	{
+		lastTdType = tdType;
+	}
+	
 	protected void gotTypeDefName(LocatableToken nameToken)
 	{
 		gotExtends = false; // haven't seen "extends ..." yet
@@ -217,6 +223,8 @@ public class InfoParser extends NewParser
 			if (info == null || isPublic && !info.foundPublicClass()) {
 				info = new ClassInfo();
 				info.setName(nameToken.getText(), isPublic);
+				info.setEnum(lastTdType == TYPEDEF_ENUM);
+				info.setInterface(lastTdType == TYPEDEF_INTERFACE);
 				Selection insertSelection = new Selection(nameToken.getLine(), nameToken.getEndColumn());
 				info.setExtendsInsertSelection(insertSelection);
 				info.setImplementsInsertSelection(insertSelection);
