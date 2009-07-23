@@ -276,6 +276,32 @@ public class BasicParseTest extends junit.framework.TestCase
     	assertTrue(implemented.contains("II"));
     	assertTrue(implemented.contains("IJ"));
     }
+
+    /**
+     * Test recognition of interfaces
+     */
+    public void testValidClassInfo3()
+    {
+    	List<String> classes = new ArrayList<String>();
+    	StringReader sr = new StringReader(
+    			"interface A {}"
+    	);
+    	ClassInfo info = ClassParser.parse(sr, classes);
+    	assertTrue(info.isInterface());
+    }
+
+    /**
+     * Test recognition of enumerations
+     */
+    public void testValidClassInfo4()
+    {
+    	List<String> classes = new ArrayList<String>();
+    	StringReader sr = new StringReader(
+    			"enum A { monday, tuesday, wednesday }"
+    	);
+    	ClassInfo info = ClassParser.parse(sr, classes);
+    	assertTrue(info.isEnum());
+    }
     
     public void testMultiDimensionalArrayParam() throws Exception
     {

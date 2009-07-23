@@ -188,7 +188,7 @@ public class NewParserTest extends TestCase
 		InfoParser ip = new InfoParser(sr);
 		ip.parseStatement();
 	}
-	
+		
 	/**
 	 * Test annotation declaration
 	 */
@@ -203,7 +203,6 @@ public class NewParserTest extends TestCase
 	
 	/**
 	 * Test use of marker annotation
-
 	 */
 	public void test16()
 	{
@@ -216,7 +215,6 @@ public class NewParserTest extends TestCase
 	
 	/**
 	 * Test the use of an annotation.
-
 	 */
 	public void test17()
 	{
@@ -229,8 +227,31 @@ public class NewParserTest extends TestCase
 	}
 	
 	/**
-	 * Test the declaration of an annotation.
+	 * Test the '?:' operator.
+	 */
+	public void testQuestionOperator()
+	{
+		StringReader sr = new StringReader(
+				"Object g = (x<y) ? null : null;"
+				);
+		InfoParser ip = new InfoParser(sr);
+		ip.parseStatement();
+	}
+	
+	/**
+	 * Test a static method call.
+	 */
+	public void testStaticMethodCall()
+	{
+		StringReader sr = new StringReader(
+				"AAA.bbb(1,2,3);"
+				);
+		InfoParser ip = new InfoParser(sr);
+		ip.parseStatement();
+	}
 
+	/**
+	 * Test the declaration of an annotation.
 	 */
 	public void test18()
 	{
