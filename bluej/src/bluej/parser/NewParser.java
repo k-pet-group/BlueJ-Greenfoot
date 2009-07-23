@@ -388,8 +388,11 @@ public class NewParser
 			LocatableToken token = tokenStream.nextToken();
 			while (isModifier(token)) {
 				rval.add(token);
+				if (token.getType()==JavaTokenTypes.AT && !(isTypeDeclarator(tokenStream.LA(1)))){					
+					token=tokenStream.nextToken();	
+				}
 				token = tokenStream.nextToken();
-			}
+			}			
 			tokenStream.pushBack(token);
 		} catch (TokenStreamException tse) {
 			tse.printStackTrace();
