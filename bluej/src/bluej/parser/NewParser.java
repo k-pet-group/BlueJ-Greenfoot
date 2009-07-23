@@ -360,7 +360,8 @@ public class NewParser
 				|| tokType == JavaTokenTypes.LITERAL_static
 				|| tokType == JavaTokenTypes.LITERAL_volatile
 				|| tokType == JavaTokenTypes.LITERAL_native
-				|| tokType == JavaTokenTypes.STRICTFP);
+				|| tokType == JavaTokenTypes.STRICTFP
+				|| tokType == JavaTokenTypes.AT);
 	}
 	
 	/**
