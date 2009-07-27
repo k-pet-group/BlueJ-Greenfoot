@@ -272,7 +272,7 @@ public class InfoParser extends NewParser
 		}
 	}
 	
-	protected void gotPackageStatement(LocatableToken token)
+	protected void beginPackageStatement(LocatableToken token)
 	{
 		pkgLiteralToken = token;
 	}

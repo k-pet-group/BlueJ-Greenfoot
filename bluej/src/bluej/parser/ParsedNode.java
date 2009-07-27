@@ -14,6 +14,10 @@ public abstract class ParsedNode
 		nodeTree = new NodeTree();
 	}
 	
+	protected NodeTree getNodeTree()
+	{
+	    return nodeTree;
+	}
 	
 	/**
 	 * Insert the given text.
@@ -42,5 +46,5 @@ public abstract class ParsedNode
 	/**
 	 * This node should be re-parsed in full.
 	 */
-	protected void reparseNode() {}
+	//protected void reparseNode() {}
 }

@@ -36,59 +36,68 @@ public class NodeTree
 		return new NodeTreeIterator(this);
 	}
 	
-	/**
-	 * Find the ParsedNode leaf corresponding to a certain position within the parent.
-	 * Returns null if no leaf contains exactly the given position.
-	 */
-	public ParsedNode findNode(int pos)
+        /**
+         * Find the ParsedNode leaf corresponding to a certain position within the parent.
+         * Returns null if no leaf contains exactly the given position.
+         */
+	public NodeAndPosition findNode(int pos)
+	{
+	    return findNode(pos, 0);
+	}
+	
+	public NodeAndPosition findNode(int pos, int startpos)
 	{		
-		if (pnodeOffset > pos) {
+		if (startpos + pnodeOffset > pos) {
 			if (left != null) {
-				return left.findNode(pos);
+				return left.findNode(pos, startpos);
 			}
 			else {
 				return null;
 			}
 		}
 				
-		if (pnodeSize + pnodeOffset > pos) {
-			return pnode;
+		if (startpos + pnodeSize + pnodeOffset > pos) {
+			return new NodeAndPosition(pnode, startpos + pnodeOffset);
 		}
 		
 		if (right != null) {
-			pos -= (pnodeOffset + pnodeSize);
-			return right.findNode(pos);
+			return right.findNode(pos, startpos + pnodeOffset + pnodeSize);
 		}
 		
 		return null;
 	}
 	
-	public ParsedNode findNodeAtOrBefore(int pos)
+	public NodeAndPosition findNodeAtOrBefore(int pos)
 	{
-		if (pnodeOffset > pos) {
+	    return findNodeAtOrBefore(pos, 0);
+	}
+	
+	public NodeAndPosition findNodeAtOrBefore(int pos, int startpos)
+	{
+		if (startpos + pnodeOffset > pos) {
 			if (left != null) {
-				return left.findNodeAtOrBefore(pos);
+				return left.findNodeAtOrBefore(pos, startpos);
 			}
 			else {
 				return null;
 			}
 		}
 				
-		if (pnodeSize + pnodeOffset > pos) {
-			return pnode;
+		if (startpos + pnodeSize + pnodeOffset > pos) {
+			return new NodeAndPosition(pnode, startpos + pnodeOffset);
 		}
 		
-		ParsedNode rval = null;
+		NodeAndPosition rval = null;
 		if (right != null) {
 			pos -= (pnodeOffset + pnodeSize);
-			rval = right.findNode(pos);
+			rval = right.findNodeAtOrBefore(pos, startpos + pnodeOffset + pnodeSize);
 		}
 		
 		if (rval == null) {
-			rval = pnode;
+			rval = new NodeAndPosition(pnode, startpos + pnodeOffset);
 		}
 		
-		return pnode;
+		return rval;
 	}
 	
 	public void insertNode(ParsedNode newNode, int pos, int size)
@@ -122,6 +131,16 @@ public class NodeTree
 				}
 			}
 		}
+	}
+
+	/**
+	 * Clear the tree - remove all nodes
+	 */
+	public void clear()
+	{
+	    left = null;
+	    pnode = null;
+	    right = null;
 	}
 	
 	/**
@@ -271,6 +290,34 @@ public class NodeTree
 		return !black;
 	}
 	
+	/**
+	 * A class to represent a [node, position] tuple.
+	 */
+	public static class NodeAndPosition
+	{
+	    private ParsedNode parsedNode;
+	    private int position;
+	    
+	    public NodeAndPosition(ParsedNode pn, int position)
+	    {
+	        this.parsedNode = pn;
+	        this.position = position;
+	    }
+	    
+	    public ParsedNode getNode()
+	    {
+	        return parsedNode;
+	    }
+	    
+	    public int getPosition()
+	    {
+	        return position;
+	    }
+	}
+	
+	/**
+	 * An iterator through a node tree.
+	 */
 	private static class NodeTreeIterator implements Iterator<ParsedNode>
 	{
 		Stack<NodeTree> stack;

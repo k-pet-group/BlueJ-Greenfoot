@@ -5,6 +5,8 @@ import javax.swing.text.Document;
 
 import org.syntax.jedit.tokenmarker.Token;
 
+import bluej.parser.NodeTree.NodeAndPosition;
+
 /**
  * A parsed compilation unit node.
  * 
@@ -35,13 +37,35 @@ public class ParsedCUNode extends ParsedNode
 		return tok;
 	}
 
-	public void textInserted(int nodePos, DocumentEvent event) {
-	// TODO Auto-generated method stub
-	
+	public void textInserted(int nodePos, DocumentEvent event)
+	{
+	    NodeAndPosition child = getNodeTree().findNode(nodePos);
+	    if (child != null) {
+	        child.getNode().textInserted(nodePos + child.getPosition(), event);
+	    }
+	    else {
+	        // We must handle the insertion ourself
+	        // TODO
+	        doReparse();
+	    }
 	}
 	
-	public void textRemoved(int nodePos, DocumentEvent event) {
-	// TODO Auto-generated method stub
+	public void textRemoved(int nodePos, DocumentEvent event)
+	{
+            NodeAndPosition child = getNodeTree().findNode(nodePos);
+            if (child != null) {
+                child.getNode().textRemoved(nodePos + child.getPosition(), event);
+            }
+            else {
+                // We must handle the insertion ourself
+                // TODO
+                doReparse();
+            }
+	}
 	
+	private void doReparse()
+	{
+	    getNodeTree().clear();
+	    
 	}
 }
