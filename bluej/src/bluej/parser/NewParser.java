@@ -191,12 +191,11 @@ public class NewParser
 				}
 				else if (token.getType() == JavaTokenTypes.LITERAL_interface) {
 					typeDesc = "interface";
+					tdType = TYPEDEF_INTERFACE;
 					//check for annotation type
 					for (LocatableToken lt: modifiers) {
-						if (lt.getType() == JavaTokenTypes.AT) 
-							tdType = TYPEDEF_ANNOTATION;
-						else 
-							tdType = TYPEDEF_INTERFACE;
+						if (lt.getType() == JavaTokenTypes.AT)
+							tdType = TYPEDEF_ANNOTATION;						 
 					}					
 				}
 				else {
@@ -1472,9 +1471,7 @@ public class NewParser
 			while (token.getType() != JavaTokenTypes.RCURLY) {
 				tokenStream.pushBack(token);
 				LocatableToken hiddenToken = (LocatableToken) token.getHiddenBefore();
-				// field declaration, method declaration, inner class
 				token = tokenStream.nextToken();
-
 				LocatableToken idToken = tokenStream.nextToken(); // identifier
 				if (idToken.getType() != JavaTokenTypes.IDENT) {
 						error("Expected identifier (method or field name).");
