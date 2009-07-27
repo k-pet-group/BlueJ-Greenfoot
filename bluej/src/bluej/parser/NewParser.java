@@ -169,6 +169,7 @@ public class NewParser
 	public static int TYPEDEF_CLASS = 0;
 	public static int TYPEDEF_INTERFACE = 1;
 	public static int TYPEDEF_ENUM = 2;
+	public static int TYPEDEF_ANNOTATION=3;
 	
 	/**
 	 * Parse a type definition (class, interface, enum).
@@ -177,20 +178,26 @@ public class NewParser
 	{
 		try {
 			// possibly, modifiers: [public|private|protected] [static]
-			parseModifiers();
-			
+			List<LocatableToken> modifiers =parseModifiers();
+								
 			// [class|interface|enum]
 			LocatableToken token = tokenStream.nextToken();
 			if (isTypeDeclarator(token)) {
 				int tdType = -1;
-				String typeDesc;
+				String typeDesc;			
 				if (token.getType() == JavaTokenTypes.LITERAL_class) {
 					typeDesc = "class";
 					tdType = TYPEDEF_CLASS;
 				}
 				else if (token.getType() == JavaTokenTypes.LITERAL_interface) {
 					typeDesc = "interface";
-					tdType = TYPEDEF_INTERFACE;
+					//check for annotation type
+					for (LocatableToken lt: modifiers) {
+						if (lt.getType() == JavaTokenTypes.AT) 
+							tdType = TYPEDEF_ANNOTATION;
+						else 
+							tdType = TYPEDEF_INTERFACE;
+					}					
 				}
 				else {
 					typeDesc = "enum";
@@ -243,7 +250,11 @@ public class NewParser
 				if (tdType == TYPEDEF_ENUM) {
 					parseEnumConstants();
 				}
-				parseClassBody();
+				
+				if (tdType== TYPEDEF_ANNOTATION)
+					parseAnnotationBody();
+				else 
+					parseClassBody();
 				
 				token = tokenStream.nextToken();
 				if (token.getType() != JavaTokenTypes.RCURLY) {
@@ -389,7 +400,7 @@ public class NewParser
 			while (isModifier(token)) {
 				rval.add(token);
 				if (token.getType()==JavaTokenTypes.AT && !(isTypeDeclarator(tokenStream.LA(1)))){					
-					token=tokenStream.nextToken();	
+					token=tokenStream.nextToken();
 				}
 				token = tokenStream.nextToken();
 			}			
@@ -1449,6 +1460,56 @@ public class NewParser
 			|| ttype == JavaTokenTypes.BNOT
 			|| ttype == JavaTokenTypes.INC
 			|| ttype == JavaTokenTypes.DEC;
+	}
+	
+	/**
+	 * Parse an annotation body
+	 */
+	public void parseAnnotationBody()
+	{
+		try {
+			LocatableToken token = tokenStream.nextToken();
+			while (token.getType() != JavaTokenTypes.RCURLY) {
+				tokenStream.pushBack(token);
+				LocatableToken hiddenToken = (LocatableToken) token.getHiddenBefore();
+				// field declaration, method declaration, inner class
+				token = tokenStream.nextToken();
+
+				LocatableToken idToken = tokenStream.nextToken(); // identifier
+				if (idToken.getType() != JavaTokenTypes.IDENT) {
+						error("Expected identifier (method or field name).");
+						return;
+				}
+				
+				token = tokenStream.nextToken();
+				
+				if (token.getType() == JavaTokenTypes.LPAREN) {
+						// method declaration
+						gotMethodDeclaration(idToken, hiddenToken);
+						parseMethodParamsBody();
+				}
+				else {
+						error("Expected ';' or '=' or '(' (in field or method declaration), got token type: " + token.getType());
+						tokenStream.pushBack(token);
+				}
+				token = tokenStream.nextToken();
+				if (token.getType()==JavaTokenTypes.LITERAL_default){
+					parseExpression();
+					token = tokenStream.nextToken();
+					if (token.getType()!= JavaTokenTypes.SEMI){
+						error("Expected ';' or '=' or '(' (in field or method declaration), got token type: " + token.getType());
+						tokenStream.pushBack(token);
+					}
+					token = tokenStream.nextToken();
+				}
+				
+			}	
+			tokenStream.pushBack(token);
+		}
+		catch (TokenStreamException tse) {
+			tse.printStackTrace();
+		}
+	
 	}
 	
 	/**
