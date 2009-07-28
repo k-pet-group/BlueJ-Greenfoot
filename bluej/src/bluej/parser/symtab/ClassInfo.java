@@ -204,7 +204,7 @@ public final class ClassInfo
      * <p>Where:
      * <ul>
      * <li>type-pars are the type parameters, in the form
-     *    "&ltT extends bound-type,U extends bound-type&gt;". Should be null if there are no
+     *    "&ltT extends bound-type,U extends bound-type&gt;". Should not be present if there are no
      *    type parameters.
      * <li>return_type is the generic return type, or null for a constructor
      * <li>method_name is the name of the method (or the class name for a constructor)
@@ -358,6 +358,12 @@ public final class ClassInfo
     // ... or null if there is no clause
     private List<Selection> interfaceSelections;
 
+    /**
+     * Set the selections for the interfaces, including the "implements" clause (or "extends"
+     * for interfaces), the interfaces themselves, and the commas between them. Eg:
+     * 
+     * "extends"  "InterfaceA"  ","  "InterfaceB"
+     */
     public void setInterfaceSelections(List<Selection> selections)
     {
         interfaceSelections = selections;
