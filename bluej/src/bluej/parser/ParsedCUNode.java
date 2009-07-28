@@ -1,5 +1,7 @@
 package bluej.parser;
 
+import java.io.Reader;
+
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.Document;
 
@@ -42,11 +44,13 @@ public class ParsedCUNode extends ParsedNode
 	    NodeAndPosition child = getNodeTree().findNode(nodePos);
 	    if (child != null) {
 	        child.getNode().textInserted(nodePos + child.getPosition(), event);
+	        // TODO grow the child node?
 	    }
 	    else {
 	        // We must handle the insertion ourself
 	        // TODO
-	        doReparse();
+            // for now just do a full reparse
+	        doReparse(event.getDocument());
 	    }
 	}
 	
@@ -55,17 +59,22 @@ public class ParsedCUNode extends ParsedNode
             NodeAndPosition child = getNodeTree().findNode(nodePos);
             if (child != null) {
                 child.getNode().textRemoved(nodePos + child.getPosition(), event);
+                // TODO shrink the child node?
+                // TODO check if an entire child/children were removed.
             }
             else {
                 // We must handle the insertion ourself
                 // TODO
-                doReparse();
+                // for now just do a full reparse
+                doReparse(event.getDocument());
             }
 	}
 	
-	private void doReparse()
+	private void doReparse(Document document)
 	{
 	    getNodeTree().clear();
-	    
+	    Reader r = new DocumentReader(document);
+	    EditorParser parser = new EditorParser(r);
+	    parser.parseCU(this);
 	}
 }

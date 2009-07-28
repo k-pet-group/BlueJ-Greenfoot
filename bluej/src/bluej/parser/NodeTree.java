@@ -36,10 +36,10 @@ public class NodeTree
 		return new NodeTreeIterator(this);
 	}
 	
-        /**
-         * Find the ParsedNode leaf corresponding to a certain position within the parent.
-         * Returns null if no leaf contains exactly the given position.
-         */
+	/**
+	 * Find the ParsedNode leaf corresponding to a certain position within the parent.
+	 * Returns null if no leaf contains exactly the given position.
+	 */
 	public NodeAndPosition findNode(int pos)
 	{
 	    return findNode(pos, 0);
