@@ -117,8 +117,9 @@ public class JarCreator
     public JarCreator(File exportDir, String jarName)
     {
 
-        if (!exportDir.canWrite()) {
-            throw new IllegalArgumentException("exportDir not writable: " + exportDir);
+        File jarFile = new File(exportDir, jarName);
+        if (!jarFile.canWrite()) {
+            throw new IllegalArgumentException("Cannot write file: " + jarFile);
         }
         this.exportDir = exportDir;
         this.jarName = jarName;
