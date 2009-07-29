@@ -15,7 +15,7 @@
      After changing the version number the target "update-version-number" should be run -->
     <property name="bluej.version.major" value="2" />
     <property name="bluej.version.minor" value="5" />
-    <property name="bluej.version.release" value="1" />
+    <property name="bluej.version.release" value="2" />
     <property name="bluej.version.suffix" value="" />
     <property name="bluej.version" value="${bluej.version.major}.${bluej.version.minor}.${bluej.version.release}${bluej.version.suffix}" />
     <property name="bluej.version.nodots" value="${bluej.version.major}${bluej.version.minor}${bluej.version.release}${bluej.version.suffix}" />
