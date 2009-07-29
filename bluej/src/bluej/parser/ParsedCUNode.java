@@ -41,10 +41,14 @@ public class ParsedCUNode extends ParsedNode
 
 	public void textInserted(int nodePos, DocumentEvent event)
 	{
-	    NodeAndPosition child = getNodeTree().findNode(nodePos);
+	    NodeAndPosition child = getNodeTree().findNode(event.getOffset(), nodePos);
 	    if (child != null) {
-	        child.getNode().textInserted(nodePos + child.getPosition(), event);
-	        // TODO grow the child node?
+	        ParsedNode cnode = child.getNode();
+	        NodeTree cnodeTree = cnode.getContainingNodeTree();
+	        // grow the child node
+	        cnodeTree.setNodeSize(cnodeTree.getNodeSize() + event.getLength());
+	        // inform the child node of the change
+	        child.getNode().textInserted(child.getPosition(), event);
 	    }
 	    else {
 	        // We must handle the insertion ourself
@@ -53,21 +57,37 @@ public class ParsedCUNode extends ParsedNode
 	        doReparse(event.getDocument());
 	    }
 	}
-	
-	public void textRemoved(int nodePos, DocumentEvent event)
-	{
-            NodeAndPosition child = getNodeTree().findNode(nodePos);
-            if (child != null) {
-                child.getNode().textRemoved(nodePos + child.getPosition(), event);
-                // TODO shrink the child node?
-                // TODO check if an entire child/children were removed.
+    
+    public void textRemoved(int nodePos, DocumentEvent event)
+    {
+        int endPos = event.getOffset() - event.getLength();
+        NodeAndPosition child = getNodeTree().findNodeAtOrBefore(endPos, nodePos);
+	    
+        while (child != null) {
+            int childEndPos = child.getPosition() + child.getSize();
+            if (childEndPos <= event.getOffset()) {
+                break;
             }
-            else {
-                // We must handle the insertion ourself
+            
+            // Possible cases: beginning of child is removed, end of child is removed,
+            // middle of child is removed, all of child is removed.
+            if (child.getPosition() >= event.getOffset() && childEndPos <= endPos) {
+                // Child node to be removed completely
                 // TODO
-                // for now just do a full reparse
-                doReparse(event.getDocument());
             }
+        }
+        
+        if (child != null) {
+            child.getNode().textRemoved(nodePos + child.getPosition(), event);
+            // TODO shrink the child node?
+            // TODO check if an entire child/children were removed.
+        }
+        else {
+            // We must handle the insertion ourself
+            // TODO
+            // for now just do a full reparse
+            doReparse(event.getDocument());
+        }
 	}
 	
 	private void doReparse(Document document)

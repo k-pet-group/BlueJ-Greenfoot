@@ -7,16 +7,25 @@ import org.syntax.jedit.tokenmarker.Token;
 
 public abstract class ParsedNode
 {
-	private NodeTree nodeTree;
+	/** The NodeTree containing the child nodes of this node */
+    private NodeTree nodeTree;
+    /** The NodeTree node (belonging to the parent parse node) which contains this node */
+    private NodeTree containingNodeTree;
+    /** The parent ParsedNode which contains us */
+    private ParsedNode parentNode;
 	
 	public ParsedNode()
 	{
 		nodeTree = new NodeTree();
 	}
 	
-	protected NodeTree getNodeTree()
+	/**
+	 * Set the containing node tree. This is normally only called by NodeTree when inserting
+	 * this node into the tree.
+	 */
+	public void setContainingNodeTree(NodeTree cnode)
 	{
-	    return nodeTree;
+	    containingNodeTree = cnode;
 	}
 	
 	/**
@@ -32,6 +41,16 @@ public abstract class ParsedNode
 	public abstract void textRemoved(int nodePos, DocumentEvent event);
 	
 	public abstract Token getMarkTokensFor(int pos, int length, int nodePos, Document document);
+	
+    protected NodeTree getNodeTree()
+    {
+        return nodeTree;
+    }
+    
+    protected NodeTree getContainingNodeTree()
+    {
+        return containingNodeTree;
+    }
 	
 	/**
 	 * This node is shortened, it no longer needs all the text assigned to it.

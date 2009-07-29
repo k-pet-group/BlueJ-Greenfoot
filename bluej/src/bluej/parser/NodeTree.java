@@ -57,7 +57,7 @@ public class NodeTree
 		}
 				
 		if (startpos + pnodeSize + pnodeOffset > pos) {
-			return new NodeAndPosition(pnode, startpos + pnodeOffset);
+			return new NodeAndPosition(pnode, startpos + pnodeOffset, pnodeSize);
 		}
 		
 		if (right != null) {
@@ -84,7 +84,7 @@ public class NodeTree
 		}
 				
 		if (startpos + pnodeSize + pnodeOffset > pos) {
-			return new NodeAndPosition(pnode, startpos + pnodeOffset);
+			return new NodeAndPosition(pnode, startpos + pnodeOffset, pnodeSize);
 		}
 		
 		NodeAndPosition rval = null;
@@ -94,10 +94,28 @@ public class NodeTree
 		}
 		
 		if (rval == null) {
-			rval = new NodeAndPosition(pnode, startpos + pnodeOffset);
+			rval = new NodeAndPosition(pnode, startpos + pnodeOffset, pnodeSize);
 		}
 		
 		return rval;
+	}
+	
+	/**
+	 * Set the size of the contained ParsedNode. This is to be used in cases where the
+	 * node has shrunk or grown because of text being removed or inserted, not for cases
+	 * when the node is taking on more (or less) text from the document.
+	 */
+	public void setNodeSize(int newSize)
+	{
+	    pnodeSize = newSize;
+	}
+	
+	/**
+	 * Get the size of the contained ParsedNode.
+	 */
+	public int getNodeSize()
+	{
+	    return pnodeSize;
 	}
 	
 	public void insertNode(ParsedNode newNode, int pos, int size)
@@ -134,6 +152,159 @@ public class NodeTree
 	}
 
 	/**
+	 * Remove this node from the tree.
+	 */
+	public void remove()
+	{
+	    if (left == null || right == null) {
+	        one_child_remove();
+	    }
+	    else {
+	        NodeTree sub = left;
+	        int nmoffset = 0;
+	        while (sub.right != null) {
+	            sub = sub.right;
+	            nmoffset += (sub.pnodeOffset + sub.pnodeSize);
+	        }
+	        swapNodeData(this, sub);
+	        
+	        // adjust offsets
+	        adjustLeftOffsets(nmoffset);
+	        
+	        sub.one_child_remove();
+	    }
+	}
+	
+	private void adjustLeftOffsets(int amount)
+	{
+	    NodeTree nt = this;
+	    while (nt != null) {
+	        nt.pnodeOffset += amount;
+	        nt = nt.left;
+	    }
+	}
+	
+	/**
+	 * Re-structure the tree so that one node (with) takes the place of another (dest).
+	 * The "dest" node (and any of its subtrees, except "with") will then no longer be part
+	 * of the tree.
+	 */
+	private static void replace_node(NodeTree dest, NodeTree with)
+	{
+	    if (dest.parent != null) {
+	        if (dest.parent.left == dest) {
+	            dest.parent.left = with;
+	        }
+	        else {
+	            dest.parent.right = with;
+	        }
+	    }
+	    if (with != null) {
+	        with.parent = dest.parent;
+	    }
+	}
+	
+	private void one_child_remove()
+	{
+	    if (left == null && right == null && parent == null) {
+	        pnode = null; // and done.
+	    }
+	    else {
+	        NodeTree child = (left == null) ? right : left;
+	        replace_node(this, child);
+	        if (black) {
+	            if (! child.black) {
+	                child.black = true;
+	            }
+	            else {
+	                child.delete_case_1();
+	            }
+	        }
+	    }
+	}
+	
+	private NodeTree getSibling()
+	{
+	    if (parent != null) {
+	        if (parent.left == this) {
+	            return parent.right;
+	        }
+	        else {
+	            return parent.left;
+	        }
+	    }
+	    else {
+	        return null;
+	    }
+	}
+	
+	/**
+	 * The parent node has been deleted. Perform any needed re-balancing.
+	 */
+	private void delete_case_1()
+	{
+	    if (parent != null) {
+	        // delete case 2
+	        NodeTree sibling = getSibling();
+	        if (! isBlack(sibling)) {
+	            parent.black = false;
+	            sibling.black = true;
+	            if (this == parent.left) {
+	                rotateLeft(parent);
+	            }
+	            else {
+	                rotateRight(parent);
+	            }
+	        }
+            delete_case_3();
+	    }
+	}
+	
+	private void delete_case_3()
+	{
+	    NodeTree sibling = getSibling();
+	    if (parent.black && sibling.black && sibling.left.black && sibling.right.black) {
+	        // That's a lot of black.
+	        sibling.black = false;
+	        parent.delete_case_1();
+	    }
+	    else {
+            // delete case 4
+	        if (! parent.black && sibling.black && sibling.left.black && sibling.right.black) {
+	            sibling.black = false;
+	            parent.black = true;
+	        }
+	        else {
+	            // delete case 5
+	            if (isBlack(sibling)) {
+	                if (this == parent.left && isBlack(sibling.right) && !isBlack(sibling.left)) {
+	                    sibling.black = false;
+	                    sibling.left.black = true;
+	                    rotateRight(sibling);
+	                }
+	                else if (this == parent.right && isBlack(sibling.left) && !isBlack(sibling.right)) {
+	                    sibling.black = false;
+	                    sibling.right.black = true;
+	                    rotateLeft(sibling);
+	                }
+	            }
+	            
+	            // delete case 6
+	            sibling.black = parent.black;
+	            parent.black = true;
+	            if (this == parent.left) {
+	                sibling.right.black = true;
+	                rotateLeft(parent);
+	            }
+	            else {
+	                sibling.left.black = true;
+	                rotateRight(parent);
+	            }
+	        }
+	    }
+	}
+	
+	/**
 	 * Clear the tree - remove all nodes
 	 */
 	public void clear()
@@ -158,9 +329,9 @@ public class NodeTree
 		
 		// We know from here on the parent is red.
 		
-		NodeTree grandparent = n.getGrandparent();
+		NodeTree grandparent = n.getGrandparent(); // cannot be null (root is always black).
 		NodeTree uncle = n.getUncle();
-		if (uncle != null && uncle.isRed()) {
+		if (! isBlack(uncle)) {
 			uncle.black = true;
 			n.parent.black = true;
 			grandparent.black = false;
@@ -190,7 +361,9 @@ public class NodeTree
 	}
 	
 	/**
-	 * Swap the data of two nodes.
+	 * Swap the data of two nodes. This doesn't correctly adjust the
+	 * pnode offset in either node.
+	 * 
 	 * @param n  The first node
 	 * @param m  The second node
 	 */
@@ -214,6 +387,11 @@ public class NodeTree
 		// Right child of n becomes n's parent
 		// We swap the data to avoid actually moving node n.
 		swapNodeData(n, n.right);
+		boolean nblack = n.black;
+		n.black = n.right.black;
+		n.right.black = nblack;
+		
+		n.pnodeOffset += n.right.pnodeOffset + n.right.pnodeSize;
 		
 		NodeTree oldLeft = n.left;
 		n.left = n.right;
@@ -226,18 +404,13 @@ public class NodeTree
 	{
 		// Left child of n becomes n's parent
 		// We swap the data to avoid actually moving node n.
-		ParsedNode pn = n.pnode;
-		int offset = n.pnodeOffset;
-		int size = n.pnodeSize;
+	    swapNodeData(n, n.left);
+        boolean nblack = n.black;
+        n.black = n.left.black;
+        n.left.black = nblack;
 		
-		n.pnode = n.left.pnode;
-		n.pnodeOffset = n.left.pnodeOffset;
-		n.pnodeSize = n.left.pnodeSize;
-		
-		n.left.pnode = pn;
-		n.left.pnodeOffset = offset;
-		n.left.pnodeSize = size;
-		
+        n.right.pnodeOffset -= (n.pnodeOffset + n.pnodeSize);
+        
 		NodeTree oldRight = n.right;
 		n.right = n.left;
 		n.left = n.right.left;
@@ -257,24 +430,14 @@ public class NodeTree
 	
 	private NodeTree getUncle()
 	{
-		NodeTree grandParent = getGrandparent();
-		if (grandParent == null) {
-			return null;
-		}
-		else {
-			if (grandParent.left == parent) {
-				return grandParent.right;
-			}
-			else {
-				return grandParent.left;
-			}
-		}
+	    return parent.getSibling();
 	}
 	
 	private NodeTree(NodeTree parent, ParsedNode node, int offset, int size)
 	{
 		this.parent = parent;
 		pnode = node;
+		pnode.setContainingNodeTree(this);
 		this.pnodeSize = size;
 		this.pnodeOffset = offset;
 		black = false; // initial colour is red
@@ -285,9 +448,9 @@ public class NodeTree
 		return black;
 	}
 	
-	private boolean isRed()
+	private static boolean isBlack(NodeTree n)
 	{
-		return !black;
+	    return n == null || n.black;
 	}
 	
 	/**
@@ -297,11 +460,13 @@ public class NodeTree
 	{
 	    private ParsedNode parsedNode;
 	    private int position;
+	    private int size;
 	    
-	    public NodeAndPosition(ParsedNode pn, int position)
+	    public NodeAndPosition(ParsedNode pn, int position, int size)
 	    {
 	        this.parsedNode = pn;
 	        this.position = position;
+	        this.size = size;
 	    }
 	    
 	    public ParsedNode getNode()
@@ -313,6 +478,11 @@ public class NodeTree
 	    {
 	        return position;
 	    }
+	    
+	    public int getSize()
+	    {
+            return size;
+        }
 	}
 	
 	/**
