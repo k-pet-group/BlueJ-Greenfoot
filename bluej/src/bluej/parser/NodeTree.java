@@ -100,6 +100,34 @@ public class NodeTree
 		return rval;
 	}
 	
+	public NodeAndPosition findNodeAtOrAfter(int pos)
+	{
+	    return findNodeAtOrAfter(pos, 0);
+	}
+	
+	public NodeAndPosition findNodeAtOrAfter(int pos, int startpos)
+	{
+        if (startpos + pnodeOffset > pos) {
+            if (left != null) {
+                NodeAndPosition rval = left.findNodeAtOrAfter(pos, startpos);
+                if (rval != null) {
+                    return rval;
+                }
+            }
+        }
+                
+        if (startpos + pnodeSize + pnodeOffset > pos) {
+            return new NodeAndPosition(pnode, startpos + pnodeOffset, pnodeSize);
+        }
+        
+        NodeAndPosition rval = null;
+        if (right != null) {
+            pos -= (pnodeOffset + pnodeSize);
+            rval = right.findNodeAtOrAfter(pos, startpos + pnodeOffset + pnodeSize);
+        }
+        return rval;
+	}
+	
 	/**
 	 * Set the size of the contained ParsedNode. This is to be used in cases where the
 	 * node has shrunk or grown because of text being removed or inserted, not for cases
@@ -122,6 +150,7 @@ public class NodeTree
 	{
 		if (pnode == null) {
 			pnode = newNode;
+			pnode.setContainingNodeTree(this);
 			pnodeOffset = pos;
 			pnodeSize = size;
 			size = pos + size;
@@ -380,6 +409,14 @@ public class NodeTree
 	    m.pnode = pn;
 	    m.pnodeOffset = offset;
 	    m.pnodeSize = size;
+	    
+	    if (n.pnode != null) {
+	        n.pnode.setContainingNodeTree(n);
+	    }
+	    
+	    if (m.pnode != null) {
+	        m.pnode.setContainingNodeTree(m);
+	    }
 	}
 	
 	private static void rotateLeft(NodeTree n)

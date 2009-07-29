@@ -15,6 +15,7 @@ public class EditorParser extends NewParser
     // private Stack<ParsedNode> scopeStack;
     
     private LocatableToken pkgStatementBegin;
+    private ParsedCUNode pcuNode;
     
     public EditorParser(Reader r)
     {
@@ -28,6 +29,7 @@ public class EditorParser extends NewParser
     
     public void parseCU(ParsedCUNode pcuNode)
     {
+        this.pcuNode = pcuNode;
         parseCU();
     }
     
@@ -47,7 +49,11 @@ public class EditorParser extends NewParser
         Selection s = new Selection(pkgStatementBegin.getLine(), pkgStatementBegin.getColumn());
         s.extendEnd(token.getLine(), token.getColumn() + token.getLength());
         
-        // PkgStmtNode psn = new PkgStmtNode();
+        int startpos = pcuNode.lineColToPosition(s.getLine(), s.getColumn());
+        int endpos = pcuNode.lineColToPosition(s.getEndLine(), s.getEndColumn());
         
+        // PkgStmtNode psn = new PkgStmtNode();
+        ColourNode cn = new ColourNode(pcuNode);
+        pcuNode.getNodeTree().insertNode(cn, startpos, endpos - startpos);
     }
 }

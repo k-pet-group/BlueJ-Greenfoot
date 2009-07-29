@@ -1,6 +1,7 @@
 package bluej.parser;
 
 import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
 import org.syntax.jedit.tokenmarker.Token;
@@ -17,6 +18,11 @@ public abstract class ParsedNode
 	public ParsedNode()
 	{
 		nodeTree = new NodeTree();
+	}
+	
+	ParsedNode(ParsedNode parentNode)
+	{
+	    this.parentNode = parentNode;
 	}
 	
 	/**
@@ -42,6 +48,11 @@ public abstract class ParsedNode
 	
 	public abstract Token getMarkTokensFor(int pos, int length, int nodePos, Document document);
 	
+	protected ParsedNode getParentNode()
+	{
+	    return parentNode;
+	}
+	
     protected NodeTree getNodeTree()
     {
         return nodeTree;
@@ -63,7 +74,7 @@ public abstract class ParsedNode
 	protected void nodeIncomplete() {}
 	
 	/**
-	 * This node should be re-parsed in full.
+	 * This node should be re-parsed from the specified point.
 	 */
-	//protected void reparseNode() {}
+	protected void reparseNode(Document document, int offset) {}
 }

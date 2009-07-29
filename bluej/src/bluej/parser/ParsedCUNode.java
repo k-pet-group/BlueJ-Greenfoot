@@ -17,7 +17,17 @@ import bluej.parser.NodeTree.NodeAndPosition;
 public class ParsedCUNode extends ParsedNode
 {
 	//private JavaTokenMarker marker = new JavaTokenMarker();
+	private Document document;
 	
+	public ParsedCUNode(Document document)
+    {
+        this.document = document;
+    }
+	
+	public int lineColToPosition(int line, int col)
+	{
+	    return document.getDefaultRootElement().getElement(line - 1).getStartOffset() + col - 1;
+	}
 	
 	public Token getMarkTokensFor(int pos, int length, int nodePos, Document document)
 	{
@@ -34,9 +44,47 @@ public class ParsedCUNode extends ParsedNode
 //		int lineIndex = document.getDefaultRootElement().getElementIndex(pos);
 //		return tm.markTokens(line, lineIndex);
 		
-		Token tok = new Token(length, Token.NULL);
+	    Token tok = new Token(0, Token.END); // dummy
+	    if (length == 0) {
+	        return tok;
+	    }
+	    Token dummyTok = tok;
+	    
+	    NodeAndPosition np = getNodeTree().findNodeAtOrAfter(pos, nodePos);
+	    
+	    int cp = pos;
+	    while (np != null && np.getPosition() < (pos + length)) {
+	        if (cp < np.getPosition()) {
+	            int nextTokLen = np.getPosition() - cp;
+	            tok.next = new Token(nextTokLen, Token.NULL);
+	            tok = tok.next;
+	            cp = np.getPosition();
+	        }
+	        
+	        int remaining = pos + length - cp;
+	        if (remaining > np.getSize() - cp + np.getPosition()) {
+	            remaining = np.getSize() - cp + np.getPosition();
+	        }
+	        if (remaining == 0) {
+	            break;
+	        }
+	        tok.next = np.getNode().getMarkTokensFor(cp, remaining, np.getPosition(), document);
+	        cp += remaining;
+	        while (tok.next.id != Token.END) {
+	            tok = tok.next;
+	        }
+	        np = getNodeTree().findNodeAtOrAfter(cp, nodePos);
+	    }
+	    
+	    // There may be a section left
+	    if (cp < pos + length) {
+            int nextTokLen = pos + length - cp;
+            tok.next = new Token(nextTokLen, Token.NULL);
+            tok = tok.next;
+	    }
+
 		tok.next = new Token(0, Token.END);
-		return tok;
+		return dummyTok.next;
 	}
 
 	public void textInserted(int nodePos, DocumentEvent event)
@@ -90,6 +138,14 @@ public class ParsedCUNode extends ParsedNode
         }
 	}
 	
+    /**
+     * Reparse this node from the specified offset.
+     */
+    protected void reparseNode(Document document, int offset)
+    {
+        doReparse(document);
+    }
+    
 	private void doReparse(Document document)
 	{
 	    getNodeTree().clear();
