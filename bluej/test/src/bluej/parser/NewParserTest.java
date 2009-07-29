@@ -207,10 +207,10 @@ public class NewParserTest extends TestCase
 	public void test16()
 	{
 		StringReader sr = new StringReader(
-				"@Preliminary public class TimeTravel { }"
+				"public @Preliminary class TimeTravel { }"
 		);
 		InfoParser ip = new InfoParser(sr);
-		ip.parseTypeDef();
+		ip.parseStatement();
 	}
 	
 	/**
@@ -279,7 +279,7 @@ public class NewParserTest extends TestCase
 					"synopsis = \"Enable time-travel\","+
 					"engineer = \"Mr. Peabody\", "+
 					"date     = \"4/1/3007\""+
-				"}"+
+				")"+
 				"public static void travelThroughTime(Date destination) { }"
 		);
 		InfoParser ip = new InfoParser(sr);
@@ -298,4 +298,25 @@ public class NewParserTest extends TestCase
 		ip.parseStatement();
 	}
 	
+	/**
+	 * Test the use of a package annotation
+	 */
+	public void test21()
+	{
+		StringReader sr = new StringReader(
+				"@Test.RequestForEnhancement "
+		);
+		InfoParser ip = new InfoParser(sr);
+		ip.parseStatement();
+	}
+
+	public void test22(){
+	    StringReader sr = new StringReader(
+	            "@Expression(\"execution(* com.mypackage.Target.*(..))\") "+
+	            "Pointcut pc1;"
+	    );
+	    InfoParser ip = new InfoParser(sr);
+        ip.parseStatement();
+
+	}
 }
