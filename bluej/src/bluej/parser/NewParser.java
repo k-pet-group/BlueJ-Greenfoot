@@ -49,78 +49,73 @@ public class NewParser
 	
 	public void parseCU(int state)
 	{
-		try {
-		    while (true) {				// optional: package statement
-			if (tokenStream.LA(1).getType() == JavaTokenTypes.LITERAL_package) {
-				beginPackageStatement(tokenStream.nextToken());
-				LocatableToken token = tokenStream.nextToken();
-				List<LocatableToken> pkgTokens = parseDottedIdent(token);
-				gotPackage(pkgTokens);
-				token = tokenStream.nextToken();
-				if (token.getType() != JavaTokenTypes.SEMI) {
-					error("Expecting ';' at end of package declaration");
-					tokenStream.pushBack(token);
-				}
-				else {
-					gotPackageSemi(token);
-				}
-	                        reachedCUstate(1); state = 1;
-			}
-			else if (tokenStream.LA(1).getType() == JavaTokenTypes.LITERAL_import) {
-			    tokenStream.nextToken(); // "import"
-			    LocatableToken token = tokenStream.nextToken();
-			    parseDottedIdent(token);
-			    if (tokenStream.LA(1).getType() == JavaTokenTypes.DOT) {
-			        tokenStream.nextToken();
-			        token = tokenStream.nextToken();
-			        if (token.getType() == JavaTokenTypes.SEMI) {
-			            error("Trailing '.' in import statement");
-			        }
-			        else if (token.getType() == JavaTokenTypes.STAR) {
-			            token = tokenStream.nextToken();
-			            if (token.getType() != JavaTokenTypes.SEMI) {
-			                error("Expected ';' following import statement");
-			                tokenStream.pushBack(token);
-			            }
-			        }
-			        else {
-			            error("Expected package/class identifier, or '*', in import statement.");
-			            if (tokenStream.LA(1).getType() == JavaTokenTypes.SEMI) {
-			                tokenStream.nextToken();
-			            }
-			        }
-			    }
-			    else {
-			        token = tokenStream.nextToken();
-			        if (token.getType() != JavaTokenTypes.SEMI) {
-			            error("Expected ';' following import statement");
-			            tokenStream.pushBack(token);
-			        }
-			    }
-			}
-			else if (isModifier(tokenStream.LA(1)) || isTypeDeclarator(tokenStream.LA(1))) {
-			    // optional: class/interface/enum
-			    LocatableToken token = tokenStream.nextToken();
-			    if (isModifier(token) || isTypeDeclarator(token)) {
-			        tokenStream.pushBack(token);
-			        parseTypeDef();
-			    }
-			    else {
-			    }
-                            reachedCUstate(2); state = 2;
-			}
-			else if (tokenStream.LA(1).getType() == JavaTokenTypes.EOF) {
-			    break;
-			}
-			else {
-			    // TODO give different diagnostic depending on state
-                            error("Expected: Type definition (class, interface or enum)");
-			}
-		    }
-		}
-		catch (TokenStreamException tse) {
-			tse.printStackTrace();
-		}
+	    try {
+	        while (true) {				// optional: package statement
+	            LocatableToken token = tokenStream.nextToken();
+	            if (token.getType() == JavaTokenTypes.LITERAL_package) {
+	                beginPackageStatement(token);
+	                token = tokenStream.nextToken();
+	                List<LocatableToken> pkgTokens = parseDottedIdent(token);
+	                gotPackage(pkgTokens);
+	                token = tokenStream.nextToken();
+	                if (token.getType() != JavaTokenTypes.SEMI) {
+	                    error("Expecting ';' at end of package declaration");
+	                    tokenStream.pushBack(token);
+	                }
+	                else {
+	                    gotPackageSemi(token);
+	                }
+	                reachedCUstate(1); state = 1;
+	            }
+	            else if (token.getType() == JavaTokenTypes.LITERAL_import) {
+	                token = tokenStream.nextToken();
+	                parseDottedIdent(token);
+	                if (tokenStream.LA(1).getType() == JavaTokenTypes.DOT) {
+	                    tokenStream.nextToken();
+	                    token = tokenStream.nextToken();
+	                    if (token.getType() == JavaTokenTypes.SEMI) {
+	                        error("Trailing '.' in import statement");
+	                    }
+	                    else if (token.getType() == JavaTokenTypes.STAR) {
+	                        token = tokenStream.nextToken();
+	                        if (token.getType() != JavaTokenTypes.SEMI) {
+	                            error("Expected ';' following import statement");
+	                            tokenStream.pushBack(token);
+	                        }
+	                    }
+	                    else {
+	                        error("Expected package/class identifier, or '*', in import statement.");
+	                        if (tokenStream.LA(1).getType() == JavaTokenTypes.SEMI) {
+	                            tokenStream.nextToken();
+	                        }
+	                    }
+	                }
+	                else {
+	                    token = tokenStream.nextToken();
+	                    if (token.getType() != JavaTokenTypes.SEMI) {
+	                        error("Expected ';' following import statement");
+	                        tokenStream.pushBack(token);
+	                    }
+	                }
+	            }
+	            else if (isModifier(token) || isTypeDeclarator(token)) {
+	                // optional: class/interface/enum
+	                tokenStream.pushBack(token);
+	                parseTypeDef();
+	                reachedCUstate(2); state = 2;
+	            }
+	            else if (token.getType() == JavaTokenTypes.EOF) {
+	                break;
+	            }
+	            else {
+	                // TODO give different diagnostic depending on state
+	                error("Expected: Type definition (class, interface or enum)");
+	            }
+	        }
+	    }
+	    catch (TokenStreamException tse) {
+	        tse.printStackTrace();
+	    }
 	}
 	
 	/** reached a compilation unit state */

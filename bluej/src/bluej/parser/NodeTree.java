@@ -28,7 +28,7 @@ public class NodeTree
 	 */
 	public NodeTree()
 	{
-		
+		black = true;
 	}
 	
 	public Iterator<ParsedNode> iterator()
@@ -47,6 +47,10 @@ public class NodeTree
 	
 	public NodeAndPosition findNode(int pos, int startpos)
 	{		
+        if (pnode == null) {
+            return null; // empty node tree
+        }
+        
 		if (startpos + pnodeOffset > pos) {
 			if (left != null) {
 				return left.findNode(pos, startpos);
@@ -74,6 +78,10 @@ public class NodeTree
 	
 	public NodeAndPosition findNodeAtOrBefore(int pos, int startpos)
 	{
+        if (pnode == null) {
+            return null; // empty node tree
+        }
+        
 		if (startpos + pnodeOffset > pos) {
 			if (left != null) {
 				return left.findNodeAtOrBefore(pos, startpos);
@@ -107,6 +115,10 @@ public class NodeTree
 	
 	public NodeAndPosition findNodeAtOrAfter(int pos, int startpos)
 	{
+	    if (pnode == null) {
+	        return null; // empty node tree
+	    }
+	    
         if (startpos + pnodeOffset > pos) {
             if (left != null) {
                 NodeAndPosition rval = left.findNodeAtOrAfter(pos, startpos);
@@ -433,8 +445,14 @@ public class NodeTree
 		NodeTree oldLeft = n.left;
 		n.left = n.right;
 		n.right = n.left.right;
+		if (n.left.right != null) {
+		    n.left.right.parent = n.right;
+		}
 		n.left.right = n.left.left;
 		n.left.left = oldLeft;
+		if (oldLeft != null) {
+		    oldLeft.parent = n.left.left;
+		}
 	}
 	
 	private static void rotateRight(NodeTree n)
@@ -451,8 +469,14 @@ public class NodeTree
 		NodeTree oldRight = n.right;
 		n.right = n.left;
 		n.left = n.right.left;
+		if (n.right.left != null) {
+		    n.right.left.parent = n.left;
+		}
 		n.right.left = n.right.right;
 		n.right.right = oldRight;
+		if (oldRight != null) {
+		    oldRight.parent = n.right.right;
+		}
 	}
 	
 	private NodeTree getGrandparent()

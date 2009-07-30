@@ -54,7 +54,7 @@ public class DocumentReader extends Reader
             fillBuffer();
         }
         
-        return buffer.charAt(bufpos++);
+        return buffer.array[bufpos++];
     }
     
     public int read(char[] cbuf, int off, int len)
