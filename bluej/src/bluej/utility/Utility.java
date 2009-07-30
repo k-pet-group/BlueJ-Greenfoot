@@ -42,6 +42,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import javax.swing.AbstractButton;
 import javax.swing.border.Border;
 
@@ -52,7 +55,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: Utility.java 6472 2009-07-30 11:54:34Z polle $
  */
 public class Utility
 {
@@ -551,60 +554,20 @@ public class Utility
                 Debug.reportError("Bringing process to front failed (MacOS): " + exc);
             }
         }
-        else if (Config.isMacOS()) {
+        else if (Config.isMacOS()) { // Java 1.6+
             // Use applescript to bring it to front.
-            String command[] = {"osascript", "-e", "tell application \"System Events\"", "-e",
-                    "set frontmost of first process whose unix id is " + pid + " to true", "-e", "end tell"};
-            
-            StringBuffer commandAsStr = new StringBuffer();
-            for (int i = 0; i < command.length; i++) {
-                commandAsStr.append(command[i] + " ");
-            }
-            
-            //System.out.print("toFront executing command: " + commandAsStr);
+            String command = "tell application \"System Events\" \n"
+                    + "  set frontmost of first process whose unix id is " + pid + " to true \n" + "end tell \n";
+            ScriptEngineManager mgr = new ScriptEngineManager();
+            ScriptEngine jsEngine = mgr.getEngineByName("AppleScriptEngine");
 
-            StringBuffer extra = new StringBuffer();
             try {
-                Process p = Runtime.getRuntime().exec(command);
-                
-                BufferedReader br = null;
-                // grab anything else
-                try {
-                    br = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-
-                    char[] buf = new char[1024];
-                    for (int i = 0; i < 5; i++) {
-                        Thread.sleep(200);
-
-                        // discontinue if no data available or stream closed
-                        if (!br.ready())
-                            break;
-                        int len = br.read(buf);
-                        if (len == -1)
-                            break;
-
-                        extra.append(buf, 0, len);
-                    }
-                    if (extra.length() != 0) {
-                        Debug.message("When trying to launch osascript:" + commandAsStr);
-                        Debug.message(" This error output was recieved: " + extra);
-                    }                    
-                }
-                catch (InterruptedException ie) {
-                    Debug.message("When trying to launch osascript:" + commandAsStr);
-                    Debug.message(" This error output was recieved: " + extra);
-                    Debug.reportError(" And got InterruptedException: ", ie);
-                }
-                finally {
-                    if(br != null) {
-                        br.close();
-                    }
-                }
+                jsEngine.eval(command);
             }
-            catch (IOException e) {
-                Debug.message("When trying to launch osascript:" + commandAsStr);
-                Debug.message(" This error output was recieved: " + extra);
-                Debug.reportError(" And got IOException: ", e);
+            catch (ScriptException ex) {
+                Debug.message("When trying to launch osascript:" + command);
+                Debug.reportError(" Got ScriptException: ", ex);
+                ex.printStackTrace();
             }
         }        
 
