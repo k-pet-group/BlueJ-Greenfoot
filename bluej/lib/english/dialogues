@@ -530,12 +530,16 @@ Cancel
 null
 
 debugger-running-options
-Your program is already running, but it is stopped at a breakpoint
-Here are your options
-Terminate: Terminate the current running code
-Continue Debugging: Equivalent to the Continue button in the Debugger
-Open Debugger: Cancel current request and open the Debugger window
+Your program is already running, and stopped at a breakpoint.
+You cannot start another execution while the current one is still
+active.
+    
+You can terminate the previous call and execute the new one,
+or you can cancel the new call.
 Terminate
-Continue
-Open Debugger
 Cancel 
+
+stuck-at-breakpoint
+Your program is already running, and stopped at a breakpoint.
+You cannot start another execution while the current one is still
+active.

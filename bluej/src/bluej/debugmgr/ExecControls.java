@@ -44,7 +44,7 @@ import bluej.utility.DialogManager;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 6353 2009-05-27 04:26:36Z marionz $
+ * @version $Id: ExecControls.java 6475 2009-07-31 14:30:38Z davmac $
  */
 public class ExecControls extends JFrame
     implements ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -833,50 +833,41 @@ public class ExecControls extends JFrame
      * a debugger running in the background (Bug#138)
      * returns boolean to whether it should continue processing original request
      * (dependent on user choice)
+     * 
+     * @param dialogParent specifies the parent component for any necessary dialog
+     * @param canContinue specifies whether the "terminate (and continue)" option is allowed.
      */
-    public boolean processDebuggerState(){
-    	//whether or not the original action should be executed. This is dependent on the response from the user
+    public boolean processDebuggerState(Component dialogParent, boolean canContinue)
+    {
+        //whether or not the original action should be executed. This is dependent on the response from the user
     	boolean processCallingAction=false;
     	//only need to give user warnings if debugger is already initiated, double check status
-	    if (debugger.getStatus()==Debugger.IDLE || debugger.getStatus()==Debugger.NOTREADY){
+	    if (debugger.getStatus()==Debugger.IDLE || debugger.getStatus()==Debugger.NOTREADY) {
 	    	processCallingAction=true;
 	    	return processCallingAction;
 	    }
-	    int numResponses=4;
-	    int response=DialogManager.askQuestion(this, "debugger-running-options", numResponses);
-       	switch (response) {
-            case 0:  //Terminate
-                //this should reset the debug VM, and ideally run the recently 
-           	 	//invoked code immediately once the new debug VM has started
-           	 try {
-                    project.restartVM();
-                    processCallingAction=true;
-                }
-                catch (IllegalStateException ise) { }
-                break;
-            case 1: //Continue
-           	  if (selectedThread == null)
-                     return processCallingAction;
-                 clearThreadDetails();
-                 project.removeStepMarks();
-                 if (selectedThread.isSuspended()) {
-                     selectedThread.cont();
-                 }
-                break;
-            case 2: //Open Debugger: This will make the debugger visible
-            	setVisible(true);                   	
-                break;
-            case 3://Cancel
-            	break;
-            default:
-                //... If we get here, something is wrong.
-                JOptionPane.showMessageDialog(null, "Unexpected response " + response);
-            	
-        }  
+	    setVisible(true);
+	    if (canContinue) {
+	        int response=DialogManager.askQuestion(dialogParent, "debugger-running-options", 2);
+	        switch (response) {
+	        case 0:  // Terminate
+	            // this should reset the debug VM, and ideally run the recently 
+	            // invoked code immediately once the new debug VM has started
+	            try {
+	                project.restartVM();
+	                processCallingAction = true;
+	            }
+	            catch (IllegalStateException ise) { }
+	            break;
+	        default: // Cancel
+	            processCallingAction = false;
+	        }  
+	    }
+	    else {
+	        DialogManager.showError(dialogParent, "stuck-at-breakpoint");
+	        processCallingAction = false;
+	    }
        	return processCallingAction;
-   	
-   }
-    
-  
-     
+    }
+
 }

@@ -80,7 +80,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 6430 2009-07-14 05:42:05Z davmac $
+ * @version $Id: ClassTarget.java 6475 2009-07-31 14:30:38Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -1771,9 +1771,7 @@ public class ClassTarget extends DependentTarget
      */
     public void callConstructor(ConstructorView cv)
     {
-    	if (doAction()){
-    		getPackage().getEditor().raiseMethodCallEvent(this, cv);
-    	}
+        getPackage().getEditor().raiseMethodCallEvent(this, cv);
     }
     
     /**
@@ -1785,13 +1783,7 @@ public class ClassTarget extends DependentTarget
      */
     public boolean doAction()
     {
-    	boolean continueAction=true;
-    	if (!getPackage().isDebuggerIdle()){
-    		continueAction=getPackage().getProject().getExecControls().processDebuggerState();
-    	}
-    	return continueAction;
+    	return getPackage().getProject().getExecControls()
+    	        .processDebuggerState(PkgMgrFrame.createFrame(getPackage()), true);
     }
-       
-   
-    
 }

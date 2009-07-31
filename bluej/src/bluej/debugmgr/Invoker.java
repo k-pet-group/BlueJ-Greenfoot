@@ -61,7 +61,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 6421 2009-07-08 04:47:39Z davmac $
+ * @version $Id: Invoker.java 6475 2009-07-31 14:30:38Z davmac $
  */
 
 public class Invoker
@@ -246,6 +246,14 @@ public class Invoker
         if(constructing && Config.isGreenfoot()) {     
             instanceName = objName;
         }
+        
+        if (!Config.isGreenfoot()) {
+            boolean isStatic = constructing || member.isStatic();
+            if (!pkg.getProject().getExecControls().processDebuggerState(pmf, isStatic)) {
+                return;
+            }
+        }
+        
         // check for a method call with no parameter
         // if so, just do it
         if ((!constructing || Config.isGreenfoot()) && !member.hasParameters()) {

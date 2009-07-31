@@ -72,7 +72,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ObjectWrapper.java 6475 2009-07-31 14:30:38Z davmac $
  */
 public class ObjectWrapper extends JComponent implements InvokeListener, NamedValue
 {
@@ -742,19 +742,10 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
         
 	}
 	
-	public void showMenu(){
+	public void showMenu()
+	{
 		showMenu(WIDTH/2, HEIGHT/2);
 	}
-
-	/**
-     * Invoke a method on this object.
-     */
-    protected void invokeMethod(Object eventSource, Map<?, ?> actions)
-    {
-        MethodView method = (MethodView)actions.get(eventSource);
-        if(method != null)
-            executeMethod(method);			// user method
-    }
 
     /**
      * Open this object for inspection.
