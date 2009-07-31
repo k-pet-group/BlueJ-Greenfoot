@@ -37,7 +37,7 @@ import java.util.TreeSet;
  * A forest of trees. The roots are sorted alphabetically on their keys
  * 
  * @author Poul Henriksen
- * @version $Id: ClassForest.java 6322 2009-05-09 17:50:58Z polle $
+ * @version $Id: ClassForest.java 6476 2009-07-31 14:37:48Z polle $
  */
 public class ClassForest
 {
@@ -110,6 +110,11 @@ public class ClassForest
         {
             return getKey().hashCode();
         }
+
+        public void rename(String newKey)
+        {
+            this.key = newKey;
+        }
     }
 
     private SortedSet<TreeEntry> roots = new TreeSet<TreeEntry>();
@@ -160,10 +165,15 @@ public class ClassForest
 	 * any. Returns the removed TreeEntry.
 	 */
     public synchronized TreeEntry remove(ClassView cls)
-    {
+    {        
         String name =  cls.getClassName();
         TreeEntry removedEntry = treeEntryMap.remove(name);
         if (removedEntry != null) {
+            // Make sure to update the key in the entry if it has changed.
+            String oldName = removedEntry.getKey();
+            if(oldName != name) {
+                removedEntry.rename(name);                
+            }
 			List<TreeEntry> children = removedEntry.getChildren();
 			for (TreeEntry child : children) {
 				remove(child.getData());				
@@ -182,7 +192,9 @@ public class ClassForest
     {
         TreeEntry entry = treeEntryMap.remove(oldName);
         if (entry != null) {
-            treeEntryMap.put(cls.getClassName(), entry);
+            String newName = cls.getClassName();
+            entry.rename(newName);
+            treeEntryMap.put(newName, entry);
         }
     }
 
