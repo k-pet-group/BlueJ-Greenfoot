@@ -64,7 +64,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 6322 2009-05-09 17:50:58Z polle $
+ * @version $Id: GreenfootMain.java 6474 2009-07-31 12:52:51Z polle $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -466,8 +466,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     }
 
     /**
-     * Makes a project a greenfoot project. That is, copy the system classes to
-     * the users library.
+     * Makes a project a greenfoot project. It cleans up the project directory
+     * and makes sure everything that needs to be there is there.
      * 
      * @param deleteClassFiles whether the class files in the destination should
      *            be deleted. If true, they will be deleted and appear as
@@ -506,11 +506,17 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         catch (SecurityException e) {
             // If we don't have permission to delete, just leave them there.
         }   
-
-        File images = new File(dst, "images");
-        images.mkdir();
-        File sounds = new File(dst, "sounds");
-        sounds.mkdir();
+        
+        try {
+            File images = new File(dst, "images");
+            images.mkdir();
+            File sounds = new File(dst, "sounds");
+            sounds.mkdir();
+        }
+        catch (SecurityException e) {
+            e.printStackTrace();
+            // If we don't have permission to create them, just throw exception and continue, since this is an unlikely situation.
+        }   
         
         p.setApiVersion(getAPIVersion().toString());
         p.save();
@@ -644,7 +650,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, false);
             return VERSION_UPDATED;
         }
-        else {            
+        else {       
+            prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, false);
             return VERSION_OK;            
         }
     }
