@@ -204,13 +204,14 @@ public class NodeTree
 	        NodeTree sub = left;
 	        int nmoffset = 0;
 	        while (sub.right != null) {
+                nmoffset += (sub.pnodeOffset + sub.pnodeSize);
 	            sub = sub.right;
-	            nmoffset += (sub.pnodeOffset + sub.pnodeSize);
 	        }
 	        swapNodeData(this, sub);
 	        
-	        // adjust offsets
-	        adjustLeftOffsets(nmoffset);
+	        pnodeOffset -= nmoffset;
+	        int rchange = (sub.pnodeOffset + sub.pnodeSize) - (pnodeOffset + pnodeSize);
+	        right.adjustLeftOffsets(rchange);
 	        
 	        sub.one_child_remove();
 	    }
@@ -247,19 +248,46 @@ public class NodeTree
 	
 	private void one_child_remove()
 	{
-	    if (left == null && right == null && parent == null) {
-	        pnode = null; // and done.
-	    }
-	    else {
-	        NodeTree child = (left == null) ? right : left;
-	        replace_node(this, child);
-	        if (black) {
-	            if (! child.black) {
-	                child.black = true;
+	    if (left == null && right == null) {
+	        pnode = null;
+	        if (parent != null) {
+                if (black) {
+                    // Hmmmmmmmmm
+                    delete_case_1();
+                }
+	            if (parent.left == this) {
+	                parent.left = null;
 	            }
 	            else {
-	                child.delete_case_1();
+	                parent.right = null;
 	            }
+	        }
+	    }
+	    else {
+            // We must be black. The child must be red.
+	        if (parent == null) {
+	            // Special case - mustn't move the root.
+	            if (left == null) {
+	                int offset = pnodeOffset + pnodeSize;
+	                swapNodeData(this, right);
+	                pnodeOffset += offset;
+	                right = null;
+	            }
+	            else {
+	                swapNodeData(this, left);
+	                left = null;
+	            }
+	            black = true;
+	        }
+	        else if (left == null) {
+	            int offset = pnodeOffset + pnodeSize;
+	            replace_node(this, right);
+	            right.adjustLeftOffsets(offset);
+	            right.black = true;
+	        }
+	        else {
+	            replace_node(this, left);
+	            left.black = true;
 	        }
 	    }
 	}
@@ -280,7 +308,8 @@ public class NodeTree
 	}
 	
 	/**
-	 * The parent node has been deleted. Perform any needed re-balancing.
+	 * A black node was deleted. We need to add a black node to this path
+	 * (or remove one from all other paths).
 	 */
 	private void delete_case_1()
 	{
@@ -304,7 +333,7 @@ public class NodeTree
 	private void delete_case_3()
 	{
 	    NodeTree sibling = getSibling();
-	    if (parent.black && sibling.black && sibling.left.black && sibling.right.black) {
+	    if (parent.black && sibling.black && isBlack(sibling.left) && isBlack(sibling.right)) {
 	        // That's a lot of black.
 	        sibling.black = false;
 	        parent.delete_case_1();
@@ -361,7 +390,8 @@ public class NodeTree
 	private static void fixupNewNode(NodeTree n)
 	{
 		if (n.parent == null) {
-			return; // shouldn't actually happen
+		    n.black = true;
+		    return;
 		}
 		
 		if (n.parent.isBlack()) {
@@ -445,13 +475,13 @@ public class NodeTree
 		NodeTree oldLeft = n.left;
 		n.left = n.right;
 		n.right = n.left.right;
-		if (n.left.right != null) {
-		    n.left.right.parent = n.right;
+		if (n.right != null) {
+		    n.right.parent = n;
 		}
 		n.left.right = n.left.left;
 		n.left.left = oldLeft;
 		if (oldLeft != null) {
-		    oldLeft.parent = n.left.left;
+		    oldLeft.parent = n.left;
 		}
 	}
 	
@@ -469,13 +499,13 @@ public class NodeTree
 		NodeTree oldRight = n.right;
 		n.right = n.left;
 		n.left = n.right.left;
-		if (n.right.left != null) {
-		    n.right.left.parent = n.left;
+		if (n.left != null) {
+		    n.left.parent = n;
 		}
 		n.right.left = n.right.right;
 		n.right.right = oldRight;
 		if (oldRight != null) {
-		    oldRight.parent = n.right.right;
+		    oldRight.parent = n.right;
 		}
 	}
 	

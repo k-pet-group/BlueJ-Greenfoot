@@ -90,4 +90,30 @@ public class NodeTreeTest extends TestCase
         assertTrue(np.getPosition() == 80);
     }
     
+    public void testRemoval2()
+    {
+        // Remove all nodes
+        NodeAndPosition np = nt.findNode(65);
+        np.getNode().getContainingNodeTree().remove();
+        np = nt.findNode(45);
+        np.getNode().getContainingNodeTree().remove();
+        np = nt.findNode(85);
+        np.getNode().getContainingNodeTree().remove();
+        np = nt.findNode(25);
+        np.getNode().getContainingNodeTree().remove();
+        np = nt.findNode(5);
+        np.getNode().getContainingNodeTree().remove();
+
+        np = nt.findNode(5);
+        assertNull(np);
+        np = nt.findNode(25);
+        assertNull(np);
+        np = nt.findNode(45);
+        assertNull(np);
+        np = nt.findNode(65);
+        assertNull(np);
+        np = nt.findNode(85);
+        assertNull(np);
+    }
+    
 }

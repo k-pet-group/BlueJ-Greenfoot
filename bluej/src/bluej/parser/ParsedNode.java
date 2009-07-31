@@ -1,7 +1,6 @@
 package bluej.parser;
 
 import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
 import org.syntax.jedit.tokenmarker.Token;
