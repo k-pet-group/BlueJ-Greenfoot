@@ -127,7 +127,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Poul Henriksen
  * @author mik
  *
- * @version $Id: GreenfootFrame.java 6424 2009-07-09 15:23:40Z mjrb4 $
+ * @version $Id: GreenfootFrame.java 6477 2009-08-03 14:03:50Z mjrb4 $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener,
@@ -611,7 +611,7 @@ public class GreenfootFrame extends JFrame
         
         addMenuItem(newClassAction, editMenu, KeyEvent.VK_N, false, KeyEvent.VK_N);
         addMenuItem(removeSelectedClassAction, editMenu, KeyEvent.VK_D, false, KeyEvent.VK_R);
-        addMenuItem(editImagesAction, editMenu, KeyEvent.VK_I, false, KeyEvent.VK_I);
+        //addMenuItem(editImagesAction, editMenu, KeyEvent.VK_I, false, KeyEvent.VK_I);
         
         JMenu ctrlMenu = addMenu(Config.getString("menu.controls"), menuBar, 'c');
         

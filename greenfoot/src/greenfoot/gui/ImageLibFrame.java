@@ -87,7 +87,7 @@ import java.awt.FlowLayout;
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 6424 2009-07-09 15:23:40Z mjrb4 $
+ * @version $Id: ImageLibFrame.java 6477 2009-08-03 14:03:50Z mjrb4 $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
@@ -473,7 +473,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             if(selectedImageFile==null) {
                 editButton.setEnabled(false);
             }
-            currentImagePanel.add(editButton);
+            //currentImagePanel.add(editButton);
             currentImagePanel.add(Box.createHorizontalStrut(spacingSmall));
 
             imageTextLabel = new JLabel() {
