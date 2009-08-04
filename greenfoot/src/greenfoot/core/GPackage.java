@@ -103,6 +103,7 @@ public class GPackage
             if (gClass == null) {
                 gClass = new GClass(remoteClass, this);
                 classPool.put(remoteClass, gClass);
+                gClass.loadSavedSuperClass();
             }
         }
         return gClass;
@@ -183,6 +184,7 @@ public class GPackage
             synchronized (classPool) {
                 classPool.put(newRClass, newClass);
             }
+            newClass.loadSavedSuperClass();
         }
         catch (RemoteException re) {
             re.printStackTrace();

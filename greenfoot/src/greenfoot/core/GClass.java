@@ -25,7 +25,6 @@ import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.EventQueue;
-import java.io.IOException;
 import java.rmi.RemoteException;
 
 import rmiextension.wrappers.RClass;
@@ -41,7 +40,7 @@ import bluej.utility.Debug;
 
 /**
  * Represents a class in Greenfoot. This class wraps the RMI class and contains
- * some extra functionality. The main reason for createing this class is to have
+ * some extra functionality. The main reason for creating this class is to have
  * a place to store information about inheritance relations between classes that
  * have not been compiled.
  * 
@@ -72,17 +71,13 @@ public class GClass
      * Constructor for GClass. You should generally not use this -
      * GPackage maintains a class pool which needs to be updated. Use
      * GPackage.getGClass().
+     * 
+     * If you use it, remember to call loadSavedSuperClass() afterwards.
      */
     public GClass(RClass cls, GPackage pkg)
     {
         this.rmiClass = cls;
         this.pkg = pkg;
-        String savedSuperclass = getClassProperty("superclass");
-        if(savedSuperclass == null) {
-            guessSuperclass();
-        } else {
-            superclassGuess = savedSuperclass;
-        }
         
         try {
             compiled = cls.isCompiled();
@@ -98,6 +93,20 @@ public class GClass
         }
         catch (ProjectNotOpenException pnoe) {
             pnoe.printStackTrace();
+        }
+    }
+    
+    /**
+     * Load the super class from the saved property, or if it is not saved
+     * attempt to guess it.
+     */
+    public void loadSavedSuperClass() 
+    {
+        String savedSuperclass = getClassProperty("superclass");
+        if(savedSuperclass == null) {
+            guessSuperclass();
+        } else {
+            setSuperclassGuess(savedSuperclass);
         }
     }
     
@@ -293,66 +302,107 @@ public class GClass
      */
     public GClass getSuperclass()
     {
-        try {
-            GProject proj = pkg.getProject();
-            String superclassName = getSuperclassGuess();
-            if (superclassName == null) {
-                return null;
-            }
-            
-            // The superclass could belong to a different package...
-            String superclassPkg = GreenfootUtil.extractPackageName(superclassName);
-            superclassName = GreenfootUtil.extractClassName(superclassName);
-                        
-            // Get the package, return the class
-            GPackage thePkg = proj.getPackage(superclassPkg);
-            if (thePkg == null) {
-                return null;
-            }
-            return thePkg.getClass(superclassName);
-        }
-        catch (RemoteException re) {
-            re.printStackTrace();
+        GClass superClass = getSuperclassWithoutCheck();
+        // Check if there are cyclic hierarchies, and return null if there is.
+        if(containsCyclicHierarchy()) {
             return null;
         }
-        catch (ProjectNotOpenException pnoe) {
-            pnoe.printStackTrace();
-            return null;
+        return superClass;
+    }
+
+    /**
+     * Returns true if there is a cycle in the inheritance hierarchy.
+     * @return
+     */
+    private boolean containsCyclicHierarchy() {
+        GClass superCls = getSuperclassWithoutCheck();
+        while (superCls != null) {
+            if (superCls == this) {
+                return true;
+            }
+            superCls = superCls.getSuperclassWithoutCheck();
         }
+        return false;
     }
     
     /**
-     * This method tries to guess which class is the superclass. This can be used for non compilable and non parseable classes.
+     * Get the GClass for the superclass guess without checking cycles.
+     * 
+     */
+    private GClass getSuperclassWithoutCheck()
+    {
+        String superclassName = getSuperclassGuess();
+        if (superclassName == null) {
+            return null;
+        }
+        superclassName = GreenfootUtil.extractClassName(superclassName);
+        GClass superClass = pkg.getClass(superclassName);
+        return superClass;
+    }
+
+    /**
+     * This method tries to guess which class is the superclass. This can be
+     * used for non compilable and non parseable classes. If the superclass
+     * guess is a class that is not in the default package, it will return the
+     * empty string, since it can otherwise result in problems because we only
+     * deal with the unqualified class name.
      * <p>
-     * If the class is compiled, it will return the real superclass.
-     * <br>
-     * If the class is parseable this information will be used to extract the superclass.
-     * <br>
-     * If the class is not parseable it will use the last superclass that was known.
-     * <br>
-     * In general, we will try to remember the last known superclass, and report that back. It also saves the superclass between different runs of the greenfoot application.
-     *
+     * If the class is compiled, it will return the real superclass. <br>
+     * If the class is parseable this information will be used to extract the
+     * superclass. <br>
+     * If the class is not parseable it will use the last superclass that was
+     * known. <br>
+     * In general, we will try to remember the last known superclass, and report
+     * that back. It also saves the superclass between different runs of the
+     * greenfoot application.
+     * 
      * @return Best guess of the fully qualified name of the superclass.
      */
     public String getSuperclassGuess()
     {
         return superclassGuess;
     }
-    
+
     /**
      * Sets the superclass guess that will be returned if it is not possible to
      * find it in another way.
      * 
-     * This name will be stripped of any qualifications
+     * This name will be stripped of any qualifications.
      * 
-     * @param superclass
+     * If this guess results in a cyclic hierarchy, it will not be set.
+     * 
+     * @return True if it was a valid name. False if invalid and something else
+     *         should be tried (for instance if the guess is the same as the
+     *         name of this)
      */
-    public void setSuperclassGuess(String superclassName)
+    public boolean setSuperclassGuess(final String superclassName)
     {
-        if(superclassGuess == null || !superclassGuess.equals(superclassName)) {
-            superclassGuess = superclassName;
-            setClassProperty("superclass", superclassGuess);
+        String superName = GreenfootUtil.extractClassName(superclassName);
+       
+        if (superName.equals(getName()) ) {
+            return false;
         }
+        
+        boolean isDefaultPkg = !superclassName.contains(".");
+        boolean isGreenfootClass = superclassName.startsWith("greenfoot.");
+        boolean isNewName = superclassGuess == null || !superclassGuess.equals(superclassName);
+
+    
+        if (isNewName && (isDefaultPkg || isGreenfootClass)) {
+            // If the superclass guess is a class that is not in the default
+            // package, it can result in problems because we only deal with the
+            // unqualified class name. Except if it is one of the Greenfoot classes
+
+            superclassGuess = superclassName;  
+            if(containsCyclicHierarchy()) {
+                superclassGuess = "";            
+            } 
+        } else if (!isDefaultPkg && !isGreenfootClass){
+            // We found a super class that is not interesting to greenfoot
+            superclassGuess = "";
+        }
+        setClassProperty("superclass", superclassGuess);
+        return true;
     }
     
     /**
@@ -381,8 +431,9 @@ public class GClass
         String name = this.getName();
         if(name.equals("World") || name.equals("Actor")) {
             //We do not want to waste time on guessing the name of the superclass for these two classes.
-            setSuperclassGuess("");
-            return;
+            if(setSuperclassGuess("")) {
+                return;
+            }
         }
         
         //First, try to get the real super class.
@@ -403,8 +454,7 @@ public class GClass
         catch (NullPointerException e) {
         }
 
-        if(realSuperclass != null) {
-            setSuperclassGuess(realSuperclass);
+        if(realSuperclass != null && setSuperclassGuess(realSuperclass)) {
             return;
         }
         
@@ -413,12 +463,11 @@ public class GClass
 		// real class
         if (realSuperclass == null && isCompiled()) {
         	Class<?> superclass = realClass.getSuperclass();
-        	if (superclass != null) {
-        		setSuperclassGuess(realClass.getSuperclass().getName());
-        		return;
+        	if (superclass != null && setSuperclassGuess(superclass.getName())) {
+        	    return;
         	}
         	else {
-        		setSuperclassGuess(null);
+        		setSuperclassGuess("");
         	}
         }
         
@@ -427,6 +476,7 @@ public class GClass
         try {
             ClassInfo info = ClassParser.parse(rmiClass.getJavaFile());//, classes);
             parsedSuperclass = info.getSuperclass();
+           
             // TODO hack! If the superclass is Actor or World,
             // put it in the right package... parsing does not resolve references...
             if (parsedSuperclass.equals("Actor")) {
@@ -441,13 +491,12 @@ public class GClass
         catch (RemoteException e) {}
         catch (Exception e) {}
 
-        if(parsedSuperclass != null) {
-            setSuperclassGuess(parsedSuperclass);
+        if(parsedSuperclass != null && setSuperclassGuess(parsedSuperclass)) {
             return;
         }
         
-        //Ok, nothing more to do. We just let the superclassGuess be whatever it is.   
-        
+        //Ok, nothing more to do. We just let the superclassGuess be whatever it is.
+        // It can produce incorrect hierarchies if a class named Object inherits Class A, and then that inheritance is removed. It will then stay as a subclass of A because it has the same name as its superclass (java.lang.Object). 
     }
     
     /**
@@ -516,9 +565,8 @@ public class GClass
      * @return
      */
     public boolean isSubclassOf(String className)
-    {        
+    {    
         className = removeQualification(className);
-       // guessSuperclass();
         GClass superclass = this;
         if(this.getName().equals(className)) {
             return false;
@@ -527,7 +575,7 @@ public class GClass
         while (superclass != null) {
             String superclassName = superclass.getSuperclassGuess();
             //TODO Fix this hack. Should be done when non-greenfoot classes gets support.
-            //HACK to ensure that a class with no superclass has "" as superclass. This is becuase of the ClassForest building which then allows the clas to show up even though it doesn't have any superclass.
+            //HACK to ensure that a class with no superclass has "" as superclass. This is becuase of the ClassForest building which then allows the class to show up even though it doesn't have any superclass.
             if(superclassName == null) {
                 superclassName = "";
             }

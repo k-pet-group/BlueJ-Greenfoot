@@ -60,7 +60,7 @@ import bluej.utility.Utility;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 6322 2009-05-09 17:50:58Z polle $
+ * @version $Id: ClassView.java 6478 2009-08-04 11:12:45Z polle $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -117,14 +117,14 @@ public class ClassView extends JToggleButton
      */
     public void updateSuperClass()
     {
-        String superClassGuess = gClass.getSuperclassGuess();
+        String superClassGuess = getSuperclass();
         if (superClassGuess == null || superClassGuess.equals(superclass)) {
             // If super class has not changed, we do not want to update
             // anything.
             return;
         }
         else {
-            superclass = gClass.getSuperclassGuess();
+            superclass = getSuperclass();
         }
 
         if (classBrowser != null) {
@@ -167,7 +167,7 @@ public class ClassView extends JToggleButton
         this.gClass = gClass;
         gClass.setClassView(this);
         
-        superclass = gClass.getSuperclassGuess();
+        superclass = getSuperclass();
         
         this.addMouseListener(this);
         this.setBorder(BorderFactory.createEmptyBorder(7, 8, 10, 11)); // top,left,bottom,right
@@ -602,10 +602,10 @@ public class ClassView extends JToggleButton
     }
 
     /**
-     * Get the best guess at the super class for this class.
+     * Get the super class for this class.
      * 
      */
-    public String getSuperclassGuess()
+    public String getSuperclass()
     {
         return gClass.getSuperclassGuess();
     }

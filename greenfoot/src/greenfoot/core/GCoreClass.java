@@ -163,12 +163,6 @@ public class GCoreClass extends GClass
 	}
 
 	@Override
-	public String getSuperclassGuess()
-	{
-		return "";
-	}
-
-	@Override
 	public String getToString()
 	{
 		return cls.toString();
@@ -236,8 +230,8 @@ public class GCoreClass extends GClass
 	}
 
 	@Override
-	public void setSuperclassGuess(String superclassName)
+	public boolean setSuperclassGuess(String superclassName)
 	{
-		return;
+		return true;
 	}
 }
