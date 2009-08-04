@@ -41,7 +41,7 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 6467 2009-07-29 11:05:58Z polle $
+ * @version $Id: Boot.java 6481 2009-08-04 16:16:31Z polle $
  */
 public class Boot
 {
@@ -103,7 +103,7 @@ public class Boot
         "commons-codec-1.3.jar", JLAYER_MP3_JAR};
 
     // Jars that should be included with exported scenarios
-    public static final String[] GREENFOOT_EXPORT_JARS = {JLAYER_MP3_JAR};
+    public static final String[] GREENFOOT_EXPORT_JARS = {}; // ENABLESOUND {JLAYER_MP3_JAR};
     
     private static final int greenfootUserBuildJars = 4;
     
