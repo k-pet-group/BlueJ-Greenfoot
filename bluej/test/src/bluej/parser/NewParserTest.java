@@ -304,19 +304,21 @@ public class NewParserTest extends TestCase
 	public void test21()
 	{
 		StringReader sr = new StringReader(
-				"@Test.RequestForEnhancement "
+				"@Test.RequestForEnhancement req;"
 		);
 		InfoParser ip = new InfoParser(sr);
 		ip.parseStatement();
 	}
+	
+	
 
 	public void test22(){
 	    StringReader sr = new StringReader(
 	            "@Expression(\"execution(* com.mypackage.Target.*(..))\") "+
-	            "Pointcut pc1; }"
+	            "Pointcut pc1; "
 	    );
 	    InfoParser ip = new InfoParser(sr);
-        ip.parseClassBody();
+        ip.parseStatement();
 
 	}
 }

@@ -391,22 +391,17 @@ public class NewParser
 			boolean isAnnotation=false;
 			while (isModifier(token)) {
 				rval.add(token);
-				if (token.getType()==JavaTokenTypes.AT && 
-				        tokenStream.LA(1).getType() != JavaTokenTypes.LITERAL_interface){					
-				    isAnnotation=true;
+				if (token.getType()==JavaTokenTypes.AT) {
+				       if( tokenStream.LA(1).getType() != JavaTokenTypes.LITERAL_interface){					
+				        parseAnnotation();
+				    }
+				       else
+				           return rval;
 				}
-				token = tokenStream.nextToken();				
+				
+				token = tokenStream.nextToken();
 			}			
 			tokenStream.pushBack(token);
-			if (isAnnotation){                
-                parseAnnotation();
-                token=tokenStream.nextToken();
-                if (isModifier(token)){
-                    parseModifiers();
-                    token=tokenStream.nextToken();
-                }
-                tokenStream.pushBack(token);
-            }
 		} catch (TokenStreamException tse) {
 			tse.printStackTrace();
 		}
@@ -755,12 +750,9 @@ public class NewParser
 			              
 			    }
 			    if (isAnnotation){
-			        boolean isParsed=parseAnnotation();
-			        if (!isParsed){
-			            parseClassBody();
-			        }
+			        parseAnnotation();
 			    }
-			    else if (isTypeDeclarator(tokenStream.LA(1))) {
+			    if (isTypeDeclarator(tokenStream.LA(1))) {
 					parseTypeDef();
 				}
 				else {
