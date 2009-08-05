@@ -134,7 +134,6 @@ public class NodeTree
         
         NodeAndPosition rval = null;
         if (right != null) {
-            pos -= (pnodeOffset + pnodeSize);
             rval = right.findNodeAtOrAfter(pos, startpos + pnodeOffset + pnodeSize);
         }
         return rval;
@@ -252,7 +251,6 @@ public class NodeTree
 	        pnode = null;
 	        if (parent != null) {
                 if (black) {
-                    // Hmmmmmmmmm
                     delete_case_1();
                 }
 	            if (parent.left == this) {
