@@ -207,10 +207,10 @@ public class NewParserTest extends TestCase
 	public void test16()
 	{
 		StringReader sr = new StringReader(
-				"public @Preliminary class TimeTravel { }"
+				"@Preliminary public class TimeTravel { }"
 		);
 		InfoParser ip = new InfoParser(sr);
-		ip.parseStatement();
+		ip.parseTypeDef();
 	}
 	
 	/**
@@ -223,7 +223,7 @@ public class NewParserTest extends TestCase
 				"public class NewParserTest { }"
 		);
 		InfoParser ip = new InfoParser(sr);
-		ip.parseStatement();
+		ip.parseTypeDef();
 	}
 	
 	/**
@@ -274,16 +274,16 @@ public class NewParserTest extends TestCase
 	public void test19()
 	{
 		StringReader sr = new StringReader(
-				"@RequestForEnhancement(" +
+				"public @RequestForEnhancement(" +
 					"id       = 2868724," +
 					"synopsis = \"Enable time-travel\","+
 					"engineer = \"Mr. Peabody\", "+
 					"date     = \"4/1/3007\""+
 				")"+
-				"public static void travelThroughTime(Date destination) { }"
+				"static void travelThroughTime(Date destination) { } }"
 		);
 		InfoParser ip = new InfoParser(sr);
-		ip.parseStatement();
+		ip.parseClassBody();
 	}
 	
 	/**
@@ -292,10 +292,10 @@ public class NewParserTest extends TestCase
 	public void test20()
 	{
 		StringReader sr = new StringReader(
-				"@Test public static void m1() { }"
+				"@Test public static void m1() { } }"
 		);
 		InfoParser ip = new InfoParser(sr);
-		ip.parseStatement();
+		ip.parseClassBody();
 	}
 	
 	/**
@@ -313,10 +313,10 @@ public class NewParserTest extends TestCase
 	public void test22(){
 	    StringReader sr = new StringReader(
 	            "@Expression(\"execution(* com.mypackage.Target.*(..))\") "+
-	            "Pointcut pc1;"
+	            "Pointcut pc1; }"
 	    );
 	    InfoParser ip = new InfoParser(sr);
-        ip.parseStatement();
+        ip.parseClassBody();
 
 	}
 }
