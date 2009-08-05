@@ -27,7 +27,7 @@ public class NewParser
         lexer.setTokenObjectClass("bluej.parser.ast.LocatableToken");
         lexer.setTabSize(1);
         euReader.setAttachedScanner(lexer);
-		tokenStream = new JavaTokenFilter(lexer);
+		tokenStream = new JavaTokenFilter(lexer, this);
 	}
 	
 	/**
@@ -169,8 +169,13 @@ public class NewParser
 	{
 		try {
 			// possibly, modifiers: [public|private|protected] [static]
-			List<LocatableToken> modifiers =parseModifiers();
+			List<LocatableToken> modifiers = parseModifiers();
 			LocatableToken token = tokenStream.nextToken();					
+			
+			boolean isAnnotation = token.getType() == JavaTokenTypes.AT;
+			if (isAnnotation) {
+			    token = tokenStream.nextToken();
+			}
 			
 			// [class|interface|enum]						
 			if (isTypeDeclarator(token)) {
@@ -184,10 +189,9 @@ public class NewParser
 					typeDesc = "interface";
 					tdType = TYPEDEF_INTERFACE;
 					//check for annotation type
-					for (LocatableToken lt: modifiers) {
-						if (lt.getType() == JavaTokenTypes.AT)
-							tdType = TYPEDEF_ANNOTATION;						 
-					}					
+					if(isAnnotation) {
+						tdType = TYPEDEF_ANNOTATION;						 
+					}
 				}
 				else {
 					typeDesc = "enum";
@@ -382,32 +386,32 @@ public class NewParser
 	/**
 	 * Parse a modifier list (and return all modifier tokens in a list)
 	 */
-	public List<LocatableToken> parseModifiers()
-	{
-		List<LocatableToken> rval = new LinkedList<LocatableToken>();
-		
-		try {
-			LocatableToken token = tokenStream.nextToken();
-			boolean isAnnotation=false;
-			while (isModifier(token)) {
-				rval.add(token);
-				if (token.getType()==JavaTokenTypes.AT) {
-				       if( tokenStream.LA(1).getType() != JavaTokenTypes.LITERAL_interface){					
-				        parseAnnotation();
-				    }
-				       else
-				           return rval;
-				}
-				
-				token = tokenStream.nextToken();
-			}			
-			tokenStream.pushBack(token);
-		} catch (TokenStreamException tse) {
-			tse.printStackTrace();
-		}
-		
-		return rval;
-	}
+    public List<LocatableToken> parseModifiers()
+    {
+        List<LocatableToken> rval = new LinkedList<LocatableToken>();
+        
+        try {
+            LocatableToken token = tokenStream.nextToken();
+            while (isModifier(token)) {
+                if (token.getType()==JavaTokenTypes.AT) {
+				    if( tokenStream.LA(1).getType() != JavaTokenTypes.LITERAL_interface) {					
+                        parseAnnotation();
+                    }
+                    else {
+				        tokenStream.pushBack(token);
+				        return rval;
+                    }
+                }
+                rval.add(token);
+                token = tokenStream.nextToken();
+            }			
+            tokenStream.pushBack(token);
+        } catch (TokenStreamException tse) {
+            tse.printStackTrace();
+        }
+        
+        return rval;
+    }
 	
 	public void parseClassBody()
 	{
@@ -421,7 +425,8 @@ public class NewParser
 				token = tokenStream.nextToken();
 				if (token.getType() == JavaTokenTypes.LITERAL_class
 						|| token.getType() == JavaTokenTypes.LITERAL_interface
-						|| token.getType() == JavaTokenTypes.LITERAL_enum) {
+						|| token.getType() == JavaTokenTypes.LITERAL_enum
+						|| token.getType() == JavaTokenTypes.AT) {
 					tokenStream.pushBack(token);
 					pushBackAll(modifiers);
 					parseTypeDef();
@@ -739,20 +744,9 @@ public class NewParser
 				}
 			}
 			else if (isModifier(token)) {	
-			    boolean isAnnotation=false;
-			    if (token.getType()==JavaTokenTypes.AT){
-			        isAnnotation=true;
-			    }
-			    List<LocatableToken> modifiers =parseModifiers();
-			    for (LocatableToken lt: modifiers) {
-			          if (lt.getType() == JavaTokenTypes.AT)  
-			              isAnnotation=true;
-			              
-			    }
-			    if (isAnnotation){
-			        parseAnnotation();
-			    }
-			    if (isTypeDeclarator(tokenStream.LA(1))) {
+			    tokenStream.pushBack(token);
+			    List<LocatableToken> modifiers = parseModifiers();
+			    if (isTypeDeclarator(tokenStream.LA(1)) || tokenStream.LA(1).getType() == JavaTokenTypes.AT) {
 					parseTypeDef();
 				}
 				else {
@@ -1859,6 +1853,11 @@ public class NewParser
 	protected void gotMethodParameter(LocatableToken token) { }
 	
 	protected void gotAllMethodParameters() { }
+	
+	/**
+	 * Called by the lexer when it sees a comment.
+	 */
+	public void gotComment(LocatableToken token) { }
 	
 	private void pushBackAll(List<LocatableToken> tokens)
 	{
