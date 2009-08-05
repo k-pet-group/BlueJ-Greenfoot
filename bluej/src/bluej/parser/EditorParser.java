@@ -2,6 +2,10 @@ package bluej.parser;
 
 import java.io.Reader;
 
+import org.syntax.jedit.tokenmarker.Token;
+
+import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
+
 import bluej.parser.ast.LocatableToken;
 import bluej.parser.symtab.Selection;
 
@@ -53,7 +57,19 @@ public class EditorParser extends NewParser
         int endpos = pcuNode.lineColToPosition(s.getEndLine(), s.getEndColumn());
         
         // PkgStmtNode psn = new PkgStmtNode();
-        ColourNode cn = new ColourNode(pcuNode);
+        ColourNode cn = new ColourNode(pcuNode, Token.KEYWORD1);
+        pcuNode.getNodeTree().insertNode(cn, startpos, endpos - startpos);
+    }
+    
+    public void gotComment(LocatableToken token)
+    {
+        Selection s = new Selection(token.getLine(), token.getColumn());
+        s.extendEnd(token.getEndLine(), token.getEndColumn());
+
+        int startpos = pcuNode.lineColToPosition(s.getLine(), s.getColumn());
+        int endpos = pcuNode.lineColToPosition(s.getEndLine(), s.getEndColumn());
+
+        ColourNode cn = new ColourNode(pcuNode, Token.COMMENT1);
         pcuNode.getNodeTree().insertNode(cn, startpos, endpos - startpos);
     }
 }

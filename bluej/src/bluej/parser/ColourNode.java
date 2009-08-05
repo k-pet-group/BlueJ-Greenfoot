@@ -7,16 +7,19 @@ import org.syntax.jedit.tokenmarker.Token;
 
 public class ColourNode extends ParsedNode
 {
-    public ColourNode(ParsedCUNode parentNode)
+    byte colour;
+    
+    public ColourNode(ParsedCUNode parentNode, byte colour)
     {
         super(parentNode);
+        this.colour = colour;
     }
     
     
     public Token getMarkTokensFor(int pos, int length, int nodePos,
             Document document)
     {
-        Token tok = new Token(length, Token.KEYWORD1);
+        Token tok = new Token(length, colour);
         tok.next = new Token(0, Token.END);
         return tok;
     }
