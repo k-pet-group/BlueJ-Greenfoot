@@ -529,17 +529,10 @@ Overwrite
 Cancel
 null
 
-debugger-running-options
-Your program is already running, and stopped at a breakpoint.
-You cannot start another execution while the current one is still
-active.
-    
-You can terminate the previous call and execute the new one,
-or you can cancel the new call.
-Terminate
-Cancel 
-
 stuck-at-breakpoint
 Your program is already running, and stopped at a breakpoint.
 You cannot start another execution while the current one is still
 active.
+    
+Use the debugger Controls to either continue or terminate the
+current execution first.
