@@ -1,6 +1,5 @@
 package bluej.parser;
 
-import javax.swing.event.DocumentEvent;
 import javax.swing.text.Document;
 
 import org.syntax.jedit.tokenmarker.Token;
@@ -41,9 +40,9 @@ public abstract class ParsedNode
 	 * - node terminates earlier (eg ';' or '}' inserted)
 	 * - subnode created, and this node extended (eg insert '{')
 	 */
-	public abstract void textInserted(int nodePos, DocumentEvent event);
+	public abstract void textInserted(Document document, int nodePos, int insPos, int length);
 	
-	public abstract void textRemoved(int nodePos, DocumentEvent event);
+	public abstract void textRemoved(Document document, int nodePos, int delPos, int length);
 	
 	public abstract Token getMarkTokensFor(int pos, int length, int nodePos, Document document);
 	

@@ -1,10 +1,9 @@
 package bluej.parser;
 
 import java.io.Reader;
+import java.util.Stack;
 
 import org.syntax.jedit.tokenmarker.Token;
-
-import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
 
 import bluej.parser.ast.LocatableToken;
 import bluej.parser.symtab.Selection;
@@ -16,9 +15,9 @@ import bluej.parser.symtab.Selection;
  */
 public class EditorParser extends NewParser
 {
-    // private Stack<ParsedNode> scopeStack;
+    private Stack<ParsedNode> scopeStack = new Stack<ParsedNode>();
     
-    private LocatableToken pkgStatementBegin;
+    private LocatableToken pcuStmtBegin;
     private ParsedCUNode pcuNode;
     
     public EditorParser(Reader r)
@@ -34,7 +33,9 @@ public class EditorParser extends NewParser
     public void parseCU(ParsedCUNode pcuNode)
     {
         this.pcuNode = pcuNode;
+        scopeStack.push(pcuNode);
         parseCU();
+        scopeStack.pop();
     }
     
     /*
@@ -42,7 +43,7 @@ public class EditorParser extends NewParser
      */
     protected void beginPackageStatement(LocatableToken token)
     {
-        pkgStatementBegin = token;
+        pcuStmtBegin = token;
     }
     
     /*
@@ -50,7 +51,7 @@ public class EditorParser extends NewParser
      */
     protected void gotPackageSemi(LocatableToken token)
     {
-        Selection s = new Selection(pkgStatementBegin.getLine(), pkgStatementBegin.getColumn());
+        Selection s = new Selection(pcuStmtBegin.getLine(), pcuStmtBegin.getColumn());
         s.extendEnd(token.getLine(), token.getColumn() + token.getLength());
         
         int startpos = pcuNode.lineColToPosition(s.getLine(), s.getColumn());
@@ -58,6 +59,24 @@ public class EditorParser extends NewParser
         
         // PkgStmtNode psn = new PkgStmtNode();
         ColourNode cn = new ColourNode(pcuNode, Token.KEYWORD1);
+        pcuNode.getNodeTree().insertNode(cn, startpos, endpos - startpos);
+    }
+    
+    protected void beginImportStatement(LocatableToken token)
+    {
+        pcuStmtBegin = token;
+    }
+    
+    protected void gotImportStmtSemi(LocatableToken token)
+    {
+        Selection s = new Selection(pcuStmtBegin.getLine(), pcuStmtBegin.getColumn());
+        s.extendEnd(token.getLine(), token.getColumn() + token.getLength());
+        
+        int startpos = pcuNode.lineColToPosition(s.getLine(), s.getColumn());
+        int endpos = pcuNode.lineColToPosition(s.getEndLine(), s.getEndColumn());
+        
+        // PkgStmtNode psn = new PkgStmtNode();
+        ColourNode cn = new ColourNode(pcuNode, Token.KEYWORD2);
         pcuNode.getNodeTree().insertNode(cn, startpos, endpos - startpos);
     }
     
@@ -70,6 +89,6 @@ public class EditorParser extends NewParser
         int endpos = pcuNode.lineColToPosition(s.getEndLine(), s.getEndColumn());
 
         ColourNode cn = new ColourNode(pcuNode, Token.COMMENT1);
-        pcuNode.getNodeTree().insertNode(cn, startpos, endpos - startpos);
+        scopeStack.peek().getNodeTree().insertNode(cn, startpos, endpos - startpos);
     }
 }

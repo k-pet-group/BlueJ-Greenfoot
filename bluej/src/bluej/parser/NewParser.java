@@ -68,6 +68,7 @@ public class NewParser
                     reachedCUstate(1); state = 1;
                 }
                 else if (token.getType() == JavaTokenTypes.LITERAL_import) {
+                    beginImportStatement(token);
                     token = tokenStream.nextToken();
                     parseDottedIdent(token);
                     if (tokenStream.LA(1).getType() == JavaTokenTypes.DOT) {
@@ -82,6 +83,9 @@ public class NewParser
                                 error("Expected ';' following import statement");
                                 tokenStream.pushBack(token);
                             }
+                            else {
+                                gotImportStmtSemi(token);
+                            }
                         }
                         else {
                             error("Expected package/class identifier, or '*', in import statement.");
@@ -95,6 +99,9 @@ public class NewParser
                         if (token.getType() != JavaTokenTypes.SEMI) {
                             error("Expected ';' following import statement");
                             tokenStream.pushBack(token);
+                        }
+                        else {
+                            gotImportStmtSemi(token);
                         }
                     }
                 }
@@ -129,6 +136,10 @@ public class NewParser
 	
 	/** We've seen the semicolon at the end of a "package" statement. */
 	protected void gotPackageSemi(LocatableToken token) { }
+	
+	protected void beginImportStatement(LocatableToken token) { }
+	
+	protected void gotImportStmtSemi(LocatableToken token) { }
 	
 	/**
 	 * Check whether a particular token is a type declaration initiator, i.e "class", "interface"

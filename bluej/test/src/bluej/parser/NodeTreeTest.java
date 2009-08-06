@@ -1,5 +1,7 @@
 package bluej.parser;
 
+import org.syntax.jedit.tokenmarker.Token;
+
 import junit.framework.TestCase;
 import bluej.parser.NodeTree.NodeAndPosition;
 
@@ -21,11 +23,11 @@ public class NodeTreeTest extends TestCase
     protected void setUp()
     {
         nt = new NodeTree();
-        pn1 = new ColourNode(null);
-        pn2 = new ColourNode(null);
-        pn3 = new ColourNode(null);
-        pn4 = new ColourNode(null);
-        pn5 = new ColourNode(null);
+        pn1 = new ColourNode(null, Token.KEYWORD1);
+        pn2 = new ColourNode(null, Token.KEYWORD1);
+        pn3 = new ColourNode(null, Token.KEYWORD1);
+        pn4 = new ColourNode(null, Token.KEYWORD1);
+        pn5 = new ColourNode(null, Token.KEYWORD1);
 
         nt.insertNode(pn1, 0, 10);
         nt.insertNode(pn2, 20, 10);

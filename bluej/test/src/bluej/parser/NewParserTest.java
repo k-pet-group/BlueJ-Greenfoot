@@ -321,4 +321,15 @@ public class NewParserTest extends TestCase
         ip.parseStatement();
 
 	}
+	
+    public void test23(){
+        StringReader sr = new StringReader(
+                "@Expression(\"execution(* com.mypackage.Target.*(..))\") "+
+                "volatile Pointcut pc1; "
+        );
+        InfoParser ip = new InfoParser(sr);
+        ip.parseStatement();
+
+    }
+	
 }

@@ -121,8 +121,11 @@ public class JavaTokenFilter implements TokenStream
             // The previous token ends at the beginning of this token.
             if (previousToken != null) {
                 previousToken.setEndLineAndCol(t.getLine(), t.getColumn());
-                if (parser != null && previousToken.getType() == JavaTokenTypes.ML_COMMENT) {
+                if (parser != null) {
+                    if (previousToken.getType() == JavaTokenTypes.ML_COMMENT
+                            || previousToken.getType() == JavaTokenTypes.SL_COMMENT) {
                     parser.gotComment(previousToken);
+                    }
                 }
             }
             previousToken = t;
@@ -133,7 +136,6 @@ public class JavaTokenFilter implements TokenStream
                 lastComment = t;
             }
             else if (ttype == JavaTokenTypes.SL_COMMENT) {
-                
             }
             else if (ttype != JavaTokenTypes.WS) {
                 // When we have an interesting token, attach the previous comment.

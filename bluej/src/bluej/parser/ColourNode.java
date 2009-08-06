@@ -1,6 +1,5 @@
 package bluej.parser;
 
-import javax.swing.event.DocumentEvent;
 import javax.swing.text.Document;
 
 import org.syntax.jedit.tokenmarker.Token;
@@ -15,7 +14,6 @@ public class ColourNode extends ParsedNode
         this.colour = colour;
     }
     
-    
     public Token getMarkTokensFor(int pos, int length, int nodePos,
             Document document)
     {
@@ -24,14 +22,14 @@ public class ColourNode extends ParsedNode
         return tok;
     }
 
-    public void textInserted(int nodePos, DocumentEvent event)
+    public void textInserted(Document document, int nodePos, int insPos, int length)
     {
-        getParentNode().reparseNode(event.getDocument(), nodePos);
+        getParentNode().reparseNode(document, nodePos);
     }
 
-    public void textRemoved(int nodePos, DocumentEvent event)
+    public void textRemoved(Document document, int nodePos, int delPos, int length)
     {
-        getParentNode().reparseNode(event.getDocument(), nodePos);
+        getParentNode().reparseNode(document, nodePos);
     }
 
 }

@@ -150,6 +150,15 @@ public class NodeTree
 	}
 	
 	/**
+	 * Move the node. This also has the effect of moving all following nodes.
+	 * @param offset  The amount by which to move the node
+	 */
+	public void slideNode(int offset)
+	{
+	    pnodeOffset += offset;
+	}
+	
+	/**
 	 * Get the size of the contained ParsedNode.
 	 */
 	public int getNodeSize()
@@ -214,6 +223,28 @@ public class NodeTree
 	        
 	        sub.one_child_remove();
 	    }
+	}
+	
+	/**
+	 * Get the relative position of the contained parsed node to the parent node (root of the
+	 * NodeTree).
+	 */
+	public int getPosition()
+	{
+	    int pos = pnodeOffset;
+	    
+	    NodeTree parent = this.parent;
+	    NodeTree current = this;
+	    
+	    while (parent != null) {
+	        if (current == parent.right) {
+	            pos += parent.pnodeOffset + parent.pnodeSize;
+	        }
+	        current = parent;
+	        parent = current.parent;
+	    }
+	    
+	    return pos;
 	}
 	
 	private void adjustLeftOffsets(int amount)
