@@ -2246,12 +2246,12 @@ public final class MoeEditor extends JFrame
             // flag document type as a java file by associating a
             // JavaTokenMarker for syntax colouring if specified
             if (viewingCode() && PrefMgr.getFlag(PrefMgr.HILIGHTING)) {
-                if (sourceDocument.getTokenMarker() == null) {
-                    sourceDocument.setTokenMarker(new JavaTokenMarker());
-                }
+//                if (sourceDocument.getTokenMarker() == null) {
+//                    sourceDocument.setTokenMarker(new JavaTokenMarker());
+//                }
             }
             else {
-                sourceDocument.setTokenMarker(null);
+//                sourceDocument.setTokenMarker(null);
             }
         }
         // else ??

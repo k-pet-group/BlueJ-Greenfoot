@@ -65,7 +65,7 @@ import bluej.utility.Utility;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: TextEvalPane.java 6495 2009-08-06 23:38:13Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ValueCollection, ResultWatcher, MouseMotionListener
@@ -102,7 +102,7 @@ public class TextEvalPane extends JEditorPane
         this.frame = frame;
         setEditorKit(new MoeSyntaxEditorKit(true));
         doc = (MoeSyntaxDocument) getDocument();
-        doc.setTokenMarker(new JavaTokenMarker());
+//        doc.setTokenMarker(new JavaTokenMarker());
         defineKeymap();
         clear();
         history = new IndexHistory(20);

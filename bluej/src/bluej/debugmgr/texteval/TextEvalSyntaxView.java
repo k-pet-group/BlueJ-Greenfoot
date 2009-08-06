@@ -35,15 +35,19 @@ package bluej.debugmgr.texteval;
  * to add Syntax highlighting to the BlueJ programming environment.
  */
 
-import javax.swing.text.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.Shape;
 
-import java.awt.*;
+import javax.swing.text.Element;
+import javax.swing.text.Segment;
+import javax.swing.text.Utilities;
 
 import bluej.Config;
 import bluej.editor.moe.BlueJSyntaxView;
-
-import org.syntax.jedit.*;
-import org.syntax.jedit.tokenmarker.*;
+import bluej.editor.moe.MoeSyntaxDocument;
 
 /**
  * A Swing view implementation that colorizes lines of a
@@ -56,7 +60,7 @@ import org.syntax.jedit.tokenmarker.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: TextEvalSyntaxView.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: TextEvalSyntaxView.java 6495 2009-08-06 23:38:13Z davmac $
  */
 
 public class TextEvalSyntaxView extends BlueJSyntaxView
@@ -90,7 +94,7 @@ public class TextEvalSyntaxView extends BlueJSyntaxView
      * Draw a line for the text eval area.
 	 */
 	public void paintTaggedLine(Segment lineText, int lineIndex, Graphics g, int x, int y, 
-            SyntaxDocument document, TokenMarker tokenMarker, Color def, Element line) 
+            MoeSyntaxDocument document, Color def, Element line) 
     {
 		if(hasTag(line, OUTPUT)) {
 		    g.setColor(outputColor);
@@ -108,12 +112,12 @@ public class TextEvalSyntaxView extends BlueJSyntaxView
         else if(hasTag(line, CONTINUE)) {
             g.drawImage(continueImage, x-1, y+3-continueImage.getHeight(null), null);
             paintSyntaxLine(lineText, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
-                    document, tokenMarker, def);   
+                    document, def);   
         }
 		else {
             g.drawImage(promptImage, x-1, y+3-promptImage.getHeight(null), null);
 		    paintSyntaxLine(lineText, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
-		            document, tokenMarker, def);   
+		            document, def);   
 		}
 	}
 

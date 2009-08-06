@@ -1069,7 +1069,7 @@ tryAgain:
 		} while (true);
 		}
 		if ( inputState.guessing==0 ) {
-			_ttype = Token.SKIP;
+			//_ttype = Token.SKIP;
 		}
 		if ( _createToken && _token==null && _ttype!=Token.SKIP ) {
 			_token = makeToken(_ttype);

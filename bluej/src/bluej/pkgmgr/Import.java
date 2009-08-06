@@ -30,7 +30,7 @@ import java.util.List;
 
 import javax.swing.JFrame;
 
-import bluej.parser.ClassParser;
+import bluej.parser.InfoParser;
 import bluej.parser.symtab.ClassInfo;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
@@ -44,7 +44,7 @@ import bluej.utility.JavaNames;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
- * @version $Id: Import.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: Import.java 6495 2009-08-06 23:38:13Z davmac $
  */
 public class Import
 {
@@ -91,7 +91,7 @@ public class Import
             File f = (File) it.next();
 
             try {
-                ClassInfo info = ClassParser.parse(f);
+                ClassInfo info = InfoParser.parse(f);
 
                 String qf = JavaNames.convertFileToQualifiedName(path, f);
 

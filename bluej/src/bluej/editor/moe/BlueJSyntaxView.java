@@ -54,7 +54,7 @@ import org.syntax.jedit.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: BlueJSyntaxView.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: BlueJSyntaxView.java 6495 2009-08-06 23:38:13Z davmac $
  */
 
 public abstract class BlueJSyntaxView extends PlainView
@@ -128,8 +128,8 @@ public abstract class BlueJSyntaxView extends PlainView
             initialise(g);
         }
 
-        SyntaxDocument document = (SyntaxDocument)getDocument();
-        TokenMarker tokenMarker = document.getTokenMarker();
+        // SyntaxDocument document = (SyntaxDocument)getDocument();
+        MoeSyntaxDocument document = (MoeSyntaxDocument)getDocument();
 
         Color def = MoeSyntaxDocument.getDefaultColor();
 
@@ -141,7 +141,7 @@ public abstract class BlueJSyntaxView extends PlainView
             document.getText(start, end - (start + 1), line);
             g.setColor(def);
             
-            paintTaggedLine(line, lineIndex, g, x, y, document, tokenMarker, def, lineElement);
+            paintTaggedLine(line, lineIndex, g, x, y, document, def, lineElement);
         }
         catch(BadLocationException bl) {
             // shouldn't happen
@@ -153,7 +153,7 @@ public abstract class BlueJSyntaxView extends PlainView
      * Draw a line for this view, including the tag mark.
 	 */
 	public abstract void paintTaggedLine(Segment line, int lineIndex, Graphics g, int x, int y, 
-            SyntaxDocument document, TokenMarker tokenMarker, Color def, Element lineElement);
+            MoeSyntaxDocument document, Color def, Element lineElement);
 
 	/**
      * Draw the line number in front of the line
@@ -186,11 +186,12 @@ public abstract class BlueJSyntaxView extends PlainView
      *
      */
     protected void paintSyntaxLine(Segment line, int lineIndex, int x, int y,
-                                 Graphics g, SyntaxDocument document, 
-                                 TokenMarker tokenMarker, Color def)
+                                 Graphics g, MoeSyntaxDocument document, 
+                                 Color def)
     {
         Color[] colors = document.getColors();
-        Token tokens = tokenMarker.markTokens(line, lineIndex);
+        // Token tokens = tokenMarker.markTokens(line, lineIndex);
+        Token tokens = document.getTokensForLine(lineIndex);
         int offset = 0;
         for(;;) {
             byte id = tokens.id;
