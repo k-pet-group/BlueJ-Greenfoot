@@ -38,9 +38,7 @@ import bluej.debugger.gentype.*;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
 import bluej.debugmgr.texteval.WildcardCapture;
-import bluej.parser.ast.LocatableAST;
 import bluej.parser.ast.gen.JavaLexer;
-import bluej.parser.ast.gen.JavaRecognizer;
 import bluej.parser.ast.gen.JavaTokenTypes;
 import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
@@ -70,7 +68,7 @@ public class TextParser
     
     private ImportsCollection imports;
     private String importCandidate; // any import candidates.
-    private JavaRecognizer parser;
+    //private JavaRecognizer parser;
     
     /**
      * TextParser constructor. Defines the class loader and package scope
@@ -112,49 +110,50 @@ public class TextParser
         declVars = Collections.EMPTY_LIST;
         AST rootAST;
 
-        if (parser == null)
-            parser = getParser();
+//        if (parser == null)
+//            parser = getParser();
         
         // check if it's an import statement
-        try {
-            parser.setTokenBuffer(new TokenBuffer(getTokenStream(command)));
-            parser.getInputState().reset();
-            
-            parser.importDefinition();
-            amendedCommand = "";
-            importCandidate = command;
-            return null;
-        }
-        catch (RecognitionException re) { }
-        catch (TokenStreamException tse) { }
+//        try {
+//            parser.setTokenBuffer(new TokenBuffer(getTokenStream(command)));
+//            parser.getInputState().reset();
+//            
+//            parser.importDefinition();
+//            amendedCommand = "";
+//            importCandidate = command;
+//            return null;
+//        }
+//        catch (RecognitionException re) { }
+//        catch (TokenStreamException tse) { }
         
         // start parsing at the compoundStatement rule
-        try {
-            parser.setTokenBuffer(new TokenBuffer(getTokenStream("{" + command + "};;;;;")));
-            parser.getInputState().reset();
-            parser.compoundStatement();
-            rootAST = parser.getAST();
-            parsedOk = true;
+//        try {
+//            parser.setTokenBuffer(new TokenBuffer(getTokenStream("{" + command + "};;;;;")));
+//            parser.getInputState().reset();
+//            parser.compoundStatement();
+//            rootAST = parser.getAST();
+//            parsedOk = true;
 
             // Extract the declared variables
-            AST fcnode = rootAST.getFirstChild();
-            checkVars((LocatableAST) fcnode, command);
-        }
-        catch(RecognitionException re) { }
-        catch(TokenStreamException tse) { }
+//            AST fcnode = rootAST.getFirstChild();
+//            checkVars((LocatableAST) fcnode, command);
+//        }
+//        catch(RecognitionException re) { }
+//        catch(TokenStreamException tse) { }
       
         if (! parsedOk) {
             // It might just be an expression. Multiple semi-colon to ensure
             // end-of-file not hit (causes parse failure).
-            parser.setTokenBuffer(new TokenBuffer(getTokenStream(command + ";;;;;")));
-            parser.getInputState().reset();
+//            parser.setTokenBuffer(new TokenBuffer(getTokenStream(command + ";;;;;")));
+//            parser.getInputState().reset();
             
-            try {
-                parser.expression();
-                rootAST = parser.getAST();
+//            try {
+//                parser.expression();
+//                rootAST = parser.getAST();
                 parsedOk = true; // it parses as an expression.
                 
-                ExprValue ev = getExpressionType(rootAST);
+                //ExprValue ev = getExpressionType(rootAST);
+                ExprValue ev = null;
                 JavaType t = ev != null ? ev.getType() : null;
 
                 if (t == null) {
@@ -175,15 +174,15 @@ public class TextParser
                     t = t.mapTparsToTypes(null);
                     return t.toString();
                 }
-            }
-            catch(RecognitionException re) { }
-            catch(SemanticException se) { }
-            catch(TokenStreamException tse) { }
-            catch(Exception e) {
-                Debug.reportError("TextParser: Unexpected error during parsing:");
-                e.printStackTrace(System.out);
-            }
-            return "";
+//            }
+//            catch(RecognitionException re) { }
+//            catch(SemanticException se) { }
+//            catch(TokenStreamException tse) { }
+//            catch(Exception e) {
+//                Debug.reportError("TextParser: Unexpected error during parsing:");
+//                e.printStackTrace(System.out);
+//            }
+//            return "";
         }
         return null;
     }
@@ -196,11 +195,11 @@ public class TextParser
     public void confirmCommand()
     {
         if (importCandidate.length() != 0) {
-            try {
-                addImportToCollection(parser.getAST());
-            }
-            catch (RecognitionException re) { }
-            catch (SemanticException se) { }
+//            try {
+//                addImportToCollection(parser.getAST());
+//            }
+//            catch (RecognitionException re) { }
+//            catch (SemanticException se) { }
         }
     }
 
@@ -257,71 +256,71 @@ public class TextParser
      * 
      * @throws RecognitionException
      */
-    private void checkVars(LocatableAST fcnode, String command)
-        throws RecognitionException
-    {
-        try {
-            declVars = new ArrayList();
-            ArrayList insPoint = new ArrayList(); // list of initializer insertion points
-            ArrayList insText = new ArrayList();  // list of initializer insertion texts
-            
-            while (fcnode != null) {
-
-                // store the end position of the AST
-                int ecol = fcnode.getEndColumn() - 2; // column numbers start at 1
-                    // additionally, the end column is the column just beyond the
-                    // semicolon or comma
-
-                // is a variable declared?
-                if (fcnode.getType() == JavaTokenTypes.VARIABLE_DEF) {
-                    boolean isFinal = false;
-
-                    // check modifiers for "final"
-                    AST modnode = fcnode.getFirstChild(); // modifiers
-                    AST firstMod = modnode.getFirstChild();
-                    if (firstMod != null && firstMod.getType() == JavaTokenTypes.FINAL)
-                        isFinal = true;
-                    
-                    // get type and name
-                    AST typenode = modnode.getNextSibling();
-                    JavaType declVarType = getTypeFromTypeNode(typenode);
-                    AST namenode = typenode.getNextSibling();
-                    String varName = namenode.getText();
-                    boolean isVarInit = namenode.getNextSibling() != null;
-                    declVars.add(new DeclaredVar(isVarInit, isFinal, declVarType, varName));
-                    
-                    if (! isVarInit) {
-                        insPoint.add(new Integer(ecol - 1));
-                        String text;
-                        if (declVarType.isPrimitive()) {
-                            if (declVarType.isNumeric()) {
-                                text = "= 0";
-                            }
-                            else {
-                                text = "= false";
-                            }
-                        }
-                        else {
-                            // reference type
-                            text = "= null";
-                        }
-                        insText.add(text);
-                    }
-                }
-                fcnode = (LocatableAST) fcnode.getNextSibling();
-            }
-            
-            // insert the initialization strings
-            amendedCommand = command;
-            int i = insPoint.size();
-            while (i-- > 0) {
-                int ipoint = ((Integer) insPoint.get(i)).intValue();
-                String itext = (String) insText.get(i);
-                amendedCommand = amendedCommand.substring(0, ipoint) + itext + amendedCommand.substring(ipoint);
-            }
-        }
-        catch (SemanticException se) {}
-    }
+//    private void checkVars(LocatableAST fcnode, String command)
+//        throws RecognitionException
+//    {
+//        try {
+//            declVars = new ArrayList();
+//            ArrayList insPoint = new ArrayList(); // list of initializer insertion points
+//            ArrayList insText = new ArrayList();  // list of initializer insertion texts
+//            
+//            while (fcnode != null) {
+//
+//                // store the end position of the AST
+//                int ecol = fcnode.getEndColumn() - 2; // column numbers start at 1
+//                    // additionally, the end column is the column just beyond the
+//                    // semicolon or comma
+//
+//                // is a variable declared?
+//                if (fcnode.getType() == JavaTokenTypes.VARIABLE_DEF) {
+//                    boolean isFinal = false;
+//
+//                    // check modifiers for "final"
+//                    AST modnode = fcnode.getFirstChild(); // modifiers
+//                    AST firstMod = modnode.getFirstChild();
+//                    if (firstMod != null && firstMod.getType() == JavaTokenTypes.FINAL)
+//                        isFinal = true;
+//                    
+//                    // get type and name
+//                    AST typenode = modnode.getNextSibling();
+//                    JavaType declVarType = getTypeFromTypeNode(typenode);
+//                    AST namenode = typenode.getNextSibling();
+//                    String varName = namenode.getText();
+//                    boolean isVarInit = namenode.getNextSibling() != null;
+//                    declVars.add(new DeclaredVar(isVarInit, isFinal, declVarType, varName));
+//                    
+//                    if (! isVarInit) {
+//                        insPoint.add(new Integer(ecol - 1));
+//                        String text;
+//                        if (declVarType.isPrimitive()) {
+//                            if (declVarType.isNumeric()) {
+//                                text = "= 0";
+//                            }
+//                            else {
+//                                text = "= false";
+//                            }
+//                        }
+//                        else {
+//                            // reference type
+//                            text = "= null";
+//                        }
+//                        insText.add(text);
+//                    }
+//                }
+//                fcnode = (LocatableAST) fcnode.getNextSibling();
+//            }
+//            
+//            // insert the initialization strings
+//            amendedCommand = command;
+//            int i = insPoint.size();
+//            while (i-- > 0) {
+//                int ipoint = ((Integer) insPoint.get(i)).intValue();
+//                String itext = (String) insText.get(i);
+//                amendedCommand = amendedCommand.substring(0, ipoint) + itext + amendedCommand.substring(ipoint);
+//            }
+//        }
+//        catch (SemanticException se) {}
+//    }
     
     /**
      * Get a list of the variables declared in the recently parsed statement
@@ -2352,13 +2351,13 @@ public class TextParser
      * Obtain a parser which can be used to parse a command string.
      * @param s  the string to parse
      */
-    static JavaRecognizer getParser()
-    {
-        JavaRecognizer jr = new JavaRecognizer(new ParserSharedInputState());
-        jr.setASTNodeClass("bluej.parser.ast.LocatableAST");
-        
-        return jr;
-    }
+//    static JavaRecognizer getParser()
+//    {
+//        JavaRecognizer jr = new JavaRecognizer(new ParserSharedInputState());
+//        jr.setASTNodeClass("bluej.parser.ast.LocatableAST");
+//        
+//        return jr;
+//    }
     
     /**
      * Return an appropriate token filter for parsing java command sequences.

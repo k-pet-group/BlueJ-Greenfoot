@@ -23,8 +23,7 @@
 
     package bluej.parser.ast.gen;
 	
-	import bluej.parser.ast.LocatableAST;
-
+	
 import java.io.InputStream;
 import antlr.TokenStreamException;
 import antlr.TokenStreamIOException;
