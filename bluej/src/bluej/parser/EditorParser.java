@@ -44,7 +44,7 @@ public class EditorParser extends NewParser
         pcuStmtBegin = token;
     }
     
-    protected void gotTypeDef(int tdType)
+    protected void gotTypeDef(int tdType, boolean included)
     {
         ParsedNode pnode = new ParentParsedNode(scopeStack.peek());
         int curOffset = getCurrentOffset();

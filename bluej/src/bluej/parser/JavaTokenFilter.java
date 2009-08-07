@@ -39,7 +39,7 @@ import bluej.parser.ast.gen.JavaTokenTypes;
 public class JavaTokenFilter implements TokenStream
 {
     private TokenStream sourceStream;
-    private Token lastComment;
+    private LocatableToken lastComment;
     private LocatableToken previousToken;
     private Token cachedToken;
     private List<LocatableToken> buffer = new LinkedList<LocatableToken>();

@@ -4,7 +4,12 @@ import javax.swing.text.Document;
 
 import org.syntax.jedit.tokenmarker.Token;
 
+import antlr.TokenStream;
+import antlr.TokenStreamException;
 import bluej.parser.NodeTree.NodeAndPosition;
+import bluej.parser.ast.LocatableToken;
+import bluej.parser.ast.gen.JavaLexer;
+import bluej.parser.ast.gen.JavaTokenTypes;
 
 /**
  * An abstract ParsedNode which delegates to child nodes.
@@ -38,8 +43,8 @@ public class ParentParsedNode extends ParsedNode
         while (np != null && np.getPosition() < (pos + length)) {
             if (cp < np.getPosition()) {
                 int nextTokLen = np.getPosition() - cp;
-                tok.next = new Token(nextTokLen, Token.NULL);
-                tok = tok.next;
+                tok.next = tokenizeText(document, cp, nextTokLen);
+                while (tok.next.id != Token.END) tok = tok.next;
                 cp = np.getPosition();
             }
             
@@ -61,11 +66,107 @@ public class ParentParsedNode extends ParsedNode
         // There may be a section left
         if (cp < pos + length) {
             int nextTokLen = pos + length - cp;
-            tok.next = new Token(nextTokLen, Token.NULL);
-            tok = tok.next;
+            tok.next = tokenizeText(document, cp, nextTokLen);
+            while (tok.next.id != Token.END) tok = tok.next;
         }
 
         tok.next = new Token(0, Token.END);
+        return dummyTok.next;
+    }
+    
+    protected static Token tokenizeText(Document document, int pos, int length)
+    {
+        int line = document.getDefaultRootElement().getElementIndex(pos) + 1;
+        DocumentReader dr = new DocumentReader(document, pos);
+        
+        EscapedUnicodeReader euReader = new EscapedUnicodeReader(dr);
+        JavaLexer lexer = new JavaLexer(euReader);
+        lexer.setTokenObjectClass("bluej.parser.ast.LocatableToken");
+        lexer.setTabSize(4);
+        euReader.setAttachedScanner(lexer);
+        TokenStream tokenStream = new JavaTokenFilter(lexer, null);
+
+        Token dummyTok = new Token(0, Token.END);
+        Token token = dummyTok;
+        
+        try {
+            int curcol = pos - document.getDefaultRootElement().getElement(line-1).getStartOffset() + 1;
+            while (length > 0) {
+                LocatableToken lt = (LocatableToken) tokenStream.nextToken();
+                
+                if (lt.getLine() > 1 || lt.getColumn() - curcol >= length) {
+                    token.next = new Token(length, Token.NULL);
+                    token = token.next;
+                    break;
+                }
+                if (lt.getColumn() > curcol) {
+                    // some space before the token
+                    token.next = new Token(lt.getColumn() - curcol, Token.NULL);
+                    token = token.next;
+                    length -= token.length;
+                    curcol += token.length;
+                }
+                
+                byte tokType = Token.NULL;
+                if (NewParser.isPrimitiveType(lt)) {
+                    tokType = Token.PRIMITIVE;
+                }
+                else if (NewParser.isModifier(lt)) {
+                    tokType = Token.KEYWORD1;
+                }
+                else if (lt.getType() == JavaTokenTypes.STRING_LITERAL) {
+                    tokType = Token.LITERAL1;
+                }
+                else if (lt.getType() == JavaTokenTypes.CHAR_LITERAL) {
+                    tokType = Token.LITERAL2;
+                }
+                else {
+                    switch (lt.getType()) {
+                    case JavaTokenTypes.LITERAL_assert:
+                    case JavaTokenTypes.LITERAL_for:
+                    case JavaTokenTypes.LITERAL_switch:
+                    case JavaTokenTypes.LITERAL_while:
+                    case JavaTokenTypes.LITERAL_do:
+                    case JavaTokenTypes.LITERAL_try:
+                    case JavaTokenTypes.LITERAL_catch:
+                    case JavaTokenTypes.LITERAL_throw:
+                    case JavaTokenTypes.LITERAL_finally:
+                    case JavaTokenTypes.LITERAL_return:
+                    case JavaTokenTypes.LITERAL_case:
+                    case JavaTokenTypes.LITERAL_break:
+                        tokType = Token.KEYWORD1;
+                        break;
+                    
+                    case JavaTokenTypes.LITERAL_class:
+                    case JavaTokenTypes.LITERAL_package:
+                    case JavaTokenTypes.LITERAL_import:
+                    case JavaTokenTypes.LITERAL_extends:
+                    case JavaTokenTypes.LITERAL_interface:
+                    case JavaTokenTypes.LITERAL_enum:
+                        tokType = Token.KEYWORD2;
+                        break;
+                    
+                    case JavaTokenTypes.LITERAL_this:
+                    case JavaTokenTypes.LITERAL_null:
+                    case JavaTokenTypes.LITERAL_super:
+                    case JavaTokenTypes.LITERAL_true:
+                    case JavaTokenTypes.LITERAL_false:
+                        tokType = Token.KEYWORD3;
+                        break;
+                    
+                    default:
+                    }
+                }
+                token.next = new Token(lt.getLength(), tokType);
+                token = token.next;
+                length -= lt.getLength();
+                curcol += lt.getLength();
+            }
+        } catch (TokenStreamException e) {
+            // e.printStackTrace();
+        }
+        
+        token.next = new Token(0, Token.END);
         return dummyTok.next;
     }
 

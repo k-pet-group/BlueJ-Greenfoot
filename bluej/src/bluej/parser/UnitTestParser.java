@@ -46,8 +46,6 @@ public class UnitTestParser extends NewParser
     
     protected void gotField(LocatableToken idToken)
     {
-        // DAV
-        System.out.println("gotField, level = " + elementLevel);
         if (elementLevel == 2) {
             inField = true;
         }

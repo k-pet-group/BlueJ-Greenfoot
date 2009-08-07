@@ -170,7 +170,7 @@ public class NewParser
 	/**
 	 * Check whether a token is a primitive type - "int" "float" etc
 	 */
-	public boolean isPrimitiveType(LocatableToken token)
+	public static boolean isPrimitiveType(LocatableToken token)
 	{
 		return token.getType() == JavaTokenTypes.LITERAL_void
 			|| token.getType() == JavaTokenTypes.LITERAL_boolean
@@ -400,7 +400,7 @@ public class NewParser
 	 * Check whether a token represents a modifier (or an "at" symbol,
 	 * denoting an annotation).
 	 */
-	protected boolean isModifier(LocatableToken token)
+	protected static boolean isModifier(LocatableToken token)
 	{
 		int tokType = token.getType();
 		return (tokType == JavaTokenTypes.LITERAL_public
@@ -1432,7 +1432,7 @@ public class NewParser
 	 * 
 	 * "new" is not classified as an operator here (an operator operates on a value).
 	 */
-	public boolean isOperator(LocatableToken token)
+	public static boolean isOperator(LocatableToken token)
 	{
 		int ttype = token.getType();
 		return ttype == JavaTokenTypes.PLUS
