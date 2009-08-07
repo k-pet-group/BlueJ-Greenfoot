@@ -21,31 +21,7 @@
  */
 package bluej.parser;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-
-import antlr.RecognitionException;
-import antlr.Token;
-import antlr.TokenStream;
-import antlr.TokenStreamException;
-import antlr.collections.AST;
-import bluej.parser.ast.LocatableToken;
-import bluej.parser.ast.gen.JavaLexer;
-import bluej.parser.ast.gen.JavaTokenTypes;
-import bluej.parser.symtab.ClassInfo;
-import bluej.parser.symtab.ClassScope;
-import bluej.parser.symtab.PackageScope;
-import bluej.parser.symtab.Scope;
-import bluej.parser.symtab.Selection;
-import bluej.utility.Debug;
 
 /**
  * Parse class to get info.
@@ -55,13 +31,10 @@ import bluej.utility.Debug;
  * create dependencies to existing classes in the same package (as supplied).
  * 
  * @author Davin McCall
- * @version $Id: ClassParser.java 6497 2009-08-07 01:37:45Z davmac $
+ * @version $Id: ClassParser.java 6501 2009-08-07 05:16:02Z davmac $
  */
 public class ClassParser extends InfoParser
 {
-    // TODO: type parameters for methods and types should be inserted into the scope
-    // for the method/type (as a type).
-    
     public ClassParser(Reader r)
     {
     	super(r);
