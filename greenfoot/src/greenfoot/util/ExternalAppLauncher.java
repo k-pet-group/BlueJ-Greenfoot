@@ -21,8 +21,6 @@
  */
 package greenfoot.util;
 
-import bluej.Config;
-
 import java.io.IOException;
 import java.io.File;
 
@@ -65,6 +63,21 @@ public class ExternalAppLauncher
                 launchProgram(program.toString(), file.toString());
             }
         }
+    }
+
+    /**
+     * Opens an image for editing using the OS default editor for that file type.
+     * Only difference from editFile is that this method uses a specific override
+     * for images (best seperated in case another type of file needs to be edited!)
+     * 
+     * @param file the file to open for editing.
+     */
+    public static void editImage(File file)
+    {
+        //TODO: Add override in greenfoot.defs
+        //if override set then
+        //launchProgram(override, file);
+        editFile(file);
     }
 
     /**

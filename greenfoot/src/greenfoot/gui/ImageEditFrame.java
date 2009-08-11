@@ -137,7 +137,7 @@ public class ImageEditFrame extends JDialog implements ListSelectionListener, Wi
             editButton = new JButton("Edit");
             editButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    ExternalAppLauncher.editFile(projImageList.getSelectedEntry().imageFile);
+                    ExternalAppLauncher.editImage(projImageList.getSelectedEntry().imageFile);
                 }
             });
             editButton.setEnabled(false);

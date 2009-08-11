@@ -22,7 +22,7 @@
 package greenfoot.actions;
 
 import greenfoot.core.GProject;
-import greenfoot.gui.ImageEditFrame;
+import greenfoot.gui.ImageLibFrame;
 
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
@@ -36,7 +36,8 @@ import javax.swing.JFrame;
  */
 public class EditImagesAction extends AbstractAction
 {
-	private GProject proj;
+
+    private GProject proj;
     private JFrame owner;
 
     public EditImagesAction(GProject proj, JFrame owner)
@@ -56,7 +57,10 @@ public class EditImagesAction extends AbstractAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        ImageEditFrame frame = new ImageEditFrame(proj, owner);
+        //ImageEditFrame is probably now redundant, more likely to use ImageLibFrame instead
+        //with a slightly different constructor.
+        //ImageEditFrame frame = new ImageEditFrame(proj, owner);
+        ImageLibFrame frame = new ImageLibFrame(proj, owner);
         frame.setVisible(true);
     }
 }

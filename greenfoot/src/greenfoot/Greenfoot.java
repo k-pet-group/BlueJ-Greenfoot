@@ -141,7 +141,7 @@ public class Greenfoot
      * the project directory or in the sounds directory of the project
      * directory.
      * 
-     * @param filename Typically the name of a file in the sounds directory in
+     * @param soundFile Typically the name of a file in the sounds directory in
      *            the project directory.
      * @throws IllegalArgumentException If the sound can not be loaded.
      */
