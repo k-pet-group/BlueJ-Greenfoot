@@ -33,7 +33,7 @@ import greenfoot.sound.SoundFactory;
  * @author Poul Henriksen
  * @version 2.1
  */
-class GreenfootSound
+public class GreenfootSound
 {
     /*
      * TODO: Make class public when we want to include GreenfootSound support
