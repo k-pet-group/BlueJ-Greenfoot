@@ -20,6 +20,16 @@ public class ParsedCUNode extends ParentParsedNode
         this.document = document;
     }
 	
+	/**
+	 * Overridden getSize() which returns the document size.
+	 * 
+	 * @see bluej.parser.ParsedNode#getSize()
+	 */
+	public int getSize()
+	{
+	    return document.getLength();
+	}
+	
 	public int lineColToPosition(int line, int col)
 	{
 	    return document.getDefaultRootElement().getElement(line - 1).getStartOffset() + col - 1;

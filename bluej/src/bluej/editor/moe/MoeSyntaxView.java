@@ -35,14 +35,23 @@ package bluej.editor.moe;
  * to add Syntax highlighting to the BlueJ programming environment.
  */
 
-import javax.swing.text.*;
+import java.awt.Color;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.util.LinkedList;
+import java.util.List;
 
-import java.awt.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Element;
+import javax.swing.text.Segment;
+
 import bluej.Config;
-import bluej.parser.ParsedCUNode;
+import bluej.parser.ParsedNode;
+import bluej.parser.NodeTree.NodeAndPosition;
 import bluej.prefmgr.PrefMgr;
-import org.syntax.jedit.*;
-import org.syntax.jedit.tokenmarker.*;
 
 /**
  * A Swing view implementation that colorizes lines of a
@@ -55,7 +64,7 @@ import org.syntax.jedit.tokenmarker.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 6495 2009-08-06 23:38:13Z davmac $
+ * @version $Id: MoeSyntaxView.java 6506 2009-08-12 05:39:15Z davmac $
  */
 
 public class MoeSyntaxView extends BlueJSyntaxView
@@ -101,45 +110,91 @@ public class MoeSyntaxView extends BlueJSyntaxView
             g.drawImage(stepImage, x-1, y+3-stepImage.getHeight(null), null);
         }
         
-        int index = 4 * (0);
+        // draw left margin
+        Color oldColor = g.getColor();
+        g.setColor(Color.GRAY);
         FontMetrics fm = g.getFontMetrics();
-        int ypos = y - fm.getAscent() - fm.getLeading();
-        int ypos2 = y + fm.getDescent();
-        int char_width = fm.charWidth(' ');
-        //g.drawLine(x, ypos, x + 4 * char_width, ypos);
-        g.clearRect(x + BREAKPOINT_OFFSET, ypos, char_width * index, fm.getHeight());
+        int y1 = y - fm.getAscent() - fm.getLeading();
+        int y2 = y + fm.getDescent();
+        g.drawLine(x + LEFT_MARGIN - 1, y1, x + LEFT_MARGIN - 1, y2);
+        g.setColor(oldColor);
     }
     
     /**
-     * Draw a line for the moe editor.
-	 */
-	public void paintTaggedLine(Segment lineText, int lineIndex, Graphics g, int x, int y, 
-            MoeSyntaxDocument document, TokenMarker tokenMarker, Color def, Element line) 
+     * Pain the scope markers for the given line.
+     */
+    protected void paintScopeMarkers(Graphics g, MoeSyntaxDocument document, int x, int y, Element line)
     {
-	    paintLineMarkers(lineIndex, g, x, y, document, line);
-
-        //if(tokenMarker == null) {
-            Utilities.drawTabbedText(lineText, x+BREAKPOINT_OFFSET, y, g, this, 0);            
-        //}
-        //else {
-            //paintSyntaxLine(lineText, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
-            //                document, tokenMarker.markTokens(lineText, lineIndex), def);
-        //}
+        ParsedNode rootNode = document.getParser();
+        
+        int pos = line.getEndOffset();
+        
+        List<NodeAndPosition> scopeStack = new LinkedList<NodeAndPosition>();
+        rootNode.getNodeStack(scopeStack, pos, 0);
+        
+        List<NodeAndPosition> scopeStackAlt = new LinkedList<NodeAndPosition>();
+        rootNode.getNodeStack(scopeStackAlt, line.getStartOffset(), 0);
+        
+        if (scopeStackAlt.size() > scopeStack.size()) {
+            scopeStack = scopeStackAlt;
+        }
+        
+        for (NodeAndPosition nap: scopeStack) {
+            if (nap.getNode().isContainer()) {
+                int indent = getIndentFor(document, nap);
+                FontMetrics fm = g.getFontMetrics();
+                int ypos = y - fm.getAscent() - fm.getLeading();
+                int ypos2 = y + fm.getDescent();
+                int char_width = fm.charWidth(' ');
+                int xpos = x + LEFT_MARGIN + char_width * indent - 2;
+                g.drawLine(xpos, ypos, xpos, ypos2);
+            }
+        }
     }
-
+    
+    /**
+     * Get the scope indent for a given node.
+     */
+    private int getIndentFor(MoeSyntaxDocument document, NodeAndPosition nap)
+    {
+        // For now, just return indent of first line
+        int nodePos = nap.getPosition();
+        int firstLineIndex = document.getDefaultRootElement().getElementIndex(nodePos);
+        Element firstLine = document.getDefaultRootElement().getElement(firstLineIndex);
+        
+        try {
+            String text = document.getText(firstLine.getStartOffset(), firstLine.getEndOffset() - firstLine.getStartOffset());
+            int indent = 0;
+            int lpos = 0;
+            while (lpos < text.length()) {
+                int thechar = text.charAt(lpos++);
+                if (thechar == ' ') {
+                    indent++;
+                }
+                else if (thechar == '\t') {
+                    indent += getTabSize();
+                }
+                else {
+                    break;
+                }
+            }
+            return indent;
+        } catch (BadLocationException e) {
+            return 0;
+        }
+    }
+    
 	public void paintTaggedLine(Segment lineText, int lineIndex, Graphics g, int x, int y, 
             MoeSyntaxDocument document, Color def, Element line) 
     {
 	    paintLineMarkers(lineIndex, g, x, y, document, line);
+	    paintScopeMarkers(g, document, x, y, line);
 
         //if(tokenMarker == null) {
         //    Utilities.drawTabbedText(lineText, x+BREAKPOINT_OFFSET, y, g, this, 0);            
         //}
-        //else {
-		    int linePos = document.getDefaultRootElement().getElement(lineIndex).getStartOffset();
-            paintSyntaxLine(lineText, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
-                            document, def);
-        //}
+	    int linePos = document.getDefaultRootElement().getElement(lineIndex).getStartOffset();
+	    paintSyntaxLine(lineText, lineIndex, x + LEFT_MARGIN, y, g, document, def);
     }
 	
    /**

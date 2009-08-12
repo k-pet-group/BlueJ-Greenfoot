@@ -44,9 +44,9 @@ public class EditorParser extends NewParser
         pcuStmtBegin = token;
     }
     
-    protected void gotTypeDef(int tdType, boolean included)
+    protected void gotTypeDef(int tdType)
     {
-        ParsedNode pnode = new ParentParsedNode(scopeStack.peek());
+        ParsedNode pnode = new ParsedTypeNode(scopeStack.peek());
         int curOffset = getCurrentOffset();
         int insPos = pcuNode.lineColToPosition(pcuStmtBegin.getLine(), pcuStmtBegin.getColumn());
         scopeStack.peek().getNodeTree().insertNode(pnode, insPos - curOffset, 0);
@@ -68,7 +68,7 @@ public class EditorParser extends NewParser
         return rval;
     }
     
-    protected void gotTypeDefEnd(LocatableToken token)
+    protected void gotTypeDefEnd(LocatableToken token, boolean included)
     {
         int topPos = getCurrentOffset();
         ParsedNode top = scopeStack.pop();

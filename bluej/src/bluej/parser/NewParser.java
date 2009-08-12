@@ -126,7 +126,8 @@ public class NewParser
         }
     }
 	
-	protected void beginPackageStatement(LocatableToken token) {
+	protected void beginPackageStatement(LocatableToken token)
+	{
 	    beginElement(token);
 	}
 	
@@ -195,7 +196,7 @@ public class NewParser
 	{
 		try {
 			// possibly, modifiers: [public|private|protected] [static]
-			List<LocatableToken> modifiers = parseModifiers();
+			parseModifiers();
 			LocatableToken token = tokenStream.nextToken();					
 			
 			boolean isAnnotation = token.getType() == JavaTokenTypes.AT;
@@ -293,7 +294,8 @@ public class NewParser
 		}
 	}
 	
-	protected void gotTypeDefEnd(LocatableToken token, boolean included) {
+	protected void gotTypeDefEnd(LocatableToken token, boolean included)
+	{
 	    endElement(token, included);
 	}
 	
@@ -798,7 +800,7 @@ public class NewParser
 			}
 			else if (isModifier(token)) {	
 			    tokenStream.pushBack(token);
-			    List<LocatableToken> modifiers = parseModifiers();
+			    parseModifiers();
 			    if (isTypeDeclarator(tokenStream.LA(1)) || tokenStream.LA(1).getType() == JavaTokenTypes.AT) {
 					parseTypeDef();
 				}

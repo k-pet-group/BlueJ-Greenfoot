@@ -54,7 +54,7 @@ import org.syntax.jedit.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: BlueJSyntaxView.java 6495 2009-08-06 23:38:13Z davmac $
+ * @version $Id: BlueJSyntaxView.java 6506 2009-08-12 05:39:15Z davmac $
  */
 
 public abstract class BlueJSyntaxView extends PlainView
@@ -62,6 +62,7 @@ public abstract class BlueJSyntaxView extends PlainView
     /**  width of tag area for setting breakpoints */
     public static final short TAG_WIDTH = 14;
     protected static final int BREAKPOINT_OFFSET = TAG_WIDTH + 2;
+    protected static final int LEFT_MARGIN = BREAKPOINT_OFFSET + 8;
 
     // private members
     private Segment line;
@@ -294,8 +295,8 @@ public abstract class BlueJSyntaxView extends PlainView
         doc.getText(p0, pos - p0, buffer);
         int xOffs = Utilities.getTabbedTextWidth(buffer, metrics, tabBase, this, p0);
 
-        // fill in the results and return, include breakpoint area offset
-        lineArea.x += xOffs + (TAG_WIDTH + 2);
+        // fill in the results and return, include left margin area
+        lineArea.x += xOffs + LEFT_MARGIN;
         lineArea.width = 1;
         lineArea.height = metrics.getHeight();
         return lineArea;

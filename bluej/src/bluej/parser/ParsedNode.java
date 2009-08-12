@@ -1,8 +1,12 @@
 package bluej.parser;
 
+import java.util.List;
+
 import javax.swing.text.Document;
 
 import org.syntax.jedit.tokenmarker.Token;
+
+import bluej.parser.NodeTree.NodeAndPosition;
 
 public abstract class ParsedNode
 {
@@ -31,6 +35,26 @@ public abstract class ParsedNode
 	public void setContainingNodeTree(NodeTree cnode)
 	{
 	    containingNodeTree = cnode;
+	}
+	
+	public boolean isContainer()
+	{
+	    return false;
+	}
+	
+	public void getNodeStack(List<NodeAndPosition> list, int pos, int nodepos)
+	{
+	    list.add(new NodeAndPosition(this, nodepos, getSize()));
+	    NodeAndPosition subNode = getNodeTree().findNode(pos, nodepos);
+	    while (subNode != null) {
+	        list.add(subNode);
+	        subNode = subNode.getNode().getNodeTree().findNode(pos, subNode.getPosition());
+	    }
+	}
+	
+	public int getSize()
+	{
+	    return getContainingNodeTree().getNodeSize();
 	}
 	
 	/**
