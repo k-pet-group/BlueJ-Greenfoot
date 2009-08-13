@@ -3,7 +3,7 @@
 
 [Setup]
 AppName=BlueJ
-AppVerName=BlueJ 2.5.0
+AppVerName=BlueJ 2.5.2
 AppPublisher=Deakin University
 AppPublisherURL=http://www.bluej.org
 AppSupportURL=http://www.bluej.org
@@ -12,8 +12,9 @@ UninstallFilesDir={app}\uninst
 DefaultDirName={sd}\BlueJ
 DefaultGroupName=BlueJ
 Compression=bzip/9
-OutputBaseFilename=BlueJ-windows-2.5.0
+OutputBaseFilename=BlueJ-windows-252
 OutputDir=.
+PrivilegesRequired=none
 
 [Messages]
 SetupWindowTitle=BlueJ Installer
@@ -35,7 +36,7 @@ Name: "{app}\Select VM"; Filename: "{app}\bluej.exe"; WorkingDir: "{app}"; Param
 Type: files; Name: "{app}\lib\extensions\submission.jar"
 
 [Files]
-Source: "..\install_tmp\*.*"; DestDir: "{app}"; CopyMode: alwaysoverwrite; Flags: recursesubdirs
+Source: "..\install_tmp\*.*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
 Source: "..\winlaunch\bjlaunch.exe"; DestDir: "{app}"; DestName: "bluej.exe"
 Source: "..\winlaunch\README.TXT"; DestDir: "{app}"
 
