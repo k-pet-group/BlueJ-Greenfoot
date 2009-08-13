@@ -1049,10 +1049,7 @@ public final class MoeEditor extends JFrame
     /**
      * Document properties have changed
      */
-    public void changedUpdate(DocumentEvent e)
-    {
-        sourcePane.repaint(); // TODO only repaint lines which actually need repainting.
-    }
+    public void changedUpdate(DocumentEvent e) { }
 
     // --------------------------------------------------------------------
     /**

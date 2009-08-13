@@ -35,6 +35,7 @@ package bluej.editor.moe;
  * to add Syntax highlighting to the BlueJ programming environment.
  */
 
+import javax.swing.event.DocumentEvent;
 import javax.swing.text.*;
 
 import java.awt.*;
@@ -54,7 +55,7 @@ import org.syntax.jedit.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: BlueJSyntaxView.java 6508 2009-08-13 06:01:40Z davmac $
+ * @version $Id: BlueJSyntaxView.java 6518 2009-08-13 15:54:07Z davmac $
  */
 
 public abstract class BlueJSyntaxView extends PlainView
@@ -404,5 +405,34 @@ public abstract class BlueJSyntaxView extends PlainView
                               alloc.width, metrics.getHeight());
         }
         return r;
+    }
+    
+    /**
+     * Need to override this method from PlainView because the PlainView version is buggy for
+     * changes (which aren't inserts/removes) of multiple lines.
+     */
+    protected void updateDamage(DocumentEvent changes, Shape a, ViewFactory f)
+    {
+        Component host = getContainer();
+        Element elem = getElement();
+        DocumentEvent.ElementChange ec = changes.getChange(elem);
+        
+        Element[] added = (ec != null) ? ec.getChildrenAdded() : null;
+        Element[] removed = (ec != null) ? ec.getChildrenRemoved() : null;
+        if (((added != null) && (added.length > 0)) || 
+            ((removed != null) && (removed.length > 0))) {
+            // This case is handled Ok by the superclass.
+            super.updateDamage(changes, a, f);
+        } else {
+            // This is the case we have to fix. The PlainView implementation only
+            // repaints a single line; we need to repaint the whole range.
+            super.updateDamage(changes, a, f);
+            Element map = getElement();
+            int choffset = changes.getOffset();
+            int chlength = Math.max(changes.getLength(), 1);
+            int line = map.getElementIndex(choffset);
+            int lastline = map.getElementIndex(choffset + chlength - 1);
+            damageLineRange(line, lastline, a, host);
+        }
     }
 }

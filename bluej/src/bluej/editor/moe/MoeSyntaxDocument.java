@@ -238,12 +238,24 @@ public class MoeSyntaxDocument extends PlainDocument
     // DAV comment
     protected void fireRemoveUpdate(DocumentEvent e)
     {
+        // TODO do this in handleRemove instead, then we can hook before the remove and after
         parsedNode.textRemoved(this, 0, e.getOffset(), e.getLength());
         super.fireRemoveUpdate(e);
     }
     
+    /**
+     * Notify that the whole document potentially needs repainting.
+     */
     public void documentChanged()
     {
-        fireChangedUpdate(new DefaultDocumentEvent(0, getLength(), EventType.CHANGE));
+        repaintLines(0, getLength());
+    }
+    
+    /**
+     * Notify that a certain area of the document needs repainting.
+     */
+    public void repaintLines(int offset, int length)
+    {
+        fireChangedUpdate(new DefaultDocumentEvent(offset, length, EventType.CHANGE));
     }
 }
