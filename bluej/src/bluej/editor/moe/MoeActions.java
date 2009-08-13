@@ -865,14 +865,12 @@ public final class MoeActions
         }
 
         public void actionPerformed(ActionEvent e)
-        {
-        	
+        {        	
         	JTextComponent textPane = getTextComponent(e);
             Font textPFont= textPane.getFont();           
             int newFont=textPFont.getSize()+1;
-            //PrefMgr.setEditorFontSize(newFont);
-            getTextComponent(e).setFont(textPane.getFont().deriveFont((float)newFont));
-            
+            PrefMgr.setEditorFontSize(newFont);
+            getTextComponent(e).setFont(textPane.getFont().deriveFont((float)newFont));            
         }
     }
     
@@ -887,12 +885,11 @@ public final class MoeActions
         }
 
         public void actionPerformed(ActionEvent e)
-        {
-     
+        {     
             JTextComponent textPane = getTextComponent(e);
             Font textPFont= textPane.getFont();            
             int newFont=textPFont.getSize()-1;
-            //PrefMgr.setEditorFontSize(newFont);
+            PrefMgr.setEditorFontSize(newFont);
             getTextComponent(e).setFont(textPFont.deriveFont((float)newFont));
         }
     }
