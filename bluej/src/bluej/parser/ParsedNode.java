@@ -42,6 +42,11 @@ public abstract class ParsedNode
 	    return false;
 	}
 	
+	public int getLeftmostIndent(Document document, int nodePos)
+	{
+	    return 0;
+	}
+	
 	public void getNodeStack(List<NodeAndPosition> list, int pos, int nodepos)
 	{
 	    list.add(new NodeAndPosition(this, nodepos, getSize()));

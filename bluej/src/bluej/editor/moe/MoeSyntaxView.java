@@ -64,7 +64,7 @@ import bluej.prefmgr.PrefMgr;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 6506 2009-08-12 05:39:15Z davmac $
+ * @version $Id: MoeSyntaxView.java 6508 2009-08-13 06:01:40Z davmac $
  */
 
 public class MoeSyntaxView extends BlueJSyntaxView
@@ -127,7 +127,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
     {
         ParsedNode rootNode = document.getParser();
         
-        int pos = line.getEndOffset();
+        int pos = line.getEndOffset() - 1;
         
         List<NodeAndPosition> scopeStack = new LinkedList<NodeAndPosition>();
         rootNode.getNodeStack(scopeStack, pos, 0);
@@ -158,30 +158,31 @@ public class MoeSyntaxView extends BlueJSyntaxView
     private int getIndentFor(MoeSyntaxDocument document, NodeAndPosition nap)
     {
         // For now, just return indent of first line
-        int nodePos = nap.getPosition();
-        int firstLineIndex = document.getDefaultRootElement().getElementIndex(nodePos);
-        Element firstLine = document.getDefaultRootElement().getElement(firstLineIndex);
-        
-        try {
-            String text = document.getText(firstLine.getStartOffset(), firstLine.getEndOffset() - firstLine.getStartOffset());
-            int indent = 0;
-            int lpos = 0;
-            while (lpos < text.length()) {
-                int thechar = text.charAt(lpos++);
-                if (thechar == ' ') {
-                    indent++;
-                }
-                else if (thechar == '\t') {
-                    indent += getTabSize();
-                }
-                else {
-                    break;
-                }
-            }
-            return indent;
-        } catch (BadLocationException e) {
-            return 0;
-        }
+//        int nodePos = nap.getPosition();
+//        int firstLineIndex = document.getDefaultRootElement().getElementIndex(nodePos);
+//        Element firstLine = document.getDefaultRootElement().getElement(firstLineIndex);
+//        
+//        try {
+//            String text = document.getText(firstLine.getStartOffset(), firstLine.getEndOffset() - firstLine.getStartOffset());
+//            int indent = 0;
+//            int lpos = 0;
+//            while (lpos < text.length()) {
+//                int thechar = text.charAt(lpos++);
+//                if (thechar == ' ') {
+//                    indent++;
+//                }
+//                else if (thechar == '\t') {
+//                    indent += getTabSize();
+//                }
+//                else {
+//                    break;
+//                }
+//            }
+//            return indent;
+//        } catch (BadLocationException e) {
+//            return 0;
+//        }
+        return nap.getNode().getLeftmostIndent(document, nap.getPosition());
     }
     
 	public void paintTaggedLine(Segment lineText, int lineIndex, Graphics g, int x, int y, 

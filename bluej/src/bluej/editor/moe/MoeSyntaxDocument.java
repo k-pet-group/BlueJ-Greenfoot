@@ -33,6 +33,7 @@ package bluej.editor.moe;
 import java.awt.Color;
 
 import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentEvent.EventType;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.Element;
 import javax.swing.text.MutableAttributeSet;
@@ -239,5 +240,10 @@ public class MoeSyntaxDocument extends PlainDocument
     {
         parsedNode.textRemoved(this, 0, e.getOffset(), e.getLength());
         super.fireRemoveUpdate(e);
+    }
+    
+    public void documentChanged()
+    {
+        fireChangedUpdate(new DefaultDocumentEvent(0, getLength(), EventType.CHANGE));
     }
 }

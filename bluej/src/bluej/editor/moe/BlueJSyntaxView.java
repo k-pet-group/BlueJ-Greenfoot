@@ -54,7 +54,7 @@ import org.syntax.jedit.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: BlueJSyntaxView.java 6506 2009-08-12 05:39:15Z davmac $
+ * @version $Id: BlueJSyntaxView.java 6508 2009-08-13 06:01:40Z davmac $
  */
 
 public abstract class BlueJSyntaxView extends PlainView
@@ -356,7 +356,7 @@ public abstract class BlueJSyntaxView extends PlainView
                     int p1 = line.getEndOffset() - 1;
                     doc.getText(p0, p1 - p0, buffer);
                     // add Moe breakpoint offset area width
-                    int tabBase = alloc.x + TAG_WIDTH + 2;
+                    int tabBase = alloc.x + LEFT_MARGIN;
                     int offs = p0 + Utilities.getTabbedTextOffset(buffer, metrics,
                                                                   tabBase, x, this, p0);
                     return offs;
