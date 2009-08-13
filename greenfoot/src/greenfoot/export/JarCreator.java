@@ -40,13 +40,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.jar.Attributes;
-import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
-import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import bluej.Config;
@@ -313,7 +311,7 @@ public class JarCreator
             copyLibsToDir(extraJars, exportDir);            
         }
         catch (IOException exc) {
-            Debug.reportError("problen writing jar file: " + exc);
+            Debug.reportError("problem writing jar file: " + exc);
         }
         finally {
             try {
@@ -530,12 +528,18 @@ public class JarCreator
      * Writes a file or directory to a jar. Recursively called for
      * subdirectories. outputFile should be the canonical file representation of
      * the Jar file we are creating (to prevent including itself in the Jar
-     * file)
+     * file). If the source file does not exist, this method will just return without 
+     * doing anything.
      * @param onlyDirContents If sourceFile is a dir, this parameter indicates that the contents of the dir should be added, not the dir itself.
      */
     private void writeFileToJar(File sourceFile, String pathPrefix, ZipOutputStream stream, File outputFile, boolean onlyDirContents)
         throws IOException
     {
+        if(!sourceFile.exists()) {
+            // if the file is not available, just return.
+            return;
+        }
+        
         if(sourceFile.isDirectory()) {
             if(!onlyDirContents) {
                 pathPrefix += sourceFile.getName()  + "/";
@@ -554,11 +558,16 @@ public class JarCreator
     }
     
     /**
-     * Write the contents of a jar into another jar stream. 
+     * Write the contents of a jar into another jar stream. If the source file does not exist, this method will just return without 
+     * doing anything.
      */
     private void writeJarToJar(File inputJar, ZipOutputStream outputStream)
         throws IOException
     {
+        if(!inputJar.exists()) {
+            // if the file is not available, just return.
+            return;
+        }
         
         JarInputStream inputStream = new JarInputStream(
                 new BufferedInputStream(new FileInputStream(inputJar)));
@@ -581,12 +590,16 @@ public class JarCreator
     {
         for (Iterator<File> it = userLibs.iterator(); it.hasNext();) {
             File lib = (File) it.next();
-            File destFile = new File(destDir, lib.getName());
-            try {
-                FileUtility.copyFile(lib, destFile);
-            }
-            catch (IOException e) {
-                Debug.reportError("Error when copying file: " + lib + " to: " + destFile, e);               
+
+            // Ignore files that do not exist
+            if(lib.exists()) {
+                File destFile = new File(destDir, lib.getName());
+                try {
+                    FileUtility.copyFile(lib, destFile);
+                }
+                catch (IOException e) {
+                    Debug.reportError("Error when copying file: " + lib + " to: " + destFile, e);               
+                }
             }
         }
     }

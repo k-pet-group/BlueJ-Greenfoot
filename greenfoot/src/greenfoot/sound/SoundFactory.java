@@ -85,6 +85,10 @@ public class SoundFactory
 			if (isMidi(url)) {
 				return new MidiFileSound(url, soundCollection);
 			}
+			else if(!GreenfootUtil.isMp3LibAvailable() && isMp3(url)) {
+			    // This is an mp3 file but we don't have the mp3 library available.
+			    SoundExceptionHandler.handleMp3LibNotAvailable();
+            }   
 			else if(isMp3(url)) {
 				return new SoundStream(new Mp3AudioInputStream(url), soundCollection);
 			}			

@@ -51,6 +51,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessControlException;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -58,17 +60,16 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import bluej.Boot;
 import bluej.Config;
 import bluej.utility.Utility;
 import javax.imageio.ImageIO;
-
-
 
 /**
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 6423 2009-07-09 13:35:24Z mjrb4 $
+ * @version $Id: GreenfootUtil.java 6510 2009-08-13 10:57:08Z polle $
  */
 public class GreenfootUtil
 {
@@ -746,5 +747,29 @@ public class GreenfootUtil
                 Utility.openWebBrowser(location);
             }
         }
+    }
+    
+    /**
+     * Returns a set of the third party libraries used by Greenfoot.
+     * 
+     */
+    public static Set<File> get3rdPartyLibs()
+    {
+        File bluejLibDir = Config.getBlueJLibDir();      
+        String[] thirdPartyLibs = Boot.GREENFOOT_EXPORT_JARS;
+        Set<File> jars = new TreeSet<File>();
+        for (String lib : thirdPartyLibs) {
+            jars.add(new File(bluejLibDir, lib));
+        }
+        return jars;
+    }
+
+    /**
+     * Check whether MP3 support is available.
+     */
+    public static boolean isMp3LibAvailable()
+    {
+        URL url = delegate.getResource("javazoom/jl/decoder/BitstreamException.class");
+        return url != null;
     }
 }
