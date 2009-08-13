@@ -48,7 +48,7 @@ public class MidiFileSound implements Sound
 {
 	private void printDebug(String s)
 	{
-		System.out.println(s);
+		//System.out.println(s);
 	}
 
 	private URL url;
