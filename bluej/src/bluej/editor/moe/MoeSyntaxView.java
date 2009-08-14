@@ -46,7 +46,9 @@ import java.util.List;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
+import javax.swing.text.Position;
 import javax.swing.text.Segment;
+import javax.swing.text.Position.Bias;
 
 import bluej.Config;
 import bluej.parser.ParsedNode;
@@ -64,7 +66,7 @@ import bluej.prefmgr.PrefMgr;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 6508 2009-08-13 06:01:40Z davmac $
+ * @version $Id: MoeSyntaxView.java 6522 2009-08-14 07:05:14Z davmac $
  */
 
 public class MoeSyntaxView extends BlueJSyntaxView
@@ -139,17 +141,45 @@ public class MoeSyntaxView extends BlueJSyntaxView
             scopeStack = scopeStackAlt;
         }
         
+        Color c1 = new Color(210, 230, 210); // green border (container)
+        Color c2 = new Color(250, 255, 250); // green wash
+        Color c3 = new Color(230, 240, 230); // green border (inner).
+        Color c4 = new Color(255, 255, 255); // white wash
+        
+        boolean container = false;
+        Color origColor = g.getColor();
+        
+        Rectangle bounds = g.getClipBounds();
+        
         for (NodeAndPosition nap: scopeStack) {
+            int ypos = y;
+            int ypos2 = y + metrics.getHeight();
             if (nap.getNode().isContainer()) {
+                container = true;
                 int indent = getIndentFor(document, nap);
                 FontMetrics fm = g.getFontMetrics();
-                int ypos = y - fm.getAscent() - fm.getLeading();
-                int ypos2 = y + fm.getDescent();
                 int char_width = fm.charWidth(' ');
-                int xpos = x + LEFT_MARGIN + char_width * indent - 2;
+                int xpos = x + char_width * indent - 2;
+                g.setColor(c1);
                 g.drawLine(xpos, ypos, xpos, ypos2);
+                g.setColor(c2);
+                g.fillRect(xpos + 1, ypos, bounds.width - (xpos+1), ypos2 - ypos);
+            }
+            else if (container) {
+                container = false;
+                if (nap.getNode().isInner()) {
+                    int indent = getIndentFor(document, nap);
+                    FontMetrics fm = g.getFontMetrics();
+                    int char_width = fm.charWidth(' ');
+                    int xpos = x + char_width * indent - 5;
+                    g.setColor(c3);
+                    g.drawLine(xpos, ypos, xpos, ypos2);
+                    g.setColor(c4);
+                    g.fillRect(xpos + 1, ypos, bounds.width - (xpos+1), ypos2 - ypos);
+                }
             }
         }
+        g.setColor(origColor);
     }
     
     /**
@@ -157,47 +187,21 @@ public class MoeSyntaxView extends BlueJSyntaxView
      */
     private int getIndentFor(MoeSyntaxDocument document, NodeAndPosition nap)
     {
-        // For now, just return indent of first line
-//        int nodePos = nap.getPosition();
-//        int firstLineIndex = document.getDefaultRootElement().getElementIndex(nodePos);
-//        Element firstLine = document.getDefaultRootElement().getElement(firstLineIndex);
-//        
-//        try {
-//            String text = document.getText(firstLine.getStartOffset(), firstLine.getEndOffset() - firstLine.getStartOffset());
-//            int indent = 0;
-//            int lpos = 0;
-//            while (lpos < text.length()) {
-//                int thechar = text.charAt(lpos++);
-//                if (thechar == ' ') {
-//                    indent++;
-//                }
-//                else if (thechar == '\t') {
-//                    indent += getTabSize();
-//                }
-//                else {
-//                    break;
-//                }
-//            }
-//            return indent;
-//        } catch (BadLocationException e) {
-//            return 0;
-//        }
         return nap.getNode().getLeftmostIndent(document, nap.getPosition());
     }
     
-	public void paintTaggedLine(Segment lineText, int lineIndex, Graphics g, int x, int y, 
+    public void paintTaggedLine(Segment lineText, int lineIndex, Graphics g, int x, int y, 
             MoeSyntaxDocument document, Color def, Element line) 
     {
-	    paintLineMarkers(lineIndex, g, x, y, document, line);
-	    paintScopeMarkers(g, document, x, y, line);
+        paintLineMarkers(lineIndex, g, x, y, document, line);
 
         //if(tokenMarker == null) {
         //    Utilities.drawTabbedText(lineText, x+BREAKPOINT_OFFSET, y, g, this, 0);            
         //}
-	    int linePos = document.getDefaultRootElement().getElement(lineIndex).getStartOffset();
-	    paintSyntaxLine(lineText, lineIndex, x + LEFT_MARGIN, y, g, document, def);
+        
+        paintSyntaxLine(lineText, lineIndex, x + LEFT_MARGIN, y, g, document, def);
     }
-	
+        
    /**
     * redefined paint method to paint breakpoint area
     *
@@ -212,6 +216,23 @@ public class MoeSyntaxView extends BlueJSyntaxView
                        bounds.y + bounds.height);
         }
 
+        Rectangle clip = g.getClipBounds();
+        
+        int spos = viewToModel(bounds.x, clip.y, allocation, new Position.Bias[1]);
+        int epos = viewToModel(bounds.x, clip.y + clip.height - 1, allocation, new Position.Bias[1]);
+        
+        Element map = getElement();
+        for (int i = spos; i < epos; ) {
+            int lineIndex = map.getElementIndex(i);
+            Element line = map.getElement(lineIndex);
+            try {
+                Shape lshape = modelToView(line.getStartOffset(), allocation, Bias.Forward);
+                paintScopeMarkers(g, (MoeSyntaxDocument) map.getDocument(), lshape.getBounds().x, lshape.getBounds().y, line);
+            } catch (BadLocationException e) {
+            }
+            i = line.getEndOffset();
+        }
+        
         // paint the lines
         super.paint(g, allocation);
 

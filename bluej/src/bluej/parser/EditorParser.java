@@ -2,6 +2,9 @@ package bluej.parser;
 
 import java.io.Reader;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Stack;
 
 import org.syntax.jedit.tokenmarker.Token;
@@ -20,6 +23,7 @@ public class EditorParser extends NewParser
     
     private LocatableToken pcuStmtBegin;
     private ParsedCUNode pcuNode;
+    private List<LocatableToken> commentQueue = new LinkedList<LocatableToken>();
     
     public EditorParser(Reader r)
     {
@@ -37,6 +41,7 @@ public class EditorParser extends NewParser
         scopeStack.push(pcuNode);
         parseCU();
         scopeStack.pop();
+        completedNode(pcuNode, 0, pcuNode.getSize());
     }
     
     protected void beginElement(LocatableToken token)
@@ -51,6 +56,31 @@ public class EditorParser extends NewParser
         int insPos = pcuNode.lineColToPosition(pcuStmtBegin.getLine(), pcuStmtBegin.getColumn());
         scopeStack.peek().getNodeTree().insertNode(pnode, insPos - curOffset, 0);
         scopeStack.push(pnode);
+    }
+    
+    protected void beginTypeBody(LocatableToken token)
+    {
+        ParentParsedNode bodyNode = new ParentParsedNode(scopeStack.peek());
+        bodyNode.setInner(true);
+        int curOffset = getCurrentOffset();
+        int insPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
+        scopeStack.peek().getNodeTree().insertNode(bodyNode, insPos - curOffset, 0);
+        scopeStack.push(bodyNode);
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see bluej.parser.NewParser#endTypeBody(bluej.parser.ast.LocatableToken, boolean)
+     */
+    protected void endTypeBody(LocatableToken token, boolean included)
+    {
+        int topPos = getCurrentOffset();
+        ParsedNode top = scopeStack.pop();
+
+        int endPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+        top.getContainingNodeTree().setNodeSize(endPos - topPos);
+        
+        completedNode(top, topPos, endPos - topPos);
     }
     
     private int getCurrentOffset()
@@ -75,6 +105,27 @@ public class EditorParser extends NewParser
         
         int endPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
         top.getContainingNodeTree().setNodeSize(endPos - topPos);
+        
+        completedNode(top, topPos, endPos - topPos);
+    }
+    
+    protected void completedNode(ParsedNode node, int position, int size)
+    {
+        ListIterator<LocatableToken> i = commentQueue.listIterator();
+        while (i.hasNext()) {
+            LocatableToken token = i.next();
+            int startpos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+            if (startpos >= position && startpos < (position + size)) {
+                Selection s = new Selection(token.getLine(), token.getColumn());
+                s.extendEnd(token.getEndLine(), token.getEndColumn());
+                int endpos = pcuNode.lineColToPosition(s.getEndLine(), s.getEndColumn());
+
+                ColourNode cn = new ColourNode(node, Token.COMMENT1);
+                node.getNodeTree().insertNode(cn, startpos - position, endpos - startpos);
+                
+                i.remove();
+            }
+        }
     }
     
     /*
@@ -108,14 +159,15 @@ public class EditorParser extends NewParser
     
     public void gotComment(LocatableToken token)
     {
-        Selection s = new Selection(token.getLine(), token.getColumn());
-        s.extendEnd(token.getEndLine(), token.getEndColumn());
-
-        int startpos = pcuNode.lineColToPosition(s.getLine(), s.getColumn());
-        int endpos = pcuNode.lineColToPosition(s.getEndLine(), s.getEndColumn());
-
-        ColourNode cn = new ColourNode(pcuNode, Token.COMMENT1);
-        int curOffset = getCurrentOffset();
-        scopeStack.peek().getNodeTree().insertNode(cn, startpos - curOffset, endpos - startpos);
+        commentQueue.add(token);
+//        Selection s = new Selection(token.getLine(), token.getColumn());
+//        s.extendEnd(token.getEndLine(), token.getEndColumn());
+//
+//        int startpos = pcuNode.lineColToPosition(s.getLine(), s.getColumn());
+//        int endpos = pcuNode.lineColToPosition(s.getEndLine(), s.getEndColumn());
+//
+//        ColourNode cn = new ColourNode(scopeStack.peek(), Token.COMMENT1);
+//        int curOffset = getCurrentOffset();
+//        scopeStack.peek().getNodeTree().insertNode(cn, startpos - curOffset, endpos - startpos);
     }
 }

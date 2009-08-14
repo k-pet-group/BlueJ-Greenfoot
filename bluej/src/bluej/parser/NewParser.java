@@ -17,37 +17,37 @@ import bluej.parser.ast.gen.JavaTokenTypes;
  */
 public class NewParser
 {
-	protected JavaTokenFilter tokenStream;
-	protected JavaLexer lexer;
-	
-	public NewParser(Reader r)
-	{
-		EscapedUnicodeReader euReader = new EscapedUnicodeReader(r);
-		lexer = new JavaLexer(euReader);
+    protected JavaTokenFilter tokenStream;
+    protected JavaLexer lexer;
+
+    public NewParser(Reader r)
+    {
+        EscapedUnicodeReader euReader = new EscapedUnicodeReader(r);
+        lexer = new JavaLexer(euReader);
         lexer.setTokenObjectClass("bluej.parser.ast.LocatableToken");
         lexer.setTabSize(1);
         euReader.setAttachedScanner(lexer);
-		tokenStream = new JavaTokenFilter(lexer, this);
-	}
-	
-	/**
-	 * An error occurred during parsing. Override this method to control error behaviour.
-	 * @param msg A message describing the error
-	 */
-	protected void error(String msg)
-	{
-		throw new RuntimeException("Parse error: (" + lexer.getLine() + ":" + lexer.getColumn() + ") " + msg);
-	}
-	
-	/**
-	 * Parse a compilation unit (from the beginning).
-	 */
-	public void parseCU()
-	{
-		parseCU(0);
-	}
-	
-	public void parseCU(int state)
+        tokenStream = new JavaTokenFilter(lexer, this);
+    }
+
+    /**
+     * An error occurred during parsing. Override this method to control error behaviour.
+     * @param msg A message describing the error
+     */
+    protected void error(String msg)
+    {
+        throw new RuntimeException("Parse error: (" + lexer.getLine() + ":" + lexer.getColumn() + ") " + msg);
+    }
+
+    /**
+     * Parse a compilation unit (from the beginning).
+     */
+    public void parseCU()
+    {
+        parseCU(0);
+    }
+
+    public void parseCU(int state)
     {
         try {
             while (true) {              // optional: package statement
@@ -126,300 +126,313 @@ public class NewParser
         }
     }
 	
-	protected void beginPackageStatement(LocatableToken token)
-	{
-	    beginElement(token);
-	}
+    protected void beginPackageStatement(LocatableToken token)
+    {
+        beginElement(token);
+    }
 	
-	/** Beginning of some arbitrary grammatical element */
-	protected void beginElement(LocatableToken token) { }
-	
-	/** End of some arbitrary grammatical element.
-	 * 
-	 * @param token  The end token 
-	 * @param included  True if the end token is part of the element; false if it is part of the next element.
-	 */
-	protected void endElement(LocatableToken token, boolean included) { }
-	
-	/** reached a compilation unit state */
-	protected void reachedCUstate(int i) { }
-	
-	/** We have the package name for this source */
-	protected void gotPackage(List<LocatableToken> pkgTokens) { }
-	
-	/** We've seen the semicolon at the end of a "package" statement. */
-	protected void gotPackageSemi(LocatableToken token) {
-	    endElement(token, true);
-	}
+    /** Beginning of some arbitrary grammatical element */
+    protected void beginElement(LocatableToken token) { }
 
-	/** We've seen the semicolon at the end of an "import" statement */
-	protected void gotImportStmtSemi(LocatableToken token) {
-	    endElement(token, true);
-	}
-	
-	/**
-	 * Check whether a particular token is a type declaration initiator, i.e "class", "interface"
-	 * or "enum"
-	 */
-	public boolean isTypeDeclarator(LocatableToken token)
-	{
-		return token.getType() == JavaTokenTypes.LITERAL_class
-			|| token.getType() == JavaTokenTypes.LITERAL_enum
-			|| token.getType() == JavaTokenTypes.LITERAL_interface;
-	}
-	
-	/**
-	 * Check whether a token is a primitive type - "int" "float" etc
-	 */
-	public static boolean isPrimitiveType(LocatableToken token)
-	{
-		return token.getType() == JavaTokenTypes.LITERAL_void
-			|| token.getType() == JavaTokenTypes.LITERAL_boolean
-			|| token.getType() == JavaTokenTypes.LITERAL_byte
-			|| token.getType() == JavaTokenTypes.LITERAL_char
-			|| token.getType() == JavaTokenTypes.LITERAL_short
-			|| token.getType() == JavaTokenTypes.LITERAL_int
-			|| token.getType() == JavaTokenTypes.LITERAL_long
-			|| token.getType() == JavaTokenTypes.LITERAL_float
-			|| token.getType() == JavaTokenTypes.LITERAL_double;
-	}
-	
-	public static int TYPEDEF_CLASS = 0;
-	public static int TYPEDEF_INTERFACE = 1;
-	public static int TYPEDEF_ENUM = 2;
-	public static int TYPEDEF_ANNOTATION=3;
-	
-	/**
-	 * Parse a type definition (class, interface, enum).
-	 */
-	public void parseTypeDef()
-	{
-		try {
-			// possibly, modifiers: [public|private|protected] [static]
-			parseModifiers();
-			LocatableToken token = tokenStream.nextToken();					
-			
-			boolean isAnnotation = token.getType() == JavaTokenTypes.AT;
-			if (isAnnotation) {
-			    token = tokenStream.nextToken();
-			}
-			
-			// [class|interface|enum]						
-			if (isTypeDeclarator(token)) {
-				int tdType = -1;
-				String typeDesc;			
-				if (token.getType() == JavaTokenTypes.LITERAL_class) {
-					typeDesc = "class";
-					tdType = TYPEDEF_CLASS;
-				}
-				else if (token.getType() == JavaTokenTypes.LITERAL_interface) {
-					typeDesc = "interface";
-					tdType = TYPEDEF_INTERFACE;
-					//check for annotation type
-					if(isAnnotation) {
-						tdType = TYPEDEF_ANNOTATION;						 
-					}
-				}
-				else {
-					typeDesc = "enum";
-					tdType = TYPEDEF_ENUM;
-				}
-				
-				gotTypeDef(tdType);
-				
-				// Class name
-				token = tokenStream.nextToken();
-				if (token.getType() != JavaTokenTypes.IDENT) {
-					error("Expected identifier (in " + typeDesc + " definition)");
-					tokenStream.pushBack(token);
-					return;
-				}
-				gotTypeDefName(token);
-				
-				// template arguments
-				token = tokenStream.nextToken();
-				if (token.getType() == JavaTokenTypes.LT) {
-					parseTemplateParams();
-					token = tokenStream.nextToken();
-				}
-				
-				// extends...
-				if (token.getType() == JavaTokenTypes.LITERAL_extends) {
-					gotTypeDefExtends(token);
-					parseTypeSpec();
-					token = tokenStream.nextToken();
-				}
-				
-				// implements...
-				if (token.getType() == JavaTokenTypes.LITERAL_implements) {
-					gotTypeDefImplements(token);
-					parseTypeSpec();
-					token = tokenStream.nextToken();
-					while (token.getType() == JavaTokenTypes.COMMA) {
-						parseTypeSpec();
-						token = tokenStream.nextToken();
-					}
-				}
-				
-				// Body!
-				if (token.getType() != JavaTokenTypes.LCURLY) {
-					error("Expected '{' (in class definition)");
-					tokenStream.pushBack(token);
-					return;
-				}
-				
-				if (tdType == TYPEDEF_ENUM) {
-					parseEnumConstants();
-				}
-				
-				if (tdType== TYPEDEF_ANNOTATION)
-					parseAnnotationBody();
-				else 
-					parseClassBody();
-				
-				token = tokenStream.nextToken();
-				if (token.getType() != JavaTokenTypes.RCURLY) {
-					error("Expected '}' (in class definition)");
-					gotTypeDefEnd(token, false);
-					return;
-				}
-				gotTypeDefEnd(token, true);
-			}
-			else {
-				error("Expected type declarator: 'class', 'interface', or 'enum'");
-			}
-		}
-		catch (TokenStreamException tse) {
-			tse.printStackTrace();
-		}
-	}
-	
-	protected void gotTypeDefEnd(LocatableToken token, boolean included)
-	{
-	    endElement(token, included);
-	}
-	
-	public void parseEnumConstants()
-	{
-		try {
-			LocatableToken token = tokenStream.nextToken();
-			while (token.getType() == JavaTokenTypes.IDENT) {
-				// The identifier is the constant name - there may be constructor arguments as well
-				token = tokenStream.nextToken();
-				if (token.getType() == JavaTokenTypes.LPAREN) {
-					parseArgumentList();
-					token = tokenStream.nextToken();
-					if (token.getType() != JavaTokenTypes.RPAREN) {
-						error("Expecting ')' at end of enum constant constructor arguments");
-						if (token.getType() != JavaTokenTypes.COMMA
-								&& token.getType() != JavaTokenTypes.SEMI) {
-							tokenStream.pushBack(token);
-							return;
-						}
-					}
-					else {
-						token = tokenStream.nextToken();
-					}
-				}
-				
-				if (token.getType() == JavaTokenTypes.SEMI) {
-					return;
-				}
-				
-				if (token.getType() == JavaTokenTypes.RCURLY) {
-					// This is valid
-					tokenStream.pushBack(token);
-					return;
-				}
-				
-				if (token.getType() != JavaTokenTypes.COMMA) {
-					error("Expecting ',' or ';' after enum constant declaration");
-					tokenStream.pushBack(token);
-					return;
-				}
-				token = tokenStream.nextToken();
-			}
-		} catch (TokenStreamException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	// Parse template parameters. The '<' should have been read already.
-	public void parseTemplateParams()
-	{
-		try {
-			DepthRef dr = new DepthRef();
-			dr.depth = 1;
-			
-			while (true) {
-				LocatableToken token = tokenStream.nextToken();
-				if (token.getType() != JavaTokenTypes.IDENT) {
-					error("Expected identifier (in type parameter list)");
-					tokenStream.pushBack(token);
-					return;
-				}
+    /** End of some arbitrary grammatical element.
+     * 
+     * @param token  The end token 
+     * @param included  True if the end token is part of the element; false if it is part of the next element.
+     */
+    protected void endElement(LocatableToken token, boolean included) { }
 
-				token = tokenStream.nextToken();
-				if (token.getType() == JavaTokenTypes.LITERAL_extends) {
-					do {
-						parseTargType(false, new LinkedList<LocatableToken>(), dr);
-						if (dr.depth <= 0) {
-							return;
-						}
-						token = tokenStream.nextToken();
-					} while (token.getType() == JavaTokenTypes.BAND);
-				}
-				
-				if (token.getType() != JavaTokenTypes.COMMA) {
-					if (token.getType() != JavaTokenTypes.GT) {
-						error("Expecting '>' at end of type parameter list");
-						tokenStream.pushBack(token);
-					}
-					break;
-				}
-			}
-		}
-		catch (TokenStreamException tse) {
-			tse.printStackTrace();
-		}
-	}
+    /** reached a compilation unit state */
+    protected void reachedCUstate(int i) { }
+
+    /** We have the package name for this source */
+    protected void gotPackage(List<LocatableToken> pkgTokens) { }
+
+    /** We've seen the semicolon at the end of a "package" statement. */
+    protected void gotPackageSemi(LocatableToken token) {
+        endElement(token, true);
+    }
+
+    /** We've seen the semicolon at the end of an "import" statement */
+    protected void gotImportStmtSemi(LocatableToken token) {
+        endElement(token, true);
+    }
+
+    /**
+     * Check whether a particular token is a type declaration initiator, i.e "class", "interface"
+     * or "enum"
+     */
+    public boolean isTypeDeclarator(LocatableToken token)
+    {
+        return token.getType() == JavaTokenTypes.LITERAL_class
+        || token.getType() == JavaTokenTypes.LITERAL_enum
+        || token.getType() == JavaTokenTypes.LITERAL_interface;
+    }
+
+    /**
+     * Check whether a token is a primitive type - "int" "float" etc
+     */
+    public static boolean isPrimitiveType(LocatableToken token)
+    {
+        return token.getType() == JavaTokenTypes.LITERAL_void
+        || token.getType() == JavaTokenTypes.LITERAL_boolean
+        || token.getType() == JavaTokenTypes.LITERAL_byte
+        || token.getType() == JavaTokenTypes.LITERAL_char
+        || token.getType() == JavaTokenTypes.LITERAL_short
+        || token.getType() == JavaTokenTypes.LITERAL_int
+        || token.getType() == JavaTokenTypes.LITERAL_long
+        || token.getType() == JavaTokenTypes.LITERAL_float
+        || token.getType() == JavaTokenTypes.LITERAL_double;
+    }
+
+    public static int TYPEDEF_CLASS = 0;
+    public static int TYPEDEF_INTERFACE = 1;
+    public static int TYPEDEF_ENUM = 2;
+    public static int TYPEDEF_ANNOTATION=3;
+
+    /**
+     * Parse a type definition (class, interface, enum).
+     */
+    public void parseTypeDef()
+    {
+        try {
+            // possibly, modifiers: [public|private|protected] [static]
+            parseModifiers();
+            LocatableToken token = tokenStream.nextToken();					
+
+            boolean isAnnotation = token.getType() == JavaTokenTypes.AT;
+            if (isAnnotation) {
+                token = tokenStream.nextToken();
+            }
+
+            // [class|interface|enum]						
+            if (isTypeDeclarator(token)) {
+                int tdType = -1;
+                String typeDesc;			
+                if (token.getType() == JavaTokenTypes.LITERAL_class) {
+                    typeDesc = "class";
+                    tdType = TYPEDEF_CLASS;
+                }
+                else if (token.getType() == JavaTokenTypes.LITERAL_interface) {
+                    typeDesc = "interface";
+                    tdType = TYPEDEF_INTERFACE;
+                    //check for annotation type
+                    if(isAnnotation) {
+                        tdType = TYPEDEF_ANNOTATION;						 
+                    }
+                }
+                else {
+                    typeDesc = "enum";
+                    tdType = TYPEDEF_ENUM;
+                }
+
+                gotTypeDef(tdType);
+
+                // Class name
+                token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.IDENT) {
+                    error("Expected identifier (in " + typeDesc + " definition)");
+                    tokenStream.pushBack(token);
+                    return;
+                }
+                gotTypeDefName(token);
+
+                // template arguments
+                token = tokenStream.nextToken();
+                if (token.getType() == JavaTokenTypes.LT) {
+                    parseTemplateParams();
+                    token = tokenStream.nextToken();
+                }
+
+                // extends...
+                if (token.getType() == JavaTokenTypes.LITERAL_extends) {
+                    gotTypeDefExtends(token);
+                    parseTypeSpec();
+                    token = tokenStream.nextToken();
+                }
+
+                // implements...
+                if (token.getType() == JavaTokenTypes.LITERAL_implements) {
+                    gotTypeDefImplements(token);
+                    parseTypeSpec();
+                    token = tokenStream.nextToken();
+                    while (token.getType() == JavaTokenTypes.COMMA) {
+                        parseTypeSpec();
+                        token = tokenStream.nextToken();
+                    }
+                }
+
+                // Body!
+                if (token.getType() != JavaTokenTypes.LCURLY) {
+                    error("Expected '{' (in class definition)");
+                    tokenStream.pushBack(token);
+                    gotTypeDefEnd(token, false);
+                    return;
+                }
+                
+                beginTypeBody(token);
+
+                if (tdType == TYPEDEF_ENUM) {
+                    parseEnumConstants();
+                }
+
+                if (tdType== TYPEDEF_ANNOTATION) {
+                    parseAnnotationBody();
+                }
+                else { 
+                    parseClassBody();
+                }
+
+                token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.RCURLY) {
+                    error("Expected '}' (in class definition)");
+                    endTypeBody(token, false);
+                    gotTypeDefEnd(token, false);
+                    return;
+                }
+                endTypeBody(token, true);
+                gotTypeDefEnd(token, true);
+            }
+            else {
+                error("Expected type declarator: 'class', 'interface', or 'enum'");
+            }
+        }
+        catch (TokenStreamException tse) {
+            tse.printStackTrace();
+        }
+    }
+
+    /** Begin the type definition body. */
+    protected void beginTypeBody(LocatableToken leftCurlyToken) { }
+    
+    /** End of type definition body. This should be a '}' unless an error occurred */
+    protected void endTypeBody(LocatableToken endCurlyToken, boolean included) { }
+    
+    protected void gotTypeDefEnd(LocatableToken token, boolean included)
+    {
+        endElement(token, included);
+    }
 	
-	/** Called when the type definition is a class definition 
-	 * @param tdType TODO*/
-	protected void gotTypeDef(int tdType) { }
+    public void parseEnumConstants()
+    {
+        try {
+            LocatableToken token = tokenStream.nextToken();
+            while (token.getType() == JavaTokenTypes.IDENT) {
+                // The identifier is the constant name - there may be constructor arguments as well
+                token = tokenStream.nextToken();
+                if (token.getType() == JavaTokenTypes.LPAREN) {
+                    parseArgumentList();
+                    token = tokenStream.nextToken();
+                    if (token.getType() != JavaTokenTypes.RPAREN) {
+                        error("Expecting ')' at end of enum constant constructor arguments");
+                        if (token.getType() != JavaTokenTypes.COMMA
+                                && token.getType() != JavaTokenTypes.SEMI) {
+                            tokenStream.pushBack(token);
+                            return;
+                        }
+                    }
+                    else {
+                        token = tokenStream.nextToken();
+                    }
+                }
+
+                if (token.getType() == JavaTokenTypes.SEMI) {
+                    return;
+                }
+
+                if (token.getType() == JavaTokenTypes.RCURLY) {
+                    // This is valid
+                    tokenStream.pushBack(token);
+                    return;
+                }
+
+                if (token.getType() != JavaTokenTypes.COMMA) {
+                    error("Expecting ',' or ';' after enum constant declaration");
+                    tokenStream.pushBack(token);
+                    return;
+                }
+                token = tokenStream.nextToken();
+            }
+        } catch (TokenStreamException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 	
-	/** Called when we have the identifier token for a class/interface/enum definition */
-	protected void gotTypeDefName(LocatableToken nameToken) { }
-	
-	/** Called when we have seen the "extends" literal token */
-	protected void gotTypeDefExtends(LocatableToken extendsToken) { }
-	
-	/** Called when we have seen the "implements" literal token */
-	protected void gotTypeDefImplements(LocatableToken implementsToken) { }
-	
-	/**
-	 * Check whether a token represents a modifier (or an "at" symbol,
-	 * denoting an annotation).
-	 */
-	protected static boolean isModifier(LocatableToken token)
-	{
-		int tokType = token.getType();
-		return (tokType == JavaTokenTypes.LITERAL_public
-				|| tokType == JavaTokenTypes.LITERAL_private
-				|| tokType == JavaTokenTypes.LITERAL_protected
-				|| tokType == JavaTokenTypes.ABSTRACT
-				|| tokType == JavaTokenTypes.FINAL
-				|| tokType == JavaTokenTypes.LITERAL_static
-				|| tokType == JavaTokenTypes.LITERAL_volatile
-				|| tokType == JavaTokenTypes.LITERAL_native
-				|| tokType == JavaTokenTypes.STRICTFP
-				|| tokType == JavaTokenTypes.AT);
-	}
-	
-	/**
-	 * Parse a modifier list (and return all modifier tokens in a list)
-	 */
+    // Parse template parameters. The '<' should have been read already.
+    public void parseTemplateParams()
+    {
+        try {
+            DepthRef dr = new DepthRef();
+            dr.depth = 1;
+
+            while (true) {
+                LocatableToken token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.IDENT) {
+                    error("Expected identifier (in type parameter list)");
+                    tokenStream.pushBack(token);
+                    return;
+                }
+
+                token = tokenStream.nextToken();
+                if (token.getType() == JavaTokenTypes.LITERAL_extends) {
+                    do {
+                        parseTargType(false, new LinkedList<LocatableToken>(), dr);
+                        if (dr.depth <= 0) {
+                            return;
+                        }
+                        token = tokenStream.nextToken();
+                    } while (token.getType() == JavaTokenTypes.BAND);
+                }
+
+                if (token.getType() != JavaTokenTypes.COMMA) {
+                    if (token.getType() != JavaTokenTypes.GT) {
+                        error("Expecting '>' at end of type parameter list");
+                        tokenStream.pushBack(token);
+                    }
+                    break;
+                }
+            }
+        }
+        catch (TokenStreamException tse) {
+            tse.printStackTrace();
+        }
+    }
+
+    /** Called when the type definition is a class definition 
+     * @param tdType TODO*/
+    protected void gotTypeDef(int tdType) { }
+
+    /** Called when we have the identifier token for a class/interface/enum definition */
+    protected void gotTypeDefName(LocatableToken nameToken) { }
+
+    /** Called when we have seen the "extends" literal token */
+    protected void gotTypeDefExtends(LocatableToken extendsToken) { }
+
+    /** Called when we have seen the "implements" literal token */
+    protected void gotTypeDefImplements(LocatableToken implementsToken) { }
+
+    /**
+     * Check whether a token represents a modifier (or an "at" symbol,
+     * denoting an annotation).
+     */
+    protected static boolean isModifier(LocatableToken token)
+    {
+        int tokType = token.getType();
+        return (tokType == JavaTokenTypes.LITERAL_public
+                || tokType == JavaTokenTypes.LITERAL_private
+                || tokType == JavaTokenTypes.LITERAL_protected
+                || tokType == JavaTokenTypes.ABSTRACT
+                || tokType == JavaTokenTypes.FINAL
+                || tokType == JavaTokenTypes.LITERAL_static
+                || tokType == JavaTokenTypes.LITERAL_volatile
+                || tokType == JavaTokenTypes.LITERAL_native
+                || tokType == JavaTokenTypes.STRICTFP
+                || tokType == JavaTokenTypes.AT);
+    }
+
+    /**
+     * Parse a modifier list (and return all modifier tokens in a list)
+     */
     public List<LocatableToken> parseModifiers()
     {
         List<LocatableToken> rval = new LinkedList<LocatableToken>();

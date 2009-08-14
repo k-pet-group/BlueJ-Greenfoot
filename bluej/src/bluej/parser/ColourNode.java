@@ -8,7 +8,7 @@ public class ColourNode extends ParsedNode
 {
     byte colour;
     
-    public ColourNode(ParsedCUNode parentNode, byte colour)
+    public ColourNode(ParsedNode parentNode, byte colour)
     {
         super(parentNode);
         this.colour = colour;
