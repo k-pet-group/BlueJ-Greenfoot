@@ -69,7 +69,7 @@ import javax.imageio.ImageIO;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 6510 2009-08-13 10:57:08Z polle $
+ * @version $Id: GreenfootUtil.java 6529 2009-08-14 15:44:20Z polle $
  */
 public class GreenfootUtil
 {
@@ -771,5 +771,35 @@ public class GreenfootUtil
     {
         URL url = delegate.getResource("javazoom/jl/decoder/BitstreamException.class");
         return url != null;
+    }
+
+    /**
+     * First tries to create the file with the given name and type. If it
+     * already exists, it will try creating the file with "01" appended to the
+     * filename, if that exists it will try "02" and so on.
+     * 
+     * @param dir Directory where the file should be created.
+     * @param name Base name of the file
+     * @param type Type of the file (extension) (without the dot)
+     * @throws IOException If an IO error is generate when trying to create the
+     *             file.
+     */
+    public static File createNumberedFile(File dir, String name, String type)
+        throws IOException
+    {
+        File f = new File(dir, name + "." + type);
+        int number = 1;
+        while (!f.createNewFile()) {
+            String numberString = null;
+            if (number < 10) {
+                numberString = "0" + number;
+            }
+            else {
+                numberString = "" + number;
+            }
+            f = new File(dir, name + numberString + "." + type);
+            number++;
+        }
+        return f;
     }
 }

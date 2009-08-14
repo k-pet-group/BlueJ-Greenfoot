@@ -52,7 +52,7 @@ import bluej.BlueJTheme;
  * filenames.
  * 
  * @author Davin McCall
- * @version $Id: ImageLibList.java 6424 2009-07-09 15:23:40Z mjrb4 $
+ * @version $Id: ImageLibList.java 6529 2009-08-14 15:44:20Z polle $
  */
 public class ImageLibList extends JList
 {
@@ -162,6 +162,16 @@ public class ImageLibList extends JList
     {
         return (ImageListEntry) getSelectedValue();
     }
+    
+    /**
+     * If the given file exists in this list, it will be selected.
+     * 
+     */
+    public void setSelectedValue(File imageFile) 
+    {
+        int index = listModel.indexOf(new ImageListEntry(imageFile));
+        setSelectedIndex(index);        
+    }
         
     private static class MyCellRenderer extends JLabel
         implements ListCellRenderer
@@ -219,6 +229,25 @@ public class ImageLibList extends JList
         {
             imageFile = file;
             imageIcon = icon;
+        }
+
+        private ImageListEntry(File file)
+        {
+            imageFile = file;
+        }
+        
+        public boolean equals(Object other) 
+        {
+            if(!(other instanceof ImageListEntry)) {
+                return false;
+            }
+            ImageListEntry otherEntry = (ImageListEntry) other;
+            return otherEntry.imageFile.equals(this.imageFile);
+        }
+        
+        public int hashCode() 
+        {
+            return imageFile.hashCode();
         }
     }
     

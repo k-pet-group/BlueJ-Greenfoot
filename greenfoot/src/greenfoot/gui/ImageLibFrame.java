@@ -88,7 +88,7 @@ import java.awt.FlowLayout;
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 6528 2009-08-14 14:49:29Z polle $
+ * @version $Id: ImageLibFrame.java 6529 2009-08-14 15:44:20Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
@@ -120,6 +120,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     private int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
     private JTextField classNameField;
     private GreenfootImage originalImage;
+    private File newlyCreatedImage;
 
 
     /**
@@ -273,9 +274,24 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             newButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
-                    NewImageDialog nid = new NewImageDialog(ImageLibFrame.this, projImagesDir, proj);
-                    nid.setVisible(true);
-                }
+                    // Create a new image with default dimensions and filetype.
+                    int width = 50;
+                    int height = 50;
+                    String type = "png";
+                    String name = gclass.getName();
+                    BufferedImage im = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+                   
+                    try {
+                        File f = GreenfootUtil.createNumberedFile(projImagesDir, name, type);                    
+                        ImageIO.write(im, type, f);
+                        refresh();
+                        newlyCreatedImage = f;
+                        ExternalAppLauncher.editImage(f);               
+                    }
+                    catch (IOException e1) {
+                        e1.printStackTrace();
+                    }                                     
+                }                
             });
 
             JButton browseButton = new JButton(Config.getString("imagelib.browse.button"));
@@ -827,8 +843,17 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         };
     }
 
+    /**
+     * If we have been editing an image externally, we select that image.
+     */
     public void windowActivated(WindowEvent e)
     {
+        if(newlyCreatedImage != null) {
+            refresh();
+            selectImage(newlyCreatedImage);
+            projImageList.setSelectedValue(newlyCreatedImage);
+            newlyCreatedImage = null;
+        }
     }
 
     public void windowClosed(WindowEvent e)
