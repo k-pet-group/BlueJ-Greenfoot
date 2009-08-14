@@ -45,31 +45,31 @@ public class NodeTree
 	    return findNode(pos, 0);
 	}
 	
-	public NodeAndPosition findNode(int pos, int startpos)
-	{		
+    public NodeAndPosition findNode(int pos, int startpos)
+    {		
         if (pnode == null) {
             return null; // empty node tree
         }
-        
-		if (startpos + pnodeOffset > pos) {
-			if (left != null) {
-				return left.findNode(pos, startpos);
-			}
-			else {
-				return null;
-			}
-		}
-				
-		if (startpos + pnodeSize + pnodeOffset > pos) {
-			return new NodeAndPosition(pnode, startpos + pnodeOffset, pnodeSize);
-		}
-		
-		if (right != null) {
-			return right.findNode(pos, startpos + pnodeOffset + pnodeSize);
-		}
-		
-		return null;
-	}
+
+        if (startpos + pnodeOffset > pos) {
+            if (left != null) {
+                return left.findNode(pos, startpos);
+            }
+            else {
+                return null;
+            }
+        }
+
+        if (startpos + pnodeSize + pnodeOffset > pos) {
+            return new NodeAndPosition(pnode, startpos + pnodeOffset, pnodeSize);
+        }
+
+        if (right != null) {
+            return right.findNode(pos, startpos + pnodeOffset + pnodeSize);
+        }
+
+        return null;
+    }
 	
 	public NodeAndPosition findNodeAtOrBefore(int pos)
 	{
@@ -413,52 +413,55 @@ public class NodeTree
 	    right = null;
 	}
 	
-	/**
-	 * This node has been inserted into the tree. Fix up the tree to maintain balance.
-	 */
-	private static void fixupNewNode(NodeTree n)
-	{
-		if (n.parent == null) {
-		    n.black = true;
-		    return;
-		}
-		
-		if (n.parent.isBlack()) {
-			return; // ok - we are balanced
-		}
-		
-		// We know from here on the parent is red.
-		
-		NodeTree grandparent = n.getGrandparent(); // cannot be null (root is always black).
-		NodeTree uncle = n.getUncle();
-		if (! isBlack(uncle)) {
-			uncle.black = true;
-			n.parent.black = true;
-			grandparent.black = false;
-			fixupNewNode(grandparent);
-			return;
-		}
-		
-		if (n == n.parent.right && n.parent == grandparent.left) {
-			rotateLeft(n.parent);
-			n = n.left;
-			grandparent = n.getGrandparent();
-		}
-		else if (n == n.parent.left && n.parent == grandparent.right) {
-			rotateRight(n.parent);
-			n = n.right;
-			grandparent = n.getGrandparent();
-		}
-		
-		n.parent.black = true;
-		grandparent.black = false;
-		if (n == n.parent.left && n.parent == grandparent.left) {
-			rotateRight(grandparent);
-		}
-		else {
-			rotateLeft(grandparent);
-		}
-	}
+    /**
+     * This node has been inserted into the tree. Fix up the tree to maintain balance.
+     */
+    private static void fixupNewNode(NodeTree n)
+    {
+        if (n.parent == null) {
+            n.black = true;
+            return;
+        }
+
+        if (n.parent.isBlack()) {
+            return; // ok - we are balanced
+        }
+
+        // We know from here on the parent is red.
+
+        NodeTree grandparent = n.getGrandparent(); // cannot be null (root is always black).
+        NodeTree uncle = n.getUncle();
+        if (! isBlack(uncle)) {
+            uncle.black = true;
+            n.parent.black = true;
+            grandparent.black = false;
+            fixupNewNode(grandparent);
+            return;
+        }
+
+        NodeTree parent = n.parent;
+        if (n == parent.right && parent == grandparent.left) {
+            rotateLeft(parent);
+            //grandparent = parent;
+            //parent = n;
+            //n = n.left;
+        }
+        else if (n == parent.left && parent == grandparent.right) {
+            rotateRight(n.parent);
+            //grandparent = parent;
+            //parent = n;
+            //n = n.right;
+        }
+
+        parent.black = true;
+        grandparent.black = false;
+        if (n == parent.left && parent == grandparent.left) {
+            rotateRight(grandparent);
+        }
+        else {
+            rotateLeft(grandparent);
+        }
+    }
 	
 	/**
 	 * Swap the data of two nodes. This doesn't correctly adjust the
@@ -490,53 +493,78 @@ public class NodeTree
 	    }
 	}
 	
-	private static void rotateLeft(NodeTree n)
-	{
-		// Right child of n becomes n's parent
-		// We swap the data to avoid actually moving node n.
-		swapNodeData(n, n.right);
-		boolean nblack = n.black;
-		n.black = n.right.black;
-		n.right.black = nblack;
-		
-		n.pnodeOffset += n.right.pnodeOffset + n.right.pnodeSize;
-		
-		NodeTree oldLeft = n.left;
-		n.left = n.right;
-		n.right = n.left.right;
-		if (n.right != null) {
-		    n.right.parent = n;
-		}
-		n.left.right = n.left.left;
-		n.left.left = oldLeft;
-		if (oldLeft != null) {
-		    oldLeft.parent = n.left;
-		}
-	}
+    private static void rotateLeft(NodeTree n)
+    {
+        // Right child of n becomes n's parent
+        // We swap the data to avoid actually moving node n.
+        swapNodeData(n, n.right);
+        boolean nblack = n.black;
+        n.black = n.right.black;
+        n.right.black = nblack;
+
+        n.pnodeOffset += n.right.pnodeOffset + n.right.pnodeSize;
+        
+        if (n.left == null) {
+            // A simple case.
+            //assert(n.right.left == null);
+            n.left = n.right;
+            n.right = n.left.right;
+            if (n.right != null) {
+                n.right.parent = n;
+            }
+            n.left.right = null;
+            return;
+        }
+        
+        NodeTree oldLeft = n.left;
+        n.left = n.right;
+        n.right = n.left.right;
+        if (n.right != null) {
+            n.right.parent = n;
+        }
+        n.left.right = n.left.left;
+        n.left.left = oldLeft;
+        if (oldLeft != null) {
+            oldLeft.parent = n.left;
+        }
+    }
 	
-	private static void rotateRight(NodeTree n)
-	{
-		// Left child of n becomes n's parent
-		// We swap the data to avoid actually moving node n.
-	    swapNodeData(n, n.left);
+    private static void rotateRight(NodeTree n)
+    {
+        // Left child of n becomes n's parent
+        // We swap the data to avoid actually moving node n.
+        swapNodeData(n, n.left);
         boolean nblack = n.black;
         n.black = n.left.black;
         n.left.black = nblack;
-		
+
+        if (n.right == null) {
+            // A simple case.
+            //assert(n.left.right == null);
+            n.right = n.left;
+            n.left = n.right.left;
+            if (n.left != null) {
+                n.left.parent = n;
+            }
+            n.right.left = null;
+            n.right.pnodeOffset -= (n.pnodeOffset + n.pnodeSize);
+            return;
+        }
+        
         n.right.pnodeOffset -= (n.pnodeOffset + n.pnodeSize);
         
-		NodeTree oldRight = n.right;
-		n.right = n.left;
-		n.left = n.right.left;
-		if (n.left != null) {
-		    n.left.parent = n;
-		}
-		n.right.left = n.right.right;
-		n.right.right = oldRight;
-		if (oldRight != null) {
-		    oldRight.parent = n.right;
-		}
-	}
+        NodeTree oldRight = n.right;
+        n.right = n.left;
+        n.left = n.right.left;
+        if (n.left != null) {
+            n.left.parent = n;
+        }
+        n.right.left = n.right.right;
+        n.right.right = oldRight;
+        if (oldRight != null) {
+            oldRight.parent = n.right;
+        }
+    }
 	
 	private NodeTree getGrandparent()
 	{

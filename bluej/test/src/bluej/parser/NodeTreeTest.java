@@ -118,4 +118,18 @@ public class NodeTreeTest extends TestCase
         assertNull(np);
     }
     
+    public void testRotation1()
+    {
+        nt.clear();
+        nt.insertNode(pn1, 100, 10);
+        nt.insertNode(pn2, 50, 10);
+        nt.insertNode(pn3, 70, 10); // causes rotation
+        
+        NodeAndPosition nap = nt.findNode(105);
+        assertTrue(nap.getNode() == pn1);
+        nap = nt.findNode(55);
+        assertTrue(nap.getNode() == pn2);
+        nap = nt.findNode(75);
+        assertTrue(nap.getNode() == pn3);
+    }
 }
