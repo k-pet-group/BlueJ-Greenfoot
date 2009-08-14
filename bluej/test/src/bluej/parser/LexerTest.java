@@ -29,28 +29,28 @@ public class LexerTest extends junit.framework.TestCase
     {
         TokenStream ts = getLexerFor("public private protected volatile transient abstract");
         LocatableToken token = (LocatableToken) ts.nextToken();
-        assert(token.getType() == JavaTokenTypes.LITERAL_public);
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_public);
         token = (LocatableToken) ts.nextToken();
-        assert(token.getType() == JavaTokenTypes.LITERAL_private);
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_private);
         token = (LocatableToken) ts.nextToken();
-        assert(token.getType() == JavaTokenTypes.LITERAL_protected);
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_protected);
         token = (LocatableToken) ts.nextToken();
-        assert(token.getType() == JavaTokenTypes.LITERAL_volatile);
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_volatile);
         token = (LocatableToken) ts.nextToken();
-        assert(token.getType() == JavaTokenTypes.LITERAL_transient);
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_transient);
         token = (LocatableToken) ts.nextToken();
-        assert(token.getType() == JavaTokenTypes.ABSTRACT);
+        assertTrue(token.getType() == JavaTokenTypes.ABSTRACT);
         token = (LocatableToken) ts.nextToken();
-        assert(token.getType() == JavaTokenTypes.EOF);
+        assertTrue(token.getType() == JavaTokenTypes.EOF);
         
         ts = getLexerFor("class interface enum");
         token = (LocatableToken) ts.nextToken();
-        assert(token.getType() == JavaTokenTypes.LITERAL_class);
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_class);
         token = (LocatableToken) ts.nextToken();
-        assert(token.getType() == JavaTokenTypes.LITERAL_interface);
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_interface);
         token = (LocatableToken) ts.nextToken();
-        assert(token.getType() == JavaTokenTypes.LITERAL_enum);
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_enum);
         token = (LocatableToken) ts.nextToken();
-        assert(token.getType() == JavaTokenTypes.EOF);
+        assertTrue(token.getType() == JavaTokenTypes.EOF);
     }
 }
