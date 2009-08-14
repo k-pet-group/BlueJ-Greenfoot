@@ -63,6 +63,7 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -87,7 +88,7 @@ import java.awt.FlowLayout;
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 6527 2009-08-14 14:05:41Z polle $
+ * @version $Id: ImageLibFrame.java 6528 2009-08-14 14:49:29Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
@@ -237,52 +238,22 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
 
             imageSelPanels.add(GreenfootUtil.createSpacer(GreenfootUtil.X_AXIS, spacingLarge));
 
+            
+            
             // Category selection panel
             ImageCategorySelector imageCategorySelector;
-            {
-                Box piPanel = new Box(BoxLayout.Y_AXIS);
+            File imageDir = Config.getGreenfootLibDir();
+            imageDir = new File(imageDir, "imagelib");
+            imageCategorySelector = new ImageCategorySelector(imageDir);
 
-                JLabel piLabel = new JLabel(Config.getString("imagelib.categories"));
-                piLabel.setAlignmentX(0.0f);
-                piPanel.add(piLabel);
-
-                File imageDir = Config.getGreenfootLibDir();
-                imageDir = new File(imageDir, "imagelib");
-                imageCategorySelector = new ImageCategorySelector(imageDir);
-
-                JScrollPane jsp = new JScrollPane(imageCategorySelector);
-
-                jsp.setBorder(Config.normalBorder);
-                jsp.setViewportBorder(BorderFactory.createLineBorder(imageCategorySelector.getBackground(), 4));
-                jsp.setAlignmentX(0.0f);
-
-                piPanel.add(jsp);
-                imageSelPanels.add(piPanel);
-            }
-
-            imageSelPanels.add(GreenfootUtil.createSpacer(GreenfootUtil.X_AXIS, spacingSmall));
-
-            // Greenfoot images panel
-            {
-                Box piPanel = new Box(BoxLayout.Y_AXIS);
-
-                JLabel piLabel = new JLabel(Config.getString("imagelib.images"));
-                piLabel.setAlignmentX(0.0f);
-                piPanel.add(piLabel);
-
-                JScrollPane jsp = new JScrollPane();
-
-                greenfootImageList = new ImageLibList();
-                jsp.getViewport().setView(greenfootImageList);
-
-                jsp.setBorder(Config.normalBorder);
-                jsp.setViewportBorder(BorderFactory.createLineBorder(greenfootImageList.getBackground(), 4));
-                jsp.setAlignmentX(0.0f);
-
-                piPanel.add(jsp);
-                imageSelPanels.add(piPanel);
-            }
-
+            // List of images
+            greenfootImageList = new ImageLibList();
+            
+            JComponent greenfootLibPanel = new GreenfootImageLibPanel(imageCategorySelector, greenfootImageList);
+            
+            imageSelPanels.add(greenfootLibPanel);
+            
+            
             imageSelPanels.setAlignmentX(0.0f);
             contentPane.add(imageSelPanels);
 
@@ -377,6 +348,8 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         DialogManager.centreDialog(this);
         setVisible(true);
     }
+
+
 
     /**
      * Build the class details panel.
