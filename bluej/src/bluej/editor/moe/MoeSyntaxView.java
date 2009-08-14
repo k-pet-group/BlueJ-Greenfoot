@@ -66,7 +66,7 @@ import bluej.prefmgr.PrefMgr;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 6522 2009-08-14 07:05:14Z davmac $
+ * @version $Id: MoeSyntaxView.java 6525 2009-08-14 10:45:08Z davmac $
  */
 
 public class MoeSyntaxView extends BlueJSyntaxView
@@ -113,13 +113,13 @@ public class MoeSyntaxView extends BlueJSyntaxView
         }
         
         // draw left margin
-        Color oldColor = g.getColor();
-        g.setColor(Color.GRAY);
-        FontMetrics fm = g.getFontMetrics();
-        int y1 = y - fm.getAscent() - fm.getLeading();
-        int y2 = y + fm.getDescent();
-        g.drawLine(x + LEFT_MARGIN - 1, y1, x + LEFT_MARGIN - 1, y2);
-        g.setColor(oldColor);
+//        Color oldColor = g.getColor();
+//        g.setColor(Color.GRAY);
+//        FontMetrics fm = g.getFontMetrics();
+//        int y1 = y - fm.getAscent() - fm.getLeading();
+//        int y2 = y + fm.getDescent();
+//        g.drawLine(x + LEFT_MARGIN - 1, y1, x + LEFT_MARGIN - 1, y2);
+//        g.setColor(oldColor);
     }
     
     /**
@@ -163,7 +163,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
                 g.setColor(c1);
                 g.drawLine(xpos, ypos, xpos, ypos2);
                 g.setColor(c2);
-                g.fillRect(xpos + 1, ypos, bounds.width - (xpos+1), ypos2 - ypos);
+                g.fillRect(xpos + 1, ypos, bounds.x + bounds.width - (xpos+1), ypos2 - ypos);
             }
             else if (container) {
                 container = false;
@@ -175,7 +175,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
                     g.setColor(c3);
                     g.drawLine(xpos, ypos, xpos, ypos2);
                     g.setColor(c4);
-                    g.fillRect(xpos + 1, ypos, bounds.width - (xpos+1), ypos2 - ypos);
+                    g.fillRect(xpos + 1, ypos, bounds.x + bounds.width - (xpos+1), ypos2 - ypos);
                 }
             }
         }
@@ -215,14 +215,14 @@ public class MoeSyntaxView extends BlueJSyntaxView
             g.fillRect(0, 0, bounds.x + TAG_WIDTH,
                        bounds.y + bounds.height);
         }
-
+        
         Rectangle clip = g.getClipBounds();
         
         int spos = viewToModel(bounds.x, clip.y, allocation, new Position.Bias[1]);
         int epos = viewToModel(bounds.x, clip.y + clip.height - 1, allocation, new Position.Bias[1]);
         
         Element map = getElement();
-        for (int i = spos; i < epos; ) {
+        for (int i = spos; i <= epos; ) {
             int lineIndex = map.getElementIndex(i);
             Element line = map.getElement(lineIndex);
             try {
@@ -232,6 +232,10 @@ public class MoeSyntaxView extends BlueJSyntaxView
             }
             i = line.getEndOffset();
         }
+        
+        // Left margin
+        g.setColor(new Color(240, 240, 240));
+        g.drawLine(bounds.x + LEFT_MARGIN - 1, clip.y, bounds.x + LEFT_MARGIN - 1, clip.y + clip.height);
         
         // paint the lines
         super.paint(g, allocation);
