@@ -10,7 +10,7 @@ import bluej.parser.ast.LocatableToken;
 import bluej.parser.ast.Token;
 import bluej.parser.ast.gen.JavaTokenTypes;
 
-public class BlueJJavaLexer implements TokenStream, JavaTokenTypes
+public class BlueJJavaLexer implements JavaTokenTypes
 {
 
     protected LocatableToken _returnToken = null; // used to return tokens w/o using return val.
