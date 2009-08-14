@@ -42,8 +42,7 @@ public class BlueJJavaLexer implements TokenStream, JavaTokenTypes
         tok.setText(txt);
         tok.setColumn(beginCol);
         tok.setLine(beginLine);
-        tok.setEndColumn(col);
-        tok.setEndLine(line);
+        tok.setEndLineAndCol(line, col);
         return tok;
 
     }
@@ -183,33 +182,142 @@ public class BlueJJavaLexer implements TokenStream, JavaTokenTypes
         int type=JavaTokenTypes.EOF;
         if (text.length()==1)
             type=JavaTokenTypes.LITERAL_char;
-        if (text.equals("public")){
+        else if (text.equals("public")){
             type=JavaTokenTypes.LITERAL_public;
         }
-        if (text.equals("private")){
+        else if (text.equals("private")){
             type=JavaTokenTypes.LITERAL_private;
         }
-        if (text.equals("protected")){
+        else  if (text.equals("protected")){
             type=JavaTokenTypes.LITERAL_protected;
         }
-        if (text.equals("volatile")){
+        else if (text.equals("volatile")){
             type=JavaTokenTypes.LITERAL_volatile;
         }
-        if (text.equals("abstract")){
+        else if (text.equals("abstract")){
             type=JavaTokenTypes.ABSTRACT;
         }
-        if (text.equals("transient")){
+        else  if (text.equals("transient")){
             type=JavaTokenTypes.LITERAL_transient;
         }
-        if (text.equals("class")){
+        else if (text.equals("class")){
             type=JavaTokenTypes.LITERAL_class;
         }
-        if (text.equals("enum")){
+        else if (text.equals("enum")){
             type=JavaTokenTypes.LITERAL_enum;
         }
-        if (text.equals("interface")){
+        else if (text.equals("interface")){
             type=JavaTokenTypes.LITERAL_interface;
         }
+        else if (text.equals("switch")){
+            type=JavaTokenTypes.LITERAL_switch;
+        }
+        else if (text.equals("while")){
+            type=JavaTokenTypes.LITERAL_while;
+        }
+        else if (text.equals("do")){
+            type=JavaTokenTypes.LITERAL_do;
+        }
+        else if (text.equals("for")){
+            type=JavaTokenTypes.LITERAL_for;
+        }
+        else if (text.equals("void")){
+            type=JavaTokenTypes.LITERAL_void;
+        }
+        else if (text.equals("byte")){
+            type=JavaTokenTypes.LITERAL_byte;
+        }
+        else if (text.equals("char")){
+            type=JavaTokenTypes.LITERAL_char;
+        }
+        else if (text.equals("short")){
+            type=JavaTokenTypes.LITERAL_short;
+        }
+        else if (text.equals("int")){
+            type=JavaTokenTypes.LITERAL_int;
+        }
+        else if (text.equals("float")){
+            type=JavaTokenTypes.LITERAL_float;
+        }
+        else if (text.equals("long")){
+            type=JavaTokenTypes.LITERAL_long;
+        }
+        else if (text.equals("double")){
+            type=JavaTokenTypes.LITERAL_double;
+        }
+        else if (text.equals("native")){
+            type=JavaTokenTypes.LITERAL_native;
+        }
+        else if (text.equals("synchronized")){
+            type=JavaTokenTypes.LITERAL_synchronized;
+        }
+        else if (text.equals("volatile")){
+            type=JavaTokenTypes.LITERAL_volatile;
+        }
+        else if (text.equals("default")){
+            type=JavaTokenTypes.LITERAL_default;
+        }
+        else if (text.equals("implements")){
+            type=JavaTokenTypes.LITERAL_implements;
+        }
+        else if (text.equals("this")){
+            type=JavaTokenTypes.LITERAL_this;
+        }
+        else if (text.equals("throws")){
+            type=JavaTokenTypes.LITERAL_throws;
+        }
+        else if (text.equals("try")){
+            type=JavaTokenTypes.LITERAL_try;
+        }
+        else if (text.equals("finally")){
+            type=JavaTokenTypes.LITERAL_finally;
+        }
+        else if (text.equals("catch")){
+            type=JavaTokenTypes.LITERAL_catch;
+        } 
+        else if (text.equals("instanceof")){
+            type=JavaTokenTypes.LITERAL_instanceof;
+        }
+        else if (text.equals("true")){
+            type=JavaTokenTypes.LITERAL_true;
+        }
+        else if (text.equals("false")){
+            type=JavaTokenTypes.LITERAL_false;
+        }
+        else if (text.equals("null")){
+            type=JavaTokenTypes.LITERAL_null;
+        }
+        else if (text.equals("new")){
+            type=JavaTokenTypes.LITERAL_new;
+        }
+        else if (text.equals("void")){
+            type=JavaTokenTypes.LITERAL_void;
+        }
+        else if (text.equals("boolean")){
+            type=JavaTokenTypes.LITERAL_boolean;
+        }
+        else if (text.equals("byte")){
+            type=JavaTokenTypes.LITERAL_byte;
+        }
+        else if (text.equals("char")){
+            type=JavaTokenTypes.LITERAL_char;
+        }
+        else if (text.equals("short")){
+            type=JavaTokenTypes.LITERAL_short;
+        }
+        else if (text.equals("int")){
+            type=JavaTokenTypes.LITERAL_int;
+        }
+        else if (text.equals("float")){
+            type=JavaTokenTypes.LITERAL_float;
+        }
+        else if (text.equals("long")){
+            type=JavaTokenTypes.LITERAL_long;
+        }
+        else if (text.equals("double")){
+            type=JavaTokenTypes.LITERAL_double;
+        }
+        else type=JavaTokenTypes.IDENT;
 
         return type;
     }
