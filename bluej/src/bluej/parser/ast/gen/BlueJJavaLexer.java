@@ -13,7 +13,7 @@ import bluej.parser.ast.gen.JavaTokenTypes;
 public class BlueJJavaLexer implements TokenStream, JavaTokenTypes
 {
 
-    protected Token _returnToken = null; // used to return tokens w/o using return val.
+    protected LocatableToken _returnToken = null; // used to return tokens w/o using return val.
     private StringBuffer textBuffer; // text of current token
     int col;
     int line;    
@@ -29,14 +29,14 @@ public class BlueJJavaLexer implements TokenStream, JavaTokenTypes
         // line=((EscapedUnicodeReader)in).getLine();
     }
 
-    protected Token makeToken() {
+    protected LocatableToken makeToken() {
         LocatableToken tok = new LocatableToken();
         tok.setColumn(col);
         tok.setLine(line);
         return tok;
     }
 
-    private Token makeToken(int type, String txt, int beginCol, int col, int beginLine, int line){
+    private LocatableToken makeToken(int type, String txt, int beginCol, int col, int beginLine, int line){
         LocatableToken tok = new LocatableToken();
         tok.setType(type);
         tok.setText(txt);
@@ -47,7 +47,7 @@ public class BlueJJavaLexer implements TokenStream, JavaTokenTypes
 
     }
 
-    protected Token makeToken(int type) {
+    protected LocatableToken makeToken(int type) {
         LocatableToken tok = new LocatableToken();
         tok.setType(type);
         tok.setColumn(col);
@@ -78,8 +78,8 @@ public class BlueJJavaLexer implements TokenStream, JavaTokenTypes
         return (char)cb[col];
     }
 
-    public Token nextToken() throws TokenStreamException {
-        Token theRetToken=null;
+    public LocatableToken nextToken() throws TokenStreamException {
+        LocatableToken theRetToken=null;
         char nextChar=LA(1);
         if (!Character.isDefined(nextChar)){
             theRetToken=processEndOfReader();
@@ -126,8 +126,8 @@ public class BlueJJavaLexer implements TokenStream, JavaTokenTypes
     }
 
 
-    private Token processWord(){
-        Token rToken=null;
+    private LocatableToken processWord(){
+        LocatableToken rToken=null;
         int bCol=col;
         int bLine=line;
         int endCol=col;
@@ -165,16 +165,16 @@ public class BlueJJavaLexer implements TokenStream, JavaTokenTypes
         return rToken;
     }
 
-    private Token processOther(){
+    private LocatableToken processOther(){
         int type=JavaTokenTypes.EOF;
         
         return null;
     }
     
-    private Token processEndOfReader(){
+    private LocatableToken processEndOfReader(){
         int type=JavaTokenTypes.EOF; 
         resetText();
-        Token rToken=makeToken(type, "eof", col, col, line, line);
+        LocatableToken rToken=makeToken(type, "eof", col, col, line, line);
         return rToken;
     }
 
