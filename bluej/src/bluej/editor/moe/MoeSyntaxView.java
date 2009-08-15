@@ -66,7 +66,7 @@ import bluej.prefmgr.PrefMgr;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: MoeSyntaxView.java 6525 2009-08-14 10:45:08Z davmac $
+ * @version $Id: MoeSyntaxView.java 6530 2009-08-15 03:50:28Z davmac $
  */
 
 public class MoeSyntaxView extends BlueJSyntaxView
@@ -151,12 +151,17 @@ public class MoeSyntaxView extends BlueJSyntaxView
         
         Rectangle bounds = g.getClipBounds();
         
+        int lastIndent = 0;
         for (NodeAndPosition nap: scopeStack) {
             int ypos = y;
             int ypos2 = y + metrics.getHeight();
             if (nap.getNode().isContainer()) {
                 container = true;
                 int indent = getIndentFor(document, nap);
+                if (indent == -1) {
+                    indent = lastIndent + getTabSize();
+                }
+                lastIndent = indent;
                 FontMetrics fm = g.getFontMetrics();
                 int char_width = fm.charWidth(' ');
                 int xpos = x + char_width * indent - 2;
@@ -169,6 +174,37 @@ public class MoeSyntaxView extends BlueJSyntaxView
                 container = false;
                 if (nap.getNode().isInner()) {
                     int indent = getIndentFor(document, nap);
+                    if (indent == -1) {
+                        indent = lastIndent + getTabSize();
+                    }
+                    lastIndent = indent;
+                    
+                    int lineoffset = line.getStartOffset();
+                    int lineend = line.getEndOffset();
+                    if (nap.getPosition() < lineend && nap.getPosition() > lineoffset) {
+                        // The node starts on this line. Often the first line will be empty, in which
+                        // case we want to ignore it.
+                        Segment lineText = new Segment();
+                        try {
+                            document.getText(nap.getPosition(), lineend - nap.getPosition(), lineText);
+                            if (isAllWhitespace(lineText)) {
+                                break;
+                            }
+                        } catch (BadLocationException e) {}
+                    }
+                    
+                    int nodeEnd = nap.getPosition() + nap.getSize();
+                    if (nodeEnd > lineoffset && nodeEnd <= lineend) {
+                        // likewise, node ends on this line
+                        Segment lineText = new Segment();
+                        try {
+                            document.getText(lineoffset, nodeEnd - lineoffset, lineText);
+                            if (isAllWhitespace(lineText)) {
+                                break;
+                            }
+                        } catch (BadLocationException e) {}
+                    }
+                    
                     FontMetrics fm = g.getFontMetrics();
                     int char_width = fm.charWidth(' ');
                     int xpos = x + char_width * indent - 5;
@@ -180,6 +216,18 @@ public class MoeSyntaxView extends BlueJSyntaxView
             }
         }
         g.setColor(origColor);
+    }
+    
+    private boolean isAllWhitespace(Segment segment)
+    {
+        int endpos = segment.offset + segment.count;
+        for (int i = segment.offset; i < endpos; i++) {
+            char c = segment.array[i];
+            if (c != ' ' && c != '\t' && c != '\n' && c != '\r') {
+                return false;
+            }
+        }
+        return true;
     }
     
     /**
