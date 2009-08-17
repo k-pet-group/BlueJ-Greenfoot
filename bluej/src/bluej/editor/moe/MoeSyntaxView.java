@@ -66,7 +66,7 @@ import bluej.prefmgr.PrefMgr;
  * @author Michael Kolling
  * @author Davin McCall
  *
- * @version $Id: MoeSyntaxView.java 6531 2009-08-17 08:12:28Z davmac $
+ * @version $Id: MoeSyntaxView.java 6532 2009-08-17 08:20:24Z davmac $
  */
 
 public class MoeSyntaxView extends BlueJSyntaxView
@@ -201,37 +201,39 @@ public class MoeSyntaxView extends BlueJSyntaxView
                         }
                     }
 
-                    // Ok, it includes text on this line.
-                    if (nap.getNode().isContainer()) {
-                        int indent = nap.getNode().getLeftmostIndent(document, nap.getPosition());
-                        int xpos = lbounds.x + char_width * indent - 2;
-                        if (indent + thisLineEl.getStartOffset() < nap.getPosition()) {
-                            int nws = findNonWhitespace(thisLineSeg, nap.getPosition() - thisLineEl.getStartOffset());
-                            // TODO if nws == -1, don't paint!! starts on next line.
-                            if (nws != -1) {
-                                xpos = modelToView(thisLineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds().x;
-                            }
-                        }
-                        g.setColor(c1);
-                        g.drawLine(xpos, ypos, xpos, ypos2);
-                        g.setColor(c2);
-                        g.fillRect(xpos + 1, ypos, endX - (xpos+1), ypos2 - ypos);
+                    // Ok, it includes text on this line. Or maybe just whitespace?
+                    int nws = 0;
+                    boolean startsThisLine = (nap.getPosition() >= thisLineEl.getStartOffset());
+                    if (startsThisLine) {
+                        nws = findNonWhitespace(thisLineSeg, nap.getPosition() - thisLineEl.getStartOffset());
                     }
-                    else if (nap.getNode().isInner()) {
-                        int indent = nap.getNode().getLeftmostIndent(document, nap.getPosition());
-                        int xpos = lbounds.x + indent * char_width;
-                        if (indent + thisLineEl.getStartOffset() < nap.getPosition()) {
-                            int nws = findNonWhitespace(thisLineSeg, nap.getPosition() - thisLineEl.getStartOffset());
-                            // TODO if nws == -1, don't paint!! starts on next line.
-                            if (nws != -1) {
+                    // TODO also starts this line if it really starts on the previous line,
+                    //      but that only has whitespace
+                    
+                    if (nws != -1) {
+                        if (nap.getNode().isContainer()) {
+                            int indent = nap.getNode().getLeftmostIndent(document, nap.getPosition());
+                            int xpos = lbounds.x + char_width * indent - 2;
+                            if (indent + thisLineEl.getStartOffset() < nap.getPosition()) {
                                 xpos = modelToView(thisLineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds().x;
                             }
+                            g.setColor(c1);
+                            g.drawLine(xpos, ypos, xpos, ypos2);
+                            g.setColor(c2);
+                            g.fillRect(xpos + 1, ypos, endX - (xpos+1), ypos2 - ypos);
                         }
-                        xpos -= 5;
-                        g.setColor(c3);
-                        g.drawLine(xpos, ypos, xpos, ypos2);
-                        g.setColor(c4);
-                        g.fillRect(xpos + 1, ypos, endX - (xpos+1), ypos2 - ypos);
+                        else if (nap.getNode().isInner()) {
+                            int indent = nap.getNode().getLeftmostIndent(document, nap.getPosition());
+                            int xpos = lbounds.x + indent * char_width;
+                            if (indent + thisLineEl.getStartOffset() < nap.getPosition()) {
+                                xpos = modelToView(thisLineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds().x;
+                            }
+                            xpos -= 5;
+                            g.setColor(c3);
+                            g.drawLine(xpos, ypos, xpos, ypos2);
+                            g.setColor(c4);
+                            g.fillRect(xpos + 1, ypos, endX - (xpos+1), ypos2 - ypos);
+                        }
                     }
                 }
 
