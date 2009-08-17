@@ -29,7 +29,17 @@ public abstract class ParsedNode
         this();
         this.parentNode = parentNode;
     }
-	
+
+    public boolean equals(Object obj)
+    {
+        return obj == this;
+    }
+    
+    public final NodeAndPosition findNodeAtOrAfter(int position, int startpos)
+    {
+        return nodeTree.findNodeAtOrAfter(position, startpos);
+    }
+    
     /**
      * Set the containing node tree. This is normally only called by NodeTree when inserting
      * this node into the tree.

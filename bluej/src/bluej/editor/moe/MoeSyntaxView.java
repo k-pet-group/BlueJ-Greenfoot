@@ -30,25 +30,24 @@
 package bluej.editor.moe;
 
 /**
- * MoeSyntaxView.java - adapted from
- * SyntaxView.java - jEdit's own Swing view implementation
+ * MoeSyntaxView.java - originally adapted from
+ * SyntaxView.java - jEdit's own Swing view implementation -
  * to add Syntax highlighting to the BlueJ programming environment.
  */
 
 import java.awt.Color;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 import javax.swing.text.Position;
 import javax.swing.text.Segment;
-import javax.swing.text.Position.Bias;
 
 import bluej.Config;
 import bluej.parser.ParsedNode;
@@ -57,7 +56,7 @@ import bluej.prefmgr.PrefMgr;
 
 /**
  * A Swing view implementation that colorizes lines of a
- * SyntaxDocument using a TokenMarker.
+ * SyntaxDocument.
  *
  * This class should not be used directly; a SyntaxEditorKit
  * should be used instead.
@@ -65,8 +64,9 @@ import bluej.prefmgr.PrefMgr;
  * @author Slava Pestov
  * @author Bruce Quig
  * @author Michael Kolling
+ * @author Davin McCall
  *
- * @version $Id: MoeSyntaxView.java 6530 2009-08-15 03:50:28Z davmac $
+ * @version $Id: MoeSyntaxView.java 6531 2009-08-17 08:12:28Z davmac $
  */
 
 public class MoeSyntaxView extends BlueJSyntaxView
@@ -111,142 +111,203 @@ public class MoeSyntaxView extends BlueJSyntaxView
         else if(hasTag(line, STEPMARK)) {
             g.drawImage(stepImage, x-1, y+3-stepImage.getHeight(null), null);
         }
-        
-        // draw left margin
-//        Color oldColor = g.getColor();
-//        g.setColor(Color.GRAY);
-//        FontMetrics fm = g.getFontMetrics();
-//        int y1 = y - fm.getAscent() - fm.getLeading();
-//        int y2 = y + fm.getDescent();
-//        g.drawLine(x + LEFT_MARGIN - 1, y1, x + LEFT_MARGIN - 1, y2);
-//        g.setColor(oldColor);
     }
     
-    /**
-     * Pain the scope markers for the given line.
-     */
-    protected void paintScopeMarkers(Graphics g, MoeSyntaxDocument document, int x, int y, Element line)
+    protected void paintScopeMarkers(Graphics g, MoeSyntaxDocument document, Shape a, int firstLine, int lastLine)
     {
+        // document.getDefaultRootElement().getElementCount();
+        Element map = document.getDefaultRootElement();
         ParsedNode rootNode = document.getParser();
-        
-        int pos = line.getEndOffset() - 1;
-        
-        List<NodeAndPosition> scopeStack = new LinkedList<NodeAndPosition>();
-        rootNode.getNodeStack(scopeStack, pos, 0);
-        
-        List<NodeAndPosition> scopeStackAlt = new LinkedList<NodeAndPosition>();
-        rootNode.getNodeStack(scopeStackAlt, line.getStartOffset(), 0);
-        
-        if (scopeStackAlt.size() > scopeStack.size()) {
-            scopeStack = scopeStackAlt;
-        }
-        
+        Rectangle bounds = g.getClipBounds();
+        int char_width = metrics.charWidth('m');
+
         Color c1 = new Color(210, 230, 210); // green border (container)
-        Color c2 = new Color(250, 255, 250); // green wash
+        //Color c2 = new Color(250, 255, 250); // green wash
+        Color c2 = new Color(220, 255, 220);
         Color c3 = new Color(230, 240, 230); // green border (inner).
         Color c4 = new Color(255, 255, 255); // white wash
         
-        boolean container = false;
-        Color origColor = g.getColor();
+        int aboveLine = firstLine - 1;
+        List<NodeAndPosition> prevScopeStack = new LinkedList<NodeAndPosition>();
+        int curLine = firstLine;
         
-        Rectangle bounds = g.getClipBounds();
-        
-        int lastIndent = 0;
-        for (NodeAndPosition nap: scopeStack) {
-            int ypos = y;
-            int ypos2 = y + metrics.getHeight();
-            if (nap.getNode().isContainer()) {
-                container = true;
-                int indent = getIndentFor(document, nap);
-                if (indent == -1) {
-                    indent = lastIndent + getTabSize();
-                }
-                lastIndent = indent;
-                FontMetrics fm = g.getFontMetrics();
-                int char_width = fm.charWidth(' ');
-                int xpos = x + char_width * indent - 2;
-                g.setColor(c1);
-                g.drawLine(xpos, ypos, xpos, ypos2);
-                g.setColor(c2);
-                g.fillRect(xpos + 1, ypos, bounds.x + bounds.width - (xpos+1), ypos2 - ypos);
+        try {
+            Element aboveLineEl = null;
+            Element thisLineEl = map.getElement(firstLine);
+            if (aboveLine >= 0) {
+                aboveLineEl = map.getElement(aboveLine);
             }
-            else if (container) {
-                container = false;
-                if (nap.getNode().isInner()) {
-                    int indent = getIndentFor(document, nap);
-                    if (indent == -1) {
-                        indent = lastIndent + getTabSize();
-                    }
-                    lastIndent = indent;
+            Segment aboveLineSeg = new Segment();
+            Segment thisLineSeg = new Segment();
+            
+            if (aboveLine >= 0) {
+                document.getText(aboveLineEl.getStartOffset(),
+                        aboveLineEl.getEndOffset() - aboveLineEl.getStartOffset(),
+                        aboveLineSeg);
+            }
+            document.getText(thisLineEl.getStartOffset(),
+                    thisLineEl.getEndOffset() - thisLineEl.getStartOffset(),
+                    thisLineSeg);
+
+            //rootNode.getNodeStack(prevScopeStack, thisLineEl.getStartOffset(), 0);
+            getScopeStackAt(rootNode, thisLineEl.getStartOffset(), prevScopeStack);
+
+            while (curLine <= lastLine) {
+                
+                if (prevScopeStack.size() == 0) {
+                    break;
+                }
+                
+                Rectangle lbounds = modelToView(thisLineEl.getStartOffset(), a, Position.Bias.Forward).getBounds();
+                int ypos = lbounds.y;
+                int ypos2 = ypos + lbounds.height;
+
+                ListIterator<NodeAndPosition> li = prevScopeStack.listIterator();
+                while (li.hasNext()) {
+                    NodeAndPosition nap = li.next();
+                    int napEnd = nap.getPosition() + nap.getSize();
                     
-                    int lineoffset = line.getStartOffset();
-                    int lineend = line.getEndOffset();
-                    if (nap.getPosition() < lineend && nap.getPosition() > lineoffset) {
-                        // The node starts on this line. Often the first line will be empty, in which
-                        // case we want to ignore it.
-                        Segment lineText = new Segment();
-                        try {
-                            document.getText(nap.getPosition(), lineend - nap.getPosition(), lineText);
-                            if (isAllWhitespace(lineText)) {
-                                break;
+                    if (aboveLineEl != null && nap.getPosition() >= aboveLineEl.getStartOffset()) {
+                        // officially starts on the previous line but...
+                        int n = findNonWhitespace(aboveLineSeg, nap.getPosition() - aboveLineEl.getStartOffset());
+                        if (n == -1) {
+                            // effectively starts on this line!
+                            // TODO
+                        }
+                        else if (n + aboveLineEl.getStartOffset() < napEnd) {
+                            // It starts on the previous line, but continues onto this line.
+                            // However the start on the line above might be to the right of the normal
+                            // indent, meaning we need to draw some border here.
+                            // TODO
+                        }
+                    }
+
+                    //int n = findNonWhitespace(thisLineSeg, 0) + thisLineEl.getStartOffset();
+                    int endX = bounds.x + bounds.width;
+
+                    if (nap.getPosition() >= thisLineEl.getEndOffset()) {
+                        // The node isn't even on this line, go to the next line
+                        break;
+                    }
+
+                    if (nap.getPosition() + nap.getSize() < thisLineEl.getEndOffset()) {
+                        // The node ends on this line, so don't extend it too far
+                        int nws = findNonWhitespace(thisLineSeg,
+                                nap.getPosition() + nap.getSize() - thisLineEl.getStartOffset());
+                        if (nws != -1) {
+                            Rectangle rr = modelToView(thisLineEl.getStartOffset() + nws,
+                                    a, Position.Bias.Forward).getBounds();
+                            endX = rr.x + rr.width;
+                        }
+                    }
+
+                    // Ok, it includes text on this line.
+                    if (nap.getNode().isContainer()) {
+                        int indent = nap.getNode().getLeftmostIndent(document, nap.getPosition());
+                        int xpos = lbounds.x + char_width * indent - 2;
+                        if (indent + thisLineEl.getStartOffset() < nap.getPosition()) {
+                            int nws = findNonWhitespace(thisLineSeg, nap.getPosition() - thisLineEl.getStartOffset());
+                            // TODO if nws == -1, don't paint!! starts on next line.
+                            if (nws != -1) {
+                                xpos = modelToView(thisLineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds().x;
                             }
-                        } catch (BadLocationException e) {}
+                        }
+                        g.setColor(c1);
+                        g.drawLine(xpos, ypos, xpos, ypos2);
+                        g.setColor(c2);
+                        g.fillRect(xpos + 1, ypos, endX - (xpos+1), ypos2 - ypos);
                     }
-                    
-                    int nodeEnd = nap.getPosition() + nap.getSize();
-                    if (nodeEnd > lineoffset && nodeEnd <= lineend) {
-                        // likewise, node ends on this line
-                        Segment lineText = new Segment();
-                        try {
-                            document.getText(lineoffset, nodeEnd - lineoffset, lineText);
-                            if (isAllWhitespace(lineText)) {
-                                break;
+                    else if (nap.getNode().isInner()) {
+                        int indent = nap.getNode().getLeftmostIndent(document, nap.getPosition());
+                        int xpos = lbounds.x + indent * char_width;
+                        if (indent + thisLineEl.getStartOffset() < nap.getPosition()) {
+                            int nws = findNonWhitespace(thisLineSeg, nap.getPosition() - thisLineEl.getStartOffset());
+                            // TODO if nws == -1, don't paint!! starts on next line.
+                            if (nws != -1) {
+                                xpos = modelToView(thisLineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds().x;
                             }
-                        } catch (BadLocationException e) {}
+                        }
+                        xpos -= 5;
+                        g.setColor(c3);
+                        g.drawLine(xpos, ypos, xpos, ypos2);
+                        g.setColor(c4);
+                        g.fillRect(xpos + 1, ypos, endX - (xpos+1), ypos2 - ypos);
                     }
-                    
-                    FontMetrics fm = g.getFontMetrics();
-                    int char_width = fm.charWidth(' ');
-                    int xpos = x + char_width * indent - 5;
-                    g.setColor(c3);
-                    g.drawLine(xpos, ypos, xpos, ypos2);
-                    g.setColor(c4);
-                    g.fillRect(xpos + 1, ypos, bounds.x + bounds.width - (xpos+1), ypos2 - ypos);
+                }
+
+                // Move along
+                li = prevScopeStack.listIterator(prevScopeStack.size());
+                NodeAndPosition nap = li.previous();
+                if (nap.getPosition() + nap.getSize() <= thisLineEl.getEndOffset()) {
+                    li.remove();
+                    int napEnd = nap.getPosition() + nap.getSize();
+                    while (li.hasPrevious()) {
+                        NodeAndPosition napParent = li.previous();
+                        li.next();
+                        nap = napParent.getNode().findNodeAtOrAfter(napEnd, napParent.getPosition());
+                        while (nap != null) {
+                            //napEnd = nap.getPosition() + nap.getSize();
+                            if (nap.getPosition() < thisLineEl.getEndOffset()) {
+                                // TODO
+                                // draw it
+                            }
+                            li.add(nap);
+                            nap = nap.getNode().findNodeAtOrAfter(napEnd, nap.getPosition());
+                        }
+                        if (napParent.getPosition() + napParent.getSize() >= thisLineEl.getEndOffset()) {
+                            break;
+                        }
+                        nap = li.previous();
+                        napEnd = nap.getPosition() + nap.getSize();
+                        li.remove();
+                    }
+                }
+                
+                // Next line
+                curLine++;
+                if (curLine <= lastLine) {
+                    aboveLineEl = thisLineEl;
+                    thisLineEl = map.getElement(curLine);
+                    Segment oldAbove = aboveLineSeg;
+                    aboveLineSeg = thisLineSeg;
+                    thisLineSeg = oldAbove; // recycle the object
+                    document.getText(thisLineEl.getStartOffset(),
+                            thisLineEl.getEndOffset() - thisLineEl.getStartOffset(),
+                            thisLineSeg);
                 }
             }
         }
-        g.setColor(origColor);
+        catch (BadLocationException ble) {}
     }
     
-    private boolean isAllWhitespace(Segment segment)
+    private void getScopeStackAt(ParsedNode root, int position, List<NodeAndPosition> list)
+    {
+        list.add(new NodeAndPosition(root, 0, root.getSize()));
+        int curpos = 0;
+        NodeAndPosition nap = root.findNodeAtOrAfter(position, curpos);
+        while (nap != null) {
+            list.add(nap);
+            curpos = nap.getPosition();
+            nap = nap.getNode().findNodeAtOrAfter(position, curpos);
+        }
+    }
+    
+    private int findNonWhitespace(Segment segment, int startPos)
     {
         int endpos = segment.offset + segment.count;
-        for (int i = segment.offset; i < endpos; i++) {
+        for (int i = segment.offset + startPos; i < endpos; i++) {
             char c = segment.array[i];
             if (c != ' ' && c != '\t' && c != '\n' && c != '\r') {
-                return false;
+                return i - segment.offset;
             }
         }
-        return true;
-    }
-    
-    /**
-     * Get the scope indent for a given node.
-     */
-    private int getIndentFor(MoeSyntaxDocument document, NodeAndPosition nap)
-    {
-        return nap.getNode().getLeftmostIndent(document, nap.getPosition());
+        return -1;
     }
     
     public void paintTaggedLine(Segment lineText, int lineIndex, Graphics g, int x, int y, 
             MoeSyntaxDocument document, Color def, Element line) 
     {
         paintLineMarkers(lineIndex, g, x, y, document, line);
-
-        //if(tokenMarker == null) {
-        //    Utilities.drawTabbedText(lineText, x+BREAKPOINT_OFFSET, y, g, this, 0);            
-        //}
-        
         paintSyntaxLine(lineText, lineIndex, x + LEFT_MARGIN, y, g, document, def);
     }
         
@@ -270,16 +331,9 @@ public class MoeSyntaxView extends BlueJSyntaxView
         int epos = viewToModel(bounds.x, clip.y + clip.height - 1, allocation, new Position.Bias[1]);
         
         Element map = getElement();
-        for (int i = spos; i <= epos; ) {
-            int lineIndex = map.getElementIndex(i);
-            Element line = map.getElement(lineIndex);
-            try {
-                Shape lshape = modelToView(line.getStartOffset(), allocation, Bias.Forward);
-                paintScopeMarkers(g, (MoeSyntaxDocument) map.getDocument(), lshape.getBounds().x, lshape.getBounds().y, line);
-            } catch (BadLocationException e) {
-            }
-            i = line.getEndOffset();
-        }
+        int firstLine = map.getElementIndex(spos);
+        int lastLine = map.getElementIndex(epos);
+        paintScopeMarkers(g, (MoeSyntaxDocument) getDocument(), allocation, firstLine, lastLine);
         
         // Left margin
         g.setColor(new Color(240, 240, 240));

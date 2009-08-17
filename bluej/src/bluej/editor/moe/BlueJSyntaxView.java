@@ -55,7 +55,7 @@ import org.syntax.jedit.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: BlueJSyntaxView.java 6518 2009-08-13 15:54:07Z davmac $
+ * @version $Id: BlueJSyntaxView.java 6531 2009-08-17 08:12:28Z davmac $
  */
 
 public abstract class BlueJSyntaxView extends PlainView
@@ -281,26 +281,9 @@ public abstract class BlueJSyntaxView extends PlainView
     public Shape modelToView(int pos, Shape a, Position.Bias b)
          throws BadLocationException
     {
-        // line coordinates
-        Document doc = getDocument();
-        Element map = getElement();
-        int lineIndex = map.getElementIndex(pos);
-        Rectangle lineArea = lineToRect(a, lineIndex);
-
-        // determine span from the start of the line
-        int tabBase = lineArea.x + TAG_WIDTH + 2;
-
-        Element line = map.getElement(lineIndex);
-        int p0 = line.getStartOffset();
-        Segment buffer = getLineBuffer();
-        doc.getText(p0, pos - p0, buffer);
-        int xOffs = Utilities.getTabbedTextWidth(buffer, metrics, tabBase, this, p0);
-
-        // fill in the results and return, include left margin area
-        lineArea.x += xOffs + LEFT_MARGIN;
-        lineArea.width = 1;
-        lineArea.height = metrics.getHeight();
-        return lineArea;
+        Rectangle r = super.modelToView(pos, a, b).getBounds();
+        r.x += LEFT_MARGIN;
+        return r;
     }
 
 
