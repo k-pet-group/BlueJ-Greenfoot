@@ -24,12 +24,16 @@ package greenfoot.gui;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.utility.DialogManager;
+import bluej.utility.EscapeDialog;
 
 import greenfoot.util.GreenfootUtil;
 import greenfoot.core.GProject;
 import greenfoot.util.ExternalAppLauncher;
 
 import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,7 +46,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -57,20 +60,21 @@ import javax.swing.event.ListSelectionListener;
  * @author Michael Berry
  * @version 03/07/09
  */
-public class ImageEditFrame extends JDialog implements ListSelectionListener, WindowListener,
+public class ImageEditFrame extends EscapeDialog implements ListSelectionListener, WindowListener,
         KeyListener
 {
 
     private File projImagesDir;
     private File projDir;
     private ImageLibList projImageList;
-    private ImageLibList greenfootImageList;
-    private JButton addButton;
     private JButton removeFromProjectButton;
-    private JButton removeFromLibraryButton;
     private JButton editButton;
-    private ImageCategorySelector imageCategorySelector;
-    private boolean catNull;
+    private JButton renameButton;
+    private JButton dupButton;
+    
+    /** List of buttons that should be enabled when something is selected in the list */
+    private List<JButton> listEditButtons = new LinkedList<JButton>();
+    private GProject proj;
 
     /**
      * Create a new ImageEditFrame.
@@ -81,6 +85,7 @@ public class ImageEditFrame extends JDialog implements ListSelectionListener, Wi
     {
         super(owner, Config.getString("imageedit.title"), true);
         setLocation(50,50);
+        this.proj = proj;
         projImagesDir = proj.getImageDir();
         try {
             projDir = proj.getDir();
@@ -131,8 +136,18 @@ public class ImageEditFrame extends JDialog implements ListSelectionListener, Wi
             imageScrollPane.setAlignmentX(0.0f);
 
             piPanel.add(imageScrollPane);
+            
+            piPanel.add(GreenfootUtil.createSpacer(GreenfootUtil.Y_AXIS, spacingSmall));          
+            mainPanel.add(piPanel);
+        }
 
-            piPanel.add(GreenfootUtil.createSpacer(GreenfootUtil.Y_AXIS, spacingSmall));
+        mainPanel.add(GreenfootUtil.createSpacer(GreenfootUtil.X_AXIS, spacingLarge));
+
+        //buttons
+        {
+            JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            
 
             editButton = new JButton("Edit");
             editButton.addActionListener(new ActionListener() {
@@ -141,130 +156,98 @@ public class ImageEditFrame extends JDialog implements ListSelectionListener, Wi
                 }
             });
             editButton.setEnabled(false);
-            piPanel.add(editButton);
+            panel.add(editButton);
+            listEditButtons.add(editButton);
+            
 
-            piPanel.add(GreenfootUtil.createSpacer(GreenfootUtil.Y_AXIS, spacingSmall));
-
-            removeFromProjectButton = new JButton("Delete from project");
+            renameButton = new JButton("Rename");
+            renameButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    renameSelected();
+                }
+            });
+            panel.add(renameButton);
+            listEditButtons.add(renameButton);
+            
+            dupButton = new JButton("Duplicate");
+            dupButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    //ExternalAppLauncher.editImage(projImageList.getSelectedEntry().imageFile);
+                }
+            });
+            listEditButtons.add(dupButton);
+            panel.add(dupButton);
+            
+            removeFromProjectButton = new JButton("Delete");
             removeFromProjectButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         confirmDelete(projImageList.getSelectedEntry().imageFile);
                     }
             });
-            removeFromProjectButton.setEnabled(false);
-            piPanel.add(removeFromProjectButton);
-            mainPanel.add(piPanel);
-        }
-
-        mainPanel.add(GreenfootUtil.createSpacer(GreenfootUtil.X_AXIS, spacingLarge));
-
-        //Add and remove buttons
-        {
-            JPanel panel = new JPanel();
-            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-            addButton = new JButton("Add to project") {
-                @Override public boolean isValidateRoot() {
-                    return true;
-                }
-            };
-            addButton.addActionListener(new ActionListener() {
+            listEditButtons.add(removeFromProjectButton);
+            panel.add(removeFromProjectButton);
+            
+            JButton newButton = new JButton("Create new...");
+            newButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    if(greenfootImageList.getSelectedValues().length==0) {
-                        File file = projImageList.getSelectedEntry().imageFile;
-                        File newFile = new File(greenfootImageList.getDirectory(), file.getName());
-                        GreenfootUtil.copyFile(file, newFile);
-                        greenfootImageList.refresh();
-                    }
-                    else {
-                        File file = greenfootImageList.getSelectedEntry().imageFile;
-                        File newFile = new File(projImagesDir, file.getName());
-                        GreenfootUtil.copyFile(file, newFile);
-                        projImageList.refresh();
-                    }
+                    NewImageDialog newImage = new NewImageDialog(ImageEditFrame.this, projImagesDir, proj);
+                    //TODO modal?
                 }
             });
-            addButton.setEnabled(false);
-            panel.add(addButton);
+            newButton.setEnabled(true);
+            panel.add(newButton);
+            
 
-            panel.add(GreenfootUtil.createSpacer(GreenfootUtil.Y_AXIS, spacingSmall));
+            JButton importButton = new JButton("Import...");
+            importButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    //ExternalAppLauncher.editImage(projImageList.getSelectedEntry().imageFile);
+                }
+            });
+            importButton.setEnabled(true);
+            panel.add(importButton);
+            
             mainPanel.add(panel);
         }
         
         mainPanel.add(GreenfootUtil.createSpacer(GreenfootUtil.X_AXIS, spacingLarge));
 
-        // Category selection panel
-        {
-            Box piPanel = new Box(BoxLayout.Y_AXIS);
-
-            JLabel piLabel = new JLabel(Config.getString("imagelib.categories"));
-            piLabel.setAlignmentX(0.0f);
-            piPanel.add(piLabel);
-
-            File imageDir = Config.getGreenfootLibDir();
-            imageDir = new File(imageDir, "imagelib");
-            imageCategorySelector = new ImageCategorySelector(imageDir);
-            imageCategorySelector.addListSelectionListener(this);
-
-            JScrollPane jsp = new JScrollPane(imageCategorySelector);
-
-            jsp.setBorder(Config.normalBorder);
-            jsp.setViewportBorder(BorderFactory.createLineBorder(imageCategorySelector.getBackground(), 4));
-            jsp.setAlignmentX(0.0f);
-
-            piPanel.add(jsp);
-            mainPanel.add(piPanel);
-        }
-
-        mainPanel.add(GreenfootUtil.createSpacer(GreenfootUtil.X_AXIS, spacingSmall));
-
-        // Greenfoot images panel
-        {
-            Box piPanel = new Box(BoxLayout.Y_AXIS);
-
-            JLabel piLabel = new JLabel(Config.getString("imagelib.images"));
-            piLabel.setAlignmentX(0.0f);
-            piPanel.add(piLabel);
-
-            JScrollPane jsp = new JScrollPane();
-
-            greenfootImageList = new ImageLibList();
-            greenfootImageList.addListSelectionListener(this);
-            jsp.getViewport().setView(greenfootImageList);
-
-            jsp.setBorder(Config.normalBorder);
-            jsp.setViewportBorder(BorderFactory.createLineBorder(greenfootImageList.getBackground(), 4));
-            jsp.setAlignmentX(0.0f);
-
-            piPanel.add(jsp);
-
-            piPanel.add(GreenfootUtil.createSpacer(GreenfootUtil.Y_AXIS, spacingSmall));
-
-            removeFromLibraryButton = new JButton("Delete from library");
-            removeFromLibraryButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    confirmDelete(greenfootImageList.getSelectedEntry().imageFile);
-                }
-            });
-            removeFromLibraryButton.setEnabled(false);
-            piPanel.add(removeFromLibraryButton);
-
-            mainPanel.add(piPanel);
-
-            imageCategorySelector.setImageLibList(greenfootImageList);
-        }
-
         this.add(mainPanel);
         this.add(GreenfootUtil.createSpacer(GreenfootUtil.Y_AXIS, spacingLarge));
-        JButton okButton = BlueJTheme.getOkButton();
-        okButton.addActionListener(new ActionListener() {
+        JButton closeButton = BlueJTheme.getCloseButton();
+        closeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 setVisible(false);
             }
         });
-        this.add(okButton);
+        this.add(closeButton);
+        
+        setButtonsEnabled(false);
+        
         pack();
+        DialogManager.centreDialog(this);
     }
 
+    
+    /**
+     * Enables or disables all the buttons in the listEditButtons set.
+     * 
+     */
+    private void setButtonsEnabled(boolean b)
+    {
+        for (JButton button : listEditButtons) {
+            button.setEnabled(b);
+        }
+    }
+
+    /**
+     * Initiates renaming of the selected item.
+     */
+    private void renameSelected()
+    {
+       // projImageList.
+    }
+    
     /**
      * Confirms whether to delete a file or not.
      * @param file the file to delete
@@ -276,7 +259,6 @@ public class ImageEditFrame extends JDialog implements ListSelectionListener, Wi
                 "Really delete?", JOptionPane.YES_NO_OPTION);
         if(result==JOptionPane.YES_OPTION) {
             file.delete();
-            greenfootImageList.refresh();
             projImageList.refresh();
         }
     }
@@ -289,7 +271,6 @@ public class ImageEditFrame extends JDialog implements ListSelectionListener, Wi
     @Override public void setVisible(boolean val)
     {
         if(val) {
-            greenfootImageList.refresh();
             projImageList.refresh();
         }
         super.setVisible(val);
@@ -300,45 +281,14 @@ public class ImageEditFrame extends JDialog implements ListSelectionListener, Wi
      */
     public void valueChanged(ListSelectionEvent lse)
     {
-        if(lse.getSource()==imageCategorySelector) {
-            catNull = true;
-        }
 
-        if(greenfootImageList.getSelectedEntry()==null) {
-            removeFromLibraryButton.setEnabled(false);
-        }
-        else {
-            if(catNull) addButton.setEnabled(true);
-            addButton.setText("Add to project");
-            removeFromLibraryButton.setEnabled(true);
-        }
-
-        if(projImageList.getSelectedEntry()==null) {
+        if (projImageList.getSelectedEntry() == null) {
             removeFromProjectButton.setEnabled(false);
             editButton.setEnabled(false);
-        }
-        else {
-            if(catNull) addButton.setEnabled(true);
-            addButton.setText("Add to library");
-            removeFromProjectButton.setEnabled(true);
-            editButton.setEnabled(true);
+        } else {
+            setButtonsEnabled(true);
         }
 
-        if(projImageList.getSelectedEntry()==null && greenfootImageList.getSelectedEntry()==null) {
-            addButton.setEnabled(false);
-            removeFromProjectButton.setEnabled(false);
-            editButton.setEnabled(false);
-            removeFromLibraryButton.setEnabled(false);
-        }
-
-        if(lse.getValueIsAdjusting() && lse.getSource()!=imageCategorySelector) {
-            if(lse.getSource()==projImageList) {
-                greenfootImageList.clearSelection();
-            }
-            else {
-                projImageList.clearSelection();
-            }
-        }
     }
 
     /**
@@ -347,7 +297,6 @@ public class ImageEditFrame extends JDialog implements ListSelectionListener, Wi
     public void keyTyped(KeyEvent e)
     {
         if(e.getKeyCode()==KeyEvent.VK_F5) {
-            greenfootImageList.refresh();
             projImageList.refresh();
         }
     }

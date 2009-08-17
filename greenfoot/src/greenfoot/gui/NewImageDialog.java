@@ -22,6 +22,7 @@
 package greenfoot.gui;
 
 import bluej.BlueJTheme;
+import bluej.utility.EscapeDialog;
 import greenfoot.core.GProject;
 import greenfoot.util.ExternalAppLauncher;
 
@@ -43,6 +44,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
@@ -57,7 +59,7 @@ import javax.swing.SpinnerNumberModel;
  * @author Michael Berry (mjrb4)
  * @version 09/08/09
  */
-public class NewImageDialog extends JDialog
+public class NewImageDialog extends EscapeDialog
 {
     private JTextField name;
     private JSpinner width;
@@ -66,9 +68,11 @@ public class NewImageDialog extends JDialog
     private JButton okButton;
     
     private File projImagesDir;
-    private ImageLibFrame parent;
+    private JDialog parent;
 
     private GProject proj;
+    
+    private String fileName;
 
     /**
      * Create a new image dialog. This is used for specifying the properties for
@@ -76,7 +80,7 @@ public class NewImageDialog extends JDialog
      * @param parent the parent frame associated with this dialog
      * @param projImagesDir the directory in which the images for the project are placed.
      */
-    public NewImageDialog(ImageLibFrame parent, File projImagesDir, GProject proj)
+    public NewImageDialog(JDialog parent, File projImagesDir, GProject proj)
     {
         super(parent, "New Image");
         this.proj = proj;
@@ -150,18 +154,18 @@ public class NewImageDialog extends JDialog
         okButton = BlueJTheme.getOkButton();
         okButton.setEnabled(false);
         okButton.addActionListener(new ActionListener() {
+
             public void actionPerformed(ActionEvent e) {
                 BufferedImage im = new BufferedImage((Integer)width.getValue(),
                         (Integer)height.getValue(), BufferedImage.TYPE_INT_ARGB);
-                String fileName = name.getText();
+                fileName = name.getText();
                 if(! fileName.endsWith("."+type.getSelectedItem())) {
                     fileName += "."+type.getSelectedItem();
                 }
                 File f = new File(projImagesDir, fileName);
                 try {
                     ImageIO.write(im, type.getSelectedItem().toString(), f);
-                    //System.out.println(f.exists());
-                    parent.refresh();
+                    
                     ExternalAppLauncher.editImage(f);
                 } catch (IOException ex) {
                     ex.printStackTrace();
@@ -176,6 +180,11 @@ public class NewImageDialog extends JDialog
         pack();
     }
 
+    public String getFileName() 
+    {
+        return fileName;
+    }
+    
     /**
      * Fix the maxiumum height of the component equal to its preferred size, and
      * return the component.

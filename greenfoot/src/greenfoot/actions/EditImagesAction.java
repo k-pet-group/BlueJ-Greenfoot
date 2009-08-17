@@ -31,6 +31,8 @@ import bluej.Config;
 import javax.swing.JFrame;
 
 /**
+ * 
+ * 
  * @author Michael Berry
  * @version $Id$
  */
@@ -39,11 +41,13 @@ public class EditImagesAction extends AbstractAction
 
     private GProject proj;
     private JFrame owner;
+    private ImageEditFrame imageFrame;
 
     public EditImagesAction(GProject proj, JFrame owner)
     {
         super(Config.getString("Scenario Images..."));
         setProject(proj);
+        this.owner = owner;
     }
 
     public void setProject(GProject proj)
@@ -57,7 +61,9 @@ public class EditImagesAction extends AbstractAction
      */
     public void actionPerformed(ActionEvent e)
     {
-        ImageEditFrame frame = new ImageEditFrame(proj, owner);
-        frame.setVisible(true);
+        if(imageFrame == null) {
+            imageFrame = new ImageEditFrame(proj, owner);
+        }
+        imageFrame.setVisible(true);
     }
 }
