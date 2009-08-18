@@ -62,7 +62,7 @@ import bluej.BlueJTheme;
  * 
  * @author Davin McCall
  * @author Poul Henriksen
- * @version $Id: ImageLibList.java 6534 2009-08-18 08:22:51Z polle $
+ * @version $Id: ImageLibList.java 6536 2009-08-18 09:26:05Z polle $
  */
 public class ImageLibList extends EditableList<ImageLibList.ImageListEntry>
 {   
@@ -139,10 +139,12 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry>
         for (int i = 0; i < imageFiles.length; i++) {
             ImageListEntry entry = new ImageListEntry(imageFiles[i]);
             data.add(entry);
-
-            int height = entry.imageIcon.getIconHeight();
-            if (height > getRowHeight()) {
-                setRowHeight(height);
+            Icon icon = entry.imageIcon;
+            if (icon != null) {
+                int height = entry.imageIcon.getIconHeight();
+                if (height > getRowHeight()) {
+                    setRowHeight(height);
+                }
             }
         }
         setListData(data);
