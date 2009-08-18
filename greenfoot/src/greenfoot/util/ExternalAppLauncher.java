@@ -23,9 +23,15 @@ package greenfoot.util;
 
 import java.io.IOException;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.CharBuffer;
 
 import java.awt.Desktop;
 import javax.swing.JFileChooser;
+
+import bluej.Config;
 
 /**
  * A class containing static methods for the purposes of launching external programs.
@@ -37,7 +43,8 @@ import javax.swing.JFileChooser;
  */
 public class ExternalAppLauncher
 {
-
+    private static String imageEditor = Config.getPropString("greenfoot.editor.image", null);
+    
     /**
      * Opens a file using the OS default program for that file type.
      * @param file the file to open.
@@ -60,7 +67,7 @@ public class ExternalAppLauncher
             int returnVal = jfc.showOpenDialog(null);
             if(returnVal==JFileChooser.APPROVE_OPTION) {
                 File program = jfc.getSelectedFile();
-                launchProgram(program.toString(), file.toString());
+                launchProgram(program, file.toString());
             }
         }
     }
@@ -74,12 +81,14 @@ public class ExternalAppLauncher
      */
     public static void editImage(File file)
     {
-        //TODO: Add override in greenfoot.defs
-        //if override set then
-        //launchProgram(override, file);
-        editFile(file);
+        if(imageEditor != null) {
+            launchProgram(new File(imageEditor), file.toString());
+        }
+        else {
+            editFile(file);
+        }
     }
-
+    
     /**
      * Opens a file for editing using the OS default editor for that file type.
      * @param file the file to open for editing.
@@ -102,26 +111,8 @@ public class ExternalAppLauncher
             int returnVal = jfc.showOpenDialog(null);
             if(returnVal==JFileChooser.APPROVE_OPTION) {
                 File program = jfc.getSelectedFile();
-                launchProgram(program.toString(), file.toString());
+                launchProgram(program, file.toString());
             }
-        }
-    }
-
-    /**
-     * Launch an external application without any parameters.
-     * @param program the path of the application to launch.
-     */
-    public static void launchProgram(String program)
-    {
-        if(new File(program).canExecute()) {
-            try {
-                Runtime.getRuntime().exec(program);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-        else {
-            System.err.println(program + " is not executable.");
         }
     }
 
@@ -131,14 +122,29 @@ public class ExternalAppLauncher
      * @param path the path of the application to launch.
      * @param file the file to open in the application.
      */
-    public static void launchProgram(String program, String file)
+    public static void launchProgram(File program, String file)
     {
-        if(new File(program).canExecute()) {
+        if (Config.isMacOS() && program.isDirectory()) {
+            // If we are on a mac, and the program is a directory, we should use
+            // the 'open' command.
+            String[] cmd = new String[4];
+            cmd[0] = "open";
+            cmd[1] = "-a";
+            cmd[2] = program.toString();
+            cmd[3] = file;
+            try {
+                execWithOutput(cmd);
+            }
+            catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        else if (program.canExecute()) {
             String[] cmd = new String[2];
-            cmd[0] = program;
+            cmd[0] = program.toString();
             cmd[1] = file;
             try {
-                Runtime.getRuntime().exec(cmd);
+                execWithOutput(cmd);                
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -149,57 +155,56 @@ public class ExternalAppLauncher
     }
 
     /**
-     * Launch an external application without any parameters, and block execution
-     * of the current thread until it exits.
-     * @param program the path of the application to launch.
-     * @return the exit value of the program, or -1 if an exception occured. 0
-     * indicates normal termination.
+     * Use Runtime.getRuntime().exec to execute the given command and redirect
+     * the output from the process to System.out and errors to System.err.
+     * 
      */
-    public static int waitForProgram(String program)
+    private static void execWithOutput(String[] cmd)
+        throws IOException
     {
-        if(new File(program).canExecute()) {
-            try {
-                Process p = Runtime.getRuntime().exec(program);
-                p.waitFor();
-                return p.exitValue();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                return -1;
-            }
+        Process p = Runtime.getRuntime().exec(cmd);  
+        StreamRedirector errRedirector = new StreamRedirector(p.getErrorStream(), System.err);
+        errRedirector.start();
+        StreamRedirector outRedirector = new StreamRedirector(p.getInputStream(), System.out);
+        outRedirector.start();
+    }
+    
+ 
+    /**
+     * Class that redirects from an inputstream to an outputstream.
+     * 
+     * @author Poul Henriksen
+     */
+    private static class StreamRedirector extends Thread 
+    {
+        private OutputStream target;
+        private InputStream source;
+        
+        public StreamRedirector(InputStream source, OutputStream target) 
+        {
+            this.source = source;
+            this.target = target;
         }
-        else {
-            System.err.println(program + " is not executable.");
-            return -1;
+        
+        public void run()
+        {
+            int len = 0;
+            while (len != -1) {
+                //CharBuffer target = CharBuffer.allocate(20);
+                byte[] bytes = new byte[50];
+                try {
+                    len = source.read(bytes);
+                    if (len != -1) {
+                        target.write(bytes, 0, len);
+                        target.flush();
+                    }
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }           
         }
     }
 
-    /**
-     * Launch an external application with a single parameter, and block execution
-     * of the current thread until it exits.
-     * @param path the path of the application to launch.
-     * @param file the file to open in the application.
-     * @return the exit value of the program, or -1 if an exception occured. 0
-     * indicates normal termination.
-     */
-    public static int waitForProgram(String program, String file)
-    {
-        if(new File(program).canExecute()) {
-            String[] cmd = new String[2];
-            cmd[0] = program;
-            cmd[1] = file;
-            try {
-                Process p = Runtime.getRuntime().exec(cmd);
-                p.waitFor();
-                return p.exitValue();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                return -1;
-            }
-        }
-        else {
-            System.err.println(program + " is not executable.");
-            return -1;
-        }
-    }
 
 }

@@ -27,6 +27,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -62,7 +63,7 @@ import bluej.BlueJTheme;
  * 
  * @author Davin McCall
  * @author Poul Henriksen
- * @version $Id: ImageLibList.java 6536 2009-08-18 09:26:05Z polle $
+ * @version $Id: ImageLibList.java 6538 2009-08-18 15:35:54Z polle $
  */
 public class ImageLibList extends EditableList<ImageLibList.ImageListEntry>
 {   
@@ -168,16 +169,18 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry>
             setDirectory(getDirectory());
         }
     }
-    
+
     /**
      * If the given file exists in this list, it will be selected.
      * 
      */
-    public void setSelectedFile(File imageFile) 
+    public void setSelectedFile(File imageFile)
     {
-        setSelectedValue(new ImageListEntry(imageFile, false));     
+        int row = setSelectedValue(new ImageListEntry(imageFile, false));
+        ensureIndexIsVisible(row);
     }
         
+
     public Dimension getPreferredScrollableViewportSize()
     {
         // Limit the preferred viewport height to the preferred height
@@ -217,7 +220,7 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry>
                     String fileName = textField.getText();
                     File oldFile = value.imageFile;
                     File newFile = new File(oldFile.getParent(), fileName);
-                    if (newFile.exists()) {
+                    if (!oldFile.equals(newFile) && newFile.exists()) {
                         SwingUtilities.invokeLater(new Runnable() {
                             public void run()
                             {

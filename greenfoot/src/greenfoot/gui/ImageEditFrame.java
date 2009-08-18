@@ -54,6 +54,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -79,6 +80,7 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
     private List<JButton> listEditButtons = new LinkedList<JButton>();
     private GProject proj;
     private File newlyCreatedImage;
+    protected ImageListEntry editedEntry;
 
     /**
      * Create a new ImageEditFrame.
@@ -99,6 +101,7 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
         }
         buildUI();
         this.addKeyListener(this);
+        this.addWindowListener(this);
         this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         this.setResizable(false);
     }
@@ -129,7 +132,7 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
             piPanel.add(piLabel);
 
             JScrollPane imageScrollPane = new JScrollPane();
-
+            
             projImagesDir = new File(projDir, "images");
             projImageList = new ImageLibList(projImagesDir, true);
             projImageList.addListSelectionListener(this);
@@ -156,7 +159,8 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
             editButton = new JButton("Edit");
             editButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    ExternalAppLauncher.editImage( projImageList.getSelectedValue().imageFile);
+                    editedEntry = projImageList.getSelectedValue();
+                    ExternalAppLauncher.editImage(editedEntry.imageFile);
                 }
             });
             panel.add(editButton);
@@ -185,10 +189,15 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
             newButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     NewImageDialog newImage = new NewImageDialog(ImageEditFrame.this, projImagesDir, proj);
-                    File file = newImage.displayModal();
+                    final File file = newImage.displayModal();
                     if(file != null) {
                         projImageList.refresh();
-                        newlyCreatedImage = file;
+                        SwingUtilities.invokeLater(new Runnable(){
+                            @Override
+                            public void run()
+                            {
+                                newlyCreatedImage = file;
+                            }});
                     }
                 }
             });
@@ -233,6 +242,7 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
     {
         ImageListEntry srcEntry = projImageList.getSelectedValue();
         File srcFile = srcEntry.imageFile;
+        File dstFile = null;
         if(srcFile != null) {
             File dir = srcFile.getParentFile();
             String fileName = srcFile.getName();
@@ -248,7 +258,7 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
                 ext = "";
             }
             baseName += "Copy";
-            File dstFile;
+            
             try {
                 dstFile = GreenfootUtil.createNumberedFile(dir, baseName, ext);
                 FileUtility.copyFile(srcFile, dstFile);
@@ -258,6 +268,9 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
             }
         }
         projImageList.refresh();
+        if(dstFile != null) {
+            projImageList.setSelectedFile(dstFile);
+        }
     }
 
     /**
@@ -343,6 +356,11 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
             projImageList.refresh();
             projImageList.setSelectedFile(newlyCreatedImage);
             newlyCreatedImage = null;
+        } 
+        
+        if(editedEntry != null) {
+            editedEntry = null;
+            projImageList.refresh();
         }
     }
 

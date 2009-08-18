@@ -97,3 +97,9 @@ bluej.compiler.options=-source 1.5 -target 1.5
 ## if not configured properly.  
 #####################################################################
 bluej.vm.args=-Xincgc -Dapple.awt.graphics.UseQuartz=true
+
+
+#####################################################################
+## External program used for editing images 
+#####################################################################
+#greenfoot.editor.image=/Applications/Adobe Photoshop CS3/Adobe Photoshop CS3.app
