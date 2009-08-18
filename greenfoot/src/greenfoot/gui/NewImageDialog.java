@@ -22,6 +22,7 @@
 package greenfoot.gui;
 
 import bluej.BlueJTheme;
+import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
 import greenfoot.core.GProject;
 import greenfoot.util.ExternalAppLauncher;
@@ -72,7 +73,7 @@ public class NewImageDialog extends EscapeDialog
 
     private GProject proj;
     
-    private String fileName;
+    private File file;
 
     /**
      * Create a new image dialog. This is used for specifying the properties for
@@ -154,24 +155,9 @@ public class NewImageDialog extends EscapeDialog
         okButton = BlueJTheme.getOkButton();
         okButton.setEnabled(false);
         okButton.addActionListener(new ActionListener() {
-
             public void actionPerformed(ActionEvent e) {
-                BufferedImage im = new BufferedImage((Integer)width.getValue(),
-                        (Integer)height.getValue(), BufferedImage.TYPE_INT_ARGB);
-                fileName = name.getText();
-                if(! fileName.endsWith("."+type.getSelectedItem())) {
-                    fileName += "."+type.getSelectedItem();
-                }
-                File f = new File(projImagesDir, fileName);
-                try {
-                    ImageIO.write(im, type.getSelectedItem().toString(), f);
-                    
-                    ExternalAppLauncher.editImage(f);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-                setVisible(false);
-            }
+                createAndEdit();
+            }            
         });
         mainPanel.add(okButton);
 
@@ -179,10 +165,20 @@ public class NewImageDialog extends EscapeDialog
         getRootPane().setDefaultButton(okButton);
         pack();
     }
-
-    public String getFileName() 
+    
+    public File displayModal()
     {
-        return fileName;
+        setModal(true);  
+        DialogManager.centreDialog(this);
+        setVisible(true);
+        dispose();
+        setModal(false);
+        return file;
+    }
+
+    public File getFile() 
+    {
+        return file;
     }
     
     /**
@@ -211,4 +207,23 @@ public class NewImageDialog extends EscapeDialog
         }
     }
 
+    private void createAndEdit()
+    {
+        BufferedImage im = new BufferedImage((Integer)width.getValue(),
+                (Integer)height.getValue(), BufferedImage.TYPE_INT_ARGB);
+        String fileName = name.getText();
+        if(! fileName.endsWith("."+type.getSelectedItem())) {
+            fileName += "."+type.getSelectedItem();
+        }
+        file = new File(projImagesDir, fileName);
+        // TODO: What if file with that name exists
+        try {
+            ImageIO.write(im, type.getSelectedItem().toString(), file);
+            
+            ExternalAppLauncher.editImage(file);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        setVisible(false);
+    }
 }

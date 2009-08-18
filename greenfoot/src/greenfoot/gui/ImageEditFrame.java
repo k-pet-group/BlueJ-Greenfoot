@@ -78,6 +78,7 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
     /** List of buttons that should be enabled when something is selected in the list */
     private List<JButton> listEditButtons = new LinkedList<JButton>();
     private GProject proj;
+    private File newlyCreatedImage;
 
     /**
      * Create a new ImageEditFrame.
@@ -184,7 +185,11 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
             newButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     NewImageDialog newImage = new NewImageDialog(ImageEditFrame.this, projImagesDir, proj);
-                    //TODO modal?
+                    File file = newImage.displayModal();
+                    if(file != null) {
+                        projImageList.refresh();
+                        newlyCreatedImage = file;
+                    }
                 }
             });
             newButton.setEnabled(true);
@@ -334,12 +339,11 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
      */
     public void windowActivated(WindowEvent e)
     {
-       /* if(newlyCreatedImage != null) {
-            refresh();
-            selectImage(newlyCreatedImage);
+        if(newlyCreatedImage != null) {
+            projImageList.refresh();
             projImageList.setSelectedFile(newlyCreatedImage);
             newlyCreatedImage = null;
-        }*/
+        }
     }
 
     public void windowClosed(WindowEvent e)
