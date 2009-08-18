@@ -88,7 +88,7 @@ import java.awt.FlowLayout;
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 6529 2009-08-14 15:44:20Z polle $
+ * @version $Id: ImageLibFrame.java 6534 2009-08-18 08:22:51Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
@@ -223,7 +223,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 try {
                     File projDir = project.getDir();
                     projImagesDir = new File(projDir, "images");
-                    projImageList = new ImageLibList(projImagesDir);
+                    projImageList = new ImageLibList(projImagesDir, false);
                     imageScrollPane.getViewport().setView(projImageList);
                 }
                 catch (ProjectNotOpenException pnoe) {}
@@ -248,7 +248,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             imageCategorySelector = new ImageCategorySelector(imageDir);
 
             // List of images
-            greenfootImageList = new ImageLibList();
+            greenfootImageList = new ImageLibList(false);
             
             JComponent greenfootLibPanel = new GreenfootImageLibPanel(imageCategorySelector, greenfootImageList);
             
@@ -534,7 +534,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         if (! lse.getValueIsAdjusting() && source instanceof ImageLibList) {
             imageTextLabel.setText("");
             ImageLibList sourceList = (ImageLibList) source;
-            ImageLibList.ImageListEntry ile = sourceList.getSelectedEntry();
+            ImageLibList.ImageListEntry ile = sourceList.getSelectedValue();
 
             if (ile != null) {
                 showingGeneratedImage = false;
@@ -851,7 +851,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         if(newlyCreatedImage != null) {
             refresh();
             selectImage(newlyCreatedImage);
-            projImageList.setSelectedValue(newlyCreatedImage);
+            projImageList.setSelectedFile(newlyCreatedImage);
             newlyCreatedImage = null;
         }
     }

@@ -58,6 +58,7 @@ import javax.swing.event.ListSelectionListener;
  * A dialog for managing the images in a project.
  *
  * @author Michael Berry
+ * @author Poul Henriksen
  * @version 03/07/09
  */
 public class ImageEditFrame extends EscapeDialog implements ListSelectionListener, WindowListener,
@@ -69,7 +70,6 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
     private ImageLibList projImageList;
     private JButton removeFromProjectButton;
     private JButton editButton;
-    private JButton renameButton;
     private JButton dupButton;
     
     /** List of buttons that should be enabled when something is selected in the list */
@@ -127,7 +127,7 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
             JScrollPane imageScrollPane = new JScrollPane();
 
             projImagesDir = new File(projDir, "images");
-            projImageList = new ImageLibList(projImagesDir);
+            projImageList = new ImageLibList(projImagesDir, true);
             projImageList.addListSelectionListener(this);
             imageScrollPane.getViewport().setView(projImageList);
 
@@ -152,22 +152,12 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
             editButton = new JButton("Edit");
             editButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    ExternalAppLauncher.editImage(projImageList.getSelectedEntry().imageFile);
+                    ExternalAppLauncher.editImage( projImageList.getSelectedValue().imageFile);
                 }
             });
-            editButton.setEnabled(false);
             panel.add(editButton);
             listEditButtons.add(editButton);
             
-
-            renameButton = new JButton("Rename");
-            renameButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    renameSelected();
-                }
-            });
-            panel.add(renameButton);
-            listEditButtons.add(renameButton);
             
             dupButton = new JButton("Duplicate");
             dupButton.addActionListener(new ActionListener() {
@@ -181,7 +171,7 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
             removeFromProjectButton = new JButton("Delete");
             removeFromProjectButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        confirmDelete(projImageList.getSelectedEntry().imageFile);
+                        confirmDelete(projImageList.getSelectedValue().imageFile);
                     }
             });
             listEditButtons.add(removeFromProjectButton);
@@ -206,6 +196,8 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
             });
             importButton.setEnabled(true);
             panel.add(importButton);
+            
+            setButtonsEnabled(false);
             
             mainPanel.add(panel);
         }
@@ -239,14 +231,6 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
             button.setEnabled(b);
         }
     }
-
-    /**
-     * Initiates renaming of the selected item.
-     */
-    private void renameSelected()
-    {
-       // projImageList.
-    }
     
     /**
      * Confirms whether to delete a file or not.
@@ -256,10 +240,11 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
     {
         int result = JOptionPane.showConfirmDialog(this,
                 "Are you sure you want to delete " + file.getName() + "?",
-                "Really delete?", JOptionPane.YES_NO_OPTION);
+                "Confirm delete", JOptionPane.YES_NO_OPTION);
         if(result==JOptionPane.YES_OPTION) {
-            file.delete();
-            projImageList.refresh();
+            if(file.delete()) {
+                projImageList.refresh();
+            }
         }
     }
 
@@ -282,7 +267,7 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
     public void valueChanged(ListSelectionEvent lse)
     {
 
-        if (projImageList.getSelectedEntry() == null) {
+        if (projImageList.getSelectedValue() == null) {
             removeFromProjectButton.setEnabled(false);
             editButton.setEnabled(false);
         } else {
@@ -309,8 +294,19 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
     public void keyReleased(KeyEvent e)
     {
     }
+    
+
+    /**
+     * If we have been editing an image externally, we select that image.
+     */
     public void windowActivated(WindowEvent e)
     {
+       /* if(newlyCreatedImage != null) {
+            refresh();
+            selectImage(newlyCreatedImage);
+            projImageList.setSelectedFile(newlyCreatedImage);
+            newlyCreatedImage = null;
+        }*/
     }
 
     public void windowClosed(WindowEvent e)
