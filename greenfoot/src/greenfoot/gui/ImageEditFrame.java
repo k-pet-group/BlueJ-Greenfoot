@@ -26,12 +26,15 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
+import bluej.utility.FileUtility;
 
 import greenfoot.util.GreenfootUtil;
 import greenfoot.core.GProject;
+import greenfoot.gui.ImageLibList.ImageListEntry;
 import greenfoot.util.ExternalAppLauncher;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -162,7 +165,7 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
             dupButton = new JButton("Duplicate");
             dupButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    //ExternalAppLauncher.editImage(projImageList.getSelectedEntry().imageFile);
+                    duplicateSelected();
                 }
             });
             listEditButtons.add(dupButton);
@@ -221,6 +224,37 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
     }
 
     
+    protected void duplicateSelected()
+    {
+        ImageListEntry srcEntry = projImageList.getSelectedValue();
+        File srcFile = srcEntry.imageFile;
+        if(srcFile != null) {
+            File dir = srcFile.getParentFile();
+            String fileName = srcFile.getName();
+            int index = fileName.indexOf('.');
+            
+            String baseName = null;
+            String ext = null;
+            if(index != -1) {
+                baseName = fileName.substring(0, index);
+                ext = fileName.substring(index + 1);
+            } else {
+                baseName = fileName;
+                ext = "";
+            }
+            baseName += "Copy";
+            File dstFile;
+            try {
+                dstFile = GreenfootUtil.createNumberedFile(dir, baseName, ext);
+                FileUtility.copyFile(srcFile, dstFile);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        projImageList.refresh();
+    }
+
     /**
      * Enables or disables all the buttons in the listEditButtons set.
      * 
@@ -268,8 +302,7 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
     {
 
         if (projImageList.getSelectedValue() == null) {
-            removeFromProjectButton.setEnabled(false);
-            editButton.setEnabled(false);
+            setButtonsEnabled(false);
         } else {
             setButtonsEnabled(true);
         }
