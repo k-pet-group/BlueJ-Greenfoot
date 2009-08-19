@@ -66,7 +66,7 @@ import bluej.prefmgr.PrefMgr;
  * @author Michael Kolling
  * @author Davin McCall
  *
- * @version $Id: MoeSyntaxView.java 6532 2009-08-17 08:20:24Z davmac $
+ * @version $Id: MoeSyntaxView.java 6539 2009-08-19 06:16:20Z davmac $
  */
 
 public class MoeSyntaxView extends BlueJSyntaxView
@@ -190,9 +190,19 @@ public class MoeSyntaxView extends BlueJSyntaxView
                         break;
                     }
 
-                    if (nap.getPosition() + nap.getSize() < thisLineEl.getEndOffset()) {
+                    if (! nap.getNode().isContainer() && ! nap.getNode().isInner()) {
+                        continue; // no need to draw the node at all.
+                    }
+                    
+                    if (napEnd < thisLineEl.getEndOffset()) {
+                        // The node ends on this line. Just whitespace?
+                        int nws = findNonWhitespace(thisLineSeg, 0);
+                        if (nws == -1 || thisLineEl.getStartOffset() + nws >= napEnd) {
+                            break;
+                        }
+                        
                         // The node ends on this line, so don't extend it too far
-                        int nws = findNonWhitespace(thisLineSeg,
+                        nws = findNonWhitespace(thisLineSeg,
                                 nap.getPosition() + nap.getSize() - thisLineEl.getStartOffset());
                         if (nws != -1) {
                             Rectangle rr = modelToView(thisLineEl.getStartOffset() + nws,
@@ -200,40 +210,51 @@ public class MoeSyntaxView extends BlueJSyntaxView
                             endX = rr.x + rr.width;
                         }
                     }
-
+                    
                     // Ok, it includes text on this line. Or maybe just whitespace?
                     int nws = 0;
                     boolean startsThisLine = (nap.getPosition() >= thisLineEl.getStartOffset());
-                    if (startsThisLine) {
-                        nws = findNonWhitespace(thisLineSeg, nap.getPosition() - thisLineEl.getStartOffset());
-                    }
                     // TODO also starts this line if it really starts on the previous line,
                     //      but that only has whitespace
-                    
-                    if (nws != -1) {
-                        if (nap.getNode().isContainer()) {
-                            int indent = nap.getNode().getLeftmostIndent(document, nap.getPosition());
-                            int xpos = lbounds.x + char_width * indent - 2;
-                            if (indent + thisLineEl.getStartOffset() < nap.getPosition()) {
-                                xpos = modelToView(thisLineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds().x;
-                            }
-                            g.setColor(c1);
-                            g.drawLine(xpos, ypos, xpos, ypos2);
-                            g.setColor(c2);
-                            g.fillRect(xpos + 1, ypos, endX - (xpos+1), ypos2 - ypos);
+                    if (startsThisLine) {
+                        nws = findNonWhitespace(thisLineSeg, nap.getPosition() - thisLineEl.getStartOffset());
+                        if (nws == -1) {
+                            continue; // just white space on this line
                         }
-                        else if (nap.getNode().isInner()) {
-                            int indent = nap.getNode().getLeftmostIndent(document, nap.getPosition());
-                            int xpos = lbounds.x + indent * char_width;
-                            if (indent + thisLineEl.getStartOffset() < nap.getPosition()) {
-                                xpos = modelToView(thisLineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds().x;
-                            }
-                            xpos -= 5;
-                            g.setColor(c3);
-                            g.drawLine(xpos, ypos, xpos, ypos2);
-                            g.setColor(c4);
-                            g.fillRect(xpos + 1, ypos, endX - (xpos+1), ypos2 - ypos);
+                        
+                        // if the node begins further right of the indent, we might still colour
+                        // from the indent - only if that section is just whitespace though.
+                        int ls = thisLineEl.getStartOffset();
+                        //int limit = viewToModel(fx, fy, a, bias)
+                        
+                        int nwsb = findNonWhitespaceBwards(thisLineSeg,
+                                nap.getPosition() - ls,
+                                0);
+                        nws = Math.max(nws, nwsb);
+                    }
+
+                    int indent = nap.getNode().getLeftmostIndent(document, nap.getPosition());
+
+                    if (nap.getNode().isContainer()) {
+                        int xpos = lbounds.x + char_width * indent - 2;
+                        if (nws != 0) {
+                            xpos = Math.max(xpos, modelToView(thisLineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds().x - 2);
                         }
+                        g.setColor(c1);
+                        g.drawLine(xpos, ypos, xpos, ypos2);
+                        g.setColor(c2);
+                        g.fillRect(xpos + 1, ypos, endX - (xpos+1), ypos2 - ypos);
+                    }
+                    else if (nap.getNode().isInner()) {
+                        int xpos = lbounds.x + indent * char_width;
+                        if (nws != 0) {
+                            xpos = Math.max(xpos, modelToView(thisLineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds().x);
+                        }
+                        xpos -= 5;
+                        g.setColor(c3);
+                        g.drawLine(xpos, ypos, xpos, ypos2);
+                        g.setColor(c4);
+                        g.fillRect(xpos + 1, ypos, endX - (xpos+1), ypos2 - ypos);
                     }
                 }
 
@@ -305,6 +326,18 @@ public class MoeSyntaxView extends BlueJSyntaxView
         }
         return -1;
     }
+    
+    private int findNonWhitespaceBwards(Segment segment, int startPos, int endPos)
+    {
+        int lastP = segment.offset + endPos;
+        int i;
+        for (i = segment.offset + startPos; i > lastP; i--) {
+            char c = segment.array[i];
+            if (c != ' ' && c != '\t' && c != '\n' && c != '\r') {
+                break;
+            }
+        }
+        return i - segment.offset;    }
     
     public void paintTaggedLine(Segment lineText, int lineIndex, Graphics g, int x, int y, 
             MoeSyntaxDocument document, Color def, Element line) 

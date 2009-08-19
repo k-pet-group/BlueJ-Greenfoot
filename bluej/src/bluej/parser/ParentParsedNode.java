@@ -244,6 +244,15 @@ public class ParentParsedNode extends ParsedNode
                 curpos += nap.getSize();
             }
         }
+        
+        if (cachedLeftIndex == -1) {
+            ParsedNode parent = getParentNode();
+            if (parent != null) {
+                cachedLeftIndex = Math.max(parent.getLeftmostIndent(document, nodePos), 0);
+                // DAV To do: use real tabsize
+                cachedLeftIndex += 4;
+            }
+        }
     }
     
     /**
