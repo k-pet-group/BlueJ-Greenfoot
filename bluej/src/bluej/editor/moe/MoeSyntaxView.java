@@ -66,7 +66,7 @@ import bluej.prefmgr.PrefMgr;
  * @author Michael Kolling
  * @author Davin McCall
  *
- * @version $Id: MoeSyntaxView.java 6539 2009-08-19 06:16:20Z davmac $
+ * @version $Id: MoeSyntaxView.java 6540 2009-08-19 23:25:51Z polle $
  */
 
 public class MoeSyntaxView extends BlueJSyntaxView
@@ -75,6 +75,9 @@ public class MoeSyntaxView extends BlueJSyntaxView
     public static final String BREAKPOINT = "break";
     public static final String STEPMARK = "step";
 
+    private static final int LEFT_INNER_SCOPE_MARGIN = 5;
+    private static final int RIGHT_SCOPE_MARGIN = 3;
+    
     static final Image breakImage =
         Config.getImageAsIcon("image.editor.breakmark").getImage();
     static final Image stepImage =
@@ -123,7 +126,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
 
         Color c1 = new Color(210, 230, 210); // green border (container)
         //Color c2 = new Color(250, 255, 250); // green wash
-        Color c2 = new Color(220, 255, 220);
+        Color c2 = new Color(245, 253, 245);
         Color c3 = new Color(230, 240, 230); // green border (inner).
         Color c4 = new Color(255, 255, 255); // white wash
         
@@ -163,6 +166,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
                 int ypos2 = ypos + lbounds.height;
 
                 ListIterator<NodeAndPosition> li = prevScopeStack.listIterator();
+                int scopeCount = 0;
                 while (li.hasNext()) {
                     NodeAndPosition nap = li.next();
                     int napEnd = nap.getPosition() + nap.getSize();
@@ -214,12 +218,14 @@ public class MoeSyntaxView extends BlueJSyntaxView
                     // Ok, it includes text on this line. Or maybe just whitespace?
                     int nws = 0;
                     boolean startsThisLine = (nap.getPosition() >= thisLineEl.getStartOffset());
+                    boolean endsThisLine = (nap.getPosition() + nap.getSize() <= thisLineEl.getEndOffset());
                     // TODO also starts this line if it really starts on the previous line,
                     //      but that only has whitespace
                     if (startsThisLine) {
                         nws = findNonWhitespace(thisLineSeg, nap.getPosition() - thisLineEl.getStartOffset());
                         if (nws == -1) {
                             continue; // just white space on this line
+                            // TODO Having continue here, screws up the startsThisLine (and end) for the inner scopes
                         }
                         
                         // if the node begins further right of the indent, we might still colour
@@ -234,28 +240,77 @@ public class MoeSyntaxView extends BlueJSyntaxView
                     }
 
                     int indent = nap.getNode().getLeftmostIndent(document, nap.getPosition());
+                  
+                    // The width of the editor area
+                    int fullWidth = getContainer().getWidth();
 
+                    // We might not want to render the right margin if it is out
+                    // of the clip area, so we calculate how much of the margin
+                    // we should not render.
+                    int rightMarginNotRendered = fullWidth - endX;
+                    int rightMargin = scopeCount * RIGHT_SCOPE_MARGIN + 1  - rightMarginNotRendered;
+                    if(rightMargin < 0) {
+                        rightMargin = 0;
+                    }                   
+                    int scopeRightX = endX - rightMargin;
                     if (nap.getNode().isContainer()) {
                         int xpos = lbounds.x + char_width * indent - 2;
                         if (nws != 0) {
-                            xpos = Math.max(xpos, modelToView(thisLineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds().x - 2);
+                             xpos = Math.max(xpos, modelToView(thisLineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds().x - 2);
                         }
-                        g.setColor(c1);
-                        g.drawLine(xpos, ypos, xpos, ypos2);
+                        
                         g.setColor(c2);
-                        g.fillRect(xpos + 1, ypos, endX - (xpos+1), ypos2 - ypos);
+                        g.fillRect(xpos + 1, ypos, scopeRightX - (xpos+1), ypos2 - ypos);
+                        
+                        g.setColor(c1);
+                        if(startsThisLine) {
+                            // Top edge
+                            g.drawLine(xpos, ypos, scopeRightX, ypos);
+                            //g.drawRect(xpos + 1, ypos, endX - (xpos+1), ypos2 - ypos);
+                        }
+                        if(endsThisLine) {
+                            // Bottom edge
+                            g.drawLine(xpos, ypos2 - 1, scopeRightX, ypos2 - 1);
+                        }
+       
+                        // Left edge
+                        g.drawLine(xpos, ypos, xpos, ypos2);
+                        
+                        // Right edge
+                        g.drawLine(endX - rightMargin, ypos, scopeRightX, ypos2);                       
                     }
                     else if (nap.getNode().isInner()) {
                         int xpos = lbounds.x + indent * char_width;
                         if (nws != 0) {
                             xpos = Math.max(xpos, modelToView(thisLineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds().x);
                         }
-                        xpos -= 5;
-                        g.setColor(c3);
-                        g.drawLine(xpos, ypos, xpos, ypos2);
+                        xpos -= LEFT_INNER_SCOPE_MARGIN;
+                     
                         g.setColor(c4);
-                        g.fillRect(xpos + 1, ypos, endX - (xpos+1), ypos2 - ypos);
-                    }
+                        g.fillRect(xpos + 1, ypos, scopeRightX - (xpos+1), ypos2 - ypos);
+                        
+                        g.setColor(c3);
+                        
+                        if(startsThisLine) {
+                            // Top edge
+                            // Currently doesn't work because of empty lines that gets skipped.
+                            g.drawLine(xpos, ypos , scopeRightX, ypos);
+                            
+                        }
+                        if(endsThisLine) {
+                            // Bottom edge          
+                            // Currently doesn't work because of empty lines that gets skipped.                 
+                            System.out.println("LINE END ++++++++");
+                            g.drawLine(xpos, ypos2 - 1, scopeRightX, ypos2 - 1);
+                        }
+       
+                        // Left edge
+                        g.drawLine(xpos, ypos, xpos, ypos2);
+                        
+                        // Right edge
+                        g.drawLine(endX - rightMargin, ypos, scopeRightX, ypos2);                       
+                    }                    
+                    scopeCount++;
                 }
 
                 // Move along
