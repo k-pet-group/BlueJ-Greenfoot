@@ -81,7 +81,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 6349 2009-05-22 14:49:01Z polle $
+ * @version $Id: PkgMgrFrame.java 6551 2009-08-21 16:37:34Z iau $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -3227,6 +3227,8 @@ public class PkgMgrFrame extends JFrame
      */
     public boolean isJavaMEpackage( )
     {
+        if (pkg == null) return false;
+        
         String javaMEflag = 
                pkg.getLastSavedProperties().getProperty( "package.isJavaMEproject", "false" );
         
