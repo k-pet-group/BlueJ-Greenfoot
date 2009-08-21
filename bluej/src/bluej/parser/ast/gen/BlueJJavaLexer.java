@@ -12,7 +12,6 @@ public class BlueJJavaLexer implements JavaTokenTypes
     private static final int LETTER_CHAR=0;
     private static final int DIGIT_CHAR=1;
     private static final int OTHER_CHAR=2;
-    protected LocatableToken _returnToken = null; // used to return tokens w/o using return val.
     private StringBuffer textBuffer; // text of current token
     private EscapedUnicodeReader reader;
     private int tabsize=8;
@@ -53,21 +52,6 @@ public class BlueJJavaLexer implements JavaTokenTypes
     public void setTabSize(int tabsize) {
         this.tabsize = tabsize;
     }
-    public char LA (int index){
-        //col -1 is the position in the array plus how many forward (index)
-        int i=col-1+index; 
-        char [] cb=new char[index];
-        int numRead=0;
-        try{
-            numRead=reader.readChars(cb, i, index);
-        }catch(IOException ioe){
-            //print an error
-            return (char)-1;
-        }
-        if (numRead==-1 || numRead<index)
-            return (char)-1;
-        return cb[index];
-    }
 
     private int readChar(int position){
         char [] cb=new char[1];
@@ -106,7 +90,7 @@ public class BlueJJavaLexer implements JavaTokenTypes
         }
         else {
             int pos=reader.getPosition();
-            //if it is a unicode escape char need to bump it up the column by 4
+            //if it is a unicode escape char need to bump up the column by 4
             if (pos==col-1){
                 ++col;
             }else 
@@ -126,14 +110,6 @@ public class BlueJJavaLexer implements JavaTokenTypes
         line++;
         col= 1;
     }
-
-    /* 
-     * This function ensures that the token is created correctly according to its type i.e
-     * number
-     * letter
-     * other
-     * (eof is already processed) 
-     */
 
     private LocatableToken createToken(char nextChar){
         int bCol=col;
@@ -436,7 +412,16 @@ public class BlueJJavaLexer implements JavaTokenTypes
             return JavaTokenTypes.LITERAL_interface;
         }
         if (text.equals("switch")){
-            type=JavaTokenTypes.LITERAL_switch;
+            return JavaTokenTypes.LITERAL_switch;
+        }
+        if (text.equals("case")){
+            return JavaTokenTypes.LITERAL_case;
+        }
+        if (text.equals("break")){
+            return JavaTokenTypes.LITERAL_break;
+        }
+        if (text.equals("continue")){
+            return JavaTokenTypes.LITERAL_continue;
         }
         if (text.equals("while")){
             return JavaTokenTypes.LITERAL_while;
@@ -446,6 +431,12 @@ public class BlueJJavaLexer implements JavaTokenTypes
         }
         if (text.equals("for")){
             return JavaTokenTypes.LITERAL_for;
+        }
+        if (text.equals("if")){
+            return JavaTokenTypes.LITERAL_if;
+        }
+        if (text.equals("else")){
+            return JavaTokenTypes.LITERAL_else;
         }
         if (text.equals("void")){
             return JavaTokenTypes.LITERAL_void;
@@ -487,10 +478,13 @@ public class BlueJJavaLexer implements JavaTokenTypes
             return JavaTokenTypes.LITERAL_implements;
         }
         if (text.equals("this")){
-            type=JavaTokenTypes.LITERAL_this;
+            return JavaTokenTypes.LITERAL_this;
         }
         if (text.equals("throws")){
             return JavaTokenTypes.LITERAL_throws;
+        }
+        if (text.equals("throw")){
+            return JavaTokenTypes.LITERAL_throw;
         }
         if (text.equals("try")){
             return JavaTokenTypes.LITERAL_try;
@@ -508,7 +502,7 @@ public class BlueJJavaLexer implements JavaTokenTypes
             return JavaTokenTypes.LITERAL_true;
         }
         if (text.equals("false")){
-            type=JavaTokenTypes.LITERAL_false;
+            return JavaTokenTypes.LITERAL_false;
         }
         if (text.equals("null")){
             return JavaTokenTypes.LITERAL_null;
@@ -546,6 +540,9 @@ public class BlueJJavaLexer implements JavaTokenTypes
         if (text.equals("package")){
             return JavaTokenTypes.LITERAL_package;
         }
+        if (text.equals("super")){
+            return JavaTokenTypes.LITERAL_super;
+        }
         return JavaTokenTypes.IDENT;
 
     }
@@ -557,23 +554,5 @@ public class BlueJJavaLexer implements JavaTokenTypes
         else return false;
     }
 
-    /*
-    private void readReader(){        
-        char [] cb=new char[1];
-        int val=0;
-        for (int i=0; val!=-1; i++){
-            try{
-                val=reader.readChar(cb, i);
-                if (val==-1){
-                    tokenBuffer.append((char)-1);
-                }else
-                    tokenBuffer.append((char)cb[0]);
-            }catch(IOException e){
-                System.out.println("Unable to read  the source stream");
-                tokenBuffer.append((char)-1);
-            }
-        }
-    }
-     */
 
 }
