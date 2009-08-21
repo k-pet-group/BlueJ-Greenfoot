@@ -505,7 +505,9 @@ public class NewParser
                         tokenStream.nextToken();
                         parseMethodParamsBody();
                     }
-                    else {
+                    else if (token.getType() == JavaTokenTypes.LT
+                            || token.getType() == JavaTokenTypes.IDENT
+                            || isPrimitiveType(token)) {
                         // method, field
                         if (token.getType() == JavaTokenTypes.LT) {
                             // generic method
@@ -518,7 +520,7 @@ public class NewParser
                         LocatableToken idToken = tokenStream.nextToken(); // identifier
                         if (idToken.getType() != JavaTokenTypes.IDENT) {
                             error("Expected identifier (method or field name).");
-                            return;
+                            continue;
                         }
                         parseArrayDeclarators();
 
@@ -552,6 +554,9 @@ public class NewParser
                             tokenStream.pushBack(token);
                             endElement(token, false);
                         }
+                    }
+                    else {
+                        error("Unexpected token \"" + token.getText() + "\" in type declaration body");
                     }
                 }
                 token = tokenStream.nextToken();
