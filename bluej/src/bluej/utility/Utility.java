@@ -52,7 +52,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 6489 2009-08-05 12:36:56Z polle $
+ * @version $Id: Utility.java 6552 2009-08-21 18:03:32Z polle $
  */
 public class Utility
 {
@@ -520,36 +520,6 @@ public class Utility
         }
         if (Config.isLinux()) {
             // http://ubuntuforums.org/archive/index.php/t-197207.html
-        }
-        else if (Config.isMacOS() && !Config.isJava16()) {
-            // The following code executes these calls:
-            // NSApplication app = NSApplication.sharedApplication();
-            // app.activateIgnoringOtherApps(true);
-            // but does so by reflection so that this compiles on non-Apple
-            // machines.
-
-            try {
-                Class<?> nsapp = null;
-                try {
-                    nsapp = Class.forName("com.apple.cocoa.application.NSApplication");
-                }
-                catch (ClassNotFoundException e) {}
-                if (nsapp == null) {
-                    // Using a custom class loader avoids having to set up the
-                    // class path on the mac.
-                    nsapp = Class.forName("com.apple.cocoa.application.NSApplication", true, classLoader);
-                }
-                java.lang.reflect.Method sharedApp = nsapp.getMethod("sharedApplication", (Class[]) null);
-                Object obj = sharedApp.invoke(null, (Object[]) null);
-
-                Class<?>[] param = {boolean.class};
-                java.lang.reflect.Method act = nsapp.getMethod("activateIgnoringOtherApps", param);
-                Object[] args = {Boolean.TRUE};
-                act.invoke(obj, args);
-            }
-            catch (Exception exc) {
-                Debug.reportError("Bringing process to front failed (MacOS): " + exc);
-            }
         }
         else if (Config.isMacOS()) {
             // Use applescript to bring it to front.
