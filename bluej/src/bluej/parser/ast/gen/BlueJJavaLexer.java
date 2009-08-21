@@ -3,13 +3,9 @@ package bluej.parser.ast.gen;
 
 import java.io.IOException;
 import java.io.Reader;
-
+import antlr.TokenStreamException;
 import bluej.parser.EscapedUnicodeReader;
-import bluej.parser.TokenStream;
-import bluej.parser.TokenStreamException;
 import bluej.parser.ast.LocatableToken;
-import bluej.parser.ast.Token;
-import bluej.parser.ast.gen.JavaTokenTypes;
 
 public class BlueJJavaLexer implements JavaTokenTypes
 {
