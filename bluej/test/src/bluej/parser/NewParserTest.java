@@ -176,6 +176,18 @@ public class NewParserTest extends TestCase
         InfoParser ip = new InfoParser(sr);
         ip.parseTypeDef();
     }
+    
+    /**
+     * Test multiple field definition in one statement.
+     */
+    public void test13p2()
+    {
+        StringReader sr = new StringReader(
+                "class A { private int x, y; }"
+        );
+        InfoParser ip = new InfoParser(sr);
+        ip.parseTypeDef();
+    }
 
     /**
      * Test multiple variable declaration in a single statement.

@@ -460,104 +460,108 @@ public class NewParser
         return rval;
     }
 	
-	public void parseClassBody()
-	{
-		try {
-			LocatableToken token = tokenStream.nextToken();
-			while (token.getType() != JavaTokenTypes.RCURLY) {
-				beginElement(token);
-			    tokenStream.pushBack(token);
-				LocatableToken hiddenToken = (LocatableToken) token.getHiddenBefore();
-				// field declaration, method declaration, inner class
-				List<LocatableToken> modifiers = parseModifiers();
-				token = tokenStream.nextToken();
-				if (token.getType() == JavaTokenTypes.LITERAL_class
-						|| token.getType() == JavaTokenTypes.LITERAL_interface
-						|| token.getType() == JavaTokenTypes.LITERAL_enum
-						|| token.getType() == JavaTokenTypes.AT) {
-					tokenStream.pushBack(token);
-					pushBackAll(modifiers);
-					parseTypeDef();
-				}
-				else {
-					// Not an inner type: should be a method/constructor or field,
-					// or (possibly static) a initialisation block
-					if (token.getType() == JavaTokenTypes.SEMI) {
-						// A spurious semicolon.
-					    endElement(token, true);
-					}
-					else if (token.getType() == JavaTokenTypes.LCURLY) {
-						// initialisation block
-						parseStmtBlock();
-						token = tokenStream.nextToken();
-						if (token.getType() != JavaTokenTypes.RCURLY) {
-							error("Expecting '}' (at end of initialisation block)");
-							tokenStream.pushBack(token);
-							endElement(token, false);
-						}
-						else {
-						    endElement(token, true);
-						}
-					}
-					else if (tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
-						// constructor
-						gotConstructorDecl(token, hiddenToken);
-						tokenStream.nextToken();
-						parseMethodParamsBody();
-					}
-					else {
-						// method, field
-						if (token.getType() == JavaTokenTypes.LT) {
-							// generic method
-							parseTemplateParams();
-						}
-						else {
-							tokenStream.pushBack(token);
-						}
-						parseTypeSpec();
-						LocatableToken idToken = tokenStream.nextToken(); // identifier
-						if (idToken.getType() != JavaTokenTypes.IDENT) {
-							error("Expected identifier (method or field name).");
-							return;
-						}
-						parseArrayDeclarators();
-						
-						token = tokenStream.nextToken();
-						if (token.getType() == JavaTokenTypes.SEMI) {
-							// field declaration: done
-						    gotField(idToken);
-						    endElement(token, true);
-							token = tokenStream.nextToken();
-							continue;
-						}
-						else if (token.getType() == JavaTokenTypes.ASSIGN) {
-							// field declaration
-						    gotField(idToken);
-							parseExpression();
-							parseSubsequentDeclarations();
-							token = tokenStream.nextToken();
-							continue;
-						}
-						else if (token.getType() == JavaTokenTypes.LPAREN) {
-							// method declaration
-							gotMethodDeclaration(idToken, hiddenToken);
-							parseMethodParamsBody();
-						}
-						else {
-							error("Expected ';' or '=' or '(' (in field or method declaration), got token type: " + token.getType());
-							tokenStream.pushBack(token);
-							endElement(token, false);
-						}
-					}
-				}
-				token = tokenStream.nextToken();
-			}
-			tokenStream.pushBack(token);
-		}
-		catch (TokenStreamException tse) {
-			tse.printStackTrace();
-		}
-	}
+    public void parseClassBody()
+    {
+        try {
+            LocatableToken token = tokenStream.nextToken();
+            while (token.getType() != JavaTokenTypes.RCURLY) {
+                beginElement(token);
+                tokenStream.pushBack(token);
+                LocatableToken hiddenToken = (LocatableToken) token.getHiddenBefore();
+                // field declaration, method declaration, inner class
+                List<LocatableToken> modifiers = parseModifiers();
+                token = tokenStream.nextToken();
+                if (token.getType() == JavaTokenTypes.LITERAL_class
+                        || token.getType() == JavaTokenTypes.LITERAL_interface
+                        || token.getType() == JavaTokenTypes.LITERAL_enum
+                        || token.getType() == JavaTokenTypes.AT) {
+                    tokenStream.pushBack(token);
+                    pushBackAll(modifiers);
+                    parseTypeDef();
+                }
+                else {
+                    // Not an inner type: should be a method/constructor or field,
+                    // or (possibly static) a initialisation block
+                    if (token.getType() == JavaTokenTypes.SEMI) {
+                        // A spurious semicolon.
+                        endElement(token, true);
+                    }
+                    else if (token.getType() == JavaTokenTypes.LCURLY) {
+                        // initialisation block
+                        parseStmtBlock();
+                        token = tokenStream.nextToken();
+                        if (token.getType() != JavaTokenTypes.RCURLY) {
+                            error("Expecting '}' (at end of initialisation block)");
+                            tokenStream.pushBack(token);
+                            endElement(token, false);
+                        }
+                        else {
+                            endElement(token, true);
+                        }
+                    }
+                    else if (tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
+                        // constructor
+                        gotConstructorDecl(token, hiddenToken);
+                        tokenStream.nextToken();
+                        parseMethodParamsBody();
+                    }
+                    else {
+                        // method, field
+                        if (token.getType() == JavaTokenTypes.LT) {
+                            // generic method
+                            parseTemplateParams();
+                        }
+                        else {
+                            tokenStream.pushBack(token);
+                        }
+                        parseTypeSpec();
+                        LocatableToken idToken = tokenStream.nextToken(); // identifier
+                        if (idToken.getType() != JavaTokenTypes.IDENT) {
+                            error("Expected identifier (method or field name).");
+                            return;
+                        }
+                        parseArrayDeclarators();
+
+                        token = tokenStream.nextToken();
+                        if (token.getType() == JavaTokenTypes.SEMI) {
+                            // field declaration: done
+                            gotField(idToken);
+                            endElement(token, true);
+                            token = tokenStream.nextToken();
+                            continue;
+                        }
+                        else if (token.getType() == JavaTokenTypes.ASSIGN) {
+                            // field declaration
+                            gotField(idToken);
+                            parseExpression();
+                            parseSubsequentDeclarations();
+                            token = tokenStream.nextToken();
+                            continue;
+                        }
+                        else if (token.getType() == JavaTokenTypes.LPAREN) {
+                            // method declaration
+                            gotMethodDeclaration(idToken, hiddenToken);
+                            parseMethodParamsBody();
+                        }
+                        else if (token.getType() == JavaTokenTypes.COMMA) {
+                            tokenStream.pushBack(token);
+                            parseSubsequentDeclarations();
+                        }
+                        else {
+                            error("Expected ';' or '=' or '(' (in field or method declaration), got token type: " + token.getType());
+                            tokenStream.pushBack(token);
+                            endElement(token, false);
+                        }
+                    }
+                }
+                token = tokenStream.nextToken();
+            }
+            tokenStream.pushBack(token);
+        }
+        catch (TokenStreamException tse) {
+            tse.printStackTrace();
+        }
+    }
 
     protected void gotField(LocatableToken idToken) { }
 	
