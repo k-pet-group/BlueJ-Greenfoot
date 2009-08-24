@@ -141,6 +141,14 @@ public class NewParser
      */
     protected void endElement(LocatableToken token, boolean included) { }
 
+    /**
+     * End of a method or constructor body reached.
+     */
+    protected void endMethodBody(LocatableToken token, boolean included)
+    {
+        endElement(token, included);
+    }
+    
     /** reached a compilation unit state */
     protected void reachedCUstate(int i) { }
 
@@ -611,7 +619,7 @@ public class NewParser
 			if (token.getType() != JavaTokenTypes.RPAREN) {
 				error("Expected ')' at end of parameter list (in method declaration)");
 				tokenStream.pushBack(token);
-				endElement(token, false);
+				endMethodBody(token, false);
 				return;
 			}
 			token = tokenStream.nextToken();
@@ -628,19 +636,19 @@ public class NewParser
 				if (token.getType() != JavaTokenTypes.RCURLY) {
 					error("Expected '}' at end of method body");
 					tokenStream.pushBack(token);
-					endElement(token, false);
+					endMethodBody(token, false);
 				}
 				else {
-				    endElement(token, true);
+				    endMethodBody(token, true);
 				}
 			}
 			else if (token.getType() != JavaTokenTypes.SEMI) {
 				error("Expected ';' or '{' following parameter list in method declaration");
 				tokenStream.pushBack(token);
-				endElement(token, false);
+				endMethodBody(token, false);
 			}
 			else {
-			    endElement(token, true);
+			    endMethodBody(token, true);
 			}
 		}
 		catch (TokenStreamException tse) {

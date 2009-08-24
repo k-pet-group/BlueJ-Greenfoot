@@ -170,4 +170,52 @@ public class EditorParser extends NewParser
 //        int curOffset = getCurrentOffset();
 //        scopeStack.peek().getNodeTree().insertNode(cn, startpos - curOffset, endpos - startpos);
     }
+    
+    @Override
+    protected void gotConstructorDecl(LocatableToken token,
+            LocatableToken hiddenToken)
+    {
+        super.gotConstructorDecl(token, hiddenToken);
+        LocatableToken start = pcuStmtBegin;
+        if (hiddenToken != null) {
+            start = hiddenToken;
+        }
+        
+        ParsedNode pnode = new MethodNode(scopeStack.peek());
+        int curOffset = getCurrentOffset();
+        int insPos = pcuNode.lineColToPosition(start.getLine(), start.getColumn());
+        scopeStack.peek().getNodeTree().insertNode(pnode, insPos - curOffset, 0);
+        scopeStack.push(pnode);
+    }
+    
+    @Override
+    protected void gotMethodDeclaration(LocatableToken token,
+            LocatableToken hiddenToken)
+    {
+        super.gotMethodDeclaration(token, hiddenToken);
+        LocatableToken start = pcuStmtBegin;
+        if (hiddenToken != null) {
+            start = hiddenToken;
+        }
+        
+        ParsedNode pnode = new MethodNode(scopeStack.peek());
+        int curOffset = getCurrentOffset();
+        int insPos = pcuNode.lineColToPosition(start.getLine(), start.getColumn());
+        scopeStack.peek().getNodeTree().insertNode(pnode, insPos - curOffset, 0);
+        scopeStack.push(pnode);
+    }
+    
+    @Override
+    protected void endMethodBody(LocatableToken token, boolean included)
+    {
+        super.endMethodBody(token, included);
+        
+        int topPos = getCurrentOffset();
+        ParsedNode top = scopeStack.pop();
+
+        int endPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
+        top.getContainingNodeTree().setNodeSize(endPos - topPos);
+        
+        completedNode(top, topPos, endPos - topPos);
+    }
 }
