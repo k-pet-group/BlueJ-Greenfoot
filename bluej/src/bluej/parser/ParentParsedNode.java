@@ -33,10 +33,10 @@ public class ParentParsedNode extends ParsedNode
         super(myParent);
     }
     
-    public int getLeftmostIndent(Document document, int nodePos)
+    public int getLeftmostIndent(Document document, int nodePos, int tabSize)
     {
         if (cachedLeftIndex == -1) {
-            recalcLeftIndent(document, nodePos);
+            recalcLeftIndent(document, nodePos, tabSize);
         }
         return cachedLeftIndex;
     }
@@ -202,7 +202,7 @@ public class ParentParsedNode extends ParsedNode
         }
     }
 
-    private void recalcLeftIndent(Document document, int nodePos)
+    private void recalcLeftIndent(Document document, int nodePos, int tabSize)
     {
         cachedLeftIndex = -1;
         int size = getSize();
@@ -231,7 +231,7 @@ public class ParentParsedNode extends ParsedNode
                     // e.printStackTrace();
                 }
                 
-                int indent = getIndentOf(segment, lcol);
+                int indent = getIndentOf(segment, lcol, tabSize);
                 if (indent != -1 && (indent < cachedLeftIndex || cachedLeftIndex == -1)) {
                     cachedLeftIndex = indent;
                 }
@@ -248,9 +248,8 @@ public class ParentParsedNode extends ParsedNode
         if (cachedLeftIndex == -1) {
             ParsedNode parent = getParentNode();
             if (parent != null) {
-                cachedLeftIndex = Math.max(parent.getLeftmostIndent(document, nodePos), 0);
-                // DAV To do: use real tabsize
-                cachedLeftIndex += 4;
+                cachedLeftIndex = Math.max(parent.getLeftmostIndent(document, nodePos, tabSize), 0);
+                cachedLeftIndex += tabSize;
             }
         }
     }
@@ -259,7 +258,7 @@ public class ParentParsedNode extends ParsedNode
      * Get the indent of a string, if it starts at the given column.
      * Returns -1 if the indent couldn't be identified (empty line).
      */
-    private int getIndentOf(Segment string, int startcol)
+    private int getIndentOf(Segment string, int startcol, int tabSize)
     {
         int indent = startcol;
         for (int i = string.getBeginIndex(); i < string.getEndIndex(); i++) {
@@ -271,7 +270,8 @@ public class ParentParsedNode extends ParsedNode
                 indent++;
             }
             else if (c == '\t') {
-                indent += 4; // DAV correct tab size
+                indent += tabSize;
+                indent -= indent % tabSize;
             }
             else {
                 return indent;

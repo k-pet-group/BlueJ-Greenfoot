@@ -38,7 +38,6 @@ package bluej.editor.moe;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.util.LinkedList;
@@ -67,7 +66,7 @@ import bluej.prefmgr.PrefMgr;
  * @author Michael Kolling
  * @author Davin McCall
  *
- * @version $Id: MoeSyntaxView.java 6541 2009-08-20 04:41:17Z davmac $
+ * @version $Id: MoeSyntaxView.java 6553 2009-08-24 03:50:05Z davmac $
  */
 
 public class MoeSyntaxView extends BlueJSyntaxView
@@ -258,7 +257,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
                         }
                     }
 
-                    int indent = nap.getNode().getLeftmostIndent(document, nap.getPosition());
+                    int indent = nap.getNode().getLeftmostIndent(document, nap.getPosition(), getTabSize());
                   
                     // The width of the editor area
                     int fullWidth = getContainer().getWidth();

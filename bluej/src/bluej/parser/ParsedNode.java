@@ -70,7 +70,7 @@ public abstract class ParsedNode
         isInner = inner;
     }
 	
-    public int getLeftmostIndent(Document document, int nodePos)
+    public int getLeftmostIndent(Document document, int nodePos, int tabSize)
     {
         return 0;
     }
