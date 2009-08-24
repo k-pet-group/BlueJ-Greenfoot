@@ -473,6 +473,10 @@ public class NewParser
         try {
             LocatableToken token = tokenStream.nextToken();
             while (token.getType() != JavaTokenTypes.RCURLY) {
+                if (token.getType() == JavaTokenTypes.EOF) {
+                    error("Unexpected end-of-file in type body; missing '}'");
+                    return;
+                }
                 beginElement(token);
                 tokenStream.pushBack(token);
                 LocatableToken hiddenToken = (LocatableToken) token.getHiddenBefore();
