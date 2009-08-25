@@ -206,14 +206,39 @@ public class EditorParser extends NewParser
     }
     
     @Override
-    protected void endMethodBody(LocatableToken token, boolean included)
+    protected void endMethodDecl(LocatableToken token, boolean included)
     {
-        super.endMethodBody(token, included);
+        super.endMethodDecl(token, included);
         
         int topPos = getCurrentOffset();
         ParsedNode top = scopeStack.pop();
 
         int endPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
+        top.getContainingNodeTree().setNodeSize(endPos - topPos);
+        
+        completedNode(top, topPos, endPos - topPos);
+    }
+    
+    @Override
+    protected void beginMethodBody(LocatableToken token)
+    {
+        ParsedNode pnode = new ParentParsedNode(scopeStack.peek());
+        pnode.setInner(true);
+        int curOffset = getCurrentOffset();
+        int insPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
+        scopeStack.peek().getNodeTree().insertNode(pnode, insPos - curOffset, 0);
+        scopeStack.push(pnode);
+    }
+    
+    @Override
+    protected void endMethodBody(LocatableToken token, boolean included)
+    {
+        super.endMethodBody(token, included);
+
+        int topPos = getCurrentOffset();
+        ParsedNode top = scopeStack.pop();
+
+        int endPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
         top.getContainingNodeTree().setNodeSize(endPos - topPos);
         
         completedNode(top, topPos, endPos - topPos);

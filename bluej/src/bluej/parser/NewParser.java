@@ -142,6 +142,14 @@ public class NewParser
     protected void endElement(LocatableToken token, boolean included) { }
 
     /**
+     * Got the beginning (opening brace) of a method or constructor body.
+     */
+    protected void beginMethodBody(LocatableToken token)
+    {
+        beginElement(token);
+    }
+    
+    /**
      * End of a method or constructor body reached.
      */
     protected void endMethodBody(LocatableToken token, boolean included)
@@ -149,6 +157,11 @@ public class NewParser
         endElement(token, included);
     }
     
+    protected void endMethodDecl(LocatableToken token, boolean included)
+    {
+        endElement(token, included);
+    }
+        
     /** reached a compilation unit state */
     protected void reachedCUstate(int i) { }
 
@@ -581,311 +594,314 @@ public class NewParser
     }
 
     protected void gotField(LocatableToken idToken) { }
-	
-	protected void parseArrayDeclarators()
-	{
-		try {
-			if (tokenStream.LA(1).getType() != JavaTokenTypes.LBRACK) {
-				return;
-			}
-			
-			LocatableToken token = tokenStream.nextToken();
-			while (token.getType() == JavaTokenTypes.LBRACK) {
-				token = tokenStream.nextToken();
-				if (token.getType() != JavaTokenTypes.RBRACK) {
-					error("Expecting ']' (to match '[')");
-					if (tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
-						// Try and recover
-						token = tokenStream.nextToken(); // ']'
-					}
-					else {
-						tokenStream.pushBack(token);
-						return;
-					}
-				}
-				token = tokenStream.nextToken();
-			}
-			tokenStream.pushBack(token);
-		}
-		catch (TokenStreamException tse) {}
-	}
-	
-	/**
-	 * We've got the return type, name, and opening parenthesis of a method/constructor
-	 * declaration. Parse the rest.
-	 */
-	public void parseMethodParamsBody()
-	{
-		try {
-			parseParameterList();
-			gotAllMethodParameters();
-			LocatableToken token = tokenStream.nextToken();
-			if (token.getType() != JavaTokenTypes.RPAREN) {
-				error("Expected ')' at end of parameter list (in method declaration)");
-				tokenStream.pushBack(token);
-				endMethodBody(token, false);
-				return;
-			}
-			token = tokenStream.nextToken();
-			if (token.getType() == JavaTokenTypes.LITERAL_throws) {
-				do {
-					parseTypeSpec();
-					token = tokenStream.nextToken();
-				} while (token.getType() == JavaTokenTypes.COMMA);
-			}
-			if (token.getType() == JavaTokenTypes.LCURLY) {
-				// method body
-				parseStmtBlock();
-				token = tokenStream.nextToken();
-				if (token.getType() != JavaTokenTypes.RCURLY) {
-					error("Expected '}' at end of method body");
-					tokenStream.pushBack(token);
-					endMethodBody(token, false);
-				}
-				else {
-				    endMethodBody(token, true);
-				}
-			}
-			else if (token.getType() != JavaTokenTypes.SEMI) {
-				error("Expected ';' or '{' following parameter list in method declaration");
-				tokenStream.pushBack(token);
-				endMethodBody(token, false);
-			}
-			else {
-			    endMethodBody(token, true);
-			}
-		}
-		catch (TokenStreamException tse) {
-			tse.printStackTrace();
-		}
-	}
-	
-	/**
-	 * Parse a statement block - such as a method body
-	 */
-	public void parseStmtBlock()
-	{
-		try {
-			while(true) {
-				LocatableToken token = tokenStream.nextToken();
-				if (token.getType() == JavaTokenTypes.EOF
-						|| token.getType() == JavaTokenTypes.RCURLY
-						|| token.getType() == JavaTokenTypes.RPAREN) {
-					tokenStream.pushBack(token);
-					return;
-				}
-				parseStatement(token);
-			}
-		} catch (TokenStreamException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public void parseStatement()
-	{
-		try {
-			parseStatement(tokenStream.nextToken());
-		} catch (TokenStreamException e) {
-		}
-	}
-	
-	public void parseStatement(LocatableToken token)
-	{
-		try {
-			if (token.getType() == JavaTokenTypes.SEMI) {
-				return; // empty statement
-			}
-			else if (token.getType() == JavaTokenTypes.LITERAL_return) {
-				token = tokenStream.nextToken();
-				if (token.getType() != JavaTokenTypes.SEMI) {
-					tokenStream.pushBack(token);
-					parseExpression();
-					token = tokenStream.nextToken();
-				}
-				if (token.getType() != JavaTokenTypes.SEMI) {
-					error("Expecting ';' after 'return' statement");
-					tokenStream.pushBack(token);
-				}
-			}
-			else if (token.getType() == JavaTokenTypes.LITERAL_for) {
-				parseForStatement(token);
-			}
-			else if (token.getType() == JavaTokenTypes.LITERAL_while) {
-				parseWhileStatement(token);
-			}
-			else if (token.getType() == JavaTokenTypes.LITERAL_if) {
-				parseIfStatement(token);
-			}
-			else if (token.getType() == JavaTokenTypes.LITERAL_do) {
-				parseDoWhileStatement(token);
-			}
-			else if (token.getType() == JavaTokenTypes.LITERAL_assert) {
-				parseAssertStatement(token);
-			}
-			else if (token.getType() == JavaTokenTypes.LITERAL_switch) {
-				parseSwitchStatement(token);
-			}
-			else if (token.getType() == JavaTokenTypes.LITERAL_case) {
-				parseExpression();
-				token = tokenStream.nextToken();
-				if (token.getType() != JavaTokenTypes.COLON) {
-					error("Expecting ':' at end of case expression");
-					tokenStream.pushBack(token);
-					return;
-				}
-			}
-			else if (token.getType() == JavaTokenTypes.LITERAL_default) {
-				token = tokenStream.nextToken();
-				if (token.getType() != JavaTokenTypes.COLON) {
-					error("Expecting ':' at end of case expression");
-					tokenStream.pushBack(token);
-					return;
-				}
-			}
-			else if (token.getType() == JavaTokenTypes.LITERAL_continue
-					|| token.getType() == JavaTokenTypes.LITERAL_break) {
-				// There might be a label afterwards
-				token = tokenStream.nextToken();
-				if (token.getType() == JavaTokenTypes.IDENT) {
-					token = tokenStream.nextToken();
-				}
-				if (token.getType() != JavaTokenTypes.SEMI) {
-					error("Expecting ';' at end of " + token.getText() + " statement");
-					tokenStream.pushBack(token);
-				}
-			}
-			else if (token.getType() == JavaTokenTypes.LITERAL_throw) {
-				parseExpression();
-				token = tokenStream.nextToken();
-				if (token.getType() != JavaTokenTypes.SEMI) {
-					error("Expecting ';' at end of 'throw' statement");
-					tokenStream.pushBack(token);
-				}
-			}
-			else if (token.getType() == JavaTokenTypes.LITERAL_try) {
-				token = tokenStream.nextToken();
-				if (token.getType() != JavaTokenTypes.LCURLY) {
-					error ("Expecting '{' after 'try'");
-					tokenStream.pushBack(token);
-					return;
-				}
-				parseStatement(token);
-				int laType = tokenStream.LA(1).getType();
-				while (laType == JavaTokenTypes.LITERAL_catch
-						|| laType == JavaTokenTypes.LITERAL_finally) {
-					token = tokenStream.nextToken();
-					if (laType == JavaTokenTypes.LITERAL_catch) {
-						token = tokenStream.nextToken();
-						if (token.getType() != JavaTokenTypes.LPAREN) {
-							error("Expecting '(' after 'catch'");
-							tokenStream.pushBack(token);
-							return;
-						}
-						parseTypeSpec();
-						token = tokenStream.nextToken();
-						if (token.getType() != JavaTokenTypes.IDENT) {
-							error("Expecting identifier after type (in 'catch' expression)");
-							tokenStream.pushBack(token);
-							return;
-						}
-						token = tokenStream.nextToken();
-						if (token.getType() != JavaTokenTypes.RPAREN) {
-							error("Expecting ')' after identifier (in 'catch' expression)");
-							tokenStream.pushBack(token);
-							return;
-						}
-					}
-					token = tokenStream.nextToken();
-					if (token.getType() != JavaTokenTypes.LCURLY) {
-						error("Expecting '{' after 'catch'/'finally'");
-						tokenStream.pushBack(token);
-						return;
-					}
-					parseStatement(token); // parse as a statement block
-					laType = tokenStream.LA(1).getType();
-				}
-			}
-			else if (token.getType() == JavaTokenTypes.IDENT) {
-				// A label?
-				LocatableToken ctoken = tokenStream.nextToken();
-				if (ctoken.getType() == JavaTokenTypes.COLON) {
-					return;
-				}
-				tokenStream.pushBack(ctoken);
-				tokenStream.pushBack(token);
 
-				// A declaration of a variable?
-				List<LocatableToken> tlist = new LinkedList<LocatableToken>();
-				boolean isTypeSpec = parseTypeSpec(true, tlist);
-				token = tokenStream.nextToken();
-				tokenStream.pushBack(token);
-				pushBackAll(tlist);
-				if (isTypeSpec && token.getType() == JavaTokenTypes.IDENT) {
-					parseVariableDeclarations();
-				}
-				else {
-					parseExpression();						
-					token = tokenStream.nextToken();
-					if (token.getType() != JavaTokenTypes.SEMI) {
-						error("Expected ';' at end of previous statement");
-						tokenStream.pushBack(token);
-					}
-				}
-			}
-			else if (isModifier(token)) {	
-			    tokenStream.pushBack(token);
-			    parseModifiers();
-			    if (isTypeDeclarator(tokenStream.LA(1)) || tokenStream.LA(1).getType() == JavaTokenTypes.AT) {
-					parseTypeDef();
-				}
-				else {
-					parseVariableDeclarations();
-				}
-			}
-			else if (isTypeDeclarator(token)) {
-				tokenStream.pushBack(token);
-				parseTypeDef();
-			}
-			else if (isPrimitiveType(token)) {
-				tokenStream.pushBack(token);
-				List<LocatableToken> tlist = new LinkedList<LocatableToken>();
-				parseTypeSpec(false, tlist);
-				
-				if (tokenStream.LA(1).getType() == JavaTokenTypes.DOT) {
-					// int.class, or int[].class are possible
-					pushBackAll(tlist);
-					parseExpression();
-				}
-				else {
-					pushBackAll(tlist);
-					parseVariableDeclarations();
-				}
-			}
-			else if (token.getType() == JavaTokenTypes.LCURLY) {
-				parseStmtBlock();
-				token = tokenStream.nextToken();
-				if (token.getType() != JavaTokenTypes.RCURLY) {
-					error("Expecting '}' at end of statement block");
-					if (token.getType() != JavaTokenTypes.RPAREN) {
-						tokenStream.pushBack(token);
-					}
-				}
-			}
+    protected void parseArrayDeclarators()
+    {
+        try {
+            if (tokenStream.LA(1).getType() != JavaTokenTypes.LBRACK) {
+                return;
+            }
 
-			else {
-				tokenStream.pushBack(token);
-				parseExpression();
-				token = tokenStream.nextToken();
-				if (token.getType() != JavaTokenTypes.SEMI) {
-					error("Expected ';' at end of previous statement");
-					tokenStream.pushBack(token);
-				}
-			}
-		}
-		catch (TokenStreamException tse) {
-			tse.printStackTrace();
-		}
-	}
+            LocatableToken token = tokenStream.nextToken();
+            while (token.getType() == JavaTokenTypes.LBRACK) {
+                token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.RBRACK) {
+                    error("Expecting ']' (to match '[')");
+                    if (tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
+                        // Try and recover
+                        token = tokenStream.nextToken(); // ']'
+                    }
+                    else {
+                        tokenStream.pushBack(token);
+                        return;
+                    }
+                }
+                token = tokenStream.nextToken();
+            }
+            tokenStream.pushBack(token);
+        }
+        catch (TokenStreamException tse) {}
+    }
+	
+    /**
+     * We've got the return type, name, and opening parenthesis of a method/constructor
+     * declaration. Parse the rest.
+     */
+    public void parseMethodParamsBody()
+    {
+        try {
+            parseParameterList();
+            gotAllMethodParameters();
+            LocatableToken token = tokenStream.nextToken();
+            if (token.getType() != JavaTokenTypes.RPAREN) {
+                error("Expected ')' at end of parameter list (in method declaration)");
+                tokenStream.pushBack(token);
+                endMethodDecl(token, false);
+                return;
+            }
+            token = tokenStream.nextToken();
+            if (token.getType() == JavaTokenTypes.LITERAL_throws) {
+                do {
+                    parseTypeSpec();
+                    token = tokenStream.nextToken();
+                } while (token.getType() == JavaTokenTypes.COMMA);
+            }
+            if (token.getType() == JavaTokenTypes.LCURLY) {
+                // method body
+                beginMethodBody(token);
+                parseStmtBlock();
+                token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.RCURLY) {
+                    error("Expected '}' at end of method body");
+                    tokenStream.pushBack(token);
+                    endMethodBody(token, false);
+                    endMethodDecl(token, false);
+                }
+                else {
+                    endMethodBody(token, true);
+                    endMethodDecl(token, true);
+                }
+            }
+            else if (token.getType() != JavaTokenTypes.SEMI) {
+                error("Expected ';' or '{' following parameter list in method declaration");
+                tokenStream.pushBack(token);
+                endMethodDecl(token, false);
+            }
+            else {
+                endMethodDecl(token, true);
+            }
+        }
+        catch (TokenStreamException tse) {
+            tse.printStackTrace();
+        }
+    }
+	
+    /**
+     * Parse a statement block - such as a method body
+     */
+    public void parseStmtBlock()
+    {
+        try {
+            while(true) {
+                LocatableToken token = tokenStream.nextToken();
+                if (token.getType() == JavaTokenTypes.EOF
+                        || token.getType() == JavaTokenTypes.RCURLY
+                        || token.getType() == JavaTokenTypes.RPAREN) {
+                    tokenStream.pushBack(token);
+                    return;
+                }
+                parseStatement(token);
+            }
+        } catch (TokenStreamException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void parseStatement()
+    {
+        try {
+            parseStatement(tokenStream.nextToken());
+        } catch (TokenStreamException e) {
+        }
+    }
+
+    public void parseStatement(LocatableToken token)
+    {
+        try {
+            if (token.getType() == JavaTokenTypes.SEMI) {
+                return; // empty statement
+            }
+            else if (token.getType() == JavaTokenTypes.LITERAL_return) {
+                token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.SEMI) {
+                    tokenStream.pushBack(token);
+                    parseExpression();
+                    token = tokenStream.nextToken();
+                }
+                if (token.getType() != JavaTokenTypes.SEMI) {
+                    error("Expecting ';' after 'return' statement");
+                    tokenStream.pushBack(token);
+                }
+            }
+            else if (token.getType() == JavaTokenTypes.LITERAL_for) {
+                parseForStatement(token);
+            }
+            else if (token.getType() == JavaTokenTypes.LITERAL_while) {
+                parseWhileStatement(token);
+            }
+            else if (token.getType() == JavaTokenTypes.LITERAL_if) {
+                parseIfStatement(token);
+            }
+            else if (token.getType() == JavaTokenTypes.LITERAL_do) {
+                parseDoWhileStatement(token);
+            }
+            else if (token.getType() == JavaTokenTypes.LITERAL_assert) {
+                parseAssertStatement(token);
+            }
+            else if (token.getType() == JavaTokenTypes.LITERAL_switch) {
+                parseSwitchStatement(token);
+            }
+            else if (token.getType() == JavaTokenTypes.LITERAL_case) {
+                parseExpression();
+                token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.COLON) {
+                    error("Expecting ':' at end of case expression");
+                    tokenStream.pushBack(token);
+                    return;
+                }
+            }
+            else if (token.getType() == JavaTokenTypes.LITERAL_default) {
+                token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.COLON) {
+                    error("Expecting ':' at end of case expression");
+                    tokenStream.pushBack(token);
+                    return;
+                }
+            }
+            else if (token.getType() == JavaTokenTypes.LITERAL_continue
+                    || token.getType() == JavaTokenTypes.LITERAL_break) {
+                // There might be a label afterwards
+                token = tokenStream.nextToken();
+                if (token.getType() == JavaTokenTypes.IDENT) {
+                    token = tokenStream.nextToken();
+                }
+                if (token.getType() != JavaTokenTypes.SEMI) {
+                    error("Expecting ';' at end of " + token.getText() + " statement");
+                    tokenStream.pushBack(token);
+                }
+            }
+            else if (token.getType() == JavaTokenTypes.LITERAL_throw) {
+                parseExpression();
+                token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.SEMI) {
+                    error("Expecting ';' at end of 'throw' statement");
+                    tokenStream.pushBack(token);
+                }
+            }
+            else if (token.getType() == JavaTokenTypes.LITERAL_try) {
+                token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.LCURLY) {
+                    error ("Expecting '{' after 'try'");
+                    tokenStream.pushBack(token);
+                    return;
+                }
+                parseStatement(token);
+                int laType = tokenStream.LA(1).getType();
+                while (laType == JavaTokenTypes.LITERAL_catch
+                        || laType == JavaTokenTypes.LITERAL_finally) {
+                    token = tokenStream.nextToken();
+                    if (laType == JavaTokenTypes.LITERAL_catch) {
+                        token = tokenStream.nextToken();
+                        if (token.getType() != JavaTokenTypes.LPAREN) {
+                            error("Expecting '(' after 'catch'");
+                            tokenStream.pushBack(token);
+                            return;
+                        }
+                        parseTypeSpec();
+                        token = tokenStream.nextToken();
+                        if (token.getType() != JavaTokenTypes.IDENT) {
+                            error("Expecting identifier after type (in 'catch' expression)");
+                            tokenStream.pushBack(token);
+                            return;
+                        }
+                        token = tokenStream.nextToken();
+                        if (token.getType() != JavaTokenTypes.RPAREN) {
+                            error("Expecting ')' after identifier (in 'catch' expression)");
+                            tokenStream.pushBack(token);
+                            return;
+                        }
+                    }
+                    token = tokenStream.nextToken();
+                    if (token.getType() != JavaTokenTypes.LCURLY) {
+                        error("Expecting '{' after 'catch'/'finally'");
+                        tokenStream.pushBack(token);
+                        return;
+                    }
+                    parseStatement(token); // parse as a statement block
+                    laType = tokenStream.LA(1).getType();
+                }
+            }
+            else if (token.getType() == JavaTokenTypes.IDENT) {
+                // A label?
+                LocatableToken ctoken = tokenStream.nextToken();
+                if (ctoken.getType() == JavaTokenTypes.COLON) {
+                    return;
+                }
+                tokenStream.pushBack(ctoken);
+                tokenStream.pushBack(token);
+
+                // A declaration of a variable?
+                List<LocatableToken> tlist = new LinkedList<LocatableToken>();
+                boolean isTypeSpec = parseTypeSpec(true, tlist);
+                token = tokenStream.nextToken();
+                tokenStream.pushBack(token);
+                pushBackAll(tlist);
+                if (isTypeSpec && token.getType() == JavaTokenTypes.IDENT) {
+                    parseVariableDeclarations();
+                }
+                else {
+                    parseExpression();						
+                    token = tokenStream.nextToken();
+                    if (token.getType() != JavaTokenTypes.SEMI) {
+                        error("Expected ';' at end of previous statement");
+                        tokenStream.pushBack(token);
+                    }
+                }
+            }
+            else if (isModifier(token)) {	
+                tokenStream.pushBack(token);
+                parseModifiers();
+                if (isTypeDeclarator(tokenStream.LA(1)) || tokenStream.LA(1).getType() == JavaTokenTypes.AT) {
+                    parseTypeDef();
+                }
+                else {
+                    parseVariableDeclarations();
+                }
+            }
+            else if (isTypeDeclarator(token)) {
+                tokenStream.pushBack(token);
+                parseTypeDef();
+            }
+            else if (isPrimitiveType(token)) {
+                tokenStream.pushBack(token);
+                List<LocatableToken> tlist = new LinkedList<LocatableToken>();
+                parseTypeSpec(false, tlist);
+
+                if (tokenStream.LA(1).getType() == JavaTokenTypes.DOT) {
+                    // int.class, or int[].class are possible
+                    pushBackAll(tlist);
+                    parseExpression();
+                }
+                else {
+                    pushBackAll(tlist);
+                    parseVariableDeclarations();
+                }
+            }
+            else if (token.getType() == JavaTokenTypes.LCURLY) {
+                parseStmtBlock();
+                token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.RCURLY) {
+                    error("Expecting '}' at end of statement block");
+                    if (token.getType() != JavaTokenTypes.RPAREN) {
+                        tokenStream.pushBack(token);
+                    }
+                }
+            }
+
+            else {
+                tokenStream.pushBack(token);
+                parseExpression();
+                token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.SEMI) {
+                    error("Expected ';' at end of previous statement");
+                    tokenStream.pushBack(token);
+                }
+            }
+        }
+        catch (TokenStreamException tse) {
+            tse.printStackTrace();
+        }
+    }
 	
 	public void parseAssertStatement(LocatableToken token)
 	{
