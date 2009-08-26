@@ -208,7 +208,19 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
             JButton importButton = new JButton("Import from library...");
             importButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    //ExternalAppLauncher.editImage(projImageList.getSelectedEntry().imageFile);
+                    GreenfootImageLibFrame f = new GreenfootImageLibFrame(ImageEditFrame.this);
+                    File srcFile = f.showModal();
+                    
+                    if(srcFile != null) {
+                        File dstFile = new File(projImagesDir, srcFile.getName());
+                        try {
+                            FileUtility.copyFile(srcFile, dstFile);
+                            projImageList.select(dstFile);
+                        }
+                        catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
                 }
             });
             importButton.setEnabled(true);

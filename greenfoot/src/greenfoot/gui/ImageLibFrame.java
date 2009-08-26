@@ -36,7 +36,6 @@ import greenfoot.event.ValidityListener;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.util.GraphicsUtilities;
 import greenfoot.util.GreenfootUtil;
-import greenfoot.util.Selectable;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -66,7 +65,6 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -90,7 +88,7 @@ import java.awt.FlowLayout;
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 6560 2009-08-26 14:21:59Z polle $
+ * @version $Id: ImageLibFrame.java 6562 2009-08-26 15:20:56Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
@@ -240,14 +238,10 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             }
 
             imageSelPanels.add(GreenfootUtil.createSpacer(GreenfootUtil.X_AXIS, spacingLarge));
-
-            
             
             // Category selection panel
-            ImageCategorySelector imageCategorySelector;
-            File imageDir = Config.getGreenfootLibDir();
-            imageDir = new File(imageDir, "imagelib");
-            imageCategorySelector = new ImageCategorySelector(imageDir);
+            File imageDir = new File(Config.getGreenfootLibDir(), "imagelib");
+            ImageCategorySelector imageCategorySelector = new ImageCategorySelector(imageDir);
 
             // List of images
             greenfootImageList = new ImageLibList(false);
