@@ -22,12 +22,12 @@
 package greenfoot.gui;
 
 import greenfoot.util.GreenfootUtil;
+import greenfoot.util.Selectable;
 
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Image;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -63,9 +63,9 @@ import bluej.BlueJTheme;
  * 
  * @author Davin McCall
  * @author Poul Henriksen
- * @version $Id: ImageLibList.java 6538 2009-08-18 15:35:54Z polle $
+ * @version $Id: ImageLibList.java 6560 2009-08-26 14:21:59Z polle $
  */
-public class ImageLibList extends EditableList<ImageLibList.ImageListEntry>
+public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> implements Selectable<File>
 {   
     /** The directory whose images are currently displayed in this list */
     private File directory;
@@ -174,8 +174,9 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry>
      * If the given file exists in this list, it will be selected.
      * 
      */
-    public void setSelectedFile(File imageFile)
+    public void select(File imageFile)
     {
+        refresh();
         int row = setSelectedValue(new ImageListEntry(imageFile, false));
         ensureIndexIsVisible(row);
     }

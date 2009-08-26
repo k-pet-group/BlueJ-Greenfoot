@@ -267,9 +267,8 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
                 e.printStackTrace();
             }
         }
-        projImageList.refresh();
         if(dstFile != null) {
-            projImageList.setSelectedFile(dstFile);
+            projImageList.select(dstFile);
         }
     }
 
@@ -353,8 +352,7 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
     public void windowActivated(WindowEvent e)
     {
         if(newlyCreatedImage != null) {
-            projImageList.refresh();
-            projImageList.setSelectedFile(newlyCreatedImage);
+            projImageList.select(newlyCreatedImage);
             newlyCreatedImage = null;
         } 
         

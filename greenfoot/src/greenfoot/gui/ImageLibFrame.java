@@ -26,6 +26,7 @@ import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
 import greenfoot.ImageVisitor;
 import greenfoot.World;
+import greenfoot.actions.BrowseImagesAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
 import greenfoot.core.GProject;
@@ -35,6 +36,7 @@ import greenfoot.event.ValidityListener;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.util.GraphicsUtilities;
 import greenfoot.util.GreenfootUtil;
+import greenfoot.util.Selectable;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -88,7 +90,7 @@ import java.awt.FlowLayout;
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 6559 2009-08-26 13:30:49Z polle $
+ * @version $Id: ImageLibFrame.java 6560 2009-08-26 14:21:59Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
@@ -302,28 +304,9 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 }                
             });
 
-            JButton browseButton = new JButton(Config.getString("imagelib.browse.button"));
-            browseButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
-                    JFileChooser chooser = new JFileChooser();
-                    new ImageFilePreview(chooser);
-                    chooser.setAcceptAllFileFilterUsed(false);
-                    ImageFilter filter = new ImageFilter();
-                    chooser.addChoosableFileFilter(filter);
-                    chooser.addChoosableFileFilter(chooser.getAcceptAllFileFilter());
-                    chooser.setFileFilter(filter);
-                    int choice = chooser.showDialog(ImageLibFrame.this, Config.getString("imagelib.choose.button"));
-                    if (choice == JFileChooser.APPROVE_OPTION) {
-                        //TODO Used to not copy the image?
-                        File file = chooser.getSelectedFile();
-                        selectImage(file);
-                        GreenfootUtil.copyFile(file, new File(projImagesDir, file.getName()));
-                        refresh();
-                    }
-                }
-            });
-
+            JButton browseButton = new JButton(new BrowseImagesAction(Config.getString("imagelib.browse.button"), this,
+                    projImagesDir, projImageList));           
+           
             contentPane.add(fixHeight(Box.createVerticalStrut(spacingLarge)));
             flowPanel.setAlignmentX(0.0f);
             flowPanel.add(fixHeight(newButton));
@@ -857,9 +840,8 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     public void windowActivated(WindowEvent e)
     {
         if(newlyCreatedImage != null) {
-            refresh();
+            projImageList.select(newlyCreatedImage);
             selectImage(newlyCreatedImage);
-            projImageList.setSelectedFile(newlyCreatedImage);
             newlyCreatedImage = null;
         }
     }
