@@ -88,7 +88,7 @@ import java.awt.FlowLayout;
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 6558 2009-08-26 13:06:15Z polle $
+ * @version $Id: ImageLibFrame.java 6559 2009-08-26 13:30:49Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
@@ -180,7 +180,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         buildUI(proj, true);        
     }
 
-    private void buildUI(GProject project, boolean includeClassNameField)
+    private void buildUI(GProject project, final boolean includeClassNameField)
     {
         this.addWindowListener(this);
         JPanel contentPane = new JPanel();
@@ -280,7 +280,13 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                     int width = Config.getPropInteger("greenfoot.image.create.width", 100);
                     int height = Config.getPropInteger("greenfoot.image.create.height", 100);
                     String type = Config.getPropString("greenfoot.image.create.type", "png");
-                    String name = gclass.getName();
+                    String name = null;
+                    if(includeClassNameField) {
+                        name = getClassName();
+                    }
+                    else {
+                        name = gclass.getName();
+                    }
                     BufferedImage im = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
                    
                     try {
