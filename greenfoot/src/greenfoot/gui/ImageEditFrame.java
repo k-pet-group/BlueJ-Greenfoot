@@ -55,6 +55,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -81,7 +82,7 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
     private List<JButton> listEditButtons = new LinkedList<JButton>();
     private GProject proj;
     private File newlyCreatedImage;
-    protected ImageListEntry editedEntry;
+    protected ImageListEntry[] editedEntries;
 
     /**
      * Create a new ImageEditFrame.
@@ -137,6 +138,7 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
             projImagesDir = new File(projDir, "images");
             projImageList = new ImageLibList(projImagesDir, true);
             projImageList.addListSelectionListener(this);
+            projImageList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
             imageScrollPane.getViewport().setView(projImageList);
 
             imageScrollPane.setBorder(Config.normalBorder);
@@ -160,8 +162,10 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
             editButton = new JButton("Edit");
             editButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    editedEntry = projImageList.getSelectedValue();
-                    ExternalAppLauncher.editImage(editedEntry.imageFile);
+                    editedEntries = projImageList.getSelectedValues();
+                    for (ImageListEntry entry : editedEntries) {
+                        ExternalAppLauncher.editImage(entry.imageFile);
+                    }
                 }
             });
             panel.add(editButton);
@@ -180,7 +184,7 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
             removeFromProjectButton = new JButton("Delete");
             removeFromProjectButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        confirmDelete(projImageList.getSelectedValue().imageFile);
+                        confirmDelete(projImageList.getSelectedValues());
                     }
             });
             listEditButtons.add(removeFromProjectButton);
@@ -257,36 +261,39 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
     
     protected void duplicateSelected()
     {
-        ImageListEntry srcEntry = projImageList.getSelectedValue();
-        File srcFile = srcEntry.imageFile;
-        File dstFile = null;
-        if(srcFile != null) {
-            File dir = srcFile.getParentFile();
-            String fileName = srcFile.getName();
-            int index = fileName.indexOf('.');
-            
-            String baseName = null;
-            String ext = null;
-            if(index != -1) {
-                baseName = fileName.substring(0, index);
-                ext = fileName.substring(index + 1);
-            } else {
-                baseName = fileName;
-                ext = "";
+        ImageListEntry[] srcEntries = projImageList.getSelectedValues();
+        for (ImageListEntry srcEntry : srcEntries) {
+            File srcFile = srcEntry.imageFile;
+            File dstFile = null;
+            if(srcFile != null) {
+                File dir = srcFile.getParentFile();
+                String fileName = srcFile.getName();
+                int index = fileName.indexOf('.');
+                
+                String baseName = null;
+                String ext = null;
+                if(index != -1) {
+                    baseName = fileName.substring(0, index);
+                    ext = fileName.substring(index + 1);
+                } else {
+                    baseName = fileName;
+                    ext = "";
+                }
+                baseName += "Copy";
+                
+                try {
+                    dstFile = GreenfootUtil.createNumberedFile(dir, baseName, ext);
+                    FileUtility.copyFile(srcFile, dstFile);
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-            baseName += "Copy";
-            
-            try {
-                dstFile = GreenfootUtil.createNumberedFile(dir, baseName, ext);
-                FileUtility.copyFile(srcFile, dstFile);
-            }
-            catch (IOException e) {
-                e.printStackTrace();
+            if(dstFile != null) {
+                projImageList.select(dstFile);
             }
         }
-        if(dstFile != null) {
-            projImageList.select(dstFile);
-        }
+       
     }
 
     /**
@@ -302,17 +309,32 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
     
     /**
      * Confirms whether to delete a file or not.
-     * @param file the file to delete
+     * @param imageListEntries the file to delete
      */
-    private void confirmDelete(File file)
+    private void confirmDelete(ImageListEntry[] imageListEntries)
     {
-        int result = JOptionPane.showConfirmDialog(this,
-                "Are you sure you want to delete " + file.getName() + "?",
-                "Confirm delete", JOptionPane.YES_NO_OPTION);
-        if(result==JOptionPane.YES_OPTION) {
-            if(file.delete()) {
-                projImageList.refresh();
+        String text = "Are you sure you want to delete ";
+        
+        int count = 0;
+        for (ImageListEntry imageListEntry : imageListEntries) {
+            count++;
+            if(count < imageListEntries.length) {
+                text += imageListEntry.imageFile.getName() + ", ";
             }
+            else {
+                text += imageListEntry.imageFile.getName();
+            }
+        }
+        text += "?";
+            
+        int result = JOptionPane.showConfirmDialog(this,text,
+                "Confirm delete", JOptionPane.YES_NO_OPTION);
+        
+        if(result==JOptionPane.YES_OPTION) {
+            for (ImageListEntry imageListEntry : imageListEntries) {
+                imageListEntry.imageFile.delete();
+            }
+            projImageList.refresh();
         }
     }
 
@@ -373,8 +395,8 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
             newlyCreatedImage = null;
         } 
         
-        if(editedEntry != null) {
-            editedEntry = null;
+        if(editedEntries != null) {
+            editedEntries = null;
             projImageList.refresh();
         }
     }

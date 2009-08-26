@@ -63,7 +63,7 @@ import bluej.BlueJTheme;
  * 
  * @author Davin McCall
  * @author Poul Henriksen
- * @version $Id: ImageLibList.java 6560 2009-08-26 14:21:59Z polle $
+ * @version $Id: ImageLibList.java 6563 2009-08-26 16:05:54Z polle $
  */
 public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> implements Selectable<File>
 {   
@@ -193,7 +193,18 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
         
     }
     
-
+   
+    @SuppressWarnings("unchecked")
+    public ImageListEntry[] getSelectedValues()
+    {
+        Object[] list = super.getSelectedValues();
+        ImageListEntry[] entries = new ImageListEntry[list.length];
+        for (int i = 0; i < list.length; i++) {
+            entries[i] = (ImageListEntry) list[i];            
+        }  
+        return entries;
+    }
+    
     private static class MyCellEditor extends DefaultCellEditor          
     {
         /**

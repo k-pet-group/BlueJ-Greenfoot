@@ -208,6 +208,22 @@ public class EditableList<T> extends JTable
             return null;
         return (T) tableModel.getValueAt(row, 0);
     }
+    
+    /**
+     * Returns an array of the values for the selected cells. The returned values are sorted in increasing index order.
+     * @returns: the selected values or an empty list if nothing is selected
+     */
+    public Object[] getSelectedValues()
+    {
+        int[] rows = getSelectedRows();
+        Object[] selected = new Object[rows.length];
+        int count = 0;
+        for (int row : rows) {
+            selected[count] = tableModel.getValueAt(row, 0);
+            count++;
+        }
+        return selected;
+    }
 
     /*
      * (non-Javadoc)
