@@ -29,6 +29,7 @@ import bluej.utility.EscapeDialog;
 import bluej.utility.FileUtility;
 
 import greenfoot.util.GreenfootUtil;
+import greenfoot.actions.BrowseImagesAction;
 import greenfoot.core.GProject;
 import greenfoot.gui.ImageLibList.ImageListEntry;
 import greenfoot.util.ExternalAppLauncher;
@@ -202,10 +203,9 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
                 }
             });
             newButton.setEnabled(true);
-            panel.add(newButton);
-            
+            panel.add(newButton);            
 
-            JButton importButton = new JButton("Import...");
+            JButton importButton = new JButton("Import from library...");
             importButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     //ExternalAppLauncher.editImage(projImageList.getSelectedEntry().imageFile);
@@ -213,6 +213,11 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
             });
             importButton.setEnabled(true);
             panel.add(importButton);
+            
+            JButton browseButton = new JButton(new BrowseImagesAction(Config.getString("imagelib.browse.button"), this,
+                    projImagesDir, projImageList)); 
+            browseButton.setEnabled(true);
+            panel.add(browseButton);
             
             setButtonsEnabled(false);
             
