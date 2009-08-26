@@ -24,105 +24,97 @@ package greenfoot.util;
 import java.io.IOException;
 import java.io.File;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.nio.CharBuffer;
 
 import java.awt.Desktop;
-import javax.swing.JFileChooser;
 
 import bluej.Config;
 
 /**
- * A class containing static methods for the purposes of launching external programs.
- * This will probably primarily be used for the editing of media files, i.e.
- * image and sound editing.
- *
+ * A class containing static methods for the purposes of launching external
+ * programs. This will probably primarily be used for the editing of media
+ * files, i.e. image and sound editing.
+ * 
  * @author Michael Berry (mjrb4)
  * @version 18/05/09
  */
 public class ExternalAppLauncher
 {
     private static String imageEditor = Config.getPropString("greenfoot.editor.image", null);
-    
+
     /**
      * Opens a file using the OS default program for that file type.
+     * 
      * @param file the file to open.
      */
     public static void openFile(File file)
     {
         try {
-            if(Desktop.isDesktopSupported()) {
+            if (Desktop.isDesktopSupported()) {
                 Desktop desktop = Desktop.getDesktop();
                 desktop.open(file);
             }
             else {
-                throw new RuntimeException("Desktop class is not supported on this platform.");
+                throw new RuntimeException(
+                        "Cannot open editor for the file, because the Desktop class is not supported on this platform.");
             }
         }
-        catch(Exception ex) {
-            JFileChooser jfc = new JFileChooser();
-            jfc.setMultiSelectionEnabled(false);
-            jfc.setDialogTitle("Open with...");
-            int returnVal = jfc.showOpenDialog(null);
-            if(returnVal==JFileChooser.APPROVE_OPTION) {
-                File program = jfc.getSelectedFile();
-                launchProgram(program, file.toString());
-            }
+        catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
     /**
-     * Opens an image for editing using the OS default editor for that file type.
-     * Only difference from editFile is that this method uses a specific override
-     * for images (best seperated in case another type of file needs to be edited!)
+     * Opens an image for editing using the OS default editor for that file
+     * type. Only difference from editFile is that this method uses a specific
+     * override for images as specified in greenfoot.defs.
      * 
      * @param file the file to open for editing.
      */
     public static void editImage(File file)
     {
-        if(imageEditor != null) {
-            launchProgram(new File(imageEditor), file.toString());
+        boolean success = false;
+        if (imageEditor != null) {
+            success = launchProgram(new File(imageEditor), file.toString());
+            if(!success) {
+                System.err.println("Could not launch the external program: " + imageEditor);
+            } 
         }
-        else {
+        if(!success) {
             editFile(file);
         }
     }
-    
+
     /**
      * Opens a file for editing using the OS default editor for that file type.
+     * 
      * @param file the file to open for editing.
      */
     public static void editFile(File file)
     {
         try {
-            if(Desktop.isDesktopSupported()) {
+            if (Desktop.isDesktopSupported()) {
                 Desktop desktop = Desktop.getDesktop();
                 desktop.edit(file);
             }
             else {
-                throw new RuntimeException("Desktop class is not supported on this platform.");
+                throw new RuntimeException(
+                        "Cannot open editor for the file, because the Desktop class is not supported on this platform.");
             }
         }
-        catch(Exception ex) {
-            JFileChooser jfc = new JFileChooser();
-            jfc.setMultiSelectionEnabled(false);
-            jfc.setDialogTitle("Open with...");
-            int returnVal = jfc.showOpenDialog(null);
-            if(returnVal==JFileChooser.APPROVE_OPTION) {
-                File program = jfc.getSelectedFile();
-                launchProgram(program, file.toString());
-            }
+        catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
     /**
      * Launch an external application with a single parameter. This is usually
      * the file that the application should open.
+     * 
      * @param path the path of the application to launch.
      * @param file the file to open in the application.
      */
-    public static void launchProgram(File program, String file)
+    public static boolean launchProgram(File program, String file)
     {
         if (Config.isMacOS() && program.isDirectory()) {
             // If we are on a mac, and the program is a directory, we should use
@@ -134,6 +126,7 @@ public class ExternalAppLauncher
             cmd[3] = file;
             try {
                 execWithOutput(cmd);
+                return true;
             }
             catch (IOException ex) {
                 ex.printStackTrace();
@@ -144,14 +137,15 @@ public class ExternalAppLauncher
             cmd[0] = program.toString();
             cmd[1] = file;
             try {
-                execWithOutput(cmd);                
-            } catch (IOException ex) {
+                execWithOutput(cmd);
+                return true;
+            }
+            catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
-        else {
-            System.err.println(program + " is not executable.");
-        }
+        return false;    
+        
     }
 
     /**
@@ -162,35 +156,34 @@ public class ExternalAppLauncher
     private static void execWithOutput(String[] cmd)
         throws IOException
     {
-        Process p = Runtime.getRuntime().exec(cmd);  
+        Process p = Runtime.getRuntime().exec(cmd);
         StreamRedirector errRedirector = new StreamRedirector(p.getErrorStream(), System.err);
         errRedirector.start();
         StreamRedirector outRedirector = new StreamRedirector(p.getInputStream(), System.out);
         outRedirector.start();
     }
-    
- 
+
     /**
      * Class that redirects from an inputstream to an outputstream.
      * 
      * @author Poul Henriksen
      */
-    private static class StreamRedirector extends Thread 
+    private static class StreamRedirector extends Thread
     {
         private OutputStream target;
         private InputStream source;
-        
-        public StreamRedirector(InputStream source, OutputStream target) 
+
+        public StreamRedirector(InputStream source, OutputStream target)
         {
             this.source = source;
             this.target = target;
         }
-        
+
         public void run()
         {
             int len = 0;
             while (len != -1) {
-                //CharBuffer target = CharBuffer.allocate(20);
+                // CharBuffer target = CharBuffer.allocate(20);
                 byte[] bytes = new byte[50];
                 try {
                     len = source.read(bytes);
@@ -202,9 +195,8 @@ public class ExternalAppLauncher
                 catch (IOException e) {
                     e.printStackTrace();
                 }
-            }           
+            }
         }
     }
-
 
 }

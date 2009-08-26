@@ -22,6 +22,7 @@
 package greenfoot.gui;
 
 import bluej.BlueJTheme;
+import bluej.Config;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
 import greenfoot.core.GProject;
@@ -39,13 +40,16 @@ import javax.imageio.ImageIO;
 
 import java.io.IOException;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
@@ -74,6 +78,10 @@ public class NewImageDialog extends EscapeDialog
     private GProject proj;
     
     private File file;
+    
+    private int imageWidth;
+    private int imageHeight;
+    private String imageType;
 
     /**
      * Create a new image dialog. This is used for specifying the properties for
@@ -87,6 +95,10 @@ public class NewImageDialog extends EscapeDialog
         this.proj = proj;
         this.parent = parent;
         this.projImagesDir = projImagesDir;
+
+        imageWidth = Config.getPropInteger("greenfoot.image.create.width", 100);
+        imageHeight = Config.getPropInteger("greenfoot.image.create.height", 100);
+        imageType = Config.getPropString("greenfoot.image.create.type", "png");
         buildUI();
     }
 
@@ -126,7 +138,7 @@ public class NewImageDialog extends EscapeDialog
         widthPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         widthPanel.setLayout(new BoxLayout(widthPanel, BoxLayout.X_AXIS));
         widthPanel.add(new JLabel("Width: "));
-        width = new JSpinner(new SpinnerNumberModel(50, 1, 1000, 1));
+        width = new JSpinner(new SpinnerNumberModel(imageWidth, 1, 1000, 1));
         widthPanel.add(width);
         mainPanel.add(widthPanel);
 
@@ -136,7 +148,7 @@ public class NewImageDialog extends EscapeDialog
         heightPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         heightPanel.setLayout(new BoxLayout(heightPanel, BoxLayout.X_AXIS));
         heightPanel.add(new JLabel("Height: "));
-        height = new JSpinner(new SpinnerNumberModel(50, 1, 1000, 1));
+        height = new JSpinner(new SpinnerNumberModel(imageHeight, 1, 1000, 1));
         heightPanel.add(height);
         mainPanel.add(heightPanel);
 
@@ -146,7 +158,8 @@ public class NewImageDialog extends EscapeDialog
         typePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         typePanel.setLayout(new BoxLayout(typePanel, BoxLayout.X_AXIS));
         typePanel.add(new JLabel("Type: "));
-        type = new JComboBox(ImageIO.getWriterFileSuffixes());
+        type = new JComboBox(getImageTypes());
+        type.setSelectedItem(imageType);
         typePanel.add(type);
         mainPanel.add(typePanel);
 
@@ -164,6 +177,19 @@ public class NewImageDialog extends EscapeDialog
         setLocation(parent.getX()+parent.getWidth()/2, parent.getY()+parent.getHeight()/2);
         getRootPane().setDefaultButton(okButton);
         pack();
+    }
+
+    private String[] getImageTypes()
+    {
+        String[] suffixes = ImageIO.getWriterFileSuffixes();      
+        Set<String> suffixSet= new TreeSet<String>();
+        for (String string : suffixes) {
+            suffixSet.add(string.toLowerCase());
+        }        
+        if(suffixSet.contains("jpeg") && suffixSet.contains("jpg")) {
+            suffixSet.remove("jpeg");
+        }
+        return suffixSet.toArray(new String[suffixSet.size()]);
     }
     
     public File displayModal()

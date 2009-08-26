@@ -103,3 +103,18 @@ bluej.vm.args=-Xincgc -Dapple.awt.graphics.UseQuartz=true
 ## External program used for editing images 
 #####################################################################
 #greenfoot.editor.image=/Applications/Adobe Photoshop CS3/Adobe Photoshop CS3.app
+
+#####################################################################
+## Default settings used when creating new images.
+## 
+## Supported image types are:
+## 'png' A good default.
+## 'jpg' lossy format that offers better compression than png but 
+##       doesn't support transparency. Good for big images.
+## 'gif' is inferior to png, but does offer transparency.
+## 'bmp' not recommended since it is not a compressed format
+#####################################################################
+greenfoot.image.create.type=jpg
+greenfoot.image.create.width=150
+greenfoot.image.create.height=150
+

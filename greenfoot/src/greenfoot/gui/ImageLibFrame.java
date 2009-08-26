@@ -88,7 +88,7 @@ import java.awt.FlowLayout;
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 6534 2009-08-18 08:22:51Z polle $
+ * @version $Id: ImageLibFrame.java 6558 2009-08-26 13:06:15Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
@@ -270,14 +270,16 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             layout.setAlignment(FlowLayout.LEFT);
             flowPanel.setLayout(layout);
 
-            JButton newButton = new JButton("Create new image...");
+            JButton newButton = new JButton(Config.getString("imagelib.create.button"));
+            newButton.setToolTipText(Config.getString("imagelib.create.tooltip")); 
+            
             newButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
                     // Create a new image with default dimensions and filetype.
-                    int width = 50;
-                    int height = 50;
-                    String type = "png";
+                    int width = Config.getPropInteger("greenfoot.image.create.width", 100);
+                    int height = Config.getPropInteger("greenfoot.image.create.height", 100);
+                    String type = Config.getPropString("greenfoot.image.create.type", "png");
                     String name = gclass.getName();
                     BufferedImage im = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
                    
