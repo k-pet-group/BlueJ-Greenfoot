@@ -42,8 +42,8 @@ import javax.swing.text.PlainDocument;
 import org.syntax.jedit.tokenmarker.Token;
 
 import bluej.Config;
-import bluej.parser.ParsedCUNode;
-import bluej.parser.ParsedNode;
+import bluej.parser.nodes.ParsedCUNode;
+import bluej.parser.nodes.ParsedNode;
 
 
 /**

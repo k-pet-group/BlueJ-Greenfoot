@@ -55,7 +55,7 @@ import org.syntax.jedit.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: BlueJSyntaxView.java 6531 2009-08-17 08:12:28Z davmac $
+ * @version $Id: BlueJSyntaxView.java 6567 2009-08-27 05:59:10Z davmac $
  */
 
 public abstract class BlueJSyntaxView extends PlainView
@@ -192,7 +192,6 @@ public abstract class BlueJSyntaxView extends PlainView
                                  Color def)
     {
         Color[] colors = document.getColors();
-        // Token tokens = tokenMarker.markTokens(line, lineIndex);
         Token tokens = document.getTokensForLine(lineIndex);
         int offset = 0;
         for(;;) {

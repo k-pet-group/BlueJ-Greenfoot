@@ -50,8 +50,8 @@ import javax.swing.text.Position;
 import javax.swing.text.Segment;
 
 import bluej.Config;
-import bluej.parser.ParsedNode;
-import bluej.parser.NodeTree.NodeAndPosition;
+import bluej.parser.nodes.ParsedNode;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.prefmgr.PrefMgr;
 
 /**
@@ -66,7 +66,7 @@ import bluej.prefmgr.PrefMgr;
  * @author Michael Kolling
  * @author Davin McCall
  *
- * @version $Id: MoeSyntaxView.java 6553 2009-08-24 03:50:05Z davmac $
+ * @version $Id: MoeSyntaxView.java 6567 2009-08-27 05:59:10Z davmac $
  */
 
 public class MoeSyntaxView extends BlueJSyntaxView

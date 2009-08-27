@@ -60,7 +60,7 @@ import bluej.editor.moe.MoeSyntaxDocument;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: TextEvalSyntaxView.java 6495 2009-08-06 23:38:13Z davmac $
+ * @version $Id: TextEvalSyntaxView.java 6567 2009-08-27 05:59:10Z davmac $
  */
 
 public class TextEvalSyntaxView extends BlueJSyntaxView
@@ -90,20 +90,20 @@ public class TextEvalSyntaxView extends BlueJSyntaxView
         super(elem);
     }
 
- 	/**
+    /**
      * Draw a line for the text eval area.
-	 */
-	public void paintTaggedLine(Segment lineText, int lineIndex, Graphics g, int x, int y, 
+     */
+    public void paintTaggedLine(Segment lineText, int lineIndex, Graphics g, int x, int y, 
             MoeSyntaxDocument document, Color def, Element line) 
     {
-		if(hasTag(line, OUTPUT)) {
-		    g.setColor(outputColor);
-		    Utilities.drawTabbedText(lineText, x+BREAKPOINT_OFFSET, y, g, this, 0);
-		}
-		else if(hasTag(line, ERROR)) {
-		    g.setColor(errorColor);
-		    Utilities.drawTabbedText(lineText, x+BREAKPOINT_OFFSET, y, g, this, 0);
-		}
+        if(hasTag(line, OUTPUT)) {
+            g.setColor(outputColor);
+            Utilities.drawTabbedText(lineText, x+BREAKPOINT_OFFSET, y, g, this, 0);
+        }
+        else if(hasTag(line, ERROR)) {
+            g.setColor(errorColor);
+            Utilities.drawTabbedText(lineText, x+BREAKPOINT_OFFSET, y, g, this, 0);
+        }
         else if(hasObject(line, OBJECT)) {
             g.drawImage(objectImage, x-1, y+3-objectImage.getHeight(null), null);
             g.setColor(outputColor);
@@ -114,12 +114,12 @@ public class TextEvalSyntaxView extends BlueJSyntaxView
             paintSyntaxLine(lineText, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
                     document, def);   
         }
-		else {
+        else {
             g.drawImage(promptImage, x-1, y+3-promptImage.getHeight(null), null);
-		    paintSyntaxLine(lineText, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
-		            document, def);   
-		}
-	}
+            paintSyntaxLine(lineText, lineIndex, x+BREAKPOINT_OFFSET, y, g, 
+                    document, def);   
+        }
+    }
 
     
     /**
