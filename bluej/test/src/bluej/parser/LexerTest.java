@@ -280,6 +280,23 @@ public class LexerTest extends junit.framework.TestCase
         token = (LocatableToken) ts.nextToken();
     }
     
+    public void testIdentifiers() throws Exception
+    {
+        TokenStream ts = getLexerFor("_abc abc123 def123kjl98 \\u0396XYZ");
+        LocatableToken token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.IDENT, token.getType());
+        assertEquals("_abc", token.getText());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.IDENT, token.getType());
+        assertEquals("abc123", token.getText());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.IDENT, token.getType());
+        assertEquals("def123kjl98", token.getText());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.IDENT, token.getType());
+        assertEquals("\u0396XYZ", token.getText());
+    }
+    
     public void testOther() throws Exception
     {
         TokenStream ts = getLexerFor("\"a string\" an_identifier99 '\\n' 1234 1234l 0.34 .56f 5.06d 0x1234 0x5678l");
