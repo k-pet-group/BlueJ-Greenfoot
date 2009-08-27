@@ -3,7 +3,10 @@ package bluej.parser;
 import org.syntax.jedit.tokenmarker.Token;
 
 import junit.framework.TestCase;
-import bluej.parser.NodeTree.NodeAndPosition;
+import bluej.parser.nodes.ColourNode;
+import bluej.parser.nodes.NodeTree;
+import bluej.parser.nodes.ParsedNode;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 public class NodeTreeTest extends TestCase
 {
@@ -76,7 +79,7 @@ public class NodeTreeTest extends TestCase
     public void testRemoval()
     {
         NodeAndPosition np = nt.findNode(65);
-        np.getNode().getContainingNodeTree().remove();
+        np.getNode().remove();
         
         np = nt.findNode(5);
         assertNotNull(np);
@@ -96,15 +99,15 @@ public class NodeTreeTest extends TestCase
     {
         // Remove all nodes
         NodeAndPosition np = nt.findNode(65);
-        np.getNode().getContainingNodeTree().remove();
+        np.getNode().remove();
         np = nt.findNode(45);
-        np.getNode().getContainingNodeTree().remove();
+        np.getNode().remove();
         np = nt.findNode(85);
-        np.getNode().getContainingNodeTree().remove();
+        np.getNode().remove();
         np = nt.findNode(25);
-        np.getNode().getContainingNodeTree().remove();
+        np.getNode().remove();
         np = nt.findNode(5);
-        np.getNode().getContainingNodeTree().remove();
+        np.getNode().remove();
 
         np = nt.findNode(5);
         assertNull(np);

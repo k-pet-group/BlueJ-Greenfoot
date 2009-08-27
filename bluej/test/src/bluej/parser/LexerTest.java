@@ -136,7 +136,7 @@ public class LexerTest extends junit.framework.TestCase
     
     public void testSymbols() throws Exception
     {
-        TokenStream ts = getLexerFor("+ - = += -= / * /= *= : ! ~ @");
+        TokenStream ts = getLexerFor("+ - = += -= / * /= *= : ! ~ @ % %=");
         LocatableToken token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.PLUS);
         token = (LocatableToken) ts.nextToken();
@@ -163,6 +163,12 @@ public class LexerTest extends junit.framework.TestCase
         assertTrue(token.getType() == JavaTokenTypes.BNOT);
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.AT);
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.MOD,  token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.MOD_ASSIGN,  token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.EOF,  token.getType());
 
         ts = getLexerFor("& | && || &= |= ^ ^=");
         token = (LocatableToken) ts.nextToken();
@@ -223,6 +229,55 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(JavaTokenTypes.RPAREN, token.getType());
         token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.RBRACK, token.getType());
+        
+        ts = getLexerFor("+++++-----!!!!~~~~(()){{}}");
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.INC, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.INC, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.PLUS, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.DEC, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.DEC, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.MINUS, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.LNOT, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.LNOT, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.LNOT, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.LNOT, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.BNOT, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.BNOT, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.BNOT, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.BNOT, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.LPAREN, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.LPAREN, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.RPAREN, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.RPAREN, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.LCURLY, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.LCURLY, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.RCURLY, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.RCURLY, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.EOF, token.getType());
+        token = (LocatableToken) ts.nextToken();
     }
     
     public void testOther() throws Exception
