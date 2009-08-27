@@ -38,10 +38,12 @@ public class BlueJJavaLexer implements JavaTokenTypes
         tok.setColumn(beginCol);
         tok.setLine(beginLine);
         //if there is a whitespace the end column is one less than we have processed
-        if (whitespace){
-            tok.setEndLineAndCol(line, col-1);
-        }else
-            tok.setEndLineAndCol(line, col);
+        int endColNum=txt.length()+beginCol;
+        tok.setEndLineAndCol(line, endColNum);
+//        if (whitespace){
+//            tok.setEndLineAndCol(line, col-1);
+//        }else
+//            tok.setEndLineAndCol(line, col);
         return tok;
     
     }
@@ -81,6 +83,17 @@ public class BlueJJavaLexer implements JavaTokenTypes
                 return processEndOfReader();                
             }
             nextChar=(char)rval;
+            if (nextChar=='\n'|| nextChar=='\t'){
+                if (nextChar=='\n')
+                    newline();
+                if (nextChar=='\t')
+                    tab=true;
+                try{
+                    return nextToken();
+                }catch(TokenStreamException e){
+                    
+                }
+            }       
         }
        return createToken(nextChar);
     }
@@ -94,6 +107,7 @@ public class BlueJJavaLexer implements JavaTokenTypes
         append(c);
         if (c == '\t') {
             tab();
+            tab=true;
         }
         else {
             int pos=reader.getPosition();
@@ -107,7 +121,9 @@ public class BlueJJavaLexer implements JavaTokenTypes
     }
 
     private void append(char c){
-        textBuffer.append(c);
+        if (!Character.isWhitespace(c)){
+            textBuffer.append(c);
+        }
     }
 
     public void tab() {
@@ -121,24 +137,23 @@ public class BlueJJavaLexer implements JavaTokenTypes
 
     private LocatableToken createToken(char nextChar){
         int bCol=col;
-        int bLine=line;
+        int bLine=line;     
         boolean whitespace=populateTextBuffer(nextChar);
-        int type=getTokenType(nextChar);
-        adjustColLineNums();
+        int type=getTokenType();
         return makeToken(type, textBuffer.toString(), bCol, col, bLine, line, whitespace);
     }
 
-    private void adjustColLineNums(){
-        //have to decrease by 1 because already bumped it up in populateTextBuffer
-        if (tab){
-            col=col-1+tabsize;
-            tab=false;
-        }
-        if (newline){
-            line=line+1;
-            newline=false;
-        }
-    }
+//    private void adjustColLineNums(){
+//        //have to decrease by 1 because already bumped it up in populateTextBuffer
+//        if (tab){
+//            col=col-1+tabsize;
+//            tab=false;
+//        }
+//        if (newline){
+//            line=line+1;
+//            newline=false;
+//        }
+//    }
     
     private LocatableToken processEndOfReader(){
         resetText();
@@ -193,18 +208,18 @@ public class BlueJJavaLexer implements JavaTokenTypes
         }
         return whitespace;
     }
-    
-    
+       
     private boolean isComment(){
-        if((textBuffer.indexOf("/*")!=-1) && (textBuffer.indexOf("*/")==-1))
+        if((textBuffer.indexOf("/*")!=-1) && ((textBuffer.indexOf("*/")==-1)|| (textBuffer.indexOf("*/")<1)))
             return true;
         if ((textBuffer.indexOf("//")!=-1) && (textBuffer.indexOf("\n")==-1))
             return true;
         return false;
     }
 
-    private int getTokenType(char ch){
-        if (Character.isLetter(ch))
+    private int getTokenType(){
+        char ch=textBuffer.charAt(0);
+        if (Character.isJavaIdentifierStart(ch))
             return getWordType();
         //need to specify what type of digit double float etc
         if (Character.isDigit(ch))
@@ -651,6 +666,8 @@ public class BlueJJavaLexer implements JavaTokenTypes
      */
     private boolean isComplete(char prevChar, char thisChar, int prevType, int thisType){
         if (isComment())
+            return false;
+        if (textBuffer.length()==0)
             return false;
         //e.g test_name  before '_'
         if ((prevType==LETTER_CHAR && thisChar=='_') )
