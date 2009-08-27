@@ -10,6 +10,12 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 public abstract class ParsedNode
 {
+    public static final int NODETYPE_NONE = 0;
+    public static final int NODETYPE_TYPEDEF = 1;
+    public static final int NODETYPE_METHODDEF = 2;
+    public static final int NODETYPE_ITERATION = 3; // for, while, etc
+    public static final int NODETYPE_SELECTION = 4; // if/then, try/catch
+    
     /** The NodeTree containing the child nodes of this node */
     private NodeTree nodeTree;
     /** The NodeTree node (belonging to the parent parse node) which contains this node */
@@ -30,6 +36,11 @@ public abstract class ParsedNode
         this.parentNode = parentNode;
     }
 
+    public int getNodeType()
+    {
+        return NODETYPE_NONE;
+    }
+    
     public boolean equals(Object obj)
     {
         return obj == this;

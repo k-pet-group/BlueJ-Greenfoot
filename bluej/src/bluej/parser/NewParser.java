@@ -88,25 +88,24 @@ public class NewParser
         endElement(token, true);
     }
 
-    protected void beginForLoop(LocatableToken token)
-    {
-        beginElement(token);
-    }
+    protected void beginForLoop(LocatableToken token) { }
+    
+    protected void beginForLoopBody(LocatableToken token) { }
+    
+    protected void endForLoopBody(LocatableToken token, boolean included) { }
+
+    protected void endForLoop(LocatableToken token, boolean included) { }
     
     protected void beginStmtblockBody(LocatableToken token)
     {
         beginElement(token);
     }
     
-    protected void endStmtblockBody(LocatableToken token)
-    {
-        endElement(token, false);
-    }
-    
-    protected void endForLoop(LocatableToken token, boolean included)
+    protected void endStmtblockBody(LocatableToken token, boolean included)
     {
         endElement(token, included);
     }
+    
     
     protected void beginStatement(LocatableToken token)
     {
@@ -935,6 +934,7 @@ public class NewParser
                 return null;
             }
             else if (token.getType() == JavaTokenTypes.LCURLY) {
+                beginStmtblockBody(token);
                 parseStmtBlock();
                 token = tokenStream.nextToken();
                 if (token.getType() != JavaTokenTypes.RCURLY) {
@@ -942,8 +942,10 @@ public class NewParser
                     if (token.getType() != JavaTokenTypes.RPAREN) {
                         tokenStream.pushBack(token);
                     }
+                    endStmtblockBody(token, false);
                     return null;
                 }
+                endStmtblockBody(token, true);
                 return token;
             }
             else {
@@ -1091,7 +1093,9 @@ public class NewParser
                             return null;
                         }
                         token = tokenStream.nextToken();
+                        beginForLoopBody(token);
                         token = parseStatement(token); // loop body
+                        endForLoopBody(token);
                         endForLoop(token);
                         return token;
                     }
@@ -1155,7 +1159,9 @@ public class NewParser
                 endForLoop(token, false);
                 return null;
             }
+            beginForLoopBody(token);
             token = parseStatement(token);
+            endForLoopBody(token);
             endForLoop(token);
             return token;
         }
@@ -1172,6 +1178,16 @@ public class NewParser
         }
         else {
             endForLoop(token, true);
+        }
+    }
+    
+    private void endForLoopBody(LocatableToken token) throws TokenStreamException
+    {
+        if (token == null) {
+            endForLoopBody(tokenStream.LA(1), false);
+        }
+        else {
+            endForLoopBody(token, true);
         }
     }
 	

@@ -10,6 +10,7 @@ import java.util.Stack;
 import org.syntax.jedit.tokenmarker.Token;
 
 import bluej.parser.ast.LocatableToken;
+import bluej.parser.ast.gen.JavaTokenTypes;
 import bluej.parser.nodes.ColourNode;
 import bluej.parser.nodes.ContainerNode;
 import bluej.parser.nodes.ParentParsedNode;
@@ -144,11 +145,61 @@ public class EditorParser extends NewParser
     @Override
     protected void beginForLoop(LocatableToken token)
     {
-        ParentParsedNode loopNode = new ContainerNode(scopeStack.peek());
+        ParentParsedNode loopNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_ITERATION);
         int curOffset = getTopNodeOffset();
         int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
         scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
         scopeStack.push(loopNode);
+    }
+    
+    @Override
+    protected void beginForLoopBody(LocatableToken token)
+    {
+        if (token.getType() != JavaTokenTypes.LCURLY) {
+            ParentParsedNode loopNode = new ParentParsedNode(scopeStack.peek());
+            loopNode.setInner(true);
+            int curOffset = getTopNodeOffset();
+            int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+            scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
+            scopeStack.push(loopNode);
+        }
+    }
+    
+    @Override
+    protected void endForLoopBody(LocatableToken token, boolean included)
+    {
+        if (scopeStack.peek().getNodeType() != ParsedNode.NODETYPE_ITERATION) {
+            endTopNode(token, false);
+        }
+    }
+    
+    @Override
+    protected void beginStmtblockBody(LocatableToken token)
+    {
+        int curOffset = getTopNodeOffset();
+        if (scopeStack.peek().getNodeType() == ParsedNode.NODETYPE_NONE) {
+            // This is conditional, because the outer block may be a loop or selection
+            // statement which already exists.
+            ParentParsedNode blockNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_NONE);
+            blockNode.setInner(true);
+            int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+            scopeStack.peek().insertNode(blockNode, insPos - curOffset, 0);
+            scopeStack.push(blockNode);
+        }
+        ParentParsedNode blockInner = new ParentParsedNode(scopeStack.peek());
+        blockInner.setInner(true);
+        int insPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
+        scopeStack.peek().insertNode(blockInner, insPos - curOffset, 0);
+        scopeStack.push(blockInner);
+    }
+   
+    @Override
+    protected void endStmtblockBody(LocatableToken token, boolean included)
+    {
+        endTopNode(token, false); // inner
+        if (scopeStack.peek().getNodeType() == ParsedNode.NODETYPE_NONE) {
+            endTopNode(token, included);
+        }
     }
     
     protected void beginElement(LocatableToken token)
