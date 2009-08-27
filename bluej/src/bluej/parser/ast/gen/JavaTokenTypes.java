@@ -194,4 +194,5 @@ public interface JavaTokenTypes {
 	int HEX_DIGIT = 168;
 	int EXPONENT = 169;
 	int FLOAT_SUFFIX = 170;
+	int GOTO = 171;
 }
