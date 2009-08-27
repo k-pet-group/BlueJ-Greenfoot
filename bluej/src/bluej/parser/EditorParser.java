@@ -43,16 +43,11 @@ public class EditorParser extends NewParser
         scopeStack.pop();
         completedNode(pcuNode, 0, pcuNode.getSize());
     }
-    
-    protected void beginElement(LocatableToken token)
-    {
-        pcuStmtBegin = token;
-    }
-    
+        
     protected void gotTypeDef(int tdType)
     {
         ParsedNode pnode = new ParsedTypeNode(scopeStack.peek());
-        int curOffset = getCurrentOffset();
+        int curOffset = getTopNodeOffset();
         int insPos = pcuNode.lineColToPosition(pcuStmtBegin.getLine(), pcuStmtBegin.getColumn());
         scopeStack.peek().getNodeTree().insertNode(pnode, insPos - curOffset, 0);
         scopeStack.push(pnode);
@@ -62,53 +57,37 @@ public class EditorParser extends NewParser
     {
         ParentParsedNode bodyNode = new ParentParsedNode(scopeStack.peek());
         bodyNode.setInner(true);
-        int curOffset = getCurrentOffset();
+        int curOffset = getTopNodeOffset();
         int insPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
         scopeStack.peek().getNodeTree().insertNode(bodyNode, insPos - curOffset, 0);
         scopeStack.push(bodyNode);
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see bluej.parser.NewParser#endTypeBody(bluej.parser.ast.LocatableToken, boolean)
-     */
-    protected void endTypeBody(LocatableToken token, boolean included)
+        
+    protected void endTopNode(LocatableToken token, boolean included)
     {
-        int topPos = getCurrentOffset();
+        int topPos = getTopNodeOffset();
         ParsedNode top = scopeStack.pop();
 
-        int endPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+        int endPos;
+        if (included) {
+            endPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
+        }
+        else {
+            endPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+        }
         top.getContainingNodeTree().setNodeSize(endPos - topPos);
         
         completedNode(top, topPos, endPos - topPos);
     }
-    
-    private int getCurrentOffset()
-    {
-        Iterator<ParsedNode> i = scopeStack.iterator();
-        if (!i.hasNext()) {
-            return 0;
-        }
-        
-        int rval = 0;
-        i.next();
-        while (i.hasNext()) {
-            rval += i.next().getContainingNodeTree().getPosition();
-        }
-        return rval;
-    }
-    
-    protected void gotTypeDefEnd(LocatableToken token, boolean included)
-    {
-        int topPos = getCurrentOffset();
-        ParsedNode top = scopeStack.pop();
-        
-        int endPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
-        top.getContainingNodeTree().setNodeSize(endPos - topPos);
-        
-        completedNode(top, topPos, endPos - topPos);
-    }
-    
+
+    /**
+     * A node end has been reached. This method adds any appropriate comment nodes as
+     * children of the new node.
+     * 
+     * @param node  The new node
+     * @param position  The absolute position of the new node
+     * @param size  The size of the new node
+     */
     protected void completedNode(ParsedNode node, int position, int size)
     {
         ListIterator<LocatableToken> i = commentQueue.listIterator();
@@ -127,6 +106,41 @@ public class EditorParser extends NewParser
             }
         }
     }
+
+    /**
+     * Get the start position of the top node in the scope stack.
+     */
+    private int getTopNodeOffset()
+    {
+        Iterator<ParsedNode> i = scopeStack.iterator();
+        if (!i.hasNext()) {
+            return 0;
+        }
+        
+        int rval = 0;
+        i.next();
+        while (i.hasNext()) {
+            rval += i.next().getContainingNodeTree().getPosition();
+        }
+        return rval;
+    }
+    
+    //  -------------- Callbacks from the superclass ----------------------
+   
+    protected void beginElement(LocatableToken token)
+    {
+        pcuStmtBegin = token;
+    }
+    
+    protected void endTypeBody(LocatableToken token, boolean included)
+    {
+        endTopNode(token, false);
+    }
+    
+    protected void gotTypeDefEnd(LocatableToken token, boolean included)
+    {
+        endTopNode(token, included);
+    }
     
     /*
      * We have the end of a package statement.
@@ -142,6 +156,7 @@ public class EditorParser extends NewParser
         // PkgStmtNode psn = new PkgStmtNode();
         ColourNode cn = new ColourNode(pcuNode, Token.KEYWORD1);
         pcuNode.getNodeTree().insertNode(cn, startpos, endpos - startpos);
+        completedNode(cn, startpos, endpos - startpos);
     }
     
     protected void gotImportStmtSemi(LocatableToken token)
@@ -160,15 +175,6 @@ public class EditorParser extends NewParser
     public void gotComment(LocatableToken token)
     {
         commentQueue.add(token);
-//        Selection s = new Selection(token.getLine(), token.getColumn());
-//        s.extendEnd(token.getEndLine(), token.getEndColumn());
-//
-//        int startpos = pcuNode.lineColToPosition(s.getLine(), s.getColumn());
-//        int endpos = pcuNode.lineColToPosition(s.getEndLine(), s.getEndColumn());
-//
-//        ColourNode cn = new ColourNode(scopeStack.peek(), Token.COMMENT1);
-//        int curOffset = getCurrentOffset();
-//        scopeStack.peek().getNodeTree().insertNode(cn, startpos - curOffset, endpos - startpos);
     }
     
     @Override
@@ -182,7 +188,7 @@ public class EditorParser extends NewParser
         }
         
         ParsedNode pnode = new MethodNode(scopeStack.peek());
-        int curOffset = getCurrentOffset();
+        int curOffset = getTopNodeOffset();
         int insPos = pcuNode.lineColToPosition(start.getLine(), start.getColumn());
         scopeStack.peek().getNodeTree().insertNode(pnode, insPos - curOffset, 0);
         scopeStack.push(pnode);
@@ -199,7 +205,7 @@ public class EditorParser extends NewParser
         }
         
         ParsedNode pnode = new MethodNode(scopeStack.peek());
-        int curOffset = getCurrentOffset();
+        int curOffset = getTopNodeOffset();
         int insPos = pcuNode.lineColToPosition(start.getLine(), start.getColumn());
         scopeStack.peek().getNodeTree().insertNode(pnode, insPos - curOffset, 0);
         scopeStack.push(pnode);
@@ -209,14 +215,7 @@ public class EditorParser extends NewParser
     protected void endMethodDecl(LocatableToken token, boolean included)
     {
         super.endMethodDecl(token, included);
-        
-        int topPos = getCurrentOffset();
-        ParsedNode top = scopeStack.pop();
-
-        int endPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
-        top.getContainingNodeTree().setNodeSize(endPos - topPos);
-        
-        completedNode(top, topPos, endPos - topPos);
+        endTopNode(token, included);
     }
     
     @Override
@@ -224,7 +223,7 @@ public class EditorParser extends NewParser
     {
         ParsedNode pnode = new ParentParsedNode(scopeStack.peek());
         pnode.setInner(true);
-        int curOffset = getCurrentOffset();
+        int curOffset = getTopNodeOffset();
         int insPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
         scopeStack.peek().getNodeTree().insertNode(pnode, insPos - curOffset, 0);
         scopeStack.push(pnode);
@@ -234,13 +233,6 @@ public class EditorParser extends NewParser
     protected void endMethodBody(LocatableToken token, boolean included)
     {
         super.endMethodBody(token, included);
-
-        int topPos = getCurrentOffset();
-        ParsedNode top = scopeStack.pop();
-
-        int endPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
-        top.getContainingNodeTree().setNodeSize(endPos - topPos);
-        
-        completedNode(top, topPos, endPos - topPos);
+        endTopNode(token, false);
     }
 }
