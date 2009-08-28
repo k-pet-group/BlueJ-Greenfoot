@@ -121,11 +121,30 @@ public class BlueJJavaLexer implements JavaTokenTypes
         //} else 
         ++col;
     }
+    
+    /*
+     * Does no checking on what it is appending
+     * 
+     */
+    public void consume(char c, boolean overwrite) /*throws Exception*/ {
+        if (overwrite){
+            append(c, overwrite);
+            int pos=reader.getPosition();
+            ++col;
+        }
+        else consume(c);
+    }
 
     private void append(char c){
         if (!Character.isWhitespace(c)){
             textBuffer.append(c);
         }
+    }
+    
+    private void append(char c, boolean overwrite){
+        if (overwrite)
+            textBuffer.append(c);
+        else append(c);
     }
 
     public void tab() {
@@ -193,10 +212,16 @@ public class BlueJJavaLexer implements JavaTokenTypes
                 }
                 thisChar=cb[0];
                 charTypeNext=getCharType(thisChar);
-                if (thisChar ==' ' && !isComment())  {
+                //Not using Character.isWhitespace(thisChar) because it would return true
+                //for /n etc and those need to be considered separately
+                if (thisChar ==' ')  {
                     col++;
-                    complete=true;
-                    rChar=(char)-1;
+                    if (!isComment()){                        
+                        complete=true;
+                        rChar=(char)-1;
+                    }
+                    else
+                        consume(thisChar, true);
                 }
                 else if (isComplete(prevChar, thisChar, charTypePrev, charTypeNext)){
                     complete=true;
