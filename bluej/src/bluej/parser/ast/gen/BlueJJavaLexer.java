@@ -23,34 +23,30 @@ public class BlueJJavaLexer implements JavaTokenTypes
     private boolean tab=false;
     //private LexerState state;
 
-    
-    
+
+
     public BlueJJavaLexer(Reader in) {
         reader=new EscapedUnicodeReader(in);
         col=((EscapedUnicodeReader)in).getPosition()+1;
         line=1;
     }
 
-    private LocatableToken makeToken(int type, String txt, int beginCol, int col, int beginLine, int line, boolean whitespace){
+    private LocatableToken makeToken(int type, String txt, int beginCol, int col, int beginLine, int line){
         LocatableToken tok = new LocatableToken();
+        int textLength=txt.length();
+        if (newline){
+            beginCol=1;
+            beginLine=line;
+            newline=false;
+        }
         tok.setType(type);
         tok.setText(txt);
         tok.setColumn(beginCol);
         tok.setLine(beginLine);
-        //if there is a whitespace the end column is one less than we have processed
-        int endColNum=txt.length()+beginCol;
+        int endColNum=textLength+beginCol;
         tok.setEndLineAndCol(line, endColNum);
-//        if (whitespace){
-//            tok.setEndLineAndCol(line, col-1);
-//        }else
-//            tok.setEndLineAndCol(line, col);
         return tok;
-    
-    }
-    
-    private LocatableToken makeToken(int type, String txt, int beginCol, int col, int beginLine, int line){
-        return makeToken (type, txt, beginCol, col, beginLine, line, false );
-    
+
     }
 
     public int getTabSize() {
@@ -91,33 +87,36 @@ public class BlueJJavaLexer implements JavaTokenTypes
                 try{
                     return nextToken();
                 }catch(TokenStreamException e){
-                    
+
                 }
             }       
         }
-       return createToken(nextChar);
+        return createToken(nextChar);
     }
-    
+
 
     public void resetText() {
         textBuffer=new StringBuffer();
     }
 
     public void consume(char c) /*throws Exception*/ {
-        append(c);
         if (c == '\t') {
             tab();
             tab=true;
+            return ;
         }
-        else {
-            int pos=reader.getPosition();
-            //if it is a unicode escape char need to bump up the column by 4
-            //if (reader.isEscapedUnicodeChar()){
-            //    col=col+5;
-            //    reader.setEscapedUnicodeChar(false);
-            //} else 
-                ++col;
+        if (c=='\n'){
+            newline();
+            return;
         }
+        append(c);
+        int pos=reader.getPosition();
+        //if it is a unicode escape char need to bump up the column by 4
+        //if (reader.isEscapedUnicodeChar()){
+        //    col=col+5;
+        //    reader.setEscapedUnicodeChar(false);
+        //} else 
+        ++col;
     }
 
     private void append(char c){
@@ -133,28 +132,29 @@ public class BlueJJavaLexer implements JavaTokenTypes
     public void newline() {
         line++;
         col= 1;
+        newline=true;
     }
 
     private LocatableToken createToken(char nextChar){
         int bCol=col;
         int bLine=line;     
-        boolean whitespace=populateTextBuffer(nextChar);
+        populateTextBuffer(nextChar);
         int type=getTokenType();
-        return makeToken(type, textBuffer.toString(), bCol, col, bLine, line, whitespace);
+        return makeToken(type, textBuffer.toString(), bCol, col, bLine, line);
     }
 
-//    private void adjustColLineNums(){
-//        //have to decrease by 1 because already bumped it up in populateTextBuffer
-//        if (tab){
-//            col=col-1+tabsize;
-//            tab=false;
-//        }
-//        if (newline){
-//            line=line+1;
-//            newline=false;
-//        }
-//    }
-    
+    //    private void adjustColLineNums(){
+    //        //have to decrease by 1 because already bumped it up in populateTextBuffer
+    //        if (tab){
+    //            col=col-1+tabsize;
+    //            tab=false;
+    //        }
+    //        if (newline){
+    //            line=line+1;
+    //            newline=false;
+    //        }
+    //    }
+
     private LocatableToken processEndOfReader(){
         resetText();
         return makeToken(JavaTokenTypes.EOF, "EOF", col, col, line, line);
@@ -169,7 +169,7 @@ public class BlueJJavaLexer implements JavaTokenTypes
         return OTHER_CHAR;
     }
 
-    private boolean populateTextBuffer(char ch){
+    private void populateTextBuffer(char ch){
         char thisChar=ch;
         char prevChar;
         char [] cb=new char[1];
@@ -177,7 +177,6 @@ public class BlueJJavaLexer implements JavaTokenTypes
         int charTypePrev=OTHER_CHAR;
         int charTypeNext=OTHER_CHAR;       
         resetText();
-        boolean whitespace=false;
         boolean complete=false;
         try{
             do{  
@@ -187,14 +186,13 @@ public class BlueJJavaLexer implements JavaTokenTypes
                 rval=reader.readChar(cb, col-1);
                 //eof
                 if (rval==-1){
-                    return whitespace;
+                    return;
                 }
                 thisChar=cb[0];
                 charTypeNext=getCharType(thisChar);
                 if (thisChar ==' ' && !isComment())  {
                     col++;
                     complete=true;
-                    whitespace=true;
                     rChar=(char)-1;
                 }
                 else if (isComplete(prevChar, thisChar, charTypePrev, charTypeNext)){
@@ -203,12 +201,11 @@ public class BlueJJavaLexer implements JavaTokenTypes
                 }
             }while (!complete);
         }catch(IOException ioe){
-    
-    
+
+
         }
-        return whitespace;
     }
-       
+
     private boolean isComment(){
         if((textBuffer.indexOf("/*")!=-1) && ((textBuffer.indexOf("*/")==-1)|| (textBuffer.indexOf("*/")<1)))
             return true;
@@ -287,8 +284,8 @@ public class BlueJJavaLexer implements JavaTokenTypes
         return type;
 
     }
-    
-        
+
+
     private int getAndType(){
         //&, &=, &&
         if (textBuffer.length()==1)
@@ -429,14 +426,14 @@ public class BlueJJavaLexer implements JavaTokenTypes
             return JavaTokenTypes.NOT_EQUAL;
         return INVALID_TYPE;
     }
-    
+
     private int getDotType(){
         //. or .56f .12 
         if (textBuffer.length()==1)
             return JavaTokenTypes.DOT;  
         return getNumberType();
     }
-    
+
     private int getBXORType(){
         if (textBuffer.length()==1)
             return JavaTokenTypes.BXOR;
@@ -622,9 +619,9 @@ public class BlueJJavaLexer implements JavaTokenTypes
         return JavaTokenTypes.IDENT;
 
     }
-    
+
     private int getNumberType(){
-        
+
         if (textBuffer.indexOf("f")!=-1)
             return NUM_FLOAT;
         if (textBuffer.indexOf("l")!=-1)
@@ -634,7 +631,7 @@ public class BlueJJavaLexer implements JavaTokenTypes
         if (textBuffer.indexOf(".")!=-1)
             return NUM_DOUBLE;
         return NUM_INT;
-        
+
     }
 
     private boolean match(char c){
@@ -643,7 +640,7 @@ public class BlueJJavaLexer implements JavaTokenTypes
         }
         else return false;
     }
-    
+
     /*
      * Certain symbols are always stand-alone and this is just a flag to indicate 
      * that the reader should not be read further
@@ -658,7 +655,7 @@ public class BlueJJavaLexer implements JavaTokenTypes
             return true;
         else return false;
     }
-    
+
     /* 
      * There are some instance where a change in type does indicate a new token
      * and some instances where it doesn't e.g compare 1+value; and an_identifier99
@@ -672,7 +669,7 @@ public class BlueJJavaLexer implements JavaTokenTypes
         //e.g test_name  before '_'
         if ((prevType==LETTER_CHAR && thisChar=='_') )
             return false;
-       //e.g test_name  after '_'
+        //e.g test_name  after '_'
         if ((thisType==LETTER_CHAR && prevChar=='_') )
             return false;
         //e.g identifier99
@@ -702,8 +699,8 @@ public class BlueJJavaLexer implements JavaTokenTypes
         if (thisChar=='\''&& prevType==LETTER_CHAR)
             return false;
         if ((thisType!=prevType) || 
-        //e.g () 
-        (thisType==OTHER_CHAR && isSingleChar(thisChar))     
+                //e.g () 
+                (thisType==OTHER_CHAR && isSingleChar(thisChar))     
         )
             return true;
         return false;
