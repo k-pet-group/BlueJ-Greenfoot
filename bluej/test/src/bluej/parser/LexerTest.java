@@ -230,7 +230,7 @@ public class LexerTest extends junit.framework.TestCase
         token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.RBRACK, token.getType());
         
-        ts = getLexerFor("+++++-----!!!!~~~~(()){{}} [][]");
+        ts = getLexerFor("+++++-----!!!!~~~~(()){{}}");
         token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.INC, token.getType());
         token = (LocatableToken) ts.nextToken();
@@ -276,15 +276,29 @@ public class LexerTest extends junit.framework.TestCase
         token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.RCURLY, token.getType());
         token = (LocatableToken) ts.nextToken();
-        assertEquals(JavaTokenTypes.LBRACK, token.getType());
-        token = (LocatableToken) ts.nextToken();
-        assertEquals(JavaTokenTypes.RBRACK, token.getType());
-        token = (LocatableToken) ts.nextToken();
-        assertEquals(JavaTokenTypes.LBRACK, token.getType());
-        token = (LocatableToken) ts.nextToken();
-        assertEquals(JavaTokenTypes.RBRACK, token.getType());
-        token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.EOF, token.getType());
+        
+        ts = getLexerFor(" [][] ]); ]).");
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.LBRACK, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.RBRACK, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.LBRACK, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.RBRACK, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.RBRACK, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.RPAREN, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.SEMI, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.RBRACK, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.RPAREN, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.DOT, token.getType());
     }
     
     public void testIdentifiers() throws Exception
