@@ -96,6 +96,14 @@ public class NewParser
 
     protected void endForLoop(LocatableToken token, boolean included) { }
     
+    protected void beginWhileLoop(LocatableToken token) { }
+
+    protected void beginWhileLoopBody(LocatableToken token) { }
+
+    protected void endWhileLoopBody(LocatableToken token, boolean included) { }
+    
+    protected void endWhileLoop(LocatableToken token, boolean included) { }
+    
     protected void beginStmtblockBody(LocatableToken token)
     {
         beginElement(token);
@@ -765,8 +773,7 @@ public class NewParser
                 return parseForStatement(token);
             }
             else if (token.getType() == JavaTokenTypes.LITERAL_while) {
-                parseWhileStatement(token);
-                return null; // DAV
+                return parseWhileStatement(token);
             }
             else if (token.getType() == JavaTokenTypes.LITERAL_if) {
                 parseIfStatement(token);
@@ -1039,26 +1046,43 @@ public class NewParser
         }
     }
 	
-    public void parseWhileStatement(LocatableToken token)
+    public LocatableToken parseWhileStatement(LocatableToken token)
     {
         try {
+            beginWhileLoop(token);
             token = tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.LPAREN) {
                 error("Expecting '(' after 'while'");
                 tokenStream.pushBack(token);
-                return;
+                endWhileLoop(token, false);
+                return null;
             }
             parseExpression();
             token = tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.RPAREN) {
                 error("Expecting ')' after conditional expression (in 'while' statement)");
                 tokenStream.pushBack(token);
+                endWhileLoop(token, false);
+                return null;
             }
             token = tokenStream.nextToken();
-            parseStatement(token);
+            beginWhileLoopBody(token);
+            token = parseStatement(token);
+            if (token != null) {
+                endWhileLoopBody(token, true);
+                endWhileLoop(token, true);
+            }
+            else {
+                token = tokenStream.LA(1);
+                endWhileLoopBody(token, false);
+                endWhileLoop(token, false);
+                token = null;
+            }
+            return token;
         }
         catch (TokenStreamException tse) {
             tse.printStackTrace();
+            return null;
         }
     }
 	

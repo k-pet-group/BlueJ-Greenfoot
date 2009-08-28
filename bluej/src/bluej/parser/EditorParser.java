@@ -155,6 +155,8 @@ public class EditorParser extends NewParser
     @Override
     protected void beginForLoopBody(LocatableToken token)
     {
+        // If the token is an LCURLY, it will be seen as a compound statement and scope
+        // handling is done by beginStmtBlockBody
         if (token.getType() != JavaTokenTypes.LCURLY) {
             ParentParsedNode loopNode = new ParentParsedNode(scopeStack.peek());
             loopNode.setInner(true);
@@ -170,6 +172,31 @@ public class EditorParser extends NewParser
     {
         if (scopeStack.peek().getNodeType() != ParsedNode.NODETYPE_ITERATION) {
             endTopNode(token, false);
+        }
+    }
+    
+    @Override
+    protected void beginWhileLoop(LocatableToken token)
+    {
+        ParentParsedNode loopNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_ITERATION);
+        int curOffset = getTopNodeOffset();
+        int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+        scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
+        scopeStack.push(loopNode);
+    }
+    
+    @Override
+    protected void beginWhileLoopBody(LocatableToken token)
+    {
+        // If the token is an LCURLY, it will be seen as a compound statement and scope
+        // handling is done by beginStmtBlockBody
+        if (token.getType() != JavaTokenTypes.LCURLY) {
+            ParentParsedNode loopNode = new ParentParsedNode(scopeStack.peek());
+            loopNode.setInner(true);
+            int curOffset = getTopNodeOffset();
+            int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+            scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
+            scopeStack.push(loopNode);
         }
     }
     
@@ -219,6 +246,12 @@ public class EditorParser extends NewParser
     
     @Override
     protected void endForLoop(LocatableToken token, boolean included)
+    {
+        endTopNode(token, included);
+    }
+    
+    @Override
+    protected void endWhileLoop(LocatableToken token, boolean included)
     {
         endTopNode(token, included);
     }
