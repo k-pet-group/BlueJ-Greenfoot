@@ -340,7 +340,7 @@ public class LexerTest extends junit.framework.TestCase
     
     public void testPositionTracking() throws Exception
     {
-        TokenStream ts = getLexerFor("one two three\nfour five six\nseven eight nine");
+        TokenStream ts = getLexerFor("one two three\nfour five six  \n  seven eight nine");
         LocatableToken token = (LocatableToken) ts.nextToken();
         assertEquals(1, token.getLine());
         assertEquals(1, token.getColumn());
@@ -364,8 +364,25 @@ public class LexerTest extends junit.framework.TestCase
         token = (LocatableToken) ts.nextToken(); // six
         token = (LocatableToken) ts.nextToken(); // seven
         assertEquals(3, token.getLine());
+        assertEquals(3, token.getColumn());
+
+        // Unicode escape sequences
+        ts = getLexerFor("\\u0041ident another");
+        token = (LocatableToken) ts.nextToken();
         assertEquals(1, token.getColumn());
+        assertEquals(12, token.getEndColumn());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(13, token.getColumn());
+        assertEquals(20, token.getEndColumn());
         
+        ts = getLexerFor("ident\\u0041 another");
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(1, token.getColumn());
+        assertEquals(12, token.getEndColumn());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(13, token.getColumn());
+        assertEquals(20, token.getEndColumn());
+
         // Unicode escape sequences - fails with old lexer
         ts = getLexerFor("one\u0020two");
         token = (LocatableToken) ts.nextToken();
