@@ -31,20 +31,20 @@ public class BlueJJavaLexer implements JavaTokenTypes
         line=1;
     }
 
-    private LocatableToken makeToken(int type, String txt, int beginCol, int col, int beginLine, int line){
+    private LocatableToken makeToken(int type, String txt, int beginCol, int endCol, int beginLine, int line){
         LocatableToken tok = new LocatableToken();
         int textLength=txt.length();
-        if (newline){
+        if (newline) {
             beginCol=1;
             beginLine=line;
             newline=false;
         }
+        endCol=textLength+beginCol;
         tok.setType(type);
         tok.setText(txt);
         tok.setColumn(beginCol);
-        tok.setLine(beginLine);
-        int endColNum=textLength+beginCol;
-        tok.setEndLineAndCol(line, endColNum);
+        tok.setLine(beginLine);        
+        tok.setEndLineAndCol(line, endCol);
         return tok;
 
     }
@@ -79,11 +79,14 @@ public class BlueJJavaLexer implements JavaTokenTypes
                 return processEndOfReader();                
             }
             nextChar=(char)rval;
-            if (nextChar=='\n'|| nextChar=='\t'){
-                if (nextChar=='\n')
+            if (nextChar=='\n'|| nextChar=='\t' || Character.isWhitespace(nextChar)){
+                if (nextChar=='\n'){
                     newline();
-                if (nextChar=='\t')
-                    tab=true;
+                } else if (Character.isWhitespace(nextChar)){
+                    col++;
+                    //if there is a/n and then spaces, the newline has been taken into consideration 
+                    newline=false;
+                }
                 try{
                     return nextToken();
                 }catch(TokenStreamException e){
@@ -201,8 +204,8 @@ public class BlueJJavaLexer implements JavaTokenTypes
                 }
             }while (!complete);
         }catch(IOException ioe){
-
-
+    
+    
         }
     }
 
@@ -269,7 +272,7 @@ public class BlueJJavaLexer implements JavaTokenTypes
         if (match('='))
             return getEqualType();
         if (match('%'))
-            return getType();
+            return getModType();
         if (match('/'))
             return getForwardSlashType();
         if (match('.'))
