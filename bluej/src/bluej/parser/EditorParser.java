@@ -126,6 +126,11 @@ public class EditorParser extends NewParser
     {
         ParsedNode pnode = new ParsedTypeNode(scopeStack.peek());
         int curOffset = getTopNodeOffset();
+        LocatableToken hidden = pcuStmtBegin.getHiddenBefore();
+        if (hidden != null && hidden.getType() == JavaTokenTypes.ML_COMMENT) {
+            pcuStmtBegin = hidden; 
+            // TODO: make certain hidden token not already consumed by prior sibling node
+        }
         int insPos = pcuNode.lineColToPosition(pcuStmtBegin.getLine(), pcuStmtBegin.getColumn());
         scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
         scopeStack.push(pnode);
@@ -201,6 +206,53 @@ public class EditorParser extends NewParser
     }
     
     @Override
+    protected void endWhileLoopBody(LocatableToken token, boolean included)
+    {
+        if (scopeStack.peek().getNodeType() != ParsedNode.NODETYPE_ITERATION) {
+            endTopNode(token, false);
+        }
+    }
+    
+    @Override
+    protected void beginIfStmt(LocatableToken token)
+    {
+        ParentParsedNode loopNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_SELECTION);
+        int curOffset = getTopNodeOffset();
+        int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+        scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
+        scopeStack.push(loopNode);
+    }
+    
+    @Override
+    protected void beginIfCondBlock(LocatableToken token)
+    {
+        // If the token is an LCURLY, it will be seen as a compound statement and scope
+        // handling is done by beginStmtBlockBody
+        if (token.getType() != JavaTokenTypes.LCURLY) {
+            ParentParsedNode loopNode = new ParentParsedNode(scopeStack.peek());
+            loopNode.setInner(true);
+            int curOffset = getTopNodeOffset();
+            int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+            scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
+            scopeStack.push(loopNode);
+        }
+    }
+    
+    @Override
+    protected void endIfCondBlock(LocatableToken token, boolean included)
+    {
+        if (scopeStack.peek().getNodeType() != ParsedNode.NODETYPE_SELECTION) {
+            endTopNode(token, false);
+        }
+    }
+    
+    @Override
+    protected void endIfStmt(LocatableToken token, boolean included)
+    {
+        endTopNode(token, included);
+    }
+    
+    @Override
     protected void beginStmtblockBody(LocatableToken token)
     {
         int curOffset = getTopNodeOffset();
@@ -212,6 +264,7 @@ public class EditorParser extends NewParser
             int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
             scopeStack.peek().insertNode(blockNode, insPos - curOffset, 0);
             scopeStack.push(blockNode);
+            curOffset = insPos;
         }
         ParentParsedNode blockInner = new ParentParsedNode(scopeStack.peek());
         blockInner.setInner(true);
@@ -282,8 +335,9 @@ public class EditorParser extends NewParser
         int endpos = pcuNode.lineColToPosition(s.getEndLine(), s.getEndColumn());
         
         // PkgStmtNode psn = new PkgStmtNode();
-        ColourNode cn = new ColourNode(pcuNode, Token.KEYWORD2);
+        ParentParsedNode cn = new ParentParsedNode(pcuNode);
         pcuNode.insertNode(cn, startpos, endpos - startpos);
+        completedNode(cn, startpos, endpos - startpos);
     }
     
     public void gotComment(LocatableToken token)
@@ -316,6 +370,7 @@ public class EditorParser extends NewParser
         LocatableToken start = pcuStmtBegin;
         if (hiddenToken != null) {
             start = hiddenToken;
+            // TODO: make certain hidden token not already consumed by prior sibling node
         }
         
         ParsedNode pnode = new MethodNode(scopeStack.peek());

@@ -104,6 +104,14 @@ public class NewParser
     
     protected void endWhileLoop(LocatableToken token, boolean included) { }
     
+    protected void beginIfStmt(LocatableToken token) { }
+    
+    protected void beginIfCondBlock(LocatableToken token) { }
+    
+    protected void endIfCondBlock(LocatableToken token, boolean included) { }
+    
+    protected void endIfStmt(LocatableToken token, boolean included) { }
+    
     protected void beginStmtblockBody(LocatableToken token)
     {
         beginElement(token);
@@ -114,16 +122,6 @@ public class NewParser
         endElement(token, included);
     }
     
-    
-    protected void beginStatement(LocatableToken token)
-    {
-        beginElement(token);
-    }
-    
-    protected void endStatement(LocatableToken token)
-    {
-        beginElement(token);
-    }
 
     /** Begin the type definition body. */
     protected void beginTypeBody(LocatableToken leftCurlyToken) { }
@@ -776,8 +774,7 @@ public class NewParser
                 return parseWhileStatement(token);
             }
             else if (token.getType() == JavaTokenTypes.LITERAL_if) {
-                parseIfStatement(token);
-                return null; // DAV
+                return parseIfStatement(token);
             }
             else if (token.getType() == JavaTokenTypes.LITERAL_do) {
                 parseDoWhileStatement(token);
@@ -1219,30 +1216,64 @@ public class NewParser
      * Parse an "if" statement.
      * @param token  The token corresponding to the "if" literal.
      */
-    public void parseIfStatement(LocatableToken token)
+    public LocatableToken parseIfStatement(LocatableToken token)
     {
         try {
+            beginIfStmt(token);
             token = tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.LPAREN) {
                 error("Expecting '(' after 'if'");
                 tokenStream.pushBack(token);
-                return;
+                endIfStmt(token, false);
+                return null;
             }
             parseExpression();
             token = tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.RPAREN) {
                 error("Expecting ')' after conditional expression (in 'if' statement)");
                 tokenStream.pushBack(token);
+                if (token.getType() != JavaTokenTypes.LCURLY) {
+                    endIfStmt(token, false);
+                    return null;
+                }
             }
             token = tokenStream.nextToken();
-            parseStatement(token);
+            beginIfCondBlock(token);
+            token = parseStatement(token);
+            endIfCondBlock(token);
             while (tokenStream.LA(1).getType() == JavaTokenTypes.LITERAL_else) {
                 tokenStream.nextToken(); // else
-                parseStatement(tokenStream.nextToken());
+                token = tokenStream.nextToken();
+                beginIfCondBlock(token);
+                token = parseStatement(token);
+                endIfCondBlock(token);
             }
+            endIfStmt(token);
+            return token;
         }
         catch (TokenStreamException tse) {
             tse.printStackTrace();
+            return null;
+        }
+    }
+    
+    private void endIfCondBlock(LocatableToken token) throws TokenStreamException
+    {
+        if (token != null) {
+            endIfCondBlock(token, true);
+        }
+        else {
+            endIfCondBlock(tokenStream.LA(1), false);
+        }
+    }
+    
+    private void endIfStmt(LocatableToken token) throws TokenStreamException
+    {
+        if (token != null) {
+            endIfStmt(token, true);
+        }
+        else {
+            endIfStmt(tokenStream.LA(1), false);
         }
     }
 	
@@ -1321,281 +1352,281 @@ public class NewParser
     }
 	
 	
-	// TODO comment
-	public boolean parseTypeSpec()
-	{
-		List<LocatableToken> tokens = new LinkedList<LocatableToken>();
-		boolean rval = parseTypeSpec(false, tokens);
-		if (rval) {
-			gotTypeSpec(tokens);
-		}
-		return rval;
-	}
+    // TODO comment
+    public boolean parseTypeSpec()
+    {
+        List<LocatableToken> tokens = new LinkedList<LocatableToken>();
+        boolean rval = parseTypeSpec(false, tokens);
+        if (rval) {
+            gotTypeSpec(tokens);
+        }
+        return rval;
+    }
 	
-	/**
-	 * TODO fix comment, ttokens parameter
-	 * Parse a type specification. This could be a primitive type (including void),
-	 * or a class type (qualified or not, possibly with type parameters). This can
-	 * do a speculative parse if the following tokens might either be a type specification
-	 * or a statement-expression.
-	 * 
-	 * @param speculative  Whether this is a speculative parse, i.e. we might not actually
-	 *                     have a type specification. If this is set some parse errors will
-	 *                     simply return false.
-	 * 
-	 * @return true if we saw what might be a type specification (even if it
-	 * 		               contains errors), or false if it does not appear to be
-	 *                     a type specification. (only meaningful if speculative == true).
-	 */
-	public boolean parseTypeSpec(boolean speculative, List<LocatableToken> ttokens)
-	{
-		try {
-			ttokens.addAll(parseModifiers());
-			int ttype = parseBaseType(speculative, ttokens);
-			if (ttype == TYPE_ERROR) {
-				return false;
-			}
-			else if (ttype == TYPE_PRIMITIVE) {
-				speculative = false;
-			}
-			else {
-				LocatableToken token = tokenStream.nextToken();
-				if (token.getType() == JavaTokenTypes.LT) {
-					ttokens.add(token);
+    /**
+     * TODO fix comment, ttokens parameter
+     * Parse a type specification. This could be a primitive type (including void),
+     * or a class type (qualified or not, possibly with type parameters). This can
+     * do a speculative parse if the following tokens might either be a type specification
+     * or a statement-expression.
+     * 
+     * @param speculative  Whether this is a speculative parse, i.e. we might not actually
+     *                     have a type specification. If this is set some parse errors will
+     *                     simply return false.
+     * 
+     * @return true if we saw what might be a type specification (even if it
+     * 		               contains errors), or false if it does not appear to be
+     *                     a type specification. (only meaningful if speculative == true).
+     */
+    public boolean parseTypeSpec(boolean speculative, List<LocatableToken> ttokens)
+    {
+        try {
+            ttokens.addAll(parseModifiers());
+            int ttype = parseBaseType(speculative, ttokens);
+            if (ttype == TYPE_ERROR) {
+                return false;
+            }
+            else if (ttype == TYPE_PRIMITIVE) {
+                speculative = false;
+            }
+            else {
+                LocatableToken token = tokenStream.nextToken();
+                if (token.getType() == JavaTokenTypes.LT) {
+                    ttokens.add(token);
 
-					// Type parameters? (or is it a "less than" comparison?)
-					DepthRef dr = new DepthRef();
-					dr.depth = 1;
-					if (!parseTpars(speculative, ttokens, dr)) {
-						return false;
-					}
-				}
-				else {
-					tokenStream.pushBack(token);
-				}
-			}
-			
-			// check for inner type
-			LocatableToken token = tokenStream.nextToken();
-			if (token.getType() == JavaTokenTypes.DOT) {
-				if (tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
-					ttokens.add(token);
-					return parseTypeSpec(speculative, ttokens);
-				}
-				else {
-					tokenStream.pushBack(token);
-					return true;
-				}
-			}
-			else
-			
-			// check for array declarators
-			while (token.getType() == JavaTokenTypes.LBRACK
-					&& tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
-				ttokens.add(token);
-				token = tokenStream.nextToken(); // RBRACK
-				ttokens.add(token);
-				token = tokenStream.nextToken();
-			}
-			
-			tokenStream.pushBack(token);
-			return true;
+                    // Type parameters? (or is it a "less than" comparison?)
+                    DepthRef dr = new DepthRef();
+                    dr.depth = 1;
+                    if (!parseTpars(speculative, ttokens, dr)) {
+                        return false;
+                    }
+                }
+                else {
+                    tokenStream.pushBack(token);
+                }
+            }
 
-		}
-		catch (TokenStreamException tse) {
-			tse.printStackTrace();
-			return false;
-		}
-	}
+            // check for inner type
+            LocatableToken token = tokenStream.nextToken();
+            if (token.getType() == JavaTokenTypes.DOT) {
+                if (tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
+                    ttokens.add(token);
+                    return parseTypeSpec(speculative, ttokens);
+                }
+                else {
+                    tokenStream.pushBack(token);
+                    return true;
+                }
+            }
+            else
+
+                // check for array declarators
+                while (token.getType() == JavaTokenTypes.LBRACK
+                        && tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
+                    ttokens.add(token);
+                    token = tokenStream.nextToken(); // RBRACK
+                    ttokens.add(token);
+                    token = tokenStream.nextToken();
+                }
+
+            tokenStream.pushBack(token);
+            return true;
+
+        }
+        catch (TokenStreamException tse) {
+            tse.printStackTrace();
+            return false;
+        }
+    }
+
+    private static final int TYPE_PRIMITIVE = 0;
+    private static final int TYPE_OTHER = 1;
+    private static final int TYPE_ERROR = 2;
+
+    /**
+     * Parse a type "base" - a primitive type or a class type without type parameters.
+     * The type parameters may follow.
+     * 
+     * @param speculative
+     * @param ttokens
+     * @return
+     * @throws TokenStreamException
+     */
+    private int parseBaseType(boolean speculative, List<LocatableToken> ttokens)
+    throws TokenStreamException
+    {
+        LocatableToken token = tokenStream.nextToken();
+        if (isPrimitiveType(token)) {
+            // Ok, we have a base type
+            ttokens.add(token);
+            return TYPE_PRIMITIVE;
+        }
+        else {
+            if (token.getType() != JavaTokenTypes.IDENT) {
+                if (! speculative) {
+                    error("Expected type identifier");
+                }
+                tokenStream.pushBack(token);
+                return TYPE_ERROR;
+            }
+
+            ttokens.addAll(parseDottedIdent(token));
+        }
+        return TYPE_OTHER;
+    }
+
+    private boolean parseTpars(boolean speculative, List<LocatableToken> ttokens, DepthRef dr)
+    {
+        // We already have opening '<' and depth reflects this.
+
+        try {
+
+            int beginDepth = dr.depth;
+            LocatableToken token;
+            boolean needBaseType = true;
+
+            while (dr.depth >= beginDepth) {
+
+                if (tokenStream.LA(1).getType() == JavaTokenTypes.QUESTION) {
+                    // Wildcard
+                    token = tokenStream.nextToken();
+                    ttokens.add(token);
+                    token = tokenStream.nextToken();
+                    if (token.getType() == JavaTokenTypes.LITERAL_extends
+                            || token.getType() == JavaTokenTypes.LITERAL_super) {
+                        ttokens.add(token);
+                        needBaseType = true;
+                    }
+                    else {
+                        tokenStream.pushBack(token);
+                        needBaseType = false;
+                    }
+                }
+
+                if (needBaseType) {
+                    boolean r = parseTargType(speculative, ttokens, dr);
+                    if (!r) {
+                        return false;
+                    }
+                    if (dr.depth < beginDepth) {
+                        break;
+                    }
+                }
+
+                token = tokenStream.nextToken();
+                // Type parameters being closed
+                if (token.getType() == JavaTokenTypes.GT
+                        || token.getType() == JavaTokenTypes.SR
+                        || token.getType() == JavaTokenTypes.BSR) {
+                    ttokens.add(token);
+                    if (token.getType() == JavaTokenTypes.GT) {
+                        dr.depth--;
+                    }
+                    else if (token.getType() == JavaTokenTypes.SR) {
+                        dr.depth -= 2;
+                    }
+                    else if (token.getType() == JavaTokenTypes.BSR) {
+                        dr.depth -= 3;
+                    }
+                }
+                else if (token.getType() == JavaTokenTypes.COMMA) {
+                    ttokens.add(token);
+                }
+                else {
+                    if (! speculative) {
+                        error("Expected '>' to close type parameter list");
+                    }
+                    tokenStream.pushBack(token);
+                    return false;
+                }
+            }
+            return true;
+        }
+        catch (TokenStreamException tse) {
+            tse.printStackTrace();
+            return false;
+        }
+    }
+
+    // TODO comments
+    private boolean parseTargType(boolean speculative, List<LocatableToken> ttokens, DepthRef dr)
+    {
+        try {
+            int beginDepth = dr.depth;
+            int ttype = parseBaseType(speculative, ttokens);
+            if (ttype == TYPE_ERROR) {
+                return false;
+            }
+
+            if (ttype == TYPE_OTHER) {
+                // May be type parameters
+                if (tokenStream.LA(1).getType() == JavaTokenTypes.LT) {
+                    dr.depth++;
+                    ttokens.add(tokenStream.nextToken());
+                    if (!parseTpars(speculative, ttokens, dr)) {
+                        return false;
+                    }
+                    if (dr.depth < beginDepth) {
+                        return true;
+                    }
+                }
+
+                LocatableToken token = tokenStream.nextToken();
+                if (token.getType() == JavaTokenTypes.DOT && tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
+                    ttokens.add(token);
+                    if (!parseTargType(speculative, ttokens, dr)) {
+                        return false;
+                    }
+                }
+                else 
+                    // Array declarators?
+                    while (token.getType() == JavaTokenTypes.LBRACK
+                            && tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
+                        ttokens.add(token);
+                        token = tokenStream.nextToken(); // RBRACK
+                        ttokens.add(token);
+                        token = tokenStream.nextToken();
+                    }
+
+                tokenStream.pushBack(token);
+            }
+
+            return true;
+        }
+        catch (TokenStreamException tse) {
+            tse.printStackTrace();
+            return false;
+        }
+    }
 	
-	private static final int TYPE_PRIMITIVE = 0;
-	private static final int TYPE_OTHER = 1;
-	private static final int TYPE_ERROR = 2;
-	
-	/**
-	 * Parse a type "base" - a primitive type or a class type without type parameters.
-	 * The type parameters may follow.
-	 * 
-	 * @param speculative
-	 * @param ttokens
-	 * @return
-	 * @throws TokenStreamException
-	 */
-	private int parseBaseType(boolean speculative, List<LocatableToken> ttokens)
-		throws TokenStreamException
-	{
-		LocatableToken token = tokenStream.nextToken();
-		if (isPrimitiveType(token)) {
-			// Ok, we have a base type
-			ttokens.add(token);
-			return TYPE_PRIMITIVE;
-		}
-		else {
-			if (token.getType() != JavaTokenTypes.IDENT) {
-				if (! speculative) {
-					error("Expected type identifier");
-				}
-				tokenStream.pushBack(token);
-				return TYPE_ERROR;
-			}
-
-			ttokens.addAll(parseDottedIdent(token));
-		}
-		return TYPE_OTHER;
-	}
-	
-	private boolean parseTpars(boolean speculative, List<LocatableToken> ttokens, DepthRef dr)
-	{
-		// We already have opening '<' and depth reflects this.
-		
-		try {
-
-			int beginDepth = dr.depth;
-			LocatableToken token;
-			boolean needBaseType = true;
-
-			while (dr.depth >= beginDepth) {
-
-				if (tokenStream.LA(1).getType() == JavaTokenTypes.QUESTION) {
-					// Wildcard
-					token = tokenStream.nextToken();
-					ttokens.add(token);
-					token = tokenStream.nextToken();
-					if (token.getType() == JavaTokenTypes.LITERAL_extends
-							|| token.getType() == JavaTokenTypes.LITERAL_super) {
-						ttokens.add(token);
-						needBaseType = true;
-					}
-					else {
-						tokenStream.pushBack(token);
-						needBaseType = false;
-					}
-				}
-
-				if (needBaseType) {
-					boolean r = parseTargType(speculative, ttokens, dr);
-					if (!r) {
-						return false;
-					}
-					if (dr.depth < beginDepth) {
-						break;
-					}
-				}
-				
-				token = tokenStream.nextToken();
-				// Type parameters being closed
-				if (token.getType() == JavaTokenTypes.GT
-						|| token.getType() == JavaTokenTypes.SR
-						|| token.getType() == JavaTokenTypes.BSR) {
-					ttokens.add(token);
-					if (token.getType() == JavaTokenTypes.GT) {
-						dr.depth--;
-					}
-					else if (token.getType() == JavaTokenTypes.SR) {
-						dr.depth -= 2;
-					}
-					else if (token.getType() == JavaTokenTypes.BSR) {
-						dr.depth -= 3;
-					}
-				}
-				else if (token.getType() == JavaTokenTypes.COMMA) {
-					ttokens.add(token);
-				}
-				else {
-					if (! speculative) {
-						error("Expected '>' to close type parameter list");
-					}
-					tokenStream.pushBack(token);
-					return false;
-				}
-			}
-			return true;
-		}
-		catch (TokenStreamException tse) {
-			tse.printStackTrace();
-			return false;
-		}
-	}
-	
-	// TODO comments
-	private boolean parseTargType(boolean speculative, List<LocatableToken> ttokens, DepthRef dr)
-	{
-		try {
-			int beginDepth = dr.depth;
-			int ttype = parseBaseType(speculative, ttokens);
-			if (ttype == TYPE_ERROR) {
-				return false;
-			}
-
-			if (ttype == TYPE_OTHER) {
-				// May be type parameters
-				if (tokenStream.LA(1).getType() == JavaTokenTypes.LT) {
-					dr.depth++;
-					ttokens.add(tokenStream.nextToken());
-					if (!parseTpars(speculative, ttokens, dr)) {
-						return false;
-					}
-					if (dr.depth < beginDepth) {
-						return true;
-					}
-				}
-				
-				LocatableToken token = tokenStream.nextToken();
-				if (token.getType() == JavaTokenTypes.DOT && tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
-					ttokens.add(token);
-					if (!parseTargType(speculative, ttokens, dr)) {
-						return false;
-					}
-				}
-				else 
-				// Array declarators?
-				while (token.getType() == JavaTokenTypes.LBRACK
-						&& tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
-					ttokens.add(token);
-					token = tokenStream.nextToken(); // RBRACK
-					ttokens.add(token);
-					token = tokenStream.nextToken();
-				}
-				
-				tokenStream.pushBack(token);
-			}
-			
-			return true;
-		}
-		catch (TokenStreamException tse) {
-			tse.printStackTrace();
-			return false;
-		}
-	}
-	
-	/**
-	 * Parse a dotted identifier. This could be a variable, method or type name.
-	 * @param first The first token in the dotted identifier (should be an IDENT)
-	 * @return A list of tokens making up the dotted identifier
-	 */
-	public List<LocatableToken> parseDottedIdent(LocatableToken first)
-	{
-		List<LocatableToken> rval = new LinkedList<LocatableToken>();
-		rval.add(first);
-		try {
-			LocatableToken token = tokenStream.nextToken();
-			while (token.getType() == JavaTokenTypes.DOT) {
-				LocatableToken ntoken = tokenStream.nextToken();
-				if (ntoken.getType() != JavaTokenTypes.IDENT) {
-					// This could be for example "xyz.class"
-					tokenStream.pushBack(ntoken);
-					break;
-				}
-				rval.add(token);
-				rval.add(ntoken);
-				token = tokenStream.nextToken();
-			}
-			tokenStream.pushBack(token);
-		} catch (TokenStreamException e) {
-			e.printStackTrace();
-		}
-		return rval;
-	}
+    /**
+     * Parse a dotted identifier. This could be a variable, method or type name.
+     * @param first The first token in the dotted identifier (should be an IDENT)
+     * @return A list of tokens making up the dotted identifier
+     */
+    public List<LocatableToken> parseDottedIdent(LocatableToken first)
+    {
+        List<LocatableToken> rval = new LinkedList<LocatableToken>();
+        rval.add(first);
+        try {
+            LocatableToken token = tokenStream.nextToken();
+            while (token.getType() == JavaTokenTypes.DOT) {
+                LocatableToken ntoken = tokenStream.nextToken();
+                if (ntoken.getType() != JavaTokenTypes.IDENT) {
+                    // This could be for example "xyz.class"
+                    tokenStream.pushBack(ntoken);
+                    break;
+                }
+                rval.add(token);
+                rval.add(ntoken);
+                token = tokenStream.nextToken();
+            }
+            tokenStream.pushBack(token);
+        } catch (TokenStreamException e) {
+            e.printStackTrace();
+        }
+        return rval;
+    }
 	
 	/**
 	 * Check whether a token is an operator. Note that the LPAREN token can be an operator

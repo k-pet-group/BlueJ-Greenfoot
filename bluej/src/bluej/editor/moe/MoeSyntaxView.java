@@ -66,7 +66,7 @@ import bluej.prefmgr.PrefMgr;
  * @author Michael Kolling
  * @author Davin McCall
  *
- * @version $Id: MoeSyntaxView.java 6567 2009-08-27 05:59:10Z davmac $
+ * @version $Id: MoeSyntaxView.java 6577 2009-08-28 06:26:08Z davmac $
  */
 
 public class MoeSyntaxView extends BlueJSyntaxView
@@ -249,7 +249,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
                         if (napPos > ls) {
                             int nwsb = findNonWhitespaceBwards(thisLineSeg,
                                     napPos - ls - 1,
-                                    0) + 1;
+                                    -1) + 1;
                             nws = Math.min(nws, nwsb);
                         }
                         else {
@@ -438,6 +438,11 @@ public class MoeSyntaxView extends BlueJSyntaxView
         
         Rectangle clip = g.getClipBounds();
         
+        // Left margin
+        g.setColor(new Color(240, 240, 240));
+        g.drawLine(bounds.x + LEFT_MARGIN - 1, clip.y, bounds.x + LEFT_MARGIN - 1, clip.y + clip.height);
+        
+        // Scope highlighting
         int spos = viewToModel(bounds.x, clip.y, allocation, new Position.Bias[1]);
         int epos = viewToModel(bounds.x, clip.y + clip.height - 1, allocation, new Position.Bias[1]);
         
@@ -445,10 +450,6 @@ public class MoeSyntaxView extends BlueJSyntaxView
         int firstLine = map.getElementIndex(spos);
         int lastLine = map.getElementIndex(epos);
         paintScopeMarkers(g, (MoeSyntaxDocument) getDocument(), allocation, firstLine, lastLine);
-        
-        // Left margin
-        g.setColor(new Color(240, 240, 240));
-        g.drawLine(bounds.x + LEFT_MARGIN - 1, clip.y, bounds.x + LEFT_MARGIN - 1, clip.y + clip.height);
         
         // paint the lines
         super.paint(g, allocation);
