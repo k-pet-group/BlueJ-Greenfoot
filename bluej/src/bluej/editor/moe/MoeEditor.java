@@ -55,8 +55,6 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 
-import org.syntax.jedit.tokenmarker.JavaTokenMarker;
-
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.Config;
@@ -1620,8 +1618,8 @@ public final class MoeEditor extends JFrame
      * @return ArrayList list of flagged items
      */
     
-    private ArrayList getFlaggedActions(){
-    	
+    private ArrayList getFlaggedActions()
+    {
     	if (flaggedActions==null){
     		flaggedActions=new ArrayList<String>();
     		flaggedActions.add("save");
@@ -1642,10 +1640,7 @@ public final class MoeEditor extends JFrame
     		flaggedActions.add("go-to-line");
     		flaggedActions.add("paste-from-clipboard");
     		flaggedActions.add("toggle-breakpoint");
-
-    	
     	}
-    	
     	
     	return flaggedActions;
     
@@ -1742,53 +1737,50 @@ public final class MoeEditor extends JFrame
      * 
      * @param sourceView true if called from source view setup; false from documentation view setup
      */
-    private void resetMenuToolbar(boolean sourceView){
-    	  boolean canUndo=false;
-    	  boolean canRedo=false;
-    	  displayMenubar(sourceView);
-          displayToolbar(sourceView);
-          //if the view is source view need to decide whether to display 
-          //the undo and redo according to the undoManager; if it
-          //is the documentation view then they are always disabled
-          if (sourceView){
-        	  if (undoManager.canUndo())
-          		canUndo=true;   
-        	  if (undoManager.canRedo())
-        		canRedo=true;
-          }
-          displayMenuItem("undo", canUndo);
-          displayToolbarItem("undo", canUndo);
-          displayMenuItem("redo", canRedo);
-          displayToolbarItem("redo", canRedo);
-    	
+    private void resetMenuToolbar(boolean sourceView)
+    {
+        boolean canUndo=false;
+        boolean canRedo=false;
+        displayMenubar(sourceView);
+        displayToolbar(sourceView);
+        //if the view is source view need to decide whether to display 
+        //the undo and redo according to the undoManager; if it
+        //is the documentation view then they are always disabled
+        if (sourceView){
+            if (undoManager.canUndo())
+                canUndo=true;   
+            if (undoManager.canRedo())
+                canRedo=true;
+        }
+        displayMenuItem("undo", canUndo);
+        displayToolbarItem("undo", canUndo);
+        displayMenuItem("redo", canRedo);
+        displayToolbarItem("redo", canRedo);
     }
+    
     /**
      * This method changes the display of the menubar based on the interface that is selected
      * 
      * @param sourceView true if called from sourceView setup; false from documentation View setup
      */
-    
-    private void displayMenubar(boolean sourceView){
-    	    	
-    	JMenuBar menuBar=(JMenuBar) getJMenuBar(); 
-    	JMenu menu=null;
-    	Component[] menubarComponent = menuBar.getComponents();
-    	for (int i=0;i<menubarComponent.length; i++ ){
-    			if (menubarComponent[i] instanceof JMenu){
-    				menu=(JMenu)menubarComponent[i]; 
-    				for (int j=0; j<menu.getMenuComponentCount(); j++){
-    					if (menu.getMenuComponent(j) instanceof JMenuItem){
-    						if (isFlaggedAction(((JMenuItem)menu.getMenuComponent(j)).getName())){   				
-    							((JMenuItem)menu.getMenuComponent(j)).setEnabled(sourceView);
-    						}
-        				}
-    						
-    				}
-    				
-    				
-    			}
-    				
-    	}
+    private void displayMenubar(boolean sourceView)
+    {
+        JMenuBar menuBar=(JMenuBar) getJMenuBar(); 
+        JMenu menu=null;
+        Component[] menubarComponent = menuBar.getComponents();
+        for (int i=0;i<menubarComponent.length; i++ ){
+            if (menubarComponent[i] instanceof JMenu){
+                menu=(JMenu)menubarComponent[i]; 
+                for (int j=0; j<menu.getMenuComponentCount(); j++){
+                    if (menu.getMenuComponent(j) instanceof JMenuItem){
+                        if (isFlaggedAction(((JMenuItem)menu.getMenuComponent(j)).getName())){   				
+                            ((JMenuItem)menu.getMenuComponent(j)).setEnabled(sourceView);
+                        }
+                    }
+
+                }
+            }
+        }
     }
     
     /**
@@ -1796,69 +1788,58 @@ public final class MoeEditor extends JFrame
      * 
      * @param sourceView true if called from sourceView setup; false from documentation View setup
      */
-    
-    private void displayToolbar(boolean sourceView){
-    	
-    	JPanel toolbar=null;
-    	Component contentPaneItem;
-    	JButton actionButton;
-    	Component[] c = getContentPane().getComponents();
-    	for (int i=0;i<c.length; i++ ){
-    		contentPaneItem=c[i];
-    		if(contentPaneItem.getName()!=null && contentPaneItem.getName().equals("toolbar")) 
-    			toolbar=(JPanel)contentPaneItem;
-    	}
-    
-    	if (toolbar==null)
-    		return;
-    	Component[] toolbarComponent = toolbar.getComponents();
-    	for (int i=0;i<toolbarComponent.length; i++ ){
-    		if (toolbarComponent[i] instanceof JButton){   				
-    			actionButton=(JButton)toolbarComponent[i];
-    			if (isFlaggedAction(actionButton.getName())){
-    				actionButton.setEnabled(sourceView);
-    			}
-    				
-    		}
-    		
-    	}
+    private void displayToolbar(boolean sourceView)
+    {
+
+        JPanel toolbar=null;
+        Component contentPaneItem;
+        JButton actionButton;
+        Component[] c = getContentPane().getComponents();
+        for (int i=0;i<c.length; i++ ){
+            contentPaneItem=c[i];
+            if(contentPaneItem.getName()!=null && contentPaneItem.getName().equals("toolbar")) 
+                toolbar=(JPanel)contentPaneItem;
+        }
+
+        if (toolbar==null)
+            return;
+        Component[] toolbarComponent = toolbar.getComponents();
+        for (int i=0;i<toolbarComponent.length; i++ ) {
+            if (toolbarComponent[i] instanceof JButton) {   				
+                actionButton=(JButton)toolbarComponent[i];
+                if (isFlaggedAction(actionButton.getName())) {
+                    actionButton.setEnabled(sourceView);
+                }
+            }
+        }
     }
-    
+
     
     /**
      * This method changes the display of the menubar based on the interface that is selected
      * 
      * @param sourceView true if called from sourceView setup; false from documentation View setup
      */
-    
-    
-    /*
-     * Finds the menu item specified and enables or disables
-     */
-    private void displayMenuItem(String itemName, boolean sourceView){
-    	    	
-    	JMenuBar menuBar=(JMenuBar) getJMenuBar(); 
-    	JMenu menu=null;
-    	JMenuItem menuItem;
-    	Component[] menubarComponent = menuBar.getComponents();
-    	for (int i=0;i<menubarComponent.length; i++ ){
-    			if (menubarComponent[i] instanceof JMenu){
-    				menu=(JMenu)menubarComponent[i]; 
-    				for (int j=0; j<menu.getMenuComponentCount(); j++){
-    					if (menu.getMenuComponent(j) instanceof JMenuItem){
-    						menuItem=(JMenuItem)menu.getMenuComponent(j);
-    						if (menuItem.getName().equals(itemName)){   				
-    							menuItem.setEnabled(sourceView);
-    							return;
-    						}
-        				}
-    						
-    				}
-    				
-    				
-    			}
-    				
-    	}
+    private void displayMenuItem(String itemName, boolean sourceView)
+    {
+        JMenuBar menuBar=(JMenuBar) getJMenuBar(); 
+        JMenu menu=null;
+        JMenuItem menuItem;
+        Component[] menubarComponent = menuBar.getComponents();
+        for (int i=0;i<menubarComponent.length; i++ ){
+            if (menubarComponent[i] instanceof JMenu){
+                menu=(JMenu)menubarComponent[i]; 
+                for (int j=0; j<menu.getMenuComponentCount(); j++){
+                    if (menu.getMenuComponent(j) instanceof JMenuItem){
+                        menuItem=(JMenuItem)menu.getMenuComponent(j);
+                        if (menuItem.getName().equals(itemName)){   				
+                            menuItem.setEnabled(sourceView);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
     }
     
     /**
@@ -1866,32 +1847,32 @@ public final class MoeEditor extends JFrame
      * 
      * @param sourceView true if called from sourceView setup; false from documentation View setup
      */
-    
-    private void displayToolbarItem(String itemName, boolean sourceView){
-    	
-    	JPanel toolbar=null;
-    	Component contentPaneItem;
-    	Component[] c = getContentPane().getComponents();
-    	for (int i=0;i<c.length; i++ ){
-    		contentPaneItem=c[i];
-    		if(contentPaneItem.getName()!=null && contentPaneItem.getName().equals("toolbar")) 
-    			toolbar=(JPanel)contentPaneItem;
-    	}
-    
-    	if (toolbar==null)
-    		return;
-    	Component[] toolbarComponent = toolbar.getComponents();
-    	for (int i=0;i<toolbarComponent.length; i++ ){
-    		if (toolbarComponent[i] instanceof JButton){   				
-    			JButton actionButton=(JButton)toolbarComponent[i];
-    			if (actionButton.getName().equals(itemName)){
-    				actionButton.setEnabled(sourceView);
-    				return;
-    			}
-    				
-    		}
-    		
-    	}
+    private void displayToolbarItem(String itemName, boolean sourceView)
+    {
+        JPanel toolbar=null;
+        Component contentPaneItem;
+        Component[] c = getContentPane().getComponents();
+        for (int i=0;i<c.length; i++ ){
+            contentPaneItem=c[i];
+            if(contentPaneItem.getName()!=null && contentPaneItem.getName().equals("toolbar")) { 
+                toolbar=(JPanel)contentPaneItem;
+            }
+        }
+
+        if (toolbar==null) {
+            return;
+        }
+        
+        Component[] toolbarComponent = toolbar.getComponents();
+        for (int i=0;i<toolbarComponent.length; i++ ){
+            if (toolbarComponent[i] instanceof JButton){   				
+                JButton actionButton=(JButton)toolbarComponent[i];
+                if (actionButton.getName().equals(itemName)){
+                    actionButton.setEnabled(sourceView);
+                    return;
+                }
+            }
+        }
     }
     
     /**
@@ -1903,9 +1884,6 @@ public final class MoeEditor extends JFrame
      */
     private void displayInterface()
     {
-    	
-        	
-    	
         info.message(Config.getString("editor.info.loadingDoc"));
         boolean generateDoc = ! docUpToDate();
         
@@ -1920,8 +1898,6 @@ public final class MoeEditor extends JFrame
         else if (! generateDoc) {
             info.message(Config.getString("editor.info.docLoaded"));
         }
-
-       
         
         if (generateDoc) {
             // clear the existing document
