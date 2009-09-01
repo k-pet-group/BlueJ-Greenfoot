@@ -44,7 +44,9 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.event.*;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
@@ -106,8 +108,8 @@ public final class MoeEditor extends JFrame
     public static Font printFont = new Font("Monospaced", Font.PLAIN, printFontSize);
 
     // Strings
-    String implementationString = Config.getString("editor.implementationLabel");
-    String interfaceString = Config.getString("editor.interfaceLabel");
+    private final String implementationString = Config.getString("editor.implementationLabel");
+    private final String interfaceString = Config.getString("editor.interfaceLabel");
 
     // suffixes for resources
     final static String LabelSuffix = "Label";
@@ -116,13 +118,15 @@ public final class MoeEditor extends JFrame
     final static String AcceleratorSuffix = "Accelerator";
 
     // file suffixes
-    final static String CRASHFILE_SUFFIX = "#";
-    final static String BACKUP_SUFFIX = "~";
+    private final static String CRASHFILE_SUFFIX = "#";
+    private final static String BACKUP_SUFFIX = "~";
 
-    final static String spaces = "    ";
-
+    // other
     final static String COMPILED = "compiled";
+    private final static int NAVIVIEW_WIDTH = 50;       // width of the "naviview" (min-source) box
 
+    // -------- CLASS VARIABLES --------
+    
     private static boolean matchBrackets = false;
 
     // -------- INSTANCE VARIABLES --------
@@ -150,6 +154,7 @@ public final class MoeEditor extends JFrame
     private GoToLineDialog goToLineDialog;
 
     private JScrollPane scrollPane;
+    private JPanel naviView;                // Navigation view (mini-source view)
     private JComponent toolbar;             // The toolbar
 
     private String filename;                // name of file or null
@@ -1655,6 +1660,7 @@ public final class MoeEditor extends JFrame
             return;
         }
         resetMenuToolbar(true);
+        naviView.setVisible(true);
         document = sourceDocument;
         currentTextPane = sourcePane;
         viewingHTML = false;
@@ -1674,6 +1680,7 @@ public final class MoeEditor extends JFrame
             return;
         }
         resetMenuToolbar(false);
+        naviView.setVisible(false);
         try {
             save();
             displayInterface();
@@ -1981,6 +1988,7 @@ public final class MoeEditor extends JFrame
     }
 
     // --------------------------------------------------------------------
+    
     /**
      * Toggle a breakpoint at a given position.
      */
@@ -2454,11 +2462,21 @@ public final class MoeEditor extends JFrame
         // default showing:
         currentTextPane = sourcePane;
         
+        JPanel editorPane = new JPanel();
+        editorPane.setLayout(new BoxLayout(editorPane, BoxLayout.X_AXIS));
+        editorPane.setPreferredSize(new Dimension(598, 400)); // TODO where does this come from??!
         scrollPane = new JScrollPane(currentTextPane);
-        scrollPane.setPreferredSize(new Dimension(598, 400));
+        //scrollPane.setPreferredSize(new Dimension(598, 400));
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         
-        contentPane.add(scrollPane, BorderLayout.CENTER);
+        naviView = new JPanel();
+        naviView.setPreferredSize(new Dimension(NAVIVIEW_WIDTH, 0));
+        naviView.setMaximumSize(new Dimension(NAVIVIEW_WIDTH, Integer.MAX_VALUE));
+        naviView.setBorder(LineBorder.createBlackLineBorder());
+        
+        editorPane.add(scrollPane);
+        editorPane.add(naviView);
+        contentPane.add(editorPane, BorderLayout.CENTER);
 
         // get table of edit actions
 

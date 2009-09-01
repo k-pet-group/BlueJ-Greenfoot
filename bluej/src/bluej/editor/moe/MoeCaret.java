@@ -127,7 +127,7 @@ public class MoeCaret extends DefaultCaret
     }
 
     /**
-     * Fire a state canged event.
+     * Fire a state changed event.
      */
     protected void fireStateChanged()
     {
@@ -157,8 +157,7 @@ public class MoeCaret extends DefaultCaret
     }
      
     /**
-     * paint matching bracket if caret is directly after a bracket  
-     *
+     * Paint matching bracket if caret is directly after a bracket.  
      */
     public void paintMatchingBracket()
     {

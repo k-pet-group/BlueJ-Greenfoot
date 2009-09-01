@@ -52,7 +52,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 6552 2009-08-21 18:03:32Z polle $
+ * @version $Id: Utility.java 6583 2009-09-01 05:13:48Z davmac $
  */
 public class Utility
 {
@@ -595,15 +595,16 @@ public class Utility
     /**
      * Get the process ID of this process.
      */
-	public static String getProcessId() {
-		String pid = ManagementFactory.getRuntimeMXBean().getName();
+    public static String getProcessId()
+    {
+        String pid = ManagementFactory.getRuntimeMXBean().getName();
         // Strip the host name from the pid.
         int atIndex = pid.indexOf("@");
         if (atIndex != -1) {
             pid = pid.substring(0, atIndex);
         }
-		return pid;
-	}
+        return pid;
+    }
 
    
     /**
