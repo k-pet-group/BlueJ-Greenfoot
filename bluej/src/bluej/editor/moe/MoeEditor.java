@@ -154,7 +154,7 @@ public final class MoeEditor extends JFrame
     private GoToLineDialog goToLineDialog;
 
     private JScrollPane scrollPane;
-    private JPanel naviView;                // Navigation view (mini-source view)
+    private NaviView naviView;                // Navigation view (mini-source view)
     private JComponent toolbar;             // The toolbar
 
     private String filename;                // name of file or null
@@ -272,6 +272,7 @@ public final class MoeEditor extends JFrame
                 lastModified = file.lastModified();
 
                 sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
+                naviView.setDocument(sourceDocument);
 
                 // set TokenMarker for syntax highlighting if desired
                 checkSyntaxStatus();
@@ -2154,16 +2155,6 @@ public final class MoeEditor extends JFrame
 
     // --------------------------------------------------------------------
     /**
-     * Return the number of the current line.
-     */
-    //    private int getCurrentLineNo()
-    //    {
-    //        return document.getDefaultRootElement().getElementIndex(
-    //                                   currentTextPane.getCaretPosition()) + 1;
-    //    }
-
-    // --------------------------------------------------------------------
-    /**
      * Return the number of the line containing position 'pos'.
      */
     private int getLineNumberAt(int pos)
@@ -2187,6 +2178,7 @@ public final class MoeEditor extends JFrame
             lastModified = file.lastModified();
 
             sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
+            naviView.setDocument(sourceDocument);
             
             // flag document type as a java file by associating a
             // JavaTokenMarker for syntax colouring if specified
@@ -2410,8 +2402,6 @@ public final class MoeEditor extends JFrame
 
         JPanel contentPane = new JPanel(new BorderLayout(6,6));
         contentPane.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
-        //contentPane.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
-        //contentPane.setBackground(frameBgColor);
         setContentPane(contentPane);
 
         // create and add info and status areas
@@ -2450,7 +2440,7 @@ public final class MoeEditor extends JFrame
 
         sourcePane.setDocument(sourceDocument);
         sourcePane.setCaretPosition(0);
-        sourcePane.setMargin(new Insets(2, 2, 2, 2));
+        sourcePane.setMargin(new Insets(2, 0, 2, 0));
         sourcePane.setOpaque(true);
         sourcePane.setEditorKit(kit);
         moeCaret = new MoeCaret(this);
@@ -2466,10 +2456,9 @@ public final class MoeEditor extends JFrame
         editorPane.setLayout(new BoxLayout(editorPane, BoxLayout.X_AXIS));
         editorPane.setPreferredSize(new Dimension(598, 400)); // TODO where does this come from??!
         scrollPane = new JScrollPane(currentTextPane);
-        //scrollPane.setPreferredSize(new Dimension(598, 400));
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         
-        naviView = new JPanel();
+        naviView = new NaviView(sourceDocument, scrollPane.getVerticalScrollBar());
         naviView.setPreferredSize(new Dimension(NAVIVIEW_WIDTH, 0));
         naviView.setMaximumSize(new Dimension(NAVIVIEW_WIDTH, Integer.MAX_VALUE));
         naviView.setBorder(LineBorder.createBlackLineBorder());
