@@ -55,7 +55,7 @@ import org.syntax.jedit.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: BlueJSyntaxView.java 6567 2009-08-27 05:59:10Z davmac $
+ * @version $Id: BlueJSyntaxView.java 6581 2009-09-01 04:13:37Z davmac $
  */
 
 public abstract class BlueJSyntaxView extends PlainView
@@ -153,11 +153,11 @@ public abstract class BlueJSyntaxView extends PlainView
 
     /**
      * Draw a line for this view, including the tag mark.
-	 */
-	public abstract void paintTaggedLine(Segment line, int lineIndex, Graphics g, int x, int y, 
+     */
+    public abstract void paintTaggedLine(Segment line, int lineIndex, Graphics g, int x, int y, 
             MoeSyntaxDocument document, Color def, Element lineElement);
 
-	/**
+    /**
      * Draw the line number in front of the line
      */
     protected void drawLineNumber(Graphics g, int lineNumber, int x, int y)

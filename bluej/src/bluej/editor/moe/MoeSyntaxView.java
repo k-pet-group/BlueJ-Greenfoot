@@ -66,7 +66,7 @@ import bluej.prefmgr.PrefMgr;
  * @author Michael Kolling
  * @author Davin McCall
  *
- * @version $Id: MoeSyntaxView.java 6577 2009-08-28 06:26:08Z davmac $
+ * @version $Id: MoeSyntaxView.java 6581 2009-09-01 04:13:37Z davmac $
  */
 
 public class MoeSyntaxView extends BlueJSyntaxView
@@ -127,6 +127,15 @@ public class MoeSyntaxView extends BlueJSyntaxView
         Color c2 = new Color(245, 253, 245); // green wash
         Color c3 = new Color(230, 240, 230); // green border (inner).
         Color c4 = new Color(255, 255, 255); // white wash
+        
+        Color m1 = new Color(230, 230, 210); // yellow border (methods)
+        Color m2 = new Color(253, 253, 245); // yellow wash
+        
+        Color s1 = new Color(215, 215, 230); // blue border (selection)
+        Color s2 = new Color(245, 245, 253); // bluej wash
+        
+        Color i1 = new Color(230, 210, 230);
+        Color i2 = new Color(253, 245, 253);
         
         int aboveLine = firstLine - 1;
         List<NodeAndPosition> prevScopeStack = new LinkedList<NodeAndPosition>();
@@ -273,15 +282,30 @@ public class MoeSyntaxView extends BlueJSyntaxView
                     }                   
                     int scopeRightX = fullWidth - rightMargin;
                     if (nap.getNode().isContainer()) {
+                        Color color1 = c1;
+                        Color color2 = c2;
+                        if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_METHODDEF) {
+                            color1 = m1;
+                            color2 = m2;
+                        }
+                        else if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_ITERATION) {
+                            color1 = i1;
+                            color2 = i2;
+                        }
+                        else if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_SELECTION) {
+                            color1 = s1;
+                            color2 = s2;
+                        }
+                        
                         int xpos = lbounds.x + char_width * indent - 2;
                         if (nws != 0) {
                              xpos = Math.max(xpos, modelToView(thisLineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds().x - 2);
                         }
                         
-                        g.setColor(c2);
+                        g.setColor(color2);
                         g.fillRect(xpos + 1, ypos, scopeRightX - xpos - 1, ypos2 - ypos);
                         
-                        g.setColor(c1);
+                        g.setColor(color1);
                         if(startsThisLine) {
                             // Top edge
                             g.drawLine(xpos, ypos, scopeRightX, ypos);

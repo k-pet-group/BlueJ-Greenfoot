@@ -20,4 +20,10 @@ public class MethodNode extends ParentParsedNode
     {
         return true;
     }
+    
+    @Override
+    public int getNodeType()
+    {
+        return ParsedNode.NODETYPE_METHODDEF;
+    }
 }
