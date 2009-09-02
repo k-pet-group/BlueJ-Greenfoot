@@ -70,7 +70,6 @@ public class NaviView extends JComponent implements AdjustmentListener, Document
         return "Pos: " + event.getY();
     }
     
-    @Override
     public void adjustmentValueChanged(AdjustmentEvent e)
     {
         // The scrollbar position changed
@@ -113,12 +112,10 @@ public class NaviView extends JComponent implements AdjustmentListener, Document
         }
     }
     
-    @Override
     public void changedUpdate(DocumentEvent e)
     {
     }
     
-    @Override
     public void insertUpdate(DocumentEvent e)
     {
         int offset = e.getOffset();
@@ -134,7 +131,6 @@ public class NaviView extends JComponent implements AdjustmentListener, Document
         repaint(0l, 0, firstLine + getInsets().top, getWidth(), lastLine - firstLine + 1);
     }
     
-    @Override
     public void removeUpdate(DocumentEvent e)
     {
         int offset = e.getOffset();
