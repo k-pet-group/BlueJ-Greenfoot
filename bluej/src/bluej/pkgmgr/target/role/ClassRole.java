@@ -55,7 +55,7 @@ import bluej.views.ViewFilter;
  * class types
  * 
  * @author Bruce Quig
- * @version $Id: ClassRole.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ClassRole.java 6593 2009-09-02 11:56:05Z davmac $
  */
 public abstract class ClassRole
 {
@@ -127,7 +127,7 @@ public abstract class ClassRole
      */
     public boolean generateSkeleton(String template, Package pkg, String name, String sourceFile)
     {
-        Hashtable translations = new Hashtable();
+        Hashtable<String,String> translations = new Hashtable<String,String>();
         translations.put("CLASSNAME", name);
 
         if (pkg.isUnnamedPackage())
@@ -196,7 +196,7 @@ public abstract class ClassRole
      * 
      * @return true if any menu items have been added
      */
-    public boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, Class cl, int state)
+    public boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl, int state)
     {
         return false;
     }
