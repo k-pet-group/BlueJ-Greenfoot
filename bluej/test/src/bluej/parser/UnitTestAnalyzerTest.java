@@ -89,7 +89,7 @@ public class UnitTestAnalyzerTest extends junit.framework.TestCase
      */
     public void testFindingVariables()
     {
-       java.util.List variables = uta.getFieldSpans();
+       java.util.List<SourceSpan> variables = uta.getFieldSpans();
 
        SourceSpan xSpan = (SourceSpan) variables.get(0);
        assertEquals(5, xSpan.getStartLine());
@@ -110,22 +110,22 @@ public class UnitTestAnalyzerTest extends junit.framework.TestCase
        assertEquals(26, testXXXSpan.getEndColumn());
     } 
 
-	public void testFindingMethods()
-	{
-	    SourceSpan setUpSpan = uta.getMethodBlockSpan("setUp");
+    public void testFindingMethods()
+    {
+        SourceSpan setUpSpan = uta.getMethodBlockSpan("setUp");
 
-	    assertEquals(19, setUpSpan.getStartLine());
-	    assertEquals(5, setUpSpan.getStartColumn());
-	    assertEquals(21, setUpSpan.getEndLine());
-	    assertEquals(5, setUpSpan.getEndColumn());
+        assertEquals(19, setUpSpan.getStartLine());
+        assertEquals(5, setUpSpan.getStartColumn());
+        assertEquals(21, setUpSpan.getEndLine());
+        assertEquals(5, setUpSpan.getEndColumn());
 
-	    SourceSpan testXXXSpan = uta.getMethodBlockSpan("testXXX");
-   
-	    assertEquals(30, testXXXSpan.getStartLine());
-	    assertEquals(5, testXXXSpan.getStartColumn());
-	    assertEquals(32, testXXXSpan.getEndLine());
-	    assertEquals(6, testXXXSpan.getEndColumn());
-	}
+        SourceSpan testXXXSpan = uta.getMethodBlockSpan("testXXX");
+
+        assertEquals(30, testXXXSpan.getStartLine());
+        assertEquals(5, testXXXSpan.getStartColumn());
+        assertEquals(32, testXXXSpan.getEndLine());
+        assertEquals(6, testXXXSpan.getEndColumn());
+    }
     
     public void testMethodInsertion()
     {

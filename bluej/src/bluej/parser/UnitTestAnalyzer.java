@@ -24,8 +24,6 @@ package bluej.parser;
 import java.io.Reader;
 import java.util.*;
 
-import antlr.*;
-import antlr.collections.AST;
 //import bluej.parser.ast.*;
 //import bluej.parser.ast.gen.*;
 
@@ -185,46 +183,7 @@ public class UnitTestAnalyzer
      */
     public SourceSpan getMethodBlockSpan(String methodName)
     {
-        // the children in an object block are a list of variable defs and method defs
-//        for(LocatableAST childAST = (LocatableAST) (findUnitTestObjectBlock()).getFirstChild();
-//            childAST != null;
-//            childAST = (LocatableAST) childAST.getNextSibling()){
-//            
-//            // we are only interested in method definitions
-//            if(childAST.getType() != UnitTestParserTokenTypes.METHOD_DEF)
-//                continue;
-//
-//            // a METHOD_DEF with no actual parameters looks like this
-//            // ( METHOD_DEF ( methodName PARAMETERS ) { } COMMENT_DEF )
-//            LocatableAST nameAST = null;
-//
-//            // first sibling is the method name
-//            // we make sure that it is the method we are looking for
-//            nameAST = (LocatableAST) childAST.getFirstChild();
-//            if(nameAST == null || !nameAST.getText().equals(methodName))
-//                continue;
-//
-//            // the first child of the name AST is the parameter block
-//            LocatableAST parameterAST = (LocatableAST) nameAST.getFirstChild();
-//
-//            // make sure our paramter list is empty
-//            if (parameterAST.getFirstChild() != null)
-//                continue;
-//
-//            LocatableAST openBracketAST = (LocatableAST) nameAST.getNextSibling();
-//            if (openBracketAST == null)
-//                continue;
-//                
-//            LocatableAST closeBracketAST = (LocatableAST) openBracketAST.getNextSibling();
-//            if(closeBracketAST == null)
-//                continue;
-//
-//            return new SourceSpan(new SourceLocation(openBracketAST.getLine(),
-//                                                     openBracketAST.getColumn()),
-//                                new SourceLocation(closeBracketAST.getLine(),
-//                                                   closeBracketAST.getColumn()));
-//        }            
-        return null;
+        return utp.getMethodBlockSpan(methodName);
     }
 
     /**
@@ -236,9 +195,7 @@ public class UnitTestAnalyzer
      */
     public SourceLocation getFixtureInsertLocation()
     {
-//        LocatableAST a = findUnitTestOpeningBracket();
-//        return new SourceLocation(a.getLine(),a.getColumn());
-        return null;
+        return utp.getFixtureInsertLocation();
     }
 
     /**
@@ -249,9 +206,7 @@ public class UnitTestAnalyzer
      */
     public SourceLocation getNewMethodInsertLocation()
     {
-//        LocatableAST a = findUnitTestClosingBracket();
-//        return new SourceLocation(a.getLine(),a.getColumn());
-        return null;
+        return utp.getNewMethodInsertLocation();
     }
   
 }
