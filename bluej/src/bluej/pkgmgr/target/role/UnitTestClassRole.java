@@ -63,7 +63,7 @@ import bluej.utility.JavaNames;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: UnitTestClassRole.java 6592 2009-09-02 11:55:51Z davmac $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -123,22 +123,22 @@ public class UnitTestClassRole extends ClassRole
      * @param editorFrame the frame in which this targets package is displayed
      * @return the generated JPopupMenu
      */
-    public boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, Class cl, int state)
+    public boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl, int state)
     {
-		boolean enableTestAll = false;
-		
-		if (state == ClassTarget.S_NORMAL && cl != null && ! ct.isAbstract()) {
-			Method[] allMethods = cl.getMethods();
-		
-			for (int i=0; i < allMethods.length; i++) {
-				Method m = allMethods[i];
+        boolean enableTestAll = false;
 
-				if (isJUnitTestMethod(m)) {
-					enableTestAll = true;
-					break;
-				}
-			}
-		}
+        if (state == ClassTarget.S_NORMAL && cl != null && ! ct.isAbstract()) {
+            Method[] allMethods = cl.getMethods();
+
+            for (int i=0; i < allMethods.length; i++) {
+                Method m = allMethods[i];
+
+                if (isJUnitTestMethod(m)) {
+                    enableTestAll = true;
+                    break;
+                }
+            }
+        }
 
         // add run all tests option
         addMenuItem(menu, new TestAction(testAll, ct.getPackage().getEditor(),ct),
@@ -232,7 +232,7 @@ public class UnitTestClassRole extends ClassRole
      */
     public void doRunTest(PkgMgrFrame pmf, ClassTarget ct, TestRunnerThread trt)
     {
-        Class cl = pmf.getPackage().loadClass(ct.getQualifiedName());
+        Class<?> cl = pmf.getPackage().loadClass(ct.getQualifiedName());
         
         if (cl == null)
             return;
@@ -240,7 +240,7 @@ public class UnitTestClassRole extends ClassRole
         // Test the whole class
         Method[] allMethods = cl.getMethods();
         
-        ArrayList testMethods = new ArrayList();
+        ArrayList<String> testMethods = new ArrayList<String>();
         
         int testCount = 0;
         
@@ -267,7 +267,7 @@ public class UnitTestClassRole extends ClassRole
             return 0;
         }
         
-        Class cl = ct.getPackage().loadClass(ct.getQualifiedName());
+        Class<?> cl = ct.getPackage().loadClass(ct.getQualifiedName());
         if (cl == null) {
             return 0;
         }
@@ -469,8 +469,8 @@ public class UnitTestClassRole extends ClassRole
             UnitTestAnalyzer uta = analyzeUnitTest(ct);
 
             // iterate through all the declarations of fields (fixture items) in the class
-            List fixtureSpans = uta.getFieldSpans();
-            ListIterator it = fixtureSpans.listIterator();
+            List<SourceSpan> fixtureSpans = uta.getFieldSpans();
+            ListIterator<SourceSpan> it = fixtureSpans.listIterator();
                 
             while(it.hasNext()) {
                 SourceSpan variableSpan = (SourceSpan) it.next();
@@ -517,13 +517,14 @@ public class UnitTestClassRole extends ClassRole
             UnitTestAnalyzer uta = analyzeUnitTest(ct);
 
             // find all the fields declared in this unit test class
-            List variables = uta.getFieldSpans();
+            List<SourceSpan> variables = uta.getFieldSpans();
             
             // if we already have fields, ask if we are sure we want to get rid of them
             if (variables != null && variables.size() > 0) {
-				if (DialogManager.askQuestion(null, "unittest-fixture-present") == 1)
-					return;
-			}
+                if (DialogManager.askQuestion(null, "unittest-fixture-present") == 1) {
+                    return;
+                }
+            }
 
             // if we have fields, we need to nuke them
             // we need to make sure we delete these in reverse order (from the last
@@ -531,7 +532,7 @@ public class UnitTestClassRole extends ClassRole
             // numbers for the following ones
             if (variables != null) {
                 // start iterating from the last element
-                ListIterator it = variables.listIterator(variables.size());
+                ListIterator<SourceSpan> it = variables.listIterator(variables.size());
                 
                 while(it.hasPrevious()) {
                     SourceSpan variableSpan = (SourceSpan) it.previous();
@@ -587,8 +588,8 @@ public class UnitTestClassRole extends ClassRole
         
         pmf.getPackage().compileQuiet(ct);
         
-		pmf.getProject().removeClassLoader();
-		pmf.getProject().newRemoteClassLoaderLeavingBreakpoints();
+        pmf.getProject().removeClassLoader();
+        pmf.getProject().newRemoteClassLoaderLeavingBreakpoints();
     }
     
     /**
