@@ -60,7 +60,8 @@ import bluej.debugmgr.ValueCollection;
 import bluej.editor.moe.BlueJSyntaxView;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.MoeSyntaxEditorKit;
-import bluej.parser.TextParser;
+import bluej.parser.TextAnalyzer;
+import bluej.parser.TextAnalyzer.DeclaredVar;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
@@ -73,7 +74,7 @@ import bluej.utility.Utility;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 6587 2009-09-02 05:07:36Z davmac $
+ * @version $Id: TextEvalPane.java 6595 2009-09-02 14:30:49Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ValueCollection, ResultWatcher, MouseMotionListener
@@ -92,7 +93,7 @@ public class TextEvalPane extends JEditorPane
     private String currentCommand = "";
     private IndexHistory history;
     private Invoker invoker = null;
-    private TextParser textParser = null;
+    private TextAnalyzer textParser = null;
     private boolean firstTry;
     private boolean wrappedResult;
     private boolean mouseInTag = false;
@@ -100,9 +101,9 @@ public class TextEvalPane extends JEditorPane
     private boolean busy = false;
     private Action softReturnAction;
     
-    private List localVars = new ArrayList();
-    private List newlyDeclareds;
-    private List autoInitializedVars;
+    private List<CodepadVar> localVars = new ArrayList<CodepadVar>();
+    private List<CodepadVar> newlyDeclareds;
+    private List<String> autoInitializedVars;
 
     public TextEvalPane(PkgMgrFrame frame)
     {
@@ -185,7 +186,7 @@ public class TextEvalPane extends JEditorPane
     
     //   --- ValueCollection interface ---
     
-    public Iterator getValueIterator()
+    public Iterator<CodepadVar> getValueIterator()
     {
         return localVars.iterator();
     }
@@ -209,7 +210,7 @@ public class TextEvalPane extends JEditorPane
      */
     private NamedValue getLocalVar(String name)
     {
-        Iterator i = localVars.iterator();
+        Iterator<CodepadVar> i = localVars.iterator();
         while (i.hasNext()) {
             NamedValue nv = (NamedValue) i.next();
             if (nv.getName().equals(name))
@@ -233,7 +234,7 @@ public class TextEvalPane extends JEditorPane
         
         // Newly declared variables are now initialized
         if (newlyDeclareds != null) {
-            Iterator i = newlyDeclareds.iterator();
+            Iterator<CodepadVar> i = newlyDeclareds.iterator();
             while (i.hasNext()) {
                 CodepadVar cpv = (CodepadVar) i.next();
                 cpv.setInitialized();
@@ -364,7 +365,7 @@ public class TextEvalPane extends JEditorPane
     private void removeNewlyDeclareds()
     {
         if (newlyDeclareds != null) {
-            Iterator i = newlyDeclareds.iterator();
+            Iterator<CodepadVar> i = newlyDeclareds.iterator();
             while (i.hasNext()) {
                 localVars.remove(i.next());
             }
@@ -803,25 +804,25 @@ public class TextEvalPane extends JEditorPane
                 setEditable(false);    // don't allow input while we're thinking
                 busy = true;
                 if (textParser == null)
-                    textParser = new TextParser(frame.getProject().getClassLoader(), frame.getPackage().getQualifiedName(), TextEvalPane.this);
+                    textParser = new TextAnalyzer(frame.getProject().getClassLoader(), frame.getPackage().getQualifiedName(), TextEvalPane.this);
                 String retType = textParser.parseCommand(currentCommand);
                 wrappedResult = (retType != null && retType.length() != 0);
                 
                 // see if any variables were declared
                 if (retType == null) {
                     currentCommand = textParser.getAmendedCommand();
-                    List declaredVars = textParser.getDeclaredVars();
+                    List<DeclaredVar> declaredVars = textParser.getDeclaredVars();
                     if (declaredVars != null) {
-                        Iterator i = textParser.getDeclaredVars().iterator();
+                        Iterator<DeclaredVar> i = declaredVars.iterator();
                         while (i.hasNext()) {
                             if (newlyDeclareds == null) {
-                                newlyDeclareds = new ArrayList();
+                                newlyDeclareds = new ArrayList<CodepadVar>();
                             }
                             if (autoInitializedVars == null) {
-                                autoInitializedVars = new ArrayList();
+                                autoInitializedVars = new ArrayList<String>();
                             }
                             
-                            TextParser.DeclaredVar dv = (TextParser.DeclaredVar) i.next();
+                            TextAnalyzer.DeclaredVar dv = (TextAnalyzer.DeclaredVar) i.next();
                             String declaredName = dv.getName();
                             
                             if (getLocalVar(declaredName) != null) {

@@ -30,14 +30,14 @@ import bluej.debugmgr.objectbench.ObjectBench;
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: TextParserTest.java 6595 2009-09-02 14:30:49Z davmac $
  */
 public class TextParserTest extends TestCase
 {
     public void testVoidResult()
     {
         ObjectBench ob = new ObjectBench();
-        TextParser tp = new TextParser(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
         String r = tp.parseCommand("System.out.println(\"no comment\");");
         assertNull(r);
     }
@@ -45,7 +45,7 @@ public class TextParserTest extends TestCase
     public void testArithmeticPromotion()
     {
         ObjectBench ob = new ObjectBench();
-        TextParser tp = new TextParser(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
         String r = tp.parseCommand("2+3");
         assertEquals("int", r);
         r = tp.parseCommand("2.0+3");
@@ -57,7 +57,7 @@ public class TextParserTest extends TestCase
     public void testCasting()
     {
         ObjectBench ob = new ObjectBench();
-        TextParser tp = new TextParser(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
         String r = tp.parseCommand("(String)s");
         assertEquals("java.lang.String", r);
     }
@@ -65,7 +65,7 @@ public class TextParserTest extends TestCase
     public void testStaticMethodCall()
     {
         ObjectBench ob = new ObjectBench();
-        TextParser tp = new TextParser(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
         String r = tp.parseCommand("javax.swing.BorderFactory.createEmptyBorder()");
         assertEquals("javax.swing.border.Border", r);
     }
@@ -73,7 +73,7 @@ public class TextParserTest extends TestCase
     public void testStaticVariable()
     {
         ObjectBench ob = new ObjectBench();
-        TextParser tp = new TextParser(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
         String r = tp.parseCommand("System.out");
         assertEquals("java.io.PrintStream", r);
         r = tp.parseCommand("java.lang.System.out");
@@ -83,7 +83,7 @@ public class TextParserTest extends TestCase
     public void testNewInnerClass()
     {
         ObjectBench ob = new ObjectBench();
-        TextParser tp = new TextParser(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
         String r = tp.parseCommand("javax.swing.Box.new Filler()");
         assertEquals("javax.swing.Box.Filler", r);
     } 
@@ -91,7 +91,7 @@ public class TextParserTest extends TestCase
     public void testCastToWildcard()
     {
         ObjectBench ob = new ObjectBench();
-        TextParser tp = new TextParser(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
         String r = tp.parseCommand("(java.util.LinkedList<?>) new java.util.LinkedList<Thread>()");
         assertEquals("java.util.LinkedList<?>", r);
     }
@@ -99,11 +99,11 @@ public class TextParserTest extends TestCase
     public void testArrayDeclaration()
     {
         ObjectBench ob = new ObjectBench();
-        TextParser tp = new TextParser(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
         tp.parseCommand("int [] ia = new int [] {1,2,3};");
         List declaredVars = tp.getDeclaredVars();
         assertEquals(1, declaredVars.size());
-        TextParser.DeclaredVar var = (TextParser.DeclaredVar) declaredVars.get(0);
+        TextAnalyzer.DeclaredVar var = (TextAnalyzer.DeclaredVar) declaredVars.get(0);
         assertEquals("ia", var.getName());
         assertEquals("int[]", var.getDeclaredVarType().toString());
         
@@ -111,7 +111,7 @@ public class TextParserTest extends TestCase
         tp.parseCommand("int [][] iaa = new int [5][6];");
         declaredVars = tp.getDeclaredVars();
         assertEquals(1, declaredVars.size());
-        var = (TextParser.DeclaredVar) declaredVars.get(0);
+        var = (TextAnalyzer.DeclaredVar) declaredVars.get(0);
         assertEquals("iaa", var.getName());
         assertEquals("int[][]", var.getDeclaredVarType().toString());
     }

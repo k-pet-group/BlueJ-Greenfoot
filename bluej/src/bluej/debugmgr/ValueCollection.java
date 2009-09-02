@@ -29,14 +29,14 @@ import java.util.Iterator;
  * (objects) or primitive values.
  * 
  * @author Davin McCall
- * @version $Id: ValueCollection.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ValueCollection.java 6595 2009-09-02 14:30:49Z davmac $
  */
 public interface ValueCollection
 {   
     /**
      * Get an iterator through the values in this collection.
      */
-    public Iterator getValueIterator();
+    public Iterator<? extends NamedValue> getValueIterator();
     
     /**
      * Get a value by name, in this collection or in a parent scope. This may delegate to

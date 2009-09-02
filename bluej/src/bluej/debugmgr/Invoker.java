@@ -61,7 +61,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 6475 2009-07-31 14:30:38Z davmac $
+ * @version $Id: Invoker.java 6595 2009-09-02 14:30:49Z davmac $
  */
 
 public class Invoker
@@ -718,9 +718,9 @@ public class Invoker
         // later on.
         if (localVars != null && constype == null) {
             // writeVariables("lv:", buffer, false, localVars.getValueIterator(), cqtTransform);
-            Iterator<?> i = localVars.getValueIterator();
+            Iterator<? extends NamedValue> i = localVars.getValueIterator();
             while (i.hasNext()) {
-                NamedValue localVar = (NamedValue) i.next();
+                NamedValue localVar = i.next();
                 objBenchVarsMap.put(localVar.getName(), getVarDeclString("lv:", false, localVar, cqtTransform));
             }
         }

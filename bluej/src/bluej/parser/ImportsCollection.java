@@ -33,20 +33,19 @@ import bluej.Config;
  */
 public class ImportsCollection
 {
-    private Map normalImports; // non-wildcard non-static type imports
-                               // (map String -> PackageOrClass)
-    private List wildcardImports;  // wildcard imports (list of PackageOrClass)
-    private List staticWildcardImports; // list of ClassEntity
-    private Map staticImports; // map String -> List of ClassEntity. The String gives
+    private Map<String,PackageOrClass> normalImports; // non-wildcard non-static type imports
+    private List<PackageOrClass> wildcardImports;  // wildcard imports (list of PackageOrClass)
+    private List<ClassEntity> staticWildcardImports; // list of ClassEntity
+    private Map<String,List<ClassEntity>> staticImports; // The String gives
                                 // the name of the imported static member(s) from the given
                                 // class(es).
     
     public ImportsCollection()
     {
-        normalImports = new HashMap();
-        wildcardImports = new ArrayList();
-        staticWildcardImports = new ArrayList(); 
-        staticImports = new HashMap();
+        normalImports = new HashMap<String,PackageOrClass>();
+        wildcardImports = new ArrayList<PackageOrClass>();
+        staticWildcardImports = new ArrayList<ClassEntity>(); 
+        staticImports = new HashMap<String,List<ClassEntity>>();
     }
     
     /**
@@ -63,7 +62,7 @@ public class ImportsCollection
      * @param name          The short name of the import
      * @param importEntity  The entity corresponding to the import
      */
-    public void addNormalImport(String name, JavaEntity importEntity)
+    public void addNormalImport(String name, PackageOrClass importEntity)
     {
         normalImports.put(name, importEntity);
     }
@@ -84,9 +83,9 @@ public class ImportsCollection
      */
     public void addStaticImport(String name, ClassEntity importEntity)
     {
-        List l = (List) staticImports.get(name);
+        List<ClassEntity> l = staticImports.get(name);
         if (l == null) {
-            l = new ArrayList();
+            l = new ArrayList<ClassEntity>();
             staticImports.put(name, l);
         }
         l.add(importEntity);
@@ -116,9 +115,9 @@ public class ImportsCollection
             return r;
         
         // There might be a suitable static import
-        List l = (List) staticImports.get(name);
+        List<ClassEntity> l = staticImports.get(name);
         if (l != null) {
-            Iterator i = l.iterator();
+            Iterator<ClassEntity> i = l.iterator();
             while (i.hasNext()) {
                 r = (ClassEntity) i.next();
                 try {
@@ -138,11 +137,12 @@ public class ImportsCollection
      * 
      * @param name  The name of the import to retrieve.
      */
-    public List getStaticImports(String name)
+    public List<ClassEntity> getStaticImports(String name)
     {
-        List l = (List) staticImports.get(name);
-        if (l == null)
-            l = Collections.EMPTY_LIST;
+        List<ClassEntity> l = staticImports.get(name);
+        if (l == null) {
+            l = Collections.emptyList();
+        }
         return l;
     }
     
@@ -150,7 +150,7 @@ public class ImportsCollection
      * Retrieve a list of all the static wildcard imports.
      * @return  A List of ClassEntity
      */
-    public List getStaticWildcardImports()
+    public List<ClassEntity> getStaticWildcardImports()
     {
         return staticWildcardImports;
     }
@@ -164,10 +164,10 @@ public class ImportsCollection
     public ClassEntity getTypeImportWC(String name)
     {
         // Try non-static wildcard imports first
-        Iterator i = wildcardImports.iterator();
+        Iterator<PackageOrClass> i = wildcardImports.iterator();
         
         while (i.hasNext()) {
-            PackageOrClass importEntity = (PackageOrClass) i.next();
+            PackageOrClass importEntity = i.next();
             try {
                 PackageOrClass member = importEntity.getPackageOrClassMember(name);
                 if (member.isClass()) {
@@ -178,9 +178,9 @@ public class ImportsCollection
         }
         
         // Now try static wildcard imports
-        i = staticWildcardImports.iterator();
-        while (i.hasNext()) {
-            ClassEntity importEntity = (ClassEntity) i.next();
+        Iterator<ClassEntity> j = staticWildcardImports.iterator();
+        while (j.hasNext()) {
+            ClassEntity importEntity = j.next();
             try {
                 ClassEntity member = importEntity.getStaticMemberClass(name);
                 return member;
@@ -200,7 +200,7 @@ public class ImportsCollection
         String rr = "";
         
         // First process the normal (non-wildcard non-static) imports
-        Iterator i = normalImports.values().iterator();
+        Iterator<PackageOrClass> i = normalImports.values().iterator();
         while (i.hasNext()) {
             // String importName = ()
             JavaEntity importEntity = (JavaEntity) i.next();
@@ -219,11 +219,11 @@ public class ImportsCollection
         }
         
         // Now the static imports (non-wildcard)
-        i = staticImports.keySet().iterator();
-        while (i.hasNext()) {
-            String importName = (String) i.next();
-            List l = (List) staticImports.get(importName);
-            Iterator j = l.iterator();
+        Iterator<String> ii = staticImports.keySet().iterator();
+        while (ii.hasNext()) {
+            String importName = ii.next();
+            List<ClassEntity> l = staticImports.get(importName);
+            Iterator<ClassEntity> j = l.iterator();
             while (j.hasNext()) {
                 ClassEntity importEntity = (ClassEntity) j.next();
                 rr += "import static " + importEntity.getName();
@@ -232,9 +232,9 @@ public class ImportsCollection
         }
         
         // Finally the wildcard static imports
-        i = staticWildcardImports.iterator();
+        Iterator<ClassEntity> iii = staticWildcardImports.iterator();
         while (i.hasNext()) {
-            ClassEntity importEntity = (ClassEntity) i.next();
+            ClassEntity importEntity = iii.next();
             rr += "import static " + importEntity.getName();
             rr += ".*;" + Config.nl;
         }
