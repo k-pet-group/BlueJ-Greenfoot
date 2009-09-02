@@ -120,6 +120,51 @@ public class NodeTreeTest extends TestCase
         assertNull(np);
     }
     
+    public void testRemoval3()
+    {
+        // For delete_case_4, need:
+        // - node is black
+        // - parent != null (has a parent)
+        // parent is red, sibling is black
+        
+        nt.clear();
+        nt.insertNode(pn1, 100, 10);
+        nt.insertNode(pn2, 20, 10); // pn2 is red child of pn1
+        nt.insertNode(pn3, 200, 10); // pn3 is red child of pn1
+        nt.insertNode(pn4, 0, 10); // pn4 is red child of pn2
+         // pn2 and pn3 become black
+        nt.insertNode(pn5, 50, 10);
+          // pn5 is red child of pn2
+        
+        ParsedNode pn6 = new ColourNode(null, Token.KEYWORD1);
+        nt.insertNode(pn6, 30, 10);
+          // becomes a red child of pn5, uncle is pn4 (red)
+          // pn4 is made black
+          // pn5 is made black
+          // pn2 is made red (parent = pn1, sibling = pn3)
+        
+        //So:
+        //              pn1(black)
+        //            /           \
+        //           pn2(red)     pn3(black)
+        //          /    \           /   \
+        //        pn4(b)  pn5(b)    N     N
+        //        N   N   /     N
+        //              pn6(r)
+        //              N    N
+        //
+        // All paths have an equal number of black nodes. (Remember N = null = black).
+        //
+        // pn4 and pn5 match criteria for delete case 4, however, pn5.left is red.
+        
+        NodeAndPosition nap = nt.findNode(35); // find pn6
+        nap.getNode().remove();
+        // The tree hasn't changed, except pn6 is gone.
+        
+        nap = nt.findNode(55); // find pn5
+        nap.getNode().remove();
+    }
+    
     public void testRotation1()
     {
         nt.clear();
