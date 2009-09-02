@@ -13,6 +13,9 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JComponent;
 import javax.swing.JScrollBar;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.DocumentEvent.ElementChange;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
@@ -24,7 +27,7 @@ import javax.swing.text.Segment;
  * 
  * @author Davin McCall
  */
-public class NaviView extends JComponent implements AdjustmentListener
+public class NaviView extends JComponent implements AdjustmentListener, DocumentListener
 {
     private Document document;
     private JScrollBar scrollBar;
@@ -39,6 +42,7 @@ public class NaviView extends JComponent implements AdjustmentListener
     public NaviView(Document document, JScrollBar scrollBar)
     {
         this.document = document;
+        document.addDocumentListener(this);
         this.scrollBar = scrollBar;
         
         scrollBar.addAdjustmentListener(this);
@@ -56,6 +60,7 @@ public class NaviView extends JComponent implements AdjustmentListener
     public void setDocument(Document document)
     {
         this.document = document;
+        document.addDocumentListener(this);
         repaint();
     }
         
@@ -82,7 +87,6 @@ public class NaviView extends JComponent implements AdjustmentListener
         repaint(0, repaintTop + getInsets().top, getWidth(), repaintBottom - repaintTop + 1);
     }
 
-    
     @Override
     protected void processMouseEvent(MouseEvent e)
     {
@@ -107,6 +111,50 @@ public class NaviView extends JComponent implements AdjustmentListener
         if (e.getID() == MouseEvent.MOUSE_DRAGGED) {
             moveView(e.getY());
         }
+    }
+    
+    @Override
+    public void changedUpdate(DocumentEvent e)
+    {
+    }
+    
+    @Override
+    public void insertUpdate(DocumentEvent e)
+    {
+        int offset = e.getOffset();
+        int length = e.getLength();
+        int firstLine = document.getDefaultRootElement().getElementIndex(offset);
+        int lastLine = document.getDefaultRootElement().getElementIndex(offset + length - 1);
+        
+        if (e.getChange(document.getDefaultRootElement()) != null) {
+            // lines have been added
+            lastLine = document.getDefaultRootElement().getElementCount() - 1; 
+        }
+        
+        repaint(0l, 0, firstLine + getInsets().top, getWidth(), lastLine - firstLine + 1);
+    }
+    
+    @Override
+    public void removeUpdate(DocumentEvent e)
+    {
+        int offset = e.getOffset();
+        int length = e.getLength();
+        int firstLine = document.getDefaultRootElement().getElementIndex(offset);
+        int lastLine = document.getDefaultRootElement().getElementIndex(offset + length - 1);
+        
+        ElementChange ec = e.getChange(document.getDefaultRootElement());
+        if (ec != null) {
+            // lines have been removed
+            lastLine = document.getDefaultRootElement().getElementCount() - 1;
+            if (ec.getChildrenRemoved() != null) { 
+                lastLine += ec.getChildrenRemoved().length;
+            }
+            if (ec.getChildrenAdded() != null) {
+                lastLine -= ec.getChildrenAdded().length;
+            }
+        }
+        
+        repaint(0l, 0, firstLine + getInsets().top, getWidth(), lastLine - firstLine + 1);
     }
     
     /**
@@ -143,12 +191,18 @@ public class NaviView extends JComponent implements AdjustmentListener
         Insets insets = getInsets();
         g.getClipBounds(clipBounds);
         
-        g.setColor(getBackground());
+        Color foreground = MoeSyntaxDocument.getDefaultColor();
+        Color background = MoeSyntaxDocument.getBackgroundColor();
+        Color notVisible = new Color((int)(background.getRed() * .9f),
+                (int)(background.getGreen() * .9f),
+                (int)(background.getBlue() * .9f));
+        
+        g.setColor(notVisible);
         g.fillRect(clipBounds.x, clipBounds.y, clipBounds.width, clipBounds.height);
 
         int topLine = sbPositionToLine(scrollBar.getValue());
         int bottomLine = sbPositionToLine(scrollBar.getValue() + scrollBar.getVisibleAmount());
-        g.setColor(Color.WHITE);
+        g.setColor(background);
         g.fillRect(clipBounds.x, topLine + insets.top, clipBounds.width, bottomLine - topLine);
         
         if (document == null) {
@@ -162,8 +216,11 @@ public class NaviView extends JComponent implements AdjustmentListener
         
         
         try {
-            g.setColor(Color.BLACK);
-            for (int i = Math.max(0, clipBounds.y - insets.top); i < lines; i++) {
+            g.setColor(foreground);
+            int firstLine = Math.max(0, clipBounds.y - insets.top);
+            int lastLine = Math.max(0, clipBounds.y + clipBounds.height - insets.top);
+            lastLine = Math.min(lastLine, lines);
+            for (int i = firstLine; i < lastLine; i++) {
                 Element lineEl = map.getElement(i);
                 int start = lineEl.getStartOffset();
                 int end = lineEl.getEndOffset();
@@ -192,7 +249,9 @@ public class NaviView extends JComponent implements AdjustmentListener
         }
         
         // Draw a border around the visible area
-        g.setColor(Color.BLUE);
+        g.setColor(new Color((int)(background.getRed() * .7f),
+                (int)(background.getGreen() * .7f),
+                (int)(background.getBlue() * .7f)));
         g.drawRect(0 + insets.left, topLine + insets.top, getWidth() - insets.left - insets.right - 1,
                 bottomLine - topLine);
     }

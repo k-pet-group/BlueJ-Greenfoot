@@ -61,9 +61,9 @@ public class MoeSyntaxDocument extends PlainDocument
     public static final String OUTPUT = "output";
     public static final String ERROR = "error";
 
-	private static Color[] colors = null;
+    private static Color[] colors = null;
 	
-	private static Color defaultColour = null;
+    private static Color defaultColour = null;
     private static Color backgroundColour = null;
 	
     private ParsedNode parsedNode = new ParsedCUNode(this);

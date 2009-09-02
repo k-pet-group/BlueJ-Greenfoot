@@ -42,7 +42,6 @@ import java.awt.*;
 import java.util.Map;
 
 import org.syntax.jedit.tokenmarker.*;
-import org.syntax.jedit.*;
 
 /**
  * A Swing view implementation that colorizes lines of a
@@ -55,7 +54,7 @@ import org.syntax.jedit.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: BlueJSyntaxView.java 6581 2009-09-01 04:13:37Z davmac $
+ * @version $Id: BlueJSyntaxView.java 6586 2009-09-02 04:30:10Z davmac $
  */
 
 public abstract class BlueJSyntaxView extends PlainView
@@ -130,7 +129,6 @@ public abstract class BlueJSyntaxView extends PlainView
             initialise(g);
         }
 
-        // SyntaxDocument document = (SyntaxDocument)getDocument();
         MoeSyntaxDocument document = (MoeSyntaxDocument)getDocument();
 
         Color def = MoeSyntaxDocument.getDefaultColor();
