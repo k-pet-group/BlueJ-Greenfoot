@@ -25,12 +25,13 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import bluej.debugmgr.objectbench.ObjectBench;
+import bluej.parser.TextAnalyzer.DeclaredVar;
 
 /**
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 6595 2009-09-02 14:30:49Z davmac $
+ * @version $Id: TextParserTest.java 6597 2009-09-02 14:33:54Z davmac $
  */
 public class TextParserTest extends TestCase
 {
@@ -101,9 +102,9 @@ public class TextParserTest extends TestCase
         ObjectBench ob = new ObjectBench();
         TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
         tp.parseCommand("int [] ia = new int [] {1,2,3};");
-        List declaredVars = tp.getDeclaredVars();
+        List<DeclaredVar> declaredVars = tp.getDeclaredVars();
         assertEquals(1, declaredVars.size());
-        TextAnalyzer.DeclaredVar var = (TextAnalyzer.DeclaredVar) declaredVars.get(0);
+        DeclaredVar var = declaredVars.get(0);
         assertEquals("ia", var.getName());
         assertEquals("int[]", var.getDeclaredVarType().toString());
         
