@@ -35,13 +35,27 @@ package bluej.editor.moe;
  * to add Syntax highlighting to the BlueJ programming environment.
  */
 
-import javax.swing.event.DocumentEvent;
-import javax.swing.text.*;
-
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.Toolkit;
 import java.util.Map;
 
-import org.syntax.jedit.tokenmarker.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.Element;
+import javax.swing.text.PlainView;
+import javax.swing.text.Position;
+import javax.swing.text.Segment;
+import javax.swing.text.Utilities;
+import javax.swing.text.View;
+import javax.swing.text.ViewFactory;
 
 /**
  * A Swing view implementation that colorizes lines of a
@@ -54,7 +68,7 @@ import org.syntax.jedit.tokenmarker.*;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: BlueJSyntaxView.java 6586 2009-09-02 04:30:10Z davmac $
+ * @version $Id: BlueJSyntaxView.java 6588 2009-09-02 05:08:17Z davmac $
  */
 
 public abstract class BlueJSyntaxView extends PlainView
