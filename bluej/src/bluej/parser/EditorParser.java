@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Stack;
 
-import org.syntax.jedit.tokenmarker.Token;
-
+import bluej.editor.moe.Token;
 import bluej.parser.ast.LocatableToken;
 import bluej.parser.ast.gen.JavaTokenTypes;
 import bluej.parser.nodes.ColourNode;

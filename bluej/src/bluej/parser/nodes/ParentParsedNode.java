@@ -4,11 +4,10 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Segment;
 
-import org.syntax.jedit.tokenmarker.Token;
-
 import antlr.TokenStream;
 import antlr.TokenStreamException;
 import bluej.editor.moe.MoeSyntaxDocument;
+import bluej.editor.moe.Token;
 import bluej.parser.DocumentReader;
 import bluej.parser.EscapedUnicodeReader;
 import bluej.parser.JavaTokenFilter;

@@ -39,8 +39,6 @@ import javax.swing.text.Element;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.PlainDocument;
 
-import org.syntax.jedit.tokenmarker.Token;
-
 import bluej.Config;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;

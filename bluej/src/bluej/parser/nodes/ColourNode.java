@@ -2,7 +2,7 @@ package bluej.parser.nodes;
 
 import javax.swing.text.Document;
 
-import org.syntax.jedit.tokenmarker.Token;
+import bluej.editor.moe.Token;
 
 
 public class ColourNode extends ParsedNode

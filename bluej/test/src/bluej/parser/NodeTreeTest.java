@@ -1,8 +1,7 @@
 package bluej.parser;
 
-import org.syntax.jedit.tokenmarker.Token;
-
 import junit.framework.TestCase;
+import bluej.editor.moe.Token;
 import bluej.parser.nodes.ColourNode;
 import bluej.parser.nodes.NodeTree;
 import bluej.parser.nodes.ParsedNode;

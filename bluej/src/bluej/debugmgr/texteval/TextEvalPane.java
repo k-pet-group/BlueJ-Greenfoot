@@ -22,7 +22,11 @@
 
 package bluej.debugmgr.texteval;
 
-import java.awt.*;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Event;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -36,9 +40,13 @@ import javax.swing.Action;
 import javax.swing.JEditorPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-import javax.swing.text.*;
-
-import org.syntax.jedit.tokenmarker.JavaTokenMarker;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Caret;
+import javax.swing.text.Element;
+import javax.swing.text.JTextComponent;
+import javax.swing.text.Keymap;
+import javax.swing.text.SimpleAttributeSet;
 
 import bluej.BlueJEvent;
 import bluej.Config;
@@ -65,7 +73,7 @@ import bluej.utility.Utility;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 6495 2009-08-06 23:38:13Z davmac $
+ * @version $Id: TextEvalPane.java 6587 2009-09-02 05:07:36Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ValueCollection, ResultWatcher, MouseMotionListener

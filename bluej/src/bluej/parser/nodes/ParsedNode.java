@@ -4,8 +4,7 @@ import java.util.List;
 
 import javax.swing.text.Document;
 
-import org.syntax.jedit.tokenmarker.Token;
-
+import bluej.editor.moe.Token;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 public abstract class ParsedNode
