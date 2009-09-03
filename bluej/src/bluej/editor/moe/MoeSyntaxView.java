@@ -66,7 +66,7 @@ import bluej.prefmgr.PrefMgr;
  * @author Michael Kolling
  * @author Davin McCall
  *
- * @version $Id: MoeSyntaxView.java 6581 2009-09-01 04:13:37Z davmac $
+ * @version $Id: MoeSyntaxView.java 6614 2009-09-03 13:20:18Z davmac $
  */
 
 public class MoeSyntaxView extends BlueJSyntaxView
@@ -372,7 +372,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
                             li.add(nap);
                             nap = nap.getNode().findNodeAtOrAfter(napEnd, nap.getPosition());
                         }
-                        if (napParent.getPosition() + napParent.getSize() >= thisLineEl.getEndOffset()) {
+                        if (napParent.getPosition() + napParent.getSize() > thisLineEl.getEndOffset()) {
                             break;
                         }
                         nap = li.previous();

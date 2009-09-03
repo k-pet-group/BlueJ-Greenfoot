@@ -195,4 +195,5 @@ public interface JavaTokenTypes {
 	int EXPONENT = 169;
 	int FLOAT_SUFFIX = 170;
 	int GOTO = 171;
+	int INVALID = 172;
 }
