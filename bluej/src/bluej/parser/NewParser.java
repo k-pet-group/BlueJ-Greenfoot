@@ -1020,6 +1020,11 @@ public class NewParser
             else {
                 tokenStream.pushBack(token);
                 parseExpression();
+                if (tokenStream.LA(1) == token) {
+                    // Didn't eat up any tokens - time to bail
+                    token = tokenStream.nextToken();
+                    return null;
+                }
                 token = tokenStream.nextToken();
                 if (token.getType() != JavaTokenTypes.SEMI) {
                     error("Expected ';' at end of previous statement");
