@@ -316,6 +316,8 @@ public class BlueJJavaLexer implements JavaTokenTypes
                 if (ch=='\n'){
                     line++;
                     col=0;
+                    if (type==JavaTokenTypes.SL_COMMENT)
+                        return;
                 }
 
                 if (checkflag){
