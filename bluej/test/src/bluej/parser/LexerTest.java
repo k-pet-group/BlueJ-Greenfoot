@@ -17,7 +17,7 @@ public class LexerTest extends junit.framework.TestCase
 {
     private TokenStream getLexerFor(String s)
     {
-        JavaLexer lexer = NewParser.getLexer(new StringReader(s));
+        TokenStream lexer = NewParser.getLexer(new StringReader(s));
         return new JavaTokenFilter(lexer, null);
     }
     

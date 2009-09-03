@@ -2405,7 +2405,7 @@ public class TextAnalyzer
         StringReader r = new StringReader(s);
         
         // Create the initial lexer stage
-        JavaLexer lexer = NewParser.getLexer(r);
+        TokenStream lexer = NewParser.getLexer(r);
         
         // Finally filter out comments and whitespace
         TokenStream filter = new JavaTokenFilter(lexer);
