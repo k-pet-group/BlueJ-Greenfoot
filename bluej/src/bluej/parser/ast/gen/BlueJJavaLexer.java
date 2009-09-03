@@ -1,13 +1,36 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.parser.ast.gen;
 
 
 import java.io.IOException;
 import java.io.Reader;
+
+import antlr.TokenStream;
 import antlr.TokenStreamException;
 import bluej.parser.EscapedUnicodeReader;
 import bluej.parser.ast.LocatableToken;
 
-public class BlueJJavaLexer implements JavaTokenTypes
+public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
 {
     private StringBuffer textBuffer; // text of current token
     private EscapedUnicodeReader reader;
@@ -325,7 +348,7 @@ public class BlueJJavaLexer implements JavaTokenTypes
                 ch=cb[0];
                 if (ch=='\n'){
                     line++;
-                    col=0;
+                    col=1;
                     if (type==JavaTokenTypes.SL_COMMENT)
                         return;
                 }
@@ -838,6 +861,9 @@ public class BlueJJavaLexer implements JavaTokenTypes
 
     private int getWordType(){
         String text=textBuffer.toString();
+        if (text.equals("assert")) {
+            return JavaTokenTypes.LITERAL_assert;
+        }
         if (text.equals("public")){
             return JavaTokenTypes.LITERAL_public;
         }
