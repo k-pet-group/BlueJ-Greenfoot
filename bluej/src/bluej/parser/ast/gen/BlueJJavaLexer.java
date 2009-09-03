@@ -9,9 +9,6 @@ import bluej.parser.ast.LocatableToken;
 
 public class BlueJJavaLexer implements JavaTokenTypes
 {
-    private static final int LETTER_CHAR=0;
-    private static final int DIGIT_CHAR=1;
-    private static final int OTHER_CHAR=2;
     private StringBuffer textBuffer; // text of current token
     private EscapedUnicodeReader reader;
     private int tabsize=8;
@@ -20,7 +17,6 @@ public class BlueJJavaLexer implements JavaTokenTypes
     private int col,line;     
     private char rChar= (char)-1; 
     private boolean newline=false;
-    private boolean tab=false;
     //private LexerState state;
 
 
@@ -34,17 +30,15 @@ public class BlueJJavaLexer implements JavaTokenTypes
     private LocatableToken makeToken(int type, String txt, int beginCol, int endCol, int beginLine, int line){
         LocatableToken tok = new LocatableToken();
         int textLength=txt.length();
-        if (newline) {
-            beginCol=1;
-            beginLine=line;
-            newline=false;
-        }
         endCol=textLength+beginCol;
         tok.setType(type);
         tok.setText(txt);
         tok.setColumn(beginCol);
         tok.setLine(beginLine);        
         tok.setEndLineAndCol(line, endCol);
+        if (newline) {
+            newline();
+        }
         return tok;
 
     }
@@ -71,49 +65,49 @@ public class BlueJJavaLexer implements JavaTokenTypes
     }
 
     public LocatableToken nextToken() throws TokenStreamException {  
-        int rval=1;
-        char nextChar=rChar;
-        if (rChar==(char)-1){
-            rval=readChar(col-1);
-            if (rval==-1){
-                return processEndOfReader();                
-            }
-            nextChar=(char)rval;
-            if (nextChar=='\n'|| nextChar=='\t' || Character.isWhitespace(nextChar)){
-                if (nextChar=='\n'){
-                    newline();
-                } else if (Character.isWhitespace(nextChar)){
-                    col++;
-                    //if there is a/n and then spaces, the newline has been taken into consideration 
-                    newline=false;
-                }
-                try{
-                    return nextToken();
-                }catch(TokenStreamException e){
-
-                }
-            }       
+        resetText();
+        if (rChar==(char)-1 || Character.isWhitespace(rChar)){
+            return nextValidToken();
         }
-        return createToken(nextChar);
+        return createToken(rChar);
     }
 
+    private LocatableToken nextValidToken(){
+        if (rChar==' '){
+            col++;
+        }
+        int rval=readChar(col-1);
+        if (rval==-1){
+            return processEndOfReader();                
+        }
+        char nextChar=(char)rval;
+        if (Character.isWhitespace(nextChar)){
+            if (nextChar=='\n'){
+                newline();
+            } else if (Character.isWhitespace(nextChar)){
+                col++; 
+                newline=false;
+            }
+            try{
+                return nextToken();
+            }catch(TokenStreamException e){
+
+            }
+        } 
+        return createToken(nextChar);
+    }
 
     public void resetText() {
         textBuffer=new StringBuffer();
     }
 
     public void consume(char c) /*throws Exception*/ {
-        if (c == '\t') {
-            tab();
-            tab=true;
-            return ;
-        }
         if (c=='\n'){
             newline();
             return;
         }
         append(c);
-        int pos=reader.getPosition();
+        //int pos=reader.getPosition();
         //if it is a unicode escape char need to bump up the column by 4
         //if (reader.isEscapedUnicodeChar()){
         //    col=col+5;
@@ -121,7 +115,7 @@ public class BlueJJavaLexer implements JavaTokenTypes
         //} else 
         ++col;
     }
-    
+
     /*
      * Does no checking on what it is appending
      * 
@@ -129,7 +123,7 @@ public class BlueJJavaLexer implements JavaTokenTypes
     public void consume(char c, boolean overwrite) /*throws Exception*/ {
         if (overwrite){
             append(c, overwrite);
-            int pos=reader.getPosition();
+            //int pos=reader.getPosition();
             ++col;
         }
         else consume(c);
@@ -140,7 +134,7 @@ public class BlueJJavaLexer implements JavaTokenTypes
             textBuffer.append(c);
         }
     }
-    
+
     private void append(char c, boolean overwrite){
         if (overwrite)
             textBuffer.append(c);
@@ -154,92 +148,190 @@ public class BlueJJavaLexer implements JavaTokenTypes
     public void newline() {
         line++;
         col= 1;
-        newline=true;
+        newline=false;
     }
 
     private LocatableToken createToken(char nextChar){
         int bCol=col;
-        int bLine=line;     
-        populateTextBuffer(nextChar);
-        int type=getTokenType();
-        return makeToken(type, textBuffer.toString(), bCol, col, bLine, line);
+        int bLine=line; 
+        if (Character.isJavaIdentifierStart(nextChar))
+            return createWordToken(nextChar, bCol, bLine); 
+        if (Character.isDigit(nextChar))
+            return createDigitToken(nextChar, bCol, bLine);
+        return makeToken(getSymbolType(nextChar), textBuffer.toString(), bCol, col, bLine, line); 
     }
 
-    //    private void adjustColLineNums(){
-    //        //have to decrease by 1 because already bumped it up in populateTextBuffer
-    //        if (tab){
-    //            col=col-1+tabsize;
-    //            tab=false;
-    //        }
-    //        if (newline){
-    //            line=line+1;
-    //            newline=false;
-    //        }
-    //    }
+
+    private LocatableToken createDigitToken(char nextChar, int bCol, int bLine){
+        //return makeToken(getNumberType(), getNumberText(nextChar), bCol, col, bLine, line);  
+        return makeToken(getDigitValue(nextChar, false), textBuffer.toString(), bCol, col, bLine, line); 
+    }
+
+    private LocatableToken createWordToken(char nextChar, int bCol, int bLine){
+        populateTextBuffer(nextChar);
+        return makeToken(getTokenType(), textBuffer.toString(), bCol, col, bLine, line);     
+    }
 
     private LocatableToken processEndOfReader(){
         resetText();
         return makeToken(JavaTokenTypes.EOF, "EOF", col, col, line, line);
     }
 
-    private int getCharType(char c){
-        //set the char type
-        if (Character.isDigit(c))
-            return DIGIT_CHAR;
-        if (Character.isLetter(c))
-            return LETTER_CHAR;
-        return OTHER_CHAR;
-    }
-
     private void populateTextBuffer(char ch){
         char thisChar=ch;
-        char prevChar;
         char [] cb=new char[1];
         int rval=0;
-        int charTypePrev=OTHER_CHAR;
-        int charTypeNext=OTHER_CHAR;       
-        resetText();
         boolean complete=false;
         try{
             do{  
-                charTypePrev=getCharType(thisChar);
-                prevChar=thisChar;
                 consume(thisChar);
                 rval=reader.readChar(cb, col-1);
                 //eof
                 if (rval==-1){
+                    rChar=(char)-1;
                     return;
                 }
                 thisChar=cb[0];
-                charTypeNext=getCharType(thisChar);
-                //Not using Character.isWhitespace(thisChar) because it would return true
-                //for /n etc and those need to be considered separately
-                if (thisChar ==' ')  {
+                if (Character.isWhitespace(thisChar))  {
                     col++;
-                    if (!isComment()){                        
-                        complete=true;
-                        rChar=(char)-1;
-                    }
-                    else
-                        consume(thisChar, true);
+                    complete=true;
+                    rChar=(char)-1;
+                    if (thisChar=='\n')
+                        newline=true;
                 }
-                else if (isComplete(prevChar, thisChar, charTypePrev, charTypeNext)){
+                else if (!Character.isLetterOrDigit(thisChar)&& thisChar!='_'){
                     complete=true;
                     rChar=thisChar;
                 }
             }while (!complete);
         }catch(IOException ioe){
-    
-    
+
+
         }
     }
 
-    private boolean isComment(){
-        if((textBuffer.indexOf("/*")!=-1) && ((textBuffer.indexOf("*/")==-1)|| (textBuffer.indexOf("*/")<1)))
-            return true;
-        if ((textBuffer.indexOf("//")!=-1) && (textBuffer.indexOf("\n")==-1))
-            return true;
-        return false;
+
+    private boolean getTokenText(char endChar){
+        char thisChar;
+        char [] cb=new char[1];
+        int rval=0;     
+        boolean complete=false;
+        try{
+            while (!complete){  
+                rval=reader.readChar(cb, col-1);
+                //eof
+                if (rval==-1){
+                    return false;
+                }
+                thisChar=cb[0];
+                consume(thisChar, true);
+                //endChar is the flag for the end of reading
+                if (thisChar ==endChar)  {
+                    return true;
+                }               
+            }
+        }catch(IOException ioe){
+
+        }
+        return complete;
+    }
+
+    private int getDigitValue(char ch, boolean dot){
+        char [] cb=new char[1];
+        int rval=0;     
+        boolean complete=false;
+        boolean isDecimal=dot;
+        consume(ch);
+        try{
+            while (!complete){  
+                rval=reader.readChar(cb, col-1);
+                //eof
+                if (rval==-1){
+                    return JavaTokenTypes.NUM_INT;
+                }
+                ch=cb[0];
+                if (!Character.isDigit(ch)){
+                    if (ch=='.'){
+                        if (isDecimal){
+                            rChar=ch;
+                            return JavaTokenTypes.NUM_DOUBLE;
+                        }
+                        else {
+                            isDecimal=true;
+                            consume(ch);
+                        }
+                    }
+                    else if (Character.isLetter(ch)){
+                        if (ch=='f'){
+                            consume(ch);
+                            return JavaTokenTypes.NUM_FLOAT;
+                        } if (ch=='d'){
+                            consume(ch);
+                            return JavaTokenTypes.NUM_DOUBLE;
+                        } if (ch=='l'){
+                            consume(ch);
+                            return JavaTokenTypes.NUM_LONG;
+                        }
+                        else {
+                            complete=true;
+                            rChar=ch;
+                        }                   
+                    }
+                    else if (Character.isWhitespace(ch)){
+                        complete=true;
+                        col++;
+                        rChar=ch;
+                    }else {
+                        complete=true;
+                        rChar=ch;
+                    }              
+
+                } else 
+                    consume(ch);
+            }           
+        }catch(IOException ioe){
+
+        }
+        if (isDecimal)
+            return JavaTokenTypes.NUM_DOUBLE;
+        return JavaTokenTypes.NUM_INT;
+    }
+    
+    private void  getCommentText(char ch, int type){
+        char [] cb=new char[1];
+        int rval=0;     
+        boolean complete=false;
+        boolean checkflag=false;
+        try{
+            do{  
+                consume(ch, true);
+                rval=reader.readChar(cb, col-1);
+                //eof
+                if (rval==-1){
+                    return;
+                }
+                ch=cb[0];
+                if (type==JavaTokenTypes.SL_COMMENT && ch=='\n'){
+                    return;
+                }
+                if (checkflag){
+                    if (ch=='/'){
+                        complete=true;
+                        consume(ch);
+                    }//it was a false alarm and we have not reached the end of the comment
+                    //reset flag and buffer
+                    else 
+                        checkflag=false;
+                }      
+                //endChar is the flag for the end of reading
+                if (ch=='*' && type==JavaTokenTypes.ML_COMMENT){
+                    checkflag=true;
+                }
+
+            }while (!complete);
+        }catch(IOException ioe){
+
+        }
     }
 
     private int getTokenType(){
@@ -249,10 +341,10 @@ public class BlueJJavaLexer implements JavaTokenTypes
         //need to specify what type of digit double float etc
         if (Character.isDigit(ch))
             return getNumberType();
-        return getType();
+        return getSymbolType();
     }
 
-    private int getType(){
+    private int getSymbolType(){
         int type=INVALID_TYPE;
         if (match('"'))
             return JavaTokenTypes.STRING_LITERAL;
@@ -313,169 +405,422 @@ public class BlueJJavaLexer implements JavaTokenTypes
 
     }
 
+    private int getSymbolType(char ch){
+        int type=INVALID_TYPE;
+        consume(ch);
+        rChar=(char)-1;
+        if (match('"', ch))
+            return getStringLiteral();
+        if (match('\'', ch))
+            return getCharLiteral();
+        if (match('?', ch))
+            return JavaTokenTypes.QUESTION;
+        if (match(',', ch))
+            return JavaTokenTypes.COMMA;
+        if (match(';', ch))
+            return JavaTokenTypes.SEMI;
+        if (match(':', ch))
+            return JavaTokenTypes.COLON;
+        if (match('^', ch))
+            return getBXORType();
+        if (match('~', ch))
+            return JavaTokenTypes.BNOT;
+        if (match('(', ch))
+            return JavaTokenTypes.LPAREN;
+        if (match(')', ch))
+            return JavaTokenTypes.RPAREN;
+        if (match('[', ch))
+            return JavaTokenTypes.LBRACK;
+        if (match(']', ch))
+            return JavaTokenTypes.RBRACK;
+        if (match('{', ch))
+            return JavaTokenTypes.LCURLY;
+        if (match('}', ch))
+            return JavaTokenTypes.RCURLY;
+        if (match('@', ch))
+            return JavaTokenTypes.AT;
+        if (match('&', ch))
+            return getAndType();
+        if (match('|', ch))
+            return getOrType();
+        if (match('!', ch))
+            return getExclamationType();
+        if (match('+', ch))
+            return getPlusType();            
+        if (match('-', ch))
+            return getMinusType();
+        if (match('=', ch))
+            return getEqualType();
+        if (match('%', ch))
+            return getModType();
+        if (match('/', ch))
+            return getForwardSlashType();
+        if (match('.', ch))
+            return getDotType();
+        if (match('*', ch))
+            return getStarType();
+        if (match('>', ch))
+            return getGTType();
+        if (match('<', ch))
+            return getLTType();
+
+        return type;
+
+    }
+
+    private int getBXORType(){
+        char [] cb=new char[1];
+        try{
+            int rval=reader.readChar(cb, col-1);
+            if (isComplete(rval, cb[0])){
+                return JavaTokenTypes.BXOR;
+            }
+            char thisChar=(char)cb[0]; 
+            if (thisChar=='='){
+                consume(thisChar); 
+                return JavaTokenTypes.BXOR_ASSIGN;
+            } else
+                rChar=thisChar;           
+        }catch(IOException e){
+            return INVALID_TYPE;
+        }
+        return JavaTokenTypes.BXOR;
+    }
 
     private int getAndType(){
-        //&, &=, &&
-        if (textBuffer.length()==1)
-            return JavaTokenTypes.BAND;   
-        if (textBuffer.charAt(1)=='=')
-            return JavaTokenTypes.BAND_ASSIGN;      
-        if (textBuffer.charAt(1)=='&')
-            return JavaTokenTypes.LAND;
-        return INVALID_TYPE;
+        char [] cb=new char[1];
+        try{
+            int rval=reader.readChar(cb, col-1);
+            if (isComplete(rval, cb[0])){
+                return JavaTokenTypes.BAND;
+            }
+            char thisChar=(char)cb[0]; 
+            if (thisChar=='='){
+                consume(thisChar); 
+                return JavaTokenTypes.BAND_ASSIGN; 
+            }
+            if (thisChar=='&'){
+                consume(thisChar); 
+                return JavaTokenTypes.LAND; 
+            }
+            rChar=thisChar;
+        }catch(IOException e){
+            return INVALID_TYPE;
+        }
+        return JavaTokenTypes.BAND;
     }
+
+    private int getStringLiteral(){
+        boolean success=getLiteralText('"');
+        if (success)
+            return JavaTokenTypes.STRING_LITERAL;
+        return INVALID_TYPE;        
+    }
+
+    private boolean getLiteralText(char endChar){
+        return getTokenText(endChar);           
+    }
+
+    private int getCharLiteral(){
+        boolean success=getLiteralText('\'');
+        if (success)
+            return JavaTokenTypes.CHAR_LITERAL;
+        return INVALID_TYPE;        
+    }
+
 
 
     private int getOrType(){
         //|, |=, ||
-        if (textBuffer.length()==1)
-            return JavaTokenTypes.BOR;   
-        if (textBuffer.charAt(1)=='=')
-            return JavaTokenTypes.BOR_ASSIGN;      
-        if (textBuffer.charAt(1)=='|')
-            return JavaTokenTypes.LOR;
-        return INVALID_TYPE;
+        char [] cb=new char[1];
+        try{
+            int rval=reader.readChar(cb, col-1);
+            if (isComplete(rval, cb[0])){
+                return JavaTokenTypes.BOR;
+            }
+            char thisChar=(char)cb[0]; 
+            if (thisChar=='='){
+                consume(thisChar); 
+                return JavaTokenTypes.BOR_ASSIGN; 
+            }
+            if (thisChar=='|'){
+                consume(thisChar); 
+                return JavaTokenTypes.LOR; 
+            }
+            rChar=thisChar;
+        }catch(IOException e){
+            return INVALID_TYPE;
+        }
+        return JavaTokenTypes.BOR;
     }
 
     private int getPlusType(){
         //+, +=, ++
-        if (textBuffer.length()==1)
-            return JavaTokenTypes.PLUS;   
-        if (textBuffer.charAt(1)=='=')
-            return JavaTokenTypes.PLUS_ASSIGN;      
-        if (textBuffer.charAt(1)=='+')
-            return JavaTokenTypes.INC;
-        return INVALID_TYPE;
+        char [] cb=new char[1];
+        try{
+            int rval=reader.readChar(cb, col-1);
+            if (isComplete(rval, cb[0])){
+                return JavaTokenTypes.PLUS;
+            }
+            char thisChar=(char)cb[0]; 
+            if (thisChar=='='){
+                consume(thisChar); 
+                return JavaTokenTypes.PLUS_ASSIGN; 
+            }
+            if (thisChar=='+'){
+                consume(thisChar); 
+                return JavaTokenTypes.INC; 
+            }
+            rChar=thisChar;
+        }catch(IOException e){
+            return INVALID_TYPE;
+        }
+        return JavaTokenTypes.PLUS;
+
     }
 
     private int getMinusType(){
         //-, -=, --
-        if (textBuffer.length()==1)
-            return JavaTokenTypes.MINUS;   
-        if (textBuffer.charAt(1)=='=')
-            return JavaTokenTypes.MINUS_ASSIGN;      
-        if (textBuffer.charAt(1)=='-')
-            return JavaTokenTypes.DEC;
-        return INVALID_TYPE;
+        char [] cb=new char[1];
+        try{
+            int rval=reader.readChar(cb, col-1);
+            if (isComplete(rval, cb[0])){
+                return JavaTokenTypes.MINUS;
+            }
+            char thisChar=(char)cb[0]; 
+            if (thisChar=='='){
+                consume(thisChar); 
+                return JavaTokenTypes.MINUS_ASSIGN; 
+            }
+            if (thisChar=='-'){
+                consume(thisChar); 
+                return JavaTokenTypes.DEC; 
+            }
+            rChar=thisChar;
+        }catch(IOException e){
+            return INVALID_TYPE;
+        }
+        return JavaTokenTypes.MINUS;
     }
 
     private int getEqualType(){
         //=, ==
-        if (textBuffer.length()==1)
-            return JavaTokenTypes.ASSIGN;   
-        if (textBuffer.charAt(1)=='=')
-            return JavaTokenTypes.EQUAL;      
-        return INVALID_TYPE;
+        char [] cb=new char[1];
+        try{
+            int rval=reader.readChar(cb, col-1);
+            if (isComplete(rval, cb[0])){
+                return JavaTokenTypes.ASSIGN;
+            }
+            char thisChar=(char)cb[0]; 
+            if (thisChar=='='){
+                consume(thisChar); 
+                return JavaTokenTypes.EQUAL; 
+            }
+            rChar=thisChar;
+        }catch(IOException e){
+            return INVALID_TYPE;
+        }
+        return JavaTokenTypes.ASSIGN;
     }
 
     private int getStarType(){
-        //*, *=, */ 
-        if (textBuffer.length()==1)
-            return JavaTokenTypes.STAR;   
-        if (textBuffer.charAt(1)=='=')
-            return JavaTokenTypes.STAR_ASSIGN;     
-        if (textBuffer.charAt(1)=='/')
-            return JavaTokenTypes.ML_COMMENT;   
-        return INVALID_TYPE;
+        //*, *=, 
+        char [] cb=new char[1];
+        try{
+            int rval=reader.readChar(cb, col-1);
+            if (isComplete(rval, cb[0])){
+                return JavaTokenTypes.STAR;
+            }
+            char thisChar=(char)cb[0]; 
+            if (thisChar=='='){
+                consume(thisChar); 
+                return JavaTokenTypes.STAR_ASSIGN; 
+            }
+            rChar=thisChar;
+        }catch(IOException e){
+            return INVALID_TYPE;
+        }
+        return JavaTokenTypes.STAR;
     }
 
     private int getModType(){
         //%, %=
-        if (textBuffer.length()==1)
-            return JavaTokenTypes.MOD;   
-        if (textBuffer.charAt(1)=='=')
-            return JavaTokenTypes.MOD_ASSIGN;       
-        return INVALID_TYPE;
+        char [] cb=new char[1];
+        try{
+            int rval=reader.readChar(cb, col-1);
+            if (isComplete(rval, cb[0])){
+                return JavaTokenTypes.MOD;
+            }
+            char thisChar=(char)cb[0]; 
+            if (thisChar=='='){
+                consume(thisChar); 
+                return JavaTokenTypes.MOD_ASSIGN; 
+            }
+            rChar=thisChar;
+        }catch(IOException e){
+            return INVALID_TYPE;
+        }
+        return JavaTokenTypes.MOD;
     }
 
     private int getForwardSlashType(){
-        // /, //, /*, /= /n /t
-        if (textBuffer.length()==1)
-            return JavaTokenTypes.DIV;   
-        if (textBuffer.charAt(1)=='/')
-            return JavaTokenTypes.SL_COMMENT;   
-        if (textBuffer.charAt(1)=='*')
-            return JavaTokenTypes.ML_COMMENT;   
-        if (textBuffer.charAt(1)=='=')
-            return JavaTokenTypes.DIV_ASSIGN;   
-        if (textBuffer.charAt(1)=='n'){
-            newline=true;
-            return JavaTokenTypes.CHAR_LITERAL;
+        // /, //, /*, /= 
+        char [] cb=new char[1];
+        try{
+            int rval=reader.readChar(cb, col-1);
+            if (isComplete(rval, cb[0])){
+                return JavaTokenTypes.DIV;
+            }
+            char thisChar=(char)cb[0]; 
+            if (thisChar=='='){
+                consume(thisChar); 
+                return JavaTokenTypes.DIV_ASSIGN; 
+            }
+            if (thisChar=='/'){
+                getCommentText(thisChar, JavaTokenTypes.SL_COMMENT);
+                return JavaTokenTypes.SL_COMMENT; 
+            }
+            if (thisChar=='*'){
+                getCommentText(thisChar, JavaTokenTypes.ML_COMMENT);
+                return JavaTokenTypes.ML_COMMENT; 
+            }
+            rChar=thisChar;
+        }catch(IOException e){
+            return INVALID_TYPE;
         }
-        if (textBuffer.charAt(1)=='t'){
-            tab=true;
-            return JavaTokenTypes.CHAR_LITERAL;
+        return JavaTokenTypes.DIV;
+    }
+
+    private boolean isComplete(int rval, char ch){
+        if (rval==-1 || Character.isWhitespace(ch)
+                || Character.isLetterOrDigit(ch) ){
+            rChar=ch;
+            return true;
         }
-        return INVALID_TYPE;
+        return false;
     }
 
     private int getGTType(){
-        if (textBuffer.length()==1)
-            return JavaTokenTypes.GT;   
-        //>=
-        if (textBuffer.charAt(1)=='=')
-            return JavaTokenTypes.GE;
-        //>>
-        if (textBuffer.charAt(1)=='>' && (textBuffer.length()==2))
-            return JavaTokenTypes.SR; 
-        //>>>; >>=; 
-        if (textBuffer.charAt(1)=='>' && (textBuffer.length()==3)){
-            if ((textBuffer.charAt(2)=='>'))
-                return BSR;
-            if (textBuffer.charAt(2)=='=')
-                return SR_ASSIGN;
-        } 
-        //>>>=
-        if (textBuffer.charAt(1)=='>' && textBuffer.charAt(2)=='>' && textBuffer.charAt(3)=='='&& (textBuffer.length()==4))
-            return BSR_ASSIGN;
-        return INVALID_TYPE;
+        char [] cb=new char[1];
+        try{
+            int rval=reader.readChar(cb, col-1);
+            if (isComplete(rval, cb[0])){
+                return JavaTokenTypes.GT;
+            }
+            char thisChar=(char)cb[0];
+            //>=
+            if (thisChar=='='){
+                consume(thisChar); 
+                return JavaTokenTypes.GE; 
+            }
+            if (thisChar=='>'){
+                consume(thisChar); 
+                rval=reader.readChar(cb, col-1);
+                thisChar=cb[0];
+                //>>
+                if (isComplete(rval, thisChar)){
+                    rChar=thisChar;
+                    return JavaTokenTypes.SR;
+                }
+                //>>>; >>>=; >>=
+                if (thisChar=='>'){
+                    consume(thisChar); 
+                    rval=reader.readChar(cb, col-1);
+                    thisChar=cb[0];
+                    if (isComplete(rval, thisChar)){
+                        rChar=thisChar;
+                        return JavaTokenTypes.BSR;
+                    }
+                    if (thisChar=='='){
+                        consume(thisChar); 
+                        return JavaTokenTypes.BSR_ASSIGN; 
+                    }
+                }
+                if (thisChar=='='){
+                    consume(thisChar); 
+                    return JavaTokenTypes.SR_ASSIGN; 
+                }
+            }
+            rChar=thisChar;
+        }catch(IOException e){
+            return INVALID_TYPE;
+        }
+        return JavaTokenTypes.GT;
     }
 
     private int getLTType(){
-        if (textBuffer.length()==1)
-            return JavaTokenTypes.LT;   
-        //<=
-        if (textBuffer.charAt(1)=='=')
-            return JavaTokenTypes.LE;
-        //<<
-        if (textBuffer.charAt(1)=='<' && (textBuffer.length()==2))
-            return JavaTokenTypes.SL; 
-        //<<=; 
-        if (textBuffer.charAt(1)=='<' && (textBuffer.length()==3) && (textBuffer.charAt(2)=='=')){ 
-            return SL_ASSIGN;
-        } 
-        return INVALID_TYPE;
+        char [] cb=new char[1];
+        try{
+            int rval=reader.readChar(cb, col-1);
+            if (isComplete(rval, cb[0])){
+                return JavaTokenTypes.LT;
+            }
+            char thisChar=(char)cb[0]; 
+            if (thisChar=='='){
+                consume(thisChar); 
+                return JavaTokenTypes.LE; 
+            }
+            if (thisChar=='<'){
+                consume(thisChar); 
+                rval=reader.readChar(cb, col-1);
+                thisChar=cb[0];
+                if (isComplete(rval, thisChar)){
+                    rChar=thisChar;
+                    return JavaTokenTypes.SL;
+                }
+                if (thisChar=='='){
+                    consume(thisChar);
+                    return JavaTokenTypes.SL_ASSIGN;
+                }
+            }
+            rChar=thisChar;
+        }catch(IOException e){
+            return INVALID_TYPE;
+        }
+        return JavaTokenTypes.LT;
+
     }
 
     private int getExclamationType(){
-        if (textBuffer.length()==1)
-            return JavaTokenTypes.LNOT;
-        if(textBuffer.charAt(1)=='=')
-            return JavaTokenTypes.NOT_EQUAL;
-        return INVALID_TYPE;
+        char [] cb=new char[1];
+        try{
+            int rval=reader.readChar(cb, col-1);
+            if (rval==-1 || Character.isWhitespace((char)cb[0])){
+                return JavaTokenTypes.LNOT;
+            }
+            char thisChar=(char)cb[0]; 
+            if (thisChar=='='){
+                consume(thisChar); 
+                return JavaTokenTypes.NOT_EQUAL; 
+            }
+            rChar=thisChar;
+        }catch(IOException e){
+            return INVALID_TYPE;
+        }
+        return JavaTokenTypes.LNOT;
     }
 
     private int getDotType(){
         //. or .56f .12 
-        if (textBuffer.length()==1)
-            return JavaTokenTypes.DOT;  
-        return getNumberType();
+        char [] cb=new char[1];
+        try{
+            int rval=reader.readChar(cb, col-1);
+            if (rval==-1 || Character.isWhitespace((char)cb[0])){
+                return JavaTokenTypes.DOT;
+            }
+            char thisChar=(char)cb[0]; 
+            if (Character.isDigit(thisChar)){
+                return getDigitValue(thisChar, true);
+            }
+            rChar=thisChar;
+        }catch(IOException e){
+            return INVALID_TYPE;
+        }
+        return JavaTokenTypes.DOT;
     }
-
-    private int getBXORType(){
-        if (textBuffer.length()==1)
-            return JavaTokenTypes.BXOR;
-        if(textBuffer.charAt(1)=='=')
-            return JavaTokenTypes.BXOR_ASSIGN;
-        return INVALID_TYPE;
-    }
-
 
     private int getWordType(){
         String text=textBuffer.toString();
-        int type=JavaTokenTypes.EOF;
-        if (text.length()==1)
-            return JavaTokenTypes.LITERAL_char;
         if (text.equals("public")){
             return JavaTokenTypes.LITERAL_public;
         }
@@ -669,70 +1014,11 @@ public class BlueJJavaLexer implements JavaTokenTypes
         else return false;
     }
 
-    /*
-     * Certain symbols are always stand-alone and this is just a flag to indicate 
-     * that the reader should not be read further
-     * private char[] singleChars={'}', '{', '[', ']', '(',')'}; 
-     */
-    private boolean isSingleChar(char ch){
-        if (ch=='{'
-            || ch=='}' 
-                || ch=='['
-                    || ch==']'
-                        || ch=='('|| ch==')')
+    private boolean match(char c1, char c2){
+        if (c1==c2){
             return true;
+        }
         else return false;
     }
-
-    /* 
-     * There are some instance where a change in type does indicate a new token
-     * and some instances where it doesn't e.g compare 1+value; and an_identifier99
-     * This method checks for these cases
-     */
-    private boolean isComplete(char prevChar, char thisChar, int prevType, int thisType){
-        if (isComment())
-            return false;
-        if (textBuffer.length()==0)
-            return false;
-        //e.g test_name  before '_'
-        if ((prevType==LETTER_CHAR && thisChar=='_') )
-            return false;
-        //e.g test_name  after '_'
-        if ((thisType==LETTER_CHAR && prevChar=='_') )
-            return false;
-        //e.g identifier99
-        if ((prevType==LETTER_CHAR && thisType==DIGIT_CHAR) )
-            return false;
-        //numbers
-        if ((prevType==DIGIT_CHAR && thisType==DIGIT_CHAR) )
-            return false;
-        if (prevType==DIGIT_CHAR && (thisChar=='f'||thisChar=='d'||thisChar=='l'))
-            return false;
-        //numbers with decimal places 2.03 before '.'
-        if (prevType==DIGIT_CHAR && thisChar=='.')
-            return false;
-        //numbers with decimal places 2.03 after '.'
-        if (prevChar=='.' && thisType==DIGIT_CHAR)
-            return false;
-        //string_literal
-        if (prevChar=='\"'&& thisType==LETTER_CHAR)
-            return false;
-        //string_literal
-        if (thisChar=='\"'&& prevType==LETTER_CHAR)
-            return false;
-        //char_literal
-        if (prevChar=='\''&& thisType==LETTER_CHAR)
-            return false;
-        //char_literal
-        if (thisChar=='\''&& prevType==LETTER_CHAR)
-            return false;
-        if ((thisType!=prevType) || 
-                //e.g () 
-                (thisType==OTHER_CHAR && isSingleChar(thisChar))     
-        )
-            return true;
-        return false;
-    }
-
 
 }
