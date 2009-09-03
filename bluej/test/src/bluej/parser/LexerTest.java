@@ -37,7 +37,7 @@ public class LexerTest extends junit.framework.TestCase
     
     public void testKeywordParse() throws TokenStreamException
     {
-        TokenStream ts = getLexerFor("public private protected volatile transient abstract synchronized strictfp");
+        TokenStream ts = getLexerFor("public private protected volatile transient abstract synchronized strictfp static");
         LocatableToken token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_public);
         token = (LocatableToken) ts.nextToken();
@@ -54,6 +54,8 @@ public class LexerTest extends junit.framework.TestCase
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_synchronized);
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.STRICTFP);
+        token = (LocatableToken) ts.nextToken();
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_static);
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.EOF);
         
@@ -352,6 +354,14 @@ public class LexerTest extends junit.framework.TestCase
         token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.ML_COMMENT, token.getType());
         assertEquals("/* multiline */", token.getText());
+        
+        ts = getNonfilteringLexerFor("// single line comment\n  an_identifier");
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.SL_COMMENT, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.IDENT, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.EOF, token.getType());
 
         token = (LocatableToken) ts.nextToken();
         if (token.getType() == JavaTokenTypes.WS) {
