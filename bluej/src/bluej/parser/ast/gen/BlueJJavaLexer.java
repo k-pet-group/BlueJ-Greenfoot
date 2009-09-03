@@ -243,6 +243,7 @@ public class BlueJJavaLexer implements JavaTokenTypes
         int rval=0;     
         boolean complete=false;
         boolean isDecimal=dot;
+        boolean hexDecimalNumber=false;
         consume(ch);
         try{
             while (!complete){  
@@ -264,15 +265,24 @@ public class BlueJJavaLexer implements JavaTokenTypes
                         }
                     }
                     else if (Character.isLetter(ch)){
-                        if (ch=='f'){
+                        rChar=(char)-1;
+                        if (ch=='f'|| ch=='F'){
                             consume(ch);
                             return JavaTokenTypes.NUM_FLOAT;
-                        } if (ch=='d'){
+                        } else if (ch=='d'|| ch=='D'){
                             consume(ch);
                             return JavaTokenTypes.NUM_DOUBLE;
-                        } if (ch=='l'){
+                        } else if (ch=='l'|| ch=='L'){
                             consume(ch);
                             return JavaTokenTypes.NUM_LONG;
+                        }
+                        else if (ch=='x'){
+                            hexDecimalNumber=true;
+                            consume(ch);
+                        }
+                        else if (hexDecimalNumber && (ch=='a'|| ch=='A' || ch=='b' ||ch=='B'||ch=='c'||ch=='C'||ch=='e'||ch=='E')){
+                            consume(ch);
+                            return JavaTokenTypes.NUM_INT;
                         }
                         else {
                             complete=true;
