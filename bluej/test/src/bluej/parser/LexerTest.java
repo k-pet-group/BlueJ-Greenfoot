@@ -349,11 +349,28 @@ public class LexerTest extends junit.framework.TestCase
         token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.NUM_LONG, token.getType());
         
+        // A case which we've seen fail
+        ts = getLexerFor("/120.0f,");
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.DIV, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.NUM_FLOAT, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.COMMA, token.getType());
+        
         // Comments
         ts = getNonfilteringLexerFor("/* multiline */   // single line");
         token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.ML_COMMENT, token.getType());
         assertEquals("/* multiline */", token.getText());
+        
+        token = (LocatableToken) ts.nextToken();
+        if (token.getType() == JavaTokenTypes.WS) {
+            token = (LocatableToken) ts.nextToken();
+        }
+        
+        // Note this fails with the old lexer (whch filters SL_COMMENTs):
+        assertEquals(JavaTokenTypes.SL_COMMENT, token.getType());
         
         ts = getNonfilteringLexerFor("// single line comment\n  an_identifier");
         token = (LocatableToken) ts.nextToken();
@@ -362,14 +379,6 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(JavaTokenTypes.IDENT, token.getType());
         token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.EOF, token.getType());
-
-        token = (LocatableToken) ts.nextToken();
-        if (token.getType() == JavaTokenTypes.WS) {
-            token = (LocatableToken) ts.nextToken();
-        }
-        
-        // Note this fails with the old lexer (whch filters SL_COMMENTs):
-        assertEquals(JavaTokenTypes.SL_COMMENT, token.getType());
     }
     
     public void testPositionTracking() throws Exception
