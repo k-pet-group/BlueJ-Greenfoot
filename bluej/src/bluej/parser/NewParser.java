@@ -50,7 +50,7 @@ public class NewParser
         BlueJJavaLexer lexer = new BlueJJavaLexer(euReader);
         //lexer.setTokenObjectClass("bluej.parser.ast.LocatableToken");
         lexer.setTabSize(1);
-        // euReader.setAttachedScanner(lexer);
+        //euReader.setAttachedScanner(lexer);
         return lexer;
     }
     
@@ -565,6 +565,23 @@ public class NewParser
                     error("Unexpected end-of-file in type body; missing '}'");
                     return;
                 }
+                if (token.getType() == JavaTokenTypes.LCURLY) {
+                    // initialisation block
+                    beginStmtblockBody(token);
+                    parseStmtBlock();
+                    token = tokenStream.nextToken();
+                    if (token.getType() != JavaTokenTypes.RCURLY) {
+                        error("Expecting '}' (at end of initialisation block)");
+                        tokenStream.pushBack(token);
+                        endStmtblockBody(token, false);
+                    }
+                    else {
+                        endStmtblockBody(token, true);
+                        token = tokenStream.nextToken();
+                    }
+                    continue;
+                }
+                
                 beginElement(token);
                 tokenStream.pushBack(token);
                 LocatableToken hiddenToken = (LocatableToken) token.getHiddenBefore();
@@ -588,6 +605,7 @@ public class NewParser
                     }
                     else if (token.getType() == JavaTokenTypes.LCURLY) {
                         // initialisation block
+                        beginStmtblockBody(token);
                         parseStmtBlock();
                         token = tokenStream.nextToken();
                         if (token.getType() != JavaTokenTypes.RCURLY) {
@@ -767,7 +785,14 @@ public class NewParser
                     tokenStream.pushBack(token);
                     return;
                 }
-                parseStatement(token);
+                beginElement(token);
+                token = parseStatement(token);
+                if (token != null) {
+                    endElement(token, true);
+                }
+                else {
+                    endElement(tokenStream.LA(1), false);
+                }
             }
         } catch (TokenStreamException e) {
             e.printStackTrace();
