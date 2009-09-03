@@ -57,13 +57,17 @@ public class LexerTest extends junit.framework.TestCase
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.EOF);
         
-        ts = getLexerFor("class interface enum");
+        ts = getLexerFor("class interface enum extends implements");
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_class);
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_interface);
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.LITERAL_enum);
+        token = (LocatableToken) ts.nextToken();
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_extends);
+        token = (LocatableToken) ts.nextToken();
+        assertTrue(token.getType() == JavaTokenTypes.LITERAL_implements);
         token = (LocatableToken) ts.nextToken();
         assertTrue(token.getType() == JavaTokenTypes.EOF);
         
@@ -355,7 +359,6 @@ public class LexerTest extends junit.framework.TestCase
         }
         
         // Note this fails with the old lexer (whch filters SL_COMMENTs):
-        token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.SL_COMMENT, token.getType());
     }
     
