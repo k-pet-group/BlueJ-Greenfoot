@@ -620,6 +620,7 @@ public class NewParser
                         LocatableToken idToken = tokenStream.nextToken(); // identifier
                         if (idToken.getType() != JavaTokenTypes.IDENT) {
                             error("Expected identifier (method or field name).");
+                            token = idToken;
                             continue;
                         }
                         parseArrayDeclarators();
@@ -1979,7 +1980,7 @@ public class NewParser
                     }
                 }
                 else {
-                    error("Invalid expression");
+                    error("Invalid expression token=" + token);
                     return;
                 }
 
@@ -2065,7 +2066,7 @@ public class NewParser
                     }
                     else {
                         // TODO
-                        error("Expected operator");
+                        error("Expected operator, got '" + token + "'");
                         return;
                     }
                 }
