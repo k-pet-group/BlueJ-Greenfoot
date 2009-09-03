@@ -599,7 +599,8 @@ public class NewParser
                             endElement(token, true);
                         }
                     }
-                    else if (tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
+                    else if (token.getType() == JavaTokenTypes.IDENT
+                            && tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
                         // constructor
                         gotConstructorDecl(token, hiddenToken);
                         tokenStream.nextToken();
@@ -1667,104 +1668,104 @@ public class NewParser
         return rval;
     }
 	
-	/**
-	 * Check whether a token is an operator. Note that the LPAREN token can be an operator
-	 * (method call) or value (parenthesized expression).
-	 * 
-	 * "new" is not classified as an operator here (an operator operates on a value).
-	 */
-	public static boolean isOperator(LocatableToken token)
-	{
-		int ttype = token.getType();
-		return ttype == JavaTokenTypes.PLUS
-			|| ttype == JavaTokenTypes.MINUS
-			|| ttype == JavaTokenTypes.STAR
-			|| ttype == JavaTokenTypes.DIV
-			|| ttype == JavaTokenTypes.LBRACK
-			|| ttype == JavaTokenTypes.LPAREN
-			|| ttype == JavaTokenTypes.PLUS_ASSIGN
-			|| ttype == JavaTokenTypes.STAR_ASSIGN
-			|| ttype == JavaTokenTypes.MINUS_ASSIGN
-			|| ttype == JavaTokenTypes.DIV_ASSIGN
-			|| ttype == JavaTokenTypes.DOT
-			|| ttype == JavaTokenTypes.EQUAL
-			|| ttype == JavaTokenTypes.NOT_EQUAL
-			|| ttype == JavaTokenTypes.ASSIGN
-			|| ttype == JavaTokenTypes.BNOT
-			|| ttype == JavaTokenTypes.LNOT
-			|| ttype == JavaTokenTypes.INC
-			|| ttype == JavaTokenTypes.DEC
-			|| ttype == JavaTokenTypes.BOR
-			|| ttype == JavaTokenTypes.BOR_ASSIGN
-			|| ttype == JavaTokenTypes.BAND
-			|| ttype == JavaTokenTypes.BAND_ASSIGN
-			|| ttype == JavaTokenTypes.BXOR
-			|| ttype == JavaTokenTypes.BXOR_ASSIGN
-			|| ttype == JavaTokenTypes.SL
-			|| ttype == JavaTokenTypes.SL_ASSIGN
-			|| ttype == JavaTokenTypes.SR
-			|| ttype == JavaTokenTypes.SR_ASSIGN
-			|| ttype == JavaTokenTypes.BSR
-			|| ttype == JavaTokenTypes.BSR_ASSIGN
-			|| ttype == JavaTokenTypes.MOD
-			|| ttype == JavaTokenTypes.MOD_ASSIGN
-			|| ttype == JavaTokenTypes.LITERAL_instanceof;
-	}
+    /**
+     * Check whether a token is an operator. Note that the LPAREN token can be an operator
+     * (method call) or value (parenthesized expression).
+     * 
+     * "new" is not classified as an operator here (an operator operates on a value).
+     */
+    public static boolean isOperator(LocatableToken token)
+    {
+        int ttype = token.getType();
+        return ttype == JavaTokenTypes.PLUS
+        || ttype == JavaTokenTypes.MINUS
+        || ttype == JavaTokenTypes.STAR
+        || ttype == JavaTokenTypes.DIV
+        || ttype == JavaTokenTypes.LBRACK
+        || ttype == JavaTokenTypes.LPAREN
+        || ttype == JavaTokenTypes.PLUS_ASSIGN
+        || ttype == JavaTokenTypes.STAR_ASSIGN
+        || ttype == JavaTokenTypes.MINUS_ASSIGN
+        || ttype == JavaTokenTypes.DIV_ASSIGN
+        || ttype == JavaTokenTypes.DOT
+        || ttype == JavaTokenTypes.EQUAL
+        || ttype == JavaTokenTypes.NOT_EQUAL
+        || ttype == JavaTokenTypes.ASSIGN
+        || ttype == JavaTokenTypes.BNOT
+        || ttype == JavaTokenTypes.LNOT
+        || ttype == JavaTokenTypes.INC
+        || ttype == JavaTokenTypes.DEC
+        || ttype == JavaTokenTypes.BOR
+        || ttype == JavaTokenTypes.BOR_ASSIGN
+        || ttype == JavaTokenTypes.BAND
+        || ttype == JavaTokenTypes.BAND_ASSIGN
+        || ttype == JavaTokenTypes.BXOR
+        || ttype == JavaTokenTypes.BXOR_ASSIGN
+        || ttype == JavaTokenTypes.SL
+        || ttype == JavaTokenTypes.SL_ASSIGN
+        || ttype == JavaTokenTypes.SR
+        || ttype == JavaTokenTypes.SR_ASSIGN
+        || ttype == JavaTokenTypes.BSR
+        || ttype == JavaTokenTypes.BSR_ASSIGN
+        || ttype == JavaTokenTypes.MOD
+        || ttype == JavaTokenTypes.MOD_ASSIGN
+        || ttype == JavaTokenTypes.LITERAL_instanceof;
+    }
 	
-	/**
-	 * Check whether an operator is a binary operator.
-	 * 
-	 * "instanceof" is not considered to be a binary operator (operates on only one value).
-	 */
-	public boolean isBinaryOperator(LocatableToken token)
-	{
-		int ttype = token.getType();
-		return ttype == JavaTokenTypes.PLUS
-			|| ttype == JavaTokenTypes.MINUS
-			|| ttype == JavaTokenTypes.STAR
-			|| ttype == JavaTokenTypes.DIV
-			|| ttype == JavaTokenTypes.MOD
-			|| ttype == JavaTokenTypes.BOR
-			|| ttype == JavaTokenTypes.BXOR
-			|| ttype == JavaTokenTypes.BAND
-			|| ttype == JavaTokenTypes.SL
-			|| ttype == JavaTokenTypes.SR
-			|| ttype == JavaTokenTypes.BSR
-			|| ttype == JavaTokenTypes.BSR_ASSIGN
-			|| ttype == JavaTokenTypes.SR_ASSIGN
-			|| ttype == JavaTokenTypes.SL_ASSIGN
-			|| ttype == JavaTokenTypes.BAND_ASSIGN
-			|| ttype == JavaTokenTypes.BXOR_ASSIGN
-			|| ttype == JavaTokenTypes.BOR_ASSIGN
-			|| ttype == JavaTokenTypes.MOD_ASSIGN
-			|| ttype == JavaTokenTypes.DIV_ASSIGN
-			|| ttype == JavaTokenTypes.STAR_ASSIGN
-			|| ttype == JavaTokenTypes.MINUS_ASSIGN
-			|| ttype == JavaTokenTypes.PLUS_ASSIGN
-			|| ttype == JavaTokenTypes.ASSIGN
-			|| ttype == JavaTokenTypes.DOT
-			|| ttype == JavaTokenTypes.EQUAL
-			|| ttype == JavaTokenTypes.NOT_EQUAL
-			|| ttype == JavaTokenTypes.LT
-			|| ttype == JavaTokenTypes.LE
-			|| ttype == JavaTokenTypes.GT
-			|| ttype == JavaTokenTypes.GE
-			|| ttype == JavaTokenTypes.LAND
-			|| ttype == JavaTokenTypes.LOR;
-	}
+    /**
+     * Check whether an operator is a binary operator.
+     * 
+     * "instanceof" is not considered to be a binary operator (operates on only one value).
+     */
+    public boolean isBinaryOperator(LocatableToken token)
+    {
+        int ttype = token.getType();
+        return ttype == JavaTokenTypes.PLUS
+        || ttype == JavaTokenTypes.MINUS
+        || ttype == JavaTokenTypes.STAR
+        || ttype == JavaTokenTypes.DIV
+        || ttype == JavaTokenTypes.MOD
+        || ttype == JavaTokenTypes.BOR
+        || ttype == JavaTokenTypes.BXOR
+        || ttype == JavaTokenTypes.BAND
+        || ttype == JavaTokenTypes.SL
+        || ttype == JavaTokenTypes.SR
+        || ttype == JavaTokenTypes.BSR
+        || ttype == JavaTokenTypes.BSR_ASSIGN
+        || ttype == JavaTokenTypes.SR_ASSIGN
+        || ttype == JavaTokenTypes.SL_ASSIGN
+        || ttype == JavaTokenTypes.BAND_ASSIGN
+        || ttype == JavaTokenTypes.BXOR_ASSIGN
+        || ttype == JavaTokenTypes.BOR_ASSIGN
+        || ttype == JavaTokenTypes.MOD_ASSIGN
+        || ttype == JavaTokenTypes.DIV_ASSIGN
+        || ttype == JavaTokenTypes.STAR_ASSIGN
+        || ttype == JavaTokenTypes.MINUS_ASSIGN
+        || ttype == JavaTokenTypes.PLUS_ASSIGN
+        || ttype == JavaTokenTypes.ASSIGN
+        || ttype == JavaTokenTypes.DOT
+        || ttype == JavaTokenTypes.EQUAL
+        || ttype == JavaTokenTypes.NOT_EQUAL
+        || ttype == JavaTokenTypes.LT
+        || ttype == JavaTokenTypes.LE
+        || ttype == JavaTokenTypes.GT
+        || ttype == JavaTokenTypes.GE
+        || ttype == JavaTokenTypes.LAND
+        || ttype == JavaTokenTypes.LOR;
+    }
 	
-	public boolean isUnaryOperator(LocatableToken token)
-	{
-		int ttype = token.getType();
-		return ttype == JavaTokenTypes.PLUS
-			|| ttype == JavaTokenTypes.MINUS
-			|| ttype == JavaTokenTypes.LNOT
-			|| ttype == JavaTokenTypes.BNOT
-			|| ttype == JavaTokenTypes.INC
-			|| ttype == JavaTokenTypes.DEC;
-	}
-	
-	/**
+    public boolean isUnaryOperator(LocatableToken token)
+    {
+        int ttype = token.getType();
+        return ttype == JavaTokenTypes.PLUS
+        || ttype == JavaTokenTypes.MINUS
+        || ttype == JavaTokenTypes.LNOT
+        || ttype == JavaTokenTypes.BNOT
+        || ttype == JavaTokenTypes.INC
+        || ttype == JavaTokenTypes.DEC;
+    }
+
+    /**
      * Parse an annotation
      */
     public boolean parseAnnotation()
@@ -1981,6 +1982,7 @@ public class NewParser
                 }
                 else {
                     error("Invalid expression token=" + token);
+                    tokenStream.pushBack(token);
                     return;
                 }
 
@@ -2067,6 +2069,7 @@ public class NewParser
                     else {
                         // TODO
                         error("Expected operator, got '" + token + "'");
+                        tokenStream.pushBack(token);
                         return;
                     }
                 }
@@ -2077,99 +2080,100 @@ public class NewParser
         }
     }
 	
-	/**
-	 * Parse a comma-separated, possibly empty list of arguments to a method/constructor
-	 */
-	public void parseArgumentList()
-	{
-		try {
-			LocatableToken token = tokenStream.nextToken();
-			if (token.getType() != JavaTokenTypes.RPAREN) {
-				tokenStream.pushBack(token);
-				do  {
-					parseExpression();
-					token = tokenStream.nextToken();
-				} while (token.getType() == JavaTokenTypes.COMMA);
-				if (token.getType() != JavaTokenTypes.RPAREN) {
-					error("Expecting ',' or ')' (in argument list)");
-				}
-			}
-			tokenStream.pushBack(token); // push back the ')' or erroneous token
-			return;
-		}
-		catch (TokenStreamException tse) {
-			tse.printStackTrace();
-		}
-	}
+    /**
+     * Parse a comma-separated, possibly empty list of arguments to a method/constructor
+     */
+    public void parseArgumentList()
+    {
+        try {
+            LocatableToken token = tokenStream.nextToken();
+            if (token.getType() != JavaTokenTypes.RPAREN) {
+                tokenStream.pushBack(token);
+                do  {
+                    parseExpression();
+                    token = tokenStream.nextToken();
+                } while (token.getType() == JavaTokenTypes.COMMA);
+                if (token.getType() != JavaTokenTypes.RPAREN) {
+                    error("Expecting ',' or ')' (in argument list)");
+                }
+            }
+            tokenStream.pushBack(token); // push back the ')' or erroneous token
+            return;
+        }
+        catch (TokenStreamException tse) {
+            tse.printStackTrace();
+        }
+    }
 	
-	/**
-	 * Parse a list of formal parameters (possibly empty)
-	 */
-	public void parseParameterList()
-	{
-		try {
-			LocatableToken token = tokenStream.nextToken();
-			while (token.getType() != JavaTokenTypes.RPAREN
-					&& token.getType() != JavaTokenTypes.RCURLY) {
-				tokenStream.pushBack(token);
-				
-				parseTypeSpec();
-				LocatableToken idToken = tokenStream.nextToken(); // identifier
-				if (idToken.getType() != JavaTokenTypes.IDENT) {
-					error("Expected parameter identifier (in method parameter)");
-					// skip to next ',', ')' or '}' TODO
-					return;
-				}
-				gotMethodParameter(idToken);
-				parseArrayDeclarators();
-				token = tokenStream.nextToken();
-				if (token.getType() != JavaTokenTypes.COMMA) {
-					break;
-				}
-				token = tokenStream.nextToken();
-			}
-			tokenStream.pushBack(token);
-		} catch (TokenStreamException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	/**
-	 * We've seen a constructor declaration. The token supplied is the constructor name.
-	 * The hiddenToken is the comment before the constructor.
-	 */
-	protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken) {}
-	
-	/**
-	 * We've seen a method declaration; the token parameter is the method name;
-	 * the hiddenToken parameter is the comment before the method
-	 */
-	protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken) {}
+    /**
+     * Parse a list of formal parameters (possibly empty)
+     */
+    public void parseParameterList()
+    {
+        try {
+            LocatableToken token = tokenStream.nextToken();
+            while (token.getType() != JavaTokenTypes.RPAREN
+                    && token.getType() != JavaTokenTypes.RCURLY) {
+                tokenStream.pushBack(token);
 
-	/** 
-	 * We saw a method (or constructor) parameter. The given token specifies the parameter name. 
-	 * The last type parsed by parseTypeSpec(boolean) is the parameter type, however, there may
-	 * be array declarators (after the identifier) yet to be parsed.
-	 */
-	protected void gotMethodParameter(LocatableToken token) { }
+                parseTypeSpec();
+                LocatableToken idToken = tokenStream.nextToken(); // identifier
+                if (idToken.getType() != JavaTokenTypes.IDENT) {
+                    error("Expected parameter identifier (in method parameter)");
+                    // TODO skip to next ',', ')' or '}' if there is one soon (LA(3)?)
+                    tokenStream.pushBack(idToken);
+                    return;
+                }
+                gotMethodParameter(idToken);
+                parseArrayDeclarators();
+                token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.COMMA) {
+                    break;
+                }
+                token = tokenStream.nextToken();
+            }
+            tokenStream.pushBack(token);
+        } catch (TokenStreamException e) {
+            e.printStackTrace();
+        }
+    }
 	
-	protected void gotAllMethodParameters() { }
-	
-	/**
-	 * Called by the lexer when it sees a comment.
-	 */
-	public void gotComment(LocatableToken token) { }
-	
-	private void pushBackAll(List<LocatableToken> tokens)
-	{
-		ListIterator<LocatableToken> i = tokens.listIterator(tokens.size());
-		while (i.hasPrevious()) {
-			tokenStream.pushBack(i.previous());
-		}
-	}
-	
-	private class DepthRef
-	{
-		int depth;
-	}
+    /**
+     * We've seen a constructor declaration. The token supplied is the constructor name.
+     * The hiddenToken is the comment before the constructor.
+     */
+    protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken) {}
+
+    /**
+     * We've seen a method declaration; the token parameter is the method name;
+     * the hiddenToken parameter is the comment before the method
+     */
+    protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken) {}
+
+    /** 
+     * We saw a method (or constructor) parameter. The given token specifies the parameter name. 
+     * The last type parsed by parseTypeSpec(boolean) is the parameter type, however, there may
+     * be array declarators (after the identifier) yet to be parsed.
+     */
+    protected void gotMethodParameter(LocatableToken token) { }
+
+    protected void gotAllMethodParameters() { }
+
+    /**
+     * Called by the lexer when it sees a comment.
+     */
+    public void gotComment(LocatableToken token) { }
+
+    private void pushBackAll(List<LocatableToken> tokens)
+    {
+        ListIterator<LocatableToken> i = tokens.listIterator(tokens.size());
+        while (i.hasPrevious()) {
+            tokenStream.pushBack(i.previous());
+        }
+    }
+
+    private class DepthRef
+    {
+        int depth;
+    }
 }
