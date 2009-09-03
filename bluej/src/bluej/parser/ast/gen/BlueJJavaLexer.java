@@ -27,10 +27,12 @@ public class BlueJJavaLexer implements JavaTokenTypes
         line=1;
     }
 
-    private LocatableToken makeToken(int type, String txt, int beginCol, int endCol, int beginLine, int line){
+    private LocatableToken makeToken(int type, String txt, int beginCol, int endCol, int beginLine, int line, boolean calcCol){
         LocatableToken tok = new LocatableToken();
-        int textLength=txt.length();
-        endCol=textLength+beginCol;
+        if (calcCol){
+            int textLength=txt.length();
+            endCol=textLength+beginCol;
+        }
         tok.setType(type);
         tok.setText(txt);
         tok.setColumn(beginCol);
@@ -158,23 +160,23 @@ public class BlueJJavaLexer implements JavaTokenTypes
             return createWordToken(nextChar, bCol, bLine); 
         if (Character.isDigit(nextChar))
             return createDigitToken(nextChar, bCol, bLine);
-        return makeToken(getSymbolType(nextChar), textBuffer.toString(), bCol, col, bLine, line); 
+        return makeToken(getSymbolType(nextChar), textBuffer.toString(), bCol, col, bLine, line,false); 
     }
 
 
     private LocatableToken createDigitToken(char nextChar, int bCol, int bLine){
         //return makeToken(getNumberType(), getNumberText(nextChar), bCol, col, bLine, line);  
-        return makeToken(getDigitValue(nextChar, false), textBuffer.toString(), bCol, col, bLine, line); 
+        return makeToken(getDigitValue(nextChar, false), textBuffer.toString(), bCol, col, bLine, line, true); 
     }
 
     private LocatableToken createWordToken(char nextChar, int bCol, int bLine){
         populateTextBuffer(nextChar);
-        return makeToken(getTokenType(), textBuffer.toString(), bCol, col, bLine, line);     
+        return makeToken(getTokenType(), textBuffer.toString(), bCol, col, bLine, line, true);     
     }
 
     private LocatableToken processEndOfReader(){
         resetText();
-        return makeToken(JavaTokenTypes.EOF, "EOF", col, col, line, line);
+        return makeToken(JavaTokenTypes.EOF, "EOF", col, col, line, line, true);
     }
 
     private void populateTextBuffer(char ch){
@@ -296,7 +298,7 @@ public class BlueJJavaLexer implements JavaTokenTypes
             return JavaTokenTypes.NUM_DOUBLE;
         return JavaTokenTypes.NUM_INT;
     }
-    
+
     private void  getCommentText(char ch, int type){
         char [] cb=new char[1];
         int rval=0;     
@@ -311,11 +313,14 @@ public class BlueJJavaLexer implements JavaTokenTypes
                     return;
                 }
                 ch=cb[0];
-                if (type==JavaTokenTypes.SL_COMMENT && ch=='\n'){
-                    return;
+                if (ch=='\n'){
+                    line++;
+                    col=0;
                 }
+
                 if (checkflag){
                     if (ch=='/'){
+
                         complete=true;
                         consume(ch);
                     }//it was a false alarm and we have not reached the end of the comment
