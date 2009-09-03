@@ -422,10 +422,10 @@ public class LexerTest extends junit.framework.TestCase
         
         // Multi-line comment - fails with old lexer:
         ts = getNonfilteringLexerFor("\n/* This is a multi-line\ncomment\n*/");
+        token = (LocatableToken) ts.nextToken();
         while (token.getType() == JavaTokenTypes.WS) {
             token = (LocatableToken) ts.nextToken();
         }
-        token = (LocatableToken) ts.nextToken();
         assertEquals(2, token.getLine());
         assertEquals(1, token.getColumn());
         assertEquals(4, token.getEndLine());
