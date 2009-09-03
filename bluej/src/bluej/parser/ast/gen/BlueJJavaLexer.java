@@ -922,6 +922,9 @@ public class BlueJJavaLexer implements JavaTokenTypes
         if (text.equals("implements")){
             return JavaTokenTypes.LITERAL_implements;
         }
+        if (text.equals("extends")){
+            return JavaTokenTypes.LITERAL_extends;
+        }
         if (text.equals("this")){
             return JavaTokenTypes.LITERAL_this;
         }
