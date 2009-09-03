@@ -23,12 +23,18 @@ package bluej.parser;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Stack;
 
 import antlr.TokenStreamException;
+import bluej.parser.ast.LocatableToken;
 import bluej.parser.ast.gen.JavaTokenTypes;
+import bluej.parser.entity.JavaEntity;
 
 public class TextParser extends NewParser
 {
+    private Stack<JavaEntity> valueStack = new Stack<JavaEntity>();
+    private Stack<LocatableToken> operatorStack = new Stack<LocatableToken>();
+    
     public TextParser(Reader r)
     {
         super(r);
@@ -46,5 +52,19 @@ public class TextParser extends NewParser
         } catch (TokenStreamException e) {
             return true;
         }
+    }
+    
+    @Override
+    protected void gotLiteral(LocatableToken token)
+    {
+        // TODO Auto-generated method stub
+        super.gotLiteral(token);
+    }
+    
+    @Override
+    protected void gotBinaryOperator(LocatableToken token)
+    {
+        // TODO Auto-generated method stub
+        super.gotBinaryOperator(token);
     }
 }

@@ -60,6 +60,9 @@ import bluej.debugmgr.ValueCollection;
 import bluej.debugmgr.texteval.WildcardCapture;
 import bluej.parser.ast.gen.JavaLexer;
 import bluej.parser.ast.gen.JavaTokenTypes;
+import bluej.parser.entity.ClassEntity;
+import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.PackageOrClass;
 import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
 
@@ -2401,15 +2404,8 @@ public class TextAnalyzer
     {
         StringReader r = new StringReader(s);
         
-        // We use a lexer pipeline:
-        // First, deal with escaped unicode characters:
-        EscapedUnicodeReader eur = new EscapedUnicodeReader(r);
-
-        // Next create the initial lexer stage
-        JavaLexer lexer = new JavaLexer(eur);
-        lexer.setTokenObjectClass("bluej.parser.ast.LocatableToken");
-        lexer.setTabSize(1);
-        eur.setAttachedScanner(lexer);
+        // Create the initial lexer stage
+        JavaLexer lexer = NewParser.getLexer(r);
         
         // Finally filter out comments and whitespace
         TokenStream filter = new JavaTokenFilter(lexer);
@@ -2665,7 +2661,7 @@ public class TextAnalyzer
             packageName = pname;
         }
         
-        JavaType getType() throws SemanticException
+        public JavaType getType() throws SemanticException
         {
             throw new SemanticException();
         }
@@ -2676,7 +2672,7 @@ public class TextAnalyzer
             throw new SemanticException();
         }
         
-        JavaEntity getSubentity(String name) throws SemanticException
+        public JavaEntity getSubentity(String name) throws SemanticException
         {
             Class c;
             try {
@@ -2688,7 +2684,7 @@ public class TextAnalyzer
             }
         }
         
-        PackageOrClass getPackageOrClassMember(String name) throws SemanticException
+        public PackageOrClass getPackageOrClassMember(String name) throws SemanticException
         {
             return (PackageOrClass) getSubentity(name);
         }
@@ -2736,23 +2732,23 @@ public class TextAnalyzer
             this.tparams = tparams;
         }
 
-        ClassEntity setTypeParams(List tparams) throws SemanticException
+        public ClassEntity setTypeParams(List tparams) throws SemanticException
         {
             // this.tparams = tparams;
             return new TypeEntity(thisClass, outer, tparams);
         }
 
-        JavaType getType()
+        public JavaType getType()
         {
             return getClassType();
         }
         
-        GenTypeClass getClassType()
+        public GenTypeClass getClassType()
         {
             return new GenTypeClass(new JavaReflective(thisClass), tparams, outer);
         }
         
-        JavaEntity getSubentity(String name) throws SemanticException
+        public JavaEntity getSubentity(String name) throws SemanticException
         {
             // subentity of a class could be a member type or field
             // Is it a field?
@@ -2783,7 +2779,7 @@ public class TextAnalyzer
             return getPackageOrClassMember(name);
         }
         
-        PackageOrClass getPackageOrClassMember(String name) throws SemanticException
+        public PackageOrClass getPackageOrClassMember(String name) throws SemanticException
         {
             // A class cannot have a package member...
             return new TypeEntity(getMemberClass(name), getClassType());
@@ -2804,7 +2800,7 @@ public class TextAnalyzer
             }
         }
         
-        ClassEntity getStaticMemberClass(String name) throws SemanticException
+        public ClassEntity getStaticMemberClass(String name) throws SemanticException
         {
             Class c = getMemberClass(name);
             if (Modifier.isStatic(c.getModifiers()))
@@ -2814,7 +2810,7 @@ public class TextAnalyzer
             throw new SemanticException();
         }
         
-        JavaEntity getStaticField(String name) throws SemanticException
+        public JavaEntity getStaticField(String name) throws SemanticException
         {
             Field f = null;
             try {
@@ -2834,12 +2830,12 @@ public class TextAnalyzer
             throw new SemanticException();
         }
         
-        List getStaticMethods(String name)
+        public List getStaticMethods(String name)
         {
             return getAccessibleStaticMethods(thisClass, name, packageScope);
         }
         
-        String getName()
+        public String getName()
         {
             return getType().toString();
         }
@@ -2866,12 +2862,12 @@ public class TextAnalyzer
             this.name = name;
         }
         
-        JavaType getType()
+        public JavaType getType()
         {
             return type;
         }
         
-        JavaEntity getSubentity(String name)
+        public JavaEntity getSubentity(String name)
             throws SemanticException
         {
             // Should be a member field.
@@ -2920,7 +2916,7 @@ public class TextAnalyzer
             }
         }
         
-        String getName()
+        public String getName()
         {
             return name;
         }

@@ -19,37 +19,21 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.parser;
+package bluej.parser.entity;
 
-import bluej.debugger.gentype.JavaType;
+import bluej.parser.SemanticException;
 
-/**
- * A general abstraction for handling entities which may have fields or
- * members - including packages, classes, and values.
- * 
- * @author Davin McCall
- * @version $Id$
- */
-abstract class JavaEntity
+public interface EntityResolver
 {
     /**
-     * Get the type of the entity. For a class entity, this is the class itself
-     * (may be generic). For a value this is the value type.
-     * 
-     * Throws SemanticException if the entity doesn't have an
-     * assosciated type (for instance, it represents a package)
-     */ 
-    abstract JavaType getType() throws SemanticException;
+     * Resolve a package or class. If a class with the given name exists in the resolver's scope,
+     * it is returned; otherwise a package is returned.
+     */
+    public PackageOrClass resolvePackageOrClass(String name) throws SemanticException;
     
     /**
-     * Get a sub-entity (member, field, whatever) by name.
-     * @param name  The name of the subentity
-     * @return  The subentity
-     * @throws SemanticException  if the given subentity doesn't exist
+     * Resolve a value. If a local variable or field with the given name exists in the resolver's
+     * scope, it is returned; otherwise the effect is as if resolvePackageOrClass was called.
      */
-    abstract JavaEntity getSubentity(String name) throws SemanticException;
-    
-    abstract boolean isClass();
-    
-    abstract String getName();
+    public JavaEntity resolveValueEntity(String name) throws SemanticException;
 }

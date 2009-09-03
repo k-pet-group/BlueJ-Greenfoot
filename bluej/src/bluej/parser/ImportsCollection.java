@@ -24,6 +24,9 @@ package bluej.parser;
 import java.util.*;
 
 import bluej.Config;
+import bluej.parser.entity.ClassEntity;
+import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.PackageOrClass;
 
 /**
  * Maintain and manage a collection of import statements.

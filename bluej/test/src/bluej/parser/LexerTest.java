@@ -17,22 +17,13 @@ public class LexerTest extends junit.framework.TestCase
 {
     private TokenStream getLexerFor(String s)
     {
-        EscapedUnicodeReader euReader = new EscapedUnicodeReader(new StringReader(s));
-        JavaLexer lexer = new JavaLexer(euReader);
-        lexer.setTokenObjectClass("bluej.parser.ast.LocatableToken");
-        lexer.setTabSize(1);
-        euReader.setAttachedScanner(lexer);
+        JavaLexer lexer = NewParser.getLexer(new StringReader(s));
         return new JavaTokenFilter(lexer, null);
     }
     
     private TokenStream getNonfilteringLexerFor(String s)
     {
-        EscapedUnicodeReader euReader = new EscapedUnicodeReader(new StringReader(s));
-        JavaLexer lexer = new JavaLexer(euReader);
-        lexer.setTokenObjectClass("bluej.parser.ast.LocatableToken");
-        lexer.setTabSize(1);
-        euReader.setAttachedScanner(lexer);
-        return lexer;
+        return NewParser.getLexer(new StringReader(s));
     }
     
     public void testKeywordParse() throws TokenStreamException

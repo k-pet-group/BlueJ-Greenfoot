@@ -9,7 +9,6 @@ import antlr.TokenStreamException;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.Token;
 import bluej.parser.DocumentReader;
-import bluej.parser.EscapedUnicodeReader;
 import bluej.parser.JavaTokenFilter;
 import bluej.parser.NewParser;
 import bluej.parser.ast.LocatableToken;
@@ -93,12 +92,7 @@ public class ParentParsedNode extends ParsedNode
     protected static Token tokenizeText(Document document, int pos, int length)
     {
         DocumentReader dr = new DocumentReader(document, pos);
-        
-        EscapedUnicodeReader euReader = new EscapedUnicodeReader(dr);
-        JavaLexer lexer = new JavaLexer(euReader);
-        lexer.setTokenObjectClass("bluej.parser.ast.LocatableToken");
-        lexer.setTabSize(1);
-        euReader.setAttachedScanner(lexer);
+        JavaLexer lexer = NewParser.getLexer(dr);
         TokenStream tokenStream = new JavaTokenFilter(lexer, null);
 
         Token dummyTok = new Token(0, Token.END);
