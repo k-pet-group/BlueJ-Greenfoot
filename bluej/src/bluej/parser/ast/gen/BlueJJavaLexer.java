@@ -961,6 +961,9 @@ public class BlueJJavaLexer implements JavaTokenTypes
         if (text.equals("void")){
             return JavaTokenTypes.LITERAL_void;
         }
+        if (text.equals("static")){
+            return JavaTokenTypes.LITERAL_static;
+        }
         if (text.equals("boolean")){
             return JavaTokenTypes.LITERAL_boolean;
         }
@@ -990,6 +993,12 @@ public class BlueJJavaLexer implements JavaTokenTypes
         }
         if (text.equals("super")){
             return JavaTokenTypes.LITERAL_super;
+        }
+        if (text.equals("import")){
+            return JavaTokenTypes.LITERAL_import;
+        }
+        if (text.equals("package")){
+            return JavaTokenTypes.LITERAL_package;
         }
         if (text.equals("strictfp")){
             return JavaTokenTypes.STRICTFP;
