@@ -1008,6 +1008,12 @@ public class BlueJJavaLexer implements JavaTokenTypes
         if (text.equals("goto")){
             return JavaTokenTypes.GOTO;
         }
+        if (text.equals("return")){
+            return JavaTokenTypes.LITERAL_return;
+        }
+        if (text.equals("final")){
+            return JavaTokenTypes.FINAL;
+        }
         return JavaTokenTypes.IDENT;
 
     }
