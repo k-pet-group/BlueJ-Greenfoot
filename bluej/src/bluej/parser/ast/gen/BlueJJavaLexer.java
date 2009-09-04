@@ -147,7 +147,8 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         if (overwrite){
             append(c, overwrite);
             //int pos=reader.getPosition();
-            ++col;
+            if (c!='\n')
+                ++col;
         }
         else consume(c);
     }
