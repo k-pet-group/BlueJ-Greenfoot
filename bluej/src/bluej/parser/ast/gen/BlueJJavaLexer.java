@@ -198,6 +198,7 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
 
     private LocatableToken processEndOfReader(){
         resetText();
+        rChar=(char)-1;
         return makeToken(JavaTokenTypes.EOF, "EOF", col, col, line, line, false);
     }
 
@@ -769,7 +770,10 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
     private boolean isComplete(int rval, char ch){
         if (rval==-1 || Character.isWhitespace(ch)
                 || Character.isLetterOrDigit(ch) ){
-            rChar=ch;
+            if(rval==-1)
+                rChar=(char)-1;
+            else
+                rChar=ch;
             return true;
         }
         return false;
@@ -810,7 +814,6 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
                 thisChar=cb[0];
                 //>>
                 if (isComplete(rval, thisChar, validChars)){
-                    rChar=thisChar;
                     return JavaTokenTypes.SR;
                 }
                 //>>>; >>>=; >>=
@@ -820,16 +823,17 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
                     thisChar=cb[0];
                     validChars[0]='=';
                     if (isComplete(rval, thisChar, validChars)){
-                        rChar=thisChar;
                         return JavaTokenTypes.BSR;
                     }
                     if (thisChar=='='){
                         consume(thisChar); 
+                        rChar=(char)-1;
                         return JavaTokenTypes.BSR_ASSIGN; 
                     }
                 }
                 if (thisChar=='='){
                     consume(thisChar); 
+                    rChar=(char)-1;
                     return JavaTokenTypes.SR_ASSIGN; 
                 }
             }
@@ -860,8 +864,7 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
                 rval=reader.readChar(cb, col-1);
                 thisChar=cb[0];
                 validChars[0]='=';
-                if (isComplete(rval, thisChar)){
-                    rChar=thisChar;
+                if (isComplete(rval, thisChar, validChars)){
                     return JavaTokenTypes.SL;
                 }
                 if (thisChar=='='){
@@ -904,8 +907,10 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         try{
             int rval=reader.readChar(cb, col-1);
             char ch=cb[0];
+            rChar=ch;
             if (rval==-1 || Character.isWhitespace((char)ch)|| Character.isLetter(ch)){
-                rChar=ch;
+                if (rval==-1)
+                    rChar=(char)-1;
                 return JavaTokenTypes.DOT;
             }
             char thisChar=(char)cb[0]; 
@@ -916,11 +921,15 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
             else if (ch=='.'){
                 consume(ch);
                 rval=reader.readChar(cb, col-1);
-                if (rval==-1)
+                if (rval==-1){
+                    rChar=(char)-1;
                     return JavaTokenTypes.INVALID;
+                }
                 ch=cb[0];
+                rChar=(char)ch;
                 if (ch=='.'){
                     consume(ch);
+                    rChar=(char)-1;
                     return JavaTokenTypes.TRIPLE_DOT;
                 }
                 else return JavaTokenTypes.INVALID;
