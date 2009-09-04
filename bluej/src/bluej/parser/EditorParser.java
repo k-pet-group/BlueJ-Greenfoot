@@ -252,6 +252,39 @@ public class EditorParser extends NewParser
     }
     
     @Override
+    protected void beginTryCatchSmt(LocatableToken token)
+    {
+        ParentParsedNode tryNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_SELECTION);
+        int curOffset = getTopNodeOffset();
+        int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+        scopeStack.peek().insertNode(tryNode, insPos - curOffset, 0);
+        scopeStack.push(tryNode);
+    }
+    
+    @Override
+    protected void beginTryBlock(LocatableToken token)
+    {
+        ParentParsedNode tryBlockNode = new ParentParsedNode(scopeStack.peek());
+        tryBlockNode.setInner(true);
+        int curOffset = getTopNodeOffset();
+        int insPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
+        scopeStack.peek().insertNode(tryBlockNode, insPos - curOffset, 0);
+        scopeStack.push(tryBlockNode);
+    }
+    
+    @Override
+    protected void endTryBlock(LocatableToken token, boolean included)
+    {
+        endTopNode(token, false);
+    }
+    
+    @Override
+    protected void endTryCatchStmt(LocatableToken token, boolean included)
+    {
+        endTopNode(token, included);
+    }
+    
+    @Override
     protected void beginStmtblockBody(LocatableToken token)
     {
         int curOffset = getTopNodeOffset();

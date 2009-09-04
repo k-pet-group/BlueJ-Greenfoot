@@ -143,6 +143,18 @@ public class NewParser
     
     protected void endIfStmt(LocatableToken token, boolean included) { }
     
+    protected void beginTryCatchSmt(LocatableToken token) { }
+    
+    protected void beginTryBlock(LocatableToken token) { }
+    
+    protected void endTryBlock(LocatableToken token, boolean included) { }
+    
+    protected void endTryCatchStmt(LocatableToken token, boolean included) { }
+    
+    /**
+     * Beginning of a statement block. This includes anonymous statement blocks, and static
+     * initializer blocks
+     */
     protected void beginStmtblockBody(LocatableToken token)
     {
         beginElement(token);
@@ -897,48 +909,7 @@ public class NewParser
                 return token;
             }
             else if (token.getType() == JavaTokenTypes.LITERAL_try) {
-                token = tokenStream.nextToken();
-                if (token.getType() != JavaTokenTypes.LCURLY) {
-                    error ("Expecting '{' after 'try'");
-                    tokenStream.pushBack(token);
-                    return null;
-                }
-                LocatableToken lastToken = parseStatement(token);
-                int laType = tokenStream.LA(1).getType();
-                while (laType == JavaTokenTypes.LITERAL_catch
-                        || laType == JavaTokenTypes.LITERAL_finally) {
-                    token = tokenStream.nextToken();
-                    if (laType == JavaTokenTypes.LITERAL_catch) {
-                        token = tokenStream.nextToken();
-                        if (token.getType() != JavaTokenTypes.LPAREN) {
-                            error("Expecting '(' after 'catch'");
-                            tokenStream.pushBack(token);
-                            return null;
-                        }
-                        parseTypeSpec();
-                        token = tokenStream.nextToken();
-                        if (token.getType() != JavaTokenTypes.IDENT) {
-                            error("Expecting identifier after type (in 'catch' expression)");
-                            tokenStream.pushBack(token);
-                            return null;
-                        }
-                        token = tokenStream.nextToken();
-                        if (token.getType() != JavaTokenTypes.RPAREN) {
-                            error("Expecting ')' after identifier (in 'catch' expression)");
-                            tokenStream.pushBack(token);
-                            return null;
-                        }
-                    }
-                    token = tokenStream.nextToken();
-                    if (token.getType() != JavaTokenTypes.LCURLY) {
-                        error("Expecting '{' after 'catch'/'finally'");
-                        tokenStream.pushBack(token);
-                        return null;
-                    }
-                    lastToken = parseStatement(token); // parse as a statement block
-                    laType = tokenStream.LA(1).getType();
-                }
-                return lastToken;
+                return parseTryCatchStmt(token);
             }
             else if (token.getType() == JavaTokenTypes.IDENT) {
                 // A label?
@@ -1036,6 +1007,87 @@ public class NewParser
         }
         catch (TokenStreamException tse) {
             tse.printStackTrace();
+            return null;
+        }
+    }
+    
+    public LocatableToken parseTryCatchStmt(LocatableToken token)
+    {
+        try {
+            beginTryCatchSmt(token);
+            token = tokenStream.nextToken();
+            if (token.getType() != JavaTokenTypes.LCURLY) {
+                error ("Expecting '{' after 'try'");
+                tokenStream.pushBack(token);
+                endTryCatchStmt(token, false);
+                return null;
+            }
+            beginTryBlock(token);
+            parseStmtBlock();
+            token = tokenStream.nextToken();
+            if (token.getType() == JavaTokenTypes.RCURLY) {
+                endTryBlock(token, true);
+            }
+            else if (token.getType() == JavaTokenTypes.LITERAL_catch
+                    || token.getType() == JavaTokenTypes.LITERAL_finally) {
+                // Invalid, but we can recover
+                error("Missing '}' at end of 'try' block");
+                endTryBlock(token, false);
+            }
+            else {
+                error("Missing '}' at end of 'try' block");
+                endTryBlock(token, false);
+                endTryCatchStmt(token, false);
+                return null;
+            }
+
+            int laType = tokenStream.LA(1).getType();
+            while (laType == JavaTokenTypes.LITERAL_catch
+                    || laType == JavaTokenTypes.LITERAL_finally) {
+                token = tokenStream.nextToken();
+                if (laType == JavaTokenTypes.LITERAL_catch) {
+                    token = tokenStream.nextToken();
+                    if (token.getType() != JavaTokenTypes.LPAREN) {
+                        error("Expecting '(' after 'catch'");
+                        tokenStream.pushBack(token);
+                        endTryCatchStmt(token, false);
+                        return null;
+                    }
+                    parseTypeSpec();
+                    token = tokenStream.nextToken();
+                    if (token.getType() != JavaTokenTypes.IDENT) {
+                        error("Expecting identifier after type (in 'catch' expression)");
+                        tokenStream.pushBack(token);
+                        endTryCatchStmt(token, false);
+                        return null;
+                    }
+                    token = tokenStream.nextToken();
+                    if (token.getType() != JavaTokenTypes.RPAREN) {
+                        error("Expecting ')' after identifier (in 'catch' expression)");
+                        tokenStream.pushBack(token);
+                        endTryCatchStmt(token, false);
+                        return null;
+                    }
+                }
+                token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.LCURLY) {
+                    error("Expecting '{' after 'catch'/'finally'");
+                    tokenStream.pushBack(token);
+                    endTryCatchStmt(token, false);
+                    return null;
+                }
+                token = parseStatement(token); // parse as a statement block
+                laType = tokenStream.LA(1).getType();
+            }
+            if (token != null) {
+                endTryCatchStmt(token, true);
+            }
+            else {
+                endTryCatchStmt(tokenStream.LA(1), false);
+            }
+            return token;
+        }
+        catch (TokenStreamException tse) {
             return null;
         }
     }
