@@ -798,12 +798,19 @@ public class NewParser
                     return;
                 }
                 beginElement(token);
-                token = parseStatement(token);
-                if (token != null) {
-                    endElement(token, true);
+                LocatableToken ntoken = parseStatement(token);
+                if (ntoken != null) {
+                    endElement(ntoken, true);
                 }
                 else {
+                    ntoken = tokenStream.LA(1);
                     endElement(tokenStream.LA(1), false);
+                    if (ntoken == token) {
+                        break; // we're not getting anywhere - time to bail
+                        // TODO we can just skip the token and keep processing, but we should be
+                        // context aware. For instance if token is "catch" and we are in a try block,
+                        // should bail out altogether now so that processing can continue upstream.
+                    }
                 }
             }
         } catch (TokenStreamException e) {
@@ -991,11 +998,6 @@ public class NewParser
             else {
                 tokenStream.pushBack(token);
                 parseExpression();
-                if (tokenStream.LA(1) == token) {
-                    // Didn't eat up any tokens - time to bail
-                    token = tokenStream.nextToken();
-                    return null;
-                }
                 token = tokenStream.nextToken();
                 if (token.getType() != JavaTokenTypes.SEMI) {
                     error("Expected ';' at end of previous statement");
@@ -1031,10 +1033,12 @@ public class NewParser
             else if (token.getType() == JavaTokenTypes.LITERAL_catch
                     || token.getType() == JavaTokenTypes.LITERAL_finally) {
                 // Invalid, but we can recover
+                tokenStream.pushBack(token);
                 error("Missing '}' at end of 'try' block");
                 endTryBlock(token, false);
             }
             else {
+                tokenStream.pushBack(token);
                 error("Missing '}' at end of 'try' block");
                 endTryBlock(token, false);
                 endTryCatchStmt(token, false);
@@ -2040,12 +2044,27 @@ public class NewParser
                 }
                 else if (token.getType() == JavaTokenTypes.LPAREN) {
                     // Either a parenthesised expression, or a type cast
+                    // We handle cast to primitive specially - it can be followed by +, ++, -, --
+                    // and yet be a cast.
+                    boolean isPrimitive = isPrimitiveType(tokenStream.LA(1));
+                    
                     List<LocatableToken> tlist = new LinkedList<LocatableToken>();
                     boolean isTypeSpec = parseTypeSpec(true, tlist);
-                    if (isTypeSpec && tokenStream.LA(1).getType() == JavaTokenTypes.RPAREN
-                            && (!isOperator(tokenStream.LA(2))
-                                    || tokenStream.LA(2).getType() == JavaTokenTypes.LPAREN)
-                                    || isUnaryOperator(tokenStream.LA(2))) {
+                    // if
+                    // -it's a type spec
+                    // -it's followed by ')'
+                    // -it's not followed by an operator OR
+                    //  the type is primitive and the following operator is a unary operator
+                    // -it's not followed by an expression terminator - ; , )
+
+                    int tt2 = tokenStream.LA(2).getType();
+                    boolean isCast = isTypeSpec && tokenStream.LA(1).getType() == JavaTokenTypes.RPAREN;
+                    isCast &= !isOperator(tokenStream.LA(2)) || (isPrimitive
+                            && isUnaryOperator(tokenStream.LA(2)));
+                    isCast &= tt2 != JavaTokenTypes.SEMI && tt2 != JavaTokenTypes.RPAREN
+                            && tt2 != JavaTokenTypes.RCURLY && tt2 != JavaTokenTypes.EOF;
+                    
+                    if (isCast) {
                         // This surely must be type cast
                         token = tokenStream.nextToken(); // RPAREN
                         token = tokenStream.nextToken();
@@ -2161,7 +2180,7 @@ public class NewParser
             tse.printStackTrace();
         }
     }
-	
+    
     /**
      * Parse a comma-separated, possibly empty list of arguments to a method/constructor
      */

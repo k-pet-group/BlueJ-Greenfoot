@@ -137,7 +137,13 @@ public class TextAnalyzer
         try {
             parser.parseExpression();
             if (parser.atEnd()) {
-                return "";
+                JavaEntity exprType = parser.getExpressionType();
+                if (exprType == null) {
+                    return "";
+                }
+                else {
+                    return exprType.getType().toString();
+                }
             }
         }
         catch (Exception e) {

@@ -23,9 +23,12 @@ package bluej.parser;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.List;
 import java.util.Stack;
 
 import antlr.TokenStreamException;
+import bluej.debugger.gentype.JavaPrimitiveType;
+import bluej.debugger.gentype.JavaType;
 import bluej.parser.ast.LocatableToken;
 import bluej.parser.ast.gen.JavaTokenTypes;
 import bluej.parser.entity.JavaEntity;
@@ -54,17 +57,150 @@ public class TextParser extends NewParser
         }
     }
     
+    public JavaEntity getExpressionType()
+    {
+        processHigherPrecedence(JavaTokenTypes.EOF);
+        if (valueStack.isEmpty()) {
+            return null;
+        }
+        return valueStack.pop();
+    }
+    
     @Override
     protected void gotLiteral(LocatableToken token)
     {
-        // TODO Auto-generated method stub
-        super.gotLiteral(token);
+        if (token.getType() == JavaTokenTypes.CHAR_LITERAL) {
+            valueStack.push(new PrimitiveValueEntity(JavaPrimitiveType.getChar()));
+        }
+        if (token.getType() == JavaTokenTypes.NUM_INT) {
+            valueStack.push(new PrimitiveValueEntity(JavaPrimitiveType.getInt()));
+        }
+        else if (token.getType() == JavaTokenTypes.NUM_LONG) {
+            valueStack.push(new PrimitiveValueEntity(JavaPrimitiveType.getLong()));
+        }
+        else if (token.getType() == JavaTokenTypes.NUM_FLOAT) {
+            valueStack.push(new PrimitiveValueEntity(JavaPrimitiveType.getFloat()));
+        }
+        else if (token.getType() == JavaTokenTypes.NUM_DOUBLE) {
+            valueStack.push(new PrimitiveValueEntity(JavaPrimitiveType.getDouble()));
+        }
     }
     
     @Override
     protected void gotBinaryOperator(LocatableToken token)
     {
+        processHigherPrecedence(token.getType());
+        operatorStack.push(token);
+    }
+    
+    @Override
+    protected void gotTypeSpec(List<LocatableToken> tokens)
+    {
         // TODO Auto-generated method stub
-        super.gotBinaryOperator(token);
+        super.gotTypeSpec(tokens);
+    }
+    
+    
+    // Process all on-stack operators with a equal-or-higher precedence than that given
+    private void processHigherPrecedence(int tokenType)
+    {
+        int precedence = getPrecedence(tokenType);
+        while (! operatorStack.isEmpty()) {
+            LocatableToken top = operatorStack.peek();
+            if (getPrecedence(top.getType()) < precedence) {
+                break;
+            }
+            operatorStack.pop();
+            processOperator(top);
+        }
+    }
+    
+    // Process an operator, take the operands from the value stack and leave the result on the
+    // value stack
+    private void processOperator(LocatableToken token)
+    {
+        int tokenType = token.getType();
+        
+        JavaEntity arg1;
+        JavaEntity arg2;
+        
+        try {
+        switch (tokenType) {
+        case JavaTokenTypes.PLUS:
+            // TODO
+            arg1 = valueStack.pop();
+            arg2 = valueStack.pop();
+            if (arg1.getType().typeIs(JavaType.JT_DOUBLE) || arg2.getType().typeIs(JavaType.JT_DOUBLE)) {
+                valueStack.push(new PrimitiveValueEntity(JavaPrimitiveType.getDouble()));
+            }
+            else if (arg1.getType().typeIs(JavaType.JT_FLOAT) || arg2.getType().typeIs(JavaType.JT_FLOAT)) {
+                valueStack.push(new PrimitiveValueEntity(JavaPrimitiveType.getFloat()));
+            }
+            else if (arg1.getType().typeIs(JavaType.JT_LONG) || arg2.getType().typeIs(JavaType.JT_LONG)) {
+                valueStack.push(new PrimitiveValueEntity(JavaPrimitiveType.getLong()));
+            }
+            else {
+                valueStack.push(new PrimitiveValueEntity(JavaPrimitiveType.getInt()));
+            }
+        }
+        // TODO
+        }
+        catch (SemanticException se) {
+            // TODO push "error" value
+        }
+    }
+    
+    private int getPrecedence(int tokenType)
+    {
+        switch (tokenType) {
+        case JavaTokenTypes.PLUS:
+        case JavaTokenTypes.MINUS:
+            return 0;
+        case JavaTokenTypes.STAR:
+        case JavaTokenTypes.DIV:
+            return 1;
+        default:
+        }
+        
+        return -1;
+    }
+    
+}
+
+class PrimitiveValueEntity extends JavaEntity
+{
+    JavaType type;
+    String name;
+    
+    PrimitiveValueEntity(JavaType type)
+    {
+        this.type = type;
+    }
+    
+    PrimitiveValueEntity(JavaType type, String name)
+    {
+        this.type = type;
+        this.name = name;
+    }
+    
+    public JavaType getType()
+    {
+        return type;
+    }
+    
+    public JavaEntity getSubentity(String name)
+        throws SemanticException
+    {
+        throw new SemanticException();
+    }
+    
+    public String getName()
+    {
+        return name;
+    }
+    
+    public boolean isClass()
+    {
+        return false;
     }
 }
