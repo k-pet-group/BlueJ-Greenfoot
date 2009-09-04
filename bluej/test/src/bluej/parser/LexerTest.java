@@ -551,14 +551,17 @@ public class LexerTest extends junit.framework.TestCase
         LocatableToken token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.INVALID, token.getType());
         
-        ts = getLexerFor("/* Unterminated comment");
+        ts = getLexerFor("/* Unterminated comment\n}");
         token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.INVALID, token.getType());
         assertEquals(1, token.getColumn());
         assertEquals(1, token.getLine());
+        assertEquals(2, token.getEndColumn());
+        assertEquals(2, token.getEndLine());
         token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.EOF, token.getType());
-        assertEquals(24, token.getColumn());
+        assertEquals(2, token.getColumn());
+        assertEquals(2, token.getEndLine());
         
         ts = getLexerFor("\\u95 incomplete unicode escape");
         token = (LocatableToken) ts.nextToken();
@@ -576,6 +579,32 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(3, token.getEndColumn());
         token = (LocatableToken) ts.nextToken();
         assertEquals(4, token.getColumn());
+        
+        // Unterminated character literal
+        ts = getLexerFor("  'ab + -\n an_identifier");
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.INVALID, token.getType());
+        assertEquals(3, token.getColumn());
+        assertEquals(10, token.getEndColumn());
+        assertEquals(1, token.getLine());
+        assertEquals(1, token.getEndLine());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.IDENT, token.getType());
+        assertEquals(2, token.getColumn());
+        assertEquals(2, token.getLine());
+
+        // Unterminated string literal
+        ts = getLexerFor("  \"ab + -\n an_identifier");
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.INVALID, token.getType());
+        assertEquals(3, token.getColumn());
+        assertEquals(10, token.getEndColumn());
+        assertEquals(1, token.getLine());
+        assertEquals(1, token.getEndLine());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.IDENT, token.getType());
+        assertEquals(2, token.getColumn());
+        assertEquals(2, token.getLine());
     }
     
     public void testStressLexer() throws Exception
