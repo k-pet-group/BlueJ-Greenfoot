@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -30,19 +30,17 @@ import antlr.TokenStreamException;
 import bluej.parser.EscapedUnicodeReader;
 import bluej.parser.ast.LocatableToken;
 
+
 public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
 {
     private StringBuffer textBuffer; // text of current token
     private EscapedUnicodeReader reader;
     private int tabsize=8;
-    private static final char INVALID_TYPE=0;
     public static final char EOF_CHAR = (char)-1;
     private int col,line;     
     private char rChar= (char)-1; 
     private boolean newline=false;
     //private LexerState state;
-
-
 
     public BlueJJavaLexer(Reader in) {
         reader=new EscapedUnicodeReader(in);
@@ -189,7 +187,7 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
 
     private LocatableToken createDigitToken(char nextChar, int bCol, int bLine){
         //return makeToken(getNumberType(), getNumberText(nextChar), bCol, col, bLine, line);  
-        return makeToken(getDigitValue(nextChar, false), textBuffer.toString(), bCol, col, bLine, line, true); 
+        return makeToken(getDigitType(nextChar, false), textBuffer.toString(), bCol, col, bLine, line, true); 
     }
 
     private LocatableToken createWordToken(char nextChar, int bCol, int bLine){
@@ -199,7 +197,7 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
 
     private LocatableToken processEndOfReader(){
         resetText();
-        return makeToken(JavaTokenTypes.EOF, "EOF", col, col, line, line, true);
+        return makeToken(JavaTokenTypes.EOF, "EOF", col, col, line, line, false);
     }
 
     private void populateTextBuffer(char ch){
@@ -261,7 +259,8 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         return complete;
     }
 
-    private int getDigitValue(char ch, boolean dot){
+    private int getDigitType(char ch, boolean dot){
+        int type=JavaTokenTypes.NUM_INT;
         char [] cb=new char[1];
         int rval=0;     
         boolean complete=false;
@@ -269,13 +268,16 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         boolean hexDecimalNumber=false;
         consume(ch);
         try{
-            while (!complete){  
+            while (!complete){ 
+
                 rval=reader.readChar(cb, col-1);
                 //eof
                 if (rval==-1){
-                    return JavaTokenTypes.NUM_INT;
+                    rChar=(char)-1;
+                    return type;
                 }
                 ch=cb[0];
+                rChar=ch;
                 if (!Character.isDigit(ch)){
                     if (ch=='.'){
                         if (isDecimal){
@@ -291,13 +293,19 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
                         rChar=(char)-1;
                         if (ch=='f'|| ch=='F'){
                             consume(ch);
-                            return JavaTokenTypes.NUM_FLOAT;
+                            type= JavaTokenTypes.NUM_FLOAT;
+                            isDecimal=false;
                         } else if (ch=='d'|| ch=='D'){
                             consume(ch);
-                            return JavaTokenTypes.NUM_DOUBLE;
+                            type= JavaTokenTypes.NUM_DOUBLE;
                         } else if (ch=='l'|| ch=='L'){
                             consume(ch);
-                            return JavaTokenTypes.NUM_LONG;
+                            type= JavaTokenTypes.NUM_LONG;
+                            isDecimal=false;
+                        }
+                        else if (ch=='e'|| ch=='E'){
+                            consume(ch);
+                            type= JavaTokenTypes.NUM_DOUBLE;
                         }
                         else if (ch=='x'){
                             hexDecimalNumber=true;
@@ -305,14 +313,14 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
                         }
                         else if (hexDecimalNumber && (ch=='a'|| ch=='A' || ch=='b' ||ch=='B'||ch=='c'||ch=='C'||ch=='e'||ch=='E')){
                             consume(ch);
-                            return JavaTokenTypes.NUM_INT;
+                            type= JavaTokenTypes.NUM_INT;
                         }
                         else {
                             complete=true;
                             rChar=ch;
                         }                   
                     }
-                    else if (Character.isWhitespace(ch)){
+                    else if (Character.isWhitespace(ch)|| (!Character.isLetterOrDigit(ch))){
                         complete=true;
                         col++;
                         rChar=ch;
@@ -321,18 +329,21 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
                         rChar=ch;
                     }              
 
-                } else 
+                } else {
                     consume(ch);
+                    type=JavaTokenTypes.NUM_INT;
+                }
+
             }           
         }catch(IOException ioe){
 
         }
         if (isDecimal)
             return JavaTokenTypes.NUM_DOUBLE;
-        return JavaTokenTypes.NUM_INT;
+        return type;
     }
 
-    private void  getCommentText(char ch, int type){
+    private int  getCommentType(char ch, int type){
         char [] cb=new char[1];
         int rval=0;     
         boolean complete=false;
@@ -343,14 +354,16 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
                 rval=reader.readChar(cb, col-1);
                 //eof
                 if (rval==-1){
-                    return;
+                    if (type==JavaTokenTypes.ML_COMMENT)
+                        return JavaTokenTypes.INVALID;
+                    else return type;
                 }
                 ch=cb[0];
                 if (ch=='\n'){
                     line++;
                     col=1;
                     if (type==JavaTokenTypes.SL_COMMENT)
-                        return;
+                        return type;
                 }
 
                 if (checkflag){
@@ -370,8 +383,9 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
 
             }while (!complete);
         }catch(IOException ioe){
-
+            return JavaTokenTypes.INVALID;
         }
+        return type;
     }
 
     private int getTokenType(){
@@ -385,7 +399,7 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
     }
 
     private int getSymbolType(){
-        int type=INVALID_TYPE;
+        int type= JavaTokenTypes.INVALID;
         if (match('"'))
             return JavaTokenTypes.STRING_LITERAL;
         if (match('\''))
@@ -446,7 +460,7 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
     }
 
     private int getSymbolType(char ch){
-        int type=INVALID_TYPE;
+        int type= JavaTokenTypes.INVALID;
         consume(ch);
         rChar=(char)-1;
         if (match('"', ch))
@@ -509,10 +523,12 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
     }
 
     private int getBXORType(){
+        char validChars[]=new char[1];
+        validChars[0]='='; 
         char [] cb=new char[1];
         try{
             int rval=reader.readChar(cb, col-1);
-            if (isComplete(rval, cb[0])){
+            if (isComplete(rval, cb[0], validChars)){
                 return JavaTokenTypes.BXOR;
             }
             char thisChar=(char)cb[0]; 
@@ -522,16 +538,19 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
             } else
                 rChar=thisChar;           
         }catch(IOException e){
-            return INVALID_TYPE;
+            return JavaTokenTypes.INVALID;
         }
         return JavaTokenTypes.BXOR;
     }
 
     private int getAndType(){
+        char validChars[]=new char[2];
+        validChars[0]='=';
+        validChars[1]='&';        
         char [] cb=new char[1];
         try{
             int rval=reader.readChar(cb, col-1);
-            if (isComplete(rval, cb[0])){
+            if (isComplete(rval, cb[0], validChars)){
                 return JavaTokenTypes.BAND;
             }
             char thisChar=(char)cb[0]; 
@@ -545,7 +564,7 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
             }
             rChar=thisChar;
         }catch(IOException e){
-            return INVALID_TYPE;
+            return JavaTokenTypes.INVALID;
         }
         return JavaTokenTypes.BAND;
     }
@@ -554,7 +573,7 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         boolean success=getLiteralText('"');
         if (success)
             return JavaTokenTypes.STRING_LITERAL;
-        return INVALID_TYPE;        
+        return JavaTokenTypes.INVALID;     
     }
 
     private boolean getLiteralText(char endChar){
@@ -565,17 +584,20 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         boolean success=getLiteralText('\'');
         if (success)
             return JavaTokenTypes.CHAR_LITERAL;
-        return INVALID_TYPE;        
+        return JavaTokenTypes.INVALID;      
     }
 
 
 
     private int getOrType(){
         //|, |=, ||
+        char validChars[]=new char[2];
+        validChars[0]='|';
+        validChars[1]='=';
         char [] cb=new char[1];
         try{
             int rval=reader.readChar(cb, col-1);
-            if (isComplete(rval, cb[0])){
+            if (isComplete(rval, cb[0], validChars)){
                 return JavaTokenTypes.BOR;
             }
             char thisChar=(char)cb[0]; 
@@ -589,17 +611,20 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
             }
             rChar=thisChar;
         }catch(IOException e){
-            return INVALID_TYPE;
+            return JavaTokenTypes.INVALID;
         }
         return JavaTokenTypes.BOR;
     }
 
     private int getPlusType(){
         //+, +=, ++
+        char validChars[]=new char[2];
+        validChars[0]='+';
+        validChars[1]='=';
         char [] cb=new char[1];
         try{
             int rval=reader.readChar(cb, col-1);
-            if (isComplete(rval, cb[0])){
+            if (isComplete(rval, cb[0], validChars)){
                 return JavaTokenTypes.PLUS;
             }
             char thisChar=(char)cb[0]; 
@@ -613,7 +638,7 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
             }
             rChar=thisChar;
         }catch(IOException e){
-            return INVALID_TYPE;
+            return JavaTokenTypes.INVALID;
         }
         return JavaTokenTypes.PLUS;
 
@@ -621,10 +646,13 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
 
     private int getMinusType(){
         //-, -=, --
+        char validChars[]=new char[2];
+        validChars[0]='=';
+        validChars[1]='-'; 
         char [] cb=new char[1];
         try{
             int rval=reader.readChar(cb, col-1);
-            if (isComplete(rval, cb[0])){
+            if (isComplete(rval, cb[0], validChars)){
                 return JavaTokenTypes.MINUS;
             }
             char thisChar=(char)cb[0]; 
@@ -638,17 +666,19 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
             }
             rChar=thisChar;
         }catch(IOException e){
-            return INVALID_TYPE;
+            return JavaTokenTypes.INVALID;
         }
         return JavaTokenTypes.MINUS;
     }
 
     private int getEqualType(){
         //=, ==
+        char validChars[]=new char[1];
+        validChars[0]='=';
         char [] cb=new char[1];
         try{
             int rval=reader.readChar(cb, col-1);
-            if (isComplete(rval, cb[0])){
+            if (isComplete(rval, cb[0], validChars)){
                 return JavaTokenTypes.ASSIGN;
             }
             char thisChar=(char)cb[0]; 
@@ -658,13 +688,15 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
             }
             rChar=thisChar;
         }catch(IOException e){
-            return INVALID_TYPE;
+            return JavaTokenTypes.INVALID;
         }
         return JavaTokenTypes.ASSIGN;
     }
 
     private int getStarType(){
         //*, *=, 
+        char validChars[]=new char[1];
+        validChars[0]='=';
         char [] cb=new char[1];
         try{
             int rval=reader.readChar(cb, col-1);
@@ -678,17 +710,19 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
             }
             rChar=thisChar;
         }catch(IOException e){
-            return INVALID_TYPE;
+            return JavaTokenTypes.INVALID;
         }
         return JavaTokenTypes.STAR;
     }
 
     private int getModType(){
         //%, %=
+        char validChars[]=new char[1];
+        validChars[0]='=';
         char [] cb=new char[1];
         try{
             int rval=reader.readChar(cb, col-1);
-            if (isComplete(rval, cb[0])){
+            if (isComplete(rval, cb[0], validChars)){
                 return JavaTokenTypes.MOD;
             }
             char thisChar=(char)cb[0]; 
@@ -698,17 +732,21 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
             }
             rChar=thisChar;
         }catch(IOException e){
-            return INVALID_TYPE;
+            return JavaTokenTypes.INVALID;
         }
         return JavaTokenTypes.MOD;
     }
 
     private int getForwardSlashType(){
-        // /, //, /*, /= 
+        // /,  /*, /= 
+        char validChars[]=new char[3];
+        validChars[0]='/';
+        validChars[1]='*'; 
+        validChars[2]='='; 
         char [] cb=new char[1];
         try{
             int rval=reader.readChar(cb, col-1);
-            if (isComplete(rval, cb[0])){
+            if (isComplete(rval, cb[0], validChars)){
                 return JavaTokenTypes.DIV;
             }
             char thisChar=(char)cb[0]; 
@@ -716,17 +754,13 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
                 consume(thisChar); 
                 return JavaTokenTypes.DIV_ASSIGN; 
             }
-            if (thisChar=='/'){
-                getCommentText(thisChar, JavaTokenTypes.SL_COMMENT);
-                return JavaTokenTypes.SL_COMMENT; 
-            }
-            if (thisChar=='*'){
-                getCommentText(thisChar, JavaTokenTypes.ML_COMMENT);
-                return JavaTokenTypes.ML_COMMENT; 
-            }
+            if (thisChar=='/')
+                return getCommentType(thisChar, JavaTokenTypes.SL_COMMENT);
+            if (thisChar=='*')
+                return getCommentType(thisChar, JavaTokenTypes.ML_COMMENT);
             rChar=thisChar;
         }catch(IOException e){
-            return INVALID_TYPE;
+            return JavaTokenTypes.INVALID;
         }
         return JavaTokenTypes.DIV;
     }
@@ -740,11 +774,27 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         return false;
     }
 
+    private boolean isComplete(int rval, char ch, char validChars[]){
+        if (!isComplete(rval, ch))
+            for (int i=0; i<validChars.length; i++){
+                if (validChars[i]==ch)
+                    return false;
+            }
+        if (rval==-1)
+            rChar=(char)-1;
+        else
+            rChar=ch;
+        return true;
+    }
+
     private int getGTType(){
+        char validChars[]=new char[2];
+        validChars[0]='>';
+        validChars[1]='='; 
         char [] cb=new char[1];
         try{
             int rval=reader.readChar(cb, col-1);
-            if (isComplete(rval, cb[0])){
+            if (isComplete(rval, cb[0], validChars)){
                 return JavaTokenTypes.GT;
             }
             char thisChar=(char)cb[0];
@@ -758,7 +808,7 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
                 rval=reader.readChar(cb, col-1);
                 thisChar=cb[0];
                 //>>
-                if (isComplete(rval, thisChar)){
+                if (isComplete(rval, thisChar, validChars)){
                     rChar=thisChar;
                     return JavaTokenTypes.SR;
                 }
@@ -767,7 +817,8 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
                     consume(thisChar); 
                     rval=reader.readChar(cb, col-1);
                     thisChar=cb[0];
-                    if (isComplete(rval, thisChar)){
+                    validChars[0]='=';
+                    if (isComplete(rval, thisChar, validChars)){
                         rChar=thisChar;
                         return JavaTokenTypes.BSR;
                     }
@@ -783,12 +834,15 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
             }
             rChar=thisChar;
         }catch(IOException e){
-            return INVALID_TYPE;
+            return JavaTokenTypes.INVALID;
         }
         return JavaTokenTypes.GT;
     }
 
     private int getLTType(){
+        char validChars[]=new char[2];
+        validChars[0]='<';
+        validChars[1]='='; 
         char [] cb=new char[1];
         try{
             int rval=reader.readChar(cb, col-1);
@@ -804,6 +858,7 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
                 consume(thisChar); 
                 rval=reader.readChar(cb, col-1);
                 thisChar=cb[0];
+                validChars[0]='=';
                 if (isComplete(rval, thisChar)){
                     rChar=thisChar;
                     return JavaTokenTypes.SL;
@@ -815,7 +870,7 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
             }
             rChar=thisChar;
         }catch(IOException e){
-            return INVALID_TYPE;
+            return JavaTokenTypes.INVALID;
         }
         return JavaTokenTypes.LT;
 
@@ -835,26 +890,44 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
             }
             rChar=thisChar;
         }catch(IOException e){
-            return INVALID_TYPE;
+            return JavaTokenTypes.INVALID;
         }
         return JavaTokenTypes.LNOT;
     }
 
     private int getDotType(){
+        char validChars[]=new char[1];
+        validChars[0]='.';
         //. or .56f .12 
         char [] cb=new char[1];
         try{
             int rval=reader.readChar(cb, col-1);
-            if (rval==-1 || Character.isWhitespace((char)cb[0])){
+            char ch=cb[0];
+            if (rval==-1 || Character.isWhitespace((char)ch)|| Character.isLetter(ch)){
+                rChar=ch;
                 return JavaTokenTypes.DOT;
             }
             char thisChar=(char)cb[0]; 
             if (Character.isDigit(thisChar)){
-                return getDigitValue(thisChar, true);
+                return getDigitType(thisChar, true);
+            }
+            //...
+            else if (ch=='.'){
+                consume(ch);
+                rval=reader.readChar(cb, col-1);
+                if (rval==-1)
+                    return JavaTokenTypes.INVALID;
+                ch=cb[0];
+                if (ch=='.'){
+                    consume(ch);
+                    return JavaTokenTypes.TRIPLE_DOT;
+                }
+                else return JavaTokenTypes.INVALID;
+
             }
             rChar=thisChar;
         }catch(IOException e){
-            return INVALID_TYPE;
+            return JavaTokenTypes.INVALID;
         }
         return JavaTokenTypes.DOT;
     }
