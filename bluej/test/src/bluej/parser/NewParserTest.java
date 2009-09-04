@@ -343,7 +343,15 @@ public class NewParserTest extends TestCase
         );
         InfoParser ip = new InfoParser(sr);
         ip.parseStatement();
-
+    }
+    
+    public void test24()
+    {
+        StringReader sr = new StringReader(
+                "(byte)++(bb)"
+        );
+        InfoParser ip = new InfoParser(sr);
+        ip.parseExpression();
     }
 
 }
