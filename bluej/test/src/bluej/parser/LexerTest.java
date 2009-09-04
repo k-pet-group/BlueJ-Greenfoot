@@ -436,6 +436,21 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(JavaTokenTypes.EOF, token.getType());
     }
     
+    public void testOther3() throws Exception
+    {
+        // String literal with embedded \"
+        TokenStream ts = getLexerFor("\"a \\\"string\"identifier");
+        LocatableToken token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.STRING_LITERAL, token.getType());
+        assertEquals("\"a \\\"string\"", token.getText());
+        assertEquals(1, token.getColumn());
+        assertEquals(17, token.getEndColumn());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.IDENT, token.getType());
+        assertEquals(17, token.getColumn());
+        assertEquals("identifier", token.getText());
+    }
+    
     public void testPositionTracking() throws Exception
     {
         TokenStream ts = getLexerFor("one two three\nfour five six  \n  seven eight nine");
