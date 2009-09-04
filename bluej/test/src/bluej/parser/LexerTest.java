@@ -575,7 +575,7 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(1, token.getColumn());
         assertEquals(3, token.getEndColumn());
         token = (LocatableToken) ts.nextToken();
-        assertEquals(5, token.getColumn());
+        assertEquals(4, token.getColumn());
     }
     
     public void testStressLexer() throws Exception
