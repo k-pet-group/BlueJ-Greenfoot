@@ -19,14 +19,6 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-// Copyright (c) 2000, 2005 BlueJ Group, Deakin University
-//
-// This software is made available under the terms of the "MIT License"
-// A copy of this license is included with this source distribution
-// in "license.txt" and is also available at:
-// http://www.opensource.org/licenses/mit-license.html 
-// Any queries should be directed to Michael Kolling mik@bluej.org
-
 package bluej.editor.moe;
 
 /**
@@ -68,7 +60,7 @@ import javax.swing.text.ViewFactory;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: BlueJSyntaxView.java 6588 2009-09-02 05:08:17Z davmac $
+ * @version $Id: BlueJSyntaxView.java 6619 2009-09-04 02:33:09Z davmac $
  */
 
 public abstract class BlueJSyntaxView extends PlainView

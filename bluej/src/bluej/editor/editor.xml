@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." default="editor-dist" name="editor-src">
+<project basedir="." default="dist" name="editor-src">
 <!-- This build file is part of the BlueJ build process, not part of the editor
 source distribution -->
 

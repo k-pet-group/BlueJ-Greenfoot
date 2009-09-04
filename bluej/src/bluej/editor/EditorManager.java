@@ -19,18 +19,9 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-//Copyright (c) 2000, 2005 BlueJ Group, Deakin University
-//
-// This software is made available under the terms of the "MIT License"
-// A copy of this license is included with this source distribution
-// in "license.txt" and is also available at:
-// http://www.opensource.org/licenses/mit-license.html 
-// Any queries should be directed to Michael Kolling mik@bluej.org
-
 package bluej.editor;
 
 import java.awt.Rectangle;
-import java.util.List;
 import bluej.editor.moe.MoeEditorManager;
 
 /**
@@ -39,7 +30,7 @@ import bluej.editor.moe.MoeEditorManager;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: EditorManager.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: EditorManager.java 6619 2009-09-04 02:33:09Z davmac $
  */
 public abstract class EditorManager
 {

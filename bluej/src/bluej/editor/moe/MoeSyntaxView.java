@@ -19,14 +19,6 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-// Copyright (c) 2000, 2005 BlueJ Group, Deakin University
-//
-// This software is made available under the terms of the "MIT License"
-// A copy of this license is included with this source distribution
-// in "license.txt" and is also available at:
-// http://www.opensource.org/licenses/mit-license.html 
-// Any queries should be directed to Michael Kolling mik@bluej.org
-
 package bluej.editor.moe;
 
 /**
@@ -66,7 +58,7 @@ import bluej.prefmgr.PrefMgr;
  * @author Michael Kolling
  * @author Davin McCall
  *
- * @version $Id: MoeSyntaxView.java 6614 2009-09-03 13:20:18Z davmac $
+ * @version $Id: MoeSyntaxView.java 6619 2009-09-04 02:33:09Z davmac $
  */
 
 public class MoeSyntaxView extends BlueJSyntaxView
