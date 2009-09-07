@@ -36,7 +36,6 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.event.*;
@@ -115,7 +114,7 @@ public final class MoeEditor extends JFrame
 
     // other
     final static String COMPILED = "compiled";
-    private final static int NAVIVIEW_WIDTH = 50;       // width of the "naviview" (min-source) box
+    private final static int NAVIVIEW_WIDTH = 70;       // width of the "naviview" (min-source) box
 
     // -------- CLASS VARIABLES --------
     
@@ -1598,12 +1597,10 @@ public final class MoeEditor extends JFrame
      * @return boolean reflects if it is enabled ie false=disabled
      * @param buttonText  String with button text name
      */
-    
-    private boolean isFlaggedAction(String text){
-    	
-    	ArrayList flaggedActions=getFlaggedActions();
-    	
-    	if (flaggedActions!=null && flaggedActions.contains(text)){
+    private boolean isFlaggedAction(String text)
+    {
+    	ArrayList<String> flaggedActions = getFlaggedActions();
+    	if (flaggedActions!=null && flaggedActions.contains(text)) {
     		return true;
     	}
     	return false;
@@ -1615,8 +1612,7 @@ public final class MoeEditor extends JFrame
      *  
      * @return ArrayList list of flagged items
      */
-    
-    private ArrayList getFlaggedActions()
+    private ArrayList<String> getFlaggedActions()
     {
     	if (flaggedActions==null){
     		flaggedActions=new ArrayList<String>();
@@ -2446,7 +2442,7 @@ public final class MoeEditor extends JFrame
         
         JPanel editorPane = new JPanel();
         editorPane.setLayout(new BoxLayout(editorPane, BoxLayout.X_AXIS));
-        editorPane.setPreferredSize(new Dimension(598, 400)); // TODO where does this come from??!
+        editorPane.setPreferredSize(new Dimension(598, 400));
         scrollPane = new JScrollPane(currentTextPane);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         

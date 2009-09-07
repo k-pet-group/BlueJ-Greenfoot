@@ -33,9 +33,10 @@ import java.util.Iterator;
 import java.awt.*;		// Object input, ouput streams
 
 /**
-** @author Michael Kolling
-**
-**/
+ * Implementation of EditorManager for the Moe editor.
+ * 
+ * @author Michael Kolling
+ */
 
 public final class MoeEditorManager
     extends bluej.editor.EditorManager
@@ -72,20 +73,20 @@ public final class MoeEditorManager
 
 
     // ------------------------------------------------------------------------
+    
     /**
-    ** Open an editor to display a class. The filename may be "null"
-    ** to open an empty editor (e.g. for displaying a view). The editor
-    ** is initially hidden. A call to "Editor::show" is needed to make
-    ** is visible after opening it.
-    **
-    ** @param filename	name of the source file to open (may be null)
-    ** @param windowTitle	title of window (usually class name)
-    ** @param watcher	an object interested in editing events
-    ** @param compiled	true, if the class has been compiled
-    ** @param breakpoints	list of Integers: line numbers where bpts are
-    ** @return		the new editor, or null if there was a problem
-    **/
-
+     * Open an editor to display a class. The filename may be "null"
+     * to open an empty editor (e.g. for displaying a view). The editor
+     * is initially hidden. A call to "Editor::show" is needed to make
+     * is visible after opening it.
+     *
+     * @param filename	name of the source file to open (may be null)
+     * @param windowTitle	title of window (usually class name)
+     * @param watcher	an object interested in editing events
+     * @param compiled	true, if the class has been compiled
+     * @param breakpoints	list of Integers: line numbers where bpts are
+     * @return		the new editor, or null if there was a problem
+     */
     public Editor openClass(String filename, 
                 String docFilename,
                 String windowTitle,
@@ -99,18 +100,17 @@ public final class MoeEditorManager
 
     // ------------------------------------------------------------------------
     /**
-    ** Open an editor to display a text document. The difference to
-    ** "openClass" is that code specific functions (such as compile,
-    ** debug, view) are disabled in the editor. The filename may be
-    ** "null" to open an empty editor. The editor is initially hidden.
-    ** A call to "Editor::show" is needed to make is visible after
-    ** opening it.
-    **
-    ** @param filename	name of the source file to open (may be null)
-    ** @param windowTitle	title of window (usually class name)
-    ** @returns		the new editor, or null if there was a problem
-    **/
-
+     * Open an editor to display a text document. The difference to
+     * "openClass" is that code specific functions (such as compile,
+     * debug, view) are disabled in the editor. The filename may be
+     * "null" to open an empty editor. The editor is initially hidden.
+     * A call to "Editor.show" is needed to make is visible after
+     * opening it.
+     *
+     * @param filename	name of the source file to open (may be null)
+     * @param windowTitle	title of window (usually class name)
+     * @returns		the new editor, or null if there was a problem
+     */
     public Editor openText(String filename, String windowTitle,
                            Rectangle bounds)	// inherited from EditorManager
     {
@@ -131,6 +131,7 @@ public final class MoeEditorManager
     }
 
     // ------------------------------------------------------------------------
+    
     /**
      * Sound a beep if the "beep with warning" option is true
      */
@@ -141,6 +142,7 @@ public final class MoeEditorManager
     }
 
     // ------------------------------------------------------------------------
+    
     /**
      * Discard the given editor and leave it to be collected by the garbage
      * collector.
@@ -154,40 +156,40 @@ public final class MoeEditorManager
     // ========================== PACKAGE METHODS ===========================
 
     // ------------------------------------------------------------------------
-    /**
-    ** Return the shared finder object
-    **/
 
+    /**
+     * Return the shared finder object
+     */
     Finder getFinder()
     {
         return finder;
     }
 
-       // ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
  
     
     // ========================== PRIVATE METHODS ===========================
 
     // ------------------------------------------------------------------------
+    
     /**
-    ** Open an editor to display a class. The filename may be "null"
-    ** to open an empty editor (e.g. for displaying a view). The editor
-    ** is initially hidden. A call to "Editor::show" is needed to make
-    ** is visible after opening it.
-    **
-    ** @param filename	name of the source file to open (may be null)
-    ** @param docFilename	name of the documentation based on filename
-    ** @param windowTitle	title of window (usually class name)
-    ** @param watcher	an object interested in editing events
-    ** @param compiled	true, if the class has been compiled
-    ** @param bounds	bounds for the editor window
-    ** @returns		the new editor, or null if there was a problem
-    **/
-
+     * Open an editor to display a class. The filename may be "null"
+     * to open an empty editor (e.g. for displaying a view). The editor
+     * is initially hidden. A call to "Editor::show" is needed to make
+     * is visible after opening it.
+     *
+     * @param filename	name of the source file to open (may be null)
+     * @param docFilename	name of the documentation based on filename
+     * @param windowTitle	title of window (usually class name)
+     * @param watcher	an object interested in editing events
+     * @param compiled	true, if the class has been compiled
+     * @param bounds	bounds for the editor window
+     * @returns		the new editor, or null if there was a problem
+     */
     private Editor openEditor(String filename, String docFilename,
-    							  boolean isCode, String windowTitle, 
-                              EditorWatcher watcher, boolean compiled, 
-                              Rectangle bounds)
+            boolean isCode, String windowTitle, 
+            EditorWatcher watcher, boolean compiled, 
+            Rectangle bounds)
     {
         MoeEditor editor;
 
@@ -202,4 +204,4 @@ public final class MoeEditorManager
         }
     }
 
-} // end class MoeEditorManager
+}
