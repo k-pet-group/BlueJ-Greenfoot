@@ -89,7 +89,7 @@ public class DocumentReader extends Reader
         int docAvail = docLength - docPosition;
         try {
             document.getText(docPosition, docAvail, buffer);
-            docPosition += buffer.length();
+            docPosition += (buffer.getEndIndex() - buffer.getBeginIndex());
             bufpos = buffer.getBeginIndex();
         }
         catch (BadLocationException e) {}
