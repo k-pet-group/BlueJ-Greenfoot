@@ -449,6 +449,20 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(JavaTokenTypes.IDENT, token.getType());
         assertEquals(17, token.getColumn());
         assertEquals("identifier", token.getText());
+        
+        // Character literal '\''
+        ts = getLexerFor("ident1'\\''ident2");
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(7, token.getEndColumn());
+        assertEquals(JavaTokenTypes.IDENT, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(7, token.getColumn());
+        assertEquals(JavaTokenTypes.CHAR_LITERAL, token.getType());
+        assertEquals(11, token.getEndColumn());
+        assertEquals("\"\\'\"", token.getText());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(11, token.getColumn());
+        assertEquals(JavaTokenTypes.IDENT, token.getType());
     }
     
     public void testPositionTracking() throws Exception
@@ -641,6 +655,9 @@ public class LexerTest extends junit.framework.TestCase
         tokenMap.put(JavaTokenTypes.LCURLY, "{");
         tokenMap.put(JavaTokenTypes.RCURLY, "}");
         tokenMap.put(JavaTokenTypes.DOT, ".");
+        tokenMap.put(JavaTokenTypes.IDENT, "abcdefg");
+        tokenMap.put(JavaTokenTypes.STRING_LITERAL, "\"A string literal\"");
+        tokenMap.put(JavaTokenTypes.CHAR_LITERAL, "'n'");
 
         Map<Integer,Set<Integer>> cantFollow = new HashMap<Integer,Set<Integer>>();
         // "+" can't precede: +, +=, ++, =, ==
@@ -697,6 +714,10 @@ public class LexerTest extends junit.framework.TestCase
         nonSet = new HashSet<Integer>();
         nonSet.add(JavaTokenTypes.DOT);
         cantFollow.put(JavaTokenTypes.DOT, nonSet);
+        // identifier can't follow identifier
+        nonSet = new HashSet<Integer>();
+        nonSet.add(JavaTokenTypes.IDENT);
+        cantFollow.put(JavaTokenTypes.IDENT, nonSet);
         
         Set<Integer> tokens = tokenMap.keySet();
         for (Iterator<Integer> i = tokens.iterator(); i.hasNext(); ) {

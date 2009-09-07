@@ -94,6 +94,23 @@ public class EditorParser extends NewParser
         }
     }
 
+    protected void beginNode(int position)
+    {
+        ListIterator<LocatableToken> i = commentQueue.listIterator();
+        while (i.hasNext()) {
+            LocatableToken token = i.next();
+            int startpos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+            int endpos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
+            if (startpos >= position) {
+                break;
+            }
+            i.remove();
+            int topOffset = getTopNodeOffset();
+            ColourNode cn = new ColourNode(scopeStack.peek(), Token.COMMENT1);
+            scopeStack.peek().insertNode(cn, startpos - topOffset, endpos - startpos);
+        }
+    }
+    
     /**
      * Get the start position of the top node in the scope stack.
      */
@@ -131,6 +148,7 @@ public class EditorParser extends NewParser
             // TODO: make certain hidden token not already consumed by prior sibling node
         }
         int insPos = pcuNode.lineColToPosition(pcuStmtBegin.getLine(), pcuStmtBegin.getColumn());
+        beginNode(insPos);
         scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
         scopeStack.push(pnode);
     }
@@ -142,6 +160,7 @@ public class EditorParser extends NewParser
         bodyNode.setInner(true);
         int curOffset = getTopNodeOffset();
         int insPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
+        beginNode(insPos);
         scopeStack.peek().insertNode(bodyNode, insPos - curOffset, 0);
         scopeStack.push(bodyNode);
     }
@@ -152,6 +171,7 @@ public class EditorParser extends NewParser
         ParentParsedNode loopNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_ITERATION);
         int curOffset = getTopNodeOffset();
         int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+        beginNode(insPos);
         scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
         scopeStack.push(loopNode);
     }
@@ -166,6 +186,7 @@ public class EditorParser extends NewParser
             loopNode.setInner(true);
             int curOffset = getTopNodeOffset();
             int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+            beginNode(insPos);
             scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
             scopeStack.push(loopNode);
         }
@@ -185,6 +206,7 @@ public class EditorParser extends NewParser
         ParentParsedNode loopNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_ITERATION);
         int curOffset = getTopNodeOffset();
         int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+        beginNode(insPos);
         scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
         scopeStack.push(loopNode);
     }
@@ -199,6 +221,7 @@ public class EditorParser extends NewParser
             loopNode.setInner(true);
             int curOffset = getTopNodeOffset();
             int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+            beginNode(insPos);
             scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
             scopeStack.push(loopNode);
         }
@@ -218,6 +241,7 @@ public class EditorParser extends NewParser
         ParentParsedNode loopNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_SELECTION);
         int curOffset = getTopNodeOffset();
         int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+        beginNode(insPos);
         scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
         scopeStack.push(loopNode);
     }
@@ -232,6 +256,7 @@ public class EditorParser extends NewParser
             loopNode.setInner(true);
             int curOffset = getTopNodeOffset();
             int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+            beginNode(insPos);
             scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
             scopeStack.push(loopNode);
         }
@@ -257,6 +282,7 @@ public class EditorParser extends NewParser
         ParentParsedNode tryNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_SELECTION);
         int curOffset = getTopNodeOffset();
         int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+        beginNode(insPos);
         scopeStack.peek().insertNode(tryNode, insPos - curOffset, 0);
         scopeStack.push(tryNode);
     }
@@ -268,6 +294,7 @@ public class EditorParser extends NewParser
         tryBlockNode.setInner(true);
         int curOffset = getTopNodeOffset();
         int insPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
+        beginNode(insPos);
         scopeStack.peek().insertNode(tryBlockNode, insPos - curOffset, 0);
         scopeStack.push(tryBlockNode);
     }
@@ -294,6 +321,7 @@ public class EditorParser extends NewParser
             ParentParsedNode blockNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_NONE);
             blockNode.setInner(true);
             int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+            beginNode(insPos);
             scopeStack.peek().insertNode(blockNode, insPos - curOffset, 0);
             scopeStack.push(blockNode);
             curOffset = insPos;
@@ -301,6 +329,7 @@ public class EditorParser extends NewParser
         ParentParsedNode blockInner = new ParentParsedNode(scopeStack.peek());
         blockInner.setInner(true);
         int insPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
+        beginNode(insPos);
         scopeStack.peek().insertNode(blockInner, insPos - curOffset, 0);
         scopeStack.push(blockInner);
     }
@@ -354,6 +383,7 @@ public class EditorParser extends NewParser
         
         // PkgStmtNode psn = new PkgStmtNode();
         ColourNode cn = new ColourNode(pcuNode, Token.KEYWORD1);
+        beginNode(startpos);
         pcuNode.insertNode(cn, startpos, endpos - startpos);
         completedNode(cn, startpos, endpos - startpos);
     }
@@ -368,6 +398,7 @@ public class EditorParser extends NewParser
         
         // PkgStmtNode psn = new PkgStmtNode();
         ParentParsedNode cn = new ParentParsedNode(pcuNode);
+        beginNode(startpos);
         pcuNode.insertNode(cn, startpos, endpos - startpos);
         completedNode(cn, startpos, endpos - startpos);
     }
@@ -390,6 +421,7 @@ public class EditorParser extends NewParser
         ParsedNode pnode = new MethodNode(scopeStack.peek());
         int curOffset = getTopNodeOffset();
         int insPos = pcuNode.lineColToPosition(start.getLine(), start.getColumn());
+        beginNode(insPos);
         scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
         scopeStack.push(pnode);
     }
@@ -408,6 +440,7 @@ public class EditorParser extends NewParser
         ParsedNode pnode = new MethodNode(scopeStack.peek());
         int curOffset = getTopNodeOffset();
         int insPos = pcuNode.lineColToPosition(start.getLine(), start.getColumn());
+        beginNode(insPos);
         scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
         scopeStack.push(pnode);
     }
@@ -426,6 +459,7 @@ public class EditorParser extends NewParser
         pnode.setInner(true);
         int curOffset = getTopNodeOffset();
         int insPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
+        beginNode(insPos);
         scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
         scopeStack.push(pnode);
     }
