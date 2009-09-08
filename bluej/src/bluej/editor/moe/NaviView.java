@@ -104,7 +104,10 @@ public class NaviView extends JComponent implements AdjustmentListener, Document
         currentViewPos = newTop;
         currentViewPosBottom = newBottom;
         
-        repaint(0, repaintTop + getInsets().top, getWidth(), repaintBottom - repaintTop + 1);
+        int ry = modelToView(repaintTop);
+        int rh = modelToView(repaintBottom) - ry + 1;
+        
+        repaint(0, ry, getWidth(), rh);
     }
 
     @Override
@@ -112,7 +115,7 @@ public class NaviView extends JComponent implements AdjustmentListener, Document
     {
         super.processMouseEvent(e);
         if (e.getID() == MouseEvent.MOUSE_PRESSED) {
-            int y = e.getY() - getInsets().top;
+            int y = viewToModel(e.getY());
             if (y > currentViewPos && y < currentViewPosBottom) {
                 // clicked within the current view area
                 dragOffset = y - currentViewPos;
@@ -149,7 +152,10 @@ public class NaviView extends JComponent implements AdjustmentListener, Document
             lastLine = document.getDefaultRootElement().getElementCount() - 1; 
         }
         
-        repaint(0l, 0, firstLine + getInsets().top, getWidth(), lastLine - firstLine + 1);
+        int ry = modelToView(firstLine);
+        int rh = modelToView(lastLine) - ry + 1;
+        
+        repaint(0l, 0, ry, getWidth(), rh);
     }
     
     public void removeUpdate(DocumentEvent e)
@@ -171,7 +177,20 @@ public class NaviView extends JComponent implements AdjustmentListener, Document
             }
         }
         
-        repaint(0l, 0, firstLine + getInsets().top, getWidth(), lastLine - firstLine + 1);
+        int ry = modelToView(firstLine);
+        int rh = modelToView(lastLine) - ry + 1;
+        
+        repaint(0l, 0, ry, getWidth(), rh);
+    }
+    
+    protected int viewToModel(int y)
+    {
+        return y - getInsets().top;
+    }
+    
+    protected int modelToView(int y)
+    {
+        return y + getInsets().top;
     }
     
     /**
@@ -180,7 +199,7 @@ public class NaviView extends JComponent implements AdjustmentListener, Document
      */
     private void moveView(int ypos)
     {
-        int lineNum = ypos - getInsets().top;
+        int lineNum = viewToModel(ypos);
         lineNum -= dragOffset;
         lineNum = Math.max(0, lineNum);
         
@@ -219,8 +238,10 @@ public class NaviView extends JComponent implements AdjustmentListener, Document
 
         int topLine = sbPositionToLine(scrollBar.getValue());
         int bottomLine = sbPositionToLine(scrollBar.getValue() + scrollBar.getVisibleAmount());
+        int topLineV = modelToView(topLine);
+        int bottomLineV = modelToView(bottomLine);
         g.setColor(background);
-        g.fillRect(clipBounds.x, topLine + insets.top, clipBounds.width, bottomLine - topLine);
+        g.fillRect(clipBounds.x, topLineV, clipBounds.width, bottomLineV - topLineV);
         
         if (document == null) {
             // Should not happen
@@ -234,8 +255,8 @@ public class NaviView extends JComponent implements AdjustmentListener, Document
         
         try {
             g.setColor(foreground);
-            int firstLine = Math.max(0, clipBounds.y - insets.top);
-            int lastLine = Math.max(0, clipBounds.y + clipBounds.height - insets.top);
+            int firstLine = Math.max(0, viewToModel(clipBounds.y));
+            int lastLine = Math.max(0, viewToModel(clipBounds.y + clipBounds.height));
             lastLine = Math.min(lastLine, lines);
             for (int i = firstLine; i < lastLine; i++) {
                 Element lineEl = map.getElement(i);
@@ -246,9 +267,10 @@ public class NaviView extends JComponent implements AdjustmentListener, Document
                 int pos = lineSeg.offset;
                 int endPos = pos + lineSeg.count;
                 int xpos = insets.left;
+                int ry = modelToView(i);
                 for (int j = pos; j < endPos; j++) {
                     if (! Character.isWhitespace(lineSeg.array[j])) {
-                        g.drawLine(xpos, i + insets.top, xpos, i + insets.top);
+                        g.drawLine(xpos, ry, xpos, ry);
                         xpos++;
                     }
                     else if (lineSeg.array[j] == '\t') {

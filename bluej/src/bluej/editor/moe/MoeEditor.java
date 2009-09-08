@@ -145,7 +145,7 @@ public final class MoeEditor extends JFrame
     private GoToLineDialog goToLineDialog;
 
     private JScrollPane scrollPane;
-    private NaviView naviView;                // Navigation view (mini-source view)
+    private NaviView2 naviView;                // Navigation view (mini-source view)
     private JComponent toolbar;             // The toolbar
 
     private String filename;                // name of file or null
@@ -2446,7 +2446,7 @@ public final class MoeEditor extends JFrame
         scrollPane = new JScrollPane(currentTextPane);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         
-        naviView = new NaviView(sourceDocument, scrollPane.getVerticalScrollBar());
+        naviView = new NaviView2(sourceDocument, scrollPane.getVerticalScrollBar());
         naviView.setPreferredSize(new Dimension(NAVIVIEW_WIDTH, 0));
         naviView.setMaximumSize(new Dimension(NAVIVIEW_WIDTH, Integer.MAX_VALUE));
         naviView.setBorder(LineBorder.createBlackLineBorder());
