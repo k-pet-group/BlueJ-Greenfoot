@@ -609,6 +609,36 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(2, token.getEndLine());
     }
 
+    public void testPositionTracking5() throws Exception
+    {
+        // Two possible interpretations:
+        TokenStream ts = getLexerFor("999abcdef");
+        LocatableToken token = (LocatableToken) ts.nextToken(); // one
+        if (token.getType() == JavaTokenTypes.INVALID) {
+            assertEquals(token.getColumn(), 1);
+            assertEquals(token.getEndColumn(), 10);
+        }
+        else {
+            assertEquals(JavaTokenTypes.NUM_INT, token.getType());
+            assertEquals(4, token.getEndColumn());
+            token = (LocatableToken) ts.nextToken();
+            assertEquals(JavaTokenTypes.IDENT, token.getType());
+            assertEquals(4, token.getColumn());
+            assertEquals(10, token.getEndColumn());
+        }
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.EOF, token.getType());
+        assertEquals(10, token.getColumn());
+
+        ts = getLexerFor("999|=");
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.NUM_INT, token.getType());
+        assertEquals(4, token.getEndColumn());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.BOR_ASSIGN, token.getType());
+        assertEquals(4, token.getColumn());
+    }
+    
     public void testBroken() throws Exception
     {
         // These should have a meaningful return from the lexer
