@@ -464,7 +464,7 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(11, token.getColumn());
         assertEquals(JavaTokenTypes.IDENT, token.getType());
     }
-    
+        
     public void testPositionTracking() throws Exception
     {
         TokenStream ts = getLexerFor("one two three\nfour five six  \n  seven eight nine");
@@ -555,6 +555,35 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(6, token.getColumn());
     }
     
+    public void testPositionTracking4() throws Exception
+    {
+        TokenStream ts = getLexerFor("\"somestring\" +\n    \"another string\";");
+        LocatableToken token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.STRING_LITERAL, token.getType());
+        assertEquals(1, token.getColumn());
+        assertEquals(1, token.getLine());
+        assertEquals(13, token.getEndColumn());
+        assertEquals(1, token.getEndLine());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.PLUS, token.getType());
+        assertEquals(14, token.getColumn());
+        assertEquals(1, token.getLine());
+        assertEquals(15, token.getEndColumn());
+        assertEquals(1, token.getEndLine());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.STRING_LITERAL, token.getType());
+        assertEquals(5, token.getColumn());
+        assertEquals(2, token.getLine());
+        assertEquals(21, token.getEndColumn());
+        assertEquals(2, token.getEndLine());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.SEMI, token.getType());
+        assertEquals(21, token.getColumn());
+        assertEquals(2, token.getLine());
+        assertEquals(22, token.getEndColumn());
+        assertEquals(2, token.getEndLine());
+    }
+
     public void testBroken() throws Exception
     {
         // These should have a meaningful return from the lexer
