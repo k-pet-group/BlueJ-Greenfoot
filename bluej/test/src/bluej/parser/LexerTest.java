@@ -758,7 +758,7 @@ public class LexerTest extends junit.framework.TestCase
                     continue;
                 }
                 String testMe = tokenMap.get(ival) + tokenMap.get(jval);
-                // System.out.println("String = " + testMe);
+                //System.out.println("String = " + testMe);
                 TokenStream ts = getLexerFor(testMe);
                 LocatableToken token = (LocatableToken) ts.nextToken();
                 assertEquals(ival, token.getType());
@@ -774,6 +774,17 @@ public class LexerTest extends junit.framework.TestCase
                 token = (LocatableToken) ts.nextToken();
                 assertEquals(JavaTokenTypes.EOF, token.getType());
                 assertEquals(testMe.length() + 1, token.getColumn());
+                
+                testMe = tokenMap.get(ival) + "\n" + tokenMap.get(jval);
+                token = (LocatableToken) ts.nextToken();
+                assertEquals(1, token.getColumn());
+                assertEquals(1 + tokenMap.get(ival).length(), token.getEndColumn());
+                assertEquals(1, token.getLine());
+                assertEquals(1, token.getEndLine());
+                token = (LocatableToken) ts.nextToken();
+                assertEquals(jval, token.getType());
+                assertEquals(1, token.getColumn());
+                assertEquals(2, token.getLine());
             }
         }
     }
