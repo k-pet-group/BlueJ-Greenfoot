@@ -60,7 +60,7 @@ import javax.swing.text.ViewFactory;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: BlueJSyntaxView.java 6619 2009-09-04 02:33:09Z davmac $
+ * @version $Id: BlueJSyntaxView.java 6634 2009-09-09 02:15:11Z davmac $
  */
 
 public abstract class BlueJSyntaxView extends PlainView
@@ -290,7 +290,7 @@ public abstract class BlueJSyntaxView extends PlainView
     }
 
 
-  /**
+    /**
      * Provides a mapping from the view coordinate space to the logical
      * coordinate space of the model.
      *

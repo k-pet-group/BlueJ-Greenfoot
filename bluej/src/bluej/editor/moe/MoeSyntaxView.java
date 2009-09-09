@@ -58,7 +58,7 @@ import bluej.prefmgr.PrefMgr;
  * @author Michael Kolling
  * @author Davin McCall
  *
- * @version $Id: MoeSyntaxView.java 6619 2009-09-04 02:33:09Z davmac $
+ * @version $Id: MoeSyntaxView.java 6634 2009-09-09 02:15:11Z davmac $
  */
 
 public class MoeSyntaxView extends BlueJSyntaxView
@@ -68,7 +68,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
     public static final String STEPMARK = "step";
 
     private static final int LEFT_INNER_SCOPE_MARGIN = 5;
-    private static final int RIGHT_SCOPE_MARGIN = 3;
+    private static final int RIGHT_SCOPE_MARGIN = 4;
     
     static final Image breakImage =
         Config.getImageAsIcon("image.editor.breakmark").getImage();
@@ -269,6 +269,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
                     //int rightMarginNotRendered = fullWidth - endX;
                     int rightMarginNotRendered = bounds.x + bounds.width - endX;
                     int rightMargin = scopeCount * RIGHT_SCOPE_MARGIN + 1  - rightMarginNotRendered;
+                    if (scopeCount != 0) rightMargin += 3;
                     if(rightMargin < 0) {
                         rightMargin = 0;
                     }                   
