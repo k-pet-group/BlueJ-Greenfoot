@@ -872,12 +872,10 @@ public class NewParser
                 return parseDoWhileStatement(token);
             }
             else if (token.getType() == JavaTokenTypes.LITERAL_assert) {
-                parseAssertStatement(token);
-                return null; // DAV
+                return parseAssertStatement(token);
             }
             else if (token.getType() == JavaTokenTypes.LITERAL_switch) {
-                parseSwitchStatement(token);
-                return null; // DAV
+                return parseSwitchStatement(token);
             }
             else if (token.getType() == JavaTokenTypes.LITERAL_case) {
                 parseExpression();
@@ -1103,7 +1101,7 @@ public class NewParser
         }
     }
 	
-    public void parseAssertStatement(LocatableToken token)
+    public LocatableToken parseAssertStatement(LocatableToken token)
     {
         try {
             parseExpression();
@@ -1116,33 +1114,49 @@ public class NewParser
             if (token.getType() != JavaTokenTypes.SEMI) {
                 error("Expected ';' at end of assertion statement");
                 tokenStream.pushBack(token);
+                return null;
             }
+            return token;
         } catch (TokenStreamException e) {
             e.printStackTrace();
+            return null;
         }
     }
 
-    public void parseSwitchStatement(LocatableToken token)
+    public LocatableToken parseSwitchStatement(LocatableToken token)
     {
         try {
             token = tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.LPAREN) {
                 error("Expected '(' after 'switch'");
                 tokenStream.pushBack(token);
-                return;
+                return null;
             }
             parseExpression();
             token = tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.RPAREN) {
                 error("Expected ')' at end of expression (in 'switch(...)')");
                 tokenStream.pushBack(token);
-                return;
+                return null;
             }
             token = tokenStream.nextToken();
-            parseStatement(token);
+            if (token.getType() != JavaTokenTypes.LCURLY) {
+                error("Expected '{' after 'switch(...)'");
+                tokenStream.pushBack(token);
+                return null;
+            }
+            parseStmtBlock();
+            token = tokenStream.nextToken();
+            if (token.getType() != JavaTokenTypes.RCURLY) {
+                error("Missing '}' at end of 'switch' statement block");
+                tokenStream.pushBack(token);
+                return null;
+            }
+            return token;
         }
         catch (TokenStreamException tse) {
             tse.printStackTrace();
+            return null;
         }
     }
 	
