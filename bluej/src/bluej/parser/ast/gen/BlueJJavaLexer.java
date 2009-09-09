@@ -65,6 +65,20 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         return tok;
 
     }
+    
+    private LocatableToken makeToken(int type, String txt, int beginCol, int endCol, int beginLine, int line){
+        LocatableToken tok = new LocatableToken();
+        tok.setType(type);
+        tok.setText(txt);
+        tok.setColumn(beginCol);
+        tok.setLine(beginLine);        
+        tok.setEndLineAndCol(line, endCol);
+        if (newline) {
+            newline();
+        }
+        return tok;
+
+    }
 
     public int getTabSize() {
         return tabsize;
@@ -182,13 +196,13 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
             return createWordToken(nextChar, bCol, bLine); 
         if (Character.isDigit(nextChar))
             return createDigitToken(nextChar, bCol, bLine);
-        return makeToken(getSymbolType(nextChar), textBuffer.toString(), bCol, col, bLine, line,false); 
+        return makeToken(getSymbolType(nextChar), textBuffer.toString(), bCol, col, bLine, line); 
     }
 
 
     private LocatableToken createDigitToken(char nextChar, int bCol, int bLine){
         //return makeToken(getNumberType(), getNumberText(nextChar), bCol, col, bLine, line);  
-        return makeToken(getDigitType(nextChar, false), textBuffer.toString(), bCol, col, bLine, line, true); 
+        return makeToken(getDigitType(nextChar, false), textBuffer.toString(), bCol, col, bLine, line, false); 
     }
 
     private LocatableToken createWordToken(char nextChar, int bCol, int bLine){
@@ -237,10 +251,11 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
 
 
     private boolean getTokenText(char endChar){
-        char thisChar;
+        char thisChar=endChar;
         char [] cb=new char[1];
         int rval=0;     
         boolean complete=false;
+        char prevChar;
         try{
             while (!complete){  
                 rval=reader.readChar(cb, col-1);
@@ -248,10 +263,15 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
                 if (rval==-1){
                     return false;
                 }
-                thisChar=cb[0];
+                prevChar= thisChar;
+                thisChar=cb[0]; 
                 consume(thisChar, true);
+                if (thisChar=='\n'){
+                    newline=true;
+                    return false;
+                }
                 //endChar is the flag for the end of reading
-                if (thisChar ==endChar)  {
+                if (thisChar ==endChar && prevChar!='\\')  {
                     return true;
                 }               
             }
@@ -769,9 +789,13 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
 
     private boolean isComplete(int rval, char ch){
         if (rval==-1 || Character.isWhitespace(ch)
-                || Character.isLetterOrDigit(ch) ){
+                || Character.isLetterOrDigit(ch) || Character.isJavaIdentifierStart(ch) ){
             if(rval==-1)
                 rChar=(char)-1;
+            else if (ch=='\n'){
+                rChar=(char)-1;
+                newline=true;
+            }
             else
                 rChar=ch;
             return true;
@@ -787,6 +811,10 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
             }
         if (rval==-1)
             rChar=(char)-1;
+        else if (ch=='\n'){
+            rChar=(char)-1;
+            newline=true;
+        }
         else
             rChar=ch;
         return true;
@@ -908,9 +936,13 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
             int rval=reader.readChar(cb, col-1);
             char ch=cb[0];
             rChar=ch;
-            if (rval==-1 || Character.isWhitespace((char)ch)|| Character.isLetter(ch)){
+            if (rval==-1 || Character.isWhitespace((char)ch)|| Character.isLetter(ch) || ch=='\n'){
                 if (rval==-1)
                     rChar=(char)-1;
+                if (ch=='\n'){
+                    newline=true;
+                    rChar=(char)-1;
+                }                    
                 return JavaTokenTypes.DOT;
             }
             char thisChar=(char)cb[0]; 
