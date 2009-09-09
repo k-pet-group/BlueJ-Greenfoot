@@ -4,12 +4,19 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Transparency;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.awt.image.FilteredImageSource;
+import java.awt.image.ImageProducer;
+import java.awt.image.RGBImageFilter;
 
 import javax.swing.JEditorPane;
 import javax.swing.JScrollBar;
@@ -72,21 +79,18 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
         catch (BadLocationException ble) {}
     }
 
-    @Override
     public void removeUpdate(DocumentEvent e)
     {
         // TODO Auto-generated method stub
         
     }
     
-    @Override
     public void insertUpdate(DocumentEvent e)
     {
         // TODO Auto-generated method stub
         
     }
     
-    @Override
     public void changedUpdate(DocumentEvent e)
     {
         // TODO Auto-generated method stub
@@ -148,7 +152,7 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
     
     @Override
     protected void paintComponent(Graphics g)
-    {
+    {   
         Rectangle clipBounds = new Rectangle(new Point(0,0), getSize());
         Insets insets = getInsets();
         g.getClipBounds(clipBounds);
@@ -183,11 +187,32 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
 
             //View view = getEditorKit().getViewFactory().create(document.getDefaultRootElement());
             View view = getUI().getRootView(this);
+                       
             
-            //g.setColor(Color.BLUE);
-            g.setFont(getFont());
+            // Create new image that can be manipulated.
+            //
+            // TODO optimizations: it might be possible to make the buffered
+            // image smaller if x or y are bigger than 0, and doing some
+            // translation on the Graphics2D. Also, not sure which image type is
+            // best to use here. A INT_ARGB might be better. And, there might be
+            // completely different and more efficient way tof doing the same
+            // thing.
+            BufferedImage img =  getGraphicsConfiguration().createCompatibleImage(clipBounds.x + clipBounds.width, clipBounds.y + clipBounds.height,
+                    Transparency.TRANSLUCENT);
+            Graphics2D imgG = img.createGraphics();
+            imgG.setClip(clipBounds);     
+
+            // Paint text to the offscreen image
+            imgG.setFont(getFont());
             Rectangle shape = new Rectangle(0, 0, getBounds().width, getBounds().height);
-            view.paint(g, shape);
+            view.paint(imgG, shape);
+
+            // Filter the image
+            ImageProducer producer = new FilteredImageSource(img.getSource(), new DarkenFilter());
+            Image filteredImg = this.createImage(producer);
+
+            // Paint the filtered image onto the graphics
+            g.drawImage(filteredImg, 0, 0, null);            
             
             // Draw a border around the visible area
             g.setColor(new Color((int)(background.getRed() * .7f),
@@ -197,6 +222,43 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
                     viewHeight);
         }
         catch (BadLocationException ble) {}
+       
     }
+    
+    private final static class DarkenFilter extends RGBImageFilter {
+        public DarkenFilter() {
+            // When this is set to true, the filter will work with images
+            // whose pixels are indices into a color table (IndexColorModel).
+            // In such a case, the color values in the color table are filtered.
+            canFilterIndexColorModel = true;
+        }
+    
+        // This method is called for every pixel in the image
+        public int filterRGB(int x, int y, int rgb) {
+            if (x == -1) {
+                // The pixel value is from the image's color table rather than the image itself
+            }
+            Color c = new Color(rgb, true);
+            int red = c.getRed();
+            int green = c.getGreen();
+            int blue = c.getBlue();
+            int alpha = c.getAlpha();
+            //red = darken(red);
+            //green = darken(green);
+            //blue = darken(blue);
+            
+            // Make it more opaque
+            alpha = darken(alpha);
+            return new Color(red, green, blue, alpha).getRGB();
+        }
+        
+        private int darken(int c)
+        {
+            c = c << 2;
+            if(c>255) c = 255;
+            return c;
+        }
+    }
+    
 
 }
