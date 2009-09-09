@@ -120,7 +120,7 @@ public class JavaTokenFilter implements TokenStream
             
             // The previous token ends at the beginning of this token.
             if (previousToken != null) {
-                previousToken.setEndLineAndCol(t.getLine(), t.getColumn());
+//                previousToken.setEndLineAndCol(t.getLine(), t.getColumn());
                 if (parser != null) {
                     if (previousToken.getType() == JavaTokenTypes.ML_COMMENT
                             || previousToken.getType() == JavaTokenTypes.SL_COMMENT) {

@@ -776,6 +776,7 @@ public class LexerTest extends junit.framework.TestCase
                 assertEquals(testMe.length() + 1, token.getColumn());
                 
                 testMe = tokenMap.get(ival) + "\n" + tokenMap.get(jval);
+                ts = getLexerFor(testMe);
                 token = (LocatableToken) ts.nextToken();
                 assertEquals(1, token.getColumn());
                 assertEquals(1 + tokenMap.get(ival).length(), token.getEndColumn());
