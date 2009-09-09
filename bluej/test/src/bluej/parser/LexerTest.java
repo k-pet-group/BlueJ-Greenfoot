@@ -444,10 +444,10 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(JavaTokenTypes.STRING_LITERAL, token.getType());
         assertEquals("\"a \\\"string\"", token.getText());
         assertEquals(1, token.getColumn());
-        assertEquals(17, token.getEndColumn());
+        assertEquals(13, token.getEndColumn());
         token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.IDENT, token.getType());
-        assertEquals(17, token.getColumn());
+        assertEquals(13, token.getColumn());
         assertEquals("identifier", token.getText());
         
         // Character literal '\''
@@ -459,7 +459,7 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(7, token.getColumn());
         assertEquals(JavaTokenTypes.CHAR_LITERAL, token.getType());
         assertEquals(11, token.getEndColumn());
-        assertEquals("\"\\'\"", token.getText());
+        assertEquals("'\\''", token.getText());
         token = (LocatableToken) ts.nextToken();
         assertEquals(11, token.getColumn());
         assertEquals(JavaTokenTypes.IDENT, token.getType());
