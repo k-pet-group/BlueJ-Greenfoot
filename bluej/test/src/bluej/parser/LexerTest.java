@@ -449,6 +449,17 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(JavaTokenTypes.IDENT, token.getType());
         assertEquals(13, token.getColumn());
         assertEquals("identifier", token.getText());
+
+        // String literal with embedded \\
+        ts = getLexerFor("\" \\\\nn \\\\\"identifier");
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.STRING_LITERAL, token.getType());
+        assertEquals("\" \\\\nn \\\\\"", token.getText());
+        assertEquals(11, token.getEndColumn());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.IDENT, token.getType());
+        assertEquals(11, token.getColumn());
+        assertEquals("identifier", token.getText());
         
         // Character literal '\''
         ts = getLexerFor("ident1'\\''ident2");
@@ -460,6 +471,20 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(JavaTokenTypes.CHAR_LITERAL, token.getType());
         assertEquals(11, token.getEndColumn());
         assertEquals("'\\''", token.getText());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(11, token.getColumn());
+        assertEquals(JavaTokenTypes.IDENT, token.getType());
+        
+        // Character literal '\\'
+        ts = getLexerFor("ident1'\\\\'ident2");
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(7, token.getEndColumn());
+        assertEquals(JavaTokenTypes.IDENT, token.getType());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(7, token.getColumn());
+        assertEquals(JavaTokenTypes.CHAR_LITERAL, token.getType());
+        assertEquals(11, token.getEndColumn());
+        assertEquals("'\\\\'", token.getText());
         token = (LocatableToken) ts.nextToken();
         assertEquals(11, token.getColumn());
         assertEquals(JavaTokenTypes.IDENT, token.getType());
