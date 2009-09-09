@@ -236,6 +236,41 @@ public class EditorParser extends NewParser
     }
     
     @Override
+    protected void beginDoWhile(LocatableToken token)
+    {
+        ParentParsedNode loopNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_ITERATION);
+        int curOffset = getTopNodeOffset();
+        int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+        beginNode(insPos);
+        scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
+        scopeStack.push(loopNode);
+    }
+    
+    @Override
+    protected void beginDoWhileBody(LocatableToken token)
+    {
+        // If the token is an LCURLY, it will be seen as a compound statement and scope
+        // handling is done by beginStmtBlockBody
+        if (token.getType() != JavaTokenTypes.LCURLY) {
+            ParentParsedNode loopNode = new ParentParsedNode(scopeStack.peek());
+            loopNode.setInner(true);
+            int curOffset = getTopNodeOffset();
+            int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+            beginNode(insPos);
+            scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
+            scopeStack.push(loopNode);
+        }
+    }
+    
+    @Override
+    protected void endDoWhileBody(LocatableToken token, boolean included)
+    {
+        if (scopeStack.peek().getNodeType() != ParsedNode.NODETYPE_ITERATION) {
+            endTopNode(token, false);
+        }
+    }
+        
+    @Override
     protected void beginIfStmt(LocatableToken token)
     {
         ParentParsedNode loopNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_SELECTION);
@@ -370,6 +405,12 @@ public class EditorParser extends NewParser
         endTopNode(token, included);
     }
     
+    @Override
+    protected void endDoWhile(LocatableToken token, boolean included)
+    {
+        endTopNode(token, included);
+    }
+
     /*
      * We have the end of a package statement.
      */

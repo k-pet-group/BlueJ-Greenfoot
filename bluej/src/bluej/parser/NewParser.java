@@ -143,6 +143,14 @@ public class NewParser
     
     protected void endIfStmt(LocatableToken token, boolean included) { }
     
+    protected void beginDoWhile(LocatableToken token) { }
+    
+    protected void beginDoWhileBody(LocatableToken token) { }
+    
+    protected void endDoWhileBody(LocatableToken token, boolean included) { }
+    
+    protected void endDoWhile(LocatableToken token, boolean included) { }
+    
     protected void beginTryCatchSmt(LocatableToken token) { }
     
     protected void beginTryBlock(LocatableToken token) { }
@@ -861,8 +869,7 @@ public class NewParser
                 return parseIfStatement(token);
             }
             else if (token.getType() == JavaTokenTypes.LITERAL_do) {
-                parseDoWhileStatement(token);
-                return null; // DAV
+                return parseDoWhileStatement(token);
             }
             else if (token.getType() == JavaTokenTypes.LITERAL_assert) {
                 parseAssertStatement(token);
@@ -1139,33 +1146,51 @@ public class NewParser
         }
     }
 	
-    public void parseDoWhileStatement(LocatableToken token)
+    public LocatableToken parseDoWhileStatement(LocatableToken token)
     {
         try {
-            token = tokenStream.nextToken();
-            parseStatement(token);
+            beginDoWhile(token);
+            token = tokenStream.nextToken(); // '{' or a statement
+            LocatableToken ntoken = parseStatement(token);
+            if (ntoken != null || token != tokenStream.LA(1)) {
+                beginDoWhileBody(token);
+                if (ntoken == null) {
+                    endDoWhileBody(tokenStream.LA(1), false);
+                }
+                else {
+                    endDoWhileBody(ntoken, true);
+                }
+            }
+            
             token = tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.LITERAL_while) {
                 error("Expecting 'while' after statement block (in 'do ... while')");
                 tokenStream.pushBack(token);
-                return;
+                endDoWhile(token, false);
+                return null;
             }
             token = tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.LPAREN) {
                 error("Expecting '(' after 'while'");
                 tokenStream.pushBack(token);
-                return;
+                endDoWhile(token, false);
+                return null;
             }
             parseExpression();
             token = tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.RPAREN) {
                 error("Expecting ')' after conditional expression (in 'while' statement)");
                 tokenStream.pushBack(token);
+                endDoWhile(token, false);
+                return null;
             }
-            token = tokenStream.nextToken();
+            token = tokenStream.nextToken(); // should be ';'
+            endDoWhile(token, true);
+            return token;
         }
         catch (TokenStreamException tse) {
             tse.printStackTrace();
+            return null;
         }
     }
 	
