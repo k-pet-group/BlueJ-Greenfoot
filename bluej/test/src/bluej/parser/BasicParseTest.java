@@ -113,7 +113,7 @@ public class BasicParseTest extends junit.framework.TestCase
     public void testValidClassInfo()
         throws Exception
     {
-        List references = new ArrayList();
+        List<String> references = new ArrayList<String>();
         references.add("Insets");
         references.add("Color");
         references.add("Rectangle");
@@ -157,7 +157,7 @@ public class BasicParseTest extends junit.framework.TestCase
         assertNull(extendsInsert);
         
         // No type parameters
-        List l = info.getTypeParameterTexts();
+        List<String> l = info.getTypeParameterTexts();
         if (l != null)
             assertEquals(0, l.size());
 //        testSel = info.getTypeParametersSelection();
@@ -212,9 +212,9 @@ public class BasicParseTest extends junit.framework.TestCase
         assertEquals(1, implementsInsert.getLine());
         
         // the interface selections: "implements" "AA" "," "BB" "," "CC"
-        List interfaceSels = info.getInterfaceSelections();
+        List<Selection> interfaceSels = info.getInterfaceSelections();
         assertEquals(6, interfaceSels.size());
-        Iterator i = interfaceSels.iterator();
+        Iterator<Selection> i = interfaceSels.iterator();
         
         // "implements"
         Selection interfaceSel = (Selection) i.next();
@@ -332,7 +332,7 @@ public class BasicParseTest extends junit.framework.TestCase
     public void testDependencyAnalysis()
         throws Exception
     {
-        List classes = new ArrayList();
+        List<String> classes = new ArrayList<String>();
         classes.add("I");
         classes.add("J");
         classes.add("K");
@@ -340,7 +340,7 @@ public class BasicParseTest extends junit.framework.TestCase
         classes.add("M");
         ClassInfo info = ClassParser.parse(getFile("H.dat"), classes);
         
-        List used = info.getUsed();
+        List<String> used = info.getUsed();
         assertTrue(used.contains("I")); 
         assertTrue(used.contains("J")); 
         assertTrue(used.contains("K")); 
@@ -371,4 +371,23 @@ public class BasicParseTest extends junit.framework.TestCase
     	assertFalse(used.contains("I"));
     }
 
+    /**
+     * Test loop iterator variable declaration dependency
+     */
+    public void testDependencyAnalysis3() throws Exception
+    {
+        List<String> classes = new ArrayList<String>();
+        classes.add("I");
+        StringReader sr = new StringReader(
+                        "class A {\n" +
+                        "  void someMethod() {\n" +
+                        "    for(I ii = JJ.someMethod(); ;) ;\n" +
+                        "  }\n" +
+                        "}\n"
+        );
+        ClassInfo info = ClassParser.parse(sr, classes);
+        List<String> used = info.getUsed();
+        
+        assertTrue(used.contains("I"));
+    }
 }
