@@ -939,6 +939,7 @@ public class NewParser
                 tokenStream.pushBack(token);
                 pushBackAll(tlist);
                 if (isTypeSpec && token.getType() == JavaTokenTypes.IDENT) {
+                    gotTypeSpec(tlist);
                     parseVariableDeclarations();
                     return null; // DAV
                 }
@@ -1266,6 +1267,8 @@ public class NewParser
                 List<LocatableToken> tlist = new LinkedList<LocatableToken>();
                 boolean isTypeSpec = parseTypeSpec(true, tlist);
                 if (isTypeSpec && tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
+                    // for (type var ...
+                    gotTypeSpec(tlist);
                     token = tokenStream.nextToken(); // identifier
                     token = tokenStream.nextToken();
                     if (token.getType() == JavaTokenTypes.COLON) {
@@ -1516,8 +1519,9 @@ public class NewParser
         }
     }
 	
-	
-    // TODO comment
+    /**
+     * Parse a type specification.
+     */
     public boolean parseTypeSpec()
     {
         List<LocatableToken> tokens = new LinkedList<LocatableToken>();
@@ -1529,7 +1533,6 @@ public class NewParser
     }
 	
     /**
-     * TODO fix comment, ttokens parameter
      * Parse a type specification. This could be a primitive type (including void),
      * or a class type (qualified or not, possibly with type parameters). This can
      * do a speculative parse if the following tokens might either be a type specification
@@ -1538,6 +1541,9 @@ public class NewParser
      * @param speculative  Whether this is a speculative parse, i.e. we might not actually
      *                     have a type specification. If this is set some parse errors will
      *                     simply return false.
+     * @param ttokens   A list which will be filled with tokens. If the return is true, the tokens
+     *                  make up a possible type specification; otherwise the tokens should be
+     *                  pushed back on the token stream.
      * 
      * @return true if we saw what might be a type specification (even if it
      * 		               contains errors), or false if it does not appear to be
@@ -2105,6 +2111,7 @@ public class NewParser
                     
                     if (isCast) {
                         // This surely must be type cast
+                        gotTypeSpec(tlist);
                         token = tokenStream.nextToken(); // RPAREN
                         token = tokenStream.nextToken();
                         continue;
@@ -2183,6 +2190,8 @@ public class NewParser
                         if (token.getType() != JavaTokenTypes.LITERAL_class) {
                             break;
                         }
+                        // otherwise we continue and look for another operator
+                        // (which should really only be '.')
                     }
                     else if (isBinaryOperator(token)) {
                         // Binary operators - need another operand

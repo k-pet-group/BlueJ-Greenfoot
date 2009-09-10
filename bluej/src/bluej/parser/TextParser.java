@@ -66,6 +66,17 @@ public class TextParser extends NewParser
         return valueStack.pop();
     }
     
+    /**
+     * Pop an item from the value stack. If there are no values to pop, supply an error entity.
+     */
+    public JavaEntity popValueStack()
+    {
+        if (! valueStack.isEmpty()) {
+            return valueStack.pop();
+        }
+        return new ErrorEntity();
+    }
+    
     @Override
     protected void gotLiteral(LocatableToken token)
     {
@@ -100,7 +111,6 @@ public class TextParser extends NewParser
         super.gotTypeSpec(tokens);
     }
     
-    
     // Process all on-stack operators with a equal-or-higher precedence than that given
     private void processHigherPrecedence(int tokenType)
     {
@@ -115,8 +125,10 @@ public class TextParser extends NewParser
         }
     }
     
-    // Process an operator, take the operands from the value stack and leave the result on the
-    // value stack
+    /**
+     *  Process an operator, take the operands from the value stack and leave the result on the
+     *  stack.
+     */
     private void processOperator(LocatableToken token)
     {
         int tokenType = token.getType();
@@ -124,12 +136,40 @@ public class TextParser extends NewParser
         JavaEntity arg1;
         JavaEntity arg2;
         
-        try {
         switch (tokenType) {
         case JavaTokenTypes.PLUS:
+        case JavaTokenTypes.MINUS:
+        case JavaTokenTypes.STAR:
+        case JavaTokenTypes.DIV:
+        case JavaTokenTypes.MOD:
+            arg2 = popValueStack();
+            arg1 = popValueStack();
+            checkArgs(arg1, arg2, token);
+        }
+        // TODO
+    }
+    
+    private void checkArgs(JavaEntity arg1, JavaEntity arg2, LocatableToken op)
+    {
+        JavaEntity rarg1 = arg1.resolveAsValue();
+        JavaEntity rarg2 = arg2.resolveAsValue();
+        if (rarg1 == null || rarg2 == null) {
+            valueStack.push(rarg1 == null ? arg1 : arg2);
+            return;
+        }
+        
+        doBinaryOp(arg1, arg2, op);
+    }
+    
+    /**
+     * Process a binary operator. Arguments have been resolved as values. Result is left of stack.
+     */
+    private void doBinaryOp(JavaEntity arg1, JavaEntity arg2, LocatableToken op)
+    {
+        int ttype = op.getType();
+        switch (ttype) {
+        case JavaTokenTypes.PLUS:
             // TODO
-            arg1 = valueStack.pop();
-            arg2 = valueStack.pop();
             if (arg1.getType().typeIs(JavaType.JT_DOUBLE) || arg2.getType().typeIs(JavaType.JT_DOUBLE)) {
                 valueStack.push(new PrimitiveValueEntity(JavaPrimitiveType.getDouble()));
             }
@@ -142,11 +182,6 @@ public class TextParser extends NewParser
             else {
                 valueStack.push(new PrimitiveValueEntity(JavaPrimitiveType.getInt()));
             }
-        }
-        // TODO
-        }
-        catch (SemanticException se) {
-            // TODO push "error" value
         }
     }
     
@@ -183,6 +218,18 @@ class PrimitiveValueEntity extends JavaEntity
         this.name = name;
     }
     
+    @Override
+    public JavaEntity resolveAsValue()
+    {
+        return this;
+    }
+    
+    @Override
+    public JavaEntity resolveAsValOrType() throws SemanticException
+    {
+        return this;
+    }
+    
     public JavaType getType()
     {
         return type;
@@ -199,6 +246,33 @@ class PrimitiveValueEntity extends JavaEntity
         return name;
     }
     
+    public boolean isClass()
+    {
+        return false;
+    }
+}
+
+class ErrorEntity extends JavaEntity
+{
+    @Override
+    public String getName()
+    {
+        return "** error **";
+    }
+    
+    @Override
+    public JavaEntity getSubentity(String name) throws SemanticException
+    {
+        return this;
+    }
+    
+    @Override
+    public JavaType getType()
+    {
+        return null;
+    }
+    
+    @Override
     public boolean isClass()
     {
         return false;

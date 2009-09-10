@@ -36,8 +36,13 @@ import bluej.parser.SemanticException;
  */
 public abstract class JavaEntity
 {
+    public JavaEntity resolveAsValue()
+    {
+        return null;
+    }
+    
     /**
-     * If this entity is unresolved, resolve it now as a type.
+     * If this entity is unresolved, resolve it now as a value or a type.
      */
     public JavaEntity resolveAsValOrType() throws SemanticException
     {
@@ -56,10 +61,9 @@ public abstract class JavaEntity
      * Get the type of the entity. For a class entity, this is the class itself
      * (may be generic). For a value this is the value type.
      * 
-     * Throws SemanticException if the entity doesn't have an
-     * associated type (for instance, it represents a package)
+     * Returns null if no type is available.
      */ 
-    public abstract JavaType getType() throws SemanticException;
+    public abstract JavaType getType();
     
     /**
      * Get a sub-entity (member, field, whatever) by name.

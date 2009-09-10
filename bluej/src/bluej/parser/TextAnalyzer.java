@@ -2667,9 +2667,9 @@ public class TextAnalyzer
             packageName = pname;
         }
         
-        public JavaType getType() throws SemanticException
+        public JavaType getType()
         {
-            throw new SemanticException();
+            return null;
         }
         
         void setTypeParams(List tparams) throws SemanticException
