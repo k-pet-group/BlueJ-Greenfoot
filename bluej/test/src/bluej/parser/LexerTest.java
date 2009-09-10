@@ -637,6 +637,15 @@ public class LexerTest extends junit.framework.TestCase
         token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.BOR_ASSIGN, token.getType());
         assertEquals(4, token.getColumn());
+        
+        ts = getLexerFor("  999\n  {");
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.NUM_INT, token.getType());
+        assertEquals(6, token.getEndColumn());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.LCURLY, token.getType());
+        assertEquals(3, token.getColumn());
+        assertEquals(2, token.getLine());
     }
     
     public void testBroken() throws Exception
