@@ -22,7 +22,6 @@
 package bluej.editor.moe;
 
 import javax.swing.text.DefaultEditorKit;
-import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.View;
 import javax.swing.text.ViewFactory;
@@ -39,8 +38,7 @@ public class NaviviewEditorKit extends DefaultEditorKit implements ViewFactory
     {
         return this;
     }
-    
-    @Override
+
     public View create(Element elem)
     {
         return new NaviviewView(elem);
