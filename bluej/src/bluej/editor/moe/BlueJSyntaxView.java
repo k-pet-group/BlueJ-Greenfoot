@@ -165,6 +165,8 @@ public abstract class BlueJSyntaxView extends PlainView
 
     /**
      * Draw a line for this view. Default implementation defers to paintSyntaxLine().
+     * @param x  The x co-ordinate of the line, where the text is to begin (i.e. the margin area is
+     *           to the left of this point)
      */
     protected void paintTaggedLine(Segment line, int lineIndex, Graphics g, int x, int y, 
             MoeSyntaxDocument document, Color def, Element lineElement)
@@ -174,6 +176,8 @@ public abstract class BlueJSyntaxView extends PlainView
 
     /**
      * Paints a line with syntax highlighting,
+     * @param x  The x co-ordinate of the line, where the text is to begin (i.e. the margin area is
+     *           to the left of this point)
      */
     protected final void paintSyntaxLine(Segment line, int lineIndex, int x, int y,
                                  Graphics g, MoeSyntaxDocument document, 
