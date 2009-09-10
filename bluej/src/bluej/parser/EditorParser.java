@@ -354,7 +354,7 @@ public class EditorParser extends NewParser
             // This is conditional, because the outer block may be a loop or selection
             // statement which already exists.
             ParentParsedNode blockNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_NONE);
-            blockNode.setInner(true);
+            blockNode.setInner(false);
             int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
             beginNode(insPos);
             scopeStack.peek().insertNode(blockNode, insPos - curOffset, 0);

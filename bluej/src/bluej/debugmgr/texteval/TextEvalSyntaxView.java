@@ -60,11 +60,15 @@ import bluej.editor.moe.MoeSyntaxDocument;
  * @author Bruce Quig
  * @author Michael Kolling
  *
- * @version $Id: TextEvalSyntaxView.java 6567 2009-08-27 05:59:10Z davmac $
+ * @version $Id: TextEvalSyntaxView.java 6649 2009-09-10 05:26:47Z davmac $
  */
 
 public class TextEvalSyntaxView extends BlueJSyntaxView
 {
+    public static final short TAG_WIDTH = 14;
+    protected static final int BREAKPOINT_OFFSET = TAG_WIDTH + 2;
+    protected static final int LEFT_MARGIN = BREAKPOINT_OFFSET + 8;
+
     // Attributes for lines and document
     public static final String OUTPUT = "output";
     public static final String ERROR = "error";
@@ -87,7 +91,7 @@ public class TextEvalSyntaxView extends BlueJSyntaxView
      */
     public TextEvalSyntaxView(Element elem)
     {
-        super(elem);
+        super(elem, LEFT_MARGIN);
     }
 
     /**

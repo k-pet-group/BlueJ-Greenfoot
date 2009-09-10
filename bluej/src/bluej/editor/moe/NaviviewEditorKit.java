@@ -21,43 +21,28 @@
  */
 package bluej.editor.moe;
 
-import java.awt.*;
-import javax.swing.*;
+import javax.swing.text.DefaultEditorKit;
+import javax.swing.text.Document;
+import javax.swing.text.Element;
+import javax.swing.text.View;
+import javax.swing.text.ViewFactory;
 
-/**
- * MoeJEditorPane - a variation of JEditorPane for Moe. The preferred size
- * is adjusted to allow for the tag line.
- *
- * @author Michael Kolling
- */
-
-public final class MoeEditorPane extends JEditorPane
+public class NaviviewEditorKit extends DefaultEditorKit implements ViewFactory
 {
-    /**
-     * Create an editor pane specifically for Moe.
-     */
-    public MoeEditorPane()
+    public NaviviewEditorKit()
     {
-        super();
+        // 
     }
     
-    /*
-     * Adjust this pane's preferred size to add the tag area.
-     */
-    public Dimension getPreferredSize() 
+    @Override
+    public ViewFactory getViewFactory()
     {
-        Dimension d = super.getPreferredSize();
-        d.width += MoeSyntaxView.TAG_WIDTH + 8;  // bit of empty space looks nice
-        return d;
+        return this;
     }
-
-    /*
-     * Make sure, when we are scrolling to follow the caret,
-     * that we can see the tag area as well.
-     */
-    public void scrollRectToVisible(Rectangle rect)
+    
+    @Override
+    public View create(Element elem)
     {
-        super.scrollRectToVisible(new Rectangle(rect.x - (MoeSyntaxView.TAG_WIDTH + 4), rect.y,
-                                                rect.width + MoeSyntaxView.TAG_WIDTH + 4, rect.height));
+        return new NaviviewView(elem);
     }
 }

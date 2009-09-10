@@ -190,7 +190,10 @@ public class MoeSyntaxDocument extends PlainDocument
         return colors;
     }
     
-    // DAV comment
+    /**
+     * Identify the token types and positions in a line. This is used for syntax colouring.
+     * @param line  The line number (0 based).
+     */
     public Token getTokensForLine(int line)
     {
         Element lineEl = getDefaultRootElement().getElement(line);

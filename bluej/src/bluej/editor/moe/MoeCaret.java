@@ -72,7 +72,7 @@ public class MoeCaret extends DefaultCaret
         Position.Bias[] biasRet = new Position.Bias[1];
         int pos = getComponent().getUI().viewToModel(getComponent(), pt, biasRet);
 
-        if (e.getX() > BlueJSyntaxView.TAG_WIDTH) {
+        if (e.getX() > MoeSyntaxView.TAG_WIDTH) {
             if(biasRet[0] == null)
                 biasRet[0] = Position.Bias.Forward;
             if (pos >= 0) {
@@ -95,7 +95,7 @@ public class MoeCaret extends DefaultCaret
      */
     protected void moveCaret(MouseEvent e) 
     {
-        if (e.getX() > BlueJSyntaxView.TAG_WIDTH) {
+        if (e.getX() > MoeSyntaxView.TAG_WIDTH) {
             super.moveCaret(e);
         }
     }

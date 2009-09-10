@@ -1,7 +1,29 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.editor.moe;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -40,11 +62,21 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
     {
         this.scrollBar = scrollBar;
         Font smallFont = new Font(Font.MONOSPACED, Font.BOLD, 1);
+        setEditorKit(new NaviviewEditorKit());
+        
         setFont(smallFont);
         setDocument(document);
         
         scrollBar.addAdjustmentListener(this);
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    }
+    
+    @Override
+    public Dimension getMinimumSize()
+    {
+        // Overcome the awkward default situation where the minimum size becomes larger
+        // than the preferred size.
+        return getPreferredSize();
     }
     
     public void adjustmentValueChanged(AdjustmentEvent e)
@@ -163,7 +195,8 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
                 (int)(background.getGreen() * .9f),
                 (int)(background.getBlue() * .9f));
         
-        g.setColor(notVisible);
+        //g.setColor(notVisible);
+        g.setColor(background);
         g.fillRect(clipBounds.x, clipBounds.y, clipBounds.width, clipBounds.height);
 
         Document document = getDocument();
@@ -183,7 +216,7 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
             int viewHeight = bottomLineV - topLineV;
 
             g.setColor(background);
-            g.fillRect(clipBounds.x, topLineV, clipBounds.width, viewHeight);
+            //g.fillRect(clipBounds.x, topLineV, clipBounds.width, viewHeight);
 
             //View view = getEditorKit().getViewFactory().create(document.getDefaultRootElement());
             View view = getUI().getRootView(this);
@@ -215,9 +248,10 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
             g.drawImage(filteredImg, 0, 0, null);            
             
             // Draw a border around the visible area
-            g.setColor(new Color((int)(background.getRed() * .7f),
-                    (int)(background.getGreen() * .7f),
-                    (int)(background.getBlue() * .7f)));
+            g.setColor(new Color(140, 140, 255));
+            //g.setColor(new Color((int)(background.getRed() * .7f),
+            //        (int)(background.getGreen() * .7f),
+            //        (int)(background.getBlue() * .7f)));
             g.drawRect(0 + insets.left, topLineV, getWidth() - insets.left - insets.right - 1,
                     viewHeight);
         }

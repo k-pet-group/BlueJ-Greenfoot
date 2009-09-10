@@ -57,7 +57,6 @@ import bluej.debugmgr.Invoker;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.ValueCollection;
-import bluej.editor.moe.BlueJSyntaxView;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.MoeSyntaxEditorKit;
 import bluej.parser.TextAnalyzer;
@@ -74,7 +73,7 @@ import bluej.utility.Utility;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 6595 2009-09-02 14:30:49Z davmac $
+ * @version $Id: TextEvalPane.java 6649 2009-09-10 05:26:47Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ValueCollection, ResultWatcher, MouseMotionListener
@@ -124,7 +123,7 @@ public class TextEvalPane extends JEditorPane
     public Dimension getPreferredSize() 
     {
         Dimension d = super.getPreferredSize();
-        d.width += BlueJSyntaxView.TAG_WIDTH + 8;  // bit of empty space looks nice
+        d.width += TextEvalSyntaxView.TAG_WIDTH + 8;  // bit of empty space looks nice
         return d;
     }
     
@@ -134,8 +133,8 @@ public class TextEvalPane extends JEditorPane
      */
     public void scrollRectToVisible(Rectangle rect)
     {
-        super.scrollRectToVisible(new Rectangle(rect.x - (BlueJSyntaxView.TAG_WIDTH + 4), rect.y,
-                rect.width + BlueJSyntaxView.TAG_WIDTH + 4, rect.height));
+        super.scrollRectToVisible(new Rectangle(rect.x - (TextEvalSyntaxView.TAG_WIDTH + 4), rect.y,
+                rect.width + TextEvalSyntaxView.TAG_WIDTH + 4, rect.height));
     }
     
     /**
@@ -669,7 +668,7 @@ public class TextEvalPane extends JEditorPane
         int y = evt.getY();
         
         if(mouseInTag) {
-            if(x > BlueJSyntaxView.TAG_WIDTH) {    // moved out of tag area
+            if(x > TextEvalSyntaxView.TAG_WIDTH) {    // moved out of tag area
                 setCursor(textCursor);
                 mouseInTag = false;
             }
@@ -677,7 +676,7 @@ public class TextEvalPane extends JEditorPane
                 setTagAreaCursor(x, y);
         }
         else {
-            if(x <= BlueJSyntaxView.TAG_WIDTH) {   // moved into tag area
+            if(x <= TextEvalSyntaxView.TAG_WIDTH) {   // moved into tag area
                 setCursor(defaultCursor);
                 mouseOverObject = false;
                 setTagAreaCursor(x, y);

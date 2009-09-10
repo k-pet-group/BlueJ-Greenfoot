@@ -114,7 +114,7 @@ public final class MoeEditor extends JFrame
 
     // other
     final static String COMPILED = "compiled";
-    private final static int NAVIVIEW_WIDTH = 70;       // width of the "naviview" (min-source) box
+    private final static int NAVIVIEW_WIDTH = 90;       // width of the "naviview" (min-source) box
 
     // -------- CLASS VARIABLES --------
     

@@ -21,8 +21,6 @@
  */
 package bluej.debugmgr.texteval;
 
-import bluej.editor.moe.BlueJSyntaxView;
-
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.text.*;
@@ -56,7 +54,7 @@ public class TextEvalCaret extends DefaultCaret
         Position.Bias[] biasRet = new Position.Bias[1];
         int pos = getComponent().getUI().viewToModel(getComponent(), pt, biasRet);
 
-        if (e.getX() > BlueJSyntaxView.TAG_WIDTH) {
+        if (e.getX() > TextEvalSyntaxView.TAG_WIDTH) {
             if (pos >= 0) {
                 setDot(pos);
             }
@@ -76,7 +74,7 @@ public class TextEvalCaret extends DefaultCaret
      */
     protected void moveCaret(MouseEvent e) 
     {
-        if (e.getX() > BlueJSyntaxView.TAG_WIDTH) {
+        if (e.getX() > TextEvalSyntaxView.TAG_WIDTH) {
             Point pt = new Point(e.getX(), e.getY());
             Position.Bias[] biasRet = new Position.Bias[1];
             int pos = getComponent().getUI().viewToModel(getComponent(), pt, biasRet);
