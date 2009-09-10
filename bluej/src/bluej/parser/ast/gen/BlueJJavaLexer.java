@@ -40,12 +40,12 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
     private int col,line;     
     private char rChar= (char)-1; 
     private boolean newline=false;
-    private LexerState state;
+    //private LexerState state;
 
     public BlueJJavaLexer(Reader in) {
         reader=new EscapedUnicodeReader(in);
-        state=new LexerState();
-        ((EscapedUnicodeReader)in).setAttachedLexerState(state);
+        //state=new LexerState();
+        //((EscapedUnicodeReader)in).setAttachedLexerState(state);
         col=((EscapedUnicodeReader)in).getPosition()+1;
         line=1;
     }
