@@ -40,10 +40,12 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
     private int col,line;     
     private char rChar= (char)-1; 
     private boolean newline=false;
-    //private LexerState state;
+    private LexerState state;
 
     public BlueJJavaLexer(Reader in) {
         reader=new EscapedUnicodeReader(in);
+        state=new LexerState();
+        ((EscapedUnicodeReader)in).setAttachedLexerState(state);
         col=((EscapedUnicodeReader)in).getPosition()+1;
         line=1;
     }
@@ -59,6 +61,7 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         tok.setColumn(beginCol);
         tok.setLine(beginLine);        
         tok.setEndLineAndCol(line, endCol);
+        //need to reset the values as the token was directly followed by a newline
         if (newline) {
             newline();
         }
@@ -344,7 +347,7 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
                     }
                     else if (Character.isWhitespace(ch)|| (!Character.isLetterOrDigit(ch))){
                         complete=true;
-                        col++;
+                        //col++;
                         rChar=ch;
                     }else {
                         complete=true;
