@@ -550,7 +550,7 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(20, token.getEndColumn());
 
         // Unicode escape sequences - fails with old lexer
-        ts = getLexerFor("one\u0020two");
+        ts = getLexerFor("one\\u0020two");
         token = (LocatableToken) ts.nextToken();
         assertEquals(4, token.getEndColumn());
         token = (LocatableToken) ts.nextToken();
