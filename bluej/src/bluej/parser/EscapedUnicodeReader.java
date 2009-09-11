@@ -55,6 +55,9 @@ public class EscapedUnicodeReader extends Reader
     // This is set true after decoding a unicode escape sequence.
     private boolean bumpColumn;
     
+    private int line=1;
+    private boolean eof=true;
+    
     public EscapedUnicodeReader(Reader source)
     {
         sourceReader = source;
@@ -92,6 +95,7 @@ public class EscapedUnicodeReader extends Reader
         // if we failed to read anything, it's due to end-of-stream
         if (numRead == 0 && len != 0)
             numRead = -1;
+        else eof=false;
         
         return numRead;
     }
@@ -121,9 +125,14 @@ public class EscapedUnicodeReader extends Reader
         }
         else {
             rchar = sourceReader.read();
-            position++;
+                position++;
+
         }
         
+        if (rchar=='\n'){
+            line=line+1;
+            position=0;
+        }
         if (rchar == '\\') {
             // This could be the beginning of an escaped unicode sequence,
             // \\uXXXX (with only a single backslash)
@@ -186,38 +195,8 @@ public class EscapedUnicodeReader extends Reader
     	return position;
     }
     
-    public int readChars(char [] buffer, int off, int len) throws IOException
-    {
-        int numRead = 0;
-        while (len > 0) {
-            try {
-                int r = getChar();
-                if (r == -1)
-                    break;
-                buffer[numRead] = (char) r;
-                len--;
-                numRead++;
-            }
-            catch (IOException ioe) {
-                // If we got an exception, but successfully read some characters,
-                // we should return those characters.
-                if (numRead == 0) {
-                    throw ioe;
-                }
-                else { 
-                    break;
-                }
-            }
-        }
-        // if we failed to read anything, it's due to end-of-stream
-        if (numRead == 0 && len != 0)
-            numRead = -1;
-        
-        return numRead;
-    }
-
-    public int readChar(char [] buffer, int off) throws IOException
-    {
-        return readChars(buffer, off, 1);
+    
+    public int getLine() {
+        return line;
     }
 }
