@@ -158,8 +158,13 @@ public class NewParser
     
     protected void endTryCatchStmt(LocatableToken token, boolean included) { }
     
-    /** got a "new ..." expression */
+    /**
+     * got a "new ..." expression. Will be followed by a type spec (gotTypeSpec())
+     * and possibly by array size declarations, then endExprNew()
+     */
     protected void gotExprNew(LocatableToken token) { }
+    
+    protected void endExprNew(LocatableToken token, boolean included) { }
     
     /**
      * Beginning of a statement block. This includes anonymous statement blocks, and static
@@ -1990,62 +1995,7 @@ public class NewParser
             while (true) {
                 if (token.getType() == JavaTokenTypes.LITERAL_new) {
                     // new XYZ(...)
-                    gotExprNew(token);
-                    token = tokenStream.nextToken();
-                    if (token.getType() != JavaTokenTypes.IDENT && !isPrimitiveType(token)) {
-                        error("Expected type identifier after \"new\" (in expression)");
-                        return;
-                    }
-                    tokenStream.pushBack(token);
-                    parseTypeSpec();
-                    token = tokenStream.nextToken();
-                    boolean gotArrayDimension = false;
-                    while (token.getType() == JavaTokenTypes.LBRACK) {
-                        // array dimensions
-                        gotArrayDimension = true;
-                        if (tokenStream.LA(1).getType() != JavaTokenTypes.RBRACK) {
-                            parseExpression();
-                        }
-                        token = tokenStream.nextToken();
-                        if (token.getType() != JavaTokenTypes.RBRACK) {
-                            error("Expecting ']' after array dimension (in new ... expression)");
-                        }
-                        else {
-                            token = tokenStream.nextToken();
-                        }
-                    }
-                    if (gotArrayDimension) {
-                        tokenStream.pushBack(token);
-                    }
-                    else {
-                        if (token.getType() != JavaTokenTypes.LPAREN) {
-                            error("Expected '(' after type name (in 'new ...' expression)");
-                            return;
-                        }
-                        parseArgumentList();
-                        token = tokenStream.nextToken();
-                        if (token.getType() != JavaTokenTypes.RPAREN) {
-                            error("Expected ')' at end of argument list (in 'new ...' expression)");
-                            return;
-                        }
-                    }
-
-                    if (tokenStream.LA(1).getType() == JavaTokenTypes.LCURLY) {
-                        // Either an initialiser list, or a class body (anonymous inner class)
-                        if (gotArrayDimension) {
-                            parseExpression();
-                        }
-                        else {
-                            tokenStream.nextToken(); // LCURLY
-                            parseClassBody();
-                            token = tokenStream.nextToken();
-                            if (token.getType() != JavaTokenTypes.RCURLY) {
-                                error("Expected '}' at end of inner class body");
-                                tokenStream.pushBack(token);
-                                return;
-                            }
-                        }
-                    }
+                    parseNewExpression(token);
                 }
                 else if (token.getType() == JavaTokenTypes.LCURLY) {
                     // an initialiser list for an array
@@ -2231,6 +2181,82 @@ public class NewParser
             tse.printStackTrace();
         }
     }
+    
+    public void parseNewExpression(LocatableToken token)
+    {
+        // new XYZ(...)
+        try {
+            gotExprNew(token);
+            token = tokenStream.nextToken();
+            if (token.getType() != JavaTokenTypes.IDENT && !isPrimitiveType(token)) {
+                error("Expected type identifier after \"new\" (in expression)");
+                tokenStream.pushBack(token);
+                endExprNew(token, false);
+                return;
+            }
+            tokenStream.pushBack(token);
+            parseTypeSpec();
+            token = tokenStream.nextToken();
+            boolean gotArrayDimension = false;
+            
+            if (token.getType() == JavaTokenTypes.LBRACK) {
+                while (token.getType() == JavaTokenTypes.LBRACK) {
+                    // array dimensions
+                    gotArrayDimension = true;
+                    if (tokenStream.LA(1).getType() != JavaTokenTypes.RBRACK) {
+                        parseExpression();
+                    }
+                    token = tokenStream.nextToken();
+                    if (token.getType() != JavaTokenTypes.RBRACK) {
+                        error("Expecting ']' after array dimension (in new ... expression)");
+                    }
+                    else {
+                        token = tokenStream.nextToken();
+                    }
+                }
+                tokenStream.pushBack(token);
+
+                if (token.getType() == JavaTokenTypes.LCURLY) {
+                    // An initialiser list
+                    parseExpression();
+                }
+                // DAV call endExprNew()
+                return;
+            }
+            
+            if (token.getType() != JavaTokenTypes.LPAREN) {
+                error("Expected '(' after type name (in 'new ...' expression)");
+                tokenStream.pushBack(token);
+                endExprNew(token, false);
+                return;
+            }
+            parseArgumentList();
+            token = tokenStream.nextToken();
+            if (token.getType() != JavaTokenTypes.RPAREN) {
+                error("Expected ')' at end of argument list (in 'new ...' expression)");
+                tokenStream.pushBack(token);
+                endExprNew(token, false);
+                return;
+            }
+
+            if (tokenStream.LA(1).getType() == JavaTokenTypes.LCURLY) {
+                // a class body (anonymous inner class)
+                tokenStream.nextToken(); // LCURLY
+                parseClassBody();
+                token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.RCURLY) {
+                    error("Expected '}' at end of inner class body");
+                    tokenStream.pushBack(token);
+                    tokenStream.pushBack(token);
+                    endExprNew(token, false);
+                    return;
+                }
+            }
+            // DAV endExprNew()!!
+        }
+        catch (TokenStreamException tse) {}
+    }
+    
     
     /**
      * Parse a comma-separated, possibly empty list of arguments to a method/constructor
