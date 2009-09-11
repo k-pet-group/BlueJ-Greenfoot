@@ -58,9 +58,9 @@ import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
 import bluej.debugmgr.texteval.WildcardCapture;
-import bluej.parser.ast.gen.JavaLexer;
 import bluej.parser.ast.gen.JavaTokenTypes;
 import bluej.parser.entity.ClassEntity;
+import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.utility.JavaReflective;
@@ -132,7 +132,85 @@ public class TextAnalyzer
         declVars = Collections.emptyList();
         //AST rootAST;
         
-        TextParser parser = new TextParser(command);
+        EntityResolver resolver = new EntityResolver()
+        {
+            public ClassEntity resolveClass(String name)
+            {
+                while (true) {
+                    String pkgScopePrefix = packageScope;
+                    if (packageScope.length() > 0) {
+                        pkgScopePrefix += ".";
+                    }
+
+                    if (packageScope != null && packageScope.length() > 0) {
+                        // Might be a class in the current package
+                        try {
+                            Class<?> cl = classLoader.loadClass(pkgScopePrefix + name);
+                            return new TypeEntity(cl);
+                        }
+                        catch (Exception e) {}
+                    }
+                    
+                    // Try in java.lang
+                    try {
+                        Class<?> cl = classLoader.loadClass("java.lang." + name);
+                        return new TypeEntity(cl);
+                    }
+                    catch (Exception e) {}
+
+                    int dotIndex = name.lastIndexOf('.');
+                    if (dotIndex != -1) {
+                        try {
+                            // Try as a fully-qualified name 
+                            Class<?> cl = classLoader.loadClass(name);
+                            return new TypeEntity(cl);
+                        }
+                        catch (Exception e) {}
+                        // Next we'll try it as an inner class
+                        name = name.substring(0, dotIndex) + "$" + name.substring(dotIndex+1);
+                    }
+                    else {
+                        break;
+                    }
+                }
+                
+                return null;
+            }
+            
+            public PackageOrClass resolvePackageOrClass(String name)
+            {
+                String pkgScopePrefix = packageScope;
+                if (packageScope.length() > 0) {
+                    pkgScopePrefix += ".";
+                }
+
+                // Might be a class in the current package
+                try {
+                    Class<?> cl = classLoader.loadClass(pkgScopePrefix + name);
+                    return new TypeEntity(cl);
+                }
+                catch (Exception e) {}
+                
+                // Try in java.lang
+                try {
+                    Class<?> cl = classLoader.loadClass("java.lang." + name);
+                    return new TypeEntity(cl);
+                }
+                catch (Exception e) {}
+                
+                // Have to assume it's a package
+                return new PackageEntity(name);
+            }
+            
+            public JavaEntity resolveValueEntity(String name)
+                    throws SemanticException
+            {
+                // TODO Auto-generated method stub
+                return null;
+            }
+        };
+        
+        TextParser parser = new TextParser(resolver, command);
         
         try {
             parser.parseExpression();
@@ -623,8 +701,7 @@ public class TextAnalyzer
      * binary numeric promotion, as defined by JLS section 5.6.2. Both
      * operands must be (possibly boxed) numeric types.
      */
-    private JavaType binaryNumericPromotion(JavaType a, JavaType b)
-        throws SemanticException
+    public static JavaType binaryNumericPromotion(JavaType a, JavaType b)
     {
         JavaType ua = unBox(a);
         JavaType ub = unBox(b);
@@ -638,10 +715,12 @@ public class TextAnalyzer
         if (ua.typeIs(JavaType.JT_LONG) || ub.typeIs(JavaType.JT_LONG))
             return JavaPrimitiveType.getLong();
 
-        if (ua.isNumeric() && ub.isNumeric())
+        if (ua.isNumeric() && ub.isNumeric()) {
             return JavaPrimitiveType.getInt();
-        else
-            throw new SemanticException();
+        }
+        else {
+            return null;
+        }
     }
     
     /**
@@ -1991,10 +2070,10 @@ public class TextAnalyzer
      * @param b  The type to unbox
      * @return  The unboxed type
      */
-    private JavaType unBox(JavaType b)
+    public static JavaType unBox(JavaType b)
     {
-        if (b instanceof GenTypeClass) {
-            GenTypeClass c = (GenTypeClass) b;
+        GenTypeClass c = b.asClass();
+        if (c != null) {
             String cName = c.rawName();
             if (cName.equals("java.lang.Integer"))
                 return JavaPrimitiveType.getInt();
@@ -2678,7 +2757,7 @@ public class TextAnalyzer
             throw new SemanticException();
         }
         
-        public JavaEntity getSubentity(String name) throws SemanticException
+        public JavaEntity getSubentity(String name)
         {
             Class c;
             try {
@@ -2690,7 +2769,7 @@ public class TextAnalyzer
             }
         }
         
-        public PackageOrClass getPackageOrClassMember(String name) throws SemanticException
+        public PackageOrClass getPackageOrClassMember(String name)
         {
             return (PackageOrClass) getSubentity(name);
         }
@@ -2785,13 +2864,13 @@ public class TextAnalyzer
             return getPackageOrClassMember(name);
         }
         
-        public PackageOrClass getPackageOrClassMember(String name) throws SemanticException
+        public PackageOrClass getPackageOrClassMember(String name)
         {
             // A class cannot have a package member...
             return new TypeEntity(getMemberClass(name), getClassType());
         }
         
-        Class getMemberClass(String name) throws SemanticException
+        Class getMemberClass(String name)
         {
             // Is it a member type?
             Class c;
@@ -2802,7 +2881,7 @@ public class TextAnalyzer
             }
             catch (ClassNotFoundException cnfe) {
                 // No more options - it must be an error
-                throw new SemanticException();
+                return null;
             }
         }
         

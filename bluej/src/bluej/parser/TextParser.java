@@ -23,6 +23,7 @@ package bluej.parser;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
@@ -31,21 +32,30 @@ import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.parser.ast.LocatableToken;
 import bluej.parser.ast.gen.JavaTokenTypes;
+import bluej.parser.entity.EntityResolver;
+import bluej.parser.entity.ErrorEntity;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.PackageOrClass;
+import bluej.parser.entity.ValueEntity;
 
 public class TextParser extends NewParser
 {
+    private EntityResolver resolver;
+    
     private Stack<JavaEntity> valueStack = new Stack<JavaEntity>();
     private Stack<LocatableToken> operatorStack = new Stack<LocatableToken>();
     
-    public TextParser(Reader r)
+    private boolean sawNew = false;  // have we seen "new" (as in "new XYZ()")
+    
+    public TextParser(EntityResolver resolver, Reader r)
     {
         super(r);
+        this.resolver = resolver;
     }
     
-    public TextParser(String s)
+    public TextParser(EntityResolver resolver, String s)
     {
-        this(new StringReader(s));
+        this(resolver, new StringReader(s));
     }
     
     public boolean atEnd()
@@ -76,41 +86,7 @@ public class TextParser extends NewParser
         }
         return new ErrorEntity();
     }
-    
-    @Override
-    protected void gotLiteral(LocatableToken token)
-    {
-        if (token.getType() == JavaTokenTypes.CHAR_LITERAL) {
-            valueStack.push(new PrimitiveValueEntity(JavaPrimitiveType.getChar()));
-        }
-        if (token.getType() == JavaTokenTypes.NUM_INT) {
-            valueStack.push(new PrimitiveValueEntity(JavaPrimitiveType.getInt()));
-        }
-        else if (token.getType() == JavaTokenTypes.NUM_LONG) {
-            valueStack.push(new PrimitiveValueEntity(JavaPrimitiveType.getLong()));
-        }
-        else if (token.getType() == JavaTokenTypes.NUM_FLOAT) {
-            valueStack.push(new PrimitiveValueEntity(JavaPrimitiveType.getFloat()));
-        }
-        else if (token.getType() == JavaTokenTypes.NUM_DOUBLE) {
-            valueStack.push(new PrimitiveValueEntity(JavaPrimitiveType.getDouble()));
-        }
-    }
-    
-    @Override
-    protected void gotBinaryOperator(LocatableToken token)
-    {
-        processHigherPrecedence(token.getType());
-        operatorStack.push(token);
-    }
-    
-    @Override
-    protected void gotTypeSpec(List<LocatableToken> tokens)
-    {
-        // TODO Auto-generated method stub
-        super.gotTypeSpec(tokens);
-    }
-    
+        
     // Process all on-stack operators with a equal-or-higher precedence than that given
     private void processHigherPrecedence(int tokenType)
     {
@@ -166,21 +142,27 @@ public class TextParser extends NewParser
      */
     private void doBinaryOp(JavaEntity arg1, JavaEntity arg2, LocatableToken op)
     {
+        JavaType a1type = arg1.getType();
+        JavaType a2type = arg2.getType();
+        
         int ttype = op.getType();
         switch (ttype) {
         case JavaTokenTypes.PLUS:
-            // TODO
-            if (arg1.getType().typeIs(JavaType.JT_DOUBLE) || arg2.getType().typeIs(JavaType.JT_DOUBLE)) {
-                valueStack.push(new PrimitiveValueEntity(JavaPrimitiveType.getDouble()));
+            if (! a1type.isNumeric() || ! a2type.isNumeric()) {
+                // TODO can add any type to a java.lang.String
+                valueStack.push(new ErrorEntity());
+                return;
             }
-            else if (arg1.getType().typeIs(JavaType.JT_FLOAT) || arg2.getType().typeIs(JavaType.JT_FLOAT)) {
-                valueStack.push(new PrimitiveValueEntity(JavaPrimitiveType.getFloat()));
-            }
-            else if (arg1.getType().typeIs(JavaType.JT_LONG) || arg2.getType().typeIs(JavaType.JT_LONG)) {
-                valueStack.push(new PrimitiveValueEntity(JavaPrimitiveType.getLong()));
+        case JavaTokenTypes.MINUS:
+        case JavaTokenTypes.STAR:
+        case JavaTokenTypes.DIV:
+        case JavaTokenTypes.MOD:
+            JavaType resultType = TextAnalyzer.binaryNumericPromotion(a1type, a2type);
+            if (resultType == null) {
+                valueStack.push(new ErrorEntity());
             }
             else {
-                valueStack.push(new PrimitiveValueEntity(JavaPrimitiveType.getInt()));
+                valueStack.push(new ValueEntity("", resultType));
             }
         }
     }
@@ -199,82 +181,73 @@ public class TextParser extends NewParser
         
         return -1;
     }
-    
-}
 
-class PrimitiveValueEntity extends JavaEntity
-{
-    JavaType type;
-    String name;
-    
-    PrimitiveValueEntity(JavaType type)
+    @Override
+    protected void gotLiteral(LocatableToken token)
     {
-        this.type = type;
-    }
-    
-    PrimitiveValueEntity(JavaType type, String name)
-    {
-        this.type = type;
-        this.name = name;
+        if (token.getType() == JavaTokenTypes.CHAR_LITERAL) {
+            valueStack.push(new ValueEntity(JavaPrimitiveType.getChar()));
+        }
+        if (token.getType() == JavaTokenTypes.NUM_INT) {
+            valueStack.push(new ValueEntity(JavaPrimitiveType.getInt()));
+        }
+        else if (token.getType() == JavaTokenTypes.NUM_LONG) {
+            valueStack.push(new ValueEntity(JavaPrimitiveType.getLong()));
+        }
+        else if (token.getType() == JavaTokenTypes.NUM_FLOAT) {
+            valueStack.push(new ValueEntity(JavaPrimitiveType.getFloat()));
+        }
+        else if (token.getType() == JavaTokenTypes.NUM_DOUBLE) {
+            valueStack.push(new ValueEntity(JavaPrimitiveType.getDouble()));
+        }
     }
     
     @Override
-    public JavaEntity resolveAsValue()
+    protected void gotBinaryOperator(LocatableToken token)
     {
-        return this;
+        processHigherPrecedence(token.getType());
+        operatorStack.push(token);
     }
     
     @Override
-    public JavaEntity resolveAsValOrType() throws SemanticException
+    protected void gotTypeSpec(List<LocatableToken> tokens)
     {
-        return this;
+        if (sawNew) {
+            sawNew = false;
+            Iterator<LocatableToken> i = tokens.iterator();
+            String text = i.next().getText();
+            
+            PackageOrClass poc = resolver.resolvePackageOrClass(text);
+            while (poc != null && i.hasNext()) {
+                LocatableToken token = i.next();
+                if (token.getType() != JavaTokenTypes.DOT) {
+                    break;
+                }
+                token = i.next();
+                if (token.getType() != JavaTokenTypes.IDENT) {
+                    break;
+                }
+                text += "." + token.getText();
+                poc = poc.getPackageOrClassMember(token.getText());
+                
+            }
+            
+            JavaEntity entity = poc.resolveAsType();
+            if (entity != null) {
+                valueStack.push(new ValueEntity(entity.getType()));
+                // TODO keep processing tokens - inner type
+                return;
+            }
+            else {
+                valueStack.push(new ErrorEntity());
+            }
+        }
     }
     
-    public JavaType getType()
+    @Override
+    protected void gotExprNew(LocatableToken token)
     {
-        return type;
+        sawNew = true;
     }
-    
-    public JavaEntity getSubentity(String name)
-        throws SemanticException
-    {
-        throw new SemanticException();
-    }
-    
-    public String getName()
-    {
-        return name;
-    }
-    
-    public boolean isClass()
-    {
-        return false;
-    }
-}
 
-class ErrorEntity extends JavaEntity
-{
-    @Override
-    public String getName()
-    {
-        return "** error **";
-    }
-    
-    @Override
-    public JavaEntity getSubentity(String name) throws SemanticException
-    {
-        return this;
-    }
-    
-    @Override
-    public JavaType getType()
-    {
-        return null;
-    }
-    
-    @Override
-    public boolean isClass()
-    {
-        return false;
-    }
 }

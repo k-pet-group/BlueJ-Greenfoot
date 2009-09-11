@@ -21,24 +21,32 @@
  */
 package bluej.parser.entity;
 
+import bluej.debugger.gentype.JavaType;
 import bluej.parser.SemanticException;
 
-public interface EntityResolver
+public class ErrorEntity extends JavaEntity
 {
-    /**
-     * Resolve a package or class. If a class with the given name exists in the resolver's scope,
-     * it is returned; otherwise a package is returned.
-     */
-    public PackageOrClass resolvePackageOrClass(String name);
+    @Override
+    public String getName()
+    {
+        return "** error **";
+    }
     
-    /**
-     * Resolve a class, from its (possibly qualified) name.
-     */
-    public ClassEntity resolveClass(String name);
+    @Override
+    public JavaEntity getSubentity(String name) throws SemanticException
+    {
+        return this;
+    }
     
-    /**
-     * Resolve a value. If a local variable or field with the given name exists in the resolver's
-     * scope, it is returned; otherwise the effect is as if resolvePackageOrClass was called.
-     */
-    public JavaEntity resolveValueEntity(String name) throws SemanticException;
+    @Override
+    public JavaType getType()
+    {
+        return null;
+    }
+    
+    @Override
+    public boolean isClass()
+    {
+        return false;
+    }
 }

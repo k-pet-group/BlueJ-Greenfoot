@@ -21,8 +21,6 @@
  */
 package bluej.parser.entity;
 
-import bluej.parser.SemanticException;
-
 /**
  * An entity representing either a package or a class (but not a value).
  * 
@@ -34,5 +32,5 @@ public abstract class PackageOrClass extends JavaEntity
      * Returns a subentity which is either a package or class entity.
      * This is the same as getSubentity, but cannot yield a value.
      */ 
-    public abstract PackageOrClass getPackageOrClassMember(String name) throws SemanticException;
+    public abstract PackageOrClass getPackageOrClassMember(String name);
 }

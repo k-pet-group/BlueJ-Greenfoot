@@ -31,7 +31,7 @@ import bluej.parser.TextAnalyzer.DeclaredVar;
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 6621 2009-09-04 05:31:57Z davmac $
+ * @version $Id: TextParserTest.java 6657 2009-09-11 04:37:20Z davmac $
  */
 public class TextParserTest extends TestCase
 {
@@ -66,7 +66,7 @@ public class TextParserTest extends TestCase
         String r = tp.parseCommand("(String)s");
         assertEquals("java.lang.String", r);
     }
-
+    
     public void testStaticMethodCall()
     {
         ObjectBench ob = new ObjectBench();
@@ -83,6 +83,45 @@ public class TextParserTest extends TestCase
         assertEquals("java.io.PrintStream", r);
         r = tp.parseCommand("java.lang.System.out");
         assertEquals("java.io.PrintStream", r);
+    }
+
+    public void testNewExpression()
+    {
+        // Classes in java.lang can be unqualified
+        ObjectBench ob = new ObjectBench();
+        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        String r = tp.parseCommand("new String()");
+        assertEquals("java.lang.String", r);
+        
+        // Fully qualified classes
+        r = tp.parseCommand("new java.util.LinkedList()");
+        assertEquals("java.util.LinkedList", r);
+    }
+    
+    public static class Inner<T>
+    {
+        public class Further<U>
+        {
+            U u;
+        }
+    }
+    
+    public void testNewExpression2()
+    {
+        // New inner class
+        ObjectBench ob = new ObjectBench();
+        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        String r = tp.parseCommand("new " + getClass().getName() + ".Inner()");
+        assertEquals(getClass().getName() + ".Inner", r);
+    }
+    
+    public void testNewExpression3()
+    {
+        // Type arguments
+        ObjectBench ob = new ObjectBench();
+        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        String r = tp.parseCommand("new " + getClass().getName() + ".Inner<String>()");
+        assertEquals(getClass().getName() + ".Inner<java.lang.String>", r);
     }
     
     public void testNewInnerClass()

@@ -52,9 +52,9 @@ public abstract class JavaEntity
     /**
      * If this entity is unresolved, resolve it now as a value.
      */
-    public JavaEntity resolveAsType() throws SemanticException
+    public JavaEntity resolveAsType()
     {
-        throw new SemanticException();
+        return null;
     }
     
     /**

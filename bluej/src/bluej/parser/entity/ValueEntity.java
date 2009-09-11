@@ -21,24 +21,53 @@
  */
 package bluej.parser.entity;
 
+import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.JavaType;
 import bluej.parser.SemanticException;
 
-public interface EntityResolver
+public class ValueEntity extends JavaEntity
 {
-    /**
-     * Resolve a package or class. If a class with the given name exists in the resolver's scope,
-     * it is returned; otherwise a package is returned.
-     */
-    public PackageOrClass resolvePackageOrClass(String name);
+    private String name;
+    private JavaType type;
     
-    /**
-     * Resolve a class, from its (possibly qualified) name.
-     */
-    public ClassEntity resolveClass(String name);
+    public ValueEntity(JavaType type)
+    {
+        this.type = type;
+    }
     
-    /**
-     * Resolve a value. If a local variable or field with the given name exists in the resolver's
-     * scope, it is returned; otherwise the effect is as if resolvePackageOrClass was called.
-     */
-    public JavaEntity resolveValueEntity(String name) throws SemanticException;
+    public ValueEntity(String name, JavaType type)
+    {
+        this.name = name;
+        this.type = type;
+    }
+    
+    @Override
+    public String getName()
+    {
+        return name;
+    }
+
+    @Override
+    public JavaEntity getSubentity(String name) throws SemanticException
+    {
+        GenTypeClass ctype = type.asClass();
+        if (ctype != null) {
+            // ctype.getReflective().
+        }
+        return null;
+    }
+
+    @Override
+    public JavaType getType()
+    {
+        return type;
+    }
+
+    @Override
+    public boolean isClass()
+    {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
 }

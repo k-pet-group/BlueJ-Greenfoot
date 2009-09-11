@@ -159,6 +159,9 @@ public class NewParser
     
     protected void endTryCatchStmt(LocatableToken token, boolean included) { }
     
+    /** got a "new ..." expression */
+    protected void gotExprNew(LocatableToken token) { }
+    
     /**
      * Beginning of a statement block. This includes anonymous statement blocks, and static
      * initializer blocks
@@ -1988,6 +1991,7 @@ public class NewParser
             while (true) {
                 if (token.getType() == JavaTokenTypes.LITERAL_new) {
                     // new XYZ(...)
+                    gotExprNew(token);
                     token = tokenStream.nextToken();
                     if (token.getType() != JavaTokenTypes.IDENT && !isPrimitiveType(token)) {
                         error("Expected type identifier after \"new\" (in expression)");

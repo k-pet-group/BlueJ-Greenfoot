@@ -123,11 +123,10 @@ public class ImportsCollection
             Iterator<ClassEntity> i = l.iterator();
             while (i.hasNext()) {
                 r = (ClassEntity) i.next();
-                try {
-                    r = (ClassEntity) r.getPackageOrClassMember(name);
+                r = (ClassEntity) r.getPackageOrClassMember(name);
+                if (r != null) {
                     return r;
                 }
-                catch (SemanticException se) { }
             }
         }
         
@@ -171,13 +170,10 @@ public class ImportsCollection
         
         while (i.hasNext()) {
             PackageOrClass importEntity = i.next();
-            try {
-                PackageOrClass member = importEntity.getPackageOrClassMember(name);
-                if (member.isClass()) {
-                    return (ClassEntity) member;
-                }
+            PackageOrClass member = importEntity.getPackageOrClassMember(name);
+            if (member != null && member.isClass()) {
+                return (ClassEntity) member;
             }
-            catch (SemanticException se) { }
         }
         
         // Now try static wildcard imports
