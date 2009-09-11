@@ -2197,35 +2197,40 @@ public class NewParser
             tokenStream.pushBack(token);
             parseTypeSpec();
             token = tokenStream.nextToken();
-            boolean gotArrayDimension = false;
             
             if (token.getType() == JavaTokenTypes.LBRACK) {
                 while (token.getType() == JavaTokenTypes.LBRACK) {
                     // array dimensions
-                    gotArrayDimension = true;
                     if (tokenStream.LA(1).getType() != JavaTokenTypes.RBRACK) {
                         parseExpression();
                     }
                     token = tokenStream.nextToken();
                     if (token.getType() != JavaTokenTypes.RBRACK) {
                         error("Expecting ']' after array dimension (in new ... expression)");
-                    }
-                    else {
-                        token = tokenStream.nextToken();
+                        tokenStream.pushBack(token);
+                        endExprNew(token, false);
                     }
                 }
-                tokenStream.pushBack(token);
 
-                if (token.getType() == JavaTokenTypes.LCURLY) {
+                if (tokenStream.LA(1).getType() == JavaTokenTypes.LCURLY) {
                     // An initialiser list
+                    token = tokenStream.nextToken(); // LCURLY
                     parseExpression();
+                    token = tokenStream.nextToken();
+                    if (token.getType() != JavaTokenTypes.RCURLY) {
+                        error("Expecting '}' at end of array initializer list");
+                        tokenStream.pushBack(token);
+                        endExprNew(token, false);
+                        return;
+                    }
                 }
-                // DAV call endExprNew()
+                
+                endExprNew(token, true);
                 return;
             }
             
             if (token.getType() != JavaTokenTypes.LPAREN) {
-                error("Expected '(' after type name (in 'new ...' expression)");
+                error("Expected '(' or '[' after type name (in 'new ...' expression)");
                 tokenStream.pushBack(token);
                 endExprNew(token, false);
                 return;
@@ -2252,7 +2257,7 @@ public class NewParser
                     return;
                 }
             }
-            // DAV endExprNew()!!
+            endExprNew(token, true);
         }
         catch (TokenStreamException tse) {}
     }

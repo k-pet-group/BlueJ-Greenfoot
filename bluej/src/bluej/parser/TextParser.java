@@ -232,15 +232,15 @@ public class TextParser extends NewParser
                 
             }
             
-            JavaEntity entity = poc.resolveAsType();
-            if (entity != null) {
-                valueStack.push(new ValueEntity(entity.getType()));
-                // TODO keep processing tokens - inner type
-                return;
+            if (poc != null) {
+                JavaEntity entity = poc.resolveAsType();
+                if (entity != null) {
+                    valueStack.push(new ValueEntity(entity.getType()));
+                    return;
+                }
             }
-            else {
-                valueStack.push(new ErrorEntity());
-            }
+            
+            valueStack.push(new ErrorEntity());
         }
     }
     
