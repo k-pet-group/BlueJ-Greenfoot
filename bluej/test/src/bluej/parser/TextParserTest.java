@@ -31,7 +31,7 @@ import bluej.parser.TextAnalyzer.DeclaredVar;
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 6661 2009-09-11 05:51:18Z davmac $
+ * @version $Id: TextParserTest.java 6664 2009-09-11 08:13:43Z davmac $
  */
 public class TextParserTest extends TestCase
 {
@@ -127,7 +127,7 @@ public class TextParserTest extends TestCase
         r = tp.parseCommand("new int[10]");
         assertEquals("int[]", r);
         
-        r = tp.parseCommand("new java.util.HashMap<String, String>[]");
+        r = tp.parseCommand("new java.util.HashMap<String, String>[10]");
         assertEquals("java.util.HashMap<java.lang.String,java.lang.String>[]", r);
     }
     

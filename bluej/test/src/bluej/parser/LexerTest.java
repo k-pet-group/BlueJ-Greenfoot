@@ -434,6 +434,17 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(JavaTokenTypes.IDENT, token.getType());
         token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.EOF, token.getType());
+        
+        // Simple EOF
+        ts = getNonfilteringLexerFor("");
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.EOF, token.getType());
+        assertEquals(1, token.getColumn());
+        assertEquals(1, token.getLine());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.EOF, token.getType());
+        assertEquals(1, token.getColumn());
+        assertEquals(1, token.getLine());
     }
     
     public void testOther3() throws Exception
