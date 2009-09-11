@@ -70,4 +70,15 @@ public class ValueEntity extends JavaEntity
         return false;
     }
 
+    @Override
+    public JavaEntity resolveAsValue()
+    {
+        return this;
+    }
+    
+    @Override
+    public JavaEntity resolveAsValOrType() throws SemanticException
+    {
+        return this;
+    }
 }
