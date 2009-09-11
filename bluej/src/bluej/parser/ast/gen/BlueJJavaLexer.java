@@ -25,13 +25,12 @@ package bluej.parser.ast.gen;
 import java.io.IOException;
 import java.io.Reader;
 
-import antlr.TokenStream;
-import antlr.TokenStreamException;
 import bluej.parser.EscapedUnicodeReader;
+import bluej.parser.TokenStream;
 import bluej.parser.ast.LocatableToken;
 
 
-public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
+public class BlueJJavaLexer implements TokenStream
 {
     private StringBuffer textBuffer; // text of current token
     private EscapedUnicodeReader reader;
@@ -53,9 +52,7 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
     }
 
     private LocatableToken makeToken(int type, String txt){           
-        LocatableToken tok = new LocatableToken();
-        tok.setType(type);
-        tok.setText(txt);
+        LocatableToken tok = new LocatableToken(type, txt);
         tok.setColumn(getBeginColumn());
         tok.setLine(getBeginLine());        
         tok.setEndLineAndCol(endLine, endColumn);
@@ -81,7 +78,7 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         return beginLine;
     }
 
-    public LocatableToken nextToken() throws TokenStreamException {  
+    public LocatableToken nextToken() {  
         resetText();
         while (Character.isWhitespace((char)rChar)) {
             beginLine = reader.getLine();

@@ -25,8 +25,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
 
-import antlr.RecognitionException;
-import antlr.TokenStreamException;
 import bluej.parser.ClassParser;
 
 /**
@@ -78,7 +76,7 @@ public class Java14ParseTest extends junit.framework.TestCase
      * @throws FileNotFoundException
      */
     public void testStandardAssertion()
-        throws RecognitionException, TokenStreamException, FileNotFoundException
+        throws FileNotFoundException
     {
         ClassParser.parse(getFile("14_assertion.dat"), null);
     } 

@@ -25,8 +25,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
 
-import antlr.RecognitionException;
-import antlr.TokenStreamException;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 
@@ -78,7 +76,7 @@ public class InternationalParseTest extends junit.framework.TestCase
      * A sample test case method
      */
     public void testInternationalization()
-        throws RecognitionException, TokenStreamException, FileNotFoundException
+        throws FileNotFoundException
     {
         ClassParser.parse(getFile("escaped_unicode_string.dat"), null);
         

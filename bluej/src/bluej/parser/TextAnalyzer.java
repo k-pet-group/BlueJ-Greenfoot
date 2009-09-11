@@ -36,9 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import antlr.RecognitionException;
-import antlr.TokenStream;
-import antlr.collections.AST;
 import bluej.Config;
 import bluej.debugger.gentype.BadInheritanceChainException;
 import bluej.debugger.gentype.GenTypeArray;
@@ -332,43 +329,43 @@ public class TextAnalyzer
      * @throws SemanticException
      * @throws RecognitionException
      */
-    void addImportToCollection(AST importNode)
-        throws SemanticException, RecognitionException
-    {
-        if (importNode.getType() == JavaTokenTypes.IMPORT) {
-            // Non-static import
-            AST classNode = importNode.getFirstChild();
-            AST fpNode = classNode.getFirstChild();
-            AST className = fpNode.getNextSibling();
-            
-            // if className == '*' this is a wildcard
-            if (className.getType() == JavaTokenTypes.STAR) {
-                PackageOrClass importEntity = getPackageOrType(fpNode, true);
-                imports.addWildcardImport(importEntity);
-            }
-            else {
-                // A non-wildcard import.
-                PackageOrClass importEntity = getPackageOrType(classNode, true);
-                if (importEntity.isClass()) {
-                    imports.addNormalImport(className.getText(), importEntity);
-                }
-            }
-        }
-        else if (importNode.getType() == JavaTokenTypes.STATIC_IMPORT) {
-            // static import
-            AST impNode = importNode.getFirstChild().getFirstChild();
-            AST impNameNode = impNode.getNextSibling();
-            if (impNameNode.getType() == JavaTokenTypes.STAR) {
-                ClassEntity importEntity = (ClassEntity) getPackageOrType(impNode, true);
-                imports.addStaticWildcardImport(importEntity);
-            }
-            else {
-                String impName = impNameNode.getText();
-                ClassEntity importEntity = (ClassEntity) getPackageOrType(impNode, true);
-                imports.addStaticImport(impName, importEntity);
-            }
-        }
-    }
+//    void addImportToCollection(AST importNode)
+//        throws SemanticException, RecognitionException
+//    {
+//        if (importNode.getType() == JavaTokenTypes.IMPORT) {
+//            // Non-static import
+//            AST classNode = importNode.getFirstChild();
+//            AST fpNode = classNode.getFirstChild();
+//            AST className = fpNode.getNextSibling();
+//            
+//            // if className == '*' this is a wildcard
+//            if (className.getType() == JavaTokenTypes.STAR) {
+//                PackageOrClass importEntity = getPackageOrType(fpNode, true);
+//                imports.addWildcardImport(importEntity);
+//            }
+//            else {
+//                // A non-wildcard import.
+//                PackageOrClass importEntity = getPackageOrType(classNode, true);
+//                if (importEntity.isClass()) {
+//                    imports.addNormalImport(className.getText(), importEntity);
+//                }
+//            }
+//        }
+//        else if (importNode.getType() == JavaTokenTypes.STATIC_IMPORT) {
+//            // static import
+//            AST impNode = importNode.getFirstChild().getFirstChild();
+//            AST impNameNode = impNode.getNextSibling();
+//            if (impNameNode.getType() == JavaTokenTypes.STAR) {
+//                ClassEntity importEntity = (ClassEntity) getPackageOrType(impNode, true);
+//                imports.addStaticWildcardImport(importEntity);
+//            }
+//            else {
+//                String impName = impNameNode.getText();
+//                ClassEntity importEntity = (ClassEntity) getPackageOrType(impNode, true);
+//                imports.addStaticImport(impName, importEntity);
+//            }
+//        }
+//    }
     
     /**
      * Check the command string for variable declarations/definitions.
@@ -475,52 +472,52 @@ public class TextAnalyzer
      * @throws RecognitionException
      * @throws SemanticException
      */
-    private JavaType questionOperator14(AST node) throws RecognitionException, SemanticException
-    {
-        AST trueAlt = node.getFirstChild().getNextSibling();
-        AST falseAlt = trueAlt.getNextSibling();
-        ExprValue trueAltEv = getExpressionType(trueAlt);
-        ExprValue falseAltEv = getExpressionType(falseAlt);
-        JavaType trueAltType = trueAltEv.getType();
-        JavaType falseAltType = falseAltEv.getType();
-        
-        // if the operands have the same type, that is the result type
-        if (trueAltType.equals(falseAltType))
-            return trueAltType;
-        
-        if (trueAltType.isNumeric() && falseAltType.isNumeric()) {
-            // if one type is short and the other is byte, result type is short
-            if (trueAltType.typeIs(JavaType.JT_SHORT) && falseAltType.typeIs(JavaType.JT_BYTE))
-                return JavaPrimitiveType.getShort();
-            if (falseAltType.typeIs(JavaType.JT_SHORT) && trueAltType.typeIs(JavaType.JT_BYTE))
-                return JavaPrimitiveType.getShort();
-            
-            // if one type is byte/short/char and the other is a constant of
-            // type int whose value fits, the result type is byte/short/char
-            if (falseAltType.typeIs(JavaType.JT_INT) && falseAltEv.knownValue()) {
-                int fval = falseAltEv.intValue();
-                if (isMinorInteger(trueAltType) && trueAltType.couldHold(fval))
-                    return trueAltType;
-            }
-            if (trueAltType.typeIs(JavaType.JT_INT) && trueAltEv.knownValue()) {
-                int fval = trueAltEv.intValue();
-                if (isMinorInteger(falseAltType) && falseAltType.couldHold(fval))
-                    return falseAltType;
-            }
-            
-            // binary numeric promotion is applied
-            return binaryNumericPromotion(trueAltType, falseAltType);
-        }
-        
-        // otherwise it must be possible to convert one type to the other by
-        // assignment conversion:
-        if (trueAltType.isAssignableFrom(falseAltType))
-            return trueAltType;
-        if (falseAltType.isAssignableFrom(trueAltType))
-            return falseAltType;
-        
-        throw new SemanticException();
-    }
+//    private JavaType questionOperator14(AST node) throws RecognitionException, SemanticException
+//    {
+//        AST trueAlt = node.getFirstChild().getNextSibling();
+//        AST falseAlt = trueAlt.getNextSibling();
+//        ExprValue trueAltEv = getExpressionType(trueAlt);
+//        ExprValue falseAltEv = getExpressionType(falseAlt);
+//        JavaType trueAltType = trueAltEv.getType();
+//        JavaType falseAltType = falseAltEv.getType();
+//        
+//        // if the operands have the same type, that is the result type
+//        if (trueAltType.equals(falseAltType))
+//            return trueAltType;
+//        
+//        if (trueAltType.isNumeric() && falseAltType.isNumeric()) {
+//            // if one type is short and the other is byte, result type is short
+//            if (trueAltType.typeIs(JavaType.JT_SHORT) && falseAltType.typeIs(JavaType.JT_BYTE))
+//                return JavaPrimitiveType.getShort();
+//            if (falseAltType.typeIs(JavaType.JT_SHORT) && trueAltType.typeIs(JavaType.JT_BYTE))
+//                return JavaPrimitiveType.getShort();
+//            
+//            // if one type is byte/short/char and the other is a constant of
+//            // type int whose value fits, the result type is byte/short/char
+//            if (falseAltType.typeIs(JavaType.JT_INT) && falseAltEv.knownValue()) {
+//                int fval = falseAltEv.intValue();
+//                if (isMinorInteger(trueAltType) && trueAltType.couldHold(fval))
+//                    return trueAltType;
+//            }
+//            if (trueAltType.typeIs(JavaType.JT_INT) && trueAltEv.knownValue()) {
+//                int fval = trueAltEv.intValue();
+//                if (isMinorInteger(falseAltType) && falseAltType.couldHold(fval))
+//                    return falseAltType;
+//            }
+//            
+//            // binary numeric promotion is applied
+//            return binaryNumericPromotion(trueAltType, falseAltType);
+//        }
+//        
+//        // otherwise it must be possible to convert one type to the other by
+//        // assignment conversion:
+//        if (trueAltType.isAssignableFrom(falseAltType))
+//            return trueAltType;
+//        if (falseAltType.isAssignableFrom(trueAltType))
+//            return falseAltType;
+//        
+//        throw new SemanticException();
+//    }
     
     /**
      * Test if a given type is one of the "minor" integral types: byte, char
@@ -539,96 +536,96 @@ public class TextAnalyzer
      * @throws RecognitionException
      * @throws SemanticException
      */
-    private JavaType questionOperator15(AST node) throws RecognitionException, SemanticException
-    {
-        AST trueAlt = node.getFirstChild().getNextSibling();
-        AST falseAlt = trueAlt.getNextSibling();
-        ExprValue trueAltEv = getExpressionType(trueAlt);
-        ExprValue falseAltEv = getExpressionType(falseAlt);
-        JavaType trueAltType = trueAltEv.getType();
-        JavaType falseAltType = falseAltEv.getType();
-        
-        // if we don't know the type of both alternatives, we don't
-        // know the result type:
-        if (trueAltType == null || falseAltType == null)
-            return null;
-        
-        // Neither argument can be a void type.
-        if (trueAltType.isVoid() || falseAltType.isVoid())
-            throw new SemanticException();
-        
-        // if the second & third arguments have the same type, then
-        // that is the result type:
-        if (trueAltType.equals(falseAltType))
-            return trueAltType;
-        
-        JavaType trueUnboxed = unBox(trueAltType);
-        JavaType falseUnboxed = unBox(falseAltType);
-        
-        // if one the arguments is of type boolean and the other
-        // Boolean, the result type is boolean.
-        if (trueUnboxed.typeIs(JavaType.JT_BOOLEAN) && falseUnboxed.typeIs(JavaType.JT_BOOLEAN))
-            return trueUnboxed;
-        
-        // if one type is null and the other is a reference type, the
-        // return is that reference type.
-        //   Also partially handle the final case from the JLS,
-        // involving boxing conversion & capture conversion (which
-        // is trivial when non-parameterized types such as boxed types
-        // are involved)
-        // 
-        // This precludes either type from being null later on.
-        if (trueAltType.typeIs(JavaType.JT_NULL))
-            return boxType(falseAltType);
-        if (falseAltType.typeIs(JavaType.JT_NULL))
-            return boxType(trueAltType);
-        
-        // if the two alternatives are convertible to numeric types,
-        // there are several cases:
-        if (trueUnboxed.isNumeric() && falseUnboxed.isNumeric()) {
-            // If one is byte/Byte and the other is short/Short, the
-            // result type is short.
-            if (trueUnboxed.typeIs(JavaType.JT_BYTE) && falseUnboxed.typeIs(JavaType.JT_SHORT))
-                return falseUnboxed;
-            if (falseUnboxed.typeIs(JavaType.JT_BYTE) && trueUnboxed.typeIs(JavaType.JT_SHORT))
-                return trueUnboxed;
-            
-            // If one type, when unboxed, is byte/short/char, and the
-            // other is an integer constant whose value fits in the
-            // first, the result type is the (unboxed) former type. (The JLS
-            // takes four paragraphs to say this, but the result is the
-            // same).
-            if (isMinorInteger(trueUnboxed) && falseAltType.typeIs(JavaType.JT_INT) && falseAltEv.knownValue()) {
-                int kval = falseAltEv.intValue();
-                if (trueUnboxed.couldHold(kval))
-                    return trueUnboxed;
-            }
-            if (isMinorInteger(falseUnboxed) && trueAltType.typeIs(JavaType.JT_INT) && trueAltEv.knownValue()) {
-                int kval = trueAltEv.intValue();
-                if (falseUnboxed.couldHold(kval))
-                    return falseUnboxed;
-            }
-            
-            // Otherwise apply binary numeric promotion
-            return binaryNumericPromotion(trueAltType, falseAltType);
-        }
-        
-        // Box both alternatives:
-        trueAltType = boxType(trueAltType);
-        falseAltType = boxType(falseAltType);
-        
-        if (trueAltType instanceof GenTypeSolid && falseAltType instanceof GenTypeSolid) {
-            // apply capture conversion (JLS 5.1.10) to lub() of both
-            // alternatives (JLS 15.12.2.7). I have no idea why capture conversion
-            // should be performed here, but I follow the spec blindly.
-            GenTypeSolid [] lubArgs = new GenTypeSolid[2];
-            lubArgs[0] = (GenTypeSolid) trueAltType;
-            lubArgs[1] = (GenTypeSolid) falseAltType;
-            return captureConversion(GenTypeSolid.lub(lubArgs));
-        }
-        
-        return null;
-    }
+//    private JavaType questionOperator15(AST node) throws RecognitionException, SemanticException
+//    {
+//        AST trueAlt = node.getFirstChild().getNextSibling();
+//        AST falseAlt = trueAlt.getNextSibling();
+//        ExprValue trueAltEv = getExpressionType(trueAlt);
+//        ExprValue falseAltEv = getExpressionType(falseAlt);
+//        JavaType trueAltType = trueAltEv.getType();
+//        JavaType falseAltType = falseAltEv.getType();
+//        
+//        // if we don't know the type of both alternatives, we don't
+//        // know the result type:
+//        if (trueAltType == null || falseAltType == null)
+//            return null;
+//        
+//        // Neither argument can be a void type.
+//        if (trueAltType.isVoid() || falseAltType.isVoid())
+//            throw new SemanticException();
+//        
+//        // if the second & third arguments have the same type, then
+//        // that is the result type:
+//        if (trueAltType.equals(falseAltType))
+//            return trueAltType;
+//        
+//        JavaType trueUnboxed = unBox(trueAltType);
+//        JavaType falseUnboxed = unBox(falseAltType);
+//        
+//        // if one the arguments is of type boolean and the other
+//        // Boolean, the result type is boolean.
+//        if (trueUnboxed.typeIs(JavaType.JT_BOOLEAN) && falseUnboxed.typeIs(JavaType.JT_BOOLEAN))
+//            return trueUnboxed;
+//        
+//        // if one type is null and the other is a reference type, the
+//        // return is that reference type.
+//        //   Also partially handle the final case from the JLS,
+//        // involving boxing conversion & capture conversion (which
+//        // is trivial when non-parameterized types such as boxed types
+//        // are involved)
+//        // 
+//        // This precludes either type from being null later on.
+//        if (trueAltType.typeIs(JavaType.JT_NULL))
+//            return boxType(falseAltType);
+//        if (falseAltType.typeIs(JavaType.JT_NULL))
+//            return boxType(trueAltType);
+//        
+//        // if the two alternatives are convertible to numeric types,
+//        // there are several cases:
+//        if (trueUnboxed.isNumeric() && falseUnboxed.isNumeric()) {
+//            // If one is byte/Byte and the other is short/Short, the
+//            // result type is short.
+//            if (trueUnboxed.typeIs(JavaType.JT_BYTE) && falseUnboxed.typeIs(JavaType.JT_SHORT))
+//                return falseUnboxed;
+//            if (falseUnboxed.typeIs(JavaType.JT_BYTE) && trueUnboxed.typeIs(JavaType.JT_SHORT))
+//                return trueUnboxed;
+//            
+//            // If one type, when unboxed, is byte/short/char, and the
+//            // other is an integer constant whose value fits in the
+//            // first, the result type is the (unboxed) former type. (The JLS
+//            // takes four paragraphs to say this, but the result is the
+//            // same).
+//            if (isMinorInteger(trueUnboxed) && falseAltType.typeIs(JavaType.JT_INT) && falseAltEv.knownValue()) {
+//                int kval = falseAltEv.intValue();
+//                if (trueUnboxed.couldHold(kval))
+//                    return trueUnboxed;
+//            }
+//            if (isMinorInteger(falseUnboxed) && trueAltType.typeIs(JavaType.JT_INT) && trueAltEv.knownValue()) {
+//                int kval = trueAltEv.intValue();
+//                if (falseUnboxed.couldHold(kval))
+//                    return falseUnboxed;
+//            }
+//            
+//            // Otherwise apply binary numeric promotion
+//            return binaryNumericPromotion(trueAltType, falseAltType);
+//        }
+//        
+//        // Box both alternatives:
+//        trueAltType = boxType(trueAltType);
+//        falseAltType = boxType(falseAltType);
+//        
+//        if (trueAltType instanceof GenTypeSolid && falseAltType instanceof GenTypeSolid) {
+//            // apply capture conversion (JLS 5.1.10) to lub() of both
+//            // alternatives (JLS 15.12.2.7). I have no idea why capture conversion
+//            // should be performed here, but I follow the spec blindly.
+//            GenTypeSolid [] lubArgs = new GenTypeSolid[2];
+//            lubArgs[0] = (GenTypeSolid) trueAltType;
+//            lubArgs[1] = (GenTypeSolid) falseAltType;
+//            return captureConversion(GenTypeSolid.lub(lubArgs));
+//        }
+//        
+//        return null;
+//    }
     
     /**
      * Capture conversion, as in the JLS 5.1.10
@@ -728,145 +725,145 @@ public class TextAnalyzer
      * 
      * @throws RecognitionException
      */
-    private ExprValue getCharLiteral(AST node) throws RecognitionException
-    {
-        // char literal is either 'x', or '\\uXXXX' notation, or '\t' etc.
-        String x = node.getText();
-        x = x.substring(1, x.length() - 1); // strip single quotes
-        
-        final JavaType charType = JavaPrimitiveType.getChar();
-        if (! x.startsWith("\\")) {
-            // This is the normal case
-            if (x.length() != 1)
-                throw new RecognitionException();
-            else
-                return new NumValue(charType, new Integer(x.charAt(0)));
-        }
-        else if (x.equals("\\b"))
-            return new NumValue(charType, new Integer('\b'));
-        else if (x.equals("\\t"))
-            return new NumValue(charType, new Integer('\t'));
-        else if (x.equals("\\n"))
-            return new NumValue(charType, new Integer('\n'));
-        else if (x.equals("\\f"))
-            return new NumValue(charType, new Integer('\f'));
-        else if (x.equals("\\r"))
-            return new NumValue(charType, new Integer('\r'));
-        else if (x.equals("\\\""))
-            return new NumValue(charType, new Integer('"'));
-        else if (x.equals("\\'"))
-            return new NumValue(charType, new Integer('\''));
-        else if (x.equals("\\\\"))
-            return new NumValue(charType, new Integer('\\'));
-        else if (x.startsWith("\\u")) {
-            // unicode escape, as a 4-digit hexadecimal
-            if (x.length() != 6)
-                throw new RecognitionException();
-            
-            char val = 0;
-            for (int i = 0; i < 4; i++) {
-                char digit = x.charAt(i + 2);
-                int digVal = Character.digit(digit, 16);
-                if (digVal == -1)
-                    throw new RecognitionException();
-                val = (char)(val * 16 + digVal);
-            }
-            return new NumValue(charType, new Integer(val));
-        }
-        else {
-            // octal escape, up to three digits
-            int xlen = x.length();
-            if (xlen < 2 || xlen > 4)
-                throw new RecognitionException();
-            
-            char val = 0;
-            for (int i = 0; i < xlen - 1; i++) {
-                char digit = x.charAt(i+1);
-                int digVal = Character.digit(digit, 8);
-                if (digVal == -1) {
-                        throw new RecognitionException();
-                }
-                val = (char)(val * 8 + digVal);
-            }
-            return new NumValue(charType, new Integer(val));
-        }
-    }
+//    private ExprValue getCharLiteral(AST node) throws RecognitionException
+//    {
+//        // char literal is either 'x', or '\\uXXXX' notation, or '\t' etc.
+//        String x = node.getText();
+//        x = x.substring(1, x.length() - 1); // strip single quotes
+//        
+//        final JavaType charType = JavaPrimitiveType.getChar();
+//        if (! x.startsWith("\\")) {
+//            // This is the normal case
+//            if (x.length() != 1)
+//                throw new RecognitionException();
+//            else
+//                return new NumValue(charType, new Integer(x.charAt(0)));
+//        }
+//        else if (x.equals("\\b"))
+//            return new NumValue(charType, new Integer('\b'));
+//        else if (x.equals("\\t"))
+//            return new NumValue(charType, new Integer('\t'));
+//        else if (x.equals("\\n"))
+//            return new NumValue(charType, new Integer('\n'));
+//        else if (x.equals("\\f"))
+//            return new NumValue(charType, new Integer('\f'));
+//        else if (x.equals("\\r"))
+//            return new NumValue(charType, new Integer('\r'));
+//        else if (x.equals("\\\""))
+//            return new NumValue(charType, new Integer('"'));
+//        else if (x.equals("\\'"))
+//            return new NumValue(charType, new Integer('\''));
+//        else if (x.equals("\\\\"))
+//            return new NumValue(charType, new Integer('\\'));
+//        else if (x.startsWith("\\u")) {
+//            // unicode escape, as a 4-digit hexadecimal
+//            if (x.length() != 6)
+//                throw new RecognitionException();
+//            
+//            char val = 0;
+//            for (int i = 0; i < 4; i++) {
+//                char digit = x.charAt(i + 2);
+//                int digVal = Character.digit(digit, 16);
+//                if (digVal == -1)
+//                    throw new RecognitionException();
+//                val = (char)(val * 16 + digVal);
+//            }
+//            return new NumValue(charType, new Integer(val));
+//        }
+//        else {
+//            // octal escape, up to three digits
+//            int xlen = x.length();
+//            if (xlen < 2 || xlen > 4)
+//                throw new RecognitionException();
+//            
+//            char val = 0;
+//            for (int i = 0; i < xlen - 1; i++) {
+//                char digit = x.charAt(i+1);
+//                int digVal = Character.digit(digit, 8);
+//                if (digVal == -1) {
+//                        throw new RecognitionException();
+//                }
+//                val = (char)(val * 8 + digVal);
+//            }
+//            return new NumValue(charType, new Integer(val));
+//        }
+//    }
     
     /**
      * Get the GenType corresponding to an integer literal node.
      * @throws RecognitionException
      */
-    private ExprValue getIntLiteral(AST node, boolean negative) throws RecognitionException
-    {
-        String x = node.getText();
-        if (negative)
-            x = "-" + x;
-        
-        try {
-            Integer val = Integer.decode(x);
-            return new NumValue(JavaPrimitiveType.getInt(), val);
-        }
-        catch (NumberFormatException nfe) {
-            throw new RecognitionException();
-        }
-    }
+//    private ExprValue getIntLiteral(AST node, boolean negative) throws RecognitionException
+//    {
+//        String x = node.getText();
+//        if (negative)
+//            x = "-" + x;
+//        
+//        try {
+//            Integer val = Integer.decode(x);
+//            return new NumValue(JavaPrimitiveType.getInt(), val);
+//        }
+//        catch (NumberFormatException nfe) {
+//            throw new RecognitionException();
+//        }
+//    }
     
     /**
      * Ge the GenType corresponding to a long literal node.
      * @throws RecognitionException
      */
-    private ExprValue getLongLiteral(AST node, boolean negative) throws RecognitionException
-    {
-        String x = node.getText();
-        if (negative)
-            x = "-" + x;
-        
-        try {
-            Long val = Long.decode(x);
-            return new NumValue(JavaPrimitiveType.getLong(), val);
-        }
-        catch (NumberFormatException nfe) {
-            throw new RecognitionException();
-        }
-    }
+//    private ExprValue getLongLiteral(AST node, boolean negative) throws RecognitionException
+//    {
+//        String x = node.getText();
+//        if (negative)
+//            x = "-" + x;
+//        
+//        try {
+//            Long val = Long.decode(x);
+//            return new NumValue(JavaPrimitiveType.getLong(), val);
+//        }
+//        catch (NumberFormatException nfe) {
+//            throw new RecognitionException();
+//        }
+//    }
     
     /**
      * Get the GenType corresponding to a float literal.
      * @throws RecognitionException
      */
-    private ExprValue getFloatLiteral(AST node, boolean negative) throws RecognitionException
-    {
-        String x = node.getText();
-        if (negative)
-            x = "-" + x;
-        
-        try {
-            Float val = Float.valueOf(x);
-            return new NumValue(JavaPrimitiveType.getFloat(), val);
-        }
-        catch (NumberFormatException nfe) {
-            throw new RecognitionException();
-        }
-    }
+//    private ExprValue getFloatLiteral(AST node, boolean negative) throws RecognitionException
+//    {
+//        String x = node.getText();
+//        if (negative)
+//            x = "-" + x;
+//        
+//        try {
+//            Float val = Float.valueOf(x);
+//            return new NumValue(JavaPrimitiveType.getFloat(), val);
+//        }
+//        catch (NumberFormatException nfe) {
+//            throw new RecognitionException();
+//        }
+//    }
     
     /**
      * Get the GenType corresponding to a double literal.
      * @throws RecognitionException
      */
-    private ExprValue getDoubleLiteral(AST node, boolean negative) throws RecognitionException
-    {
-        String x = node.getText();
-        if (negative)
-            x = "-" + x;
-        
-        try {
-            Double val = Double.valueOf(x);
-            return new NumValue(JavaPrimitiveType.getDouble(), val);
-        }
-        catch (NumberFormatException nfe) {
-            throw new RecognitionException();
-        }
-    }
+//    private ExprValue getDoubleLiteral(AST node, boolean negative) throws RecognitionException
+//    {
+//        String x = node.getText();
+//        if (negative)
+//            x = "-" + x;
+//        
+//        try {
+//            Double val = Double.valueOf(x);
+//            return new NumValue(JavaPrimitiveType.getDouble(), val);
+//        }
+//        catch (NumberFormatException nfe) {
+//            throw new RecognitionException();
+//        }
+//    }
     
     /**
      * Attempt to load, by its unqualified name,  a class which might be in the
@@ -952,46 +949,46 @@ public class TextAnalyzer
      * 
      * @throws RecognitionException, SemanticException
      */
-    private GenTypeSolid getType(AST node) throws RecognitionException, SemanticException
-    {        
-        if (node.getType() == JavaTokenTypes.IDENT) {
-            // A class name
-            // the children are the type parameters
-            List params = getTypeArgs(node.getFirstChild());
-            
-            try {
-                Class c = loadUnqualifiedClass(node.getText(), true);
-                Reflective r = new JavaReflective(c);
-                return new GenTypeClass(r, params);
-            }
-            catch(ClassNotFoundException cnfe) {
-                throw new SemanticException();
-            }
-        }
-        else if (node.getType() == JavaTokenTypes.DOT) {
-            // The children nodes are: the qualified class name, and then
-            // the type arguments
-            AST packageNode = node.getFirstChild();
-            PackageOrClass porc = getPackageOrType(packageNode);
-            
-            // String packagen = combineDotNames(packageNode, '.');
-
-            AST classNode = packageNode.getNextSibling();
-            List params = getTypeArgs(classNode.getFirstChild());
-
-            PackageOrClass nodePorC = porc.getPackageOrClassMember(classNode.getText());
-            GenTypeClass nodeClass = (GenTypeClass) nodePorC.getType();
-            GenTypeClass outer = nodeClass;
-
-            // Don't pass in an outer class if it's not generic anyway 
-            if (! nodeClass.isGeneric())
-                outer = null;
-            return new GenTypeClass(nodeClass.getReflective(), params, outer);
-        }
-        else {
-            throw new RecognitionException();
-        }
-    }
+//    private GenTypeSolid getType(AST node) throws RecognitionException, SemanticException
+//    {        
+//        if (node.getType() == JavaTokenTypes.IDENT) {
+//            // A class name
+//            // the children are the type parameters
+//            List params = getTypeArgs(node.getFirstChild());
+//            
+//            try {
+//                Class c = loadUnqualifiedClass(node.getText(), true);
+//                Reflective r = new JavaReflective(c);
+//                return new GenTypeClass(r, params);
+//            }
+//            catch(ClassNotFoundException cnfe) {
+//                throw new SemanticException();
+//            }
+//        }
+//        else if (node.getType() == JavaTokenTypes.DOT) {
+//            // The children nodes are: the qualified class name, and then
+//            // the type arguments
+//            AST packageNode = node.getFirstChild();
+//            PackageOrClass porc = getPackageOrType(packageNode);
+//            
+//            // String packagen = combineDotNames(packageNode, '.');
+//
+//            AST classNode = packageNode.getNextSibling();
+//            List params = getTypeArgs(classNode.getFirstChild());
+//
+//            PackageOrClass nodePorC = porc.getPackageOrClassMember(classNode.getText());
+//            GenTypeClass nodeClass = (GenTypeClass) nodePorC.getType();
+//            GenTypeClass outer = nodeClass;
+//
+//            // Don't pass in an outer class if it's not generic anyway 
+//            if (! nodeClass.isGeneric())
+//                outer = null;
+//            return new GenTypeClass(nodeClass.getReflective(), params, outer);
+//        }
+//        else {
+//            throw new RecognitionException();
+//        }
+//    }
     
     /**
      * Get a sequence of type arguments.
@@ -1001,45 +998,45 @@ public class TextAnalyzer
      * @throws RecognitionException
      * @throws SemanticException
      */
-    private List<JavaType> getTypeArgs(AST node) throws RecognitionException, SemanticException
-    {
-        List<JavaType> params = new LinkedList<JavaType>();
-        
-        // get the type parameters
-        while(node != null && node.getType() == JavaTokenTypes.TYPE_ARGUMENT) {
-            AST childNode = node.getFirstChild();
-            JavaType tparType;
-            
-            if (childNode.getType() == JavaTokenTypes.WILDCARD_TYPE) {
-                // wildcard parameter
-                AST boundNode = childNode.getFirstChild();
-                if (boundNode != null) {
-                    int boundType = boundNode.getType();
-                    
-                    // it's either an upper or lower bound
-                    if (boundType == JavaTokenTypes.TYPE_UPPER_BOUNDS) {
-                        tparType = new GenTypeExtends(getType(boundNode.getFirstChild()));
-                    }
-                    else if (boundType == JavaTokenTypes.TYPE_LOWER_BOUNDS) {
-                        tparType = new GenTypeSuper(getType(boundNode.getFirstChild()));
-                    }
-                    else
-                        throw new RecognitionException();
-                }
-                else {
-                    tparType = new GenTypeUnbounded();
-                }
-            }
-            else {
-                // "solid" parameter
-                tparType = getType(node.getFirstChild());
-            }
-            params.add(tparType);
-            node = node.getNextSibling();
-        }
-        
-        return params;
-    }
+//    private List<JavaType> getTypeArgs(AST node) throws RecognitionException, SemanticException
+//    {
+//        List<JavaType> params = new LinkedList<JavaType>();
+//        
+//        // get the type parameters
+//        while(node != null && node.getType() == JavaTokenTypes.TYPE_ARGUMENT) {
+//            AST childNode = node.getFirstChild();
+//            JavaType tparType;
+//            
+//            if (childNode.getType() == JavaTokenTypes.WILDCARD_TYPE) {
+//                // wildcard parameter
+//                AST boundNode = childNode.getFirstChild();
+//                if (boundNode != null) {
+//                    int boundType = boundNode.getType();
+//                    
+//                    // it's either an upper or lower bound
+//                    if (boundType == JavaTokenTypes.TYPE_UPPER_BOUNDS) {
+//                        tparType = new GenTypeExtends(getType(boundNode.getFirstChild()));
+//                    }
+//                    else if (boundType == JavaTokenTypes.TYPE_LOWER_BOUNDS) {
+//                        tparType = new GenTypeSuper(getType(boundNode.getFirstChild()));
+//                    }
+//                    else
+//                        throw new RecognitionException();
+//                }
+//                else {
+//                    tparType = new GenTypeUnbounded();
+//                }
+//            }
+//            else {
+//                // "solid" parameter
+//                tparType = getType(node.getFirstChild());
+//            }
+//            params.add(tparType);
+//            node = node.getNextSibling();
+//        }
+//        
+//        return params;
+//    }
     
     /**
      * Return a string represenetation of a node which represents a dot-name
@@ -1050,20 +1047,20 @@ public class TextAnalyzer
      * @return        The string representation of the node
      * @throws RecognitionException
      */
-    static String combineDotNames(AST node, char seperator) throws RecognitionException
-    {
-        if (node.getType() == JavaTokenTypes.IDENT)
-            return node.getText();
-        else if (node.getType() == JavaTokenTypes.DOT) {
-            AST fchild = node.getFirstChild();
-            AST nchild = fchild.getNextSibling();
-            if (nchild.getType() != JavaTokenTypes.IDENT)
-                throw new RecognitionException();
-            return combineDotNames(fchild, seperator) + seperator + nchild.getText(); 
-        }
-        else
-            throw new RecognitionException();
-    }
+//    static String combineDotNames(AST node, char seperator) throws RecognitionException
+//    {
+//        if (node.getType() == JavaTokenTypes.IDENT)
+//            return node.getText();
+//        else if (node.getType() == JavaTokenTypes.DOT) {
+//            AST fchild = node.getFirstChild();
+//            AST nchild = fchild.getNextSibling();
+//            if (nchild.getType() != JavaTokenTypes.IDENT)
+//                throw new RecognitionException();
+//            return combineDotNames(fchild, seperator) + seperator + nchild.getText(); 
+//        }
+//        else
+//            throw new RecognitionException();
+//    }
     
     /**
      * Get the type from a node which must by context be an inner class type.
@@ -1073,133 +1070,133 @@ public class TextAnalyzer
      * @throws SemanticException
      * @throws RecognitionException
      */
-    JavaType getInnerType(AST node, GenTypeClass outer) throws SemanticException, RecognitionException
-    {
-        if (node.getType() == JavaTokenTypes.IDENT) {
-            // A simple name<params> expression
-            List<JavaType> params = getTypeArgs(node.getFirstChild());
-            
-            String name = outer.rawName() + '$' + node.getText();
-            try {
-                Class<?> theClass = classLoader.loadClass(name);
-                Reflective r = new JavaReflective(theClass);
-                return new GenTypeClass(r, params, outer);
-            }
-            catch (ClassNotFoundException cnfe) {
-                throw new SemanticException();
-            }
-        }
-        else if (node.getType() == JavaTokenTypes.DOT) {
-            // A name.name<params> style expression
-            // The children nodes are: the qualified class name, and then
-            // the type arguments
-            AST packageNode = node.getFirstChild();
-            String dotnames = combineDotNames(packageNode, '$');
-
-            AST classNode = packageNode.getNextSibling();
-            List<JavaType> params = getTypeArgs(classNode.getFirstChild());
-
-            String name = outer.rawName() + '$' + dotnames + '$' + node.getText();
-            try {
-                Class<?> c = classLoader.loadClass(name);
-                Reflective r = new JavaReflective(c);
-                return new GenTypeClass(r, params);
-            }
-            catch(ClassNotFoundException cnfe) {
-                throw new SemanticException();
-            }
-            
-        }
-        else
-            throw new RecognitionException();
-    }
+//    JavaType getInnerType(AST node, GenTypeClass outer) throws SemanticException, RecognitionException
+//    {
+//        if (node.getType() == JavaTokenTypes.IDENT) {
+//            // A simple name<params> expression
+//            List<JavaType> params = getTypeArgs(node.getFirstChild());
+//            
+//            String name = outer.rawName() + '$' + node.getText();
+//            try {
+//                Class<?> theClass = classLoader.loadClass(name);
+//                Reflective r = new JavaReflective(theClass);
+//                return new GenTypeClass(r, params, outer);
+//            }
+//            catch (ClassNotFoundException cnfe) {
+//                throw new SemanticException();
+//            }
+//        }
+//        else if (node.getType() == JavaTokenTypes.DOT) {
+//            // A name.name<params> style expression
+//            // The children nodes are: the qualified class name, and then
+//            // the type arguments
+//            AST packageNode = node.getFirstChild();
+//            String dotnames = combineDotNames(packageNode, '$');
+//
+//            AST classNode = packageNode.getNextSibling();
+//            List<JavaType> params = getTypeArgs(classNode.getFirstChild());
+//
+//            String name = outer.rawName() + '$' + dotnames + '$' + node.getText();
+//            try {
+//                Class<?> c = classLoader.loadClass(name);
+//                Reflective r = new JavaReflective(c);
+//                return new GenTypeClass(r, params);
+//            }
+//            catch(ClassNotFoundException cnfe) {
+//                throw new SemanticException();
+//            }
+//            
+//        }
+//        else
+//            throw new RecognitionException();
+//    }
     
     /**
      * Parse a node as an entity (which could be a package, class or value).
      * @throws SemanticException
      * @throws RecognitionException
      */
-    JavaEntity getEntity(AST node) throws SemanticException, RecognitionException
-    {
-        // simple case first:
-        if (node.getType() == JavaTokenTypes.IDENT) {
-            
-            // Treat it first as a variable...
-            String nodeText = node.getText();
-            NamedValue nv = objectBench.getNamedValue(nodeText);
-            if (nv != null)
-                return new ValueEntity(nv.getGenType());
-            
-            // It's not a codepad or object bench variable, perhaps it's an import
-            List l = imports.getStaticImports(nodeText);
-            if (l != null) {
-                Iterator i = l.iterator();
-                while (i.hasNext()) {
-                    ClassEntity importEntity = (ClassEntity) i.next();
-                    try {
-                        JavaEntity fieldEnt = importEntity.getStaticField(nodeText);
-                        return fieldEnt;
-                    }
-                    catch (SemanticException se) { }
-                }
-            }
-            
-            // It might be a type
-            try {
-                Class c = loadUnqualifiedClass(nodeText, false);
-                return new TypeEntity(c);
-            }
-            catch (ClassNotFoundException cnfe) { }
-            
-            // Wildcard static imports of fields override wildcard
-            // imports of types
-            l = imports.getStaticWildcardImports();
-            Iterator i = l.iterator();
-            while (i.hasNext()) {
-                ClassEntity importEntity = (ClassEntity) i.next();
-                try {
-                    JavaEntity fieldEnt = importEntity.getStaticField(nodeText);
-                    return fieldEnt;
-                }
-                catch (SemanticException se) { }
-            }
-            
-            // Finally try wildcard type imports
-            try {
-                Class c = loadWildcardImportedType(nodeText);
-                return new TypeEntity(c);
-            }
-            catch (ClassNotFoundException cnfe) {
-                return new PackageEntity(nodeText);
-            }
-        }
-        
-        // A dot-node in the form xxx.identifier:
-        if (node.getType() == JavaTokenTypes.DOT) {
-            AST firstChild = node.getFirstChild();
-            AST secondChild = firstChild.getNextSibling();
-            if (secondChild.getType() == JavaTokenTypes.IDENT) {
-                JavaEntity firstpart = getEntity(firstChild);
-                return firstpart.getSubentity(secondChild.getText());
-            }
-            // Don't worry about xxx.super, it shouldn't be used at this
-            // level.
-        }
-        
-        // Anything else must be an expression, therefore a value:
-        JavaType exprType = getExpressionType(node).getType();
-        return new ValueEntity(exprType);
-    }
+//    JavaEntity getEntity(AST node) throws SemanticException, RecognitionException
+//    {
+//        // simple case first:
+//        if (node.getType() == JavaTokenTypes.IDENT) {
+//            
+//            // Treat it first as a variable...
+//            String nodeText = node.getText();
+//            NamedValue nv = objectBench.getNamedValue(nodeText);
+//            if (nv != null)
+//                return new ValueEntity(nv.getGenType());
+//            
+//            // It's not a codepad or object bench variable, perhaps it's an import
+//            List l = imports.getStaticImports(nodeText);
+//            if (l != null) {
+//                Iterator i = l.iterator();
+//                while (i.hasNext()) {
+//                    ClassEntity importEntity = (ClassEntity) i.next();
+//                    try {
+//                        JavaEntity fieldEnt = importEntity.getStaticField(nodeText);
+//                        return fieldEnt;
+//                    }
+//                    catch (SemanticException se) { }
+//                }
+//            }
+//            
+//            // It might be a type
+//            try {
+//                Class c = loadUnqualifiedClass(nodeText, false);
+//                return new TypeEntity(c);
+//            }
+//            catch (ClassNotFoundException cnfe) { }
+//            
+//            // Wildcard static imports of fields override wildcard
+//            // imports of types
+//            l = imports.getStaticWildcardImports();
+//            Iterator i = l.iterator();
+//            while (i.hasNext()) {
+//                ClassEntity importEntity = (ClassEntity) i.next();
+//                try {
+//                    JavaEntity fieldEnt = importEntity.getStaticField(nodeText);
+//                    return fieldEnt;
+//                }
+//                catch (SemanticException se) { }
+//            }
+//            
+//            // Finally try wildcard type imports
+//            try {
+//                Class c = loadWildcardImportedType(nodeText);
+//                return new TypeEntity(c);
+//            }
+//            catch (ClassNotFoundException cnfe) {
+//                return new PackageEntity(nodeText);
+//            }
+//        }
+//        
+//        // A dot-node in the form xxx.identifier:
+//        if (node.getType() == JavaTokenTypes.DOT) {
+//            AST firstChild = node.getFirstChild();
+//            AST secondChild = firstChild.getNextSibling();
+//            if (secondChild.getType() == JavaTokenTypes.IDENT) {
+//                JavaEntity firstpart = getEntity(firstChild);
+//                return firstpart.getSubentity(secondChild.getText());
+//            }
+//            // Don't worry about xxx.super, it shouldn't be used at this
+//            // level.
+//        }
+//        
+//        // Anything else must be an expression, therefore a value:
+//        JavaType exprType = getExpressionType(node).getType();
+//        return new ValueEntity(exprType);
+//    }
     
     /**
      * Get an entity which by context must be either a package or a (possibly
      * generic) type.
      */
-    private PackageOrClass getPackageOrType(AST node)
-        throws SemanticException, RecognitionException
-    {
-        return getPackageOrType(node, false);
-    }
+//    private PackageOrClass getPackageOrType(AST node)
+//        throws SemanticException, RecognitionException
+//    {
+//        return getPackageOrType(node, false);
+//    }
     
     /**
      * Get an entity which by context must be either a package or a (possibly
@@ -1211,58 +1208,58 @@ public class TextAnalyzer
      * 
      * @throws SemanticException
      */
-    private PackageOrClass getPackageOrType(AST node, boolean fullyQualified)
-        throws SemanticException, RecognitionException
-    {
-        // simple case first:
-        if (node.getType() == JavaTokenTypes.IDENT) {
-            // Treat it first as a type, then as a package.
-            String nodeText = node.getText();
-            List tparams = getTypeArgs(node.getFirstChild());
-            
-            try {
-                Class c;
-                if (fullyQualified) {
-                    c = classLoader.loadClass(nodeText);
-                }
-                else {
-                    c = loadUnqualifiedClass(nodeText, true);
-                }
-                TypeEntity r = new TypeEntity(c, tparams);
-                return r;
-            }
-            catch (ClassNotFoundException cnfe) {
-                // Could not be loaded as a class, so it must be a package.
-                if (! tparams.isEmpty())
-                    throw new SemanticException();
-                return new PackageEntity(nodeText);
-            }
-        }
-        
-        // A dot-node in the form xxx.identifier:
-        if (node.getType() == JavaTokenTypes.DOT) {
-            AST firstChild = node.getFirstChild();
-            AST secondChild = firstChild.getNextSibling();
-            if (secondChild.getType() == JavaTokenTypes.IDENT) {
-                List tparams = getTypeArgs(secondChild.getFirstChild());
-                PackageOrClass firstpart = getPackageOrType(firstChild, fullyQualified);
-
-                PackageOrClass entity = firstpart.getPackageOrClassMember(secondChild.getText());
-                if (! tparams.isEmpty()) {
-                    // There are type parmaters, so we must have a type
-                    if (entity.isClass()) {
-                        entity = ((ClassEntity) entity).setTypeParams(tparams);
-                    }
-                    else
-                        throw new SemanticException();
-                }
-                
-                return entity;
-            }
-        }
-        
-        throw new SemanticException();
-    }
+//    private PackageOrClass getPackageOrType(AST node, boolean fullyQualified)
+//        throws SemanticException, RecognitionException
+//    {
+//        // simple case first:
+//        if (node.getType() == JavaTokenTypes.IDENT) {
+//            // Treat it first as a type, then as a package.
+//            String nodeText = node.getText();
+//            List tparams = getTypeArgs(node.getFirstChild());
+//            
+//            try {
+//                Class c;
+//                if (fullyQualified) {
+//                    c = classLoader.loadClass(nodeText);
+//                }
+//                else {
+//                    c = loadUnqualifiedClass(nodeText, true);
+//                }
+//                TypeEntity r = new TypeEntity(c, tparams);
+//                return r;
+//            }
+//            catch (ClassNotFoundException cnfe) {
+//                // Could not be loaded as a class, so it must be a package.
+//                if (! tparams.isEmpty())
+//                    throw new SemanticException();
+//                return new PackageEntity(nodeText);
+//            }
+//        }
+//        
+//        // A dot-node in the form xxx.identifier:
+//        if (node.getType() == JavaTokenTypes.DOT) {
+//            AST firstChild = node.getFirstChild();
+//            AST secondChild = firstChild.getNextSibling();
+//            if (secondChild.getType() == JavaTokenTypes.IDENT) {
+//                List tparams = getTypeArgs(secondChild.getFirstChild());
+//                PackageOrClass firstpart = getPackageOrType(firstChild, fullyQualified);
+//
+//                PackageOrClass entity = firstpart.getPackageOrClassMember(secondChild.getText());
+//                if (! tparams.isEmpty()) {
+//                    // There are type parmaters, so we must have a type
+//                    if (entity.isClass()) {
+//                        entity = ((ClassEntity) entity).setTypeParams(tparams);
+//                    }
+//                    else
+//                        throw new SemanticException();
+//                }
+//                
+//                return entity;
+//            }
+//        }
+//        
+//        throw new SemanticException();
+//    }
     
     /**
      * Get an expression list node as an array of GenType
@@ -1270,19 +1267,19 @@ public class TextAnalyzer
      * @throws SemanticException
      * @throws RecognitionException
      */
-    private JavaType [] getExpressionList(AST node) throws SemanticException, RecognitionException
-    {
-        int num = node.getNumberOfChildren();
-        JavaType [] r = new JavaType[num];
-        AST child = node.getFirstChild();
-        
-        // loop through the child nodes
-        for (int i = 0; i < num; i++) {
-            r[i] = getExpressionType(child).getType();
-            child = child.getNextSibling();
-        }
-        return r;
-    }
+//    private JavaType [] getExpressionList(AST node) throws SemanticException, RecognitionException
+//    {
+//        int num = node.getNumberOfChildren();
+//        JavaType [] r = new JavaType[num];
+//        AST child = node.getFirstChild();
+//        
+//        // loop through the child nodes
+//        for (int i = 0; i < num; i++) {
+//            r[i] = getExpressionType(child).getType();
+//            child = child.getNextSibling();
+//        }
+//        return r;
+//    }
     
     /**
      * Check whether a particular method is callable with particular
@@ -1299,7 +1296,6 @@ public class TextAnalyzer
      * @throws RecognitionException
      */
     private MethodCallDesc isMethodApplicable(GenTypeClass targetType, List<GenTypeClass> tpars, Method m, JavaType [] args)
-        throws RecognitionException
     {
         boolean methodIsVarargs = JavaUtils.getJavaUtils().isVarArgs(m);
         MethodCallDesc rdesc = null;
@@ -1331,7 +1327,6 @@ public class TextAnalyzer
      * @throws RecognitionException
      */
     private MethodCallDesc isMethodApplicable(GenTypeClass targetType, List<GenTypeClass> tpars, Method m, JavaType [] args, boolean varargs)
-    throws RecognitionException
     {
         boolean rawTarget = targetType.isRaw();
         boolean boxingRequired = false;
@@ -1766,119 +1761,119 @@ public class TextAnalyzer
      * @throws RecognitionException
      * @throws SemanticException
      */
-    private JavaType getMethodCallReturnType(AST node) throws RecognitionException, SemanticException
-    {
-        // For a method call node, the first child is the method name
-        // (possibly a dot-name) and the second is an ELIST.
-        //
-        // In the case of the method name being a dot-name, it may also
-        // be a generic type. In this case the children of the dot-node
-        // are:
-        //
-        // <object-expression> <type-arg-1> <type-arg-2> .... <methodname>
-        //
-        // Where <object-expression> may actually be a type (ie. invoking
-        // a static method).
-        
-        AST firstArg = node.getFirstChild();
-        AST secondArg = firstArg.getNextSibling();
-        if (secondArg.getType() != JavaTokenTypes.ELIST)
-            throw new RecognitionException();
-        
-        // we don't handle a variety of cases such
-        // as "this.xxx()" or "super.xxxx()".
-        
-        if (firstArg.getType() == JavaTokenTypes.IDENT) {
-            // It's an unqualified method call. In the context of a code pad
-            // statement, it can only be an imported static method call.
-            
-            String mname = firstArg.getText();
-            JavaType [] argumentTypes = getExpressionList(secondArg);
-            
-            List<ClassEntity> l = imports.getStaticImports(mname);
-            MethodCallDesc candidate = findImportedMethod(l, mname, argumentTypes);
-            
-            if (candidate == null) {
-                // There were no non-wildcard static imports. Try wildcard imports.
-                l = imports.getStaticWildcardImports();
-                candidate = findImportedMethod(l, mname, argumentTypes);
-            }
-            
-            if (candidate != null)
-                return captureConversion(candidate.retType);
-            
-            // no suitable candidates
-            throw new SemanticException();
-        }
-        
-        if (firstArg.getType() == JavaTokenTypes.DOT) {
-            AST targetNode = firstArg.getFirstChild();
-            JavaEntity callTarget = getEntity(targetNode);
-            JavaType targetType = callTarget.getType();
-                            
-            // now get method name, and argument types;
-            List typeArgs = new ArrayList(5);
-            JavaType [] argumentTypes = getExpressionList(secondArg);
-            String methodName = null;
-            AST searchNode = targetNode.getNextSibling();
-            
-            // get the type arguments and method name
-            while (searchNode != null) {
-                int nodeType = searchNode.getType();
-                // type argument?
-                if (nodeType == JavaTokenTypes.TYPE_ARGUMENT) {
-                    JavaType taType = getType(searchNode.getFirstChild());
-                    typeArgs.add(taType);
-                }
-                // method name?
-                else if (nodeType == JavaTokenTypes.IDENT) {
-                    methodName = searchNode.getText();
-                    break;
-                }
-                else
-                    break;
-                
-                searchNode = searchNode.getNextSibling();
-            }
-            
-            // If no method name, this doesn't seem to be valid grammar
-            if (methodName == null)
-                throw new RecognitionException();
-            
-            // getClass() is a special case, it should return Class<? extends
-            // basetype>
-            if (targetType instanceof GenTypeParameterizable) {
-                if (methodName.equals("getClass") && argumentTypes.length == 0) {
-                    List paramsl = new ArrayList(1);
-                    paramsl.add(new GenTypeExtends((GenTypeSolid) targetType.getErasedType()));
-                    return new GenTypeClass(new JavaReflective(Class.class), paramsl);
-                }
-            }
-            
-            // apply capture conversion to target
-            targetType = captureConversion(targetType);
-            
-            if (! (targetType instanceof GenTypeSolid))
-                throw new SemanticException();
-                
-            GenTypeSolid targetTypeS = (GenTypeSolid) targetType;
-            GenTypeClass [] rsts = targetTypeS.getReferenceSupertypes();
-            
-            // match the call to a method:
-            ArrayList suitableMethods = getSuitableMethods(methodName, rsts, argumentTypes, typeArgs);
-            
-            if (suitableMethods.size() != 0) {
-                MethodCallDesc mcd = (MethodCallDesc) suitableMethods.get(0);
-                // JLS 15.12.2.6, we must apply capture conversion
-                return captureConversion(mcd.retType);
-            }
-            // ambiguity
-            throw new SemanticException();
-        }
-        
-        // anything else is an unknown
-        throw new RecognitionException();
-    }
+//    private JavaType getMethodCallReturnType(AST node) throws RecognitionException, SemanticException
+//    {
+//        // For a method call node, the first child is the method name
+//        // (possibly a dot-name) and the second is an ELIST.
+//        //
+//        // In the case of the method name being a dot-name, it may also
+//        // be a generic type. In this case the children of the dot-node
+//        // are:
+//        //
+//        // <object-expression> <type-arg-1> <type-arg-2> .... <methodname>
+//        //
+//        // Where <object-expression> may actually be a type (ie. invoking
+//        // a static method).
+//        
+//        AST firstArg = node.getFirstChild();
+//        AST secondArg = firstArg.getNextSibling();
+//        if (secondArg.getType() != JavaTokenTypes.ELIST)
+//            throw new RecognitionException();
+//        
+//        // we don't handle a variety of cases such
+//        // as "this.xxx()" or "super.xxxx()".
+//        
+//        if (firstArg.getType() == JavaTokenTypes.IDENT) {
+//            // It's an unqualified method call. In the context of a code pad
+//            // statement, it can only be an imported static method call.
+//            
+//            String mname = firstArg.getText();
+//            JavaType [] argumentTypes = getExpressionList(secondArg);
+//            
+//            List<ClassEntity> l = imports.getStaticImports(mname);
+//            MethodCallDesc candidate = findImportedMethod(l, mname, argumentTypes);
+//            
+//            if (candidate == null) {
+//                // There were no non-wildcard static imports. Try wildcard imports.
+//                l = imports.getStaticWildcardImports();
+//                candidate = findImportedMethod(l, mname, argumentTypes);
+//            }
+//            
+//            if (candidate != null)
+//                return captureConversion(candidate.retType);
+//            
+//            // no suitable candidates
+//            throw new SemanticException();
+//        }
+//        
+//        if (firstArg.getType() == JavaTokenTypes.DOT) {
+//            AST targetNode = firstArg.getFirstChild();
+//            JavaEntity callTarget = getEntity(targetNode);
+//            JavaType targetType = callTarget.getType();
+//                            
+//            // now get method name, and argument types;
+//            List typeArgs = new ArrayList(5);
+//            JavaType [] argumentTypes = getExpressionList(secondArg);
+//            String methodName = null;
+//            AST searchNode = targetNode.getNextSibling();
+//            
+//            // get the type arguments and method name
+//            while (searchNode != null) {
+//                int nodeType = searchNode.getType();
+//                // type argument?
+//                if (nodeType == JavaTokenTypes.TYPE_ARGUMENT) {
+//                    JavaType taType = getType(searchNode.getFirstChild());
+//                    typeArgs.add(taType);
+//                }
+//                // method name?
+//                else if (nodeType == JavaTokenTypes.IDENT) {
+//                    methodName = searchNode.getText();
+//                    break;
+//                }
+//                else
+//                    break;
+//                
+//                searchNode = searchNode.getNextSibling();
+//            }
+//            
+//            // If no method name, this doesn't seem to be valid grammar
+//            if (methodName == null)
+//                throw new RecognitionException();
+//            
+//            // getClass() is a special case, it should return Class<? extends
+//            // basetype>
+//            if (targetType instanceof GenTypeParameterizable) {
+//                if (methodName.equals("getClass") && argumentTypes.length == 0) {
+//                    List paramsl = new ArrayList(1);
+//                    paramsl.add(new GenTypeExtends((GenTypeSolid) targetType.getErasedType()));
+//                    return new GenTypeClass(new JavaReflective(Class.class), paramsl);
+//                }
+//            }
+//            
+//            // apply capture conversion to target
+//            targetType = captureConversion(targetType);
+//            
+//            if (! (targetType instanceof GenTypeSolid))
+//                throw new SemanticException();
+//                
+//            GenTypeSolid targetTypeS = (GenTypeSolid) targetType;
+//            GenTypeClass [] rsts = targetTypeS.getReferenceSupertypes();
+//            
+//            // match the call to a method:
+//            ArrayList suitableMethods = getSuitableMethods(methodName, rsts, argumentTypes, typeArgs);
+//            
+//            if (suitableMethods.size() != 0) {
+//                MethodCallDesc mcd = (MethodCallDesc) suitableMethods.get(0);
+//                // JLS 15.12.2.6, we must apply capture conversion
+//                return captureConversion(mcd.retType);
+//            }
+//            // ambiguity
+//            throw new SemanticException();
+//        }
+//        
+//        // anything else is an unknown
+//        throw new RecognitionException();
+//    }
     
     /**
      * Find the most specific imported method with the given name and argument types
@@ -1890,7 +1885,6 @@ public class TextAnalyzer
      * @return   A descriptor for the most specific method, or null if none found
      */
     private MethodCallDesc findImportedMethod(List imports, String mname, JavaType [] argumentTypes)
-        throws RecognitionException
     {
         MethodCallDesc candidate = null;
         
@@ -1930,7 +1924,6 @@ public class TextAnalyzer
      * @throws RecognitionException
      */
     private ArrayList getSuitableMethods(String methodName, GenTypeClass [] targetTypes, JavaType [] argumentTypes, List typeArgs)
-        throws RecognitionException
     {
         ArrayList suitableMethods = new ArrayList();
         for (int k = 0; k < targetTypes.length; k++) {
@@ -2003,59 +1996,59 @@ public class TextAnalyzer
      * @throws RecognitionException
      * @throws SemanticException
      */
-    JavaType getTypeFromTypeNode(AST node) throws RecognitionException, SemanticException
-    {
-        AST firstChild = node.getFirstChild();
-        JavaType baseType;
-        
-        switch (firstChild.getType()) {
-            case JavaTokenTypes.LITERAL_char:
-                baseType = JavaPrimitiveType.getChar();
-                break;
-            case JavaTokenTypes.LITERAL_byte:
-                baseType = JavaPrimitiveType.getByte();
-                break;
-            case JavaTokenTypes.LITERAL_boolean:
-                baseType = JavaPrimitiveType.getBoolean();
-                break;
-            case JavaTokenTypes.LITERAL_short:
-                baseType = JavaPrimitiveType.getShort();
-                break;
-            case JavaTokenTypes.LITERAL_int:
-                baseType = JavaPrimitiveType.getInt();
-                break;
-            case JavaTokenTypes.LITERAL_long:
-                baseType = JavaPrimitiveType.getLong();
-                break;
-            case JavaTokenTypes.LITERAL_float:
-                baseType = JavaPrimitiveType.getFloat();
-                break;
-            case JavaTokenTypes.LITERAL_double:
-                baseType = JavaPrimitiveType.getDouble();
-                break;
-            default:
-                // not a primitive type
-                baseType = getType(firstChild);
-        }
-        
-        // check for array declarators
-        AST arrayNode = firstChild.getNextSibling();
-        while (arrayNode != null && arrayNode.getType() == JavaTokenTypes.ARRAY_DECLARATOR) {
-            // make a reflective for the array
-            // figure out the class name of the array class
-            String xName = "[" + baseType.arrayComponentName();
-            try {
-                // In Java 6, ClassLoader.loadClass() fails to load primitive
-                // array classes; must use Class.forName instead.
-                Class arrayClass = Class.forName(xName, false, classLoader);
-                baseType = new GenTypeArray(baseType, new JavaReflective(arrayClass));
-            }
-            catch (ClassNotFoundException cnfe) {}
-            arrayNode = arrayNode.getFirstChild();
-        }
-        
-        return baseType;
-    }
+//    JavaType getTypeFromTypeNode(AST node) throws SemanticException
+//    {
+//        AST firstChild = node.getFirstChild();
+//        JavaType baseType;
+//        
+//        switch (firstChild.getType()) {
+//            case JavaTokenTypes.LITERAL_char:
+//                baseType = JavaPrimitiveType.getChar();
+//                break;
+//            case JavaTokenTypes.LITERAL_byte:
+//                baseType = JavaPrimitiveType.getByte();
+//                break;
+//            case JavaTokenTypes.LITERAL_boolean:
+//                baseType = JavaPrimitiveType.getBoolean();
+//                break;
+//            case JavaTokenTypes.LITERAL_short:
+//                baseType = JavaPrimitiveType.getShort();
+//                break;
+//            case JavaTokenTypes.LITERAL_int:
+//                baseType = JavaPrimitiveType.getInt();
+//                break;
+//            case JavaTokenTypes.LITERAL_long:
+//                baseType = JavaPrimitiveType.getLong();
+//                break;
+//            case JavaTokenTypes.LITERAL_float:
+//                baseType = JavaPrimitiveType.getFloat();
+//                break;
+//            case JavaTokenTypes.LITERAL_double:
+//                baseType = JavaPrimitiveType.getDouble();
+//                break;
+//            default:
+//                // not a primitive type
+//                baseType = getType(firstChild);
+//        }
+//        
+//        // check for array declarators
+//        AST arrayNode = firstChild.getNextSibling();
+//        while (arrayNode != null && arrayNode.getType() == JavaTokenTypes.ARRAY_DECLARATOR) {
+//            // make a reflective for the array
+//            // figure out the class name of the array class
+//            String xName = "[" + baseType.arrayComponentName();
+//            try {
+//                // In Java 6, ClassLoader.loadClass() fails to load primitive
+//                // array classes; must use Class.forName instead.
+//                Class arrayClass = Class.forName(xName, false, classLoader);
+//                baseType = new GenTypeArray(baseType, new JavaReflective(arrayClass));
+//            }
+//            catch (ClassNotFoundException cnfe) {}
+//            arrayNode = arrayNode.getFirstChild();
+//        }
+//        
+//        return baseType;
+//    }
     
     /**
      * Unbox a type, if it is a class type which represents a primitive type
@@ -2175,298 +2168,298 @@ public class TextAnalyzer
      * @throws RecognitionException
      * @throws SemanticException
      */
-    ExprValue getExpressionType(AST node) throws RecognitionException, SemanticException
-    {        
-        // Expressions are represented as an EXPR node but sometimes part of
-        // an expression can consist of a complete expression which is not
-        // itself headed by an EXPR node. This method can handle both cases.
-        AST fcNode;
-        if (node.getType() == JavaTokenTypes.EXPR)
-            fcNode = node.getFirstChild();
-        else
-            fcNode = node;
-        
-        switch (fcNode.getType()) {
-            // "new xxxxx<>()"
-            case JavaTokenTypes.LITERAL_new:
-                return new ExprValue(getTypeFromTypeNode(fcNode));
-            
-            // dot node
-            case JavaTokenTypes.DOT:
-            {
-                AST firstDotArg = fcNode.getFirstChild();
-                AST secondDotArg = firstDotArg.getNextSibling();
-                
-                // qualified new:  expression.new xxxxx<>()
-                if (secondDotArg.getType() == JavaTokenTypes.LITERAL_new) {
-                    // The class being instantiated needs to be resolved in terms
-                    // of the type of the expression to the left.
-                    JavaType fpType = getExpressionType(firstDotArg).getType();
-                    
-                    // now evaluate the qualified new in the context of the type
-                    // of the expression
-                    if (fpType.asClass() != null) {
-                        JavaType type = getInnerType(secondDotArg.getFirstChild(), fpType.asClass());
-                        return new ExprValue(type);
-                    }
-                    
-                    if (fpType == null)
-                        return null;
-                    else
-                        throw new SemanticException();
-                }
-                
-                // member field/type of some type
-                if (secondDotArg.getType() == JavaTokenTypes.IDENT) {
-                    
-                    JavaEntity entity = getEntity(firstDotArg);
-                    entity = entity.getSubentity(secondDotArg.getText());
-                    
-                    return new ExprValue(entity.getType());
-                }
-                
-                // class literal
-                if (secondDotArg.getType() == JavaTokenTypes.LITERAL_class) {
-                    if (! java15)
-                        return new ExprValue(new GenTypeClass(new JavaReflective(Class.class)));
-                    
-                    // we want "Class<X>", where X is the boxed type (or Void)
-                    int fdType = firstDotArg.getType();
-                    JavaReflective classReflective = new JavaReflective(Class.class);
-                    List l = new ArrayList();
-
-                    // add appropriate type to the type parameter list
-                    if (fdType == JavaTokenTypes.LITERAL_void) {
-                        l.add(new GenTypeClass(new JavaReflective(Void.class)));
-                    }
-                    else {
-                        l.add(boxType(getTypeFromTypeNode(fcNode)));
-                    }
-                    
-                    // ... then return Class<X>
-                    return new ExprValue(new GenTypeClass(classReflective, l));
-                }
-                
-                // not worrying about - .this, .super etc. They can't be used in
-                // the code pad context.
-            }
-            
-            // method call
-            case JavaTokenTypes.METHOD_CALL:
-                return new ExprValue(getMethodCallReturnType(fcNode));
-            
-            // Object bench object
-            case JavaTokenTypes.IDENT:
-            {
-                JavaEntity entity = getEntity(fcNode);
-                return new ExprValue(entity.getType());
-            }
-            
-            // type cast.
-            case JavaTokenTypes.TYPECAST:
-                return new ExprValue(getTypeFromTypeNode(fcNode.getFirstChild()));
-            
-            // array element access
-            case JavaTokenTypes.INDEX_OP:
-            {
-                JavaType t = getExpressionType(fcNode.getFirstChild()).getType();
-                JavaType componentType = t.getArrayComponent();
-                if (componentType != null)
-                    return new ExprValue(componentType);
-                else
-                    throw new SemanticException();
-            }
-            
-            // various literal types.
-            
-            case JavaTokenTypes.STRING_LITERAL:
-                return new ExprValue(new GenTypeClass(new JavaReflective(String.class)));
-            
-            case JavaTokenTypes.CHAR_LITERAL:
-                return getCharLiteral(fcNode);
-            
-            case JavaTokenTypes.NUM_INT:
-                return getIntLiteral(fcNode, false);
-            
-            case JavaTokenTypes.NUM_LONG:
-                return getLongLiteral(fcNode, false);
-            
-            case JavaTokenTypes.NUM_FLOAT:
-                return getFloatLiteral(fcNode, false);
-            
-            case JavaTokenTypes.NUM_DOUBLE:
-                return getDoubleLiteral(fcNode, false);
-            
-            // true & false literals, "instanceof" expressions
-            case JavaTokenTypes.LITERAL_true:
-                return BooleanValue.getBooleanValue(true);
-            case JavaTokenTypes.LITERAL_false:
-                return BooleanValue.getBooleanValue(false);
-            case JavaTokenTypes.LITERAL_instanceof:
-                return new ExprValue(JavaPrimitiveType.getBoolean());
-            
-            case JavaTokenTypes.LITERAL_null:
-                return new ExprValue(JavaPrimitiveType.getNull());
-            
-            // unary operators
-            case JavaTokenTypes.UNARY_PLUS:
-                return getExpressionType(fcNode.getFirstChild());
-            case JavaTokenTypes.UNARY_MINUS:
-            {
-                AST negExpr = fcNode.getFirstChild();
-                
-                switch (negExpr.getType()) {
-                    case JavaTokenTypes.NUM_INT:
-                        return getIntLiteral(negExpr, true);
-                    case JavaTokenTypes.NUM_LONG:
-                        return getLongLiteral(negExpr, true);
-                    case JavaTokenTypes.NUM_FLOAT:
-                        return getFloatLiteral(negExpr, true);
-                    case JavaTokenTypes.NUM_DOUBLE:
-                        return getFloatLiteral(negExpr, true);
-                    default:
-                        return getExpressionType(negExpr);
-                }
-            }
-                
-            // boolean operators
-            // TODO operations on constant values have a constant result
-            
-            case JavaTokenTypes.LT:
-            case JavaTokenTypes.LE:
-            case JavaTokenTypes.GT:
-            case JavaTokenTypes.GE:
-            case JavaTokenTypes.EQUAL:
-            case JavaTokenTypes.NOT_EQUAL:
-            case JavaTokenTypes.LNOT:
-            case JavaTokenTypes.LAND:
-            case JavaTokenTypes.LOR:
-                return new ExprValue(JavaPrimitiveType.getBoolean());
-            
-            // shift operators. The result type is the unary-promoted
-            // first operand type.
-            // TODO handle operations on numeric constants (result is constant)
-            case JavaTokenTypes.SL:
-            case JavaTokenTypes.SR:
-            case JavaTokenTypes.BSR:
-            {
-                JavaType rtype = unBox(getExpressionType(fcNode.getFirstChild()).getType());
-                if (isMinorInteger(rtype))
-                    rtype = JavaPrimitiveType.getInt();
-                
-                return new ExprValue(rtype);
-            }
-            
-            // assignment operators. The result type is the same as the first
-            // operand type.
-            case JavaTokenTypes.SL_ASSIGN:
-            case JavaTokenTypes.SR_ASSIGN:
-            case JavaTokenTypes.BSR_ASSIGN:
-            case JavaTokenTypes.PLUS_ASSIGN:
-            case JavaTokenTypes.MINUS_ASSIGN:
-            case JavaTokenTypes.STAR_ASSIGN:
-            case JavaTokenTypes.DIV_ASSIGN:
-            case JavaTokenTypes.MOD_ASSIGN:
-            case JavaTokenTypes.BAND_ASSIGN:
-            case JavaTokenTypes.BOR_ASSIGN:
-            case JavaTokenTypes.BXOR_ASSIGN:
-                return getExpressionType(fcNode.getFirstChild());
-
-            // arithmetic operations, other binary ops
-            // TODO operations on numeric constants result in a constant
-            case JavaTokenTypes.MINUS:
-            case JavaTokenTypes.STAR:
-            case JavaTokenTypes.DIV:
-            case JavaTokenTypes.MOD:
-            case JavaTokenTypes.BAND:
-            case JavaTokenTypes.BOR:
-            case JavaTokenTypes.BXOR:
-            {
-                AST leftNode = fcNode.getFirstChild();
-                AST rightNode = leftNode.getNextSibling();
-                JavaType leftType = unBox(getExpressionType(leftNode).getType());
-                JavaType rightType = unBox(getExpressionType(rightNode).getType());
-                
-                if (leftType.typeIs(JavaType.JT_BOOLEAN) && rightType.typeIs(JavaType.JT_BOOLEAN))
-                {
-                    // TODO handle constants
-                    int ntype = fcNode.getType();
-                    if (ntype == JavaTokenTypes.BAND || ntype == JavaTokenTypes.BOR || ntype == JavaTokenTypes.BXOR)
-                        return new ExprValue(JavaPrimitiveType.getBoolean());
-                }
-                
-                return new ExprValue(binaryNumericPromotion(leftType, rightType));
-            }
-
-            // plus needs special handling, as it is also the string
-            // concatenation operator
-            // TODO handle operations on numeric constants
-            case JavaTokenTypes.PLUS:
-            {
-                AST leftNode = fcNode.getFirstChild();
-                AST rightNode = leftNode.getNextSibling();
-                JavaType leftType = unBox(getExpressionType(leftNode).getType());
-                JavaType rightType = unBox(getExpressionType(rightNode).getType());
-                if (leftType == null || rightType == null)
-                    return null;
-                
-                if (leftType.toString().equals("java.lang.String"))
-                    return new ExprValue(leftType);
-                if (rightType.toString().equals("java.lang.String"))
-                    return new ExprValue(rightType);
-                
-                return new ExprValue(binaryNumericPromotion(leftType, rightType));
-            }
-            
-            // increment/decrement, binary not - unary operators
-            case JavaTokenTypes.POST_INC:
-            case JavaTokenTypes.POST_DEC:
-            case JavaTokenTypes.INC:
-            case JavaTokenTypes.DEC:
-                return new ExprValue(unBox(getExpressionType(fcNode.getFirstChild()).getType()));
-
-            case JavaTokenTypes.BNOT:
-            {
-                ExprValue oval = getExpressionType(fcNode.getFirstChild());
-                JavaType ntype = unBox(oval.getType());
-                if (! ntype.isIntegralType())
-                    throw new SemanticException();
-                
-                if (! oval.knownValue()) {
-                    // unary numeric promotion means the result is long/int
-                    if (ntype.typeIs(JavaType.JT_LONG))
-                        return new ExprValue(ntype);
-                    else
-                        return new ExprValue(JavaPrimitiveType.getInt());
-                }
-                
-                // handle case where operand (and result) type is "long"
-                if (ntype.typeIs(JavaType.JT_LONG)) {
-                    long newval = ~ oval.longValue();
-                    return new NumValue(ntype, new Long(newval));
-                }
-                
-                // unary numeric promotion means the result must be "int".
-                int newval = ~ oval.intValue();
-                return new NumValue(JavaPrimitiveType.getInt(), new Integer(newval));
-            }
-            
-            // ? : operator  (trinary operator)
-            case JavaTokenTypes.QUESTION:
-            {
-                // TODO handle constant expressions
-                if (Config.usingJava15())
-                    return new ExprValue(questionOperator15(fcNode));
-                else
-                    return new ExprValue(questionOperator14(fcNode));
-            }
-            
-            default:
-        }
-        
-        // bluej.utility.Debug.message("Unknown type: " + fcNode.getType());
-        return null;
-    }
+//    ExprValue getExpressionType(AST node) throws RecognitionException, SemanticException
+//    {        
+//        // Expressions are represented as an EXPR node but sometimes part of
+//        // an expression can consist of a complete expression which is not
+//        // itself headed by an EXPR node. This method can handle both cases.
+//        AST fcNode;
+//        if (node.getType() == JavaTokenTypes.EXPR)
+//            fcNode = node.getFirstChild();
+//        else
+//            fcNode = node;
+//        
+//        switch (fcNode.getType()) {
+//            // "new xxxxx<>()"
+//            case JavaTokenTypes.LITERAL_new:
+//                return new ExprValue(getTypeFromTypeNode(fcNode));
+//            
+//            // dot node
+//            case JavaTokenTypes.DOT:
+//            {
+//                AST firstDotArg = fcNode.getFirstChild();
+//                AST secondDotArg = firstDotArg.getNextSibling();
+//                
+//                // qualified new:  expression.new xxxxx<>()
+//                if (secondDotArg.getType() == JavaTokenTypes.LITERAL_new) {
+//                    // The class being instantiated needs to be resolved in terms
+//                    // of the type of the expression to the left.
+//                    JavaType fpType = getExpressionType(firstDotArg).getType();
+//                    
+//                    // now evaluate the qualified new in the context of the type
+//                    // of the expression
+//                    if (fpType.asClass() != null) {
+//                        JavaType type = getInnerType(secondDotArg.getFirstChild(), fpType.asClass());
+//                        return new ExprValue(type);
+//                    }
+//                    
+//                    if (fpType == null)
+//                        return null;
+//                    else
+//                        throw new SemanticException();
+//                }
+//                
+//                // member field/type of some type
+//                if (secondDotArg.getType() == JavaTokenTypes.IDENT) {
+//                    
+//                    JavaEntity entity = getEntity(firstDotArg);
+//                    entity = entity.getSubentity(secondDotArg.getText());
+//                    
+//                    return new ExprValue(entity.getType());
+//                }
+//                
+//                // class literal
+//                if (secondDotArg.getType() == JavaTokenTypes.LITERAL_class) {
+//                    if (! java15)
+//                        return new ExprValue(new GenTypeClass(new JavaReflective(Class.class)));
+//                    
+//                    // we want "Class<X>", where X is the boxed type (or Void)
+//                    int fdType = firstDotArg.getType();
+//                    JavaReflective classReflective = new JavaReflective(Class.class);
+//                    List l = new ArrayList();
+//
+//                    // add appropriate type to the type parameter list
+//                    if (fdType == JavaTokenTypes.LITERAL_void) {
+//                        l.add(new GenTypeClass(new JavaReflective(Void.class)));
+//                    }
+//                    else {
+//                        l.add(boxType(getTypeFromTypeNode(fcNode)));
+//                    }
+//                    
+//                    // ... then return Class<X>
+//                    return new ExprValue(new GenTypeClass(classReflective, l));
+//                }
+//                
+//                // not worrying about - .this, .super etc. They can't be used in
+//                // the code pad context.
+//            }
+//            
+//            // method call
+//            case JavaTokenTypes.METHOD_CALL:
+//                return new ExprValue(getMethodCallReturnType(fcNode));
+//            
+//            // Object bench object
+//            case JavaTokenTypes.IDENT:
+//            {
+//                JavaEntity entity = getEntity(fcNode);
+//                return new ExprValue(entity.getType());
+//            }
+//            
+//            // type cast.
+//            case JavaTokenTypes.TYPECAST:
+//                return new ExprValue(getTypeFromTypeNode(fcNode.getFirstChild()));
+//            
+//            // array element access
+//            case JavaTokenTypes.INDEX_OP:
+//            {
+//                JavaType t = getExpressionType(fcNode.getFirstChild()).getType();
+//                JavaType componentType = t.getArrayComponent();
+//                if (componentType != null)
+//                    return new ExprValue(componentType);
+//                else
+//                    throw new SemanticException();
+//            }
+//            
+//            // various literal types.
+//            
+//            case JavaTokenTypes.STRING_LITERAL:
+//                return new ExprValue(new GenTypeClass(new JavaReflective(String.class)));
+//            
+//            case JavaTokenTypes.CHAR_LITERAL:
+//                return getCharLiteral(fcNode);
+//            
+//            case JavaTokenTypes.NUM_INT:
+//                return getIntLiteral(fcNode, false);
+//            
+//            case JavaTokenTypes.NUM_LONG:
+//                return getLongLiteral(fcNode, false);
+//            
+//            case JavaTokenTypes.NUM_FLOAT:
+//                return getFloatLiteral(fcNode, false);
+//            
+//            case JavaTokenTypes.NUM_DOUBLE:
+//                return getDoubleLiteral(fcNode, false);
+//            
+//            // true & false literals, "instanceof" expressions
+//            case JavaTokenTypes.LITERAL_true:
+//                return BooleanValue.getBooleanValue(true);
+//            case JavaTokenTypes.LITERAL_false:
+//                return BooleanValue.getBooleanValue(false);
+//            case JavaTokenTypes.LITERAL_instanceof:
+//                return new ExprValue(JavaPrimitiveType.getBoolean());
+//            
+//            case JavaTokenTypes.LITERAL_null:
+//                return new ExprValue(JavaPrimitiveType.getNull());
+//            
+//            // unary operators
+//            case JavaTokenTypes.UNARY_PLUS:
+//                return getExpressionType(fcNode.getFirstChild());
+//            case JavaTokenTypes.UNARY_MINUS:
+//            {
+//                AST negExpr = fcNode.getFirstChild();
+//                
+//                switch (negExpr.getType()) {
+//                    case JavaTokenTypes.NUM_INT:
+//                        return getIntLiteral(negExpr, true);
+//                    case JavaTokenTypes.NUM_LONG:
+//                        return getLongLiteral(negExpr, true);
+//                    case JavaTokenTypes.NUM_FLOAT:
+//                        return getFloatLiteral(negExpr, true);
+//                    case JavaTokenTypes.NUM_DOUBLE:
+//                        return getFloatLiteral(negExpr, true);
+//                    default:
+//                        return getExpressionType(negExpr);
+//                }
+//            }
+//                
+//            // boolean operators
+//            // TODO operations on constant values have a constant result
+//            
+//            case JavaTokenTypes.LT:
+//            case JavaTokenTypes.LE:
+//            case JavaTokenTypes.GT:
+//            case JavaTokenTypes.GE:
+//            case JavaTokenTypes.EQUAL:
+//            case JavaTokenTypes.NOT_EQUAL:
+//            case JavaTokenTypes.LNOT:
+//            case JavaTokenTypes.LAND:
+//            case JavaTokenTypes.LOR:
+//                return new ExprValue(JavaPrimitiveType.getBoolean());
+//            
+//            // shift operators. The result type is the unary-promoted
+//            // first operand type.
+//            // TODO handle operations on numeric constants (result is constant)
+//            case JavaTokenTypes.SL:
+//            case JavaTokenTypes.SR:
+//            case JavaTokenTypes.BSR:
+//            {
+//                JavaType rtype = unBox(getExpressionType(fcNode.getFirstChild()).getType());
+//                if (isMinorInteger(rtype))
+//                    rtype = JavaPrimitiveType.getInt();
+//                
+//                return new ExprValue(rtype);
+//            }
+//            
+//            // assignment operators. The result type is the same as the first
+//            // operand type.
+//            case JavaTokenTypes.SL_ASSIGN:
+//            case JavaTokenTypes.SR_ASSIGN:
+//            case JavaTokenTypes.BSR_ASSIGN:
+//            case JavaTokenTypes.PLUS_ASSIGN:
+//            case JavaTokenTypes.MINUS_ASSIGN:
+//            case JavaTokenTypes.STAR_ASSIGN:
+//            case JavaTokenTypes.DIV_ASSIGN:
+//            case JavaTokenTypes.MOD_ASSIGN:
+//            case JavaTokenTypes.BAND_ASSIGN:
+//            case JavaTokenTypes.BOR_ASSIGN:
+//            case JavaTokenTypes.BXOR_ASSIGN:
+//                return getExpressionType(fcNode.getFirstChild());
+//
+//            // arithmetic operations, other binary ops
+//            // TODO operations on numeric constants result in a constant
+//            case JavaTokenTypes.MINUS:
+//            case JavaTokenTypes.STAR:
+//            case JavaTokenTypes.DIV:
+//            case JavaTokenTypes.MOD:
+//            case JavaTokenTypes.BAND:
+//            case JavaTokenTypes.BOR:
+//            case JavaTokenTypes.BXOR:
+//            {
+//                AST leftNode = fcNode.getFirstChild();
+//                AST rightNode = leftNode.getNextSibling();
+//                JavaType leftType = unBox(getExpressionType(leftNode).getType());
+//                JavaType rightType = unBox(getExpressionType(rightNode).getType());
+//                
+//                if (leftType.typeIs(JavaType.JT_BOOLEAN) && rightType.typeIs(JavaType.JT_BOOLEAN))
+//                {
+//                    // TODO handle constants
+//                    int ntype = fcNode.getType();
+//                    if (ntype == JavaTokenTypes.BAND || ntype == JavaTokenTypes.BOR || ntype == JavaTokenTypes.BXOR)
+//                        return new ExprValue(JavaPrimitiveType.getBoolean());
+//                }
+//                
+//                return new ExprValue(binaryNumericPromotion(leftType, rightType));
+//            }
+//
+//            // plus needs special handling, as it is also the string
+//            // concatenation operator
+//            // TODO handle operations on numeric constants
+//            case JavaTokenTypes.PLUS:
+//            {
+//                AST leftNode = fcNode.getFirstChild();
+//                AST rightNode = leftNode.getNextSibling();
+//                JavaType leftType = unBox(getExpressionType(leftNode).getType());
+//                JavaType rightType = unBox(getExpressionType(rightNode).getType());
+//                if (leftType == null || rightType == null)
+//                    return null;
+//                
+//                if (leftType.toString().equals("java.lang.String"))
+//                    return new ExprValue(leftType);
+//                if (rightType.toString().equals("java.lang.String"))
+//                    return new ExprValue(rightType);
+//                
+//                return new ExprValue(binaryNumericPromotion(leftType, rightType));
+//            }
+//            
+//            // increment/decrement, binary not - unary operators
+//            case JavaTokenTypes.POST_INC:
+//            case JavaTokenTypes.POST_DEC:
+//            case JavaTokenTypes.INC:
+//            case JavaTokenTypes.DEC:
+//                return new ExprValue(unBox(getExpressionType(fcNode.getFirstChild()).getType()));
+//
+//            case JavaTokenTypes.BNOT:
+//            {
+//                ExprValue oval = getExpressionType(fcNode.getFirstChild());
+//                JavaType ntype = unBox(oval.getType());
+//                if (! ntype.isIntegralType())
+//                    throw new SemanticException();
+//                
+//                if (! oval.knownValue()) {
+//                    // unary numeric promotion means the result is long/int
+//                    if (ntype.typeIs(JavaType.JT_LONG))
+//                        return new ExprValue(ntype);
+//                    else
+//                        return new ExprValue(JavaPrimitiveType.getInt());
+//                }
+//                
+//                // handle case where operand (and result) type is "long"
+//                if (ntype.typeIs(JavaType.JT_LONG)) {
+//                    long newval = ~ oval.longValue();
+//                    return new NumValue(ntype, new Long(newval));
+//                }
+//                
+//                // unary numeric promotion means the result must be "int".
+//                int newval = ~ oval.intValue();
+//                return new NumValue(JavaPrimitiveType.getInt(), new Integer(newval));
+//            }
+//            
+//            // ? : operator  (trinary operator)
+//            case JavaTokenTypes.QUESTION:
+//            {
+//                // TODO handle constant expressions
+//                if (Config.usingJava15())
+//                    return new ExprValue(questionOperator15(fcNode));
+//                else
+//                    return new ExprValue(questionOperator14(fcNode));
+//            }
+//            
+//            default:
+//        }
+//        
+//        // bluej.utility.Debug.message("Unknown type: " + fcNode.getType());
+//        return null;
+//    }
         
     /**
      * Obtain a parser which can be used to parse a command string.

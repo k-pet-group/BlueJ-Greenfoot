@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
-import antlr.TokenStreamException;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.parser.ast.LocatableToken;
@@ -60,11 +59,7 @@ public class TextParser extends NewParser
     
     public boolean atEnd()
     {
-        try {
-            return tokenStream.LA(1).getType() == JavaTokenTypes.EOF;
-        } catch (TokenStreamException e) {
-            return true;
-        }
+        return tokenStream.LA(1).getType() == JavaTokenTypes.EOF;
     }
     
     public JavaEntity getExpressionType()

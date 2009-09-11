@@ -24,9 +24,6 @@ package bluej.parser;
 import java.util.LinkedList;
 import java.util.List;
 
-import antlr.Token;
-import antlr.TokenStream;
-import antlr.TokenStreamException;
 import bluej.parser.ast.LocatableToken;
 import bluej.parser.ast.gen.JavaTokenTypes;
 
@@ -41,7 +38,7 @@ public class JavaTokenFilter implements TokenStream
     private TokenStream sourceStream;
     private LocatableToken lastComment;
     private LocatableToken previousToken;
-    private Token cachedToken;
+    private LocatableToken cachedToken;
     private List<LocatableToken> buffer = new LinkedList<LocatableToken>();
     private NewParser parser;
     
@@ -57,7 +54,7 @@ public class JavaTokenFilter implements TokenStream
         this.parser = parser;
     }
     
-    public LocatableToken nextToken() throws TokenStreamException
+    public LocatableToken nextToken()
     {
         if (! buffer.isEmpty()) {
             // Make sure we have a cached token; necessary to ensure that token lengths
@@ -71,7 +68,7 @@ public class JavaTokenFilter implements TokenStream
     	// We cache one lookahead token so that we can be sure the returned token
         // has its end column set correctly. (The end column for a token can only be set
         // when the following token is received).
-        Token rval;
+        LocatableToken rval;
         if (cachedToken == null)
             rval = nextToken2();
         else
@@ -94,7 +91,7 @@ public class JavaTokenFilter implements TokenStream
      * Look ahead a certain number of tokens (without actually consuming them).
      * @param distance  The distance to look ahead (1 or greater).
      */
-    public LocatableToken LA(int distance) throws TokenStreamException
+    public LocatableToken LA(int distance)
     {
     	if (cachedToken != null) {
     		buffer.add(0, (LocatableToken) cachedToken);
@@ -110,7 +107,7 @@ public class JavaTokenFilter implements TokenStream
     	return buffer.get(buffer.size() - distance);
     }
     
-    private LocatableToken nextToken2() throws TokenStreamException
+    private LocatableToken nextToken2()
     {    	
     	LocatableToken t = null;
         

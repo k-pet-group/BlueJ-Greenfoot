@@ -21,32 +21,20 @@
  */
 package bluej.parser.ast;
 
-import antlr.*;
-
-public class LocatableToken extends CommonToken
+public class LocatableToken
 {
-    private int endColumn;
-    private int endLine;
+    private int beginLine, beginColumn;
+    private int endLine, endColumn;
     private LocatableToken hiddenBefore;
+    private int type;
+    private String text;
     
-    public LocatableToken() {
-        super();
-    }
-
-    public LocatableToken(int t, String txt) {
-        super(t, txt);
-    }
-
-    public LocatableToken(String s) {
-        super(s);
-    }
-    
-    public void setEndColumn(int c)
+    public LocatableToken(int t, String txt)
     {
-        endColumn = c;
-        endLine = line;
+        type = t;
+        text = txt;
     }
-    
+
     public void setEndLineAndCol(int l, int c)
     {
         endLine = l;
@@ -63,9 +51,39 @@ public class LocatableToken extends CommonToken
         return endLine;
     }
     
+    public int getLine()
+    {
+        return beginLine;
+    }
+
+    public void setLine(int line)
+    {
+        beginLine = line;
+    }
+    
+    public void setColumn(int col)
+    {
+        beginColumn = col;
+    }
+    
+    public int getColumn()
+    {
+        return beginColumn;
+    }
+    
+    public int getType()
+    {
+        return type;
+    }
+    
+    public String getText()
+    {
+        return text;
+    }
+    
     public int getLength()
     {
-        return endColumn - col;
+        return endColumn - beginColumn;
     }
     
     public void setHiddenBefore(LocatableToken t)

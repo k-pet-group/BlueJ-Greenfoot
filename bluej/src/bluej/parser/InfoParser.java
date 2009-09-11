@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import antlr.TokenStreamException;
 import bluej.parser.ast.LocatableToken;
 import bluej.parser.ast.gen.JavaTokenTypes;
 import bluej.parser.symtab.ClassInfo;
@@ -130,17 +129,15 @@ public class InfoParser extends NewParser
             }
             interfaceSelections.add(interfaceSel);
             info.addImplements(getClassName(tokens));
-            try {
-                if (tokenStream.LA(1).getType() == JavaTokenTypes.COMMA) {
-                    lastCommaSelection = getSelection(tokenStream.LA(1));
-                }
-                else {
-                    gotImplements = false;
-                    info.setInterfaceSelections(interfaceSelections);
-                    info.setImplementsInsertSelection(new Selection(interfaceSel.getEndLine(),
-                            interfaceSel.getEndColumn()));
-                }
-            } catch (TokenStreamException e) {}
+            if (tokenStream.LA(1).getType() == JavaTokenTypes.COMMA) {
+                lastCommaSelection = getSelection(tokenStream.LA(1));
+            }
+            else {
+                gotImplements = false;
+                info.setInterfaceSelections(interfaceSelections);
+                info.setImplementsInsertSelection(new Selection(interfaceSel.getEndLine(),
+                        interfaceSel.getEndColumn()));
+            }
         }
 
         if (storeCurrentClassInfo) {
@@ -242,24 +239,19 @@ public class InfoParser extends NewParser
 
     protected void gotTypeDefExtends(LocatableToken extendsToken)
     {
-        try {
-            if (classLevel == 1 && storeCurrentClassInfo) {
-                // info.setExtendsReplaceSelection(s)
-                gotExtends = true;
-                SourceLocation extendsStart = info.getExtendsInsertSelection().getStartLocation();
-                int extendsEndCol = tokenStream.LA(1).getColumn();
-                int extendsEndLine = tokenStream.LA(1).getLine();
-                if (extendsStart.getLine() == extendsEndLine) {
-                    info.setExtendsReplaceSelection(new Selection(extendsEndLine, extendsStart.getColumn(), extendsEndCol - extendsStart.getColumn()));
-                }
-                else {
-                    info.setExtendsReplaceSelection(new Selection(extendsEndLine, extendsStart.getColumn(), extendsToken.getEndColumn() - extendsStart.getColumn()));
-                }
-                info.setExtendsInsertSelection(null);
+        if (classLevel == 1 && storeCurrentClassInfo) {
+            // info.setExtendsReplaceSelection(s)
+            gotExtends = true;
+            SourceLocation extendsStart = info.getExtendsInsertSelection().getStartLocation();
+            int extendsEndCol = tokenStream.LA(1).getColumn();
+            int extendsEndLine = tokenStream.LA(1).getLine();
+            if (extendsStart.getLine() == extendsEndLine) {
+                info.setExtendsReplaceSelection(new Selection(extendsEndLine, extendsStart.getColumn(), extendsEndCol - extendsStart.getColumn()));
             }
-        }
-        catch (TokenStreamException tse) {
-            tse.printStackTrace(); // TODO
+            else {
+                info.setExtendsReplaceSelection(new Selection(extendsEndLine, extendsStart.getColumn(), extendsToken.getEndColumn() - extendsStart.getColumn()));
+            }
+            info.setExtendsInsertSelection(null);
         }
     }
 

@@ -7,8 +7,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import antlr.TokenStream;
-import antlr.TokenStreamException;
 import bluej.parser.ast.LocatableToken;
 import bluej.parser.ast.gen.JavaTokenTypes;
 
@@ -30,7 +28,7 @@ public class LexerTest extends junit.framework.TestCase
         return NewParser.getLexer(new StringReader(s));
     }
     
-    public void testKeywordParse() throws TokenStreamException
+    public void testKeywordParse()
     {
         TokenStream ts = getLexerFor("public private protected volatile transient abstract synchronized strictfp static");
         LocatableToken token = (LocatableToken) ts.nextToken();
