@@ -327,6 +327,8 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
 
         while (!complete){ 
             //rval=reader.read(cb, 0, 1);
+            //int tempEndColumn=reader.getPosition();
+            int tempEndColumn=reader.getPosition();
             rval=readNextChar(cb);
             //eof
             if (rval==-1){
@@ -343,33 +345,33 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
                     }
                     else {
                         isDecimal=true;
-                        consume(ch);
+                        consume(true, ch);
                     }
                 }
                 else if (Character.isLetter(ch)){
                     rChar=(char)-1;
                     if (ch=='f'|| ch=='F'){
-                        consume(ch);
+                        consume(true, ch);
                         type= JavaTokenTypes.NUM_FLOAT;
                         isDecimal=false;
                     } else if (ch=='d'|| ch=='D'){
-                        consume(ch);
+                        consume(true, ch);
                         type= JavaTokenTypes.NUM_DOUBLE;
                     } else if (ch=='l'|| ch=='L'){
-                        consume(ch);
+                        consume(true, ch);
                         type= JavaTokenTypes.NUM_LONG;
                         isDecimal=false;
                     }
                     else if (ch=='e'|| ch=='E'){
-                        consume(ch);
+                        consume(true, ch);
                         type= JavaTokenTypes.NUM_DOUBLE;
                     }
                     else if (ch=='x'){
                         hexDecimalNumber=true;
-                        consume(ch);
+                        consume(true, ch);
                     }
                     else if (hexDecimalNumber && (ch=='a'|| ch=='A' || ch=='b' ||ch=='B'||ch=='c'||ch=='C'||ch=='e'||ch=='E')){
-                        consume(ch);
+                        consume(true, ch);
                         type= JavaTokenTypes.NUM_INT;
                     }
                     else {
@@ -381,13 +383,18 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
                     complete=true;
                     //col++;
                     rChar=ch;
+                    if (ch=='\n'){
+                        rChar=(char)-1;
+                        setEndLine(getBeginLine());
+                        setEndColumn(tempEndColumn+1);
+                    }                       
                 }else {
                     complete=true;
                     rChar=ch;
                 }              
 
             } else {
-                consume(ch);
+                consume(true, ch);
                 type=JavaTokenTypes.NUM_INT;
             }
 
