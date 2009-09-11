@@ -36,44 +36,31 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
     private StringBuffer textBuffer; // text of current token
     private EscapedUnicodeReader reader;
     private int tabsize=8;
-    public static final char EOF_CHAR = (char)-1;  
-    private char rChar= (char)-1; 
-    private boolean newline=false;
-    //private boolean isEscUnicodeChar=false;
+    private int rChar; 
     private int beginColumn, beginLine;
     private int endColumn, endLine;
-    private boolean eof=false;
 
     public BlueJJavaLexer(Reader in) {
-        reader=new EscapedUnicodeReader(in);
-        beginColumn=1;
-        beginLine=reader.getLine();
-    }
-
-    private LocatableToken makeToken(int type, String txt, int beginCol, int endCol, int beginLine, int line, boolean calcCol){
-        LocatableToken tok = new LocatableToken();
-        if (calcCol){
-            int textLength=txt.length();
-            endCol=textLength+beginCol;
+        reader = new EscapedUnicodeReader(in);
+        endColumn = beginColumn = reader.getColumn();
+        endLine = beginLine = reader.getLine();
+        try {
+            rChar = reader.read();
         }
-        tok.setType(type);
-        tok.setText(txt);
-        tok.setColumn(beginCol);
-        tok.setLine(beginLine);        
-        tok.setEndLineAndCol(line, endCol);
-        return tok;
-
+        catch (IOException ioe) {
+            rChar = -1;
+        }
     }
 
     private LocatableToken makeToken(int type, String txt){           
         LocatableToken tok = new LocatableToken();
-        int endCol=getEndColumn();
-        int endLine=getEndLine();
         tok.setType(type);
         tok.setText(txt);
         tok.setColumn(getBeginColumn());
         tok.setLine(getBeginLine());        
-        tok.setEndLineAndCol(endLine, endCol);
+        tok.setEndLineAndCol(endLine, endColumn);
+        beginColumn = endColumn;
+        beginLine = endLine;
         return tok;
 
     }
@@ -86,71 +73,24 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         this.tabsize = tabsize;
     }
 
-    private int readChar(int position){
-        char [] cb=new char[1];
-        try{
-            int rval=reader.read(cb, 0, 1);
-            if (rval==-1)
-                return -1;
-        }catch(IOException ioe){
-            //print an error
-            return -1;
-        }        
-        return cb[0];
-    }
-
-
-
-    public int getBeginColumn() {
+    private int getBeginColumn() {
         return beginColumn;
     }
 
-    public void setBeginColumn(int beginColumn) {
-        if (reader.isEscUniCodeChar()){
-            this.beginColumn=beginColumn-5;
-        }else 
-            this.beginColumn = beginColumn;
-        reader.setEscUniCodeChar(false);
-    }
-
-    public int getBeginLine() {
+    private int getBeginLine() {
         return beginLine;
-    }
-
-    public void setBeginLine(int beginLine) {
-        this.beginLine = beginLine;
     }
 
     public LocatableToken nextToken() throws TokenStreamException {  
         resetText();
-        setBeginLine(reader.getLine());
-        if (reader.getColumn()==0)
-            setBeginColumn(1);        
-        if (rChar==(char)-1 || Character.isWhitespace(rChar)){
-            return nextValidToken();
+        while (Character.isWhitespace((char)rChar)) {
+            beginLine = reader.getLine();
+            beginColumn = reader.getColumn();
+            char buf[] = new char[1];
+            readNextChar(buf);
         }
 
-        setEndLine(reader.getLine());
-        return createToken(rChar);
-    }
-
-    private LocatableToken nextValidToken(){
-        int col=reader.getColumn();
-        int rval=readChar(col-1);
-        if (rval==-1){
-            return processEndOfReader();                
-        }
-        eof=false;
-        char nextChar=(char)rval;
-        if (Character.isWhitespace(nextChar)){
-            try{
-                return nextToken();
-            }catch(TokenStreamException e){
-
-            }
-        } 
-        setEndLine(reader.getLine());
-        return createToken(nextChar);
+        return createToken();
     }
 
     public void resetText() {
@@ -186,12 +126,7 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
      * 
      */
     public void consume(boolean isFirstChar, boolean incColumn, char c) /*throws Exception*/ {
-        if (isFirstChar)
-            setBeginColumn(reader.getColumn());
         append(c);
-        if (incColumn)
-            setEndColumn(reader.getColumn()+1);
-            
     }
     
     public void consume(boolean incColumn, char c) /*throws Exception*/ {
@@ -210,8 +145,13 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         else append(c);
     }
 
-    private LocatableToken createToken(char nextChar){
-        eof=false;
+    private LocatableToken createToken(){
+        if (rChar == -1) {
+            // EOF
+            return makeToken(JavaTokenTypes.EOF, null); 
+        }
+        
+        char nextChar = (char) rChar;
         if (Character.isJavaIdentifierStart(nextChar))
             return createWordToken(nextChar); 
         if (Character.isDigit(nextChar))
@@ -226,18 +166,7 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
 
     private LocatableToken createWordToken(char nextChar){
         populateTextBuffer(nextChar);
-        return makeToken(getTokenType(), textBuffer.toString());
-    }
-
-    private LocatableToken processEndOfReader(){
-        resetText();
-        rChar=(char)-1;
-        if (!eof){
-            setBeginColumn(getEndColumn());
-            setEndColumn(reader.getColumn());
-            eof=true;
-        }
-        return makeToken(JavaTokenTypes.EOF, "EOF");
+        return makeToken(getWordType(), textBuffer.toString());
     }
 
     private void populateTextBuffer(char ch){
@@ -245,76 +174,51 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         char [] cb=new char[1];
         int rval=0;
         boolean complete=false;
-        setBeginColumn(reader.getColumn());
         while (!complete){  
             consume(thisChar);
-            int tmpEndColumn=reader.getColumn();
             rval=readNextChar(cb);
             //eof
             if (rval==-1){
-                rChar=(char)-1;
                 return;
             }
             thisChar=cb[0];
-            if (Character.isWhitespace(thisChar))  {
+            if (!Character.isLetterOrDigit(thisChar)&& thisChar!='_'){
                 complete=true;
-                rChar=(char)-1;
-                if (thisChar=='\n'){
-                    setEndLine(getBeginLine());
-                    setEndColumn(tmpEndColumn+1);
-                }
-            }
-            else if (!Character.isLetterOrDigit(thisChar)&& thisChar!='_'){
-                complete=true;
-                rChar=thisChar;
             }
         }
-    }
-
-    public int getEndColumn() {
-        return endColumn;
-    }
-
-    public void setEndColumn(int endColumn) {
-        if (reader.isEscUniCodeChar())
-            if (rChar==' ')
-                this.endColumn=endColumn-5;
-        this.endColumn = endColumn;
-        reader.setEscUniCodeChar(false);       
-    }
-
-    public int getEndLine() {
-        return endLine;
-    }
-
-    public void setEndLine(int endLine) {
-        this.endLine = endLine;
     }
 
     private boolean getTokenText(char endChar){
         char thisChar=endChar;
         char [] cb=new char[1];
         int rval=0;     
-        boolean complete=false;
-        char prevChar;
+        boolean complete = false;
+        boolean escape = false;
         while (!complete){  
             rval=readNextChar(cb);
             //eof
             if (rval==-1){
                 return false;
             }
-            prevChar= thisChar;
             thisChar=cb[0]; 
-            consume(true, thisChar, true);
             if (thisChar=='\n'){
-                setEndLine(getBeginLine());
-                setEndColumn(reader.getColumn()+1);
                 return false;
             }
-            //endChar is the flag for the end of reading
-            if (thisChar ==endChar && prevChar!='\\')  {
-                return true;
-            }               
+
+            textBuffer.append(thisChar);
+            if (! escape) {
+                if (thisChar == '\\') {
+                    escape = true;
+                }
+                //endChar is the flag for the end of reading
+                if (thisChar == endChar)  {
+                    readNextChar(cb);
+                    return true;
+                }
+            }
+            else {
+                escape = false;
+            }
         }
         return complete;
     }
@@ -329,19 +233,15 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         consume(true, true, ch);
 
         while (!complete){ 
-            int tempEndColumn=reader.getColumn();
             rval=readNextChar(cb);
             //eof
             if (rval==-1){
-                rChar=(char)-1;
                 return type;
             }
             ch=cb[0];
-            rChar=ch;
             if (!Character.isDigit(ch)){
                 if (ch=='.'){
                     if (isDecimal){
-                        rChar=ch;
                         return JavaTokenTypes.NUM_DOUBLE;
                     }
                     else {
@@ -350,7 +250,6 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
                     }
                 }
                 else if (Character.isLetter(ch)){
-                    rChar=(char)-1;
                     if (ch=='f'|| ch=='F'){
                         consume(true, ch);
                         type= JavaTokenTypes.NUM_FLOAT;
@@ -377,20 +276,12 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
                     }
                     else {
                         complete=true;
-                        rChar=ch;
                     }                   
                 }
                 else if (Character.isWhitespace(ch)|| (!Character.isLetterOrDigit(ch))){
                     complete=true;
-                    rChar=ch;
-                    if (ch=='\n'){
-                        rChar=(char)-1;
-                        setEndLine(getBeginLine());
-                        setEndColumn(tempEndColumn+1);
-                    }                       
-                }else {
+                } else {
                     complete=true;
-                    rChar=ch;
                 }              
 
             } else {
@@ -430,8 +321,7 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
                 if (ch=='/'){
                     complete=true;
                     consume(ch);
-                    setEndColumn(reader.getColumn()+1);
-                    setEndLine(reader.getLine());
+                    readNextChar(cb);
                 }//it was a false alarm and we have not reached the end of the comment
                 //reset flag and buffer
                 else 
@@ -447,111 +337,64 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         return type;
     }
 
-    private int getTokenType(){
-        char ch=textBuffer.charAt(0);
-        if (Character.isJavaIdentifierStart(ch))
-            return getWordType();
-        //need to specify what type of digit double float etc
-        if (Character.isDigit(ch))
-            return getNumberType();
-        return getSymbolType();
-    }
-
-    private int getSymbolType(){
-        int type= JavaTokenTypes.INVALID;
-        if (match('"'))
-            return JavaTokenTypes.STRING_LITERAL;
-        if (match('\''))
-            return JavaTokenTypes.CHAR_LITERAL;
-        if (match('?'))
-            return JavaTokenTypes.QUESTION;
-        if (match(','))
-            return JavaTokenTypes.COMMA;
-        if (match(';'))
-            return JavaTokenTypes.SEMI;
-        if (match(':'))
-            return JavaTokenTypes.COLON;
-        if (match('^'))
-            return getBXORType();
-        if (match('~'))
-            return JavaTokenTypes.BNOT;
-        if (match('('))
-            return JavaTokenTypes.LPAREN;
-        if (match(')'))
-            return JavaTokenTypes.RPAREN;
-        if (match('['))
-            return JavaTokenTypes.LBRACK;
-        if (match(']'))
-            return JavaTokenTypes.RBRACK;
-        if (match('{'))
-            return JavaTokenTypes.LCURLY;
-        if (match('}'))
-            return JavaTokenTypes.RCURLY;
-        if (match('@'))
-            return JavaTokenTypes.AT;
-        if (match('&'))
-            return getAndType();
-        if (match('|'))
-            return getOrType();
-        if (match('!'))
-            return getExclamationType();
-        if (match('+'))
-            return getPlusType();            
-        if (match('-'))
-            return getMinusType();
-        if (match('='))
-            return getEqualType();
-        if (match('%'))
-            return getModType();
-        if (match('/'))
-            return getForwardSlashType();
-        if (match('.'))
-            return getDotType();
-        if (match('*'))
-            return getStarType();
-        if (match('>'))
-            return getGTType();
-        if (match('<'))
-            return getLTType();
-
-        return type;
-
-    }
-
     private int getSymbolType(char ch){
         int type= JavaTokenTypes.INVALID;
+        char buf[] = new char[1];
         consume(true, true, ch); 
-        rChar=(char)-1;
         if (match('"', ch))
             return getStringLiteral();
         if (match('\'', ch))
             return getCharLiteral();
-        if (match('?', ch))
+        if (match('?', ch)) {
+            readNextChar(buf);
             return JavaTokenTypes.QUESTION;
-        if (match(',', ch))
+        }
+        if (match(',', ch)) {
+            readNextChar(buf);
             return JavaTokenTypes.COMMA;
-        if (match(';', ch))
+        }
+        if (match(';', ch)) {
+            readNextChar(buf);
             return JavaTokenTypes.SEMI;
-        if (match(':', ch))
+        }
+        if (match(':', ch)) {
+            readNextChar(buf);
             return JavaTokenTypes.COLON;
+        }
         if (match('^', ch))
             return getBXORType();
-        if (match('~', ch))
+        if (match('~', ch)) {
+            readNextChar(buf);
             return JavaTokenTypes.BNOT;
-        if (match('(', ch))
+        }
+        if (match('(', ch)) {
+            readNextChar(buf);
             return JavaTokenTypes.LPAREN;
-        if (match(')', ch))
+        }
+        if (match(')', ch)) {
+            readNextChar(buf);
             return JavaTokenTypes.RPAREN;
-        if (match('[', ch))
+        }
+        if (match('[', ch)) {
+            readNextChar(buf);
             return JavaTokenTypes.LBRACK;
-        if (match(']', ch))
+        }
+        if (match(']', ch)) {
+            readNextChar(buf);
             return JavaTokenTypes.RBRACK;
-        if (match('{', ch))
+        }
+        if (match('{', ch)) {
+            readNextChar(buf);
             return JavaTokenTypes.LCURLY;
-        if (match('}', ch))
+        }
+        if (match('}', ch)) {
+            readNextChar(buf);
             return JavaTokenTypes.RCURLY;
-        if (match('@', ch))
+        }
+        if (match('@', ch)) {
+            readNextChar(buf);
             return JavaTokenTypes.AT;
+        }
         if (match('&', ch))
             return getAndType();
         if (match('|', ch))
@@ -578,24 +421,22 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
             return getLTType();
 
         return type;
-
     }
 
     private int getBXORType(){
         char validChars[]=new char[1];
         validChars[0]='='; 
         char [] cb=new char[1];
-        int tempEndCol=reader.getColumn();
         int rval=readNextChar(cb);
-        if (isComplete(rval, cb[0], validChars, tempEndCol)){
+        if (isComplete(rval, cb[0], validChars)){
             return JavaTokenTypes.BXOR;
         }
         char thisChar=(char)cb[0]; 
         if (thisChar=='='){
             consume(true, thisChar); 
+            readNextChar(cb);
             return JavaTokenTypes.BXOR_ASSIGN;
-        } else
-            rChar=thisChar;           
+        }           
 
         return JavaTokenTypes.BXOR;
     }
@@ -605,21 +446,21 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         validChars[0]='=';
         validChars[1]='&';        
         char [] cb=new char[1];
-        int tempEndCol=reader.getColumn();
         int rval=readNextChar(cb);
-        if (isComplete(rval, cb[0], validChars, tempEndCol)){
+        if (isComplete(rval, cb[0], validChars)){
             return JavaTokenTypes.BAND;
         }
         char thisChar=(char)cb[0]; 
         if (thisChar=='='){
             consume(true, thisChar); 
+            readNextChar(cb);
             return JavaTokenTypes.BAND_ASSIGN; 
         }
         if (thisChar=='&'){
             consume(true, thisChar); 
+            readNextChar(cb);
             return JavaTokenTypes.LAND; 
         }
-        rChar=thisChar;
         return JavaTokenTypes.BAND;
     }
 
@@ -649,24 +490,21 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         validChars[0]='|';
         validChars[1]='=';
         char [] cb=new char[1];
-        int tempEndCol=reader.getColumn();
         int rval=readNextChar(cb);
-        if (isComplete(rval, cb[0], validChars, tempEndCol)){
+        if (isComplete(rval, cb[0], validChars)){
             return JavaTokenTypes.BOR;
         }
         char thisChar=(char)cb[0]; 
         if (thisChar=='='){
             consume(thisChar); 
-            setEndColumn(getEndColumn()+1);
+            readNextChar(cb);
             return JavaTokenTypes.BOR_ASSIGN; 
         }
         if (thisChar=='|'){
             consume(thisChar); 
-            //setEndColumn(reader.getPosition()+1);
-            setEndColumn(getEndColumn()+1);
+            readNextChar(cb);
             return JavaTokenTypes.LOR; 
         }
-        rChar=thisChar;
 
         return JavaTokenTypes.BOR;
     }
@@ -677,24 +515,23 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         validChars[0]='+';
         validChars[1]='=';
         char [] cb=new char[1];
-        int tempEndCol=reader.getColumn();
         int rval=readNextChar(cb);
-        if (isComplete(rval, cb[0], validChars, tempEndCol)){
+        if (isComplete(rval, cb[0], validChars)){
             return JavaTokenTypes.PLUS;
         }
         char thisChar=(char)cb[0]; 
         if (thisChar=='='){
             consume(true, thisChar); 
+            readNextChar(cb);
             return JavaTokenTypes.PLUS_ASSIGN; 
         }
         if (thisChar=='+'){
             consume(true, thisChar); 
+            readNextChar(cb);
             return JavaTokenTypes.INC; 
         }
-        rChar=thisChar;
 
         return JavaTokenTypes.PLUS;
-
     }
 
     private int getMinusType(){
@@ -703,21 +540,21 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         validChars[0]='=';
         validChars[1]='-'; 
         char [] cb=new char[1];
-        int tempEndCol=reader.getColumn();
         int rval=readNextChar(cb);
-        if (isComplete(rval, cb[0], validChars, tempEndCol)){
+        if (isComplete(rval, cb[0], validChars)){
             return JavaTokenTypes.MINUS;
         }
         char thisChar=(char)cb[0]; 
         if (thisChar=='='){
-            consume(true, thisChar); 
+            consume(true, thisChar);
+            readNextChar(cb);
             return JavaTokenTypes.MINUS_ASSIGN; 
         }
         if (thisChar=='-'){
             consume(true, thisChar); 
+            readNextChar(cb);
             return JavaTokenTypes.DEC; 
         }
-        rChar=thisChar;
 
         return JavaTokenTypes.MINUS;
     }
@@ -727,17 +564,16 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         char validChars[]=new char[1];
         validChars[0]='=';
         char [] cb=new char[1];
-        int tempEndCol=reader.getColumn();
         int rval=readNextChar(cb);
-        if (isComplete(rval, cb[0], validChars, tempEndCol)){
+        if (isComplete(rval, cb[0], validChars)){
             return JavaTokenTypes.ASSIGN;
         }
         char thisChar=(char)cb[0]; 
         if (thisChar=='='){
             consume(true, thisChar); 
+            readNextChar(cb);
             return JavaTokenTypes.EQUAL; 
         }
-        rChar=thisChar;
 
         return JavaTokenTypes.ASSIGN;
     }
@@ -747,17 +583,16 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         char validChars[]=new char[1];
         validChars[0]='=';
         char [] cb=new char[1];
-        int tempEndCol=reader.getColumn();
         int rval=readNextChar(cb);
-        if (isComplete(rval, cb[0], tempEndCol)){
+        if (isComplete(rval, cb[0])){
             return JavaTokenTypes.STAR;
         }
         char thisChar=(char)cb[0]; 
         if (thisChar=='='){
             consume(true, thisChar); 
+            readNextChar(cb);
             return JavaTokenTypes.STAR_ASSIGN; 
         }
-        rChar=thisChar;
 
         return JavaTokenTypes.STAR;
     }
@@ -767,17 +602,16 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         char validChars[]=new char[1];
         validChars[0]='=';
         char [] cb=new char[1];
-        int tempEndCol=reader.getColumn();
         int rval=readNextChar(cb);
-        if (isComplete(rval, cb[0], validChars, tempEndCol)){
+        if (isComplete(rval, cb[0], validChars)){
             return JavaTokenTypes.MOD;
         }
         char thisChar=(char)cb[0]; 
         if (thisChar=='='){
             consume(true, thisChar); 
+            readNextChar(cb);
             return JavaTokenTypes.MOD_ASSIGN; 
         }
-        rChar=thisChar;
 
         return JavaTokenTypes.MOD;
     }
@@ -789,60 +623,39 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         validChars[1]='*'; 
         validChars[2]='='; 
         char [] cb=new char[1];
-        int tempEndCol=reader.getColumn();
         int rval=readNextChar(cb);
-        if (isComplete(rval, cb[0], validChars, tempEndCol)){
+        if (isComplete(rval, cb[0], validChars)){
             return JavaTokenTypes.DIV;
         }
         char thisChar=(char)cb[0]; 
         if (thisChar=='='){
             consume(true, thisChar); 
+            readNextChar(cb);
             return JavaTokenTypes.DIV_ASSIGN; 
         }
         if (thisChar=='/')
             return getCommentType(thisChar, JavaTokenTypes.SL_COMMENT);
         if (thisChar=='*')
             return getCommentType(thisChar, JavaTokenTypes.ML_COMMENT);
-        rChar=thisChar;
 
         return JavaTokenTypes.DIV;
     }
 
-    private boolean isComplete(int rval, char ch, int tempEndColumn){
+    private boolean isComplete(int rval, char ch) {
         if (rval==-1 || Character.isWhitespace(ch)
                 || Character.isLetterOrDigit(ch) || Character.isJavaIdentifierStart(ch) ){
-            if(rval==-1)
-                rChar=(char)-1;
-            else if (ch=='\n'){
-                rChar=(char)-1;
-                newline=true;
-                setEndLine(getBeginLine());
-                setEndColumn(tempEndColumn+1);
-                //System.out.println("resetting the line "+getEndLine()+ " and "+getEndColumn());
-            }
-            else
-                rChar=ch;
             return true;
         }
         return false;
     }
 
-    private boolean isComplete(int rval, char ch, char validChars[], int tempEndColumn){
-        if (!isComplete(rval, ch, tempEndColumn))
+    private boolean isComplete(int rval, char ch, char validChars[]){
+        if (!isComplete(rval, ch)) {
             for (int i=0; i<validChars.length; i++){
                 if (validChars[i]==ch)
                     return false;
             }
-        if (rval==-1)
-            rChar=(char)-1;
-        else if (ch=='\n'){
-            rChar=(char)-1;
-            newline=true;
-            setEndLine(getBeginLine());
-            setEndColumn(tempEndColumn+1);
         }
-        else
-            rChar=ch;
         return true;
     }
 
@@ -851,49 +664,46 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         validChars[0]='>';
         validChars[1]='='; 
         char [] cb=new char[1];
-        int tempEndCol=reader.getColumn();
         int rval=readNextChar(cb);
-        if (isComplete(rval, cb[0], validChars, tempEndCol)){
+        if (isComplete(rval, cb[0], validChars)){
             return JavaTokenTypes.GT;
         }
         char thisChar=(char)cb[0];
         //>=
         if (thisChar=='='){
             consume(true, thisChar); 
+            readNextChar(cb);
             return JavaTokenTypes.GE; 
         }
         if (thisChar=='>'){
             consume(thisChar); 
-            tempEndCol=reader.getColumn();
             rval=readNextChar(cb);
             thisChar=cb[0];
             //>>
-            if (isComplete(rval, thisChar, validChars, tempEndCol)){
+            if (isComplete(rval, thisChar, validChars)){
                 return JavaTokenTypes.SR;
             }
             //>>>; >>>=; >>=
             if (thisChar=='>'){
                 consume(thisChar); 
-                tempEndCol=getEndColumn();
                 rval=readNextChar(cb);
                 thisChar=cb[0];
                 validChars[0]='=';
-                if (isComplete(rval, thisChar, validChars, tempEndCol)){
+                if (isComplete(rval, thisChar, validChars)){
                     return JavaTokenTypes.BSR;
                 }
                 if (thisChar=='='){
                     consume(true, thisChar); 
-                    rChar=(char)-1;
+                    readNextChar(cb);
                     return JavaTokenTypes.BSR_ASSIGN; 
                 }
             }
             if (thisChar=='='){
                 consume(true, thisChar); 
-                rChar=(char)-1;
+                readNextChar(cb);
                 return JavaTokenTypes.SR_ASSIGN; 
             }
         }
-        rChar=thisChar;
 
         return JavaTokenTypes.GT;
     }
@@ -903,31 +713,30 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         validChars[0]='<';
         validChars[1]='='; 
         char [] cb=new char[1];
-        int tempEndCol=reader.getColumn();
         int rval=readNextChar(cb);
-        if (isComplete(rval, cb[0], tempEndCol)){
+        if (isComplete(rval, cb[0])){
             return JavaTokenTypes.LT;
         }
         char thisChar=(char)cb[0]; 
         if (thisChar=='='){
             consume(true, thisChar); 
+            readNextChar(cb);
             return JavaTokenTypes.LE; 
         }
         if (thisChar=='<'){
             consume(thisChar); 
-            tempEndCol=reader.getColumn();
             rval=readNextChar(cb);
             thisChar=cb[0];
             validChars[0]='=';
-            if (isComplete(rval, thisChar, validChars, tempEndCol)){
+            if (isComplete(rval, thisChar, validChars)){
                 return JavaTokenTypes.SL;
             }
             if (thisChar=='='){
                 consume(true, thisChar); 
+                readNextChar(cb);
                 return JavaTokenTypes.SL_ASSIGN;
             }
         }
-        rChar=thisChar;
 
         return JavaTokenTypes.LT;
 
@@ -935,7 +744,6 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
 
     private int getExclamationType(){
         char [] cb=new char[1];
-        int tempEndCol=reader.getColumn();
         int rval=readNextChar(cb);
         if (rval==-1 || Character.isWhitespace((char)cb[0])){
             return JavaTokenTypes.LNOT;
@@ -943,9 +751,9 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         char thisChar=(char)cb[0]; 
         if (thisChar=='='){
             consume(true, thisChar); 
+            readNextChar(cb);
             return JavaTokenTypes.NOT_EQUAL; 
         }
-        rChar=thisChar;
 
         return JavaTokenTypes.LNOT;
     }
@@ -957,18 +765,7 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         char [] cb=new char[1];
         int rval=readNextChar(cb);
         char ch=cb[0];
-        rChar=ch;
-        setEndColumn(reader.getColumn());
         if (rval==-1 || Character.isWhitespace((char)ch)|| Character.isLetter(ch) || ch=='\n'){
-            if (rval==-1)
-                rChar=(char)-1;
-            if (ch=='\n'){
-                newline=true;
-                rChar=(char)-1;
-                setEndLine(getBeginLine());
-                setEndColumn(getEndLine()+1);
-
-            }                    
             return JavaTokenTypes.DOT;
         }
         char thisChar=(char)cb[0]; 
@@ -980,29 +777,30 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
             consume(true, thisChar); 
             rval= readNextChar(cb);
             if (rval==-1){
-                rChar=(char)-1;
                 return JavaTokenTypes.INVALID;
             }
             ch=cb[0];
-            rChar=(char)ch;
             if (ch=='.'){
                 consume(true, thisChar); 
-                rChar=(char)-1;
+                readNextChar(cb);
                 return JavaTokenTypes.TRIPLE_DOT;
             }
             else return JavaTokenTypes.INVALID;
 
         }
-        rChar=thisChar;
         return JavaTokenTypes.DOT;
     }
 
     private int readNextChar(char cb[]){
         int rval=-1;
+        endColumn = reader.getColumn();
+        endLine = reader.getLine();
         try{
             rval= reader.read(cb, 0, 1);
-            setEndColumn(reader.getColumn());
-            setEndLine(reader.getLine());
+            rChar = cb[0];
+            if (rval == -1) {
+                rChar = -1;
+            }
         }catch(IOException e){
 
         }
@@ -1204,27 +1002,6 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         }
         return JavaTokenTypes.IDENT;
 
-    }
-
-    private int getNumberType(){
-
-        if (textBuffer.indexOf("f")!=-1)
-            return NUM_FLOAT;
-        if (textBuffer.indexOf("l")!=-1)
-            return NUM_LONG;
-        if (textBuffer.indexOf("d")!=-1)
-            return NUM_DOUBLE;
-        if (textBuffer.indexOf(".")!=-1)
-            return NUM_DOUBLE;
-        return NUM_INT;
-
-    }
-
-    private boolean match(char c){
-        if (textBuffer.charAt(0)==c){
-            return true;
-        }
-        else return false;
     }
 
     private boolean match(char c1, char c2){

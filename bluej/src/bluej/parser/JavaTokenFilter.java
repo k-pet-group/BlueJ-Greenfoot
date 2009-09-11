@@ -60,12 +60,12 @@ public class JavaTokenFilter implements TokenStream
     public LocatableToken nextToken() throws TokenStreamException
     {
         if (! buffer.isEmpty()) {
-        	// Make sure we have a cached token; necessary to ensure that token lengths
-        	// are set correctly.
-        	if (cachedToken == null) {
-        		cachedToken = nextToken2();
-        	}
-        	return buffer.remove(buffer.size() - 1);
+            // Make sure we have a cached token; necessary to ensure that token lengths
+            // are set correctly.
+            if (cachedToken == null) {
+                cachedToken = nextToken2();
+            }
+            return buffer.remove(buffer.size() - 1);
         }
     	
     	// We cache one lookahead token so that we can be sure the returned token
