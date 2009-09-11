@@ -30,7 +30,6 @@ import antlr.TokenStream;
 import antlr.TokenStreamException;
 import bluej.parser.ast.LocatableToken;
 import bluej.parser.ast.gen.BlueJJavaLexer;
-import bluej.parser.ast.gen.JavaLexer;
 import bluej.parser.ast.gen.JavaTokenTypes;
 
 /**
@@ -45,9 +44,9 @@ public class NewParser
 
     public static TokenStream getLexer(Reader r)
     {
-        EscapedUnicodeReader euReader = new EscapedUnicodeReader(r);
+        //EscapedUnicodeReader euReader = new EscapedUnicodeReader(r);
         //JavaLexer lexer = new JavaLexer(euReader);
-        BlueJJavaLexer lexer = new BlueJJavaLexer(euReader);
+        BlueJJavaLexer lexer = new BlueJJavaLexer(r);
         //lexer.setTokenObjectClass("bluej.parser.ast.LocatableToken");
         lexer.setTabSize(1);
         //euReader.setAttachedScanner(lexer);
