@@ -69,14 +69,6 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
         LocatableToken tok = new LocatableToken();
         int endCol=getEndColumn();
         int endLine=getEndLine();
-//        int escUC=reader.getEscUniCodeChar();
-//        int escC=reader.getEscChar();
-//        if (escC>0){
-//            System.out.println("********escC "+escC);
-//        }
-//        if (escUC>0){
-//            System.out.println("*********escUC "+escUC);
-//        }
         tok.setType(type);
         tok.setText(txt);
         tok.setColumn(getBeginColumn());
@@ -114,7 +106,11 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
     }
 
     public void setBeginColumn(int beginColumn) {
-        this.beginColumn = beginColumn;
+        if (reader.isEscUniCodeChar()){
+            this.beginColumn=beginColumn-5;
+        }else 
+            this.beginColumn = beginColumn;
+        reader.setEscUniCodeChar(false);
     }
 
     public int getBeginLine() {
@@ -280,7 +276,11 @@ public class BlueJJavaLexer implements JavaTokenTypes, TokenStream
     }
 
     public void setEndColumn(int endColumn) {
+        if (reader.isEscUniCodeChar())
+            if (rChar==' ')
+                this.endColumn=endColumn-5;
         this.endColumn = endColumn;
+        reader.setEscUniCodeChar(false);       
     }
 
     public int getEndLine() {

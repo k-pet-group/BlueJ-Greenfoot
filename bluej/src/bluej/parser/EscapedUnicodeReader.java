@@ -59,8 +59,8 @@ public class EscapedUnicodeReader extends Reader
     private int line=1;
     private boolean eof=true;
 
-    private int escUniCodeChar=0;
-    private int escChar=0;
+    private boolean escUniCodeChar=false;
+    private boolean escChar=false;
 
 
     public EscapedUnicodeReader(Reader source)
@@ -137,8 +137,8 @@ public class EscapedUnicodeReader extends Reader
         if (rchar=='\n'){
             line=line+1;
             position=0;
-            escChar=0;
-            escUniCodeChar=0;
+            escChar=false;
+            escUniCodeChar=false;
             truePosition=-1;
             //t.println(" the position after a \n "+position);
         }
@@ -153,13 +153,12 @@ public class EscapedUnicodeReader extends Reader
                 // the lexer - it thinks that *this* character starts wherever the
                 // column is set to when getChar() returns.
                 bumpColumn = true;
-                escUniCodeChar=escUniCodeChar+1;
                 return readEscapedUnicodeSequence();
             }
             else {
-                putBuffer(nchar);
-                escChar=escChar+1;              
-                truePosition=truePosition+1;              
+                putBuffer(nchar);             
+                truePosition=truePosition+1;  
+                escChar=true;
                 return '\\';
             }
         }
@@ -182,7 +181,7 @@ public class EscapedUnicodeReader extends Reader
         int d4 = sourceReader.read();
         position += 4;
         truePosition=truePosition+6;
-        escUniCodeChar=escUniCodeChar+1;
+        escUniCodeChar=true;
 
         // Note, any of the above reads might return a non-hex-digit, including the
         // end-of-stream marker, but in this case hexDigitValue() will throw IOException.
@@ -215,19 +214,19 @@ public class EscapedUnicodeReader extends Reader
         return line;
     }
 
-    public int getEscUniCodeChar() {
+    public boolean isEscUniCodeChar() {
         return escUniCodeChar;
     }
 
-    public void setEscUniCodeChar(int escUniCodeChar) {
+    public void setEscUniCodeChar(boolean escUniCodeChar) {
         this.escUniCodeChar = escUniCodeChar;
     }
 
-    public int getEscChar() {
+    public boolean isEscChar() {
         return escChar;
     }
 
-    public void setEscChar(int escChar) {
+    public void setEscChar(boolean escChar) {
         this.escChar = escChar;
     }
 
