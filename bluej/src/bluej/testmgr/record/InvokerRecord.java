@@ -33,14 +33,14 @@ import bluej.debugger.DebuggerObject;
  * construction and maintenance of assertion data.
  *
  * @author  Andrew Patterson
- * @version $Id: InvokerRecord.java 6312 2009-05-07 04:44:13Z davmac $
+ * @version $Id: InvokerRecord.java 6670 2009-09-14 04:30:25Z davmac $
  */
 public abstract class InvokerRecord
 {
-	final static String firstIndent = "\t";
-	final static String secondIndent = "\t\t";
-	final static String thirdIndent = "\t\t\t";
-	final static String statementEnd = ";\n";
+    final static String firstIndent = "\t";
+    final static String secondIndent = "\t\t";
+    final static String thirdIndent = "\t\t\t";
+    final static String statementEnd = ";\n";
     
     final static String fieldDeclarationStart = firstIndent + "private ";
 
@@ -66,30 +66,30 @@ public abstract class InvokerRecord
     }
     
     /**
-	 * Construct a declaration for any objects constructed
-	 * by this invoker record.
-	 * 
-	 * @return a String representing the object declaration
-	 *         src or null if there is none.
-	 */    
-	public abstract String toFixtureDeclaration();
+     * Construct a declaration for any objects constructed
+     * by this invoker record.
+     * 
+     * @return a String representing the object declaration
+     *         src or null if there is none.
+     */    
+    public abstract String toFixtureDeclaration();
 
-	/**
-	 * Construct a portion of an initialisation method for
-	 * this invoker record.
-	 *  
-	 * @return a String reprenting the object initialisation
-	 *         src or null if there is none. 
-	 */    
-	public abstract String toFixtureSetup();
-        
-	/**
-	 * Construct a portion of a test method for this
-	 * invoker record.
-	 * 
-	 * @return a String representing the test method src
-	 */
-	public abstract String toTestMethod();
+    /**
+     * Construct a portion of an initialisation method for
+     * this invoker record.
+     *  
+     * @return a String reprenting the object initialisation
+     *         src or null if there is none. 
+     */    
+    public abstract String toFixtureSetup();
+
+    /**
+     * Construct a portion of a test method for this
+     * invoker record.
+     * 
+     * @return a String representing the test method src
+     */
+    public abstract String toTestMethod();
 
     /**
      * Construct an expression. This is an open expression which is not ended by
@@ -126,7 +126,7 @@ public abstract class InvokerRecord
     
     public String getAssertion(int i)
     {
-		return (String) assertions.get(i);
+        return (String) assertions.get(i);
     }
     
     /**
@@ -188,7 +188,7 @@ public abstract class InvokerRecord
      * 
      * This case is for when we have floating point or
      * double assertions with assertEquals()
-
+     *
      * @return a String of the assertion statement.
      */
     public static String makeAssertionStatement(String assertName, String userData, String deltaData)
