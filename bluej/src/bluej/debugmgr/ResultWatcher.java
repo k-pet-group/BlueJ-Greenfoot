@@ -32,25 +32,25 @@ import bluej.testmgr.record.*;
  *
  * @author  Michael Kolling
  * @author  Poul Henriksen
- * @version $Id: ResultWatcher.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ResultWatcher.java 6671 2009-09-14 04:37:14Z davmac $
  */
 public interface ResultWatcher
 {
-	/**
-	 * An invocation has completed - here is the result.
+    /**
+     * An invocation has completed - here is the result.
      * 
      * @param result   The invocation result object (null for a void result).
      * @param name     The name of the result. For a constructed object, this
      *                 is the name supplied by the user. Otherwise this is  the
      *                 literal "result", or null if the result is void type.
      * @param ir       The record for the completed invocation
-	 */
-	void putResult(DebuggerObject result, String name, InvokerRecord ir);
+     */
+    void putResult(DebuggerObject result, String name, InvokerRecord ir);
 	
-	/**
-	 * An invocation has failed (compilation error) - here is the error message.
-	 */
-	void putError(String message);
+    /**
+     * An invocation has failed (compilation error) - here is the error message.
+     */
+    void putError(String message);
 	
     /**
      * A runtime exception occurred - here is the exception text
