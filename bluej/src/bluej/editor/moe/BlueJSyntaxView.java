@@ -224,7 +224,7 @@ public abstract class BlueJSyntaxView extends PlainView
     {
         Element map = document.getDefaultRootElement();
         ParsedNode rootNode = document.getParser();
-        Rectangle bounds = g.getClipBounds();
+        Rectangle clipBounds = g.getClipBounds();
         int char_width = metrics.charWidth('m');
 
         Color c1 = new Color(210, 230, 210); // green border (container)
@@ -284,7 +284,8 @@ public abstract class BlueJSyntaxView extends PlainView
                 int ypos2 = ypos + lbounds.height;
 
                 ListIterator<NodeAndPosition> li = prevScopeStack.listIterator();
-                int scopeCount = 0;
+                int scopeCount = 0; // DAV remove this
+                int rightMargin = small ? 0 : 7;
                 boolean lastWasInner = true;
                 Color lastLineColor = c3;
                 while (li.hasNext()) {
@@ -307,7 +308,7 @@ public abstract class BlueJSyntaxView extends PlainView
                     }
                     lastWasInner = nap.getNode().isInner();
 
-                    int endX = bounds.x + bounds.width; // X position at which we stop drawing
+                    int endX = clipBounds.x + clipBounds.width; // X position at which we stop drawing
                     boolean startsThisLine = (napPos >= thisLineEl.getStartOffset());
                     
                     if (!startsThisLine && napPos >= aboveLineEl.getStartOffset()) {
@@ -387,15 +388,15 @@ public abstract class BlueJSyntaxView extends PlainView
                     // of the clip area, so we calculate how much of the margin
                     // we should not render.
                     //int rightMarginNotRendered = fullWidth - endX;
-                    int rightMarginNotRendered = bounds.x + bounds.width - endX;
-                    int rightMargin = scopeCount * RIGHT_SCOPE_MARGIN + 1  - rightMarginNotRendered;
-                    if (small) {
-                        rightMargin /= 10;
-                    }
-                    if (scopeCount != 0) rightMargin += 3;
-                    if(rightMargin < 0) {
-                        rightMargin = 0;
-                    }                   
+//                    int rightMarginNotRendered = clipBounds.x + clipBounds.width - endX;
+                    //int rightMargin = scopeCount * RIGHT_SCOPE_MARGIN + 1  - rightMarginNotRendered;
+//                    if (small) {
+//                        rightMargin /= 10;
+//                    }
+//                    if (scopeCount != 0) rightMargin += 3;
+//                    if(rightMargin < 0) {
+//                        rightMargin = 0;
+//                    }                   
                     int scopeRightX = fullWidth - rightMargin;
                     if (nap.getNode().isContainer()) {
                         Color color1 = c1;
@@ -418,26 +419,52 @@ public abstract class BlueJSyntaxView extends PlainView
                         if (nws != 0) {
                              xpos = Math.max(xpos, modelToView(thisLineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds().x - 2);
                         }
-                        
-                        g.setColor(color2);
-                        g.fillRect(xpos + 1, ypos, scopeRightX - xpos - 1, ypos2 - ypos);
-                        
-                        g.setColor(color1);
-                        if(startsThisLine) {
-                            // Top edge
-                            g.drawLine(xpos, ypos, scopeRightX, ypos);
-                            //g.drawRect(xpos + 1, ypos, endX - (xpos+1), ypos2 - ypos);
+                                                
+                        if (startsThisLine || endsThisLine) {
+                            int hoffs = small ? 0 : 4; // determines size of corner arcs
+                            g.setColor(color2);
+                            g.fillRect(xpos + hoffs, ypos, scopeRightX - xpos - hoffs, ypos2 - ypos);
+                            
+                            int edgeTop = ypos + (startsThisLine ? hoffs : 0);
+                            int edgeBtm = ypos2 - 1 - (endsThisLine ? hoffs : 0);
+                            g.fillRect(xpos + 1, edgeTop, scopeRightX - xpos - 1, edgeBtm - edgeTop);
+                            
+                            if(startsThisLine) {
+                                // Top left corner
+                                g.fillArc(xpos, ypos, hoffs * 2, hoffs * 2, 180, -90);
+                                
+                                // Top edge
+                                g.setColor(color1);
+                                g.drawArc(xpos, ypos, hoffs * 2, hoffs * 2, 180, -90);
+                                g.drawLine(xpos + hoffs, ypos, scopeRightX, ypos);
+                            }
+                            if(endsThisLine) {
+                                // Bottom left corner
+                                g.setColor(color2);
+                                g.fillArc(xpos, edgeBtm - hoffs, hoffs * 2, hoffs * 2, 180, 90);
+
+                                // Bottom edge
+                                g.setColor(color1);
+                                g.drawArc(xpos, edgeBtm - hoffs, hoffs * 2, hoffs * 2, 180, 90);
+                                g.drawLine(xpos + hoffs, ypos2 - 1, scopeRightX, ypos2 - 1);
+                            }
+
+                            // Left edge
+                            g.drawLine(xpos, edgeTop, xpos, edgeBtm);
                         }
-                        if(endsThisLine) {
-                            // Bottom edge
-                            g.drawLine(xpos, ypos2 - 1, scopeRightX, ypos2 - 1);
+                        else {
+                            g.setColor(color2);
+                            g.fillRect(xpos + 1, ypos, scopeRightX - xpos - 1, ypos2 - ypos);
+                            
+                            g.setColor(color1);
+                            
+                            // Left edge
+                            g.drawLine(xpos, ypos, xpos, ypos2);
                         }
-       
-                        // Left edge
-                        g.drawLine(xpos, ypos, xpos, ypos2);
                         
                         // Right edge
-                        g.drawLine(scopeRightX, ypos, scopeRightX, ypos2);                       
+                        g.drawLine(scopeRightX, ypos, scopeRightX, ypos2);
+                        rightMargin += RIGHT_SCOPE_MARGIN;
                     }
                     else if (nap.getNode().isInner()) {
                         int xpos = lbounds.x + indent * char_width;

@@ -417,6 +417,7 @@ public class BlueJJavaLexer implements TokenStream
         if (match('<', ch))
             return getLTType();
 
+        readNextChar(buf);
         return type;
     }
 
