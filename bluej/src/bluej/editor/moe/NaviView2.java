@@ -27,17 +27,13 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Transparency;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.awt.image.FilteredImageSource;
-import java.awt.image.ImageProducer;
+import java.awt.event.MouseWheelEvent;
 import java.awt.image.RGBImageFilter;
 
 import javax.swing.JEditorPane;
@@ -49,6 +45,12 @@ import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.View;
 
+/**
+ * "NaviView" component. Displays a miniature version of the document in the editor, and allows moving
+ * through the document by clicking/dragging or cycling the mouse wheel.
+ * 
+ * @author Davin Mccall
+ */
 public class NaviView2 extends JEditorPane implements AdjustmentListener, DocumentListener
 {
     private JScrollBar scrollBar;
@@ -69,6 +71,7 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
         
         scrollBar.addAdjustmentListener(this);
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        enableEvents(MouseEvent.MOUSE_WHEEL_EVENT_MASK);
     }
     
     @Override
@@ -155,6 +158,14 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
         }
     }
 
+    @Override
+    protected void processMouseWheelEvent(MouseWheelEvent e)
+    {
+        if (e.getID() == MouseEvent.MOUSE_WHEEL) {
+            scrollBar.dispatchEvent(e);
+        }
+    }
+    
     /**
      * Move the view (by setting the scrollbar value), according to the given mouse coordinate
      * within the NaviView component.
@@ -230,22 +241,28 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
             // best to use here. A INT_ARGB might be better. And, there might be
             // completely different and more efficient way tof doing the same
             // thing.
-            BufferedImage img =  getGraphicsConfiguration().createCompatibleImage(clipBounds.x + clipBounds.width, clipBounds.y + clipBounds.height,
-                    Transparency.TRANSLUCENT);
-            Graphics2D imgG = img.createGraphics();
-            imgG.setClip(clipBounds);     
+//            BufferedImage img =  getGraphicsConfiguration().createCompatibleImage(clipBounds.x + clipBounds.width, clipBounds.y + clipBounds.height,
+//                    Transparency.TRANSLUCENT);
+//            Graphics2D imgG = img.createGraphics();
+//            imgG.setClip(clipBounds);     
 
             // Paint text to the offscreen image
-            imgG.setFont(getFont());
-            Rectangle shape = new Rectangle(0, 0, getBounds().width, getBounds().height);
-            view.paint(imgG, shape);
+//            imgG.setFont(getFont());
+//            Rectangle shape = new Rectangle(0, 0, getBounds().width, getBounds().height);
+//            view.paint(imgG, shape);
 
+            Rectangle shape = new Rectangle(0, 0, getWidth(), getHeight());
+            Graphics2D g2d = (Graphics2D) g;
+            //g2d.scale(0.5, 0.5); doesn't scale text
+            view.paint(g, shape);
+            
             // Filter the image
-            ImageProducer producer = new FilteredImageSource(img.getSource(), new DarkenFilter());
-            Image filteredImg = this.createImage(producer);
+            //ImageProducer producer = new FilteredImageSource(img.getSource(), new DarkenFilter());
+            //Image filteredImg = this.createImage(producer);
+            //Image filteredImg = img;
 
             // Paint the filtered image onto the graphics
-            g.drawImage(filteredImg, 0, 0, null);            
+            //g.drawImage(filteredImg, 0, 0, null);            
             
             // Draw a border around the visible area
             g.setColor(new Color(140, 140, 255));

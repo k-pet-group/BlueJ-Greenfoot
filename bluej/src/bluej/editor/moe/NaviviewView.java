@@ -48,9 +48,11 @@ public class NaviviewView extends BlueJSyntaxView
     {
         if (SYNTAX_COLOURING) {
             super.paintTaggedLine(line, lineIndex, g, x, y, document, def, lineElement);
+            super.paintTaggedLine(line, lineIndex, g, x+1, y, document, def, lineElement);
         }
         else {
             paintPlainLine(lineIndex, g, x, y);
+            paintPlainLine(lineIndex, g, x+1, y);
         }
     }
     
@@ -69,7 +71,7 @@ public class NaviviewView extends BlueJSyntaxView
             int firstLine = map.getElementIndex(spos);
             int lastLine = map.getElementIndex(epos);
             paintScopeMarkers(g, (MoeSyntaxDocument) getDocument(), a,
-                    firstLine, lastLine, HIGHLIGHT_METHODS_ONLY);
+                    firstLine, lastLine, HIGHLIGHT_METHODS_ONLY, true);
         }
 
         super.paint(g, a);

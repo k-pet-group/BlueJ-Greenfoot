@@ -213,8 +213,14 @@ public abstract class BlueJSyntaxView extends PlainView
         }
     }
 
-    protected void paintScopeMarkers(Graphics g, MoeSyntaxDocument document, Shape a,
+    protected final void paintScopeMarkers(Graphics g, MoeSyntaxDocument document, Shape a,
             int firstLine, int lastLine, boolean onlyMethods)
+    {
+        paintScopeMarkers(g, document, a, firstLine, lastLine, onlyMethods, false);
+    }
+    
+    protected void paintScopeMarkers(Graphics g, MoeSyntaxDocument document, Shape a,
+            int firstLine, int lastLine, boolean onlyMethods, boolean small)
     {
         Element map = document.getDefaultRootElement();
         ParsedNode rootNode = document.getParser();
@@ -383,6 +389,9 @@ public abstract class BlueJSyntaxView extends PlainView
                     //int rightMarginNotRendered = fullWidth - endX;
                     int rightMarginNotRendered = bounds.x + bounds.width - endX;
                     int rightMargin = scopeCount * RIGHT_SCOPE_MARGIN + 1  - rightMarginNotRendered;
+                    if (small) {
+                        rightMargin /= 10;
+                    }
                     if (scopeCount != 0) rightMargin += 3;
                     if(rightMargin < 0) {
                         rightMargin = 0;
