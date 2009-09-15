@@ -480,7 +480,7 @@ public class EditorParser extends NewParser
             start = hiddenToken;
         }
         
-        ParsedNode pnode = new MethodNode(scopeStack.peek());
+        ParsedNode pnode = new MethodNode(scopeStack.peek(), token.getText());
         int curOffset = getTopNodeOffset();
         int insPos = pcuNode.lineColToPosition(start.getLine(), start.getColumn());
         beginNode(insPos);
@@ -499,7 +499,7 @@ public class EditorParser extends NewParser
             // TODO: make certain hidden token not already consumed by prior sibling node
         }
         
-        ParsedNode pnode = new MethodNode(scopeStack.peek());
+        ParsedNode pnode = new MethodNode(scopeStack.peek(), token.getText());
         int curOffset = getTopNodeOffset();
         int insPos = pcuNode.lineColToPosition(start.getLine(), start.getColumn());
         beginNode(insPos);

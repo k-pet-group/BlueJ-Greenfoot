@@ -26,7 +26,6 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -34,16 +33,19 @@ import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
-import java.awt.image.RGBImageFilter;
 
 import javax.swing.JEditorPane;
 import javax.swing.JScrollBar;
+import javax.swing.ToolTipManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.View;
+
+import bluej.parser.nodes.ParsedNode;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 /**
  * "NaviView" component. Displays a miniature version of the document in the editor, and allows moving
@@ -59,6 +61,7 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
     private int currentViewPosBottom;
     
     private int dragOffset;
+    private boolean haveToolTip = false;
     
     public NaviView2(Document document, JScrollBar scrollBar)
     {
@@ -72,6 +75,9 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
         scrollBar.addAdjustmentListener(this);
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         enableEvents(MouseEvent.MOUSE_WHEEL_EVENT_MASK);
+        // setToolTipText("**")
+        setFocusable(true);
+        ToolTipManager.sharedInstance().registerComponent(this);
     }
     
     @Override
@@ -132,6 +138,53 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
         
     }
     
+//    @Override
+//    public String getToolTipText()
+//    {
+//        // DAV
+//        System.out.println("getToolTipText()...");
+//        return "";
+//    }
+    
+    @Override
+    public Point getToolTipLocation(MouseEvent event)
+    {
+        // Returning non-null unconditionally seems to make the tooltip persist as a small square
+        // even when getToolTipText() returns null - sigh. (linux, JDK 6.0u13).
+        if (haveToolTip) {
+            Point ttloc = event.getPoint();
+            ttloc.y += 15;
+            ttloc.x -= 20;
+            return ttloc;
+        }
+        return null;
+    }
+    
+    @Override
+    public String getToolTipText(MouseEvent event)
+    {
+        int pos = viewToModel(event.getPoint());
+        MoeSyntaxDocument document = (MoeSyntaxDocument) getDocument();
+        ParsedNode pn = document.getParser();
+        int startpos = 0;
+        while (pn != null) {
+            if (pn.getNodeType() == ParsedNode.NODETYPE_METHODDEF) {
+                haveToolTip = true;
+                return pn.getName();
+            }
+            
+            NodeAndPosition nap = pn.findNodeAtOrAfter(pos, startpos);
+            if (nap == null || nap.getPosition() > pos) {
+                break;
+            }
+            pn = nap.getNode();
+            startpos = nap.getPosition();
+        }
+        
+        haveToolTip = false;
+        return null;
+    }
+    
     @Override
     protected void processMouseEvent(MouseEvent e)
     {
@@ -147,6 +200,9 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
                 moveView(e.getY());
             }
         }
+        else {
+            super.processMouseEvent(e);
+        }
     }
     
     @Override
@@ -155,6 +211,9 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
         //super.processMouseMotionEvent(e);
         if (e.getID() == MouseEvent.MOUSE_DRAGGED) {
             moveView(e.getY());
+        }
+        else {
+            super.processMouseMotionEvent(e);
         }
     }
 
@@ -192,7 +251,7 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
         int lines = getDocument().getDefaultRootElement().getElementCount();
         return position * lines / amount;
     }
-    
+        
     @Override
     protected void paintComponent(Graphics g)
     {   
@@ -202,9 +261,9 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
         
         //Color foreground = MoeSyntaxDocument.getDefaultColor();
         Color background = MoeSyntaxDocument.getBackgroundColor();
-        Color notVisible = new Color((int)(background.getRed() * .9f),
-                (int)(background.getGreen() * .9f),
-                (int)(background.getBlue() * .9f));
+        //Color notVisible = new Color((int)(background.getRed() * .9f),
+        //        (int)(background.getGreen() * .9f),
+        //        (int)(background.getBlue() * .9f));
         
         //g.setColor(notVisible);
         g.setColor(background);
@@ -252,7 +311,7 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
 //            view.paint(imgG, shape);
 
             Rectangle shape = new Rectangle(0, 0, getWidth(), getHeight());
-            Graphics2D g2d = (Graphics2D) g;
+            //Graphics2D g2d = (Graphics2D) g;
             //g2d.scale(0.5, 0.5); doesn't scale text
             view.paint(g, shape);
             
@@ -276,40 +335,39 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
        
     }
     
-    private final static class DarkenFilter extends RGBImageFilter {
-        public DarkenFilter() {
-            // When this is set to true, the filter will work with images
-            // whose pixels are indices into a color table (IndexColorModel).
-            // In such a case, the color values in the color table are filtered.
-            canFilterIndexColorModel = true;
-        }
+//    private final static class DarkenFilter extends RGBImageFilter {
+//        public DarkenFilter() {
+//            // When this is set to true, the filter will work with images
+//            // whose pixels are indices into a color table (IndexColorModel).
+//            // In such a case, the color values in the color table are filtered.
+//            canFilterIndexColorModel = true;
+//        }
+//    
+//        // This method is called for every pixel in the image
+//        public int filterRGB(int x, int y, int rgb) {
+//            if (x == -1) {
+//                // The pixel value is from the image's color table rather than the image itself
+//            }
+//            Color c = new Color(rgb, true);
+//            int red = c.getRed();
+//            int green = c.getGreen();
+//            int blue = c.getBlue();
+//            int alpha = c.getAlpha();
+//            //red = darken(red);
+//            //green = darken(green);
+//            //blue = darken(blue);
+//            
+//            // Make it more opaque
+//            alpha = darken(alpha);
+//            return new Color(red, green, blue, alpha).getRGB();
+//        }
+//        
+//        private int darken(int c)
+//        {
+//            c = c << 2;
+//            if(c>255) c = 255;
+//            return c;
+//        }
+//    }
     
-        // This method is called for every pixel in the image
-        public int filterRGB(int x, int y, int rgb) {
-            if (x == -1) {
-                // The pixel value is from the image's color table rather than the image itself
-            }
-            Color c = new Color(rgb, true);
-            int red = c.getRed();
-            int green = c.getGreen();
-            int blue = c.getBlue();
-            int alpha = c.getAlpha();
-            //red = darken(red);
-            //green = darken(green);
-            //blue = darken(blue);
-            
-            // Make it more opaque
-            alpha = darken(alpha);
-            return new Color(red, green, blue, alpha).getRGB();
-        }
-        
-        private int darken(int c)
-        {
-            c = c << 2;
-            if(c>255) c = 255;
-            return c;
-        }
-    }
-    
-
 }
