@@ -41,7 +41,7 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 6667 2009-09-11 10:19:51Z davmac $
+ * @version $Id: Boot.java 6677 2009-09-15 23:54:24Z davmac $
  */
 public class Boot
 {
@@ -319,7 +319,7 @@ public class Boot
             URLClassLoader runtimeLoader = new URLClassLoader(runtimeClassPath, bootLoader);
  
             // Construct a bluej.Main object. This starts BlueJ "proper".
-            Class mainClass = Class.forName("bluej.Main", true, runtimeLoader);
+            Class<?> mainClass = Class.forName("bluej.Main", true, runtimeLoader);
             mainClass.newInstance();
             
         } catch (Exception exc) {
@@ -335,11 +335,9 @@ public class Boot
         // Get the home directory of the Java implementation we're being run by
         javaHomeDir = new File(System.getProperty("java.home"));
 
-
         try {
-        	runtimeClassPath = getKnownJars(getBluejLibDir(), runtimeJars, true, numBuildJars);
-        
-        	runtimeUserClassPath = getKnownJars(getBluejLibDir(), userJars, false, numUserBuildJars);
+            runtimeClassPath = getKnownJars(getBluejLibDir(), runtimeJars, true, numBuildJars);
+            runtimeUserClassPath = getKnownJars(getBluejLibDir(), userJars, false, numUserBuildJars);
         }
         catch (Exception exc) {
             exc.printStackTrace();
@@ -418,7 +416,7 @@ public class Boot
         
         // by default, we require all our known jars to be present
         int startJar = 0;
-        ArrayList urlList = new ArrayList();
+        ArrayList<URL> urlList = new ArrayList<URL>();
 
         // a hack to let BlueJ run from within Eclipse.
         // If specified on command line, lets add a ../classes
@@ -430,11 +428,11 @@ public class Boot
             if (classesDir.isDirectory()) {
                 urlList.add(classesDir.toURI().toURL());
                 if (isGreenfoot) {
-                	String gfClassesDir = commandLineProps.getProperty("greenfootclassesdir");
-                	if (gfClassesDir != null) {
-                		classesDir = new File(gfClassesDir);
-                		urlList.add(classesDir.toURI().toURL());
-                	}
+                    String gfClassesDir = commandLineProps.getProperty("greenfootclassesdir");
+                    if (gfClassesDir != null) {
+                        classesDir = new File(gfClassesDir);
+                        urlList.add(classesDir.toURI().toURL());
+                    }
                 }
                 
                 // skip over requiring bluejcore.jar, bluejeditor.jar etc.
