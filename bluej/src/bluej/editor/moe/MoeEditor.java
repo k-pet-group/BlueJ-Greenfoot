@@ -21,7 +21,20 @@
  */
 package bluej.editor.moe;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.FocusTraversalPolicy;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -29,16 +42,42 @@ import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.InputMap;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JEditorPane;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.event.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
@@ -52,7 +91,7 @@ import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.Config;
 import bluej.editor.EditorWatcher;
-import bluej.editor.LineColumn;
+import bluej.parser.SourceLocation;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
@@ -717,21 +756,21 @@ public final class MoeEditor extends JFrame
      * 
      * @return An object describing the current caret location.
      */
-    public LineColumn getCaretLocation()
+    public SourceLocation getCaretLocation()
     {
         int caretOffset = sourcePane.getCaretPosition();
         return getLineColumnFromOffset(caretOffset);
     }
 
     /**
-     * Returns the LineColumn object from the given offset in the text.
+     * Returns the SourceLocation object from the given offset in the text.
      * 
      * @param offset  The number of characters from the beginning of text (startng
      *                from zero)
-     * @return the LineColumn object or null if the offset points outside the
+     * @return the SourceLocation object or null if the offset points outside the
      *         text.
      */
-    public LineColumn getLineColumnFromOffset(int offset)
+    public SourceLocation getLineColumnFromOffset(int offset)
     {
         int lineNumber = sourceDocument.getDefaultRootElement().getElementIndex(offset);
 
@@ -746,7 +785,7 @@ public final class MoeEditor extends JFrame
             return null;
         }
 
-        return new LineColumn(lineNumber, column);
+        return new SourceLocation(lineNumber, column);
     }
 
     /**
@@ -757,7 +796,7 @@ public final class MoeEditor extends JFrame
      *             if the specified TextLocation represents a position which
      *             does not exist in the text.
      */
-    public void setCaretLocation(LineColumn location)
+    public void setCaretLocation(SourceLocation location)
     {
         sourcePane.setCaretPosition(getOffsetFromLineColumn(location));
     }
@@ -768,7 +807,7 @@ public final class MoeEditor extends JFrame
      * @return the current beginning of the selection or null if no text is
      *         selected.
      */
-    public LineColumn getSelectionBegin()
+    public SourceLocation getSelectionBegin()
     {
         Caret aCaret = sourcePane.getCaret();
 
@@ -787,7 +826,7 @@ public final class MoeEditor extends JFrame
      * 
      * @return the current end of the selection or null if no text is selected.
      */
-    public LineColumn getSelectionEnd()
+    public SourceLocation getSelectionEnd()
     {
         Caret aCaret = sourcePane.getCaret();
 
@@ -811,7 +850,7 @@ public final class MoeEditor extends JFrame
      *             if either of the specified TextLocations represent a position
      *             which does not exist in the text.
      */
-    public String getText(LineColumn begin, LineColumn end)
+    public String getText(SourceLocation begin, SourceLocation end)
     {
         int first = getOffsetFromLineColumn(begin);
         int last = getOffsetFromLineColumn(end);
@@ -835,12 +874,12 @@ public final class MoeEditor extends JFrame
      * @param end    The end position of text to replace
      * @param newText  The text to insert
      * @throws IllegalArgumentException
-     *             if either of the specified LineColumn represent a position
+     *             if either of the specified SourceLocation represent a position
      *             which does not exist in the text.
      * @throws BadLocationException
      *             if internally the text points outside a location in the text.
      */
-    public void setText(LineColumn begin, LineColumn end, String newText)
+    public void setText(SourceLocation begin, SourceLocation end, String newText)
         throws BadLocationException
     {
         int start = getOffsetFromLineColumn(begin);
@@ -865,7 +904,7 @@ public final class MoeEditor extends JFrame
      *             if either of the specified TextLocations represent a position
      *             which does not exist in the text.
      */
-    public void setSelection(LineColumn begin, LineColumn end)
+    public void setSelection(SourceLocation begin, SourceLocation end)
     {
         int start = getOffsetFromLineColumn(begin);
         int finish = getOffsetFromLineColumn(end);
@@ -878,15 +917,15 @@ public final class MoeEditor extends JFrame
     }
 
     /**
-     * Translates a LineColumn into an offset into the text held by the editor.
+     * Translates a SourceLocation into an offset into the text held by the editor.
      * 
      * @param location  position to be translated
      * @return the offset into the content of this editor
      * @throws IllegalArgumentException
-     *             if the specified LineColumn represent a position which does
+     *             if the specified SourceLocation represent a position which does
      *             not exist in the text.
      */
-    public int getOffsetFromLineColumn(LineColumn location)
+    public int getOffsetFromLineColumn(SourceLocation location)
     {
         if (location.getLine() < 0) {
             throw new IllegalArgumentException("line < 0");
@@ -1259,17 +1298,19 @@ public final class MoeEditor extends JFrame
     /**
      * Finds the first cvs-style conflict and selects it
      */
-    public void findFirstConflict(){
-    	setCaretLocation(new LineColumn(0,0));
+    public void findFirstConflict()
+    {
+    	setCaretLocation(new SourceLocation(0,0));
     	findNextConflict();
     }
     
-    private void findNextConflict(){
+    private void findNextConflict()
+    {
     	findString("=======", false, false, true, false);
     	findString("<<<<<<<", true, false, false, false);
-    	LineColumn startPos = getCaretLocation();
+    	SourceLocation startPos = getCaretLocation();
     	findString(">>>>>>>", false, false, false, false);
-    	LineColumn endPos = getCaretLocation();
+    	SourceLocation endPos = getCaretLocation();
     	setSelection(startPos, endPos);
     }
     

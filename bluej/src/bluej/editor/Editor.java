@@ -27,11 +27,13 @@ import java.io.IOException;
 
 import javax.swing.text.BadLocationException;
 
+import bluej.parser.SourceLocation;
+
 
 /**
  * Interface between an editor and the rest of BlueJ
  * 
- * @version $Id: Editor.java 6619 2009-09-04 02:33:09Z davmac $
+ * @version $Id: Editor.java 6682 2009-09-16 05:06:25Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -241,7 +243,7 @@ public interface Editor
      *
      * @return    the LineColumn object.
      */
-    public LineColumn getCaretLocation();
+    public SourceLocation getCaretLocation();
     
     /**
      * Sets the current Caret location within the edited text.
@@ -249,7 +251,7 @@ public interface Editor
      * @param  location                   The location in the text to set the Caret to.
      * @throws  IllegalArgumentException  if the specified TextLocation represents a position which does not exist in the text.
      */
-    public void setCaretLocation(LineColumn location);
+    public void setCaretLocation(SourceLocation location);
 
 
     /**
@@ -257,14 +259,14 @@ public interface Editor
      *
      * @return    the current beginning of the selection or null if no text is selected.
      */
-    public LineColumn getSelectionBegin();
+    public SourceLocation getSelectionBegin();
     
     /**
      * Returns the location where the current selection ends.
      *
      * @return    the current end of the selection or null if no text is selected.
      */
-    public LineColumn getSelectionEnd();
+    public SourceLocation getSelectionEnd();
 
     /**
      * Returns the text which lies between the two LineColumn.
@@ -272,9 +274,9 @@ public interface Editor
      * @param  begin                      The beginning of the text to get
      * @param  end                        The end of the text to get
      * @return                            The text value
-     * @throws  IllegalArgumentException  if either of the specified TextLocations represent a position which does not exist in the text.
+     * @throws  IllegalArgumentException  if either of the specified SourceLocations represent a position which does not exist in the text.
      */
-    public String getText( LineColumn begin, LineColumn end );    
+    public String getText( SourceLocation begin, SourceLocation end );    
 
     /**
      * Request to the editor to replace the text between beginning and end with the given newText
@@ -287,7 +289,7 @@ public interface Editor
      * represent a position which does not exist in the text.
      * @throws  BadLocationException  if internally the text points outside a location in the text.
      */
-    public void setText( LineColumn begin, LineColumn end, String newText )
+    public void setText(SourceLocation begin, SourceLocation end, String newText)
         throws BadLocationException;
     
     /**
@@ -298,14 +300,14 @@ public interface Editor
      * @throws  IllegalArgumentException  if either of the specified TextLocations
      * represent a position which does not exist in the text.
      */
-    public void setSelection(LineColumn begin, LineColumn end);
+    public void setSelection(SourceLocation begin, SourceLocation end);
     
     /**
      * Returns the LineColumn object from the given offset in the text.
      *
      * @return    the LineColumn object or null if the offset points outside the text.
      */
-    public LineColumn getLineColumnFromOffset(int offset);
+    public SourceLocation getLineColumnFromOffset(int offset);
     
     /**
      * Translates a LineColumn into an offset into the text held by the editor.
@@ -315,7 +317,7 @@ public interface Editor
      * @throws  IllegalArgumentException  if the specified LineColumn
      * represent a position which does not exist in the text.
      */
-    public int getOffsetFromLineColumn( LineColumn location );
+    public int getOffsetFromLineColumn(SourceLocation location);
     
     /**
      * Returns a property of the current editor.

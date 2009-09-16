@@ -47,7 +47,6 @@ import bluej.debugger.SourceLocation;
 import bluej.debugmgr.CallHistory;
 import bluej.debugmgr.Invoker;
 import bluej.editor.Editor;
-import bluej.editor.LineColumn;
 import bluej.extensions.BPackage;
 import bluej.extensions.ExtensionBridge;
 import bluej.extensions.event.CompileEvent;
@@ -85,7 +84,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 6347 2009-05-20 15:22:43Z polle $
+ * @version $Id: Package.java 6682 2009-09-16 05:06:25Z davmac $
  */
 public final class Package extends Graph
 {
@@ -1742,8 +1741,8 @@ public final class Package extends Graph
         Iterator i = selections.iterator();
         while (i.hasNext()) {
             Selection sel = (Selection) i.next();
-            String text = ed.getText(new LineColumn(sel.getLine() - 1, sel.getColumn() -1),
-                    new LineColumn(sel.getEndLine() - 1, sel.getEndColumn() - 1));
+            String text = ed.getText(new bluej.parser.SourceLocation(sel.getLine() - 1, sel.getColumn() -1),
+                    new bluej.parser.SourceLocation(sel.getEndLine() - 1, sel.getEndColumn() - 1));
             
             // check for type arguments: don't include them in the text
             int taIndex = text.indexOf('<');
