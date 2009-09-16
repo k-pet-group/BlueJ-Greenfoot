@@ -21,20 +21,31 @@
  */
 package bluej;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -66,7 +77,7 @@ import bluej.utility.Utility;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: Config.java 6678 2009-09-16 00:04:42Z davmac $
  */
 
 public final class Config
@@ -246,7 +257,7 @@ public final class Config
             MetalLookAndFeel.setCurrentTheme(new BlueJTheme());
         }
 
-        String laf = Config.getPropString("bluej.lookAndFeel", "default");
+        String laf = Config.getPropString("bluej.lookAndFeel", "bluejdefault");
         setLookAndFeel(laf);
         
         //read any debug vm args
@@ -1355,24 +1366,41 @@ public final class Config
     private static void setLookAndFeel(String laf)
     {
         try {
+            if (laf.equals("default")) {
+                return;
+            }
+            
             // if system specified
             if(laf.equals("system")) {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                return;
             }
             else if(laf.equals("crossplatform")) {
                 UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+                return;
+            }
+            
+            if (! laf.equals("bluejdefault")) {
+                LookAndFeelInfo [] lafi = UIManager.getInstalledLookAndFeels();
+                for (int i = 0; i < lafi.length; i++) {
+                    if (lafi[i].getName().equals(laf)) {
+                        UIManager.setLookAndFeel(lafi[i].getClassName());
+                        return;
+                    }
+                }
+                
+                // Try as a class name
+                UIManager.setLookAndFeel(laf);
             }
             
             // do the "default, ie. let BlueJ decide
             // Windows - System l&F, Linux & Solaris - cross-platform
-            else {
-                if (isWinOS()){
-                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                }
-                // treat Linux and Solaris the same at the moment
-                else if(isLinux() || isSolaris()) {
-                    UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-                }
+            if (isWinOS()){
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            }
+            // treat Linux and Solaris the same at the moment
+            else if(isLinux() || isSolaris()) {
+                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
