@@ -56,6 +56,16 @@ public abstract class ParsedNode
         this.parentNode = parentNode;
     }
 
+    /**
+     * Get the type of this node. One of:
+     * <ul>
+     * <li>NODETYPE_NONE - unspecified
+     * <li>NODETYPE_TYPEDEF - a type definition (class, interface etc)
+     * <li>NODETYPE_METHODDEF - a method defintion
+     * <li>NODETYPE_ITERATION - an iteration construct (for loop etc)
+     * <li>NODETYPE_SELECTION - a selection construct (if/else etc)
+     * </ul>
+     */
     public int getNodeType()
     {
         return NODETYPE_NONE;
@@ -86,7 +96,7 @@ public abstract class ParsedNode
     }
     
     /**
-     * Set the size of this node. Following nodes shift positiona according to the change in
+     * Set the size of this node. Following nodes shift position according to the change in
      * size; this should normally be used when inserting or removing text from the node.
      * @param newSize  The new node size
      */
@@ -95,6 +105,9 @@ public abstract class ParsedNode
         getContainingNodeTree().setNodeSize(newSize);
     }
     
+    /**
+     * Get the offset of this node from its parent node.
+     */
     public int getOffsetFromParent()
     {
         return getContainingNodeTree().getPosition();

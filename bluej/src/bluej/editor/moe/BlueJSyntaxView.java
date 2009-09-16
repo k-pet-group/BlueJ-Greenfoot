@@ -49,9 +49,13 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 /**
  * A Swing view implementation that does syntax colouring and adds some utility.
  *
- * This class should not be used directly; a SyntaxEditorKit
- * should be used instead.
+ * <p>A BlueJSyntaxView (or subclass) instance is normally created by an implementation of
+ * the EditorKit interface.
+ * 
+ * <p>The original version of this class was based on SyntaxView from JEdit. Little of
+ * that code remains.
  *
+ * @author Slava Pestov
  * @author Bruce Quig
  * @author Michael Kolling
  * @author Davin McCall
@@ -284,7 +288,6 @@ public abstract class BlueJSyntaxView extends PlainView
                 int ypos2 = ypos + lbounds.height;
 
                 ListIterator<NodeAndPosition> li = prevScopeStack.listIterator();
-                int scopeCount = 0; // DAV remove this
                 int rightMargin = small ? 0 : 7;
                 boolean lastWasInner = true;
                 Color lastLineColor = c3;
@@ -494,7 +497,6 @@ public abstract class BlueJSyntaxView extends PlainView
                         // Right edge
                         g.drawLine(scopeRightX, ypos, scopeRightX, ypos2);                       
                     }                    
-                    scopeCount++;
                 }
 
                 // Move along

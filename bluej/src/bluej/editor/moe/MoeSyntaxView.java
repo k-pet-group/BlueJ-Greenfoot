@@ -21,12 +21,6 @@
  */
 package bluej.editor.moe;
 
-/**
- * MoeSyntaxView.java - originally adapted from
- * SyntaxView.java - jEdit's own Swing view implementation -
- * to add Syntax highlighting to the BlueJ programming environment.
- */
-
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -44,31 +38,12 @@ import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 
 /**
- * A Swing view implementation that colorizes lines of a
- * SyntaxDocument.
+ * MoeSyntaxView is the main view for the Moe editor. It paints all aspects of the
+ * document, performing syntax and scope colouring.
  *
- * This class should not be used directly; a SyntaxEditorKit
- * should be used instead.
- *
- * @author Slava Pestov
  * @author Bruce Quig
  * @author Michael Kolling
  * @author Davin McCall
- *
- * @version $Id: MoeSyntaxView.java 6649 2009-09-10 05:26:47Z davmac $
- */
-
-/**
- * @author davmac
- *
- */
-/**
- * @author davmac
- *
- */
-/**
- * @author davmac
- *
  */
 public class MoeSyntaxView extends BlueJSyntaxView
 {
