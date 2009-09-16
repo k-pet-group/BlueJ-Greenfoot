@@ -31,8 +31,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -53,7 +51,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 6687 2009-09-16 14:04:23Z davmac $
+ * @version $Id: Utility.java 6688 2009-09-16 14:16:56Z davmac $
  */
 public class Utility
 {
@@ -461,17 +459,6 @@ public class Utility
             return;
         }
 
-        // We want to prevent terminal garbage in case this is being called in the debug VM
-        if (Config.isDebugVM() && ! Config.isGreenfoot()) {
-            Debug.setDebugStream(new PrintStream(new OutputStream() {
-                @Override
-                public void write(int b) throws IOException
-                {
-                    // Throw it away
-                }
-            }));
-        }
-        
         String pid = getProcessId();
         boolean isWindows = Config.isWinOS();
         boolean isMacOS = Config.isMacOS();

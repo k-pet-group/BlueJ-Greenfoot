@@ -77,7 +77,7 @@ import bluej.utility.Utility;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 6687 2009-09-16 14:04:23Z davmac $
+ * @version $Id: Config.java 6688 2009-09-16 14:16:56Z davmac $
  */
 
 public final class Config
@@ -527,34 +527,45 @@ public final class Config
      */
     private static void checkDebug(File userdir)
     {
-        if (!isDebugVM() && !"true".equals(commandProps.getProperty("bluej.debug"))) {
-            File debugLogFile = new File(userdir, debugLogName);
-            // simple diversion of output stream to a log file
-            try {
-                PrintStream outStream =
-                    new PrintStream(new FileOutputStream(debugLogFile));
-                System.setOut(outStream);
-                System.setErr(outStream);
-                Debug.message(getApplicationName() + " run started: " + new Date());
-                if(isGreenfoot())
-                    Debug.message("Greenfoot version: " + Boot.GREENFOOT_VERSION);
-                else
-                    Debug.message("BlueJ version " + Boot.BLUEJ_VERSION);
-                Debug.message("Java version " + System.getProperty("java.version"));
-                Debug.message("Virtual machine: " +
-                                    System.getProperty("java.vm.name") + " " +
-                                    System.getProperty("java.vm.version") +
-                                    " (" + System.getProperty("java.vm.vendor") + ")");
-                Debug.message("Running on: " + System.getProperty("os.name") +
-                                    " " + System.getProperty("os.version") +
-                                    " (" + System.getProperty("os.arch") + ")");
-                Debug.message("Java Home: " + System.getProperty("java.home"));            
-                Debug.message("----");            
-            }
-            catch (IOException e) {
-                Debug.reportError("Warning: Unable to create debug log file.");
+        if (!isDebugVM()) {
+            if (!"true".equals(commandProps.getProperty("bluej.debug"))) {
+                File debugLogFile = new File(userdir, debugLogName);
+                // simple diversion of output stream to a log file
+                try {
+                    PrintStream outStream =
+                        new PrintStream(new FileOutputStream(debugLogFile));
+                    System.setOut(outStream);
+                    System.setErr(outStream);
+                    Debug.setDebugStream(outStream);
+
+                    Debug.message(getApplicationName() + " run started: " + new Date());
+                    if(isGreenfoot())
+                        Debug.message("Greenfoot version: " + Boot.GREENFOOT_VERSION);
+                    else
+                        Debug.message("BlueJ version " + Boot.BLUEJ_VERSION);
+                    Debug.message("Java version " + System.getProperty("java.version"));
+                    Debug.message("Virtual machine: " +
+                            System.getProperty("java.vm.name") + " " +
+                            System.getProperty("java.vm.version") +
+                            " (" + System.getProperty("java.vm.vendor") + ")");
+                    Debug.message("Running on: " + System.getProperty("os.name") +
+                            " " + System.getProperty("os.version") +
+                            " (" + System.getProperty("os.arch") + ")");
+                    Debug.message("Java Home: " + System.getProperty("java.home"));            
+                    Debug.message("----");    
+                    return;
+                }
+                catch (IOException e) {
+                    Debug.reportError("Warning: Unable to create debug log file.");
+                }
             }
         }
+        
+        // We get here if:
+        // - we are on the debug VM (and in Greenfoot) or
+        // - bluej.debug=true or
+        // - creating the debug log failed
+        Debug.setDebugStream(System.out);
     }
     
     /**

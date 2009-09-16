@@ -21,6 +21,8 @@
  */
 package bluej.utility;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
 
 import bluej.Config;
@@ -29,12 +31,18 @@ import bluej.Config;
  * Class to handle debugging messages.
  * 
  * @author Michael Kolling
- * @version $Id: Debug.java 6687 2009-09-16 14:04:23Z davmac $
+ * @version $Id: Debug.java 6688 2009-09-16 14:16:56Z davmac $
  */
 
 public class Debug
 {
-    private static PrintStream debugStream = System.out;
+    private static PrintStream debugStream = new PrintStream(new OutputStream() {
+        @Override
+        public void write(int b) throws IOException
+        {
+            // Throw it away
+        }
+    });
     
     /**
      * Set the debug output stream. All debug messages go to the debug output stream.
