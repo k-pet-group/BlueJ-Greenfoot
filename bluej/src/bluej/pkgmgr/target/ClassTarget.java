@@ -80,7 +80,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 6475 2009-07-31 14:30:38Z davmac $
+ * @version $Id: ClassTarget.java 6683 2009-09-16 10:17:14Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -1429,49 +1429,31 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
-     * Description of the Class
+     * Action to open the editor for a classtarget
      */
     private class EditAction extends AbstractAction
     {
-        /**
-         * Constructor for the EditAction object
-         */
         public EditAction()
         {
             putValue(NAME, editStr);
         }
 
-        /**
-         * Description of the Method
-         * 
-         * @param e Description of the Parameter
-         */
         public void actionPerformed(ActionEvent e)
         {
-        	
-        	open();
-        	
+            open();
         }
     }
 
     /**
-     * Description of the Class
+     * Action to compile a classtarget
      */
     private class CompileAction extends AbstractAction
     {
-        /**
-         * Constructor for the CompileAction object
-         */
         public CompileAction()
         {
             putValue(NAME, compileStr);
         }
 
-        /**
-         * Description of the Method
-         * 
-         * @param e Description of the Parameter
-         */
         public void actionPerformed(ActionEvent e)
         {
         	getPackage().compile(ClassTarget.this);
@@ -1480,55 +1462,39 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
-     * Description of the Class
+     * Action to remove a classtarget from its package
      */
     private class RemoveAction extends AbstractAction
     {
-        /**
-         * Constructor for the RemoveAction object
-         */
         public RemoveAction()
         {
             putValue(NAME, removeStr);
         }
 
-        /**
-         * Description of the Method
-         * 
-         * @param e Description of the Parameter
-         */
         public void actionPerformed(ActionEvent e)
         {
-        	PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
-        	if (pmf.askRemoveClass()) {
-        		getPackage().getEditor().raiseRemoveTargetEvent(ClassTarget.this);
-        	}
+            PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
+            if (pmf.askRemoveClass()) {
+                getPackage().getEditor().raiseRemoveTargetEvent(ClassTarget.this);
+            }
         }
     }
 
     /**
-     * Description of the Class
+     * Action to inspect the static members of a class
      */
     private class InspectAction extends AbstractAction
     {
-        /**
-         * Constructor for the InspectAction object
-         */
         public InspectAction()
         {
             putValue(NAME, inspectStr);
         }
 
-        /**
-         * Description of the Method
-         * 
-         * @param e Description of the Parameter
-         */
         public void actionPerformed(ActionEvent e)
         {	
-        	if (doAction()){
-        		inspect();
-        	}
+            if (doAction()){
+                inspect();
+            }
         }
     }
 

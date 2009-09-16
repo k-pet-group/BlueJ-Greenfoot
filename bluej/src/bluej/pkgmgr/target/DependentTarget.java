@@ -35,7 +35,7 @@ import bluej.utility.MultiIterator;
  * A target that has relationships to other targets
  *
  * @author 	Michael Cahill
- * @version	$Id: DependentTarget.java 6215 2009-03-30 13:28:25Z polle $
+ * @version	$Id: DependentTarget.java 6683 2009-09-16 10:17:14Z davmac $
  */
 public abstract class DependentTarget extends EditableTarget
 {
@@ -46,10 +46,10 @@ public abstract class DependentTarget extends EditableTarget
 
     protected int state = S_INVALID;
 
-    private List inUses;
-    private List outUses;
-    private List parents;
-    private List children;
+    private List<UsesDependency> inUses;
+    private List<UsesDependency> outUses;
+    private List<Dependency> parents;
+    private List<Dependency> children;
 
     protected DependentTarget assoc;
 	
@@ -60,10 +60,10 @@ public abstract class DependentTarget extends EditableTarget
     {
         super(pkg, identifierName);
 
-        inUses = new ArrayList();
-        outUses = new ArrayList();
-        parents = new ArrayList();
-        children = new ArrayList();
+        inUses = new ArrayList<UsesDependency>();
+        outUses = new ArrayList<UsesDependency>();
+        parents = new ArrayList<Dependency>();
+        children = new ArrayList<Dependency>();
 
         assoc = null;
     }
@@ -80,39 +80,39 @@ public abstract class DependentTarget extends EditableTarget
         recalcDependentPositions();
     }
 
-	/**
-	 * Save association information about this class target
-	 * @param props the properties object to save to
-	 * @param prefix an internal name used for this target to identify
-	 */
-	public void save(Properties props, String prefix)
-	{
-		super.save(props, prefix);
+    /**
+     * Save association information about this class target
+     * @param props the properties object to save to
+     * @param prefix an internal name used for this target to identify
+     */
+    public void save(Properties props, String prefix)
+    {
+        super.save(props, prefix);
 
-		if (getAssociation() != null) {
-			String assocName = getAssociation().getIdentifierName(); 
-			props.put(prefix + ".association", assocName);
-		}
-	}
+        if (getAssociation() != null) {
+            String assocName = getAssociation().getIdentifierName(); 
+            props.put(prefix + ".association", assocName);
+        }
+    }
 
-	public void setAssociation(DependentTarget t)
-	{
-		assoc = t;
-		//assoiated classes are not allowed to move on their own
-		if (assoc instanceof Moveable){
-		    ((Moveable)assoc).setIsMoveable(false);
-		}
-	}
-	
-	public DependentTarget getAssociation()
-	{
-		return assoc;
-	}
+    public void setAssociation(DependentTarget t)
+    {
+        assoc = t;
+        //assoiated classes are not allowed to move on their own
+        if (assoc instanceof Moveable){
+            ((Moveable)assoc).setIsMoveable(false);
+        }
+    }
+
+    public DependentTarget getAssociation()
+    {
+        return assoc;
+    }
 	
     public void addDependencyOut(Dependency d, boolean recalc)
     {
         if(d instanceof UsesDependency) {
-            outUses.add(d);
+            outUses.add((UsesDependency) d);
             if(recalc)
                 recalcOutUses();
         }
@@ -128,7 +128,7 @@ public abstract class DependentTarget extends EditableTarget
     public void addDependencyIn(Dependency d, boolean recalc)
     {
         if(d instanceof UsesDependency) {
-            inUses.add(d);
+            inUses.add((UsesDependency) d);
             if(recalc)
                 recalcInUses();
         }
@@ -167,24 +167,25 @@ public abstract class DependentTarget extends EditableTarget
         }
     }
 
-    public Iterator dependencies()
+    public Iterator<? extends Dependency> dependencies()
     {
-        List v = new ArrayList(2);
+        List<Iterator<? extends Dependency>> v = new ArrayList<Iterator<? extends Dependency>>(2);
         v.add(parents.iterator());
         v.add(outUses.iterator());
-        return new MultiIterator(v);
+        return new MultiIterator<Dependency>(v);
     }
 
-    public Iterator dependents()
+    public Iterator<? extends Dependency> dependents()
     {
-        List v = new ArrayList(2);
+        List<Iterator<? extends Dependency>> v = new ArrayList<Iterator<? extends Dependency>>(2);
         v.add(children.iterator());
         v.add(inUses.iterator());
-        return new MultiIterator(v);
+        return new MultiIterator<Dependency>(v);
     }
     
-    public List dependentsAsList(){
-        List list = new LinkedList();
+    public List<Dependency> dependentsAsList()
+    {
+        List<Dependency> list = new LinkedList<Dependency>();
         list.addAll(inUses);
         list.addAll(outUses);
         list.addAll(children);
@@ -192,10 +193,11 @@ public abstract class DependentTarget extends EditableTarget
         return list;
     }
 
-	public Iterator usesDependencies()
-	{
-		return Collections.unmodifiableList(outUses).iterator();
-	}
+    public Iterator<UsesDependency> usesDependencies()
+    {
+        return Collections.unmodifiableList(outUses).iterator();
+    }
+    
     /**
      *  Remove all outgoing dependencies. Also updates the package. (Don't
      *  call from package remove method - this will cause infinite recursion.)
@@ -218,7 +220,7 @@ public abstract class DependentTarget extends EditableTarget
     }
 
     /**
-     *  Remove inheritence dependencies.
+     *  Remove inheritance dependencies.
      */
     protected void removeInheritDependencies()
     {
@@ -304,33 +306,33 @@ public abstract class DependentTarget extends EditableTarget
         int cx = getX() + getWidth() / 2;
         int n_left = 0, n_right = 0;
         for(int i = inUses.size() - 1; i >= 0; i--)
-            {
-                Target from = ((Dependency)inUses.get(i)).getFrom();
-                int from_cx = from.getX() + from.getWidth() / 2;
-                if(from_cx < cx)
-                    ++n_left;
-                else
-                    ++n_right;
-            }
+        {
+            Target from = ((Dependency)inUses.get(i)).getFrom();
+            int from_cx = from.getX() + from.getWidth() / 2;
+            if(from_cx < cx)
+                ++n_left;
+            else
+                ++n_right;
+        }
 
         // Assign source coordinates to each arrow
         int left_top = getY() + (getHeight() - (n_left - 1) * ARR_VERT_DIST) / 2;
         int right_top = getY() + (getHeight() - (n_right - 1) * ARR_VERT_DIST) / 2;
         for(int i = 0; i < n_left + n_right; i++)
+        {
+            UsesDependency d = (UsesDependency)inUses.get(i);
+            int from_cx = d.getFrom().getX() + d.getFrom().getWidth() / 2;
+            if(from_cx < cx)
             {
-                UsesDependency d = (UsesDependency)inUses.get(i);
-                int from_cx = d.getFrom().getX() + d.getFrom().getWidth() / 2;
-                if(from_cx < cx)
-                    {
-                        d.setDestCoords(getX() - 4, left_top, true);
-                        left_top += ARR_VERT_DIST;
-                    }
-                else
-                    {
-                        d.setDestCoords(getX() + getWidth() + 4, right_top, false);
-                        right_top += ARR_VERT_DIST;
-                    }
+                d.setDestCoords(getX() - 4, left_top, true);
+                left_top += ARR_VERT_DIST;
             }
+            else
+            {
+                d.setDestCoords(getX() + getWidth() + 4, right_top, false);
+                right_top += ARR_VERT_DIST;
+            }
+        }
     }
 
     /**
@@ -380,12 +382,12 @@ public abstract class DependentTarget extends EditableTarget
         recalcOutUses();
 
         // Recalculate neighbours' arrows
-        for(Iterator it = inUses.iterator(); it.hasNext(); ) {
-            Dependency d = (Dependency)it.next();
+        for(Iterator<UsesDependency> it = inUses.iterator(); it.hasNext(); ) {
+            Dependency d = it.next();
             d.getFrom().recalcOutUses();
         }
-        for(Iterator it = outUses.iterator(); it.hasNext(); ) {
-            Dependency d = (Dependency)it.next();
+        for(Iterator<UsesDependency> it = outUses.iterator(); it.hasNext(); ) {
+            Dependency d = it.next();
             d.getTo().recalcInUses();
         }
 
@@ -402,7 +404,6 @@ public abstract class DependentTarget extends EditableTarget
             t. recalcDependentPositions();
         }
     }
-
 
     public String toString()
     {
