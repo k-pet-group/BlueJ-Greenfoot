@@ -37,7 +37,7 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 6655 2009-09-11 02:23:03Z davmac $
+ * @version $Id: FileUtility.java 6680 2009-09-16 00:47:00Z davmac $
  */
 public class FileUtility
 {
@@ -127,8 +127,6 @@ public class FileUtility
 
         if (result == JFileChooser.APPROVE_OPTION) {
             if (rememberDir) {
-                // TODO: It is possible to approve without a selection which
-                // will throw a NPE below.
                 PrefMgr.setProjectDirectory(
                       newChooser.getSelectedFile().getParentFile().getPath());
             }
@@ -400,7 +398,7 @@ public class FileUtility
     private static File[] actualRecursiveCopyFile(File srcDir, File destDir)
     {
         // remember every file which we don't successfully copy
-        List failed = new ArrayList();
+        List<File> failed = new ArrayList<File>();
 
         // check whether source and dest are the same
         if(srcDir.getAbsolutePath().equals(destDir.getAbsolutePath()))
@@ -630,26 +628,5 @@ public class FileUtility
             }
         }
         return isVirtualized;
-    }
-
-    /**
-     * Test if we can create the given file. Remember to delete the file if the
-     * write was successful.
-     * 
-     * @param file
-     *            The file we try to create. The file must not already exist.
-     * @return True if we could create the file.
-     */
-    private static boolean canWrite(File file) {
-        boolean canWrite = false;
-        try {
-            file.createNewFile();
-            canWrite = true;
-        } catch (IOException e) {
-            // If we get any kind of IOException it means that we could not
-            // create the file.
-            canWrite = false;
-        }
-        return canWrite;
     }
 }

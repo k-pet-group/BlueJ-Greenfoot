@@ -21,30 +21,42 @@
  */
 package bluej.utility;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.MouseEvent;
-import java.beans.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.Icon;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.plaf.FileChooserUI;
+import javax.swing.plaf.basic.BasicFileChooserUI;
 
 import bluej.Config;
 import bluej.pkgmgr.Package;
-import bluej.utility.filefilter.*;
+import bluej.utility.filefilter.DirectoryFilter;
+import bluej.utility.filefilter.JavaSourceFilter;
 
 /**
  * A file chooser for opening packages.
  *
- * Extends the behaviour of JFileChooser in the following ways: <BR><BR>
- * Only directories (either BlueJ packages or plain ones) are displayed. <BR>
- * BlueJ packages are displayed with a different icon. <BR>
+ * Extends the behaviour of JFileChooser in the following ways:
+ * 
+ * <ul>
+ * <li>Only directories (either BlueJ packages or plain ones) are displayed.
+ * <li>BlueJ packages are displayed with a different icon.
+ * </ul>
  *
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Markus Ostman
- * @version $Id: PackageChooser.java 6347 2009-05-20 15:22:43Z polle $
+ * @version $Id: PackageChooser.java 6680 2009-09-16 00:47:00Z davmac $
  */
 class PackageChooser extends JFileChooser
 {
@@ -125,6 +137,14 @@ class PackageChooser extends JFileChooser
         }
         else{
             super.setCurrentDirectory(dir);
+            // Hack to make file chooser behave slightly nicer. The default behaviour is to put
+            // the directory name, without a trailing slash, in the filename field.
+            // See ticket #127
+            FileChooserUI ui = getUI();
+            if (ui instanceof BasicFileChooserUI) {
+                BasicFileChooserUI mui = (BasicFileChooserUI) ui;
+                mui.setFileName("");
+            }
         }
     }
     
@@ -166,7 +186,7 @@ class PackageChooser extends JFileChooser
             int maxDisplay = 3;
             File subDirs[] = displayDir.listFiles(new DirectoryFilter());
             File srcFiles[] = displayDir.listFiles(new JavaSourceFilter());
-            List listVec = new ArrayList();
+            List<String> listVec = new ArrayList<String>();
 
             // headerLines is 3
             listVec.add(previewLine1);
