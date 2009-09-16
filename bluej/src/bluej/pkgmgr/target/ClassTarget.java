@@ -49,6 +49,7 @@ import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.MenuManager;
 import bluej.graph.GraphEditor;
 import bluej.graph.Moveable;
+import bluej.graph.Vertex;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.Package;
@@ -59,7 +60,14 @@ import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ExtendsDependency;
 import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.pkgmgr.dependency.UsesDependency;
-import bluej.pkgmgr.target.role.*;
+import bluej.pkgmgr.target.role.AbstractClassRole;
+import bluej.pkgmgr.target.role.AppletClassRole;
+import bluej.pkgmgr.target.role.ClassRole;
+import bluej.pkgmgr.target.role.EnumClassRole;
+import bluej.pkgmgr.target.role.InterfaceClassRole;
+import bluej.pkgmgr.target.role.MIDletClassRole;
+import bluej.pkgmgr.target.role.StdClassRole;
+import bluej.pkgmgr.target.role.UnitTestClassRole;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
@@ -80,7 +88,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 6683 2009-09-16 10:17:14Z davmac $
+ * @version $Id: ClassTarget.java 6686 2009-09-16 10:53:26Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -560,11 +568,11 @@ public class ClassTarget extends DependentTarget
     public void invalidate()
     {
         setState(S_INVALID);
-        for (Iterator it = dependents(); it.hasNext();) {
-            Dependency d = (Dependency) it.next();
+        for (Iterator<? extends Dependency> it = dependents(); it.hasNext();) {
+            Dependency d = it.next();
             ClassTarget dependent = (ClassTarget) d.getFrom();
             
-            if(! dependent.isInvalidState()) {    
+            if (! dependent.isInvalidState()) {    
                 // Invalidate the dependent only if it is not already invalidated. 
                 // Will avoid going into an infinite circular loop.
                 dependent.invalidate();
@@ -911,7 +919,7 @@ public class ClassTarget extends DependentTarget
      */
     public void endCompile()
     {
-        Class cl = getPackage().loadClass(getQualifiedName());
+        Class<?> cl = getPackage().loadClass(getQualifiedName());
 
         determineRole(cl);
     }
@@ -1077,7 +1085,7 @@ public class ClassTarget extends DependentTarget
     {
         String newTypeParameters = "";
         if (info.hasTypeParameter()) {
-            Iterator i = info.getTypeParameterTexts().iterator();
+            Iterator<String> i = info.getTypeParameterTexts().iterator();
             newTypeParameters = "<" + i.next();
            
             while (i.hasNext()) {
@@ -1144,9 +1152,9 @@ public class ClassTarget extends DependentTarget
         }
 
         // handle implemented interfaces
-        List vect = info.getImplements();
-        for (Iterator it = vect.iterator(); it.hasNext();) {
-            String name = (String) it.next();
+        List<String> vect = info.getImplements();
+        for (Iterator<String> it = vect.iterator(); it.hasNext();) {
+            String name = it.next();
             DependentTarget interfce = getPackage().getDependentTarget(name);
 
             if (interfce != null) {
@@ -1156,8 +1164,8 @@ public class ClassTarget extends DependentTarget
 
         // handle used classes
         vect = info.getUsed();
-        for (Iterator it = vect.iterator(); it.hasNext();) {
-            String name = (String) it.next();
+        for (Iterator<String> it = vect.iterator(); it.hasNext();) {
+            String name = it.next();
             DependentTarget used = getPackage().getDependentTarget(name);
             if (used != null) {
                 if (used.getAssociation() == this || this.getAssociation() == used) {
@@ -1170,7 +1178,7 @@ public class ClassTarget extends DependentTarget
         }
 
         // check for inconsistent use dependencies
-        for (Iterator it = usesDependencies(); it.hasNext();) {
+        for (Iterator<UsesDependency> it = usesDependencies(); it.hasNext();) {
             UsesDependency usesDep = ((UsesDependency) it.next());
             if (!usesDep.isFlagged()) {
                 getPackage().setStatus(usesArrowMsg + usesDep);
@@ -1308,7 +1316,7 @@ public class ClassTarget extends DependentTarget
      */
     public void popupMenu(int x, int y, GraphEditor graphEditor)
     {
-        Class cl = null;
+        Class<?> cl = null;
 
         if (state == S_NORMAL) {
             // handle error causes when loading classes which are compiled
@@ -1349,7 +1357,7 @@ public class ClassTarget extends DependentTarget
      * @param cl class object associated with this class target
      * @return the created popup menu object
      */
-    protected JPopupMenu createMenu(Class cl)
+    protected JPopupMenu createMenu(Class<?> cl)
     {
         JPopupMenu menu = new JPopupMenu(getBaseName() + " operations");
 
@@ -1633,7 +1641,7 @@ public class ClassTarget extends DependentTarget
 
         // if this target is the assocation for another Target, remove
         // the association
-        Iterator it = getPackage().getVertices();
+        Iterator<? extends Vertex> it = getPackage().getVertices();
         while (it.hasNext()) {
             Object o = it.next();
             if (o instanceof DependentTarget) {
@@ -1672,10 +1680,9 @@ public class ClassTarget extends DependentTarget
             }
         }
 
-        List allFiles = getRole().getAllFiles(this);
-        for(Iterator i = allFiles.iterator(); i.hasNext(); ) {
-            File f = (File) i.next();
-            f.delete();
+        List<File> allFiles = getRole().getAllFiles(this);
+        for(Iterator<File> i = allFiles.iterator(); i.hasNext(); ) {
+            i.next().delete();
         }
     }
 
