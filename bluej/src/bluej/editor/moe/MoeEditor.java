@@ -1649,11 +1649,11 @@ public final class MoeEditor extends JFrame
             return;
         }
         resetMenuToolbar(true);
-        naviView.setVisible(true);
         document = sourceDocument;
         currentTextPane = sourcePane;
         viewingHTML = false;
         scrollPane.setViewportView(currentTextPane);
+        naviView.setVisible(true);
         checkSyntaxStatus();
         currentTextPane.requestFocus();
     }

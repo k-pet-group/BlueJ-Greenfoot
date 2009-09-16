@@ -88,6 +88,20 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
         return getPreferredSize();
     }
     
+    @Override
+    public void setVisible(boolean flag)
+    {
+        if (! flag) {
+            scrollBar.removeAdjustmentListener(this);
+        }
+        else {
+            if (! isVisible()) {
+                scrollBar.addAdjustmentListener(this);
+            }
+        }
+        super.setVisible(flag);
+    }
+    
     public void adjustmentValueChanged(AdjustmentEvent e)
     {
         // The scrollbar position changed
@@ -137,14 +151,6 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
         // TODO Auto-generated method stub
         
     }
-    
-//    @Override
-//    public String getToolTipText()
-//    {
-//        // DAV
-//        System.out.println("getToolTipText()...");
-//        return "";
-//    }
     
     @Override
     public Point getToolTipLocation(MouseEvent event)
