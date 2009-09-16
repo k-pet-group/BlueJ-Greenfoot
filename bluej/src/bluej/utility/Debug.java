@@ -21,27 +21,39 @@
  */
 package bluej.utility;
 
+import java.io.PrintStream;
+
 import bluej.Config;
 
 /**
  * Class to handle debugging messages.
  * 
  * @author Michael Kolling
- * @version $Id: Debug.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: Debug.java 6687 2009-09-16 14:04:23Z davmac $
  */
 
 public class Debug
 {
+    private static PrintStream debugStream = System.out;
+    
+    /**
+     * Set the debug output stream. All debug messages go to the debug output stream.
+     */
+    public static void setDebugStream(PrintStream debugStream)
+    {
+        Debug.debugStream = debugStream;
+    }
+    
     /**
      * Write out a debug message. This may go to a terminal, or to
      * a debug file, depending on external debug settings.
      * 
      * @param msg The message to be written.
      */
-    public static final void message(String msg)
+    public static void message(String msg)
     {
-        System.out.println(msg);
-        System.out.flush();
+        debugStream.println(msg);
+        debugStream.flush();
     }
     
     /**

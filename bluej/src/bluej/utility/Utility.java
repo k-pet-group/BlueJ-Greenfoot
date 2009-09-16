@@ -31,12 +31,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -52,7 +53,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 6583 2009-09-01 05:13:48Z davmac $
+ * @version $Id: Utility.java 6687 2009-09-16 14:04:23Z davmac $
  */
 public class Utility
 {
@@ -60,17 +61,6 @@ public class Utility
      * Used to track which events have occurred for firstTimeThisRun()
      */
     private static Set<String> occurredEvents = new HashSet<String>();
-
-    private static URLClassLoader classLoader;
-    static {
-        try {
-            classLoader = new URLClassLoader(new URL[]{new File("/System/Library/Java/").toURI().toURL()});
-        }
-        catch (MalformedURLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
 
     /**
      * Draw a thick rectangle - another of the things missing from the AWT
@@ -410,6 +400,7 @@ public class Utility
             }
         }
     }
+    
     /**
      * Method copied from Boot since we don't always have access to Boot here (if this method is called from the user VM for instance).
      * 
@@ -461,121 +452,60 @@ public class Utility
      * Bring the current process to the front in the OS window stacking order.
      * The given window will be brought to the front.
      * 
+     * <p>This method can be called from the debug VM.
      */
     public static void bringToFront(final Window window)
     {
         // If not showing at all we return now.
         if (!window.isShowing()) {
-            // System.out.println("Not bringing window to front: " + window + "
-            // isFocusOwner: " + window.isFocusOwner() + " isShowing: " +
-            // window.isShowing());
             return;
         }
 
+        // We want to prevent terminal garbage in case this is being called in the debug VM
+        if (Config.isDebugVM() && ! Config.isGreenfoot()) {
+            Debug.setDebugStream(new PrintStream(new OutputStream() {
+                @Override
+                public void write(int b) throws IOException
+                {
+                    // Throw it away
+                }
+            }));
+        }
+        
         String pid = getProcessId();
+        boolean isWindows = Config.isWinOS();
+        boolean isMacOS = Config.isMacOS();
 
-        if (Config.isWinOS()) {
+        if (isWindows || isMacOS) {
             // Use WSH (Windows Script Host) to execute a javascript that brings
             // a window to front.
             File libdir = calculateBluejLibDir();
-            String[] command = {"cscript","\"" + libdir.getAbsolutePath() + "\\windowtofront.js\"",pid };
+            String[] command;
+            if (isWindows) {
+                command = new String[] {"cscript","\"" + libdir.getAbsolutePath() + "\\windowtofront.js\"",pid };
+            }
+            else {
+                command = new String[] {"osascript", "-e", "tell application \"System Events\"", "-e",
+                        "set frontmost of first process whose unix id is " + pid + " to true", "-e", "end tell"};
+            }
             
-            StringBuffer commandAsStr = new StringBuffer();
+            final StringBuffer commandAsStr = new StringBuffer();
             for (int i = 0; i < command.length; i++) {
                 commandAsStr.append(command[i] + " ");
             }
-         //   System.out.println("toFront executing command: " + commandAsStr);
 
             try {
                 Process p = Runtime.getRuntime().exec(command);
-
-                // Grab error output
-                try {
-                    BufferedReader br = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-                    StringBuffer extra = new StringBuffer();
-
-                    char[] buf = new char[1024];
-                    for (int i = 0; i < 5; i++) {
-                        Thread.sleep(200);
-
-                        // discontinue if no data available or stream closed
-                        if (!br.ready())
-                            break;
-                        int len = br.read(buf);
-                        if (len == -1)
-                            break;
-
-                        extra.append(buf, 0, len);
-                    }
-                    if (extra.length() != 0) {
-                        Debug.message("When trying to launch cscript:" + extra);
-                        Debug.message(" This error was recieved: " + commandAsStr);
-                    }
-                }
-                catch (InterruptedException ie) {}
-
+                new ExternalProcessLogger(command[0], commandAsStr.toString(), p).start();
             }
-            catch (IOException e) {}
-
+            catch (IOException e) {
+                Debug.reportError("While trying to launch \"" + command + "\", got this IOException:", e);
+            }
         }
         if (Config.isLinux()) {
             // http://ubuntuforums.org/archive/index.php/t-197207.html
-        }
-        else if (Config.isMacOS()) {
-            // Use applescript to bring it to front.
-            String command[] = {"osascript", "-e", "tell application \"System Events\"", "-e",
-                    "set frontmost of first process whose unix id is " + pid + " to true", "-e", "end tell"};
-            
-            StringBuffer commandAsStr = new StringBuffer();
-            for (int i = 0; i < command.length; i++) {
-                commandAsStr.append(command[i] + " ");
-            }
-            
-            //System.out.print("toFront executing command: " + commandAsStr);
-
-            StringBuffer extra = new StringBuffer();
-            try {
-                Process p = Runtime.getRuntime().exec(command);
-                
-                BufferedReader br = null;
-                // grab anything else
-                try {
-                    br = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-
-                    char[] buf = new char[1024];
-                    for (int i = 0; i < 5; i++) {
-                        Thread.sleep(200);
-
-                        // discontinue if no data available or stream closed
-                        if (!br.ready())
-                            break;
-                        int len = br.read(buf);
-                        if (len == -1)
-                            break;
-
-                        extra.append(buf, 0, len);
-                    }
-                    if (extra.length() != 0) {
-                        Debug.message("When trying to launch osascript:" + commandAsStr);
-                        Debug.message(" This error output was recieved: " + extra);
-                    }                    
-                }
-                catch (InterruptedException ie) {
-                    Debug.message("When trying to launch osascript:" + commandAsStr);
-                    Debug.message(" This error output was recieved: " + extra);
-                    Debug.reportError(" And got InterruptedException: ", ie);
-                }
-                finally {
-                    if(br != null) {
-                        br.close();
-                    }
-                }
-            }
-            catch (IOException e) {
-                Debug.message("When trying to launch osascript:" + commandAsStr);
-                Debug.message(" This error output was recieved: " + extra);
-                Debug.reportError(" And got IOException: ", e);
-            }
+            // However, usually X doesn't care about process stacking:
+            window.toFront();
         }        
 
         // alternative technique: using 'open command. works only for BlueJ.app,
@@ -589,9 +519,55 @@ public class Utility
         // String[] openCmd = { "open", path };
         // Runtime.getRuntime().exec(openCmd);
         // }
-
     }
 
+    private static class ExternalProcessLogger extends Thread
+    {
+        String commandAsStr;
+        String processName; 
+        Process p;
+        
+        public ExternalProcessLogger(String processName, String command, Process process)
+        {
+            this.processName = processName;
+            commandAsStr = command;
+            p = process;
+        }
+        
+        public void run()
+        {
+            BufferedReader br = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            StringBuffer extra = new StringBuffer();
+
+            try {
+                char[] buf = new char[1024];
+                Thread.sleep(1000);
+
+                // discontinue if no data available or stream closed
+                if (br.ready()) {
+                    int len = br.read(buf);
+                    if (len != -1) {
+                        extra.append(buf, 0, len);
+                    }
+                }
+                
+                if (extra.length() != 0) {
+                    Debug.message("When trying to launch " + processName + ":" + commandAsStr);
+                    Debug.message(" This error was recieved: " + extra);
+                }
+            }
+            catch (InterruptedException ie) {}
+            catch (IOException ioe) {}
+            finally {
+                try {
+                    br.close();
+                }
+                catch (IOException ioe) {}
+            }
+        }
+    }
+    
+    
     /**
      * Get the process ID of this process.
      */

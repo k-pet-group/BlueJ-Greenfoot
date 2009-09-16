@@ -77,7 +77,7 @@ import bluej.utility.Utility;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 6678 2009-09-16 00:04:42Z davmac $
+ * @version $Id: Config.java 6687 2009-09-16 14:04:23Z davmac $
  */
 
 public final class Config
@@ -122,7 +122,7 @@ public final class Config
     public static String debugLogName = bluejDebugLogName;
     
     private static boolean initialised = false;
-    private static boolean isGreenfoot;
+    private static boolean isGreenfoot = false;
     
     /** name of the icons file for the VM on Mac */
     private static final String BLUEJ_DEBUG_DOCK_ICON = "vm.icns";
@@ -155,7 +155,7 @@ public final class Config
     private static List<String> debugVMArgs = new ArrayList<String>();
     
     /** whether this is the debug vm or not. */
-    private static boolean isDebugVm = false;
+    private static boolean isDebugVm = true; // Default to true, will be corrected on main VM
 
 
     /**
@@ -171,7 +171,6 @@ public final class Config
             return;
 
         initialised = true;
-
         
         initialCommandLineProps = tempCommandLineProps;
         
@@ -186,6 +185,8 @@ public final class Config
         // setup our heirarchy of property objects if it is not done yet:
         if(systemProps == null)
         {
+            isDebugVm = false;
+            
             // top level is the system properties loaded from bluej.defs
             systemProps = loadDefs("bluej.defs", System.getProperties());
             
