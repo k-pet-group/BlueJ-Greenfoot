@@ -39,8 +39,14 @@ import org.tigris.subversion.javahl.Revision;
  */
 public class SubversionProvider implements TeamworkProvider
 {
+    SVNClientInterface client;
+    
     public SubversionProvider()
     {
+        client = getClient();
+        if (client == null) {
+            throw new RuntimeException("Can't initialize Subversion provider.");
+        }
     }
     
     /**
@@ -88,7 +94,6 @@ public class SubversionProvider implements TeamworkProvider
     
     public TeamworkCommandResult checkConnection(TeamSettings settings)
     {
-        SVNClientInterface client = getClient();
         client.username(settings.getUserName());
         client.password(settings.getPassword());
         
@@ -103,7 +108,7 @@ public class SubversionProvider implements TeamworkProvider
     
     public String[] getProtocols()
     {
-        return new String [] { "svn", "svn+ssh", "http" };
+        return new String [] { "svn", "svn+ssh", "http", "https" };
     }
     
     public String getProtocolKey(int protocol)

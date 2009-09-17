@@ -140,11 +140,6 @@ public class SvnRepository
     /* (non-Javadoc)
      * @see bluej.groupwork.Repository#getStatus(bluej.groupwork.StatusListener, java.util.Set, boolean)
      */
-//    public TeamworkCommand getStatus(StatusListener listener, Set files, boolean includeRemote)
-//    {
-//        return new SvnStatusCommand(this, listener, files, includeRemote);
-//    }
-    
     public TeamworkCommand getStatus(StatusListener listener, FileFilter filter, boolean includeRemote)
     {
         return new SvnStatusCommand(this, listener, filter, includeRemote);
