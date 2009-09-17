@@ -21,8 +21,6 @@
  */
 package bluej.runtime;
 
-import java.util.Map;
-
 /**
  * Interface implemented by all "shell" classes.
  *
@@ -32,7 +30,7 @@ import java.util.Map;
  *
  * @author  Michael Cahill
  * @author  Michael Kolling
- * @version $Id: Shell.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: Shell.java 6702 2009-09-17 04:42:20Z davmac $
  */
 public abstract class Shell
 {
@@ -48,7 +46,7 @@ public abstract class Shell
      * Provide the shell class with static access to the object
      * bench scopes.
      */
-    protected static Map getScope(String scopeId)
+    protected static BJMap<String,Object> getScope(String scopeId)
     {
         return ExecServer.getScope(scopeId);
     }
@@ -78,55 +76,64 @@ public abstract class Shell
      */
     protected static Object makeObj(final String s) {
         return new Object() {
+           @SuppressWarnings("unused")
            public String result = s;
         };
     }
 
     protected static Object makeObj(final boolean b) {
         return new Object() {
-           public boolean result = b;
+            @SuppressWarnings("unused")
+            public boolean result = b;
         };
     }
 
     protected static Object makeObj(final byte b) {
         return new Object() {
-           public byte result = b;
+            @SuppressWarnings("unused")
+            public byte result = b;
         };
     }
 
     protected static Object makeObj(final char c) {
         return new Object() {
-           public char result = c;
+            @SuppressWarnings("unused")
+            public char result = c;
         };
     }
 
     protected static Object makeObj(final double d) {
         return new Object() {
-           public double result = d;
+            @SuppressWarnings("unused")
+            public double result = d;
         };
     }
 
     protected static Object makeObj(final float f) {
         return new Object() {
-           public float result = f;
+            @SuppressWarnings("unused")
+            public float result = f;
         };
     }
 
     protected static Object makeObj(final int i) {
         return new Object() {
+            @SuppressWarnings("unused")
             public int result = i;
         };
     }
 
     protected static Object makeObj(final long l) {
         return new Object() {
-           public long result = l;
+            @SuppressWarnings("unused")
+            public long result = l;
         };
     }
 
     protected static Object makeObj(final short s) {
         return new Object() {
-           public short result = s;
+            @SuppressWarnings("unused")
+            public short result = s;
         };
     }
 }

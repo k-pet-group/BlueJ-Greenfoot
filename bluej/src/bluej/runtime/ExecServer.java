@@ -53,7 +53,7 @@ import junit.framework.TestSuite;
  *
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: ExecServer.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ExecServer.java 6702 2009-09-17 04:42:20Z davmac $
  */
 public class ExecServer
 {
@@ -75,7 +75,7 @@ public class ExecServer
     public static int execAction;   // EXEC_SHELL, TEST_SETUP or TEST_RUN
     
     public static Object methodReturn;
-    public static Class executedClass;
+    public static Class<?> executedClass;
     public static Throwable exception;
     
     // These constant values must match the variable names declared above
@@ -141,13 +141,13 @@ public class ExecServer
     
     // a hashmap of names to objects
     // private static Map objects = new HashMap();
-    private static Map objectMaps = new HashMap();
+    private static Map<String,BJMap<String,Object>> objectMaps = new HashMap<String,BJMap<String,Object>>();
     
     /**
      * We need to keep track of open windows so that we can dispose of them
      * when simulating a System.exit() call
      */
-    private static List openWindows = Collections.synchronizedList(new LinkedList());
+    private static List<Window> openWindows = Collections.synchronizedList(new LinkedList<Window>());
     private static boolean disposingAllWindows = false; // true while we are disposing
 
     /**
@@ -193,7 +193,7 @@ public class ExecServer
                                 // Cause the class to be prepared (ie. its fields and methods
                                 // enumerated). Otherwise we can get ClassNotPreparedException
                                 // when we try and get the fields on the other VM.
-                                ((Class) workerReturn).getFields();
+                                ((Class<?>) workerReturn).getFields();
                                 
                                 classLoader = null;  // reset for next call
                             }
@@ -225,12 +225,14 @@ public class ExecServer
             {
                 Object source = event.getSource();
                 if(event.getID() == WindowEvent.WINDOW_OPENED) {                    
-                    addWindow(source);
-                    if(source instanceof Window) {
+                    if (source instanceof Window) {
+                        addWindow((Window) source);
                         Utility.bringToFront((Window) source);
                     }
                 } else if(event.getID() == WindowEvent.WINDOW_CLOSED) {
-                    removeWindow(source);
+                    if (source instanceof Window) {
+                        removeWindow((Window) source);
+                    }
                 }
             }
         };
@@ -277,7 +279,7 @@ public class ExecServer
      *
      * @param   o   a window object which has just been opened
      */
-    private static void addWindow(final Object o)
+    private static void addWindow(Window o)
     {
         openWindows.add(o);
     }
@@ -287,7 +289,7 @@ public class ExecServer
      *
      * @param   o   a window object which has just been closed
      */
-    private static void removeWindow(Object o)
+    private static void removeWindow(Window o)
     {
         if(!disposingAllWindows)   // don't bother if we are clearing up just now
             openWindows.remove(o);
@@ -296,12 +298,12 @@ public class ExecServer
     /**
      * Find a scoping Map for the given scopeId
      */
-    static Map getScope(String scopeId)
+    static BJMap<String,Object> getScope(String scopeId)
     {
         synchronized (objectMaps) {
-            Map m = (Map) objectMaps.get(scopeId);
+            BJMap<String,Object> m = objectMaps.get(scopeId);
             if (m == null) {
-                m = new HashMap();
+                m = new BJMap<String,Object>();
                 objectMaps.put(scopeId, m);
             }
             return m;
@@ -322,8 +324,6 @@ public class ExecServer
      */
     private static ClassLoader newLoader(String urlListAsString )
     {
-//      JOptionPane.showMessageDialog(null,"ExecServer.newLoader() urlListAsString="+urlListAsString);
-        
         String [] splits = urlListAsString.split("\n");
         URL []urls = new URL[splits.length];
         
@@ -349,7 +349,7 @@ public class ExecServer
      * Load (and prepare) a class in the remote runtime. Return null if the class could not
      * be loaded.
      */
-    public static Class loadAndInitClass(String className)
+    public static Class<?> loadAndInitClass(String className)
     {
     	//Debug.message("[VM] loadClass: " + className);
         
@@ -359,7 +359,7 @@ public class ExecServer
         }
         
         Throwable exception = null;
-        Class cl;
+        Class<?> cl;
         try {
             cl = Class.forName(className, true, currentLoader);
         }
@@ -422,12 +422,12 @@ public class ExecServer
     /**
      * Load a class, and all its inner classes.
      */
-    private static Class [] loadAllClasses(String className)
+    private static Class<?>[] loadAllClasses(String className)
     {
-        List l = new ArrayList();
+        List<Class<?>> l = new ArrayList<Class<?>>();
         
         try {
-            Class c = currentLoader.loadClass(className);
+            Class<?> c = currentLoader.loadClass(className);
             c.getFields(); // prepare class
             l.add(c);
             getDeclaredInnerClasses(c, l);
@@ -450,10 +450,10 @@ public class ExecServer
      * Add the declared inner classes of the given class to the given
      * list, recursively.
      */
-    private static void getDeclaredInnerClasses(Class c, List list)
+    private static void getDeclaredInnerClasses(Class<?> c, List<Class<?>> list)
     {
         try {
-            Class [] rlist = c.getDeclaredClasses();
+            Class<?> [] rlist = c.getDeclaredClasses();
             for (int i = 0; i < rlist.length; i++) {
                 c = rlist[i];
                 c.getFields(); // force preparation
@@ -474,7 +474,7 @@ public class ExecServer
     static void addObject(String scopeId, String instanceName, Object value)
     {
         // Debug.message("[VM] addObject: " + instanceName + " " + value);
-        Map scope = getScope(scopeId);
+        BJMap<String,Object> scope = getScope(scopeId);
         synchronized (scope) {
             scope.put(instanceName, value);
             scope.notify(); // in case Greenfoot is waiting for this object
@@ -492,19 +492,19 @@ public class ExecServer
      */
     private static Object[] runTestSetUp(String className)
     {
-		// Debug.message("[VM] runTestSetUp" + className);
+        // Debug.message("[VM] runTestSetUp" + className);
 
-		Class cl = loadAndInitClass(className);
+        Class<?> cl = loadAndInitClass(className);
         
         try {
             // construct an instance of the test case (firstly trying the
             // String argument constructor - then the no-arg constructor)
             Object testCase = null;
 
-            Class partypes[] = new Class[1];
+            Class<?> [] partypes = new Class[1];
             partypes[0] = String.class;
             try {
-                Constructor ct = cl.getConstructor(partypes);
+                Constructor<?> ct = cl.getConstructor(partypes);
 
                 Object arglist[] = new Object[1];
                 arglist[0] = "TestCase " + className;
@@ -568,7 +568,7 @@ public class ExecServer
      * @param paramtypes The argument types
      * @return  The method, or null if not found.
      */
-    static private Method findMethod(Class cl, String name, Class[] paramtypes)
+    static private Method findMethod(Class<?> cl, String name, Class<?>[] paramtypes)
     {
         while (cl != null) {
             try {
@@ -582,7 +582,7 @@ public class ExecServer
         return null;
     }
 
-	/**
+    /**
      * Execute a JUnit test method and return the result.<p>
      * 
      * The array returned in case of failure or error contains:<br>
@@ -599,9 +599,9 @@ public class ExecServer
      */
     private static Object[] runTestMethod(String className, String methodName)
     {
-		// Debug.message("[VM] runTestMethod" + className + " " + methodName);
+        // Debug.message("[VM] runTestMethod" + className + " " + methodName);
 
-		Class cl = loadAndInitClass(className);
+        Class<?> cl = loadAndInitClass(className);
         
         TestCase testCase = null;
         
@@ -609,9 +609,9 @@ public class ExecServer
         // the String constructor and passing in our
         // method name as a parameter     
         try {
-            Class partypes[] = new Class[1];
+            Class<?> partypes[] = new Class[1];
             partypes[0] = String.class;
-            Constructor ct = cl.getConstructor(partypes);
+            Constructor<?> ct = cl.getConstructor(partypes);
 
             Object arglist[] = new Object[1];
             arglist[0] = methodName;
@@ -622,8 +622,8 @@ public class ExecServer
         catch (IllegalAccessException iae) { throw new IllegalArgumentException("iae"); }
         catch (InvocationTargetException ite) { throw new IllegalArgumentException("ite"); }
 
-		// if that failed, construct a testcase using
-		// the no-arguement constructor
+        // if that failed, construct a testcase using
+        // the no-arguement constructor
         if (testCase == null) {
             try {
                 testCase = (TestCase) cl.newInstance();
@@ -636,43 +636,43 @@ public class ExecServer
         TestSuite suite = new TestSuite("bluej");
         suite.addTest(testCase);
 
-		RemoteTestRunner runner = new RemoteTestRunner();
+        RemoteTestRunner runner = new RemoteTestRunner();
 
         TestResult tr = runner.doRun(suite);
 
-		if (tr.errorCount() > 1 || tr.failureCount() > 1)
-			throw new IllegalStateException("error or failure count was > 1");
-			
-		if (tr.errorCount() == 1) {
-			for (Enumeration e = tr.errors(); e.hasMoreElements(); ) {
-				Object result[] = new Object[7];
-				TestFailure tf = (TestFailure)e.nextElement();
-				
-				result[0] = tf.isFailure() ? "failure" : "error";
-				result[1] = tf.exceptionMessage() != null ? tf.exceptionMessage() : "no exception message";
-				result[2] = tf.trace() != null ? tf.trace() : "no trace";
-				StackTraceElement [] ste = tf.thrownException().getStackTrace();
+        if (tr.errorCount() > 1 || tr.failureCount() > 1)
+            throw new IllegalStateException("error or failure count was > 1");
+
+        if (tr.errorCount() == 1) {
+            for (Enumeration<?> e = tr.errors(); e.hasMoreElements(); ) {
+                Object result[] = new Object[7];
+                TestFailure tf = (TestFailure)e.nextElement();
+
+                result[0] = tf.isFailure() ? "failure" : "error";
+                result[1] = tf.exceptionMessage() != null ? tf.exceptionMessage() : "no exception message";
+                result[2] = tf.trace() != null ? tf.trace() : "no trace";
+                StackTraceElement [] ste = tf.thrownException().getStackTrace();
                 result[3] = ste[0].getClassName();
                 result[4] = ste[0].getFileName();
                 result[5] = ste[0].getMethodName();
                 result[6] = String.valueOf(ste[0].getLineNumber());
-                
-				return result;
-			}
-			// should not reach here
-			throw new IllegalStateException("errorCount was 1 but found no errors");
-		}
 
-		if (tr.failureCount() == 1) {
-			for (Enumeration e = tr.failures(); e.hasMoreElements(); ) {
-				Object result[] = new Object[7];
-				TestFailure tf = (TestFailure)e.nextElement();
-				
-				result[0] = tf.isFailure() ? "failure" : "error";
-				result[1] = tf.exceptionMessage() != null ? tf.exceptionMessage() : "no exception message";
-				result[2] = tf.trace() != null ? tf.trace() : "no trace";
+                return result;
+            }
+            // should not reach here
+            throw new IllegalStateException("errorCount was 1 but found no errors");
+        }
+
+        if (tr.failureCount() == 1) {
+            for (Enumeration<?> e = tr.failures(); e.hasMoreElements(); ) {
+                Object result[] = new Object[7];
+                TestFailure tf = (TestFailure)e.nextElement();
+
+                result[0] = tf.isFailure() ? "failure" : "error";
+                result[1] = tf.exceptionMessage() != null ? tf.exceptionMessage() : "no exception message";
+                result[2] = tf.trace() != null ? tf.trace() : "no trace";
                 StackTraceElement [] ste = tf.thrownException().getStackTrace();
-                
+
                 // search the stack trace backward until finding a class not
                 // part of the junit framework
                 int i = 0;
@@ -683,14 +683,14 @@ public class ExecServer
                 result[5] = ste[i].getMethodName();
                 result[6] = String.valueOf(ste[i].getLineNumber());
 
-				return result;
-			}
-			// should not reach here
-			throw new IllegalStateException("failureCount was 1 but found no errors");
-		}
+                return result;
+            }
+            // should not reach here
+            throw new IllegalStateException("failureCount was 1 but found no errors");
+        }
 
-		// success
-		return null;
+        // success
+        return null;
     }
 
 //    private static Object executeCode(String code) throws Throwable
@@ -722,7 +722,7 @@ public class ExecServer
     private static void removeObject(String scopeId, String instanceName)
     {
         //Debug.message("[VM] removeObject: " + instanceName);
-        Map scope = getScope(scopeId);
+        BJMap<String,Object> scope = getScope(scopeId);
         synchronized (scope) {
             scope.remove(instanceName);
         }
@@ -737,15 +737,10 @@ public class ExecServer
     {
         synchronized(openWindows) {
             disposingAllWindows = true;
-            Iterator it = openWindows.iterator();
+            Iterator<Window> it = openWindows.iterator();
 
             while(it.hasNext()) {
-                Object o = it.next();
-
-                if (o instanceof Window) {
-                    Window w = (Window) o;
-                    w.dispose();
-                }
+                it.next().dispose();
             }
             openWindows.clear();
             disposingAllWindows = false;
@@ -811,7 +806,7 @@ public class ExecServer
                             
                             clearInputBuffer();
                             // ShellClassLoader cloader = new ShellClassLoader(currentLoader, classToRun);
-                            Class c = currentLoader.loadClass(classToRun);
+                            Class<?> c = currentLoader.loadClass(classToRun);
                             executedClass = c;
                             // Class c = cloader.loadClass(classToRun);
                             Method m = c.getMethod("run", new Class[0]);
@@ -828,8 +823,8 @@ public class ExecServer
                             // Instantiate a class using the default
                             // constructor
                             clearInputBuffer();
-                            Class c = currentLoader.loadClass(classToRun);
-                            Constructor cons = c.getDeclaredConstructor(new Class[0]);
+                            Class<?> c = currentLoader.loadClass(classToRun);
+                            Constructor<?> cons = c.getDeclaredConstructor(new Class[0]);
                             cons.setAccessible(true);
                             try {
                                 methodReturn = cons.newInstance((Object []) null);
@@ -844,15 +839,15 @@ public class ExecServer
                             // Instantiate a class using specified parameter
                             // types and arguments
                             clearInputBuffer();
-                            Class c = currentLoader.loadClass(classToRun);
-                            Class [] paramClasses = new Class[parameterTypes.length];
+                            Class<?> c = currentLoader.loadClass(classToRun);
+                            Class<?> [] paramClasses = new Class[parameterTypes.length];
                             for (int i = 0; i < parameterTypes.length; i++) {
                                 if (classLoader == null)
                                     classLoader = currentLoader;
                                 
                                 paramClasses[i] = Class.forName(parameterTypes[i], false, currentLoader);
                             }
-                            Constructor cons = c.getDeclaredConstructor(paramClasses);
+                            Constructor<?> cons = c.getDeclaredConstructor(paramClasses);
                             cons.setAccessible(true);
                             try {
                                 methodReturn = cons.newInstance(arguments);
@@ -932,7 +927,7 @@ public class ExecServer
      * @return The object
      */
     public static Object getObject(String instanceName) {
-        Map m = getScope(scopeId);
+        BJMap<String,Object> m = getScope(scopeId);
         Object rval = null;
         
         try {

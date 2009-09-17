@@ -27,7 +27,7 @@ import java.security.Permission;
  * A SecurityManager for the BlueJ runtime
  *
  * @author  Michael Kolling
- * @version $Id: RemoteSecurityManager.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: RemoteSecurityManager.java 6702 2009-09-17 04:42:20Z davmac $
  */
 public class RemoteSecurityManager extends SecurityManager
 {
@@ -70,7 +70,7 @@ public class RemoteSecurityManager extends SecurityManager
     }
 
 
-    public void checkMemberAccess(Class clazz,int which)
+    public void checkMemberAccess(Class<?> clazz,int which)
     {
     }
 

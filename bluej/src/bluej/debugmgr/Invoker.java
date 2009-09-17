@@ -61,7 +61,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 6595 2009-09-02 14:30:49Z davmac $
+ * @version $Id: Invoker.java 6702 2009-09-17 04:42:20Z davmac $
  */
 
 public class Invoker
@@ -704,7 +704,7 @@ public class Invoker
         Map<String, String> objBenchVarsMap = new HashMap<String, String>();
         
         if (wrappers.hasNext() || localVars != null) {
-            buffer.append("final java.util.Map __bluej_runtime_scope = getScope(\"" + scopeId + "\");" + Config.nl);
+            buffer.append("final bluej.runtime.BJMap __bluej_runtime_scope = getScope(\"" + scopeId + "\");" + Config.nl);
         
             // writeVariables("", buffer, false, wrappers, cqtTransform);
             while (wrappers.hasNext()) {
