@@ -354,4 +354,13 @@ public class NewParserTest extends TestCase
         ip.parseExpression();
     }
 
+    public void test25()
+    {
+        StringReader sr = new StringReader(
+                "new String[]{\"hello\", \"goodbye\",}"
+        );
+        InfoParser ip = new InfoParser(sr);
+        ip.parseExpression();
+    }
+    
 }
