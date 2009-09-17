@@ -37,13 +37,13 @@ import bluej.utility.Debug;
  * the top-level folder of a team project, and the bluej.properties
  *
  * @author fisker
- * @version $Id: TeamSettingsController.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: TeamSettingsController.java 6696 2009-09-17 03:31:58Z davmac $
  */
 public class TeamSettingsController
 {
-    private static ArrayList teamProviders;
+    private static ArrayList<TeamworkProvider> teamProviders;
     static {
-        teamProviders = new ArrayList(2);
+        teamProviders = new ArrayList<TeamworkProvider>(2);
         try {
             teamProviders.add(new CvsProvider());
         }
@@ -113,7 +113,7 @@ public class TeamSettingsController
     /**
      * Get a list of the teamwork providers (CVS, Subversion).
      */
-    public List getTeamworkProviders()
+    public List<TeamworkProvider> getTeamworkProviders()
     {
         return teamProviders;
     }
@@ -172,7 +172,7 @@ public class TeamSettingsController
      * @param includeLayout  indicates whether to include the layout (bluej.pkg) files.
      * (Note that locally deleted bluej.pkg files are always included).
      */
-    public Set getProjectFiles(boolean includeLayout)
+    public Set<File> getProjectFiles(boolean includeLayout)
     {
         initRepository(); // make sure the repository is constructed
         
@@ -182,7 +182,7 @@ public class TeamSettingsController
         }
         
         // Get a list of files to commit
-        Set files = project.getFilesInProject(includeLayout, versionsDirs);
+        Set<File> files = project.getFilesInProject(includeLayout, versionsDirs);
         
         if (repository != null) {
             repository.getAllLocallyDeletedFiles(files);
@@ -473,13 +473,13 @@ public class TeamSettingsController
      * gets the regular expressions in string form for the files we should ignore
      * @return List containing Strings
      */
-    public List getIgnoreFiles()
+    public List<String> getIgnoreFiles()
     {
-        Enumeration keys = teamProperties.keys();
-        List patterns = new LinkedList();
+        Iterator<Object> keys = teamProperties.keySet().iterator();
+        List<String> patterns = new LinkedList<String>();
 
-        while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
+        while (keys.hasNext()) {
+            String key = (String) keys.next();
 
             // legacy settings
             if (key.startsWith("bluej.teamsettings.cvs.ignore")) {
