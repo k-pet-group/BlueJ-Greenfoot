@@ -23,25 +23,38 @@ package bluej.pkgmgr.target.role;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.charset.Charset;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Properties;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.JFrame;
+import javax.swing.JPopupMenu;
 
 import bluej.Config;
-import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.target.*;
-import bluej.utility.*;
+import bluej.pkgmgr.PackageEditor;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.RunAppletDialog;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.Target;
+import bluej.utility.BlueJFileReader;
+import bluej.utility.Debug;
+import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
+import bluej.utility.Utility;
 
 /**
  * An Applet class role in a package, i.e. a target that is a Applet class file
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: AppletClassRole.java 6704 2009-09-17 05:04:35Z davmac $
  */
 public class AppletClassRole extends StdClassRole
 {
@@ -54,10 +67,9 @@ public class AppletClassRole extends StdClassRole
     static final String htmlComment = Config.getString("pkgmgr.runApplet.htmlComment");
 
     static final String APPLETVIEWER_COMMAND =
-                            Config.getJDKExecutablePath("appletViewer.command", "appletviewer");
+        Config.getJDKExecutablePath("appletViewer.command", "appletviewer");
 
-	public static final String HTML_EXTENSION = ".html";
-    private static final String URL_PREFIX = "file://localhost/";
+    public static final String HTML_EXTENSION = ".html";
     private static final int DEFAULT_APPLET_WIDTH = 500;
     private static final int DEFAULT_APPLET_HEIGHT = 500;
 
@@ -227,7 +239,11 @@ public class AppletClassRole extends StdClassRole
                         String[] execCommand = {APPLETVIEWER_COMMAND, fname};
                         PkgMgrFrame.displayMessage(Config.getString("pkgmgr.appletInViewer"));
 
-                        Runtime.getRuntime().exec(execCommand, null, pkg.getProject().getProjectDir());
+                        Process applet = Runtime.getRuntime().exec(execCommand, null,
+                                pkg.getProject().getProjectDir());
+                        
+                        new StreamReader(applet.getErrorStream()).start();
+                        new StreamReader(applet.getInputStream()).start();
                     } catch (Exception e) {
                         pkg.showError("appletviewer-error");
                         Debug.reportError("Exception thrown in execution of appletviewer");
@@ -243,6 +259,32 @@ public class AppletClassRole extends StdClassRole
         }
     }
 
+    /**
+     * A utility class to mop up all the output that an applet might vomit.
+     */
+    private class StreamReader extends Thread
+    {
+        private InputStream stream;
+        
+        public StreamReader(InputStream stream)
+        {
+            this.stream = stream;
+        }
+        
+        @Override
+        public void run()
+        {
+            byte [] buf = new byte[1024];
+            try {
+                int len;
+                do {
+                    len = stream.read(buf);
+                }
+                while (len != -1);
+            }
+            catch (IOException ioe) {}
+        }
+    }
 
     /**
      * Use a file chooser to select a web page name and location.
@@ -309,7 +351,7 @@ public class AppletClassRole extends StdClassRole
     private void generateHTMLSkeleton(File outputFile, String appletName, String appletCodeBase, File[] libs,
                                       String width, String height, String[] parameters)
     {
-        Hashtable translations = new Hashtable();
+        Hashtable<String,String> translations = new Hashtable<String,String>();
 
         translations.put("TITLE", appletName);
         translations.put("COMMENT", htmlComment);
@@ -357,9 +399,9 @@ public class AppletClassRole extends StdClassRole
     /* (non-Javadoc)
      * @see bluej.pkgmgr.target.role.ClassRole#getAllFiles(bluej.pkgmgr.target.ClassTarget)
      */
-    public List getAllFiles(ClassTarget ct)
+    public List<File> getAllFiles(ClassTarget ct)
     {
-        List rlist = super.getAllFiles(ct);
+        List<File> rlist = super.getAllFiles(ct);
 
         File htmlFile = new File(ct.getPackage().getProject().getProjectDir(), 
                 ct.getQualifiedName() + HTML_EXTENSION);
