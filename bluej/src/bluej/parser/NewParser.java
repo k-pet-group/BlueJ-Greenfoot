@@ -2072,19 +2072,28 @@ public class NewParser
                 }
             }
 
-            if (tokenStream.LA(1).getType() == JavaTokenTypes.LCURLY) {
-                // An initialiser list
-                token = tokenStream.nextToken(); // LCURLY
+            endExprNew(token, true);
+            return;
+        }
+        
+        if (token.getType() == JavaTokenTypes.LCURLY) {
+            do {
+                if (tokenStream.LA(1).getType() == JavaTokenTypes.RCURLY) {
+                    token = tokenStream.nextToken();
+                    break;
+                }
                 parseExpression();
                 token = tokenStream.nextToken();
-                if (token.getType() != JavaTokenTypes.RCURLY) {
-                    error("Expecting '}' at end of array initializer list");
-                    tokenStream.pushBack(token);
-                    endExprNew(token, false);
-                    return;
-                }
             }
-
+            while (token.getType() == JavaTokenTypes.COMMA);
+            
+            if (token.getType() != JavaTokenTypes.RCURLY) {
+                error("Expecting '}' at end of array initializer list");
+                tokenStream.pushBack(token);
+                endExprNew(token, false);
+                return;
+            }
+            
             endExprNew(token, true);
             return;
         }
@@ -2119,7 +2128,6 @@ public class NewParser
         }
         endExprNew(token, true);
     }
-    
     
     /**
      * Parse a comma-separated, possibly empty list of arguments to a method/constructor
