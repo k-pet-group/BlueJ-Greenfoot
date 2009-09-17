@@ -37,17 +37,17 @@ import bluej.prefmgr.PrefMgr;
  *
  * @author  Markus Ostman
  * @author  Michael Kolling
- * @version $Id: FileUtility.java 6680 2009-09-16 00:47:00Z davmac $
+ * @version $Id: FileUtility.java 6710 2009-09-17 09:48:15Z davmac $
  */
 public class FileUtility
 {
-	/** 
-	 * Enum used to indicate file write capabilities on Windows.
-	 * @author polle
-	 * @see FileUtility#getVistaWriteCapabilities(File)
-	 */
-	public enum WriteCapabilities {READ_ONLY, NORMAL_WRITE, VIRTUALIZED_WRITE, UNKNOWN};
-	
+    /** 
+     * Enum used to indicate file write capabilities on Windows.
+     * @author polle
+     * @see FileUtility#getVistaWriteCapabilities(File)
+     */
+    public enum WriteCapabilities {READ_ONLY, NORMAL_WRITE, VIRTUALIZED_WRITE, UNKNOWN};
+
     private static final String sourceSuffix = ".java";
 
     private static JFileChooser pkgChooser = null;
