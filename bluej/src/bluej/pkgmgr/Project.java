@@ -32,6 +32,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -43,6 +44,8 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import javax.swing.JFrame;
+
+import com.sun.tools.javac.code.Attribute.Array;
 
 import bluej.BlueJEvent;
 import bluej.Boot;
@@ -95,7 +98,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 6347 2009-05-20 15:22:43Z polle $
+ * @version $Id: Project.java 6706 2009-09-17 05:24:59Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -103,7 +106,7 @@ public class Project implements DebuggerListener, InspectorManager
      * Collection of all open projects. The canonical name of the project
      * directory (as a File object) is used as the key.
      */
-    private static Map projects = new HashMap();
+    private static Map<File,Project> projects = new HashMap<File,Project>();
     public static final int NEW_PACKAGE_DONE = 0;
     public static final int NEW_PACKAGE_EXIST = 1;
     public static final int NEW_PACKAGE_BAD_NAME = 2;
@@ -150,7 +153,7 @@ public class Project implements DebuggerListener, InspectorManager
         for a project. It should only hold object inspectors that
         have a wrapper on the object bench. Inspectors of fields of
         object inspectors should be handled at the object wrapper level */
-    private Map inspectors;
+    private Map<Object,Inspector> inspectors;
     private boolean inTestMode = false;
     private BPClassLoader currentClassLoader;
     
@@ -185,7 +188,7 @@ public class Project implements DebuggerListener, InspectorManager
         Debug.log("Opening project: " + projectDir.toString());
         
         this.projectDir = projectDir;
-        inspectors = new HashMap();
+        inspectors = new HashMap<Object,Inspector>();
         packages = new TreeMap<String, Package>();
 
         try {
@@ -338,21 +341,21 @@ public class Project implements DebuggerListener, InspectorManager
         }
 
         if(Config.isWinOSVista()) {
-        	WriteCapabilities capabilities = FileUtility.getVistaWriteCapabilities(projectDir);
-        	switch (capabilities) {
-			case VIRTUALIZED_WRITE:
-	        	DialogManager.showMessage(parent, "project-is-virtualized");
-				break;
-			case READ_ONLY:
-	            DialogManager.showMessage(parent, "project-is-readonly");
-				break;
-			case NORMAL_WRITE:
-				break;
-			default:
-				break;
-			}
+                WriteCapabilities capabilities = FileUtility.getVistaWriteCapabilities(projectDir);
+                switch (capabilities) {
+                        case VIRTUALIZED_WRITE:
+                        DialogManager.showMessage(parent, "project-is-virtualized");
+                                break;
+                        case READ_ONLY:
+                    DialogManager.showMessage(parent, "project-is-readonly");
+                                break;
+                        case NORMAL_WRITE:
+                                break;
+                        default:
+                                break;
+                        }
         }
-    	else if (!projectDir.canWrite()) {
+        else if (!projectDir.canWrite()) {
             DialogManager.showMessage(parent, "project-is-readonly");
         }
         
@@ -373,6 +376,10 @@ public class Project implements DebuggerListener, InspectorManager
 
         if (project.terminal != null) {
             project.terminal.dispose();
+        }
+        
+        if (project.statusFrame != null) {
+            project.statusFrame.dispose();
         }
 
         project.removeAllInspectors();
@@ -452,10 +459,10 @@ public class Project implements DebuggerListener, InspectorManager
     }
 
     /**
-     * Gets the set of currently open projects. It is an accessor only
+     * Gets the set of currently open projects. It is an accessor only.
      * @return a Set containing all open projects.
      */
-    public static Collection getProjects() 
+    public static Collection<Project> getProjects() 
     {
         return projects.values();
     }
@@ -608,8 +615,8 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public void removeAllInspectors() 
     {
-        for (Iterator it = inspectors.values().iterator(); it.hasNext();) {
-            Inspector inspector = (Inspector) it.next();
+        for (Iterator<Inspector> it = inspectors.values().iterator(); it.hasNext();) {
+            Inspector inspector = it.next();
             inspector.setVisible(false);
             inspector.dispose();
         }
@@ -686,8 +693,8 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public void updateInspectors() 
     {
-        for (Iterator it = inspectors.values().iterator(); it.hasNext();) {
-            Inspector inspector = (Inspector) it.next();
+        for (Iterator<Inspector> it = inspectors.values().iterator(); it.hasNext();) {
+            Inspector inspector = it.next();
             inspector.update();
         }
     }
@@ -714,14 +721,14 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public Repository getRepository()
     {
-    	if (isSharedProject) {
-    	    return getTeamSettingsController().getRepository(true);
+        if (isSharedProject) {
+            return getTeamSettingsController().getRepository(true);
         }
         else {
             return null;
         }
     }      
-	
+        
     /**
      * A string which uniquely identifies this project
      */
@@ -915,18 +922,18 @@ public class Project implements DebuggerListener, InspectorManager
      * @return a List of String containing the fully qualified names of the
      *         packages.
      */
-    private List getPackageNames(Package rootPackage)
+    private List<String> getPackageNames(Package rootPackage)
     {
-        List l = new LinkedList();
-        List children;
+        List<String> l = new LinkedList<String>();
+        List<Package> children;
 
         l.add(rootPackage.getQualifiedName());
 
         children = rootPackage.getChildren(true);
-        Iterator i = children.iterator();
+        Iterator<Package> i = children.iterator();
         
         while (i.hasNext()) {
-            Package p = (Package) i.next();
+            Package p = i.next();
             l.addAll(getPackageNames(p));
         }
 
@@ -939,7 +946,8 @@ public class Project implements DebuggerListener, InspectorManager
      * @return  a List of String containing the fully qualified names
      *          of the packages in this project.
      */
-    public List getPackageNames() {
+    public List<String> getPackageNames()
+    {
         return getPackageNames(getPackage(""));
     }
 
@@ -947,11 +955,13 @@ public class Project implements DebuggerListener, InspectorManager
      * Generate documentation for the whole project.
      * @return "" if everything was alright, an error message otherwise.
      */
-    public String generateDocumentation() {
+    public String generateDocumentation()
+    {
         return docuGenerator.generateProjectDocu();
     }
 
-    public String getDocumentationFile(String filename) {
+    public String getDocumentationFile(String filename)
+    {
         return docuGenerator.getDocuPath(filename);
     }
 
@@ -959,7 +969,8 @@ public class Project implements DebuggerListener, InspectorManager
     * Generate the documentation for the file in 'filename'
      * @param filename
      */
-    public void generateDocumentation(String filename) {
+    public void generateDocumentation(String filename)
+    {
         docuGenerator.generateClassDocu(filename);
     }
 
@@ -981,7 +992,7 @@ public class Project implements DebuggerListener, InspectorManager
 
     public void saveAllEditors()
     {
-    	Iterator<Package> i = packages.values().iterator();
+        Iterator<Package> i = packages.values().iterator();
 
         while(i.hasNext()) {
             Package pkg = (Package) i.next();
@@ -998,11 +1009,11 @@ public class Project implements DebuggerListener, InspectorManager
      * Make all the Packages in this project save their graphlayout
      */
     public void saveAllGraphLayout(){
-    	Iterator<Package> i = packages.values().iterator();
+        Iterator<Package> i = packages.values().iterator();
  
         while(i.hasNext()) {
             Package pkg = (Package) i.next();
-				pkg.save(null);
+                                pkg.save(null);
         }
     }
     
@@ -1028,13 +1039,13 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public void clearAllSelections()
     {
-    	Iterator<Package> i = packages.values().iterator();
+        Iterator<Package> i = packages.values().iterator();
 
         while(i.hasNext()) {
             Package pkg = (Package) i.next();
             PackageEditor editor = pkg.getEditor();
             if (editor != null){
-            	editor.clearSelection();
+                editor.clearSelection();
             }
         }
     }
@@ -1045,16 +1056,16 @@ public class Project implements DebuggerListener, InspectorManager
      * 
      * @param targets a list of Targets
      */
-    public void selectTargetsInGraphs(List targets)
+    public void selectTargetsInGraphs(List<Target> targets)
     {
-    	for (Iterator i = targets.iterator(); i.hasNext();) {
-			Target target = (Target) i.next();
-			if (target != null){
-			    PackageEditor packageEditor = target.getPackage().getEditor();
-			    packageEditor.addToSelection(target);
-			    packageEditor.repaint();
-			}
-		}
+        for (Iterator<Target> i = targets.iterator(); i.hasNext();) {
+            Target target = i.next();
+            if (target != null){
+                PackageEditor packageEditor = target.getPackage().getEditor();
+                packageEditor.addToSelection(target);
+                packageEditor.repaint();
+            }
+        }
     }
     
     /**
@@ -1073,16 +1084,16 @@ public class Project implements DebuggerListener, InspectorManager
     {
         String packageName = "";
         int index = targetId.lastIndexOf('.');
-    	if (index > 0) {
-			packageName = targetId.substring(0, index);
+        if (index > 0) {
+            packageName = targetId.substring(0, index);
             targetId = targetId.substring(index + 1);
-		}
-		Package p = getPackage(packageName);
-		if (p == null) {
-		    return null;
-		}
-    	Target target = p.getTarget(targetId);
-    	return target;
+        }
+        Package p = getPackage(packageName);
+        if (p == null) {
+            return null;
+        }
+        Target target = p.getTarget(targetId);
+        return target;
     }
     
     /**
@@ -1092,33 +1103,34 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public void openEditorsForSelectedTargets()
     {
-    	List selectedTargets = getSelectedTargets();
-    	for (Iterator i = selectedTargets.iterator(); i.hasNext(); ){
-    		Target target = (Target) i.next();
-    		if (target instanceof ClassTarget){
-    			ClassTarget classTarget = (ClassTarget) target;
-    			Editor editor = classTarget.getEditor();
+        List<Target> selectedTargets = getSelectedTargets();
+        for (Iterator<Target> i = selectedTargets.iterator(); i.hasNext(); ){
+            Target target = i.next();
+            if (target instanceof ClassTarget){
+                ClassTarget classTarget = (ClassTarget) target;
+                Editor editor = classTarget.getEditor();
                 if (editor != null) {
                     editor.setVisible(true);
                     // TODO: make moe select the ======== part of cvs conflicts
                 }
-    		}
-    	}
+            }
+        }
     }
     
     /**
      * Returns a list of Targets that is seleceted in its package editor
      * @return List list of targets that is selected
      */
-    private List getSelectedTargets(){
-    	List selectedTargets = new LinkedList();
-    	List packageNames = getPackageNames();
-    	for (Iterator i = packageNames.iterator(); i.hasNext();) {
-			String packageName = (String) i.next();
-			Package p = getPackage(packageName);
-			selectedTargets.addAll(Arrays.asList(p.getSelectedTargets()));
-		}
-    	return selectedTargets;
+    private List<Target> getSelectedTargets()
+    {
+        List<Target> selectedTargets = new LinkedList<Target>();
+        List<String> packageNames = getPackageNames();
+        for (Iterator<String> i = packageNames.iterator(); i.hasNext();) {
+            String packageName = i.next();
+            Package p = getPackage(packageName);
+            selectedTargets.addAll(Arrays.asList(p.getSelectedTargets()));
+        }
+        return selectedTargets;
     }
     
     /**
@@ -1266,7 +1278,7 @@ public class Project implements DebuggerListener, InspectorManager
     /**
      * Loads a class using the current classLoader
      */
-    public Class loadClass(String className)
+    public Class<?> loadClass(String className)
     {
         try {
             return getClassLoader().loadClass(className);
@@ -1298,9 +1310,9 @@ public class Project implements DebuggerListener, InspectorManager
      * @param type   "optional" or "core", the type of libraries to process
      * @return a non null but possibly empty list of URL.
      */
-    protected List getJavaMELibraries( String type ) 
+    protected List<URL> getJavaMELibraries( String type ) 
     {
-        List risul = new ArrayList( );
+        List<URL> risul = new ArrayList<URL>( );
         String toolkitDir = Config.getPropString( "bluej.javame.toolkit.dir", null );
         
         String libs;   //string of java me libraries to parse
@@ -1333,9 +1345,9 @@ public class Project implements DebuggerListener, InspectorManager
      * of this project.
      * @return a non null but possibly empty list of URL.
      */
-    protected ArrayList getPlusLibsContent () 
+    protected ArrayList<URL> getPlusLibsContent () 
     {
-        ArrayList risul = new ArrayList();
+        ArrayList<URL> risul = new ArrayList<URL>();
         
         // the subdirectory of the project which can hold project specific jars and zips
         File libsDirectory = new File(projectDir, projectLibDirName);
@@ -1359,13 +1371,13 @@ public class Project implements DebuggerListener, InspectorManager
     }
     
     /**
-     * Attempts to add a library to the given list of libraies.
+     * Attempts to add a library to the given list of libraries.
      * A valid library file is one that is a file, readable, ends either with zip or jar.
-     * Before addition the file is transformaed to a URL.
+     * Before addition the file is transformed to a URL.
      * @param risul where to add the file
      * @param aFile the file to be added.
      */
-    private static final void attemptAddLibrary ( ArrayList risul, File aFile ) 
+    private static final void attemptAddLibrary ( ArrayList<URL> risul, File aFile ) 
     {
         if ( aFile == null ) return;
         
@@ -1391,9 +1403,9 @@ public class Project implements DebuggerListener, InspectorManager
      *
      * @return  URLs of the discovered JAR files
      */
-    public static final ArrayList getUserlibContent() 
+    public static final ArrayList<URL> getUserlibContent() 
     {
-        ArrayList risul = new ArrayList();
+        ArrayList<URL> risul = new ArrayList<URL>();
         File userLibDir;
         
         // The userlib location may be specified in bluej.defs
@@ -1418,15 +1430,6 @@ public class Project implements DebuggerListener, InspectorManager
     }
 
     /**
-     * TIny utility to make code cleaner.
-     */
-    private void addArrayToList ( ArrayList list, URL []urls)
-    {
-        for (int index=0; index<urls.length; index++)
-            list.add(urls[index]);
-    }
-    
-    /**
      * Return a ClassLoader that should be used to load or reflect on the project classes.
      * The same BClassLoader object is returned until the Project is compiled or the content of the
      * user class list is changed, this is needed to load "compatible" classes in the same classloader space.
@@ -1438,27 +1441,27 @@ public class Project implements DebuggerListener, InspectorManager
         if (currentClassLoader != null)
             return currentClassLoader;
        
-        ArrayList pathList = new ArrayList();
+        ArrayList<URL> pathList = new ArrayList<URL>();
         
-        List coreLibs = new ArrayList(); //Java ME core libraries
-        List optLibs  = new ArrayList(); //java ME optional libraries
+        List<URL> coreLibs = new ArrayList<URL>(); //Java ME core libraries
+        List<URL> optLibs  = new ArrayList<URL>(); //java ME optional libraries
 
         try {
             // Junit is always part of the project libraries, only Junit, not the core Bluej.
-			//   pathList.add( Boot.getInstance().getJunitLib().toURI().toURL());
+                        //   pathList.add( Boot.getInstance().getJunitLib().toURI().toURL());
             
             // Until the rest of BlueJ is clean we also need to add bluejcore
             // It should be possible to run BlueJ only with Junit
-            addArrayToList (pathList, Boot.getInstance().getRuntimeUserClassPath());
+            Collections.addAll(pathList, Boot.getInstance().getRuntimeUserClassPath());
     
             // Next part is the libraries that are added trough the config panel.
-            pathList.addAll ( PrefMgrDialog.getInstance().getUserConfigLibPanel().getUserConfigContent() );
+            pathList.addAll(PrefMgrDialog.getInstance().getUserConfigLibPanel().getUserConfigContent());
     
             // Then the libraries that are in the userlib directory
-            pathList.addAll ( getUserlibContent() );
+            pathList.addAll(getUserlibContent());
             
             // The libraries that are in the project +libs directory
-            pathList.addAll ( getPlusLibsContent() );
+            pathList.addAll(getPlusLibsContent());
           
             // The current paroject dir must be added to the project class path too.
             pathList.add(getProjectDir().toURI().toURL());
@@ -1496,13 +1499,13 @@ public class Project implements DebuggerListener, InspectorManager
      * @param urlList List of URLs to convert to Strings.
      * @return the parameter as a list of Strings or an empty list if parameter list is empty.
      */
-    private List toStringList( List urlList )  
+    private List<String> toStringList(List<URL> urlList)  
     {
-        List risul = new ArrayList( );        
-        Iterator it = urlList.iterator( );
+        List<String> risul = new ArrayList<String>();        
+        Iterator<URL> it = urlList.iterator( );
         while ( it.hasNext( ) ) 
         {
-            URL u = (URL) it.next( );
+            URL u = it.next( );
             try {
                 File f = new File( u.toURI( ) );
                 risul.add( f.toString( ) );
@@ -1608,7 +1611,7 @@ public class Project implements DebuggerListener, InspectorManager
                             break;
 
                             //case DebuggerEvent.THREAD_CONTINUE:
-                            //	break;
+                            //  break;
                         case DebuggerEvent.THREAD_SHOWSOURCE:
                             pkg.showSourcePosition(thr);
 
@@ -1639,8 +1642,8 @@ public class Project implements DebuggerListener, InspectorManager
     {
         Package pkg = packages.get(packageQualifiedName);
         if (pkg != null) {
-            List childPackages = pkg.getChildren(false);
-            Iterator i = childPackages.iterator();
+            List<Package> childPackages = pkg.getChildren(false);
+            Iterator<Package> i = childPackages.iterator();
             while (i.hasNext()) {
                 Package childPkg = (Package) i.next();
                 removePackage(childPkg.getQualifiedName());
@@ -1676,9 +1679,9 @@ public class Project implements DebuggerListener, InspectorManager
      * @param includeDirs       true if directories should be included
      * @return List of File objects 
      */
-    public Set getFilesInProject(boolean includePkgFiles, boolean includeDirs)
+    public Set<File> getFilesInProject(boolean includePkgFiles, boolean includeDirs)
     {
-        Set files = new HashSet();
+        Set<File> files = new HashSet<File>();
         if (includeDirs) {
             files.add(projectDir);
         }
@@ -1706,7 +1709,7 @@ public class Project implements DebuggerListener, InspectorManager
      * @param dir the directory the search starts from
      * @param includePkgFiles if true, bluej.pkg files are included as well.
      */
-    private void traverseDirsForFiles(Set allFiles, File dir, boolean includePkgFiles,
+    private void traverseDirsForFiles(Set<File> allFiles, File dir, boolean includePkgFiles,
             boolean includeDirs)
     {
         File[] files = dir.listFiles(getTeamSettingsController().getFileFilter(includePkgFiles));
