@@ -81,7 +81,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 6693 2009-09-17 01:07:45Z davmac $
+ * @version $Id: PkgMgrFrame.java 6694 2009-09-17 02:19:45Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -2810,6 +2810,8 @@ public class PkgMgrFrame extends JFrame
         if (! javaMEtoolsShown) {
             showJavaMEtools(false);
         }
+        
+        javaMEPanel.setVisible(false);
         
         // show the text evaluation pane if needed
         if (PrefMgr.getFlag(PrefMgr.SHOW_TEXT_EVAL)) {
