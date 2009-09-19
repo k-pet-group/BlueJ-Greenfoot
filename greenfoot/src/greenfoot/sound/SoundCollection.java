@@ -54,49 +54,7 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
         if (e.getType() == SimulationEvent.DISABLED) {
             close();
         }
-        else if (e.getType() == SimulationEvent.STOPPED) {
-            pause();
-        }
-        else if (e.getType() == SimulationEvent.STARTED) {
-            resume();
-        }
     }
-    
-
-    /** 
-     * Resumes all songs previously paused with a call to pause()
-     */
-    private void resume()
-    {        
-        synchronized (this) {
-            ignoreEvents = true;
-        }
-		for (Sound sound : playingSounds) {
-			sound.resume();
-		}
-		synchronized (this) {
-            ignoreEvents = false;
-        }
-    }
-
-
-    /**
-     * Pauses all sounds currently playing. 
-     * 
-     */
-    private void pause()
-    {
-        synchronized (this) {
-            ignoreEvents = true;
-        }
-        for (Sound sound : playingSounds) {
-            sound.pause();
-        }
-        synchronized (this) {
-            ignoreEvents = false;
-        }
-    }
-    
 
     /**
      * Stops all sounds and makes them release the resources.
