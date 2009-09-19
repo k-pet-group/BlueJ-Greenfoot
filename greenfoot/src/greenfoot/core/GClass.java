@@ -120,6 +120,8 @@ public class GClass
     public synchronized void nameChanged(final String oldName)
     {
         try {
+            className = null; // retrieve it lazily
+            
             ProjectProperties props = pkg.getProject().getProjectProperties();
             String superClass = props.removeProperty("class." + oldName + ".superclass");
             String classImage = props.removeProperty("class." + oldName + ".image");
@@ -128,9 +130,7 @@ public class GClass
             setClassProperty("superclass", superClass);
             if(classImage != null ) {
                 setClassProperty("image", classImage);
-            }
-            
-            className = null; // retrieve it lazily
+            }            
         }
         catch (Exception e) {
             Debug.reportError("Remote error in GClass.nameChanged()", e);
