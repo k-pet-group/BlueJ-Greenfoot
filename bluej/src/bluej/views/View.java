@@ -33,10 +33,12 @@ import bluej.utility.JavaUtils;
 
 
 /**
- * A representation of a Java class in BlueJ
+ * A representation of a Java class in BlueJ.
+ * 
+ * <p>The methods in this class are generally thread-safe.
  *
  * @author  Michael Cahill
- * @version $Id: View.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: View.java 6727 2009-09-19 05:59:52Z davmac $
  */
 public class View
 {
@@ -44,7 +46,7 @@ public class View
     private final String accessIgnore = "access$";
 
     /** The class that this view is for **/
-    protected Class cl;
+    protected Class<?> cl;
 
     protected FieldView[] fields;
     protected FieldView[] allFields;
@@ -55,48 +57,54 @@ public class View
 
     protected Comment comment;
 
-    private static Map views = new HashMap();
+    private static Map<Class<?>,View> views = new HashMap<Class<?>,View>();
 
     /**
      * Return a view of a class.
      * This is the only way to obtain a View object.
+     * This method is thread-safe.
      */
-    public static View getView(Class cl)
+    public static View getView(Class<?> cl)
     {
         if(cl == null)
             return null;
 
         // Debug.message("Started getView for class " + cl);
 
-        View v = (View)views.get(cl);
-        if(v == null) {
-            v = new View(cl);
-            views.put(cl, v);
+        synchronized (views) {
+            View v = views.get(cl);
+            if(v == null) {
+                v = new View(cl);
+                views.put(cl, v);
+            }
+
+            // Debug.message("Ended getView for class " + cl);
+
+            return v;
         }
-
-        // Debug.message("Ended getView for class " + cl);
-
-        return v;
     }
 
     /**
      * Remove from the view cache, all views of classes
-     * which were loaded by loader
+     * which were loaded by the given class loader.
+     * This method is thread-safe.
      */
     public static void removeAll(ClassLoader loader)
     {
-        Iterator it = views.values().iterator();
+        synchronized (views) {
+            Iterator<View> it = views.values().iterator();
 
-        while(it.hasNext()) {
-            View v = (View) it.next();
+            while(it.hasNext()) {
+                View v = it.next();
 
-            if (v.getClassLoader() == loader) {
-                it.remove();
+                if (v.getClassLoader() == loader) {
+                    it.remove();
+                }
             }
         }
     }
 
-    private View(Class cl)
+    private View(Class<?> cl)
     {
         this.cl = cl;
     }
@@ -126,7 +134,7 @@ public class View
      * This is used to know the exact return type of a method and is consistent 
      * with the Java Reflection API. Damiano
      */
-    public Class getViewClass ()
+    public Class<?> getViewClass ()
     {
         return cl;
     }
@@ -143,7 +151,7 @@ public class View
 
     public View[] getInterfaces()
     {
-        Class[] interfaces = cl.getInterfaces();
+        Class<?>[] interfaces = cl.getInterfaces();
 
         View[] interfaceViews = new View[interfaces.length];
         for(int i = 0; i < interfaces.length; i++)
@@ -169,10 +177,10 @@ public class View
      */
     public  TypeParamView[] getTypeParams() {
         if(typeParams == null) {            
-            List genTypeParams = JavaUtils.getJavaUtils().getTypeParams(this.cl);            
+            List<GenTypeDeclTpar> genTypeParams = JavaUtils.getJavaUtils().getTypeParams(this.cl);            
             typeParams = new TypeParamView[genTypeParams.size()];
-        	for (int i = 0; i < typeParams.length; i++) {
-                typeParams[i] = new TypeParamView(this, (GenTypeDeclTpar) genTypeParams.get(i));                
+                for (int i = 0; i < typeParams.length; i++) {
+                typeParams[i] = new TypeParamView(this, genTypeParams.get(i));                
             }            
         }
         return typeParams;
@@ -188,10 +196,10 @@ public class View
     public MethodView[] getAllMethods()
     {
         if(allMethods == null) {
-            HashMap map = new HashMap();
+            HashMap<String,MemberElement> map = new HashMap<String,MemberElement>();
             getAllMethods(map, 0);
             
-            List methods = new ArrayList(map.values());
+            List<MemberElement> methods = new ArrayList<MemberElement>(map.values());
             Collections.sort(methods, new ElementComparer());
 
             int numMethods = methods.size();
@@ -212,10 +220,10 @@ public class View
     public FieldView[] getAllFields()
     {
         if(allFields == null) {
-            HashMap map = new HashMap();
+            HashMap<String,MemberElement> map = new HashMap<String,MemberElement>();
             getAllFields(map, 0);
             
-            List fields = new ArrayList(map.values());
+            List<MemberElement> fields = new ArrayList<MemberElement>(map.values());
             Collections.sort(fields, new ElementComparer());
 
             int numFields = fields.size();
@@ -247,12 +255,12 @@ public class View
         }
     }
 
-    class ElementComparer implements Comparator
+    class ElementComparer implements Comparator<MemberElement>
     {
         /** Return { -1, 0, 1 } to represent <a> { <, ==, > } <b> **/
-        public final int compare(Object a, Object b)
+        public final int compare(MemberElement a, MemberElement b)
         {
-            int cmp = ((MemberElement)a).index - ((MemberElement)b).index;
+            int cmp = a.index - b.index;
 
             return (cmp < 0) ? -1 : ((cmp > 0) ? 1 : 0);
         }
@@ -267,7 +275,7 @@ public class View
      * @param methnum  The number of methods presently in the map
      * @return         The number of methods in the map at completion
      */
-    protected int getAllMethods(HashMap h, int methnum)
+    protected int getAllMethods(HashMap<String,MemberElement> h, int methnum)
     {
         if(allMethods != null) {
             // carefully copy from allMethods into h
@@ -292,7 +300,7 @@ public class View
         return methnum;
     }
 
-    protected int getAllFields(HashMap h, int fieldnum)
+    protected int getAllFields(HashMap<String,MemberElement> h, int fieldnum)
     {
         if(allFields != null) {
             // carefully copy from allFields into h
@@ -315,7 +323,7 @@ public class View
         return fieldnum;
     }
 
-    private int addMembers(HashMap h, MemberView[] members, int num)
+    private int addMembers(HashMap<String,MemberElement> h, MemberView[] members, int num)
     {
         //Debug.message("Started addMembers for " + cl);
 
@@ -393,7 +401,7 @@ public class View
         if(constructors == null)
         {
             try {
-                Constructor[] cl_constrs = cl.getDeclaredConstructors();
+                Constructor<?>[] cl_constrs = cl.getDeclaredConstructors();
                 constructors = new ConstructorView[cl_constrs.length];
                 
                 for(int i = 0; i < constructors.length; i++)
@@ -430,7 +438,7 @@ public class View
         // match the comments against this view's members
         // -> put all members into a hashmap indexed by
         // <member>.getSignature() (== <comment>.getTarget())
-        HashMap table = new HashMap();
+        Map<String,MemberView> table = new HashMap<String,MemberView>();
         addMembers(table, getAllFields());
         addMembers(table, getConstructors());
         addMembers(table, getAllMethods());
@@ -438,7 +446,7 @@ public class View
         loadClassComments(this, table);
     }
 
-    protected void loadClassComments(View curview, HashMap table)
+    protected void loadClassComments(View curview, Map<String,MemberView> table)
     {
         // move up to the superclass first, so that redefinied comments override
         if(curview.getSuper() != null)
@@ -471,8 +479,8 @@ public class View
 
         if(comments != null) {
             // match up the comments read from the file with the members of this view
-            for(Iterator it = comments.getComments(); it.hasNext(); ) {
-                Comment c = (Comment)it.next();
+            for(Iterator<Comment> it = comments.getComments(); it.hasNext(); ) {
+                Comment c = it.next();
                 
                 if(c.getTarget().startsWith("class ") ||
                    c.getTarget().startsWith("interface ")) {
@@ -483,7 +491,7 @@ public class View
                     continue;
                 }
 
-                MemberView m = (MemberView)table.get(c.getTarget());
+                MemberView m = table.get(c.getTarget());
 
                 if(m == null) {
                     //Debug.message("No member found for " + c.getTarget() + " in file " + filename);
@@ -497,7 +505,7 @@ public class View
         }
     }
 
-    private void addMembers(HashMap table, MemberView[] members)
+    private void addMembers(Map<String,MemberView> table, MemberView[] members)
     {
         for(int i = 0; i < members.length; i++) {
             //Debug.message("Adding member " + members[i].getSignature());
@@ -510,12 +518,12 @@ public class View
         return getTypeName(cl);
     }
 
-    static String getTypeName(Class type)
+    static String getTypeName(Class<?> type)
     {
         if(type.isArray())
             {
                 try {
-                    Class primtype = type;
+                    Class<?> primtype = type;
                     int dimensions = 0;
                     while(primtype.isArray())
                         {
@@ -533,77 +541,4 @@ public class View
             }
         return JavaNames.stripPrefix(type.getName());
     }
-
-    /**
-     ** Get a longer String describing this member
-     **/
-/*    public String getLongDesc()
-    {
-        String desc = Modifier.toString(cl.getModifiers()) + " class " + cl.getName();
-
-        return desc;
-    }
-
-    public void print(FormattedPrintWriter out)
-    {
-        print(out, null);
-    }
-
-    public void print(FormattedPrintWriter out, ViewFilter filter)
-    {
-        // print self
-        Comment comment = getComment();
-        if(comment != null) {
-            comment.print(out);
-            out.println("");
-        }
-
-        out.setItalic(false);
-        out.setBold(true);
-        out.println(getLongDesc());
-
-        // start class
-        out.setItalic(false);
-        out.setBold(false);
-        out.println("{");
-
-        // print fields
-        out.setItalic(true);
-        out.println("fields:");
-        out.setItalic(false);
-        FieldView fields[] = getAllFields();
-        for(int i = 0; i < fields.length; i++)
-            if((filter == null) || filter.accept(fields[i])) {
-                fields[i].print(out, 1);
-            }
-        out.println("");
-
-        // print constructors
-        out.setItalic(true);
-        out.println("constructors:");
-        out.setItalic(false);
-        ConstructorView constructors[] = getConstructors();
-        for(int i = 0; i < constructors.length; i++)
-            if((filter == null) || filter.accept(constructors[i])) {
-                constructors[i].print(out, 1);
-                out.println("");
-            }
-
-        // print methods
-        out.setItalic(true);
-        out.println("methods:");
-        out.setItalic(false);
-        MethodView methods[] = getAllMethods();
-        for(int i = methods.length-1 ; i >= 0; i--)
-            if((filter == null) || filter.accept(methods[i])) {
-                methods[i].print(out, 1);
-                out.println("");
-            }
-
-        // end class
-        out.setItalic(false);
-        out.setBold(false);
-        out.println("}");
-    }
-    */
 }
