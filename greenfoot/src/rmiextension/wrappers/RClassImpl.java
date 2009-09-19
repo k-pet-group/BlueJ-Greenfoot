@@ -39,6 +39,7 @@ import bluej.extensions.editor.Editor;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
+ * @version $Id: RClassImpl.java 6729 2009-09-19 07:11:56Z davmac $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -115,7 +116,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
      * @throws ProjectNotOpenException
      * @throws ClassNotFoundException
      */
-    public RConstructor getConstructor(Class[] signature)
+    public RConstructor getConstructor(Class<?>[] signature)
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException
     {
 
@@ -151,7 +152,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
      * @throws ProjectNotOpenException
      * @throws ClassNotFoundException
      */
-    public BMethod getDeclaredMethod(String methodName, Class[] params)
+    public BMethod getDeclaredMethod(String methodName, Class<?>[] params)
         throws ProjectNotOpenException, ClassNotFoundException
     {
         return null;
@@ -272,12 +273,10 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     }
 
     public String getQualifiedName()
-        throws RemoteException, ProjectNotOpenException, ClassNotFoundException
+        throws RemoteException
     {
         return bClass.getName();
     }
-
-  
 
     public File getJavaFile()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException

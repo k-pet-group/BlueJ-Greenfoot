@@ -34,7 +34,7 @@ import bluej.extensions.editor.Editor;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClass.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: RClass.java 6729 2009-09-19 07:11:56Z davmac $
  */
 public interface RClass
     extends java.rmi.Remote
@@ -56,7 +56,7 @@ public interface RClass
      * @throws ProjectNotOpenException
      * @throws ClassNotFoundException
      */
-    public abstract RConstructor getConstructor(Class[] signature)
+    public abstract RConstructor getConstructor(Class<?>[] signature)
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
 
     /**
@@ -74,7 +74,7 @@ public interface RClass
      * @throws ProjectNotOpenException
      * @throws ClassNotFoundException
      */
-    public abstract BMethod getDeclaredMethod(String methodName, Class[] params)
+    public abstract BMethod getDeclaredMethod(String methodName, Class<?>[] params)
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException;
 
     /**
@@ -145,7 +145,7 @@ public interface RClass
      * @throws ProjectNotOpenException 
      */
     public abstract String getQualifiedName()
-        throws RemoteException, ProjectNotOpenException, ClassNotFoundException;
+        throws RemoteException;
 
   
     public File getJavaFile()

@@ -55,16 +55,17 @@ public class GClass
     private RClass rmiClass;
     private GPackage pkg;
     private String superclassGuess;
+    private String className;
     private boolean compiled;
     
     private ClassView classView;
-    private Class realClass;
+    private Class<?> realClass;
 
-	/**
+        /**
      * Constructor used by GCoreClass only
      */
     protected GClass() {
-    	
+        
     }
     
     /**
@@ -85,14 +86,8 @@ public class GClass
                 loadRealClass();
             }
         }
-        catch (RemoteException re) {
-            re.printStackTrace();
-        }
-        catch (PackageNotFoundException pnfe) {
-            pnfe.printStackTrace();
-        }
-        catch (ProjectNotOpenException pnoe) {
-            pnoe.printStackTrace();
+        catch (Exception re) {
+            Debug.reportError("Getting remote class information", re);
         }
     }
     
@@ -122,7 +117,7 @@ public class GClass
     /**
      * Notify this class that its name has been changed.
      */
-    public void nameChanged(final String oldName)
+    public synchronized void nameChanged(final String oldName)
     {
         try {
             ProjectProperties props = pkg.getProject().getProjectProperties();
@@ -134,12 +129,11 @@ public class GClass
             if(classImage != null ) {
                 setClassProperty("image", classImage);
             }
+            
+            className = null; // retrieve it lazily
         }
-        catch (RemoteException re) {
-            re.printStackTrace();
-        }
-        catch (ProjectNotOpenException pnoe) {
-            // can't happen
+        catch (Exception e) {
+            Debug.reportError("Remote error in GClass.nameChanged()", e);
         }
         
         if(classView != null) {
@@ -180,17 +174,16 @@ public class GClass
     public void setClassProperty(String propertyName, String value)
     {
         try {
-        	String key = "class." + getName() + "." + propertyName;
-        	if (value != null) {
-        		pkg.getProject().getProjectProperties().setString(key, value);
-        	}
-        	else {
-        		pkg.getProject().getProjectProperties().removeProperty(key);
-        	}
+            String key = "class." + getName() + "." + propertyName;
+            if (value != null) {
+                pkg.getProject().getProjectProperties().setString(key, value);
+            }
+            else {
+                pkg.getProject().getProjectProperties().removeProperty(key);
+            }
         }
         catch (Exception exc) {
-            exc.printStackTrace();
-            Debug.reportError("Greenfoot: Could not set class property: " + getName() + "." + propertyName);
+            Debug.reportError("Greenfoot: Could not set class property: " + getName() + "." + propertyName, exc);
         }
     }
     
@@ -207,7 +200,6 @@ public class GClass
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
         rmiClass.edit();
-        
     }
 
 
@@ -220,7 +212,7 @@ public class GClass
         rmiClass.remove();
     }
     
-    public RConstructor getConstructor(Class[] signature)
+    public RConstructor getConstructor(Class<?>[] signature)
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException
     {
         return rmiClass.getConstructor(signature);
@@ -232,7 +224,7 @@ public class GClass
         return rmiClass.getConstructors();
     }
 
-    public BMethod getDeclaredMethod(String methodName, Class[] params)
+    public BMethod getDeclaredMethod(String methodName, Class<?>[] params)
         throws ProjectNotOpenException, ClassNotFoundException, RemoteException
     {
         return rmiClass.getDeclaredMethod(methodName, params);
@@ -260,7 +252,7 @@ public class GClass
      * Get the java.lang.Class object representing this class. Returns null if
      * the class cannot be loaded (including if the class is not compiled).
      */
-    public Class getJavaClass()
+    public Class<?> getJavaClass()
     {
         return realClass;
     }
@@ -271,27 +263,26 @@ public class GClass
     }
 
     /**
-     * Gets the qualified name of this class.
-     * @return
+     * Gets the qualified name of this class (thread-safe).
      */
-    public String getQualifiedName()
+    public synchronized String getQualifiedName()
     {
-        try {
-            return rmiClass.getQualifiedName();
+        if (className == null) {
+            try {
+                className = rmiClass.getQualifiedName();
+            }
+            catch (Exception e) {
+                Debug.reportError("While trying to get class name", e);
+            }
         }
-        catch (RemoteException e) {
-            // TODO error reporting
-        }
-        catch (ProjectNotOpenException e) {}
-        catch (ClassNotFoundException e) {}
-        return null;
+        return className;
     }
 
     /**
      * Gets the name of this class. NOT the qualified name.
      */
-    public String getName() {
-        // This class does not depend on the "realClass" since it does a call straight through RMI and to the RClass
+    public String getName()
+    {
         return GreenfootUtil.extractClassName(getQualifiedName());
     }
     /**
@@ -423,7 +414,7 @@ public class GClass
      * 
      * @return Best guess of the name of the superclass (NOT the qualified name).
      */
-    private void guessSuperclass()
+    private synchronized void guessSuperclass()
     {
         // TODO This should be called each time the source file is saved. However,
         // this is not possible at the moment, so we just do it when it is
@@ -459,16 +450,16 @@ public class GClass
         }
         
         // If the class is compiled, but we did not get a superclass back, then
-		// the superclass is not from this project, but we can get it from the
-		// real class
+        // the superclass is not from this project, but we can get it from the
+        // real class
         if (realSuperclass == null && isCompiled()) {
-        	Class<?> superclass = realClass.getSuperclass();
-        	if (superclass != null && setSuperclassGuess(superclass.getName())) {
-        	    return;
-        	}
-        	else {
-        		setSuperclassGuess("");
-        	}
+            Class<?> superclass = realClass.getSuperclass();
+            if (superclass != null && setSuperclassGuess(superclass.getName())) {
+                return;
+            }
+            else {
+                setSuperclassGuess("");
+            }
         }
         
         //Second, try to parse the file
@@ -512,21 +503,8 @@ public class GClass
         }
     }
 
-    public String getToString()
-    {
-        try {
-            return rmiClass.getToString();
-        }
-        catch (RemoteException e) {
-            // TODO error reporting
-        }
-        catch (ProjectNotOpenException e) {}
-        catch (ClassNotFoundException e) {}
-        return "Error getting real toString. super:" + super.toString();
-    }
-
     /**
-     * Check whether this class is compiled.
+     * Check whether this class is compiled (thread-safe).
      */
     public boolean isCompiled()
     {
@@ -536,7 +514,7 @@ public class GClass
     /**
      * Set the compiled state of this class.
      */
-    public void setCompiledState(boolean isCompiled)
+    public synchronized void setCompiledState(boolean isCompiled)
     {
         compiled = isCompiled;
         if (classView != null) {
@@ -550,7 +528,6 @@ public class GClass
         else {
             realClass = null;
         }
-        
     }
 
     /**
@@ -587,10 +564,10 @@ public class GClass
         return false;
     }   
 
-    public void reload()
+    public synchronized void reload()
     {
-    	loadRealClass();
-    	guessSuperclass();
+        loadRealClass();
+        guessSuperclass();
         if(classView != null) {
             EventQueue.invokeLater(new Runnable() {
                 public void run()
@@ -605,11 +582,13 @@ public class GClass
      * Try and load the "real" (java.lang.Class) class represented by this
      * GClass, using the current class loader.
      * 
+     * <p>Must be called from a synchronized context!
+     * 
      * @return The class, or null if unsuccessful
      */
     private void loadRealClass()
     {
-        Class cls = null;
+        Class<?> cls = null;
         if (! isCompiled()) {
             realClass = null;
             return;
@@ -622,6 +601,7 @@ public class GClass
         }
         catch (java.lang.ClassNotFoundException cnfe) {
             // couldn't load: that's ok, we return null
+            // cnfe.printStackTrace();
         }
         catch (LinkageError e) {
             // TODO log this properly? It can happen for various reasons, not
