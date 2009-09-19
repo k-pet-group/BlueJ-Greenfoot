@@ -155,7 +155,9 @@ public class ObjectTracker
      */
     public static void clearRObjectCache()
     {
-        cachedObjects.clear();
+        synchronized (lock) {
+            cachedObjects.clear();
+        }
     }
     
 }

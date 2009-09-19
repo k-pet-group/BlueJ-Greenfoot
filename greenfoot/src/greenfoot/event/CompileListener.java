@@ -27,7 +27,7 @@ import rmiextension.wrappers.event.RCompileEvent;
  * Listens for compile events in greenfoot.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: CompileListener.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: CompileListener.java 6725 2009-09-19 04:55:02Z davmac $
  */
 public interface CompileListener
 {

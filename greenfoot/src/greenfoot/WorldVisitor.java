@@ -32,7 +32,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * in the public interface visible to users.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WorldVisitor.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: WorldVisitor.java 6725 2009-09-19 04:55:02Z davmac $
  */
 public class WorldVisitor
 {
@@ -91,8 +91,7 @@ public class WorldVisitor
     /**
      * Get the list of all objects in the world. This returns a live list which
      * should not be modified by the caller. If iterating over this list, it
-     * should be synchronized on itself or the World to avoid concurrent
-     * modifications.
+     * should be synchronized on the world lock.
      */
     public static TreeActorSet getObjectsListInPaintOrder(World world)
     {
