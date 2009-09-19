@@ -79,7 +79,7 @@ import javax.swing.SwingUtilities;
  * dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen
- * @version $Id: DragGlassPane.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: DragGlassPane.java 6733 2009-09-19 07:56:57Z davmac $
  * 
  */
 public class DragGlassPane extends JComponent
@@ -205,11 +205,7 @@ public class DragGlassPane extends JComponent
             endDrag();
             return;
         }
-        GreenfootImage objectImage = ActorVisitor.getDisplayImage(object);
-        if (objectImage == null) {
-            endDrag();
-            return;
-        }
+        GreenfootImage objectImage = ActorVisitor.getDragImage(object);
 
         // get last mouseevent to get first location
         MouseEvent e = LocationTracker.instance().getMouseMotionEvent();
@@ -475,7 +471,6 @@ public class DragGlassPane extends JComponent
                 ActorClassRole role = (ActorClassRole) cls.getRole();
                 Actor actor = role.createObjectDragProxy();
                 DragGlassPane.getInstance().startDrag(actor, this, worldHandler.getWorldCanvas(), false);
-  
             }
         }
     }

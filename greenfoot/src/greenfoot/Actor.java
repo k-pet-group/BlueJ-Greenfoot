@@ -97,7 +97,7 @@ public abstract class Actor
     /** Field used to store some extra data in an object. Used by collision checkers. */
     private Object data;
 
-    private static GreenfootImage greenfootImage;
+    static GreenfootImage greenfootImage;
 
     /** Bounding rectangle of the object. In pixels. */
     private Rect boundingRect;
@@ -482,7 +482,7 @@ public abstract class Actor
      */
     private GreenfootImage getClassImage()
     {
-        Class clazz = getClass();
+        Class<?> clazz = getClass();
         while (clazz != null) {
             GreenfootImage image = null;
             try {
@@ -500,93 +500,6 @@ public abstract class Actor
         return greenfootImage;
     }
     
-    private int toCellFloor(int i)
-    {
-        World aWorld  = getActiveWorld();
-        if(aWorld == null) {
-            // Should never happen
-            throw new IllegalStateException(NO_WORLD);
-        }
-        return (int) Math.floor((double) i / aWorld.getCellSize());
-    }
-
-    /**
-     * Gets the x-coordinate of the left most cell that is occupied by the
-     * object.
-     * 
-     */
-    private int getXMin()
-    {
-        //todo rotation
-        return toCellFloor(getPaintX());
-    }
-
-    /**
-     * Gets the x-coordinate of the right most cell that is occupied by the
-     * object.
-     * 
-     * @throws IllegalStateException If there is no world instantiated.
-     */
-    private int getXMax()
-    {
-        //todo rotation
-        return toCellFloor(getPaintX() + image.getWidth() - 1);
-    }
-
-    /**
-     * Gets the y-coordinate of the top most cell that is occupied by the
-     * object.
-     * 
-     * @throws IllegalStateException If there is no world instantiated.
-     */
-    private int getYMin()
-    {
-        //todo rotation
-        return toCellFloor(getPaintY());
-    }
-
-    /**
-     * Gets the y-coordinate of the bottom most cell that is occupied by the
-     * object.
-     * 
-     */
-    private int getYMax()
-    {
-        // todo rotation
-        return toCellFloor(getPaintY() + image.getHeight() - 1);
-    }
-    
-    /**
-     * Pixel location of the left of the image.
-     * 
-     * Rounds down if it does not result in an integer.
-     * 
-     * @throws IllegalStateException If there is no world instantiated.
-     */
-    private final int getPaintX()
-    {
-        //todo rotation
-        double cellCenter = getCellCenter(x);
-        double paintX = cellCenter - image.getWidth() / 2.;
-        return (int) Math.floor(paintX);
-    }
-
-    /**
-     * Pixel location of the top of the image.
-     * 
-     * Rounds down if it does not result in an integer.
-     * 
-     * @throws IllegalStateException If there is no world instantiated.
-     */
-    private final int getPaintY()
-    {
-        // todo rotation
-        double cellCenter = getCellCenter(y);
-        double paintY = cellCenter - image.getHeight() / 2.;
-        return (int) Math.floor(paintY);
-    }
-
-
     /**
      * Gets the center location of this cell (in pixels).
      * 
@@ -930,7 +843,7 @@ public abstract class Actor
     /**
      * Get the default image for objects of this class. May return null.
      */
-    GreenfootImage getImage(Class clazz)
+    GreenfootImage getImage(Class<?> clazz)
     {
         return delegate.getImage(clazz.getName());
     }

@@ -50,7 +50,7 @@ import javax.swing.SwingConstants;
  * The visual representation of the world.
  * 
  * @author Poul Henriksen
- * @version $Id: WorldCanvas.java 6369 2009-06-15 11:47:14Z polle $
+ * @version $Id: WorldCanvas.java 6733 2009-09-19 07:56:57Z davmac $
  */
 public class WorldCanvas extends JPanel
     implements  DropTarget, Scrollable
@@ -201,8 +201,8 @@ public class WorldCanvas extends JPanel
             int xCell =  WorldVisitor.toCellFloor(world, x);
             int yCell =  WorldVisitor.toCellFloor(world, y);
             int cellSize = WorldVisitor.getCellSize(world);
-            x = (int) ((xCell + 0.5) * cellSize - dragActor.getImage().getWidth()/2);
-            y = (int) ((yCell + 0.5) * cellSize - dragActor.getImage().getHeight()/2);
+            x = (int) ((xCell + 0.5) * cellSize - dragImage.getWidth()/2);
+            y = (int) ((yCell + 0.5) * cellSize - dragImage.getHeight()/2);
             
             g.drawImage(dragImage, x, y, null);            
         } 
@@ -277,7 +277,7 @@ public class WorldCanvas extends JPanel
             if(o != dragActor) {
                 // It is the first time we are dragging this actor. Create the drag image.
                 dragActor = (Actor) o;          
-                dragImage = GreenfootUtil.createDragShadow(dragActor.getImage().getAwtImage());
+                dragImage = GreenfootUtil.createDragShadow(ActorVisitor.getDragImage(dragActor).getAwtImage());
             }
             dragLocation = p;
             repaint();
@@ -362,6 +362,5 @@ public class WorldCanvas extends JPanel
     {
         return false;
     }
-
     
 }

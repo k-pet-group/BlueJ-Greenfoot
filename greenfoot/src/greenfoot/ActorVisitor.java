@@ -23,7 +23,6 @@ package greenfoot;
 
 import greenfoot.collision.ibsp.Rect;
 import greenfoot.platforms.ActorDelegate;
-import greenfoot.util.Circle;
 
 /**
  * Class that makes it possible for classes outside the greenfoot package to get
@@ -82,6 +81,19 @@ public class ActorVisitor
         return actor.getImage();
     }
 
+    /**
+     * Get a drag image for the actor. Normally this delegates to
+     * Actor.getImage(), but it will return the greenfoot logo image
+     * if that returns null.
+     */
+    public static GreenfootImage getDragImage(Actor actor)
+    {
+        GreenfootImage image = actor.getImage();
+        if (image == null) {
+            image = Actor.greenfootImage;
+        }
+        return image;
+    }
     
     public static void setDelegate(ActorDelegate instance)
     {
