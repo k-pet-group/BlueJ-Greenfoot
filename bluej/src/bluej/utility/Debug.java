@@ -22,8 +22,8 @@
 package bluej.utility;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.Writer;
 
 import bluej.Config;
 
@@ -31,25 +31,45 @@ import bluej.Config;
  * Class to handle debugging messages.
  * 
  * @author Michael Kolling
- * @version $Id: Debug.java 6688 2009-09-16 14:16:56Z davmac $
+ * @version $Id: Debug.java 6722 2009-09-19 04:13:32Z davmac $
  */
 
 public class Debug
 {
-    private static PrintStream debugStream = new PrintStream(new OutputStream() {
+    private static final String eol = System.getProperty("line.separator");
+    
+    private static Writer debugStream = new Writer() {
         @Override
-        public void write(int b) throws IOException
+        public void write(char[] cbuf, int off, int len) throws IOException
         {
-            // Throw it away
         }
-    });
+        
+        @Override
+        public void flush() throws IOException
+        {
+        }
+        
+        @Override
+        public void close() throws IOException
+        {
+        }
+    };
     
     /**
-     * Set the debug output stream. All debug messages go to the debug output stream.
+     * Set the debug output stream. All debug messages go to the debug
+     * output stream.
      */
-    public static void setDebugStream(PrintStream debugStream)
+    public static void setDebugStream(Writer debugStream)
     {
         Debug.debugStream = debugStream;
+    }
+    
+    /**
+     * Get the debug output stream.
+     */
+    public static Writer getDebugStream()
+    {
+        return debugStream;
     }
     
     /**
@@ -60,8 +80,14 @@ public class Debug
      */
     public static void message(String msg)
     {
-        debugStream.println(msg);
-        debugStream.flush();
+        try {
+            debugStream.write(msg);
+            debugStream.write(eol);
+            debugStream.flush();
+        }
+        catch (IOException ioe) {
+            System.err.println("IOException writing debug log");
+        }
     }
     
     /**
@@ -76,7 +102,12 @@ public class Debug
     }
 
     /**
-     * Write out a BlueJ error message for debugging.
+     * Write out a BlueJ error message for debugging. Note, this does
+     * not by itself provide a stack trace, so it's of only limited use -
+     * it should be used only when what has gone wrong should be obvious.
+     * 
+     * <p>Use the variant which takes an exception as a parameter where
+     * otherwise prudent.
      * 
      * @param error The error message.
      */
@@ -94,5 +125,8 @@ public class Debug
     {
         message("Internal error: " + error);
         message("Exception: " + exc);
+        PrintWriter pwriter = new PrintWriter(debugStream);
+        exc.printStackTrace(pwriter);
+        pwriter.flush();
     }
 }

@@ -97,6 +97,9 @@ public class WorldHandler
     // The actor being dragged
     private Actor dragActor;
     private Cursor defaultCursor;
+    
+    // Most recently instantiated world class
+    String lastWorldClass;
 
     public static synchronized void initialise(WorldCanvas worldCanvas, WorldHandlerDelegate helper)
     {
@@ -136,11 +139,6 @@ public class WorldHandler
             }
 
             public InputManager getInputManager()
-            {
-                return null;
-            }
-
-            public Class getLastWorldClass()
             {
                 return null;
             }
@@ -217,6 +215,16 @@ public class WorldHandler
         defaultCursor = worldCanvas.getCursor();
     }
 
+    public void setLastWorldClass(String lastWorldClass)
+    {
+        this.lastWorldClass = lastWorldClass;
+    }
+    
+    public String getLastWorldClassName()
+    {
+        return lastWorldClass;
+    }
+    
     /**
      * Get the keyboard manager.
      */
@@ -453,19 +461,6 @@ public class WorldHandler
                 }
             }
         });
-    }
-
-    /**
-     * Returns the world-class that has been instantiated last. This is the
-     * class of the current world, if there is a world currently instantiated.
-     * 
-     * @return The world. Will return 'null' if no world has ever been
-     *         instantiated in this project, or the world can no longer be
-     *         instantiated.
-     */
-    public Class<?> getLastWorldClass()
-    {
-        return handlerDelegate.getLastWorldClass();
     }
 
     /**

@@ -21,12 +21,15 @@
  */
 package rmiextension.wrappers;
 
+import java.awt.EventQueue;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.rmi.RemoteException;
+
+import javax.swing.SwingUtilities;
 
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.objectbench.ObjectWrapper;
@@ -50,7 +53,6 @@ import bluej.views.View;
  * @see bluej.extensions.BPackage
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RPackageImpl.java 6216 2009-03-30 13:41:07Z polle $
  */
 public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     implements RPackage
@@ -58,6 +60,14 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
 
     //The BlueJ-package (from extensions) that is wrapped
     BPackage bPackage;
+    
+    // Used to hold exceptions thrown when we try to compile
+    private static CompilationNotStartedException cnse;
+    private static PackageNotFoundException pnfe;
+    private static ProjectNotOpenException pnoe;
+    // Returns from various methods
+    private static RClass rclassResult;
+    private static RClass[] rclassArrayResult;
 
     public RPackageImpl(BPackage bPackage)
         throws java.rmi.RemoteException
@@ -81,10 +91,50 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         bPackage.compile(waitCompileEnd);
     }
     
-    public void compileAll(boolean waitCompileEnd)
-    throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
+    public void compileAll()
+        throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
     {
-        bPackage.compileAll(waitCompileEnd);
+        synchronized (RPackageImpl.class) {
+            try {
+                cnse = null;
+                pnfe = null;
+                pnoe = null;
+                
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    public void run()
+                    {
+                        try {
+                            bPackage.compileAll(false);
+                        }
+                        catch (CompilationNotStartedException ce) {
+                            cnse = ce;
+                        }
+                        catch (PackageNotFoundException pe) {
+                            pnfe = pe;
+                        }
+                        catch (ProjectNotOpenException pe) {
+                            pnoe = pe;
+                        }
+                    } 
+                });
+            }
+            catch (InvocationTargetException ite) {
+                ite.printStackTrace();
+            }
+            catch (InterruptedException ie) {
+                ie.printStackTrace();
+            }
+            
+            if (cnse != null) {
+                throw cnse;
+            }
+            if (pnfe != null) {
+                throw pnfe;
+            }
+            if (pnoe != null) {
+                throw pnoe;
+            }
+        }
     }
 
     /**
@@ -93,11 +143,39 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
      * @throws ProjectNotOpenException
      * @throws PackageNotFoundException
      */
-    public RClass getRClass(String name)
+    public RClass getRClass(final String name)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
-        return WrapperPool.instance().getWrapper(bPackage.getBClass(name));
-
+        synchronized (RPackageImpl.class) {
+            pnoe = null;
+            pnfe = null;
+            
+            try {
+                EventQueue.invokeAndWait(new Runnable() {
+                   public void run()
+                    {
+                       try {
+                           rclassResult = WrapperPool.instance().getWrapper(bPackage.getBClass(name));
+                       } catch (RemoteException e) {
+                           e.printStackTrace();
+                       } catch (ProjectNotOpenException e) {
+                           pnoe = e;
+                       } catch (PackageNotFoundException e) {
+                           pnfe = e;
+                       }
+                    } 
+                });
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+            
+            if (pnoe != null) throw pnoe;
+            if (pnfe != null) throw pnfe;
+            
+            return rclassResult;
+        }
     }
 
     /**
@@ -108,15 +186,44 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
     public RClass[] getRClasses()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
+        synchronized (RPackageImpl.this) {
+            pnoe = null;
+            pnfe = null;
 
-        BClass[] bClasses = bPackage.getClasses();
-        int length = bClasses.length;
-        RClass[] rClasses = new RClass[length];
-        for (int i = 0; i < length; i++) {
-            rClasses[i] = WrapperPool.instance().getWrapper(bClasses[i]);
+            try {
+                EventQueue.invokeAndWait(new Runnable() {
+                    public void run()
+                    {
+                        try {
+                            BClass[] bClasses = bPackage.getClasses();
+                            int length = bClasses.length;
+                            RClass[] rClasses = new RClass[length];
+                            for (int i = 0; i < length; i++) {
+                                rClasses[i] = WrapperPool.instance().getWrapper(bClasses[i]);
+                            }
+
+                            rclassArrayResult = rClasses;
+                        }
+                        catch (ProjectNotOpenException e) {
+                            pnoe = e;
+                        }
+                        catch (PackageNotFoundException e) {
+                            pnfe = e;
+                        }
+                        catch (RemoteException re) {}
+                    }
+                });
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+
+            if (pnoe != null) throw pnoe;
+            if (pnfe != null) throw pnfe;
+
+            return rclassArrayResult;
         }
-
-        return rClasses;
     }
 
     /**
@@ -177,14 +284,6 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         bPackage.reload();
     }
 
-    public RClass getSelectedClass()
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException
-    {
-        //TODO Hack for testing:
-        return getRClasses()[0];
-        //return selectedClass;
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -229,10 +328,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         Class cl = pkg.loadClass(className);
         View mClassView = View.getView(cl);
         
-        MethodView theMethod = null;
-        
         // do we really need to search super classes?
-        classLoop:
         while (mClassView != null) {
             MethodView [] methods = mClassView.getDeclaredMethods();
             findMethod:

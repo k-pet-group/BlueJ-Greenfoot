@@ -126,8 +126,6 @@ import com.apple.eawt.ApplicationEvent;
  * 
  * @author Poul Henriksen
  * @author mik
- *
- * @version $Id: GreenfootFrame.java 6504 2009-08-11 12:45:24Z mjrb4 $
  */
 public class GreenfootFrame extends JFrame
     implements WindowListener, CompileListener, WorldListener, SelectionListener,
@@ -305,6 +303,7 @@ public class GreenfootFrame extends JFrame
         if (isClosedProject) {
             this.project = project;
             worldHandlerDelegate.attachProject(project);
+            worldHandler.setLastWorldClass(project.getProjectProperties().getString("world.lastInstantiated"));
             project.addCompileListener(this);
             setTitle("Greenfoot: " + project.getName());
             enableProjectActions();
@@ -327,7 +326,7 @@ public class GreenfootFrame extends JFrame
                 // If there is no speed info in the properties we don't care...
             }
             
-            WorldHandler.getInstance().instantiateNewWorld();
+            worldHandler.instantiateNewWorld();
             worldHandlerDelegate.getWorldTitle().setVisible(true);
             if (needsResize()) {
                 pack();

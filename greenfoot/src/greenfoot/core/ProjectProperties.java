@@ -43,7 +43,6 @@ import java.util.Properties;
  * represents both the file that holds the properties and the actual properties.
  * 
  * @author Poul Henriksen
- * 
  */
 public class ProjectProperties
 {
@@ -154,7 +153,7 @@ public class ProjectProperties
      * @throws IOException If the properties can't be written to the properties
      *             file.
      */
-    public void save()
+    public synchronized void save()
     {
         OutputStream os = null;
         try {
@@ -175,53 +174,53 @@ public class ProjectProperties
 
 
     /**
-     * Sets a property as in Java's Properties class. 
+     * Sets a property as in Java's Properties class. Thread-safe. 
      */
-    public void setString(String key, String value)
+    public synchronized void setString(String key, String value)
     {
         properties.setProperty(key, value);
     }
 
 
     /**
-     * Gets a property as in Java's Properties class.
+     * Gets a property as in Java's Properties class. Thread-safe.
      */
-    public String getString(String key)
+    public synchronized String getString(String key)
     {
         return properties.getProperty(key);
     }
 
 
     /**
-     * Sets an int property as in Java's Properties class. 
+     * Sets an int property as in Java's Properties class. Thread-safe.
      */
-    public void setInt(String key, int value)
+    public synchronized void setInt(String key, int value)
     {
         properties.setProperty(key, Integer.toString(value));
     }
 
 
     /**
-     * Gets an int property as in Java's Properties class.
+     * Gets an int property as in Java's Properties class. Thread-safe.
      */
-    public int getInt(String key) throws NumberFormatException
+    public synchronized int getInt(String key) throws NumberFormatException
     {
         String number = properties.getProperty(key);
         return Integer.parseInt(number);
     }
     
     /**
-     * Sets a boolean property as in Java's Properties class. 
+     * Sets a boolean property as in Java's Properties class. Thread-safe. 
      */
-    public void setBoolean(String key, boolean value)
+    public synchronized void setBoolean(String key, boolean value)
     {
         properties.setProperty(key, Boolean.toString(value));        
     }
     
     /**
-     * Gets a boolean property as in Java's Properties class.
+     * Gets a boolean property as in Java's Properties class. Thread-safe.
      */
-    public boolean getBoolean(String key) throws NullPointerException
+    public synchronized boolean getBoolean(String key) throws NullPointerException
     {
         String bool = properties.getProperty(key);
         if (bool == null) {
@@ -231,17 +230,17 @@ public class ProjectProperties
     }
     
     /**
-     * Remove a property; return its old value.
+     * Remove a property; return its old value. Thread-safe.
      * @param key  The property name
      */
-    public String removeProperty(String key)
+    public synchronized String removeProperty(String key)
     {
         return (String) properties.remove(key);
     }
 
     /**
      * Gets an image for the given class. The images are cached to avoid loading
-     * images several times.
+     * images several times. This method is thread-safe.
      * 
      * @param className If it is a qualified name, the package is ignored.
      *            Returns null, if there is no entry for this class in the
@@ -283,7 +282,7 @@ public class ProjectProperties
 
     /**
      * Remove the cached version of an image for a particular class. This should be
-     * called when the image for the class is changed.
+     * called when the image for the class is changed. Thread-safe.
      */
     public void removeCachedImage(String className)
     {
@@ -294,7 +293,7 @@ public class ProjectProperties
 
 
     /**
-     * Stores the API version.
+     * Stores the API version. Thread-safe.
      */
     public void setApiVersion(String version)
     {
@@ -305,7 +304,7 @@ public class ProjectProperties
     /**
      * Attempts to find the version number the greenfoot API that a greenfoot
      * project was created with. If it can not find a version number, it will
-     * return Version.NO_VERSION.
+     * return Version.NO_VERSION. Thread-safe.
      * 
      * @return API version
      */

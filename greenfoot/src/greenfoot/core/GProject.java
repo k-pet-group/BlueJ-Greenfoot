@@ -38,7 +38,6 @@ import rmiextension.wrappers.RPackage;
 import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RCompileEvent;
 import rmiextension.wrappers.event.RProjectListenerImpl;
-import bluej.extensions.PackageAlreadyExistsException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.CompileEvent;
@@ -46,6 +45,8 @@ import bluej.utility.Debug;
 
 /**
  * Represents a project in greenfoot.
+ * 
+ * <p>Most methods are thread-safe.
  * 
  * @author Poul Henriksen
  */
@@ -80,6 +81,10 @@ public class GProject extends RProjectListenerImpl
         }
     }
     
+    /**
+     * Close the project (thread-safe). This causes the VM to terminate.
+     * @throws RemoteException
+     */
     public void close()
         throws RemoteException
     {
@@ -87,7 +92,7 @@ public class GProject extends RProjectListenerImpl
     }
 
     /**
-     * Request a save of all open files in the project.
+     * Request a save of all open files in the project (thread-safe).
      * @throws ProjectNotOpenException
      * @throws RemoteException
      */
@@ -98,15 +103,15 @@ public class GProject extends RProjectListenerImpl
     }
     
     /**
-     * returns the default package.
-     * 
+     * Returns the default package. This method is thread-safe.
      */
-    public GPackage getDefaultPackage() throws ProjectNotOpenException, RemoteException {
-    	return getPackage("");
+    public GPackage getDefaultPackage() throws ProjectNotOpenException, RemoteException
+    {
+        return getPackage("");
     }
     
     /**
-     * returns the named package.
+     * Returns the named package. This method is thread-safe.
      */
     public GPackage getPackage(String packageName) throws ProjectNotOpenException, RemoteException
     {
@@ -120,18 +125,27 @@ public class GProject extends RProjectListenerImpl
     }
 
     /**
-     * Get a GPackage wrapper for an RPackage object
+     * Get a GPackage wrapper for an RPackage object.
+     * This method is thread-safe.
      */
     public GPackage getPackage(RPackage pkg)
     {
-        GPackage ret = packagePool.get(pkg);
-        if (ret == null) {
-            ret = new GPackage(pkg, this);
-            packagePool.put(pkg, ret);
+        synchronized (packagePool) {
+            GPackage ret = packagePool.get(pkg);
+            if (ret == null) {
+                ret = new GPackage(pkg, this);
+                packagePool.put(pkg, ret);
+            }
+            return ret;
         }
-        return ret;
     }
     
+    /**
+     * Get the packages in this project. This method is thread-safe.
+     * 
+     * @throws ProjectNotOpenException
+     * @throws RemoteException
+     */
     public RPackage[] getPackages()
         throws ProjectNotOpenException, RemoteException
     {
@@ -139,7 +153,7 @@ public class GProject extends RProjectListenerImpl
     }
 
     /**
-     * Get a remote reference to a class in this project.
+     * Get a remote reference to a class in this project. Thread-safe.
      * 
      * @param fullyQualifiedName  The fully-qualified class name
      * @return  A remote reference to the class
@@ -182,7 +196,8 @@ public class GProject extends RProjectListenerImpl
 
     
     /**
-     * Get the project name (the name of the directory containing it)
+     * Get the project name (the name of the directory containing it).
+     * Thread-safe.
      */
     public String getName()
     {
@@ -270,47 +285,47 @@ public class GProject extends RProjectListenerImpl
     
     public void addCompileListener(CompileListener listener)
     {
-    	synchronized (compileListeners) {
-    		compileListeners.add(listener);
-    	}
+        synchronized (compileListeners) {
+            compileListeners.add(listener);
+        }
     }
     
     public void removeCompileListener(CompileListener listener)
     {
-    	synchronized (compileListeners) {
-    		compileListeners.remove(listener);
-    	}
+        synchronized (compileListeners) {
+            compileListeners.remove(listener);
+        }
     }
     
     // ----------- CompileListener interface -------------
     
     public void compileError(RCompileEvent event)
     {
-    	delegateCompileEvent(event);
+        delegateCompileEvent(event);
     }
     
     public void compileFailed(RCompileEvent event)
     {
-    	reloadClasses();
-    	
-    	delegateCompileEvent(event);
+        reloadClasses();
+        
+        delegateCompileEvent(event);
     }
     
     public void compileStarted(RCompileEvent event)
     {
-    	delegateCompileEvent(event);
+        delegateCompileEvent(event);
     }
     
     public void compileSucceeded(RCompileEvent event)
     {
-    	reloadClasses();
-    	
-    	delegateCompileEvent(event);
+        reloadClasses();
+        
+        delegateCompileEvent(event);
     }
     
     public void compileWarning(RCompileEvent event)
     {
-    	delegateCompileEvent(event);
+        delegateCompileEvent(event);
     }
     
     // ----------- End of CompileListener interface ------
@@ -336,36 +351,36 @@ public class GProject extends RProjectListenerImpl
     
     private void delegateCompileEvent(RCompileEvent event)
     {
-    	synchronized (compileListeners) {
-    		List<CompileListener> listeners = new ArrayList<CompileListener>(compileListeners);
-    		Iterator<CompileListener> i = listeners.iterator();
-    		while (i.hasNext()) {
-    			CompileListener listener = i.next();
-    			try {
-    				switch (event.getEvent()) {
-    					case CompileEvent.COMPILE_START_EVENT:
-    						listener.compileStarted(event);
-    						break;
-    					case CompileEvent.COMPILE_DONE_EVENT:
-    						listener.compileSucceeded(event);
-    						break;
-    					case CompileEvent.COMPILE_FAILED_EVENT:
-    						listener.compileFailed(event);
-    						break;
-    					case CompileEvent.COMPILE_ERROR_EVENT:
-    						listener.compileError(event);
-    						break;
-    					case CompileEvent.COMPILE_WARNING_EVENT:
-    						listener.compileWarning(event);
-    						break;
-    					default:
-    				}
-    			}
-    			catch (RemoteException re) {
-    				re.printStackTrace();
-    			}
-    		}
-    	}
+        synchronized (compileListeners) {
+            List<CompileListener> listeners = new ArrayList<CompileListener>(compileListeners);
+            Iterator<CompileListener> i = listeners.iterator();
+            while (i.hasNext()) {
+                CompileListener listener = i.next();
+                try {
+                    switch (event.getEvent()) {
+                    case CompileEvent.COMPILE_START_EVENT:
+                        listener.compileStarted(event);
+                        break;
+                    case CompileEvent.COMPILE_DONE_EVENT:
+                        listener.compileSucceeded(event);
+                        break;
+                    case CompileEvent.COMPILE_FAILED_EVENT:
+                        listener.compileFailed(event);
+                        break;
+                    case CompileEvent.COMPILE_ERROR_EVENT:
+                        listener.compileError(event);
+                        break;
+                    case CompileEvent.COMPILE_WARNING_EVENT:
+                        listener.compileWarning(event);
+                        break;
+                    default:
+                    }
+                }
+                catch (RemoteException re) {
+                    re.printStackTrace();
+                }
+            }
+        }
     }
 
     /**

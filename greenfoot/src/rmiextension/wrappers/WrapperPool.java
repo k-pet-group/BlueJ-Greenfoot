@@ -39,21 +39,21 @@ import bluej.extensions.BProject;
  * TODO remember to "release" objects when they are no longer needed
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WrapperPool.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: WrapperPool.java 6722 2009-09-19 04:13:32Z davmac $
  */
 public class WrapperPool
 {
 
     static private WrapperPool instance;
 
-    private WeakHashMap pool = new WeakHashMap();
+    private WeakHashMap<Object,Object> pool = new WeakHashMap<Object,Object>();
 
     private WrapperPool()
     {
 
     }
 
-    public static WrapperPool instance()
+    public synchronized static WrapperPool instance()
     {
         if (instance == null) {
             instance = new WrapperPool();
@@ -61,7 +61,7 @@ public class WrapperPool
         return instance;
     }
 
-    public RProjectImpl getWrapper(BProject wrapped)
+    public synchronized RProjectImpl getWrapper(BProject wrapped)
         throws RemoteException
     {
         RProjectImpl wrapper = (RProjectImpl) pool.get(wrapped);
@@ -72,7 +72,7 @@ public class WrapperPool
         return wrapper;
     }
 
-    public RPackage getWrapper(BPackage wrapped)
+    public synchronized RPackage getWrapper(BPackage wrapped)
         throws RemoteException
     {
         if (wrapped == null) {
@@ -86,7 +86,7 @@ public class WrapperPool
         return wrapper;
     }
 
-    public RClass getWrapper(BClass wrapped)
+    public synchronized RClass getWrapper(BClass wrapped)
         throws RemoteException
     {
         if (wrapped == null) {
@@ -104,7 +104,7 @@ public class WrapperPool
      * @param constructor
      * @return
      */
-    public RConstructor getWrapper(BConstructor wrapped)
+    public synchronized RConstructor getWrapper(BConstructor wrapped)
         throws RemoteException
     {
         if (wrapped == null) {
@@ -122,7 +122,7 @@ public class WrapperPool
      * @param object
      * @return
      */
-    public RObject getWrapper(BObject wrapped)
+    public synchronized RObject getWrapper(BObject wrapped)
         throws RemoteException
     {
         if (wrapped == null) {
@@ -140,7 +140,7 @@ public class WrapperPool
      * @param wrapped
      * @return
      */
-    public RField getWrapper(BField wrapped)
+    public synchronized RField getWrapper(BField wrapped)
         throws RemoteException
     {
         if (wrapped == null) {

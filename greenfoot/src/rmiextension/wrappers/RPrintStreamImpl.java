@@ -19,43 +19,31 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package greenfoot.platforms;
+package rmiextension.wrappers;
 
-import greenfoot.World;
-import greenfoot.core.WorldHandler;
-import greenfoot.gui.input.InputManager;
+import java.io.IOException;
+import java.io.Writer;
+import java.rmi.RemoteException;
 
-import java.awt.event.MouseEvent;
+import bluej.utility.Debug;
 
-
-/**
- * Interface to classes that contain specialized behaviour for the WorldHandler
- * depending on where and how the greenfoot project is running.
- * 
- * @author Poul Henriksen
- *
- */
-public interface WorldHandlerDelegate
+public class RPrintStreamImpl extends java.rmi.server.UnicastRemoteObject
+    implements RPrintStream
 {
-    /**
-     * Show the popup menu if the mouseevent is a popup trigger.
-     */
-    boolean maybeShowPopup(MouseEvent e);
-
-    void mouseClicked(MouseEvent e);
-
-    void setWorld(World oldWorld, World newWorld);
-
-    void dragFinished(Object o);
-
-    void setWorldHandler(WorldHandler handler);
+    public RPrintStreamImpl() throws RemoteException
+    {
+        super();
+    }
     
-    /**
-     * Instantiate a new world and do any initialisation needed to activate that world.
-     */
-    void instantiateNewWorld();
-
-    InputManager getInputManager();
-
-    void discardWorld(World world);
+    public void print(String text) throws RemoteException
+    {
+        try {
+            Writer writer = Debug.getDebugStream();
+            writer.write(text);
+            writer.flush();
+        }
+        catch (IOException ioe) {
+            System.err.println("IOException writing to debug log.");
+        }
+    }
 }

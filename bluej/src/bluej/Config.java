@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -77,7 +78,6 @@ import bluej.utility.Utility;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: Config.java 6688 2009-09-16 14:16:56Z davmac $
  */
 
 public final class Config
@@ -98,7 +98,7 @@ public final class Config
     public static Properties moeSystemProps;  // moe (editor) properties
     public static Properties moeUserProps;    // moe (editor) properties
     
-    private static Properties langProps;	// international labels
+    private static Properties langProps;        // international labels
 
     private static BlueJPropStringSource propSource; // source for properties
 
@@ -107,8 +107,8 @@ public final class Config
     /** The greenfoot subdirectory of the "lib"-directory*/ 
     private static File greenfootLibDir;
     
-    public static String compilertype;	// current compiler (javac, jikes)
-    public static String language;	// message language (english, ...)
+    public static String compilertype;  // current compiler (javac, jikes)
+    public static String language;      // message language (english, ...)
 
     public static Rectangle screenBounds; // maximum dimensions of screen
 
@@ -420,8 +420,8 @@ public final class Config
      */
     public static boolean isWinOSVista()
     {
-		return isWinOS()
-				&& System.getProperty("os.version").compareTo("6.0") >= 0;
+        return isWinOS()
+                && System.getProperty("os.version").compareTo("6.0") >= 0;
     }
     
     /**
@@ -536,7 +536,7 @@ public final class Config
                         new PrintStream(new FileOutputStream(debugLogFile));
                     System.setOut(outStream);
                     System.setErr(outStream);
-                    Debug.setDebugStream(outStream);
+                    Debug.setDebugStream(new OutputStreamWriter(outStream));
 
                     Debug.message(getApplicationName() + " run started: " + new Date());
                     if(isGreenfoot())
@@ -565,7 +565,7 @@ public final class Config
         // - we are on the debug VM (and in Greenfoot) or
         // - bluej.debug=true or
         // - creating the debug log failed
-        Debug.setDebugStream(System.out);
+        Debug.setDebugStream(new OutputStreamWriter(System.out));
     }
     
     /**
@@ -1084,14 +1084,14 @@ public final class Config
                 if (jdkPath != null) {
                     binPath = new File(jdkPath, "bin");
 
-					// try to find normal (unix??) executable
+                    // try to find normal (unix??) executable
                     potentialExe = new File(binPath, executableName);
                     if(potentialExe.exists())
                         return potentialExe.getAbsolutePath();
-					// try to find windows executable
-					potentialExe = new File(binPath, executableName + ".exe");
-					if(potentialExe.exists())
-						return potentialExe.getAbsolutePath();
+                        // try to find windows executable
+                        potentialExe = new File(binPath, executableName + ".exe");
+                        if(potentialExe.exists())
+                            return potentialExe.getAbsolutePath();
                 }
             }
 
@@ -1435,7 +1435,7 @@ public final class Config
         if(args != null && !args.equals("bluej.vm.args")) {
             // if there is more than one arg set
             List<String> splitArgs = splitVMArgs(args);
-	        debugVMArgs.addAll(splitArgs);
+            debugVMArgs.addAll(splitArgs);
         }        
     }
     
@@ -1443,7 +1443,7 @@ public final class Config
      * Splits VM args String into separate args including handling quotes
      * used for file paths with spaces. 
      * @param str - the string to be split
-     * @returns	an array of Strings
+     * @returns an array of Strings
      */
     private static List<String> splitVMArgs(String str)
     {

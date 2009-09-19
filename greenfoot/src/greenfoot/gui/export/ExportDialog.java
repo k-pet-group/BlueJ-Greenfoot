@@ -107,7 +107,7 @@ public class ExportDialog extends EscapeDialog
                 return;         // Cancel export
             }
         }
-        if(WorldHandler.getInstance().getLastWorldClass() == null) {
+        if(WorldHandler.getInstance().getLastWorldClassName() == null) {
             JButton[] buttons = new JButton[]{new JButton(Config.getString("greenfoot.continue"))};
             MessageDialog errorDialog = new MessageDialog(parent, noWorldDialogMsg, noWorldDialogTitle, 50 , buttons);
             errorDialog.display();

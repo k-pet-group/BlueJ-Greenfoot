@@ -26,7 +26,6 @@ import greenfoot.ObjectTracker;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.core.GProject;
-import greenfoot.core.ProjectProperties;
 import greenfoot.core.WorldHandler;
 import greenfoot.core.WorldInvokeListener;
 import greenfoot.gui.DragGlassPane;
@@ -70,7 +69,6 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.Debug;
 
 
 /**
@@ -96,8 +94,6 @@ public class WorldHandlerDelegateIDE
 
     private JLabel worldTitle;
 
-    private String lastWorldClass; 
-    
     public WorldHandlerDelegateIDE(GreenfootFrame frame)
     {
         worldTitle = new JLabel();
@@ -208,9 +204,6 @@ public class WorldHandlerDelegateIDE
     
     public void setWorld(final World oldWorld, final World newWorld)
     {
-        if (newWorld != null) {
-            lastWorldClass = newWorld.getClass().getName();
-        }
         if (oldWorld != null) {
             discardWorld(oldWorld);
         }
@@ -389,9 +382,6 @@ public class WorldHandlerDelegateIDE
     public void attachProject(Object project)
     {
         this.project = (GProject) project;
-
-        ProjectProperties probs = this.project.getProjectProperties();
-        lastWorldClass = probs.getString("world.lastInstantiated");
     }
 
     public Component getWorldTitle()
@@ -409,18 +399,18 @@ public class WorldHandlerDelegateIDE
         Class<?> cls = getLastWorldClass();
         if(cls == null) {
             try {
-            	List<Class<?>> worldClasses = project.getDefaultPackage().getWorldClasses();
-            	if(worldClasses.isEmpty() ) {
-            		return;
-            	}
-            	cls = worldClasses.get(0);
+                List<Class<?>> worldClasses = project.getDefaultPackage().getWorldClasses();
+                if(worldClasses.isEmpty() ) {
+                    return;
+                }
+                cls = worldClasses.get(0);
             }
             catch (ProjectNotOpenException pnoe) {
-            	return;
+                return;
             }
             catch (RemoteException re) {
-            	re.printStackTrace();
-            	return;
+                re.printStackTrace();
+                return;
             }
         }
         
@@ -451,23 +441,24 @@ public class WorldHandlerDelegateIDE
 
     public Class<?> getLastWorldClass()
     {
+        String lastWorldClass = WorldHandler.getInstance().getLastWorldClassName();
         if(lastWorldClass == null) {
             return null;
         }
         
         try {
-        	List<Class<?>> worldClasses = project.getDefaultPackage().getWorldClasses();
+            List<Class<?>> worldClasses = project.getDefaultPackage().getWorldClasses();
 
-        	//Has to be one of the currently instantiable world classes.
-        	for (Class<?> worldClass : worldClasses) {
-        		if(worldClass.getName().equals(lastWorldClass)) {
-        			return worldClass;
-        		}                
-        	}
+            //Has to be one of the currently instantiable world classes.
+            for (Class<?> worldClass : worldClasses) {
+                if(worldClass.getName().equals(lastWorldClass)) {
+                    return worldClass;
+                }                
+            }
         }
         catch (ProjectNotOpenException pnoe) {}
         catch (RemoteException re) {
-        	re.printStackTrace();
+            re.printStackTrace();
         }
         
         return null;

@@ -38,7 +38,6 @@ import bluej.extensions.ProjectNotOpenException;
  * Action that compiles all classes that needs compilation.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: CompileAllAction.java 6216 2009-03-30 13:41:07Z polle $
  */
 public class CompileAllAction extends AbstractAction
 {
@@ -69,7 +68,7 @@ public class CompileAllAction extends AbstractAction
                 return;
             }
             Simulation.getInstance().setPaused(true);
-        	project.getDefaultPackage().compileAll(false);
+            project.getDefaultPackage().compileAll();
         }
         catch (ProjectNotOpenException pnoe) {}
         catch (PackageNotFoundException pnfe) {}

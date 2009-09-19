@@ -26,7 +26,6 @@
  * The exporter is a singleton
  *
  * @author Michael Kolling
- * @version $Id: Exporter.java 6510 2009-08-13 10:57:08Z polle $
  */
 
 package greenfoot.export;
@@ -110,7 +109,7 @@ public class Exporter
         String jarName = tmpJarFile.getName();           
         
         
-        String worldClass = WorldHandler.getInstance().getLastWorldClass().getName();
+        String worldClass = WorldHandler.getInstance().getLastWorldClassName();
         
         boolean  lockScenario = pane.lockScenario();
         
@@ -245,7 +244,7 @@ public class Exporter
         File exportDir = new File(pane.getExportLocation());
         exportDir.mkdir();
 
-        String worldClass = WorldHandler.getInstance().getLastWorldClass().getName();
+        String worldClass = WorldHandler.getInstance().getLastWorldClassName();
         
         boolean  includeControls = pane.lockScenario();
         String jarName = project.getName() + ".jar";
@@ -314,7 +313,7 @@ public class Exporter
         File exportDir = exportFile.getParentFile();
         String jarName = exportFile.getName();
 
-        String worldClass = WorldHandler.getInstance().getLastWorldClass().getName();
+        String worldClass = WorldHandler.getInstance().getLastWorldClassName();
         
         boolean  includeControls = pane.lockScenario();
         

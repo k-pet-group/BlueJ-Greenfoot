@@ -21,7 +21,9 @@
  */
 package rmiextension.wrappers;
 
+import java.awt.EventQueue;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Map;
@@ -38,14 +40,14 @@ import bluej.pkgmgr.PkgMgrFrame;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJImpl.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: RBlueJImpl.java 6722 2009-09-19 04:13:32Z davmac $
  */
 public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     implements RBlueJ
 {
     BlueJ blueJ;
 
-    Map listeners = new Hashtable();
+    Map<Object,Object> listeners = new Hashtable<Object,Object>();
 
     
     public RBlueJImpl(BlueJ blueJ)
@@ -55,6 +57,14 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         this.blueJ = blueJ;
     }
 
+    /* (non-Javadoc)
+     * @see rmiextension.wrappers.RBlueJ#getDebugPrinter()
+     */
+    public RPrintStream getDebugPrinter() throws RemoteException
+    {
+        return new RPrintStreamImpl();
+    }
+    
     /* (non-Javadoc)
      * @see rmiextension.wrappers.RBlueJ#addCompileListener(rmiextension.wrappers.event.RCompileListener, java.lang.String)
      */
@@ -160,7 +170,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     public RProject openProject(String directory)
         throws RemoteException
     {
-
         return WrapperPool.instance().getWrapper(blueJ.openProject(new File(directory)));
     }
 
@@ -209,16 +218,30 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     public void exit()
         throws RemoteException
     {
-        BProject[] bProjects = blueJ.getOpenProjects();
-        int length = bProjects.length;
-        for (int i = 0; i < length; i++) {
-            RProjectImpl rpImpl = WrapperPool.instance().getWrapper(bProjects[i]);
-            rpImpl.notifyClosing();
-        }
-        
-        PkgMgrFrame [] frames = PkgMgrFrame.getAllFrames();
-        for (int i = 0; i < frames.length; i++) {
-            frames[i].doClose(false, true);
+        try {
+            EventQueue.invokeAndWait(new Runnable() {
+               public void run()
+                {
+                   BProject[] bProjects = blueJ.getOpenProjects();
+                   int length = bProjects.length;
+                   for (int i = 0; i < length; i++) {
+                       try {
+                           RProjectImpl rpImpl = WrapperPool.instance().getWrapper(bProjects[i]);
+                           rpImpl.notifyClosing();
+                       }
+                       catch (RemoteException re) {}
+                   }
+                   
+                   PkgMgrFrame [] frames = PkgMgrFrame.getAllFrames();
+                   for (int i = 0; i < frames.length; i++) {
+                       frames[i].doClose(false, true);
+                   }
+                } 
+            });
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
         }
     }
 

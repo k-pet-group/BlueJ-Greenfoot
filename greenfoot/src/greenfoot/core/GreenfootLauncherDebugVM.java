@@ -25,14 +25,18 @@ import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 import greenfoot.util.GreenfootUtil;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
 import java.rmi.RemoteException;
 
 import javax.swing.ImageIcon;
 
 import rmiextension.BlueJRMIClient;
 import rmiextension.wrappers.RBlueJ;
+import rmiextension.wrappers.RPrintStream;
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.utility.Debug;
 
 /**
  * An object of GreenfootLauncherDebugVM is the first object that is created in the
@@ -51,9 +55,30 @@ public class GreenfootLauncherDebugVM
         BlueJRMIClient client = new BlueJRMIClient(prjDir, rmiServiceName);
         
         RBlueJ blueJ = client.getBlueJ();
-        try {
+        try {            
             File libdir = blueJ.getSystemLibDir();
             Config.initializeVMside(libdir, blueJ.getInitialCommandLineProperties(), true, client);
+            final RPrintStream rprintStream = blueJ.getDebugPrinter();
+            Debug.setDebugStream(new Writer() {
+                @Override
+                public void write(char[] cbuf, int off, int len)
+                        throws IOException
+                {
+                    String s = new String(cbuf, off, len);
+                    rprintStream.print(s);
+                }
+                
+                @Override
+                public void flush() throws IOException
+                {
+                }
+                
+                @Override
+                public void close() throws IOException
+                {
+                }
+            });
+            
             GreenfootUtil.initialise(new GreenfootUtilDelegateIDE());
             
             ImageIcon icon = new ImageIcon(GreenfootUtil.getGreenfootLogoPath());

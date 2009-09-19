@@ -64,7 +64,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 6474 2009-07-31 12:52:51Z polle $
+ * @version $Id: GreenfootMain.java 6722 2009-09-19 04:13:32Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -182,7 +182,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             ActorDelegateIDE.setupAsActorDelegate(project);
 
             EventQueue.invokeLater(new Runnable() {
-            	public void run() {
+                public void run() {
                     frame = GreenfootFrame.getGreenfootFrame(rBlueJ);
 
                     // Config is initialized in GreenfootLauncherDebugVM
@@ -255,9 +255,9 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         }
 
         try {
-    		// It's possible that the user re-opened a project which they previously closed,
-    		// resulting in an empty frame (because no other open projects). In that case the
-    		// project is actually still running, behind the scenes; so just re-display it.
+            // It's possible that the user re-opened a project which they previously closed,
+            // resulting in an empty frame (because no other open projects). In that case the
+            // project is actually still running, behind the scenes; so just re-display it.
             if (project.getDir().equals(projectDirFile)) {
                 frame.openProject(project);
                 return;
@@ -314,7 +314,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         try {
             if (rBlueJ.getOpenProjects().length <= 1) {
                 if (windowClosing) {
-                	// This happens to be the only way the startup project can be closed
+                    // This happens to be the only way the startup project can be closed
                     rBlueJ.exit();
                 } else {
                     frame.closeProject();
@@ -385,9 +385,9 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         projectProperties.setInt("mainWindow.x", loc.x);
         projectProperties.setInt("mainWindow.y", loc.y);
 
-        Class cls = WorldHandler.getInstance().getLastWorldClass();
-        if (cls != null) {
-            projectProperties.setString("world.lastInstantiated", WorldHandler.getInstance().getLastWorldClass().getName());
+        String worldClassName = WorldHandler.getInstance().getLastWorldClassName();
+        if (worldClassName != null) {
+            projectProperties.setString("world.lastInstantiated", WorldHandler.getInstance().getLastWorldClassName());
         }
 
         projectProperties.save();
@@ -483,8 +483,8 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         File greenfootDir = new File(dst, "greenfoot");
         
         // Since Greenfoot 1.5.2 we no longer require the greenfoot directory,
-		// so we delete everything that we might have had in there previously,
-		// and delete the dir if it is empty after that.
+        // so we delete everything that we might have had in there previously,
+        // and delete the dir if it is empty after that.
         deleteGreenfootDir(greenfootDir);        
         
         if(deleteClassFiles) {
@@ -522,56 +522,56 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         p.save();
     }
 
-	private static void deleteGreenfootDir(File greenfootDir) 
-	{
-		if (greenfootDir.exists()) {
-			try {
-				File actorJava = new File(greenfootDir, "Actor.java");
-				if (actorJava.exists()) {
-					actorJava.delete();
-				}
-			} catch (SecurityException e) {
-				// If we don't have permission to delete, just leave them there.
-			}
-			try {
-				File worldJava = new File(greenfootDir, "World.java");
-				if (worldJava.exists()) {
-					worldJava.delete();
-				}
-			} catch (SecurityException e) {
-				// If we don't have permission to delete, just leave them there.
-			}
-			try {
-				File actorJava = new File(greenfootDir, "Actor.class");
-				if (actorJava.exists()) {
-					actorJava.delete();
-				}
-			} catch (SecurityException e) {
-				// If we don't have permission to delete, just leave them there.
-			}
-			try {
-				File worldJava = new File(greenfootDir, "World.class");
-				if (worldJava.exists()) {
-					worldJava.delete();
-				}
-			} catch (SecurityException e) {
-				// If we don't have permission to delete, just leave them there.
-			}
-			try {
-				File worldJava = new File(greenfootDir, "project.greenfoot");
-				if (worldJava.exists()) {
-					worldJava.delete();
-				}
-			} catch (SecurityException e) {
-				// If we don't have permission to delete, just leave them there.
-			}
-			try {
-				greenfootDir.delete();
-			} catch (SecurityException e) {
-				// If we don't have permission to delete, just leave them there.
-			}
-		}
-	}
+    private static void deleteGreenfootDir(File greenfootDir) 
+    {
+        if (greenfootDir.exists()) {
+            try {
+                File actorJava = new File(greenfootDir, "Actor.java");
+                if (actorJava.exists()) {
+                    actorJava.delete();
+                }
+            } catch (SecurityException e) {
+                // If we don't have permission to delete, just leave them there.
+            }
+            try {
+                File worldJava = new File(greenfootDir, "World.java");
+                if (worldJava.exists()) {
+                    worldJava.delete();
+                }
+            } catch (SecurityException e) {
+                // If we don't have permission to delete, just leave them there.
+            }
+            try {
+                File actorJava = new File(greenfootDir, "Actor.class");
+                if (actorJava.exists()) {
+                    actorJava.delete();
+                }
+            } catch (SecurityException e) {
+                // If we don't have permission to delete, just leave them there.
+            }
+            try {
+                File worldJava = new File(greenfootDir, "World.class");
+                if (worldJava.exists()) {
+                    worldJava.delete();
+                }
+            } catch (SecurityException e) {
+                // If we don't have permission to delete, just leave them there.
+            }
+            try {
+                File worldJava = new File(greenfootDir, "project.greenfoot");
+                if (worldJava.exists()) {
+                    worldJava.delete();
+                }
+            } catch (SecurityException e) {
+                // If we don't have permission to delete, just leave them there.
+            }
+            try {
+                greenfootDir.delete();
+            } catch (SecurityException e) {
+                // If we don't have permission to delete, just leave them there.
+            }
+        }
+    }
 
     /**
      * Checks whether the API version this project was created with is
@@ -661,7 +661,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      */
     public static void deleteAllClassFiles(File dir)
     {
-    	String[] classFiles = dir.list(classFilter);
+        String[] classFiles = dir.list(classFilter);
         if(classFiles == null) return;
 
         for (int i = 0; i < classFiles.length; i++) {
@@ -695,7 +695,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     {
         if (version == null) {
             try {
-                Class bootCls = Class.forName("bluej.Boot");
+                Class<?> bootCls = Class.forName("bluej.Boot");
                 Field field = bootCls.getField("GREENFOOT_API_VERSION");
                 String versionStr = (String) field.get(null);
                 version = new Version(versionStr);
@@ -723,11 +723,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         }
 
         return version;
-    }
-
-    public static Class loadAndInitClass(String name)
-    {
-        return null;
     }
 
     /**

@@ -116,9 +116,9 @@ public class GPackage
     }
     
 
-    public void compileAll(boolean waitCompileEnd) throws ProjectNotOpenException, PackageNotFoundException, RemoteException, CompilationNotStartedException
+    public void compileAll() throws ProjectNotOpenException, PackageNotFoundException, RemoteException, CompilationNotStartedException
     {
-        pkg.compileAll(waitCompileEnd);
+        pkg.compileAll();
     }
 
     public File getDir()

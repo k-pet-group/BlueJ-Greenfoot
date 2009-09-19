@@ -29,9 +29,9 @@ import rmiextension.wrappers.event.RCompileEvent;
 import rmiextension.wrappers.event.RCompileListenerImpl;
 
 /**
- * Class that forwards compile events to all the compile listeners registred
- * with greenfoot. This is for performance reasons. Many objects are intereseted
- * in compile events, and if all these should use remote listenerers it might be
+ * Class that forwards compile events to all the compile listeners registered
+ * with greenfoot. This is for performance reasons. Many objects are interested
+ * in compile events, and if all these should use remote listeners it might be
  * to heavy. Consider using non remote compile events as well.
  * <p>
  * Another feature of this class is that the events will be delegated to the compileListeners int he order in which they appear in the list.

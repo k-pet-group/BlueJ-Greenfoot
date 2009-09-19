@@ -34,11 +34,16 @@ import rmiextension.wrappers.event.RInvocationListener;
  * Interface for accessing BlueJ-functionality
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJ.java 6216 2009-03-30 13:41:07Z polle $
  */
 public interface RBlueJ
     extends java.rmi.Remote
 {
+    /**
+     * Get a stream object that can be used to output to the debug log.
+     */
+    public RPrintStream getDebugPrinter()
+        throws RemoteException;
+    
     /**
      * Register a Compile event listener for the project identified by the given path.
      */
