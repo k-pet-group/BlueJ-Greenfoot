@@ -47,9 +47,6 @@ import bluej.parser.nodes.ParsedNode;
  */
 public class MoeSyntaxDocument extends PlainDocument
 {
-    public static final String OUTPUT = "output";
-    public static final String ERROR = "error";
-
     private static Color[] colors = null;
 	
     private static Color defaultColour = null;
@@ -62,7 +59,7 @@ public class MoeSyntaxDocument extends PlainDocument
         getUserColors();
         // defaults to 4 if cannot read property
         int tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
-        putProperty(tabSizeAttribute, new Integer(tabSize));
+        putProperty(tabSizeAttribute, Integer.valueOf(tabSize));
     }
 
     public ParsedNode getParser()
@@ -113,7 +110,10 @@ public class MoeSyntaxDocument extends PlainDocument
         return backgroundColour;
     }
     
-    // DAV document
+    /**
+     * Get an array of colours as specified in the configuration file for different
+     * token types. The indexes for each token type are defined in the Token class.
+     */
     public static Color[] getColors()
     {
         return getUserColors();
@@ -220,14 +220,19 @@ public class MoeSyntaxDocument extends PlainDocument
         }
     }
     
-    // DAV comment
+    /*
+     * Override default implementation to notify the parser of text insertion
+     * @see javax.swing.text.AbstractDocument#fireInsertUpdate(javax.swing.event.DocumentEvent)
+     */
     protected void fireInsertUpdate(DocumentEvent e)
     {
         parsedNode.textInserted(this, 0, e.getOffset(), e.getLength());
         super.fireInsertUpdate(e);
     }
     
-    // DAV comment
+    /* Override the default implementation to notify the parser of text removal
+     * @see javax.swing.text.AbstractDocument#fireRemoveUpdate(javax.swing.event.DocumentEvent)
+     */
     protected void fireRemoveUpdate(DocumentEvent e)
     {
         // TODO do this in handleRemove instead, then we can hook before the remove and after
