@@ -19,8 +19,12 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
+ 
+/* Manifest */
+#define MANIFEST_RESOURCE_ID 1
+
 /* Main vmselect dialog */
-#define DLG_MAIN 1
+#define DLG_MAIN 2
 
 /* Controls on dialog */
 

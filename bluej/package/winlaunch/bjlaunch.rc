@@ -12,6 +12,11 @@ MAINICON ICON "greenfoot-icon-256-shadow.ico"
 #endif
 2 ICON "vmselect.ico"
 
+#ifndef GREENFOOT
+MANIFEST_RESOURCE_ID RT_MANIFEST "bjmanifest.xml"
+#else
+MANIFEST_RESOURCE_ID RT_MANIFEST "gfmanifest.xml"
+#endif
 
 DLG_MAIN DIALOGEX 0, 0, 368, 124
 #ifndef GREENFOOT
@@ -41,11 +46,11 @@ END
 
 1 VERSIONINFO
 #ifdef GREENFOOT
-FILEVERSION 1,5,1,0
-PRODUCTVERSION 1,5,1,0
+FILEVERSION 1,5,5,0
+PRODUCTVERSION 1,5,5,0
 #else
-FILEVERSION 2,5,0,0
-PRODUCTVERSION 2,5,0,0
+FILEVERSION 2,5,3,0
+PRODUCTVERSION 2,5,3,0
 #endif
 FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
 FILEFLAGS 0
@@ -60,11 +65,11 @@ BEGIN
 		BEGIN
 			VALUE "CompanyName", "BlueJ group"
 			VALUE "FileDescription", "BlueJ Launcher"
-			VALUE "FileVersion", "2.5.0"
+			VALUE "FileVersion", "2.5.3"
 			VALUE "InternalName", "bluej"
 			VALUE "OriginalFilename", "bluej.exe"
 			VALUE "ProductName", "BlueJ"
-			VALUE "ProductVersion", "2.5.0"
+			VALUE "ProductVersion", "2.5.3"
 		END
 	END
 END
@@ -76,11 +81,11 @@ BEGIN
 		BEGIN
 			VALUE "CompanyName", "BlueJ group"
 			VALUE "FileDescription", "Greenfoot Launcher"
-			VALUE "FileVersion", "1.5.1"
+			VALUE "FileVersion", "1.5.5"
 			VALUE "InternalName", "greenfoot"
 			VALUE "OriginalFilename", "greenfoot.exe"
 			VALUE "ProductName", "Greenfoot"
-			VALUE "ProductVersion", "1.5.1"
+			VALUE "ProductVersion", "1.5.5"
 		END
 	END
 END

@@ -3,21 +3,24 @@
 # Must set below, and edit version in bjlaunch.rc
 
 # For BlueJ
-#APPNAME=\"BlueJ\"
-#GREENFOOTDEF=
+APPNAME=\"BlueJ\"
+GREENFOOTDEF=
+EXECNAME=bjlaunch.exe
 
 # For Greenfoot
-APPNAME=\"Greenfoot\"
-GREENFOOTDEF=-DGREENFOOT
+#APPNAME=\"Greenfoot\"
+#GREENFOOTDEF=-DGREENFOOT
+#EXECNAME=gflaunch.exe
 
 JDKDIR=/c/Program Files/Java/jdk1.6.0_05
 REQUIREDJAVA=\"1.5\"
 
 OBJECTS = resources.o bjlaunch.o javatest.o javaprops.o bjdialog.o
 
-bjlaunch.exe: $(OBJECTS)
-	g++ -static -mwindows -o bjlaunch.exe $(OBJECTS) -lversion
-	strip bjlaunch.exe
+
+$(EXECNAME): $(OBJECTS)
+	g++ -static -mwindows -o $(EXECNAME) $(OBJECTS) -lversion
+	strip $(EXECNAME)
 
 resources.o: bjlaunch.rc resources.h
 	windres $(GREENFOOTDEF) bjlaunch.rc resources.o
