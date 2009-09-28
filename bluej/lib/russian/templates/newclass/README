@@ -17,9 +17,9 @@ Adding new templates
 To add a template, create a new file in this directory with a ".tmpl"
 suffix (for example "mainclass.tmpl").
 
-Names for applets, interfaces, abstract or enum classes should start with 
-"applet", "interface", "abstract" or "enum", respectively. Everything else will be 
-treated as a standard class.
+Names for applets, interfaces, abstract, unittest, enum or midlet classes should start with 
+"appletj", "interface", "abstract", "unittest", "enum" or "midlet" respectively. Everything else
+will be treated as a standard class.
 
 By default, this template will be listed in the New Class dialogue at the
 end of the selection list with the base of its filename ("mainclass").
