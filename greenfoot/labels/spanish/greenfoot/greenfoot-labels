@@ -1,0 +1,222 @@
+#i18n for greenfoot
+
+greenfoot.nyi=No se ha implementado todav\u00EDa - Lo sentimos...
+greenfoot.preferences=Preferencias...
+greenfoot.copyright=Copyright...
+greenfoot.quit=Salir
+greenfoot.continue=Continuar
+greenfoot.cancel=Cancelar
+
+#Diálogo de Acerca de
+about.title=Acerca Greenfoot
+about.moreInfo=M\u00E1s informaci\u00F3n puede ser encontrada en www.greenfoot.org
+
+
+# Informaci\u00F3n de la versi\u00F3n del proyecto Greenfoot
+project.version.none=El escenario que se est\u00E1 abriendo ha sido escrito usando una versi\u00F3n anterior de Greenfoot (anterior a la versi\u00F3n 0.5 de Greenfoot). Lo m\u00E1s probable es que cause algunos errores que deber\u00E1n ser arreglados de manualmente.
+project.version.notGreenfoot=Esto no es un escenario de Greenfoot: 
+project.version.mismatch=Las versiones no coinciden:
+# Los 3 pr\u00F3ximos items ser\u00E1n mostrados si el d\u00EDgito mayor de la versi\u00F3n ha cambiado.
+# part3 deber\u00EDa ser actualizado para describir los cambios que han ocurrido.
+project.version.older.part1=El escenario que se est\u00E1 abriendo ha sido escrito usando una versi\u00F3n anterior de Greenfoot (API version
+# La versi\u00F3n del proyecto insertada ac\u00E1 por Greenfoot
+project.version.older.part2=). El escenario ser\u00E1 actualizado a la versi\u00F3n actual (API version 
+# La versi\u00F3n del proyecto insertada ac\u00E1 por Greenfoot
+
+#Informaci\u00F3n sobre los cambios en esta nueva versi\u00F3n de la API que probablemente quebrar\u00E1 los escenarios existentes
+project.version.older.part3=). Los siguentes cambios a la Aplicaci\u00F3n Greenfoot probablemente han producido un quiebre en el escenario:
+
+project.version.changes.1=2.0.0 Los m\u00E9todos 'stopSimulation', 'startSimulation' y 'setSimulationSpeed' en la clase Greenfoot han sido renombrados 'start', 'stop' and 'setSpeed'. 
+project.version.changes.2=2.0.0 Los m\u00E9todos de actores 'getWidth' y 'getHeight' han sido eliminados. Use 'getImage().getWidth()' y 'getImage().getHeight()' en su lugar.
+project.version.changes.3=2.0.0 El m\u00E9todo de actor 'getObjectsInRange' ahora usa celdas en vez de pixeles como unidad de rango.
+project.version.changes.4=2.0.0 Greenfoot se ha vuelto sensible a las may\u00FAsculas cuando se trata de archivos de im\u00E1gen y sonido.
+project.version.changes.5=2.0.0 Los m\u00E9todos de mundo 'setTiled' y 'getTiled' han sido eliminados.
+project.version.changes.6=2.0.0 El 'getBackground' del Mundo ahora devuelve una imagen que es del porte de todo el fondo.
+
+project.version.newer.part1=El escenario que se est\u00E1 abriendo ha sido escrito usando una versi\u00F3n m\u00E1s reciente de Greenfoot (API version
+# La versi\u00F3n del proyecto insertada ac\u00E1 por Greenfoot (API version 
+project.version.newer.part2=). Abriendo este escenario con su versi\u00F3n actual de Greenfoot le podr\u00E1 causar algunos errores que deber\u00E1n ser arreglados de manualmente. \n\n ¿Quiere continuar con el escenario?
+project.close=Cerrar
+
+# Acciones
+greenfoot.about=Acerca de Greenfoot...
+compile.all=Compilar todo
+compile.class=Compilar
+edit.class=Abrir el editor
+new.class=Nueva Clase...
+new.project=Nuevo...
+new.subclass=Nueva subclase...
+open.project=Abrir...
+open.recentProject=Proyectos recientes
+remove.class=Eliminar
+remove.selected=Eliminar Clase
+inspect.class=Inspeccionar
+reset.world=Reiniciar
+run.once=Accionar
+run.simulation=Ejecutar
+project.save=Guardar
+project.savecopy=Guardar una copia como...
+select.image=Elegir Imagen...
+show.readme=Informaci\u00F3n del Escenario
+pause.simulation=Pausa
+show.apidoc=Abrir Documentaci\u00F3n
+
+# Elimiar la confimaci\u00F3n de la Clase
+remove.confirm.title=Confirmar la eliminaci\u00F3n de la clase
+remove.confirm.text1=Est\u00E1 a punto de eliminar la clase
+remove.confirm.text2=\u00bfContinuar?
+
+
+# Dialogo de guardado de copia del escenario 
+project.savecopy.title=Guardar una Copia del Escenario
+
+
+# Dialogo de exportaci\u00F3n del Escenario
+export.project=Exportar...
+export.progress.bundling=Construyendo escenario...
+export.progress.publishing=Publicando...
+export.progress.writingHTML=Escribiendo p\u00E1gina web...
+export.progress.writingJar=Escribiendo archivo jar...
+export.progress.complete=Exportaci\u00F3n completa.
+export.publish.fail=La publicaci\u00F3n fall\u00F3:
+export.publish.unknownHost=La publicaci\u00F3n fall\u00F3: Host desconocido
+export.publish.complete=Publicaci\u00F3n completa
+## La siguente l\u00EDna viene del original en ingl\u00E9s :"Create an executable jar file that can be run on its own." Por favor ay\u00FAdenme a traducirla. Gracias
+export.app.help=Crea un archivo jar ejecutable que puede ser ejecutado por su cuenta.
+export.app.location=Guardar en: 
+export.app.browse=Buscar
+export.app.choose=Guardar archivo ejecutable .jar
+export.compile.help=No todas las clases del escenario est\u00E1n compiladas. Para continuar exportando, compile las clases ahora.
+export.compile.notCompiled=El escenario no ha sido compilado.
+export.dialog.title=Greenfoot: Exportar
+export.dialog.continue=Exportar
+export.dialog.continue.update=(actualizar)
+export.lock.label=Ver Escenario
+export.lock.description= Previene: Cambio de velocidad, Bot\u00F3n de Accionar, y el cambio de la posici\u00F3n del actor cuando est\u00E1 pausado. 
+export.publish.help=Publicar el escenario en:
+
+export.publish.info=Informaci\u00F3n para la visualizaci\u00F3n en
+export.publish.image1=\\u00CDcono del Escenario:
+export.publish.image2=(esc\u00E1lelo y mu\u00E9valo)
+export.publish.title=T\u00EDtulo:
+export.publish.tags.additional1=Etiquetas adicionales
+export.publish.tags.additional2=(una etiqueta por l\u00EDnea)
+export.publish.tags.popular=Etiquetas populares:
+export.publish.tags.loading=cargando...
+export.publish.shortDescription=Descripci\u00F3n breve:
+export.publish.longDescription=Descripci\u00F3n larga:
+export.publish.url=Su sitio Web propio (URL):
+export.publish.login=Acceder
+export.publish.username=Nombre de Usuario:
+export.publish.password=Contrase\u00F1a:
+export.publish.createAccount=Crear una cuenta
+export.publish.includeSource=Publicar el c\u00F3digo fuente
+export.web.help=Crear una p\u00E1gina web con un applet.
+export.web.exportLocation=Ubicaci\u00F3n para exportar: 
+export.web.browse=Buscar
+export.web.choose=Eliga un directorio para exportar
+export.icontab.publish=Publicar
+export.icontab.webpage=P\u00E1gina Web
+export.icontab.application=Aplicaci\u00F3n
+export.noworld.dialog.title=Error: No se ha encontrado una clase de mundo.
+export.noworld.dialog.msg=No se ha encontrado una clase de mundo en el escenario. Para exportar, se requiero una subclase de Mundo.
+
+publish.event.error=Error: 
+publish.event.status=Estado: 
+
+world.handlerDelegate.inspect=Inspeccionar
+world.handlerDelegate.remove=Eliminar
+
+greenfoot.utilDelegate.newScenario=Nuevo Escenario
+
+#Para elegir un escenario
+chooser.newFile.button=Elegir
+chooser.scenario.title=Abrir Escenario
+chooser.scenario.button=Abrir
+
+#Dialogo de Nueva Clase
+newclass.dialog.title=Crear nueva clase
+newclass.dialog.help1=El nombre de una clase no puede contener espacios ni signos
+newclass.dialog.help2=y debe comenzar con may\u00FAscula.
+newclass.dialog.className=Nombre de la nueva clase: 
+newclass.dialog.err.classExists=Ya existe una clase con ese nombre.
+newclass.dialog.err.classNameIllegal=No es un nombre de clase Java v\u00E1lido.
+
+# Initial startup dialog
+startup.header=Bienvenido a Greenfoot!
+startup.welcome=Greenfoot te permite trabajar en sus proyectos (tambi\u00E9n llamados "escenarios"). Para usar Greenfoot, tiene que abrir un escenario existente o crear uno nuevo. Muchos ejemplos de escenarios est\u00E1n inclu\u00EDdos en una instalaci\u00F3n estandar de Greenfoot.
+startup.question=¿Qu\u00E9 desea hacer?
+startup.tutorial.button=Abrir el tutorial y el escenario tutorial
+startup.open.button=Elegir un escenario
+startup.create.button=Crear un escenario
+startup.continue.button=Continuar sin escenario
+
+# Image Lib Preview
+imagelib.title=Elija una imagen para la clase:
+imagelib.newClass=Nueva clase
+imagelib.projectImages=Im\u00E1genes de Escenario:
+imagelib.categories=Categor\u00EDas de Im\u00E1genes:
+imagelib.images=Biblioteca de Im\u00E1genes:
+imagelib.browse.button=Buscar m\u00E1s im\u00E1genes...
+imagelib.className=Nombre de la nueva clase:
+imagelib.help.autoImage=Haga click en Ok para aceptar una imagen generada autom\u00E1ticamente, o seleccione una imagen de la lista a continuaci\u00F3n.
+imagelib.help.selectImage=Elija una imagen para la clase de la lista a continuaci\u00F3n.
+imagelib.newClass.image=Imagen de la nueva clase:
+imagelib.image.autoGenerated=(generada autom\u00E1ticamente)
+imagelib.file.noPreview=Sin vista previa
+imagelib.choose.button=Seleccionar
+imagelib.write.exists.part1=El archivo \"
+# Greenfoot inserta el nombre del archivo aqu\u00ED
+imagelib.write.exists.part2=\" ya existe. ¿Quiere reemplazarlo?
+imagelib.write.exists.title=Confirmaci\u00F3n de Reemplazo de Archivo
+
+scenario.viewer.appletInfo=Applet generado con Greenfoot (www.greenfoot.org). Nombre del Escenario:
+
+# Panel de Control de Simulaci\u00F3n
+controls.runonce.shortDescription=Llama 'act' una vez en cada actor.
+controls.runonce.longDescription=Llama 'act' una vez en cada actor.
+controls.run.shortDescription=Ejecuta la simulaci\u00F3n.
+controls.run.longDescription=Ejecuta la simulaci\u00F3n hasta que sea detenida.
+controls.pause.shortDescription=Pausa la simulaci\u00F3n.
+controls.pause.longDescription=Pausa la simulaci\u00F3n, dej\u00E1ndola en el estado actual.
+controls.run.button=Ejecutar
+controls.pause.button=Pausa
+controls.reset.shortDescription=Instancia un nuevo mundo
+controls.reset.longDescription=Instancia un nuevo mundo.
+controls.speed.label=Velocidad:
+controls.speedSlider.tooltip=Ajusta la velocidad de la ejecuci\u00F3n.
+
+# Buscador de clases
+browser.border.world=Clases de Mundo
+browser.border.actors=Clases de Actores
+browser.border.others=Otras Clases
+
+# Men\u00FAs
+
+menu.openRecent=Abrir reciente
+
+menu.scenario=Escenario
+
+menu.edit=Editar
+
+menu.controls=Controles
+
+menu.help=Ayuda
+menu.help.about=Acerca de Greenfoot...
+menu.help.classDoc=Documentaci\u00F3n de Clases Greenfoot
+menu.help.javadoc=Documentaci\u00F3n de Librer\u00EDas Java
+menu.help.tutorial=Tutorial de Greenfoot
+menu.help.website=Sitio Web de Greenfoot
+menu.help.moreScenarios=Obtener m\u00E1s escenarios
+
+# Dialogo de Proyecto no Existe
+noproject.dialog.title=Error abriendo proyecto
+noproject.dialog.msg=El proyecto no existe: 
+ 
+# Encabezados para las propiedades de archivo
+properties.heading.greenfoot=Propiedades de Greenfoot. Las propiedades en este archivo invalidan \"bluej.defs\" y \"greenfoot.defs"\
+
+# Mensaje para mostrar si no hay un constructor de mundo por defecto
+world.missing.constructor.title=Error al inicializar el Mundo
+world.missing.constructor.msg=No fue posible inicializar un nuevo Mundo. Generalmente la raz\u00F3n de esto es que el mundo no tiene un constructor p\u00FAblico por defecto (un constructor que no tenga par\u00E1metros)
+
