@@ -154,19 +154,19 @@ public class SvnUpdateToCommand extends SvnCommand implements UpdateResults
                     File file = (File) i.next();
                     try {
                         PropertyData pdata = client.propertyGet(
-                                file.getAbsolutePath(), "svn:mime-type");
-                        if ("application/octet-stream".equals(pdata.getValue())) {
+                                file.getAbsolutePath(), "svn:mime-type", Revision.getInstance(version));
+                        if (pdata != null && "application/octet-stream".equals(pdata.getValue())) {
                             // This is a binary file
                             i.remove();
                             binaryConflicts.add(file);
                         }
                         else {
                             // remove all the extraneous files that subversion generates
-                            client.resolved(file.getAbsolutePath(), false);
+                            client.resolve(file.getAbsolutePath(), 0, ConflictResult.chooseBase);
                         }
                     }
-                    catch (ClientException ce) {
-                        Debug.message("Subversion client exception when resolving conflicts: " + ce.getLocalizedMessage());
+                    catch (SubversionException se) {
+                        Debug.message("Subversion client exception when resolving conflicts: " + se.getLocalizedMessage());
                         Debug.message("   (on file: " + file + ")");
                     }
                 }
@@ -204,20 +204,22 @@ public class SvnUpdateToCommand extends SvnCommand implements UpdateResults
                 oldRev.delete();
                 if (files.contains(file)) {
                     // override with repository version
-                    working.delete();
-                    if (! newRev.renameTo(file)) {
-                        // on some systems, have to remove destination first
-                        file.delete();
-                        newRev.renameTo(file);
-                    }
+                    client.resolve(file.getAbsolutePath(), 0, ConflictResult.chooseTheirsFull);
+                    //working.delete();
+                    //if (! newRev.renameTo(file)) {
+                    //    // on some systems, have to remove destination first
+                    //    file.delete();
+                    //    newRev.renameTo(file);
+                    //}
                 }
                 else {
                     // keep working copy version
-                    newRev.delete();
-                    working.delete();
+                    client.resolve(file.getAbsolutePath(), 0, ConflictResult.chooseMineFull);
+                    //newRev.delete();
+                    //working.delete();
                 }
             }
-            catch (ClientException ce) {
+            catch (SubversionException ce) {
                 Debug.message("Subversion library exception trying to resolve binary conflict: " + ce.getLocalizedMessage());
                 Debug.message("   (on file: " + file + ")");
             }
