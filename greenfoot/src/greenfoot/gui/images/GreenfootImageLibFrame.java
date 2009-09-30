@@ -59,7 +59,7 @@ public class GreenfootImageLibFrame extends EscapeDialog implements ListSelectio
     
     public GreenfootImageLibFrame(JDialog owner)
     {
-        super(owner, Config.getString("greenfootimagelibframe.title"), true);
+        super(owner, Config.getString("imagelib.greenfoot.frame.title"), true);
         buildUI();
     }
     

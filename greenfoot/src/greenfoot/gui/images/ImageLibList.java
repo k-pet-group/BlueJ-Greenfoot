@@ -58,6 +58,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import bluej.BlueJTheme;
+import bluej.Config;
 
 /**
  * A list component which displays a list of images (found in a directory) with their
@@ -65,7 +66,7 @@ import bluej.BlueJTheme;
  * 
  * @author Davin McCall
  * @author Poul Henriksen
- * @version $Id: ImageLibList.java 6764 2009-09-30 12:29:11Z polle $
+ * @version $Id: ImageLibList.java 6765 2009-09-30 17:50:25Z polle $
  */
 public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> implements Selectable<File>
 {   
@@ -239,8 +240,8 @@ public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> impl
                             public void run()
                             {
                                 MessageDialog msg = new MessageDialog((JFrame) null,
-                                        "Cannot rename file because a file with that name already exists",
-                                        "Rename failed", 100, new JButton[]{BlueJTheme.getCloseButton()});
+                                        Config.getString("imagelib.rename.exists.text"),
+                                        Config.getString("imagelib.rename.exists.title"), 100, new JButton[]{BlueJTheme.getCloseButton()});
                                 msg.displayModal();
                             }
                         });

@@ -25,7 +25,6 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
-import greenfoot.core.GProject;
 import greenfoot.util.ExternalAppLauncher;
 
 import java.awt.Component;
@@ -40,8 +39,6 @@ import javax.imageio.ImageIO;
 
 import java.io.IOException;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -50,6 +47,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
@@ -66,6 +64,10 @@ import javax.swing.SpinnerNumberModel;
  */
 public class NewImageDialog extends EscapeDialog
 {
+    private static final int DEFAULT_HEIGHT = 100;
+    private static final int DEFAULT_WIDTH = 100;
+    private static final String DEFAULT_IMAGE_TYPE = "png";
+    
     private JTextField name;
     private JSpinner width;
     private JSpinner height;
@@ -74,8 +76,6 @@ public class NewImageDialog extends EscapeDialog
     
     private File projImagesDir;
     private JDialog parent;
-
-    private GProject proj;
     
     private File file;
     
@@ -89,16 +89,15 @@ public class NewImageDialog extends EscapeDialog
      * @param parent the parent frame associated with this dialog
      * @param projImagesDir the directory in which the images for the project are placed.
      */
-    public NewImageDialog(JDialog parent, File projImagesDir, GProject proj)
+    public NewImageDialog(JDialog parent, File projImagesDir)
     {
-        super(parent, "New Image");
-        this.proj = proj;
+        super(parent, Config.getString("imagelib.new.image.title"));
         this.parent = parent;
         this.projImagesDir = projImagesDir;
 
-        imageWidth = Config.getPropInteger("greenfoot.image.create.width", 100);
-        imageHeight = Config.getPropInteger("greenfoot.image.create.height", 100);
-        imageType = Config.getPropString("greenfoot.image.create.type", "png");
+        imageWidth = Config.getPropInteger("greenfoot.image.create.width", DEFAULT_WIDTH);
+        imageHeight = Config.getPropInteger("greenfoot.image.create.height", DEFAULT_HEIGHT);
+        imageType = Config.getPropString("greenfoot.image.create.type", DEFAULT_IMAGE_TYPE);
         buildUI();
     }
 
@@ -114,7 +113,7 @@ public class NewImageDialog extends EscapeDialog
 
         JPanel namePanel = new JPanel();
         namePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        namePanel.add(new JLabel("Name: "));
+        namePanel.add(new JLabel(Config.getString("imagelib.new.image.name") + " "));
         name = new JTextField(10);
         name.addKeyListener(new KeyListener() {
             @Override public void keyPressed(KeyEvent e) {
@@ -137,7 +136,7 @@ public class NewImageDialog extends EscapeDialog
         JPanel widthPanel = new JPanel();
         widthPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         widthPanel.setLayout(new BoxLayout(widthPanel, BoxLayout.X_AXIS));
-        widthPanel.add(new JLabel("Width: "));
+        widthPanel.add(new JLabel(Config.getString("imagelib.new.image.width")));
         width = new JSpinner(new SpinnerNumberModel(imageWidth, 1, 1000, 1));
         widthPanel.add(width);
         mainPanel.add(widthPanel);
@@ -147,7 +146,7 @@ public class NewImageDialog extends EscapeDialog
         JPanel heightPanel = new JPanel();
         heightPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         heightPanel.setLayout(new BoxLayout(heightPanel, BoxLayout.X_AXIS));
-        heightPanel.add(new JLabel("Height: "));
+        heightPanel.add(new JLabel(Config.getString("imagelib.new.image.height")));
         height = new JSpinner(new SpinnerNumberModel(imageHeight, 1, 1000, 1));
         heightPanel.add(height);
         mainPanel.add(heightPanel);
@@ -157,7 +156,7 @@ public class NewImageDialog extends EscapeDialog
         JPanel typePanel = new JPanel();
         typePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         typePanel.setLayout(new BoxLayout(typePanel, BoxLayout.X_AXIS));
-        typePanel.add(new JLabel("Type: "));
+        typePanel.add(new JLabel(Config.getString("imagelib.new.image.type")));
         type = new JComboBox(getImageTypes());
         type.setSelectedItem(imageType);
         typePanel.add(type);
@@ -179,6 +178,11 @@ public class NewImageDialog extends EscapeDialog
         pack();
     }
 
+    /**
+     * Get available writable image types. If both jpg and jpeg is represented
+     * jpeg will be filtered out.
+     * 
+     */
     private String[] getImageTypes()
     {
         String[] suffixes = ImageIO.getWriterFileSuffixes();      
@@ -235,20 +239,28 @@ public class NewImageDialog extends EscapeDialog
 
     private void createAndEdit()
     {
-        BufferedImage im = new BufferedImage((Integer)width.getValue(),
-                (Integer)height.getValue(), BufferedImage.TYPE_INT_ARGB);
+        BufferedImage im = new BufferedImage((Integer) width.getValue(), (Integer) height.getValue(),
+                BufferedImage.TYPE_INT_ARGB);
         String fileName = name.getText();
-        if(! fileName.endsWith("."+type.getSelectedItem())) {
-            fileName += "."+type.getSelectedItem();
+        if (!fileName.endsWith("." + type.getSelectedItem())) {
+            fileName += "." + type.getSelectedItem();
         }
         file = new File(projImagesDir, fileName);
-        // TODO: What if file with that name exists
-        try {
-            ImageIO.write(im, type.getSelectedItem().toString(), file);
-            
-            ExternalAppLauncher.editImage(file);
-        } catch (IOException ex) {
-            ex.printStackTrace();
+
+        if (file.exists()) {
+            int r = JOptionPane.showOptionDialog(this, Config.getString("imagelib.write.exists.part1") + file
+                    + Config.getString("imagelib.write.exists.part2"), Config.getString("imagelib.write.exists.title"),
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, null, null);
+
+            if (r == JOptionPane.OK_OPTION) {
+                try {
+                    ImageIO.write(im, type.getSelectedItem().toString(), file);
+                    ExternalAppLauncher.editImage(file);
+                }
+                catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
         }
         setVisible(false);
     }

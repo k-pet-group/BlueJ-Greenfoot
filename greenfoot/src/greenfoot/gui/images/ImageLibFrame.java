@@ -89,7 +89,7 @@ import java.awt.FlowLayout;
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 6764 2009-09-30 12:29:11Z polle $
+ * @version $Id: ImageLibFrame.java 6765 2009-09-30 17:50:25Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
@@ -561,7 +561,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
         }
         else {
             JOptionPane.showMessageDialog(this, imageFile.getName() +
-                    " isn't a valid image.", "Error", JOptionPane.ERROR_MESSAGE);
+                    " " + Config.getString("imagelib.image.invalid.text"), Config.getString("imagelib.image.invalid.title"), JOptionPane.ERROR_MESSAGE);
         }
     }
 

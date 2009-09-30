@@ -23,7 +23,6 @@ package greenfoot.actions;
 
 import bluej.Config;
 import greenfoot.core.GClass;
-import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.role.ImageClassRole;
@@ -45,7 +44,7 @@ import bluej.utility.FileUtility;
  * Action to select an image for a class.
  * 
  * @author Davin McCall
- * @version $Id: SelectImageAction.java 6764 2009-09-30 12:29:11Z polle $
+ * @version $Id: SelectImageAction.java 6765 2009-09-30 17:50:25Z polle $
  */
 public class SelectImageAction extends AbstractAction
 {

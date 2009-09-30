@@ -45,7 +45,7 @@ public class EditImagesAction extends AbstractAction
 
     public EditImagesAction(GProject proj, JFrame owner)
     {
-        super(Config.getString("Scenario Images..."));
+        super(Config.getString("edit.images"));
         setProject(proj);
         this.owner = owner;
     }
