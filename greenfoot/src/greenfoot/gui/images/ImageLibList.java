@@ -19,8 +19,10 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package greenfoot.gui;
+package greenfoot.gui.images;
 
+import greenfoot.gui.EditableList;
+import greenfoot.gui.MessageDialog;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.util.Selectable;
 
@@ -63,7 +65,7 @@ import bluej.BlueJTheme;
  * 
  * @author Davin McCall
  * @author Poul Henriksen
- * @version $Id: ImageLibList.java 6563 2009-08-26 16:05:54Z polle $
+ * @version $Id: ImageLibList.java 6764 2009-09-30 12:29:11Z polle $
  */
 public class ImageLibList extends EditableList<ImageLibList.ImageListEntry> implements Selectable<File>
 {   

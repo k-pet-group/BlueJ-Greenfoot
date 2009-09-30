@@ -21,8 +21,8 @@
  */
 package greenfoot.actions;
 
-import greenfoot.gui.ImageFilePreview;
-import greenfoot.gui.ImageFilter;
+import greenfoot.gui.images.ImageFilePreview;
+import greenfoot.gui.images.ImageFilter;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.util.Selectable;
 

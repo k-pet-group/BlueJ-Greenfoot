@@ -19,7 +19,7 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package greenfoot.gui;
+package greenfoot.gui.images;
 
 import bluej.Config;
 import greenfoot.util.GraphicsUtilities;
@@ -47,7 +47,7 @@ import javax.swing.JLabel;
  * An image preview box accessory for a file chooser
  * 
  * @author Davin McCall
- * @version $Id: ImageFilePreview.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: ImageFilePreview.java 6764 2009-09-30 12:29:11Z polle $
  */
 public class ImageFilePreview extends JLabel
     implements PropertyChangeListener

@@ -22,7 +22,7 @@
 package greenfoot.actions;
 
 import greenfoot.core.GProject;
-import greenfoot.gui.ImageEditFrame;
+import greenfoot.gui.images.ImageEditFrame;
 
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;

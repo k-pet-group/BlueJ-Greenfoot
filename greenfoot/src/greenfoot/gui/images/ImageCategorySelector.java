@@ -19,7 +19,7 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package greenfoot.gui;
+package greenfoot.gui.images;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -46,7 +46,7 @@ import javax.swing.event.ListSelectionListener;
  * the contents of that category.
  * 
  * @author davmac
- * @version $Id: ImageCategorySelector.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: ImageCategorySelector.java 6764 2009-09-30 12:29:11Z polle $
  */
 public class ImageCategorySelector extends JList
     implements ListSelectionListener

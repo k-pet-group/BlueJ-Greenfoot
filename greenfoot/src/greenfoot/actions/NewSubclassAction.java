@@ -23,11 +23,11 @@ package greenfoot.actions;
 
 import greenfoot.core.GClass;
 import greenfoot.core.GPackage;
-import greenfoot.gui.ImageLibFrame;
 import greenfoot.gui.NewClassDialog;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.role.ImageClassRole;
+import greenfoot.gui.images.ImageLibFrame;
 
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
@@ -44,7 +44,7 @@ import bluej.extensions.ProjectNotOpenException;
  * Action that creates a new class as a subclass of an existing class
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: NewSubclassAction.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: NewSubclassAction.java 6764 2009-09-30 12:29:11Z polle $
  */
 public class NewSubclassAction extends AbstractAction
 {

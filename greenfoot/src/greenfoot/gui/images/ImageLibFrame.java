@@ -19,7 +19,7 @@
  This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
-package greenfoot.gui;
+package greenfoot.gui.images;
 
 import greenfoot.Actor;
 import greenfoot.ActorVisitor;
@@ -33,6 +33,7 @@ import greenfoot.core.GProject;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.ValidityEvent;
 import greenfoot.event.ValidityListener;
+import greenfoot.gui.ClassNameVerifier;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.util.GraphicsUtilities;
 import greenfoot.util.GreenfootUtil;
@@ -88,7 +89,7 @@ import java.awt.FlowLayout;
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 6562 2009-08-26 15:20:56Z polle $
+ * @version $Id: ImageLibFrame.java 6764 2009-09-30 12:29:11Z polle $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
