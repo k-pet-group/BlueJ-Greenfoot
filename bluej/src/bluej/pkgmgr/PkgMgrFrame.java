@@ -81,7 +81,7 @@ import com.apple.eawt.ApplicationEvent;
 /**
  * The main user interface frame which allows editing of packages
  * 
- * @version $Id: PkgMgrFrame.java 6694 2009-09-17 02:19:45Z davmac $
+ * @version $Id: PkgMgrFrame.java 6762 2009-09-30 12:14:02Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -2735,14 +2735,17 @@ public class PkgMgrFrame extends JFrame
                 label.setForeground( label.getBackground( ).darker( ).darker( ) ); 
                 Dimension pref = label.getMinimumSize();
                 pref.width = Integer.MAX_VALUE;
-                label.setMaximumSize(pref);  
+                label.setMaximumSize(pref);
+                label.setAlignmentX(0.5f);
                 javaMEPanel.add( label );
                 javaMEPanel.add( Box.createVerticalStrut( 4 ) );   
                 
-                AbstractButton button = createButton( deployMIDletAction, false, false, 4, 4 );        
+                AbstractButton button = createButton( deployMIDletAction, false, false, 4, 4 );
+                button.setAlignmentX(0.5f);
                 javaMEPanel.add( button );
                 javaMEPanel.add( Box.createVerticalStrut( 4 ) );   
                 if(!Config.isMacOSLeopard()) javaMEPanel.add(Box.createVerticalStrut(3));
+                teamPanel.setAlignmentX(0.5f);
             }
             
             machineIcon = new MachineIcon();
