@@ -11,9 +11,12 @@ greek           1.5.0                x                         Dragon Turtle <su
 indian?                              x                         Kiran Kumar D <mail2dkiran@gmail.com>
 italian         1.5.0                x                         Stefano Federici <s_federici@yahoo.com>
 malayalam                            x                         K.R.Arun <code333@gmail.com> 
-spanish                              x                         Kenneth Daly <kennethdaly@gmail.com> (AND Iris Gutierrez <igutierrez@cubecorp.com.ar> AND Luis Mijangos <mijangos3@msn.com>)
+spanish         1.5.5                x                         Esteban Iglesias Manriquez <estbaniglesiasmanriquez@gmail.com>                                                  
+spanish                                                        (previously Kenneth Daly <kennethdaly@gmail.com> AND Iris Gutierrez <igutierrez@cubecorp.com.ar> AND Luis Mijangos <mijangos3@msn.com>)
+russian         1.5.5                x                         Sergey Zemlyannikov <serveren@mail.ru>
 
 IMPORTANT: 
-When adding a new translation, it should be added in the build script: package/build.xml
-It should also be added to bluej.defs so users can see the available languages.
-This is only true if the translation does not exist in BlueJ - which it should, preferably.
+When adding a new translation, it should be added in the build script:
+package/build.xml
+
+It should also be added to greenfoot.defs so users can see the available languages.
