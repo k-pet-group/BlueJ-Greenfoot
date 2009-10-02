@@ -35,7 +35,6 @@ import bluej.utility.*;
  * Component to manage storing projects to jar file format.
  *
  * @author  Michael Kolling
- * @version $Id: ExportManager.java 6215 2009-03-30 13:28:25Z polle $
  */
 final class ExportManager
 {
@@ -67,7 +66,7 @@ final class ExportManager
             return;
 
         String fileName = FileUtility.getFileName(frame, specifyJar, createJarText, 
-                                                 false, null, false);
+                                                 null, false);
         if(fileName == null)
             return;
 
@@ -81,16 +80,16 @@ final class ExportManager
      * Export this project to a jar file.
      */
     private void createJar(String fileName, String sourceDir, String mainClass,
-                           List userLibs, boolean includeSource, boolean includePkgFiles)
+                           List<File> userLibs, boolean includeSource, boolean includePkgFiles)
     {
         // Construct classpath with used library jars       
         String classpath = "";
         
         // add jar files from +libs to classpath               
-        List plusLibs = frame.getProject().getPlusLibsContent();
-        List plusLibAsFiles = new ArrayList();
-        for(Iterator it = plusLibs.iterator(); it.hasNext();) {
-            URL url = (URL)it.next();
+        List<URL> plusLibs = frame.getProject().getPlusLibsContent();
+        List<File> plusLibAsFiles = new ArrayList<File>();
+        for(Iterator<URL> it = plusLibs.iterator(); it.hasNext();) {
+            URL url = it.next();
             try {
                 File file = new File(new URI(url.toString()));
                 plusLibAsFiles.add(file);
@@ -103,8 +102,8 @@ final class ExportManager
         }
         
         // add jar files from userlibs to classpath
-        for(Iterator it = userLibs.iterator(); it.hasNext(); ) {
-            classpath += " " + ((File)it.next()).getName();
+        for(Iterator<File> it = userLibs.iterator(); it.hasNext(); ) {
+            classpath += " " + it.next().getName();
         }
         
         File jarFile = null;
@@ -206,11 +205,11 @@ final class ExportManager
     /**
      * Copy all files specified in the given list to the new jar directory.
      */
-    private void copyLibsToJar(List userLibs, File destDir)
+    private void copyLibsToJar(List<File> userLibs, File destDir)
         throws IOException
     {
-        for(Iterator it = userLibs.iterator(); it.hasNext(); ) {
-            File lib = (File)it.next();
+        for(Iterator<File> it = userLibs.iterator(); it.hasNext(); ) {
+            File lib = it.next();
             FileUtility.copyFile(lib, new File(destDir, lib.getName()));
         }
     }

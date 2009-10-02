@@ -46,7 +46,6 @@ import bluej.utility.Utility;
  * under BlueJ.
  *
  * @author  Michael Kolling
- * @version $Id: Terminal.java 6215 2009-03-30 13:28:25Z polle $
  */
 @SuppressWarnings("serial")
 public final class Terminal extends JFrame
@@ -203,7 +202,7 @@ public final class Terminal extends JFrame
         String fileName = FileUtility.getFileName(this,
                                  Config.getString("terminal.save.title"),
                                  Config.getString("terminal.save.buttonText"),
-                                 false, null, false);
+                                 null, false);
         if(fileName != null) {
             try {
                 FileWriter writer = new FileWriter(fileName);

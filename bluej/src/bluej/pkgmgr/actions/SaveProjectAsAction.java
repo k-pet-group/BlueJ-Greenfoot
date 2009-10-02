@@ -36,7 +36,6 @@ import bluej.utility.FileUtility;
  * different name, to make a backup etc.
  * 
  * @author Davin McCall
- * @version $Id: SaveProjectAsAction.java 6215 2009-03-30 13:28:25Z polle $
  */
 final public class SaveProjectAsAction extends PkgMgrAction
 {
@@ -54,15 +53,15 @@ final public class SaveProjectAsAction extends PkgMgrAction
     public void saveAs(PkgMgrFrame frame, Project project)
     {
         // get a file name to save under
-        String newName = FileUtility.getFileName(frame,
+        File newName = FileUtility.getDirName(frame,
                 Config.getString("pkgmgr.saveAs.title"),
-                Config.getString("pkgmgr.saveAs.buttonLabel"), true, null, true);
+                Config.getString("pkgmgr.saveAs.buttonLabel"), false, true);
 
         if (newName != null) {
             project.saveAll();
 
             int result = FileUtility.copyDirectory(project.getProjectDir(),
-                    new File(newName));
+                    newName);
 
             switch (result) {
             case FileUtility.NO_ERROR:
@@ -83,7 +82,7 @@ final public class SaveProjectAsAction extends PkgMgrAction
             PkgMgrFrame.closeProject(project);
 
             // open new project
-            Project openProj = Project.openProject(newName, null);
+            Project openProj = Project.openProject(newName.getAbsolutePath(), null);
 
             if (openProj != null) {
                 Package pkg = openProj.getPackage("");

@@ -80,8 +80,6 @@ import com.apple.eawt.ApplicationEvent;
 
 /**
  * The main user interface frame which allows editing of packages
- * 
- * @version $Id: PkgMgrFrame.java 6762 2009-09-30 12:14:02Z davmac $
  */
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
@@ -1150,18 +1148,18 @@ public class PkgMgrFrame extends JFrame
         if ( isJavaMEproject )
             title = Config.getString( "pkgmgr.newMEpkg.title" );
                     
-        String newname = FileUtility.getFileName( this, title,
-                 Config.getString( "pkgmgr.newPkg.buttonLabel" ), true, null, true );
+        File newnameFile = FileUtility.getDirName( this, title,
+                 Config.getString( "pkgmgr.newPkg.buttonLabel" ), false, true );
 
-        if (newname == null)
+        if (newnameFile == null)
             return false;
 
-        if(new File(newname).exists()) {
-            DialogManager.showErrorWithText(null, "directory-exists", newname);
+        if(newnameFile.exists()) {
+            DialogManager.showErrorWithText(null, "directory-exists", newnameFile.getPath());
             return false;
         }
-        else if( ! newProject( newname, isJavaMEproject ) ) {
-            DialogManager.showErrorWithText(null, "cannot-create-directory", newname);
+        else if( ! newProject( newnameFile.getAbsolutePath(), isJavaMEproject ) ) {
+            DialogManager.showErrorWithText(null, "cannot-create-directory", newnameFile.getPath());
             return false;
         }
 
@@ -1641,14 +1639,11 @@ public class PkgMgrFrame extends JFrame
     public void doImport()
     {
         // prompt for the directory to import from
-        File importDir;
-        String importName = FileUtility.getFileName(this, Config.getString("pkgmgr.importPkg.title"), Config
-                .getString("pkgmgr.importPkg.buttonLabel"), true, null, false);
+        File importDir = FileUtility.getDirName(this, Config.getString("pkgmgr.importPkg.title"), Config
+                .getString("pkgmgr.importPkg.buttonLabel"), true, false);
 
-        if (importName == null)
+        if (importDir == null)
             return;
-
-        importDir = new File(importName);
 
         if (!importDir.isDirectory())
             return;
@@ -1659,7 +1654,7 @@ public class PkgMgrFrame extends JFrame
             return;
 
         // recursively copy files from import directory to package directory
-        importProjectDir(new File(importName), true);
+        importProjectDir(importDir, true);
     }
     
     /**

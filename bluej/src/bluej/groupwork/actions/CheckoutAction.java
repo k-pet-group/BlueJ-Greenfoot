@@ -42,7 +42,6 @@ import bluej.utility.SwingWorker;
  * project.
  * 
  * @author Kasper
- * @version $Id: CheckoutAction.java 6347 2009-05-20 15:22:43Z polle $
  */
 public class CheckoutAction extends TeamAction
 {
@@ -90,11 +89,10 @@ public class CheckoutAction extends TeamAction
             if (moduleName != null) {
                 // Select parent directory for the new project
                 
-                String chosenDir = FileUtility.getFileName(oldFrame, Config.getString("team.checkout.filechooser.title"),
-                        Config.getString("team.checkout.filechooser.button"), true, null, true);
+                File parentDir = FileUtility.getDirName(oldFrame, Config.getString("team.checkout.filechooser.title"),
+                        Config.getString("team.checkout.filechooser.button"), true, true);
                 
-                if (chosenDir != null) {
-                    File parentDir = new File(chosenDir);
+                if (parentDir != null) {
                     File projectDir = new File(parentDir, moduleName);
                     if (projectDir.exists()) {
                         DialogManager.showError(null, "directory-exists");

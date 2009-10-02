@@ -54,7 +54,6 @@ import bluej.utility.Utility;
  * built from Java source code.
  *
  * @author Bruce Quig
- * @version $Id: AppletClassRole.java 6704 2009-09-17 05:04:35Z davmac $
  */
 public class AppletClassRole extends StdClassRole
 {
@@ -298,7 +297,7 @@ public class AppletClassRole extends StdClassRole
         String fullFileName = FileUtility.getFileName(frame,
                                 Config.getString("pkgmgr.chooseWebPage.title"),
                                 Config.getString("pkgmgr.chooseWebPage.buttonLabel"), 
-                                false, null, false);
+                                null, false);
 
         if (fullFileName == null)
             DialogManager.showError(frame, "error-no-name");

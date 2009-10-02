@@ -56,7 +56,6 @@ import bluej.utility.filefilter.JavaSourceFilter;
  * @author  Michael Kolling
  * @author  Axel Schmolitzky
  * @author  Markus Ostman
- * @version $Id: PackageChooser.java 6680 2009-09-16 00:47:00Z davmac $
  */
 class PackageChooser extends JFileChooser
 {
@@ -66,7 +65,8 @@ class PackageChooser extends JFileChooser
     static final String previewLine1 = Config.getString("utility.packageChooser.previewPane1");
     static final String previewLine2 = Config.getString("utility.packageChooser.previewPane2");
 
-    PackageDisplay displayPanel;
+    private PackageDisplay displayPanel;
+    private boolean allowNewFiles = true;
 
     /**
      * Create a new PackageChooser.
@@ -114,6 +114,19 @@ class PackageChooser extends JFileChooser
         }
     }
     
+    /**
+     * Set whether this chooser should allow new (non-existing) files to
+     * be selected. This does not actually prevent the user from specifying
+     * a non-existing file, it just tweaks UI behaviour a bit.
+     */
+    public void setAllowNewFiles(boolean allowNewFiles)
+    {
+        this.allowNewFiles = allowNewFiles;
+    }
+    
+    /* (non-Javadoc)
+     * @see javax.swing.JFileChooser#accept(java.io.File)
+     */
     public boolean accept(File f)
     {
         if (f.isDirectory())
@@ -137,13 +150,15 @@ class PackageChooser extends JFileChooser
         }
         else{
             super.setCurrentDirectory(dir);
-            // Hack to make file chooser behave slightly nicer. The default behaviour is to put
-            // the directory name, without a trailing slash, in the filename field.
-            // See ticket #127
-            FileChooserUI ui = getUI();
-            if (ui instanceof BasicFileChooserUI) {
-                BasicFileChooserUI mui = (BasicFileChooserUI) ui;
-                mui.setFileName("");
+            if (allowNewFiles) {
+                // Hack to make file chooser behave slightly nicer. The default behaviour is to put
+                // the directory name, without a trailing slash, in the filename field.
+                // See ticket #127
+                FileChooserUI ui = getUI();
+                if (ui instanceof BasicFileChooserUI) {
+                    BasicFileChooserUI mui = (BasicFileChooserUI) ui;
+                    mui.setFileName("");
+                }
             }
         }
     }
