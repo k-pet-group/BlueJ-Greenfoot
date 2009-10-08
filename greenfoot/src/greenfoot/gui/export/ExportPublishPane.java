@@ -34,8 +34,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -69,7 +67,7 @@ import bluej.utility.SwingWorker;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ExportPublishPane.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: ExportPublishPane.java 6775 2009-10-08 02:11:59Z davmac $
  */
 public class ExportPublishPane extends ExportPane
 {
@@ -666,7 +664,9 @@ public class ExportPublishPane extends ExportPane
                         if(tags.contains(WITH_SOURCE_TAG)) {
                             tags.remove(WITH_SOURCE_TAG);
                         } else {
-                            tags.remove(tags.size() - 1);
+                            if (! tags.isEmpty()) {
+                                tags.remove(tags.size() - 1);
+                            }
                         }
                     }
                     catch (UnknownHostException e) {
