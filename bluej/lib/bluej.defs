@@ -341,8 +341,8 @@ bluej.editor.fontsize=12
 
 # font and fontsize for the terminal (the size defaults to the editor font size
 # if not specified here)
-bluej.terminal.font=monospaced
-#bluej.terminal.font=monospaced-bold
+bluej.terminal.font=Monospaced
+#bluej.terminal.font=Monospaced-bold
 #bluej.terminal.fontsize=12
 
 # fontsize for the codepad (defaults to editor font size if not specified here)
