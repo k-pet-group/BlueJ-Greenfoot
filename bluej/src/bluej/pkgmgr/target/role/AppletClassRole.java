@@ -45,7 +45,6 @@ import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.utility.BlueJFileReader;
 import bluej.utility.Debug;
-import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.Utility;
 
@@ -223,8 +222,9 @@ public class AppletClassRole extends StdClassRole
             if(execOption == RunAppletDialog.GENERATE_PAGE_ONLY) {
                 // generate HTML page for Applet using selected path and file name
                 File generatedFile = chooseWebPage(parent);
-                if(generatedFile != null)
+                if(generatedFile != null) {
                     createWebPage(generatedFile, name, pkg.getPath().getPath(), libs);
+                }
             }
             else {
                 String fname = name + HTML_EXTENSION;
@@ -299,11 +299,13 @@ public class AppletClassRole extends StdClassRole
                                 Config.getString("pkgmgr.chooseWebPage.buttonLabel"), 
                                 null, false);
 
-        if (fullFileName == null)
-            DialogManager.showError(frame, "error-no-name");
+        if (fullFileName == null) {
+            return null;
+        }
         
-        if(! fullFileName.endsWith(HTML_EXTENSION))
+        if(! fullFileName.endsWith(HTML_EXTENSION)) {
             fullFileName += HTML_EXTENSION;
+        }
 
         return new File(fullFileName);
     }
