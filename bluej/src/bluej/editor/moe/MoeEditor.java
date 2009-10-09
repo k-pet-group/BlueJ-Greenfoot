@@ -81,6 +81,7 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
+import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.html.HTMLDocument;
@@ -182,6 +183,9 @@ public final class MoeEditor extends JFrame
     private StatusLabel saveState;          // the status label
     private JComboBox interfaceToggle;
     private GoToLineDialog goToLineDialog;
+    
+    //new find functionality
+    private FindPanel finder;
 
     private JScrollPane scrollPane;
     private NaviView2 naviView;                // Navigation view (mini-source view)
@@ -384,6 +388,16 @@ public final class MoeEditor extends JFrame
         if (caretBack) {
             sourcePane.setCaretPosition(sourcePane.getCaretPosition() - text.length());
         }
+    }
+    
+    /**
+     * 
+     */
+    
+    public void setCaretBack(int setback)       
+    {        
+        if (sourcePane.getCaretPosition() >0 && sourcePane.getCaretPosition() >setback)
+            sourcePane.setCaretPosition(sourcePane.getCaretPosition() - setback);
     }
 
     /**
@@ -1333,38 +1347,34 @@ public final class MoeEditor extends JFrame
     boolean findString(String s, boolean backward, boolean ignoreCase, 
                        boolean wholeWord, boolean wrap)
     {
+
         if (s.length() == 0) {
             info.warning(Config.getString("editor.info.emptySearchString"));
             return false;
         }
-        
+
         boolean found;
         if (backward)
             found = doFindBackward(s, ignoreCase, wholeWord, wrap);
         else
             found = doFind(s, ignoreCase, wholeWord, wrap);
-        
+
         StringBuffer msg = new StringBuffer(Config.getString("editor.find.find.label") + " ");
         msg.append(backward ? Config.getString("editor.find.backward") : Config.getString("editor.find.forward"));
         if (ignoreCase || wholeWord || wrap)
             msg.append(" (");
-
         if (ignoreCase)
         	msg.append(Config.getString("editor.find.ignoreCase").toLowerCase() + ", ");
-        
         if (wholeWord)
         	msg.append(Config.getString("editor.find.wholeWord").toLowerCase() + ", ");
-        
         if (wrap) 
         	msg.append(Config.getString("editor.find.wrapAround").toLowerCase() + ", ");
-        
         if (ignoreCase || wholeWord || wrap) 
             msg.replace(msg.length() - 2, msg.length(), "): ");
         else 
             msg.append(": ");
         
         msg.append(s);
-
         if (found)
             info.message(msg.toString());
         else
@@ -2453,6 +2463,11 @@ public final class MoeEditor extends JFrame
         saveState = new StatusLabel(StatusLabel.SAVED);
         statusArea.add(saveState);
         bottomArea.add(statusArea, BorderLayout.EAST);
+        
+        //new area for new find functionality
+        finder=new FindPanel();
+        finder.setVisible(false);
+        bottomArea.add(finder, BorderLayout.NORTH);
 
         contentPane.add(bottomArea, BorderLayout.SOUTH);
 
@@ -2591,6 +2606,7 @@ public final class MoeEditor extends JFrame
                 else {
                     item = menu.add(action);
                     label = Config.getString("editor." + itemKeys[i] + LabelSuffix);
+                    //System.out.println("Adding this label.. "+label+ " for this itemKey "+itemKeys[i]);
                     if (label != null) {
                         item.setText(label);
                     }
@@ -2901,4 +2917,18 @@ public final class MoeEditor extends JFrame
             }
         }
     }
+    
+    public void setFindPanelVisible(boolean visible){
+        String selection= currentTextPane.getSelectedText();
+        resetCaretPoition();
+        finder.setEditor(this);
+        finder.displayFindPanel(selection, true);
+        
+    }
+    
+    public void resetCaretPoition(){
+        currentTextPane.selectAll();
+        currentTextPane.setCaretPosition(0);
+    }
+    
 }

@@ -969,6 +969,23 @@ public final class MoeActions
 
     // --------------------------------------------------------------------
 
+    class NewFindAction extends MoeAbstractAction
+    {
+
+        public NewFindAction()
+        {
+            super("new-find");
+        }
+
+        public void actionPerformed(ActionEvent e)
+        {
+            MoeEditor editor=getEditor(e);
+            editor.setFindPanelVisible(true);
+        }
+    }
+
+    // --------------------------------------------------------------------
+
     class FindAction extends MoeAbstractAction
     {
 
@@ -1729,6 +1746,7 @@ public final class MoeActions
                 new FindAction(), 
                 new FindNextAction(), 
                 new FindNextBackwardAction(), 
+                new NewFindAction(),
                 new ReplaceAction(),
                 compileAction, 
                 new GoToLineAction(), 
@@ -1855,6 +1873,7 @@ public final class MoeActions
                 (Action) (actions.get("find")), 
                 (Action) (actions.get("find-next")),
                 (Action) (actions.get("find-next-backward")), 
+                (Action) (actions.get("new-find")), 
                 (Action) (actions.get("replace")),
                 (Action) (actions.get("compile")), 
                 (Action) (actions.get("toggle-interface-view")),
@@ -1874,7 +1893,7 @@ public final class MoeActions
                 Config.getString("editor.functions.misc")
         };
 
-        categoryIndex = new int[] { 0, 41, 57, 62, 64, 68, 80 };
+        categoryIndex = new int[] { 0, 41, 57, 62, 64, 68, 81 };
     }
 
     /**
