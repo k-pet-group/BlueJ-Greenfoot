@@ -67,7 +67,6 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     private String replaceString="";
 
     public FindPanel() {
-        // TODO Auto-generated constructor stub
         super();
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createLineBorder(Color.black));
@@ -151,9 +150,9 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         matchCaseCheckBox.setText("Match Case");
         matchCaseCheckBox.setSelected(false);
 
-        //        highlightAllBox=new JCheckBox();
-        //        highlightAllBox.setText("Highlight All");
-        //        highlightAllBox.setSelected(false);
+        //highlightAllBox=new JCheckBox();
+        //highlightAllBox.setText("Highlight All");
+        //highlightAllBox.setSelected(false);
     }
     
     private void setCloseDisplay(){
@@ -193,7 +192,8 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         replaceAllWithButton.setEnabled(false);
     }
     
-    private void addDisplayElements(){
+    private void addDisplayElements()
+    {
    
         findBody.add(findLabel);
         findBody.add(findTField);
@@ -228,22 +228,22 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     
     public FindPanel(LayoutManager layout) {
         super(layout);
-        // TODO Auto-generated constructor stub
+
     }
 
     public FindPanel(boolean isDoubleBuffered) {
         super(isDoubleBuffered);
-        // TODO Auto-generated constructor stub
+
     }
 
     public FindPanel(LayoutManager layout, boolean isDoubleBuffered) {
         super(layout, isDoubleBuffered);
-        // TODO Auto-generated constructor stub
+        
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        // TODO Auto-generated method stub
+
+    public void actionPerformed(ActionEvent e) 
+    {
         JComponent src = (JComponent) e.getSource();
         if(src.getName() == CLOSE_BUTTON_NAME){
             this.setVisible(false);
@@ -304,21 +304,18 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
 
     }
 
-    @Override
-    public void keyTyped(KeyEvent e) {
-        // TODO Auto-generated method stub
-
-    }
-
-    public void setEditor(MoeEditor editor) {
+    public void setEditor(MoeEditor editor) 
+    {
         this.editor = editor;
     }
 
-    public String getSearchString() {
+    public String getSearchString() 
+    {
         return searchString;
     }
 
-    public void setSearchString(String searchString) {
+    public void setSearchString(String searchString) 
+    {
         findTField.setText(searchString);
         this.searchString = searchString;
     }
@@ -370,7 +367,8 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         findTField.requestFocus();   
     }
 
-    private void setReplaceValue(JComponent src){      
+    private void setReplaceValue(JComponent src)
+    {      
         //now get and reset fields
         JTextField replace=(JTextField)src;
         setReplaceString(replace.getText());
@@ -435,23 +433,32 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
 
     }
 
-    public String getReplaceString() {
+    public String getReplaceString() 
+    {
         return replaceString;
     }
 
-    public void setReplaceString(String replaceString) {
+    public void setReplaceString(String replaceString) 
+    {
         this.replaceString = replaceString;
         replaceTField.setText(replaceString);
     }
 
-    private void find(JComponent src){
+    private void find(JComponent src)
+    {
         setFindValues(src);            
         find();
     }
 
-    private void find(){
+    private void find()
+    {
         updateDisplay();
         editor.findString(getSearchString(), false, !matchCaseCheckBox.isSelected(), false, true);
+    }
+
+
+    public void keyTyped(KeyEvent e) {
+        
     }
 
 

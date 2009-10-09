@@ -182,6 +182,7 @@ editor.comment-blockLabel = Comment
 editor.uncomment-blockLabel = Uncomment
 editor.insert-methodLabel = Insert method
 
+editor.new-findLabel = New Find
 editor.findLabel = Find...
 editor.find-nextLabel = Find Next
 editor.find-next-backwardLabel = Find Next Backward
