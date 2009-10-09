@@ -393,8 +393,7 @@ public final class MoeEditor extends JFrame
     /**
      * Sets the caret back by the amount specified
      * @param setback  sets the caret back by this amount
-     */
-    
+     */   
     public void setCaretBack(int setback)       
     {        
         if (sourcePane.getCaretPosition() >0 && sourcePane.getCaretPosition() >setback)

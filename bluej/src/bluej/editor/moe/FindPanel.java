@@ -79,13 +79,12 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         setPrevNextDisplay();
         //setReplaceDisplay();
         
-        addDisplayElements();
-      
+        addDisplayElements();     
     }
     
     private void initDisplay()
     {
-        body = new JPanel(new GridLayout(1, 2)); // one row, many columns
+        body = new JPanel(new BorderLayout()); // one row, many columns
         body.setBackground(MoeEditor.infoColor);
         body.setBorder(new EmptyBorder(3,6,3,4));
         
@@ -93,7 +92,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         findBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
         findBody.setBackground(MoeEditor.infoColor);
 
-        replaceBody=new JPanel(new GridLayout(1,8));
+        replaceBody=new JPanel(new GridLayout(1,1));
         replaceBody.setBackground(MoeEditor.infoColor);
     }
 
@@ -194,7 +193,6 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     
     private void addDisplayElements()
     {
-   
         findBody.add(findLabel);
         findBody.add(findTField);
         findBody.add(clearQueryButton);
@@ -211,37 +209,14 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
 //        replaceBody.add(replaceAllWithButton, BorderLayout.EAST);
 //        replaceBody.add(closeButton);
         //replaceBody.setVisible(false);
-        replaceBody.add(new Box(DBoxLayout.X_AXIS));
-        replaceBody.add(new Box(DBoxLayout.X_AXIS));
-        replaceBody.add(new Box(DBoxLayout.X_AXIS));
-        replaceBody.add(new Box(DBoxLayout.X_AXIS));
-        replaceBody.add(new Box(DBoxLayout.X_AXIS));
-        replaceBody.add(new Box(DBoxLayout.X_AXIS));
-        replaceBody.add(new Box(DBoxLayout.X_AXIS));
         replaceBody.add(closeButton, BorderLayout.EAST);
 
-        body.add(findBody);
-        body.add(replaceBody);
+        body.add(findBody, BorderLayout.WEST);
+        body.add(replaceBody, BorderLayout.EAST);
 
         add(body);
     }
     
-    public FindPanel(LayoutManager layout) {
-        super(layout);
-
-    }
-
-    public FindPanel(boolean isDoubleBuffered) {
-        super(isDoubleBuffered);
-
-    }
-
-    public FindPanel(LayoutManager layout, boolean isDoubleBuffered) {
-        super(layout, isDoubleBuffered);
-        
-    }
-
-
     public void actionPerformed(ActionEvent e) 
     {
         JComponent src = (JComponent) e.getSource();
@@ -278,7 +253,8 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     }
 
     /** Handle the key-released event from the text field. */
-    public void keyReleased(KeyEvent e) {
+    public void keyReleased(KeyEvent e) 
+    {
         JComponent src = (JComponent) e.getSource();
         if (src.getName()== INPUT_QUERY_NAME){
             find(src);
