@@ -66,7 +66,7 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
     public NaviView2(Document document, JScrollBar scrollBar)
     {
         this.scrollBar = scrollBar;
-        Font smallFont = new Font(Font.MONOSPACED, Font.BOLD, 1);
+        Font smallFont = new Font("Monospaced", Font.BOLD, 1);
         setEditorKit(new NaviviewEditorKit());
         
         setFont(smallFont);
