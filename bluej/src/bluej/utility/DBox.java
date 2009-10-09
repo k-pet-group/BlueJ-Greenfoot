@@ -24,7 +24,6 @@ package bluej.utility;
 import java.awt.Component;
 import java.awt.Dimension;
 
-import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
@@ -62,7 +61,7 @@ public class DBox extends JPanel
     }
     
     /**
-     * Constructor for DBox, which allows puting space between each component.
+     * Constructor for DBox, which allows putting space between each component.
      */
     public DBox(int axis, int minSpacing, int prefSpacing, float alignmentVal)
     {
@@ -113,13 +112,22 @@ public class DBox extends JPanel
      */
     public Component addSpacer(int size)
     {
-        Component spacer;
+        JComponent spacer = new JPanel();
+        spacer.setBorder(null);
+
         if (axis == X_AXIS) {
-            spacer = Box.createHorizontalStrut(size);
+            Dimension d = new Dimension(size, 0);
+            spacer.setMaximumSize(d);
+            spacer.setPreferredSize(d);
         }
         else {
-            spacer = Box.createVerticalStrut(size);
+            Dimension d = new Dimension(0, size);
+            spacer.setMaximumSize(d);
+            spacer.setPreferredSize(d);
         }
+        
+        Dimension min = new Dimension(0, 0);
+        spacer.setMinimumSize(min);
         add(spacer);
         return spacer;
     }
