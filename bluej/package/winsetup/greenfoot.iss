@@ -3,7 +3,7 @@
 
 [Setup]
 AppName=Greenfoot
-AppVerName=Greenfoot 1.4.6
+AppVerName=Greenfoot 1.5.6
 AppPublisher=Deakin University
 AppPublisherURL=http://www.greenfoot.org
 AppSupportURL=http://www.greenfoot.org
@@ -12,8 +12,10 @@ UninstallFilesDir={app}\uninst
 DefaultDirName={sd}\Greenfoot
 DefaultGroupName=Greenfoot
 Compression=bzip/9
-OutputBaseFilename=Greenfoot-windows-1.4.6
+OutputBaseFilename=Greenfoot-windows-1.5.6
 OutputDir=.
+PrivilegesRequired=none
+ChangesAssociations=yes
 
 [Messages]
 SetupWindowTitle=Greenfoot Installer
@@ -24,12 +26,23 @@ WelcomeLabel2=This installer will install [name/ver] on your computer.%n%nIt is 
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a &desktop icon"; GroupDescription: "Additional icons:"; MinVersion: 4,4
+Name: "associations"; Description: "Create file associations (*.greenfoot, *.gfar)"; GroupDescription: "File associations"; MinVersion: 4,4
 
 [Icons]
 Name: "{group}\Greenfoot"; Filename: "{app}\greenfoot.exe"; WorkingDir: "{app}"
 Name: "{userdesktop}\Greenfoot"; Filename: "{app}\greenfoot.exe"; WorkingDir: "{app}"; Tasks: desktopicon
 Name: "{group}\Select VM"; Filename: "{app}\greenfoot.exe"; WorkingDir: "{app}"; Parameters: "/select";
 Name: "{app}\Select VM"; Filename: "{app}\greenfoot.exe"; WorkingDir: "{app}"; Parameters: "/select";
+
+[Registry]
+Root: HKCR; Subkey: ".greenfoot"; ValueType: string; ValueName: ""; ValueData: "GreenfootProject"; Flags: uninsdeletevalue; Tasks: associations
+Root: HKCR; Subkey: ".gfar"; ValueType: string; ValueName: ""; ValueData: "GreenfootArchive"; Flags: uninsdeletevalue; Tasks: associations
+Root: HKCR; Subkey: "GreenfootProject"; ValueType: string; ValueName: ""; ValueData: "Greenfoot project file"; Flags: uninsdeletekey; Tasks: associations
+Root: HKCR; Subkey: "GreenfootArchive"; ValueType: string; ValueName: ""; ValueData: "Greenfoot project archive"; Flags: uninsdeletekey; Tasks: associations
+Root: HKCR; Subkey: "GreenfootProject\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\greenfoot.exe,0"; Flags: uninsdeletekey; Tasks: associations
+Root: HKCR; Subkey: "GreenfootArchive\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\greenfoot.exe,0"; Flags: uninsdeletekey; Tasks: associations
+Root: HKCR; Subkey: "GreenfootProject\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\greenfoot.exe"" ""%1"""; Flags: uninsdeletekey; Tasks: associations
+Root: HKCR; Subkey: "GreenfootArchive\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\greenfoot.exe"" ""%1"""; Flags: uninsdeletekey; Tasks: associations
 
 [InstallDelete]
 Type: files; Name: "{app}\lib\extensions\submission.jar"
