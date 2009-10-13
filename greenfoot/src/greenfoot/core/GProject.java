@@ -262,6 +262,24 @@ public class GProject extends RProjectListenerImpl
     }
     
     /**
+     * Get the name of the last world class which was instantiated in
+     * this project. May return null.
+     */
+    public String getLastWorldClassName()
+    {
+        return projectProperties.getString("world.lastInstantiated");
+    }
+    
+    /**
+     * Set the name of the last world class which was instantiated in
+     * this project.
+     */
+    public void setLastWorldClassName(String name)
+    {
+        projectProperties.setString("world.lastInstantiated", name);
+    }
+    
+    /**
      * Checks whether every class in this project is compiled.
      * @return True is all classes are compiled, false otherwise
      */

@@ -109,7 +109,7 @@ public class Exporter
         String jarName = tmpJarFile.getName();           
         
         
-        String worldClass = WorldHandler.getInstance().getLastWorldClassName();
+        String worldClass = project.getLastWorldClassName();
         
         boolean  lockScenario = pane.lockScenario();
         
@@ -244,7 +244,7 @@ public class Exporter
         File exportDir = new File(pane.getExportLocation());
         exportDir.mkdir();
 
-        String worldClass = WorldHandler.getInstance().getLastWorldClassName();
+        String worldClass = project.getLastWorldClassName();
         
         boolean  includeControls = pane.lockScenario();
         String jarName = project.getName() + ".jar";
@@ -313,7 +313,7 @@ public class Exporter
         File exportDir = exportFile.getParentFile();
         String jarName = exportFile.getName();
 
-        String worldClass = WorldHandler.getInstance().getLastWorldClassName();
+        String worldClass = project.getLastWorldClassName();
         
         boolean  includeControls = pane.lockScenario();
         

@@ -202,8 +202,7 @@ public class GreenfootLauncherBlueJVM
      */    
     private void createScenario()
     {
-        String newName = FileUtility.getFileName(null, "New Scenario", Config.getString("pkgmgr.newPkg.buttonLabel"), false, null, true);
-        File newDir = new File(newName);
+        File newDir = FileUtility.getDirName(null, "New Scenario", Config.getString("pkgmgr.newPkg.buttonLabel"), false, true);
         extension.newProject(newDir);
     }
 

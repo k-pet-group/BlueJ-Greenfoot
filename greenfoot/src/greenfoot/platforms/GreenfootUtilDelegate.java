@@ -21,7 +21,6 @@
  */
 package greenfoot.platforms;
 
-import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -37,12 +36,7 @@ public interface GreenfootUtilDelegate
 {
     public void createSkeleton(String className, String superClassName, File file, String templateFileName) throws IOException;
 
-    public File getScenarioFromFileBrowser(Component parent);
-    
-    public String getNewProjectName(Component parent);
-
     public URL getResource(String path);  
-    
 
     public String getGreenfootLogoPath();
 }

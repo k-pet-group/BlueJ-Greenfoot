@@ -101,13 +101,13 @@ public class ExportDialog extends EscapeDialog
      */
     public void display()
     {
-        if(!project.isCompiled())  {
+        if (!project.isCompiled())  {
             boolean isCompiled = showCompileDialog(project);
             if(!isCompiled) {               
                 return;         // Cancel export
             }
         }
-        if(WorldHandler.getInstance().getLastWorldClassName() == null) {
+        if (project.getLastWorldClassName() == null) {
             JButton[] buttons = new JButton[]{new JButton(Config.getString("greenfoot.continue"))};
             MessageDialog errorDialog = new MessageDialog(parent, noWorldDialogMsg, noWorldDialogTitle, 50 , buttons);
             errorDialog.display();

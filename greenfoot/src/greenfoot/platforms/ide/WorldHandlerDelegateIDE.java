@@ -437,7 +437,7 @@ public class WorldHandlerDelegateIDE
 
     public Class<?> getLastWorldClass()
     {
-        String lastWorldClass = WorldHandler.getInstance().getLastWorldClassName();
+        String lastWorldClass = project.getLastWorldClassName();
         if(lastWorldClass == null) {
             return null;
         }

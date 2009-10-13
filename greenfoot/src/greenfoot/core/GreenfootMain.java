@@ -28,7 +28,7 @@ import greenfoot.event.CompileListenerForwarder;
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.MessageDialog;
 import greenfoot.platforms.ide.ActorDelegateIDE;
-import greenfoot.util.GreenfootUtil;
+import greenfoot.util.FileChoosers;
 import greenfoot.util.Version;
 
 import java.awt.EventQueue;
@@ -55,6 +55,7 @@ import bluej.debugmgr.CallHistory;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
+import bluej.utility.FileUtility;
 import bluej.utility.Utility;
 import bluej.views.View;
 
@@ -64,7 +65,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 6722 2009-09-19 04:13:32Z davmac $
+ * @version $Id: GreenfootMain.java 6786 2009-10-13 03:24:49Z davmac $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -282,7 +283,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      */
     public void openProjectBrowser()
     {
-        File dirName = GreenfootUtil.getScenarioFromFileBrowser(frame);
+        File dirName = FileChoosers.getScenario(frame);
 
         if (dirName != null) {
             try {
@@ -385,11 +386,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         projectProperties.setInt("mainWindow.x", loc.x);
         projectProperties.setInt("mainWindow.y", loc.y);
 
-        String worldClassName = WorldHandler.getInstance().getLastWorldClassName();
-        if (worldClassName != null) {
-            projectProperties.setString("world.lastInstantiated", WorldHandler.getInstance().getLastWorldClassName());
-        }
-
         projectProperties.save();
     }
 
@@ -422,11 +418,12 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      */
     public void newProject()
     {
-        String newname = GreenfootUtil.getNewProjectName(frame);
+        File newname = FileUtility.getDirName(frame,
+                Config.getString("greenfoot.utilDelegate.newScenario"),
+                Config.getString("pkgmgr.newPkg.buttonLabel"), false, true);
         if (newname != null) {
             try {
-                File f = new File(newname);
-                rBlueJ.newProject(f);
+                rBlueJ.newProject(newname);
                 // The rest of the project preparation will be done by the
                 // ProjectManager on the BlueJ VM.
 

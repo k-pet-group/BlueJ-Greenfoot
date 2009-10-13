@@ -21,7 +21,6 @@
  */
 package greenfoot.platforms.standalone;
 
-import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -55,18 +54,6 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         }
     }
 
-    public String getNewProjectName(Component parent)
-    {
-        // Not needed in stand alone
-        return null;
-    }
-
-    public File getScenarioFromFileBrowser(Component parent)
-    {
-        // Not needed in stand alone
-        return null;
-    }
-    
     /**
      * Returns the path to a small version of the greenfoot logo.
      */

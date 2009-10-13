@@ -303,7 +303,6 @@ public class GreenfootFrame extends JFrame
         if (isClosedProject) {
             this.project = project;
             worldHandlerDelegate.attachProject(project);
-            worldHandler.setLastWorldClass(project.getProjectProperties().getString("world.lastInstantiated"));
             project.addCompileListener(this);
             setTitle("Greenfoot: " + project.getName());
             enableProjectActions();
@@ -857,6 +856,7 @@ public class GreenfootFrame extends JFrame
             resize();
         }
         worldDimensions = worldCanvas.getPreferredSize();
+        project.setLastWorldClassName(newWorld.getClass().getName());
     }
     
     public void worldRemoved(WorldEvent e)

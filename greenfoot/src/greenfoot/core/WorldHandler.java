@@ -128,7 +128,7 @@ public class WorldHandler
     private WorldHandler() 
     {
         instance = this;
-        handlerDelegate = new WorldHandlerDelegate(){
+        handlerDelegate = new WorldHandlerDelegate() {
 
             public void discardWorld(World world)
             {                
@@ -162,7 +162,8 @@ public class WorldHandler
 
             public void setWorldHandler(WorldHandler handler)
             {
-            }};
+            }
+        };
     }
         
     /**
@@ -215,16 +216,6 @@ public class WorldHandler
         defaultCursor = worldCanvas.getCursor();
     }
 
-    public void setLastWorldClass(String lastWorldClass)
-    {
-        this.lastWorldClass = lastWorldClass;
-    }
-    
-    public String getLastWorldClassName()
-    {
-        return lastWorldClass;
-    }
-    
     /**
      * Get the keyboard manager.
      */

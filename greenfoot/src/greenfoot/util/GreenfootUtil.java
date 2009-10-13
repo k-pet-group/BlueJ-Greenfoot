@@ -24,7 +24,6 @@ package greenfoot.util;
 import greenfoot.platforms.GreenfootUtilDelegate;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dialog;
 import java.awt.Dimension;
@@ -69,7 +68,7 @@ import javax.imageio.ImageIO;
  * General utility methods for Greenfoot.
  * 
  * @author Davin McCall
- * @version $Id: GreenfootUtil.java 6529 2009-08-14 15:44:20Z polle $
+ * @version $Id: GreenfootUtil.java 6786 2009-10-13 03:24:49Z davmac $
  */
 public class GreenfootUtil
 {
@@ -81,14 +80,16 @@ public class GreenfootUtil
 
     private static final Color urlColor = new Color(0, 90, 200);
     
-    public static void initialise(GreenfootUtilDelegate newDelegate) {
+    public static void initialise(GreenfootUtilDelegate newDelegate)
+    {
         delegate = newDelegate;
     }
     
     /**
      * Extracts the name of a class from the qualified class name.
      */
-    public static String extractClassName(String qualifiedName) {
+    public static String extractClassName(String qualifiedName)
+    {
         int index = qualifiedName.lastIndexOf('.');
         String name = qualifiedName;
         if (index >= 0) {
@@ -100,7 +101,8 @@ public class GreenfootUtil
     /**
      * Extracts the package of a class from the qualified class name.
      */
-    public static String extractPackageName(String qualifiedName) {
+    public static String extractPackageName(String qualifiedName)
+    {
         int index = qualifiedName.lastIndexOf('.');
         String name = "";
         if (index >= 0) {
@@ -438,27 +440,6 @@ public class GreenfootUtil
         }
     }
 
-    /**
-     * Opens a file browser and lets the user select a greenfoot scenario.
-     * @param parent For placing the file browser
-     * @return The selected scenario or null if nothing was selected
-     */
-    public static File getScenarioFromFileBrowser(Component parent) {
-        return delegate.getScenarioFromFileBrowser(parent);
-    }
-
-
-    /**
-     *  Get a file name from the user, using a file selection dialogue.
-     *  If cancelled or an invalid name was specified, return null.
-     */
-    public static String getNewProjectName(Component parent)
-    {
-        return delegate.getNewProjectName(parent);
-    }
-    
-
-    
     /**
      * Tries to find the filename using the classloader. It first searches in
      * 'projectdir/dir/', then in the 'projectdir' and last as an absolute
