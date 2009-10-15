@@ -23,8 +23,11 @@ package bluej.editor.moe;
  
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.Transparency;
+import java.awt.image.BufferedImage;
 
 import javax.swing.text.Element;
 import javax.swing.text.Position;
@@ -46,13 +49,49 @@ public class NaviviewView extends BlueJSyntaxView
             int x, int y, MoeSyntaxDocument document, Color def,
             Element lineElement)
     {
-        if (SYNTAX_COLOURING) {
-            super.paintTaggedLine(line, lineIndex, g, x, y, document, def, lineElement);
-            super.paintTaggedLine(line, lineIndex, g, x+1, y, document, def, lineElement);
+        int lineHeight = metrics.getHeight();
+        Rectangle clipBounds = g.getClipBounds();
+        BufferedImage img;
+        if (g instanceof Graphics2D) {
+            img = ((Graphics2D)g).getDeviceConfiguration()
+                .createCompatibleImage(clipBounds.width, lineHeight, Transparency.TRANSLUCENT);
         }
         else {
-            paintPlainLine(lineIndex, g, x, y);
-            paintPlainLine(lineIndex, g, x+1, y);
+            img = new BufferedImage(clipBounds.width, lineHeight, BufferedImage.TYPE_INT_ARGB);
+        }
+        
+        Graphics2D imgG = img.createGraphics();
+        imgG.setFont(g.getFont());
+        imgG.setColor(g.getColor());
+        
+        if (SYNTAX_COLOURING) {
+            //super.paintTaggedLine(line, lineIndex, g, x, y, document, def, lineElement);
+            //super.paintTaggedLine(line, lineIndex, g, x+1, y, document, def, lineElement);
+        }
+        else {
+            paintPlainLine(lineIndex, imgG, x - clipBounds.x, metrics.getAscent());
+
+            // Filter the image
+            //ImageProducer producer = new FilteredImageSource(img.getSource(), new DarkenFilter());
+            //Image filteredImg = this.createImage(producer);
+            //producer.
+            for (int iy = 0; iy < img.getHeight(); iy++) {
+                for (int ix = 0; ix < img.getWidth(); ix++) {
+                    int rgb = img.getRGB(ix, iy);
+                    Color c = new Color(rgb, true);
+                    int red = c.getRed();
+                    int green = c.getGreen();
+                    int blue = c.getBlue();
+                    int alpha = c.getAlpha();
+                    
+                    // Make it more opaque
+                    alpha = darken(alpha);
+                    img.setRGB(ix, iy, new Color(red, green, blue, alpha).getRGB());
+                }
+            }
+
+            g.drawImage(img, clipBounds.x, y, null);
+            //paintPlainLine(lineIndex, g, x, y);
         }
     }
     
@@ -76,4 +115,13 @@ public class NaviviewView extends BlueJSyntaxView
 
         super.paint(g, a);
     }
+    
+    private int darken(int c)
+    {
+        c = c << 1;
+        // c = c + c >> 2;
+        if(c>255) c = 255;
+        return c;
+    }
+
 }
