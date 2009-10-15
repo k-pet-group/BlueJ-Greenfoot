@@ -33,11 +33,16 @@ import javax.swing.text.Element;
 import javax.swing.text.Position;
 import javax.swing.text.Segment;
 
+import bluej.Config;
+
 public class NaviviewView extends BlueJSyntaxView
 {
     private static final boolean SCOPE_HIGHLIGHTING = true;
     private static final boolean HIGHLIGHT_METHODS_ONLY = true;
     private static final boolean SYNTAX_COLOURING = false;
+    
+    // MacOS font rendering at small sizes seems to be vastly different
+    private static final int DARKEN_AMOUNT = Config.isMacOS() ? 3 : 1;
     
     public NaviviewView(Element elem)
     {
@@ -66,33 +71,31 @@ public class NaviviewView extends BlueJSyntaxView
         
         if (SYNTAX_COLOURING) {
             //super.paintTaggedLine(line, lineIndex, g, x, y, document, def, lineElement);
-            //super.paintTaggedLine(line, lineIndex, g, x+1, y, document, def, lineElement);
+        	super.paintTaggedLine(line, lineIndex, imgG, x - clipBounds.x,
+        			metrics.getAscent(), document, def, lineElement);
         }
         else {
-            paintPlainLine(lineIndex, imgG, x - clipBounds.x, metrics.getAscent());
-
-            // Filter the image
-            //ImageProducer producer = new FilteredImageSource(img.getSource(), new DarkenFilter());
-            //Image filteredImg = this.createImage(producer);
-            //producer.
-            for (int iy = 0; iy < img.getHeight(); iy++) {
-                for (int ix = 0; ix < img.getWidth(); ix++) {
-                    int rgb = img.getRGB(ix, iy);
-                    Color c = new Color(rgb, true);
-                    int red = c.getRed();
-                    int green = c.getGreen();
-                    int blue = c.getBlue();
-                    int alpha = c.getAlpha();
-                    
-                    // Make it more opaque
-                    alpha = darken(alpha);
-                    img.setRGB(ix, iy, new Color(red, green, blue, alpha).getRGB());
-                }
-            }
-
-            g.drawImage(img, clipBounds.x, y, null);
             //paintPlainLine(lineIndex, g, x, y);
+            paintPlainLine(lineIndex, imgG, x - clipBounds.x, metrics.getAscent());
         }
+
+        // Filter the image - adjust alpha channel to darken the image.
+        for (int iy = 0; iy < img.getHeight(); iy++) {
+        	for (int ix = 0; ix < img.getWidth(); ix++) {
+        		int rgb = img.getRGB(ix, iy);
+        		Color c = new Color(rgb, true);
+        		int red = c.getRed();
+        		int green = c.getGreen();
+        		int blue = c.getBlue();
+        		int alpha = c.getAlpha();
+
+        		// Make it more opaque
+        		alpha = darken(alpha);
+        		img.setRGB(ix, iy, new Color(red, green, blue, alpha).getRGB());
+        	}
+        }
+
+        g.drawImage(img, clipBounds.x, y, null);
     }
     
     @Override
@@ -118,8 +121,7 @@ public class NaviviewView extends BlueJSyntaxView
     
     private int darken(int c)
     {
-        c = c << 1;
-        // c = c + c >> 2;
+        c = c << DARKEN_AMOUNT;
         if(c>255) c = 255;
         return c;
     }
