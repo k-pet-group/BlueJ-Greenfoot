@@ -61,6 +61,9 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     private String searchString=""; 
     private String replaceString="";
 
+    /**
+     * Constructor that creates and displays the different elements of the Find Panel
+     */
     public FindPanel() {
         super();
         setLayout(new BorderLayout());
@@ -77,6 +80,9 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         addDisplayElements();     
     }
     
+    /**
+     * Initialise the structure for the display panel
+     */
     private void initDisplay()
     {
         body = new JPanel(new BorderLayout()); // one row, many columns
@@ -91,6 +97,9 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         replaceBody.setBackground(MoeEditor.infoColor);
     }
 
+    /**
+     * Initialise find buttons and labels
+     */
     private void setFindDisplay()
     {
         findLabel = new JLabel();
@@ -109,6 +118,9 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         clearQueryButton.setEnabled(false);
     }
     
+    /**
+     * Initialise the previous and next buttons
+     */
     private void setPrevNextDisplay()
     {
         previousButton=new JButton();
@@ -137,6 +149,9 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
 
     }
     
+    /**
+     * Initialise the check case check box
+     */
     private void setCaseCheckDisplay()
     {
         matchCaseCheckBox=new JCheckBox();
@@ -148,6 +163,9 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         //highlightAllBox.setSelected(false);
     }
     
+    /**
+     * Initialise the close button
+     */
     private void setCloseDisplay()
     {
         closeButton=new JButton();
@@ -157,6 +175,9 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
 
     }
     
+    /**
+     * Initialise the buttons and labels for replace functionality
+     */
     private void setReplaceDisplay()
     {       
         replaceLabel=new JLabel();
@@ -190,6 +211,9 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         replaceAllWithButton.setEnabled(false);
     }
     
+    /**
+     * Adds the different elements into the display
+     */
     private void addDisplayElements()
     {
         findBody.add(findLabel);
@@ -217,6 +241,10 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         add(body);
     }
     
+    /**
+     * Performs the required action dependent on source of action event 
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
     public void actionPerformed(ActionEvent e) 
     {
         JComponent src = (JComponent) e.getSource();
@@ -247,12 +275,16 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         }
     }
 
-    /** Handle the key-pressed event from the text field. */
+    /** 
+     * Handle the key-pressed event from the text field. 
+     */
     public void keyPressed(KeyEvent e) {
 
     }
 
-    /** Handle the key-released event from the text field. */
+    /**
+     * Handle the key-released event from the text field. 
+     */
     public void keyReleased(KeyEvent e) 
     {
         JComponent src = (JComponent) e.getSource();
@@ -266,8 +298,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     }
 
     /**
-     * Displaying the find panel
-     *
+     * Display or remove the visibility of the find panel 
      */
     public void displayFindPanel(String selection, boolean visible)
     { 
@@ -290,12 +321,20 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         return searchString;
     }
 
+    /**
+     * Sets the text in the textfield and resets the searchString to the new text
+     * @param searchString
+     */
     public void setSearchString(String searchString) 
     {
         findTField.setText(searchString);
         this.searchString = searchString;
     }
 
+    /**
+     * Enable (previous and next) buttons if there is a valid search string.
+     * If not these buttons should be disabled
+     */
     private void updateDisplay()
     {
         boolean validSearch=false;
@@ -331,6 +370,12 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         }
     }
 
+    /**
+     * When the editor finds a value it needs to reset the caret to before the search string
+     * This ensures that the find will continue to find including what has already 
+     * just been found. This is required as partial finds are done.
+     * @param src JTextField is the source and focus is reset there and searchQuery is reset
+     */
     private void setFindValues(JComponent src)
     {
         //just to ensure it is setback sufficiently, use the original length of the search string
@@ -342,7 +387,11 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         setSearchString(query.getText());
         findTField.requestFocus();   
     }
-
+    
+    /**
+     * Replaces values are set to textfield and to replaceString
+     * @param src
+     */
     private void setReplaceValue(JComponent src)
     {      
         //now get and reset fields
@@ -352,7 +401,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     }
 
     /**
-     * replaces selected text with the contents of the replaceField and return
+     * Replaces selected text with the contents of the replaceField and return
      * next instance of the searchString.
      */
     private void replace()
@@ -420,12 +469,16 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         replaceTField.setText(replaceString);
     }
 
+
     private void find(JComponent src)
     {
         setFindValues(src);            
         find();
     }
 
+    /**
+     * Find requires the display to be reset (i.e button enabled/disabled) and calling the editor to find
+     */
     private void find()
     {
         updateDisplay();
