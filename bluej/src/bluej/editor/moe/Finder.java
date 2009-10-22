@@ -37,7 +37,7 @@ import bluej.utility.EscapeDialog;
  *
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Finder.java 6619 2009-09-04 02:33:09Z davmac $
+ * @version $Id: Finder.java 6801 2009-10-22 05:34:15Z marionz $
  */
 
 public class Finder extends EscapeDialog
@@ -126,6 +126,10 @@ public class Finder extends EscapeDialog
         String replaceText = smartFormat(editor.getSelectedText(), replaceField.getText());
         editor.insertText(replaceText, getSearchBack());
         find();
+    }
+
+    public MoeEditor getEditor() {
+        return editor;
     }
 
     /**
