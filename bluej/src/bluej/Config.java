@@ -383,7 +383,7 @@ public final class Config
     }
     
     /**
-     * True if this is the debugVM false if not.
+     * True if this is the debugVM or false if not.
      */
     public static boolean isDebugVM() 
     {
@@ -404,7 +404,16 @@ public final class Config
     public static boolean isMacOSLeopard()
     {
         return osname.startsWith("Mac") &&
-               System.getProperty("os.version").compareTo("10.5") >= 0;
+                System.getProperty("os.version").compareTo("10.5") >= 0;
+    }
+    
+    /**
+     * Tell use whether we are running on MacOS 10.6 (Snow Leopard) or later
+     */
+    public static boolean isMacOSSnowLeopard()
+    {
+        return osname.startsWith("Mac") &&
+                System.getProperty("os.version").compareTo("10.6") >= 0;
     }
     
     /**

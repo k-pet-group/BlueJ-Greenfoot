@@ -42,7 +42,10 @@ public class NaviviewView extends BlueJSyntaxView
     private static final boolean SYNTAX_COLOURING = false;
     
     // MacOS font rendering at small sizes seems to be vastly different
-    private static final int DARKEN_AMOUNT = Config.isMacOS() ? 3 : 1;
+    // Use 2^3 for MacOS Tiger/Leopard
+    // Use 2^2 for MacOS Snow Leopard
+    // Use 2^1 for everything else
+    private static final int DARKEN_AMOUNT = Config.isMacOS() ? (Config.isMacOSSnowLeopard() ? 2 : 3) : 1;
     
     public NaviviewView(Element elem)
     {
