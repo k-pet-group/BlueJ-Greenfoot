@@ -41,7 +41,7 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 6677 2009-09-15 23:54:24Z davmac $
+ * @version $Id: Boot.java 6802 2009-10-28 02:58:31Z davmac $
  */
 public class Boot
 {
@@ -50,7 +50,7 @@ public class Boot
     // and then the update-version target should be executed.
     public static final int BLUEJ_VERSION_MAJOR = 2;
     public static final int BLUEJ_VERSION_MINOR = 5;
-    public static final int BLUEJ_VERSION_RELEASE = 2;
+    public static final int BLUEJ_VERSION_RELEASE = 3;
     public static final String BLUEJ_VERSION_SUFFIX = "";
 
     // public static final int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
