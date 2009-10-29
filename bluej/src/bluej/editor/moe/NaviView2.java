@@ -24,8 +24,8 @@ package bluej.editor.moe;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -33,16 +33,17 @@ import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JEditorPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.ToolTipManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import javax.swing.text.Element;
 import javax.swing.text.View;
+import javax.swing.text.Position.Bias;
 
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -53,11 +54,16 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  * 
  * @author Davin Mccall
  */
-public class NaviView2 extends JEditorPane implements AdjustmentListener, DocumentListener
+public class NaviView2 extends JPanel implements AdjustmentListener, DocumentListener
 {
+    private Document document;
+    private JEditorPane editorPane;
+    
     private JScrollBar scrollBar;
     
+    /** Current view position in terms of this component's co-ordinate space */
     private int currentViewPos;
+    /** Current view position (bottom) in terms of this component's co-ordinate space */
     private int currentViewPosBottom;
     
     private int dragOffset;
@@ -66,10 +72,11 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
     public NaviView2(Document document, JScrollBar scrollBar)
     {
         this.scrollBar = scrollBar;
-        Font smallFont = new Font("Monospaced", Font.BOLD, 1);
-        setEditorKit(new NaviviewEditorKit());
+        //Font smallFont = new Font("Monospaced", Font.BOLD, 1);
+        //setEditorKit(new NaviviewEditorKit());
+        editorPane = new NVDrawPane();
         
-        setFont(smallFont);
+        //setFont(smallFont);
         setDocument(document);
         
         scrollBar.addAdjustmentListener(this);
@@ -78,6 +85,21 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
         // setToolTipText("**")
         setFocusable(true);
         ToolTipManager.sharedInstance().registerComponent(this);
+    }
+    
+    public void setDocument(Document document)
+    {
+        scrollBar.removeAdjustmentListener(this);
+        this.document = document;
+        editorPane.setDocument(document);
+        if (document != null) {
+            scrollBar.addAdjustmentListener(this);
+        }
+    }
+    
+    private Document getDocument()
+    {
+        return document;
     }
     
     @Override
@@ -102,36 +124,38 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
         super.setVisible(flag);
     }
     
+    private int yViewToModel(int vpos)
+    {
+        View view = editorPane.getUI().getRootView(editorPane);
+        int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
+        if (prefHeight > getHeight()) {
+            vpos = vpos * prefHeight / getHeight();
+        }
+        Bias [] breturn = new Bias[1];
+        int pos = view.viewToModel(0, vpos, new Rectangle(5,Integer.MAX_VALUE), breturn);
+        
+        return pos;
+    }
+    
     public void adjustmentValueChanged(AdjustmentEvent e)
     {
-        // The scrollbar position changed
+        View view = editorPane.getUI().getRootView(editorPane);
+        int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
+        int height = Math.min(prefHeight, getHeight()); 
         
-        int newTop = sbPositionToLine(e.getValue());
-        int newBottom = sbPositionToLine(e.getValue() + scrollBar.getVisibleAmount());
-        
-        Element map = getDocument().getDefaultRootElement();
-        
-        int topPos = map.getElement(newTop).getStartOffset();
-        if (newBottom >= map.getElementCount()) {
-            newBottom = map.getElementCount() - 1;
-        }
-        int bottomPos = map.getElement(newBottom).getEndOffset() - 1;
-        
-        // Now convert to view coordinates
-        try {
-            int topV = modelToView(topPos).y;
-            Rectangle bottomL = modelToView(bottomPos);
-            int bottomV = bottomL.y + bottomL.height;
+        int topV = e.getValue() * height / (scrollBar.getMaximum());
+        int bottomV = (e.getValue() + scrollBar.getVisibleAmount()) * height / scrollBar.getMaximum();
+        // System.out.println("Scrollbar adjust, topV = " + topV + ", bottomV = " + bottomV);
 
-            int repaintTop = Math.min(topV, currentViewPos);
-            int repaintBottom = Math.max(bottomV, currentViewPosBottom);
+        int repaintTop = Math.min(topV, currentViewPos);
+        int repaintBottom = Math.max(bottomV, currentViewPosBottom);
 
-            currentViewPos = topV;
-            currentViewPosBottom = bottomV;
+        currentViewPos = topV;
+        currentViewPosBottom = bottomV;
 
-            repaint(0, repaintTop, getWidth(), repaintBottom - repaintTop + 1);
-        }
-        catch (BadLocationException ble) {}
+        // System.out.println("Scrollbar adjust, reapintTop = " + repaintTop + ", repaintBottom = " + repaintBottom);
+        repaint(0, repaintTop, getWidth(), repaintBottom - repaintTop + 1);
+        // repaint();
     }
 
     public void removeUpdate(DocumentEvent e)
@@ -169,7 +193,8 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
     @Override
     public String getToolTipText(MouseEvent event)
     {
-        int pos = viewToModel(event.getPoint());
+        // int pos = viewToModel(event.getPoint());
+        int pos = yViewToModel(event.getPoint().y);
         MoeSyntaxDocument document = (MoeSyntaxDocument) getDocument();
         ParsedNode pn = document.getParser();
         int startpos = 0;
@@ -237,7 +262,7 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
      */
     private void moveView(int ypos)
     {
-        int modelPos = viewToModel(new Point(0, ypos - dragOffset));
+        int modelPos = yViewToModel(ypos - dragOffset);
         int lineNum = getDocument().getDefaultRootElement().getElementIndex(modelPos);
         lineNum = Math.max(0, lineNum);
         
@@ -248,16 +273,6 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
         scrollBar.setValue(pos);
     }
     
-    /**
-     * Convert a scrollbar position to a source line number.
-     */
-    private int sbPositionToLine(int position)
-    {
-        int amount = scrollBar.getMaximum() - scrollBar.getMinimum();
-        int lines = getDocument().getDefaultRootElement().getElementCount();
-        return position * lines / amount;
-    }
-        
     @Override
     protected void paintComponent(Graphics g)
     {   
@@ -265,115 +280,67 @@ public class NaviView2 extends JEditorPane implements AdjustmentListener, Docume
         Insets insets = getInsets();
         g.getClipBounds(clipBounds);
         
-        //Color foreground = MoeSyntaxDocument.getDefaultColor();
-        Color background = MoeSyntaxDocument.getBackgroundColor();
-        //Color notVisible = new Color((int)(background.getRed() * .9f),
-        //        (int)(background.getGreen() * .9f),
-        //        (int)(background.getBlue() * .9f));
-        
-        //g.setColor(notVisible);
-        g.setColor(background);
-        g.fillRect(clipBounds.x, clipBounds.y, clipBounds.width, clipBounds.height);
+        View view = editorPane.getUI().getRootView(editorPane);
+        int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
+        int myHeight = getHeight();
 
         Document document = getDocument();
         if (document == null) {
             // Should not happen
             return;
         }
-        Element map = document.getDefaultRootElement();
-        
-        int topLine = sbPositionToLine(scrollBar.getValue());
-        int bottomLine = sbPositionToLine(scrollBar.getValue() + scrollBar.getVisibleAmount());
-        try {
-            int topLineV = modelToView(map.getElement(topLine).getStartOffset()).y;
-            bottomLine = Math.min(bottomLine, map.getElementCount() - 1);
-            Rectangle vBottom = modelToView(map.getElement(bottomLine).getStartOffset());
-            int bottomLineV = vBottom.y + vBottom.height;
-            int viewHeight = bottomLineV - topLineV;
 
-            g.setColor(background);
-            //g.fillRect(clipBounds.x, topLineV, clipBounds.width, viewHeight);
-
-            //View view = getEditorKit().getViewFactory().create(document.getDefaultRootElement());
-            View view = getUI().getRootView(this);
-                       
+        int docHeight;
+        if (prefHeight > myHeight) {
+            // scale!
+            int width = getWidth() * prefHeight / myHeight;
+            docHeight = myHeight;
+ 
+            int ytop = clipBounds.y * prefHeight / myHeight;
+            int ybtm = ((clipBounds.y + clipBounds.height) * prefHeight + myHeight - 1) / myHeight;
+            int height = ybtm - ytop;
             
-            // Create new image that can be manipulated.
-            //
-            // TODO optimizations: it might be possible to make the buffered
-            // image smaller if x or y are bigger than 0, and doing some
-            // translation on the Graphics2D. Also, not sure which image type is
-            // best to use here. A INT_ARGB might be better. And, there might be
-            // completely different and more efficient way tof doing the same
-            // thing.
-//            BufferedImage img =  getGraphicsConfiguration().createCompatibleImage(clipBounds.x + clipBounds.width, clipBounds.y + clipBounds.height,
-//                    Transparency.TRANSLUCENT);
-//            Graphics2D imgG = img.createGraphics();
-//            imgG.setClip(clipBounds);     
-
-            // Paint text to the offscreen image
-//            imgG.setFont(getFont());
-//            Rectangle shape = new Rectangle(0, 0, getBounds().width, getBounds().height);
-//            view.paint(imgG, shape);
-
-            Rectangle shape = new Rectangle(0, 0, getWidth(), getHeight());
-            //Graphics2D g2d = (Graphics2D) g;
-            //g2d.scale(0.5, 0.5); doesn't scale text
-            view.paint(g, shape);
+            // Create a buffered image to use
+            BufferedImage bimage;
+            if (g instanceof Graphics2D) {
+                bimage = ((Graphics2D) g).getDeviceConfiguration().createCompatibleImage(width, height);
+            }
+            else {
+                bimage = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+            }
             
-            // Filter the image
-            //ImageProducer producer = new FilteredImageSource(img.getSource(), new DarkenFilter());
-            //Image filteredImg = this.createImage(producer);
-            //Image filteredImg = img;
-
-            // Paint the filtered image onto the graphics
-            //g.drawImage(filteredImg, 0, 0, null);            
+            Graphics2D bg = bimage.createGraphics();
+            Color background = MoeSyntaxDocument.getBackgroundColor();
+            bg.setColor(background);
+            bg.fillRect(0, 0, width, height);
             
-            // Draw a border around the visible area
-            g.setColor(new Color(140, 140, 255));
-            //g.setColor(new Color((int)(background.getRed() * .7f),
-            //        (int)(background.getGreen() * .7f),
-            //        (int)(background.getBlue() * .7f)));
-            g.drawRect(0 + insets.left, topLineV, getWidth() - insets.left - insets.right - 1,
-                    viewHeight);
+            Rectangle shape = new Rectangle(width, height);
+            bg.setClip(0, 0, width, height);
+            bg.translate(0, -ytop);
+            view.paint(bg, shape);
+            g.drawImage(bimage, clipBounds.x, clipBounds.y, clipBounds.x + clipBounds.width,
+                    clipBounds.y + clipBounds.height, 0, 0, width, height, null);
         }
-        catch (BadLocationException ble) {}
-       
+        else {
+            docHeight = prefHeight;
+            
+            Color background = MoeSyntaxDocument.getBackgroundColor();
+            g.setColor(background);
+            g.fillRect(clipBounds.x, clipBounds.y, clipBounds.width, clipBounds.height);
+                        
+            Rectangle shape = new Rectangle(0, 0, getWidth(), myHeight);
+            view.paint(g, shape);
+        }
+        
+        // Calculate the visible portion
+        int topV = scrollBar.getValue() * docHeight / scrollBar.getMaximum();
+        int bottomV = (scrollBar.getValue() + scrollBar.getVisibleAmount()) * docHeight / scrollBar.getMaximum();
+        int viewHeight = bottomV - topV;
+
+        // Draw a border around the visible area
+        g.setColor(new Color(140, 140, 255));
+        g.drawRect(0 + insets.left, topV, getWidth() - insets.left - insets.right - 1,
+               viewHeight);
     }
-    
-//    private final static class DarkenFilter extends RGBImageFilter {
-//        public DarkenFilter() {
-//            // When this is set to true, the filter will work with images
-//            // whose pixels are indices into a color table (IndexColorModel).
-//            // In such a case, the color values in the color table are filtered.
-//            canFilterIndexColorModel = true;
-//        }
-//    
-//        // This method is called for every pixel in the image
-//        public int filterRGB(int x, int y, int rgb) {
-//            if (x == -1) {
-//                // The pixel value is from the image's color table rather than the image itself
-//            }
-//            Color c = new Color(rgb, true);
-//            int red = c.getRed();
-//            int green = c.getGreen();
-//            int blue = c.getBlue();
-//            int alpha = c.getAlpha();
-//            //red = darken(red);
-//            //green = darken(green);
-//            //blue = darken(blue);
-//            
-//            // Make it more opaque
-//            alpha = darken(alpha);
-//            return new Color(red, green, blue, alpha).getRGB();
-//        }
-//        
-//        private int darken(int c)
-//        {
-//            c = c << 2;
-//            if(c>255) c = 255;
-//            return c;
-//        }
-//    }
     
 }

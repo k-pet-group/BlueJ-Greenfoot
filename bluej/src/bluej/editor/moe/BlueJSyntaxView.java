@@ -131,14 +131,14 @@ public abstract class BlueJSyntaxView extends PlainView
      * @param lineIndex The line number (0 based).
      * @param g The graphics context
      * @param x The x co-ordinate where the line should be painted
-     * @param y The y co-ordinate where the line should be painted
+     * @param y The y co-ordinate (baseline) where the line should be painted
      */
     protected void drawLine(int lineIndex, Graphics g, int x, int y)
     {
         if(!initialised) {
             initialise(g);
         }
-
+        
         MoeSyntaxDocument document = (MoeSyntaxDocument)getDocument();
 
         Color def = MoeSyntaxDocument.getDefaultColor();

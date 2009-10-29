@@ -35,6 +35,11 @@ import javax.swing.text.Segment;
 
 import bluej.Config;
 
+/**
+ * A view for the NaviView component.
+ * 
+ * @author Davin McCall
+ */
 public class NaviviewView extends BlueJSyntaxView
 {
     private static final boolean SCOPE_HIGHLIGHTING = true;
@@ -98,7 +103,7 @@ public class NaviviewView extends BlueJSyntaxView
         	}
         }
 
-        g.drawImage(img, clipBounds.x, y, null);
+        g.drawImage(img, clipBounds.x, y - metrics.getAscent(), null);
     }
     
     @Override
