@@ -22,7 +22,9 @@
 package bluej.editor.moe;
 
 import java.awt.*;
+
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 /**
  * MoeJEditorPane - a variation of JEditorPane for Moe. The preferred size
@@ -39,6 +41,7 @@ public final class MoeEditorPane extends JEditorPane
     public MoeEditorPane()
     {
         super();
+        setBorder(new EmptyBorder(6, 6, 6, 0));
     }
     
     /*

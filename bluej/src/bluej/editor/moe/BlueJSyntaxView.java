@@ -385,7 +385,7 @@ public abstract class BlueJSyntaxView extends PlainView
                     int indent = nap.getNode().getLeftmostIndent(document, nap.getPosition(), getTabSize());
                   
                     // The width of the editor area
-                    int fullWidth = getContainer().getWidth();
+                    int fullWidth = a.getBounds().width + a.getBounds().x;
 
                     // We might not want to render the right margin if it is out
                     // of the clip area, so we calculate how much of the margin

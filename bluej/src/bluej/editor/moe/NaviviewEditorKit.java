@@ -26,11 +26,17 @@ import javax.swing.text.Element;
 import javax.swing.text.View;
 import javax.swing.text.ViewFactory;
 
+/**
+ * An EditorKit implementation for the NaviView. The main purpose is to provide a NaviviewView as
+ * the default view.
+ * 
+ * @author Davin McCall
+ */
 public class NaviviewEditorKit extends DefaultEditorKit implements ViewFactory
 {
     public NaviviewEditorKit()
     {
-        // 
+        // Nothing to do.
     }
     
     @Override

@@ -62,6 +62,10 @@ public class NaviviewView extends BlueJSyntaxView
             int x, int y, MoeSyntaxDocument document, Color def,
             Element lineElement)
     {
+        // Painting at such a small font size means the font appears very light.
+        // To get around this problem, we paint into a temporary image, then darken
+        // the text, and finally copy the temporary image to the output Graphics.
+        
         int lineHeight = metrics.getHeight();
         Rectangle clipBounds = g.getClipBounds();
         BufferedImage img;
@@ -78,12 +82,10 @@ public class NaviviewView extends BlueJSyntaxView
         imgG.setColor(g.getColor());
         
         if (SYNTAX_COLOURING) {
-            //super.paintTaggedLine(line, lineIndex, g, x, y, document, def, lineElement);
-        	super.paintTaggedLine(line, lineIndex, imgG, x - clipBounds.x,
-        			metrics.getAscent(), document, def, lineElement);
+            super.paintTaggedLine(line, lineIndex, imgG, x - clipBounds.x,
+                    metrics.getAscent(), document, def, lineElement);
         }
         else {
-            //paintPlainLine(lineIndex, g, x, y);
             paintPlainLine(lineIndex, imgG, x - clipBounds.x, metrics.getAscent());
         }
 

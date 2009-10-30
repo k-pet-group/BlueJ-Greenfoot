@@ -29,11 +29,14 @@ import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
@@ -54,7 +57,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  * 
  * @author Davin Mccall
  */
-public class NaviView2 extends JPanel implements AdjustmentListener, DocumentListener
+public class NaviView extends JPanel implements AdjustmentListener, DocumentListener
 {
     private Document document;
     private JEditorPane editorPane;
@@ -69,24 +72,22 @@ public class NaviView2 extends JPanel implements AdjustmentListener, DocumentLis
     private int dragOffset;
     private boolean haveToolTip = false;
     
-    public NaviView2(Document document, JScrollBar scrollBar)
+    public NaviView(Document document, JScrollBar scrollBar)
     {
         this.scrollBar = scrollBar;
-        //Font smallFont = new Font("Monospaced", Font.BOLD, 1);
-        //setEditorKit(new NaviviewEditorKit());
         editorPane = new NVDrawPane();
         
-        //setFont(smallFont);
         setDocument(document);
         
-        scrollBar.addAdjustmentListener(this);
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         enableEvents(MouseEvent.MOUSE_WHEEL_EVENT_MASK);
-        // setToolTipText("**")
         setFocusable(true);
         ToolTipManager.sharedInstance().registerComponent(this);
     }
     
+    /**
+     * Set the document displayed in this NaviView.
+     */
     public void setDocument(Document document)
     {
         scrollBar.removeAdjustmentListener(this);
@@ -97,6 +98,9 @@ public class NaviView2 extends JPanel implements AdjustmentListener, DocumentLis
         }
     }
     
+    /**
+     * Get the document displayed by this NaviView.
+     */
     private Document getDocument()
     {
         return document;
@@ -117,16 +121,21 @@ public class NaviView2 extends JPanel implements AdjustmentListener, DocumentLis
             scrollBar.removeAdjustmentListener(this);
         }
         else {
-            if (! isVisible()) {
+            if (! isVisible() && document != null) {
                 scrollBar.addAdjustmentListener(this);
             }
         }
         super.setVisible(flag);
     }
     
+    /**
+     * Convert a y-coordinate in the NaviView co-ordinate space to a line number
+     * in the document.
+     */
     private int yViewToModel(int vpos)
     {
         View view = editorPane.getUI().getRootView(editorPane);
+        vpos -= getInsets().top;
         int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
         if (prefHeight > getHeight()) {
             vpos = vpos * prefHeight / getHeight();
@@ -137,15 +146,19 @@ public class NaviView2 extends JPanel implements AdjustmentListener, DocumentLis
         return pos;
     }
     
+    /* (non-Javadoc)
+     * @see java.awt.event.AdjustmentListener#adjustmentValueChanged(java.awt.event.AdjustmentEvent)
+     */
     public void adjustmentValueChanged(AdjustmentEvent e)
     {
         View view = editorPane.getUI().getRootView(editorPane);
         int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
-        int height = Math.min(prefHeight, getHeight()); 
+        Insets insets = getInsets();
+        int height = Math.min(prefHeight, getHeight() - insets.top - insets.bottom); 
         
-        int topV = e.getValue() * height / (scrollBar.getMaximum());
-        int bottomV = (e.getValue() + scrollBar.getVisibleAmount()) * height / scrollBar.getMaximum();
-        // System.out.println("Scrollbar adjust, topV = " + topV + ", bottomV = " + bottomV);
+        int topV = e.getValue() * height / (scrollBar.getMaximum()) + insets.top;
+        int bottomV = (e.getValue() + scrollBar.getVisibleAmount()) * height
+                / scrollBar.getMaximum() + insets.top;
 
         int repaintTop = Math.min(topV, currentViewPos);
         int repaintBottom = Math.max(bottomV, currentViewPosBottom);
@@ -153,9 +166,7 @@ public class NaviView2 extends JPanel implements AdjustmentListener, DocumentLis
         currentViewPos = topV;
         currentViewPosBottom = bottomV;
 
-        // System.out.println("Scrollbar adjust, reapintTop = " + repaintTop + ", repaintBottom = " + repaintBottom);
         repaint(0, repaintTop, getWidth(), repaintBottom - repaintTop + 1);
-        // repaint();
     }
 
     public void removeUpdate(DocumentEvent e)
@@ -219,7 +230,6 @@ public class NaviView2 extends JPanel implements AdjustmentListener, DocumentLis
     @Override
     protected void processMouseEvent(MouseEvent e)
     {
-        //super.processMouseEvent(e);
         if (e.getID() == MouseEvent.MOUSE_PRESSED) {
             int y = e.getY();
             if (y > currentViewPos && y < currentViewPosBottom) {
@@ -239,7 +249,6 @@ public class NaviView2 extends JPanel implements AdjustmentListener, DocumentLis
     @Override
     protected void processMouseMotionEvent(MouseEvent e)
     {
-        //super.processMouseMotionEvent(e);
         if (e.getID() == MouseEvent.MOUSE_DRAGGED) {
             moveView(e.getY());
         }
@@ -282,7 +291,7 @@ public class NaviView2 extends JPanel implements AdjustmentListener, DocumentLis
         
         View view = editorPane.getUI().getRootView(editorPane);
         int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
-        int myHeight = getHeight();
+        int myHeight = getHeight() - insets.top - insets.bottom;
 
         Document document = getDocument();
         if (document == null) {
@@ -304,6 +313,9 @@ public class NaviView2 extends JPanel implements AdjustmentListener, DocumentLis
             BufferedImage bimage;
             if (g instanceof Graphics2D) {
                 bimage = ((Graphics2D) g).getDeviceConfiguration().createCompatibleImage(width, height);
+                Map<Object,Object> hints = new HashMap<Object,Object>();
+                hints.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                ((Graphics2D) g).addRenderingHints(hints);
             }
             else {
                 bimage = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
@@ -314,11 +326,11 @@ public class NaviView2 extends JPanel implements AdjustmentListener, DocumentLis
             bg.setColor(background);
             bg.fillRect(0, 0, width, height);
             
-            Rectangle shape = new Rectangle(width, height);
+            Rectangle shape = new Rectangle(width, Integer.MAX_VALUE);
             bg.setClip(0, 0, width, height);
             bg.translate(0, -ytop);
             view.paint(bg, shape);
-            g.drawImage(bimage, clipBounds.x, clipBounds.y, clipBounds.x + clipBounds.width,
+            g.drawImage(bimage, insets.left, clipBounds.y, getWidth() - insets.left - insets.right,
                     clipBounds.y + clipBounds.height, 0, 0, width, height, null);
         }
         else {
@@ -328,7 +340,9 @@ public class NaviView2 extends JPanel implements AdjustmentListener, DocumentLis
             g.setColor(background);
             g.fillRect(clipBounds.x, clipBounds.y, clipBounds.width, clipBounds.height);
                         
-            Rectangle shape = new Rectangle(0, 0, getWidth(), myHeight);
+            Rectangle shape = new Rectangle(insets.left,
+                    insets.top, getWidth() - insets.left - insets.right,
+                    myHeight);
             view.paint(g, shape);
         }
         
@@ -339,7 +353,7 @@ public class NaviView2 extends JPanel implements AdjustmentListener, DocumentLis
 
         // Draw a border around the visible area
         g.setColor(new Color(140, 140, 255));
-        g.drawRect(0 + insets.left, topV, getWidth() - insets.left - insets.right - 1,
+        g.drawRect(0 + insets.left, topV + insets.top, getWidth() - insets.left - insets.right - 1,
                viewHeight);
     }
     
