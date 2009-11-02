@@ -229,6 +229,9 @@ public abstract class BlueJSyntaxView extends PlainView
         Element map = document.getDefaultRootElement();
         ParsedNode rootNode = document.getParser();
         Rectangle clipBounds = g.getClipBounds();
+        if (clipBounds == null) {
+            clipBounds = a.getBounds();
+        }
         int char_width = metrics.charWidth('m');
 
         Color c1 = new Color(210, 230, 210); // green border (container)

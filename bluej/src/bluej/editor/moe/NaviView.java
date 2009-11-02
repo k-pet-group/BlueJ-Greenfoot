@@ -42,8 +42,6 @@ import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.ToolTipManager;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 import javax.swing.text.View;
 import javax.swing.text.Position.Bias;
@@ -57,7 +55,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  * 
  * @author Davin Mccall
  */
-public class NaviView extends JPanel implements AdjustmentListener, DocumentListener
+public class NaviView extends JPanel implements AdjustmentListener
 {
     private Document document;
     private JEditorPane editorPane;
@@ -75,7 +73,7 @@ public class NaviView extends JPanel implements AdjustmentListener, DocumentList
     public NaviView(Document document, JScrollBar scrollBar)
     {
         this.scrollBar = scrollBar;
-        editorPane = new NVDrawPane();
+        editorPane = new NVDrawPane(this);
         
         setDocument(document);
         
@@ -135,15 +133,43 @@ public class NaviView extends JPanel implements AdjustmentListener, DocumentList
     private int yViewToModel(int vpos)
     {
         View view = editorPane.getUI().getRootView(editorPane);
-        vpos -= getInsets().top;
+        Insets insets = getInsets();
+        vpos -= insets.top;
         int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
-        if (prefHeight > getHeight()) {
-            vpos = vpos * prefHeight / getHeight();
+        int myHeight = getHeight() - insets.top - insets.bottom;
+        if (prefHeight > myHeight) {
+            vpos = vpos * prefHeight / myHeight;
         }
         Bias [] breturn = new Bias[1];
         int pos = view.viewToModel(0, vpos, new Rectangle(5,Integer.MAX_VALUE), breturn);
         
         return pos;
+    }
+    
+    /**
+     * Repaint model co-ordinates. The given lines must be translated to
+     * the NaviView component's co-ordinate space.
+     * @param top  The topmost line to repaint
+     * @param bottom  The lowest (numerically higher) line to repaint
+     */
+    public void repaintModel(int top, int bottom)
+    {
+        if (editorPane == null) {
+            return;
+        }
+        View view = editorPane.getUI().getRootView(editorPane);
+        Insets insets = getInsets();
+        int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
+        int myHeight = getHeight() - insets.top - insets.bottom;
+        
+        if (prefHeight > myHeight) {
+            int ptop = top * myHeight / prefHeight;
+            int pbottom = (bottom * myHeight + prefHeight - 1) / prefHeight;
+            repaint(0, ptop, getWidth(), pbottom - ptop);
+        }
+        else {
+            repaint(0, top, getWidth(), bottom - top);
+        }
     }
     
     /* (non-Javadoc)
@@ -169,24 +195,6 @@ public class NaviView extends JPanel implements AdjustmentListener, DocumentList
         repaint(0, repaintTop, getWidth(), repaintBottom - repaintTop + 1);
     }
 
-    public void removeUpdate(DocumentEvent e)
-    {
-        // TODO Auto-generated method stub
-        
-    }
-    
-    public void insertUpdate(DocumentEvent e)
-    {
-        // TODO Auto-generated method stub
-        
-    }
-    
-    public void changedUpdate(DocumentEvent e)
-    {
-        // TODO Auto-generated method stub
-        
-    }
-    
     @Override
     public Point getToolTipLocation(MouseEvent event)
     {

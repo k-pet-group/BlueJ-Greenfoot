@@ -22,28 +22,75 @@
 package bluej.editor.moe;
 
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JEditorPane;
+import javax.swing.text.Document;
+import javax.swing.text.View;
 
 /**
  * A JEditorPane implementation to provide the root view for the document. This is used
- * by the NaviView component.
+ * by the NaviView component. Basically this provides:
+ * 
+ * <ul>
+ * <li>A means to get the root view for the document
+ * <li>A proxy for repaints due to document updates. The repaints are passed on
+ *     to the NaviView, allowing it to translate co-ordinates appropriately.
+ * </ul>
  * 
  * @author Davin McCall
  */
 public class NVDrawPane extends JEditorPane
 {
-    public NVDrawPane()
+    private NaviView nview;
+    
+    public NVDrawPane(NaviView nview)
     {
+        this.nview = nview;
         Font smallFont = new Font("Monospaced", Font.BOLD, 1);
         setFont(smallFont);
         setEditorKit(new NaviviewEditorKit());
     }
 
     @Override
+    public void setDocument(Document doc)
+    {
+        super.setDocument(doc);
+        // Hack: the BasicTextUI.UpdateHandler passes a null allocation to the view
+        //      if it hasn't painted yet. The result is that same-line updates aren't
+        //      handled. If we do a pretend paint here, the problem is solved.
+        BufferedImage bi = new BufferedImage(1,1, BufferedImage.TYPE_INT_ARGB);
+        Graphics g = bi.getGraphics();
+        g.setClip(0, 0, 1, 1);
+        getUI().paint(g, this);
+    }
+    
+    @Override
+    public void repaint()
+    {
+        if (nview != null) {
+            nview.repaint();
+        }
+    }
+    
+    @Override
     public void repaint(long tm, int x, int y, int width, int height)
     {
-        // TODO Auto-generated method stub
-        // super.repaint(tm, x, y, width, height);
+        new Exception().printStackTrace(System.out);
+        if (nview != null) {
+            // Note this condition appears impossible, however JEditorPane constructor
+            // does call repaint().
+            nview.repaintModel(y, y + height);
+        }
+    }
+    
+    @Override
+    public Rectangle getBounds()
+    {
+        View view = getUI().getRootView(this);
+        return new Rectangle((int) view.getPreferredSpan(View.X_AXIS),
+                (int) view.getPreferredSpan(View.Y_AXIS));
     }
 }

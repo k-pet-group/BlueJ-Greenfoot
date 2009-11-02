@@ -113,6 +113,9 @@ public class NaviviewView extends BlueJSyntaxView
     {
         Rectangle bounds = a.getBounds();
         Rectangle clip = g.getClipBounds();
+        if (clip == null) {
+            clip = a.getBounds();
+        }
         
         if (SCOPE_HIGHLIGHTING) {
             // Scope highlighting
