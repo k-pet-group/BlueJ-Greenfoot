@@ -68,6 +68,22 @@ public abstract class BlueJSyntaxView extends PlainView
     private static final int LEFT_INNER_SCOPE_MARGIN = 5;
     private static final int RIGHT_SCOPE_MARGIN = 4;
     
+    /* Scope painting colours */
+    
+    private static final Color C1 = new Color(210, 230, 210); // green border (container)
+    private static final Color C2 = new Color(245, 253, 245); // green wash
+    private static final Color C3 = new Color(230, 240, 230); // green border (inner).
+    private static final Color C4 = new Color(255, 255, 255); // white wash
+    
+    private static final Color M1 = new Color(230, 230, 210); // yellow border (methods)
+    private static final Color M2 = new Color(253, 253, 245); // yellow wash
+    
+    private static final Color S1 = new Color(215, 215, 230); // blue border (selection)
+    private static final Color S2 = new Color(245, 245, 253); // blue wash
+    
+    private static final Color I1 = new Color(230, 210, 230); // pink border (iteration)
+    private static final Color I2 = new Color(253, 245, 253); // pink wash
+    
     // private members
     private Segment line;
 
@@ -234,20 +250,6 @@ public abstract class BlueJSyntaxView extends PlainView
         }
         int char_width = metrics.charWidth('m');
 
-        Color c1 = new Color(210, 230, 210); // green border (container)
-        Color c2 = new Color(245, 253, 245); // green wash
-        Color c3 = new Color(230, 240, 230); // green border (inner).
-        Color c4 = new Color(255, 255, 255); // white wash
-        
-        Color m1 = new Color(230, 230, 210); // yellow border (methods)
-        Color m2 = new Color(253, 253, 245); // yellow wash
-        
-        Color s1 = new Color(215, 215, 230); // blue border (selection)
-        Color s2 = new Color(245, 245, 253); // blue wash
-        
-        Color i1 = new Color(230, 210, 230); // pink border (iteration)
-        Color i2 = new Color(253, 245, 253); // pink wash
-        
         int aboveLine = firstLine - 1;
         List<NodeAndPosition> prevScopeStack = new LinkedList<NodeAndPosition>();
         int curLine = firstLine;
@@ -286,249 +288,8 @@ public abstract class BlueJSyntaxView extends PlainView
                     break;
                 }
                 
-                Rectangle lbounds = modelToView(thisLineEl.getStartOffset(), a, Position.Bias.Forward).getBounds();
-                int ypos = lbounds.y;
-                int ypos2 = ypos + lbounds.height;
-
-                ListIterator<NodeAndPosition> li = prevScopeStack.listIterator();
-                int rightMargin = small ? 0 : 7;
-                boolean lastWasInner = true;
-                Color lastLineColor = c3;
-                while (li.hasNext()) {
-                    NodeAndPosition nap = li.next();
-                    int napPos = nap.getPosition();
-                    int napEnd = napPos + nap.getSize();
-
-                    if (napPos >= thisLineEl.getEndOffset()) {
-                        // The node isn't even on this line, go to the next line
-                        break;
-                    }
-
-                    if (! nap.getNode().isContainer() && ! nap.getNode().isInner()) {
-                        continue; // no need to draw the node at all.
-                    }
-                    
-                    if (onlyMethods && nap.getNode().getNodeType() != ParsedNode.NODETYPE_METHODDEF
-                            && (! nap.getNode().isInner() || lastWasInner || !PAINT_METHOD_INNER)) {
-                        continue;
-                    }
-                    lastWasInner = nap.getNode().isInner();
-
-                    int endX = clipBounds.x + clipBounds.width; // X position at which we stop drawing
-                    boolean startsThisLine = (napPos >= thisLineEl.getStartOffset());
-                    
-                    if (!startsThisLine && napPos >= aboveLineEl.getStartOffset()) {
-                        // officially starts on the previous line but...
-                        int n = findNonWhitespace(aboveLineSeg, nap.getPosition() - aboveLineEl.getStartOffset());
-                        if (n == -1) {
-                            // effectively starts on this line!
-                            startsThisLine = true;
-                            napPos = thisLineEl.getStartOffset();
-                        }
-                        else if (n + aboveLineEl.getStartOffset() < napEnd) {
-                            // It starts on the previous line, but continues onto this line.
-                            // However the start on the line above might be to the right of the normal
-                            // indent, meaning we need to draw some border here.
-                            // TODO
-                        }
-                    }
-                    
-                    boolean endsThisLine = false;
-                    if (napEnd < thisLineEl.getEndOffset()) {
-                        endsThisLine = true;
-                        // The node ends on this line. Just whitespace?
-                        int nws = findNonWhitespace(thisLineSeg, 0);
-                        if (nws == -1 || thisLineEl.getStartOffset() + nws >= napEnd) {
-                            break;
-                        }
-                        
-                        // The node ends on this line, so don't extend it too far
-                        nws = findNonWhitespace(thisLineSeg,
-                                nap.getPosition() + nap.getSize() - thisLineEl.getStartOffset());
-                        if (nws != -1) {
-                            Rectangle rr = modelToView(thisLineEl.getStartOffset() + nws,
-                                    a, Position.Bias.Forward).getBounds();
-                            endX = Math.min(endX, rr.x + rr.width);
-                        }
-                    }
-                    else if (napEnd < belowLineEl.getEndOffset()) {
-                        // The node ends on the next line. Just whitespace there?
-                        int nws = findNonWhitespace(belowLineSeg, 0);
-                        if (nws == -1 || belowLineEl.getStartOffset() + nws >= napEnd) {
-                            endsThisLine = true;
-                        }
-                    }
-                    
-                    // Ok, it includes text on this line. Or maybe just whitespace?
-                    int nws = 0;
-                    if (startsThisLine) { 
-                        nws = findNonWhitespace(thisLineSeg, napPos - thisLineEl.getStartOffset());
-                        if (nws == -1 && nap.getPosition() >= thisLineEl.getStartOffset()) {
-                            // Note 2nd check above might seem redundant, but we are just checking
-                            // if the node *really* starts this line (as opposed to starting with
-                            // whitespace only on the line before).
-                            continue; // just white space on this line
-                        }
-                        
-                        // if the node begins further right of the indent, we might still colour
-                        // from the indent - only if that section is just whitespace though.
-                        int ls = thisLineEl.getStartOffset();
-                        
-                        if (napPos > ls) {
-                            int nwsb = findNonWhitespaceBwards(thisLineSeg,
-                                    napPos - ls - 1,
-                                    -1) + 1;
-                            nws = Math.min(nws, nwsb);
-                        }
-                        else {
-                            nws = 0;
-                        }
-                    }
-
-                    int indent = nap.getNode().getLeftmostIndent(document, nap.getPosition(), getTabSize());
-                  
-                    // The width of the editor area
-                    int fullWidth = a.getBounds().width + a.getBounds().x;
-
-                    // We might not want to render the right margin if it is out
-                    // of the clip area, so we calculate how much of the margin
-                    // we should not render.
-                    //int rightMarginNotRendered = fullWidth - endX;
-//                    int rightMarginNotRendered = clipBounds.x + clipBounds.width - endX;
-                    //int rightMargin = scopeCount * RIGHT_SCOPE_MARGIN + 1  - rightMarginNotRendered;
-//                    if (small) {
-//                        rightMargin /= 10;
-//                    }
-//                    if (scopeCount != 0) rightMargin += 3;
-//                    if(rightMargin < 0) {
-//                        rightMargin = 0;
-//                    }                   
-                    int scopeRightX = fullWidth - rightMargin;
-                    if (nap.getNode().isContainer()) {
-                        Color color1 = c1;
-                        Color color2 = c2;
-                        if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_METHODDEF) {
-                            color1 = m1;
-                            color2 = m2;
-                        }
-                        else if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_ITERATION) {
-                            color1 = i1;
-                            color2 = i2;
-                        }
-                        else if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_SELECTION) {
-                            color1 = s1;
-                            color2 = s2;
-                        }
-                        lastLineColor = color1;
-                        
-                        int xpos = lbounds.x + char_width * indent - 2;
-                        if (nws != 0) {
-                             xpos = Math.max(xpos, modelToView(thisLineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds().x - 2);
-                        }
-                                                
-                        if (startsThisLine || endsThisLine) {
-                            int hoffs = small ? 0 : 4; // determines size of corner arcs
-                            g.setColor(color2);
-                            g.fillRect(xpos + hoffs, ypos, scopeRightX - xpos - hoffs, ypos2 - ypos);
-                            
-                            int edgeTop = ypos + (startsThisLine ? hoffs : 0);
-                            int edgeBtm = ypos2 - 1 - (endsThisLine ? hoffs : 0);
-                            g.fillRect(xpos + 1, edgeTop, scopeRightX - xpos - 1, edgeBtm - edgeTop);
-                            
-                            if(startsThisLine) {
-                                // Top left corner
-                                g.fillArc(xpos, ypos, hoffs * 2, hoffs * 2, 180, -90);
-                                
-                                // Top edge
-                                g.setColor(color1);
-                                g.drawArc(xpos, ypos, hoffs * 2, hoffs * 2, 180, -90);
-                                g.drawLine(xpos + hoffs, ypos, scopeRightX, ypos);
-                            }
-                            if(endsThisLine) {
-                                // Bottom left corner
-                                g.setColor(color2);
-                                g.fillArc(xpos, edgeBtm - hoffs, hoffs * 2, hoffs * 2, 180, 90);
-
-                                // Bottom edge
-                                g.setColor(color1);
-                                g.drawArc(xpos, edgeBtm - hoffs, hoffs * 2, hoffs * 2, 180, 90);
-                                g.drawLine(xpos + hoffs, ypos2 - 1, scopeRightX, ypos2 - 1);
-                            }
-
-                            // Left edge
-                            g.drawLine(xpos, edgeTop, xpos, edgeBtm);
-                        }
-                        else {
-                            g.setColor(color2);
-                            g.fillRect(xpos + 1, ypos, scopeRightX - xpos - 1, ypos2 - ypos);
-                            
-                            g.setColor(color1);
-                            
-                            // Left edge
-                            g.drawLine(xpos, ypos, xpos, ypos2);
-                        }
-                        
-                        // Right edge
-                        g.drawLine(scopeRightX, ypos, scopeRightX, ypos2);
-                        rightMargin += RIGHT_SCOPE_MARGIN;
-                    }
-                    else if (nap.getNode().isInner()) {
-                        int xpos = lbounds.x + indent * char_width;
-                        if (nws != 0) {
-                            xpos = Math.max(xpos, modelToView(thisLineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds().x);
-                        }
-                        xpos -= LEFT_INNER_SCOPE_MARGIN;
-                     
-                        g.setColor(c4);
-                        g.fillRect(xpos + 1, ypos, scopeRightX - (xpos+1), ypos2 - ypos);
-                        
-                        g.setColor(lastLineColor);
-                        
-                        if(startsThisLine) {
-                            // Top edge
-                            g.drawLine(xpos, ypos, scopeRightX, ypos);
-                            
-                        }
-                        if(endsThisLine) {
-                            // Bottom edge          
-                            g.drawLine(xpos, ypos2 - 1, scopeRightX, ypos2 - 1);
-                        }
-       
-                        // Left edge
-                        g.drawLine(xpos, ypos, xpos, ypos2);
-                        
-                        // Right edge
-                        g.drawLine(scopeRightX, ypos, scopeRightX, ypos2);                       
-                    }                    
-                }
-
-                // Move along
-                li = prevScopeStack.listIterator(prevScopeStack.size());
-                NodeAndPosition nap = li.previous();
-                if (nap.getPosition() + nap.getSize() <= thisLineEl.getEndOffset()) {
-                    li.remove();
-                    int napEnd = nap.getPosition() + nap.getSize();
-                    while (li.hasPrevious()) {
-                        NodeAndPosition napParent = li.previous();
-                        li.next();
-                        nap = napParent.getNode().findNodeAtOrAfter(napEnd, napParent.getPosition());
-                        while (nap != null) {
-                            //napEnd = nap.getPosition() + nap.getSize();
-                            if (nap.getPosition() < thisLineEl.getEndOffset()) {
-                                // TODO
-                                // draw it
-                            }
-                            li.add(nap);
-                            nap = nap.getNode().findNodeAtOrAfter(napEnd, nap.getPosition());
-                        }
-                        if (napParent.getPosition() + napParent.getSize() > thisLineEl.getEndOffset()) {
-                            break;
-                        }
-                        nap = li.previous();
-                        napEnd = nap.getPosition() + nap.getSize();
-                        li.remove();
-                    }
-                }
+                drawScopes(a, g, document, thisLineEl, thisLineSeg, belowLineEl, belowLineSeg,
+                        aboveLineEl, aboveLineSeg, char_width, prevScopeStack, small, onlyMethods);
                 
                 // Next line
                 curLine++;
@@ -552,6 +313,255 @@ public abstract class BlueJSyntaxView extends PlainView
         catch (BadLocationException ble) {}
     }
 
+    /**
+     * Draw the scope highlighting for one line of the document.
+     */
+    private void drawScopes(Shape a, Graphics g, MoeSyntaxDocument document,
+            Element thisLineEl, Segment thisLineSeg, Element belowLineEl, Segment belowLineSeg,
+            Element aboveLineEl, Segment aboveLineSeg, int char_width,
+            List<NodeAndPosition> prevScopeStack, boolean small, boolean onlyMethods)
+        throws BadLocationException
+    {
+        Rectangle clipBounds = g.getClipBounds();
+        if (clipBounds == null) {
+            clipBounds = a.getBounds();
+        }
+        
+        Rectangle lbounds = modelToView(thisLineEl.getStartOffset(), a, Position.Bias.Forward).getBounds();
+        int ypos = lbounds.y;
+        int ypos2 = ypos + lbounds.height;
+
+        ListIterator<NodeAndPosition> li = prevScopeStack.listIterator();
+        int rightMargin = small ? 0 : 7;
+        boolean lastWasInner = true;
+        Color lastLineColor = C3;
+        while (li.hasNext()) {
+            NodeAndPosition nap = li.next();
+            int napPos = nap.getPosition();
+            int napEnd = napPos + nap.getSize();
+
+            if (napPos >= thisLineEl.getEndOffset()) {
+                // The node isn't even on this line, go to the next line
+                break;
+            }
+
+            if (! nap.getNode().isContainer() && ! nap.getNode().isInner()) {
+                continue; // no need to draw the node at all.
+            }
+            
+            if (onlyMethods && nap.getNode().getNodeType() != ParsedNode.NODETYPE_METHODDEF
+                    && (! nap.getNode().isInner() || lastWasInner || !PAINT_METHOD_INNER)) {
+                continue;
+            }
+            lastWasInner = nap.getNode().isInner();
+
+            int endX = clipBounds.x + clipBounds.width; // X position at which we stop drawing
+            boolean startsThisLine = (napPos >= thisLineEl.getStartOffset());
+            
+            if (!startsThisLine && napPos >= aboveLineEl.getStartOffset()) {
+                // officially starts on the previous line but...
+                int n = findNonWhitespace(aboveLineSeg, nap.getPosition() - aboveLineEl.getStartOffset());
+                if (n == -1) {
+                    // effectively starts on this line!
+                    startsThisLine = true;
+                    napPos = thisLineEl.getStartOffset();
+                }
+                else if (n + aboveLineEl.getStartOffset() < napEnd) {
+                    // It starts on the previous line, but continues onto this line.
+                    // However the start on the line above might be to the right of the normal
+                    // indent, meaning we need to draw some border here.
+                    // TODO
+                }
+            }
+            
+            boolean endsThisLine = false;
+            if (napEnd < thisLineEl.getEndOffset()) {
+                endsThisLine = true;
+                // The node ends on this line. Just whitespace?
+                int nws = findNonWhitespace(thisLineSeg, 0);
+                if (nws == -1 || thisLineEl.getStartOffset() + nws >= napEnd) {
+                    break;
+                }
+                
+                // The node ends on this line, so don't extend it too far
+                nws = findNonWhitespace(thisLineSeg,
+                        nap.getPosition() + nap.getSize() - thisLineEl.getStartOffset());
+                if (nws != -1) {
+                    Rectangle rr = modelToView(thisLineEl.getStartOffset() + nws,
+                            a, Position.Bias.Forward).getBounds();
+                    endX = Math.min(endX, rr.x + rr.width);
+                }
+            }
+            else if (napEnd < belowLineEl.getEndOffset()) {
+                // The node ends on the next line. Just whitespace there?
+                int nws = findNonWhitespace(belowLineSeg, 0);
+                if (nws == -1 || belowLineEl.getStartOffset() + nws >= napEnd) {
+                    endsThisLine = true;
+                }
+            }
+            
+            // Ok, it includes text on this line. Or maybe just whitespace?
+            int nws = 0;
+            if (startsThisLine) { 
+                nws = findNonWhitespace(thisLineSeg, napPos - thisLineEl.getStartOffset());
+                if (nws == -1 && nap.getPosition() >= thisLineEl.getStartOffset()) {
+                    // Note 2nd check above might seem redundant, but we are just checking
+                    // if the node *really* starts this line (as opposed to starting with
+                    // whitespace only on the line before).
+                    continue; // just white space on this line
+                }
+                
+                // if the node begins further right of the indent, we might still colour
+                // from the indent - only if that section is just whitespace though.
+                int ls = thisLineEl.getStartOffset();
+                
+                if (napPos > ls) {
+                    int nwsb = findNonWhitespaceBwards(thisLineSeg,
+                            napPos - ls - 1,
+                            -1) + 1;
+                    nws = Math.min(nws, nwsb);
+                }
+                else {
+                    nws = 0;
+                }
+            }
+
+            int indent = nap.getNode().getLeftmostIndent(document, nap.getPosition(), getTabSize());
+          
+            // The width of the editor area
+            int fullWidth = a.getBounds().width + a.getBounds().x;
+
+            // We might not want to render the right margin if it is out
+            // of the clip area, so we calculate how much of the margin
+            // we should not render.
+            int scopeRightX = fullWidth - rightMargin;
+            if (nap.getNode().isContainer()) {
+                Color color1 = C1;
+                Color color2 = C2;
+                if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_METHODDEF) {
+                    color1 = M1;
+                    color2 = M2;
+                }
+                else if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_ITERATION) {
+                    color1 = I1;
+                    color2 = I2;
+                }
+                else if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_SELECTION) {
+                    color1 = S1;
+                    color2 = S2;
+                }
+                lastLineColor = color1;
+                
+                int xpos = lbounds.x + char_width * indent - 2;
+                if (nws != 0) {
+                     xpos = Math.max(xpos, modelToView(thisLineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds().x - 2);
+                }
+                                        
+                if (startsThisLine || endsThisLine) {
+                    int hoffs = small ? 0 : 4; // determines size of corner arcs
+                    g.setColor(color2);
+                    g.fillRect(xpos + hoffs, ypos, scopeRightX - xpos - hoffs, ypos2 - ypos);
+                    
+                    int edgeTop = ypos + (startsThisLine ? hoffs : 0);
+                    int edgeBtm = ypos2 - 1 - (endsThisLine ? hoffs : 0);
+                    g.fillRect(xpos + 1, edgeTop, scopeRightX - xpos - 1, edgeBtm - edgeTop);
+                    
+                    if(startsThisLine) {
+                        // Top left corner
+                        g.fillArc(xpos, ypos, hoffs * 2, hoffs * 2, 180, -90);
+                        
+                        // Top edge
+                        g.setColor(color1);
+                        g.drawArc(xpos, ypos, hoffs * 2, hoffs * 2, 180, -90);
+                        g.drawLine(xpos + hoffs, ypos, scopeRightX, ypos);
+                    }
+                    if(endsThisLine) {
+                        // Bottom left corner
+                        g.setColor(color2);
+                        g.fillArc(xpos, edgeBtm - hoffs, hoffs * 2, hoffs * 2, 180, 90);
+
+                        // Bottom edge
+                        g.setColor(color1);
+                        g.drawArc(xpos, edgeBtm - hoffs, hoffs * 2, hoffs * 2, 180, 90);
+                        g.drawLine(xpos + hoffs, ypos2 - 1, scopeRightX, ypos2 - 1);
+                    }
+
+                    // Left edge
+                    g.drawLine(xpos, edgeTop, xpos, edgeBtm);
+                }
+                else {
+                    g.setColor(color2);
+                    g.fillRect(xpos + 1, ypos, scopeRightX - xpos - 1, ypos2 - ypos);
+                    
+                    g.setColor(color1);
+                    
+                    // Left edge
+                    g.drawLine(xpos, ypos, xpos, ypos2);
+                }
+                
+                // Right edge
+                g.drawLine(scopeRightX, ypos, scopeRightX, ypos2);
+                rightMargin += RIGHT_SCOPE_MARGIN;
+            }
+            else if (nap.getNode().isInner()) {
+                int xpos = lbounds.x + indent * char_width;
+                if (nws != 0) {
+                    xpos = Math.max(xpos, modelToView(thisLineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds().x);
+                }
+                xpos -= LEFT_INNER_SCOPE_MARGIN;
+             
+                g.setColor(C4);
+                g.fillRect(xpos + 1, ypos, scopeRightX - (xpos+1), ypos2 - ypos);
+                
+                g.setColor(lastLineColor);
+                
+                if(startsThisLine) {
+                    // Top edge
+                    g.drawLine(xpos, ypos, scopeRightX, ypos);
+                }
+                if(endsThisLine) {
+                    // Bottom edge          
+                    g.drawLine(xpos, ypos2 - 1, scopeRightX, ypos2 - 1);
+                }
+
+                // Left edge
+                g.drawLine(xpos, ypos, xpos, ypos2);
+                
+                // Right edge
+                g.drawLine(scopeRightX, ypos, scopeRightX, ypos2);                       
+            }                    
+        }
+
+        // Move along
+        li = prevScopeStack.listIterator(prevScopeStack.size());
+        NodeAndPosition nap = li.previous();
+        if (nap.getPosition() + nap.getSize() <= thisLineEl.getEndOffset()) {
+            li.remove();
+            int napEnd = nap.getPosition() + nap.getSize();
+            while (li.hasPrevious()) {
+                NodeAndPosition napParent = li.previous();
+                li.next();
+                nap = napParent.getNode().findNodeAtOrAfter(napEnd, napParent.getPosition());
+                while (nap != null) {
+                    //napEnd = nap.getPosition() + nap.getSize();
+                    if (nap.getPosition() < thisLineEl.getEndOffset()) {
+                        // TODO
+                        // draw it
+                    }
+                    li.add(nap);
+                    nap = nap.getNode().findNodeAtOrAfter(napEnd, nap.getPosition());
+                }
+                if (napParent.getPosition() + napParent.getSize() > thisLineEl.getEndOffset()) {
+                    break;
+                }
+                nap = li.previous();
+                napEnd = nap.getPosition() + nap.getSize();
+                li.remove();
+            }
+        }
+    }
+    
+    
     private void getScopeStackAt(ParsedNode root, int position, List<NodeAndPosition> list)
     {
         list.add(new NodeAndPosition(root, 0, root.getSize()));
