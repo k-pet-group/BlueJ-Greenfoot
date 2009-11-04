@@ -37,7 +37,7 @@ import bluej.utility.EscapeDialog;
  *
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Finder.java 6801 2009-10-22 05:34:15Z marionz $
+ * @version $Id: Finder.java 6811 2009-11-04 04:43:08Z marionz $
  */
 
 public class Finder extends EscapeDialog
@@ -88,10 +88,10 @@ public class Finder extends EscapeDialog
         editor = currentEditor;
         replacing = replace;
         getRootPane().setDefaultButton(findButton);
-
         if(selection != null && selection.length() > 0) {
             setSearchString(selection);
             replaceButton.setEnabled(true);
+            searchField.setText(selection);
         }
         else
             replaceButton.setEnabled(false);

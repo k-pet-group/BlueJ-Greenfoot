@@ -52,6 +52,9 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     private String searchString=""; 
     private static Font findFont;
 
+    //a counter for founds
+    private int counter=0;
+
     /**
      * Constructor that creates and displays the different elements of the Find Panel
      */
@@ -62,16 +65,16 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         setBorder(BorderFactory.createLineBorder(Color.black));
 
         initDisplay();
-        
+
         setFindDisplay();
         setCaseCheckDisplay();
         setCloseDisplay();
         setPrevNextDisplay();
         setReplaceDisplay();
-        
+
         addDisplayElements();     
     }
-    
+
     /**
      * Initialise the structure for the display panel
      */
@@ -82,7 +85,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         //body.setBorder(new EmptyBorder(3,6,3,4));
         body.setBorder(BorderFactory.createEmptyBorder(3,0,3,0));
         body.setName("FindPanelBody");
-        
+
         //findOptions=new JPanel(new GridLayout(1, 7));
         findBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
         findBody.setName("FindPanelFindBody");
@@ -108,7 +111,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         findTField.setName(INPUT_QUERY_NAME);
 
     }
-    
+
     /**
      * Initialise the previous and next buttons
      */
@@ -120,28 +123,28 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         previousButton.setText("Prev");
         previousButton.setEnabled(false);
         previousButton.setFont(findFont);
-        
-//        prevArrowButton=new BasicArrowButton(BasicArrowButton.WEST);
-//        prevArrowButton.addActionListener(this);
-//        prevArrowButton.setName(PREVIOUS_BUTTON_NAME);
-//        prevArrowButton.setText("Prev");
-//        prevArrowButton.setEnabled(false);
-        
+
+        //        prevArrowButton=new BasicArrowButton(BasicArrowButton.WEST);
+        //        prevArrowButton.addActionListener(this);
+        //        prevArrowButton.setName(PREVIOUS_BUTTON_NAME);
+        //        prevArrowButton.setText("Prev");
+        //        prevArrowButton.setEnabled(false);
+
         nextButton=new JButton();
         nextButton.addActionListener(this);
         nextButton.setName(NEXT__BUTTON_NAME);
         nextButton.setText("Next");
         nextButton.setEnabled(false);
         nextButton.setFont(findFont);
-        
-//        nextArrowButton=new BasicArrowButton(BasicArrowButton.EAST);
-//        nextArrowButton.addActionListener(this);
-//        nextArrowButton.setName(NEXT__BUTTON_NAME);
-//        nextArrowButton.setText("Next");
-//        nextArrowButton.setEnabled(false);
+
+        //        nextArrowButton=new BasicArrowButton(BasicArrowButton.EAST);
+        //        nextArrowButton.addActionListener(this);
+        //        nextArrowButton.setName(NEXT__BUTTON_NAME);
+        //        nextArrowButton.setText("Next");
+        //        nextArrowButton.setEnabled(false);
 
     }
-    
+
     /**
      * Initialise the check case check box
      */
@@ -156,7 +159,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         //highlightAllBox.setText("Highlight All");
         //highlightAllBox.setSelected(false);
     }
-       
+
     /**
      * Initialise the close button
      */
@@ -169,7 +172,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         closeButton.setFont(findFont);
 
     }
-    
+
     /**
      * Initialise the buttons and labels for replace functionality
      */
@@ -182,7 +185,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         replaceWithButton.setEnabled(true);
         replaceWithButton.setFont(findFont);
     }
-    
+
     /**
      * Adds the different elements into the display
      */
@@ -190,7 +193,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     {
         findBody.add(findLabel);
         findBody.add(findTField);
-        
+
         findBody.add(previousButton);
         findBody.add(nextButton);
         findBody.add(replaceWithButton);
@@ -205,7 +208,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
 
         add(body);
     }
-    
+
     /**
      * Performs the required action dependent on source of action event 
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
@@ -214,21 +217,27 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     {
         JComponent src = (JComponent) e.getSource();
         if(src.getName() == CLOSE_BUTTON_NAME){
+            editor.removeHighlighting();
+            //remove selection?
             this.setVisible(false);
             return;
         }
-        if (src.getName()==NEXT__BUTTON_NAME){           
-            //editor.findString(getSearchString(), false, !matchCaseCheckBox.isSelected(), false, true);
-            editor.findStringSelect(getSearchString(), false, !matchCaseCheckBox.isSelected(), false, true, true);
+        if (src.getName()==NEXT__BUTTON_NAME){  
+            if (getSearchString().equals(findTField.getText())){
+                editor.moveCaretPosition(editor.getFoundCaretPositon());
+                editor.setCaretPositionForward(findTField.getText().length()+1);
+            }
+            find(true);  
         }
         if (src.getName()==PREVIOUS_BUTTON_NAME){
-            editor.findString(getSearchString(), true, !matchCaseCheckBox.isSelected(), false, true);
+            editor.resetSelectedHighlightedPos();
+            find(false);
         }
         if (src.getName()==REPLACE_WITH_BUTTON_NAME){
             replace();
         }
         if (src.getName()==INPUT_QUERY_NAME){
-            find(src);
+            find(true);
         }
     }
 
@@ -256,7 +265,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
             else if (((JTextField)src).getText().length()>0)
                 doFind=true;
             if (doFind)
-                find(src);
+                find(true);
         }
     }
 
@@ -328,17 +337,16 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
      * just been found. This is required as partial finds are done.
      * @param src JTextField is the source and focus is reset there and searchQuery is reset
      */
-    private void setFindValues(JComponent src)
+    private void setFindValues()
     {
-        //just to ensure it is setback sufficiently, use the original length of the search string
-        if (getSearchString()!=null){
-            int length=getSearchString().length();
-            //editor.setCaretBack(length);
-        }
         //now get and reset fields
-        JTextField query=(JTextField)src;
-        setSearchString(query.getText());
-        findTField.requestFocus();   
+        setSearchString(findTField.getText());
+        findTField.requestFocus(); 
+        //if the search is empty should it reset the caret position to the start
+        //of the doc? so that it can start searching from there
+        if (getSearchString().length()==0){
+
+        }
     }
 
     /**
@@ -382,7 +390,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
                     searchString + Config.getString("editor.replaceAll.notFoundNothingReplaced"));
     }
 
-    
+
     /**
      * Replace all instances of the search String with a replacement.
      * -check for valid search criteria
@@ -393,31 +401,45 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
      * -print out number of replacements (?)
      * -TODO: return cursor/caret to original place
      */
-    private void highlightAll(boolean ignoreCase, boolean wholeWord, boolean wrap)
+    private void highlightAll(boolean ignoreCase, boolean wholeWord, boolean wrap, boolean next)
     {
-        String searchString = getSearchString();
+        resetCounter();
+        searchForward(ignoreCase, wholeWord, wrap, next);
+        editor.setCaretBack(searchString.length()+1);
 
-        int count = 0;
-        boolean select=false;
-
-        System.out.println(" ");
-        while(editor.doFindSelect(searchString, ignoreCase, wholeWord, wrap, select)) {
-            //editor.insertText(smartFormat(editor.getSelectedText(), replaceString), true);
-            //this ensures that only the first find is selected.
-            select=false;
-            System.out.println("count "+count+ " and position "+editor.getCaretPosition());            
-            count++;
-        }
-
-        if(count > 0)
-            //editor.writeMessage("Replaced " + count + " instances of " + searchString);
-            editor.writeMessage(Config.getString("editor.replaceAll.replaced") +
-                    count + Config.getString("editor.replaceAll.intancesOf") + 
+        if(getCounter() > 0)
+            editor.writeMessage(Config.getString("editor.highlight.replaced") +
+                    getCounter() + Config.getString("editor.replaceAll.intancesOf") + 
                     searchString);
-        else
-            //editor.writeMessage("String " + searchString + " not found. Nothing replaced.");
+        else{
+            //only write msg if there was a search string
+            if (getSearchString().length()>0) {               
             editor.writeMessage(Config.getString("editor.replaceAll.string") + 
-                    searchString + Config.getString("editor.replaceAll.notFoundNothingReplaced"));
+                    searchString + Config.getString("editor.highlight.notFoundNothingReplaced"));
+
+            }
+            }
+        resetCounter();
+    }
+
+    private boolean search (boolean ignoreCase, boolean wholeWord, boolean wrap, boolean select, boolean next)
+    {
+        String searchString = getSearchString();  
+        if (searchString.length()==0)
+            return true;
+        
+        boolean found =false;
+        if (next)
+            found=editor.doFindSelect(searchString, ignoreCase, wholeWord, wrap, select);
+        else 
+            found=editor.doFindBackwardSelect(searchString, ignoreCase, wholeWord, wrap);
+        return found;
+    }
+
+    private void searchForward(boolean ignoreCase, boolean wholeWord, boolean wrap, boolean next){
+
+        boolean select=true;
+        search(ignoreCase, wholeWord, wrap, select, next) ;
     }
     /**
      * Replace the text currently selected in the editor with
@@ -428,26 +450,36 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
 
     }
 
-    private void find(JComponent src)
-    {
-        setFindValues(src);            
-        find();
-    }
-
     /**
      * Find requires the display to be reset (i.e button enabled/disabled) and calling the editor to find
      */
-    private void find()
+    private void find(boolean next)
     {
+        setFindValues(); 
         updateDisplay();
-        editor.findStringSelect(getSearchString(), false, !matchCaseCheckBox.isSelected(), false, true, true);
-        // highlightAll(!matchCaseCheckBox.isSelected(), false, true);
+        editor.removeHighlighting();
+        highlightAll(!matchCaseCheckBox.isSelected(), false, true, next);
     }
-
 
     public void keyTyped(KeyEvent e) {
-        
+
     }
 
+    public int getCounter() {
+        return counter;
+    }
+
+    private void setCounter(int counter) {
+        this.counter = counter;
+    }
+
+    private void resetCounter() {
+        this.counter = 0;
+    }
+
+
+    public void incCounter(int count) {
+        counter = counter+count;
+    }
 
 }
