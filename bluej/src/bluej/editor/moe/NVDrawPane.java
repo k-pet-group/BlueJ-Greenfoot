@@ -78,7 +78,6 @@ public class NVDrawPane extends JEditorPane
     @Override
     public void repaint(long tm, int x, int y, int width, int height)
     {
-        new Exception().printStackTrace(System.out);
         if (nview != null) {
             // Note this condition appears impossible, however JEditorPane constructor
             // does call repaint().
