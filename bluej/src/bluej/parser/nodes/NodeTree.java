@@ -135,6 +135,11 @@ public class NodeTree
         return findNodeAtOrAfter(pos, 0);
     }
 
+    /**
+     * Find a node at or after the given position.
+     * @param pos       The position to start the search from
+     * @param startpos  The offset to assume the tree represents
+     */
     public NodeAndPosition findNodeAtOrAfter(int pos, int startpos)
     {
         if (pnode == null) {

@@ -156,6 +156,11 @@ public class NewParser
     
     protected void endTryCatchStmt(LocatableToken token, boolean included) { }
     
+    /** A list of a parameters to a method or constructor */
+    protected void beginArgumentList(LocatableToken token) { }
+    
+    protected void endArgumentList(LocatableToken token) { }
+    
     /**
      * got a "new ..." expression. Will be followed by a type spec (gotTypeSpec())
      * and possibly by array size declarations, then endExprNew()
@@ -192,7 +197,6 @@ public class NewParser
 
     /**
      * We've seen a type specification or something that looks a lot like one.
-     * (It's not resolved, so it might actually be referencing a field or variable).
      */
     protected void gotTypeSpec(List<LocatableToken> tokens) { }
 
@@ -428,7 +432,7 @@ public class NewParser
             // The identifier is the constant name - there may be constructor arguments as well
             token = tokenStream.nextToken();
             if (token.getType() == JavaTokenTypes.LPAREN) {
-                parseArgumentList();
+                parseArgumentList(token);
                 token = tokenStream.nextToken();
                 if (token.getType() != JavaTokenTypes.RPAREN) {
                     error("Expecting ')' at end of enum constant constructor arguments");
@@ -1428,7 +1432,11 @@ public class NewParser
     }
 	
     /**
-     * Parse a type specification.
+     * Parse a type specification. This includes class name(s) (Xyz.Abc), type arguments
+     * to generic types, and array declarators.
+     * 
+     * <p>The final set of array declarators will not be parsed if they contain a dimension value.
+     * Eg for "Abc[][][10]" this method will leave "[10]" unprocessed and still in the token stream. 
      */
     public boolean parseTypeSpec()
     {
@@ -1794,12 +1802,8 @@ public class NewParser
             }
             //arguments
             else if (token.getType()==JavaTokenTypes.LPAREN){
-                parseArgumentList();
+                parseArgumentList(token);
                 token = tokenStream.nextToken();
-                if (token.getType() != JavaTokenTypes.RPAREN) {
-                    error("Expecting ')' after an argument list");
-                    tokenStream.pushBack(token);
-                }                                   
             }
             else  tokenStream.pushBack(token);                
         }
@@ -1968,21 +1972,8 @@ public class NewParser
                 }
                 else if (token.getType() == JavaTokenTypes.LPAREN) {
                     // Method call
-                    int nextType = tokenStream.LA(1).getType();
-                    if (nextType == JavaTokenTypes.RPAREN) {
-                        tokenStream.nextToken();
-                    }
-                    else {
-                        parseExpression();
-                        token = tokenStream.nextToken();
-                        while (token.getType() == JavaTokenTypes.COMMA) {
-                            parseExpression();
-                            token = tokenStream.nextToken();
-                        }
-                        if (token.getType() != JavaTokenTypes.RPAREN) {
-                            error("Expected ')' to terminate method call parameter list");
-                        }
-                    }
+                    parseArgumentList(token);
+                    tokenStream.nextToken(); // remove the ')'
                 }
                 else if (token.getType() == JavaTokenTypes.LBRACK) {
                     // Arrary subscript?
@@ -2104,7 +2095,7 @@ public class NewParser
             endExprNew(token, false);
             return;
         }
-        parseArgumentList();
+        parseArgumentList(token);
         token = tokenStream.nextToken();
         if (token.getType() != JavaTokenTypes.RPAREN) {
             error("Expected ')' at end of argument list (in 'new ...' expression)");
@@ -2130,11 +2121,14 @@ public class NewParser
     }
     
     /**
-     * Parse a comma-separated, possibly empty list of arguments to a method/constructor
+     * Parse a comma-separated, possibly empty list of arguments to a method/constructor.
+     * Returns with the closing ')' token still in the token stream.
+     * @param token   the '(' token
      */
-    public void parseArgumentList()
+    public void parseArgumentList(LocatableToken token)
     {
-        LocatableToken token = tokenStream.nextToken();
+        beginArgumentList(token);
+        token = tokenStream.nextToken();
         if (token.getType() != JavaTokenTypes.RPAREN) {
             tokenStream.pushBack(token);
             do  {
@@ -2145,6 +2139,7 @@ public class NewParser
                 error("Expecting ',' or ')' (in argument list)");
             }
         }
+        endArgumentList(token);
         tokenStream.pushBack(token); // push back the ')' or erroneous token
         return;
     }

@@ -44,7 +44,11 @@ public class TextParser extends NewParser
     private Stack<JavaEntity> valueStack = new Stack<JavaEntity>();
     private Stack<LocatableToken> operatorStack = new Stack<LocatableToken>();
     
-    private boolean sawNew = false;  // have we seen "new" (as in "new XYZ()")
+    private static final int STATE_NONE = 0;
+    private static final int STATE_NEW = 1;  // just saw "new"
+    
+    private int state = STATE_NONE;
+
     
     public TextParser(EntityResolver resolver, Reader r)
     {
@@ -207,8 +211,8 @@ public class TextParser extends NewParser
     @Override
     protected void gotTypeSpec(List<LocatableToken> tokens)
     {
-        if (sawNew) {
-            sawNew = false;
+        if (state == STATE_NEW) {
+            state = STATE_NONE;
             Iterator<LocatableToken> i = tokens.iterator();
             String text = i.next().getText();
             
@@ -242,7 +246,7 @@ public class TextParser extends NewParser
     @Override
     protected void gotExprNew(LocatableToken token)
     {
-        sawNew = true;
+        state = STATE_NEW;
     }
 
 }
