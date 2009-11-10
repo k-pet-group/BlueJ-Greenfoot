@@ -183,6 +183,19 @@ public class NewParser
         endElement(token, included);
     }
     
+    /**
+     * Begin a (possibly static) initialisation block.
+     * @param first   The first token (should be either "static" or the "{")
+     * @param lcurly  The "{" token which opens the block body
+     */
+    protected void beginInitBlock(LocatableToken first, LocatableToken lcurly) { }
+    
+    /**
+     * End of a (possibly static) initialisation block
+     * @param rcurly    The last token (should be "}")
+     * @param included  True if the last token is actually a "}"
+     */
+    protected void endInitBlock(LocatableToken rcurly, boolean included) { }
 
     /** Begin the type definition body. */
     protected void beginTypeBody(LocatableToken leftCurlyToken) { }
@@ -569,22 +582,27 @@ public class NewParser
                 error("Unexpected end-of-file in type body; missing '}'");
                 return;
             }
-            if (token.getType() == JavaTokenTypes.LCURLY) {
-                // initialisation block
-                beginStmtblockBody(token);
-                parseStmtBlock();
-                token = tokenStream.nextToken();
-                if (token.getType() != JavaTokenTypes.RCURLY) {
-                    error("Expecting '}' (at end of initialisation block)");
-                    tokenStream.pushBack(token);
-                    endStmtblockBody(token, false);
-                }
-                else {
-                    endStmtblockBody(token, true);
-                    token = tokenStream.nextToken();
-                }
-                continue;
-            }
+//            if (token.getType() == JavaTokenTypes.LCURLY
+//                    || (token.getType() == JavaTokenTypes.LITERAL_static 
+//                    && tokenStream.LA(1).getType() == JavaTokenTypes.LCURLY)) {
+//                // initialisation block
+//                if (token.getType() == JavaTokenTypes.LITERAL_static) {
+//                    token = tokenStream.nextToken();
+//                }
+//                beginStmtblockBody(token);
+//                parseStmtBlock();
+//                token = tokenStream.nextToken();
+//                if (token.getType() != JavaTokenTypes.RCURLY) {
+//                    error("Expecting '}' (at end of initialisation block)");
+//                    tokenStream.pushBack(token);
+//                    endStmtblockBody(token, false);
+//                }
+//                else {
+//                    endStmtblockBody(token, true);
+//                    token = tokenStream.nextToken();
+//                }
+//                continue;
+//            }
 
             beginElement(token);
             tokenStream.pushBack(token);
@@ -609,15 +627,21 @@ public class NewParser
                 }
                 else if (token.getType() == JavaTokenTypes.LCURLY) {
                     // initialisation block
-                    beginStmtblockBody(token);
+                    LocatableToken firstToken = token;
+                    if (! modifiers.isEmpty()) {
+                        firstToken = modifiers.get(0);
+                    }
+                    beginInitBlock(firstToken, token);
                     parseStmtBlock();
                     token = tokenStream.nextToken();
                     if (token.getType() != JavaTokenTypes.RCURLY) {
                         error("Expecting '}' (at end of initialisation block)");
                         tokenStream.pushBack(token);
+                        endInitBlock(token, false);
                         endElement(token, false);
                     }
                     else {
+                        endInitBlock(token, true);
                         endElement(token, true);
                     }
                 }

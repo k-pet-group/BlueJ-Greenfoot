@@ -311,7 +311,7 @@ public class ParentParsedNode extends ParsedNode
                 NodeTree childTree = child.getNode().getContainingNodeTree();
                 childTree.setNodeSize(childTree.getNodeSize() - length);
 
-                cachedLeftIndex = -1; // DAV not always needed
+                cachedLeftIndex = -1; // TODO not always needed
                 reparseNode(document, nodePos, 0);
                 ((MoeSyntaxDocument) document).documentChanged();
                 return;
@@ -358,7 +358,7 @@ public class ParentParsedNode extends ParsedNode
             
         }
         
-        cachedLeftIndex = -1; // DAV not always needed
+        cachedLeftIndex = -1; // TODO not always needed
         reparseNode(document, nodePos, 0);
         ((MoeSyntaxDocument) document).documentChanged();
     }

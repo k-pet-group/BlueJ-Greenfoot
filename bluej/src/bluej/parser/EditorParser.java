@@ -399,6 +399,32 @@ public class EditorParser extends NewParser
         }
     }
     
+    @Override
+    protected void beginInitBlock(LocatableToken first, LocatableToken lcurly)
+    {
+        int curOffset = getTopNodeOffset();
+        ParentParsedNode blockNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_NONE);
+        blockNode.setInner(false);
+        int insPos = pcuNode.lineColToPosition(first.getLine(), first.getColumn());
+        beginNode(insPos);
+        scopeStack.peek().insertNode(blockNode, insPos - curOffset, 0);
+        scopeStack.push(blockNode);
+        curOffset = insPos;
+
+        ParentParsedNode blockInner = new ParentParsedNode(scopeStack.peek());
+        blockInner.setInner(true);
+        insPos = pcuNode.lineColToPosition(lcurly.getEndLine(), lcurly.getEndColumn());
+        beginNode(insPos);
+        scopeStack.peek().insertNode(blockInner, insPos - curOffset, 0);
+        scopeStack.push(blockInner);
+    }
+    
+    @Override
+    protected void endInitBlock(LocatableToken rcurly, boolean included)
+    {
+        endStmtblockBody(rcurly, included);
+    }
+    
     protected void beginElement(LocatableToken token)
     {
         pcuStmtBegin = token;
