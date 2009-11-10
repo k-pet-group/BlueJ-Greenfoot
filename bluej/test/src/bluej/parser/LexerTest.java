@@ -667,6 +667,16 @@ public class LexerTest extends junit.framework.TestCase
         LocatableToken token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.INVALID, token.getType());
         
+        ts = getLexerFor("]\\\n"); // right bracket, then an invalid, then new line
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.RBRACK, token.getType());
+        assertEquals(1, token.getColumn());
+        assertEquals(2, token.getEndColumn());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.INVALID, token.getType());
+        assertEquals(2, token.getColumn());
+        assertEquals(3, token.getEndColumn());
+        
         ts = getLexerFor("/* Unterminated comment\n}");
         token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.INVALID, token.getType());
