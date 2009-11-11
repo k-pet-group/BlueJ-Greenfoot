@@ -31,7 +31,7 @@ import bluej.parser.TextAnalyzer.DeclaredVar;
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 6814 2009-11-10 04:03:55Z davmac $
+ * @version $Id: TextParserTest.java 6821 2009-11-11 04:25:54Z davmac $
  */
 public class TextParserTest extends TestCase
 {
@@ -63,8 +63,24 @@ public class TextParserTest extends TestCase
     {
         ObjectBench ob = new ObjectBench();
         TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
-        String r = tp.parseCommand("(String)s");
+        String r = tp.parseCommand("(String)null");
         assertEquals("java.lang.String", r);
+    }
+    
+    public void testCasting2()
+    {
+        ObjectBench ob = new ObjectBench();
+        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        String r = tp.parseCommand("(String[])null");
+        assertEquals("java.lang.String[]", r);
+    }
+    
+    public void testCasting3()
+    {
+        ObjectBench ob = new ObjectBench();
+        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        String r = tp.parseCommand("(java.util.LinkedList<? extends javax.swing.JComponent>[])null");
+        assertEquals("java.util.LinkedList<? extends javax.swing.JComponent>[]", r);
     }
     
     public void testStaticMethodCall()
