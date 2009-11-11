@@ -159,6 +159,10 @@ public class NewParser
     /** A list of a parameters to a method or constructor */
     protected void beginArgumentList(LocatableToken token) { }
     
+    /** An individual argument has ended */
+    protected void endArgument() { }
+    
+    /** The end of the argument list has been reached. */
     protected void endArgumentList(LocatableToken token) { }
     
     /**
@@ -2023,7 +2027,7 @@ public class NewParser
                     if (token.getType() != JavaTokenTypes.LITERAL_class) {
                         break;
                     }
-                    // otherwise we continue and look for another operator
+                    // Class literal: continue and look for another operator
                     // (which should really only be '.')
                 }
                 else if (isBinaryOperator(token)) {
@@ -2158,6 +2162,7 @@ public class NewParser
             do  {
                 parseExpression();
                 token = tokenStream.nextToken();
+                endArgument();
             } while (token.getType() == JavaTokenTypes.COMMA);
             if (token.getType() != JavaTokenTypes.RPAREN) {
                 error("Expecting ',' or ')' (in argument list)");

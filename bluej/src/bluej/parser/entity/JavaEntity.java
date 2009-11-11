@@ -36,6 +36,9 @@ import bluej.parser.SemanticException;
  */
 public abstract class JavaEntity
 {
+    /**
+     * If this entity is unresolved, resolve it now as a value.
+     */
     public JavaEntity resolveAsValue()
     {
         return null;
@@ -50,7 +53,7 @@ public abstract class JavaEntity
     }
     
     /**
-     * If this entity is unresolved, resolve it now as a value.
+     * If this entity is unresolved, resolve it now as a type.
      */
     public JavaEntity resolveAsType()
     {

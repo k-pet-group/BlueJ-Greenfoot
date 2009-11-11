@@ -23,6 +23,7 @@ package bluej.parser;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
@@ -46,9 +47,12 @@ public class TextParser extends NewParser
     
     private static final int STATE_NONE = 0;
     private static final int STATE_NEW = 1;  // just saw "new"
+    private static final int STATE_NEW_ARGS = 2;  // expecting "new" arguments or array dimensions
     
     private int state = STATE_NONE;
 
+    // Arguments for a method or constructor call are added to the list at the top of this stack
+    private Stack<List<JavaEntity>> argumentStack = new Stack<List<JavaEntity>>();
     
     public TextParser(EntityResolver resolver, Reader r)
     {
@@ -101,8 +105,8 @@ public class TextParser extends NewParser
     }
     
     /**
-     *  Process an operator, take the operands from the value stack and leave the result on the
-     *  stack.
+     * Process an operator, take the operands from the value stack and leave the result on the
+     * stack.
      */
     private void processOperator(LocatableToken token)
     {
@@ -122,6 +126,14 @@ public class TextParser extends NewParser
             checkArgs(arg1, arg2, token);
         }
         // TODO
+    }
+    
+    private void processNewOperator(LocatableToken token)
+    {
+        List<JavaEntity> arguments = argumentStack.pop(); // constructor arguments
+        // TODO check argument validity
+        //JavaEntity consType = valueStack.pop();
+        // Don't pop the type off the stack: we would just have to push it back anyway
     }
     
     private void checkArgs(JavaEntity arg1, JavaEntity arg2, LocatableToken op)
@@ -166,6 +178,9 @@ public class TextParser extends NewParser
         }
     }
     
+    /**
+     * Get the precedence level for a given operator type.
+     */
     private int getPrecedence(int tokenType)
     {
         switch (tokenType) {
@@ -175,6 +190,8 @@ public class TextParser extends NewParser
         case JavaTokenTypes.STAR:
         case JavaTokenTypes.DIV:
             return 1;
+        case JavaTokenTypes.RBRACK:
+            return 100;
         default:
         }
         
@@ -212,7 +229,6 @@ public class TextParser extends NewParser
     protected void gotTypeSpec(List<LocatableToken> tokens)
     {
         if (state == STATE_NEW) {
-            state = STATE_NONE;
             Iterator<LocatableToken> i = tokens.iterator();
             String text = i.next().getText();
             
@@ -228,18 +244,52 @@ public class TextParser extends NewParser
                 }
                 text += "." + token.getText();
                 poc = poc.getPackageOrClassMember(token.getText());
-                
             }
             
             if (poc != null) {
                 JavaEntity entity = poc.resolveAsType();
                 if (entity != null) {
                     valueStack.push(new ValueEntity(entity.getType()));
+                    state = STATE_NEW_ARGS;
                     return;
                 }
             }
-            
+
+            state = STATE_NONE;
             valueStack.push(new ErrorEntity());
+        }
+    }
+    
+    @Override
+    protected void beginArgumentList(LocatableToken token)
+    {
+        if (state == STATE_NEW_ARGS) {
+            state = STATE_NONE;
+            argumentStack.push(new ArrayList<JavaEntity>());
+        }
+    }
+    
+    @Override
+    protected void endArgument()
+    {
+        processHigherPrecedence(JavaTokenTypes.COMMA);
+        if (! valueStack.isEmpty()) {
+            argumentStack.peek().add(valueStack.pop());
+        }
+    }
+    
+    @Override
+    protected void endArgumentList(LocatableToken token)
+    {
+        if (! operatorStack.isEmpty()) {
+            LocatableToken top = operatorStack.pop();
+            if (top.getType() == JavaTokenTypes.LITERAL_new) {
+                processNewOperator(top);
+            }
+            else {
+                // ??!!
+                argumentStack.pop();
+            }
         }
     }
     
@@ -247,6 +297,7 @@ public class TextParser extends NewParser
     protected void gotExprNew(LocatableToken token)
     {
         state = STATE_NEW;
+        operatorStack.push(token);
     }
 
 }
