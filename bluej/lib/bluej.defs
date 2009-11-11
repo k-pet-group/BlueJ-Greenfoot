@@ -489,12 +489,14 @@ bluej.compiler.unchecked=true
 ## working at all)
 ## -deprecation (Show description of each use of a deprecated method)
 ## -g           (Generate all debugging information)
-## -source      (set to the version of the running JDK (1.4 or 1.5))
 ## -d           (set the output directory)
+##
+## The following is also added internally, but is safe to change:
+## -source      (set by BlueJ to the version of the JDK)
 ##
 #####################################################################
 
-#bluej.compiler.options=-source 1.4
+#bluej.compiler.options=-source 1.4 -target 1.4
 
 #####################################################################
 ## Compiler options to compile classes in Java ME projects. 
