@@ -451,6 +451,7 @@ public abstract class BlueJSyntaxView extends PlainView
                                 lines.thisLineSeg, lbounds.x, charWidth);
                         int rbound = getNodeRBound(a, napEnd, fullWidth - rightMargin, nodeDepth,
                                 lines.thisLineEl, lines.thisLineSeg);
+                        drawInfo.node = nextNap.getNode();
                         Color [] colors = colorsForNode(drawInfo.node);
                         drawInfo.color1 = colors[0];
                         drawInfo.color2 = colors[1];
