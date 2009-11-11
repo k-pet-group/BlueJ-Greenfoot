@@ -45,6 +45,8 @@ public class TextParser extends NewParser
     private Stack<JavaEntity> valueStack = new Stack<JavaEntity>();
     private Stack<LocatableToken> operatorStack = new Stack<LocatableToken>();
     
+    private static final int CAST_OPERATOR = JavaTokenTypes.INVALID + 1;
+    
     private static final int STATE_NONE = 0;
     private static final int STATE_NEW = 1;  // just saw "new"
     private static final int STATE_NEW_ARGS = 2;  // expecting "new" arguments or array dimensions
@@ -124,13 +126,17 @@ public class TextParser extends NewParser
             arg2 = popValueStack();
             arg1 = popValueStack();
             checkArgs(arg1, arg2, token);
+            break;
+        case CAST_OPERATOR:
+            valueStack.pop(); // remove the value being cast, leave the cast-to type.
+            break;
         }
         // TODO
     }
     
     private void processNewOperator(LocatableToken token)
     {
-        List<JavaEntity> arguments = argumentStack.pop(); // constructor arguments
+        /* List<JavaEntity> arguments = */ argumentStack.pop(); // constructor arguments
         // TODO check argument validity
         //JavaEntity consType = valueStack.pop();
         // Don't pop the type off the stack: we would just have to push it back anyway
@@ -190,6 +196,8 @@ public class TextParser extends NewParser
         case JavaTokenTypes.STAR:
         case JavaTokenTypes.DIV:
             return 1;
+        case CAST_OPERATOR:
+            return 50;
         case JavaTokenTypes.RBRACK:
             return 100;
         default:
@@ -216,6 +224,9 @@ public class TextParser extends NewParser
         else if (token.getType() == JavaTokenTypes.NUM_DOUBLE) {
             valueStack.push(new ValueEntity(JavaPrimitiveType.getDouble()));
         }
+        else if (token.getType() == JavaTokenTypes.LITERAL_null) {
+            valueStack.push(resolver.resolveClass("java.lang.Object"));
+        }
     }
     
     @Override
@@ -229,34 +240,58 @@ public class TextParser extends NewParser
     protected void gotTypeSpec(List<LocatableToken> tokens)
     {
         if (state == STATE_NEW) {
-            Iterator<LocatableToken> i = tokens.iterator();
-            String text = i.next().getText();
+            JavaEntity entity = resolveTypeSpec(tokens);
             
-            PackageOrClass poc = resolver.resolvePackageOrClass(text);
-            while (poc != null && i.hasNext()) {
-                LocatableToken token = i.next();
-                if (token.getType() != JavaTokenTypes.DOT) {
-                    break;
-                }
-                token = i.next();
-                if (token.getType() != JavaTokenTypes.IDENT) {
-                    break;
-                }
-                text += "." + token.getText();
-                poc = poc.getPackageOrClassMember(token.getText());
+            if (entity != null) {
+                valueStack.push(new ValueEntity(entity.getType()));
+                state = STATE_NEW_ARGS;
             }
-            
-            if (poc != null) {
-                JavaEntity entity = poc.resolveAsType();
-                if (entity != null) {
-                    valueStack.push(new ValueEntity(entity.getType()));
-                    state = STATE_NEW_ARGS;
-                    return;
-                }
+            else {
+                state = STATE_NONE;
+                valueStack.push(new ErrorEntity());
             }
-
-            state = STATE_NONE;
-            valueStack.push(new ErrorEntity());
+        }
+    }
+    
+    @Override
+    protected void gotTypeCast(List<LocatableToken> tokens)
+    {
+        JavaEntity entity = resolveTypeSpec(tokens);
+        
+        if (entity != null) {
+            valueStack.push(entity);
+            operatorStack.push(new LocatableToken(CAST_OPERATOR, null));
+        }
+    }
+    
+    /**
+     * Resolve a type specification. Returns null if the type couldn't be resolved.
+     * TODO handle generics, arrays.
+     */
+    private JavaEntity resolveTypeSpec(List<LocatableToken> tokens)
+    {
+        Iterator<LocatableToken> i = tokens.iterator();
+        String text = i.next().getText();
+        
+        PackageOrClass poc = resolver.resolvePackageOrClass(text);
+        while (poc != null && i.hasNext()) {
+            LocatableToken token = i.next();
+            if (token.getType() != JavaTokenTypes.DOT) {
+                break;
+            }
+            token = i.next();
+            if (token.getType() != JavaTokenTypes.IDENT) {
+                break;
+            }
+            text += "." + token.getText();
+            poc = poc.getPackageOrClassMember(token.getText());
+        }
+        
+        if (poc != null) {
+            return poc.resolveAsType();
+        }
+        else {
+            return null;
         }
     }
     

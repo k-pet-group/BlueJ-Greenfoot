@@ -212,11 +212,15 @@ public class NewParser
         endElement(token, included);
     }
 
-    /**
-     * We've seen a type specification or something that looks a lot like one.
-     */
+    /** We've seen a type specification or something that looks a lot like one. */
     protected void gotTypeSpec(List<LocatableToken> tokens) { }
 
+    /** Seen a type cast operator. The tokens list contains the type to which is cast. */
+    protected void gotTypeCast(List<LocatableToken> tokens)
+    {
+        gotTypeSpec(tokens);
+    }
+    
     protected void beginExpression(LocatableToken token) { }
     
     /** Saw a literal as part of an expression */
@@ -1961,7 +1965,7 @@ public class NewParser
 
                 if (isCast) {
                     // This surely must be type cast
-                    gotTypeSpec(tlist);
+                    gotTypeCast(tlist);
                     token = tokenStream.nextToken(); // RPAREN
                     token = tokenStream.nextToken();
                     continue;
