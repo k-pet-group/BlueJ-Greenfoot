@@ -215,6 +215,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
      */
     public void actionPerformed(ActionEvent e) 
     {
+
         JComponent src = (JComponent) e.getSource();
         if(src.getName() == CLOSE_BUTTON_NAME){
             editor.removeHighlighting();
@@ -225,7 +226,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         if (src.getName()==NEXT__BUTTON_NAME){  
             if (getSearchString().equals(findTField.getText())){
                 editor.moveCaretPosition(editor.getFoundCaretPositon());
-                editor.setCaretPositionForward(findTField.getText().length()+1);
+                editor.setCaretPositionForward(findTField.getText().length());
             }
             find(true);  
         }
@@ -405,17 +406,17 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     {
         resetCounter();
         searchForward(ignoreCase, wholeWord, wrap, next);
-        editor.setCaretBack(searchString.length()+1);
+        editor.setCaretBack(getSearchString().length()+1);
 
         if(getCounter() > 0)
             editor.writeMessage(Config.getString("editor.highlight.replaced") +
                     getCounter() + Config.getString("editor.replaceAll.intancesOf") + 
-                    searchString);
+                    getSearchString());
         else{
             //only write msg if there was a search string
-            if (getSearchString().length()>0) {               
+            if (getCounter()<1 && getSearchString().length()>0) {               
             editor.writeMessage(Config.getString("editor.replaceAll.string") + 
-                    searchString + Config.getString("editor.highlight.notFoundNothingReplaced"));
+                    getSearchString() + Config.getString("editor.highlight.notFoundNothingReplaced"));
 
             }
             }
@@ -430,9 +431,14 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         
         boolean found =false;
         if (next)
-            found=editor.doFindSelect(searchString, ignoreCase, wholeWord, wrap, select);
+           found=editor.doFindSelect(searchString, ignoreCase, wholeWord, wrap, select);
         else 
             found=editor.doFindBackwardSelect(searchString, ignoreCase, wholeWord, wrap);
+        //one last attempt from the beginning of the document
+        if (!found){
+            editor.moveCaretPosition(0);
+            found=editor.doFindSelect(searchString, ignoreCase, wholeWord, wrap, select);
+        }
         return found;
     }
 
@@ -473,7 +479,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         this.counter = counter;
     }
 
-    private void resetCounter() {
+    public void resetCounter() {
         this.counter = 0;
     }
 
