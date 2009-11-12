@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -382,13 +382,9 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
 
     /**
      *  HighlightAll instances of the search String with a replacement.
-     * -check for valid search criteria
-     * - TODO: get initial cursor pos
-     * -start at beginning
-     * -do initial find
-     * -replace until not found, no wrapping!
-     * -print out number of highlights (?)
-     * -TODO: return cursor/caret to original place
+     * -reset number of finds to 0
+     * -search forward or backward depending on choice
+     * -print out number of highlights 
      */
     private void highlightAll(boolean ignoreCase, boolean wholeWord, boolean wrap, boolean next)
     {
@@ -403,11 +399,11 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         else{
             //only write msg if there was a search string
             if (getCounter()<1 && getSearchString().length()>0) {               
-            editor.writeMessage(Config.getString("editor.replaceAll.string") + 
-                    getSearchString() + Config.getString("editor.highlight.notFoundNothingReplaced"));
+                editor.writeMessage(Config.getString("editor.replaceAll.string") + 
+                        getSearchString() + Config.getString("editor.highlight.notFoundNothingReplaced"));
 
             }
-            }
+        }
         resetCounter();
     }
 
@@ -416,10 +412,10 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         String searchString = getSearchString();  
         if (searchString.length()==0)
             return true;
-        
+
         boolean found =false;
         if (next)
-           found=editor.doFindSelect(searchString, ignoreCase, wholeWord, wrap, select);
+            found=editor.doFindSelect(searchString, ignoreCase, wholeWord, wrap, select);
         else 
             found=editor.doFindBackwardSelect(searchString, ignoreCase, wholeWord, wrap);
         //one last attempt from the beginning of the document
@@ -434,14 +430,6 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
 
         boolean select=true;
         search(ignoreCase, wholeWord, wrap, select, next) ;
-    }
-    /**
-     * Replace the text currently selected in the editor with
-     */
-    private String smartFormat(String original, String replacement)
-    {
-        return replacement;
-
     }
 
     /**
@@ -463,14 +451,9 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         return counter;
     }
 
-    private void setCounter(int counter) {
-        this.counter = counter;
-    }
-
     public void resetCounter() {
         this.counter = 0;
     }
-
 
     public void incCounter(int count) {
         counter = counter+count;
