@@ -22,30 +22,29 @@
 package bluej.debugger.gentype;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
-import bluej.debugger.gentype.GenTypeClass;
-import bluej.debugger.gentype.Reflective;
+import java.util.Map;
 
 /**
  * A version of Reflective which can be easily customised to suit the needs
  * of a test.
  * 
  * @author Davin McCall
- * @version $Id: TestReflective.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: TestReflective.java 6826 2009-11-12 03:34:50Z davmac $
  */
 public class TestReflective extends Reflective
 {
     public String name;
-    public List typeParams;
-    public List superTypes; // list of GenTypeClass
+    public List<GenTypeDeclTpar> typeParams;
+    public List<GenTypeClass> superTypes; // list of GenTypeClass
     
     public TestReflective(String name)
     {
         this.name = name;
-        typeParams = new ArrayList();
-        superTypes = new ArrayList();
+        typeParams = new ArrayList<GenTypeDeclTpar>();
+        superTypes = new ArrayList<GenTypeClass>();
     }
     
     public String getName()
@@ -68,22 +67,22 @@ public class TestReflective extends Reflective
         return null;
     }
     
-    public List getTypeParams()
+    public List<GenTypeDeclTpar> getTypeParams()
     {
         return typeParams;
     }
     
-    public List getSuperTypesR()
+    public List<Reflective> getSuperTypesR()
     {
-        List n = new ArrayList();
-        Iterator i = superTypes.iterator();
+        List<Reflective> n = new ArrayList<Reflective>();
+        Iterator<GenTypeClass> i = superTypes.iterator();
         while (i.hasNext()) {
-            n.add(((GenTypeClass)i.next()).getReflective());
+            n.add(i.next().getReflective());
         }
         return n;
     }
     
-    public List getSuperTypes()
+    public List<GenTypeClass> getSuperTypes()
     {
         return superTypes;
     }
@@ -96,5 +95,23 @@ public class TestReflective extends Reflective
     public boolean isAssignableFrom(Reflective r)
     {
         return false;
+    }
+    
+    @Override
+    public Map<String, JavaType> getDeclaredFields()
+    {
+        return Collections.emptyMap();
+    }
+    
+    @Override
+    public Map<String, MethodReflective> getDeclaredMethods()
+    {
+        return Collections.emptyMap();
+    }
+    
+    @Override
+    public List<GenTypeClass> getInners()
+    {
+        return Collections.emptyList();
     }
 }
