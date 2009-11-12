@@ -55,7 +55,7 @@ import bluej.views.ViewFilter;
  * class types
  * 
  * @author Bruce Quig
- * @version $Id: ClassRole.java 6593 2009-09-02 11:56:05Z davmac $
+ * @version $Id: ClassRole.java 6823 2009-11-12 00:30:24Z davmac $
  */
 public abstract class ClassRole
 {
@@ -227,7 +227,7 @@ public abstract class ClassRole
      * @param cl
      *            Class object associated with this class target
      */
-    public boolean createClassConstructorMenu(JPopupMenu menu, ClassTarget ct, Class cl)
+    public boolean createClassConstructorMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl)
     {
         ViewFilter filter;
         View view = View.getView(cl);
@@ -243,7 +243,7 @@ public abstract class ClassRole
         return false;
     }
 
-    public boolean createClassStaticMenu(JPopupMenu menu, ClassTarget ct, Class cl)
+    public boolean createClassStaticMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl)
     {
         ViewFilter filter;
         View view = View.getView(cl);
@@ -303,10 +303,10 @@ public abstract class ClassRole
      * @param ct  The class target
      * @return  A list of File objects
      */
-    public List getAllFiles(ClassTarget ct)
+    public List<File> getAllFiles(ClassTarget ct)
     {
         // Source, .class, .ctxt, and doc (.html)
-        List rlist = new ArrayList();
+        List<File> rlist = new ArrayList<File>();
         
         rlist.add(ct.getClassFile());
         rlist.add(ct.getSourceFile());

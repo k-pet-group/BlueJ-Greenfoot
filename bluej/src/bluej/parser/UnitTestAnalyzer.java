@@ -46,60 +46,6 @@ public class UnitTestAnalyzer
     }
 
     /**
-     * Find the AST of the only class declared in this file that is
-     * public. This class will be the unit test class.
-     */
-//    private LocatableAST findUnitTestClass()
-//    {
-//        // loop through the classes defined in the src file
-//        LocatableAST firstClass = (LocatableAST) rootAST.getFirstChild();
-//
-//        while (firstClass != null) {
-//            LocatableAST leftCurly = (LocatableAST) firstClass.getFirstChild();
-//            if(leftCurly != null) {
-//                LocatableAST rightCurly = (LocatableAST) leftCurly.getNextSibling();
-//                if (rightCurly != null) {
-//                    LocatableAST modifiers = (LocatableAST) rightCurly.getNextSibling();
-//
-//                    LocatableAST modifierTokens = (LocatableAST) modifiers.getFirstChild();
-//                    while(modifierTokens != null) {
-//                        if (modifierTokens.getText().equals("public")) {
-//                            return firstClass;
-//                        }
-//                    }
-//                }
-//            }
-//
-//            firstClass = (LocatableAST) firstClass.getNextSibling();
-//        }
-//        return null;
-//    }
-//
-//    private LocatableAST findUnitTestOpeningBracket()
-//    {
-//        return (LocatableAST) unitTestAST.getFirstChild();
-//    }
-//    
-//    private LocatableAST findUnitTestClosingBracket()
-//    {
-//        return (LocatableAST) unitTestAST.getFirstChild().getNextSibling();
-//        
-//    }
-//
-//    private LocatableAST findUnitTestObjectBlock()
-//    {
-//        LocatableAST childAST = (LocatableAST) unitTestAST.getFirstChild().getNextSibling().getNextSibling();
-//
-//        while(childAST != null) {
-//            if(childAST.getType() == UnitTestParserTokenTypes.OBJBLOCK) {
-//                return childAST;
-//            }
-//            childAST = (LocatableAST) childAST.getNextSibling();            
-//        }
-//        return null;
-//    }
-
-    /**
      * Extract from the unit testing source the list of source spans
      * for the fields declared in the unit test class.
      * 
@@ -117,50 +63,6 @@ public class UnitTestAnalyzer
      *
      * The list will be ordered in the order that the fields appear in the src.
      */
-//    public List getFieldSpans()
-//    {
-//        // we are creating a list of AST nodes
-//        LinkedList l = new LinkedList();
-//
-//        // the first AST in this OBJBLOCK
-//        LocatableAST childAST = (LocatableAST) (findUnitTestObjectBlock()).getFirstChild();
-//
-//        // the children in an object block are a list of variable definitions
-//        // and method definitions
-//        while(childAST != null) {
-//            // we are only interested in variable definitions (fields)
-//            if(childAST.getType() == UnitTestParserTokenTypes.VARIABLE_DEF) {
-//                // potentially VARIABLE_DEF could look like this
-//                // we need to find the first type token (in this case
-//                // "java") and the semicolon
-//                
-//                // ( VARIABLE_DEF ( . ( . java lang ) String ) ; )
-//
-//                // find the complete span of nodes for this variable definition
-//                LocatableAST startSibling = null, endSibling = null;
-//                
-//                startSibling = (LocatableAST) childAST.getFirstChild();
-//                if(startSibling != null) {
-//                    // the semicolon is always the sibling of the first child found
-//                    endSibling = (LocatableAST) startSibling.getNextSibling();
-//                    
-//                    // however, we need to keep going down with startSibling to find
-//                    // the left most token
-//                    while (startSibling.getFirstChild() != null)
-//                        startSibling = (LocatableAST) startSibling.getFirstChild();
-//                }
-//                                    
-//                if (startSibling != null && endSibling != null) {                    
-//                    l.add(new SourceSpan(new SourceLocation(startSibling.getLine(),
-//                                                            startSibling.getColumn()),
-//                                         new SourceLocation(endSibling.getLine(),
-//                                                            endSibling.getColumn())));
-//                }
-//            }               
-//            childAST = (LocatableAST) childAST.getNextSibling();            
-//        }            
-//        return l;
-//    }
     public List<SourceSpan> getFieldSpans()
     {
         return utp.getFieldSpans();
@@ -170,7 +72,7 @@ public class UnitTestAnalyzer
      * Extract from the unit testing source
      * the opening and closing bracket locations for the method 'methodName'.
      * We select only methods that do not have any parameters (all unit test
-     * methods take no arguements).
+     * methods take no arguments).
      * ie
      *
      * class FooBar {

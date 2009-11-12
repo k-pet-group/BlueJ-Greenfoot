@@ -63,7 +63,7 @@ import bluej.utility.JavaNames;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 6592 2009-09-02 11:55:51Z davmac $
+ * @version $Id: UnitTestClassRole.java 6823 2009-11-12 00:30:24Z davmac $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -154,7 +154,7 @@ public class UnitTestClassRole extends ClassRole
      * @param menu the popup menu to add the class menu items to
      * @param cl Class object associated with this class target
      */
-    public boolean createClassConstructorMenu(JPopupMenu menu, ClassTarget ct, Class cl)
+    public boolean createClassConstructorMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl)
     {
         boolean hasEntries = false;
 
@@ -198,7 +198,7 @@ public class UnitTestClassRole extends ClassRole
      * @param menu the popup menu to add the class menu items to
      * @param cl Class object associated with this class target
      */
-    public boolean createClassStaticMenu(JPopupMenu menu, ClassTarget ct, Class cl)
+    public boolean createClassStaticMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl)
     {
         boolean enable = !ct.getPackage().getProject().inTestMode() && ct.hasSourceCode() && ! ct.isAbstract();
             
@@ -427,7 +427,7 @@ public class UnitTestClassRole extends ClassRole
             if (existingSpan != null) {
                 // replace this method (don't replace the method header!)
                 ed.setSelection(existingSpan.getStartLine(), existingSpan.getStartColumn(),
-                                  existingSpan.getEndLine(), existingSpan.getEndColumn() + 1);
+                                  existingSpan.getEndLine(), existingSpan.getEndColumn());
                 ed.insertText("{\n" + pmf.getObjectBench().getTestMethod() + "\t}", false);
             }
             else {
@@ -476,7 +476,7 @@ public class UnitTestClassRole extends ClassRole
                 SourceSpan variableSpan = (SourceSpan) it.next();
                     
                 ed.setSelection(variableSpan.getStartLine(), variableSpan.getStartColumn(),
-                                 variableSpan.getEndLine(), variableSpan.getEndColumn() + 1);
+                                 variableSpan.getEndLine(), variableSpan.getEndColumn());
                 existing.addFieldDeclaration(ed.getSelectedText());
             }
 
@@ -485,7 +485,7 @@ public class UnitTestClassRole extends ClassRole
 
             if (setUpSpan != null) {
                 ed.setSelection(setUpSpan.getStartLine(), setUpSpan.getStartColumn(),
-                                setUpSpan.getEndLine(), setUpSpan.getEndColumn() + 1);
+                                setUpSpan.getEndLine(), setUpSpan.getEndColumn());
                 String setUpWithBrackets = ed.getSelectedText();
                 // copy everything between the opening { and the final }
                 String setUpWithoutBrackets = 
@@ -538,7 +538,7 @@ public class UnitTestClassRole extends ClassRole
                     SourceSpan variableSpan = (SourceSpan) it.previous();
                     
                     ed.setSelection(variableSpan.getStartLine(), variableSpan.getStartColumn(),
-                                     variableSpan.getEndLine(), variableSpan.getEndColumn() + 1);
+                                     variableSpan.getEndLine(), variableSpan.getEndColumn());
                     ed.insertText("", false);
                 }
                 
@@ -562,7 +562,7 @@ public class UnitTestClassRole extends ClassRole
             // rewrite the setUp() method of the unit test (if it exists)
             if (setupSpan != null) {
                 ed.setSelection(setupSpan.getStartLine(), setupSpan.getStartColumn(),
-                                 setupSpan.getEndLine(), setupSpan.getEndColumn() + 1);
+                                 setupSpan.getEndLine(), setupSpan.getEndColumn());
             } else {
                 // otherwise, we will be inserting a brand new setUp() method
                 ed.setSelection(fixtureInsertLocation.getLine(),

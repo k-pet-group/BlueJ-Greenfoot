@@ -145,7 +145,7 @@ public class UnitTestParser extends NewParser
     {
         if (elementLevel == 2 && methodBegin != null) {
             SourceLocation start = new SourceLocation(methodBegin.getLine(), methodBegin.getColumn());
-            SourceLocation end = new SourceLocation(token.getLine(), token.getColumn());
+            SourceLocation end = new SourceLocation(token.getEndLine(), token.getEndColumn());
             SourceSpan ss = new SourceSpan(start, end);
             methodSpans.put(methodName, ss);
         }
