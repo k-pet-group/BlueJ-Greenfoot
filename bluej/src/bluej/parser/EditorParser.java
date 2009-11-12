@@ -586,4 +586,31 @@ public class EditorParser extends NewParser
     {
         endTopNode(token, included);
     }
+    
+    @Override
+    protected void beginAnonClassBody(LocatableToken token)
+    {
+        ParsedTypeNode pnode = new ParsedTypeNode(scopeStack.peek(), null); // TODO generate Abc$1 ?
+        int curOffset = getTopNodeOffset();
+        LocatableToken begin = lastTypeSpec.get(0);
+        int insPos = pcuNode.lineColToPosition(begin.getLine(), begin.getColumn());
+        beginNode(insPos);
+        scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
+        scopeStack.push(pnode);
+        
+        TypeInnerNode bodyNode = new TypeInnerNode(scopeStack.peek());
+        bodyNode.setInner(true);
+        curOffset = getTopNodeOffset();
+        insPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
+        beginNode(insPos);
+        pnode.insertInner(bodyNode, insPos - curOffset, 0);
+        scopeStack.push(bodyNode);
+    }
+    
+    @Override
+    protected void endAnonClassBody(LocatableToken token, boolean included)
+    {
+        endTopNode(token, included);  // inner node
+        endTopNode(token, included);  // outer node
+    }
 }

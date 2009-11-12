@@ -18,7 +18,7 @@ public class NewParserTest extends TestCase
         );
         InfoParser ip = new InfoParser(sr);
         List ll = new LinkedList();
-        assertTrue(ip.parseTypeSpec(false, ll));
+        assertTrue(ip.parseTypeSpec(false, true, ll));
         // 6 tokens: LinkedList, '<', String, '[', ']', '>'
         assertEquals(6, ll.size());
     }
@@ -33,7 +33,7 @@ public class NewParserTest extends TestCase
         );
         InfoParser ip = new InfoParser(sr);
         List ll = new LinkedList();
-        assertTrue(ip.parseTypeSpec(false, ll));
+        assertTrue(ip.parseTypeSpec(false, true, ll));
         // 8 tokens: LinkedList, '<', List, '<', String, '[', ']', '>>'
         assertEquals(8, ll.size());
     }
