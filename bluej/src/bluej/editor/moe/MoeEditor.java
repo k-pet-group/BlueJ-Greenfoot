@@ -26,7 +26,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.FocusTraversalPolicy;
 import java.awt.Font;
@@ -37,8 +36,6 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.print.PageFormat;
@@ -84,8 +81,6 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.html.HTMLDocument;
@@ -122,8 +117,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     // -------- CONSTANTS --------
 
     // version number
-    final static int version = 252;
-    final static String versionString = "2.5.2";
+    final static int version = 300;
+    final static String versionString = "3.0.0";
 
     // colours
     final static Color cursorColor = new Color(255, 0, 100);                 // cursor
