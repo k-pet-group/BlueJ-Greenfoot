@@ -19,36 +19,33 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.parser;
+package bluej.parser.nodes;
 
-import bluej.parser.nodes.ParentParsedNode;
-import bluej.parser.nodes.ParsedNode;
+import java.util.List;
+
+import bluej.parser.ast.LocatableToken;
 
 /**
- * A node representing a parsed method or constructor.
+ * A node representing a parsed field.
  * 
  * @author Davin McCall
  */
-public class MethodNode extends ParentParsedNode
+public class FieldNode extends ParentParsedNode
 {
     private String name;
+    private List<LocatableToken> typeTokens;
     
-    public MethodNode(ParsedNode parent, String name)
+    public FieldNode(ParsedNode parent, String name, List<LocatableToken> typeTokens)
     {
         super(parent);
         this.name = name;
-    }
-    
-    @Override
-    public boolean isContainer()
-    {
-        return true;
+        this.typeTokens = typeTokens;
     }
     
     @Override
     public int getNodeType()
     {
-        return ParsedNode.NODETYPE_METHODDEF;
+        return ParsedNode.NODETYPE_FIELD;
     }
     
     @Override
@@ -56,4 +53,5 @@ public class MethodNode extends ParentParsedNode
     {
         return name;
     }
+
 }

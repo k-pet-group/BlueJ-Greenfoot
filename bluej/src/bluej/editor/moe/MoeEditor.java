@@ -249,6 +249,14 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     // --------------------------------------------------------------------
 
     /**
+     * Get the source document that this editor is editing.
+     */
+    public MoeSyntaxDocument getSourceDocument()
+    {
+        return sourceDocument;
+    }
+    
+    /**
      * Update the state of controls bound to "undo".
      */
     public void updateUndoControls()

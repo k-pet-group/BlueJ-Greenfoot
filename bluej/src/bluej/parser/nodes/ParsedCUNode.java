@@ -22,12 +22,16 @@
 package bluej.parser.nodes;
 
 import java.io.Reader;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.swing.text.Document;
 
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.DocumentReader;
 import bluej.parser.EditorParser;
+import bluej.parser.entity.ClassEntity;
+import bluej.parser.entity.ParsedClassEntity;
 
 
 /**
@@ -76,5 +80,18 @@ public class ParsedCUNode extends ParentParsedNode
         parser.parseCU(this);
 	    
         ((MoeSyntaxDocument) document).documentChanged();
+    }
+    
+    @Override
+    public ClassEntity getExpressionType(int pos)
+    {
+        // TODO this is only a first cut, it just takes the first class in the compilation
+        // unit and returns that.
+        Map<String,ParsedNode> classNodes = getClassNodes();
+        Iterator<String> i = classNodes.keySet().iterator();
+        if (i.hasNext()) {
+            return new ParsedClassEntity((ParsedTypeNode) classNodes.get(i.next()));
+        }
+        return null;
     }
 }

@@ -131,45 +131,14 @@ public class TextAnalyzer
         
         EntityResolver resolver = new EntityResolver()
         {
-            public ClassEntity resolveClass(String name)
+            public ClassEntity resolveQualifiedClass(String name)
             {
-                while (true) {
-                    String pkgScopePrefix = packageScope;
-                    if (packageScope.length() > 0) {
-                        pkgScopePrefix += ".";
-                    }
-
-                    if (packageScope != null && packageScope.length() > 0) {
-                        // Might be a class in the current package
-                        try {
-                            Class<?> cl = classLoader.loadClass(pkgScopePrefix + name);
-                            return new TypeEntity(cl);
-                        }
-                        catch (Exception e) {}
-                    }
-                    
-                    // Try in java.lang
-                    try {
-                        Class<?> cl = classLoader.loadClass("java.lang." + name);
-                        return new TypeEntity(cl);
-                    }
-                    catch (Exception e) {}
-
-                    int dotIndex = name.lastIndexOf('.');
-                    if (dotIndex != -1) {
-                        try {
-                            // Try as a fully-qualified name 
-                            Class<?> cl = classLoader.loadClass(name);
-                            return new TypeEntity(cl);
-                        }
-                        catch (Exception e) {}
-                        // Next we'll try it as an inner class
-                        name = name.substring(0, dotIndex) + "$" + name.substring(dotIndex+1);
-                    }
-                    else {
-                        break;
-                    }
+                try {
+                    // Try as a fully-qualified name 
+                    Class<?> cl = classLoader.loadClass(name);
+                    return new TypeEntity(cl);
                 }
+                catch (Exception e) {}
                 
                 return null;
             }

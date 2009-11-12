@@ -19,28 +19,39 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.parser.entity;
+package bluej.parser.nodes;
 
-import bluej.debugger.gentype.JavaType;
-import bluej.parser.SemanticException;
 
-public class ErrorEntity extends JavaEntity
+/**
+ * A node representing a parsed method or constructor.
+ * 
+ * @author Davin McCall
+ */
+public class MethodNode extends ParentParsedNode
 {
+    private String name;
+    
+    public MethodNode(ParsedNode parent, String name)
+    {
+        super(parent);
+        this.name = name;
+    }
+    
+    @Override
+    public boolean isContainer()
+    {
+        return true;
+    }
+    
+    @Override
+    public int getNodeType()
+    {
+        return ParsedNode.NODETYPE_METHODDEF;
+    }
+    
     @Override
     public String getName()
     {
-        return "** error **";
-    }
-    
-    @Override
-    public JavaEntity getSubentity(String name) throws SemanticException
-    {
-        return this;
-    }
-    
-    @Override
-    public JavaType getType()
-    {
-        return null;
+        return name;
     }
 }

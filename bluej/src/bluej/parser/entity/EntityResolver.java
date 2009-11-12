@@ -28,13 +28,16 @@ public interface EntityResolver
     /**
      * Resolve a package or class. If a class with the given name exists in the resolver's scope,
      * it is returned; otherwise a package is returned.
+     * 
+     * @param name  The package or class name. This must be an unqualified name.
      */
     public PackageOrClass resolvePackageOrClass(String name);
     
     /**
-     * Resolve a class, from its (possibly qualified) name.
+     * Resolve a class from its fully-qualified name. The supplied name should
+     * be the same as would be returned by Class.getName() for the required type.
      */
-    public ClassEntity resolveClass(String name);
+    public ClassEntity resolveQualifiedClass(String name);
     
     /**
      * Resolve a value. If a local variable or field with the given name exists in the resolver's

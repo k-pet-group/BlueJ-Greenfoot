@@ -76,7 +76,5 @@ public abstract class JavaEntity
      */
     public abstract JavaEntity getSubentity(String name) throws SemanticException;
     
-    public abstract boolean isClass();
-    
     public abstract String getName();
 }

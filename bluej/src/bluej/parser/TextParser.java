@@ -225,7 +225,7 @@ public class TextParser extends NewParser
             valueStack.push(new ValueEntity(JavaPrimitiveType.getDouble()));
         }
         else if (token.getType() == JavaTokenTypes.LITERAL_null) {
-            valueStack.push(resolver.resolveClass("java.lang.Object"));
+            valueStack.push(resolver.resolveQualifiedClass("java.lang.Object"));
         }
     }
     

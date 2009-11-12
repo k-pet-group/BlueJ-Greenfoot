@@ -21,26 +21,47 @@
  */
 package bluej.parser.entity;
 
-import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.parser.SemanticException;
+import bluej.parser.nodes.ParsedTypeNode;
 
-public class ErrorEntity extends JavaEntity
+/**
+ * A class entity representing a parsed (not necessarily compiled) class.
+ * 
+ * @author Davin McCall
+ */
+public class ParsedClassEntity extends ClassEntity
 {
+    private ParsedTypeNode pnode;
+    
+    public ParsedClassEntity(ParsedTypeNode pnode)
+    {
+        this.pnode = pnode;
+    }
+    
+    @Override
+    public GenTypeClass getClassType()
+    {
+        return new GenTypeClass(new ParsedReflective(pnode));
+    }
+
+    @Override
+    public PackageOrClass getPackageOrClassMember(String name)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     @Override
     public String getName()
     {
-        return "** error **";
+        return pnode.getName(); // Hmmm. should probably be fully qualified.
     }
-    
+
     @Override
     public JavaEntity getSubentity(String name) throws SemanticException
     {
-        return this;
-    }
-    
-    @Override
-    public JavaType getType()
-    {
+        // TODO Auto-generated method stub
         return null;
     }
 }

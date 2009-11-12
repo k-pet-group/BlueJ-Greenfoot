@@ -45,6 +45,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.swing.Action;
 import javax.swing.InputMap;
@@ -66,6 +67,8 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import bluej.Config;
+import bluej.debugger.gentype.JavaType;
+import bluej.parser.entity.ClassEntity;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
@@ -958,6 +961,22 @@ public final class MoeActions
             //need to pop up a list selection available
 
             //get the selected one (defaulted to the first one) and display the details
+            
+            // Testing: put stuff to console
+            System.out.println("Suggestions:");
+            MoeEditor editor=getEditor(e);
+            MoeSyntaxDocument document = editor.getSourceDocument();
+            
+            ClassEntity exprType = document.getParser().getExpressionType(editor.getCaretPosition());
+            if (exprType != null) {
+                Map<String,JavaType> fields = exprType.getClassType().getReflective().getDeclaredFields();
+                for (Iterator<String> i = fields.keySet().iterator(); i.hasNext(); ) {
+                    System.out.println(" field: " + i.next());
+                }
+            }
+            else {
+                System.out.println("No suggestions (not in expression).");
+            }
         }
     }
 

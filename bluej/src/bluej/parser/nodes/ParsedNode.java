@@ -21,14 +21,21 @@
  */
 package bluej.parser.nodes;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.text.Document;
 
 import bluej.editor.moe.Token;
+import bluej.parser.SemanticException;
+import bluej.parser.entity.ClassEntity;
+import bluej.parser.entity.EntityResolver;
+import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.PackageOrClass;
+import bluej.parser.entity.ParsedClassEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
-public abstract class ParsedNode
+public abstract class ParsedNode implements EntityResolver
 {
     public static final int NODETYPE_NONE = 0;
     public static final int NODETYPE_TYPEDEF = 1;
@@ -36,12 +43,16 @@ public abstract class ParsedNode
     public static final int NODETYPE_ITERATION = 3; // for, while, etc
     public static final int NODETYPE_SELECTION = 4; // if/then, try/catch
     
+    public static final int NODETYPE_FIELD = 5;  // field declaration
+    
     /** The NodeTree containing the child nodes of this node */
     private NodeTree nodeTree;
     /** The NodeTree node (belonging to the parent parse node) which contains this node */
     private NodeTree containingNodeTree;
     /** The parent ParsedNode which contains us */
     private ParsedNode parentNode;
+    
+    private Map<String,ParsedNode> classNodes = new HashMap<String,ParsedNode>();
     
     private boolean isInner = false;
 	
@@ -88,6 +99,9 @@ public abstract class ParsedNode
     public void insertNode(ParsedNode child, int position, int size)
     {
         getNodeTree().insertNode(child, position, size);
+        if (child.getNodeType() == NODETYPE_TYPEDEF && child.getName() != null) {
+            classNodes.put(child.getName(), child);
+        }
     }
     
     public final NodeAndPosition findNodeAtOrAfter(int position, int startpos)
@@ -129,7 +143,11 @@ public abstract class ParsedNode
     {
         containingNodeTree = cnode;
     }
-	
+    
+    /**
+     * Is this a "container" scope for highlighting purposes
+     * @return
+     */
     public boolean isContainer()
     {
         return false;
@@ -156,16 +174,6 @@ public abstract class ParsedNode
         return 0;
     }
 	
-    public void getNodeStack(List<NodeAndPosition> list, int pos, int nodepos)
-    {
-        list.add(new NodeAndPosition(this, nodepos, getSize()));
-        NodeAndPosition subNode = getNodeTree().findNode(pos, nodepos);
-        while (subNode != null) {
-            list.add(subNode);
-            subNode = subNode.getNode().getNodeTree().findNode(pos, subNode.getPosition());
-        }
-    }
-
     public int getSize()
     {
         return getContainingNodeTree().getNodeSize();
@@ -214,4 +222,50 @@ public abstract class ParsedNode
      * This node should be re-parsed from the specified point.
      */
     protected void reparseNode(Document document, int nodePos, int offset) {}
+    
+    /**
+     * Get the expression type at a given point. Returns null if there is no
+     * determinable expression type.
+     */
+    public ClassEntity getExpressionType(int pos)
+    {
+        NodeAndPosition child = getNodeTree().findNode(pos);
+        if (child != null) {
+            return child.getNode().getExpressionType(pos - child.getPosition());
+        }
+        return null;
+    }
+    
+    protected Map<String,ParsedNode> getClassNodes()
+    {
+        return classNodes;
+    }
+    
+    // =================== EntityResolver interface ====================
+    
+    public ClassEntity resolveQualifiedClass(String name)
+    {
+        if (parentNode != null) {
+            return parentNode.resolveQualifiedClass(name);
+        }
+        return null;
+    }
+    
+    public PackageOrClass resolvePackageOrClass(String name)
+    {
+        ParsedNode cnode = classNodes.get(name);
+        if (cnode != null) {
+            return new ParsedClassEntity((ParsedTypeNode) cnode);
+        }
+        if (parentNode != null) {
+            return parentNode.resolvePackageOrClass(name);
+        }
+        return null;
+    }
+    
+    public JavaEntity resolveValueEntity(String name) throws SemanticException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

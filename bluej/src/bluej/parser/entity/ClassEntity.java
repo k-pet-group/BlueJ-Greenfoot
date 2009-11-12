@@ -21,11 +21,8 @@
  */
 package bluej.parser.entity;
 
-import java.util.List;
-
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.JavaType;
-import bluej.parser.SemanticException;
 
 
 /**
@@ -36,7 +33,10 @@ import bluej.parser.SemanticException;
 public abstract class ClassEntity extends PackageOrClass
 {
     // getType won't throw SemanticException
-    public abstract JavaType getType();
+    public JavaType getType()
+    {
+        return getClassType();
+    }
     
     @Override
     public final JavaEntity resolveAsType()
@@ -50,6 +50,9 @@ public abstract class ClassEntity extends PackageOrClass
         return this;
     }
     
+    /**
+     * Get the type represented by this entity as a GenTypeClass.
+     */
     public abstract GenTypeClass getClassType();
     
     /**
@@ -60,7 +63,7 @@ public abstract class ClassEntity extends PackageOrClass
      * @param tparams   A list of GenTypeParameterizable type parameters
      * @throws SemanticException
      */
-    public abstract ClassEntity setTypeParams(List tparams) throws SemanticException;
+    //public abstract ClassEntity setTypeParams(List tparams) throws SemanticException;
     
     /**
      * Get the accessible static member class with the given name, declared in the
@@ -71,7 +74,7 @@ public abstract class ClassEntity extends PackageOrClass
      * @throws SemanticException   if the specified class does not exist or is not
      *                             accessible
      */
-    public abstract ClassEntity getStaticMemberClass(String name) throws SemanticException;
+    //public abstract ClassEntity getStaticMemberClass(String name) throws SemanticException;
     
     /**
      * Get the accessible static field with the given name, declared in the class
@@ -81,7 +84,7 @@ public abstract class ClassEntity extends PackageOrClass
      * @return  The specified field (as an entity)
      * @throws SemanticException  if the field does not exist or is not accessible
      */
-    public abstract JavaEntity getStaticField(String name) throws SemanticException;
+    //public abstract JavaEntity getStaticField(String name) throws SemanticException;
     
     /**
      * Return a list (possibly empty) of static methods declared in this
@@ -90,5 +93,5 @@ public abstract class ClassEntity extends PackageOrClass
      * @param name  The name of the methods to retrieve
      * @return  A list of java.lang.reflect.Method
      */
-    public abstract List getStaticMethods(String name);
+    //public abstract List getStaticMethods(String name);
 }

@@ -33,9 +33,12 @@ import bluej.parser.ast.LocatableToken;
 import bluej.parser.ast.gen.JavaTokenTypes;
 import bluej.parser.nodes.ColourNode;
 import bluej.parser.nodes.ContainerNode;
+import bluej.parser.nodes.FieldNode;
+import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.ParentParsedNode;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
+import bluej.parser.nodes.ParsedTypeNode;
 import bluej.parser.symtab.Selection;
 
 /**
@@ -50,7 +53,10 @@ public class EditorParser extends NewParser
     private LocatableToken pcuStmtBegin;
     private ParsedCUNode pcuNode;
     private List<LocatableToken> commentQueue = new LinkedList<LocatableToken>();
+    private List<LocatableToken> lastTypeSpec;
     
+    private Stack<String> fieldNames = new Stack<String>();
+    private Stack<List<String>> fieldTypes = new Stack<List<String>>();
     
     public EditorParser(Reader r)
     {
@@ -159,9 +165,9 @@ public class EditorParser extends NewParser
     }
     
     @Override
-    protected void gotTypeDef(int tdType)
+    protected void gotTypeDefName(LocatableToken nameToken)
     {
-        ParsedNode pnode = new ParsedTypeNode(scopeStack.peek());
+        ParsedNode pnode = new ParsedTypeNode(scopeStack.peek(), nameToken.getText());
         int curOffset = getTopNodeOffset();
         LocatableToken hidden = pcuStmtBegin.getHiddenBefore();
         if (hidden != null && hidden.getType() == JavaTokenTypes.ML_COMMENT) {
@@ -557,5 +563,20 @@ public class EditorParser extends NewParser
     {
         super.endMethodBody(token, included);
         endTopNode(token, false);
+    }
+    
+    @Override
+    protected void gotTypeSpec(List<LocatableToken> tokens)
+    {
+        lastTypeSpec = tokens;
+    }
+    
+    @Override
+    protected void gotField(LocatableToken idToken)
+    {
+        // TODO Auto-generated method stub
+        //super.gotField(idToken);
+        FieldNode field = new FieldNode(scopeStack.peek(), idToken.getText(), lastTypeSpec);
+        
     }
 }

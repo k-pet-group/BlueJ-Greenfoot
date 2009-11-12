@@ -19,26 +19,37 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.parser.entity;
+package bluej.parser.nodes;
 
-import bluej.debugger.gentype.GenTypeClass;
-import bluej.debugger.gentype.JavaType;
-import bluej.parser.SemanticException;
+import java.util.HashMap;
+import java.util.Map;
 
-public class ValueEntity extends JavaEntity
+
+/**
+ * A node representing a parsed type (class, interface, enum)
+ * 
+ * @author Davin McCall
+ */
+public class ParsedTypeNode extends ParentParsedNode
 {
     private String name;
-    private JavaType type;
+    private Map<String,FieldNode> fields = new HashMap<String,FieldNode>();
     
-    public ValueEntity(JavaType type)
+    public ParsedTypeNode(ParsedNode parent, String name)
     {
-        this.type = type;
+        super(parent);
+        this.name = name;
     }
     
-    public ValueEntity(String name, JavaType type)
+    @Override
+    public int getNodeType()
     {
-        this.name = name;
-        this.type = type;
+        return NODETYPE_TYPEDEF;
+    }
+    
+    public boolean isContainer()
+    {
+        return true;
     }
     
     @Override
@@ -46,32 +57,22 @@ public class ValueEntity extends JavaEntity
     {
         return name;
     }
-
-    @Override
-    public JavaEntity getSubentity(String name) throws SemanticException
+    
+    /**
+     * Insert a field child.
+     */
+    public void insertField(FieldNode child, int position, int size)
     {
-        GenTypeClass ctype = type.asClass();
-        if (ctype != null) {
-            // ctype.getReflective().
-        }
-        return null;
-    }
-
-    @Override
-    public JavaType getType()
-    {
-        return type;
-    }
-
-    @Override
-    public JavaEntity resolveAsValue()
-    {
-        return this;
+        super.insertNode(child, position, size);
+        fields.put(child.getName(), child);
     }
     
-    @Override
-    public JavaEntity resolveAsValOrType() throws SemanticException
+    /**
+     * Get the fields in this node. (A map of field name to its node).
+     * The returned map is live and should not be modified.
+     */
+    public Map<String, FieldNode> getFields()
     {
-        return this;
+        return fields;
     }
 }

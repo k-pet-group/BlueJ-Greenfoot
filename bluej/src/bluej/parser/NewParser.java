@@ -424,7 +424,7 @@ public class NewParser
                 parseEnumConstants();
             }
 
-            if (tdType== TYPEDEF_ANNOTATION) {
+            if (tdType == TYPEDEF_ANNOTATION) {
                 parseAnnotationBody();
             }
             else { 
@@ -590,27 +590,6 @@ public class NewParser
                 error("Unexpected end-of-file in type body; missing '}'");
                 return;
             }
-//            if (token.getType() == JavaTokenTypes.LCURLY
-//                    || (token.getType() == JavaTokenTypes.LITERAL_static 
-//                    && tokenStream.LA(1).getType() == JavaTokenTypes.LCURLY)) {
-//                // initialisation block
-//                if (token.getType() == JavaTokenTypes.LITERAL_static) {
-//                    token = tokenStream.nextToken();
-//                }
-//                beginStmtblockBody(token);
-//                parseStmtBlock();
-//                token = tokenStream.nextToken();
-//                if (token.getType() != JavaTokenTypes.RCURLY) {
-//                    error("Expecting '}' (at end of initialisation block)");
-//                    tokenStream.pushBack(token);
-//                    endStmtblockBody(token, false);
-//                }
-//                else {
-//                    endStmtblockBody(token, true);
-//                    token = tokenStream.nextToken();
-//                }
-//                continue;
-//            }
 
             beginElement(token);
             tokenStream.pushBack(token);
