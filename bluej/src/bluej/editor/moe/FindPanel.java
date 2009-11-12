@@ -393,14 +393,14 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         editor.setCaretBack(getSearchString().length()+1);
 
         if(getCounter() > 0)
-            editor.writeMessage(Config.getString("editor.highlight.replaced") +
+            editor.writeMessage(Config.getString("editor.highlight.found") +
                     getCounter() + Config.getString("editor.replaceAll.intancesOf") + 
                     getSearchString());
         else{
             //only write msg if there was a search string
             if (getCounter()<1 && getSearchString().length()>0) {               
                 editor.writeMessage(Config.getString("editor.replaceAll.string") + 
-                        getSearchString() + Config.getString("editor.highlight.notFoundNothingReplaced"));
+                        getSearchString() + Config.getString("editor.highlight.notFound"));
 
             }
         }
