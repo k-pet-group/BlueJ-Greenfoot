@@ -874,45 +874,45 @@ public class TextAnalyzer
      *                              checking wildcard imports (including java.lang.*)
      * @throws ClassNotFoundException  if the class cannot be resolved/loaded
      */
-    private Class loadUnqualifiedClass(String className, boolean tryWildcardImports)
-        throws ClassNotFoundException
-    {
-        // Try singly imported types first
-        ClassEntity imported = imports.getTypeImport(className);
-        if (imported != null) {
-            try {
-                String cname = ((GenTypeClass) imported.getType()).rawName();
-                return classLoader.loadClass(cname);
-            }
-            catch (ClassNotFoundException cnfe) { }
-        }
-        
-        // It's an unqualified name - try package scope
-        try {
-            if (packageScope.length() != 0)
-                return classLoader.loadClass(packageScope + "." + className);
-            else
-                return classLoader.loadClass(className);
-        }
-        catch(ClassNotFoundException cnfe) {}
-        
-        // If not trying wildcard imports, bail out now
-        if (! tryWildcardImports)
-            throw new ClassNotFoundException(className);
-        
-        // Try wildcard imports
-        imported = imports.getTypeImportWC(className);
-        if (imported != null) {
-            try {
-                String cname = ((GenTypeClass) imported.getType()).rawName();
-                return classLoader.loadClass(cname);
-            }
-            catch (ClassNotFoundException cnfe) { }
-        }
-        
-        // Try java.lang
-        return classLoader.loadClass("java.lang." + className);
-    }
+//    private Class loadUnqualifiedClass(String className, boolean tryWildcardImports)
+//        throws ClassNotFoundException
+//    {
+//        // Try singly imported types first
+//        ClassEntity imported = imports.getTypeImport(className);
+//        if (imported != null) {
+//            try {
+//                String cname = ((GenTypeClass) imported.getType()).rawName();
+//                return classLoader.loadClass(cname);
+//            }
+//            catch (ClassNotFoundException cnfe) { }
+//        }
+//        
+//        // It's an unqualified name - try package scope
+//        try {
+//            if (packageScope.length() != 0)
+//                return classLoader.loadClass(packageScope + "." + className);
+//            else
+//                return classLoader.loadClass(className);
+//        }
+//        catch(ClassNotFoundException cnfe) {}
+//        
+//        // If not trying wildcard imports, bail out now
+//        if (! tryWildcardImports)
+//            throw new ClassNotFoundException(className);
+//        
+//        // Try wildcard imports
+//        imported = imports.getTypeImportWC(className);
+//        if (imported != null) {
+//            try {
+//                String cname = ((GenTypeClass) imported.getType()).rawName();
+//                return classLoader.loadClass(cname);
+//            }
+//            catch (ClassNotFoundException cnfe) { }
+//        }
+//        
+//        // Try java.lang
+//        return classLoader.loadClass("java.lang." + className);
+//    }
     
     /**
      * Try to find a suitable wildcard import (including the implicit java.lang.*)
@@ -922,22 +922,22 @@ public class TextAnalyzer
      * @return     The loaded Class
      * @throws ClassNotFoundException  if the class cannot be resolved or loaded.
      */
-    private Class loadWildcardImportedType(String className)
-        throws ClassNotFoundException
-    {
-        // Try wildcard imports
-        ClassEntity imported = imports.getTypeImportWC(className);
-        if (imported != null) {
-            try {
-                String cname = ((GenTypeClass) imported.getType()).rawName();
-                return classLoader.loadClass(cname);
-            }
-            catch (ClassNotFoundException cnfe) { }
-        }
-        
-        // Try java.lang
-        return classLoader.loadClass("java.lang." + className);
-    }
+//    private Class loadWildcardImportedType(String className)
+//        throws ClassNotFoundException
+//    {
+//        // Try wildcard imports
+//        ClassEntity imported = imports.getTypeImportWC(className);
+//        if (imported != null) {
+//            try {
+//                String cname = ((GenTypeClass) imported.getType()).rawName();
+//                return classLoader.loadClass(cname);
+//            }
+//            catch (ClassNotFoundException cnfe) { }
+//        }
+//        
+//        // Try java.lang
+//        return classLoader.loadClass("java.lang." + className);
+//    }
     
     /**
      * Extract the type from a node. The type is in the form of a qualified
@@ -1884,34 +1884,34 @@ public class TextAnalyzer
      * @param argumentTypes   The type of each supplied argument
      * @return   A descriptor for the most specific method, or null if none found
      */
-    private MethodCallDesc findImportedMethod(List imports, String mname, JavaType [] argumentTypes)
-    {
-        MethodCallDesc candidate = null;
-        
-        // Iterate through the imports
-        Iterator i = imports.iterator();
-        while (i.hasNext()) {
-            ClassEntity importEntity = (ClassEntity) i.next();
-            List r = importEntity.getStaticMethods(mname);
-            Iterator j = r.iterator();
-            while (j.hasNext()) {
-                // For each matching method, assess its applicability. If applicable,
-                // and it is the most specific method yet found, keep it.
-                Method m = (Method) j.next();
-                MethodCallDesc mcd = isMethodApplicable(importEntity.getClassType(), Collections.EMPTY_LIST, m, argumentTypes);
-                if (mcd != null) {
-                    if (candidate == null) {
-                        candidate = mcd;
-                    }
-                    else {
-                        if (mcd.compareSpecificity(candidate) == 1)
-                            candidate = mcd;
-                    }
-                }
-            }
-        }
-        return candidate;
-    }
+//    private MethodCallDesc findImportedMethod(List imports, String mname, JavaType [] argumentTypes)
+//    {
+//        MethodCallDesc candidate = null;
+//        
+//        // Iterate through the imports
+//        Iterator i = imports.iterator();
+//        while (i.hasNext()) {
+//            ClassEntity importEntity = (ClassEntity) i.next();
+//            List r = importEntity.getStaticMethods(mname);
+//            Iterator j = r.iterator();
+//            while (j.hasNext()) {
+//                // For each matching method, assess its applicability. If applicable,
+//                // and it is the most specific method yet found, keep it.
+//                Method m = (Method) j.next();
+//                MethodCallDesc mcd = isMethodApplicable(importEntity.getClassType(), Collections.EMPTY_LIST, m, argumentTypes);
+//                if (mcd != null) {
+//                    if (candidate == null) {
+//                        candidate = mcd;
+//                    }
+//                    else {
+//                        if (mcd.compareSpecificity(candidate) == 1)
+//                            candidate = mcd;
+//                    }
+//                }
+//            }
+//        }
+//        return candidate;
+//    }
     
     
     /**

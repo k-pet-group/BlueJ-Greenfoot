@@ -163,32 +163,32 @@ public class ImportsCollection
      * @param name  The name of the imported type to find
      * @return      A ClassEntity, or null if not found
      */
-    public ClassEntity getTypeImportWC(String name)
-    {
-        // Try non-static wildcard imports first
-        Iterator<PackageOrClass> i = wildcardImports.iterator();
-        
-        while (i.hasNext()) {
-            PackageOrClass importEntity = i.next();
-            PackageOrClass member = importEntity.getPackageOrClassMember(name);
-            if (member != null && member.isClass()) {
-                return (ClassEntity) member;
-            }
-        }
-        
-        // Now try static wildcard imports
-        Iterator<ClassEntity> j = staticWildcardImports.iterator();
-        while (j.hasNext()) {
-            ClassEntity importEntity = j.next();
-            try {
-                ClassEntity member = importEntity.getStaticMemberClass(name);
-                return member;
-            }
-            catch (SemanticException se) { }
-        }
-        
-        return null;
-    }
+//    public ClassEntity getTypeImportWC(String name)
+//    {
+//        // Try non-static wildcard imports first
+//        Iterator<PackageOrClass> i = wildcardImports.iterator();
+//        
+//        while (i.hasNext()) {
+//            PackageOrClass importEntity = i.next();
+//            PackageOrClass member = importEntity.getPackageOrClassMember(name);
+//            if (member != null && member.isClass()) {
+//                return (ClassEntity) member;
+//            }
+//        }
+//        
+//        // Now try static wildcard imports
+//        Iterator<ClassEntity> j = staticWildcardImports.iterator();
+//        while (j.hasNext()) {
+//            ClassEntity importEntity = j.next();
+//            try {
+//                ClassEntity member = importEntity.getStaticMemberClass(name);
+//                return member;
+//            }
+//            catch (SemanticException se) { }
+//        }
+//        
+//        return null;
+//    }
     
     /*
      * Convert the imports collection to a series of java "import" statements.
