@@ -372,6 +372,11 @@ public final class MoeActions
                         .get("decrease-font")));
 
             }
+            if (version <253) {
+                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, SHORTCUT_MASK), (Action) (actions
+                        .get("content-assist")));
+
+            }
             return true;
         }
         catch (Exception exc) {
@@ -941,6 +946,26 @@ public final class MoeActions
             else
                 getActionByName("cut-to-clipboard").actionPerformed(e);
             lastActionWasCut = true;
+        }
+    }
+
+    // --------------------------------------------------------------------
+    
+ // --------------------------------------------------------------------
+
+    class ContentAssistAction extends MoeAbstractAction
+    {
+
+        public ContentAssistAction()
+        {
+            super("content-assist");
+        }
+
+        public void actionPerformed(ActionEvent e)
+        { 
+            //need to pop up a list selection available
+
+            //get the selected one (defaulted to the first one) and display the details
         }
     }
 
@@ -1766,6 +1791,8 @@ public final class MoeActions
 
                 new IncreaseFontAction(),
                 new DecreaseFontAction(),
+                
+                new ContentAssistAction(),
                
             };
 
@@ -1883,8 +1910,9 @@ public final class MoeActions
                 (Action) (actions.get("go-to-line")),
                 (Action) (actions.get("increase-font")),
                 (Action) (actions.get("decrease-font")),
+                (Action) (actions.get("content-assist")),
                 
-        }; // 80
+        }; // 81
 
         categories = new String[] { 
                 Config.getString("editor.functions.editFunctions"),
@@ -1895,7 +1923,7 @@ public final class MoeActions
                 Config.getString("editor.functions.misc")
         };
 
-        categoryIndex = new int[] { 0, 41, 57, 62, 64, 68, 80 };
+        categoryIndex = new int[] { 0, 41, 57, 62, 64, 68, 81 };
     }
 
     /**
@@ -1994,6 +2022,8 @@ public final class MoeActions
                 .get("increase-font")));
         keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, SHORTCUT_MASK), (Action) (actions
                 .get("decrease-font")));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, SHORTCUT_MASK), (Action) (actions
+                .get("content-assist")));
        
     }
 
