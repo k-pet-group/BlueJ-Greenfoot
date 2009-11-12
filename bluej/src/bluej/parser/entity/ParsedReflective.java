@@ -114,7 +114,7 @@ public class ParsedReflective extends Reflective
     @Override
     public Map<String, JavaType> getDeclaredFields()
     {
-        Map<String, FieldNode> fields = pnode.getFields();
+        Map<String, FieldNode> fields = pnode.getInner().getFields();
         Map<String, JavaType> rmap = new HashMap<String, JavaType>();
         for (Iterator<String> i = fields.keySet().iterator(); i.hasNext(); ) {
             rmap.put(i.next(), JavaPrimitiveType.getInt()); // TODO not all fields are int!!

@@ -211,6 +211,17 @@ public class NewParser
     {
         endElement(token, included);
     }
+    
+    /**
+     * Got a field (inside a type definition). The beginning is marked by the previous beginElement().
+     * @param idToken   The token with the name of the field.
+     */
+    protected void gotField(LocatableToken idToken) { }
+
+    protected void endField(LocatableToken token, boolean included)
+    {
+        endElement(token, included);
+    }
 
     /** We've seen a type specification or something that looks a lot like one. */
     protected void gotTypeSpec(List<LocatableToken> tokens) { }
@@ -663,7 +674,7 @@ public class NewParser
                     if (token.getType() == JavaTokenTypes.SEMI) {
                         // field declaration: done
                         gotField(idToken);
-                        endElement(token, true);
+                        endField(token, true);
                         token = tokenStream.nextToken();
                         continue;
                     }
@@ -671,7 +682,7 @@ public class NewParser
                         // field declaration
                         gotField(idToken);
                         parseExpression();
-                        parseSubsequentDeclarations();
+                        parseSubsequentDeclarations(true);
                         token = tokenStream.nextToken();
                         continue;
                     }
@@ -682,7 +693,7 @@ public class NewParser
                     }
                     else if (token.getType() == JavaTokenTypes.COMMA) {
                         tokenStream.pushBack(token);
-                        parseSubsequentDeclarations();
+                        parseSubsequentDeclarations(true);
                     }
                     else {
                         error("Expected ';' or '=' or '(' (in field or method declaration), got token type: " + token.getType());
@@ -698,8 +709,6 @@ public class NewParser
         }
         tokenStream.pushBack(token);
     }
-
-    protected void gotField(LocatableToken idToken) { }
 
     protected void parseArrayDeclarators()
     {
@@ -1382,14 +1391,14 @@ public class NewParser
     {
         parseModifiers();
         parseVariableDeclaration();
-        parseSubsequentDeclarations();
+        parseSubsequentDeclarations(false);
     }
 
     /**
      * After seeing a type and identifier declaration, this will parse any
      * the subsequent declarations, and check for a terminating semicolon.
      */
-    protected void parseSubsequentDeclarations()
+    protected void parseSubsequentDeclarations(boolean isField)
     {
         LocatableToken token = tokenStream.nextToken();
         while (token.getType() == JavaTokenTypes.COMMA) {
@@ -1409,10 +1418,20 @@ public class NewParser
         if (token.getType() != JavaTokenTypes.SEMI) {
             error("Expecting ';' at end of variable declaration");
             tokenStream.pushBack(token);
-            endElement(token, false);
+            if (isField) {
+                endField(token, false);
+            }
+            else {
+                endElement(token, false);
+            }
         }
         else {
-            endElement(token, true);
+            if (isField) {
+                endField(token, true);
+            }
+            else {
+                endElement(token, true);
+            }
         }
     }
 

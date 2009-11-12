@@ -39,6 +39,7 @@ import bluej.parser.nodes.ParentParsedNode;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ParsedTypeNode;
+import bluej.parser.nodes.TypeInnerNode;
 import bluej.parser.symtab.Selection;
 
 /**
@@ -54,9 +55,6 @@ public class EditorParser extends NewParser
     private ParsedCUNode pcuNode;
     private List<LocatableToken> commentQueue = new LinkedList<LocatableToken>();
     private List<LocatableToken> lastTypeSpec;
-    
-    private Stack<String> fieldNames = new Stack<String>();
-    private Stack<List<String>> fieldTypes = new Stack<List<String>>();
     
     public EditorParser(Reader r)
     {
@@ -183,12 +181,13 @@ public class EditorParser extends NewParser
     @Override
     protected void beginTypeBody(LocatableToken token)
     {
-        ParentParsedNode bodyNode = new ParentParsedNode(scopeStack.peek());
+        TypeInnerNode bodyNode = new TypeInnerNode(scopeStack.peek());
         bodyNode.setInner(true);
         int curOffset = getTopNodeOffset();
         int insPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
         beginNode(insPos);
-        scopeStack.peek().insertNode(bodyNode, insPos - curOffset, 0);
+        ParsedTypeNode top = (ParsedTypeNode) scopeStack.peek();
+        top.insertInner(bodyNode, insPos - curOffset, 0);
         scopeStack.push(bodyNode);
     }
     
@@ -561,7 +560,6 @@ public class EditorParser extends NewParser
     @Override
     protected void endMethodBody(LocatableToken token, boolean included)
     {
-        super.endMethodBody(token, included);
         endTopNode(token, false);
     }
     
@@ -574,9 +572,18 @@ public class EditorParser extends NewParser
     @Override
     protected void gotField(LocatableToken idToken)
     {
-        // TODO Auto-generated method stub
-        //super.gotField(idToken);
         FieldNode field = new FieldNode(scopeStack.peek(), idToken.getText(), lastTypeSpec);
-        
+        int curOffset = getTopNodeOffset();
+        int insPos = pcuNode.lineColToPosition(pcuStmtBegin.getLine(), pcuStmtBegin.getEndColumn());
+        beginNode(insPos);
+        TypeInnerNode top = (TypeInnerNode) scopeStack.peek();
+        top.insertField(field, insPos - curOffset, 0);
+        scopeStack.push(field);
+    }
+    
+    @Override
+    protected void endField(LocatableToken token, boolean included)
+    {
+        endTopNode(token, included);
     }
 }

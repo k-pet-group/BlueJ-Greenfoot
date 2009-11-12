@@ -21,57 +21,44 @@
  */
 package bluej.parser.nodes;
 
-
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * A node representing a parsed type (class, interface, enum)
+ * Node for the inner part of a type definition. This contains the declarations inside
+ * the type.
  * 
  * @author Davin McCall
  */
-public class ParsedTypeNode extends ParentParsedNode
+public class TypeInnerNode extends ParentParsedNode
 {
-    private String name;
-    private TypeInnerNode inner;
-    
-    public ParsedTypeNode(ParsedNode parent, String name)
+    private Map<String,FieldNode> fields = new HashMap<String,FieldNode>();
+
+    public TypeInnerNode(ParsedNode parent)
     {
         super(parent);
-        this.name = name;
     }
     
     @Override
-    public int getNodeType()
-    {
-        return NODETYPE_TYPEDEF;
-    }
-    
-    public boolean isContainer()
+    public boolean isInner()
     {
         return true;
     }
     
-    @Override
-    public String getName()
-    {
-        return name;
-    }
-    
     /**
-     * Insert the inner node for the type definition.
-     * The inner node will hold the field definitions etc.
+     * Insert a field child.
      */
-    public void insertInner(TypeInnerNode child, int position, int size)
+    public void insertField(FieldNode child, int position, int size)
     {
         super.insertNode(child, position, size);
-        inner = child;
+        fields.put(child.getName(), child);
     }
     
     /**
-     * Get the fields in this node. (A map of field name to its node).
-     * The returned map is live and should not be modified.
+     * Get the fields defined in this type.
      */
-    public TypeInnerNode getInner()
+    public Map<String, FieldNode> getFields()
     {
-        return inner;
+        return fields;
     }
 }
