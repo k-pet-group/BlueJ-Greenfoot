@@ -23,23 +23,27 @@ package bluej.utility;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.GenTypeArray;
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeDeclTpar;
+import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
 
 /**
  * A reflective for GenTypeClass which uses the standard java reflection API.  
  * 
  * @author Davin McCall
- * @version $Id: JavaReflective.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: JavaReflective.java 6825 2009-11-12 03:34:28Z davmac $
  */
 public class JavaReflective extends Reflective {
 
-    private Class c;
+    private Class<?> c;
     
     public int hashCode()
     {
@@ -55,7 +59,7 @@ public class JavaReflective extends Reflective {
         return false;
     }
     
-    public JavaReflective(Class c)
+    public JavaReflective(Class<?> c)
     {
         this.c = c;
     }
@@ -75,7 +79,7 @@ public class JavaReflective extends Reflective {
         return (c.getModifiers() & Modifier.STATIC) != 0;
     }
     
-    public List getTypeParams()
+    public List<GenTypeDeclTpar> getTypeParams()
     {
         return JavaUtils.getJavaUtils().getTypeParams(c);
     }
@@ -92,7 +96,7 @@ public class JavaReflective extends Reflective {
             ClassLoader cloader = c.getClassLoader();
             if (cloader == null)
                 cloader = ClassLoader.getSystemClassLoader();
-            Class arrClass = cloader.loadClass(rname);
+            Class<?> arrClass = cloader.loadClass(rname);
             return new JavaReflective(arrClass);
         }
         catch (ClassNotFoundException cnfe) {}
@@ -106,7 +110,7 @@ public class JavaReflective extends Reflective {
             ClassLoader cloader = c.getClassLoader();
             if (cloader == null)
                 cloader = ClassLoader.getSystemClassLoader();
-            Class cr = cloader.loadClass(name);
+            Class<?> cr = cloader.loadClass(name);
             return new JavaReflective(cr);
         }
         catch (ClassNotFoundException cnfe) {
@@ -114,26 +118,27 @@ public class JavaReflective extends Reflective {
         }
     }
 
-    public List getSuperTypesR() {
-        List l = new ArrayList();
+    public List<Reflective> getSuperTypesR()
+    {
+        List<Reflective> l = new ArrayList<Reflective>();
         
         // Arrays must be specially handled
         if (c.isArray()) {
-            Class ct = c.getComponentType();  // could be primitive, but won't matter
+            Class<?> ct = c.getComponentType();  // could be primitive, but won't matter
             JavaReflective ctR = new JavaReflective(ct);
-            List componentSuperTypes = ctR.getSuperTypesR();
-            Iterator i = componentSuperTypes.iterator();
+            List<Reflective> componentSuperTypes = ctR.getSuperTypesR();
+            Iterator<Reflective> i = componentSuperTypes.iterator();
             while (i.hasNext()) {
                 JavaReflective componentSuperType = (JavaReflective) i.next();
                 l.add(componentSuperType.getArrayOf());
             }
         }
         
-        Class superclass = c.getSuperclass();
+        Class<?> superclass = c.getSuperclass();
         if( superclass != null )
             l.add(new JavaReflective(superclass));
 
-        Class [] interfaces = c.getInterfaces();
+        Class<?> [] interfaces = c.getInterfaces();
         for( int i = 0; i < interfaces.length; i++ ) {
             l.add(new JavaReflective(interfaces[i]));
         }
@@ -145,26 +150,28 @@ public class JavaReflective extends Reflective {
         return l;
     }
 
-    public List getSuperTypes() {
-        List l = new ArrayList();
+    public List<GenTypeClass> getSuperTypes()
+    {
+        List<GenTypeClass> l = new ArrayList<GenTypeClass>();
 
         // Arrays must be specially handled
         if (c.isArray()) {
-            Class ct = c.getComponentType();   // could be primitive (is ok)
+            Class<?> ct = c.getComponentType();   // could be primitive (is ok)
             JavaReflective ctR = new JavaReflective(ct);
-            List componentSuperTypes = ctR.getSuperTypes(); // generic types
-            Iterator i = componentSuperTypes.iterator();
+            List<GenTypeClass> componentSuperTypes = ctR.getSuperTypes(); // generic types
+            Iterator<GenTypeClass> i = componentSuperTypes.iterator();
             while (i.hasNext()) {
-                GenTypeClass componentSuperType = (GenTypeClass) i.next();
-                l.add(new GenTypeArray(componentSuperType, componentSuperType.getReflective().getArrayOf()));
+                GenTypeClass componentSuperType = i.next();
+                l.add(new GenTypeArray(componentSuperType,
+                        componentSuperType.getReflective().getArrayOf()));
             }
         }
 
-        JavaType superclass = JavaUtils.getJavaUtils().getSuperclass(c);
+        GenTypeClass superclass = JavaUtils.getJavaUtils().getSuperclass(c);
         if( superclass != null )
             l.add(superclass);
         
-        JavaType [] interfaces = JavaUtils.getJavaUtils().getInterfaces(c);
+        GenTypeClass[] interfaces = JavaUtils.getJavaUtils().getInterfaces(c);
         for( int i = 0; i < interfaces.length; i++ ) {
             l.add(interfaces[i]);
         }
@@ -180,7 +187,7 @@ public class JavaReflective extends Reflective {
      * Get the underlying class (as a java.lang.Class object) that this
      * reflective represents.
      */
-    public Class getUnderlyingClass()
+    public Class<?> getUnderlyingClass()
     {
         return c;
     }
@@ -192,5 +199,23 @@ public class JavaReflective extends Reflective {
         }
         else
             return false;
+    }
+    
+    @Override
+    public Map<String,JavaType> getDeclaredFields()
+    {
+        return Collections.emptyMap(); // not implemented
+    }
+    
+    @Override
+    public Map<String, MethodReflective> getDeclaredMethods()
+    {
+        return Collections.emptyMap(); // not implemented
+    }
+    
+    @Override
+    public List<GenTypeClass> getInners()
+    {
+        return Collections.emptyList(); // not implemented
     }
 }

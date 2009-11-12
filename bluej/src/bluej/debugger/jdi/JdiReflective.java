@@ -34,11 +34,10 @@ import com.sun.jdi.*;
  * @see Reflective.
  * 
  * @author Davin McCall
- * @version $Id: JdiReflective.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: JdiReflective.java 6825 2009-11-12 03:34:28Z davmac $
  */
 public class JdiReflective extends Reflective
 {
-
     // For a loaded type, we have a ReferenceType.
     private ReferenceType rclass = null;
 
@@ -831,6 +830,24 @@ public class JdiReflective extends Reflective
         }
         else
             return null;
+    }
+    
+    @Override
+    public Map<String,JavaType> getDeclaredFields()
+    {
+        return Collections.emptyMap(); // not implemented
+    }
+    
+    @Override
+    public Map<String, MethodReflective> getDeclaredMethods()
+    {
+        return Collections.emptyMap(); // not implemented
+    }
+    
+    @Override
+    public List<GenTypeClass> getInners()
+    {
+        return Collections.emptyList(); // not implemented
     }
     
     static class StringIterator

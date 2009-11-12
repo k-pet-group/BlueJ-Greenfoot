@@ -23,6 +23,7 @@ package bluej.debugger.gentype;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A "reflective" is an object representing a java type. This interface
@@ -30,7 +31,7 @@ import java.util.List;
  * determine the generic type parameters, etc.
  *  
  * @author Davin McCall
- * @version $Id: Reflective.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: Reflective.java 6825 2009-11-12 03:34:28Z davmac $
  */
 public abstract class Reflective {
 
@@ -50,7 +51,7 @@ public abstract class Reflective {
      * 
      * @return  The parameters as a List of GenTypeDeclTpar
      */
-    public abstract List getTypeParams();
+    public abstract List<GenTypeDeclTpar> getTypeParams();
     
     /**
      * Get the (direct) supertypes of this reflective, as a list of reflectives.
@@ -58,14 +59,14 @@ public abstract class Reflective {
      * component type is a supertype of this array's component type.
      * @return A List of Reflectives
      */
-    public abstract List getSuperTypesR();
+    public abstract List<Reflective> getSuperTypesR();
     
     /**
      * Get the supertypes of this reflective, as a list of GenTypes. The type
      * parameter names will refer to the type parameters in the parent type.
      * @return A List of GenTypeClass.
      */
-    public abstract List getSuperTypes();
+    public abstract List<GenTypeClass> getSuperTypes();
     
     /**
      * Get a reflective which represents an array, whose element type is
@@ -101,10 +102,10 @@ public abstract class Reflective {
      */
     public GenTypeClass superTypeByName(String rawName)
     {
-        List superTypes = getSuperTypes();
-        Iterator i = superTypes.iterator();
+        List<GenTypeClass> superTypes = getSuperTypes();
+        Iterator<GenTypeClass> i = superTypes.iterator();
         while( i.hasNext() ) {
-            GenTypeClass next = (GenTypeClass)i.next();
+            GenTypeClass next = i.next();
             if( next.rawName().equals(rawName) )
                 return next;
         }
@@ -124,4 +125,21 @@ public abstract class Reflective {
      * Determine whether this class is a static inner class.
      */
     abstract public boolean isStatic();
+    
+    /**
+     * Get the methods declared in the type represented by this Reflective.
+     * This does not include methods declared in the superclass(es). 
+     */
+    abstract public Map<String,MethodReflective> getDeclaredMethods();
+    
+    /**
+     * Get the fields declared in the type represented by this Reflective.
+     * This does not include fields declared in the superclass(es).
+     */
+    abstract public Map<String,JavaType> getDeclaredFields();
+    
+    /**
+     * Get the inner classes of the type represented by this Reflective.
+     */
+    abstract public List<GenTypeClass> getInners();
 }
