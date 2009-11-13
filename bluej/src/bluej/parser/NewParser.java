@@ -242,6 +242,9 @@ public class NewParser
     /** Saw a literal as part of an expression */
     protected void gotLiteral(LocatableToken token) { }
     
+    /** Saw an identifier as (part of) an expression */
+    protected void gotIdentifier(LocatableToken token) { }
+    
     /** Saw a binary operator as part of an expression */
     protected void gotBinaryOperator(LocatableToken token) { }
     
@@ -1922,9 +1925,7 @@ public class NewParser
                 }
             }
             else if (token.getType() == JavaTokenTypes.IDENT) {
-                // tokenStream.pushBack(token);
-                parseDottedIdent(token);
-                //parseTypeSpec(false); // call it a type, it might actually be a value
+                gotIdentifier(token);
             }
             else if (token.getType() == JavaTokenTypes.STRING_LITERAL
                     || token.getType() == JavaTokenTypes.CHAR_LITERAL
@@ -2035,8 +2036,10 @@ public class NewParser
                 }
                 else if (token.getType() == JavaTokenTypes.DOT) {
                     // Handle dot operator specially, as there are some special cases
+                    LocatableToken opToken = token;
                     token = tokenStream.nextToken();
                     if (token.getType() != JavaTokenTypes.LITERAL_class) {
+                        gotBinaryOperator(opToken);
                         break;
                     }
                     // Class literal: continue and look for another operator

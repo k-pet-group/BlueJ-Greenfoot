@@ -31,7 +31,8 @@ import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.DocumentReader;
 import bluej.parser.EditorParser;
 import bluej.parser.entity.ClassEntity;
-import bluej.parser.entity.ParsedClassEntity;
+import bluej.parser.entity.ParsedReflective;
+import bluej.parser.entity.TypeEntity;
 
 
 /**
@@ -90,7 +91,8 @@ public class ParsedCUNode extends ParentParsedNode
         Map<String,ParsedNode> classNodes = getClassNodes();
         Iterator<String> i = classNodes.keySet().iterator();
         if (i.hasNext()) {
-            return new ParsedClassEntity((ParsedTypeNode) classNodes.get(i.next()));
+            //return new ParsedClassEntity((ParsedTypeNode) classNodes.get(i.next()));
+            return new TypeEntity(new ParsedReflective((ParsedTypeNode) classNodes.get(i.next())));
         }
         return null;
     }

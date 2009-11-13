@@ -36,6 +36,7 @@ import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.ErrorEntity;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
+import bluej.parser.entity.UnresolvedEntity;
 import bluej.parser.entity.ValueEntity;
 
 public class TextParser extends NewParser
@@ -196,6 +197,8 @@ public class TextParser extends NewParser
         case JavaTokenTypes.STAR:
         case JavaTokenTypes.DIV:
             return 1;
+        case JavaTokenTypes.DOT:
+            return 25;
         case CAST_OPERATOR:
             return 50;
         case JavaTokenTypes.RBRACK:
@@ -226,6 +229,25 @@ public class TextParser extends NewParser
         }
         else if (token.getType() == JavaTokenTypes.LITERAL_null) {
             valueStack.push(resolver.resolveQualifiedClass("java.lang.Object"));
+        }
+    }
+    
+    @Override
+    protected void gotIdentifier(LocatableToken token)
+    {
+        String ident = token.getText();
+        if (! operatorStack.isEmpty() && operatorStack.peek().getType() == JavaTokenTypes.DOT) {
+            JavaEntity top = valueStack.pop();
+            JavaEntity newTop = top.getSubentity(ident);
+            if (newTop != null) {
+                valueStack.push(newTop);
+            }
+            else {
+                valueStack.push(new ErrorEntity());
+            }
+        }
+        else {
+            valueStack.push(UnresolvedEntity.getEntity(resolver, ident));
         }
     }
     

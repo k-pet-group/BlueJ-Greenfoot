@@ -21,9 +21,11 @@
  */
 package bluej.utility;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +41,7 @@ import bluej.debugger.gentype.Reflective;
  * A reflective for GenTypeClass which uses the standard java reflection API.  
  * 
  * @author Davin McCall
- * @version $Id: JavaReflective.java 6825 2009-11-12 03:34:28Z davmac $
+ * @version $Id: JavaReflective.java 6837 2009-11-13 05:33:59Z davmac $
  */
 public class JavaReflective extends Reflective {
 
@@ -204,7 +206,15 @@ public class JavaReflective extends Reflective {
     @Override
     public Map<String,JavaType> getDeclaredFields()
     {
-        return Collections.emptyMap(); // not implemented
+        Field [] fields = c.getDeclaredFields();
+        Map<String,JavaType> rmap = new HashMap<String,JavaType>();
+        for (int i = 0; i < fields.length; i++) {
+            if (Modifier.isPublic(fields[i].getModifiers())) {
+                JavaType fieldType = JavaUtils.getJavaUtils().genTypeFromClass(fields[i].getType());
+                rmap.put(fields[i].getName(), fieldType);
+            }
+        }
+        return rmap;
     }
     
     @Override

@@ -48,11 +48,12 @@ public class ValueEntity extends JavaEntity
     }
 
     @Override
-    public JavaEntity getSubentity(String name) throws SemanticException
+    public JavaEntity getSubentity(String name)
     {
         GenTypeClass ctype = type.asClass();
         if (ctype != null) {
             // ctype.getReflective().
+            // TODO
         }
         return null;
     }

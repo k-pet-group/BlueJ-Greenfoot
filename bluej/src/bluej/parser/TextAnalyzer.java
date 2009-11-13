@@ -31,7 +31,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,25 +40,21 @@ import bluej.debugger.gentype.BadInheritanceChainException;
 import bluej.debugger.gentype.GenTypeArray;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
-import bluej.debugger.gentype.GenTypeExtends;
 import bluej.debugger.gentype.GenTypeParameterizable;
 import bluej.debugger.gentype.GenTypeSolid;
-import bluej.debugger.gentype.GenTypeSuper;
 import bluej.debugger.gentype.GenTypeTpar;
-import bluej.debugger.gentype.GenTypeUnbounded;
 import bluej.debugger.gentype.GenTypeWildcard;
 import bluej.debugger.gentype.IntersectionType;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
-import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
 import bluej.debugmgr.texteval.WildcardCapture;
-import bluej.parser.ast.gen.JavaTokenTypes;
 import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
+import bluej.parser.entity.TypeEntity;
 import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
 
@@ -169,7 +164,6 @@ public class TextAnalyzer
             }
             
             public JavaEntity resolveValueEntity(String name)
-                    throws SemanticException
             {
                 // TODO Auto-generated method stub
                 return null;
@@ -2747,152 +2741,6 @@ public class TextAnalyzer
         }
     }
     
-    class TypeEntity extends ClassEntity
-    {
-        Class thisClass;
-        List tparams;
-        GenTypeClass outer;
-        
-        TypeEntity(Class c)
-        {
-            thisClass = c;
-            tparams = Collections.EMPTY_LIST;
-        }
-        
-        TypeEntity(Class c, List tparams)
-        {
-            thisClass = c;
-            this.tparams = tparams;
-        }
-        
-        TypeEntity(Class c, GenTypeClass outer)
-        {
-            thisClass = c;
-            this.outer = outer;
-            tparams = Collections.EMPTY_LIST;
-        }
-        
-        TypeEntity(Class c, GenTypeClass outer, List tparams)
-        {
-            thisClass = c;
-            this.outer = outer;
-            this.tparams = tparams;
-        }
-
-        public ClassEntity setTypeParams(List tparams) throws SemanticException
-        {
-            // this.tparams = tparams;
-            return new TypeEntity(thisClass, outer, tparams);
-        }
-
-        public JavaType getType()
-        {
-            return getClassType();
-        }
-        
-        public GenTypeClass getClassType()
-        {
-            return new GenTypeClass(new JavaReflective(thisClass), tparams, outer);
-        }
-        
-        public JavaEntity getSubentity(String name) throws SemanticException
-        {
-            // subentity of a class could be a member type or field
-            // Is it a field?
-            Field f = null;
-            try {
-                f = getAccessibleField(thisClass, name, packageScope, true);
-                JavaType fieldType;
-                Map tparmap = getClassType().getMap();
-                
-                // raw type? (though won't affect static fields)
-                if (tparmap == null && ! Modifier.isStatic(f.getModifiers()))
-                    fieldType = JavaUtils.getJavaUtils().getRawFieldType(f);
-                else {
-                    tparmap = captureConversion(getClassType(), new HashMap()).getMap();
-                    fieldType = JavaUtils.getJavaUtils().getFieldType(f);
-                    if (tparmap != null)
-                        fieldType = fieldType.mapTparsToTypes(tparmap);
-                    // JLS 15.11.1, field access using a primary, capture conversion must
-                    // be applied.
-                    fieldType = captureConversion(fieldType);
-                }
-                
-                return new ValueEntity(fieldType, getName() + "." + name);
-            }
-            catch (NoSuchFieldException nsfe) {}
-
-            // Is it a member type?
-            return getPackageOrClassMember(name);
-        }
-        
-        public PackageOrClass getPackageOrClassMember(String name)
-        {
-            // A class cannot have a package member...
-            return new TypeEntity(getMemberClass(name), getClassType());
-        }
-        
-        Class getMemberClass(String name)
-        {
-            // Is it a member type?
-            Class c;
-            try {
-                c = classLoader.loadClass(thisClass.getName() + '$' + name);
-                return c;
-                //return new TypeEntity(c, (GenTypeClass) getType());
-            }
-            catch (ClassNotFoundException cnfe) {
-                // No more options - it must be an error
-                return null;
-            }
-        }
-        
-        public ClassEntity getStaticMemberClass(String name) throws SemanticException
-        {
-            Class c = getMemberClass(name);
-            if (Modifier.isStatic(c.getModifiers()))
-                return new TypeEntity(c, (GenTypeClass) getType());
-            
-            // Not a static member - we fail
-            throw new SemanticException();
-        }
-        
-        public JavaEntity getStaticField(String name) throws SemanticException
-        {
-            Field f = null;
-            try {
-                f = getAccessibleField(thisClass, name, packageScope, false);
-                
-                if (Modifier.isStatic(f.getModifiers())) {
-                    JavaType fieldType = JavaUtils.getJavaUtils().getFieldType(f);
-                    // JLS 15.11.1, field access using a primary, capture conversion must
-                    // be applied.
-                    fieldType = captureConversion(fieldType);
-
-                    // TODO for final fields, return an entity with a value
-                    return new ValueEntity(fieldType, getName() + "." + name);
-                }
-            }
-            catch (NoSuchFieldException nsfe) {}
-            throw new SemanticException();
-        }
-        
-        public List getStaticMethods(String name)
-        {
-            return getAccessibleStaticMethods(thisClass, name, packageScope);
-        }
-        
-        public String getName()
-        {
-            return getType().toString();
-        }
-        
-        public boolean isClass()
-        {
-            return true;
-        }
-    }
-    
     class ValueEntity extends JavaEntity
     {
         JavaType type;
@@ -2915,11 +2763,10 @@ public class TextAnalyzer
         }
         
         public JavaEntity getSubentity(String name)
-            throws SemanticException
         {
             // Should be a member field.
             if (!(type instanceof GenTypeClass))
-                throw new SemanticException();
+                return null;
 
             // get the class part of our type
             GenTypeClass thisClass = (GenTypeClass) captureConversion(type);
@@ -2930,7 +2777,7 @@ public class TextAnalyzer
             }
             catch (ClassNotFoundException cnfe) {
                 // shouldn't happen
-                throw new SemanticException();
+                return null;
             }
 
             //  Try and find the field
@@ -2959,7 +2806,7 @@ public class TextAnalyzer
                     return new ValueEntity(fieldType, this.name + "." + name);
             }
             catch (NoSuchFieldException nsfe) {
-                throw new SemanticException();
+                return null;
             }
         }
         

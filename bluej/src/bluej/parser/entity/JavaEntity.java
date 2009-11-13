@@ -71,10 +71,9 @@ public abstract class JavaEntity
     /**
      * Get a sub-entity (member, field, whatever) by name.
      * @param name  The name of the subentity
-     * @return  The subentity
-     * @throws SemanticException  if the given subentity doesn't exist
+     * @return  The subentity  (or null if one does not exist)
      */
-    public abstract JavaEntity getSubentity(String name) throws SemanticException;
+    public abstract JavaEntity getSubentity(String name);
     
     public abstract String getName();
 }

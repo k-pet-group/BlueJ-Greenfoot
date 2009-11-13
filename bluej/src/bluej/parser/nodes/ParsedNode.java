@@ -27,12 +27,12 @@ import java.util.Map;
 import javax.swing.text.Document;
 
 import bluej.editor.moe.Token;
-import bluej.parser.SemanticException;
 import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
-import bluej.parser.entity.ParsedClassEntity;
+import bluej.parser.entity.ParsedReflective;
+import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 public abstract class ParsedNode implements EntityResolver
@@ -255,7 +255,7 @@ public abstract class ParsedNode implements EntityResolver
     {
         ParsedNode cnode = classNodes.get(name);
         if (cnode != null) {
-            return new ParsedClassEntity((ParsedTypeNode) cnode);
+            return new TypeEntity(new ParsedReflective((ParsedTypeNode) cnode));
         }
         if (parentNode != null) {
             return parentNode.resolvePackageOrClass(name);
@@ -263,9 +263,8 @@ public abstract class ParsedNode implements EntityResolver
         return null;
     }
     
-    public JavaEntity resolveValueEntity(String name) throws SemanticException
+    public JavaEntity resolveValueEntity(String name)
     {
-        // TODO Auto-generated method stub
-        return null;
+        return resolvePackageOrClass(name);
     }
 }

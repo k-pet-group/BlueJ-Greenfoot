@@ -22,7 +22,6 @@
 package bluej.parser.entity;
 
 import bluej.debugger.gentype.JavaType;
-import bluej.parser.SemanticException;
 
 public class ErrorEntity extends JavaEntity
 {
@@ -33,7 +32,7 @@ public class ErrorEntity extends JavaEntity
     }
     
     @Override
-    public JavaEntity getSubentity(String name) throws SemanticException
+    public JavaEntity getSubentity(String name)
     {
         return this;
     }
