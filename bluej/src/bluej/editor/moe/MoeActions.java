@@ -369,7 +369,7 @@ public final class MoeActions
                         (Action) (actions.get("decrease-font")));
             }
             if (version < 300) {
-                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, SHORTCUT_MASK), (Action) (actions
+                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, Event.CTRL_MASK), (Action) (actions
                         .get("content-assist")));
             }
             return true;
