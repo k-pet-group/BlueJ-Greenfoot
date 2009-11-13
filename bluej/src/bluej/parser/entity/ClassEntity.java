@@ -28,6 +28,8 @@ import bluej.debugger.gentype.JavaType;
 /**
  * An entity representing a class or generic type.
  * 
+ * TODO cleanup.
+ * 
  * @author Davin McCall
  */
 public abstract class ClassEntity extends PackageOrClass
@@ -40,12 +42,6 @@ public abstract class ClassEntity extends PackageOrClass
     
     @Override
     public final JavaEntity resolveAsType()
-    {
-        return this;
-    }
-    
-    @Override
-    public final JavaEntity resolveAsValOrType()
     {
         return this;
     }

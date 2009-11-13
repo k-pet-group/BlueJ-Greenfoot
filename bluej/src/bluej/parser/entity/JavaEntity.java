@@ -22,7 +22,6 @@
 package bluej.parser.entity;
 
 import bluej.debugger.gentype.JavaType;
-import bluej.parser.SemanticException;
 
 /**
  * A general abstraction for handling entities which may have fields or
@@ -47,10 +46,10 @@ public abstract class JavaEntity
     /**
      * If this entity is unresolved, resolve it now as a value or a type.
      */
-    public JavaEntity resolveAsValOrType() throws SemanticException
-    {
-        throw new SemanticException();
-    }
+//    public JavaEntity resolveAsValOrType() throws SemanticException
+//    {
+//        throw new SemanticException();
+//    }
     
     /**
      * If this entity is unresolved, resolve it now as a type.

@@ -19,53 +19,17 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.parser.entity;
+package bluej.parser;
 
-import bluej.debugger.gentype.GenTypeClass;
-import bluej.debugger.gentype.JavaType;
+import junit.framework.TestCase;
 
-public class ValueEntity extends JavaEntity
+public class CompletionTest extends TestCase
 {
-    private String name;
-    private JavaType type;
+    // Test that multiple fields defined in a single statement are handled correctly,
+    // particularly if one in the middle is assigned a complex expression involving an
+    // anonymous inner class
     
-    public ValueEntity(JavaType type)
-    {
-        this.type = type;
-    }
-    
-    public ValueEntity(String name, JavaType type)
-    {
-        this.name = name;
-        this.type = type;
-    }
-    
-    @Override
-    public String getName()
-    {
-        return name;
-    }
-
-    @Override
-    public JavaEntity getSubentity(String name)
-    {
-        GenTypeClass ctype = type.asClass();
-        if (ctype != null) {
-            // ctype.getReflective().
-            // TODO
-        }
-        return null;
-    }
-
-    @Override
-    public JavaType getType()
-    {
-        return type;
-    }
-
-    @Override
-    public JavaEntity resolveAsValue()
-    {
-        return this;
-    }
+    // Test that forward references behave the same way as in Java
+    // - field definitions may not forward reference other fields in the same class
+    // - variables cannot be forward referenced
 }

@@ -53,6 +53,7 @@ import bluej.debugmgr.texteval.WildcardCapture;
 import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.PackageEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.TypeEntity;
 import bluej.utility.JavaReflective;
@@ -160,7 +161,7 @@ public class TextAnalyzer
                 catch (Exception e) {}
                 
                 // Have to assume it's a package
-                return new PackageEntity(name);
+                return new PackageEntity(name, classLoader);
             }
             
             public JavaEntity resolveValueEntity(String name)
@@ -2690,134 +2691,6 @@ public class TextAnalyzer
                 return 1;
             else
                 return 0;
-        }
-    }
-    
-    class PackageEntity extends PackageOrClass
-    {
-        String packageName;
-        
-        PackageEntity(String pname)
-        {
-            packageName = pname;
-        }
-        
-        public JavaType getType()
-        {
-            return null;
-        }
-        
-        void setTypeParams(List tparams) throws SemanticException
-        {
-            // a package cannot be parameterized!
-            throw new SemanticException();
-        }
-        
-        public JavaEntity getSubentity(String name)
-        {
-            Class c;
-            try {
-                c = classLoader.loadClass(packageName + '.' + name);
-                return new TypeEntity(c);
-            }
-            catch (ClassNotFoundException cnfe) {
-                return new PackageEntity(packageName + '.' + name);
-            }
-        }
-        
-        public PackageOrClass getPackageOrClassMember(String name)
-        {
-            return (PackageOrClass) getSubentity(name);
-        }
-        
-        public String getName()
-        {
-            return packageName;
-        }
-        
-        public boolean isClass()
-        {
-            return false;
-        }
-    }
-    
-    class ValueEntity extends JavaEntity
-    {
-        JavaType type;
-        String name;
-        
-        ValueEntity(JavaType type)
-        {
-            this.type = type;
-        }
-        
-        ValueEntity(JavaType type, String name)
-        {
-            this.type = type;
-            this.name = name;
-        }
-        
-        public JavaType getType()
-        {
-            return type;
-        }
-        
-        public JavaEntity getSubentity(String name)
-        {
-            // Should be a member field.
-            if (!(type instanceof GenTypeClass))
-                return null;
-
-            // get the class part of our type
-            GenTypeClass thisClass = (GenTypeClass) captureConversion(type);
-            Reflective r = thisClass.getReflective();
-            Class c;
-            try {
-                c = classLoader.loadClass(r.getName());
-            }
-            catch (ClassNotFoundException cnfe) {
-                // shouldn't happen
-                return null;
-            }
-
-            //  Try and find the field
-            Field f = null;
-            try {
-                f = getAccessibleField(c, name, packageScope, true);
-                // Map type parameters to declaring class
-                Class declarer = f.getDeclaringClass();
-                Map tparMap = thisClass.mapToSuper(declarer.getName()).getMap();
-
-                JavaType fieldType;
-                if (tparMap != null || Modifier.isStatic(f.getModifiers())) {
-                    // Not raw. Apply type parameters to field declaration.
-                    fieldType = JavaUtils.getJavaUtils().getFieldType(f);
-                    if (tparMap != null)
-                        fieldType = fieldType.mapTparsToTypes(tparMap);
-                    // JLS 15.11.1 says we must apply capture conversion
-                    fieldType = captureConversion(fieldType);
-                }
-                else
-                    fieldType = JavaUtils.getJavaUtils().getRawFieldType(f);
-
-                if (name == null)
-                    return new ValueEntity(fieldType);
-                else
-                    return new ValueEntity(fieldType, this.name + "." + name);
-            }
-            catch (NoSuchFieldException nsfe) {
-                return null;
-            }
-        }
-        
-        public String getName()
-        {
-            return name;
-        }
-        
-        public boolean isClass()
-        {
-            return false;
         }
     }
     
