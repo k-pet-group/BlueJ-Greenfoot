@@ -286,8 +286,9 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
             //if it is the first letter of the search
             else if (((JTextField)src).getText().length()>0)
                 doFind=true;
-            if (doFind)
+            if (doFind){
                 find(true);
+            }
         }
     }
 
@@ -390,12 +391,15 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     {
         resetCounter();
         searchForward(ignoreCase, wholeWord, wrap, next);
-        editor.setCaretBack(getSearchString().length()+1);
-
-        if(getCounter() > 0)
+        //editor.setCaretBack(getSearchString().length()+1);       
+        if(getCounter() > 0){
+            if (editor.getSelectedText()!=null){
+                editor.moveCaretPosition(editor.getFoundCaretPositon()-getSearchString().length()-1);
+            }
             editor.writeMessage(Config.getString("editor.highlight.found") +
                     getCounter() + Config.getString("editor.replaceAll.intancesOf") + 
                     getSearchString());
+        }
         else{
             //only write msg if there was a search string
             if (getCounter()<1 && getSearchString().length()>0) {               

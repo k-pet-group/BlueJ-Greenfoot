@@ -26,6 +26,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.FocusTraversalPolicy;
 import java.awt.Font;
@@ -36,6 +37,8 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.print.PageFormat;
@@ -81,6 +84,8 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.html.HTMLDocument;
@@ -117,8 +122,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     // -------- CONSTANTS --------
 
     // version number
-    final static int version = 300;
-    final static String versionString = "3.0.0";
+    final static int version = 252;
+    final static String versionString = "2.5.2";
 
     // colours
     final static Color cursorColor = new Color(255, 0, 100);                 // cursor
@@ -248,14 +253,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     // --------------------------------------------------------------------
 
-    /**
-     * Get the source document that this editor is editing.
-     */
-    public MoeSyntaxDocument getSourceDocument()
-    {
-        return sourceDocument;
-    }
-    
     /**
      * Update the state of controls bound to "undo".
      */
@@ -1269,8 +1266,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * functionality to that of a find dialog, as well as altered behaviour. It
      * can remain open for multiple functions.
      */
-    public void replace()
-    {
+    public void replace(){
         String selectedText= currentTextPane.getSelectedText();
         Finder finder = MoeEditorManager.editorManager.getFinder();
         if (selectedText==null)
@@ -1618,11 +1614,15 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         int start = startPosition;
         Element line = getLineAt(start);
         int lineEnd = Math.min(line.getEndOffset(), endPos);   
-        int foundPos = -1;
+        int foundPos = -s.length();
+        boolean first=true;
+        String firstLine="";
         try {
             while (!finished) {
                 String lineText = document.getText(start, lineEnd - start);
                 //String lineText = document.getText(line.getStartOffset(), lineEnd - line.getStartOffset());
+                if (first)
+                    firstLine=lineText;
                 while (lineText != null && lineText.length() > 0) {
                     foundPos = findSubstring(lineText, s, ignoreCase, wholeWord, false, foundPos);
                     if (foundPos != -1) {
@@ -1656,6 +1656,13 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                         // don't wrap again
                     }
                     else {
+                        //just a check for the first line if it is missing any
+                        foundPos=s.length();
+                        foundPos=findSubstring(firstLine, s, ignoreCase, wholeWord, true, foundPos);
+                        if (foundPos!=-1){
+                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);
+                            setFoundHighlightPosition(getCaretPosition()); 
+                        }
                         finished = true;
                     }
                 }
@@ -3295,6 +3302,14 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
              ex.printStackTrace();
          }
          return found;
+     }
+
+     /**
+      * Get the source document that this editor is editing.
+      */
+     public MoeSyntaxDocument getSourceDocument()
+     {
+         return sourceDocument;
      }
 
 }
