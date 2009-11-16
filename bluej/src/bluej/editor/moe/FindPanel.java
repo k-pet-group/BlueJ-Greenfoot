@@ -68,7 +68,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     private final static String PREVIOUS_BUTTON_NAME ="prevBtn";
     private final static String NEXT__BUTTON_NAME ="nextBtn";
     private final static String REPLACE_WITH_BUTTON_NAME ="replaceWithBtn";
-    //private final static String REPLACE_CHECKBOX="replaceCheckBox";
+    private final static String MATCHCASE_CHECKBOX="matchCaseCheckBox";
 
     private String searchString=""; 
     private static Font findFont;
@@ -175,12 +175,17 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         matchCaseCheckBox.setText("Match Case");
         matchCaseCheckBox.setSelected(false);
         matchCaseCheckBox.setFont(findFont);
+        matchCaseCheckBox.setName(MATCHCASE_CHECKBOX);
+        matchCaseCheckBox.addActionListener(this);
 
-        //highlightAllBox=new JCheckBox();
-        //highlightAllBox.setText("Highlight All");
-        //highlightAllBox.setSelected(false);
     }
 
+    /**
+     * Returns true if the case should be matched
+     */
+    public boolean getMatchCase(){
+        return matchCaseCheckBox.isSelected();
+    }
     /**
      * Initialise the close button
      */
@@ -245,20 +250,25 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
             return;
         }
         if (src.getName()==NEXT__BUTTON_NAME){  
+            //move the caret forward ONLY if the search string is the same
             if (getSearchString().equals(findTField.getText())){
-                editor.moveCaretPosition(editor.getFoundCaretPositon());
-                editor.setCaretPositionForward(findTField.getText().length());
+                editor.moveCaretPosition(editor.getCaretPosition()+getSearchString().length());
             }
             find(true);  
         }
         if (src.getName()==PREVIOUS_BUTTON_NAME){
             editor.resetSelectedHighlightedPos();
+            editor.moveCaretPosition(editor.getCaretPosition()+getSearchString().length());
             find(false);
         }
         if (src.getName()==REPLACE_WITH_BUTTON_NAME){
             replace();
         }
         if (src.getName()==INPUT_QUERY_NAME){
+            find(true);
+        }
+        if (src.getName()==MATCHCASE_CHECKBOX){
+            editor.setCaretPositionForward(-getSearchString().length()-1);
             find(true);
         }
     }
@@ -394,7 +404,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         //editor.setCaretBack(getSearchString().length()+1);       
         if(getCounter() > 0){
             if (editor.getSelectedText()!=null){
-                editor.moveCaretPosition(editor.getFoundCaretPositon()-getSearchString().length()-1);
+                editor.moveCaretPosition(editor.getCaretPosition()-getSearchString().length());
             }
             editor.writeMessage(Config.getString("editor.highlight.found") +
                     getCounter() + Config.getString("editor.replaceAll.intancesOf") + 

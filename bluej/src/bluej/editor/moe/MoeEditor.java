@@ -26,7 +26,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.FocusTraversalPolicy;
 import java.awt.Font;
@@ -37,8 +36,6 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.print.PageFormat;
@@ -84,9 +81,8 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.Document;
 import javax.swing.text.Element;
+import javax.swing.text.Highlighter;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
@@ -122,8 +118,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     // -------- CONSTANTS --------
 
     // version number
-    final static int version = 252;
-    final static String versionString = "2.5.2";
+    final static int version = 300;
+    final static String versionString = "3.0.0";
 
     // colours
     final static Color cursorColor = new Color(255, 0, 100);                 // cursor
@@ -1280,8 +1276,25 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void findNext()
     {
+//        System.out.println("find next///////////");
+//        String s = currentTextPane.getSelectedText();
+//        if (s == null) {
+//            s = finder.getSearchString();
+//            if (s == null) {
+//                info.warning(DialogManager.getMessage("no-search-string"));
+//                return;
+//            }
+//        }
+//        boolean ignoreCase=true;
+//        ignoreCase= finder.getMatchCase();
+//        System.out.println("caret pos is "+getCaretPosition());
+//        moveCaretPosition(getCaretPosition()+s.length());
+//        System.out.println("now caret pos is "+getCaretPosition());
+//        doFindSelect(s, !ignoreCase, true, true, true);
+//        //findNextString(finder, s, false);
         Finder finder = MoeEditorManager.editorManager.getFinder();
         String s = currentTextPane.getSelectedText();
+        //System.out.println("s is "+s );
         if (s == null) {
             s = finder.getSearchString();
             if (s == null) {
@@ -1291,6 +1304,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         }
         findNextString(finder, s, false);
     }
+    
+    
+    
 
     // --------------------------------------------------------------------
     /**
@@ -1494,10 +1510,14 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         try {
             while (!found && !finished) {
                 String lineText = document.getText(start, lineEnd - start);
+
                 if (lineText != null && lineText.length() > 0) {
                     int foundPos = findSubstring(lineText, s, ignoreCase, wholeWord, false);
+                    System.out.println("getCaret pos "+getCaretPosition());
+                    System.out.println("line text "+lineText+" found "+(start+foundPos));
                     if (foundPos != -1) {
-                        currentTextPane.select(start + foundPos, start + foundPos + s.length());
+                        System.out.println("removing selection");
+                        removeReselectSelection(start+foundPos, s.length());
                         found = true;
                     }
                 }
@@ -3310,6 +3330,36 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      public MoeSyntaxDocument getSourceDocument()
      {
          return sourceDocument;
+     }
+     
+     /* Removes only our selected highlights finds the next one 
+      * and selects that
+      */
+     public void removeReselectSelection(int startPos, int length) {
+         Highlighter hilite = currentTextPane.getHighlighter();
+         Highlighter.Highlight[] hilites = hilite.getHighlights();
+
+         for (int i=0; i<hilites.length; i++) {
+             //should only happen once
+             if (hilites[i].getPainter() instanceof /*MyHighlightPainter*/ MoeHighlighterPainter) {
+                 hilite.removeHighlight(hilites[i]);
+                 try{
+                     hilite.addHighlight(hilites[i].getStartOffset(), hilites[i].getEndOffset(), editorHighlighter.highlightPainter);
+                 }catch(BadLocationException e){
+
+                 }
+                 //the highlight to modify to selected
+             }if (hilites[i].getStartOffset()==startPos){
+                 System.out.println("the new selected one "+startPos);
+                 hilite.removeHighlight(hilites[i]);
+                 try{
+                     currentTextPane.getHighlighter().addHighlight(startPos, startPos+length, editorHighlighter.selectPainter);
+                 }catch(BadLocationException e){
+
+                 }
+                 currentTextPane.select(startPos, startPos+length);
+             }
+         }
      }
 
 }
