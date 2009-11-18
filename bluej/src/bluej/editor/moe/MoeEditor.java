@@ -796,7 +796,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             return null;
         }
 
-        return new SourceLocation(lineNumber, column);
+        return new SourceLocation(lineNumber+1, column+1);
     }
 
     /**
@@ -1276,37 +1276,11 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void findNext()
     {
-//        System.out.println("find next///////////");
-//        String s = currentTextPane.getSelectedText();
-//        if (s == null) {
-//            s = finder.getSearchString();
-//            if (s == null) {
-//                info.warning(DialogManager.getMessage("no-search-string"));
-//                return;
-//            }
-//        }
-//        boolean ignoreCase=true;
-//        ignoreCase= finder.getMatchCase();
-//        System.out.println("caret pos is "+getCaretPosition());
-//        moveCaretPosition(getCaretPosition()+s.length());
-//        System.out.println("now caret pos is "+getCaretPosition());
-//        doFindSelect(s, !ignoreCase, true, true, true);
-//        //findNextString(finder, s, false);
-        Finder finder = MoeEditorManager.editorManager.getFinder();
-        String s = currentTextPane.getSelectedText();
-        //System.out.println("s is "+s );
-        if (s == null) {
-            s = finder.getSearchString();
-            if (s == null) {
-                info.warning(DialogManager.getMessage("no-search-string"));
-                return;
-            }
-        }
-        findNextString(finder, s, false);
+        finder.getNext();
     }
-    
-    
-    
+
+
+
 
     // --------------------------------------------------------------------
     /**
@@ -1314,16 +1288,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void findNextBackward()
     {
-        Finder finder = MoeEditorManager.editorManager.getFinder();
-        String s = currentTextPane.getSelectedText();
-        if (s == null) {
-            s = finder.getSearchString();
-            if (s == null) {
-                info.warning(DialogManager.getMessage("no-search-string"));
-                return;
-            }
-        }
-        findNextString(finder, s, true);
+        finder.getPrev();
     }
 
     // --------------------------------------------------------------------
@@ -1345,18 +1310,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         findString(">>>>>>>", false, false, false, false);
         SourceLocation endPos = getCaretLocation();
         setSelection(startPos, endPos);
-    }
-
-    /**
-     * Do a find with info in the info area.
-     */
-    private void findNextString(Finder finder, String s, boolean backward)
-    {
-        boolean found = findString(s, backward, finder.getIgnoreCase(), 
-                finder.getWholeWord(), (!finder.getSearchFound()));
-
-        finder.setSearchString(s);
-        finder.setSearchFound(found);
     }
 
     // --------------------------------------------------------------------
@@ -1513,10 +1466,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
                 if (lineText != null && lineText.length() > 0) {
                     int foundPos = findSubstring(lineText, s, ignoreCase, wholeWord, false);
-                    System.out.println("getCaret pos "+getCaretPosition());
-                    System.out.println("line text "+lineText+" found "+(start+foundPos));
                     if (foundPos != -1) {
-                        System.out.println("removing selection");
                         removeReselectSelection(start+foundPos, s.length());
                         found = true;
                     }
@@ -1548,8 +1498,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         }
         return found;
     }
-  
-    
+
+
     public int getFoundCaretPositon() {
         return foundCaretPositon;
     }
@@ -1566,7 +1516,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     boolean doFindBackward(String s, boolean ignoreCase, boolean wholeWord, boolean wrap)
     {
         int docLength = document.getLength();
-        int startPosition = currentTextPane.getCaretPosition() - 1;
+        int startPosition = currentTextPane.getCaretPosition() ;
         if (startPosition < 0) {
             startPosition = docLength;
         }
@@ -1580,13 +1530,13 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         int lineStart = Math.max(line.getStartOffset(), endPos);
 
         try {
-            while (!found && !finished) {
+            while (!finished) {               
                 String lineText = document.getText(lineStart, start - lineStart);
                 if (lineText != null && lineText.length() > 0) {
                     int foundPos = findSubstring(lineText, s, ignoreCase, wholeWord, true);
                     if (foundPos != -1) {
                         currentTextPane.select(lineStart + foundPos, lineStart + foundPos + s.length());
-                        found = true;
+                        return found = true;
                     }
                 }
                 if (lineStart <= endPos) {            // reached end of search
@@ -1615,7 +1565,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         return found;
     }
 
- // --------------------------------------------------------------------
+    // --------------------------------------------------------------------
     /**
      * doFind - do a find without visible feedback. Returns false if not found.
      * @param select indicates whether this word should be selected or only highlighted
@@ -1653,14 +1603,12 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                             currentTextPane.select(start + foundPos, start + foundPos + s.length());
                             setFoundCaretPositon(getCaretPosition());
                             setSelText(getSelectedText());
-                            finder.incCounter(1);
                             found=true;
                             select=false;
                         }else {
                             temp=temp+1;
                             currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);
                             setFoundHighlightPosition(getCaretPosition()); 
-                            finder.incCounter(1);
                         }
                     }else 
                         lineText=null;
@@ -2800,7 +2748,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 checkForChangeOnDisk();
             }
         });
-            
+
         setFocusTraversalPolicy(new MoeFocusTraversalPolicy());
 
         setWindowTitle();
@@ -3224,142 +3172,97 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /**
      * pos - the position to move the caret to
      */
-     public void moveCaretPosition(int pos)
-     {
-         if (pos<=getDocumentLength() && pos>=0)
-             setCaretPosition(pos);
-     }
+    public void moveCaretPosition(int pos)
+    {
+        if (pos<=getDocumentLength() && pos>=0)
+            setCaretPosition(pos);
+    }
 
-     /**
-      * Get the text currently selected.
-      * 
-      * @return The selected text.
-      */
-     public String getSelectedText()
-     {
-         return sourcePane.getSelectedText();
-     }
+    /**
+     * Get the text currently selected.
+     * 
+     * @return The selected text.
+     */
+    public String getSelectedText()
+    {
+        return sourcePane.getSelectedText();
+    }
 
-     public String getSelText() {
-         return selText;
-     }
+    public String getSelText() {
+        return selText;
+    }
 
-     public void setSelText(String selText) {
-         this.selText = selText;
-     }
+    public void setSelText(String selText) {
+        this.selText = selText;
+    }
 
-     public void resetSelectedHighlightedPos(){
-         setFoundHighlightPosition(0);
-         setFoundCaretPositon(0);        
-     }
-     
-     /**
-      * doFindBackward - do a find backwards without visible feedback. Returns
-      * false if not found.
-      */
-     boolean doFindBackwardSelect(String s, boolean ignoreCase, boolean wholeWord, boolean wrap)
-     {
-         int docLength = document.getLength();
-         int startPosition = currentTextPane.getCaretPosition() - 1;
-         boolean select =true;
-         if (startPosition < 0) {
-             startPosition = docLength;
-         }
-         int endPos = 0;                   // where the search ends
-         boolean found = false;
-         boolean finished = false;
+    public void resetSelectedHighlightedPos(){
+        setFoundHighlightPosition(0);
+        setFoundCaretPositon(0);        
+    }
 
-         int start = startPosition;        // start of next partial search
-         Element line = getLineAt(start);
-         int lineStart = Math.max(line.getStartOffset(), endPos);
-         int foundPos=0;
-         try {
-             while (!finished) {
-                 String lineText = document.getText(lineStart, start - lineStart);
-                 while (lineText != null && lineText.length() > 0) {
-                     foundPos = findSubstring(lineText, s, ignoreCase, wholeWord, true, foundPos);                    
-                     if (foundPos != -1) {
-                         if (select){            
-                             currentTextPane.getHighlighter().addHighlight(lineStart + foundPos, lineStart + foundPos + s.length(), editorHighlighter.selectPainter);
-                             currentTextPane.select(lineStart + foundPos, lineStart + foundPos + s.length());
-                             setFoundCaretPositon(lineStart + foundPos);
-                             setSelText(getSelectedText());
-                             moveCaretPosition(getFoundCaretPositon());                       
-                             found = true;
-                             finder.incCounter(1);
-                             select=false;
-                         }
-                         else{
-                             currentTextPane.getHighlighter().addHighlight(lineStart + foundPos, lineStart + foundPos + s.length(), editorHighlighter.highlightPainter);
-                             setFoundHighlightPosition(getCaretPosition()); 
-                             finder.incCounter(1);                          
-                         }
-                         lineText=lineText.substring(0, foundPos);
-                     }else
-                         lineText=null;
-                 }
-                 if (lineStart <= endPos) {            // reached end of search
-                     if (wrap) {   
-                         endPos = startPosition;
-                         line = document.getParagraphElement(docLength);
-                         start = line.getEndOffset();
-                         lineStart = Math.max(line.getStartOffset(), endPos);
-                         wrap = false;                 // don't wrap again
-                     }
-                     else {
-                         finished = true;
-                     }
-                 }
-                 else {                                // go to next line
-                     line = document.getParagraphElement(lineStart - 1);
-                     start = line.getEndOffset();
-                     lineStart = Math.max(line.getStartOffset(), endPos);
-                 }
-             }
-         }
-         catch (BadLocationException ex) {
-             Debug.reportError("error in editor find operation");
-             ex.printStackTrace();
-         }
-         return found;
-     }
+    /**
+     * Get the source document that this editor is editing.
+     */
+    public MoeSyntaxDocument getSourceDocument()
+    {
+        return sourceDocument;
+    }
 
-     /**
-      * Get the source document that this editor is editing.
-      */
-     public MoeSyntaxDocument getSourceDocument()
-     {
-         return sourceDocument;
-     }
-     
-     /* Removes only our selected highlights finds the next one 
-      * and selects that
-      */
-     public void removeReselectSelection(int startPos, int length) {
-         Highlighter hilite = currentTextPane.getHighlighter();
-         Highlighter.Highlight[] hilites = hilite.getHighlights();
+    /* Removes only our selected highlights finds the next one 
+     * and selects that
+     */
+    public void removeReselectSelection(int startPos, int length) {
+        Highlighter hilite = currentTextPane.getHighlighter();
+        Highlighter.Highlight[] hilites = hilite.getHighlights();
 
-         for (int i=0; i<hilites.length; i++) {
-             //should only happen once
-             if (hilites[i].getPainter() instanceof /*MyHighlightPainter*/ MoeHighlighterPainter) {
-                 hilite.removeHighlight(hilites[i]);
-                 try{
-                     hilite.addHighlight(hilites[i].getStartOffset(), hilites[i].getEndOffset(), editorHighlighter.highlightPainter);
-                 }catch(BadLocationException e){
+        for (int i=0; i<hilites.length; i++) {
+            //should only happen once
+            if (hilites[i].getPainter() instanceof /*MyHighlightPainter*/ MoeHighlighterPainter) {
+                hilite.removeHighlight(hilites[i]);
+                try{
+                    hilite.addHighlight(hilites[i].getStartOffset(), hilites[i].getEndOffset(), editorHighlighter.highlightPainter);
+                }catch(BadLocationException e){
 
-                 }
-                 //the highlight to modify to selected
-             }if (hilites[i].getStartOffset()==startPos){
-                 System.out.println("the new selected one "+startPos);
-                 hilite.removeHighlight(hilites[i]);
-                 try{
-                     currentTextPane.getHighlighter().addHighlight(startPos, startPos+length, editorHighlighter.selectPainter);
-                 }catch(BadLocationException e){
+                }
+                //the highlight to modify to selected
+            }if (hilites[i].getStartOffset()==startPos){
+                hilite.removeHighlight(hilites[i]);
+                try{
+                    currentTextPane.getHighlighter().addHighlight(startPos, startPos+length, editorHighlighter.selectPainter);
+                }catch(BadLocationException e){
 
-                 }
-                 currentTextPane.select(startPos, startPos+length);
-             }
-         }
-     }
+                }
+                currentTextPane.select(startPos, startPos+length);
+            }
+        }
+    }
+
+    /* 
+     * Returns the number of highlights in the given textPane
+     */
+    public int getNumHighlights() {
+        int count=0;      
+        Highlighter.Highlight[] hilites = currentTextPane.getHighlighter().getHighlights();
+        int[] startPoss=new int[hilites.length];
+        for (int i=0; i<hilites.length; i++) {
+            if (isHighlight(startPoss, hilites[i].getStartOffset())){
+                count++;
+                startPoss[i]=hilites[i].getStartOffset();
+            }
+        }
+        return count;
+    }
+
+    /* 
+     * Returns true if it is a unique highlight and false if it has already been counted
+     */
+    private boolean isHighlight(int[] startPoss, int startPos){
+        for (int i=0; i<startPoss.length; i++){
+            if (startPoss[i]==startPos)
+                return false;
+        }
+        return true;
+    }
 
 }
