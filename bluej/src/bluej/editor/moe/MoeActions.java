@@ -119,6 +119,7 @@ public final class MoeActions
 
     // frequently needed actions
     public Action compileAction;
+    public Action contentAssistAction;
 
     // for bug workaround:
     private InputMap componentInputMap;
@@ -977,6 +978,10 @@ public final class MoeActions
             else {
                 System.out.println("No suggestions (not in expression).");
             }
+            
+            editor.createContentAssist();
+
+            
         }
     }
 

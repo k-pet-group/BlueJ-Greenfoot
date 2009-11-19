@@ -217,6 +217,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     private int foundHighlightPosition;
     private String selText="";
 
+    //new content assist
+    ContentAssistDisplay dlg;
+
     /**
      * Property map, allows BlueJ extensions to assosciate property values with
      * this editor instance; otherwise unused.
@@ -3263,6 +3266,21 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 return false;
         }
         return true;
+    }
+
+    protected void createContentAssist(){
+        if (dlg==null)
+            dlg=new ContentAssistDisplay(this);
+        //dlg.setLocation((int)getCaretLocation().getColumn(), (int)getCaretLocation().getLine());
+        //System.out.println("setting the location "+getLocation().getX()+" & "+ getLocation().getY());
+        dlg.setLocation((int)getLocation().getX(), (int)getLocation().getY());
+        //System.out.println("setting the location "+getCaretPosition()+" & "+ getLocation().getY());
+        dlg.setVisible(true);
+    }
+
+    protected void closeContentAssist(){
+        if (dlg!=null)
+            dlg.setVisible(false);
     }
 
 }
