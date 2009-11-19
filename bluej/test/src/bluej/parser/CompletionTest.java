@@ -41,14 +41,30 @@ public class CompletionTest extends TestCase
         Config.initialise(bluejLibDir, new Properties(), false);
     }
     
+    private TestEntityResolver resolver;
+    
     @Override
     protected void setUp() throws Exception
     {
+        resolver = new TestEntityResolver(new ClassLoaderResolver(this.getClass().getClassLoader()));
     }
     
     @Override
     protected void tearDown() throws Exception
     {
+    }
+    
+    /**
+     * Generate a compilation unit node based on some source code.
+     */
+    private ParsedCUNode cuForSource(String sourceCode)
+    {
+        MoeSyntaxDocument document = new MoeSyntaxDocument();
+        try {
+            document.insertString(0, sourceCode, null);
+        }
+        catch (BadLocationException ble) {}
+        return document.getParser();
     }
     
     public void test1()
@@ -57,21 +73,13 @@ public class CompletionTest extends TestCase
         "  public int f = 0;" +
         "}";
         
-        MoeSyntaxDocument document = new MoeSyntaxDocument();
-        try {
-            document.insertString(0, aClassSrc, null);
-        }
-        catch (BadLocationException ble) {}
-        ParsedCUNode aNode = new ParsedCUNode(document);
+        ParsedCUNode aNode = cuForSource(aClassSrc);
         
-        TestEntityResolver resolver = new TestEntityResolver(new ClassLoaderResolver(this.getClass().getClassLoader()));
         resolver.addCompilationUnit("", aNode);
         
         JavaEntity entity = resolver.resolveValueEntity("A", "B");
         entity = entity.getSubentity("f");
-        assertNotNull(entity);
         entity = entity.resolveAsValue();
-        assertNotNull(entity);
         assertEquals("int", entity.getType().toString());
     }
     
