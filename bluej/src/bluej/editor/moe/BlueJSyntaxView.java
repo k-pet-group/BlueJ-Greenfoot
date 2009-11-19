@@ -781,9 +781,6 @@ public abstract class BlueJSyntaxView extends PlainView
     int getNodeIndent(Shape a, MoeSyntaxDocument doc, NodeAndPosition nap)
     {
         try {
-            // If the node starts and ends on the same line
-            // TODO
-
             int indent = Integer.MAX_VALUE;
 
             int curpos = nap.getPosition();

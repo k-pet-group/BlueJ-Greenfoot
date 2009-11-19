@@ -237,7 +237,11 @@ public class JavaParser
         gotTypeSpec(tokens);
     }
     
+    /** Saw the beginning of an expression */
     protected void beginExpression(LocatableToken token) { }
+    
+    /** Reached the end of an expression. The given token is the first one past the end. */
+    protected void endExpression(LocatableToken token) { }
     
     /** Saw a literal as part of an expression */
     protected void gotLiteral(LocatableToken token) { }
@@ -1903,6 +1907,7 @@ public class JavaParser
     public void parseExpression()
     {
         LocatableToken token = tokenStream.nextToken();
+        beginExpression(token);
 
         while (true) {
             if (token.getType() == JavaTokenTypes.LITERAL_new) {
@@ -1986,6 +1991,7 @@ public class JavaParser
                     if (token.getType() != JavaTokenTypes.RPAREN) {
                         error("Unmatched '(' in expression; expecting ')'");
                         tokenStream.pushBack(token);
+                        endExpression(token);
                         return;
                     }
                 }
@@ -1993,6 +1999,7 @@ public class JavaParser
             else {
                 error("Invalid expression token=" + token);
                 tokenStream.pushBack(token);
+                endExpression(token);
                 return;
             }
 
@@ -2009,6 +2016,7 @@ public class JavaParser
                 {
                     // These are all legitimate expression endings
                     tokenStream.pushBack(token);
+                    endExpression(token);
                     return;
                 }
                 else if (token.getType() == JavaTokenTypes.LPAREN) {
@@ -2062,6 +2070,7 @@ public class JavaParser
                     if (token.getType() != JavaTokenTypes.COLON) {
                         error("Expecting ':' (in ?: operator)");
                         tokenStream.pushBack(token);
+                        endExpression(token);
                         return;
                     }
                     token = tokenStream.nextToken();
@@ -2071,6 +2080,7 @@ public class JavaParser
                     // TODO
                     error("Expected operator, got '" + token.getText() + "'");
                     tokenStream.pushBack(token);
+                    endExpression(token);
                     return;
                 }
             }

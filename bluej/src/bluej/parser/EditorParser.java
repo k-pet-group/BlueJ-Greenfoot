@@ -33,6 +33,7 @@ import bluej.parser.ast.LocatableToken;
 import bluej.parser.ast.gen.JavaTokenTypes;
 import bluej.parser.nodes.ColourNode;
 import bluej.parser.nodes.ContainerNode;
+import bluej.parser.nodes.ExpressionNode;
 import bluej.parser.nodes.FieldNode;
 import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.ParentParsedNode;
@@ -612,5 +613,23 @@ public class EditorParser extends JavaParser
     {
         endTopNode(token, included);  // inner node
         endTopNode(token, included);  // outer node
+    }
+    
+    @Override
+    protected void beginExpression(LocatableToken token)
+    {
+        ExpressionNode nnode = new ExpressionNode(scopeStack.peek());
+        int curOffset = getTopNodeOffset();
+        LocatableToken begin = lastTypeSpec.get(0);
+        int insPos = pcuNode.lineColToPosition(begin.getLine(), begin.getColumn());
+        beginNode(insPos);
+        scopeStack.peek().insertNode(nnode, insPos - curOffset, 0);
+        scopeStack.push(nnode);
+    }
+    
+    @Override
+    protected void endExpression(LocatableToken token)
+    {
+        endTopNode(token, false);
     }
 }

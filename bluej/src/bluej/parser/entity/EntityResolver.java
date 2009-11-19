@@ -28,8 +28,10 @@ public interface EntityResolver
      * it is returned; otherwise a package is returned.
      * 
      * @param name  The package or class name. This must be an unqualified name.
+     * @param querySource  The source of the query (a fully qualified class name,
+     *            as would be returned by Class.getName()).
      */
-    public PackageOrClass resolvePackageOrClass(String name);
+    public PackageOrClass resolvePackageOrClass(String name, String querySource);
     
     /**
      * Resolve a class from its fully-qualified name. The supplied name should
@@ -42,6 +44,10 @@ public interface EntityResolver
      * scope, it is returned; otherwise the effect is as if resolvePackageOrClass was called.
      * 
      * <p>To resolve the final value entity, call resolveAsValue() on the returned entity.
+     * 
+     * @param name The name of the entity to access
+     * @param querySource The source of the query (a fully qualified class name,
+     *            as would be returned by Class.getName()).
      */
-    public JavaEntity resolveValueEntity(String name);
+    public JavaEntity resolveValueEntity(String name, String querySource);
 }

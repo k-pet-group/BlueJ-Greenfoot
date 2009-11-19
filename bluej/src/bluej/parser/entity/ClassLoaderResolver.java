@@ -47,7 +47,7 @@ public class ClassLoaderResolver implements EntityResolver
         return null;
     }
     
-    public PackageOrClass resolvePackageOrClass(String name)
+    public PackageOrClass resolvePackageOrClass(String name, String querySource)
     {
 //        String pkgScopePrefix = packageScope;
 //        if (packageScope.length() > 0) {
@@ -72,8 +72,8 @@ public class ClassLoaderResolver implements EntityResolver
         return new PackageEntity(name, classLoader);
     }
     
-    public JavaEntity resolveValueEntity(String name)
+    public JavaEntity resolveValueEntity(String name, String querySource)
     {
-        return resolvePackageOrClass(name);
+        return resolvePackageOrClass(name, null);
     }
 }

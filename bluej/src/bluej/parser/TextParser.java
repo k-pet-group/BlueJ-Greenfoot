@@ -295,7 +295,7 @@ public class TextParser extends JavaParser
         Iterator<LocatableToken> i = tokens.iterator();
         String text = i.next().getText();
         
-        PackageOrClass poc = resolver.resolvePackageOrClass(text);
+        PackageOrClass poc = resolver.resolvePackageOrClass(text, null);
         while (poc != null && i.hasNext()) {
             LocatableToken token = i.next();
             if (token.getType() != JavaTokenTypes.DOT) {

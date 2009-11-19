@@ -44,6 +44,7 @@ public abstract class ParsedNode implements EntityResolver
     public static final int NODETYPE_SELECTION = 4; // if/then, try/catch
     
     public static final int NODETYPE_FIELD = 5;  // field declaration
+    public static final int NODETYPE_EXPRESSION = 6; // expression
     
     /** The NodeTree containing the child nodes of this node */
     private NodeTree nodeTree;
@@ -246,20 +247,20 @@ public abstract class ParsedNode implements EntityResolver
         return null;
     }
     
-    public PackageOrClass resolvePackageOrClass(String name)
+    public PackageOrClass resolvePackageOrClass(String name, String querySource)
     {
         ParsedNode cnode = classNodes.get(name);
         if (cnode != null) {
             return new TypeEntity(new ParsedReflective((ParsedTypeNode) cnode));
         }
         if (parentNode != null) {
-            return parentNode.resolvePackageOrClass(name);
+            return parentNode.resolvePackageOrClass(name, querySource);
         }
         return null;
     }
     
-    public JavaEntity resolveValueEntity(String name)
+    public JavaEntity resolveValueEntity(String name, String querySource)
     {
-        return resolvePackageOrClass(name);
+        return resolvePackageOrClass(name, null);
     }
 }

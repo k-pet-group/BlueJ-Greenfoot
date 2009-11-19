@@ -21,10 +21,60 @@
  */
 package bluej.parser;
 
+import java.io.File;
+import java.util.Properties;
+
+import javax.swing.text.BadLocationException;
+
 import junit.framework.TestCase;
+import bluej.Boot;
+import bluej.Config;
+import bluej.editor.moe.MoeSyntaxDocument;
+import bluej.parser.entity.ClassLoaderResolver;
+import bluej.parser.entity.JavaEntity;
+import bluej.parser.nodes.ParsedCUNode;
 
 public class CompletionTest extends TestCase
 {
+    {
+        File bluejLibDir = Boot.getBluejLibDir();
+        Config.initialise(bluejLibDir, new Properties(), false);
+    }
+    
+    @Override
+    protected void setUp() throws Exception
+    {
+    }
+    
+    @Override
+    protected void tearDown() throws Exception
+    {
+    }
+    
+    public void test1()
+    {
+        String aClassSrc = "class A {" +
+        "  public int f = 0;" +
+        "}";
+        
+        MoeSyntaxDocument document = new MoeSyntaxDocument();
+        try {
+            document.insertString(0, aClassSrc, null);
+        }
+        catch (BadLocationException ble) {}
+        ParsedCUNode aNode = new ParsedCUNode(document);
+        
+        TestEntityResolver resolver = new TestEntityResolver(new ClassLoaderResolver(this.getClass().getClassLoader()));
+        resolver.addCompilationUnit("", aNode);
+        
+        JavaEntity entity = resolver.resolveValueEntity("A", "B");
+        entity = entity.getSubentity("f");
+        assertNotNull(entity);
+        entity = entity.resolveAsValue();
+        assertNotNull(entity);
+        assertEquals("int", entity.getType().toString());
+    }
+    
     // Test that multiple fields defined in a single statement are handled correctly,
     // particularly if one in the middle is assigned a complex expression involving an
     // anonymous inner class

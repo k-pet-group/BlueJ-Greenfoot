@@ -36,7 +36,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 /**
  * An abstract ParsedNode which delegates to child nodes.
  * 
- * @author davmac
+ * @author Davin McCall
  */
 public class ParentParsedNode extends ParsedNode
 {

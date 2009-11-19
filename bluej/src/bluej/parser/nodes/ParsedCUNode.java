@@ -33,6 +33,8 @@ import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.DocumentReader;
 import bluej.parser.EditorParser;
 import bluej.parser.entity.ClassEntity;
+import bluej.parser.entity.EntityResolver;
+import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.ParsedReflective;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -47,6 +49,7 @@ public class ParsedCUNode extends ParentParsedNode
 {
     //private JavaTokenMarker marker = new JavaTokenMarker();
     private Document document;
+    private EntityResolver parentResolver;
 
     private List<NodeStructureListener> listeners = new ArrayList<NodeStructureListener>();
     
@@ -133,5 +136,15 @@ public class ParsedCUNode extends ParentParsedNode
             return new TypeEntity(new ParsedReflective((ParsedTypeNode) classNodes.get(i.next())));
         }
         return null;
+    }
+    
+    @Override
+    public PackageOrClass resolvePackageOrClass(String name, String querySource)
+    {
+        PackageOrClass poc = super.resolvePackageOrClass(name, querySource);
+        if (poc == null && parentResolver != null) {
+            return parentResolver.resolvePackageOrClass(name, querySource);
+        }
+        return poc;
     }
 }

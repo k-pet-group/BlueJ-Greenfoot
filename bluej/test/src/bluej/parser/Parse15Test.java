@@ -104,10 +104,10 @@ public class Parse15Test extends junit.framework.TestCase
         assertEquals(4, testSel.getEndLine());
         assertEquals(31, testSel.getEndColumn());
         
-        List l = info.getInterfaceSelections();
+        List<Selection> l = info.getInterfaceSelections();
         assertEquals(4, l.size());
         // "implements"  "List<Thread>"  ","  "GenInt<U>"
-        Iterator i = l.iterator();
+        Iterator<Selection> i = l.iterator();
         i.next();
         
         testSel = (Selection) i.next();
