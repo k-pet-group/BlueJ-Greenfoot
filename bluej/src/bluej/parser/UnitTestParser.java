@@ -8,7 +8,7 @@ import java.util.Map;
 
 import bluej.parser.ast.LocatableToken;
 
-public class UnitTestParser extends NewParser
+public class UnitTestParser extends JavaParser
 {
     private LocatableToken beginningElement;
     private int classLevel = 0; // level of class nesting

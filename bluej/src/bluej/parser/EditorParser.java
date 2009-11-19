@@ -47,7 +47,7 @@ import bluej.parser.symtab.Selection;
  * 
  * @author davmac
  */
-public class EditorParser extends NewParser
+public class EditorParser extends JavaParser
 {
     private Stack<ParsedNode> scopeStack = new Stack<ParsedNode>();
     

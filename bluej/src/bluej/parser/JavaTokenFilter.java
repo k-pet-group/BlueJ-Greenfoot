@@ -40,7 +40,7 @@ public class JavaTokenFilter implements TokenStream
     private LocatableToken previousToken;
     private LocatableToken cachedToken;
     private List<LocatableToken> buffer = new LinkedList<LocatableToken>();
-    private NewParser parser;
+    private JavaParser parser;
     
     public JavaTokenFilter(TokenStream source)
     {
@@ -48,7 +48,7 @@ public class JavaTokenFilter implements TokenStream
         lastComment = null;
     }
     
-    public JavaTokenFilter(TokenStream source, NewParser parser)
+    public JavaTokenFilter(TokenStream source, JavaParser parser)
     {
         this(source);
         this.parser = parser;

@@ -39,7 +39,7 @@ import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.UnresolvedEntity;
 import bluej.parser.entity.ValueEntity;
 
-public class TextParser extends NewParser
+public class TextParser extends JavaParser
 {
     private EntityResolver resolver;
     

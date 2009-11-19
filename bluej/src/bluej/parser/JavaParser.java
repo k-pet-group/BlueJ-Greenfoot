@@ -35,7 +35,7 @@ import bluej.parser.ast.gen.JavaTokenTypes;
  * 
  * @author Davin McCall
  */
-public class NewParser
+public class JavaParser
 {
     protected JavaTokenFilter tokenStream;
     //protected JavaLexer lexer;
@@ -51,7 +51,7 @@ public class NewParser
         return lexer;
     }
     
-    public NewParser(Reader r)
+    public JavaParser(Reader r)
     {
         TokenStream lexer = getLexer(r);
         tokenStream = new JavaTokenFilter(lexer, this);

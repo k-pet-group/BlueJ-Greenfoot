@@ -27,7 +27,7 @@ import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.Token;
 import bluej.parser.DocumentReader;
 import bluej.parser.JavaTokenFilter;
-import bluej.parser.NewParser;
+import bluej.parser.JavaParser;
 import bluej.parser.TokenStream;
 import bluej.parser.ast.LocatableToken;
 import bluej.parser.ast.gen.JavaTokenTypes;
@@ -99,7 +99,7 @@ public class ParentParsedNode extends ParsedNode
     protected static Token tokenizeText(Document document, int pos, int length)
     {
         DocumentReader dr = new DocumentReader(document, pos);
-        TokenStream lexer = NewParser.getLexer(dr);
+        TokenStream lexer = JavaParser.getLexer(dr);
         TokenStream tokenStream = new JavaTokenFilter(lexer, null);
 
         Token dummyTok = new Token(0, Token.END);
@@ -123,10 +123,10 @@ public class ParentParsedNode extends ParsedNode
             }
 
             byte tokType = Token.NULL;
-            if (NewParser.isPrimitiveType(lt)) {
+            if (JavaParser.isPrimitiveType(lt)) {
                 tokType = Token.PRIMITIVE;
             }
-            else if (NewParser.isModifier(lt)) {
+            else if (JavaParser.isModifier(lt)) {
                 tokType = Token.KEYWORD1;
             }
             else if (lt.getType() == JavaTokenTypes.STRING_LITERAL) {

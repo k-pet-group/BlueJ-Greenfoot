@@ -14,7 +14,7 @@ import bluej.parser.ast.gen.JavaTokenTypes;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 
-public class InfoParser extends NewParser
+public class InfoParser extends JavaParser
 {
     private ClassInfo info;
     private int classLevel = 0; // number of nested classes
