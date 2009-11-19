@@ -151,6 +151,7 @@ public class ParentParsedNode extends ParsedNode
                 case JavaTokenTypes.LITERAL_break:
                 case JavaTokenTypes.LITERAL_if:
                 case JavaTokenTypes.LITERAL_else:
+                case JavaTokenTypes.LITERAL_new:
                     tokType = Token.KEYWORD1;
                     break;
 
