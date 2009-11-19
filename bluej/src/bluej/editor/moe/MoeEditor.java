@@ -3151,7 +3151,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         return sourcePane.getCaretPosition();
     }
 
-    public void removeHighlighting(){
+    public void removeHighlighting()
+    {
         sourcePane.getHighlighter().removeAllHighlights();
     }
 
@@ -3160,15 +3161,18 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         sourcePane.setCaretPosition(pos);
     }
 
-    public int getFoundHighlightPosition() {
+    public int getFoundHighlightPosition()
+    {
         return foundHighlightPosition;
     }
 
-    public void setFoundHighlightPosition(int foundHighlightPosition) {
+    public void setFoundHighlightPosition(int foundHighlightPosition)
+    {
         this.foundHighlightPosition = foundHighlightPosition;
     }
 
-    public int getDocumentLength(){
+    public int getDocumentLength()
+    {
         return document.getLength();
     }
 
@@ -3195,11 +3199,13 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         return selText;
     }
 
-    public void setSelText(String selText) {
+    public void setSelText(String selText)
+    {
         this.selText = selText;
     }
 
-    public void resetSelectedHighlightedPos(){
+    public void resetSelectedHighlightedPos()
+    {
         setFoundHighlightPosition(0);
         setFoundCaretPositon(0);        
     }
@@ -3215,7 +3221,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /* Removes only our selected highlights finds the next one 
      * and selects that
      */
-    public void removeReselectSelection(int startPos, int length) {
+    public void removeReselectSelection(int startPos, int length)
+    {
         Highlighter hilite = currentTextPane.getHighlighter();
         Highlighter.Highlight[] hilites = hilite.getHighlights();
 
@@ -3229,7 +3236,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
                 }
                 //the highlight to modify to selected
-            }if (hilites[i].getStartOffset()==startPos){
+            }
+            if (hilites[i].getStartOffset()==startPos){
                 hilite.removeHighlight(hilites[i]);
                 try{
                     currentTextPane.getHighlighter().addHighlight(startPos, startPos+length, editorHighlighter.selectPainter);
@@ -3244,7 +3252,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /* 
      * Returns the number of highlights in the given textPane
      */
-    public int getNumHighlights() {
+    public int getNumHighlights()
+    {
         int count=0;      
         Highlighter.Highlight[] hilites = currentTextPane.getHighlighter().getHighlights();
         int[] startPoss=new int[hilites.length];
@@ -3260,7 +3269,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /* 
      * Returns true if it is a unique highlight and false if it has already been counted
      */
-    private boolean isHighlight(int[] startPoss, int startPos){
+    private boolean isHighlight(int[] startPoss, int startPos)
+    {
         for (int i=0; i<startPoss.length; i++){
             if (startPoss[i]==startPos)
                 return false;
@@ -3268,7 +3278,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         return true;
     }
 
-    protected void createContentAssist(){
+    protected void createContentAssist()
+    {
         if (dlg==null)
             dlg=new ContentAssistDisplay(this);
         //dlg.setLocation((int)getCaretLocation().getColumn(), (int)getCaretLocation().getLine());
@@ -3278,9 +3289,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         dlg.setVisible(true);
     }
 
-    protected void closeContentAssist(){
+    protected void closeContentAssist()
+    {
         if (dlg!=null)
             dlg.setVisible(false);
     }
-
 }
