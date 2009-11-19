@@ -22,7 +22,6 @@
 package bluej.parser.nodes;
 
 import java.util.Iterator;
-import java.util.Stack;
 
 
 /**
@@ -53,7 +52,7 @@ public class NodeTree
         black = true;
     }
 
-    public Iterator<ParsedNode> iterator()
+    public Iterator<NodeAndPosition> iterator()
     {
         return new NodeTreeIterator(this);
     }
@@ -664,20 +663,21 @@ public class NodeTree
             return size;
         }
     }
-
+    
     /**
      * An iterator through a node tree.
      */
-    private static class NodeTreeIterator implements Iterator<ParsedNode>
+    private static class NodeTreeIterator implements Iterator<NodeAndPosition>
     {
-        Stack<NodeTree> stack;
+        //Stack<NodeTree> stack;
         int pos = 0; // 0 - left, 1 = middle, 2 = right
+        int offset = 0;
+        NodeTree current = null;
 
         public NodeTreeIterator(NodeTree tree)
         {
-            stack = new Stack<NodeTree>();
             if (tree.pnode != null) {
-                stack.push(tree);
+                current = tree;
                 if (tree.left == null) {
                     pos = 1;
                 }
@@ -686,40 +686,51 @@ public class NodeTree
 
         public boolean hasNext()
         {
-            return !stack.isEmpty();
+            // return !stack.isEmpty();
+            return current != null;
         }
 
-        public ParsedNode next()
+        public NodeAndPosition next()
         {
-            NodeTree top = stack.peek();
             while (pos == 0) {
-                top = top.left;
-                stack.push(top);
-                if (top.left == null) {
+                current = current.left;
+                if (current.left == null) {
                     pos = 1;
                 }
             }
+            NodeTree top = current;
 
             if (pos == 1) {
                 pos = 2;
                 if (top.right == null) {
                     downStack();
                 }
-                return top.pnode;
+                // return top.pnode;
+                return new NodeAndPosition(top.pnode,
+                        top.pnodeOffset + offset,
+                        top.pnodeSize);
             }
 
             // pos == 2
+            if (top.right == null) {
+                throw new NullPointerException();
+            }
+            offset += top.pnodeOffset + top.pnodeSize;
             top = top.right;
-            stack.push(top);
+            // stack.push(top);
+            current = top;
             pos = (top.left != null) ? 0 : 1;
             return next();
         }
 
         private void downStack()
         {
-            NodeTree top = stack.pop();
-            while (!stack.isEmpty() && stack.peek().right == top) {
-                top = stack.pop();
+            NodeTree top = current;
+            current = current.parent;
+            while (current != null && current.right == top) {
+                top = current;
+                current = current.parent;
+                offset -= top.pnodeOffset + top.pnodeSize; 
             }
             pos = 1; // middle!
         }

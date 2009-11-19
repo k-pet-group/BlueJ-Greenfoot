@@ -29,10 +29,12 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.Toolkit;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Stack;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.text.BadLocationException;
@@ -62,7 +64,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  */
 public abstract class BlueJSyntaxView extends PlainView
 {
-    /** Paint method inner scope? if false, whole method will be highlighted as a single block (NaviView) */
+    /** (NaviView) Paint method inner scope? if false, whole method will be highlighted as a single block */
     private static final boolean PAINT_METHOD_INNER = false;
     
     private static final int LEFT_INNER_SCOPE_MARGIN = 5;
@@ -85,6 +87,10 @@ public abstract class BlueJSyntaxView extends PlainView
     private static final Color I1 = new Color(230, 210, 230); // pink border (iteration)
     private static final Color I2 = new Color(253, 245, 253); // pink wash
     
+    
+    /** System settings for graphics rendering (inc. font antialiasing etc.) */
+    private static Map<?,?> desktopHints = null;
+
     // private members
     private Segment line;
 
@@ -92,8 +98,7 @@ public abstract class BlueJSyntaxView extends PlainView
     // protected FontMetrics metrics;  is inherited from PlainView
     private boolean initialised = false;
     
-    /** System settings for graphics rendering (inc. font antialiasing etc.) */
-    private Map<?,?> desktopHints = null;
+    private Map<ParsedNode,Integer> nodeIndents = new HashMap<ParsedNode,Integer>();
     
     private int leftMargin = 0;
     
@@ -297,7 +302,7 @@ public abstract class BlueJSyntaxView extends PlainView
                     lines.thisLineSeg);
 
             //rootNode.getNodeStack(prevScopeStack, thisLineEl.getStartOffset(), 0);
-            getScopeStackAt(rootNode, lines.thisLineEl.getStartOffset(), prevScopeStack);
+            getScopeStackAt(rootNode, 0, lines.thisLineEl.getStartOffset(), prevScopeStack);
 
             while (curLine <= lastLine) {
                 
@@ -398,7 +403,7 @@ public abstract class BlueJSyntaxView extends PlainView
             
             // Draw the start node
             int xpos = getNodeIndent(a, document, nap, lines.thisLineEl,
-                    lines.thisLineSeg, lbounds.x, charWidth);
+                    lines.thisLineSeg);
             boolean starts = nodeSkipsStart(napPos, napEnd, lines.aboveLineEl, lines.aboveLineSeg);
             boolean ends = nodeSkipsEnd(napPos, napEnd, lines.belowLineEl, lines.belowLineSeg);
             int rbound = getNodeRBound(a, napEnd, fullWidth - rightMargin, nodeDepth,
@@ -448,7 +453,7 @@ public abstract class BlueJSyntaxView extends PlainView
                     if (drawNode(drawInfo, nextNap, napParent, onlyMethods)) {
                         // Draw it
                         int xpos = getNodeIndent(a, document, nap, lines.thisLineEl,
-                                lines.thisLineSeg, lbounds.x, charWidth);
+                                lines.thisLineSeg);
                         int rbound = getNodeRBound(a, napEnd, fullWidth - rightMargin, nodeDepth,
                                 lines.thisLineEl, lines.thisLineSeg);
                         drawInfo.node = nextNap.getNode();
@@ -725,7 +730,7 @@ public abstract class BlueJSyntaxView extends PlainView
      * If the node isn't present on the line, returns Integer.MAX_VALUE.
      */
     private int getNodeIndent(Shape a, MoeSyntaxDocument doc, NodeAndPosition nap, Element lineEl,
-            Segment segment, int lmargin, int charWidth)
+            Segment segment)
         throws BadLocationException
     {
         int napPos = nap.getPosition();
@@ -748,9 +753,17 @@ public abstract class BlueJSyntaxView extends PlainView
             return Integer.MAX_VALUE;
         }
         
-        int indent = nap.getNode().getLeftmostIndent(doc, nap.getPosition(), getTabSize());
+        // int indent = nap.getNode().getLeftmostIndent(doc, 0, 0);
+        Integer indent = nodeIndents.get(nap.getNode());
+        if (indent == null) {
+            indent = getNodeIndent(a, doc, nap);
+            //nap.getNode().setLeftmostIndent(indent);
+            nodeIndents.put(nap.getNode(), indent);
+            // DAV what if still -1??
+        }
         
-        int xpos = lmargin + charWidth * indent;
+        //int xpos = lmargin + charWidth * indent;
+        int xpos = indent;
         
         // Corner case: node start position is on this line, and is greater than the node indent?
         if (napPos > lineEl.getStartOffset()) {
@@ -765,10 +778,75 @@ public abstract class BlueJSyntaxView extends PlainView
         return xpos;
     }
     
-    private void getScopeStackAt(ParsedNode root, int position, List<NodeAndPosition> list)
+    int getNodeIndent(Shape a, MoeSyntaxDocument doc, NodeAndPosition nap)
+    {
+        try {
+            // If the node starts and ends on the same line
+            // TODO
+
+            int indent = Integer.MAX_VALUE;
+
+            int curpos = nap.getPosition();
+            int napEnd = curpos + nap.getSize();
+
+            Element map = doc.getDefaultRootElement();
+            Stack<NodeAndPosition> scopeStack = new Stack<NodeAndPosition>();
+            getScopeStackAt(nap.getNode(), nap.getPosition(), 0, scopeStack);
+
+            while (curpos < napEnd) {
+                // First skip over inner nodes
+                ListIterator<NodeAndPosition> i = scopeStack.listIterator();
+                i.next();
+                while (i.hasNext()) {
+                    NodeAndPosition inner = i.next();
+                    if (inner.getNode().isInner()) {
+                        int skip = inner.getPosition() + inner.getSize();
+                        i.remove();
+                        while (i.hasNext()) {
+                            i.next();
+                            i.remove();
+                        }
+                        curpos = skip;
+                        NodeAndPosition parent = i.previous();
+                        int pindex = i.nextIndex();
+                        getScopeStackAt(parent.getNode(), parent.getPosition(), curpos, scopeStack);
+                        // Urgh. Java invalidates all iterators when the list is modified. Must recreate.
+                        i = scopeStack.listIterator(pindex);
+                    }
+                }
+
+                // Ok, we've skipped inner nodes
+                int line = map.getElementIndex(curpos);
+                Element lineEl = map.getElement(line);
+                Segment segment = new Segment();
+                doc.getText(curpos, lineEl.getEndOffset() - curpos, segment);
+                int nws = findNonWhitespace(segment, 0);
+
+                if (nws == 0) {
+                    // Ok, at this position we have non-white space and are not in an inner
+                    Rectangle cbounds = modelToView(curpos, a, Position.Bias.Forward).getBounds();
+                    indent = Math.min(indent, cbounds.x);
+                    curpos = lineEl.getEndOffset();
+                }
+                else if (nws == -1) {
+                    curpos = lineEl.getEndOffset();
+                }
+                else {
+                    curpos += nws;
+                }
+            }
+
+            return indent == Integer.MAX_VALUE ? -1 : indent;
+        }
+        catch (BadLocationException ble) {
+            return -1;
+        }
+    }
+    
+    private void getScopeStackAt(ParsedNode root, int rootPos, int position, List<NodeAndPosition> list)
     {
         list.add(new NodeAndPosition(root, 0, root.getSize()));
-        int curpos = 0;
+        int curpos = rootPos;
         NodeAndPosition nap = root.findNodeAtOrAfter(position, curpos);
         while (nap != null) {
             list.add(nap);
@@ -830,8 +908,10 @@ public abstract class BlueJSyntaxView extends PlainView
         defaultFont = g.getFont();
         
         // Use system settings for text rendering (Java 6 only)
-        Toolkit tk = Toolkit.getDefaultToolkit(); 
-        desktopHints = (Map<?,?>) (tk.getDesktopProperty("awt.font.desktophints")); 
+        if (desktopHints == null) {
+            Toolkit tk = Toolkit.getDefaultToolkit(); 
+            desktopHints = (Map<?,?>) (tk.getDesktopProperty("awt.font.desktophints"));
+        }
         if (desktopHints != null && g instanceof Graphics2D) {
             Graphics2D g2d = (Graphics2D) g;
             g2d.addRenderingHints(desktopHints); 
@@ -870,6 +950,13 @@ public abstract class BlueJSyntaxView extends PlainView
      */
     protected void updateDamage(DocumentEvent changes, Shape a, ViewFactory f)
     {
+        if (changes instanceof MoeSyntaxEvent) {
+            MoeSyntaxEvent mse = (MoeSyntaxEvent) changes;
+            for (ParsedNode node : mse.getRemovedNodes()) {
+                nodeRemoved(node);
+            }
+        }
+        
         Component host = getContainer();
         Element elem = getElement();
         DocumentEvent.ElementChange ec = changes.getChange(elem);
@@ -891,5 +978,10 @@ public abstract class BlueJSyntaxView extends PlainView
             int lastline = map.getElementIndex(choffset + chlength - 1);
             damageLineRange(line, lastline, a, host);
         }
+    }
+    
+    private void nodeRemoved(ParsedNode node)
+    {
+        nodeIndents.remove(node);
     }
 }

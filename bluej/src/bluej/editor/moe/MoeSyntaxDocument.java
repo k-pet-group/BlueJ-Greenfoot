@@ -32,7 +32,6 @@ import javax.swing.text.PlainDocument;
 
 import bluej.Config;
 import bluej.parser.nodes.ParsedCUNode;
-import bluej.parser.nodes.ParsedNode;
 
 
 /**
@@ -52,7 +51,7 @@ public class MoeSyntaxDocument extends PlainDocument
     private static Color defaultColour = null;
     private static Color backgroundColour = null;
 	
-    private ParsedNode parsedNode = new ParsedCUNode(this);
+    private ParsedCUNode parsedNode = new ParsedCUNode(this);
     
     public MoeSyntaxDocument()
     {
@@ -62,7 +61,7 @@ public class MoeSyntaxDocument extends PlainDocument
         putProperty(tabSizeAttribute, Integer.valueOf(tabSize));
     }
 
-    public ParsedNode getParser()
+    public ParsedCUNode getParser()
     {
         return parsedNode;
     }
@@ -226,8 +225,11 @@ public class MoeSyntaxDocument extends PlainDocument
      */
     protected void fireInsertUpdate(DocumentEvent e)
     {
+        MoeSyntaxEvent mse = new MoeSyntaxEvent(this, e);
+        parsedNode.addListener(mse);
         parsedNode.textInserted(this, 0, e.getOffset(), e.getLength());
-        super.fireInsertUpdate(e);
+        parsedNode.removeListener(mse);
+        super.fireInsertUpdate(mse);
     }
     
     /* Override the default implementation to notify the parser of text removal
@@ -235,9 +237,11 @@ public class MoeSyntaxDocument extends PlainDocument
      */
     protected void fireRemoveUpdate(DocumentEvent e)
     {
-        // TODO do this in handleRemove instead, then we can hook before the remove and after
+        MoeSyntaxEvent mse = new MoeSyntaxEvent(this, e);
+        parsedNode.addListener(mse);
         parsedNode.textRemoved(this, 0, e.getOffset(), e.getLength());
-        super.fireRemoveUpdate(e);
+        parsedNode.removeListener(mse);
+        super.fireRemoveUpdate(mse);
     }
     
     /**

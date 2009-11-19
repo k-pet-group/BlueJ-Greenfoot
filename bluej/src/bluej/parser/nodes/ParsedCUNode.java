@@ -22,7 +22,9 @@
 package bluej.parser.nodes;
 
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.text.Document;
@@ -33,6 +35,7 @@ import bluej.parser.EditorParser;
 import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.ParsedReflective;
 import bluej.parser.entity.TypeEntity;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 
 /**
@@ -44,12 +47,30 @@ public class ParsedCUNode extends ParentParsedNode
 {
     //private JavaTokenMarker marker = new JavaTokenMarker();
     private Document document;
-	
+
+    private List<NodeStructureListener> listeners = new ArrayList<NodeStructureListener>();
+    
     public ParsedCUNode(Document document)
     {
         this.document = document;
     }
-	
+
+    /**
+     * Add a structure listener to this compilation unit.
+     */
+    public void addListener(NodeStructureListener listener)
+    {
+        listeners.add(listener);
+    }
+    
+    /**
+     * Remove a structure listener from this compilation unit.
+     */
+    public void removeListener(NodeStructureListener listener)
+    {
+        listeners.remove(listener);
+    }
+    
     /**
      * Overridden getSize() which returns the document size.
      * 
@@ -75,12 +96,29 @@ public class ParsedCUNode extends ParentParsedNode
     
     protected void doReparse(Document document, int nodePos, int pos)
     {
-        getNodeTree().clear();
+        clearNode(this);
+        
         Reader r = new DocumentReader(document);
         EditorParser parser = new EditorParser(r);
         parser.parseCU(this);
 	    
         ((MoeSyntaxDocument) document).documentChanged();
+    }
+    
+    /**
+     * Remove all subnodes from the given node.
+     */
+    private void clearNode(ParsedNode node)
+    {
+        Iterator<NodeAndPosition> i = node.getNodeTree().iterator();
+        while (i.hasNext()) {
+            NodeAndPosition nap = i.next();
+            clearNode(nap.getNode());
+            for (Iterator<NodeStructureListener> j = listeners.iterator(); j.hasNext(); ) {
+                j.next().nodeRemoved(nap.getNode());
+            }
+        }
+        node.getNodeTree().clear();
     }
     
     @Override

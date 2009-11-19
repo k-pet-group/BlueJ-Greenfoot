@@ -169,11 +169,6 @@ public abstract class ParsedNode implements EntityResolver
         isInner = inner;
     }
 	
-    public int getLeftmostIndent(Document document, int nodePos, int tabSize)
-    {
-        return 0;
-    }
-	
     public int getSize()
     {
         return getContainingNodeTree().getNodeSize();

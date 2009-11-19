@@ -21,9 +21,10 @@
  */
 package bluej.editor.moe;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 
-import javax.swing.*;
+import javax.swing.JEditorPane;
 import javax.swing.border.EmptyBorder;
 
 /**

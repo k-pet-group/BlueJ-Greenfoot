@@ -21,9 +21,7 @@
  */
 package bluej.parser.nodes;
 
-import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import javax.swing.text.Segment;
 
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.Token;
@@ -42,8 +40,6 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  */
 public class ParentParsedNode extends ParsedNode
 {
-    private int cachedLeftIndex = -1;
-    
     protected ParentParsedNode()
     {
         super();
@@ -52,14 +48,6 @@ public class ParentParsedNode extends ParsedNode
     public ParentParsedNode(ParsedNode myParent)
     {
         super(myParent);
-    }
-    
-    public int getLeftmostIndent(Document document, int nodePos, int tabSize)
-    {
-        if (cachedLeftIndex == -1) {
-            recalcLeftIndent(document, nodePos, tabSize);
-        }
-        return cachedLeftIndex;
     }
     
     public Token getMarkTokensFor(int pos, int length, int nodePos,
@@ -215,85 +203,6 @@ public class ParentParsedNode extends ParsedNode
             reparseNode(document, nodePos, 0);
         }
     }
-
-    private void recalcLeftIndent(Document document, int nodePos, int tabSize)
-    {
-        cachedLeftIndex = -1;
-        int size = getSize();
-        int endpos = nodePos + size;
-        int curpos = nodePos;
-        
-        while (curpos < endpos) {
-            NodeAndPosition nap = getNodeTree().findNodeAtOrAfter(curpos, nodePos);
-            int napos = endpos;
-            if (nap != null) {
-                napos = Math.min(nap.getPosition(), napos);
-            }
-            
-            // A segment of text which is in this node.
-            int textlen = napos - curpos;
-            while (textlen != 0) {
-                int lbegin = document.getDefaultRootElement().getElementIndex(curpos);
-                int lcol = curpos - document.getDefaultRootElement().getElement(lbegin).getStartOffset();
-                int endlPos = document.getDefaultRootElement().getElement(lbegin).getEndOffset();
-                
-                int lineAmount = Math.min(endlPos - curpos, textlen);
-                Segment segment = new Segment();
-                try {
-                    document.getText(curpos, lineAmount, segment);
-                } catch (BadLocationException e) {
-                    // e.printStackTrace();
-                }
-                
-                int indent = getIndentOf(segment, lcol, tabSize);
-                if (indent != -1 && (indent < cachedLeftIndex || cachedLeftIndex == -1)) {
-                    cachedLeftIndex = indent;
-                }
-                
-                curpos += lineAmount;
-                textlen -= lineAmount;
-            }
-            
-            if (nap != null) {
-                curpos += nap.getSize();
-            }
-        }
-        
-        if (cachedLeftIndex == -1) {
-            ParsedNode parent = getParentNode();
-            if (parent != null) {
-                cachedLeftIndex = Math.max(parent.getLeftmostIndent(document, nodePos, tabSize), 0);
-                cachedLeftIndex += tabSize;
-            }
-        }
-    }
-    
-    /**
-     * Get the indent of a string, if it starts at the given column.
-     * Returns -1 if the indent couldn't be identified (empty line).
-     */
-    private int getIndentOf(Segment string, int startcol, int tabSize)
-    {
-        int indent = startcol;
-        for (int i = string.getBeginIndex(); i < string.getEndIndex(); i++) {
-            char c = string.setIndex(i);
-            if (c == '\n') {
-                return -1;
-            }
-            if (c == ' ') {
-                indent++;
-            }
-            else if (c == '\t') {
-                indent += tabSize;
-                indent -= indent % tabSize;
-            }
-            else {
-                return indent;
-            }
-        }
-        
-        return -1;
-    }
     
     public void textRemoved(Document document, int nodePos, int delPos,
             int length)
@@ -311,7 +220,6 @@ public class ParentParsedNode extends ParsedNode
                 NodeTree childTree = child.getNode().getContainingNodeTree();
                 childTree.setNodeSize(childTree.getNodeSize() - length);
 
-                cachedLeftIndex = -1; // TODO not always needed
                 reparseNode(document, nodePos, 0);
                 ((MoeSyntaxDocument) document).documentChanged();
                 return;
@@ -358,7 +266,6 @@ public class ParentParsedNode extends ParsedNode
             
         }
         
-        cachedLeftIndex = -1; // TODO not always needed
         reparseNode(document, nodePos, 0);
         ((MoeSyntaxDocument) document).documentChanged();
     }
@@ -375,8 +282,5 @@ public class ParentParsedNode extends ParsedNode
             noffset += getContainingNodeTree().getPosition();
         }
         getParentNode().reparseNode(document, nodePos - noffset, 0);
-        cachedLeftIndex = -1;
     }
-    
-    //protected abstract void doReparse(Document document, int nodePos, int position);
 }
