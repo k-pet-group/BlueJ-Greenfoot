@@ -33,6 +33,7 @@ import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -3280,13 +3281,20 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     protected void createContentAssist()
     {
-        if (dlg==null)
-            dlg=new ContentAssistDisplay(this);
-        //dlg.setLocation((int)getCaretLocation().getColumn(), (int)getCaretLocation().getLine());
-        //System.out.println("setting the location "+getLocation().getX()+" & "+ getLocation().getY());
-        dlg.setLocation((int)getLocation().getX(), (int)getLocation().getY());
-        //System.out.println("setting the location "+getCaretPosition()+" & "+ getLocation().getY());
-        dlg.setVisible(true);
+        if (dlg == null)
+            dlg = new ContentAssistDisplay(this);
+        
+        int cpos = sourcePane.getCaretPosition();
+        try {
+            Rectangle pos = sourcePane.modelToView(cpos);
+            Point spLoc = sourcePane.getLocationOnScreen();
+            int xpos = pos.x + spLoc.x;
+            int ypos = pos.y + pos.height + spLoc.y;
+            dlg.setLocation(xpos, ypos);
+            dlg.setVisible(true);
+            dlg.requestFocus();
+        }
+        catch (BadLocationException ble) {}
     }
 
     protected void closeContentAssist()

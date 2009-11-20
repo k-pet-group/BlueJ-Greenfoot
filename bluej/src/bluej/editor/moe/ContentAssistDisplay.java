@@ -12,8 +12,8 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JList;
@@ -63,7 +63,7 @@ ListSelectionListener, FocusListener, KeyListener {
     }
 
     public ContentAssistDisplay(Frame owner) {
-        //super(owner);
+        super(owner);
 
         editor=(MoeEditor)owner;
         methodsAvailable=new String[methods.length];
@@ -79,22 +79,17 @@ ListSelectionListener, FocusListener, KeyListener {
         pane=getContentPane();
         pane.addKeyListener(this);
         
-        FocusListener listener = new FocusListener() {
-            public void focusGained(FocusEvent e) {
-              
+        addWindowFocusListener(new WindowFocusListener() {
+            
+            public void windowGainedFocus(WindowEvent e)
+            {
             }
-
-            public void focusLost(FocusEvent e) {
-              close(e);
+            
+            public void windowLostFocus(WindowEvent e)
+            {
+                setVisible(false);
             }
-
-            private void close(FocusEvent e) {
-              System.out.println("Source  : " + e.getComponent());
-              pane.setVisible(false);
-            }
-
-           
-          };
+        });
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(gridL);
@@ -122,16 +117,8 @@ ListSelectionListener, FocusListener, KeyListener {
         mainPanel.addFocusListener(this);
         //mainPanel.addKeyListener(this);
 
-        addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent E) {
-                setVisible(false);
-            }
-        });
-
         pane.add(mainPanel);
-        pane.addFocusListener(listener);
         pack();
-
     }
 
     public int getSelectedMethod() {
