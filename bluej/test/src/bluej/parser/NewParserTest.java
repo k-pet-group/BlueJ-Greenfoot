@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import junit.framework.TestCase;
+import bluej.parser.ast.LocatableToken;
 
 public class NewParserTest extends TestCase
 {
@@ -17,7 +18,7 @@ public class NewParserTest extends TestCase
                 "LinkedList<String[]>"
         );
         InfoParser ip = new InfoParser(sr);
-        List ll = new LinkedList();
+        List<LocatableToken> ll = new LinkedList<LocatableToken>();
         assertTrue(ip.parseTypeSpec(false, true, ll));
         // 6 tokens: LinkedList, '<', String, '[', ']', '>'
         assertEquals(6, ll.size());
@@ -32,7 +33,7 @@ public class NewParserTest extends TestCase
                 "LinkedList<List<String[]>>"
         );
         InfoParser ip = new InfoParser(sr);
-        List ll = new LinkedList();
+        List<LocatableToken> ll = new LinkedList<LocatableToken>();
         assertTrue(ip.parseTypeSpec(false, true, ll));
         // 8 tokens: LinkedList, '<', List, '<', String, '[', ']', '>>'
         assertEquals(8, ll.size());
@@ -358,6 +359,18 @@ public class NewParserTest extends TestCase
     {
         StringReader sr = new StringReader(
                 "new String[]{\"hello\", \"goodbye\",}"
+        );
+        InfoParser ip = new InfoParser(sr);
+        ip.parseExpression();
+    }
+    
+    /** Test generic method call */
+    public void testGenericMethodCall()
+    {
+        // someMethod might be declared something like:
+        //    public <T> void someMethod(T arg) { }
+        StringReader sr = new StringReader(
+                "this.<String>someMethod(\"hello\")"
         );
         InfoParser ip = new InfoParser(sr);
         ip.parseExpression();
