@@ -64,7 +64,8 @@ public class JavaParser
     protected void error(String msg)
     {
         //throw new RuntimeException("Parse error: (" + lexer.getLine() + ":" + lexer.getColumn() + ") " + msg);
-        throw new RuntimeException("Parse error: " + msg);
+        LocatableToken next = tokenStream.LA(1);
+        throw new RuntimeException("Parse error: (" + next.getLine() + ":" + next.getColumn() + ") :" + msg);
     }
 
     /**
@@ -510,7 +511,9 @@ public class JavaParser
         }
     }
 	
-    // Parse template parameters. The '<' should have been read already.
+    /**
+     * Parse template parameters. The opening '<' should have been read already.
+     */
     public void parseTemplateParams()
     {
         DepthRef dr = new DepthRef();
@@ -1667,7 +1670,15 @@ public class JavaParser
         return true;
     }
 
-    // TODO comments
+    /**
+     * Parse a type argument, type part. The "? super" or "? extends" have already been dealt
+     * with. The type part may itself have type arguments, and might be followed by a comma
+     * or a closing '>' sequence.
+     * 
+     * @param speculative  Should be true if this is a speculative type parse
+     * @param ttokens  A list of tokens. All tokens processed will be added to this list.
+     * @param dr  Depth reference.
+     */
     private boolean parseTargType(boolean speculative, List<LocatableToken> ttokens, DepthRef dr)
     {
         int beginDepth = dr.depth;
@@ -1931,6 +1942,23 @@ public class JavaParser
             }
             else if (token.getType() == JavaTokenTypes.IDENT) {
                 gotIdentifier(token);
+                if (tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
+                    // Method call
+                    parseArgumentList(tokenStream.nextToken());
+                    tokenStream.nextToken(); // remove the ')'
+                }
+            }
+            else if (token.getType() == JavaTokenTypes.LITERAL_this
+                    || token.getType() == JavaTokenTypes.LITERAL_super)
+            {
+                if (tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
+                    // call to constructor or superclass constructor
+                    parseArgumentList(tokenStream.nextToken());
+                    tokenStream.nextToken();  // ')'
+                }
+                else {
+                    gotLiteral(token);
+                }
             }
             else if (token.getType() == JavaTokenTypes.STRING_LITERAL
                     || token.getType() == JavaTokenTypes.CHAR_LITERAL
@@ -1939,8 +1967,6 @@ public class JavaParser
                     || token.getType() == JavaTokenTypes.NUM_DOUBLE
                     || token.getType() == JavaTokenTypes.NUM_FLOAT
                     || token.getType() == JavaTokenTypes.LITERAL_null
-                    || token.getType() == JavaTokenTypes.LITERAL_this
-                    || token.getType() == JavaTokenTypes.LITERAL_super
                     || token.getType() == JavaTokenTypes.LITERAL_true
                     || token.getType() == JavaTokenTypes.LITERAL_false) {
                 // Literals need no further processing
@@ -1968,12 +1994,14 @@ public class JavaParser
                 // -it's followed by ')'
                 // -it's not followed by an operator OR
                 //  the type is primitive and the following operator is a unary operator
+                //  OR the type is primitive and the following is '('
                 // -it's not followed by an expression terminator - ; , )
 
                 int tt2 = tokenStream.LA(2).getType();
                 boolean isCast = isTypeSpec && tokenStream.LA(1).getType() == JavaTokenTypes.RPAREN;
                 isCast &= !isOperator(tokenStream.LA(2)) || (isPrimitive
-                        && isUnaryOperator(tokenStream.LA(2)));
+                        && (isUnaryOperator(tokenStream.LA(2)) ||
+                                tokenStream.LA(2).getType() == JavaTokenTypes.LPAREN));
                 isCast &= tt2 != JavaTokenTypes.SEMI && tt2 != JavaTokenTypes.RPAREN
                 && tt2 != JavaTokenTypes.RCURLY && tt2 != JavaTokenTypes.EOF;
 
@@ -2019,11 +2047,6 @@ public class JavaParser
                     endExpression(token);
                     return;
                 }
-                else if (token.getType() == JavaTokenTypes.LPAREN) {
-                    // Method call
-                    parseArgumentList(token);
-                    tokenStream.nextToken(); // remove the ')'
-                }
                 else if (token.getType() == JavaTokenTypes.LBRACK) {
                     // Arrary subscript?
                     if (tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
@@ -2046,12 +2069,34 @@ public class JavaParser
                     // Handle dot operator specially, as there are some special cases
                     LocatableToken opToken = token;
                     token = tokenStream.nextToken();
-                    if (token.getType() != JavaTokenTypes.LITERAL_class) {
-                        gotBinaryOperator(opToken);
-                        break;
+                    if (token.getType() == JavaTokenTypes.LITERAL_class) {
+                        // Class literal: continue and look for another operator
+                        continue;
                     }
-                    // Class literal: continue and look for another operator
-                    // (which should really only be '.')
+                    else if (token.getType() == JavaTokenTypes.LT) {
+                        // generic method call
+                        DepthRef dr = new DepthRef();
+                        List<LocatableToken> ttokens = new LinkedList<LocatableToken>();
+                        dr.depth = 1;
+                        if (!parseTpars(false, ttokens, dr)) {
+                            continue;  // we're a bit lost now really...
+                        }
+                        token = tokenStream.nextToken();
+                        if (token.getType() != JavaTokenTypes.IDENT) {
+                            error("Expecting method name (in call to generic method)");
+                            continue;
+                        }
+                        token = tokenStream.nextToken();
+                        if (token.getType() != JavaTokenTypes.LPAREN) {
+                            error("Expecting '(' after method name");
+                            continue;
+                        }
+                        parseArgumentList(token);
+                        tokenStream.nextToken(); // remove the ')'
+                        continue;
+                    }
+                    gotBinaryOperator(opToken);
+                    break;
                 }
                 else if (isBinaryOperator(token)) {
                     // Binary operators - need another operand
