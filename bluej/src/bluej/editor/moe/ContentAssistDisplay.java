@@ -40,25 +40,24 @@ ListSelectionListener, FocusListener {
     private int selectedMethod=0;
 
     private int selectedValue=0;
-    private MoeEditor editor;
 
-    private String text="";
     private JComponent pane;
-
-   
 
     public ContentAssistDisplay(Frame owner, AssistContent[] values) 
     {
-        editor=(MoeEditor)owner;
         this.values=values;
         methodsAvailable=new String[values.length];
         methodDescrs=new String[values.length];
         populateMethods();
-        makeDialog();
+        makePanel();
 
     }
 
-    private void makeDialog()
+    /*
+     * Creates a component with a main panel (list of available methods & values)
+     * and a text area where the description of the chosen value is displayed
+     */
+    private void makePanel()
     {
         GridLayout gridL=new GridLayout(1, 2);
         pane=(JComponent) getContentPane();

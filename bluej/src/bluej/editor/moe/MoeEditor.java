@@ -2747,6 +2747,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
+                closeContentAssist();
                 close();
             }
             public void windowActivated(WindowEvent e) {
@@ -3281,8 +3282,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     protected void createContentAssist()
     {
-        //if (dlg==null)
-        //need to recreate the dialog each time it is pressed 
+        //need to recreate the dialog each time it is pressed as the values may be different 
         closeContentAssist();
         populateContentAssist();
         dlg=new ContentAssistDisplay(this, values);
@@ -3305,6 +3305,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             dlg.setVisible(false);
     }
 
+    /*
+     * Populates the array with the relevant content 
+     */
     private void populateContentAssist(){
         values= new AssistContent[]
                                   { new AssistContent("toString","Methodreturn", "MethodClass", "this is a test of toString"), 
