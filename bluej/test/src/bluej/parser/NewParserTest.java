@@ -376,4 +376,12 @@ public class NewParserTest extends TestCase
         ip.parseExpression();
     }
     
+    public void testPrimitiveCast()
+    {
+        StringReader sr = new StringReader(
+                "(byte)(a + 1)"
+        );
+        InfoParser ip = new InfoParser(sr);
+        ip.parseExpression();
+    }
 }
