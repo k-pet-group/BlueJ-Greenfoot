@@ -31,7 +31,6 @@ import javax.swing.event.ListSelectionListener;
 public class ContentAssistDisplay extends JFrame implements ActionListener, 
 ListSelectionListener, FocusListener {
 
-
     private String[] methodsAvailable;
     private String[] methodDescrs;
     private AssistContent[] values;
@@ -46,13 +45,10 @@ ListSelectionListener, FocusListener {
     private String text="";
     private JComponent pane;
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        // TODO Auto-generated method stub
+   
 
-    }
-
-    public ContentAssistDisplay(Frame owner, AssistContent[] values) {
+    public ContentAssistDisplay(Frame owner, AssistContent[] values) 
+    {
         editor=(MoeEditor)owner;
         this.values=values;
         methodsAvailable=new String[values.length];
@@ -130,22 +126,26 @@ ListSelectionListener, FocusListener {
 
     }
 
-    public int getSelectedMethod() {
+    public int getSelectedMethod() 
+    {
         return selectedMethod;
     }
 
-    public void setSelectedMethod(int selectedMethod) {
+    public void setSelectedMethod(int selectedMethod) 
+    {
         this.selectedMethod = selectedMethod;
     }
 
     @Override
-    public void valueChanged(ListSelectionEvent e) {
+    public void valueChanged(ListSelectionEvent e) 
+    {
         methodDescription.setText(methodDescrs[methodList.getSelectedIndex()]);
         selectedValue=methodList.getSelectedIndex();
     }
 
     //once off call when the panel is initialised as it will not be changing
-    private void populateMethods(){  
+    private void populateMethods()
+    {  
         for (int i=0;i <values.length; i++ ){
             methodsAvailable[i]=values[i].getContentName()+" : "+
             values[i].getContentReturnType()+" - "+values[i].getContentClass();
@@ -154,20 +154,30 @@ ListSelectionListener, FocusListener {
 
     }
 
-    public void close(){
+    public void close()
+    {
         this.setVisible(false);
     }
 
     @Override
-    public void focusGained(FocusEvent e) {
+    public void focusGained(FocusEvent e) 
+    {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void focusLost(FocusEvent e) {
+    public void focusLost(FocusEvent e) 
+    {
         // TODO Auto-generated method stub
         
+    }
+    
+    @Override
+    public void actionPerformed(ActionEvent e) 
+    {
+        // TODO Auto-generated method stub
+
     }
 
 }
