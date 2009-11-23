@@ -219,7 +219,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     private String selText="";
 
     //new content assist
-    ContentAssistDisplay dlg;
+    private ContentAssistDisplay dlg;
+    private AssistContent[] values;
 
     /**
      * Property map, allows BlueJ extensions to assosciate property values with
@@ -3152,8 +3153,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         return sourcePane.getCaretPosition();
     }
 
-    public void removeHighlighting()
-    {
+    public void removeHighlighting(){
         sourcePane.getHighlighter().removeAllHighlights();
     }
 
@@ -3162,12 +3162,12 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         sourcePane.setCaretPosition(pos);
     }
 
-    public int getFoundHighlightPosition()
+    public int getFoundHighlightPosition() 
     {
         return foundHighlightPosition;
     }
 
-    public void setFoundHighlightPosition(int foundHighlightPosition)
+    public void setFoundHighlightPosition(int foundHighlightPosition) 
     {
         this.foundHighlightPosition = foundHighlightPosition;
     }
@@ -3281,9 +3281,11 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     protected void createContentAssist()
     {
-        if (dlg == null)
-            dlg = new ContentAssistDisplay(this);
-        
+        //if (dlg==null)
+        //need to recreate the dialog each time it is pressed 
+        closeContentAssist();
+        populateContentAssist();
+        dlg=new ContentAssistDisplay(this, values);
         int cpos = sourcePane.getCaretPosition();
         try {
             Rectangle pos = sourcePane.modelToView(cpos);
@@ -3302,4 +3304,21 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         if (dlg!=null)
             dlg.setVisible(false);
     }
+
+    private void populateContentAssist(){
+        values= new AssistContent[]
+                                  { new AssistContent("toString","Methodreturn", "MethodClass", "this is a test of toString"), 
+                new AssistContent("methodName", "returntest1","classtest2","descrTest3"),
+                new AssistContent("methodName1", "returntest11","classtest21","descrTest31"),
+                new AssistContent("methodName2", "returntest12","classtest22","descrTest32"),
+                new AssistContent("methodName3", "returntest13","classtest23","descrTest33"),
+                new AssistContent("methodName4", "returntest14","classtest24","descrTest34"),
+                new AssistContent("methodName5", "returntest15","classtest25","descrTest35"),
+                new AssistContent("methodName6", "returntest16","classtest26","descrTest36"),
+                new AssistContent("methodName7", "returntest17","classtest27","descrTest37"),
+                new AssistContent("methodName8", "returntest18","classtest28","descrTest38"),
+                new AssistContent("methodName9", "returntest19","classtest29","descrTest39"),
+                new AssistContent("methodNamea", "returntest1a","classtest2a","descrTest3a")};
+    }
+
 }
