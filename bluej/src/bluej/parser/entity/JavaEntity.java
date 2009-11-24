@@ -44,14 +44,6 @@ public abstract class JavaEntity
     }
     
     /**
-     * If this entity is unresolved, resolve it now as a value or a type.
-     */
-//    public JavaEntity resolveAsValOrType() throws SemanticException
-//    {
-//        throw new SemanticException();
-//    }
-    
-    /**
      * If this entity is unresolved, resolve it now as a type.
      */
     public JavaEntity resolveAsType()
@@ -63,9 +55,21 @@ public abstract class JavaEntity
      * Get the type of the entity. For a class entity, this is the class itself
      * (may be generic). For a value this is the value type.
      * 
-     * Returns null if no type is available.
+     * <p>You should always resolve the entity to either a value or type before
+     * calling this method.
+     * 
+     * <p>Returns null if no type is available or undetermined (i.e. if the entity
+     * has not properly been resolved).
      */ 
     public abstract JavaType getType();
+    
+    /**
+     * Check whether this entity represents "null". "null" has no type.
+     */
+    public boolean isNullEntity()
+    {
+        return false;
+    }
     
     /**
      * Get a sub-entity (member, field, whatever) by name.
@@ -74,5 +78,18 @@ public abstract class JavaEntity
      */
     public abstract JavaEntity getSubentity(String name);
     
+    /**
+     * Get the name of the entity. If the entity is represented by a single identifier, this
+     * returns the identifier.
+     */
     public abstract String getName();
+    
+    /**
+     * Check whether this identity represents a single identifier. If it does,
+     * this method returns true and getName() returns the identifier.
+     */
+    public boolean isIdentifier()
+    {
+        return false;
+    }
 }

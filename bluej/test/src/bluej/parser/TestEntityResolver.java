@@ -105,7 +105,7 @@ public class TestEntityResolver implements EntityResolver
     }
     
     @Override
-    public JavaEntity resolveValueEntity(String name, String querySource)
+    public JavaEntity getValueEntity(String name, String querySource)
     {
         return resolvePackageOrClass(name, querySource);
     }

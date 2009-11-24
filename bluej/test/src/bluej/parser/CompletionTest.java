@@ -67,17 +67,20 @@ public class CompletionTest extends TestCase
         return document.getParser();
     }
     
+    /**
+     * Basic field access test.
+     */
     public void test1()
     {
         String aClassSrc = "class A {" +
-        "  public int f = 0;" +
+        "  public static int f = 0;" +
         "}";
         
         ParsedCUNode aNode = cuForSource(aClassSrc);
         
         resolver.addCompilationUnit("", aNode);
         
-        JavaEntity entity = resolver.resolveValueEntity("A", "B");
+        JavaEntity entity = resolver.getValueEntity("A", "B");
         entity = entity.getSubentity("f");
         entity = entity.resolveAsValue();
         assertEquals("int", entity.getType().toString());

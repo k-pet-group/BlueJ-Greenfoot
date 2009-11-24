@@ -41,7 +41,7 @@ public class UnresolvedEntity extends JavaEntity
     public static JavaEntity getEntity(EntityResolver resolver, String name)
     {
         PackageOrClass poc = resolver.resolvePackageOrClass(name, null);
-        JavaEntity value = resolver.resolveValueEntity(name, null);
+        JavaEntity value = resolver.getValueEntity(name, null);
         
         if (poc != null && value != null) {
             return new UnresolvedEntity(poc, value);

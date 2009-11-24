@@ -164,9 +164,8 @@ public class TextAnalyzer
                 return new PackageEntity(name, classLoader);
             }
             
-            public JavaEntity resolveValueEntity(String name, String querySource)
+            public JavaEntity getValueEntity(String name, String querySource)
             {
-                // TODO Auto-generated method stub
                 return null;
             }
         };
@@ -181,7 +180,7 @@ public class TextAnalyzer
                     return "";
                 }
                 else {
-                    return exprType.getType().toString();
+                    return exprType.resolveAsValue().getType().toString();
                 }
             }
         }

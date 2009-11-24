@@ -72,7 +72,7 @@ public class ClassLoaderResolver implements EntityResolver
         return new PackageEntity(name, classLoader);
     }
     
-    public JavaEntity resolveValueEntity(String name, String querySource)
+    public JavaEntity getValueEntity(String name, String querySource)
     {
         return resolvePackageOrClass(name, null);
     }

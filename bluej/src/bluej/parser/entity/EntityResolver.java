@@ -49,5 +49,5 @@ public interface EntityResolver
      * @param querySource The source of the query (a fully qualified class name,
      *            as would be returned by Class.getName()).
      */
-    public JavaEntity resolveValueEntity(String name, String querySource);
+    public JavaEntity getValueEntity(String name, String querySource);
 }

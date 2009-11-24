@@ -35,6 +35,7 @@ import bluej.parser.ast.gen.JavaTokenTypes;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.ErrorEntity;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.NullEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.UnresolvedEntity;
 import bluej.parser.entity.ValueEntity;
@@ -129,7 +130,16 @@ public class TextParser extends JavaParser
             checkArgs(arg1, arg2, token);
             break;
         case CAST_OPERATOR:
-            valueStack.pop(); // remove the value being cast, leave the cast-to type.
+            popValueStack(); // remove the value being cast, leave the cast-to type.
+            JavaEntity castType = popValueStack();
+            castType = castType.resolveAsType();
+            if (castType != null) {
+                // TODO check operand can be cast to this type
+                valueStack.push(new ValueEntity(castType.getType()));
+            }
+            else {
+                valueStack.push(new ErrorEntity());
+            }
             break;
         }
         // TODO
@@ -139,7 +149,6 @@ public class TextParser extends JavaParser
     {
         /* List<JavaEntity> arguments = */ argumentStack.pop(); // constructor arguments
         // TODO check argument validity
-        //JavaEntity consType = valueStack.pop();
         // Don't pop the type off the stack: we would just have to push it back anyway
     }
     
@@ -182,6 +191,11 @@ public class TextParser extends JavaParser
             else {
                 valueStack.push(new ValueEntity("", resultType));
             }
+            break;
+        case JavaTokenTypes.DOT:
+            // This is handled elsewhere
+            valueStack.push(new ErrorEntity());
+        default:
         }
     }
     
@@ -228,13 +242,14 @@ public class TextParser extends JavaParser
             valueStack.push(new ValueEntity(JavaPrimitiveType.getDouble()));
         }
         else if (token.getType() == JavaTokenTypes.LITERAL_null) {
-            valueStack.push(resolver.resolveQualifiedClass("java.lang.Object"));
+            valueStack.push(new NullEntity());
         }
     }
     
     @Override
     protected void gotIdentifier(LocatableToken token)
     {
+        // Process any dot operator immediately
         String ident = token.getText();
         if (! operatorStack.isEmpty() && operatorStack.peek().getType() == JavaTokenTypes.DOT) {
             JavaEntity top = valueStack.pop();
