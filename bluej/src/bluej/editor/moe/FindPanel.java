@@ -365,12 +365,14 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         if (validSearch){
             previousButton.setEnabled(true);
             nextButton.setEnabled(true);
+            editor.enableFindNextButtons(true);
             //prevArrowButton.setEnabled(true);
             //nextArrowButton.setEnabled(true);
         }
         else{
             previousButton.setEnabled(false);
             nextButton.setEnabled(false);
+            editor.enableFindNextButtons(false);
             //prevArrowButton.setEnabled(false);
             //nextArrowButton.setEnabled(false);
         }
@@ -410,7 +412,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
      * -search forward or backward depending on choice
      * -print out number of highlights 
      */
-    private void highlightAll(boolean ignoreCase, boolean wholeWord, boolean wrap, boolean next)
+    public void highlightAll(boolean ignoreCase, boolean wholeWord, boolean wrap, boolean next)
     {
         searchForward(ignoreCase, wholeWord, wrap, next);
         writeMessage(false);     

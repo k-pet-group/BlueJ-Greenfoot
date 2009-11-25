@@ -93,6 +93,8 @@ import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.Config;
 import bluej.editor.EditorWatcher;
+import bluej.editor.moe.MoeActions.FindNextAction;
+import bluej.editor.moe.MoeActions.FindNextBackwardAction;
 import bluej.parser.SourceLocation;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
@@ -1279,7 +1281,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /**
      * Implementation of "find-next" user function.
      */
-     public void findNext()
+    public void findNext()
     {
         finder.getNext();
     }
@@ -1306,7 +1308,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         finder.getPrev();
     }
-    
+
     // --------------------------------------------------------------------
 
     /**
@@ -1880,6 +1882,15 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     }
 
+    /**
+     * Allow the enabling/disabling of the find next+find next backward button
+     * according to values in the new find panel
+     * @param flag  true to enable button.
+     */    
+    public void enableFindNextButtons(boolean enabled){
+        ((FindNextAction)actions.getFindNextAction()).setEnabled(enabled); 
+        ((FindNextBackwardAction)actions.getFindNextBackwardAction()).setEnabled(enabled);
+    }
     /**
      * Returns a list of flagged items 
      *  
