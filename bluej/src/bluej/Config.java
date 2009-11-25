@@ -152,6 +152,7 @@ public final class Config
                     new Color(195, 195, 195)));
    
     private static Color selectionColour;
+    private static Color highlightColour;
     private static List<String> debugVMArgs = new ArrayList<String>();
     
     /** whether this is the debug vm or not. */
@@ -1220,6 +1221,17 @@ public final class Config
             selectionColour = Config.getItemColour("colour.selection");
         }
         return selectionColour;
+    }
+    
+    /**
+     * Return a color value for selections.
+     */
+    public static Color getHighlightColour()
+    {
+        if(highlightColour == null) {
+            highlightColour = Config.getItemColour("colour.highlight");
+        }
+        return highlightColour;
     }
     
     /**

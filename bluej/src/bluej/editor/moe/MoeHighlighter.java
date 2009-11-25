@@ -6,21 +6,14 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.JTextComponent;
 
+import bluej.Config;
+
 
 public class MoeHighlighter extends DefaultHighlighter {
 
-    protected HighlightPainter selectPainter;
+    protected HighlightPainter selectPainter ;
     protected HighlightPainter highlightPainter;
-    protected HighlightPainter testingPainter;
     
-    public MoeHighlighter(Color arg0, JTextComponent comp) 
-    {
-        super();
-        selectPainter=new MoeHighlighterPainter(Color.YELLOW);
-        highlightPainter=new MoeHighlighterPainter(arg0);
-        testingPainter=new MoeHighlighterPainter(Color.GREEN);
-        install(comp);
-    }
     
     public MoeHighlighter(Color selectColor, Color highlightColor, JTextComponent comp) 
     {
@@ -33,12 +26,8 @@ public class MoeHighlighter extends DefaultHighlighter {
     public MoeHighlighter(JTextComponent comp) 
     {
         super();
-        //highlightPainter=new MoeHighlighterPainter(new Color(255, 255, 90));
-        //selectPainter=new MoeHighlighterPainter(new Color(255, 255, 0)); 
-        selectPainter=new MoeHighlighterPainter(new Color(249, 225, 87)); 
-        highlightPainter=new MoeHighlighterPainter(new Color(255, 255, 0));
-        //selectPainter=new MoeHighlighterPainter(comp.getSelectionColor());
-
+        selectPainter=new MoeHighlighterPainter(Config.getSelectionColour()); 
+        highlightPainter=new MoeHighlighterPainter(Config.getHighlightColour());
         install(comp);
     }
     
