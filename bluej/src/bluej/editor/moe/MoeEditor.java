@@ -1279,11 +1279,22 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /**
      * Implementation of "find-next" user function.
      */
-    public void findNext()
+     public void findNext()
     {
         finder.getNext();
     }
 
+    /**
+     * Do a find with info in the info area.
+     */
+    private void findNextString(Finder finder, String s, boolean backward)
+    {
+        boolean found = findString(s, backward, finder.getIgnoreCase(), 
+                finder.getWholeWord(), (!finder.getSearchFound()));
+
+        finder.setSearchString(s);
+        finder.setSearchFound(found);
+    }
 
 
 
@@ -1295,7 +1306,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         finder.getPrev();
     }
-
+    
     // --------------------------------------------------------------------
 
     /**
@@ -1472,7 +1483,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 if (lineText != null && lineText.length() > 0) {
                     int foundPos = findSubstring(lineText, s, ignoreCase, wholeWord, false);
                     if (foundPos != -1) {
-                        removeReselectSelection(start+foundPos, s.length());
+                        currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.selectPainter);
+                        currentTextPane.select(start + foundPos, start + foundPos + s.length());
+                        //removeReselectSelection(start+foundPos, s.length());
                         found = true;
                     }
                 }
@@ -1540,6 +1553,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 if (lineText != null && lineText.length() > 0) {
                     int foundPos = findSubstring(lineText, s, ignoreCase, wholeWord, true);
                     if (foundPos != -1) {
+                        currentTextPane.getHighlighter().addHighlight(lineStart + foundPos, lineStart + foundPos + s.length(), editorHighlighter.selectPainter);
                         currentTextPane.select(lineStart + foundPos, lineStart + foundPos + s.length());
                         return found = true;
                     }
