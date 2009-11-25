@@ -45,7 +45,7 @@ import bluej.debugger.gentype.JavaType;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: JavaUtils.java 6863 2009-11-25 03:16:16Z davmac $
  */
 public abstract class JavaUtils {
 
@@ -200,7 +200,7 @@ public abstract class JavaUtils {
      * @param cl the class
      * @return A List of GenTypeDeclTpar
      */
-    abstract public List getTypeParams(Class cl);
+    abstract public List<GenTypeDeclTpar> getTypeParams(Class<?> cl);
     
     /**
      * Get the declared supertype of a class.

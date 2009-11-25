@@ -37,7 +37,7 @@ import com.sun.jdi.Value;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 6215 2009-03-30 13:28:25Z polle $
+ * @version    $Id: JdiArray.java 6863 2009-11-25 03:16:16Z davmac $
  */
 public class JdiArray extends JdiObject
 {    
@@ -103,7 +103,7 @@ public class JdiArray extends JdiObject
                 component = ((GenTypeClass) genericType).mapToDerived(compReflective);
 
                 while (level > 1) {
-                    component = new GenTypeArray(component, new JdiArrayReflective(component, obj.referenceType()));
+                    component = new GenTypeArray(component);
                     level--;
                 }
                 componentType = component;
@@ -144,7 +144,7 @@ public class JdiArray extends JdiObject
     {
         if(componentType != null) {
             Reflective r = new JdiArrayReflective(componentType, obj.referenceType());
-            return new GenTypeArray(componentType, r);
+            return new GenTypeArray(componentType);
         }
         else
             return super.getGenType();

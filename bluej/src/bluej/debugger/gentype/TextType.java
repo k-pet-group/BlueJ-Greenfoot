@@ -31,7 +31,7 @@ import java.util.Map;
  * Most operations on this type fail with an UnsupportedOperationException.
  * 
  * @author Davin McCall
- * @version $Id: TextType.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: TextType.java 6863 2009-11-25 03:16:16Z davmac $
  */
 public class TextType extends GenTypeParameterizable
 {
@@ -90,7 +90,7 @@ public class TextType extends GenTypeParameterizable
     /* (non-Javadoc)
      * @see bluej.debugger.gentype.GenType#mapTparsToTypes(java.util.Map)
      */
-    public JavaType mapTparsToTypes(Map tparams)
+    public JavaType mapTparsToTypes(Map<String,GenTypeParameterizable> tparams)
     {
         throw new UnsupportedOperationException();
     }
@@ -165,6 +165,12 @@ public class TextType extends GenTypeParameterizable
     }
     
     public GenTypeSolid getUpperBound()
+    {
+        throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public GenTypeArray getArray()
     {
         throw new UnsupportedOperationException();
     }

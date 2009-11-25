@@ -46,7 +46,7 @@ public abstract class JavaEntity
     /**
      * If this entity is unresolved, resolve it now as a type.
      */
-    public JavaEntity resolveAsType()
+    public ClassEntity resolveAsType()
     {
         return null;
     }

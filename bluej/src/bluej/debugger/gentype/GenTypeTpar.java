@@ -151,4 +151,10 @@ public class GenTypeTpar extends GenTypeSolid
     {
         return other == this;
     }
+    
+    @Override
+    public GenTypeArray getArray()
+    {
+        return new GenTypeArray(this);
+    }
 }

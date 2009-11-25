@@ -31,7 +31,7 @@ import bluej.utility.JavaNames;
  * parameters themselves.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeParameterizable.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: GenTypeParameterizable.java 6863 2009-11-25 03:16:16Z davmac $
  */
 public abstract class GenTypeParameterizable
     extends JavaType
@@ -57,7 +57,7 @@ public abstract class GenTypeParameterizable
      *            A map of (String name -> GenType type).
      * @return An equivalent type with parameters mapped.
      */
-    abstract public JavaType mapTparsToTypes(Map tparams);
+    abstract public JavaType mapTparsToTypes(Map<String,GenTypeParameterizable> tparams);
 
     abstract public boolean equals(GenTypeParameterizable other);
     

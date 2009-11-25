@@ -31,13 +31,13 @@ import java.util.*;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: GenTypeClass.java 6863 2009-11-25 03:16:16Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
     // ---------- Instance fields -----------
     
-    protected List params = null; // List of GenTypeParameterizable's: type parameters
+    protected List<GenTypeParameterizable> params = null; // List of GenTypeParameterizable's: type parameters
     protected Reflective reflective = null;
     protected GenTypeClass outer = null; // outer class of this class
     
@@ -107,7 +107,7 @@ public class GenTypeClass extends GenTypeSolid {
         if (mparams == null)
             return;
         
-        params = new ArrayList();
+        params = new ArrayList<GenTypeParameterizable>();
         Iterator declParmsI = r.getTypeParams().iterator();
         while( declParmsI.hasNext() ) {
             GenTypeDeclTpar next = (GenTypeDeclTpar)declParmsI.next();
@@ -115,7 +115,7 @@ public class GenTypeClass extends GenTypeSolid {
             if(mparams.get(nextName) == null)
                 params.add(new GenTypeExtends(next.getBound()));
             else {
-                params.add(mparams.get(nextName));
+                params.add((GenTypeParameterizable) mparams.get(nextName));
                 mparams.remove(nextName);
             }
         }
@@ -135,6 +135,13 @@ public class GenTypeClass extends GenTypeSolid {
                 outer = new GenTypeClass(outerReflective, mparams);
             }
         }
+    }
+    
+    /**
+     * Protected constructor for use by GenTypeArray.
+     */
+    protected GenTypeClass()
+    {
     }
     
     // ---------- instance methods -------------
@@ -321,6 +328,10 @@ public class GenTypeClass extends GenTypeSolid {
         return true;
     }
     
+    /**
+     * Get the reflective represented by this GenTypeClass. This can return null
+     * if the GenTypeClass represents an array.
+     */
     public Reflective getReflective()
     {
         return reflective;
@@ -587,12 +598,12 @@ public class GenTypeClass extends GenTypeSolid {
      * 
      * @return the map (of String -> GenTypeParameterizable).
      */
-    public Map getMap()
+    public Map<String,GenTypeParameterizable> getMap()
     {
         if (isRaw())
             return null;
         
-        HashMap r = new HashMap();
+        HashMap<String,GenTypeParameterizable> r = new HashMap<String,GenTypeParameterizable>();
         mergeMap(r);
         return r;
     }
@@ -711,5 +722,11 @@ public class GenTypeClass extends GenTypeSolid {
     public GenTypeClass [] getReferenceSupertypes()
     {
         return new GenTypeClass[] {this};
+    }
+    
+    @Override
+    public GenTypeArray getArray()
+    {
+        return new GenTypeArray(this);
     }
 }

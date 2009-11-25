@@ -27,13 +27,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+/**
+ * A specialization of GenTypeClass for arrays.
+ * 
+ * @author Davin McCall
+ */
 public class GenTypeArray extends GenTypeClass
 {
     JavaType baseType;
     
-    public GenTypeArray(JavaType baseType, Reflective r)
+    /**
+     * Construct a new GenTypeArray, with the given component type and reflective.
+     */
+    public GenTypeArray(JavaType baseType)
     {
-        super(r);
+        super();
         this.baseType = baseType;
     }
 
@@ -66,7 +74,7 @@ public class GenTypeArray extends GenTypeClass
         if( newBase == baseType )
             return this;
         else
-            return new GenTypeArray(newBase, reflective);
+            return new GenTypeArray(newBase);
     }
 
     public GenTypeSolid getLowerBound()
@@ -76,7 +84,7 @@ public class GenTypeArray extends GenTypeClass
         else {
             GenTypeSolid Lbounds = ((GenTypeParameterizable) baseType).getLowerBound();
             Reflective newR = Lbounds.getErasedType().asClass().reflective.getArrayOf();
-            return new GenTypeArray(Lbounds, newR);
+            return new GenTypeArray(Lbounds);
         }
     }
     
@@ -85,7 +93,7 @@ public class GenTypeArray extends GenTypeClass
         if (baseType instanceof GenTypeParameterizable) {
             GenTypeParameterizable pbtype = (GenTypeParameterizable) baseType;
             GenTypeClass pbErased = (GenTypeClass) pbtype.getErasedType();
-            return new GenTypeArray(pbErased, pbErased.reflective.getArrayOf());
+            return new GenTypeArray(pbErased);
         }
         else
             return this;

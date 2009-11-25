@@ -36,7 +36,7 @@ import bluej.utility.Debug;
  * This is an Immutable type.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeWildcard.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: GenTypeWildcard.java 6863 2009-11-25 03:16:16Z davmac $
  */
 public class GenTypeWildcard extends GenTypeParameterizable
 {
@@ -231,6 +231,12 @@ public class GenTypeWildcard extends GenTypeParameterizable
         }
         
         return true;
+    }
+    
+    @Override
+    public GenTypeArray getArray()
+    {
+        return null;
     }
 }
 

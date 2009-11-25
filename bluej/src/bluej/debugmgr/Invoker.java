@@ -38,6 +38,7 @@ import bluej.compiler.JobQueue;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerResult;
 import bluej.debugger.ExceptionDescription;
+import bluej.debugger.gentype.GenTypeParameterizable;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.GenTypeWildcard;
 import bluej.debugger.gentype.JavaType;
@@ -61,7 +62,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 6702 2009-09-17 04:42:20Z davmac $
+ * @version $Id: Invoker.java 6863 2009-11-25 03:16:16Z davmac $
  */
 
 public class Invoker
@@ -92,7 +93,7 @@ public class Invoker
     private CallableView member;
     private String shellName;
     private String objName;
-    private Map<?, ?> typeMap; // map type parameter names to types
+    private Map<String,GenTypeParameterizable> typeMap; // map type parameter names to types
     private ValueCollection localVars;
     private String imports; // import statements to include in shell file
     private boolean doTryAgain = false; // whether to re-try

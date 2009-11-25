@@ -41,7 +41,7 @@ public abstract class ClassEntity extends PackageOrClass
     }
     
     @Override
-    public final JavaEntity resolveAsType()
+    public final ClassEntity resolveAsType()
     {
         return this;
     }

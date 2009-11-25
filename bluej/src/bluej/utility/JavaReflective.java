@@ -41,7 +41,7 @@ import bluej.debugger.gentype.Reflective;
  * A reflective for GenTypeClass which uses the standard java reflection API.  
  * 
  * @author Davin McCall
- * @version $Id: JavaReflective.java 6837 2009-11-13 05:33:59Z davmac $
+ * @version $Id: JavaReflective.java 6863 2009-11-25 03:16:16Z davmac $
  */
 public class JavaReflective extends Reflective {
 
@@ -164,8 +164,7 @@ public class JavaReflective extends Reflective {
             Iterator<GenTypeClass> i = componentSuperTypes.iterator();
             while (i.hasNext()) {
                 GenTypeClass componentSuperType = i.next();
-                l.add(new GenTypeArray(componentSuperType,
-                        componentSuperType.getReflective().getArrayOf()));
+                l.add(new GenTypeArray(componentSuperType));
             }
         }
 

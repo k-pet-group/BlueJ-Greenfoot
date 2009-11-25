@@ -264,4 +264,10 @@ public class IntersectionType extends GenTypeSolid
     {
         return this.equals(other);
     }
+    
+    @Override
+    public GenTypeArray getArray()
+    {
+        return new GenTypeArray(this);
+    }
 }

@@ -34,7 +34,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  * 
  * @author Davin McCall
- * @version $Id: JdiReflective.java 6825 2009-11-12 03:34:28Z davmac $
+ * @version $Id: JdiReflective.java 6863 2009-11-25 03:16:16Z davmac $
  */
 public class JdiReflective extends Reflective
 {
@@ -498,13 +498,7 @@ public class JdiReflective extends Reflective
         if (c == '[') {
             // array
             JavaType t = fromSignature(i, tparams, parent);
-            
-            // figure out the class name of the array class
-            String xName = "[" + t.arrayComponentName();
-            
-            // return the array
-            Reflective areflective = new JdiReflective(xName, parent); 
-            t = new GenTypeArray(t, areflective);
+            t = new GenTypeArray(t);
             return t;
         }
         if (c == 'T') {

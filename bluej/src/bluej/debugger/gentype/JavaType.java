@@ -30,7 +30,7 @@ import java.util.Map;
  * methods are provided.
  * 
  * @author Davin McCall
- * @version $Id: JavaType.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: JavaType.java 6863 2009-11-25 03:16:16Z davmac $
  */
 
 public abstract class JavaType
@@ -193,11 +193,11 @@ public abstract class JavaType
      * an actual type. Type parameters not present in the map are instead
      * mapped to their bound (as a wildcard, ? extends X).
      * 
-     * @param tparams A map (String->GenType) mapping the name of the type
+     * @param tparams A map (String->JavaType) mapping the name of the type
      *                parameter to the corresponding type
      * @return A type with parameters mapped
      */
-    abstract public JavaType mapTparsToTypes(Map tparams);
+    abstract public JavaType mapTparsToTypes(Map<String,GenTypeParameterizable> tparams);
     
     /**
      * If this is an array type, get the component type. If this is not an
@@ -207,4 +207,6 @@ public abstract class JavaType
     {
         return null;
     }
+    
+    abstract public GenTypeArray getArray();
 }

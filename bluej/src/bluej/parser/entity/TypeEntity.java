@@ -10,7 +10,6 @@
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- GNU General Public License for more details. 
  
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
@@ -22,102 +21,71 @@
 package bluej.parser.entity;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
-import bluej.parser.SemanticException;
 import bluej.utility.JavaReflective;
 
 /**
- * An entity which essentially wraps a Reflective.
- * 
- * TODO clean up.
+ * An entity which essentially wraps a JavaType.
  * 
  * @author Davin McCall
  */
 public class TypeEntity extends ClassEntity
 {
-    //Class thisClass;
-    List tparams;
-    GenTypeClass outer;
-    Reflective thisRef;
-    GenTypeClass thisClass;
+    //private Reflective thisRef;
+    private JavaType thisType;
     
+    public TypeEntity(JavaType type)
+    {
+        thisType = type;
+    }
     
     public TypeEntity(Reflective ref)
     {
-        thisRef = ref;
-        tparams = Collections.EMPTY_LIST;
+        //thisRef = ref;
+        thisType = new GenTypeClass(ref);
     }
     
-    public TypeEntity(Class c)
+    public TypeEntity(Class<?> c)
     {
-        //thisClass = c;
-        thisRef = new JavaReflective(c);
-        tparams = Collections.EMPTY_LIST;
-    }
-    
-    TypeEntity(Class c, List tparams)
-    {
-        //thisClass = c;
-        thisRef = new JavaReflective(c);
-        this.tparams = tparams;
-    }
-    
-    TypeEntity(Class c, GenTypeClass outer)
-    {
-        //thisClass = c;
-        thisRef = new JavaReflective(c);
-        this.outer = outer;
-        tparams = Collections.EMPTY_LIST;
+        Reflective thisRef = new JavaReflective(c);
+        thisType = new GenTypeClass(thisRef);
     }
     
     TypeEntity(Reflective r, GenTypeClass outer)
     {
-        thisRef = r;
-        this.outer = outer;
-        tparams = Collections.EMPTY_LIST;
-    }
-
-    TypeEntity(Class c, GenTypeClass outer, List tparams)
-    {
-        //thisClass = c;
-        thisRef = new JavaReflective(c);
-        this.outer = outer;
-        this.tparams = tparams;
-    }
-            
-    TypeEntity(Reflective r, GenTypeClass outer, List tparams)
-    {
-        thisRef = r;
-        this.outer = outer;
-        this.tparams = tparams;
-    }
-
-    public ClassEntity setTypeParams(List tparams) throws SemanticException
-    {
-        // this.tparams = tparams;
-        return new TypeEntity(thisRef, outer, tparams);
+        // thisRef = r;
+        thisType = new GenTypeClass(r, Collections.emptyList(), outer);
     }
 
     public JavaType getType()
     {
-        return getClassType();
+        return thisType;
     }
     
     public GenTypeClass getClassType()
     {
-        return new GenTypeClass(thisRef, tparams, outer);
+        return thisType.asClass();
     }
     
     public JavaEntity getSubentity(String name)
     {
+        GenTypeClass thisClass = thisType.asClass();
+        if (thisClass == null) {
+            return null;
+        }
+        else if (thisClass.getArrayComponent() != null) {
+            // Hmm, should we handle array.length here?
+            return null;
+        }
+        
         // subentity of a class could be a member type or field
         // Is it a field?
-        Map<String,JavaType> m = thisRef.getDeclaredFields();
+        
+        Map<String,JavaType> m = thisClass.getReflective().getDeclaredFields();
         JavaType type = m.get(name);
         if (type != null) {
             return new ValueEntity(name, type);
@@ -129,55 +97,20 @@ public class TypeEntity extends ClassEntity
     
     public PackageOrClass getPackageOrClassMember(String name)
     {
-        // A class cannot have a package member...
-        return new TypeEntity(getMemberClass(name), getClassType());
-    }
-    
-//    Class getMemberClass(String name)
-//    {
-//        // Is it a member type?
-//        Class c;
-//        try {
-//            c = classLoader.loadClass(thisClass.getName() + '$' + name);
-//            return c;
-//            //return new TypeEntity(c, (GenTypeClass) getType());
-//        }
-//        catch (ClassNotFoundException cnfe) {
-//            // No more options - it must be an error
-//            return null;
-//        }
-//    }
-    
-    Reflective getMemberClass(String name)
-    {
-        // Is it a member type?
-        return thisRef.getRelativeClass(thisRef.getName() + '$' + name);
-    }
-
-//    public ClassEntity getStaticMemberClass(String name) throws SemanticException
-//    {
-//        Class c = getMemberClass(name);
-//        if (Modifier.isStatic(c.getModifiers()))
-//            return new TypeEntity(c, (GenTypeClass) getType());
-//        
-//        // Not a static member - we fail
-//        throw new SemanticException();
-//    }
-    
-    public JavaEntity getStaticField(String name)
-    {
-        Map<String,JavaType> m = thisRef.getDeclaredFields();
-        JavaType type = m.get(name);
-        if (type != null) {
-            // TODO
+        GenTypeClass thisClass = thisType.asClass();
+        if (thisClass == null) {
+            return null;
         }
+
+        Reflective thisRef = thisClass.getReflective();
+        if (thisRef != null) {
+            Reflective member = thisRef.getRelativeClass(thisRef.getName() + '$' + name);
+            GenTypeClass inner = new GenTypeClass(member, Collections.EMPTY_LIST, thisClass);
+            return new TypeEntity(inner);
+        }
+        
         return null;
     }
-    
-//    public List getStaticMethods(String name)
-//    {
-//        return getAccessibleStaticMethods(thisClass, name, packageScope);
-//    }
     
     public String getName()
     {

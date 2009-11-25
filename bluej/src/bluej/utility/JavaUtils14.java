@@ -35,7 +35,7 @@ import bluej.debugger.gentype.*;
  * 
  * @author Davin McCall
  * 
- * @version $Id: JavaUtils14.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: JavaUtils14.java 6863 2009-11-25 03:16:16Z davmac $
  */
 public class JavaUtils14 extends JavaUtils
 {
@@ -286,7 +286,7 @@ public class JavaUtils14 extends JavaUtils
         }
         if (c.isArray()) {
             JavaType componentT = genTypeFromClass14(c.getComponentType());
-            return new GenTypeArray(componentT, new JavaReflective(c));
+            return new GenTypeArray(componentT);
         }
         return new GenTypeClass(new JavaReflective(c));
     }

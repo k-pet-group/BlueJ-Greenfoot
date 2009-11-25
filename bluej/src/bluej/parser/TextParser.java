@@ -37,6 +37,7 @@ import bluej.parser.entity.ErrorEntity;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.NullEntity;
 import bluej.parser.entity.PackageOrClass;
+import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.UnresolvedEntity;
 import bluej.parser.entity.ValueEntity;
 
@@ -147,9 +148,15 @@ public class TextParser extends JavaParser
     
     private void processNewOperator(LocatableToken token)
     {
-        /* List<JavaEntity> arguments = */ argumentStack.pop(); // constructor arguments
-        // TODO check argument validity
-        // Don't pop the type off the stack: we would just have to push it back anyway
+        if (! argumentStack.isEmpty()) {
+            argumentStack.pop(); // constructor arguments
+            // TODO check argument validity
+            // Don't pop the type off the stack: we would just have to push it back anyway
+        }
+        else {
+            popValueStack();
+            valueStack.push(new ErrorEntity());
+        }
     }
     
     private void checkArgs(JavaEntity arg1, JavaEntity arg2, LocatableToken op)
@@ -308,11 +315,12 @@ public class TextParser extends JavaParser
     private JavaEntity resolveTypeSpec(List<LocatableToken> tokens)
     {
         Iterator<LocatableToken> i = tokens.iterator();
-        String text = i.next().getText();
+        LocatableToken token = i.next();
+        String text = token.getText();
         
         PackageOrClass poc = resolver.resolvePackageOrClass(text, null);
         while (poc != null && i.hasNext()) {
-            LocatableToken token = i.next();
+            token = i.next();
             if (token.getType() != JavaTokenTypes.DOT) {
                 break;
             }
@@ -322,6 +330,20 @@ public class TextParser extends JavaParser
             }
             text += "." + token.getText();
             poc = poc.getPackageOrClassMember(token.getText());
+        }
+        
+        if (poc != null && token.getType() == JavaTokenTypes.LBRACK) {
+            poc = poc.resolveAsType();
+            while (poc != null && token.getType() == JavaTokenTypes.LBRACK) {
+                poc = new TypeEntity(poc.getType().getArray());
+                if (i.hasNext()) {
+                    token = i.next(); // RBRACK
+                }
+                if (! i.hasNext()) {
+                    break;
+                }
+                token = i.next();
+            }
         }
         
         if (poc != null) {

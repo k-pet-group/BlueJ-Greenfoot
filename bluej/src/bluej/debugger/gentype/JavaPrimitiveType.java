@@ -206,7 +206,7 @@ public class JavaPrimitiveType
         return myIndex == v;
     }
     
-    public JavaType mapTparsToTypes(Map tparams)
+    public JavaType mapTparsToTypes(Map<String,GenTypeParameterizable> tparams)
     {
         return this;
     }
@@ -226,12 +226,9 @@ public class JavaPrimitiveType
         return myIndex;
     }
     
-    public JavaType opBNot()
+    @Override
+    public GenTypeArray getArray()
     {
-        // binary-not is defined for integer types
-        if (myIndex >= JT_CHAR && myIndex <= JT_LONG)
-            return this;
-        
-        return null;
+        return new GenTypeArray(this);
     }
 }

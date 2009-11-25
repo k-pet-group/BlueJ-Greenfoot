@@ -35,7 +35,7 @@ import java.util.Set;
  * a component type for a wildcard clause.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeSolid.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: GenTypeSolid.java 6863 2009-11-25 03:16:16Z davmac $
  */
 public abstract class GenTypeSolid extends GenTypeParameterizable {
 
@@ -246,7 +246,7 @@ public abstract class GenTypeSolid extends GenTypeParameterizable {
         // re-instate array dimensions
         GenTypeClass rval = new GenTypeClass(a.getReflective(), lc, oc);
         while (arrCount-- > 0) {
-            rval = new GenTypeArray(rval, rval.getReflective().getArrayOf());
+            rval = new GenTypeArray(rval);
         }
         return rval;
     }
