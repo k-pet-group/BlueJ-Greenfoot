@@ -1891,6 +1891,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         ((FindNextAction)actions.getFindNextAction()).setEnabled(enabled); 
         ((FindNextBackwardAction)actions.getFindNextBackwardAction()).setEnabled(enabled);
     }
+    
     /**
      * Returns a list of flagged items 
      *  
