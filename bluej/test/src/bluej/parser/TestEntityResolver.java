@@ -72,7 +72,6 @@ public class TestEntityResolver implements EntityResolver
     }
     
     
-    @Override
     public PackageOrClass resolvePackageOrClass(String name, String querySource)
     {
         String pkg = getPackageFromClassName(querySource);
@@ -88,7 +87,6 @@ public class TestEntityResolver implements EntityResolver
         return parent.resolvePackageOrClass(name, querySource);
     }
     
-    @Override
     public ClassEntity resolveQualifiedClass(String name)
     {
         String pkg = getPackageFromClassName(name);
@@ -104,7 +102,6 @@ public class TestEntityResolver implements EntityResolver
         return parent.resolveQualifiedClass(name);
     }
     
-    @Override
     public JavaEntity getValueEntity(String name, String querySource)
     {
         return resolvePackageOrClass(name, querySource);

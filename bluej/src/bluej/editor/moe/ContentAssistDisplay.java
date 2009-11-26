@@ -135,7 +135,6 @@ ListSelectionListener, FocusListener {
         this.selectedMethod = selectedMethod;
     }
 
-    @Override
     public void valueChanged(ListSelectionEvent e) 
     {
         methodDescription.setText(methodDescrs[methodList.getSelectedIndex()]);
@@ -158,21 +157,18 @@ ListSelectionListener, FocusListener {
         this.setVisible(false);
     }
 
-    @Override
     public void focusGained(FocusEvent e) 
     {
         // TODO Auto-generated method stub
         
     }
 
-    @Override
     public void focusLost(FocusEvent e) 
     {
         // TODO Auto-generated method stub
         
     }
     
-    @Override
     public void actionPerformed(ActionEvent e) 
     {
         // TODO Auto-generated method stub
