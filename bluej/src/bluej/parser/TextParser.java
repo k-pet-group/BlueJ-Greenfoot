@@ -403,6 +403,8 @@ public class TextParser extends JavaParser
         int startDepth = depthRef.depth;
         List<GenTypeParameterizable> taList = new LinkedList<GenTypeParameterizable>();
         depthRef.depth++;
+        
+        mainLoop:
         while (i.hasNext() && depthRef.depth > startDepth) {
             LocatableToken token = i.next();
             if (token.getType() == JavaTokenTypes.QUESTION) {
@@ -444,6 +446,7 @@ public class TextParser extends JavaParser
                 }
             }
             else {
+                i.previous();
                 ClassEntity taEnt = resolveTypeSpec(i, depthRef);
                 if (taEnt == null) {
                     return null;
@@ -472,7 +475,7 @@ public class TextParser extends JavaParser
                     depthRef.depth--;
                 }
                 if (! i.hasNext()) {
-                    break;
+                    break mainLoop;
                 }
                 token = i.next();
                 ttype = token.getType();

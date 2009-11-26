@@ -184,9 +184,7 @@ public class TextAnalyzer
                 }
             }
         }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        catch (Exception e) {}
 
         return null;
 
