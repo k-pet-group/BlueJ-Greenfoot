@@ -21,9 +21,11 @@
 package bluej.parser.entity;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeParameterizable;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.utility.JavaReflective;
@@ -117,8 +119,16 @@ public class TypeEntity extends ClassEntity
         return getType().toString();
     }
     
-    public boolean isClass()
+    /* (non-Javadoc)
+     * @see bluej.parser.entity.ClassEntity#setTypeParams(java.util.List)
+     */
+    public ClassEntity setTypeParams(List<GenTypeParameterizable> tparams)
     {
-        return true;
+        GenTypeClass classType = thisType.asClass();
+        if (classType == null) {
+            return null;
+        }
+        GenTypeClass outer = classType.getOuterType();
+        return new TypeEntity(new GenTypeClass(classType.getReflective(), tparams, outer));
     }
 }

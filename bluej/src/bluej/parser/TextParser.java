@@ -24,14 +24,21 @@ package bluej.parser;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Stack;
 
+import bluej.debugger.gentype.GenTypeExtends;
+import bluej.debugger.gentype.GenTypeParameterizable;
+import bluej.debugger.gentype.GenTypeSolid;
+import bluej.debugger.gentype.GenTypeSuper;
+import bluej.debugger.gentype.GenTypeUnbounded;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.parser.ast.LocatableToken;
 import bluej.parser.ast.gen.JavaTokenTypes;
+import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.ErrorEntity;
 import bluej.parser.entity.JavaEntity;
@@ -308,50 +315,176 @@ public class TextParser extends JavaParser
         }
     }
     
+    private class DepthRef
+    {
+        int depth = 0;
+    }
+    
     /**
      * Resolve a type specification. Returns null if the type couldn't be resolved.
      * TODO handle generics, arrays.
      */
-    private JavaEntity resolveTypeSpec(List<LocatableToken> tokens)
+    private ClassEntity resolveTypeSpec(List<LocatableToken> tokens)
     {
-        Iterator<LocatableToken> i = tokens.iterator();
+        DepthRef dr = new DepthRef();
+        return resolveTypeSpec(tokens.listIterator(), dr);
+    }
+    
+    /**
+     * Resolve a type specification. Returns null if the type couldn't be resolved.
+     */
+    private ClassEntity resolveTypeSpec(ListIterator<LocatableToken> i, DepthRef depthRef)
+    {
         LocatableToken token = i.next();
         String text = token.getText();
         
         PackageOrClass poc = resolver.resolvePackageOrClass(text, null);
         while (poc != null && i.hasNext()) {
             token = i.next();
-            if (token.getType() != JavaTokenTypes.DOT) {
-                break;
-            }
-            token = i.next();
-            if (token.getType() != JavaTokenTypes.IDENT) {
-                break;
-            }
-            text += "." + token.getText();
-            poc = poc.getPackageOrClassMember(token.getText());
-        }
-        
-        if (poc != null && token.getType() == JavaTokenTypes.LBRACK) {
-            poc = poc.resolveAsType();
-            while (poc != null && token.getType() == JavaTokenTypes.LBRACK) {
-                poc = new TypeEntity(poc.getType().getArray());
-                if (i.hasNext()) {
-                    token = i.next(); // RBRACK
+            if (token.getType() == JavaTokenTypes.LT) {
+                // Type arguments
+                ClassEntity classEnt = poc.resolveAsType();
+                if (classEnt != null) {
+                    classEnt = processTypeArgs(classEnt, i, depthRef);
+                }
+                poc = classEnt;
+                if (poc == null) {
+                    return null;
                 }
                 if (! i.hasNext()) {
-                    break;
+                    return classEnt;
                 }
                 token = i.next();
             }
+            if (token.getType() != JavaTokenTypes.DOT) {
+                poc = poc.resolveAsType();
+                if (poc == null) {
+                    return null;
+                }
+                
+                while (token.getType() == JavaTokenTypes.LBRACK) {
+                    poc = new TypeEntity(poc.getType().getArray());
+                    if (i.hasNext()) {
+                        token = i.next(); // RBRACK
+                    }
+                    if (! i.hasNext()) {
+                        return poc.resolveAsType();
+                    }
+                    token = i.next();
+                }
+                
+                i.previous(); // allow token to be re-read by caller
+                return poc.resolveAsType();
+            }
+            token = i.next();            
+            if (token.getType() != JavaTokenTypes.IDENT) {
+                break;
+            }
+            poc = poc.getPackageOrClassMember(token.getText());
         }
-        
+                
         if (poc != null) {
             return poc.resolveAsType();
         }
         else {
             return null;
         }
+    }
+    
+    /**
+     * Process tokens as type arguments
+     * @param base  The base type, i.e. the type to which the arguments are applied
+     * @param i     A ListIterator to iterate through the tokens
+     * @param depthRef  The argument depth
+     * @return   A ClassEntity representing the type with type arguments applied (or null)
+     */
+    private ClassEntity processTypeArgs(ClassEntity base, ListIterator<LocatableToken> i, DepthRef depthRef)
+    {
+        int startDepth = depthRef.depth;
+        List<GenTypeParameterizable> taList = new LinkedList<GenTypeParameterizable>();
+        depthRef.depth++;
+        while (i.hasNext() && depthRef.depth > startDepth) {
+            LocatableToken token = i.next();
+            if (token.getType() == JavaTokenTypes.QUESTION) {
+                if (! i.hasNext()) {
+                    return null;
+                }
+                token = i.next();
+                if (token.getType() == JavaTokenTypes.LITERAL_super) {
+                    ClassEntity taEnt = resolveTypeSpec(i, depthRef);
+                    if (taEnt == null) {
+                        return null;
+                    }
+                    JavaType taType = taEnt.getType();
+                    if (taType instanceof GenTypeSolid) {
+                        GenTypeSuper stype = new GenTypeSuper((GenTypeSolid) taType);
+                        taList.add(stype);
+                    }
+                    else {
+                        return null;
+                    }
+                }
+                else if (token.getType() == JavaTokenTypes.LITERAL_extends) {
+                    ClassEntity taEnt = resolveTypeSpec(i, depthRef);
+                    if (taEnt == null) {
+                        return null;
+                    }
+                    JavaType taType = taEnt.getType();
+                    if (taType instanceof GenTypeSolid) {
+                        GenTypeExtends stype = new GenTypeExtends((GenTypeSolid) taType);
+                        taList.add(stype);
+                    }
+                    else {
+                        return null;
+                    }
+                }
+                else {
+                    taList.add(new GenTypeUnbounded());
+                    i.previous();
+                }
+            }
+            else {
+                ClassEntity taEnt = resolveTypeSpec(i, depthRef);
+                if (taEnt == null) {
+                    return null;
+                }
+                JavaType taType = taEnt.getType();
+                if (taType instanceof GenTypeParameterizable) {
+                    taList.add((GenTypeParameterizable) taType);
+                }
+                else {
+                    return null;
+                }
+            }
+            
+            if (! i.hasNext()) {
+                return null;
+            }
+            token = i.next();
+            int ttype = token.getType();
+            while (ttype == JavaTokenTypes.GT || ttype == JavaTokenTypes.SR || ttype == JavaTokenTypes.BSR) {
+                switch (ttype) {
+                case JavaTokenTypes.BSR:
+                    depthRef.depth--;
+                case JavaTokenTypes.SR:
+                    depthRef.depth--;
+                default:
+                    depthRef.depth--;
+                }
+                if (! i.hasNext()) {
+                    break;
+                }
+                token = i.next();
+                ttype = token.getType();
+            }
+            
+            if (ttype != JavaTokenTypes.COMMA) {
+                i.previous();
+                break;
+            }
+        }
+        // TODO check the type arguments are actually valid
+        return base.setTypeParams(taList);
     }
     
     @Override

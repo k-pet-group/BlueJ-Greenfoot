@@ -21,8 +21,12 @@
  */
 package bluej.parser.entity;
 
+import java.util.List;
+
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeParameterizable;
 import bluej.debugger.gentype.JavaType;
+import bluej.parser.SemanticException;
 
 
 /**
@@ -34,7 +38,6 @@ import bluej.debugger.gentype.JavaType;
  */
 public abstract class ClassEntity extends PackageOrClass
 {
-    // getType won't throw SemanticException
     public JavaType getType()
     {
         return getClassType();
@@ -52,42 +55,11 @@ public abstract class ClassEntity extends PackageOrClass
     public abstract GenTypeClass getClassType();
     
     /**
-     * Set the type parameters of this entity. If the entity is not a class, this
-     * throws a SemanticException. The return is a duplicate of this entity with
+     * Set the type parameters of this entity. The return is a duplicate of this entity with
      * the type parameters set as specified.
      * 
      * @param tparams   A list of GenTypeParameterizable type parameters
      * @throws SemanticException
      */
-    //public abstract ClassEntity setTypeParams(List tparams) throws SemanticException;
-    
-    /**
-     * Get the accessible static member class with the given name, declared in the
-     * class represented by this entity.
-     * 
-     * @param name  The name of the inner class to retrieve
-     * @return      The specified class, as an entity
-     * @throws SemanticException   if the specified class does not exist or is not
-     *                             accessible
-     */
-    //public abstract ClassEntity getStaticMemberClass(String name) throws SemanticException;
-    
-    /**
-     * Get the accessible static field with the given name, declared in the class
-     * represented by this entity.
-     * 
-     * @param name  The name of the field to retrieve
-     * @return  The specified field (as an entity)
-     * @throws SemanticException  if the field does not exist or is not accessible
-     */
-    //public abstract JavaEntity getStaticField(String name) throws SemanticException;
-    
-    /**
-     * Return a list (possibly empty) of static methods declared in this
-     * class with the given name.
-     * 
-     * @param name  The name of the methods to retrieve
-     * @return  A list of java.lang.reflect.Method
-     */
-    //public abstract List getStaticMethods(String name);
+    public abstract ClassEntity setTypeParams(List<GenTypeParameterizable> tparams);
 }
