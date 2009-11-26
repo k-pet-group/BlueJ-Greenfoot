@@ -46,7 +46,8 @@ import java.util.Properties;
  * <li><i>New BlueJ:</i> support for .bluej, and limited for .pkg. If .pkg
  * exists, it will load from this file. If .pkg doesn't exist it is NOT created.
  * It will always attempt to save to .bluej. If .pkg exists it will also save to
- * that. No versions of this exists yet.</li>
+ * that. No versions of this exists yet. This has been implemented in version 
+ * 2.6.0</li>
  * <ul>
  * 
  * One implication of this is that a project that has been created with a New
@@ -117,13 +118,13 @@ public class BlueJPackageFile
     {
         FileInputStream input = null;
         try {
-            // First, try to load from the old package file since, if it exists,
+            // First, try to load from the new  package file since, if it exists,
             // will be the most up-to-date.
-            if (oldPkgFile.canRead()) {
-                input = new FileInputStream(oldPkgFile);
-            }
-            else if (pkgFile.canRead()) {
+            if (pkgFile.canRead()) {
                 input = new FileInputStream(pkgFile);
+            }
+            else if (oldPkgFile.canRead()) {
+                input = new FileInputStream(oldPkgFile);
             }
             else {
                 throw new IOException("Can't read from package file(s) in: " + this);
@@ -167,34 +168,17 @@ public class BlueJPackageFile
         // * Store properties to both package files. It always try to store to
         // * the pkgFile, and if the oldPkgFile exists it will also try to store
         // * to that.
-        try {
-            oldPkgFile.createNewFile();
-        }
-        catch (Exception e) {
-            // If it can't be created, just continue and hope we can write to
-            // package.bluej.
-        }
-        
-        boolean oldPkgSaved = false;
+
         if (oldPkgFile.exists()) {
             if (!oldPkgFile.canWrite()) {
                 throw new IOException("BlueJ package file not writable: " + oldPkgFile);
             }
             saveToFile(props, oldPkgFile);
-            oldPkgSaved = true;
         }
 
         pkgFile.createNewFile();
         if (!pkgFile.canWrite()) {
-            if (!oldPkgSaved) {
-                // Not OK, the oldPkgFile didn't exist.
                 throw new IOException("BlueJ package file not writable: " + pkgFile);
-            }
-            else {
-                // It is OK, we successfully saved to the oldPkgFile anyway, so
-                // just return now.
-                return;
-            }
         }
         else {
             saveToFile(props, pkgFile);
@@ -261,12 +245,6 @@ public class BlueJPackageFile
         if (!pkgFile.exists()) {
             pkgFile.createNewFile();
             created = true;
-        }
-        if (!oldPkgFile.exists()) {
-            oldPkgFile.createNewFile();
-            if (!created) {
-                created = true;
-            }
         }
         return created;
     }
