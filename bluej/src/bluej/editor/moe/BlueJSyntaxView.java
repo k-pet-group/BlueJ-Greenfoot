@@ -302,7 +302,7 @@ public abstract class BlueJSyntaxView extends PlainView
                     lines.thisLineSeg);
 
             //rootNode.getNodeStack(prevScopeStack, thisLineEl.getStartOffset(), 0);
-            getScopeStackAt(rootNode, 0, lines.thisLineEl.getStartOffset(), prevScopeStack);
+            getScopeStackAfter(rootNode, 0, lines.thisLineEl.getStartOffset(), prevScopeStack);
 
             while (curLine <= lastLine) {
                 
@@ -416,8 +416,10 @@ public abstract class BlueJSyntaxView extends PlainView
             drawInfo.color1 = colors[0];
             drawInfo.color2 = colors[1];
 
-            drawScopeLeft(drawInfo, xpos, rbound);
-            drawScopeRight(drawInfo, rbound);
+            if (xpos != - 1 && xpos <= a.getBounds().x + a.getBounds().width) {
+                drawScopeLeft(drawInfo, xpos, rbound);
+                drawScopeRight(drawInfo, rbound);
+            }
             nodeDepth++;
 
             //lastNodePos = nap;
@@ -465,8 +467,10 @@ public abstract class BlueJSyntaxView extends PlainView
                         drawInfo.ends = nodeSkipsEnd(napPos, napEnd, lines.belowLineEl,
                                 lines.belowLineSeg);
 
-                        drawScopeLeft(drawInfo, xpos, rbound);
-                        drawScopeRight(drawInfo, rbound);
+                        if (xpos != -1 && xpos <= a.getBounds().x + a.getBounds().width) {
+                            drawScopeLeft(drawInfo, xpos, rbound);
+                            drawScopeRight(drawInfo, rbound);
+                        }
                     }
                 }
 
@@ -757,9 +761,7 @@ public abstract class BlueJSyntaxView extends PlainView
         Integer indent = nodeIndents.get(nap.getNode());
         if (indent == null) {
             indent = getNodeIndent(a, doc, nap);
-            //nap.getNode().setLeftmostIndent(indent);
             nodeIndents.put(nap.getNode(), indent);
-            // DAV what if still -1??
         }
         
         //int xpos = lmargin + charWidth * indent;
@@ -841,6 +843,18 @@ public abstract class BlueJSyntaxView extends PlainView
     }
     
     private void getScopeStackAt(ParsedNode root, int rootPos, int position, List<NodeAndPosition> list)
+    {
+        list.add(new NodeAndPosition(root, 0, root.getSize()));
+        int curpos = rootPos;
+        NodeAndPosition nap = root.findNodeAtOrAfter(position, curpos);
+        while (nap != null && nap.getPosition() <= position) {
+            list.add(nap);
+            curpos = nap.getPosition();
+            nap = nap.getNode().findNodeAtOrAfter(position, curpos);
+        }
+    }
+
+    private void getScopeStackAfter(ParsedNode root, int rootPos, int position, List<NodeAndPosition> list)
     {
         list.add(new NodeAndPosition(root, 0, root.getSize()));
         int curpos = rootPos;
