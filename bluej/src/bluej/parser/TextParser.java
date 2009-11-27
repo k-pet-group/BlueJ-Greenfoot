@@ -53,7 +53,7 @@ public class TextParser extends JavaParser
     private EntityResolver resolver;
     
     private Stack<JavaEntity> valueStack = new Stack<JavaEntity>();
-    private Stack<LocatableToken> operatorStack = new Stack<LocatableToken>();
+    protected Stack<LocatableToken> operatorStack = new Stack<LocatableToken>();
     
     private static final int CAST_OPERATOR = JavaTokenTypes.INVALID + 1;
     
@@ -94,7 +94,7 @@ public class TextParser extends JavaParser
     /**
      * Pop an item from the value stack. If there are no values to pop, supply an error entity.
      */
-    public JavaEntity popValueStack()
+    protected JavaEntity popValueStack()
     {
         if (! valueStack.isEmpty()) {
             return valueStack.pop();
