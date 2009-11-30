@@ -31,10 +31,9 @@ import bluej.utility.JavaNames;
  * parameters themselves.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeParameterizable.java 6863 2009-11-25 03:16:16Z davmac $
+ * @version $Id: GenTypeParameter.java 6874 2009-11-30 05:46:18Z davmac $
  */
-public abstract class GenTypeParameterizable
-    extends JavaType
+public abstract class GenTypeParameter
 {
 
     private static NameTransform stripPrefixNt = new NameTransform() {
@@ -57,14 +56,14 @@ public abstract class GenTypeParameterizable
      *            A map of (String name -> GenType type).
      * @return An equivalent type with parameters mapped.
      */
-    abstract public JavaType mapTparsToTypes(Map<String,GenTypeParameterizable> tparams);
+    abstract public GenTypeParameter mapTparsToTypes(Map<String,GenTypeParameter> tparams);
 
-    abstract public boolean equals(GenTypeParameterizable other);
+    abstract public boolean equals(GenTypeParameter other);
     
     public boolean equals(Object other)
     {
-        if (other instanceof GenTypeParameterizable)
-            return equals((GenTypeParameterizable) other);
+        if (other instanceof GenTypeParameter)
+            return equals((GenTypeParameter) other);
         else
             return false;
     }
@@ -78,11 +77,10 @@ public abstract class GenTypeParameterizable
      * The given map may already contain some mappings. In this case, the
      * existing mappings will be retained or made more specific.
      * 
-     * @param map   A map (String -> GenTypeSolid) to which mappings should
-     *              be added
+     * @param map   A map to which mappings should be added
      * @param template   The template to use
      */
-    abstract public void getParamsFromTemplate(Map map, GenTypeParameterizable template);
+    abstract public void getParamsFromTemplate(Map<String,GenTypeParameter> map, GenTypeParameter template);
     
     /**
      * Find the most precise type that can be determined by taking into account
@@ -95,7 +93,7 @@ public abstract class GenTypeParameterizable
      * @return  The most precise determinable type, or null if this comparison
      *          is meaningless for the given type (incompatible types).
      */
-    public GenTypeParameterizable precisify(GenTypeParameterizable other)
+    public GenTypeParameter precisify(GenTypeParameter other)
     {
         GenTypeSolid upperBound = getUpperBound();
         GenTypeSolid lowerBound = getLowerBound();
@@ -154,7 +152,7 @@ public abstract class GenTypeParameterizable
      * @param other  The other type to test against
      * @return True if this type contains the other type
      */
-    abstract public boolean contains(GenTypeParameterizable other);
+    abstract public boolean contains(GenTypeParameter other);
     
     /*
      * Provide a default version of 
@@ -182,6 +180,18 @@ public abstract class GenTypeParameterizable
         else
             return toString(nullTransform);
     }
+
+    /**
+     * Get a string representation of a type, using the specified name
+     * transform on all qualified class names.
+     * 
+     * @param nt  The name transform to use
+     * @return    A string representation of this type.
+     */
+    public String toString(NameTransform nt)
+    {
+        return toString();
+    }
     
     /**
      * Returns a string which is a java-source valid type argument
@@ -194,4 +204,12 @@ public abstract class GenTypeParameterizable
      * @return
      */
     abstract public String toTypeArgString(NameTransform nt);
+    
+    /**
+     * Get the erased type of this type.
+     */
+    abstract public JavaType getErasedType();
+    
+    abstract public JavaType getCapture();
+
 }

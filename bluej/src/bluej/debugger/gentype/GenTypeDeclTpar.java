@@ -30,7 +30,7 @@ import java.util.Set;
  * as a type parameter anywhere else, except that it can be bounded.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeDeclTpar.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: GenTypeDeclTpar.java 6874 2009-11-30 05:46:18Z davmac $
  */
 public class GenTypeDeclTpar extends GenTypeTpar {
 
@@ -103,16 +103,16 @@ public class GenTypeDeclTpar extends GenTypeTpar {
             return new GenTypeSolid [] {lBound};
     }
     
-    public JavaType mapTparsToTypes(Map tparams)
+    public GenTypeSolid mapTparsToTypes(Map tparams)
     {
         if (tparams == null)
-            return new GenTypeWildcard(upperBounds(), lowerBounds());
+            return new GenTypeWildcard(upperBounds(), lowerBounds()).getCapture().asClass();
         
-        GenTypeParameterizable newType = (GenTypeParameterizable)tparams.get(getTparName());
+        GenTypeParameter newType = (GenTypeParameter)tparams.get(getTparName());
         if( newType == null )
-            return new GenTypeWildcard(upperBounds(), lowerBounds());
+            return new GenTypeWildcard(upperBounds(), lowerBounds()).getCapture().asClass();
         else
-            return newType;
+            return newType.getCapture().asClass();
     }
     
     /**

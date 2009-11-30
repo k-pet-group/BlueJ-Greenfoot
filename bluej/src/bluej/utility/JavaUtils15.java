@@ -30,7 +30,7 @@ import bluej.debugger.gentype.*;
  * Java 1.5 version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 6863 2009-11-25 03:16:16Z davmac $
+ * @version $Id: JavaUtils15.java 6874 2009-11-30 05:46:18Z davmac $
  */
 public class JavaUtils15 extends JavaUtils {
 
@@ -280,7 +280,7 @@ public class JavaUtils15 extends JavaUtils {
             params = method.getGenericParameterTypes();
         JavaType [] gentypes = new JavaType[params.length];
         for(int i = 0; i < params.length; i++) {
-            gentypes[i] = genTypeFromType(params[i]);
+            gentypes[i] = (JavaType) genTypeFromType(params[i]);
         }
         return gentypes;
     }
@@ -297,7 +297,7 @@ public class JavaUtils15 extends JavaUtils {
         Type [] params = constructor.getGenericParameterTypes();
         JavaType [] gentypes = new JavaType[params.length];
         for(int i = 0; i < params.length; i++) {
-            gentypes[i] = genTypeFromType(params[i]);
+            gentypes[i] = (JavaType) genTypeFromType(params[i]);
         }
         return gentypes;
     }
@@ -307,7 +307,7 @@ public class JavaUtils15 extends JavaUtils {
      */
     public JavaType genTypeFromClass(Class t)
     {
-        return genTypeFromType(t);
+        return (JavaType) genTypeFromType(t);
     }
     
     /* -------------- Internal methods ---------------- */
@@ -513,14 +513,14 @@ public class JavaUtils15 extends JavaUtils {
      */
     private static JavaType genTypeFromType(Type t)
     {
-        return genTypeFromType(t, new LinkedList());
+        return (JavaType) genTypeFromType(t, new LinkedList());
     }
     
     /**
      * Build a GenType structure from a "Type" object, using the given backTrace
      * stack to avoid infinite recursion.
      */
-    private static JavaType genTypeFromType(Type t, List backTrace)
+    private static GenTypeParameter genTypeFromType(Type t, List backTrace)
     {
         if( t instanceof Class )
             return JavaUtils14.genTypeFromClass14((Class)t);
@@ -594,7 +594,7 @@ public class JavaUtils15 extends JavaUtils {
         
         // Assume we have an array
         GenericArrayType gat = (GenericArrayType)t;
-        JavaType componentType = genTypeFromType(gat.getGenericComponentType(), backTrace);
+        JavaType componentType = (JavaType) genTypeFromType(gat.getGenericComponentType(), backTrace);
         
         return new GenTypeArray(componentType);
     }
@@ -631,7 +631,7 @@ public class JavaUtils15 extends JavaUtils {
         }
         else {
             // arrnum > 0 !
-            rName = genTypeFromType(t).arrayComponentName();
+            rName = ((JavaType) genTypeFromType(t)).arrayComponentName();
             while (arrnum > 0) {
                 rName = "[" + rName;
                 arrnum--;

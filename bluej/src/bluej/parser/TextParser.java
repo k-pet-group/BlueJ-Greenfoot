@@ -30,7 +30,7 @@ import java.util.ListIterator;
 import java.util.Stack;
 
 import bluej.debugger.gentype.GenTypeExtends;
-import bluej.debugger.gentype.GenTypeParameterizable;
+import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.GenTypeSuper;
 import bluej.debugger.gentype.GenTypeUnbounded;
@@ -401,7 +401,7 @@ public class TextParser extends JavaParser
     private ClassEntity processTypeArgs(ClassEntity base, ListIterator<LocatableToken> i, DepthRef depthRef)
     {
         int startDepth = depthRef.depth;
-        List<GenTypeParameterizable> taList = new LinkedList<GenTypeParameterizable>();
+        List<GenTypeParameter> taList = new LinkedList<GenTypeParameter>();
         depthRef.depth++;
         
         mainLoop:
@@ -452,8 +452,8 @@ public class TextParser extends JavaParser
                     return null;
                 }
                 JavaType taType = taEnt.getType();
-                if (taType instanceof GenTypeParameterizable) {
-                    taList.add((GenTypeParameterizable) taType);
+                if (taType instanceof GenTypeParameter) {
+                    taList.add((GenTypeParameter) taType);
                 }
                 else {
                     return null;

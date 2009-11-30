@@ -133,8 +133,8 @@ public class IntersectionType extends GenTypeSolid
             Iterator ia = a.params.iterator();
             Iterator ib = b.params.iterator();
             while (ia.hasNext()) {
-                GenTypeParameterizable tpa = (GenTypeParameterizable) ia.next();
-                GenTypeParameterizable tpb = (GenTypeParameterizable) ib.next();
+                GenTypeParameter tpa = (GenTypeParameter) ia.next();
+                GenTypeParameter tpb = (GenTypeParameter) ib.next();
                 newParams.add(tpa.precisify(tpb));
             }
         }
@@ -184,7 +184,7 @@ public class IntersectionType extends GenTypeSolid
         return new GenTypeSolid[] {this};
     }
     
-    public JavaType mapTparsToTypes(Map tparams)
+    public GenTypeSolid mapTparsToTypes(Map tparams)
     {
         GenTypeSolid [] newIsect = new GenTypeSolid[intersectTypes.length];
         for (int i = 0; i < intersectTypes.length; i++) {
@@ -193,21 +193,26 @@ public class IntersectionType extends GenTypeSolid
         return new IntersectionType(newIsect);
     }
 
-    public boolean equals(GenTypeParameterizable other)
+    public boolean equals(GenTypeParameter other)
     {
         if (other == null)
             return false;
         
-        return isAssignableFrom(other) && other.isAssignableFrom(this);
+        if (other instanceof JavaType) {
+            JavaType otherJT = (JavaType) other;
+            return isAssignableFrom(otherJT) && otherJT.isAssignableFrom(this);
+        }
+        
+        return false;
     }
 
-    public void getParamsFromTemplate(Map map, GenTypeParameterizable template)
+    public void getParamsFromTemplate(Map map, GenTypeParameter template)
     {
         // This won't be needed
         return;
     }
 
-    public GenTypeParameterizable precisify(GenTypeParameterizable other)
+    public GenTypeParameter precisify(GenTypeParameter other)
     {
         // This won't be needed, I think
         throw new UnsupportedOperationException();
@@ -260,7 +265,7 @@ public class IntersectionType extends GenTypeSolid
         return (GenTypeClass[]) rsupTypes.toArray(new GenTypeClass[rsupTypes.size()]);
     }
     
-    public boolean contains(GenTypeParameterizable other)
+    public boolean contains(GenTypeParameter other)
     {
         return this.equals(other);
     }

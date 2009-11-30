@@ -31,9 +31,9 @@ import java.util.Map;
  * Most operations on this type fail with an UnsupportedOperationException.
  * 
  * @author Davin McCall
- * @version $Id: TextType.java 6863 2009-11-25 03:16:16Z davmac $
+ * @version $Id: TextType.java 6874 2009-11-30 05:46:18Z davmac $
  */
-public class TextType extends GenTypeParameterizable
+public class TextType extends JavaType
 {
     private String text;
     
@@ -90,7 +90,7 @@ public class TextType extends GenTypeParameterizable
     /* (non-Javadoc)
      * @see bluej.debugger.gentype.GenType#mapTparsToTypes(java.util.Map)
      */
-    public JavaType mapTparsToTypes(Map<String,GenTypeParameterizable> tparams)
+    public JavaType mapTparsToTypes(Map<String,GenTypeParameter> tparams)
     {
         throw new UnsupportedOperationException();
     }
@@ -122,12 +122,12 @@ public class TextType extends GenTypeParameterizable
     
     // methods from GenTypeParameterizable
     
-    public void getParamsFromTemplate(Map map, GenTypeParameterizable template)
+    public void getParamsFromTemplate(Map map, GenTypeParameter template)
     {
         throw new UnsupportedOperationException();
     }
 
-    public boolean contains(GenTypeParameterizable other)
+    public boolean contains(GenTypeParameter other)
     {
         throw new UnsupportedOperationException();
     }
@@ -137,7 +137,7 @@ public class TextType extends GenTypeParameterizable
         throw new UnsupportedOperationException();
     }
     
-    public boolean equals(GenTypeParameterizable other)
+    public boolean equals(GenTypeParameter other)
     {
         if (other == null) {
             return false;
@@ -165,6 +165,12 @@ public class TextType extends GenTypeParameterizable
     }
     
     public GenTypeSolid getUpperBound()
+    {
+        throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public JavaType getCapture()
     {
         throw new UnsupportedOperationException();
     }

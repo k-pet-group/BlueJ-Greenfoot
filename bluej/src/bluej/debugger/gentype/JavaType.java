@@ -30,10 +30,10 @@ import java.util.Map;
  * methods are provided.
  * 
  * @author Davin McCall
- * @version $Id: JavaType.java 6863 2009-11-25 03:16:16Z davmac $
+ * @version $Id: JavaType.java 6874 2009-11-30 05:46:18Z davmac $
  */
 
-public abstract class JavaType
+public abstract class JavaType extends GenTypeParameter
 {
     public static int JT_VOID = 0;
     public static int JT_NULL = 1;
@@ -50,20 +50,6 @@ public abstract class JavaType
     
     public static int JT_LOWEST_NUMERIC = JT_CHAR; // all above are numeric
     public static int JT_LOWEST_FLOAT = JT_FLOAT; // all above are float point
-    
-    /**
-     * Get a string representation of a type, optionally stripping pacakge
-     * prefixes from all class names.<p>
-     * 
-     * See toString().
-     * 
-     * @param stripPrefix  true to strip package prefixes; false otherwise.
-     * @return  A string representation of this type.
-     */
-    public String toString(boolean stripPrefix)
-    {
-        return toString();
-    }
     
     /**
      * Get a string representation of a type, using the specified name
@@ -165,10 +151,13 @@ public abstract class JavaType
     }
     
     /**
-     * Get the erased type of this type.
+     * If this type represents a "solid" (reference) type, get it. Otherwise return null.
      */
-    abstract public JavaType getErasedType();
-    
+    public GenTypeSolid asSolid()
+    {
+        return null;
+    }
+        
     /**
      * Determine whether a variable of this type could legally be assigned
      * (without casting, boxing, unchecked conversion etc) a value of the given type.
@@ -197,7 +186,7 @@ public abstract class JavaType
      *                parameter to the corresponding type
      * @return A type with parameters mapped
      */
-    abstract public JavaType mapTparsToTypes(Map<String,GenTypeParameterizable> tparams);
+    abstract public JavaType mapTparsToTypes(Map<String,GenTypeParameter> tparams);
     
     /**
      * If this is an array type, get the component type. If this is not an

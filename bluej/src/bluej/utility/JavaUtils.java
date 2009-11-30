@@ -37,6 +37,7 @@ import java.util.Map;
 import bluej.Config;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
+import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
 
 /**
@@ -45,7 +46,7 @@ import bluej.debugger.gentype.JavaType;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 6863 2009-11-25 03:16:16Z davmac $
+ * @version $Id: JavaUtils.java 6874 2009-11-30 05:46:18Z davmac $
  */
 public abstract class JavaUtils {
 
@@ -258,7 +259,7 @@ public abstract class JavaUtils {
     /**
      * Build a JavaType structure from a "Class" object.
      */
-    abstract public JavaType genTypeFromClass(Class t);
+    abstract public JavaType genTypeFromClass(Class<?> t);
     
     /**
      * Open a web browser to show the given URL. On Java 6+ we can use

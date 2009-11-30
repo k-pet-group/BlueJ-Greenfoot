@@ -37,7 +37,7 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeClass;
-import bluej.debugger.gentype.GenTypeParameterizable;
+import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.pkgmgr.Package;
@@ -54,7 +54,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ResultInspector.java 6874 2009-11-30 05:46:18Z davmac $
  */
 public class ResultInspector extends Inspector
 {
@@ -125,7 +125,7 @@ public class ResultInspector extends Inspector
         // TODO: infer type of generic parameters based on the actual
         // arguments passed to the method.
         // For now, use the base type of the any generic type parameters
-        if (methodReturnType instanceof GenTypeParameterizable) {
+        if (methodReturnType instanceof GenTypeParameter) {
             
             // The return type may contain type parameters. First, get the
             // type parameters of the object:
@@ -148,7 +148,7 @@ public class ResultInspector extends Inspector
             if (tparmap != null)
                 tparmap.putAll(JavaUtils.TParamsToMap(tpars));
             
-            methodReturnType = ((GenTypeParameterizable) methodReturnType).mapTparsToTypes(tparmap);
+            methodReturnType = ((JavaType) methodReturnType).mapTparsToTypes(tparmap);
         }
 
         resultType = methodReturnType;

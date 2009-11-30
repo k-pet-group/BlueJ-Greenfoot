@@ -40,7 +40,7 @@ import bluej.debugger.gentype.BadInheritanceChainException;
 import bluej.debugger.gentype.GenTypeArray;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
-import bluej.debugger.gentype.GenTypeParameterizable;
+import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.GenTypeTpar;
 import bluej.debugger.gentype.GenTypeWildcard;
@@ -623,7 +623,7 @@ public class TextAnalyzer
         Iterator i = oldArgs.iterator();
         Iterator boundsIterator = c.getReflective().getTypeParams().iterator();
         while (i.hasNext()) {
-            GenTypeParameterizable targ = (GenTypeParameterizable) i.next();
+            GenTypeParameter targ = (GenTypeParameter) i.next();
             GenTypeDeclTpar tpar = (GenTypeDeclTpar) boundsIterator.next();
             GenTypeSolid newArg;
             if (targ instanceof GenTypeWildcard) {
@@ -1331,9 +1331,9 @@ public class TextAnalyzer
         
         // Set up a map we can use to put actual/inferred type arguments. Initialise it
         // with the target type's arguments.
-        Map<String,GenTypeParameterizable> tparMap;
+        Map<String,GenTypeParameter> tparMap;
         if (rawTarget)
-            tparMap = new HashMap<String,GenTypeParameterizable>();
+            tparMap = new HashMap<String,GenTypeParameter>();
         else
             tparMap = targetType.getMap();
 
@@ -1497,8 +1497,8 @@ public class TextAnalyzer
                             Iterator j = fMap.keySet().iterator();
                             while (j.hasNext()) {
                                 String tpName = (String) j.next();
-                                GenTypeParameterizable fPar = (GenTypeParameterizable) fMap.get(tpName);
-                                GenTypeParameterizable aPar = (GenTypeParameterizable) aMap.get(tpName);
+                                GenTypeParameter fPar = (GenTypeParameter) fMap.get(tpName);
+                                GenTypeParameter aPar = (GenTypeParameter) aMap.get(tpName);
                                 processAtoFtpar(aPar, fPar, tlbConstraints, teqConstraints);
                             }
                         }
@@ -1513,7 +1513,7 @@ public class TextAnalyzer
     /**
      * Process type parameters from a type inference constraint A convertible-to F.
      */
-    private void processAtoFtpar(GenTypeParameterizable aPar, GenTypeParameterizable fPar, Map tlbConstraints, Map teqConstraints)
+    private void processAtoFtpar(GenTypeParameter aPar, GenTypeParameter fPar, Map tlbConstraints, Map teqConstraints)
     {
         if (fPar instanceof GenTypeSolid) {
             if (aPar instanceof GenTypeSolid) {
@@ -1581,8 +1581,8 @@ public class TextAnalyzer
                         Iterator j = fMap.keySet().iterator();
                         while (j.hasNext()) {
                             String tpName = (String) j.next();
-                            GenTypeParameterizable fPar = (GenTypeParameterizable) fMap.get(tpName);
-                            GenTypeParameterizable aPar = (GenTypeParameterizable) aMap.get(tpName);
+                            GenTypeParameter fPar = (GenTypeParameter) fMap.get(tpName);
+                            GenTypeParameter aPar = (GenTypeParameter) aMap.get(tpName);
                             processAeqFtpar(aPar, fPar, tlbConstraints, teqConstraints);
                         }
                     }
@@ -1594,7 +1594,7 @@ public class TextAnalyzer
     /**
      * Process type parameters from a type inference constraint A equal-to F.
      */
-    private void processAeqFtpar(GenTypeParameterizable aPar, GenTypeParameterizable fPar, Map tlbConstraints, Map teqConstraints)
+    private void processAeqFtpar(GenTypeParameter aPar, GenTypeParameter fPar, Map tlbConstraints, Map teqConstraints)
     {
         if (aPar instanceof GenTypeSolid && fPar instanceof GenTypeSolid) {
             processAeqFConstraint((GenTypeSolid) aPar, (GenTypeSolid) fPar, tlbConstraints, teqConstraints);
@@ -1657,8 +1657,8 @@ public class TextAnalyzer
                             Iterator j = fMap.keySet().iterator();
                             while (j.hasNext()) {
                                 String tpName = (String) j.next();
-                                GenTypeParameterizable fPar = (GenTypeParameterizable) fMap.get(tpName);
-                                GenTypeParameterizable aPar = (GenTypeParameterizable) aMap.get(tpName);
+                                GenTypeParameter fPar = (GenTypeParameter) fMap.get(tpName);
+                                GenTypeParameter aPar = (GenTypeParameter) aMap.get(tpName);
                                 processFtoAtpar(aPar, fPar, tlbConstraints, teqConstraints);
                             }
                         }
@@ -1672,7 +1672,7 @@ public class TextAnalyzer
     /**
      * Process type parameters from a type inference constraint F convertible-to A.
      */
-    private void processFtoAtpar(GenTypeParameterizable aPar, GenTypeParameterizable fPar, Map tlbConstraints, Map teqConstraints)
+    private void processFtoAtpar(GenTypeParameter aPar, GenTypeParameter fPar, Map tlbConstraints, Map teqConstraints)
     {
         if (fPar instanceof GenTypeSolid) {
             if (aPar instanceof GenTypeSolid) {

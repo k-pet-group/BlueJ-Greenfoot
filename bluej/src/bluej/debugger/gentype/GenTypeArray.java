@@ -52,10 +52,7 @@ public class GenTypeArray extends GenTypeClass
     
     public String toString(NameTransform nt)
     {
-        if(baseType instanceof GenTypeParameterizable)
-            return ((GenTypeParameterizable)baseType).toString(nt) + "[]";
-        else
-            return baseType.toString() + "[]";
+        return baseType.toString(nt) + "[]";
     }
     
     public String arrayComponentName()
@@ -68,7 +65,7 @@ public class GenTypeArray extends GenTypeClass
         return baseType;
     }
     
-    public JavaType mapTparsToTypes(Map tparams)
+    public GenTypeSolid mapTparsToTypes(Map tparams)
     {
         JavaType newBase = baseType.mapTparsToTypes(tparams);
         if( newBase == baseType )
@@ -82,7 +79,7 @@ public class GenTypeArray extends GenTypeClass
         if (baseType.isPrimitive())
             return this;
         else {
-            GenTypeSolid Lbounds = ((GenTypeParameterizable) baseType).getLowerBound();
+            GenTypeSolid Lbounds = ((GenTypeParameter) baseType).getLowerBound();
             Reflective newR = Lbounds.getErasedType().asClass().reflective.getArrayOf();
             return new GenTypeArray(Lbounds);
         }
@@ -90,8 +87,8 @@ public class GenTypeArray extends GenTypeClass
     
     public JavaType getErasedType()
     {
-        if (baseType instanceof GenTypeParameterizable) {
-            GenTypeParameterizable pbtype = (GenTypeParameterizable) baseType;
+        if (baseType instanceof GenTypeParameter) {
+            GenTypeParameter pbtype = (GenTypeParameter) baseType;
             GenTypeClass pbErased = (GenTypeClass) pbtype.getErasedType();
             return new GenTypeArray(pbErased);
         }

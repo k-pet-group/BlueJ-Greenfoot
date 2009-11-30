@@ -37,7 +37,7 @@ import com.sun.jdi.Value;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 6863 2009-11-25 03:16:16Z davmac $
+ * @version    $Id: JdiArray.java 6874 2009-11-30 05:46:18Z davmac $
  */
 public class JdiArray extends JdiObject
 {    
@@ -86,14 +86,9 @@ public class JdiArray extends JdiObject
             // that is a wildcard, but this type is inferred in some cases so
             // it must be handled here.
             
-            GenTypeParameterizable component;
+            JavaType component;
             
-            if(genericType instanceof GenTypeWildcard) {
-                GenTypeSolid [] upperBounds = ((GenTypeWildcard)genericType).getUpperBounds();
-                if (upperBounds.length != 0)
-                    genericType = ((GenTypeWildcard)genericType).getUpperBounds()[0];
-            }
-            else if (genericType instanceof GenTypeClass) {
+            if (genericType instanceof GenTypeClass) {
                 // the sig looks like "Lpackage/package/class;". Strip the 'L'
                 // and the ';'
                 String compName = ctypestr.substring(1, ctypestr.length() - 1);

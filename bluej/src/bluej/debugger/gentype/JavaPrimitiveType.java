@@ -206,7 +206,7 @@ public class JavaPrimitiveType
         return myIndex == v;
     }
     
-    public JavaType mapTparsToTypes(Map<String,GenTypeParameterizable> tparams)
+    public JavaType mapTparsToTypes(Map<String,GenTypeParameter> tparams)
     {
         return this;
     }
@@ -230,5 +230,59 @@ public class JavaPrimitiveType
     public GenTypeArray getArray()
     {
         return new GenTypeArray(this);
+    }
+    
+    @Override
+    public JavaType getCapture()
+    {
+        return this;
+    }
+    
+    @Override
+    public void getParamsFromTemplate(Map<String, GenTypeParameter> map,
+            GenTypeParameter template)
+    {
+        
+    }
+    
+    @Override
+    public GenTypeSolid getLowerBound()
+    {
+        return null;
+    }
+    
+    @Override
+    public GenTypeSolid getUpperBound()
+    {
+        return null;
+    }
+    
+    @Override
+    public GenTypeSolid[] getUpperBounds()
+    {
+        return null;
+    }
+    
+    @Override
+    public String toTypeArgString(NameTransform nt)
+    {
+        return toString();
+    }
+    
+    @Override
+    public boolean contains(GenTypeParameter other)
+    {
+        // Not really defined
+        return false;
+    }
+    
+    @Override
+    public boolean equals(GenTypeParameter other)
+    {
+        if (other instanceof JavaPrimitiveType) {
+            JavaPrimitiveType otherP = (JavaPrimitiveType) other;
+            return otherP.typeIs(myIndex);
+        }
+        return false;
     }
 }

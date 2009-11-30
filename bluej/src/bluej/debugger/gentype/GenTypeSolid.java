@@ -21,12 +21,13 @@
  */
 package bluej.debugger.gentype;
 
-import java.util.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 
 /**
@@ -35,10 +36,9 @@ import java.util.Set;
  * a component type for a wildcard clause.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeSolid.java 6863 2009-11-25 03:16:16Z davmac $
  */
-public abstract class GenTypeSolid extends GenTypeParameterizable {
-
+public abstract class GenTypeSolid extends JavaType
+{
     // force toString(NameTransform) to be reimplemented
     public abstract String toString(NameTransform nt);
     
@@ -61,7 +61,7 @@ public abstract class GenTypeSolid extends GenTypeParameterizable {
      * 
      * @param s  The set into which to store the reflectives
      */
-    public abstract void erasedSuperTypes(Set s);
+    public abstract void erasedSuperTypes(Set<Reflective> s);
     
     /**
      * Find the minimal set of supertypes of this type which are reference types. For tpars
@@ -82,11 +82,10 @@ public abstract class GenTypeSolid extends GenTypeParameterizable {
      * The given map may already contain some mappings. In this case, the
      * existing mappings will be retained or made more specific.
      * 
-     * @param map   A map (String -> GenTypeSolid) to which mappings should
-     *              be added
+     * @param map   A map to which mappings should be added
      * @param template   The template to use
      */
-    abstract public void getParamsFromTemplate(Map map, GenTypeParameterizable template);
+    abstract public void getParamsFromTemplate(Map<String,GenTypeParameter> map, GenTypeParameter template);
     
     /*
      *  Implement methods from GenTypeParameterizable
@@ -233,9 +232,9 @@ public abstract class GenTypeSolid extends GenTypeParameterizable {
         // lci(G<X1,...,Xn>, G<Y1,...,Yn>) =
         //       G<lcta(X1,Y1), ..., lcta(Xn,Yn)>
         while (i.hasNext()) {
-            GenTypeParameterizable atype = (GenTypeParameterizable) i.next();
-            GenTypeParameterizable btype = (GenTypeParameterizable) j.next();
-            GenTypeParameterizable rtype;
+            GenTypeParameter atype = (GenTypeParameter) i.next();
+            GenTypeParameter btype = (GenTypeParameter) j.next();
+            GenTypeParameter rtype;
             if (! breakRecursion)
                 rtype = leastContainingTypeArgument(atype, btype, lubBt);
             else
@@ -260,22 +259,21 @@ public abstract class GenTypeSolid extends GenTypeParameterizable {
      * @param lubBt  The backtrace for avoiding infinite recursion
      * @return   The least containing type
      */
-    private static GenTypeParameterizable leastContainingTypeArgument(GenTypeParameterizable a, GenTypeParameterizable b, Stack lubBt)
+    private static GenTypeParameter leastContainingTypeArgument(GenTypeParameter a, GenTypeParameter b, Stack lubBt)
     {
-        GenTypeClass ac = a.asClass();
-        GenTypeClass bc = b.asClass();
+        GenTypeSolid ac = a.getCapture().asSolid();
+        GenTypeSolid bc = b.getCapture().asSolid();
         
         // Both arguments are of solid type
         if (ac != null && bc != null) {
             if (ac.equals(bc))
                 return ac;
             else
-                return lub(new GenTypeClass [] {ac, bc}, lubBt);
+                return lub(new GenTypeSolid [] {ac, bc}, lubBt);
         }
         
-        
         if (ac != null || bc != null) {
-            // One is a solid type and the other is a wilcard type. Ensure
+            // One is a solid type and the other is a wildcard type. Ensure
             // that ac is the solid and b is the wildcard:
             if (ac == null) {
                 ac = bc;
@@ -388,4 +386,18 @@ public abstract class GenTypeSolid extends GenTypeParameterizable {
         }
         return (GenTypeClass []) rlist.toArray(new GenTypeClass[rlist.size()]);
     }
+    
+    @Override
+    public JavaType getCapture()
+    {
+        return this;
+    }
+    
+    @Override
+    public GenTypeSolid asSolid()
+    {
+        return this;
+    }
+    
+    abstract public GenTypeSolid mapTparsToTypes(Map<String,GenTypeParameter> tparams);
 }

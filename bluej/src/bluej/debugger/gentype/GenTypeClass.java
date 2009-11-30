@@ -31,13 +31,13 @@ import java.util.*;
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 6863 2009-11-25 03:16:16Z davmac $
+ * @version $Id: GenTypeClass.java 6874 2009-11-30 05:46:18Z davmac $
  */
 public class GenTypeClass extends GenTypeSolid {
 
     // ---------- Instance fields -----------
     
-    protected List<GenTypeParameterizable> params = null; // List of GenTypeParameterizable's: type parameters
+    protected List<GenTypeParameter> params = null; // List of GenTypeParameterizable's: type parameters
     protected Reflective reflective = null;
     protected GenTypeClass outer = null; // outer class of this class
     
@@ -107,7 +107,7 @@ public class GenTypeClass extends GenTypeSolid {
         if (mparams == null)
             return;
         
-        params = new ArrayList<GenTypeParameterizable>();
+        params = new ArrayList<GenTypeParameter>();
         Iterator declParmsI = r.getTypeParams().iterator();
         while( declParmsI.hasNext() ) {
             GenTypeDeclTpar next = (GenTypeDeclTpar)declParmsI.next();
@@ -115,7 +115,7 @@ public class GenTypeClass extends GenTypeSolid {
             if(mparams.get(nextName) == null)
                 params.add(new GenTypeExtends(next.getBound()));
             else {
-                params.add((GenTypeParameterizable) mparams.get(nextName));
+                params.add((GenTypeParameter) mparams.get(nextName));
                 mparams.remove(nextName);
             }
         }
@@ -266,7 +266,7 @@ public class GenTypeClass extends GenTypeSolid {
             return baseClass;
         String r = baseClass + '<';
         for(Iterator i = params.iterator(); i.hasNext(); ) {
-            r += ((GenTypeParameterizable)i.next()).toTypeArgString(nt);
+            r += ((GenTypeParameter)i.next()).toTypeArgString(nt);
             if( i.hasNext() )
                 r += ',';
         }
@@ -279,7 +279,7 @@ public class GenTypeClass extends GenTypeSolid {
         return toString(nt);
     }
     
-    public boolean equals(GenTypeParameterizable other)
+    public boolean equals(GenTypeParameter other)
     {
         if (other == this)
             return true;
@@ -315,8 +315,8 @@ public class GenTypeClass extends GenTypeSolid {
         while( i.hasNext() ) {
             if( ! j.hasNext() )
                 return false;
-            GenTypeParameterizable iNext = (GenTypeParameterizable)i.next();
-            GenTypeParameterizable jNext = (GenTypeParameterizable)j.next();
+            GenTypeParameter iNext = (GenTypeParameter)i.next();
+            GenTypeParameter jNext = (GenTypeParameter)j.next();
             if( ! iNext.equals(jNext) )
                 return false;
         }
@@ -377,8 +377,8 @@ public class GenTypeClass extends GenTypeSolid {
                     Iterator i = cclass.params.iterator();
                     Iterator j = tclass.params.iterator();
                     while (i.hasNext()) {
-                        GenTypeParameterizable cpar = (GenTypeParameterizable) i.next();
-                        GenTypeParameterizable tpar = (GenTypeParameterizable) j.next();
+                        GenTypeParameter cpar = (GenTypeParameter) i.next();
+                        GenTypeParameter tpar = (GenTypeParameter) j.next();
                         if (! cpar.contains(tpar))
                             return false;
                     }
@@ -400,7 +400,7 @@ public class GenTypeClass extends GenTypeSolid {
         return false;
     }
     
-    public boolean contains(GenTypeParameterizable other)
+    public boolean contains(GenTypeParameter other)
     {
         return this.equals(other);
     }
@@ -425,8 +425,8 @@ public class GenTypeClass extends GenTypeSolid {
                 Iterator i = params.iterator();
                 Iterator j = other.params.iterator();
                 while (i.hasNext()) {
-                    GenTypeParameterizable myParam = (GenTypeParameterizable) i.next();
-                    GenTypeParameterizable oParam = (GenTypeParameterizable) j.next();
+                    GenTypeParameter myParam = (GenTypeParameter) i.next();
+                    GenTypeParameter oParam = (GenTypeParameter) j.next();
                     if (! myParam.contains(oParam))
                         return false;
                 }
@@ -520,7 +520,7 @@ public class GenTypeClass extends GenTypeSolid {
      *                 can be null to return the raw type.
      * @return the corresponding type structure, with parameters mapped.
      */
-    public JavaType mapTparsToTypes(Map tparams)
+    public GenTypeSolid mapTparsToTypes(Map<String,GenTypeParameter> tparams)
     {
         // If there are no generic parameters, there's nothing to map...
         if( params == null && outer == null )
@@ -531,7 +531,7 @@ public class GenTypeClass extends GenTypeSolid {
         if (params != null) {
             Iterator i = params.iterator();
             while( i.hasNext() ) {
-                retlist.add(((GenTypeParameterizable)i.next()).mapTparsToTypes(tparams));
+                retlist.add(((GenTypeParameter)i.next()).mapTparsToTypes(tparams));
             }
         }
         
@@ -598,12 +598,12 @@ public class GenTypeClass extends GenTypeSolid {
      * 
      * @return the map (of String -> GenTypeParameterizable).
      */
-    public Map<String,GenTypeParameterizable> getMap()
+    public Map<String,GenTypeParameter> getMap()
     {
         if (isRaw())
             return null;
         
-        HashMap<String,GenTypeParameterizable> r = new HashMap<String,GenTypeParameterizable>();
+        HashMap<String,GenTypeParameter> r = new HashMap<String,GenTypeParameter>();
         mergeMap(r);
         return r;
     }
@@ -667,7 +667,7 @@ public class GenTypeClass extends GenTypeSolid {
     /*
      * see bluej.debugger.gentype.GenTypeSolid#getParamsFromTemplate(java.util.Map, bluej.debugger.gentype.GenTypeParameterizable)
      */
-    public void getParamsFromTemplate(Map r, GenTypeParameterizable template)
+    public void getParamsFromTemplate(Map r, GenTypeParameter template)
     {
         // We are classA<...>, template could be anything.
         // possibilities for template:
@@ -693,7 +693,7 @@ public class GenTypeClass extends GenTypeSolid {
                 // loop through each parameter
                 while (i.hasNext() && j.hasNext()) {
                     GenTypeSolid ip = (GenTypeSolid) i.next();
-                    GenTypeParameterizable jp = (GenTypeParameterizable) j.next();
+                    GenTypeParameter jp = (GenTypeParameter) j.next();
 
                     ip.getParamsFromTemplate(r, jp);
                 }
@@ -703,9 +703,9 @@ public class GenTypeClass extends GenTypeSolid {
         return;
     }
     
-    public void erasedSuperTypes(Set s)
+    public void erasedSuperTypes(Set<Reflective> s)
     {
-        Stack refs = new Stack();
+        Stack<Reflective> refs = new Stack<Reflective>();
         refs.push(reflective);
         
         while(! refs.empty()) {

@@ -41,7 +41,7 @@ import bluej.debugger.gentype.Reflective;
  * A reflective for GenTypeClass which uses the standard java reflection API.  
  * 
  * @author Davin McCall
- * @version $Id: JavaReflective.java 6863 2009-11-25 03:16:16Z davmac $
+ * @version $Id: JavaReflective.java 6874 2009-11-30 05:46:18Z davmac $
  */
 public class JavaReflective extends Reflective {
 
@@ -209,7 +209,8 @@ public class JavaReflective extends Reflective {
         Map<String,JavaType> rmap = new HashMap<String,JavaType>();
         for (int i = 0; i < fields.length; i++) {
             if (Modifier.isPublic(fields[i].getModifiers())) {
-                JavaType fieldType = JavaUtils.getJavaUtils().genTypeFromClass(fields[i].getType());
+                JavaType fieldType = (JavaType) JavaUtils.getJavaUtils()
+                        .genTypeFromClass(fields[i].getType());
                 rmap.put(fields[i].getName(), fieldType);
             }
         }

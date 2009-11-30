@@ -34,7 +34,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  * 
  * @author Davin McCall
- * @version $Id: JdiReflective.java 6863 2009-11-25 03:16:16Z davmac $
+ * @version $Id: JdiReflective.java 6874 2009-11-30 05:46:18Z davmac $
  */
 public class JdiReflective extends Reflective
 {
@@ -468,7 +468,7 @@ public class JdiReflective extends Reflective
      *            loader of this type is used to locate embedded types.
      * @return The GenType structure determined from the signature.
      */
-    private static JavaType fromSignature(StringIterator i, Map tparams, ReferenceType parent)
+    private static GenTypeParameter fromSignature(StringIterator i, Map tparams, ReferenceType parent)
     {
         char c = i.next();
         if (c == '*') {
@@ -497,7 +497,7 @@ public class JdiReflective extends Reflective
         }
         if (c == '[') {
             // array
-            JavaType t = fromSignature(i, tparams, parent);
+            JavaType t = (JavaType) fromSignature(i, tparams, parent);
             t = new GenTypeArray(t);
             return t;
         }
@@ -558,7 +558,7 @@ public class JdiReflective extends Reflective
 
         List params = new ArrayList();
         do {
-            JavaType ptype = fromSignature(i, tparams, parent);
+            JavaType ptype = (JavaType) fromSignature(i, tparams, parent);
             if (ptype == null)
                 return null;
             params.add(ptype);
@@ -589,7 +589,7 @@ public class JdiReflective extends Reflective
         if (c == '<') {
             List params = new ArrayList();
             do {
-                JavaType ptype = fromSignature(i, tparams, parent);
+                JavaType ptype = (JavaType) fromSignature(i, tparams, parent);
                 if (ptype == null)
                     return null;
                 params.add(ptype);
@@ -695,7 +695,7 @@ public class JdiReflective extends Reflective
         StringIterator iterator = new StringIterator(gensig);
 
         // Parse the signature, using the determined tpar mappings.
-        return fromSignature(iterator, tparams, parent.obj.referenceType());
+        return (JavaType) fromSignature(iterator, tparams, parent.obj.referenceType());
     }
 
     /**
@@ -739,7 +739,7 @@ public class JdiReflective extends Reflective
 
         // if the generic signature wasn't null, get the type from it.
         StringIterator iterator = new StringIterator(gensig);
-        return fromSignature(iterator, null, parent);
+        return (JavaType) fromSignature(iterator, null, parent);
     }
 
     public static JavaType fromLocalVar(StackFrame sf, LocalVariable var)
@@ -779,7 +779,7 @@ public class JdiReflective extends Reflective
         StringIterator iterator = new StringIterator(gensig);
         Map tparams = new HashMap();
         addDefaultParamBases(tparams, new JdiReflective(declType));
-        return fromSignature(iterator, tparams, declType);
+        return (JavaType) fromSignature(iterator, tparams, declType);
     }
 
     /**
