@@ -429,7 +429,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
 
     private void writeMessage(boolean emptyMessage){
         if (emptyMessage){
-            editor.writeMessage("");
+            editor.writeMessage(" ");
             return;
         }
         int counter=editor.getNumHighlights();

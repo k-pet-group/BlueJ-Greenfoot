@@ -3155,17 +3155,20 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         }
     }
 
-    public void setFindPanelVisible()
+    public void initFindPanel()
     {
-        //boolean to ensure that if the panel is closed it will it and
-        //open if it is already open, it will be closed
+        //boolean to ensure that if the panel is closed it will 
+        //open and if it is already open, it will be closed
         boolean visible=true;
         String selection= currentTextPane.getSelectedText();
         finder.setEditor(this);
         if (finder.isVisible())
             visible=false;
         finder.displayFindPanel(selection, visible);
-
+        if (selection!=null){
+            //setCaretPosition(getCaretPosition()-selection.length());
+            finder.find(false);
+        }
     }
 
     /**
