@@ -1283,7 +1283,11 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void findNext()
     {
-        finder.getNext();
+        String selection= currentTextPane.getSelectedText();
+        if (selection!=null){
+            finder.setSearchString(selection);
+            finder.getNext();
+        }
     }
 
     /**
@@ -1306,7 +1310,11 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void findNextBackward()
     {
-        finder.getPrev();
+        String selection= currentTextPane.getSelectedText();
+        if (selection!=null){
+            finder.setSearchString(selection);
+            finder.getPrev();
+        }
     }
 
     // --------------------------------------------------------------------
@@ -1557,7 +1565,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                     if (foundPos != -1) {
                         currentTextPane.getHighlighter().addHighlight(lineStart + foundPos, lineStart + foundPos + s.length(), editorHighlighter.selectPainter);
                         currentTextPane.select(lineStart + foundPos, lineStart + foundPos + s.length());
-                        return found = true;
+                        return true;
                     }
                 }
                 if (lineStart <= endPos) {            // reached end of search
@@ -1588,8 +1596,12 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     // --------------------------------------------------------------------
     /**
-     * doFind - do a find without visible feedback. Returns false if not found.
+     * doFindSelect - finds all the instances in the document from where the 
+     * caret position is and selects the first one and highlights all others
      * @param select indicates whether this word should be selected or only highlighted
+     * @param s search string 
+     * 
+     * @return Returns false if not found.
      */
     boolean doFindSelect (String s, boolean ignoreCase, boolean wholeWord, boolean wrap, boolean select)
     {
@@ -1605,7 +1617,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         int start = startPosition;
         Element line = getLineAt(start);
         int lineEnd = Math.min(line.getEndOffset(), endPos);   
-        int foundPos = -s.length();
+        int foundPos =0; 
+            //-s.length();
         boolean first=true;
         String firstLine="";
         try {
@@ -1631,6 +1644,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                             currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);
                             setFoundHighlightPosition(getCaretPosition()); 
                         }
+                        foundPos=foundPos+s.length();
                     }else 
                         lineText=null;
                 }
@@ -1771,7 +1785,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         }
 
         boolean found = false;
-        int pos = (backwards ? strlen-sublen : foundPos+sublen);
+        int pos = foundPos;
+            //(backwards ? strlen-sublen : foundPos+sublen);
         boolean itsOver = (backwards ? (pos < 0) : (pos + sublen > strlen));
         while (!found && !itsOver) {
             found = text.regionMatches(ignoreCase, pos, sub, 0, sublen);                
@@ -1880,16 +1895,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         }
         return false;
 
-    }
-
-    /**
-     * Allow the enabling/disabling of the find next+find next backward button
-     * according to values in the new find panel
-     * @param flag  true to enable button.
-     */    
-    public void enableFindNextButtons(boolean enabled){
-        ((FindNextAction)actions.getFindNextAction()).setEnabled(enabled); 
-        ((FindNextBackwardAction)actions.getFindNextBackwardAction()).setEnabled(enabled);
     }
     
     /**
@@ -3155,19 +3160,23 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         }
     }
 
+    /**
+     * Sets the find panel to be visible and if there is a selection
+     * it starts a automatic find of what was in selected in the text
+     */
     public void initFindPanel()
     {
         //boolean to ensure that if the panel is closed it will 
         //open and if it is already open, it will be closed
         boolean visible=true;
-        String selection= currentTextPane.getSelectedText();
+        String selection= currentTextPane.getSelectedText();        
         finder.setEditor(this);
         if (finder.isVisible())
             visible=false;
         finder.displayFindPanel(selection, visible);
         if (selection!=null){
             //setCaretPosition(getCaretPosition()-selection.length());
-            finder.find(false);
+            finder.find(true);
         }
     }
 

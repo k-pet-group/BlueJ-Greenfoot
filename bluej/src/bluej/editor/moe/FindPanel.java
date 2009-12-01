@@ -238,11 +238,11 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
      */
     public void actionPerformed(ActionEvent e) 
     {
-
         JComponent src = (JComponent) e.getSource();
         if(src.getName() == CLOSE_BUTTON_NAME){
             editor.removeHighlighting();
-            //remove selection?
+            editor.setSelText(null);
+            editor.moveCaretPosition(editor.getSelectionBegin().getColumn());
             this.setVisible(false);
             return;
         }
@@ -259,7 +259,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
             find(true);
         }
         if (src.getName()==MATCHCASE_CHECKBOX){
-            editor.setCaretPositionForward(-getSearchString().length());
+            //editor.setCaretPositionForward(-getSearchString().length());
             find(true);
         }
     }
@@ -267,7 +267,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     public void getNext()
     {
         //move the caret forward ONLY if the search string is the same
-        if (getSearchString().equals(findTField.getText())){
+        if (getSearchString()!=null && getSearchString().equals(findTField.getText())){
             editor.moveCaretPosition(editor.getCaretPosition()+getSearchString().length());
         }
         find(true);  
@@ -301,13 +301,13 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
                 //need to remove highlighting and have no message
                 if (findT.getText().length()==0){
                     editor.removeHighlighting();
-                    writeMessage(true);
+                    writeMessage(false);
                 }
                 else if (!getSearchString().equals(findT.getText()))
                     doFind=true;
             }
             //if it is the first letter of the search
-            else if (((JTextField)src).getText().length()>0)
+            if (((JTextField)src).getText().length()>0)
                 doFind=true;
             if (doFind){
                 find(true);
@@ -330,7 +330,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         findTField.requestFocus();
 
     }
-    
+
     /**
      * Returns whether the panel is visible 
      */
@@ -366,21 +366,18 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     private void updateDisplay()
     {
         boolean validSearch=false;
-
         if(getSearchString() != null && getSearchString().length() > 0) 
             validSearch=true;
 
         if (validSearch){
             previousButton.setEnabled(true);
             nextButton.setEnabled(true);
-            editor.enableFindNextButtons(true);
             //prevArrowButton.setEnabled(true);
             //nextArrowButton.setEnabled(true);
         }
         else{
             previousButton.setEnabled(false);
             nextButton.setEnabled(false);
-            editor.enableFindNextButtons(false);
             //prevArrowButton.setEnabled(false);
             //nextArrowButton.setEnabled(false);
         }
@@ -423,12 +420,15 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     public void highlightAll(boolean ignoreCase, boolean wholeWord, boolean wrap, boolean next)
     {
         searchForward(ignoreCase, wholeWord, wrap, next);
-        writeMessage(false);     
-
+        writeMessage(true); 
     }
 
+    /**
+     * writeMessage either writes an empty message or a message reflecting the number of founds
+     * @param emptyMessage
+     */
     private void writeMessage(boolean emptyMessage){
-        if (emptyMessage){
+        if (!emptyMessage){
             editor.writeMessage(" ");
             return;
         }
@@ -436,7 +436,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         if(counter > 0){
             if (editor.getSelectedText()!=null){
                 //move the caret to the beginning of the selected item
-                editor.moveCaretPosition(editor.getCaretPosition()-getSearchString().length());
+                //editor.moveCaretPosition(editor.getCaretPosition()-getSearchString().length());
             }
             editor.writeMessage(Config.getString("editor.highlight.found") +
                     counter + Config.getString("editor.replaceAll.intancesOf") + 
@@ -452,6 +452,17 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         }
     }
 
+    /**
+     * search initiates a backward search if required and a forward 
+     * search if it has not been found, does one last effort 
+     * by resetting the  caret to 0 and searching from there
+     * @param ignoreCase
+     * @param wholeWord
+     * @param wrap
+     * @param select
+     * @param next
+     * @return
+     */
     private boolean search (boolean ignoreCase, boolean wholeWord, boolean wrap, boolean select, boolean next)
     {
         String searchString = getSearchString();  
@@ -464,7 +475,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
             //editor.doFindBackward(searchString, ignoreCase, wholeWord, wrap);
             editor.moveCaretPosition(editor.getCaretPosition()-searchString.length());
         }
-        
+
         found=editor.doFindSelect(searchString, ignoreCase, wholeWord, wrap, select);
         if (!found){
             editor.moveCaretPosition(0);
@@ -473,8 +484,8 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         return found;
     }
 
-    private void searchForward(boolean ignoreCase, boolean wholeWord, boolean wrap, boolean next){
-
+    private void searchForward(boolean ignoreCase, boolean wholeWord, boolean wrap, boolean next)
+    {
         boolean select=true;
         search(ignoreCase, wholeWord, wrap, select, next) ;
     }
@@ -484,6 +495,8 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
      */
     protected void find(boolean next)
     {
+        if (getSearchString()!=null)
+            editor.moveCaretPosition(editor.getCaretPosition()-getSearchString().length());
         setFindValues(); 
         updateDisplay();
         editor.removeHighlighting();
