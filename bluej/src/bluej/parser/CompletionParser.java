@@ -79,7 +79,7 @@ public class CompletionParser extends TextParser
     {
         JavaEntity valueEnt = entity.resolveAsValue();
         if (valueEnt != null) {
-            JavaType type = valueEnt.getType();
+            JavaType type = valueEnt.getType().getCapture();
             GenTypeClass ctype = type.asClass();
             if (ctype != null) {
                 Reflective r = ctype.getReflective();

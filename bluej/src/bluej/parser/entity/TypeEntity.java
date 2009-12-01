@@ -21,6 +21,7 @@
 package bluej.parser.entity;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,10 +38,9 @@ import bluej.utility.JavaReflective;
  */
 public class TypeEntity extends ClassEntity
 {
-    //private Reflective thisRef;
-    private JavaType thisType;
+    private GenTypeParameter thisType;
     
-    public TypeEntity(JavaType type)
+    public TypeEntity(GenTypeParameter type)
     {
         thisType = type;
     }
@@ -60,22 +60,22 @@ public class TypeEntity extends ClassEntity
     TypeEntity(Reflective r, GenTypeClass outer)
     {
         // thisRef = r;
-        thisType = new GenTypeClass(r, Collections.emptyList(), outer);
+        thisType = new GenTypeClass(r, Collections.<GenTypeParameter>emptyList(), outer);
     }
 
-    public JavaType getType()
+    public GenTypeParameter getType()
     {
         return thisType;
     }
     
     public GenTypeClass getClassType()
     {
-        return thisType.asClass();
+        return thisType.getCapture().asClass();
     }
     
     public JavaEntity getSubentity(String name)
     {
-        GenTypeClass thisClass = thisType.asClass();
+        GenTypeClass thisClass = thisType.getCapture().asClass();
         if (thisClass == null) {
             return null;
         }
@@ -99,7 +99,7 @@ public class TypeEntity extends ClassEntity
     
     public PackageOrClass getPackageOrClassMember(String name)
     {
-        GenTypeClass thisClass = thisType.asClass();
+        GenTypeClass thisClass = thisType.getCapture().asClass();
         if (thisClass == null) {
             return null;
         }
@@ -107,7 +107,8 @@ public class TypeEntity extends ClassEntity
         Reflective thisRef = thisClass.getReflective();
         if (thisRef != null) {
             Reflective member = thisRef.getRelativeClass(thisRef.getName() + '$' + name);
-            GenTypeClass inner = new GenTypeClass(member, Collections.EMPTY_LIST, thisClass);
+            GenTypeClass inner = new GenTypeClass(member,
+                    Collections.<GenTypeParameter>emptyList(), thisClass);
             return new TypeEntity(inner);
         }
         
@@ -122,13 +123,22 @@ public class TypeEntity extends ClassEntity
     /* (non-Javadoc)
      * @see bluej.parser.entity.ClassEntity#setTypeParams(java.util.List)
      */
-    public ClassEntity setTypeParams(List<GenTypeParameter> tparams)
+    public ClassEntity setTypeParams(List<JavaEntity> tparams)
     {
-        GenTypeClass classType = thisType.asClass();
+        GenTypeClass classType = thisType.getCapture().asClass();
         if (classType == null) {
             return null;
         }
         GenTypeClass outer = classType.getOuterType();
-        return new TypeEntity(new GenTypeClass(classType.getReflective(), tparams, outer));
+        List<GenTypeParameter> ttparams = new LinkedList<GenTypeParameter>();
+        for (JavaEntity eparam : tparams) {
+            ClassEntity cparam = eparam.resolveAsType();
+            if (cparam == null) {
+                return null;
+            }
+            ttparams.add(cparam.getType());
+        }
+        
+        return new TypeEntity(new GenTypeClass(classType.getReflective(), ttparams, outer));
     }
 }

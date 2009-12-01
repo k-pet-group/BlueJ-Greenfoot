@@ -21,7 +21,7 @@
  */
 package bluej.parser.entity;
 
-import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.GenTypeParameter;
 
 /**
  * A general abstraction for handling entities which may have fields or
@@ -61,7 +61,7 @@ public abstract class JavaEntity
      * <p>Returns null if no type is available or undetermined (i.e. if the entity
      * has not properly been resolved).
      */ 
-    public abstract JavaType getType();
+    public abstract GenTypeParameter getType();
     
     /**
      * Check whether this entity represents "null". "null" has no type.

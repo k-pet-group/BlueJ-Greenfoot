@@ -25,16 +25,14 @@ import java.util.*;
 
 /**
  * Represent a (possibly generic) type. This can include wildcard types,
- * type parameters, etc; ie. anything that JDK 1.5 "Type" can represent. But 
- * this works for java 1.4 as well...
+ * type parameters, etc; ie. anything that JDK 1.5 "Type" can represent. 
  * 
  * Objects of this type are immutable.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeClass.java 6874 2009-11-30 05:46:18Z davmac $
  */
-public class GenTypeClass extends GenTypeSolid {
-
+public class GenTypeClass extends GenTypeSolid
+{
     // ---------- Instance fields -----------
     
     protected List<GenTypeParameter> params = null; // List of GenTypeParameterizable's: type parameters
@@ -60,7 +58,7 @@ public class GenTypeClass extends GenTypeSolid {
      * @param params  A list of GenTypeParameterizables giving the type
      *                  parameters in declaration order
      */
-    public GenTypeClass(Reflective r, List params)
+    public GenTypeClass(Reflective r, List<GenTypeParameter> params)
     {
         reflective = r;
         if( params != null && ! params.isEmpty() )
@@ -77,10 +75,10 @@ public class GenTypeClass extends GenTypeSolid {
      * constructor is equivalent to GenTypeClass(r, params). 
      * 
      * @param r  The Reflective representing the class.
-     * @param params  A list of GenTypeParameterizables giving the type
+     * @param params  A list of GenTypeParameter giving the type
      *                  parameters in declaration order
      */
-    public GenTypeClass(Reflective r, List params, GenTypeClass outer)
+    public GenTypeClass(Reflective r, List<GenTypeParameter> params, GenTypeClass outer)
     {
         reflective = r;
         if( params != null && ! params.isEmpty() )

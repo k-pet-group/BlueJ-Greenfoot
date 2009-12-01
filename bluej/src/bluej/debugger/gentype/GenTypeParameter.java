@@ -31,7 +31,7 @@ import bluej.utility.JavaNames;
  * parameters themselves.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeParameter.java 6874 2009-11-30 05:46:18Z davmac $
+ * @version $Id: GenTypeParameter.java 6876 2009-12-01 02:49:30Z davmac $
  */
 public abstract class GenTypeParameter
 {
@@ -211,5 +211,13 @@ public abstract class GenTypeParameter
     abstract public JavaType getErasedType();
     
     abstract public JavaType getCapture();
+    
+    /**
+     * Check whether this represents a primitive type.
+     */
+    public boolean isPrimitive()
+    {
+        return false;
+    }
 
 }

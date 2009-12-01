@@ -25,8 +25,6 @@ import java.util.List;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
-import bluej.debugger.gentype.JavaType;
-import bluej.parser.SemanticException;
 
 
 /**
@@ -38,13 +36,13 @@ import bluej.parser.SemanticException;
  */
 public abstract class ClassEntity extends PackageOrClass
 {
-    public JavaType getType()
+    public GenTypeParameter getType()
     {
         return getClassType();
     }
     
     @Override
-    public final ClassEntity resolveAsType()
+    public ClassEntity resolveAsType()
     {
         return this;
     }
@@ -58,8 +56,7 @@ public abstract class ClassEntity extends PackageOrClass
      * Set the type parameters of this entity. The return is a duplicate of this entity with
      * the type parameters set as specified.
      * 
-     * @param tparams   A list of GenTypeParameterizable type parameters
-     * @throws SemanticException
+     * @param tparams   A list of type parameters
      */
-    public abstract ClassEntity setTypeParams(List<GenTypeParameter> tparams);
+    public abstract ClassEntity setTypeParams(List<JavaEntity> tparams);
 }

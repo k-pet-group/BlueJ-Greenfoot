@@ -143,7 +143,7 @@ public class TextParser extends JavaParser
             castType = castType.resolveAsType();
             if (castType != null) {
                 // TODO check operand can be cast to this type
-                valueStack.push(new ValueEntity(castType.getType()));
+                valueStack.push(new ValueEntity(castType.getType().getCapture()));
             }
             else {
                 valueStack.push(new ErrorEntity());
@@ -183,8 +183,8 @@ public class TextParser extends JavaParser
      */
     private void doBinaryOp(JavaEntity arg1, JavaEntity arg2, LocatableToken op)
     {
-        JavaType a1type = arg1.getType();
-        JavaType a2type = arg2.getType();
+        JavaType a1type = arg1.getType().getCapture();
+        JavaType a2type = arg2.getType().getCapture();
         
         int ttype = op.getType();
         switch (ttype) {
@@ -294,7 +294,7 @@ public class TextParser extends JavaParser
             JavaEntity entity = resolveTypeSpec(tokens);
             
             if (entity != null) {
-                valueStack.push(new ValueEntity(entity.getType()));
+                valueStack.push(new ValueEntity(entity.getType().getCapture()));
                 state = STATE_NEW_ARGS;
             }
             else {
@@ -363,7 +363,7 @@ public class TextParser extends JavaParser
                 }
                 
                 while (token.getType() == JavaTokenTypes.LBRACK) {
-                    poc = new TypeEntity(poc.getType().getArray());
+                    poc = new TypeEntity(poc.getType().getCapture().getArray());
                     if (i.hasNext()) {
                         token = i.next(); // RBRACK
                     }
@@ -401,7 +401,7 @@ public class TextParser extends JavaParser
     private ClassEntity processTypeArgs(ClassEntity base, ListIterator<LocatableToken> i, DepthRef depthRef)
     {
         int startDepth = depthRef.depth;
-        List<GenTypeParameter> taList = new LinkedList<GenTypeParameter>();
+        List<JavaEntity> taList = new LinkedList<JavaEntity>();
         depthRef.depth++;
         
         mainLoop:
@@ -417,31 +417,19 @@ public class TextParser extends JavaParser
                     if (taEnt == null) {
                         return null;
                     }
-                    JavaType taType = taEnt.getType();
-                    if (taType instanceof GenTypeSolid) {
-                        GenTypeSuper stype = new GenTypeSuper((GenTypeSolid) taType);
-                        taList.add(stype);
-                    }
-                    else {
-                        return null;
-                    }
+                    GenTypeSolid bound = taEnt.getType().getCapture().asSolid();
+                    taList.add(new TypeEntity(new GenTypeSuper(bound)));
                 }
                 else if (token.getType() == JavaTokenTypes.LITERAL_extends) {
                     ClassEntity taEnt = resolveTypeSpec(i, depthRef);
                     if (taEnt == null) {
                         return null;
                     }
-                    JavaType taType = taEnt.getType();
-                    if (taType instanceof GenTypeSolid) {
-                        GenTypeExtends stype = new GenTypeExtends((GenTypeSolid) taType);
-                        taList.add(stype);
-                    }
-                    else {
-                        return null;
-                    }
+                    GenTypeSolid bound = taEnt.getType().getCapture().asSolid();
+                    taList.add(new TypeEntity(new GenTypeExtends(bound)));
                 }
                 else {
-                    taList.add(new GenTypeUnbounded());
+                    taList.add(new TypeEntity(new GenTypeUnbounded()));
                     i.previous();
                 }
             }
@@ -451,13 +439,11 @@ public class TextParser extends JavaParser
                 if (taEnt == null) {
                     return null;
                 }
-                JavaType taType = taEnt.getType();
-                if (taType instanceof GenTypeParameter) {
-                    taList.add((GenTypeParameter) taType);
-                }
-                else {
+                GenTypeParameter taType = taEnt.getType();
+                if (taType.isPrimitive()) {
                     return null;
                 }
+                taList.add(new TypeEntity(taType));
             }
             
             if (! i.hasNext()) {
