@@ -330,6 +330,14 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         findTField.requestFocus();
 
     }
+    
+    /**
+     * Returns whether the panel is visible 
+     */
+    public boolean isVisibleFindPanel()
+    { 
+        return this.isVisible();
+    }
 
     public void setEditor(MoeEditor editor) 
     {

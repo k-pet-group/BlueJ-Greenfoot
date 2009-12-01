@@ -1022,7 +1022,8 @@ public final class MoeActions
         {
             //getEditor(e).find();
             MoeEditor editor=getEditor(e);
-            editor.setFindPanelVisible(true);
+            if (editor!=null)
+                editor.setFindPanelVisible();
         }
     }
 
