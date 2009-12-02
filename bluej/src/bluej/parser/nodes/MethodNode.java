@@ -21,6 +21,8 @@
  */
 package bluej.parser.nodes;
 
+import bluej.parser.entity.JavaEntity;
+
 
 /**
  * A node representing a parsed method or constructor.
@@ -30,11 +32,31 @@ package bluej.parser.nodes;
 public class MethodNode extends ParentParsedNode
 {
     private String name;
+    // private List<MethodParam> params;
+    private JavaEntity returnType;
     
+    /**
+     * Construct a MethodNode representing a constructor or method.
+     * @param parent  The parent node (containing this node)
+     * @param name    The constructor/method name
+     */
     public MethodNode(ParsedNode parent, String name)
     {
         super(parent);
         this.name = name;
+    }
+
+    /**
+     * Construct a MethodNode representing a method.
+     * @param parent   The parent node (containing this node)
+     * @param name     The method name
+     * @param returnType   The method return type
+     */
+    public MethodNode(ParsedNode parent, String name, JavaEntity returnType)
+    {
+        super(parent);
+        this.name = name;
+        this.returnType = returnType;
     }
     
     @Override
@@ -53,5 +75,14 @@ public class MethodNode extends ParentParsedNode
     public String getName()
     {
         return name;
+    }
+    
+    /**
+     * Get the return type of the method represented by this node.
+     * Returns a possibly unresolved JavaEntity.
+     */
+    public JavaEntity getReturnType()
+    {
+        return returnType;
     }
 }

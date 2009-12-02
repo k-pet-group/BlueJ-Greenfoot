@@ -45,8 +45,6 @@ import java.util.TreeMap;
 
 import javax.swing.JFrame;
 
-import com.sun.tools.javac.code.Attribute.Array;
-
 import bluej.BlueJEvent;
 import bluej.Boot;
 import bluej.Config;
@@ -75,6 +73,8 @@ import bluej.groupwork.ui.CommitCommentsFrame;
 import bluej.groupwork.ui.StatusFrame;
 import bluej.groupwork.ui.TeamSettingsDialog;
 import bluej.groupwork.ui.UpdateFilesFrame;
+import bluej.parser.entity.ClassLoaderResolver;
+import bluej.parser.entity.EntityResolver;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.prefmgr.PrefMgr;
@@ -98,7 +98,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 6706 2009-09-17 05:24:59Z davmac $
+ * @version $Id: Project.java 6880 2009-12-02 04:02:12Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -154,6 +154,7 @@ public class Project implements DebuggerListener, InspectorManager
         have a wrapper on the object bench. Inspectors of fields of
         object inspectors should be handled at the object wrapper level */
     private Map<Object,Inspector> inspectors;
+    
     private boolean inTestMode = false;
     private BPClassLoader currentClassLoader;
     
@@ -1494,6 +1495,17 @@ public class Project implements DebuggerListener, InspectorManager
         return currentClassLoader;
     }
 
+    /**
+     * Get an entity resolver which can be used to resolve symbols for this project.
+     * 
+     * @return an entity resolver which resolves symbols from classes in this project,
+     *         and from the classpath.
+     */
+    public EntityResolver getEntityResolver()
+    {
+        return new ClassLoaderResolver(getClassLoader());
+    }
+    
     /**
      * Converts a list of URLs into a list of Strings.
      * @param urlList List of URLs to convert to Strings.

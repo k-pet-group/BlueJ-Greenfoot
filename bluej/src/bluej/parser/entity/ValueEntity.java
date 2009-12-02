@@ -21,6 +21,8 @@
  */
 package bluej.parser.entity;
 
+import java.util.List;
+
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.JavaType;
 
@@ -67,5 +69,11 @@ public class ValueEntity extends JavaEntity
     public JavaEntity resolveAsValue()
     {
         return this;
+    }
+    
+    @Override
+    public JavaEntity setTypeArgs(List<JavaEntity> tparams)
+    {
+        return null;
     }
 }

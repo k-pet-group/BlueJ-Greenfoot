@@ -34,7 +34,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  * 
  * @author Davin McCall
- * @version $Id: JdiReflective.java 6874 2009-11-30 05:46:18Z davmac $
+ * @version $Id: JdiReflective.java 6880 2009-12-02 04:02:12Z davmac $
  */
 public class JdiReflective extends Reflective
 {
@@ -833,7 +833,7 @@ public class JdiReflective extends Reflective
     }
     
     @Override
-    public Map<String, MethodReflective> getDeclaredMethods()
+    public Map<String,Set<MethodReflective>> getDeclaredMethods()
     {
         return Collections.emptyMap(); // not implemented
     }

@@ -24,6 +24,7 @@ package bluej.debugger.gentype;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A "reflective" is an object representing a java type. This interface
@@ -31,7 +32,7 @@ import java.util.Map;
  * determine the generic type parameters, etc.
  *  
  * @author Davin McCall
- * @version $Id: Reflective.java 6825 2009-11-12 03:34:28Z davmac $
+ * @version $Id: Reflective.java 6880 2009-12-02 04:02:12Z davmac $
  */
 public abstract class Reflective {
 
@@ -128,9 +129,11 @@ public abstract class Reflective {
     
     /**
      * Get the methods declared in the type represented by this Reflective.
-     * This does not include methods declared in the superclass(es). 
+     * This does not include methods declared in the superclass(es).
+     * @return a map which maps method names to a set of methods
+     *    (represented by MethodReflective objects) 
      */
-    abstract public Map<String,MethodReflective> getDeclaredMethods();
+    abstract public Map<String,Set<MethodReflective>> getDeclaredMethods();
     
     /**
      * Get the fields declared in the type represented by this Reflective.

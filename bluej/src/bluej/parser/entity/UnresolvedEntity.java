@@ -21,6 +21,10 @@
  */
 package bluej.parser.entity;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 import bluej.debugger.gentype.JavaType;
 
 /**
@@ -31,61 +35,50 @@ import bluej.debugger.gentype.JavaType;
  */
 public class UnresolvedEntity extends JavaEntity
 {
-    private PackageOrClass pocEntity;
-    private JavaEntity valueEntity;
+    private EntityResolver resolver;
+    private List<String> names;
+    private List<JavaEntity> typeArguments;
+    private String querySource;
     
     /**
      * Get an entity whose type (value or class) is not yet known. The returned entity
      * can later be resolved to either a value or type.
      */
-    public static JavaEntity getEntity(EntityResolver resolver, String name)
+    public static JavaEntity getEntity(EntityResolver resolver, String name, String querySource)
     {
-        PackageOrClass poc = resolver.resolvePackageOrClass(name, null);
-        JavaEntity value = resolver.getValueEntity(name, null);
-        
-        if (poc != null && value != null) {
-            return new UnresolvedEntity(poc, value);
-        }
-        
-        return poc != null ? poc : value;
+        return new UnresolvedEntity(resolver, name, querySource);
     }
     
-    protected UnresolvedEntity(PackageOrClass poc, JavaEntity value)
+    protected UnresolvedEntity(EntityResolver resolver, String name, String querySource)
     {
-        pocEntity = poc;
-        valueEntity = value;
+        this.resolver = resolver;
+        this.names = new LinkedList<String>();
+        names.add(name);
+        this.querySource = querySource;
+    }
+    
+    protected UnresolvedEntity(EntityResolver resolver, List<String> names,
+            String querySource, List<JavaEntity> typeArguments)
+    {
+        this.resolver = resolver;
+        this.names = names;
+        this.typeArguments = typeArguments;
+        this.querySource = querySource;
     }
 
     @Override
     public String getName()
     {
-        if (pocEntity != null) {
-            return pocEntity.getName();
-        }
-        else {
-            return valueEntity.getName();
-        }
+        return names.get(names.size() - 1);
     }
 
     @Override
     public JavaEntity getSubentity(String name)
     {
-        PackageOrClass newPocEntity = null;
-        JavaEntity newValueEntity = null;
-        
-        if (pocEntity != null) {
-            newPocEntity = pocEntity.getPackageOrClassMember(name);
-        }
-        if (newValueEntity != null) {
-            newValueEntity = valueEntity.getSubentity(getName());
-        }
-        
-        if (newPocEntity != null && newValueEntity != null) {
-            return new UnresolvedEntity(newPocEntity, newValueEntity);
-        }
-        else {
-            return newPocEntity != null ? newPocEntity : newValueEntity; 
-        }
+        List<String> newNames = new LinkedList<String>();
+        newNames.addAll(names);
+        newNames.add(name);
+        return new UnresolvedEntity(resolver, newNames, querySource, typeArguments);
     }
 
     @Override
@@ -93,5 +86,39 @@ public class UnresolvedEntity extends JavaEntity
     {
         return null;
     }
+    
+    @Override
+    public JavaEntity setTypeArgs(List<JavaEntity> tparams)
+    {
+        return new UnresolvedEntity(resolver, names, querySource, tparams);
+    }
 
+    @Override
+    public JavaEntity resolveAsValue()
+    {
+        Iterator<String> i = names.iterator();
+        String name = i.next();
+        JavaEntity entity = resolver.getValueEntity(name, querySource);
+        while (entity != null && i.hasNext()) {
+            entity = entity.getSubentity(i.next());
+        }
+        if (entity != null) {
+            return entity.resolveAsValue();
+        }
+        return null;
+    }
+    
+    @Override
+    public ClassEntity resolveAsType()
+    {
+        Iterator<String> i = names.iterator();
+        PackageOrClass entity = resolver.resolvePackageOrClass(i.next(), querySource);
+        while (entity != null && i.hasNext()) {
+            entity = entity.getPackageOrClassMember(i.next());
+        }
+        if (entity != null) {
+            return entity.resolveAsType();
+        }
+        return null;
+    }
 }

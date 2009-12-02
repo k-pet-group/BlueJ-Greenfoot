@@ -26,13 +26,14 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A version of Reflective which can be easily customised to suit the needs
  * of a test.
  * 
  * @author Davin McCall
- * @version $Id: TestReflective.java 6826 2009-11-12 03:34:50Z davmac $
+ * @version $Id: TestReflective.java 6880 2009-12-02 04:02:12Z davmac $
  */
 public class TestReflective extends Reflective
 {
@@ -104,7 +105,7 @@ public class TestReflective extends Reflective
     }
     
     @Override
-    public Map<String, MethodReflective> getDeclaredMethods()
+    public Map<String,Set<MethodReflective>> getDeclaredMethods()
     {
         return Collections.emptyMap();
     }

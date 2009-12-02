@@ -21,10 +21,13 @@
  */
 package bluej.parser.entity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
@@ -33,6 +36,7 @@ import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.nodes.FieldNode;
+import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.ParsedTypeNode;
 
 /**
@@ -112,10 +116,10 @@ public class ParsedReflective extends Reflective
     }
     
     @Override
-    public Map<String, JavaType> getDeclaredFields()
+    public Map<String,JavaType> getDeclaredFields()
     {
-        Map<String, FieldNode> fields = pnode.getInner().getFields();
-        Map<String, JavaType> rmap = new HashMap<String, JavaType>();
+        Map<String,FieldNode> fields = pnode.getInner().getFields();
+        Map<String,JavaType> rmap = new HashMap<String, JavaType>();
         for (Iterator<String> i = fields.keySet().iterator(); i.hasNext(); ) {
             rmap.put(i.next(), JavaPrimitiveType.getInt()); // TODO not all fields are int!!
         }
@@ -123,10 +127,29 @@ public class ParsedReflective extends Reflective
     }
     
     @Override
-    public Map<String, MethodReflective> getDeclaredMethods()
+    public Map<String,Set<MethodReflective>> getDeclaredMethods()
     {
-        // TODO Auto-generated method stub
-        return null;
+        Map<String,Set<MethodNode>> methods = pnode.getInner().getMethods();
+        Map<String,Set<MethodReflective>> rmap = new HashMap<String,Set<MethodReflective>>();
+        for (Iterator<String> i = methods.keySet().iterator(); i.hasNext(); ) {
+            String name = i.next();
+            Set<MethodNode> mset = methods.get(name);
+            Set<MethodReflective> rset = new HashSet<MethodReflective>();
+            for (Iterator<MethodNode> j = mset.iterator(); j.hasNext(); ) {
+                MethodNode method = j.next();
+                JavaEntity rtypeEnt = method.getReturnType();
+                if (rtypeEnt == null) continue; // constructor
+                rtypeEnt = rtypeEnt.resolveAsType();
+                if (rtypeEnt == null) continue;
+                JavaType rtype = rtypeEnt.getType().getCapture();
+                List<JavaType> paramTypes = new ArrayList<JavaType>();
+                MethodReflective mref = new MethodReflective(rtype,
+                        paramTypes, false, false);
+                rset.add(mref);
+            }
+            rmap.put(name, rset);
+        }
+        return rmap;
     }
     
     @Override

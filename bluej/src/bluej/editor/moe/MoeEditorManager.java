@@ -21,16 +21,17 @@
  */
 package bluej.editor.moe;
 
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+
 import bluej.Config;
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
-
-import java.util.Properties;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Iterator;
-
-import java.awt.*;		// Object input, ouput streams
+import bluej.parser.entity.EntityResolver;
 
 /**
  * Implementation of EditorManager for the Moe editor.
@@ -80,11 +81,14 @@ public final class MoeEditorManager
      * is initially hidden. A call to "Editor::show" is needed to make
      * is visible after opening it.
      *
-     * @param filename	name of the source file to open (may be null)
-     * @param windowTitle	title of window (usually class name)
-     * @param watcher	an object interested in editing events
-     * @param compiled	true, if the class has been compiled
-     * @param breakpoints	list of Integers: line numbers where bpts are
+     * @param filename	   name of the source file to open (may be null)
+     * @param docFilename  name of the corresponding javadoc file 
+     * @param windowTitle  title of window (usually class name)
+     * @param watcher	   an watcher to be notified of edit events
+     * @param compiled	   true, if the class has been compiled
+     * @param bounds       the bounds of the window to appear on screen
+     * @param projectResolver   A resolver for external symbols
+     * 
      * @return		the new editor, or null if there was a problem
      */
     public Editor openClass(String filename, 
@@ -92,10 +96,11 @@ public final class MoeEditorManager
                 String windowTitle,
                 EditorWatcher watcher, 
                 boolean compiled,
-                Rectangle bounds)
+                Rectangle bounds,
+                EntityResolver projectResolver)
     {
         return openEditor (filename, docFilename, true, windowTitle, watcher, compiled,
-                           bounds);
+                           bounds, projectResolver);
     }
 
     // ------------------------------------------------------------------------
@@ -114,7 +119,7 @@ public final class MoeEditorManager
     public Editor openText(String filename, String windowTitle,
                            Rectangle bounds)	// inherited from EditorManager
     {
-        return openEditor (filename, null, false, windowTitle, null, false, bounds);
+        return openEditor (filename, null, false, windowTitle, null, false, bounds, null);
     }
 
     public void refreshAll()
@@ -184,17 +189,18 @@ public final class MoeEditorManager
      * @param watcher	an object interested in editing events
      * @param compiled	true, if the class has been compiled
      * @param bounds	bounds for the editor window
+     * @param projectResolver   a resolver for external symbols
      * @returns		the new editor, or null if there was a problem
      */
     private Editor openEditor(String filename, String docFilename,
             boolean isCode, String windowTitle, 
             EditorWatcher watcher, boolean compiled, 
-            Rectangle bounds)
+            Rectangle bounds, EntityResolver projectResolver)
     {
         MoeEditor editor;
 
         editor = new MoeEditor(windowTitle, isCode, watcher, showToolBar,
-                               showLineNum, resources);
+                               showLineNum, resources, projectResolver);
         editors.add(editor);
         if (editor.showFile(filename, compiled, docFilename, bounds))
             return editor;

@@ -22,7 +22,9 @@
 package bluej.parser.nodes;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Node for the inner part of a type definition. This contains the declarations inside
@@ -33,6 +35,7 @@ import java.util.Map;
 public class TypeInnerNode extends ParentParsedNode
 {
     private Map<String,FieldNode> fields = new HashMap<String,FieldNode>();
+    private Map<String,Set<MethodNode>> methods = new HashMap<String,Set<MethodNode>>();
 
     public TypeInnerNode(ParsedNode parent)
     {
@@ -55,10 +58,32 @@ public class TypeInnerNode extends ParentParsedNode
     }
     
     /**
+     * A method was added.
+     */
+    public void methodAdded(MethodNode method)
+    {
+        String name = method.getName();
+        Set<MethodNode> methodSet = methods.get(name);
+        if (methodSet == null) {
+            methodSet = new HashSet<MethodNode>();
+            methods.put(name, methodSet);
+        }
+        methodSet.add(method);
+    }
+    
+    /**
      * Get the fields defined in this type.
      */
     public Map<String, FieldNode> getFields()
     {
         return fields;
+    }
+    
+    /**
+     * Get the methods defined in this type.
+     */
+    public Map<String,Set<MethodNode>> getMethods()
+    {
+        return methods;
     }
 }

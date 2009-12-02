@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.Action;
 import javax.swing.InputMap;
@@ -68,6 +69,7 @@ import javax.swing.undo.CannotUndoException;
 
 import bluej.Config;
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.MethodReflective;
 import bluej.parser.entity.ClassEntity;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
@@ -971,6 +973,14 @@ public final class MoeActions
                 Map<String,JavaType> fields = exprType.getClassType().getReflective().getDeclaredFields();
                 for (Iterator<String> i = fields.keySet().iterator(); i.hasNext(); ) {
                     System.out.println(" field: " + i.next());
+                }
+                
+                Map<String,Set<MethodReflective>> methods = exprType.getClassType().getReflective().getDeclaredMethods();
+                for (String name : methods.keySet()) {
+                    Set<MethodReflective> mset = methods.get(name);
+                    for (MethodReflective method : mset) {
+                        System.out.println(" method: " + name + " - " + method.getReturnType());
+                    }
                 }
             }
             else {

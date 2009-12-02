@@ -31,18 +31,16 @@ import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.PlainDocument;
 
 import bluej.Config;
+import bluej.parser.entity.EntityResolver;
 import bluej.parser.nodes.ParsedCUNode;
 
 
 /**
- * A simple implementation of <code>SyntaxDocument</code> that 
- * inherits from SyntaxDocument. It takes
- * care of inserting and deleting lines from the token marker's state.
- * It adds the ability to handle paragraph attributes on a per line basis.
+ * An implementation of PlainDocument, with an optional added parser to provide
+ * syntax highlighting, scope highlighting, and other advanced functionality.
  *
  * @author Bruce Quig
  * @author Jo Wood (Modified to allow user-defined colours, March 2001)
- *
  */
 public class MoeSyntaxDocument extends PlainDocument
 {
@@ -53,6 +51,9 @@ public class MoeSyntaxDocument extends PlainDocument
 	
     private ParsedCUNode parsedNode = new ParsedCUNode(this);
     
+    /**
+     * Create an empty MoeSyntaxDocument.
+     */
     public MoeSyntaxDocument()
     {
         getUserColors();
@@ -60,7 +61,20 @@ public class MoeSyntaxDocument extends PlainDocument
         int tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
         putProperty(tabSizeAttribute, Integer.valueOf(tabSize));
     }
+    
+    /**
+     * Create an empty MoeSyntaxDocument, which uses the given entity resolver
+     * to resolve symbols.
+     */
+    public MoeSyntaxDocument(EntityResolver parentResolver)
+    {
+        this();
+        parsedNode.setParentResolver(parentResolver);
+    }
 
+    /**
+     * Access the parsed node structure of this document.
+     */
     public ParsedCUNode getParser()
     {
         return parsedNode;

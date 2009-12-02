@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import bluej.debugger.gentype.GenTypeArray;
 import bluej.debugger.gentype.GenTypeClass;
@@ -41,7 +42,7 @@ import bluej.debugger.gentype.Reflective;
  * A reflective for GenTypeClass which uses the standard java reflection API.  
  * 
  * @author Davin McCall
- * @version $Id: JavaReflective.java 6874 2009-11-30 05:46:18Z davmac $
+ * @version $Id: JavaReflective.java 6880 2009-12-02 04:02:12Z davmac $
  */
 public class JavaReflective extends Reflective {
 
@@ -218,7 +219,7 @@ public class JavaReflective extends Reflective {
     }
     
     @Override
-    public Map<String, MethodReflective> getDeclaredMethods()
+    public Map<String,Set<MethodReflective>> getDeclaredMethods()
     {
         return Collections.emptyMap(); // not implemented
     }

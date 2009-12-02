@@ -28,9 +28,19 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Stack;
 
+import bluej.debugger.gentype.GenTypeExtends;
+import bluej.debugger.gentype.GenTypeSolid;
+import bluej.debugger.gentype.GenTypeUnbounded;
+import bluej.debugger.gentype.JavaPrimitiveType;
+import bluej.debugger.gentype.JavaType;
 import bluej.editor.moe.Token;
 import bluej.parser.ast.LocatableToken;
 import bluej.parser.ast.gen.JavaTokenTypes;
+import bluej.parser.entity.EntityResolver;
+import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.TypeEntity;
+import bluej.parser.entity.UnresolvedEntity;
+import bluej.parser.entity.WildcardSuperEntity;
 import bluej.parser.nodes.ColourNode;
 import bluej.parser.nodes.ContainerNode;
 import bluej.parser.nodes.ExpressionNode;
@@ -46,7 +56,7 @@ import bluej.parser.symtab.Selection;
 /**
  * Parser which builds parse node tree.
  * 
- * @author davmac
+ * @author Davin McCall
  */
 public class EditorParser extends JavaParser
 {
@@ -524,14 +534,15 @@ public class EditorParser extends JavaParser
     protected void gotMethodDeclaration(LocatableToken token,
             LocatableToken hiddenToken)
     {
-        super.gotMethodDeclaration(token, hiddenToken);
         LocatableToken start = pcuStmtBegin;
         if (hiddenToken != null) {
             start = hiddenToken;
             // TODO: make certain hidden token not already consumed by prior sibling node
         }
         
-        ParsedNode pnode = new MethodNode(scopeStack.peek(), token.getText());
+        JavaEntity rtype = getTypeEntity(scopeStack.peek(), lastTypeSpec);
+        MethodNode pnode = new MethodNode(scopeStack.peek(), token.getText(), rtype);
+        
         int curOffset = getTopNodeOffset();
         int insPos = pcuNode.lineColToPosition(start.getLine(), start.getColumn());
         beginNode(insPos);
@@ -542,8 +553,11 @@ public class EditorParser extends JavaParser
     @Override
     protected void endMethodDecl(LocatableToken token, boolean included)
     {
+        MethodNode mNode = (MethodNode) scopeStack.peek();
         super.endMethodDecl(token, included);
         endTopNode(token, included);
+        TypeInnerNode topNode = (TypeInnerNode) scopeStack.peek();
+        topNode.methodAdded(mNode);
     }
     
     @Override
@@ -632,4 +646,195 @@ public class EditorParser extends JavaParser
     {
         endTopNode(token, false);
     }
+    
+    private class DepthRef
+    {
+        int depth = 0;
+    }
+
+    /**
+     * Resolve a type specification. Returns null if the type couldn't be resolved.
+     */
+    private JavaEntity getTypeEntity(EntityResolver resolver, List<LocatableToken> tokens)
+    {
+        DepthRef dr = new DepthRef();
+        return getTypeEntity(resolver, tokens.listIterator(), dr);
+    }
+    
+    /**
+     * Resolve a type specification. Returns null if the type couldn't be resolved.
+     */
+    private JavaEntity getTypeEntity(EntityResolver resolver,
+            ListIterator<LocatableToken> i, DepthRef depthRef)
+    {
+        LocatableToken token = i.next();
+        
+        if (isPrimitiveType(token)) {
+            if (token.getType() == JavaTokenTypes.LITERAL_void) {
+                return new TypeEntity(JavaPrimitiveType.getVoid());
+            }
+            
+            JavaType type = null;
+            switch (token.getType()) {
+            case JavaTokenTypes.LITERAL_int:
+                type = JavaPrimitiveType.getInt();
+                break;
+            case JavaTokenTypes.LITERAL_short:
+                type = JavaPrimitiveType.getShort();
+                break;
+            case JavaTokenTypes.LITERAL_char:
+                type = JavaPrimitiveType.getChar();
+                break;
+            case JavaTokenTypes.LITERAL_byte:
+                type = JavaPrimitiveType.getByte();
+                break;
+            case JavaTokenTypes.LITERAL_boolean:
+                type = JavaPrimitiveType.getBoolean();
+                break;
+            case JavaTokenTypes.LITERAL_double:
+                type = JavaPrimitiveType.getDouble();
+                break;
+            case JavaTokenTypes.LITERAL_float:
+                type = JavaPrimitiveType.getFloat();
+            }
+            
+            while (i.hasNext()) {
+                token = i.next();
+                if (token.getType() == JavaTokenTypes.LBRACK) {
+                    type = type.getArray();
+                    i.next();  // RBRACK
+                }
+                else {
+                    return null;
+                }
+            }
+            
+            return new TypeEntity(type);
+        }
+        
+        String text = token.getText();
+        
+        //PackageOrClass poc = resolver.resolvePackageOrClass(text, null);
+        JavaEntity poc = UnresolvedEntity.getEntity(resolver, text, "");
+        while (poc != null && i.hasNext()) {
+            token = i.next();
+            if (token.getType() == JavaTokenTypes.LT) {
+                // Type arguments
+                poc = processTypeArgs(resolver, poc, i, depthRef);
+                if (poc == null) {
+                    return null;
+                }
+                if (! i.hasNext()) {
+                    return poc;
+                }
+                token = i.next();
+            }
+            if (token.getType() != JavaTokenTypes.DOT) {
+                poc = poc.resolveAsType();
+                if (poc == null) {
+                    return null;
+                }
+                
+                while (token.getType() == JavaTokenTypes.LBRACK) {
+                    poc = new TypeEntity(poc.getType().getCapture().getArray());
+                    if (i.hasNext()) {
+                        token = i.next(); // RBRACK
+                    }
+                    if (! i.hasNext()) {
+                        return poc.resolveAsType();
+                    }
+                    token = i.next();
+                }
+                
+                i.previous(); // allow token to be re-read by caller
+                return poc.resolveAsType();
+            }
+            token = i.next();            
+            if (token.getType() != JavaTokenTypes.IDENT) {
+                break;
+            }
+            poc = poc.getSubentity(token.getText());
+        }
+        
+        return poc;
+    }
+    
+    /**
+     * Process tokens as type arguments
+     * @param base  The base type, i.e. the type to which the arguments are applied
+     * @param i     A ListIterator to iterate through the tokens
+     * @param depthRef  The argument depth
+     * @return   A ClassEntity representing the type with type arguments applied (or null)
+     */
+    private JavaEntity processTypeArgs(EntityResolver resolver, JavaEntity base,
+            ListIterator<LocatableToken> i, DepthRef depthRef)
+    {
+        int startDepth = depthRef.depth;
+        List<JavaEntity> taList = new LinkedList<JavaEntity>();
+        depthRef.depth++;
+        
+        mainLoop:
+        while (i.hasNext() && depthRef.depth > startDepth) {
+            LocatableToken token = i.next();
+            if (token.getType() == JavaTokenTypes.QUESTION) {
+                if (! i.hasNext()) {
+                    return null;
+                }
+                token = i.next();
+                if (token.getType() == JavaTokenTypes.LITERAL_super) {
+                    JavaEntity taEnt = getTypeEntity(resolver, i, depthRef);
+                    taList.add(new WildcardSuperEntity(taEnt));
+                }
+                else if (token.getType() == JavaTokenTypes.LITERAL_extends) {
+                    JavaEntity taEnt = getTypeEntity(resolver, i, depthRef);
+                    if (taEnt == null) {
+                        return null;
+                    }
+                    GenTypeSolid bound = taEnt.getType().getCapture().asSolid();
+                    taList.add(new TypeEntity(new GenTypeExtends(bound)));
+                }
+                else {
+                    taList.add(new TypeEntity(new GenTypeUnbounded()));
+                    i.previous();
+                }
+            }
+            else {
+                i.previous();
+                JavaEntity taEnt = getTypeEntity(resolver, i, depthRef);
+                if (taEnt == null) {
+                    return null;
+                }
+                taList.add(taEnt);
+            }
+            
+            if (! i.hasNext()) {
+                return null;
+            }
+            token = i.next();
+            int ttype = token.getType();
+            while (ttype == JavaTokenTypes.GT || ttype == JavaTokenTypes.SR || ttype == JavaTokenTypes.BSR) {
+                switch (ttype) {
+                case JavaTokenTypes.BSR:
+                    depthRef.depth--;
+                case JavaTokenTypes.SR:
+                    depthRef.depth--;
+                default:
+                    depthRef.depth--;
+                }
+                if (! i.hasNext()) {
+                    break mainLoop;
+                }
+                token = i.next();
+                ttype = token.getType();
+            }
+            
+            if (ttype != JavaTokenTypes.COMMA) {
+                i.previous();
+                break;
+            }
+        }
+        // TODO check the type arguments are actually valid
+        return base.setTypeArgs(taList);
+    }
+
 }

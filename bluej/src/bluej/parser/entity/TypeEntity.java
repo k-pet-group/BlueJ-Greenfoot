@@ -123,7 +123,7 @@ public class TypeEntity extends ClassEntity
     /* (non-Javadoc)
      * @see bluej.parser.entity.ClassEntity#setTypeParams(java.util.List)
      */
-    public ClassEntity setTypeParams(List<JavaEntity> tparams)
+    public ClassEntity setTypeArgs(List<JavaEntity> tparams)
     {
         GenTypeClass classType = thisType.getCapture().asClass();
         if (classType == null) {

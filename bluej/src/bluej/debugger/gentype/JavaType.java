@@ -30,7 +30,7 @@ import java.util.Map;
  * methods are provided.
  * 
  * @author Davin McCall
- * @version $Id: JavaType.java 6874 2009-11-30 05:46:18Z davmac $
+ * @version $Id: JavaType.java 6880 2009-12-02 04:02:12Z davmac $
  */
 
 public abstract class JavaType extends GenTypeParameter
@@ -197,5 +197,8 @@ public abstract class JavaType extends GenTypeParameter
         return null;
     }
     
+    /**
+     * Get an array type whose component type is this type.
+     */
     abstract public GenTypeArray getArray();
 }

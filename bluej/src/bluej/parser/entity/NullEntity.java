@@ -21,6 +21,8 @@
  */
 package bluej.parser.entity;
 
+import java.util.List;
+
 import bluej.debugger.gentype.JavaType;
 
 /**
@@ -52,5 +54,11 @@ public class NullEntity extends JavaEntity
     public boolean isNullEntity()
     {
         return true;
+    }
+    
+    @Override
+    public JavaEntity setTypeArgs(List<JavaEntity> tparams)
+    {
+        return null;
     }
 }

@@ -53,9 +53,20 @@ public class ParsedCUNode extends ParentParsedNode
 
     private List<NodeStructureListener> listeners = new ArrayList<NodeStructureListener>();
     
+    /**
+     * Construct a parsed node for the given document.
+     */
     public ParsedCUNode(Document document)
     {
         this.document = document;
+    }
+    
+    /**
+     * Set the entity resolver used to resolve symbols.
+     */
+    public void setParentResolver(EntityResolver parentResolver)
+    {
+        this.parentResolver = parentResolver;
     }
 
     /**

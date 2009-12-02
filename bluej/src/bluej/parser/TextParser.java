@@ -266,6 +266,7 @@ public class TextParser extends JavaParser
         // Process any dot operator immediately
         String ident = token.getText();
         if (! operatorStack.isEmpty() && operatorStack.peek().getType() == JavaTokenTypes.DOT) {
+            operatorStack.pop();
             JavaEntity top = valueStack.pop();
             JavaEntity newTop = top.getSubentity(ident);
             if (newTop != null) {
@@ -276,7 +277,7 @@ public class TextParser extends JavaParser
             }
         }
         else {
-            valueStack.push(UnresolvedEntity.getEntity(resolver, ident));
+            valueStack.push(UnresolvedEntity.getEntity(resolver, ident, ""));
         }
     }
     
@@ -322,7 +323,6 @@ public class TextParser extends JavaParser
     
     /**
      * Resolve a type specification. Returns null if the type couldn't be resolved.
-     * TODO handle generics, arrays.
      */
     private ClassEntity resolveTypeSpec(List<LocatableToken> tokens)
     {
@@ -473,7 +473,7 @@ public class TextParser extends JavaParser
             }
         }
         // TODO check the type arguments are actually valid
-        return base.setTypeParams(taList);
+        return base.setTypeArgs(taList);
     }
     
     @Override

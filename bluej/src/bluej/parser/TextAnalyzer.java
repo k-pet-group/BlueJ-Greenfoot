@@ -166,7 +166,7 @@ public class TextAnalyzer
             
             public JavaEntity getValueEntity(String name, String querySource)
             {
-                return null;
+                return resolvePackageOrClass(name, querySource);
             }
         };
         

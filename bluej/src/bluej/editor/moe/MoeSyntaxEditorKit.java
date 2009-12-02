@@ -21,7 +21,13 @@
  */
 package bluej.editor.moe;
 
-import javax.swing.text.*;
+import javax.swing.text.DefaultEditorKit;
+import javax.swing.text.Document;
+import javax.swing.text.Element;
+import javax.swing.text.View;
+import javax.swing.text.ViewFactory;
+
+import bluej.parser.entity.EntityResolver;
 
 /**
  * An implementation of <code>EditorKit</code> used for syntax coloring.
@@ -36,6 +42,7 @@ public class MoeSyntaxEditorKit extends DefaultEditorKit
         implements ViewFactory
 {
     private boolean isTextEval;
+    private EntityResolver projectResolver;
 
     /**
      * Create a moe editor kit. There are two modes in which this can operate:
@@ -44,10 +51,11 @@ public class MoeSyntaxEditorKit extends DefaultEditorKit
      * 
      * @param textEval  Indicate whether to operate for the text eval area
      */
-    public MoeSyntaxEditorKit(boolean textEval)
+    public MoeSyntaxEditorKit(boolean textEval, EntityResolver projectResolver)
     {
         super();
         isTextEval = textEval;
+        this.projectResolver = projectResolver;
     }
     
     /**
@@ -85,6 +93,6 @@ public class MoeSyntaxEditorKit extends DefaultEditorKit
      */
     public Document createDefaultDocument()
     {
-        return new MoeSyntaxDocument();
+        return new MoeSyntaxDocument(projectResolver);
     }
 }

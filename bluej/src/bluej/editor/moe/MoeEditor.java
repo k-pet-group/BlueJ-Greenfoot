@@ -93,9 +93,8 @@ import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.Config;
 import bluej.editor.EditorWatcher;
-import bluej.editor.moe.MoeActions.FindNextAction;
-import bluej.editor.moe.MoeActions.FindNextBackwardAction;
 import bluej.parser.SourceLocation;
+import bluej.parser.entity.EntityResolver;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
@@ -121,8 +120,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     // -------- CONSTANTS --------
 
     // version number
-    final static int version = 300;
-    final static String versionString = "3.0.0";
+    final static int version = 252;
+    final static String versionString = "2.5.2";
 
     // colours
     final static Color cursorColor = new Color(255, 0, 100);                 // cursor
@@ -223,6 +222,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     //new content assist
     private ContentAssistDisplay dlg;
     private AssistContent[] values;
+    
+    private EntityResolver projectResolver;   // Resolves symbols
 
     /**
      * Property map, allows BlueJ extensions to assosciate property values with
@@ -235,11 +236,12 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * Constructor. Title may be null
      */
     public MoeEditor(String title, boolean isCode, EditorWatcher watcher, boolean showToolbar, 
-            boolean showLineNum, Properties resources)
+            boolean showLineNum, Properties resources, EntityResolver projectResolver)
     {
         super("Moe");
         this.watcher = watcher;
         this.resources = resources;
+        this.projectResolver = projectResolver;
 
         filename = null;
         windowTitle = title;
@@ -2716,12 +2718,12 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         // create the text document
 
-        sourceDocument = new MoeSyntaxDocument();
+        sourceDocument = new MoeSyntaxDocument(projectResolver);
         sourceDocument.addDocumentListener(this);
         sourceDocument.addUndoableEditListener(undoManager);               
         // create the text pane
 
-        MoeSyntaxEditorKit kit = new MoeSyntaxEditorKit(false);
+        MoeSyntaxEditorKit kit = new MoeSyntaxEditorKit(false, projectResolver);
         sourcePane = new MoeEditorPane();
         sourcePane.setDocument(sourceDocument);
         sourcePane.setCaretPosition(0);

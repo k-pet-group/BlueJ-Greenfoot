@@ -22,7 +22,9 @@
 package bluej.editor;
 
 import java.awt.Rectangle;
+
 import bluej.editor.moe.MoeEditorManager;
+import bluej.parser.entity.EntityResolver;
 
 /**
  * Interface between the editor manager and the rest of BlueJ.
@@ -30,7 +32,7 @@ import bluej.editor.moe.MoeEditorManager;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: EditorManager.java 6619 2009-09-04 02:33:09Z davmac $
+ * @version $Id: EditorManager.java 6880 2009-12-02 04:02:12Z davmac $
  */
 public abstract class EditorManager
 {
@@ -47,27 +49,29 @@ public abstract class EditorManager
         return theEditorManager;
     }
 
-
     /**
      * Open an editor to display a class. The filename may be "null"
      * to open an empty editor (e.g. for displaying a view). The editor
-     * is initially hidden. A call to "Editor::show" is needed to make
-     * is visible after opening it.
+     * is initially hidden; a call to "Editor.show()" is needed to make
+     * it visible after opening it.
      *
-     * @param filename      name of the source file to open (may be null)
-     * @param docFilename	name of the documentation based on filename
-     * @param windowTitle   title of window (usually class name)
-     * @param watcher       an object interested in editing events
-     * @param compiled      true, if the class has been compiled
-     * @param breakpoints   vector of Integers: line numbers where bpts are
-     * @return		    the new editor, or null if there was a problem
+     * @param filename     name of the source file to open (may be null)
+     * @param docFilename  name of the corresponding javadoc file 
+     * @param windowTitle  title of window (usually class name)
+     * @param watcher      an watcher to be notified of edit events
+     * @param compiled     true, if the class has been compiled
+     * @param bounds       the bounds of the window to appear on screen
+     * @param projectResolver   A resolver for external symbols
+     * 
+     * @return          the new editor, or null if there was a problem
      */
     public abstract Editor openClass(String filename, 
         String docFilename, 
         String windowTitle, 
         EditorWatcher watcher, 
         boolean compiled, 
-        Rectangle bounds );
+        Rectangle bounds,
+        EntityResolver projectResolver);
 
 
     /**

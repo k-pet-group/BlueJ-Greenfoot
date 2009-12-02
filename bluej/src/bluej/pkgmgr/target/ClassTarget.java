@@ -50,6 +50,7 @@ import bluej.extmgr.MenuManager;
 import bluej.graph.GraphEditor;
 import bluej.graph.Moveable;
 import bluej.graph.Vertex;
+import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.Package;
@@ -88,7 +89,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 6686 2009-09-16 10:53:26Z davmac $
+ * @version $Id: ClassTarget.java 6880 2009-12-02 04:02:12Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -766,7 +767,7 @@ public class ClassTarget extends DependentTarget
             }
             
             editor = EditorManager.getEditorManager().openClass(filename, docFilename, getBaseName(), this,
-                    isCompiled(), editorBounds);
+                    isCompiled(), editorBounds, new ClassLoaderResolver(getPackage().getProject().getClassLoader()));
             
             // editor may be null if source has been deleted
             // for example.

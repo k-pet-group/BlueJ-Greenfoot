@@ -21,6 +21,8 @@
  */
 package bluej.parser.entity;
 
+import java.util.List;
+
 import bluej.debugger.gentype.GenTypeParameter;
 
 /**
@@ -92,4 +94,13 @@ public abstract class JavaEntity
     {
         return false;
     }
+    
+    /**
+     * Set the type parameters of this entity. The return is a duplicate of this entity with
+     * the type parameters set as specified. If type parameters cannot be applied to this
+     * entity the return is null.
+     * 
+     * @param tparams   A list of type parameters
+     */
+    public abstract JavaEntity setTypeArgs(List<JavaEntity> tparams);
 }

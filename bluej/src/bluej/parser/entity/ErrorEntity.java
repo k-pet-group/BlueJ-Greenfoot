@@ -21,6 +21,8 @@
  */
 package bluej.parser.entity;
 
+import java.util.List;
+
 import bluej.debugger.gentype.JavaType;
 
 public class ErrorEntity extends JavaEntity
@@ -41,5 +43,11 @@ public class ErrorEntity extends JavaEntity
     public JavaType getType()
     {
         return null;
+    }
+    
+    @Override
+    public JavaEntity setTypeArgs(List<JavaEntity> tparams)
+    {
+        return this;
     }
 }

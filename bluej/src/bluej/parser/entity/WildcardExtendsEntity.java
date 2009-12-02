@@ -23,60 +23,70 @@ package bluej.parser.entity;
 
 import java.util.List;
 
-import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeExtends;
+import bluej.debugger.gentype.GenTypeParameter;
+import bluej.debugger.gentype.GenTypeSolid;
 
 /**
- * An entity representing a package. The entity is only presumed to be a package
- * seeing as no class with the same name could be found.
+ * Represents a "? extends ..." wildcard entity, where the bound has not yet been resolved.
  * 
  * @author Davin McCall
  */
-public class PackageEntity extends PackageOrClass
+public class WildcardExtendsEntity extends ClassEntity
 {
-    private String packageName;
-    private ClassLoader classLoader;
+    private JavaEntity extendsBound;
     
-    public PackageEntity(String packageName, ClassLoader classLoader)
+    public WildcardExtendsEntity(JavaEntity extendsBound)
     {
-        this.packageName = packageName;
-        this.classLoader = classLoader;
-    }
-    
-    public JavaType getType()
-    {
-        return null;
-    }
-    
-    public JavaEntity getSubentity(String name)
-    {
-        Class<?> c;
-        try {
-            c = classLoader.loadClass(packageName + '.' + name);
-            return new TypeEntity(c);
-        }
-        catch (ClassNotFoundException cnfe) {
-            return new PackageEntity(packageName + '.' + name, classLoader);
-        }
-    }
-    
-    public PackageOrClass getPackageOrClassMember(String name)
-    {
-        return (PackageOrClass) getSubentity(name);
-    }
-    
-    public String getName()
-    {
-        return packageName;
-    }
-    
-    public boolean isClass()
-    {
-        return false;
+        this.extendsBound = extendsBound;
     }
     
     @Override
-    public JavaEntity setTypeArgs(List<JavaEntity> tparams)
+    public GenTypeParameter getType()
     {
         return null;
+    }
+    
+    @Override
+    public GenTypeClass getClassType()
+    {
+        return null;
+    }
+
+    @Override
+    public ClassEntity setTypeArgs(List<JavaEntity> tparams)
+    {
+        return null;
+    }
+
+    @Override
+    public PackageOrClass getPackageOrClassMember(String name)
+    {
+        return null;
+    }
+
+    @Override
+    public String getName()
+    {
+        return null;
+    }
+
+    @Override
+    public JavaEntity getSubentity(String name)
+    {
+        return null;
+    }
+    
+    @Override
+    public ClassEntity resolveAsType()
+    {
+        ClassEntity boundEntity = extendsBound.resolveAsType();
+        GenTypeSolid boundType = boundEntity.getType().getCapture().asSolid();
+        if (boundType == null) {
+            return null;
+        }
+        GenTypeParameter myType = new GenTypeExtends(boundEntity.getType().getCapture().asSolid());
+        return new TypeEntity(myType);
     }
 }
