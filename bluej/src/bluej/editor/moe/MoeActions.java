@@ -45,8 +45,6 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 import javax.swing.Action;
 import javax.swing.InputMap;
@@ -68,9 +66,6 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import bluej.Config;
-import bluej.debugger.gentype.JavaType;
-import bluej.debugger.gentype.MethodReflective;
-import bluej.parser.entity.ClassEntity;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
@@ -959,37 +954,8 @@ public final class MoeActions
 
         public void actionPerformed(ActionEvent e)
         { 
-            //need to pop up a list selection available
-
-            //get the selected one (defaulted to the first one) and display the details
-            
-            // Testing: put stuff to console
-            System.out.println("Suggestions:");
-            MoeEditor editor=getEditor(e);
-            MoeSyntaxDocument document = editor.getSourceDocument();
-            
-            ClassEntity exprType = document.getParser().getExpressionType(editor.getCaretPosition());
-            if (exprType != null) {
-                Map<String,JavaType> fields = exprType.getClassType().getReflective().getDeclaredFields();
-                for (Iterator<String> i = fields.keySet().iterator(); i.hasNext(); ) {
-                    System.out.println(" field: " + i.next());
-                }
-                
-                Map<String,Set<MethodReflective>> methods = exprType.getClassType().getReflective().getDeclaredMethods();
-                for (String name : methods.keySet()) {
-                    Set<MethodReflective> mset = methods.get(name);
-                    for (MethodReflective method : mset) {
-                        System.out.println(" method: " + name + " - " + method.getReturnType());
-                    }
-                }
-            }
-            else {
-                System.out.println("No suggestions (not in expression).");
-            }
-            
+            MoeEditor editor = getEditor(e);
             editor.createContentAssist();
-
-            
         }
     }
 
@@ -1823,9 +1789,7 @@ public final class MoeActions
 
         actionTable = new Action[] {
         		
-
-        // edit functions
-
+                // edit functions
                 (Action) (actions.get(DefaultEditorKit.deletePrevCharAction)), // 0
                 (Action) (actions.get(DefaultEditorKit.deleteNextCharAction)),
                 (Action) (actions.get(DefaultEditorKit.copyAction)),
@@ -1870,7 +1834,6 @@ public final class MoeActions
                 (Action) (actions.get("unselect")),
 
                 // move and scroll functions
-
                 (Action) (actions.get(DefaultEditorKit.backwardAction)), // 41
                 (Action) (actions.get(DefaultEditorKit.forwardAction)),
                 (Action) (actions.get(DefaultEditorKit.upAction)), 
@@ -2204,5 +2167,4 @@ public final class MoeActions
         }
 
     }
-
-} // end class MoeActions
+}
