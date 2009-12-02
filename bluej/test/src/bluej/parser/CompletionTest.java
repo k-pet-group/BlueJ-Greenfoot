@@ -77,14 +77,13 @@ public class CompletionTest extends TestCase
         "}";
         
         ParsedCUNode aNode = cuForSource(aClassSrc);
-        
         resolver.addCompilationUnit("", aNode);
         
         JavaEntity entity = resolver.getValueEntity("A", "B");
         entity = entity.getSubentity("f");
         entity = entity.resolveAsValue();
         assertEquals("int", entity.getType().toString());
-    }
+    }        
     
     // Test that multiple fields defined in a single statement are handled correctly,
     // particularly if one in the middle is assigned a complex expression involving an
