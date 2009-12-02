@@ -21,6 +21,11 @@
  */
 package bluej.parser.nodes;
 
+import bluej.parser.entity.ClassEntity;
+import bluej.parser.entity.ParsedReflective;
+import bluej.parser.entity.TypeEntity;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
+
 
 
 /**
@@ -73,5 +78,21 @@ public class ParsedTypeNode extends ParentParsedNode
     public TypeInnerNode getInner()
     {
         return inner;
+    }
+    
+    @Override
+    public ClassEntity getExpressionType(int pos, ClassEntity defaultType)
+    {
+        // The default type if the expression is not know should be this type
+        ClassEntity myType = new TypeEntity(new ParsedReflective(this));
+        NodeAndPosition child = getNodeTree().findNode(pos);
+        if (child != null) {
+            return child.getNode().getExpressionType(pos - child.getPosition(), myType);
+        }
+        
+        // We don't return the specified default type (which must be an outer type). There
+        // can be no completions because no completions can occur except in the context
+        // of child nodes.
+        return null;
     }
 }

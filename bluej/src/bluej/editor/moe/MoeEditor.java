@@ -52,7 +52,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -92,8 +95,10 @@ import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.Config;
+import bluej.debugger.gentype.MethodReflective;
 import bluej.editor.EditorWatcher;
 import bluej.parser.SourceLocation;
+import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.EntityResolver;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
@@ -221,7 +226,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     //new content assist
     private ContentAssistDisplay dlg;
-    private AssistContent[] values;
     
     private EntityResolver projectResolver;   // Resolves symbols
 
@@ -3329,7 +3333,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         //need to recreate the dialog each time it is pressed as the values may be different 
         closeContentAssist();
-        populateContentAssist();
+        AssistContent[] values = populateContentAssist();
         dlg=new ContentAssistDisplay(this, values);
         int cpos = sourcePane.getCaretPosition();
         try {
@@ -3350,23 +3354,32 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             dlg.setVisible(false);
     }
 
-    /*
+    /**
      * Populates the array with the relevant content 
      */
-    private void populateContentAssist(){
-        values= new AssistContent[]
-                                  { new AssistContent("toString","Methodreturn", "MethodClass", "this is a test of toString"), 
-                new AssistContent("methodName", "returntest1","classtest2","descrTest3"),
-                new AssistContent("methodName1", "returntest11","classtest21","descrTest31"),
-                new AssistContent("methodName2", "returntest12","classtest22","descrTest32"),
-                new AssistContent("methodName3", "returntest13","classtest23","descrTest33"),
-                new AssistContent("methodName4", "returntest14","classtest24","descrTest34"),
-                new AssistContent("methodName5", "returntest15","classtest25","descrTest35"),
-                new AssistContent("methodName6", "returntest16","classtest26","descrTest36"),
-                new AssistContent("methodName7", "returntest17","classtest27","descrTest37"),
-                new AssistContent("methodName8", "returntest18","classtest28","descrTest38"),
-                new AssistContent("methodName9", "returntest19","classtest29","descrTest39"),
-                new AssistContent("methodNamea", "returntest1a","classtest2a","descrTest3a")};
-    }
+    private AssistContent[] populateContentAssist()
+    {
+        ClassEntity exprType = sourceDocument.getParser().getExpressionType(getCaretPosition());
+        
+        if (exprType != null) {
+            //Map<String,JavaType> fields = exprType.getClassType().getReflective().getDeclaredFields();
+            //for (Iterator<String> i = fields.keySet().iterator(); i.hasNext(); ) {
+            //    System.out.println(" field: " + i.next());
+            //}
+            
+            List<AssistContent> completions = new ArrayList<AssistContent>();
+            
+            Map<String,Set<MethodReflective>> methods = exprType.getClassType().getReflective().getDeclaredMethods();
+            for (String name : methods.keySet()) {
+                Set<MethodReflective> mset = methods.get(name);
+                for (MethodReflective method : mset) {
+                    completions.add(new AssistContent(name, method.getReturnType().toString(), "(Unknown)", "Unavailable."));
+                }
+            }
 
+            return (AssistContent []) completions.toArray(new AssistContent[completions.size()]);
+        }
+        
+        return null; // no completions
+    }
 }

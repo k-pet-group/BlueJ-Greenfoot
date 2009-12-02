@@ -225,11 +225,19 @@ public abstract class ParsedNode implements EntityResolver
      */
     public ClassEntity getExpressionType(int pos)
     {
+        return getExpressionType(pos, null);
+    }
+    /**
+     * Get the expression type at a given point. Returns the specified default if there
+     * is no determinable expression type.
+     */
+    protected ClassEntity getExpressionType(int pos, ClassEntity defaultType)
+    {
         NodeAndPosition child = getNodeTree().findNode(pos);
         if (child != null) {
-            return child.getNode().getExpressionType(pos - child.getPosition());
+            return child.getNode().getExpressionType(pos - child.getPosition(), defaultType);
         }
-        return null;
+        return defaultType;
     }
     
     protected Map<String,ParsedNode> getClassNodes()
