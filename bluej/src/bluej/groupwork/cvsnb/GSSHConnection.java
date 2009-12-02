@@ -58,39 +58,39 @@ public class GSSHConnection extends AbstractConnection
     public void open() throws AuthenticationException, CommandAbortedException
     {
         try {
-        	connection = new Connection(host, port);
-        	connection.connect(null, 20000, 20000); // 20s timeout
-        	boolean auth = connection.authenticateWithPassword(username, password);
-        	if (! auth) {
-        		// Try the "keyboard interactive" method instead.
-        		auth = connection.authenticateWithKeyboardInteractive(username, new InteractiveCallback() {
-        			public String[] replyToChallenge(String name, String instruction,
-        					int numPrompts, String[] prompt, boolean[] echo)
-        					throws Exception {
-        				String [] result = new String[numPrompts];
-        				for (int i = 0; i < numPrompts; i++) {
-        					result[i] = password;
-        				}
-        				return result;
-        			}
-        		});
-        		
-        		if (! auth) { 
-        			String msg = "SSH authentication failed: Wrong username/password?";
-        			reset();
-        			throw new AuthenticationException(msg, msg);
-        		}
-        	}
-        	
-        	session = connection.openSession();
-        	session.execCommand(CVS_SERVER_COMMAND);
-        	setInputStream(new LoggedDataInputStream(session.getStdout()));
-        	setOutputStream(new LoggedDataOutputStream(session.getStdin()));
+            connection = new Connection(host, port);
+            connection.connect(null, 20000, 20000); // 20s timeout
+            boolean auth = connection.authenticateWithPassword(username, password);
+            if (! auth) {
+                // Try the "keyboard interactive" method instead.
+                auth = connection.authenticateWithKeyboardInteractive(username, new InteractiveCallback() {
+                    public String[] replyToChallenge(String name, String instruction,
+                            int numPrompts, String[] prompt, boolean[] echo)
+                    throws Exception {
+                        String [] result = new String[numPrompts];
+                        for (int i = 0; i < numPrompts; i++) {
+                            result[i] = password;
+                        }
+                        return result;
+                    }
+                });
+
+                if (! auth) { 
+                    String msg = "SSH authentication failed: Wrong username/password?";
+                    reset();
+                    throw new AuthenticationException(msg, msg);
+                }
+            }
+
+            session = connection.openSession();
+            session.execCommand(CVS_SERVER_COMMAND);
+            setInputStream(new LoggedDataInputStream(session.getStdout()));
+            setOutputStream(new LoggedDataOutputStream(session.getStdin()));
         }
         catch (IOException ioe) {
-        	Debug.message("SSH connection: " + ioe.getMessage());
-        	reset();
-        	throw new AuthenticationException(ioe, "SSH connection failure");
+            Debug.message("SSH connection: " + ioe.getMessage());
+            reset();
+            throw new AuthenticationException(ioe, "SSH connection failure");
         }
     }
 
@@ -115,14 +115,14 @@ public class GSSHConnection extends AbstractConnection
 
     private void reset()
     {
-    	if (session != null) {
-    		session.close();
-    		session = null;
-    	}
-    	if (connection != null) {
-    		connection.close();
-    		connection = null;
-    	}
+        if (session != null) {
+            session.close();
+            session = null;
+        }
+        if (connection != null) {
+            connection.close();
+            connection = null;
+        }
         setInputStream(null);
         setOutputStream(null);
     }
