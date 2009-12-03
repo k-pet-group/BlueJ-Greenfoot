@@ -248,7 +248,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     {
         JComponent src = (JComponent) e.getSource();
         if(src.getName() == CLOSE_BUTTON_NAME){
-            editor.removeHighlighting();
+            editor.removeSelectionHighlights();
             editor.setSelText(null);
             if (editor.getSelectionBegin()!=null)
                 editor.moveCaretPosition(editor.getSelectionBegin().getColumn());
@@ -310,7 +310,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
                 //previous search had a value and this search is empty
                 //need to remove highlighting and have no message
                 if (findT.getText().length()==0){
-                    editor.removeHighlighting();
+                    editor.removeSelectionHighlights();
                     setSearchString(null);
                     if (editor.getSelectionBegin()!=null)
                         editor.moveCaretPosition(editor.getSelectionBegin().getColumn());
@@ -523,7 +523,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
             editor.moveCaretPosition(editor.getCaretPosition()-getSearchString().length());
         setFindValues(); 
         updateDisplay();
-        editor.removeHighlighting();
+        editor.removeSelectionHighlights();
         highlightAll(!matchCaseCheckBox.isSelected(), false, true, next, select);
     }
 

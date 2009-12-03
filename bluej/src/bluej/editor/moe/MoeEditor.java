@@ -1282,6 +1282,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void setReplacePanelVisible(boolean isVisible)
     {
+        if (replacer.isVisible()){
+            replacer.setVisible(false);
+            return;
+        }
         replacer.setEditor(this);
         replacer.setVisible(isVisible);
         replacer.requestReplaceTextFocus();
@@ -3215,7 +3219,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         finder.setEditor(this);
         if (finder.isVisible()){
             finder.displayFindPanel(selection, false);
-            removeHighlighting();
+            removeSelectionHighlights();
             setReplacePanelVisible(false);
             //remove the selection if there was one
             if (getSelectionBegin()!=null)
@@ -3244,10 +3248,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     public int getCaretPosition ()
     {
         return sourcePane.getCaretPosition();
-    }
-
-    public void removeHighlighting(){
-        currentTextPane.getHighlighter().removeAllHighlights();
     }
 
     private void setCaretPosition (int pos)
@@ -3343,8 +3343,24 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             }
         }
     }
+    /**
+     * Removes only the  selected highlights
+     */
+    public void removeSelectionHighlights()
+    {
+        Highlighter hilite = currentTextPane.getHighlighter();
+        Highlighter.Highlight[] hilites = hilite.getHighlights();
 
-    /* 
+        for (int i=0; i<hilites.length; i++) {
+            //should only happen once
+            if (hilites[i].getPainter() instanceof /*MyHighlightPainter*/ MoeHighlighterPainter) {
+                hilite.removeHighlight(hilites[i]);
+            }
+        }
+    }
+
+
+    /**
      * Returns the number of highlights in the given textPane
      */
     public int getNumHighlights()
@@ -3509,7 +3525,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         int caretPos=getCaretPosition();
         if (getSelectionBegin()!=null)
             moveCaretPosition(getSelectionBegin().getColumn());
-        removeHighlighting();
+        removeSelectionHighlights();
         String searchString = finder.getSearchString();
         boolean isMatchCase=finder.getMatchCase();
         int count = 0;
@@ -3533,7 +3549,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             //editor.writeMessage("String " + searchString + " not found. Nothing replaced.");
             writeMessage(Config.getString("editor.replaceAll.string") + 
                     searchString + Config.getString("editor.replaceAll.notFoundNothingReplaced"));
-        removeHighlighting();
+        removeSelectionHighlights();
         moveCaretPosition(caretPos);
     }
 

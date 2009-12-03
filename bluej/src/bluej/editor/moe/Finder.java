@@ -37,7 +37,7 @@ import bluej.utility.EscapeDialog;
  *
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Finder.java 6862 2009-11-25 02:53:38Z marionz $
+ * @version $Id: Finder.java 6895 2009-12-03 04:20:54Z marionz $
  */
 
 public class Finder extends EscapeDialog
@@ -110,7 +110,6 @@ public class Finder extends EscapeDialog
      */
     private void find()
     {
-        editor.removeHighlighting();
         searchFound = editor.findString(getSearchString(), getSearchBack(), 
                                         getIgnoreCase(), getWholeWord(), !searchFound);
         replaceButton.setEnabled(searchFound);
@@ -124,7 +123,6 @@ public class Finder extends EscapeDialog
      */
     private void replace()
     {
-        editor.removeHighlighting();
         String replaceText = smartFormat(editor.getSelectedText(), replaceField.getText());
         editor.insertText(replaceText, getSearchBack());
         find();
@@ -146,7 +144,7 @@ public class Finder extends EscapeDialog
      */
     private void replaceAll()
     {
-        editor.removeHighlighting();
+       
         String searchString = getSearchString();
         String replaceString = replaceField.getText();
 

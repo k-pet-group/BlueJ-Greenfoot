@@ -46,7 +46,6 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // TODO Auto-generated method stub
         JComponent src = (JComponent) e.getSource();
         String rText=replaceText.getText();
         setReplaceString(rText);
@@ -69,7 +68,6 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
 
     @Override
     public void keyPressed(KeyEvent e) {
-        // TODO Auto-generated method stub
 
     }
 
@@ -90,7 +88,6 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
 
     @Override
     public void keyTyped(KeyEvent e) {
-        // TODO Auto-generated method stub
 
     }
 
