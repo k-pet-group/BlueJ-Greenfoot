@@ -248,12 +248,14 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     {
         JComponent src = (JComponent) e.getSource();
         if(src.getName() == CLOSE_BUTTON_NAME){
+            int caretPos=0;
+            if (editor.getSelectedText()!=null)
+                caretPos=editor.getCaretPosition();
             editor.removeSelectionHighlights();
             editor.setSelText(null);
-            if (editor.getSelectionBegin()!=null)
-                editor.moveCaretPosition(editor.getSelectionBegin().getColumn());
             this.setVisible(false);
-            editor.setReplacePanelVisible(false);
+            editor.toggleReplacePanelVisible();
+            editor.moveCaretPosition(caretPos);
             return;
         }
         if (src.getName()==NEXT__BUTTON_NAME){  
@@ -425,7 +427,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
      */
     private void enableReplace()
     {
-        editor.setReplacePanelVisible(true);
+        editor.toggleReplacePanelVisible();
     }
 
     /**

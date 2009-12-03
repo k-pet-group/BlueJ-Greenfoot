@@ -36,12 +36,13 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
     private final static String REPLACE_ALL_BUTTON_NAME ="replaceAllBtn";
     private final static String REPLACE_TEXTFIELD ="replaceTextField";
 
-    public ReplacePanel() {
+    public ReplacePanel(MoeEditor ed) {
         super();
         font=new Font(PrefMgr.getStandardFont().getFontName(), PrefMgr.getStandardFont().getSize(), PrefMgr.getStandardFont().getSize());
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createLineBorder(Color.black));
         addReplaceBody();
+        editor=ed;
     }
 
     @Override
@@ -141,14 +142,6 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
         body.add(rBody);  
         body.add(closeBody);
         add(body);
-    }
-
-    public MoeEditor getEditor() {
-        return editor;
-    }
-
-    public void setEditor(MoeEditor editor) {
-        this.editor = editor;
     }
     
     public void requestReplaceTextFocus(){

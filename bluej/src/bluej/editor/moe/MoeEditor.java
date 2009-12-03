@@ -1277,17 +1277,19 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     // --------------------------------------------------------------------
 
     /**
-     * setReplacePanelVisible sets the replace panel editor and sets it to be visible
+     * toggleReplacePanelVisible sets the replace panel editor in/visible
+     * if visible sets the necessary other values
      * @param isVisible
      */
-    public void setReplacePanelVisible(boolean isVisible)
+    public void toggleReplacePanelVisible()
     {
-        if (replacer.isVisible()){
+        //!finder.isVisible() ensures that there is not the case that the replace is open
+        //and the find is not
+        if (replacer.isVisible()|| !finder.isVisible()){
             replacer.setVisible(false);
             return;
         }
-        replacer.setEditor(this);
-        replacer.setVisible(isVisible);
+        replacer.setVisible(true);
         replacer.requestReplaceTextFocus();
     }
 
@@ -1461,6 +1463,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         return found;
     }
+    
     /**
      * Do a find with info in the info area.
      * Option of selecting/highlighting the find
@@ -2748,7 +2751,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         info = new Info();
         //bottomArea.add(info, BorderLayout.SOUTH);
 
-        replacer=new ReplacePanel();
+        replacer=new ReplacePanel(this);
         replacer.setVisible(false);
         replacer.setBorder(BorderFactory.createEmptyBorder());
         bottomArea.add(replacer, BorderLayout.CENTER);
@@ -3220,7 +3223,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         if (finder.isVisible()){
             finder.displayFindPanel(selection, false);
             removeSelectionHighlights();
-            setReplacePanelVisible(false);
+            toggleReplacePanelVisible();
             //remove the selection if there was one
             if (getSelectionBegin()!=null)
                 moveCaretPosition(getSelectionBegin().getColumn());

@@ -37,7 +37,7 @@ import bluej.utility.EscapeDialog;
  *
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Finder.java 6895 2009-12-03 04:20:54Z marionz $
+ * @version $Id: Finder.java 6896 2009-12-03 04:55:35Z marionz $
  */
 
 public class Finder extends EscapeDialog
@@ -297,8 +297,8 @@ public class Finder extends EscapeDialog
         Object src = evt.getSource();
         if(src == findButton)
             find();
-        else if(src == replaceButton)
-            replace();
+       // else if(src == replaceButton)
+            //replace();
         else if(src == replaceAllButton)
             replaceAll();
         else if(src == cancelButton)
