@@ -3334,18 +3334,23 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         //need to recreate the dialog each time it is pressed as the values may be different 
         closeContentAssist();
         AssistContent[] values = populateContentAssist();
-        dlg=new ContentAssistDisplay(this, values);
-        int cpos = sourcePane.getCaretPosition();
-        try {
-            Rectangle pos = sourcePane.modelToView(cpos);
-            Point spLoc = sourcePane.getLocationOnScreen();
-            int xpos = pos.x + spLoc.x;
-            int ypos = pos.y + pos.height + spLoc.y;
-            dlg.setLocation(xpos, ypos);
-            dlg.setVisible(true);
-            dlg.requestFocus();
+        if (values != null) {
+            dlg=new ContentAssistDisplay(this, values);
+            int cpos = sourcePane.getCaretPosition();
+            try {
+                Rectangle pos = sourcePane.modelToView(cpos);
+                Point spLoc = sourcePane.getLocationOnScreen();
+                int xpos = pos.x + spLoc.x;
+                int ypos = pos.y + pos.height + spLoc.y;
+                dlg.setLocation(xpos, ypos);
+                dlg.setVisible(true);
+                dlg.requestFocus();
+            }
+            catch (BadLocationException ble) {}
         }
-        catch (BadLocationException ble) {}
+        else {
+            info.warning("No completions available.");
+        }
     }
 
     protected void closeContentAssist()
