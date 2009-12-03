@@ -107,7 +107,7 @@ public final class MoeActions
     private int[] categoryIndex;
 
     private Keymap keymap; // the editor's keymap
-    private KeyCatcher keyCatcher;
+    private KeyCatcher keyCatcher; 
 
     private boolean lastActionWasCut; // true if last action was a cut action
     // undo helpers

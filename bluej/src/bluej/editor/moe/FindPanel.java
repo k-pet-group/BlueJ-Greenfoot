@@ -24,6 +24,7 @@ package bluej.editor.moe;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -50,7 +51,11 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     private MoeEditor editor;
 
     private JPanel body;
-    private DBox findBody;
+    private JPanel findBody;
+    private DBox findTextBody;
+    private DBox optionsBody;
+    private JPanel otherBody;
+    private JPanel mcBody;
     private JPanel closeBody;
     private JLabel findLabel;
     private JButton closeButton;
@@ -68,7 +73,8 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     private final static String PREVIOUS_BUTTON_NAME ="prevBtn";
     private final static String NEXT__BUTTON_NAME ="nextBtn";
     private final static String REPLACE_WITH_BUTTON_NAME ="replaceWithBtn";
-    private final static String MATCHCASE_CHECKBOX="matchCaseCheckBox";
+    private final static String MATCHCASE_CHECKBOX="matchCaseCheckBox";    
+    
 
     private String searchString=""; 
     private static Font findFont;
@@ -98,20 +104,26 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
      */
     private void initDisplay()
     {
-        body = new JPanel(new BorderLayout()); // one row, many columns
+        //body = new JPanel(new BorderLayout()); // one row, many columns
+        body = new JPanel(new GridLayout(1, 2));
         body.setBackground(MoeEditor.infoColor);
         //body.setBorder(new EmptyBorder(3,6,3,4));
         body.setBorder(BorderFactory.createEmptyBorder(3,0,3,0));
         body.setName("FindPanelBody");
 
         //findOptions=new JPanel(new GridLayout(1, 7));
-        findBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
-        findBody.setName("FindPanelFindBody");
+        //findBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
+        findBody=new JPanel(new GridLayout(1, 2));
+        findTextBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
+        optionsBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
 
-        closeBody=new JPanel(new GridLayout(1,5));
-        closeBody.setBackground(MoeEditor.infoColor);
-        closeBody.setName("FindPanelFindBody");
+        otherBody=new JPanel (new GridLayout(1, 2));
+        mcBody=new JPanel(new GridLayout(1, 1));
+        closeBody=new JPanel(new GridLayout(1,2));
+        closeBody.setBackground(MoeEditor.infoColor);    
     }
+    
+    
 
     /**
      * Initialise find buttons and labels
@@ -119,7 +131,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     private void setFindDisplay()
     {
         findLabel = new JLabel();
-        findLabel.setText("Find: ");
+        findLabel.setText("Find:       ");
         findLabel.setFont(findFont);
 
         findTField=new JTextField(10);
@@ -127,7 +139,6 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         setSearchString("");
         findTField.addKeyListener(this);
         findTField.setName(INPUT_QUERY_NAME);
-
     }
 
     /**
@@ -142,25 +153,12 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         previousButton.setEnabled(false);
         previousButton.setFont(findFont);
 
-        //        prevArrowButton=new BasicArrowButton(BasicArrowButton.WEST);
-        //        prevArrowButton.addActionListener(this);
-        //        prevArrowButton.setName(PREVIOUS_BUTTON_NAME);
-        //        prevArrowButton.setText("Prev");
-        //        prevArrowButton.setEnabled(false);
-
         nextButton=new JButton();
         nextButton.addActionListener(this);
         nextButton.setName(NEXT__BUTTON_NAME);
         nextButton.setText("Next");
         nextButton.setEnabled(false);
         nextButton.setFont(findFont);
-
-        //        nextArrowButton=new BasicArrowButton(BasicArrowButton.EAST);
-        //        nextArrowButton.addActionListener(this);
-        //        nextArrowButton.setName(NEXT__BUTTON_NAME);
-        //        nextArrowButton.setText("Next");
-        //        nextArrowButton.setEnabled(false);
-
     }
 
     /**
@@ -174,7 +172,6 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         matchCaseCheckBox.setFont(findFont);
         matchCaseCheckBox.setName(MATCHCASE_CHECKBOX);
         matchCaseCheckBox.addActionListener(this);
-
     }
 
     /**
@@ -193,7 +190,6 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         closeButton.addActionListener(this);
         closeButton.setName(CLOSE_BUTTON_NAME); 
         closeButton.setFont(findFont);
-
     }
 
     /**
@@ -214,22 +210,34 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
      */
     private void addDisplayElements()
     {
-        findBody.add(findLabel);
-        findBody.add(findTField);
-
-        findBody.add(previousButton);
-        findBody.add(nextButton);
-        findBody.add(replaceWithButton);
-        findBody.add(matchCaseCheckBox);
+//        findBody.add(findLabel);
+//        findBody.add(findTField);
+//
+//        findBody.add(previousButton);
+//        findBody.add(nextButton);
+//        findBody.add(matchCaseCheckBox);
+        findTextBody.add(findLabel);
+        findTextBody.add(findTField);
+        optionsBody.add(previousButton);
+        optionsBody.add(nextButton);
+        //optionsBody.add(matchCaseCheckBox);
+        
+        findBody.add(findTextBody, BorderLayout.WEST);
+        findBody.add(optionsBody, BorderLayout.EAST);
         //findBody.addSpacer(500);
         //findBody.add(closeButton);
-
+        //closeBody.add(matchCaseCheckBox);
+        closeBody.add(replaceWithButton);
         closeBody.add(closeButton);
 
-        body.add(findBody, BorderLayout.WEST);
-        body.add(closeBody, BorderLayout.EAST);
+        mcBody.add(matchCaseCheckBox);
+        otherBody.add(mcBody);
+        otherBody.add(closeBody);
 
-        add(body);
+        body.add(findBody, BorderLayout.WEST);
+        body.add(otherBody, BorderLayout.EAST);    
+        this.add(body);
+      
     }
 
     /**
@@ -242,8 +250,10 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         if(src.getName() == CLOSE_BUTTON_NAME){
             editor.removeHighlighting();
             editor.setSelText(null);
-            editor.moveCaretPosition(editor.getSelectionBegin().getColumn());
+            if (editor.getSelectionBegin()!=null)
+                editor.moveCaretPosition(editor.getSelectionBegin().getColumn());
             this.setVisible(false);
+            editor.setReplacePanelVisible(false);
             return;
         }
         if (src.getName()==NEXT__BUTTON_NAME){  
@@ -253,7 +263,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
             getPrev();   
         }
         if (src.getName()==REPLACE_WITH_BUTTON_NAME){
-            replace();
+            enableReplace();
         }
         if (src.getName()==INPUT_QUERY_NAME){
             find(true);
@@ -324,9 +334,12 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
             this.setVisible(false);
             return;
         }
+        if (selection==null)
+            selection=getSearchString();
         setSearchString(selection);
         updateDisplay();
         this.setVisible(true);
+
         findTField.requestFocus();
 
     }
@@ -383,6 +396,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         }
         findTField.requestFocus();
     }
+       
 
     /**
      * When the editor finds a value it needs to reset the caret to before the search string
@@ -406,9 +420,9 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
      * Replaces selected text with the contents of the replaceField and return
      * next instance of the searchString.
      */
-    private void replace()
+    private void enableReplace()
     {
-        editor.replace();
+        editor.setReplacePanelVisible(true);
     }
 
     /**

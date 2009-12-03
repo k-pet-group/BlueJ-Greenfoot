@@ -407,7 +407,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         if (caretBack) {
             sourcePane.setCaretPosition(sourcePane.getCaretPosition() - text.length());
         }
-    }
+    } 
 
     /**
      * Sets the caret back by the amount specified
