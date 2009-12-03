@@ -42,7 +42,7 @@ import bluej.utility.Debug;
  * "real" BlueJ.
  * 
  * @author Michael Kolling
- * @version $Id: Main.java 6349 2009-05-22 14:49:01Z polle $
+ * @version $Id: Main.java 6887 2009-12-03 00:49:40Z davmac $
  */
 public class Main
 {
@@ -218,7 +218,7 @@ public class Main
             if(rc != 200) Debug.reportError("Update stats failed, HTTP response code: " + rc);
 
         } catch (Exception ex) {
-            Debug.reportError("Update stats failed", ex);
+            Debug.reportError("Update stats failed: " + ex.getClass().getName() + ": " + ex.getMessage());
         } finally {
             System.setProperty(useProxiesProperty, oldProxySetting);
         }
