@@ -97,6 +97,8 @@ import bluej.BlueJEventListener;
 import bluej.Config;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.editor.EditorWatcher;
+import bluej.editor.moe.MoeActions.FindNextAction;
+import bluej.editor.moe.MoeActions.FindNextBackwardAction;
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.EntityResolver;
@@ -193,6 +195,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     //new find functionality
     private FindPanel finder;
+    private ReplacePanel replacer;
 
     private JScrollPane scrollPane;
     private NaviView naviView;               // Navigation view (mini-source view)
@@ -226,7 +229,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     //new content assist
     private ContentAssistDisplay dlg;
-    
     private EntityResolver projectResolver;   // Resolves symbols
 
     /**
@@ -240,7 +242,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * Constructor. Title may be null
      */
     public MoeEditor(String title, boolean isCode, EditorWatcher watcher, boolean showToolbar, 
-            boolean showLineNum, Properties resources, EntityResolver projectResolver)
+             boolean showLineNum, Properties resources, EntityResolver projectResolver)
     {
         super("Moe");
         this.watcher = watcher;
@@ -407,7 +409,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         if (caretBack) {
             sourcePane.setCaretPosition(sourcePane.getCaretPosition() - text.length());
         }
-    } 
+    }
 
     /**
      * Sets the caret back by the amount specified
@@ -1271,16 +1273,28 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     // --------------------------------------------------------------------
     /**
+     * setReplacePanelVisible sets the replace panel editor and sets it to be visible
+     * @param isVisible
+     */
+
+    public void setReplacePanelVisible(boolean isVisible)
+    {
+        replacer.setEditor(this);
+        replacer.setVisible(isVisible);
+        replacer.requestReplaceTextFocus();
+    }
+
+    // --------------------------------------------------------------------
+    /**
      * Implementation of "replace" user function. Replace adds extra
      * functionality to that of a find dialog, as well as altered behaviour. It
      * can remain open for multiple functions.
      */
-    public void replace(){
-        String selectedText= currentTextPane.getSelectedText();
-        Finder finder = MoeEditorManager.editorManager.getFinder();
-        if (selectedText==null)
-            selectedText=getSelText();
-        finder.show(this,selectedText, true);
+    public void replace(String replaceString)
+    {
+        String replaceText = smartFormat(finder.getSearchString(), replaceString);
+        insertText(replaceText, true);
+        finder.find(true);
     }
 
     // --------------------------------------------------------------------
@@ -1624,7 +1638,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         Element line = getLineAt(start);
         int lineEnd = Math.min(line.getEndOffset(), endPos);   
         int foundPos =0; 
-            //-s.length();
+        //-s.length();
         boolean first=true;
         String firstLine="";
         try {
@@ -1792,7 +1806,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         boolean found = false;
         int pos = foundPos;
-            //(backwards ? strlen-sublen : foundPos+sublen);
+        //(backwards ? strlen-sublen : foundPos+sublen);
         boolean itsOver = (backwards ? (pos < 0) : (pos + sublen > strlen));
         while (!found && !itsOver) {
             found = text.regionMatches(ignoreCase, pos, sub, 0, sublen);                
@@ -1902,7 +1916,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         return false;
 
     }
-    
+
     /**
      * Returns a list of flagged items 
      *  
@@ -2698,8 +2712,13 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         bottomArea.setLayout(new BorderLayout(6, 1));
         //bottomArea.setBackground(frameBgColor);
 
-        info = new Info();
-        bottomArea.add(info, BorderLayout.CENTER);
+
+        //area for new find functionality
+        finder=new FindPanel();
+        finder.setVisible(false);
+        finder.setBorder(BorderFactory.createEmptyBorder());
+        finder.setName("FinderPanel");
+        bottomArea.add(finder, BorderLayout.NORTH);
 
         statusArea = new JPanel();
         statusArea.setLayout(new GridLayout(0, 1));
@@ -2709,14 +2728,21 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         saveState = new StatusLabel(StatusLabel.SAVED);
         statusArea.add(saveState);
-        bottomArea.add(statusArea, BorderLayout.EAST);
+        //bottomArea.add(statusArea, BorderLayout.EAST);
 
-        //new area for new find functionality
-        finder=new FindPanel();
-        finder.setVisible(false);
-        finder.setBorder(BorderFactory.createEmptyBorder());
-        finder.setName("FinderPanel");
-        bottomArea.add(finder, BorderLayout.NORTH);
+        info = new Info();
+        //bottomArea.add(info, BorderLayout.SOUTH);
+
+        replacer=new ReplacePanel();
+        replacer.setVisible(false);
+        replacer.setBorder(BorderFactory.createEmptyBorder());
+        bottomArea.add(replacer, BorderLayout.CENTER);
+
+        JPanel commentsPanel=new JPanel(new BorderLayout(6,1));
+        commentsPanel.add(info, BorderLayout.CENTER);
+        commentsPanel.add(statusArea, BorderLayout.EAST);
+
+        bottomArea.add(commentsPanel, BorderLayout.SOUTH);
 
         contentPane.add(bottomArea, BorderLayout.SOUTH);
 
@@ -3180,8 +3206,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         if (finder.isVisible())
             visible=false;
         finder.displayFindPanel(selection, visible);
+        //if the find is not visible- need to close the replace panel
+        if(!visible)
+            setReplacePanelVisible(visible);
         if (selection!=null){
-            //setCaretPosition(getCaretPosition()-selection.length());
             finder.find(true);
         }
     }
@@ -3204,7 +3232,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     public void removeHighlighting(){
-        sourcePane.getHighlighter().removeAllHighlights();
+        currentTextPane.getHighlighter().removeAllHighlights();
     }
 
     private void setCaretPosition (int pos)
@@ -3269,7 +3297,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         return sourceDocument;
     }
 
-    /* Removes only our selected highlights finds the next one 
+    /**
+     * Removes only our selected highlights finds the next one 
      * and selects that
      */
     public void removeReselectSelection(int startPos, int length)
@@ -3317,7 +3346,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         return count;
     }
 
-    /* 
+    /** 
      * Returns true if it is a unique highlight and false if it has already been counted
      */
     private boolean isHighlight(int[] startPoss, int startPos)
@@ -3334,23 +3363,18 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         //need to recreate the dialog each time it is pressed as the values may be different 
         closeContentAssist();
         AssistContent[] values = populateContentAssist();
-        if (values != null) {
-            dlg=new ContentAssistDisplay(this, values);
-            int cpos = sourcePane.getCaretPosition();
-            try {
-                Rectangle pos = sourcePane.modelToView(cpos);
-                Point spLoc = sourcePane.getLocationOnScreen();
-                int xpos = pos.x + spLoc.x;
-                int ypos = pos.y + pos.height + spLoc.y;
-                dlg.setLocation(xpos, ypos);
-                dlg.setVisible(true);
-                dlg.requestFocus();
-            }
-            catch (BadLocationException ble) {}
+        dlg=new ContentAssistDisplay(this, values);
+        int cpos = sourcePane.getCaretPosition();
+        try {
+            Rectangle pos = sourcePane.modelToView(cpos);
+            Point spLoc = sourcePane.getLocationOnScreen();
+            int xpos = pos.x + spLoc.x;
+            int ypos = pos.y + pos.height + spLoc.y;
+            dlg.setLocation(xpos, ypos);
+            dlg.setVisible(true);
+            dlg.requestFocus();
         }
-        else {
-            info.warning("No completions available.");
-        }
+        catch (BadLocationException ble) {}
     }
 
     protected void closeContentAssist()
@@ -3387,4 +3411,110 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         
         return null; // no completions
     }
+
+    /**
+     * Does some clever formatting to ensure that the replacement matches
+     * the original on the formatting eg upper/lower case
+     */
+    private String smartFormat(String original, String replacement)
+    {
+        if(original == null || replacement == null)
+            return replacement;
+
+        // only do smart stuff if search and replace strings were entered in lowercase.
+        // check here. if not lowercase, just return.
+
+        if( !isLowerCase(replacement) || !isLowerCase(original))
+            return replacement;
+        if(isUpperCase(original))
+            return replacement.toUpperCase();
+        if(isTitleCase(original))
+            return Character.toTitleCase(replacement.charAt(0)) + 
+            replacement.substring(1);
+        else
+            return replacement;
+    }
+
+    /**
+     * True if the string is in lower case.
+     */
+    public boolean isLowerCase(String s)
+    {
+        for(int i=0; i<s.length(); i++) {
+            if(! Character.isLowerCase(s.charAt(i)))
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * True if the string is in Upper case.
+     */
+    public boolean isUpperCase(String s)
+    {
+        for(int i=0; i<s.length(); i++) {
+            if(! Character.isUpperCase(s.charAt(i)))
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * True if the string is in title case.
+     */
+    public boolean isTitleCase(String s)
+    {
+        if(s.length() < 2)
+            return false;
+        return Character.isUpperCase(s.charAt(0)) &&
+        Character.isLowerCase(s.charAt(1));
+    }
+
+    public void setFindPanelVisible(boolean isVisible)
+    {
+        finder.setVisible(true);
+    }
+
+    /**
+     * Replace all instances of the search String with a replacement.
+     * -check for valid search criteria
+     * - TODO: get initial cursor pos
+     * -start at beginning
+     * -do initial find
+     * -replace until not found, no wrapping!
+     * -print out number of replacements (?)
+     * -TODO: return cursor/caret to original place
+     */
+    public void replaceAll(String replaceString)
+    {
+        //remove selection and remove highlighting 
+        if (getSelectionBegin()!=null)
+            moveCaretPosition(getSelectionBegin().getColumn());
+        removeHighlighting();
+        String searchString = finder.getSearchString();
+        boolean isMatchCase=finder.getMatchCase();
+        int count = 0;
+        while(doFindBackward(searchString, !isMatchCase, false, false)) {
+            insertText(smartFormat(searchString, replaceString), true);
+            count++;
+
+        }        
+        while(doFind(searchString, !isMatchCase,false, false)) 
+        {
+            insertText(smartFormat(searchString, replaceString), false);
+            count++;
+        }
+
+        if(count > 0)
+            //editor.writeMessage("Replaced " + count + " instances of " + searchString);
+            writeMessage(Config.getString("editor.replaceAll.replaced") +
+                    count + Config.getString("editor.replaceAll.intancesOf") + 
+                    searchString);
+        else
+            //editor.writeMessage("String " + searchString + " not found. Nothing replaced.");
+            writeMessage(Config.getString("editor.replaceAll.string") + 
+                    searchString + Config.getString("editor.replaceAll.notFoundNothingReplaced"));
+        removeHighlighting();
+    }
+
 }
