@@ -1049,7 +1049,7 @@ public final class MoeActions
         {
             MoeEditor editor=getEditor(e);
             if (editor==null)
-                editor=getFinderEditor(e);  
+                editor=getFinderEditor(e);
             editor.setFindPanelVisible(true);
             editor.setReplacePanelVisible(true);
         }

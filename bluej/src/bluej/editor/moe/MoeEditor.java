@@ -242,7 +242,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * Constructor. Title may be null
      */
     public MoeEditor(String title, boolean isCode, EditorWatcher watcher, boolean showToolbar, 
-             boolean showLineNum, Properties resources, EntityResolver projectResolver)
+            boolean showLineNum, Properties resources, EntityResolver projectResolver)
     {
         super("Moe");
         this.watcher = watcher;
@@ -1272,11 +1272,11 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
+    
     /**
      * setReplacePanelVisible sets the replace panel editor and sets it to be visible
      * @param isVisible
      */
-
     public void setReplacePanelVisible(boolean isVisible)
     {
         replacer.setEditor(this);
@@ -1285,6 +1285,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
+    
     /**
      * Implementation of "replace" user function. Replace adds extra
      * functionality to that of a find dialog, as well as altered behaviour. It
@@ -1638,7 +1639,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         Element line = getLineAt(start);
         int lineEnd = Math.min(line.getEndOffset(), endPos);   
         int foundPos =0; 
-        //-s.length();
         boolean first=true;
         String firstLine="";
         try {
@@ -1806,7 +1806,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         boolean found = false;
         int pos = foundPos;
-        //(backwards ? strlen-sublen : foundPos+sublen);
         boolean itsOver = (backwards ? (pos < 0) : (pos + sublen > strlen));
         while (!found && !itsOver) {
             found = text.regionMatches(ignoreCase, pos, sub, 0, sublen);                
@@ -2712,7 +2711,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         bottomArea.setLayout(new BorderLayout(6, 1));
         //bottomArea.setBackground(frameBgColor);
 
-
         //area for new find functionality
         finder=new FindPanel();
         finder.setVisible(false);
@@ -3363,18 +3361,23 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         //need to recreate the dialog each time it is pressed as the values may be different 
         closeContentAssist();
         AssistContent[] values = populateContentAssist();
-        dlg=new ContentAssistDisplay(this, values);
-        int cpos = sourcePane.getCaretPosition();
-        try {
-            Rectangle pos = sourcePane.modelToView(cpos);
-            Point spLoc = sourcePane.getLocationOnScreen();
-            int xpos = pos.x + spLoc.x;
-            int ypos = pos.y + pos.height + spLoc.y;
-            dlg.setLocation(xpos, ypos);
-            dlg.setVisible(true);
-            dlg.requestFocus();
+        if (values != null) {
+            dlg=new ContentAssistDisplay(this, values);
+            int cpos = sourcePane.getCaretPosition();
+            try {
+                Rectangle pos = sourcePane.modelToView(cpos);
+                Point spLoc = sourcePane.getLocationOnScreen();
+                int xpos = pos.x + spLoc.x;
+                int ypos = pos.y + pos.height + spLoc.y;
+                dlg.setLocation(xpos, ypos);
+                dlg.setVisible(true);
+                dlg.requestFocus();
+            }
+            catch (BadLocationException ble) {}
         }
-        catch (BadLocationException ble) {}
+        else {
+            info.warning("No completions available.");
+        }
     }
 
     protected void closeContentAssist()
