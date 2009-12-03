@@ -32,10 +32,9 @@ import java.util.Set;
  * determine the generic type parameters, etc.
  *  
  * @author Davin McCall
- * @version $Id: Reflective.java 6880 2009-12-02 04:02:12Z davmac $
  */
-public abstract class Reflective {
-
+public abstract class Reflective
+{
     /**
      * Get the name of the class or interface represented by the reflective.
      * The name is such that it can be passed to ClassLoader's loadClass

@@ -227,6 +227,15 @@ public abstract class ParsedNode implements EntityResolver
     {
         return getExpressionType(pos, null);
     }
+    
+    /**
+     * Find a type node for a type definition with the given name.
+     */
+    public ParsedNode getTypeNode(String name)
+    {
+        return classNodes.get(name);
+    }
+    
     /**
      * Get the expression type at a given point. Returns the specified default if there
      * is no determinable expression type.

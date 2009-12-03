@@ -147,7 +147,9 @@ public class ParsedReflective extends Reflective
                         paramTypes, false, false);
                 rset.add(mref);
             }
-            rmap.put(name, rset);
+            if (! rset.isEmpty()) {
+                rmap.put(name, rset);
+            }
         }
         return rmap;
     }

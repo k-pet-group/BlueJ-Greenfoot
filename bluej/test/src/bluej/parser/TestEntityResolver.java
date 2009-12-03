@@ -30,7 +30,11 @@ import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
+import bluej.parser.entity.ParsedReflective;
+import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.ParsedCUNode;
+import bluej.parser.nodes.ParsedNode;
+import bluej.parser.nodes.ParsedTypeNode;
 
 /**
  * An entity resolver for testing purposes.
@@ -78,9 +82,10 @@ public class TestEntityResolver implements EntityResolver
         List<ParsedCUNode> culist = pkgMap.get(pkg);
         if (culist != null) {
             for (ParsedCUNode node : culist) {
-                PackageOrClass poc = node.resolvePackageOrClass(name, querySource);
-                if (poc != null) {
-                    return poc;
+                ParsedNode tnode = node.getTypeNode(name);
+                if (tnode instanceof ParsedTypeNode) {
+                    // (and it should be)
+                    return new TypeEntity(new ParsedReflective((ParsedTypeNode) tnode));
                 }
             }
         }
