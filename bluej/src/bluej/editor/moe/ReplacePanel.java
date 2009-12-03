@@ -29,9 +29,12 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
     private Font font;
     private JTextField replaceText;
     private String replaceString;
+    private JButton replaceButton;
+    private JButton replaceAllButton;
 
     private final static String REPLACE_BUTTON_NAME ="replaceBtn";
     private final static String REPLACE__ALL_BUTTON_NAME ="replaceAllBtn";
+    private final static String REPLACE__TEXTFIELD ="replaceTextField";
 
     public ReplacePanel() {
         super();
@@ -72,8 +75,17 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
 
     @Override
     public void keyReleased(KeyEvent e) {
-        // TODO Auto-generated method stub
-
+        JComponent src = (JComponent) e.getSource();
+        if (src.getName()== REPLACE__TEXTFIELD){
+            if (((JTextField)src).getText()!=null &&((JTextField)src).getText()!="" ){
+                replaceButton.setEnabled(true);
+                replaceAllButton.setEnabled(true);
+            }    
+            else{
+                replaceButton.setEnabled(false);
+                replaceAllButton.setEnabled(false);
+            }
+        }
     }
 
     @Override
@@ -85,8 +97,6 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
 
     private void addReplaceBody()
     {
-        JButton replaceButton;
-        JButton replaceAllButton;
         JLabel replaceLabel;
         DBox replaceBody;
         DBox optionsBody;
@@ -105,18 +115,22 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
 
         replaceText=new JTextField(10);
         replaceText.setFont(font);
+        replaceText.addKeyListener(this);
+        replaceText.setName(REPLACE__TEXTFIELD);
         
         replaceButton=new JButton();
         replaceButton.setName(REPLACE_BUTTON_NAME);
         replaceButton.setText("Once");
         replaceButton.setFont(font);
         replaceButton.addActionListener(this);
+        replaceButton.setEnabled(false);
         
         replaceAllButton=new JButton();
         replaceAllButton.setName(REPLACE__ALL_BUTTON_NAME);
         replaceAllButton.setText(" All ");
         replaceAllButton.setFont(font);
         replaceAllButton.addActionListener(this);
+        replaceAllButton.setEnabled(false);
         
         JLabel closeBody=new JLabel(" ");
         

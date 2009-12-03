@@ -405,6 +405,11 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void insertText(String text, boolean caretBack)       // inherited from Editor, redefined
     {
+        //if there is no selection, need to find an instance of the search string
+        if (getSelectionBegin()!=null && getSelectionBegin().getColumn()==getSelectionEnd().getColumn())
+            finder.find(true);
+        if (getSelectedText()==null)
+            return;
         sourcePane.replaceSelection(text);
         if (caretBack) {
             sourcePane.setCaretPosition(sourcePane.getCaretPosition() - text.length());
@@ -1295,7 +1300,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         String replaceText = smartFormat(finder.getSearchString(), replaceString);
         insertText(replaceText, true);
-        finder.find(true);
     }
 
     // --------------------------------------------------------------------
@@ -3481,16 +3485,15 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /**
      * Replace all instances of the search String with a replacement.
      * -check for valid search criteria
-     * - TODO: get initial cursor pos
      * -start at beginning
      * -do initial find
      * -replace until not found, no wrapping!
      * -print out number of replacements (?)
-     * -TODO: return cursor/caret to original place
      */
     public void replaceAll(String replaceString)
     {
         //remove selection and remove highlighting 
+        int caretPos=getCaretPosition();
         if (getSelectionBegin()!=null)
             moveCaretPosition(getSelectionBegin().getColumn());
         removeHighlighting();
@@ -3518,6 +3521,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             writeMessage(Config.getString("editor.replaceAll.string") + 
                     searchString + Config.getString("editor.replaceAll.notFoundNothingReplaced"));
         removeHighlighting();
+        moveCaretPosition(caretPos);
     }
 
 }
