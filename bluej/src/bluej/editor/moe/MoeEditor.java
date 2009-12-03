@@ -1303,18 +1303,24 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     public void replace(String replaceString)
     {
         int caretPos=getCaretPosition();
+        String searchString=finder.getSearchString();
         if (getSelectedText()==null|| getSelectedText().length()<=0){
-            writeMessage("Invalid search string ");
-            return;
+            //in case the selection has been lost due to moving it in the editor
+            if (finder.getSearchString()!=null && finder.getSearchString().length()>0)
+                searchString=finder.getSearchTextfield();
+            else {
+                writeMessage("Invalid search string ");
+                return;
+            }
         }
-        String replaceText = smartFormat(finder.getSearchString(), replaceString);
+        String replaceText = smartFormat(searchString, replaceString);
         insertText(replaceText, true);
         //move the caret back to where it was before the replace
         moveCaretPosition(caretPos);
         finder.find(true);
         //editor.writeMessage("Replaced " + count + " instances of " + searchString);
         writeMessage("Replaced an instance of " + 
-                finder.getSearchString());
+                searchString);
     }
 
     // --------------------------------------------------------------------
@@ -1604,8 +1610,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 if (lineText != null && lineText.length() > 0) {
                     int foundPos = findSubstring(lineText, s, ignoreCase, wholeWord, true);
                     if (foundPos != -1) {
-                        currentTextPane.getHighlighter().addHighlight(lineStart + foundPos, lineStart + foundPos + s.length(), editorHighlighter.selectPainter);
+                        //currentTextPane.getHighlighter().addHighlight(lineStart + foundPos, lineStart + foundPos + s.length(), editorHighlighter.selectPainter);
                         currentTextPane.select(lineStart + foundPos, lineStart + foundPos + s.length());
+                        currentTextPane.getCaret().setSelectionVisible(true);
                         return true;
                     }
                 }
@@ -1673,8 +1680,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                         if (select){
                             //purposely using both select and the highlight because the select sets the                         
                             //caret correctly and the highlighter ensures the colouring is done correctly                 
-                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.selectPainter);
+                            //currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.selectPainter);
                             currentTextPane.select(start + foundPos, start + foundPos + s.length());
+                            currentTextPane.getCaret().setSelectionVisible(true);
                             setFoundCaretPositon(getCaretPosition());
                             setSelText(getSelectedText());
                             found=true;

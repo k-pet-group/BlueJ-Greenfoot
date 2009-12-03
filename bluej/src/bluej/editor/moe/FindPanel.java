@@ -24,7 +24,6 @@ package bluej.editor.moe;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -74,7 +73,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     private final static String NEXT__BUTTON_NAME ="nextBtn";
     private final static String REPLACE_WITH_BUTTON_NAME ="replaceWithBtn";
     private final static String MATCHCASE_CHECKBOX="matchCaseCheckBox";    
-    
+
 
     private String searchString=""; 
     private static Font findFont;
@@ -122,8 +121,8 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         closeBody=new JPanel(new GridLayout(1,2));
         closeBody.setBackground(MoeEditor.infoColor);    
     }
-    
-    
+
+
 
     /**
      * Initialise find buttons and labels
@@ -210,18 +209,18 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
      */
     private void addDisplayElements()
     {
-//        findBody.add(findLabel);
-//        findBody.add(findTField);
-//
-//        findBody.add(previousButton);
-//        findBody.add(nextButton);
-//        findBody.add(matchCaseCheckBox);
+        //        findBody.add(findLabel);
+        //        findBody.add(findTField);
+        //
+        //        findBody.add(previousButton);
+        //        findBody.add(nextButton);
+        //        findBody.add(matchCaseCheckBox);
         findTextBody.add(findLabel);
         findTextBody.add(findTField);
         optionsBody.add(previousButton);
         optionsBody.add(nextButton);
         //optionsBody.add(matchCaseCheckBox);
-        
+
         findBody.add(findTextBody, BorderLayout.WEST);
         findBody.add(optionsBody, BorderLayout.EAST);
         //findBody.addSpacer(500);
@@ -237,7 +236,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         body.add(findBody, BorderLayout.WEST);
         body.add(otherBody, BorderLayout.EAST);    
         this.add(body);
-      
+
     }
 
     /**
@@ -401,7 +400,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         }
         findTField.requestFocus();
     }
-       
+
 
     /**
      * When the editor finds a value it needs to reset the caret to before the search string
@@ -515,7 +514,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     protected void find(boolean next){
         find(next, true);
     }
-    
+
     /**
      * Find requires the display to be reset (i.e button enabled/disabled) and calling the editor to find
      */
@@ -531,5 +530,10 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
 
     public void keyTyped(KeyEvent e) {
 
+    }
+
+    public String getSearchTextfield()
+    {
+        return findTField.getText();   
     }
 }

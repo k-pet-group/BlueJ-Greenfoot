@@ -37,7 +37,7 @@ import bluej.utility.EscapeDialog;
  *
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Finder.java 6896 2009-12-03 04:55:35Z marionz $
+ * @version $Id: Finder.java 6899 2009-12-03 05:13:43Z marionz $
  */
 
 public class Finder extends EscapeDialog
@@ -301,8 +301,8 @@ public class Finder extends EscapeDialog
             //replace();
         else if(src == replaceAllButton)
             replaceAll();
-        else if(src == cancelButton)
-            setVisible(false);
+//        else if(src == cancelButton)
+//            setVisible(false);
     }
 
     // === Documentlistener interface ===
