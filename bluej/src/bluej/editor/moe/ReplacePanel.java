@@ -33,8 +33,8 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
     private JButton replaceAllButton;
 
     private final static String REPLACE_BUTTON_NAME ="replaceBtn";
-    private final static String REPLACE__ALL_BUTTON_NAME ="replaceAllBtn";
-    private final static String REPLACE__TEXTFIELD ="replaceTextField";
+    private final static String REPLACE_ALL_BUTTON_NAME ="replaceAllBtn";
+    private final static String REPLACE_TEXTFIELD ="replaceTextField";
 
     public ReplacePanel() {
         super();
@@ -59,7 +59,7 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
             if (rText!=null)
                 editor.replace(rText);
         }
-        if (src.getName()==REPLACE__ALL_BUTTON_NAME){
+        if (src.getName()==REPLACE_ALL_BUTTON_NAME){
             if (rText!=null)
                 editor.replaceAll(rText);
                 
@@ -76,7 +76,7 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
     @Override
     public void keyReleased(KeyEvent e) {
         JComponent src = (JComponent) e.getSource();
-        if (src.getName()== REPLACE__TEXTFIELD){
+        if (src.getName()== REPLACE_TEXTFIELD){
             if (((JTextField)src).getText()!=null &&((JTextField)src).getText()!="" ){
                 replaceButton.setEnabled(true);
                 replaceAllButton.setEnabled(true);
@@ -93,7 +93,6 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
         // TODO Auto-generated method stub
 
     }
-
 
     private void addReplaceBody()
     {
@@ -116,7 +115,7 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
         replaceText=new JTextField(10);
         replaceText.setFont(font);
         replaceText.addKeyListener(this);
-        replaceText.setName(REPLACE__TEXTFIELD);
+        replaceText.setName(REPLACE_TEXTFIELD);
         
         replaceButton=new JButton();
         replaceButton.setName(REPLACE_BUTTON_NAME);
@@ -126,7 +125,7 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
         replaceButton.setEnabled(false);
         
         replaceAllButton=new JButton();
-        replaceAllButton.setName(REPLACE__ALL_BUTTON_NAME);
+        replaceAllButton.setName(REPLACE_ALL_BUTTON_NAME);
         replaceAllButton.setText(" All ");
         replaceAllButton.setFont(font);
         replaceAllButton.addActionListener(this);
