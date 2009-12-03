@@ -311,6 +311,9 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
                 //need to remove highlighting and have no message
                 if (findT.getText().length()==0){
                     editor.removeHighlighting();
+                    setSearchString(null);
+                    if (editor.getSelectionBegin()!=null)
+                        editor.moveCaretPosition(editor.getSelectionBegin().getColumn());
                     writeMessage(false);
                 }
                 else if (!getSearchString().equals(findT.getText()))
@@ -431,9 +434,9 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
      * -search forward or backward depending on choice
      * -print out number of highlights 
      */
-    public void highlightAll(boolean ignoreCase, boolean wholeWord, boolean wrap, boolean next)
+    public void highlightAll(boolean ignoreCase, boolean wholeWord, boolean wrap, boolean next, boolean select)
     {
-        searchForward(ignoreCase, wholeWord, wrap, next);
+        searchForward(ignoreCase, wholeWord, wrap, next, select);
         writeMessage(true); 
     }
 
@@ -498,23 +501,30 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         return found;
     }
 
-    private void searchForward(boolean ignoreCase, boolean wholeWord, boolean wrap, boolean next)
+    private void searchForward(boolean ignoreCase, boolean wholeWord, boolean wrap, boolean next, boolean select)
     {
-        boolean select=true;
         search(ignoreCase, wholeWord, wrap, select, next) ;
     }
 
     /**
+     * Assumes that the select is true
+     * @param next forward/backward
+     */
+    protected void find(boolean next){
+        find(next, true);
+    }
+    
+    /**
      * Find requires the display to be reset (i.e button enabled/disabled) and calling the editor to find
      */
-    protected void find(boolean next)
+    protected void find(boolean next, boolean select)
     {
         if (getSearchString()!=null)
             editor.moveCaretPosition(editor.getCaretPosition()-getSearchString().length());
         setFindValues(); 
         updateDisplay();
         editor.removeHighlighting();
-        highlightAll(!matchCaseCheckBox.isSelected(), false, true, next);
+        highlightAll(!matchCaseCheckBox.isSelected(), false, true, next, select);
     }
 
     public void keyTyped(KeyEvent e) {

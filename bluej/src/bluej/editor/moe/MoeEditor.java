@@ -97,8 +97,6 @@ import bluej.BlueJEventListener;
 import bluej.Config;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.editor.EditorWatcher;
-import bluej.editor.moe.MoeActions.FindNextAction;
-import bluej.editor.moe.MoeActions.FindNextBackwardAction;
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.EntityResolver;
@@ -1277,7 +1275,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
-    
+
     /**
      * setReplacePanelVisible sets the replace panel editor and sets it to be visible
      * @param isVisible
@@ -1290,7 +1288,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
-    
+
     /**
      * Implementation of "replace" user function. Replace adds extra
      * functionality to that of a find dialog, as well as altered behaviour. It
@@ -1298,8 +1296,19 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void replace(String replaceString)
     {
+        int caretPos=getCaretPosition();
+        if (getSelectedText()==null|| getSelectedText().length()<=0){
+            writeMessage("Invalid search string ");
+            return;
+        }
         String replaceText = smartFormat(finder.getSearchString(), replaceString);
         insertText(replaceText, true);
+        //move the caret back to where it was before the replace
+        moveCaretPosition(caretPos);
+        finder.find(true);
+        //editor.writeMessage("Replaced " + count + " instances of " + searchString);
+        writeMessage("Replaced an instance of " + 
+                finder.getSearchString());
     }
 
     // --------------------------------------------------------------------
@@ -3202,15 +3211,19 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         //boolean to ensure that if the panel is closed it will 
         //open and if it is already open, it will be closed
-        boolean visible=true;
         String selection= currentTextPane.getSelectedText();        
         finder.setEditor(this);
-        if (finder.isVisible())
-            visible=false;
-        finder.displayFindPanel(selection, visible);
+        if (finder.isVisible()){
+            finder.displayFindPanel(selection, false);
+            removeHighlighting();
+            setReplacePanelVisible(false);
+            //remove the selection if there was one
+            if (getSelectionBegin()!=null)
+                moveCaretPosition(getSelectionBegin().getColumn());
+            return;
+        }
+        finder.displayFindPanel(selection, true);
         //if the find is not visible- need to close the replace panel
-        if(!visible)
-            setReplacePanelVisible(visible);
         if (selection!=null){
             finder.find(true);
         }
@@ -3396,15 +3409,15 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     private AssistContent[] populateContentAssist()
     {
         ClassEntity exprType = sourceDocument.getParser().getExpressionType(getCaretPosition());
-        
+
         if (exprType != null) {
             //Map<String,JavaType> fields = exprType.getClassType().getReflective().getDeclaredFields();
             //for (Iterator<String> i = fields.keySet().iterator(); i.hasNext(); ) {
             //    System.out.println(" field: " + i.next());
             //}
-            
+
             List<AssistContent> completions = new ArrayList<AssistContent>();
-            
+
             Map<String,Set<MethodReflective>> methods = exprType.getClassType().getReflective().getDeclaredMethods();
             for (String name : methods.keySet()) {
                 Set<MethodReflective> mset = methods.get(name);
@@ -3415,7 +3428,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
             return (AssistContent []) completions.toArray(new AssistContent[completions.size()]);
         }
-        
+
         return null; // no completions
     }
 
