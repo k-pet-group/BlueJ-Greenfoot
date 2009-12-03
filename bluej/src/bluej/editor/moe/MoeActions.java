@@ -107,7 +107,7 @@ public final class MoeActions
     private int[] categoryIndex;
 
     private Keymap keymap; // the editor's keymap
-    private KeyCatcher keyCatcher; 
+    private KeyCatcher keyCatcher;
 
     private boolean lastActionWasCut; // true if last action was a cut action
     // undo helpers
@@ -1049,8 +1049,9 @@ public final class MoeActions
         {
             MoeEditor editor=getEditor(e);
             if (editor==null)
-                editor=getFinderEditor(e);      
-            editor.replace();
+                editor=getFinderEditor(e);  
+            editor.setFindPanelVisible(true);
+            editor.setReplacePanelVisible(true);
         }
         
         public MoeEditor getFinderEditor(ActionEvent e)
