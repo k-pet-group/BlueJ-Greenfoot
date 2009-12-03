@@ -1051,7 +1051,7 @@ public final class MoeActions
             if (editor==null)
                 editor=getFinderEditor(e);
             editor.setFindPanelVisible(true);
-            editor.setReplacePanelVisible(true);
+            editor.toggleReplacePanelVisible();
         }
         
         public MoeEditor getFinderEditor(ActionEvent e)
