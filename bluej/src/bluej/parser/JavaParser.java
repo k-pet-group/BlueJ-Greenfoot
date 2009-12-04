@@ -253,6 +253,10 @@ public class JavaParser
     /** Saw a binary operator as part of an expression */
     protected void gotBinaryOperator(LocatableToken token) { }
     
+    protected void gotImport(List<LocatableToken> tokens, boolean isStatic) { }
+    
+    protected void gotWildcardImport(List<LocatableToken> tokens, boolean isStatic) { }
+    
     /**
      * Check whether a particular token is a type declaration initiator, i.e "class", "interface"
      * or "enum"
@@ -309,42 +313,7 @@ public class JavaParser
                 reachedCUstate(1); state = 1;
             }
             else if (token.getType() == JavaTokenTypes.LITERAL_import) {
-                beginElement(token);
-                token = tokenStream.nextToken();
-                parseDottedIdent(token);
-                if (tokenStream.LA(1).getType() == JavaTokenTypes.DOT) {
-                    tokenStream.nextToken();
-                    token = tokenStream.nextToken();
-                    if (token.getType() == JavaTokenTypes.SEMI) {
-                        error("Trailing '.' in import statement");
-                    }
-                    else if (token.getType() == JavaTokenTypes.STAR) {
-                        token = tokenStream.nextToken();
-                        if (token.getType() != JavaTokenTypes.SEMI) {
-                            error("Expected ';' following import statement");
-                            tokenStream.pushBack(token);
-                        }
-                        else {
-                            gotImportStmtSemi(token);
-                        }
-                    }
-                    else {
-                        error("Expected package/class identifier, or '*', in import statement.");
-                        if (tokenStream.LA(1).getType() == JavaTokenTypes.SEMI) {
-                            tokenStream.nextToken();
-                        }
-                    }
-                }
-                else {
-                    token = tokenStream.nextToken();
-                    if (token.getType() != JavaTokenTypes.SEMI) {
-                        error("Expected ';' following import statement");
-                        tokenStream.pushBack(token);
-                    }
-                    else {
-                        gotImportStmtSemi(token);
-                    }
-                }
+                parseImportStatement(token);
             }
             else if (isModifier(token) || isTypeDeclarator(token)) {
                 // optional: class/interface/enum
@@ -359,6 +328,67 @@ public class JavaParser
             else {
                 // TODO give different diagnostic depending on state
                 error("Expected: Type definition (class, interface or enum)");
+            }
+        }
+    }
+    
+    /**
+     * Parse an import statement.
+     */
+    public void parseImportStatement()
+    {
+        LocatableToken token = tokenStream.nextToken();
+        if (token.getType() == JavaTokenTypes.LITERAL_import) {
+            parseImportStatement(token);
+        }
+        else {
+            error("Import statements must start with \"import\".");
+        }
+    }
+    
+    public void parseImportStatement(LocatableToken token)
+    {
+        beginElement(token);
+        boolean isStatic = false;
+        token = tokenStream.nextToken();
+        if (token.getType() == JavaTokenTypes.LITERAL_static) {
+            isStatic = true;
+            token = tokenStream.nextToken();
+        }
+        List<LocatableToken> tokens = parseDottedIdent(token);
+        if (tokenStream.LA(1).getType() == JavaTokenTypes.DOT) {
+            tokenStream.nextToken();
+            token = tokenStream.nextToken();
+            if (token.getType() == JavaTokenTypes.SEMI) {
+                error("Trailing '.' in import statement");
+            }
+            else if (token.getType() == JavaTokenTypes.STAR) {
+                token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.SEMI) {
+                    error("Expected ';' following import statement");
+                    tokenStream.pushBack(token);
+                }
+                else {
+                    gotWildcardImport(tokens, isStatic);
+                    gotImportStmtSemi(token);
+                }
+            }
+            else {
+                error("Expected package/class identifier, or '*', in import statement.");
+                if (tokenStream.LA(1).getType() == JavaTokenTypes.SEMI) {
+                    tokenStream.nextToken();
+                }
+            }
+        }
+        else {
+            token = tokenStream.nextToken();
+            if (token.getType() != JavaTokenTypes.SEMI) {
+                error("Expected ';' following import statement");
+                tokenStream.pushBack(token);
+            }
+            else {
+                gotImport(tokens, isStatic);
+                gotImportStmtSemi(token);
             }
         }
     }
@@ -478,7 +508,6 @@ public class JavaParser
             token = tokenStream.nextToken();
             if (token.getType() == JavaTokenTypes.LPAREN) {
                 parseArgumentList(token);
-                token = tokenStream.nextToken();
                 if (token.getType() != JavaTokenTypes.RPAREN) {
                     error("Expecting ')' at end of enum constant constructor arguments");
                     if (token.getType() != JavaTokenTypes.COMMA
@@ -1862,7 +1891,6 @@ public class JavaParser
             //arguments
             else if (token.getType()==JavaTokenTypes.LPAREN){
                 parseArgumentList(token);
-                token = tokenStream.nextToken();
             }
             else  tokenStream.pushBack(token);                
         }
@@ -1946,7 +1974,6 @@ public class JavaParser
                 if (tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
                     // Method call
                     parseArgumentList(tokenStream.nextToken());
-                    tokenStream.nextToken(); // remove the ')'
                 }
             }
             else if (token.getType() == JavaTokenTypes.LITERAL_this
@@ -1955,7 +1982,6 @@ public class JavaParser
                 if (tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
                     // call to constructor or superclass constructor
                     parseArgumentList(tokenStream.nextToken());
-                    tokenStream.nextToken();  // ')'
                 }
                 else {
                     gotLiteral(token);
@@ -2093,7 +2119,6 @@ public class JavaParser
                             continue;
                         }
                         parseArgumentList(token);
-                        tokenStream.nextToken(); // remove the ')'
                         continue;
                     }
                     gotBinaryOperator(opToken);
@@ -2203,13 +2228,6 @@ public class JavaParser
             return;
         }
         parseArgumentList(token);
-        token = tokenStream.nextToken();
-        if (token.getType() != JavaTokenTypes.RPAREN) {
-            error("Expected ')' at end of argument list (in 'new ...' expression)");
-            tokenStream.pushBack(token);
-            endExprNew(token, false);
-            return;
-        }
 
         if (tokenStream.LA(1).getType() == JavaTokenTypes.LCURLY) {
             // a class body (anonymous inner class)
@@ -2232,7 +2250,7 @@ public class JavaParser
     
     /**
      * Parse a comma-separated, possibly empty list of arguments to a method/constructor.
-     * Returns with the closing ')' token still in the token stream.
+     * The closing ')' will be consumed by this method. 
      * @param token   the '(' token
      */
     public void parseArgumentList(LocatableToken token)
@@ -2248,10 +2266,10 @@ public class JavaParser
             } while (token.getType() == JavaTokenTypes.COMMA);
             if (token.getType() != JavaTokenTypes.RPAREN) {
                 error("Expecting ',' or ')' (in argument list)");
+                tokenStream.pushBack(token);
             }
         }
         endArgumentList(token);
-        tokenStream.pushBack(token); // push back the ')' or erroneous token
         return;
     }
 	

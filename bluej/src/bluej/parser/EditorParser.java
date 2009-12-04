@@ -554,7 +554,6 @@ public class EditorParser extends JavaParser
     protected void endMethodDecl(LocatableToken token, boolean included)
     {
         MethodNode mNode = (MethodNode) scopeStack.peek();
-        super.endMethodDecl(token, included);
         endTopNode(token, included);
         TypeInnerNode topNode = (TypeInnerNode) scopeStack.peek();
         topNode.methodAdded(mNode);
@@ -634,7 +633,7 @@ public class EditorParser extends JavaParser
     {
         ExpressionNode nnode = new ExpressionNode(scopeStack.peek());
         int curOffset = getTopNodeOffset();
-        LocatableToken begin = lastTypeSpec.get(0);
+        LocatableToken begin = token;
         int insPos = pcuNode.lineColToPosition(begin.getLine(), begin.getColumn());
         beginNode(insPos);
         scopeStack.peek().insertNode(nnode, insPos - curOffset, 0);

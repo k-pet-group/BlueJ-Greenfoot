@@ -120,4 +120,29 @@ public class EditorParserTest extends TestCase
         assertEquals("java.lang.String", method.getReturnType().toString(false));
     }
 
+    /**
+     * Test that a broken method call doesn't interfere with containing method position/size
+     */
+    public void test3()
+    {
+        String aClassSrc = "class A {\n" +   // position 0
+        "  public void someMethod() {\n" +   // position 10
+        "    methodCall(\n" +                // position 39 
+        "  }\n" +                            // position 55 
+        "}\n";
+
+        ParsedCUNode aNode = cuForSource(aClassSrc);
+        NodeAndPosition classNP = aNode.findNodeAtOrAfter(0, 0);
+        assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNP.getNode().getNodeType());
+        assertEquals(0, classNP.getPosition());
+        
+        NodeAndPosition innerNP = classNP.getNode().findNodeAtOrAfter(9, 0);
+        
+        NodeAndPosition methodNP = innerNP.getNode().findNodeAtOrAfter(
+                innerNP.getPosition(), innerNP.getPosition());
+        
+        assertEquals(12, methodNP.getPosition());
+        assertEquals(58, methodNP.getPosition() + methodNP.getSize());
+    }
+
 }

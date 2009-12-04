@@ -21,6 +21,14 @@
  */
 package bluej.parser.entity;
 
+/**
+ * An EntityResolver, broadly speaking, resolves identifiers into packages, classes,
+ * fields and variables. A resolver can be specific to a context; for instance a
+ * resolver inside a package normally sees classes in that package without requiring
+ * qualification. 
+ * 
+ * @author Davin McCall
+ */
 public interface EntityResolver
 {
     /**

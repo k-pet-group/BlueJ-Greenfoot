@@ -21,6 +21,7 @@
  */
 package bluej.parser;
 
+import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -47,7 +48,6 @@ import bluej.debugger.gentype.GenTypeWildcard;
 import bluej.debugger.gentype.IntersectionType;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
-import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.ValueCollection;
 import bluej.debugmgr.texteval.WildcardCapture;
 import bluej.parser.entity.ClassEntity;
@@ -121,57 +121,26 @@ public class TextAnalyzer
     {
         importCandidate = "";
         amendedCommand = command;
-        boolean parsedOk = false;
         declVars = Collections.emptyList();
         //AST rootAST;
         
-        EntityResolver resolver = new EntityResolver()
-        {
-            public ClassEntity resolveQualifiedClass(String name)
-            {
-                try {
-                    // Try as a fully-qualified name 
-                    Class<?> cl = classLoader.loadClass(name);
-                    return new TypeEntity(cl);
-                }
-                catch (Exception e) {}
-                
-                return null;
-            }
-            
-            public PackageOrClass resolvePackageOrClass(String name, String querySource)
-            {
-                String pkgScopePrefix = packageScope;
-                if (packageScope.length() > 0) {
-                    pkgScopePrefix += ".";
-                }
-
-                // Might be a class in the current package
-                try {
-                    Class<?> cl = classLoader.loadClass(pkgScopePrefix + name);
-                    return new TypeEntity(cl);
-                }
-                catch (Exception e) {}
-                
-                // Try in java.lang
-                try {
-                    Class<?> cl = classLoader.loadClass("java.lang." + name);
-                    return new TypeEntity(cl);
-                }
-                catch (Exception e) {}
-                
-                // Have to assume it's a package
-                return new PackageEntity(name, classLoader);
-            }
-            
-            public JavaEntity getValueEntity(String name, String querySource)
-            {
-                return resolvePackageOrClass(name, querySource);
-            }
-        };
+        EntityResolver resolver = getResolver(); 
         
         TextParser parser = new TextParser(resolver, command);
         
+        // check if it's an import statement
+        try {
+            parser.parseImportStatement();
+            if (parser.atEnd()) {
+                amendedCommand = "";
+                importCandidate = command;
+                return null;
+            }
+        }
+        catch (Exception e) {}
+        
+        // Check if it's an expression
+        parser = new TextParser(resolver, command);
         try {
             parser.parseExpression();
             if (parser.atEnd()) {
@@ -266,6 +235,55 @@ public class TextAnalyzer
 //        return null;
     }
     
+    private EntityResolver getResolver()
+    {
+        EntityResolver resolver = new EntityResolver()
+        {
+            public ClassEntity resolveQualifiedClass(String name)
+            {
+                try {
+                    // Try as a fully-qualified name 
+                    Class<?> cl = classLoader.loadClass(name);
+                    return new TypeEntity(cl);
+                }
+                catch (Exception e) {}
+                
+                return null;
+            }
+            
+            public PackageOrClass resolvePackageOrClass(String name, String querySource)
+            {
+                String pkgScopePrefix = packageScope;
+                if (packageScope.length() > 0) {
+                    pkgScopePrefix += ".";
+                }
+
+                // Might be a class in the current package
+                try {
+                    Class<?> cl = classLoader.loadClass(pkgScopePrefix + name);
+                    return new TypeEntity(cl);
+                }
+                catch (Exception e) {}
+                
+                // Try in java.lang
+                try {
+                    Class<?> cl = classLoader.loadClass("java.lang." + name);
+                    return new TypeEntity(cl);
+                }
+                catch (Exception e) {}
+                
+                // Have to assume it's a package
+                return new PackageEntity(name, classLoader);
+            }
+            
+            public JavaEntity getValueEntity(String name, String querySource)
+            {
+                return resolvePackageOrClass(name, querySource);
+            }
+        };
+        return resolver;
+    }
+    
     /**
      * Called to confirm that the recently parsed command has successfully
      * executed. This allows TextParser to update internal state to reflect
@@ -274,11 +292,30 @@ public class TextAnalyzer
     public void confirmCommand()
     {
         if (importCandidate.length() != 0) {
-//            try {
-//                addImportToCollection(parser.getAST());
-//            }
-//            catch (RecognitionException re) { }
-//            catch (SemanticException se) { }
+            Reader r = new StringReader(importCandidate);
+            CodepadImportParser parser = new CodepadImportParser(getResolver(), r);
+            parser.parseImportStatement();
+            if (parser.isStaticImport()) {
+                if (parser.isWildcardImport()) {
+                    imports.addStaticWildcardImport(parser.getImportEntity()
+                            .resolveAsType());
+                }
+                else {
+                    imports.addStaticImport(parser.getMemberName(),
+                            parser.getImportEntity().resolveAsType());
+                }
+            }
+            else {
+                if (parser.isWildcardImport()) {
+                    imports.addWildcardImport(parser.getImportEntity());
+                }
+                else {
+                    JavaEntity importEntity = parser.getImportEntity();
+                    ClassEntity classEnt = importEntity.resolveAsType();
+                    String name = classEnt.getType().toString(true);
+                    imports.addNormalImport(name, classEnt);
+                }
+            }
         }
     }
 

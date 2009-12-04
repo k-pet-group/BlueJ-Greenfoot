@@ -37,7 +37,7 @@ import bluej.parser.entity.PackageOrClass;
 public class ImportsCollection
 {
     private Map<String,PackageOrClass> normalImports; // non-wildcard non-static type imports
-    private List<PackageOrClass> wildcardImports;  // wildcard imports (list of PackageOrClass)
+    private List<JavaEntity> wildcardImports;  // wildcard imports
     private List<ClassEntity> staticWildcardImports; // list of ClassEntity
     private Map<String,List<ClassEntity>> staticImports; // The String gives
                                 // the name of the imported static member(s) from the given
@@ -46,7 +46,7 @@ public class ImportsCollection
     public ImportsCollection()
     {
         normalImports = new HashMap<String,PackageOrClass>();
-        wildcardImports = new ArrayList<PackageOrClass>();
+        wildcardImports = new ArrayList<JavaEntity>();
         staticWildcardImports = new ArrayList<ClassEntity>(); 
         staticImports = new HashMap<String,List<ClassEntity>>();
     }
@@ -74,7 +74,7 @@ public class ImportsCollection
      * Add a wildcard import to the collection.
      * @param importEntity  The entity representing the import excluding the final '*' part.
      */
-    public void addWildcardImport(PackageOrClass importEntity)
+    public void addWildcardImport(JavaEntity importEntity)
     {
         wildcardImports.add(importEntity);
     }
@@ -210,12 +210,12 @@ public class ImportsCollection
         }
         
         // Now do the (non-static) wildcard imports
-        i = wildcardImports.iterator();
-        while (i.hasNext()) {
-            PackageOrClass importEntity = (PackageOrClass) i.next();
-            rr += "import ";
-            rr += importEntity.getName() + ".*;" + Config.nl;
-        }
+//        i = wildcardImports.iterator();
+//        while (i.hasNext()) {
+//            PackageOrClass importEntity = (PackageOrClass) i.next();
+//            rr += "import ";
+//            rr += importEntity.getName() + ".*;" + Config.nl;
+//        }
         
         // Now the static imports (non-wildcard)
         Iterator<String> ii = staticImports.keySet().iterator();
