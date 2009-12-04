@@ -3551,6 +3551,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             count++;
         }
 
+        removeSelectionHighlights();
+        moveCaretPosition(caretPos);
+        
         if(count > 0)
             //editor.writeMessage("Replaced " + count + " instances of " + searchString);
             writeMessage(Config.getString("editor.replaceAll.replaced") +
@@ -3560,8 +3563,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             //editor.writeMessage("String " + searchString + " not found. Nothing replaced.");
             writeMessage(Config.getString("editor.replaceAll.string") + 
                     searchString + Config.getString("editor.replaceAll.notFoundNothingReplaced"));
-        removeSelectionHighlights();
-        moveCaretPosition(caretPos);
+
     }
 
 }

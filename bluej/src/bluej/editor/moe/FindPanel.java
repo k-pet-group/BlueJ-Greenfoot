@@ -37,6 +37,9 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 
 import bluej.BlueJTheme;
 import bluej.Config;
@@ -45,7 +48,7 @@ import bluej.utility.DBox;
 import bluej.utility.DBoxLayout;
 
 
-public class FindPanel extends JPanel implements ActionListener, KeyListener {
+public class FindPanel extends JPanel implements ActionListener, KeyListener, DocumentListener {
 
     private MoeEditor editor;
 
@@ -138,6 +141,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
         setSearchString("");
         findTField.addKeyListener(this);
         findTField.setName(INPUT_QUERY_NAME);
+        findTField.getDocument().addDocumentListener(this);
     }
 
     /**
@@ -297,36 +301,36 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
 
     }
 
+    private void findEvent()
+    {
+        boolean doFind=false;
+        //check there has been a legitimate change in the search criteria            
+        if (getSearchString()!=null){
+            //previous search had a value and this search is empty
+            //need to remove highlighting and have no message
+            if (findTField.getText().length()==0){
+                editor.removeSelectionHighlights();
+                setSearchString(null);
+                if (editor.getSelectionBegin()!=null)
+                    editor.moveCaretPosition(editor.getSelectionBegin().getColumn());
+                writeMessage(false);
+            }
+            else if (!getSearchString().equals(findTField.getText()))
+                doFind=true;
+        }
+        //if it is the first letter of the search
+        if (findTField.getText().length()>0)
+            doFind=true;
+        if (doFind){
+            find(true);
+        }
+    }
     /**
      * Handle the key-released event from the text field. 
      */
     public void keyReleased(KeyEvent e) 
     {
-        boolean doFind=false;
-        JComponent src = (JComponent) e.getSource();
-        if (src.getName()== INPUT_QUERY_NAME){
-            JTextField findT=(JTextField)src;
-            //check there has been a legitimate change in the search criteria            
-            if (getSearchString()!=null){
-                //previous search had a value and this search is empty
-                //need to remove highlighting and have no message
-                if (findT.getText().length()==0){
-                    editor.removeSelectionHighlights();
-                    setSearchString(null);
-                    if (editor.getSelectionBegin()!=null)
-                        editor.moveCaretPosition(editor.getSelectionBegin().getColumn());
-                    writeMessage(false);
-                }
-                else if (!getSearchString().equals(findT.getText()))
-                    doFind=true;
-            }
-            //if it is the first letter of the search
-            if (((JTextField)src).getText().length()>0)
-                doFind=true;
-            if (doFind){
-                find(true);
-            }
-        }
+
     }
 
     /**
@@ -372,7 +376,6 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
      */
     public void setSearchString(String searchString) 
     {
-        findTField.setText(searchString);
         this.searchString = searchString;
     }
 
@@ -508,7 +511,7 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     }
 
     /**
-     * Assumes that the select is true
+     * Assumes that the select is true, calls find(boolean next, boolean select)
      * @param next forward/backward
      */
     protected void find(boolean next){
@@ -536,4 +539,18 @@ public class FindPanel extends JPanel implements ActionListener, KeyListener {
     {
         return findTField.getText();   
     }
+
+
+    public void changedUpdate(DocumentEvent e) {
+
+    }
+
+    public void insertUpdate(DocumentEvent e) {
+        findEvent();
+    }
+
+    public void removeUpdate(DocumentEvent e) {
+        findEvent();          
+    }
+
 }
