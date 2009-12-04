@@ -22,6 +22,7 @@
 package bluej.parser;
 
 import java.io.File;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
@@ -122,5 +123,20 @@ public class Parse15Test extends junit.framework.TestCase
         assertEquals(30, testSel.getColumn());
         assertEquals(5, testSel.getEndLine());
         assertEquals(39, testSel.getEndColumn());
+    }
+    
+    public void testStaticImport()
+    {
+        boolean success = true;
+        try {
+            ClassParser.parse(new StringReader(
+                    "import static java.awt.Color.BLACK;\n" +
+                    "class A { }"
+            ));
+        }
+        catch (Exception e) {
+            success = false;
+        }
+        assertTrue(success);
     }
 }
