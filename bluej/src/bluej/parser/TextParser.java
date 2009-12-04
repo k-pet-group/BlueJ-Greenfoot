@@ -48,14 +48,31 @@ import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.UnresolvedEntity;
 import bluej.parser.entity.ValueEntity;
 
+/**
+ * A parser for the codepad.
+ * 
+ * @author Davin McCall
+ */
 public class TextParser extends JavaParser
 {
     private EntityResolver resolver;
     
     private Stack<JavaEntity> valueStack = new Stack<JavaEntity>();
-    protected Stack<LocatableToken> operatorStack = new Stack<LocatableToken>();
+    
+    /** A class to represent operators, possibly associated with a token */
+    protected class Operator
+    {
+        int type;
+        LocatableToken token;
+        Operator(int type, LocatableToken token) { this.type = type; this.token = token; }
+        int getType() { return type; }
+    }
+    
+    protected Stack<Operator> operatorStack = new Stack<Operator>();
     
     private static final int CAST_OPERATOR = JavaTokenTypes.INVALID + 1;
+    private static final int BAD_CAST_OPERATOR = CAST_OPERATOR + 1;
+    private static final int PAREN_OPERATOR = BAD_CAST_OPERATOR + 1;
     
     private static final int STATE_NONE = 0;
     private static final int STATE_NEW = 1;  // just saw "new"
@@ -101,13 +118,38 @@ public class TextParser extends JavaParser
         }
         return new ErrorEntity();
     }
+    
+    /**
+     * Get the precedence level for a given operator type.
+     */
+    private int getPrecedence(int tokenType)
+    {
+        switch (tokenType) {
+        case JavaTokenTypes.PLUS:
+        case JavaTokenTypes.MINUS:
+            return 0;
+        case JavaTokenTypes.STAR:
+        case JavaTokenTypes.DIV:
+            return 1;
+        case JavaTokenTypes.DOT:
+            return 25;
+        case CAST_OPERATOR:
+        case BAD_CAST_OPERATOR:
+            return 50;
+        case JavaTokenTypes.RBRACK:
+            return 100;
+        default:
+        }
         
+        return -1;
+    }
+    
     // Process all on-stack operators with a equal-or-higher precedence than that given
     private void processHigherPrecedence(int tokenType)
     {
         int precedence = getPrecedence(tokenType);
         while (! operatorStack.isEmpty()) {
-            LocatableToken top = operatorStack.peek();
+            Operator top = operatorStack.peek();
             if (getPrecedence(top.getType()) < precedence) {
                 break;
             }
@@ -120,7 +162,7 @@ public class TextParser extends JavaParser
      * Process an operator, take the operands from the value stack and leave the result on the
      * stack.
      */
-    private void processOperator(LocatableToken token)
+    private void processOperator(Operator token)
     {
         int tokenType = token.getType();
         
@@ -149,11 +191,14 @@ public class TextParser extends JavaParser
                 valueStack.push(new ErrorEntity());
             }
             break;
+        case BAD_CAST_OPERATOR:
+            popValueStack(); // remove the value being cast
+            valueStack.push(new ErrorEntity());
         }
         // TODO
     }
     
-    private void processNewOperator(LocatableToken token)
+    private void processNewOperator(Operator token)
     {
         if (! argumentStack.isEmpty()) {
             argumentStack.pop(); // constructor arguments
@@ -166,7 +211,7 @@ public class TextParser extends JavaParser
         }
     }
     
-    private void checkArgs(JavaEntity arg1, JavaEntity arg2, LocatableToken op)
+    private void checkArgs(JavaEntity arg1, JavaEntity arg2, Operator op)
     {
         JavaEntity rarg1 = arg1.resolveAsValue();
         JavaEntity rarg2 = arg2.resolveAsValue();
@@ -181,7 +226,7 @@ public class TextParser extends JavaParser
     /**
      * Process a binary operator. Arguments have been resolved as values. Result is left of stack.
      */
-    private void doBinaryOp(JavaEntity arg1, JavaEntity arg2, LocatableToken op)
+    private void doBinaryOp(JavaEntity arg1, JavaEntity arg2, Operator op)
     {
         JavaType a1type = arg1.getType().getCapture();
         JavaType a2type = arg2.getType().getCapture();
@@ -213,30 +258,18 @@ public class TextParser extends JavaParser
         }
     }
     
-    /**
-     * Get the precedence level for a given operator type.
-     */
-    private int getPrecedence(int tokenType)
+    @Override
+    protected void beginExpression(LocatableToken token)
     {
-        switch (tokenType) {
-        case JavaTokenTypes.PLUS:
-        case JavaTokenTypes.MINUS:
-            return 0;
-        case JavaTokenTypes.STAR:
-        case JavaTokenTypes.DIV:
-            return 1;
-        case JavaTokenTypes.DOT:
-            return 25;
-        case CAST_OPERATOR:
-            return 50;
-        case JavaTokenTypes.RBRACK:
-            return 100;
-        default:
-        }
-        
-        return -1;
+        operatorStack.push(new Operator(PAREN_OPERATOR, token));
     }
-
+    
+    @Override
+    protected void endExpression(LocatableToken token)
+    {
+        processHigherPrecedence(PAREN_OPERATOR);
+    }
+    
     @Override
     protected void gotLiteral(LocatableToken token)
     {
@@ -285,7 +318,7 @@ public class TextParser extends JavaParser
     protected void gotBinaryOperator(LocatableToken token)
     {
         processHigherPrecedence(token.getType());
-        operatorStack.push(token);
+        operatorStack.push(new Operator(token.getType(), token));
     }
     
     @Override
@@ -312,7 +345,10 @@ public class TextParser extends JavaParser
         
         if (entity != null) {
             valueStack.push(entity);
-            operatorStack.push(new LocatableToken(CAST_OPERATOR, null));
+            operatorStack.push(new Operator(CAST_OPERATOR, null));
+        }
+        else {
+            operatorStack.push(new Operator(BAD_CAST_OPERATOR, null));
         }
     }
     
@@ -336,8 +372,51 @@ public class TextParser extends JavaParser
     private ClassEntity resolveTypeSpec(ListIterator<LocatableToken> i, DepthRef depthRef)
     {
         LocatableToken token = i.next();
-        String text = token.getText();
         
+        if (isPrimitiveType(token)) {
+            if (token.getType() == JavaTokenTypes.LITERAL_void) {
+                return new TypeEntity(JavaPrimitiveType.getVoid());
+            }
+            
+            JavaType type = null;
+            switch (token.getType()) {
+            case JavaTokenTypes.LITERAL_int:
+                type = JavaPrimitiveType.getInt();
+                break;
+            case JavaTokenTypes.LITERAL_short:
+                type = JavaPrimitiveType.getShort();
+                break;
+            case JavaTokenTypes.LITERAL_char:
+                type = JavaPrimitiveType.getChar();
+                break;
+            case JavaTokenTypes.LITERAL_byte:
+                type = JavaPrimitiveType.getByte();
+                break;
+            case JavaTokenTypes.LITERAL_boolean:
+                type = JavaPrimitiveType.getBoolean();
+                break;
+            case JavaTokenTypes.LITERAL_double:
+                type = JavaPrimitiveType.getDouble();
+                break;
+            case JavaTokenTypes.LITERAL_float:
+                type = JavaPrimitiveType.getFloat();
+            }
+            
+            while (i.hasNext()) {
+                token = i.next();
+                if (token.getType() == JavaTokenTypes.LBRACK) {
+                    type = type.getArray();
+                    i.next();  // RBRACK
+                }
+                else {
+                    return null;
+                }
+            }
+            
+            return new TypeEntity(type);
+        }
+
+        String text = token.getText();
         PackageOrClass poc = resolver.resolvePackageOrClass(text, null);
         while (poc != null && i.hasNext()) {
             token = i.next();
@@ -498,7 +577,7 @@ public class TextParser extends JavaParser
     protected void endArgumentList(LocatableToken token)
     {
         if (! operatorStack.isEmpty()) {
-            LocatableToken top = operatorStack.pop();
+            Operator top = operatorStack.pop();
             if (top.getType() == JavaTokenTypes.LITERAL_new) {
                 processNewOperator(top);
             }
@@ -513,7 +592,7 @@ public class TextParser extends JavaParser
     protected void gotExprNew(LocatableToken token)
     {
         state = STATE_NEW;
-        operatorStack.push(token);
+        operatorStack.push(new Operator(token.getType(), token));
     }
 
 }
