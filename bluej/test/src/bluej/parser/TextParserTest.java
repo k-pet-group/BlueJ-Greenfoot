@@ -31,7 +31,7 @@ import bluej.parser.TextAnalyzer.DeclaredVar;
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 6910 2009-12-07 05:01:35Z davmac $
+ * @version $Id: TextParserTest.java 6911 2009-12-07 07:12:25Z davmac $
  */
 public class TextParserTest extends TestCase
 {
@@ -233,5 +233,44 @@ public class TextParserTest extends TestCase
         tp.confirmCommand();
         r = tp.parseCommand("new LinkedList()");
         assertEquals("java.util.LinkedList", r);
+    }
+
+    public void testStaticImport()
+    {
+        ObjectBench ob = new ObjectBench();
+        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        String r = tp.parseCommand("import static java.awt.Color.BLACK;");
+        assertNull(r);
+        tp.confirmCommand();
+        r = tp.parseCommand("BLACK");
+        assertEquals("java.awt.Color", r);
+    }
+    
+    public void testStaticWildcardImport()
+    {
+        ObjectBench ob = new ObjectBench();
+        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        String r = tp.parseCommand("import static java.awt.Color.*;");
+        assertNull(r);
+        tp.confirmCommand();
+        r = tp.parseCommand("BLACK");
+        assertEquals("java.awt.Color", r);
+    }
+    
+    public void testStringConcat()
+    {
+        ObjectBench ob = new ObjectBench();
+        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        String r = tp.parseCommand("\"string\"");
+        assertEquals("java.lang.String", r);
+        
+        r = tp.parseCommand("\"string\" + 4");
+        assertEquals("java.lang.String", r);
+
+        r = tp.parseCommand("\"string\" + 4.7 + 4");
+        assertEquals("java.lang.String", r);
+
+        r = tp.parseCommand("\"string\" + new Object()");
+        assertEquals("java.lang.String", r);
     }
 }
