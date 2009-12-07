@@ -39,11 +39,8 @@ import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerResult;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.gentype.GenTypeParameter;
-import bluej.debugger.gentype.GenTypeSolid;
-import bluej.debugger.gentype.GenTypeWildcard;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.NameTransform;
-import bluej.debugger.gentype.TextType;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -62,7 +59,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 6874 2009-11-30 05:46:18Z davmac $
+ * @version $Id: Invoker.java 6905 2009-12-07 02:28:36Z davmac $
  */
 
 public class Invoker

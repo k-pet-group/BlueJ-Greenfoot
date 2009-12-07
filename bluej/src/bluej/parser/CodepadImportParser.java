@@ -97,13 +97,11 @@ public class CodepadImportParser extends JavaParser
     @Override
     protected void gotImport(List<LocatableToken> tokens, boolean isStatic)
     {
-        // DAV
-        System.out.println("gotImport...");
         importIsStatic = isStatic;
         
         if (isStatic) {
             // Apparently static classes can be imported with or without the "static" keyword
-            // So, a static import imports a variable and/or method and/or class/
+            // So, a static import imports a field and/or method and/or class.
             // That's right - the same import statement pulls in all three.
             
             // We want to pull the name out
@@ -118,6 +116,9 @@ public class CodepadImportParser extends JavaParser
             }
             tokens = newList;
         }
+        else {
+            memberName = tokens.get(tokens.size() - 1).getText();
+        }
         
         importEntity = getEntityForTokens(tokens);
     }
@@ -126,8 +127,6 @@ public class CodepadImportParser extends JavaParser
     protected void gotWildcardImport(List<LocatableToken> tokens,
             boolean isStatic)
     {
-        // DAV
-        System.out.println("gotWildcardImport...");
         importEntity = getEntityForTokens(tokens);
         importIsWildcard = true;
         importIsStatic = isStatic;

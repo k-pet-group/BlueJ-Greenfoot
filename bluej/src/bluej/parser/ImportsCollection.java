@@ -21,18 +21,24 @@
  */
 package bluej.parser;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import bluej.Config;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
+import bluej.parser.entity.TypeEntity;
 
 /**
  * Maintain and manage a collection of import statements.
  * 
  * @author Davin McCall
- * @version $Id$
  */
 public class ImportsCollection
 {
@@ -163,32 +169,40 @@ public class ImportsCollection
      * @param name  The name of the imported type to find
      * @return      A ClassEntity, or null if not found
      */
-//    public ClassEntity getTypeImportWC(String name)
-//    {
-//        // Try non-static wildcard imports first
-//        Iterator<PackageOrClass> i = wildcardImports.iterator();
-//        
-//        while (i.hasNext()) {
-//            PackageOrClass importEntity = i.next();
-//            PackageOrClass member = importEntity.getPackageOrClassMember(name);
-//            if (member != null && member.isClass()) {
-//                return (ClassEntity) member;
-//            }
-//        }
-//        
-//        // Now try static wildcard imports
-//        Iterator<ClassEntity> j = staticWildcardImports.iterator();
-//        while (j.hasNext()) {
-//            ClassEntity importEntity = j.next();
-//            try {
-//                ClassEntity member = importEntity.getStaticMemberClass(name);
-//                return member;
-//            }
-//            catch (SemanticException se) { }
-//        }
-//        
-//        return null;
-//    }
+    public ClassEntity getTypeImportWC(String name)
+    {
+        // Try non-static wildcard imports first
+        Iterator<JavaEntity> i = wildcardImports.iterator();
+        
+        while (i.hasNext()) {
+            JavaEntity importEntity = i.next();
+            JavaEntity member = importEntity.getSubentity(name);
+            if (member == null) {
+                continue;
+            }
+            ClassEntity clMember = member.resolveAsType();
+            if (clMember != null) {
+                return clMember;
+            }
+        }
+        
+        // Now try static wildcard imports
+        Iterator<ClassEntity> j = staticWildcardImports.iterator();
+        while (j.hasNext()) {
+            ClassEntity importEntity = j.next();
+            GenTypeClass clType = importEntity.getClassType();
+            List<GenTypeClass> inners = clType.getReflective().getInners();
+            for (GenTypeClass inner : inners) {
+                String innerName = inner.getReflective().getName();
+                innerName = innerName.substring(innerName.lastIndexOf('$'));
+                if (name.equals(innerName)) {
+                    return new TypeEntity(inner);
+                }
+            }
+        }
+        
+        return null;
+    }
     
     /*
      * Convert the imports collection to a series of java "import" statements.
