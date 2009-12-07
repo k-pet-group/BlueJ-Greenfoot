@@ -27,8 +27,6 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -43,7 +41,6 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.plaf.basic.BasicArrowButton;
-import javax.swing.text.Document;
 
 import bluej.BlueJTheme;
 import bluej.Config;
@@ -51,6 +48,13 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.DBox;
 import bluej.utility.DBoxLayout;
 
+/**
+ * The FindPanel class implements the find functionality of the MoeEditor.
+ * It provides both the user interface panel and the high level implementation
+ * of the find functionality.It also is a link to the replace panel.
+ *
+ * @author  Marion Zalk
+ */
 
 public class FindPanel extends JPanel implements ActionListener, DocumentListener, MouseListener {
 
@@ -74,9 +78,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private BasicArrowButton replaceBtnClose;
     private JLabel replaceLabel;
     private JLabel replaceIconLabel;
-    //private JCheckBox highlightAllBox;
-    //private BasicArrowButton prevArrowButton;
-    //private BasicArrowButton nextArrowButton;
 
     private final static String CLOSE_BUTTON_NAME ="closeBtn";
     private final static String INPUT_QUERY_NAME ="queryText";
@@ -216,8 +217,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     { 
 
         replaceWithButton=new JButton();
-        //replaceWithButton.setIcon(openIcon);
-        //replaceWithButton.setPressedIcon(closedIcon);
         replaceWithButton.addActionListener(this);
         replaceWithButton.setName(REPLACE_WITH_BUTTON_NAME);
         replaceWithButton.setEnabled(true);
@@ -231,16 +230,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         replaceIconLabel.setFont(findFont);
         replaceIconLabel.setIcon(closedIcon);
         replaceIconLabel.addMouseListener(this);
-//        replaceBtnClose= new BasicArrowButton(BasicArrowButton.SOUTH);
-//        replaceBtnClose.addActionListener(this);
-//        replaceBtnClose.setName(REPLACE_CLOSE_BUTTON_NAME);
-//        replaceBtnClose.setVisible(false);
-//        replaceBtnClose.setLabel("Close Replace");
-//        replaceBtnOpen= new BasicArrowButton(BasicArrowButton.EAST);
-//        replaceBtnOpen.addActionListener(this);   
-//        replaceBtnOpen.setName(REPLACE_OPEN_BUTTON_NAME);
-//        replaceBtnOpen.setVisible(true);
-//        replaceBtnOpen.setLabel("Replace");
+
     }
 
     /**
