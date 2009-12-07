@@ -220,17 +220,13 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     private ArrayList<String> flaggedActions;
 
     private MoeHighlighter editorHighlighter;
-    //record of where the search string was found and selected or last highlight was found
-    private int foundCaretPositon=1;
-    private int foundHighlightPosition;
-    private String selText="";
 
     //new content assist
     private ContentAssistDisplay dlg;
     private EntityResolver projectResolver;   // Resolves symbols
 
     /**
-     * Property map, allows BlueJ extensions to assosciate property values with
+     * Property map, allows BlueJ extensions to associate property values with
      * this editor instance; otherwise unused.
      */
     private HashMap<String,Object> propertyMap = new HashMap<String,Object>();
@@ -1265,16 +1261,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
-    /**
-     * Implementation of "find" user function.
-     */
-    public void find()
-    {
-        Finder finder = MoeEditorManager.editorManager.getFinder();
-        finder.show(this, currentTextPane.getSelectedText(), false);
-    }
-
-    // --------------------------------------------------------------------
 
     /**
      * toggleReplacePanelVisible sets the replace panel editor in/visible
@@ -1327,27 +1313,14 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /**
      * Implementation of "find-next" user function.
      */
-    public void findNext()
+    public void findNext(boolean backwards)
     {
         String selection= currentTextPane.getSelectedText();
         if (selection==null){
             selection=finder.getSearchString();
         }
         removeSelectionHighlights();
-        findString(selection, false, !finder.getMatchCase(), false, true);
-    }
-    // --------------------------------------------------------------------
-    /**
-     * Implementation of "find-next-reverse" user function.
-     */
-    public void findNextBackward()
-    {
-        String selection= currentTextPane.getSelectedText();
-        if (selection==null){
-            selection=finder.getSearchString();
-        }
-        removeSelectionHighlights();
-        findString(selection, true, !finder.getMatchCase(), false, true);
+        findString(selection, backwards, !finder.getMatchCase(), false, true);
     }
 
     // --------------------------------------------------------------------
@@ -1378,93 +1351,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     boolean findString(String s, boolean backward, boolean ignoreCase, 
             boolean wholeWord, boolean wrap)
     {
-        if (s.length() == 0) {
-            //info.warning(Config.getString("editor.info.emptySearchString"));
-            info.message(" ");
-            return false;
-        }
-
-        boolean found;
-        if (backward)
-            found = doFindBackward(s, ignoreCase, wholeWord, wrap);
-        else
-            found = doFind(s, ignoreCase, wholeWord, wrap);
-
-        StringBuffer msg = new StringBuffer(Config.getString("editor.find.find.label") + " ");
-        msg.append(backward ? Config.getString("editor.find.backward") : Config.getString("editor.find.forward"));
-        if (ignoreCase || wholeWord || wrap)
-            msg.append(" (");
-        if (ignoreCase)
-            msg.append(Config.getString("editor.find.ignoreCase").toLowerCase() + ", ");
-        if (wholeWord)
-            msg.append(Config.getString("editor.find.wholeWord").toLowerCase() + ", ");
-        if (wrap) 
-            msg.append(Config.getString("editor.find.wrapAround").toLowerCase() + ", ");
-        if (ignoreCase || wholeWord || wrap) 
-            msg.replace(msg.length() - 2, msg.length(), "): ");
-        else 
-            msg.append(": ");
-
-        msg.append(s);
-        if (found)
-            info.message(msg.toString());
-        else
-            info.warning(msg.toString(), Config.getString("editor.info.notFound"));
-
-        return found;
-    }
-
-    // --------------------------------------------------------------------
-    /**
-     * Do a find with info in the info area. Can choose select/highlight functionality
-     */
-    boolean findString(String s, boolean backward, boolean ignoreCase, 
-            boolean wholeWord, boolean wrap, boolean select)
-    {
-        if (s.length() == 0) {
-            //info.warning(Config.getString("editor.info.emptySearchString"));
-            info.message(" ");
-            return false;
-        }
-
-        boolean found;
-        if (backward)
-            found = doFindBackward(s, ignoreCase, wholeWord, wrap);
-        else
-            found = doFind(s, ignoreCase, wholeWord, wrap);
-
-        StringBuffer msg = new StringBuffer(Config.getString("editor.find.find.label") + " ");
-        msg.append(backward ? Config.getString("editor.find.backward") : Config.getString("editor.find.forward"));
-        if (ignoreCase || wholeWord || wrap)
-            msg.append(" (");
-        if (ignoreCase)
-            msg.append(Config.getString("editor.find.ignoreCase").toLowerCase() + ", ");
-        if (wholeWord)
-            msg.append(Config.getString("editor.find.wholeWord").toLowerCase() + ", ");
-        if (wrap) 
-            msg.append(Config.getString("editor.find.wrapAround").toLowerCase() + ", ");
-        if (ignoreCase || wholeWord || wrap) 
-            msg.replace(msg.length() - 2, msg.length(), "): ");
-        else 
-            msg.append(": ");
-
-        msg.append(s);
-        if (found)
-            info.message(msg.toString());
-        else
-            info.warning(msg.toString(), Config.getString("editor.info.notFound"));
-
-        return found;
-    }
-    
-    /**
-     * Do a find with info in the info area.
-     * Option of selecting/highlighting the find
-     */
-    boolean findStringSelect(String s, boolean backward, boolean ignoreCase, 
-            boolean wholeWord, boolean wrap, boolean select)
-    {
-
         if (s.length() == 0) {
             //info.warning(Config.getString("editor.info.emptySearchString"));
             info.message(" ");
@@ -1559,15 +1445,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             Debug.message("error in editor find operation");
         }
         return found;
-    }
-
-
-    public int getFoundCaretPositon() {
-        return foundCaretPositon;
-    }
-
-    private void setFoundCaretPositon(int foundCaretPositon) {
-        this.foundCaretPositon = foundCaretPositon;
     }
 
     // --------------------------------------------------------------------
@@ -1665,18 +1542,15 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                     if (foundPos != -1) {
                         if (select){
                             //purposely using both select and the highlight because the select sets the                         
-                            //caret correctly and the highlighter ensures the colouring is done correctly                 
-                            //currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.selectPainter);
+                            //caret correctly and the highlighter ensures the colouring is done correctly                                             
+                            //currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);
                             currentTextPane.select(start + foundPos, start + foundPos + s.length());
                             currentTextPane.getCaret().setSelectionVisible(true);
-                            setFoundCaretPositon(getCaretPosition());
-                            setSelText(getSelectedText());
                             found=true;
                             select=false;
                         }else {
                             temp=temp+1;
                             currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);
-                            setFoundHighlightPosition(getCaretPosition()); 
                         }
                         foundPos=foundPos+s.length();
                     }else 
@@ -1698,7 +1572,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                         foundPos=findSubstring(firstLine, s, ignoreCase, wholeWord, true, foundPos);
                         if (foundPos!=-1){
                             currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);
-                            setFoundHighlightPosition(getCaretPosition()); 
                         }
                         finished = true;
                     }
@@ -3252,16 +3125,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         sourcePane.setCaretPosition(pos);
     }
 
-    public int getFoundHighlightPosition() 
-    {
-        return foundHighlightPosition;
-    }
-
-    public void setFoundHighlightPosition(int foundHighlightPosition) 
-    {
-        this.foundHighlightPosition = foundHighlightPosition;
-    }
-
     public int getDocumentLength()
     {
         return document.getLength();
@@ -3284,21 +3147,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     public String getSelectedText()
     {
         return sourcePane.getSelectedText();
-    }
-
-    public String getSelText() {
-        return selText;
-    }
-
-    public void setSelText(String selText)
-    {
-        this.selText = selText;
-    }
-
-    public void resetSelectedHighlightedPos()
-    {
-        setFoundHighlightPosition(0);
-        setFoundCaretPositon(0);        
     }
 
     /**

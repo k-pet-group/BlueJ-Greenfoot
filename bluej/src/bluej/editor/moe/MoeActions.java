@@ -1015,7 +1015,7 @@ public final class MoeActions
 
         public void actionPerformed(ActionEvent e)
         {
-            getEditor(e).findNext();
+            getEditor(e).findNext(false);
         }
     }
 
@@ -1031,7 +1031,7 @@ public final class MoeActions
 
         public void actionPerformed(ActionEvent e)
         {
-            getEditor(e).findNextBackward();
+            getEditor(e).findNext(true);
         }
     }
 
@@ -1060,8 +1060,6 @@ public final class MoeActions
             JTextComponent textComponent = getTextComponent(e);           
             if (textComponent != null) {
                 Container c = ((JComponent)textComponent.getParent()).getTopLevelAncestor();
-                if (c instanceof Finder)
-                    ed = ((Finder) c).getEditor();
             }
             if (ed != null)
                 ed.clearMessage();

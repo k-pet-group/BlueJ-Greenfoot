@@ -62,7 +62,6 @@ public final class MoeEditorManager
     public MoeEditorManager()
     {
         editors = new ArrayList<MoeEditor>(4);
-        finder = new Finder();
                
         showToolBar = true;
         showLineNum = false;

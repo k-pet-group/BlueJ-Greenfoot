@@ -293,7 +293,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             if (editor.getSelectedText()!=null)
                 caretPos=editor.getCaretPosition();
             editor.removeSelectionHighlights();
-            editor.setSelText(null);
             this.setVisible(false);
             editor.toggleReplacePanelVisible();
             editor.moveCaretPosition(caretPos);
