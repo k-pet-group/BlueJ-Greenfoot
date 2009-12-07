@@ -50,7 +50,6 @@ public final class MoeEditorManager
 
     private Properties resources;
     private List<MoeEditor> editors; // open editors
-    private Finder finder;           // the finder object
 
     // user preferences
 
@@ -159,15 +158,6 @@ public final class MoeEditorManager
 
     // ========================== PACKAGE METHODS ===========================
 
-    // ------------------------------------------------------------------------
-
-    /**
-     * Return the shared finder object
-     */
-    Finder getFinder()
-    {
-        return finder;
-    }
 
     // ------------------------------------------------------------------------
  
