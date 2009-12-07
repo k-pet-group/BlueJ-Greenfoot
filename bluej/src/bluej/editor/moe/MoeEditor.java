@@ -1330,26 +1330,12 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     public void findNext()
     {
         String selection= currentTextPane.getSelectedText();
-        if (selection!=null){
-            finder.setSearchString(selection);
-            finder.getNext();
+        if (selection==null){
+            selection=finder.getSearchString();
         }
+        removeSelectionHighlights();
+        findString(selection, false, !finder.getMatchCase(), false, true);
     }
-
-    /**
-     * Do a find with info in the info area.
-     */
-    private void findNextString(Finder finder, String s, boolean backward)
-    {
-        boolean found = findString(s, backward, finder.getIgnoreCase(), 
-                finder.getWholeWord(), (!finder.getSearchFound()));
-
-        finder.setSearchString(s);
-        finder.setSearchFound(found);
-    }
-
-
-
     // --------------------------------------------------------------------
     /**
      * Implementation of "find-next-reverse" user function.
@@ -1357,10 +1343,11 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     public void findNextBackward()
     {
         String selection= currentTextPane.getSelectedText();
-        if (selection!=null){
-            finder.setSearchString(selection);
-            finder.getPrev();
+        if (selection==null){
+            selection=finder.getSearchString();
         }
+        removeSelectionHighlights();
+        findString(selection, true, !finder.getMatchCase(), false, true);
     }
 
     // --------------------------------------------------------------------
@@ -1540,7 +1527,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 if (lineText != null && lineText.length() > 0) {
                     int foundPos = findSubstring(lineText, s, ignoreCase, wholeWord, false);
                     if (foundPos != -1) {
-                        currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.selectPainter);
+                        currentTextPane.getCaret().setSelectionVisible(true);
                         currentTextPane.select(start + foundPos, start + foundPos + s.length());
                         //removeReselectSelection(start+foundPos, s.length());
                         found = true;
@@ -1591,7 +1578,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     boolean doFindBackward(String s, boolean ignoreCase, boolean wholeWord, boolean wrap)
     {
         int docLength = document.getLength();
-        int startPosition = currentTextPane.getCaretPosition() ;
+        int startPosition = currentTextPane.getCaretPosition() - 1;
         if (startPosition < 0) {
             startPosition = docLength;
         }
@@ -1605,15 +1592,14 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         int lineStart = Math.max(line.getStartOffset(), endPos);
 
         try {
-            while (!finished) {               
+            while (!found && !finished) {
                 String lineText = document.getText(lineStart, start - lineStart);
                 if (lineText != null && lineText.length() > 0) {
                     int foundPos = findSubstring(lineText, s, ignoreCase, wholeWord, true);
                     if (foundPos != -1) {
-                        //currentTextPane.getHighlighter().addHighlight(lineStart + foundPos, lineStart + foundPos + s.length(), editorHighlighter.selectPainter);
                         currentTextPane.select(lineStart + foundPos, lineStart + foundPos + s.length());
                         currentTextPane.getCaret().setSelectionVisible(true);
-                        return true;
+                        found = true;
                     }
                 }
                 if (lineStart <= endPos) {            // reached end of search
@@ -3222,12 +3208,12 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * Sets the find panel to be visible and if there is a selection
      * it starts a automatic find of what was in selected in the text
      */
-    public void initFindPanel()
+    public void initFindPanel(MoeEditor editor)
     {
         //boolean to ensure that if the panel is closed it will 
         //open and if it is already open, it will be closed
         String selection= currentTextPane.getSelectedText();        
-        finder.setEditor(this);
+        finder.setEditor(editor);
         if (finder.isVisible()){
             finder.displayFindPanel(selection, false);
             removeSelectionHighlights();
@@ -3543,7 +3529,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         while(doFindBackward(searchString, !isMatchCase, false, false)) {
             insertText(smartFormat(searchString, replaceString), true);
             count++;
-
         }        
         while(doFind(searchString, !isMatchCase,false, false)) 
         {
