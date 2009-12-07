@@ -38,8 +38,10 @@ public class MoeHighlighter extends DefaultHighlighter {
     public MoeHighlighter(JTextComponent comp) 
     {
         super();
+        Color temp=Config.getHighlightColour();
+        final Color highlight = new Color(temp.getRed(),temp.getGreen(),temp.getBlue(),100);
         selectPainter=new MoeHighlighterPainter(Config.getSelectionColour()); 
-        highlightPainter=new MoeHighlighterPainter(Config.getHighlightColour());
+        highlightPainter=new MoeHighlighterPainter(highlight);
         install(comp);
     }
 
