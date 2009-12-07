@@ -33,4 +33,10 @@ public abstract class PackageOrClass extends JavaEntity
      * This is the same as getSubentity, but cannot yield a value.
      */ 
     public abstract PackageOrClass getPackageOrClassMember(String name);
+    
+    @Override
+    public PackageOrClass resolveAsPackageOrClass()
+    {
+        return this;
+    }
 }

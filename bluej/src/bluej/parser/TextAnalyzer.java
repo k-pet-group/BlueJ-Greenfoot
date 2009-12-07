@@ -280,13 +280,13 @@ public class TextAnalyzer
                 catch (Exception e) {}
                 
                 // Try in wildcard imports
-                //entity = imports.getTypeImportWC(name);
-                //if (entity != null) {
-                //    return entity;
-                //}
+                entity = imports.getTypeImportWC(name);
+                if (entity != null) {
+                    return entity;
+                }
                 
                 // Have to assume it's a package
-                return new PackageEntity(name, classLoader);
+                return new PackageEntity(name, this);
             }
             
             public JavaEntity getValueEntity(String name, String querySource)
@@ -320,7 +320,7 @@ public class TextAnalyzer
             }
             else {
                 if (parser.isWildcardImport()) {
-                    imports.addWildcardImport(parser.getImportEntity());
+                    imports.addWildcardImport(parser.getImportEntity().resolveAsPackageOrClass());
                 }
                 else {
                     JavaEntity importEntity = parser.getImportEntity();

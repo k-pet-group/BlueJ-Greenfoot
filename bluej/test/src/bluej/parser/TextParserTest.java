@@ -31,7 +31,7 @@ import bluej.parser.TextAnalyzer.DeclaredVar;
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 6885 2009-12-03 00:10:13Z davmac $
+ * @version $Id: TextParserTest.java 6910 2009-12-07 05:01:35Z davmac $
  */
 public class TextParserTest extends TestCase
 {
@@ -211,5 +211,27 @@ public class TextParserTest extends TestCase
         TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
         String r = tp.parseCommand("Object.class");
         assertEquals("java.lang.Class", r);
+    }
+    
+    public void testImport()
+    {
+        ObjectBench ob = new ObjectBench();
+        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        String r = tp.parseCommand("import java.util.LinkedList;");
+        assertNull(r);
+        tp.confirmCommand();
+        r = tp.parseCommand("new LinkedList()");
+        assertEquals("java.util.LinkedList", r);
+    }
+    
+    public void testWcImport()
+    {
+        ObjectBench ob = new ObjectBench();
+        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        String r = tp.parseCommand("import java.util.*;");
+        assertNull(r);
+        tp.confirmCommand();
+        r = tp.parseCommand("new LinkedList()");
+        assertEquals("java.util.LinkedList", r);
     }
 }

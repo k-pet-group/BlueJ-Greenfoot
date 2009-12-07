@@ -121,4 +121,15 @@ public class UnresolvedEntity extends JavaEntity
         }
         return null;
     }
+    
+    @Override
+    public PackageOrClass resolveAsPackageOrClass()
+    {
+        Iterator<String> i = names.iterator();
+        PackageOrClass entity = new PackageEntity(i.next(), resolver);
+        while (entity != null && i.hasNext()) {
+            entity = entity.getPackageOrClassMember(i.next());
+        }
+        return entity;
+    }
 }

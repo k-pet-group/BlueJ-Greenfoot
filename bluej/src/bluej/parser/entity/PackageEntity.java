@@ -23,7 +23,7 @@ package bluej.parser.entity;
 
 import java.util.List;
 
-import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.GenTypeParameter;
 
 /**
  * An entity representing a package. The entity is only presumed to be a package
@@ -33,47 +33,44 @@ import bluej.debugger.gentype.JavaType;
  */
 public class PackageEntity extends PackageOrClass
 {
-    private String packageName;
-    private ClassLoader classLoader;
+    private String name;
+    private EntityResolver resolver;
     
-    public PackageEntity(String packageName, ClassLoader classLoader)
+    public PackageEntity(String name, EntityResolver resolver)
     {
-        this.packageName = packageName;
-        this.classLoader = classLoader;
+        this.name = name;
+        this.resolver = resolver;
     }
     
-    public JavaType getType()
+    @Override
+    public PackageOrClass getPackageOrClassMember(String name)
+    {
+        String nname = this.name + "." + name;
+        PackageOrClass rval = resolver.resolveQualifiedClass(nname);
+        if (rval != null) {
+            return rval;
+        }
+        return new PackageEntity(nname, resolver);
+    }
+
+    @Override
+    public String getName()
+    {
+        return name;
+    }
+
+    @Override
+    public JavaEntity getSubentity(String name)
+    {
+        return getPackageOrClassMember(name);
+    }
+
+    @Override
+    public GenTypeParameter getType()
     {
         return null;
     }
-    
-    public JavaEntity getSubentity(String name)
-    {
-        Class<?> c;
-        try {
-            c = classLoader.loadClass(packageName + '.' + name);
-            return new TypeEntity(c);
-        }
-        catch (ClassNotFoundException cnfe) {
-            return new PackageEntity(packageName + '.' + name, classLoader);
-        }
-    }
-    
-    public PackageOrClass getPackageOrClassMember(String name)
-    {
-        return (PackageOrClass) getSubentity(name);
-    }
-    
-    public String getName()
-    {
-        return packageName;
-    }
-    
-    public boolean isClass()
-    {
-        return false;
-    }
-    
+
     @Override
     public JavaEntity setTypeArgs(List<JavaEntity> tparams)
     {

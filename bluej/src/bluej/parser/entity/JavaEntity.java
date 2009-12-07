@@ -33,7 +33,6 @@ import bluej.debugger.gentype.GenTypeParameter;
  * as "xyz.abc" where "xyz" could be a package, class or local member.
  * 
  * @author Davin McCall
- * @version $Id$
  */
 public abstract class JavaEntity
 {
@@ -51,6 +50,15 @@ public abstract class JavaEntity
     public ClassEntity resolveAsType()
     {
         return null;
+    }
+    
+    /**
+     * If this entity is unresolved, resolve it now as either a package or a
+     * qualified class.
+     */
+    public PackageOrClass resolveAsPackageOrClass()
+    {
+        return resolveAsType();
     }
     
     /**
@@ -81,8 +89,8 @@ public abstract class JavaEntity
     public abstract JavaEntity getSubentity(String name);
     
     /**
-     * Get the name of the entity. If the entity is represented by a single identifier, this
-     * returns the identifier.
+     * Get the name of the entity. This returns the fully-qualified name of the
+     * entity.
      */
     public abstract String getName();
     
