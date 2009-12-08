@@ -277,9 +277,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         JComponent src = (JComponent) e.getSource();
         if(src.getName() == CLOSE_BUTTON_NAME){
-            int caretPos=0;
-            if (editor.getSelectedText()!=null)
-                caretPos=editor.getCaretPosition();
+            int caretPos=editor.getCaretPosition();
             editor.removeSelectionHighlights();
             this.setVisible(false);
             editor.toggleReplacePanelVisible();
@@ -333,6 +331,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private void findEvent()
     {
         boolean doFind=false;
+        int caretPos=editor.getCaretPosition();
         //check there has been a legitimate change in the search criteria            
         if (getSearchString()!=null){
             //previous search had a value and this search is empty
@@ -351,6 +350,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         if (findTField.getText().length()>0)
             doFind=true;
         if (doFind){
+            editor.moveCaretPosition(caretPos);
             find(true);
         }
     }

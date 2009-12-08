@@ -1319,8 +1319,18 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         if (selection==null){
             selection=finder.getSearchString();
         }
-        removeSelectionHighlights();
-        findString(selection, backwards, !finder.getMatchCase(), false, true);
+        //if the find panel is open- next/backwards should function like prev, next
+        //if it is not open, it should do a single find forward or backwards
+        if (finder.isVisible()){
+                finder.setSearchString(selection);
+                if (backwards)
+                    finder.getPrev();
+                else
+                    finder.getNext();
+        }else {
+            removeSelectionHighlights();
+            findString(selection, backwards, !finder.getMatchCase(), false, true);
+        }
     }
 
     // --------------------------------------------------------------------
