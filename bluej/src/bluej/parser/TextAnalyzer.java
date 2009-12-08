@@ -156,83 +156,6 @@ public class TextAnalyzer
         catch (Exception e) {}
 
         return null;
-
-
-//        if (parser == null)
-//            parser = getParser();
-        
-        // check if it's an import statement
-//        try {
-//            parser.setTokenBuffer(new TokenBuffer(getTokenStream(command)));
-//            parser.getInputState().reset();
-//            
-//            parser.importDefinition();
-//            amendedCommand = "";
-//            importCandidate = command;
-//            return null;
-//        }
-//        catch (RecognitionException re) { }
-//        catch (TokenStreamException tse) { }
-        
-        // start parsing at the compoundStatement rule
-//        try {
-//            parser.setTokenBuffer(new TokenBuffer(getTokenStream("{" + command + "};;;;;")));
-//            parser.getInputState().reset();
-//            parser.compoundStatement();
-//            rootAST = parser.getAST();
-//            parsedOk = true;
-
-            // Extract the declared variables
-//            AST fcnode = rootAST.getFirstChild();
-//            checkVars((LocatableAST) fcnode, command);
-//        }
-//        catch(RecognitionException re) { }
-//        catch(TokenStreamException tse) { }
-      
-//        if (! parsedOk) {
-            // It might just be an expression. Multiple semi-colon to ensure
-            // end-of-file not hit (causes parse failure).
-//            parser.setTokenBuffer(new TokenBuffer(getTokenStream(command + ";;;;;")));
-//            parser.getInputState().reset();
-            
-//            try {
-//                parser.expression();
-//                rootAST = parser.getAST();
-                //parsedOk = true; // it parses as an expression.
-                
-                //ExprValue ev = getExpressionType(rootAST);
-//                ExprValue ev = null;
-//                JavaType t = ev != null ? ev.getType() : null;
-//
-//                if (t == null) {
-//                    return "";
-//                }
-//                else if (t.isVoid()) {
-//                    return null;
-//                }
-//                else {
-//                    // If the result type is a type parameter (a capture),
-//                    // or an intersection type, extract the bound
-//                    if (t instanceof GenTypeSolid) {
-//                        GenTypeSolid st = (GenTypeSolid) t;
-//                        GenTypeClass [] bounds = st.getReferenceSupertypes();
-//                        t = bounds[0];
-//                    }
-//                    // remove capture/type variables from the type
-//                    t = t.mapTparsToTypes(null);
-//                    return t.toString();
-//                }
-//            }
-//            catch(RecognitionException re) { }
-//            catch(SemanticException se) { }
-//            catch(TokenStreamException tse) { }
-//            catch(Exception e) {
-//                Debug.reportError("TextParser: Unexpected error during parsing:");
-//                e.printStackTrace(System.out);
-//            }
-//            return "";
-//        }
-//        return null;
     }
     
     private EntityResolver getResolver()
@@ -272,7 +195,7 @@ public class TextAnalyzer
                 }
                 catch (Exception e) {}
                 
-                // Try in java.lang
+                // Try in java.lang (see JLS 7.5.5)
                 try {
                     Class<?> cl = classLoader.loadClass("java.lang." + name);
                     return new TypeEntity(cl);
@@ -1999,70 +1922,6 @@ public class TextAnalyzer
     }
     
     /**
-     * Get the type from a TYPE node (normally found in a typecast). The node
-     * need not actually be a TYPE node, but must conform to the same
-     * structure.
-     * 
-     * @param node the node containing the type
-     * @return
-     * @throws RecognitionException
-     * @throws SemanticException
-     */
-//    JavaType getTypeFromTypeNode(AST node) throws SemanticException
-//    {
-//        AST firstChild = node.getFirstChild();
-//        JavaType baseType;
-//        
-//        switch (firstChild.getType()) {
-//            case JavaTokenTypes.LITERAL_char:
-//                baseType = JavaPrimitiveType.getChar();
-//                break;
-//            case JavaTokenTypes.LITERAL_byte:
-//                baseType = JavaPrimitiveType.getByte();
-//                break;
-//            case JavaTokenTypes.LITERAL_boolean:
-//                baseType = JavaPrimitiveType.getBoolean();
-//                break;
-//            case JavaTokenTypes.LITERAL_short:
-//                baseType = JavaPrimitiveType.getShort();
-//                break;
-//            case JavaTokenTypes.LITERAL_int:
-//                baseType = JavaPrimitiveType.getInt();
-//                break;
-//            case JavaTokenTypes.LITERAL_long:
-//                baseType = JavaPrimitiveType.getLong();
-//                break;
-//            case JavaTokenTypes.LITERAL_float:
-//                baseType = JavaPrimitiveType.getFloat();
-//                break;
-//            case JavaTokenTypes.LITERAL_double:
-//                baseType = JavaPrimitiveType.getDouble();
-//                break;
-//            default:
-//                // not a primitive type
-//                baseType = getType(firstChild);
-//        }
-//        
-//        // check for array declarators
-//        AST arrayNode = firstChild.getNextSibling();
-//        while (arrayNode != null && arrayNode.getType() == JavaTokenTypes.ARRAY_DECLARATOR) {
-//            // make a reflective for the array
-//            // figure out the class name of the array class
-//            String xName = "[" + baseType.arrayComponentName();
-//            try {
-//                // In Java 6, ClassLoader.loadClass() fails to load primitive
-//                // array classes; must use Class.forName instead.
-//                Class arrayClass = Class.forName(xName, false, classLoader);
-//                baseType = new GenTypeArray(baseType, new JavaReflective(arrayClass));
-//            }
-//            catch (ClassNotFoundException cnfe) {}
-//            arrayNode = arrayNode.getFirstChild();
-//        }
-//        
-//        return baseType;
-//    }
-    
-    /**
      * Unbox a type, if it is a class type which represents a primitive type
      * in object form (eg. java.lang.Integer).<p>
      * 
@@ -2171,24 +2030,6 @@ public class TextAnalyzer
             return u;
     }
     
-    /**
-     * Return an appropriate token filter for parsing java command sequences.
-     * @param s  The command sequence in question
-     * @return   A filter (to remove comments) over the java command sequence
-     */
-    static TokenStream getTokenStream(String s)
-    {
-        StringReader r = new StringReader(s);
-        
-        // Create the initial lexer stage
-        TokenStream lexer = JavaParser.getLexer(r);
-        
-        // Finally filter out comments and whitespace
-        TokenStream filter = new JavaTokenFilter(lexer);
-        
-        return filter;
-    }
-
     /**
      * Check if a member of some class is accessible from the context of the given
      * package. This will be the case if the member is public, if the member is

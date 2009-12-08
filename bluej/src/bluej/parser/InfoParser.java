@@ -9,8 +9,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import bluej.parser.ast.LocatableToken;
-import bluej.parser.ast.gen.JavaTokenTypes;
+import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.lexer.LocatableToken;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 

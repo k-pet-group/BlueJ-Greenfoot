@@ -26,9 +26,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import bluej.parser.ast.LocatableToken;
-import bluej.parser.ast.gen.BlueJJavaLexer;
-import bluej.parser.ast.gen.JavaTokenTypes;
+import bluej.parser.lexer.JavaLexer;
+import bluej.parser.lexer.JavaTokenFilter;
+import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.lexer.LocatableToken;
+
 
 /**
  * Base class for Java parsers.
@@ -38,17 +40,10 @@ import bluej.parser.ast.gen.JavaTokenTypes;
 public class JavaParser
 {
     protected JavaTokenFilter tokenStream;
-    //protected JavaLexer lexer;
 
     public static TokenStream getLexer(Reader r)
     {
-        //EscapedUnicodeReader euReader = new EscapedUnicodeReader(r);
-        //JavaLexer lexer = new JavaLexer(euReader);
-        BlueJJavaLexer lexer = new BlueJJavaLexer(r);
-        //lexer.setTokenObjectClass("bluej.parser.ast.LocatableToken");
-        lexer.setTabSize(1);
-        //euReader.setAttachedScanner(lexer);
-        return lexer;
+        return new JavaLexer(r);
     }
     
     public JavaParser(Reader r)

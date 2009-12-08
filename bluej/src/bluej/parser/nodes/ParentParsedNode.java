@@ -26,11 +26,11 @@ import javax.swing.text.Document;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.Token;
 import bluej.parser.DocumentReader;
-import bluej.parser.JavaTokenFilter;
 import bluej.parser.JavaParser;
 import bluej.parser.TokenStream;
-import bluej.parser.ast.LocatableToken;
-import bluej.parser.ast.gen.JavaTokenTypes;
+import bluej.parser.lexer.JavaTokenFilter;
+import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 /**

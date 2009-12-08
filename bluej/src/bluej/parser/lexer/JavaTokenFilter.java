@@ -19,13 +19,14 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.parser;
+package bluej.parser.lexer;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import bluej.parser.ast.LocatableToken;
-import bluej.parser.ast.gen.JavaTokenTypes;
+import bluej.parser.JavaParser;
+import bluej.parser.TokenStream;
+
 
 /**
  * This is a token stream processor. It removes whitespace and comment tokens from the
@@ -134,7 +135,7 @@ public class JavaTokenFilter implements TokenStream
             }
             else if (ttype == JavaTokenTypes.SL_COMMENT) {
             }
-            else if (ttype != JavaTokenTypes.WS) {
+            else {
                 // When we have an interesting token, attach the previous comment.
                 if (lastComment != null) {
                     t.setHiddenBefore(lastComment);

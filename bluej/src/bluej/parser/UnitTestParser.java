@@ -6,7 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import bluej.parser.ast.LocatableToken;
+import bluej.parser.lexer.LocatableToken;
+
 
 public class UnitTestParser extends JavaParser
 {

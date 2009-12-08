@@ -1,6 +1,7 @@
 package bluej.parser;
 
-import bluej.parser.ast.LocatableToken;
+import bluej.parser.lexer.LocatableToken;
+
 
 /**
  * A token stream - a stream of tokens. This replaces the TokenStream from Antlr.

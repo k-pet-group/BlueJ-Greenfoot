@@ -19,7 +19,7 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.parser.ast.gen;
+package bluej.parser.lexer;
 
 
 import java.io.IOException;
@@ -27,19 +27,18 @@ import java.io.Reader;
 
 import bluej.parser.EscapedUnicodeReader;
 import bluej.parser.TokenStream;
-import bluej.parser.ast.LocatableToken;
 
 
-public class BlueJJavaLexer implements TokenStream
+
+public class JavaLexer implements TokenStream
 {
     private StringBuffer textBuffer; // text of current token
     private EscapedUnicodeReader reader;
-    private int tabsize=8;
     private int rChar; 
     private int beginColumn, beginLine;
     private int endColumn, endLine;
 
-    public BlueJJavaLexer(Reader in) {
+    public JavaLexer(Reader in) {
         reader = new EscapedUnicodeReader(in);
         endColumn = beginColumn = reader.getColumn();
         endLine = beginLine = reader.getLine();
@@ -60,14 +59,6 @@ public class BlueJJavaLexer implements TokenStream
         beginLine = endLine;
         return tok;
 
-    }
-
-    public int getTabSize() {
-        return tabsize;
-    }
-
-    public void setTabSize(int tabsize) {
-        this.tabsize = tabsize;
     }
 
     private int getBeginColumn() {

@@ -26,10 +26,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import bluej.parser.ast.LocatableToken;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.UnresolvedEntity;
+import bluej.parser.lexer.LocatableToken;
 
 /**
  * A parser to handle "import" statements for the Code Pad.

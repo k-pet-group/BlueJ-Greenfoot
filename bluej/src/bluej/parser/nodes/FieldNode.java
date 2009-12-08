@@ -23,7 +23,7 @@ package bluej.parser.nodes;
 
 import java.util.List;
 
-import bluej.parser.ast.LocatableToken;
+import bluej.parser.lexer.LocatableToken;
 
 /**
  * A node representing a parsed field.

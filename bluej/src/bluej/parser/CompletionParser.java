@@ -28,10 +28,10 @@ import java.util.Map;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
-import bluej.parser.ast.LocatableToken;
-import bluej.parser.ast.gen.JavaTokenTypes;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.lexer.LocatableToken;
 
 /**
  * A parser which determines what code completions are available.

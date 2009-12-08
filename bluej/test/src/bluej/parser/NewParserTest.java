@@ -4,8 +4,9 @@ import java.io.StringReader;
 import java.util.LinkedList;
 import java.util.List;
 
+import bluej.parser.lexer.LocatableToken;
+
 import junit.framework.TestCase;
-import bluej.parser.ast.LocatableToken;
 
 public class NewParserTest extends TestCase
 {

@@ -36,8 +36,6 @@ import bluej.debugger.gentype.GenTypeSuper;
 import bluej.debugger.gentype.GenTypeUnbounded;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
-import bluej.parser.ast.LocatableToken;
-import bluej.parser.ast.gen.JavaTokenTypes;
 import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.ErrorEntity;
@@ -47,6 +45,8 @@ import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.UnresolvedEntity;
 import bluej.parser.entity.ValueEntity;
+import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.lexer.LocatableToken;
 
 /**
  * A parser for the codepad.

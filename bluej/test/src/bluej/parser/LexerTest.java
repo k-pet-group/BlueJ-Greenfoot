@@ -7,8 +7,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import bluej.parser.ast.LocatableToken;
-import bluej.parser.ast.gen.JavaTokenTypes;
+import bluej.parser.lexer.JavaTokenFilter;
+import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.lexer.LocatableToken;
+
 
 /**
  * Tests for the Java lexer.
@@ -410,9 +412,6 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals("/* multiline */", token.getText());
         
         token = (LocatableToken) ts.nextToken();
-        if (token.getType() == JavaTokenTypes.WS) {
-            token = (LocatableToken) ts.nextToken();
-        }
         
         // Note this fails with the old lexer (whch filters SL_COMMENTs):
         assertEquals(JavaTokenTypes.SL_COMMENT, token.getType());
@@ -426,9 +425,6 @@ public class LexerTest extends junit.framework.TestCase
         token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.SL_COMMENT, token.getType());
         token = (LocatableToken) ts.nextToken();
-        if (token.getType() == JavaTokenTypes.WS) {
-            token = (LocatableToken) ts.nextToken();
-        }
         assertEquals(JavaTokenTypes.IDENT, token.getType());
         token = (LocatableToken) ts.nextToken();
         assertEquals(JavaTokenTypes.EOF, token.getType());
@@ -530,9 +526,6 @@ public class LexerTest extends junit.framework.TestCase
         // Multi-line comment - fails with old lexer:
         ts = getNonfilteringLexerFor("\n/* This is a multi-line\ncomment\n*/");
         token = (LocatableToken) ts.nextToken();
-        while (token.getType() == JavaTokenTypes.WS) {
-            token = (LocatableToken) ts.nextToken();
-        }
         assertEquals(2, token.getLine());
         assertEquals(1, token.getColumn());
         assertEquals(4, token.getEndLine());
