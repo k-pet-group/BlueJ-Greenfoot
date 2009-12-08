@@ -48,21 +48,20 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
     @Override
     public void actionPerformed(ActionEvent e) {
         JComponent src = (JComponent) e.getSource();
-        String rText=replaceText.getText();
-        setReplaceString(rText);
-        if (rText==null){
+        setReplaceString(replaceText.getText());
+        if (getReplaceString()==null){
             editor.writeMessage(Config.getString("editor.replaceAll.string") + 
             "is Empty");
             return;
         }         
         if (src.getName()==REPLACE_BUTTON_NAME){
-            if (rText!=null)
-                editor.replace(rText);
+            if (getReplaceString()!=null)
+                editor.replace(getReplaceString());
         }
         if (src.getName()==REPLACE_ALL_BUTTON_NAME){
-            if (rText!=null)
-                editor.replaceAll(rText);
-                
+            if (getReplaceString()!=null)
+                editor.replaceAll(getReplaceString());
+
         }
 
     }
@@ -76,14 +75,15 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
     public void keyReleased(KeyEvent e) {
         JComponent src = (JComponent) e.getSource();
         if (src.getName()== REPLACE_TEXTFIELD){
-            if (((JTextField)src).getText()!=null &&((JTextField)src).getText()!="" ){
-                replaceButton.setEnabled(true);
-                replaceAllButton.setEnabled(true);
-            }    
-            else{
-                replaceButton.setEnabled(false);
-                replaceAllButton.setEnabled(false);
+            setReplaceString(replaceText.getText());
+            //only enable the once and all buttons if both find and replace are populated
+            if ((getReplaceString()!=null && getReplaceString().length()!=0) 
+                    && (editor.getFindSearchString()!=null && editor.getFindSearchString().length()!=0) ){
+                enableButtons(true);
             }
+            else
+                enableButtons(false);
+
         }
     }
 
@@ -104,9 +104,9 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
         rBody=new JPanel(new GridLayout(1, 2));
         replaceBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
         optionsBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
-        
+
         body.setBackground(MoeEditor.infoColor);
-        
+
         replaceLabel=new JLabel("Replace: ");
         replaceLabel.setFont(font);
 
@@ -114,23 +114,23 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
         replaceText.setFont(font);
         replaceText.addKeyListener(this);
         replaceText.setName(REPLACE_TEXTFIELD);
-        
+
         replaceButton=new JButton();
         replaceButton.setName(REPLACE_BUTTON_NAME);
         replaceButton.setText("Once");
         replaceButton.setFont(font);
         replaceButton.addActionListener(this);
         replaceButton.setEnabled(false);
-        
+
         replaceAllButton=new JButton();
         replaceAllButton.setName(REPLACE_ALL_BUTTON_NAME);
         replaceAllButton.setText(" All ");
         replaceAllButton.setFont(font);
         replaceAllButton.addActionListener(this);
         replaceAllButton.setEnabled(false);
-        
+
         JLabel closeBody=new JLabel(" ");
-        
+
         replaceBody.add(replaceLabel);
         replaceBody.add(replaceText);
         optionsBody.add(replaceButton);
@@ -138,23 +138,33 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
         optionsBody.add(new JLabel(" "));
         rBody.add(replaceBody);
         rBody.add(optionsBody);
-        
+
         body.add(rBody);  
         body.add(closeBody);
         add(body);
     }
-    
+
     public void requestReplaceTextFocus(){
         replaceText.requestFocus();
         replaceText.setText(getReplaceString());
     }
-    
-    public String getReplaceString() {
+
+    protected String getReplaceString() {
         return replaceString;
     }
 
-    public void setReplaceString(String replaceString) {
+    protected void setReplaceString(String replaceString) {
         this.replaceString = replaceString;
+    }
+
+    /**
+     * enableButtons enable the once and all buttons
+     * @param enable
+     */
+    protected void enableButtons(boolean enable)
+    {
+        replaceAllButton.setEnabled(enable);
+        replaceButton.setEnabled(enable);
     }
 
 }

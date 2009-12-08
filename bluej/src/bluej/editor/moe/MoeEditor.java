@@ -1423,9 +1423,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 if (lineText != null && lineText.length() > 0) {
                     int foundPos = findSubstring(lineText, s, ignoreCase, wholeWord, false);
                     if (foundPos != -1) {
-                        currentTextPane.getCaret().setSelectionVisible(true);
                         currentTextPane.select(start + foundPos, start + foundPos + s.length());
-                        //removeReselectSelection(start+foundPos, s.length());
+                        currentTextPane.getCaret().setSelectionVisible(true);
                         found = true;
                     }
                 }
@@ -3107,7 +3106,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             return;
         }
         finder.displayFindPanel(selection, true);
-        //if the find is not visible- need to close the replace panel
         if (selection!=null){
             finder.find(true);
         }
@@ -3407,6 +3405,48 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             writeMessage(Config.getString("editor.replaceAll.string") + 
                     searchString + Config.getString("editor.replaceAll.notFoundNothingReplaced"));
 
+    }
+    
+    protected void setCaretSelected()
+    {
+        currentTextPane.getCaret().setSelectionVisible(true);
+    }
+    
+    /**
+     * getFindSearchString() returns the search string in the find panel
+     * @return String
+     */
+    protected String getFindSearchString()
+    {
+        return finder.getSearchString();
+    }
+    
+    /**
+     * isReplacePanelVisible returns whether the replace panel is visible
+     * @return boolean
+     */
+    protected boolean isReplacePanelVisible()
+    {
+        return replacer.isVisible();
+    }
+    
+    /**
+     * isReplacePopulated returns whether the replace textfield is (validly) populated
+     * @return boolean
+     */
+    protected boolean isReplacePopulated()
+    {
+        return (replacer.getReplaceString()!=null && replacer.getReplaceString().length()!=0);
+    }
+    
+    /**
+     * enableReplaceButtons calls the function in the replace panel to either 
+     * enable or disable the once and all buttons
+     * @param enable
+     */
+    protected void enableReplaceButtons(boolean enable)
+    {
+        replacer.enableButtons(enable);
     }
 
 }

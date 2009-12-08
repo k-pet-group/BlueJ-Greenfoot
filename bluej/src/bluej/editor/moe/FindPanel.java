@@ -101,6 +101,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         super();
         openIcon=Config.getImageAsIcon("image.testmgr.ok");
         closedIcon=Config.getImageAsIcon("image.testmgr.failure");
+        //openIcon=Config.getImageAsIcon("image.replace.open");
+        //closedIcon=Config.getImageAsIcon("image.replace.close");
+        //        System.out.println("open icon "+openIcon);
+        //        System.out.println("close icon "+closedIcon);
         findFont=new Font(PrefMgr.getStandardFont().getFontName(), PrefMgr.getStandardFont().getSize(), PrefMgr.getStandardFont().getSize());
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createLineBorder(Color.black));
@@ -221,10 +225,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         replaceWithButton.setEnabled(true);
         replaceWithButton.setFont(findFont);
         replaceWithButton.setText("Replace");
-        
+
         replaceLabel=new JLabel(" Replace");
         replaceLabel.setFont(findFont);
-        
+
         replaceIconLabel=new JLabel("  Replace  ");
         replaceIconLabel.setFont(findFont);
         replaceIconLabel.setIcon(closedIcon);
@@ -255,7 +259,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         //closeBody.add(matchCaseCheckBox);
         //closeBody.add(replaceWithButton);
         closeBody.add(replaceIconLabel);
-//        closeBody.add(replaceBtnClose);
+        //        closeBody.add(replaceBtnClose);
         //closeBody.add(replaceLabel);
         closeBody.add(closeButton);
 
@@ -408,20 +412,21 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         boolean validSearch=false;
         if(getSearchString() != null && getSearchString().length() > 0) 
-            validSearch=true;
-
+            validSearch=true;  
         if (validSearch){
             previousButton.setEnabled(true);
-            nextButton.setEnabled(true);
-            //prevArrowButton.setEnabled(true);
-            //nextArrowButton.setEnabled(true);
+            nextButton.setEnabled(true); 
+            //update display in the replace panel if necessary
+            if (editor.isReplacePanelVisible())
+                if (editor.isReplacePopulated())
+                    editor.enableReplaceButtons(true); 
         }
         else{
             previousButton.setEnabled(false);
             nextButton.setEnabled(false);
-            //prevArrowButton.setEnabled(false);
-            //nextArrowButton.setEnabled(false);
+            editor.enableReplaceButtons(false);
         }
+       
         findTField.requestFocus();
     }
 
@@ -463,6 +468,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         searchForward(ignoreCase, wholeWord, wrap, next, select);
         writeMessage(true); 
+        editor.setCaretSelected();
     }
 
     /**
@@ -576,9 +582,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void removeUpdate(DocumentEvent e) 
     {
-        findEvent();          
+        findEvent();
+        updateDisplay();
     }
-    
+
     public void setfindTextField(String selection)
     {
         findTField.setText(selection);
@@ -597,19 +604,23 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
 
 
     public void mouseEntered(MouseEvent e) {
-        
+
     }
 
     public void mouseExited(MouseEvent e) {
-        
+
     }
 
     public void mousePressed(MouseEvent e) {
-        
+
     }
 
     public void mouseReleased(MouseEvent e) {
-        
+
+    }
+
+    public void setTextfieldSelected(){
+        findTField.selectAll();
     }
 
 }
