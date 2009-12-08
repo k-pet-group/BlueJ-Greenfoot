@@ -22,14 +22,17 @@
 package bluej.editor.moe;
 
 import java.awt.Color;
-
-import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.JTextComponent;
 
 import bluej.Config;
 
-
+/**
+ * The MoeHighlighter class provides the editor with the necessary 
+ * HighlightPainters for highlighting founds and selects
+ *
+ * @author  Marion Zalk
+ */
 public class MoeHighlighter extends DefaultHighlighter {
 
     protected HighlightPainter selectPainter ;
