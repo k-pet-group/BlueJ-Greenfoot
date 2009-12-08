@@ -395,6 +395,14 @@ public class NewParserTest extends TestCase
         );
         InfoParser ip = new InfoParser(sr);
         ip.parseTypeDef();
+        
+        sr = new StringReader("synchronized { throw new Exception(); }");
+        ip = new InfoParser(sr);
+        ip.parseStatement();
+        
+        sr = new StringReader("synchronized(getSomeValue()) { throw new Exception(); }");
+        ip = new InfoParser(sr);
+        ip.parseStatement();
     }
     
     public void testVarargsMethod()

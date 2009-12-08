@@ -604,6 +604,7 @@ public class JavaParser
                 || tokType == JavaTokenTypes.LITERAL_native
                 || tokType == JavaTokenTypes.STRICTFP
                 || tokType == JavaTokenTypes.LITERAL_transient
+                || tokType == JavaTokenTypes.LITERAL_synchronized
                 || tokType == JavaTokenTypes.AT);
     }
 
@@ -976,6 +977,35 @@ public class JavaParser
                     return null;
                 }
                 return token;
+            }
+        }
+        else if (token.getType() == JavaTokenTypes.LITERAL_synchronized) {
+            // Synchronized block
+            token = tokenStream.nextToken();
+            if (token.getType() == JavaTokenTypes.LPAREN) {
+                parseExpression();
+                token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.RPAREN) {
+                    error("Expecting ')' at end of expression");
+                    tokenStream.pushBack(token);
+                    return null;
+                }
+                token = tokenStream.nextToken();
+            }
+            if (token.getType() == JavaTokenTypes.LCURLY) {
+                parseStmtBlock();
+                token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.RCURLY) {
+                    error("Expecting '}' at end of synchronized block");
+                    tokenStream.pushBack(token);
+                    return null;
+                }
+                return token;
+            }
+            else {
+                error("Expecting statement block after 'synchronized'");
+                tokenStream.pushBack(token);
+                return null;
             }
         }
         else if (isModifier(token)) {	
