@@ -215,7 +215,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void setReplaceDisplay()
     { 
-
         replaceWithButton=new JButton();
         replaceWithButton.addActionListener(this);
         replaceWithButton.setName(REPLACE_WITH_BUTTON_NAME);
@@ -230,7 +229,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         replaceIconLabel.setFont(findFont);
         replaceIconLabel.setIcon(closedIcon);
         replaceIconLabel.addMouseListener(this);
-
     }
 
     /**
@@ -326,8 +324,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     }
 
     public void getPrev(){
-        //editor.removeHighlighting();
-        //editor.moveCaretPosition(editor.getCaretPosition()-getSearchString().length());
+        if (getSearchString()!=null){
+            editor.moveCaretPosition(editor.getCaretPosition()+getSearchString().length());
+        }
         find(false);
     }
 
