@@ -1423,7 +1423,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 if (lineText != null && lineText.length() > 0) {
                     int foundPos = findSubstring(lineText, s, ignoreCase, wholeWord, false);
                     if (foundPos != -1) {
-                        currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);
                         currentTextPane.getCaret().setSelectionVisible(true);
                         currentTextPane.select(start + foundPos, start + foundPos + s.length());
                         //removeReselectSelection(start+foundPos, s.length());
@@ -1485,7 +1484,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 if (lineText != null && lineText.length() > 0) {
                     int foundPos = findSubstring(lineText, s, ignoreCase, wholeWord, true);
                     if (foundPos != -1) {
-                        currentTextPane.getHighlighter().addHighlight(lineStart + foundPos, lineStart + foundPos + s.length(), editorHighlighter.highlightPainter);
                         currentTextPane.select(lineStart + foundPos, lineStart + foundPos + s.length());
                         currentTextPane.getCaret().setSelectionVisible(true);
                         found = true;
