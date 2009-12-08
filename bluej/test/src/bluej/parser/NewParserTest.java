@@ -385,4 +385,26 @@ public class NewParserTest extends TestCase
         InfoParser ip = new InfoParser(sr);
         ip.parseExpression();
     }
+    
+    public void testSynchronizedModifier()
+    {
+        StringReader sr = new StringReader(
+                "interface A {" +
+                "synchronized int someMethod();" +
+                "}"
+        );
+        InfoParser ip = new InfoParser(sr);
+        ip.parseTypeDef();
+    }
+    
+    public void testVarargsMethod()
+    {
+        StringReader sr = new StringReader(
+                "interface A {" +
+                "synchronized int someMethod(int ... a);" +
+                "}"
+        );
+        InfoParser ip = new InfoParser(sr);
+        ip.parseTypeDef();
+    }
 }
