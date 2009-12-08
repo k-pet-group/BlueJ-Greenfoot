@@ -2310,6 +2310,10 @@ public class JavaParser
 
             parseTypeSpec(true);
             LocatableToken idToken = tokenStream.nextToken(); // identifier
+            if (idToken.getType() == JavaTokenTypes.TRIPLE_DOT) {
+                // var args
+                idToken = tokenStream.nextToken();
+            }
             if (idToken.getType() != JavaTokenTypes.IDENT) {
                 error("Expected parameter identifier (in method parameter)");
                 // TODO skip to next ',', ')' or '}' if there is one soon (LA(3)?)
