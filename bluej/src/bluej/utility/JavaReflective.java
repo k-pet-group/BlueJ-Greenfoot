@@ -22,10 +22,12 @@
 package bluej.utility;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +44,7 @@ import bluej.debugger.gentype.Reflective;
  * A reflective for GenTypeClass which uses the standard java reflection API.  
  * 
  * @author Davin McCall
- * @version $Id: JavaReflective.java 6880 2009-12-02 04:02:12Z davmac $
+ * @version $Id: JavaReflective.java 6927 2009-12-09 05:47:50Z davmac $
  */
 public class JavaReflective extends Reflective {
 
@@ -221,7 +223,26 @@ public class JavaReflective extends Reflective {
     @Override
     public Map<String,Set<MethodReflective>> getDeclaredMethods()
     {
-        return Collections.emptyMap(); // not implemented
+        Method [] methods = c.getDeclaredMethods();
+        Map<String,Set<MethodReflective>> rmap = new HashMap<String,Set<MethodReflective>>();
+        for (Method method : methods) {
+            JavaType rtype = JavaUtils.getJavaUtils().getReturnType(method);
+            List<GenTypeDeclTpar> tpars = JavaUtils.getJavaUtils().getTypeParams(method);
+            JavaType [] paramTypes = JavaUtils.getJavaUtils().getParamGenTypes(method, false);
+            List<JavaType> paramTypesList = new ArrayList<JavaType>(paramTypes.length);
+            Collections.addAll(paramTypesList, paramTypes);
+            
+            MethodReflective mr = new MethodReflective(rtype, tpars, paramTypesList,
+                    JavaUtils.getJavaUtils().isVarArgs(method),
+                    (method.getModifiers() & Modifier.STATIC) != 0);
+            Set<MethodReflective> rset = rmap.get(method.getName());
+            if (rset == null) {
+                rset = new HashSet<MethodReflective>();
+                rmap.put(method.getName(), rset);
+            }
+            rset.add(mr);
+        }
+        return rmap;
     }
     
     @Override

@@ -245,6 +245,9 @@ public class JavaParser
     /** Saw an identifier as (part of) an expression */
     protected void gotIdentifier(LocatableToken token) { }
     
+    /** Saw a member method call (beginning), token is the method name; arguments to follow */
+    protected void gotMemberCall(LocatableToken token) { }
+    
     /** Saw a binary operator as part of an expression */
     protected void gotBinaryOperator(LocatableToken token) { }
     
@@ -846,7 +849,9 @@ public class JavaParser
                 ntoken = tokenStream.LA(1);
                 endElement(tokenStream.LA(1), false);
                 if (ntoken == token) {
-                    break; // we're not getting anywhere - time to bail
+                    tokenStream.nextToken();
+                    error("Unexpected token: '" + ntoken.getText() + "'");
+                    continue;
                     // TODO we can just skip the token and keep processing, but we should be
                     // context aware. For instance if token is "catch" and we are in a try block,
                     // should bail out altogether now so that processing can continue upstream.
@@ -1995,10 +2000,13 @@ public class JavaParser
                 }
             }
             else if (token.getType() == JavaTokenTypes.IDENT) {
-                gotIdentifier(token);
                 if (tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
                     // Method call
+                    gotMemberCall(token);
                     parseArgumentList(tokenStream.nextToken());
+                }
+                else {
+                    gotIdentifier(token);
                 }
             }
             else if (token.getType() == JavaTokenTypes.LITERAL_this

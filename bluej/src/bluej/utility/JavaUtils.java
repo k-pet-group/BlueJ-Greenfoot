@@ -46,7 +46,7 @@ import bluej.debugger.gentype.JavaType;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 6874 2009-11-30 05:46:18Z davmac $
+ * @version $Id: JavaUtils.java 6927 2009-12-09 05:47:50Z davmac $
  */
 public abstract class JavaUtils {
 
@@ -183,7 +183,7 @@ public abstract class JavaUtils {
      * @param method   The method fro which to find the type parameters
      * @return  A list of GenTypeDeclTpar
      */
-    abstract public List getTypeParams(Method method);
+    abstract public List<GenTypeDeclTpar> getTypeParams(Method method);
     
     /**
      * Get a list of the type parameters for a generic constructor.
@@ -192,7 +192,7 @@ public abstract class JavaUtils {
      * @param method   The method fro which to find the type parameters
      * @return  A list of GenTypeDeclTpar
      */
-    abstract public List getTypeParams(Constructor cons);
+    abstract public List<GenTypeDeclTpar> getTypeParams(Constructor<?> cons);
     
     /**
      * Get a list of the type parameters for a class. Return an empty list if

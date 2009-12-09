@@ -48,6 +48,7 @@ import bluej.debugger.gentype.GenTypeWildcard;
 import bluej.debugger.gentype.IntersectionType;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.MethodReflective;
 import bluej.debugmgr.ValueCollection;
 import bluej.debugmgr.texteval.WildcardCapture;
 import bluej.parser.entity.ClassEntity;
@@ -565,7 +566,7 @@ public class TextAnalyzer
     /**
      * Capture conversion, as in the JLS 5.1.10
      */
-    private JavaType captureConversion(JavaType o)
+    private static JavaType captureConversion(JavaType o)
     {
         GenTypeClass c = o.asClass();
         if (c != null)
@@ -582,7 +583,7 @@ public class TextAnalyzer
      * @param tparMap   The map used for storing type parameter conversions
      * @return   The converted type.
      */
-    private GenTypeClass captureConversion(GenTypeClass c, Map tparMap)
+    private static GenTypeClass captureConversion(GenTypeClass c, Map tparMap)
     {
         // capture the outer type
         GenTypeClass newOuter = null;
@@ -849,153 +850,6 @@ public class TextAnalyzer
 //        return classLoader.loadClass("java.lang." + className);
 //    }
     
-    /**
-     * Try to find a suitable wildcard import (including the implicit java.lang.*)
-     * which can be used to resolve a class name, and load that class.
-     * 
-     * @param className   The name of the class to resolve and load
-     * @return     The loaded Class
-     * @throws ClassNotFoundException  if the class cannot be resolved or loaded.
-     */
-//    private Class loadWildcardImportedType(String className)
-//        throws ClassNotFoundException
-//    {
-//        // Try wildcard imports
-//        ClassEntity imported = imports.getTypeImportWC(className);
-//        if (imported != null) {
-//            try {
-//                String cname = ((GenTypeClass) imported.getType()).rawName();
-//                return classLoader.loadClass(cname);
-//            }
-//            catch (ClassNotFoundException cnfe) { }
-//        }
-//        
-//        // Try java.lang
-//        return classLoader.loadClass("java.lang." + className);
-//    }
-    
-    /**
-     * Extract the type from a node. The type is in the form of a qualified
-     * or unqualified class name, with optional type parameters. Note, this
-     * specifically doesn't handle array types and primitive types - see
-     * getTypeFromTypeNode for that.
-     * 
-     * @param node   The node representing the type
-     * 
-     * @throws RecognitionException, SemanticException
-     */
-//    private GenTypeSolid getType(AST node) throws RecognitionException, SemanticException
-//    {        
-//        if (node.getType() == JavaTokenTypes.IDENT) {
-//            // A class name
-//            // the children are the type parameters
-//            List params = getTypeArgs(node.getFirstChild());
-//            
-//            try {
-//                Class c = loadUnqualifiedClass(node.getText(), true);
-//                Reflective r = new JavaReflective(c);
-//                return new GenTypeClass(r, params);
-//            }
-//            catch(ClassNotFoundException cnfe) {
-//                throw new SemanticException();
-//            }
-//        }
-//        else if (node.getType() == JavaTokenTypes.DOT) {
-//            // The children nodes are: the qualified class name, and then
-//            // the type arguments
-//            AST packageNode = node.getFirstChild();
-//            PackageOrClass porc = getPackageOrType(packageNode);
-//            
-//            // String packagen = combineDotNames(packageNode, '.');
-//
-//            AST classNode = packageNode.getNextSibling();
-//            List params = getTypeArgs(classNode.getFirstChild());
-//
-//            PackageOrClass nodePorC = porc.getPackageOrClassMember(classNode.getText());
-//            GenTypeClass nodeClass = (GenTypeClass) nodePorC.getType();
-//            GenTypeClass outer = nodeClass;
-//
-//            // Don't pass in an outer class if it's not generic anyway 
-//            if (! nodeClass.isGeneric())
-//                outer = null;
-//            return new GenTypeClass(nodeClass.getReflective(), params, outer);
-//        }
-//        else {
-//            throw new RecognitionException();
-//        }
-//    }
-    
-    /**
-     * Get a sequence of type arguments.
-     * 
-     * @param node  The node representing the first type argument (or null).
-     * @return      A list of JavaType representing the type arguments
-     * @throws RecognitionException
-     * @throws SemanticException
-     */
-//    private List<JavaType> getTypeArgs(AST node) throws RecognitionException, SemanticException
-//    {
-//        List<JavaType> params = new LinkedList<JavaType>();
-//        
-//        // get the type parameters
-//        while(node != null && node.getType() == JavaTokenTypes.TYPE_ARGUMENT) {
-//            AST childNode = node.getFirstChild();
-//            JavaType tparType;
-//            
-//            if (childNode.getType() == JavaTokenTypes.WILDCARD_TYPE) {
-//                // wildcard parameter
-//                AST boundNode = childNode.getFirstChild();
-//                if (boundNode != null) {
-//                    int boundType = boundNode.getType();
-//                    
-//                    // it's either an upper or lower bound
-//                    if (boundType == JavaTokenTypes.TYPE_UPPER_BOUNDS) {
-//                        tparType = new GenTypeExtends(getType(boundNode.getFirstChild()));
-//                    }
-//                    else if (boundType == JavaTokenTypes.TYPE_LOWER_BOUNDS) {
-//                        tparType = new GenTypeSuper(getType(boundNode.getFirstChild()));
-//                    }
-//                    else
-//                        throw new RecognitionException();
-//                }
-//                else {
-//                    tparType = new GenTypeUnbounded();
-//                }
-//            }
-//            else {
-//                // "solid" parameter
-//                tparType = getType(node.getFirstChild());
-//            }
-//            params.add(tparType);
-//            node = node.getNextSibling();
-//        }
-//        
-//        return params;
-//    }
-    
-    /**
-     * Return a string represenetation of a node which represents a dot-name
-     * (eg "a", "a.b", "a.b.c" etc). A custom seperator can be used.
-     * 
-     * @param node    The node representing the dot-name
-     * @param seperator  The seperator to use in the returned string
-     * @return        The string representation of the node
-     * @throws RecognitionException
-     */
-//    static String combineDotNames(AST node, char seperator) throws RecognitionException
-//    {
-//        if (node.getType() == JavaTokenTypes.IDENT)
-//            return node.getText();
-//        else if (node.getType() == JavaTokenTypes.DOT) {
-//            AST fchild = node.getFirstChild();
-//            AST nchild = fchild.getNextSibling();
-//            if (nchild.getType() != JavaTokenTypes.IDENT)
-//                throw new RecognitionException();
-//            return combineDotNames(fchild, seperator) + seperator + nchild.getText(); 
-//        }
-//        else
-//            throw new RecognitionException();
-//    }
     
     /**
      * Get the type from a node which must by context be an inner class type.
@@ -1230,9 +1084,9 @@ public class TextAnalyzer
      * @return   A record with information about the method call
      * @throws RecognitionException
      */
-    private MethodCallDesc isMethodApplicable(GenTypeClass targetType, List<GenTypeClass> tpars, Method m, JavaType [] args)
+    private static MethodCallDesc isMethodApplicable(GenTypeClass targetType, List<GenTypeClass> tpars, MethodReflective m, JavaType [] args)
     {
-        boolean methodIsVarargs = JavaUtils.getJavaUtils().isVarArgs(m);
+        boolean methodIsVarargs = m.isVarArgs();
         MethodCallDesc rdesc = null;
         
         // First try without varargs expansion. If that fails, try with expansion.
@@ -1261,39 +1115,40 @@ public class TextAnalyzer
      * @return   A record with information about the method call
      * @throws RecognitionException
      */
-    private MethodCallDesc isMethodApplicable(GenTypeClass targetType, List<GenTypeClass> tpars, Method m, JavaType [] args, boolean varargs)
+    private static MethodCallDesc isMethodApplicable(GenTypeClass targetType,
+            List<GenTypeClass> tpars, MethodReflective m, JavaType [] args, boolean varargs)
     {
         boolean rawTarget = targetType.isRaw();
         boolean boxingRequired = false;
         
         // Check that the number of parameters supplied is allowable. Expand varargs
         // arguments if necessary.
-        JavaType [] mparams = JavaUtils.getJavaUtils().getParamGenTypes(m, rawTarget);
+        List<JavaType> mparams = m.getParamTypes();
         if (varargs) {
             // first basic check. The number of supplied arguments must be at least one less than
             // the number of formal parameters.
-            if (mparams.length > args.length + 1)
+            if (mparams.size() > args.length + 1)
                 return null;
 
-            GenTypeArray lastArgType = (GenTypeArray) mparams[mparams.length - 1];
+            GenTypeArray lastArgType = mparams.get(mparams.size() - 1).getArray();
             JavaType vaType = lastArgType.getArrayComponent();
-            JavaType [] expandedParams = new JavaType[args.length];
-            System.arraycopy(mparams, 0, expandedParams, 0, mparams.length - 1);
-            for (int i = mparams.length; i < args.length; i++) {
-                expandedParams[i] = vaType;
+            List<JavaType> expandedParams = new ArrayList<JavaType>(args.length);
+            expandedParams.addAll(mparams);
+            for (int i = mparams.size(); i < args.length; i++) {
+                expandedParams.set(i, vaType);
             }
             mparams = expandedParams;
         }
         else {
             // Not varargs: supplied arguments must match formal parameters
-            if (mparams.length != args.length)
+            if (mparams.size() != args.length)
                 return null;
         }
         
         // Get type parameters of the method
-        List<GenTypeDeclTpar> tparams = Collections.EMPTY_LIST;
-        if ((! rawTarget) || Modifier.isStatic(m.getModifiers()))
-            tparams = JavaUtils.getJavaUtils().getTypeParams(m);
+        List<GenTypeDeclTpar> tparams = Collections.emptyList();
+        if ((! rawTarget) || m.isStatic())
+            tparams = m.getTparTypes();
         
         // Number of type parameters supplied must match number declared, unless either
         // is zero. Section 15.12.2 of the JLS, "a non generic method may be applicable
@@ -1323,12 +1178,12 @@ public class TextAnalyzer
             Map teqConstraints = new HashMap();
             
             // Time for some type inference
-            for (int i = 0; i < mparams.length; i++) {
-                if (mparams[i].isPrimitive())
+            for (int i = 0; i < mparams.size(); i++) {
+                if (mparams.get(i).isPrimitive())
                     continue;
                 
-                GenTypeSolid mparam = (GenTypeSolid) mparams[i];
-                mparam = (GenTypeSolid) mparam.mapTparsToTypes(tparMap);
+                GenTypeSolid mparam = (GenTypeSolid) mparams.get(i);
+                mparam = mparam.mapTparsToTypes(tparMap);
                 processAtoFConstraint(args[i], mparam, tlbConstraints, teqConstraints);
             }
             
@@ -1389,7 +1244,7 @@ public class TextAnalyzer
         // contract as well.
         
         for (int i = 0; i < args.length; i++) {
-            JavaType formalArg = mparams[i];
+            JavaType formalArg = mparams.get(i);
             JavaType givenParam = args[i];
             
             // Substitute type arguments.
@@ -1408,8 +1263,8 @@ public class TextAnalyzer
             }
         }
         
-        JavaType rType = jutils.getReturnType(m).mapTparsToTypes(tparMap);
-        return new MethodCallDesc(m, Arrays.asList(mparams), varargs, boxingRequired, rType);
+        JavaType rType = m.getReturnType().mapTparsToTypes(tparMap);
+        return new MethodCallDesc(m, mparams, varargs, boxingRequired, rType);
     }
 
     
@@ -1424,7 +1279,7 @@ public class TextAnalyzer
      * @param tlbConstraints   lower bound constraints (a Map to Set of GenTypeSolid)
      * @param teqConstraints   equality constraints (a Map to GenTypeSolid)
      */
-    private void processAtoFConstraint(JavaType a, GenTypeSolid f, Map tlbConstraints, Map teqConstraints)
+    private static void processAtoFConstraint(JavaType a, GenTypeSolid f, Map tlbConstraints, Map teqConstraints)
     {
         a = boxType(a);
         if (a.isPrimitive())
@@ -1486,7 +1341,7 @@ public class TextAnalyzer
     /**
      * Process type parameters from a type inference constraint A convertible-to F.
      */
-    private void processAtoFtpar(GenTypeParameter aPar, GenTypeParameter fPar, Map tlbConstraints, Map teqConstraints)
+    private static void processAtoFtpar(GenTypeParameter aPar, GenTypeParameter fPar, Map tlbConstraints, Map teqConstraints)
     {
         if (fPar instanceof GenTypeSolid) {
             if (aPar instanceof GenTypeSolid) {
@@ -1518,7 +1373,7 @@ public class TextAnalyzer
     /**
      * Process a type inference constraint of the form "A is equal to F".
      */
-    void processAeqFConstraint(GenTypeSolid a, GenTypeSolid f, Map tlbConstraints, Map teqConstraints)
+    private static void processAeqFConstraint(GenTypeSolid a, GenTypeSolid f, Map tlbConstraints, Map teqConstraints)
     {
         if (f instanceof GenTypeTpar) {
             // The constraint T == A is implied.
@@ -1567,7 +1422,7 @@ public class TextAnalyzer
     /**
      * Process type parameters from a type inference constraint A equal-to F.
      */
-    private void processAeqFtpar(GenTypeParameter aPar, GenTypeParameter fPar, Map tlbConstraints, Map teqConstraints)
+    private static void processAeqFtpar(GenTypeParameter aPar, GenTypeParameter fPar, Map tlbConstraints, Map teqConstraints)
     {
         if (aPar instanceof GenTypeSolid && fPar instanceof GenTypeSolid) {
             processAeqFConstraint((GenTypeSolid) aPar, (GenTypeSolid) fPar, tlbConstraints, teqConstraints);
@@ -1593,7 +1448,7 @@ public class TextAnalyzer
     /**
      * Process a type inference constraint of the form "F is convertible to A".
      */
-    private void processFtoAConstraint(GenTypeSolid a, GenTypeSolid f, Map tlbConstraints, Map teqConstraints)
+    private static void processFtoAConstraint(GenTypeSolid a, GenTypeSolid f, Map tlbConstraints, Map teqConstraints)
     {
         // This is pretty much nothing like what the JLS says it should be. As far as I can
         // make out, the JLS is just plain wrong.
@@ -1645,7 +1500,7 @@ public class TextAnalyzer
     /**
      * Process type parameters from a type inference constraint F convertible-to A.
      */
-    private void processFtoAtpar(GenTypeParameter aPar, GenTypeParameter fPar, Map tlbConstraints, Map teqConstraints)
+    private static void processFtoAtpar(GenTypeParameter aPar, GenTypeParameter fPar, Map tlbConstraints, Map teqConstraints)
     {
         if (fPar instanceof GenTypeSolid) {
             if (aPar instanceof GenTypeSolid) {
@@ -1850,7 +1705,9 @@ public class TextAnalyzer
     
     
     /**
-     * Get the candidate list of methods with the given name and argument types.
+     * Get the candidate list of methods with the given name and argument types. The returned
+     * list will be the maximally specific methods (as defined by the JLS 15.12.2.5).
+     * 
      * @param methodName    The name of the method
      * @param targetTypes   The types to search for declarations of this method
      * @param argumentTypes The types of the arguments supplied in the method invocation
@@ -1858,64 +1715,58 @@ public class TextAnalyzer
      * @return  an ArrayList of MethodCallDesc - the list of candidate methods
      * @throws RecognitionException
      */
-    private ArrayList getSuitableMethods(String methodName, GenTypeClass [] targetTypes, JavaType [] argumentTypes, List typeArgs)
+    public static ArrayList<MethodCallDesc> getSuitableMethods(String methodName,
+            GenTypeClass [] targetTypes, JavaType [] argumentTypes, List<GenTypeClass> typeArgs)
     {
-        ArrayList suitableMethods = new ArrayList();
+        ArrayList<MethodCallDesc> suitableMethods = new ArrayList<MethodCallDesc>();
         for (int k = 0; k < targetTypes.length; k++) {
             GenTypeClass targetClass = targetTypes[k];
-            try {
-                Class c = classLoader.loadClass(targetClass.rawName());
-                Method [] methods = c.getMethods();
-                
-                // Find methods that are applicable, and
-                // accessible. See JLS 15.12.2.1.
-                for (int i = 0; i < methods.length; i++) {
-                    // ignore bridge methods
-                    if (jutils.isSynthetic(methods[i]))
-                        continue;
-                    
-                    // check method name
-                    if (methods[i].getName().equals(methodName)) {
-                        // check that the method is applicable (and under
-                        // what constraints)
-                        MethodCallDesc mcd = isMethodApplicable(targetClass, typeArgs, methods[i], argumentTypes);
-                        
-                        // Iterate through the current candidates, and:
-                        // - replace one or more of them with this one
-                        //   (this one is more precise)
-                        //   OR
-                        // - add this one (no more or less precise than
-                        //   any other candidates)
-                        //   OR
-                        // - discard this one (less precise than another)
+            Map<String,Set<MethodReflective>> methodMap = targetClass.getReflective()
+                    .getDeclaredMethods();
+            Set<MethodReflective> methods = methodMap.get(methodName);
 
-                        if (mcd != null) {
-                            boolean replaced = false;
-                            for (int j = 0; j < suitableMethods.size(); j++) {
-                                //suitableMethods.add(methods[i]);
-                                MethodCallDesc mc = (MethodCallDesc) suitableMethods.get(j);
-                                int compare = mcd.compareSpecificity(mc);
-                                if (compare == 1) {
-                                    // this method is more specific
-                                    suitableMethods.remove(j);
-                                    j--;
-                                }
-                                else if (compare == -1) {
-                                    // other method is more specific
-                                    replaced = true;
-                                    break;
-                                }
-                            }
-                            
-                            if (! replaced)
-                                suitableMethods.add(mcd);
+            if (methods == null) {
+                continue;
+            }
+            
+            // Find methods that are applicable, and
+            // accessible. See JLS 15.12.2.1.
+            for (MethodReflective method : methods) {
+
+                // check that the method is applicable (and under
+                // what constraints)
+                MethodCallDesc mcd = isMethodApplicable(targetClass, typeArgs, method, argumentTypes);
+
+                // Iterate through the current candidates, and:
+                // - replace one or more of them with this one
+                //   (this one is more precise)
+                //   OR
+                // - add this one (no more or less precise than
+                //   any other candidates)
+                //   OR
+                // - discard this one (less precise than another)
+
+                if (mcd != null) {
+                    boolean replaced = false;
+                    for (int j = 0; j < suitableMethods.size(); j++) {
+                        //suitableMethods.add(methods[i]);
+                        MethodCallDesc mc = (MethodCallDesc) suitableMethods.get(j);
+                        int compare = mcd.compareSpecificity(mc);
+                        if (compare == 1) {
+                            // this method is more specific
+                            suitableMethods.remove(j);
+                            j--;
+                        }
+                        else if (compare == -1) {
+                            // other method is more specific
+                            replaced = true;
+                            break;
                         }
                     }
-                }
 
-            }
-            catch (ClassNotFoundException cnfe) {
-                return null; // shouldn't happen
+                    if (! replaced)
+                        suitableMethods.add(mcd);
+                }
             }
         }
         return suitableMethods;
@@ -1974,7 +1825,7 @@ public class TextAnalyzer
      * @param b  The type to box
      * @return  The boxed type
      */
-    private JavaType boxType(JavaType u)
+    private static JavaType boxType(JavaType u)
     {
         if (u instanceof JavaPrimitiveType) {
             if (u.typeIs(JavaType.JT_INT))
@@ -2022,13 +1873,13 @@ public class TextAnalyzer
      * @param box  The flag indicating whether boxing should occur
      * @return
      */
-    private JavaType maybeBox(JavaType u, boolean box)
-    {
-        if (box)
-            return boxType(u);
-        else
-            return u;
-    }
+//    private JavaType maybeBox(JavaType u, boolean box)
+//    {
+//        if (box)
+//            return boxType(u);
+//        else
+//            return u;
+//    }
     
     /**
      * Check if a member of some class is accessible from the context of the given
@@ -2181,10 +2032,10 @@ public class TextAnalyzer
      * 
      * @author Davin McCall
      */
-    private class MethodCallDesc
+    public static class MethodCallDesc
     {
-        public Method method;
-        public List argTypes; // list of GenType
+        public MethodReflective method;
+        public List<JavaType> argTypes; // list of GenType
         public boolean vararg;   // is a vararg call
         public boolean autoboxing; // requires autoboxing
         public JavaType retType; // effective return type (before capture conversion)
@@ -2200,7 +2051,7 @@ public class TextAnalyzer
          * @param autoboxing  Whether autoboxing is required for parameters
          * @param retType     The effective return type
          */
-        public MethodCallDesc(Method m, List argTypes, boolean vararg, boolean autoboxing, JavaType retType)
+        public MethodCallDesc(MethodReflective m, List<JavaType> argTypes, boolean vararg, boolean autoboxing, JavaType retType)
         {
             this.method = m;
             this.argTypes = argTypes;
@@ -2257,9 +2108,8 @@ public class TextAnalyzer
             
             // finally, if one method is abstract and the other is not,
             // then the non-abstract method is more specific.
-            method.getModifiers();
-            boolean isAbstract = Modifier.isAbstract(method.getModifiers());
-            boolean otherAbstract = Modifier.isAbstract(other.method.getModifiers());
+            boolean isAbstract = method.isAbstract();
+            boolean otherAbstract = other.method.isAbstract();
             if (isAbstract && ! otherAbstract)
                 return -1;
             else if (! isAbstract && otherAbstract)

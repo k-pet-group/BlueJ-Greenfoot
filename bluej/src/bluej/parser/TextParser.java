@@ -24,11 +24,14 @@ package bluej.parser;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Stack;
 
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeExtends;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeSolid;
@@ -36,6 +39,7 @@ import bluej.debugger.gentype.GenTypeSuper;
 import bluej.debugger.gentype.GenTypeUnbounded;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
+import bluej.parser.TextAnalyzer.MethodCallDesc;
 import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.ErrorEntity;
@@ -66,6 +70,7 @@ public class TextParser extends JavaParser
         LocatableToken token;
         Operator(int type, LocatableToken token) { this.type = type; this.token = token; }
         int getType() { return type; }
+        LocatableToken getToken() { return token; }
     }
     
     protected Stack<Operator> operatorStack = new Stack<Operator>();
@@ -73,6 +78,7 @@ public class TextParser extends JavaParser
     private static final int CAST_OPERATOR = JavaTokenTypes.INVALID + 1;
     private static final int BAD_CAST_OPERATOR = CAST_OPERATOR + 1;
     private static final int PAREN_OPERATOR = BAD_CAST_OPERATOR + 1;
+    private static final int MEMBER_CALL_OP = PAREN_OPERATOR + 1;
     
     private static final int STATE_NONE = 0;
     private static final int STATE_NEW = 1;  // just saw "new"
@@ -125,6 +131,8 @@ public class TextParser extends JavaParser
     private int getPrecedence(int tokenType)
     {
         switch (tokenType) {
+        case PAREN_OPERATOR:
+            return -1;
         case JavaTokenTypes.PLUS:
         case JavaTokenTypes.MINUS:
             return 0;
@@ -136,7 +144,7 @@ public class TextParser extends JavaParser
         case CAST_OPERATOR:
         case BAD_CAST_OPERATOR:
             return 50;
-        case JavaTokenTypes.RBRACK:
+        case MEMBER_CALL_OP:
             return 100;
         default:
         }
@@ -211,6 +219,57 @@ public class TextParser extends JavaParser
         }
     }
     
+    /**
+     * Process the "member call operator".
+     */
+    private void processMemberCall(Operator op)
+    {
+        // See JLS 15.12
+        // step 1 - determine type to search
+        JavaEntity target = popValueStack();
+        JavaEntity vtarget = target.resolveAsValue();
+        GenTypeSolid [] bounds;
+        if (vtarget != null) {
+            bounds = vtarget.getType().getUpperBounds();
+        }
+        else {
+            // entity may be a type rather than a value
+            target = target.resolveAsType();
+            if (target == null) {
+                valueStack.push(new ErrorEntity());
+                return;
+            }
+            bounds = target.getType().getUpperBounds();
+        }
+            
+        GenTypeClass [] boundsc = new GenTypeClass[bounds.length];
+        for (int i = 0; i < bounds.length; i++) {
+            boundsc[i] = bounds[i].asClass();
+        }
+
+        List<JavaEntity> argList = argumentStack.pop();
+        JavaType [] argTypes = new JavaType[argList.size()];
+        for (int i = 0; i < argTypes.length; i++) {
+            ClassEntity cent = argList.get(i).resolveAsType();
+            if (cent == null) {
+                valueStack.push(new ErrorEntity());
+                return;
+            }
+            argTypes[i] = cent.getType().getCapture();
+        }
+
+        List<GenTypeClass> typeArgs = Collections.emptyList(); // TODO!
+
+        ArrayList<MethodCallDesc> suitable = TextAnalyzer.getSuitableMethods(op.getToken().getText(), boundsc, argTypes, typeArgs);
+        // assume for now all candidates have override-equivalent signatures
+        if (suitable.size() == 0) {
+            valueStack.push(new ErrorEntity());
+            return;
+        }
+        
+        valueStack.push(new ValueEntity(suitable.get(0).retType));
+    }
+    
     private void checkArgs(JavaEntity arg1, JavaEntity arg2, Operator op)
     {
         JavaEntity rarg1 = arg1.resolveAsValue();
@@ -236,6 +295,7 @@ public class TextParser extends JavaParser
         case JavaTokenTypes.PLUS:
             if (! a1type.isNumeric() || ! a2type.isNumeric()) {
                 // TODO can add any type to a java.lang.String
+                // TODO and remember unboxing conversion
                 valueStack.push(new ErrorEntity());
                 return;
             }
@@ -312,6 +372,13 @@ public class TextParser extends JavaParser
         else {
             valueStack.push(UnresolvedEntity.getEntity(resolver, ident, ""));
         }
+    }
+    
+    @Override
+    protected void gotMemberCall(LocatableToken token)
+    {
+        //valueStack.push(UnresolvedEntity.getEntity(resolver, token.getText(), ""));
+        operatorStack.push(new Operator(MEMBER_CALL_OP, token));
     }
     
     @Override
@@ -558,10 +625,8 @@ public class TextParser extends JavaParser
     @Override
     protected void beginArgumentList(LocatableToken token)
     {
-        if (state == STATE_NEW_ARGS) {
-            state = STATE_NONE;
-            argumentStack.push(new ArrayList<JavaEntity>());
-        }
+        state = STATE_NONE;
+        argumentStack.push(new ArrayList<JavaEntity>());
     }
     
     @Override
@@ -580,6 +645,9 @@ public class TextParser extends JavaParser
             Operator top = operatorStack.pop();
             if (top.getType() == JavaTokenTypes.LITERAL_new) {
                 processNewOperator(top);
+            }
+            else if (top.getType() == MEMBER_CALL_OP) {
+                processMemberCall(top);
             }
             else {
                 // ??!!

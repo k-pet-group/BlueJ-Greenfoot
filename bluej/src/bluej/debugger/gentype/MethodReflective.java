@@ -31,14 +31,25 @@ import java.util.List;
 public class MethodReflective
 {
     private JavaType returnType;
+    private List<GenTypeDeclTpar> tparTypes;
     private List<JavaType> paramTypes;
     private boolean isVarArgs;
     private boolean isStatic;
     
-    public MethodReflective(JavaType returnType, List<JavaType> paramTypes, boolean isVarArgs,
+    /**
+     * Construct a MethodReflective object.
+     * @param returnType  The return type of the method
+     * @param tparTypes   The type parameter definitions (for a generic method); may be null
+     * @param paramTypes  The types of the method parameters
+     * @param isVarArgs   Whether the method is a "varargs" method. If true, the last paramType is
+     *                    the component type, not the array type.
+     * @param isStatic    Whether the method is a static method
+     */
+    public MethodReflective(JavaType returnType, List<GenTypeDeclTpar> tparTypes, List<JavaType> paramTypes, boolean isVarArgs,
             boolean isStatic)
     {
         this.returnType = returnType;
+        this.tparTypes = tparTypes;
         this.paramTypes = paramTypes;
         this.isVarArgs = isVarArgs;
         this.isStatic = isStatic;
@@ -54,9 +65,23 @@ public class MethodReflective
         return isVarArgs;
     }
     
+    public boolean isAbstract()
+    {
+        return false; // not yet implemented
+    }
+    
+    /**
+     * Get the method parameter types. For a varargs method, the last parameter type returned is
+     * the element type, not the array type.
+     */
     public List<JavaType> getParamTypes()
     {
         return paramTypes;
+    }
+    
+    public List<GenTypeDeclTpar> getTparTypes()
+    {
+        return tparTypes;
     }
     
     public JavaType getReturnType()
