@@ -61,6 +61,7 @@ import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.MoeSyntaxEditorKit;
 import bluej.parser.TextAnalyzer;
 import bluej.parser.TextAnalyzer.DeclaredVar;
+import bluej.parser.entity.ClassLoaderResolver;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
@@ -73,7 +74,7 @@ import bluej.utility.Utility;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 6880 2009-12-02 04:02:12Z davmac $
+ * @version $Id: TextEvalPane.java 6930 2009-12-10 12:19:37Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ValueCollection, ResultWatcher, MouseMotionListener
@@ -801,8 +802,10 @@ public class TextEvalPane extends JEditorPane
                 firstTry = true;
                 setEditable(false);    // don't allow input while we're thinking
                 busy = true;
-                if (textParser == null)
-                    textParser = new TextAnalyzer(frame.getProject().getClassLoader(), frame.getPackage().getQualifiedName(), TextEvalPane.this);
+                if (textParser == null) {
+                    textParser = new TextAnalyzer(new ClassLoaderResolver(frame.getProject().getClassLoader()),
+                            frame.getPackage().getQualifiedName(), TextEvalPane.this);
+                }
                 String retType = textParser.parseCommand(currentCommand);
                 wrappedResult = (retType != null && retType.length() != 0);
                 

@@ -26,27 +26,37 @@ import java.util.List;
 import junit.framework.TestCase;
 import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.parser.TextAnalyzer.DeclaredVar;
+import bluej.parser.entity.ClassLoaderResolver;
+import bluej.parser.entity.EntityResolver;
 
 /**
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 6921 2009-12-08 04:30:17Z davmac $
+ * @version $Id: TextParserTest.java 6930 2009-12-10 12:19:37Z davmac $
  */
 public class TextParserTest extends TestCase
 {
+    private EntityResolver resolver;
+    private ObjectBench objectBench;
+    
+    @Override
+    protected void setUp() throws Exception
+    {
+        objectBench = new ObjectBench();
+        resolver = new ClassLoaderResolver(getClass().getClassLoader());
+    }
+    
     public void testVoidResult()
     {
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("System.out.println(\"no comment\");");
         assertNull(r);
     }
     
     public void testArithmeticPromotion()
     {
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("2+3");
         assertEquals("int", r);
         r = tp.parseCommand("2.0+3");
@@ -61,48 +71,42 @@ public class TextParserTest extends TestCase
     
     public void testParenthesizedExpression()
     {
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("(int)(2+5l) * 3");
         assertEquals("int", r);
     }
     
     public void testCasting()
     {
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("(String)null");
         assertEquals("java.lang.String", r);
     }
     
     public void testCasting2()
     {
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("(String[])null");
         assertEquals("java.lang.String[]", r);
     }
     
     public void testCasting3()
     {
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("(java.util.LinkedList<? extends javax.swing.JComponent>[])null");
         assertEquals("java.util.LinkedList<? extends javax.swing.JComponent>[]", r);
     }
     
     public void testStaticMethodCall()
     {
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("javax.swing.BorderFactory.createEmptyBorder()");
         assertEquals("javax.swing.border.Border", r);
     }
 
     public void testStaticVariable()
     {
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("System.out");
         assertEquals("java.io.PrintStream", r);
         r = tp.parseCommand("java.lang.System.out");
@@ -112,8 +116,7 @@ public class TextParserTest extends TestCase
     public void testNewExpression()
     {
         // Classes in java.lang can be unqualified
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("new String()");
         assertEquals("java.lang.String", r);
         
@@ -137,8 +140,7 @@ public class TextParserTest extends TestCase
     public void testNewExpression2()
     {
         // New inner class
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("new " + Inner.class.getCanonicalName() + "()");
         assertEquals(getClass().getName() + ".Inner", r);
     }
@@ -146,8 +148,7 @@ public class TextParserTest extends TestCase
     public void testNewExpression3()
     {
         // Type arguments
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("new " + getClass().getName() + ".Inner<String>()");
         assertEquals(getClass().getName() + ".Inner<java.lang.String>", r);
         
@@ -161,24 +162,21 @@ public class TextParserTest extends TestCase
     
     public void testNewInnerClass()
     {
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("javax.swing.Box.new Filler()");
         assertEquals("javax.swing.Box.Filler", r);
     } 
     
     public void testCastToWildcard()
     {
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("(java.util.LinkedList<?>) new java.util.LinkedList<Thread>()");
         assertEquals("java.util.LinkedList<?>", r);
     }
     
     public void testArrayDeclaration()
     {
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         tp.parseCommand("int [] ia = new int [] {1,2,3};");
         List<DeclaredVar> declaredVars = tp.getDeclaredVars();
         assertEquals(1, declaredVars.size());
@@ -197,8 +195,7 @@ public class TextParserTest extends TestCase
     
     public void testAnonymousInnerClass()
     {
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("new Runnable() {" +
         		"public void run() {}" +
         		"}");
@@ -207,16 +204,14 @@ public class TextParserTest extends TestCase
     
     public void testClassLiteral()
     {
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("Object.class");
         assertEquals("java.lang.Class", r);
     }
     
     public void testImport()
     {
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("import java.util.LinkedList;");
         assertNull(r);
         tp.confirmCommand();
@@ -226,8 +221,7 @@ public class TextParserTest extends TestCase
     
     public void testWcImport()
     {
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("import java.util.*;");
         assertNull(r);
         tp.confirmCommand();
@@ -237,8 +231,7 @@ public class TextParserTest extends TestCase
 
     public void testStaticImport()
     {
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("import static java.awt.Color.BLACK;");
         assertNull(r);
         tp.confirmCommand();
@@ -248,8 +241,7 @@ public class TextParserTest extends TestCase
     
     public void testStaticWildcardImport()
     {
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("import static java.awt.Color.*;");
         assertNull(r);
         tp.confirmCommand();
@@ -259,8 +251,7 @@ public class TextParserTest extends TestCase
     
     public void testStringConcat()
     {
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("\"string\"");
         assertEquals("java.lang.String", r);
         
@@ -276,8 +267,7 @@ public class TextParserTest extends TestCase
     
     public void testUnboxing()
     {
-        ObjectBench ob = new ObjectBench();
-        TextAnalyzer tp = new TextAnalyzer(getClass().getClassLoader(), "", ob);
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("new Integer(4) + 5");
         assertEquals("int", r);
     }

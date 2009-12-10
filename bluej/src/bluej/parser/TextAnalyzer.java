@@ -27,7 +27,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,6 +48,7 @@ import bluej.debugger.gentype.IntersectionType;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
+import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
 import bluej.debugmgr.texteval.WildcardCapture;
 import bluej.parser.entity.ClassEntity;
@@ -56,7 +56,7 @@ import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageEntity;
 import bluej.parser.entity.PackageOrClass;
-import bluej.parser.entity.TypeEntity;
+import bluej.parser.entity.ValueEntity;
 import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
 
@@ -67,11 +67,11 @@ import bluej.utility.JavaUtils;
  * (JLS) where possible.
  *  
  * @author Davin McCall
- * @version $Id$
  */
 public class TextAnalyzer
 {
-    private ClassLoader classLoader;
+    //private ClassLoader classLoader;
+    private EntityResolver parentResolver;
     private String packageScope;  // evaluation package
     private ValueCollection objectBench;
 
@@ -90,9 +90,9 @@ public class TextAnalyzer
      * TextParser constructor. Defines the class loader and package scope
      * for evaluation.
      */
-    public TextAnalyzer(ClassLoader classLoader, String packageScope, ValueCollection ob)
+    public TextAnalyzer(EntityResolver parentResolver, String packageScope, ValueCollection ob)
     {
-        this.classLoader = classLoader;
+        this.parentResolver = parentResolver;
         this.packageScope = packageScope;
         this.objectBench = ob;
         imports = new ImportsCollection();
@@ -103,7 +103,7 @@ public class TextAnalyzer
      */
     public void newClassLoader(ClassLoader newLoader)
     {
-        classLoader = newLoader;
+        //classLoader = newLoader;
         imports.clear();
     }
     
@@ -165,14 +165,7 @@ public class TextAnalyzer
         {
             public ClassEntity resolveQualifiedClass(String name)
             {
-                try {
-                    // Try as a fully-qualified name 
-                    Class<?> cl = classLoader.loadClass(name);
-                    return new TypeEntity(cl);
-                }
-                catch (Exception e) {}
-                
-                return null;
+                return parentResolver.resolveQualifiedClass(name);
             }
             
             public PackageOrClass resolvePackageOrClass(String name, String querySource)
@@ -190,18 +183,16 @@ public class TextAnalyzer
                 }
                 
                 // Might be a class in the current package
-                try {
-                    Class<?> cl = classLoader.loadClass(pkgScopePrefix + name);
-                    return new TypeEntity(cl);
+                ClassEntity rval = parentResolver.resolveQualifiedClass(pkgScopePrefix + name);
+                if (rval != null) {
+                    return rval;
                 }
-                catch (Exception e) {}
                 
                 // Try in java.lang (see JLS 7.5.5)
-                try {
-                    Class<?> cl = classLoader.loadClass("java.lang." + name);
-                    return new TypeEntity(cl);
+                rval = parentResolver.resolveQualifiedClass("java.lang." + name);
+                if (rval != null) {
+                    return rval;
                 }
-                catch (Exception e) {}
                 
                 // Try in wildcard imports
                 entity = imports.getTypeImportWC(name);
@@ -215,6 +206,10 @@ public class TextAnalyzer
             
             public JavaEntity getValueEntity(String name, String querySource)
             {
+                NamedValue obVal = objectBench.getNamedValue(name);
+                if (obVal != null) {
+                    return new ValueEntity(obVal.getGenType());
+                }
                 return resolvePackageOrClass(name, querySource);
             }
         };
