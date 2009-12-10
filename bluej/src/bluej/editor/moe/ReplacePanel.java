@@ -45,7 +45,6 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
         editor=ed;
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
         JComponent src = (JComponent) e.getSource();
         setReplaceString(replaceText.getText());
@@ -66,12 +65,10 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
 
     }
 
-    @Override
     public void keyPressed(KeyEvent e) {
 
     }
 
-    @Override
     public void keyReleased(KeyEvent e) {
         JComponent src = (JComponent) e.getSource();
         if (src.getName()== REPLACE_TEXTFIELD){
@@ -87,7 +84,6 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
         }
     }
 
-    @Override
     public void keyTyped(KeyEvent e) {
 
     }
