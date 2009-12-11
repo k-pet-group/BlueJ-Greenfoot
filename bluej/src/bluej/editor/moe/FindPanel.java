@@ -72,10 +72,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private JTextField findTField;
     private JButton previousButton;
     private JButton nextButton;
-    private JButton replaceWithButton;
     private JCheckBox matchCaseCheckBox;
-    private BasicArrowButton replaceBtnOpen;
-    private BasicArrowButton replaceBtnClose;
     private JLabel replaceLabel;
     private JLabel replaceIconLabel;
 
@@ -83,7 +80,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private final static String INPUT_QUERY_NAME ="queryText";
     private final static String PREVIOUS_BUTTON_NAME ="prevBtn";
     private final static String NEXT__BUTTON_NAME ="nextBtn";
-    private final static String REPLACE_WITH_BUTTON_NAME ="replaceWithBtn";
     private final static String MATCHCASE_CHECKBOX="matchCaseCheckBox";   
     private final static String REPLACE_OPEN_BUTTON_NAME ="replaceOpen";
     private final static String REPLACE_CLOSE_BUTTON_NAME ="replaceClose";
@@ -97,14 +93,15 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     /**
      * Constructor that creates and displays the different elements of the Find Panel
      */
-    public FindPanel() {
+    public FindPanel(MoeEditor ed) {
         super();
         openIcon=Config.getImageAsIcon("image.replace.open");
         closedIcon=Config.getImageAsIcon("image.replace.close");
         findFont=new Font(PrefMgr.getStandardFont().getFontName(), PrefMgr.getStandardFont().getSize(), PrefMgr.getStandardFont().getSize());
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createLineBorder(Color.black));
-
+        
+        editor=ed;
         initDisplay();
 
         setFindDisplay();
@@ -215,13 +212,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void setReplaceDisplay()
     { 
-        replaceWithButton=new JButton();
-        replaceWithButton.addActionListener(this);
-        replaceWithButton.setName(REPLACE_WITH_BUTTON_NAME);
-        replaceWithButton.setEnabled(true);
-        replaceWithButton.setFont(findFont);
-        replaceWithButton.setText("Replace");
-
         replaceLabel=new JLabel(" Replace");
         replaceLabel.setFont(findFont);
 
@@ -291,18 +281,11 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         if (src.getName()==PREVIOUS_BUTTON_NAME){
             getPrev();   
         }
-        if (src.getName()==REPLACE_WITH_BUTTON_NAME){
-            enableReplace();
-        }
         if (src.getName()==REPLACE_CLOSE_BUTTON_NAME){
             enableReplace();
-            replaceBtnClose.setVisible(false);
-            replaceBtnOpen.setVisible(true);
         }
         if (src.getName()==REPLACE_OPEN_BUTTON_NAME){
             enableReplace();
-            replaceBtnClose.setVisible(true);  
-            replaceBtnOpen.setVisible(false);
         }
         if (src.getName()==INPUT_QUERY_NAME){
             find(true);
@@ -380,11 +363,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     public boolean isVisibleFindPanel()
     { 
         return this.isVisible();
-    }
-
-    public void setEditor(MoeEditor editor) 
-    {
-        this.editor = editor;
     }
 
     public String getSearchString() 
@@ -618,6 +596,18 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
 
     public void setTextfieldSelected(){
         findTField.selectAll();
+    }
+    
+    /**
+     * setFindReplaceIcon can set the icon for the replace as being open/closed
+     * @param open icon is open/closed
+     */
+    protected void setFindReplaceIcon(boolean open)
+    {
+        if (open)
+            replaceIconLabel.setIcon(openIcon);
+        else
+            replaceIconLabel.setIcon(closedIcon);
     }
 
 }

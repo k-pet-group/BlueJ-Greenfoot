@@ -1279,6 +1279,20 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         replacer.requestReplaceTextFocus();
     }
 
+    /**
+     * setReplacePanelVisible
+     * @param visible 
+     */
+    protected void setReplacePanelVisible(boolean visible)
+    {
+        if (visible){
+            if (!finder.isVisible())
+                finder.setVisible(visible);
+            replacer.setVisible(visible);
+        }
+        replacer.setRequestFocusEnabled(true);
+    }
+
     // --------------------------------------------------------------------
 
     /**
@@ -1322,11 +1336,11 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         //if the find panel is open- next/backwards should function like prev, next
         //if it is not open, it should do a single find forward or backwards
         if (finder.isVisible()){
-                finder.setSearchString(selection);
-                if (backwards)
-                    finder.getPrev();
-                else
-                    finder.getNext();
+            finder.setSearchString(selection);
+            if (backwards)
+                finder.getPrev();
+            else
+                finder.getNext();
         }else {
             removeSelectionHighlights();
             findString(selection, backwards, !finder.getMatchCase(), false, true);
@@ -2608,7 +2622,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         //bottomArea.setBackground(frameBgColor);
 
         //area for new find functionality
-        finder=new FindPanel();
+        finder=new FindPanel(this);
         finder.setVisible(false);
         finder.setBorder(BorderFactory.createEmptyBorder());
         finder.setName("FinderPanel");
@@ -3095,7 +3109,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         //boolean to ensure that if the panel is closed it will 
         //open and if it is already open, it will be closed
         String selection= currentTextPane.getSelectedText();        
-        finder.setEditor(editor);
         if (finder.isVisible()){
             finder.displayFindPanel(selection, false);
             removeSelectionHighlights();
@@ -3394,7 +3407,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         removeSelectionHighlights();
         moveCaretPosition(caretPos);
-        
+
         if(count > 0)
             //editor.writeMessage("Replaced " + count + " instances of " + searchString);
             writeMessage(Config.getString("editor.replaceAll.replaced") +
@@ -3406,12 +3419,12 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                     searchString + Config.getString("editor.replaceAll.notFoundNothingReplaced"));
 
     }
-    
+
     protected void setCaretSelected()
     {
         currentTextPane.getCaret().setSelectionVisible(true);
     }
-    
+
     /**
      * getFindSearchString() returns the search string in the find panel
      * @return String
@@ -3420,7 +3433,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         return finder.getSearchString();
     }
-    
+
     /**
      * isReplacePanelVisible returns whether the replace panel is visible
      * @return boolean
@@ -3429,7 +3442,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         return replacer.isVisible();
     }
-    
+
     /**
      * isReplacePopulated returns whether the replace textfield is (validly) populated
      * @return boolean
@@ -3438,7 +3451,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         return (replacer.getReplaceString()!=null && replacer.getReplaceString().length()!=0);
     }
-    
+
     /**
      * enableReplaceButtons calls the function in the replace panel to either 
      * enable or disable the once and all buttons
@@ -3447,6 +3460,15 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     protected void enableReplaceButtons(boolean enable)
     {
         replacer.enableButtons(enable);
+    }
+
+    /**
+     * setReplaceIcon
+     * @param open is the replace open/closed
+     */
+    protected void setReplaceIcon(boolean open)
+    {
+        finder.setFindReplaceIcon(open);
     }
 
 }
