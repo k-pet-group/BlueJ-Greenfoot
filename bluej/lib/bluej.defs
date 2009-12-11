@@ -452,7 +452,7 @@ colour.menu.environOp=152,32,32
 colour.selection=249,225,87
 
 #colour for highlights (in text editor)
-colour.highlight=255,255,0
+colour.highlight=255,255,138
 
 #colour for the value field in the inspectors
 colour.inspector.value.bg=255,255,255

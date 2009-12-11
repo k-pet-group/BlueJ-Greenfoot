@@ -99,12 +99,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public FindPanel() {
         super();
-        //openIcon=Config.getImageAsIcon("image.testmgr.ok");
-        //closedIcon=Config.getImageAsIcon("image.testmgr.failure");
         openIcon=Config.getImageAsIcon("image.replace.open");
         closedIcon=Config.getImageAsIcon("image.replace.close");
-        //        System.out.println("open icon "+openIcon);
-        //        System.out.println("close icon "+closedIcon);
         findFont=new Font(PrefMgr.getStandardFont().getFontName(), PrefMgr.getStandardFont().getSize(), PrefMgr.getStandardFont().getSize());
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createLineBorder(Color.black));
@@ -286,6 +282,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             this.setVisible(false);
             editor.toggleReplacePanelVisible();
             editor.moveCaretPosition(caretPos);
+            replaceIconLabel.setIcon(closedIcon);
             return;
         }
         if (src.getName()==NEXT__BUTTON_NAME){  
