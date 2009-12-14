@@ -105,7 +105,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         findFont=new Font(PrefMgr.getStandardFont().getFontName(), PrefMgr.getStandardFont().getSize(), PrefMgr.getStandardFont().getSize());
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createLineBorder(Color.black));
-        
+
         editor=ed;
         initDisplay();
 
@@ -248,15 +248,15 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         body.add(findBody, BorderLayout.WEST);
         body.add(otherBody, BorderLayout.EAST);    
         this.add(body);
-        
-//        KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0);
-//        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke ,"escapeAction");
-//        getRootPane().getActionMap().put("escapeAction", new AbstractAction(){ //$NON-NLS-1$
-//            public void actionPerformed(ActionEvent e)
-//            {
-//                close();
-//            }
-//        });
+
+        //        KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0);
+        //        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke ,"escapeAction");
+        //        getRootPane().getActionMap().put("escapeAction", new AbstractAction(){ //$NON-NLS-1$
+        //            public void actionPerformed(ActionEvent e)
+        //            {
+        //                close();
+        //            }
+        //        });
 
     }
 
@@ -345,8 +345,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void displayFindPanel(String selection, boolean visible)
     { 
-        if (!visible){
-            this.setVisible(false);
+        //if it is already visible and the request is to become 
+        //visible just set the focus in the text field
+        if (this.isVisible() && visible){
+            findTField.requestFocus();
             return;
         }
         if (selection==null)
@@ -356,7 +358,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         updateDisplay();
         this.setVisible(true);
         findTField.requestFocus();
-        
+
     }
 
     /**
@@ -395,15 +397,15 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             nextButton.setEnabled(true); 
             //update display in the replace panel if necessary
             if (editor.isReplacePanelVisible())
-                if (editor.isReplacePopulated())
-                    editor.enableReplaceButtons(true); 
+                // if (editor.isReplacePopulated())
+                editor.enableReplaceButtons(true); 
         }
         else{
             previousButton.setEnabled(false);
             nextButton.setEnabled(false);
             editor.enableReplaceButtons(false);
         }
-       
+
         findTField.requestFocus();
     }
 
@@ -599,7 +601,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     public void setTextfieldSelected(){
         findTField.selectAll();
     }
-    
+
     /**
      * setFindReplaceIcon can set the icon for the replace as being open/closed
      * @param open icon is open/closed
@@ -611,7 +613,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         else
             replaceIconLabel.setIcon(closedIcon);
     }
-    
+
 
     public void close()
     {
