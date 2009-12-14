@@ -74,8 +74,7 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
         if (src.getName()== REPLACE_TEXTFIELD){
             setReplaceString(replaceText.getText());
             //only enable the once and all buttons if both find and replace are populated
-            if ((getReplaceString()!=null && getReplaceString().length()!=0) 
-                    && (editor.getFindSearchString()!=null && editor.getFindSearchString().length()!=0) ){
+            if (editor.getFindSearchString()!=null && editor.getFindSearchString().length()!=0){
                 enableButtons(true);
             }
             else
@@ -116,14 +115,14 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
         replaceButton.setText("Once");
         replaceButton.setFont(font);
         replaceButton.addActionListener(this);
-        replaceButton.setEnabled(false);
+        replaceButton.setEnabled(true);
 
         replaceAllButton=new JButton();
         replaceAllButton.setName(REPLACE_ALL_BUTTON_NAME);
         replaceAllButton.setText(" All ");
         replaceAllButton.setFont(font);
         replaceAllButton.addActionListener(this);
-        replaceAllButton.setEnabled(false);
+        replaceAllButton.setEnabled(true);
 
         JLabel closeBody=new JLabel(" ");
 
