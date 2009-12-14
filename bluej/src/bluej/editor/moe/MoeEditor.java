@@ -3106,22 +3106,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void initFindPanel(MoeEditor editor)
     {
-        //boolean to ensure that if the panel is closed it will 
-        //open and if it is already open, it will be closed
-        String selection= currentTextPane.getSelectedText();        
-        if (finder.isVisible()){
-            finder.displayFindPanel(selection, false);
-            removeSelectionHighlights();
-            toggleReplacePanelVisible();
-            //remove the selection if there was one
-            if (getSelectionBegin()!=null)
-                moveCaretPosition(getSelectionBegin().getColumn());
-            return;
-        }
-        finder.displayFindPanel(selection, true);
-        if (selection!=null){
-            finder.find(true);
-        }
+        finder.displayFindPanel(null, true);
     }
 
     /**

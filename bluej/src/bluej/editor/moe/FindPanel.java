@@ -27,17 +27,22 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.plaf.basic.BasicArrowButton;
@@ -226,27 +231,14 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void addDisplayElements()
     {
-        //        findBody.add(findLabel);
-        //        findBody.add(findTField);
-        //
-        //        findBody.add(previousButton);
-        //        findBody.add(nextButton);
-        //        findBody.add(matchCaseCheckBox);
         findTextBody.add(findLabel);
         findTextBody.add(findTField);
         optionsBody.add(previousButton);
         optionsBody.add(nextButton);
-        //optionsBody.add(matchCaseCheckBox);
 
         findBody.add(findTextBody, BorderLayout.WEST);
         findBody.add(optionsBody, BorderLayout.EAST);
-        //findBody.addSpacer(500);
-        //findBody.add(closeButton);
-        //closeBody.add(matchCaseCheckBox);
-        //closeBody.add(replaceWithButton);
         closeBody.add(replaceIconLabel);
-        //        closeBody.add(replaceBtnClose);
-        //closeBody.add(replaceLabel);
         closeBody.add(closeButton);
 
         mcBody.add(matchCaseCheckBox);
@@ -256,6 +248,15 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         body.add(findBody, BorderLayout.WEST);
         body.add(otherBody, BorderLayout.EAST);    
         this.add(body);
+        
+//        KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0);
+//        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke ,"escapeAction");
+//        getRootPane().getActionMap().put("escapeAction", new AbstractAction(){ //$NON-NLS-1$
+//            public void actionPerformed(ActionEvent e)
+//            {
+//                close();
+//            }
+//        });
 
     }
 
@@ -355,6 +356,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         updateDisplay();
         this.setVisible(true);
         findTField.requestFocus();
+        
     }
 
     /**
@@ -608,6 +610,12 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             replaceIconLabel.setIcon(openIcon);
         else
             replaceIconLabel.setIcon(closedIcon);
+    }
+    
+
+    public void close()
+    {
+        this.setVisible(false);
     }
 
 }
