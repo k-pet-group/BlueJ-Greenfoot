@@ -316,11 +316,12 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         if (getSearchString()!=null){
             //previous search had a value and this search is empty
             //need to remove highlighting and have no message
+            caretPos=caretPos-getSearchString().length();
             if (findTField.getText().length()==0){
+                //need to reset the search to the beginning of the last selected
                 editor.removeSelectionHighlights();
                 setSearchString(null);
-                if (editor.getSelectionBegin()!=null)
-                    editor.moveCaretPosition(editor.getSelectionBegin().getColumn());
+                editor.moveCaretPosition(caretPos);
                 writeMessage(false);
             }
             else if (!getSearchString().equals(findTField.getText()))
