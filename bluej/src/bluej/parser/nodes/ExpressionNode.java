@@ -21,6 +21,16 @@
  */
 package bluej.parser.nodes;
 
+import java.io.Reader;
+
+import javax.swing.text.Document;
+
+import bluej.debugger.gentype.GenTypeSolid;
+import bluej.parser.CompletionParser;
+import bluej.parser.DocumentReader;
+import bluej.parser.entity.ClassEntity;
+import bluej.parser.entity.TypeEntity;
+
 /**
  * A node representing a parsed expression.
  * 
@@ -38,4 +48,21 @@ public class ExpressionNode extends ParentParsedNode
     {
         return NODETYPE_EXPRESSION;
     }
+    
+    @Override
+    protected ClassEntity getExpressionType(int pos, int nodePos, ClassEntity defaultType, Document document)
+    {
+        Reader r = new DocumentReader(document, nodePos, pos);
+        CompletionParser parser = new CompletionParser(this, r, defaultType);
+        parser.parseExpression();
+        
+        GenTypeSolid stype = parser.getSuggestionType();
+        if (stype != null) {
+            return new TypeEntity(stype);
+        }
+        else {
+            return null;
+        }
+    }
+    
 }

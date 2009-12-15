@@ -25,6 +25,12 @@ import java.util.List;
 
 import bluej.debugger.gentype.JavaType;
 
+/**
+ * An entity representing an erroneous expression in a Java program. This is sometimes
+ * more convenient than returning null.
+ * 
+ * @author Davin McCall
+ */
 public class ErrorEntity extends JavaEntity
 {
     @Override

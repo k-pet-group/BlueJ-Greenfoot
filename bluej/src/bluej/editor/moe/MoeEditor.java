@@ -3283,7 +3283,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     private AssistContent[] populateContentAssist()
     {
-        ClassEntity exprType = sourceDocument.getParser().getExpressionType(getCaretPosition());
+        ClassEntity exprType = sourceDocument.getParser().getExpressionType(getCaretPosition(),
+                sourceDocument);
 
         if (exprType != null) {
             //Map<String,JavaType> fields = exprType.getClassType().getReflective().getDeclaredFields();

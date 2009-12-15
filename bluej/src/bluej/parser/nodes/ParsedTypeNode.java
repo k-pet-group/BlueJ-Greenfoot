@@ -21,6 +21,8 @@
  */
 package bluej.parser.nodes;
 
+import javax.swing.text.Document;
+
 import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.ParsedReflective;
 import bluej.parser.entity.TypeEntity;
@@ -81,13 +83,13 @@ public class ParsedTypeNode extends ParentParsedNode
     }
     
     @Override
-    public ClassEntity getExpressionType(int pos, ClassEntity defaultType)
+    public ClassEntity getExpressionType(int pos, int nodePos, ClassEntity defaultType, Document document)
     {
         // The default type if the expression is not know should be this type
         ClassEntity myType = new TypeEntity(new ParsedReflective(this));
-        NodeAndPosition child = getNodeTree().findNode(pos);
+        NodeAndPosition child = getNodeTree().findNode(pos, nodePos);
         if (child != null) {
-            return child.getNode().getExpressionType(pos - child.getPosition(), myType);
+            return child.getNode().getExpressionType(pos, child.getPosition(), myType, document);
         }
         
         // We don't return the specified default type (which must be an outer type). There

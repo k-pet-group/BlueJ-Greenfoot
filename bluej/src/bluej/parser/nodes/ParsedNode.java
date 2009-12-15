@@ -222,10 +222,11 @@ public abstract class ParsedNode implements EntityResolver
     /**
      * Get the expression type at a given point. Returns null if there is no
      * determinable expression type.
+     * @param document TODO
      */
-    public ClassEntity getExpressionType(int pos)
+    public ClassEntity getExpressionType(int pos, Document document)
     {
-        return getExpressionType(pos, null);
+        return getExpressionType(pos, 0, null, document);
     }
     
     /**
@@ -239,12 +240,16 @@ public abstract class ParsedNode implements EntityResolver
     /**
      * Get the expression type at a given point. Returns the specified default if there
      * is no determinable expression type.
+     * @param pos     The position at which to determine the expression type
+     * @param nodePos   The position of this node
+     * @param defaultType  The type to return if there is no explicit type at the given location 
+     * @param document  The source document
      */
-    protected ClassEntity getExpressionType(int pos, ClassEntity defaultType)
+    protected ClassEntity getExpressionType(int pos, int nodePos, ClassEntity defaultType, Document document)
     {
-        NodeAndPosition child = getNodeTree().findNode(pos);
+        NodeAndPosition child = getNodeTree().findNode(pos, nodePos);
         if (child != null) {
-            return child.getNode().getExpressionType(pos - child.getPosition(), defaultType);
+            return child.getNode().getExpressionType(pos, child.getPosition(), defaultType, document);
         }
         return defaultType;
     }

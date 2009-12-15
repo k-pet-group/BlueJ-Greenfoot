@@ -40,6 +40,16 @@ public class DocumentReader extends Reader
         fillBuffer();
     }
     
+    public DocumentReader(Document document, int position, int endpos)
+    {
+        buffer = new Segment();
+        buffer.setPartialReturn(true);
+        this.document = document;
+        docPosition = position;
+        docLength = endpos;
+        fillBuffer();
+    }
+    
     public void close()
     {
         // Nothing to do

@@ -24,9 +24,12 @@ package bluej.parser;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
@@ -41,7 +44,8 @@ import bluej.parser.lexer.LocatableToken;
 public class CompletionParser extends TextParser
 {
     private Map<String,JavaType> fieldSuggestions = Collections.emptyMap();
-    //private Map<String,String> methodSuggestions;
+    private Map<String,Set<MethodReflective>> methodSuggestions = Collections.emptyMap();
+    private JavaEntity suggestionEntity;
     
     /**
      * Construct an expression parser, used for suggesting completions.
@@ -52,10 +56,18 @@ public class CompletionParser extends TextParser
      * @param resolver   The resolver used to resolve identifiers
      * @param reader     The reader for the java source. This must return end-of-file
      *                    at the point where suggestions are to be made.
+     * @param enclosingType  An entity representing the enclosing type of the cursor location
      */
-    public CompletionParser(EntityResolver resolver, Reader reader)
+    public CompletionParser(EntityResolver resolver, Reader reader, JavaEntity enclosingType)
     {
         super(resolver, reader);
+        suggestionEntity = enclosingType;
+    }
+    
+    @Override
+    protected void error(String msg)
+    {
+        return;
     }
     
     public Map<String,JavaType> getFieldSuggestions()
@@ -63,16 +75,39 @@ public class CompletionParser extends TextParser
         return fieldSuggestions;
     }
     
+    public Map<String,Set<MethodReflective>> getMethodSuggestions()
+    {
+        return methodSuggestions;
+    }
+    
+    public GenTypeSolid getSuggestionType()
+    {
+        if (suggestionEntity != null) {
+            JavaEntity valEnt = suggestionEntity.resolveAsValue();
+            if (valEnt != null) {
+                return valEnt.getType().getCapture().asSolid();
+            }
+            valEnt = suggestionEntity.resolveAsType();
+            if (valEnt != null) {
+                return valEnt.getType().getCapture().asSolid();
+            }
+        }
+        return null;
+    }
+    
+    @Override
+    protected void gotDotEOF(LocatableToken token)
+    {
+        suggestionEntity = popValueStack();
+    }
+    
     @Override
     protected void endExpression(LocatableToken token)
     {
-        if (! operatorStack.isEmpty()) {
-            if (operatorStack.peek().getType() == JavaTokenTypes.DOT) {
-                JavaEntity entity = popValueStack();
-                suggestFor(entity);
-            }
-        }
         super.endExpression(token);
+        if (token.getType() == JavaTokenTypes.EOF) {
+            suggestFor(suggestionEntity);
+        }
     }
     
     private void suggestFor(JavaEntity entity)
@@ -84,7 +119,7 @@ public class CompletionParser extends TextParser
             if (ctype != null) {
                 Reflective r = ctype.getReflective();
                 fieldSuggestions = r.getDeclaredFields();
-                // r.getDeclaredMethods();
+                methodSuggestions = r.getDeclaredMethods();
             }
         }
     }

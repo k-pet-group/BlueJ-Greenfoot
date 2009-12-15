@@ -35,6 +35,11 @@ import bluej.parser.lexer.LocatableToken;
 /**
  * Base class for Java parsers.
  * 
+ * <p>We parse the source, and when we see certain constructs we call a corresponding method
+ * which subclasses can override (for instance, beginForLoop, beginForLoopBody, endForLoop).
+ * In general it is arranged so that a call to beginXYZ() is always followed by a call to
+ * endXYZ(). 
+ * 
  * @author Davin McCall
  */
 public class JavaParser
@@ -247,6 +252,12 @@ public class JavaParser
     
     /** Saw a member method call (beginning), token is the method name; arguments to follow */
     protected void gotMemberCall(LocatableToken token) { }
+    
+    /** Saw a dot operator followed by end-of-file */
+    protected void gotDotEOF(LocatableToken token)
+    {
+        gotBinaryOperator(token);
+    }
     
     /** Saw a binary operator as part of an expression */
     protected void gotBinaryOperator(LocatableToken token) { }
@@ -2085,7 +2096,7 @@ public class JavaParser
                 }
             }
             else {
-                error("Invalid expression token=" + token);
+                error("Invalid expression token: " + token.getText());
                 tokenStream.pushBack(token);
                 endExpression(token);
                 return;
@@ -2132,6 +2143,11 @@ public class JavaParser
                     if (token.getType() == JavaTokenTypes.LITERAL_class) {
                         // Class literal: continue and look for another operator
                         continue;
+                    }
+                    else if (token.getType() == JavaTokenTypes.EOF) {
+                        // Not valid, but may be useful for subclasses
+                        gotDotEOF(opToken);
+                        break;
                     }
                     else if (token.getType() == JavaTokenTypes.LT) {
                         // generic method call
@@ -2181,7 +2197,6 @@ public class JavaParser
                     break;
                 }
                 else {
-                    // TODO
                     error("Expected operator, got '" + token.getText() + "'");
                     tokenStream.pushBack(token);
                     endExpression(token);
