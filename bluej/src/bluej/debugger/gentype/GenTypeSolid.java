@@ -399,5 +399,5 @@ public abstract class GenTypeSolid extends JavaType
         return this;
     }
     
-    abstract public GenTypeSolid mapTparsToTypes(Map<String,GenTypeParameter> tparams);
+    abstract public GenTypeSolid mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams);
 }

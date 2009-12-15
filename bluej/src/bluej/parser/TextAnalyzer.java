@@ -565,7 +565,7 @@ public class TextAnalyzer
     {
         GenTypeClass c = o.asClass();
         if (c != null)
-            return captureConversion(c, new HashMap());
+            return captureConversion(c, new HashMap<String,GenTypeSolid>());
         else
             return o;
     }
@@ -578,7 +578,7 @@ public class TextAnalyzer
      * @param tparMap   The map used for storing type parameter conversions
      * @return   The converted type.
      */
-    private static GenTypeClass captureConversion(GenTypeClass c, Map tparMap)
+    private static GenTypeClass captureConversion(GenTypeClass c, Map<String,GenTypeSolid> tparMap)
     {
         // capture the outer type
         GenTypeClass newOuter = null;

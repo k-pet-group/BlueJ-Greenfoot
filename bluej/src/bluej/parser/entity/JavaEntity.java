@@ -110,5 +110,5 @@ public abstract class JavaEntity
      * 
      * @param tparams   A list of type parameters
      */
-    public abstract JavaEntity setTypeArgs(List<JavaEntity> tparams);
+    public abstract JavaEntity setTypeArgs(List<TypeArgumentEntity> tparams);
 }

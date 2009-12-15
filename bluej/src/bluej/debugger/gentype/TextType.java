@@ -31,7 +31,7 @@ import java.util.Map;
  * Most operations on this type fail with an UnsupportedOperationException.
  * 
  * @author Davin McCall
- * @version $Id: TextType.java 6874 2009-11-30 05:46:18Z davmac $
+ * @version $Id: TextType.java 6938 2009-12-15 03:26:24Z davmac $
  */
 public class TextType extends JavaType
 {
@@ -90,7 +90,7 @@ public class TextType extends JavaType
     /* (non-Javadoc)
      * @see bluej.debugger.gentype.GenType#mapTparsToTypes(java.util.Map)
      */
-    public JavaType mapTparsToTypes(Map<String,GenTypeParameter> tparams)
+    public JavaType mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
         throw new UnsupportedOperationException();
     }

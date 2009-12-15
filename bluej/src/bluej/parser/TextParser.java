@@ -25,18 +25,14 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Stack;
 
 import bluej.debugger.gentype.GenTypeClass;
-import bluej.debugger.gentype.GenTypeExtends;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeSolid;
-import bluej.debugger.gentype.GenTypeSuper;
-import bluej.debugger.gentype.GenTypeUnbounded;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.parser.TextAnalyzer.MethodCallDesc;
@@ -46,11 +42,17 @@ import bluej.parser.entity.ErrorEntity;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.NullEntity;
 import bluej.parser.entity.PackageOrClass;
+import bluej.parser.entity.SolidTargEntity;
+import bluej.parser.entity.TypeArgumentEntity;
 import bluej.parser.entity.TypeEntity;
+import bluej.parser.entity.UnboundedWildcardEntity;
 import bluej.parser.entity.UnresolvedEntity;
 import bluej.parser.entity.ValueEntity;
+import bluej.parser.entity.WildcardExtendsEntity;
+import bluej.parser.entity.WildcardSuperEntity;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
+import bluej.utility.JavaReflective;
 
 /**
  * A parser for the codepad.
@@ -292,10 +294,13 @@ public class TextParser extends JavaParser
         
         int ttype = op.getType();
         switch (ttype) {
+        // TODO and remember unboxing conversion
         case JavaTokenTypes.PLUS:
-            if (! a1type.isNumeric() || ! a2type.isNumeric()) {
-                // TODO can add any type to a java.lang.String
-                // TODO and remember unboxing conversion
+            if (! a1type.isNumeric()) {
+                if (a1type.asClass().getReflective().getName().equals("java.lang.String")) {
+                    valueStack.push(new ValueEntity(a1type));
+                    return;
+                }
                 valueStack.push(new ErrorEntity());
                 return;
             }
@@ -336,7 +341,7 @@ public class TextParser extends JavaParser
         if (token.getType() == JavaTokenTypes.CHAR_LITERAL) {
             valueStack.push(new ValueEntity(JavaPrimitiveType.getChar()));
         }
-        if (token.getType() == JavaTokenTypes.NUM_INT) {
+        else if (token.getType() == JavaTokenTypes.NUM_INT) {
             valueStack.push(new ValueEntity(JavaPrimitiveType.getInt()));
         }
         else if (token.getType() == JavaTokenTypes.NUM_LONG) {
@@ -350,6 +355,10 @@ public class TextParser extends JavaParser
         }
         else if (token.getType() == JavaTokenTypes.LITERAL_null) {
             valueStack.push(new NullEntity());
+        }
+        else if (token.getType() == JavaTokenTypes.STRING_LITERAL) {
+            ValueEntity ent = new ValueEntity(new GenTypeClass(new JavaReflective(String.class)));
+            valueStack.push(ent);
         }
     }
     
@@ -547,7 +556,7 @@ public class TextParser extends JavaParser
     private ClassEntity processTypeArgs(ClassEntity base, ListIterator<LocatableToken> i, DepthRef depthRef)
     {
         int startDepth = depthRef.depth;
-        List<JavaEntity> taList = new LinkedList<JavaEntity>();
+        List<TypeArgumentEntity> taList = new LinkedList<TypeArgumentEntity>();
         depthRef.depth++;
         
         mainLoop:
@@ -563,19 +572,17 @@ public class TextParser extends JavaParser
                     if (taEnt == null) {
                         return null;
                     }
-                    GenTypeSolid bound = taEnt.getType().getCapture().asSolid();
-                    taList.add(new TypeEntity(new GenTypeSuper(bound)));
+                    taList.add(new WildcardSuperEntity(taEnt));
                 }
                 else if (token.getType() == JavaTokenTypes.LITERAL_extends) {
                     ClassEntity taEnt = resolveTypeSpec(i, depthRef);
                     if (taEnt == null) {
                         return null;
                     }
-                    GenTypeSolid bound = taEnt.getType().getCapture().asSolid();
-                    taList.add(new TypeEntity(new GenTypeExtends(bound)));
+                    taList.add(new WildcardExtendsEntity(taEnt));
                 }
                 else {
-                    taList.add(new TypeEntity(new GenTypeUnbounded()));
+                    taList.add(new UnboundedWildcardEntity());
                     i.previous();
                 }
             }
@@ -589,7 +596,7 @@ public class TextParser extends JavaParser
                 if (taType.isPrimitive()) {
                     return null;
                 }
-                taList.add(new TypeEntity(taType));
+                taList.add(new SolidTargEntity(new TypeEntity(taType)));
             }
             
             if (! i.hasNext()) {

@@ -206,7 +206,7 @@ public class JavaPrimitiveType
         return myIndex == v;
     }
     
-    public JavaType mapTparsToTypes(Map<String,GenTypeParameter> tparams)
+    public JavaType mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
         return this;
     }

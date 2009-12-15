@@ -30,7 +30,7 @@ import java.util.Set;
  * as a type parameter anywhere else, except that it can be bounded.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeDeclTpar.java 6898 2009-12-03 05:11:19Z davmac $
+ * @version $Id: GenTypeDeclTpar.java 6938 2009-12-15 03:26:24Z davmac $
  */
 public class GenTypeDeclTpar extends GenTypeTpar {
 
@@ -106,7 +106,7 @@ public class GenTypeDeclTpar extends GenTypeTpar {
     /* (non-Javadoc)
      * @see bluej.debugger.gentype.GenTypeTpar#mapTparsToTypes(java.util.Map)
      */
-    public GenTypeSolid mapTparsToTypes(Map<String,GenTypeParameter> tparams)
+    public GenTypeSolid mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
         if (tparams == null)
             return new GenTypeWildcard(upperBounds(), lowerBounds()).getCapture().asSolid();

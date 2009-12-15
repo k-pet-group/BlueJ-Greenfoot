@@ -21,11 +21,7 @@
  */
 package bluej.parser.entity;
 
-import java.util.List;
-
-import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
-import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.GenTypeSuper;
 
 /**
@@ -33,7 +29,7 @@ import bluej.debugger.gentype.GenTypeSuper;
  * 
  * @author Davin McCall
  */
-public class WildcardSuperEntity extends ClassEntity
+public class WildcardSuperEntity extends TypeArgumentEntity
 {
     private JavaEntity superBound;
     
@@ -45,49 +41,10 @@ public class WildcardSuperEntity extends ClassEntity
     @Override
     public GenTypeParameter getType()
     {
-        return null;
-    }
-    
-    @Override
-    public GenTypeClass getClassType()
-    {
-        return null;
-    }
-
-    @Override
-    public ClassEntity setTypeArgs(List<JavaEntity> tparams)
-    {
-        return null;
-    }
-
-    @Override
-    public PackageOrClass getPackageOrClassMember(String name)
-    {
-        return null;
-    }
-
-    @Override
-    public String getName()
-    {
-        return null;
-    }
-
-    @Override
-    public JavaEntity getSubentity(String name)
-    {
-        return null;
-    }
-    
-    @Override
-    public ClassEntity resolveAsType()
-    {
-        ClassEntity boundEntity = superBound.resolveAsType();
-        GenTypeSolid boundType = boundEntity.getType().getCapture().asSolid();
-        if (boundType == null) {
-            return null;
+        ClassEntity ebType = superBound.resolveAsType();
+        if (ebType != null) {
+            return new GenTypeSuper(ebType.getClassType());
         }
-        GenTypeParameter myType = new GenTypeSuper(boundEntity.getType().getCapture().asSolid());
-        return new TypeEntity(myType);
+        return null;
     }
-
 }

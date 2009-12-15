@@ -184,7 +184,7 @@ public class IntersectionType extends GenTypeSolid
         return new GenTypeSolid[] {this};
     }
     
-    public GenTypeSolid mapTparsToTypes(Map tparams)
+    public GenTypeSolid mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
         GenTypeSolid [] newIsect = new GenTypeSolid[intersectTypes.length];
         for (int i = 0; i < intersectTypes.length; i++) {

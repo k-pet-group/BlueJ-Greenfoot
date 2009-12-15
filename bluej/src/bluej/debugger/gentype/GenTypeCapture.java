@@ -57,7 +57,7 @@ public class GenTypeCapture extends GenTypeTpar
     }
     
     @Override
-    public GenTypeSolid mapTparsToTypes(Map<String, GenTypeParameter> tparams)
+    public GenTypeSolid mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
         return new GenTypeCapture((GenTypeWildcard) wildcard.mapTparsToTypes(tparams));
     }

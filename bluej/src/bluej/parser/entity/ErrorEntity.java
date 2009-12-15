@@ -46,7 +46,7 @@ public class ErrorEntity extends JavaEntity
     }
     
     @Override
-    public JavaEntity setTypeArgs(List<JavaEntity> tparams)
+    public JavaEntity setTypeArgs(List<TypeArgumentEntity> tparams)
     {
         return this;
     }

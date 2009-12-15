@@ -58,5 +58,5 @@ public abstract class ClassEntity extends PackageOrClass
      * 
      * @param tparams   A list of type parameters
      */
-    public abstract ClassEntity setTypeArgs(List<JavaEntity> tparams);
+    public abstract ClassEntity setTypeArgs(List<TypeArgumentEntity> tparams);
 }

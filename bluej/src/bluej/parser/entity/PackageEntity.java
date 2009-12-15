@@ -72,7 +72,7 @@ public class PackageEntity extends PackageOrClass
     }
 
     @Override
-    public JavaEntity setTypeArgs(List<JavaEntity> tparams)
+    public JavaEntity setTypeArgs(List<TypeArgumentEntity> tparams)
     {
         return null;
     }

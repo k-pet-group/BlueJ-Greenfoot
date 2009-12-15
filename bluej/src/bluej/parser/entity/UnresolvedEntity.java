@@ -37,7 +37,7 @@ public class UnresolvedEntity extends JavaEntity
 {
     private EntityResolver resolver;
     private List<String> names;
-    private List<JavaEntity> typeArguments;
+    private List<TypeArgumentEntity> typeArguments;
     private String querySource;
     
     /**
@@ -58,7 +58,7 @@ public class UnresolvedEntity extends JavaEntity
     }
     
     protected UnresolvedEntity(EntityResolver resolver, List<String> names,
-            String querySource, List<JavaEntity> typeArguments)
+            String querySource, List<TypeArgumentEntity> typeArguments)
     {
         this.resolver = resolver;
         this.names = names;
@@ -88,7 +88,7 @@ public class UnresolvedEntity extends JavaEntity
     }
     
     @Override
-    public JavaEntity setTypeArgs(List<JavaEntity> tparams)
+    public JavaEntity setTypeArgs(List<TypeArgumentEntity> tparams)
     {
         return new UnresolvedEntity(resolver, names, querySource, tparams);
     }

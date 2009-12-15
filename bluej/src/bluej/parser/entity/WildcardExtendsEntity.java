@@ -21,19 +21,15 @@
  */
 package bluej.parser.entity;
 
-import java.util.List;
-
-import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeExtends;
 import bluej.debugger.gentype.GenTypeParameter;
-import bluej.debugger.gentype.GenTypeSolid;
 
 /**
  * Represents a "? extends ..." wildcard entity, where the bound has not yet been resolved.
  * 
  * @author Davin McCall
  */
-public class WildcardExtendsEntity extends ClassEntity
+public class WildcardExtendsEntity extends TypeArgumentEntity
 {
     private JavaEntity extendsBound;
     
@@ -45,48 +41,10 @@ public class WildcardExtendsEntity extends ClassEntity
     @Override
     public GenTypeParameter getType()
     {
-        return null;
-    }
-    
-    @Override
-    public GenTypeClass getClassType()
-    {
-        return null;
-    }
-
-    @Override
-    public ClassEntity setTypeArgs(List<JavaEntity> tparams)
-    {
-        return null;
-    }
-
-    @Override
-    public PackageOrClass getPackageOrClassMember(String name)
-    {
-        return null;
-    }
-
-    @Override
-    public String getName()
-    {
-        return null;
-    }
-
-    @Override
-    public JavaEntity getSubentity(String name)
-    {
-        return null;
-    }
-    
-    @Override
-    public ClassEntity resolveAsType()
-    {
-        ClassEntity boundEntity = extendsBound.resolveAsType();
-        GenTypeSolid boundType = boundEntity.getType().getCapture().asSolid();
-        if (boundType == null) {
-            return null;
+        ClassEntity ebType = extendsBound.resolveAsType();
+        if (ebType != null) {
+            return new GenTypeExtends(ebType.getClassType());
         }
-        GenTypeParameter myType = new GenTypeExtends(boundEntity.getType().getCapture().asSolid());
-        return new TypeEntity(myType);
+        return null;
     }
 }

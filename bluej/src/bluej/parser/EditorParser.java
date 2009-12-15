@@ -28,16 +28,17 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Stack;
 
-import bluej.debugger.gentype.GenTypeExtends;
-import bluej.debugger.gentype.GenTypeSolid;
-import bluej.debugger.gentype.GenTypeUnbounded;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.editor.moe.Token;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.SolidTargEntity;
+import bluej.parser.entity.TypeArgumentEntity;
 import bluej.parser.entity.TypeEntity;
+import bluej.parser.entity.UnboundedWildcardEntity;
 import bluej.parser.entity.UnresolvedEntity;
+import bluej.parser.entity.WildcardExtendsEntity;
 import bluej.parser.entity.WildcardSuperEntity;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
@@ -763,13 +764,13 @@ public class EditorParser extends JavaParser
      * @param base  The base type, i.e. the type to which the arguments are applied
      * @param i     A ListIterator to iterate through the tokens
      * @param depthRef  The argument depth
-     * @return   A ClassEntity representing the type with type arguments applied (or null)
+     * @return   A JavaEntity representing the type with type arguments applied (or null)
      */
     private JavaEntity processTypeArgs(EntityResolver resolver, JavaEntity base,
             ListIterator<LocatableToken> i, DepthRef depthRef)
     {
         int startDepth = depthRef.depth;
-        List<JavaEntity> taList = new LinkedList<JavaEntity>();
+        List<TypeArgumentEntity> taList = new LinkedList<TypeArgumentEntity>();
         depthRef.depth++;
         
         mainLoop:
@@ -782,6 +783,9 @@ public class EditorParser extends JavaParser
                 token = i.next();
                 if (token.getType() == JavaTokenTypes.LITERAL_super) {
                     JavaEntity taEnt = getTypeEntity(resolver, i, depthRef);
+                    if (taEnt == null) {
+                        return null;
+                    }
                     taList.add(new WildcardSuperEntity(taEnt));
                 }
                 else if (token.getType() == JavaTokenTypes.LITERAL_extends) {
@@ -789,11 +793,10 @@ public class EditorParser extends JavaParser
                     if (taEnt == null) {
                         return null;
                     }
-                    GenTypeSolid bound = taEnt.getType().getCapture().asSolid();
-                    taList.add(new TypeEntity(new GenTypeExtends(bound)));
+                    taList.add(new WildcardExtendsEntity(taEnt));
                 }
                 else {
-                    taList.add(new TypeEntity(new GenTypeUnbounded()));
+                    taList.add(new UnboundedWildcardEntity());
                     i.previous();
                 }
             }
@@ -803,7 +806,7 @@ public class EditorParser extends JavaParser
                 if (taEnt == null) {
                     return null;
                 }
-                taList.add(taEnt);
+                taList.add(new SolidTargEntity(taEnt));
             }
             
             if (! i.hasNext()) {

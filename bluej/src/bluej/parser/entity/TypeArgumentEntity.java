@@ -10,7 +10,6 @@
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- GNU General Public License for more details. 
  
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
@@ -21,44 +20,20 @@
  */
 package bluej.parser.entity;
 
-import java.util.List;
-
-import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.GenTypeParameter;
 
 /**
- * The "null" entity. This represents the "null" value (literal).
+ * A base type for representing type arguments as they occur in a source program.
+ * 
+ * <p>This type does not extend JavaEntity, as it is more specialised.
  * 
  * @author Davin McCall
  */
-public class NullEntity extends JavaEntity
+public abstract class TypeArgumentEntity
 {
-    @Override
-    public String getName()
-    {
-        return null;
-    }
-
-    @Override
-    public JavaEntity getSubentity(String name)
-    {
-        return null;
-    }
-
-    @Override
-    public JavaType getType()
-    {
-        return null;
-    }
-    
-    @Override
-    public boolean isNullEntity()
-    {
-        return true;
-    }
-    
-    @Override
-    public JavaEntity setTypeArgs(List<TypeArgumentEntity> tparams)
-    {
-        return null;
-    }
+    /**
+     * Get the type parameter. This requires resolving the bound if not already done,
+     * and so may return null if the bound is not a valid type.
+     */
+    public abstract GenTypeParameter getType();
 }

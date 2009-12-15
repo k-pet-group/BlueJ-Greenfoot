@@ -71,7 +71,7 @@ public class GenTypeTpar extends GenTypeSolid
         return other == this;
     }
     
-    public GenTypeSolid mapTparsToTypes(Map<String,GenTypeParameter> tparams)
+    public GenTypeSolid mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
         if (tparams == null)
             return this;

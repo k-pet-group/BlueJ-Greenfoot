@@ -31,7 +31,7 @@ import bluej.utility.JavaNames;
  * parameters themselves.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeParameter.java 6876 2009-12-01 02:49:30Z davmac $
+ * @version $Id: GenTypeParameter.java 6938 2009-12-15 03:26:24Z davmac $
  */
 public abstract class GenTypeParameter
 {
@@ -56,7 +56,7 @@ public abstract class GenTypeParameter
      *            A map of (String name -> GenType type).
      * @return An equivalent type with parameters mapped.
      */
-    abstract public GenTypeParameter mapTparsToTypes(Map<String,GenTypeParameter> tparams);
+    abstract public GenTypeParameter mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams);
 
     abstract public boolean equals(GenTypeParameter other);
     

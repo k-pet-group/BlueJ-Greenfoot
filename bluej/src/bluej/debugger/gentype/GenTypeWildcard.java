@@ -36,7 +36,7 @@ import bluej.utility.Debug;
  * This is an Immutable type.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeWildcard.java 6874 2009-11-30 05:46:18Z davmac $
+ * @version $Id: GenTypeWildcard.java 6938 2009-12-15 03:26:24Z davmac $
  */
 public class GenTypeWildcard extends GenTypeParameter
 {
@@ -98,7 +98,7 @@ public class GenTypeWildcard extends GenTypeParameter
      *   "? extends ? extends X"    => "? extends X".
      *   "? super ? super X"        => "? super X".
      */
-    public GenTypeWildcard mapTparsToTypes(Map tparams)
+    public GenTypeWildcard mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
         GenTypeSolid newUpper = null;
         GenTypeSolid newLower = null;

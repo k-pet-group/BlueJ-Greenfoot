@@ -10,7 +10,6 @@
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- GNU General Public License for more details. 
  
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
@@ -21,44 +20,19 @@
  */
 package bluej.parser.entity;
 
-import java.util.List;
-
-import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.GenTypeParameter;
+import bluej.debugger.gentype.GenTypeUnbounded;
 
 /**
- * The "null" entity. This represents the "null" value (literal).
+ * A TypeArgumentEntity for representing unbounded wildcards ("?").
  * 
  * @author Davin McCall
  */
-public class NullEntity extends JavaEntity
+public class UnboundedWildcardEntity extends TypeArgumentEntity
 {
     @Override
-    public String getName()
+    public GenTypeParameter getType()
     {
-        return null;
-    }
-
-    @Override
-    public JavaEntity getSubentity(String name)
-    {
-        return null;
-    }
-
-    @Override
-    public JavaType getType()
-    {
-        return null;
-    }
-    
-    @Override
-    public boolean isNullEntity()
-    {
-        return true;
-    }
-    
-    @Override
-    public JavaEntity setTypeArgs(List<TypeArgumentEntity> tparams)
-    {
-        return null;
+        return new GenTypeUnbounded();
     }
 }
