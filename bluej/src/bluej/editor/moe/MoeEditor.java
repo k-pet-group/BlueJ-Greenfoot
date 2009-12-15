@@ -1084,6 +1084,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void insertUpdate(DocumentEvent e)
     {
+        removeSelectionHighlights();
         if (!saveState.isChanged()) {
             saveState.setState(StatusLabel.CHANGED);
             setChanged();
@@ -1098,6 +1099,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void removeUpdate(DocumentEvent e)
     {
+        removeSelectionHighlights();
         if (!saveState.isChanged()) {
             saveState.setState(StatusLabel.CHANGED);
             setChanged();
@@ -1108,7 +1110,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /**
      * Document properties have changed
      */
-    public void changedUpdate(DocumentEvent e) { }
+    public void changedUpdate(DocumentEvent e) { 
+        removeSelectionHighlights();
+    }
 
     // --------------------------------------------------------------------
     /**
@@ -1569,6 +1573,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                             currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);
                             currentTextPane.select(start + foundPos, start + foundPos + s.length());
                             currentTextPane.getCaret().setSelectionVisible(true);
+                            //reset the start position to the first caret of the selected item
+                            //in order to ensure that none are missed
+                            startPosition=start+foundPos;
                             found=true;
                             select=false;
                         }else {
@@ -3195,7 +3202,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         }
     }
     /**
-     * Removes only the  selected highlights
+     * Removes only the  selected highlights i.e. the other highlights
+     * such as the brackets etc remain
      */
     public void removeSelectionHighlights()
     {
