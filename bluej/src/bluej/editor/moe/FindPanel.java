@@ -249,14 +249,14 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         body.add(otherBody, BorderLayout.EAST);    
         this.add(body);
 
-        //        KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0);
-        //        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke ,"escapeAction");
-        //        getRootPane().getActionMap().put("escapeAction", new AbstractAction(){ //$NON-NLS-1$
-        //            public void actionPerformed(ActionEvent e)
-        //            {
-        //                close();
-        //            }
-        //        });
+        KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0);
+        this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke ,"escapeAction");
+        this.getActionMap().put("escapeAction", new AbstractAction(){ //$NON-NLS-1$
+            public void actionPerformed(ActionEvent e)
+            {
+                close();
+            }
+        });
 
     }
 
@@ -268,12 +268,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         JComponent src = (JComponent) e.getSource();
         if(src.getName() == CLOSE_BUTTON_NAME){
-            int caretPos=editor.getCaretPosition();
-            editor.removeSelectionHighlights();
-            this.setVisible(false);
-            editor.toggleReplacePanelVisible();
-            editor.moveCaretPosition(caretPos);
-            replaceIconLabel.setIcon(closedIcon);
+            close();
             return;
         }
         if (src.getName()==NEXT__BUTTON_NAME){  
@@ -617,7 +612,12 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
 
     public void close()
     {
+        int caretPos=editor.getCaretPosition();
+        editor.removeSelectionHighlights();
         this.setVisible(false);
+        editor.toggleReplacePanelVisible();
+        editor.moveCaretPosition(caretPos);
+        replaceIconLabel.setIcon(closedIcon);
     }
 
 }
