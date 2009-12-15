@@ -30,7 +30,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -38,14 +37,12 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.plaf.basic.BasicArrowButton;
 
 import bluej.BlueJTheme;
 import bluej.Config;
@@ -316,8 +313,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         if (getSearchString()!=null){
             //previous search had a value and this search is empty
             //need to remove highlighting and have no message
-            caretPos=caretPos-getSearchString().length();
             if (findTField.getText().length()==0){
+                caretPos=caretPos-getSearchString().length();
                 //need to reset the search to the beginning of the last selected
                 editor.removeSelectionHighlights();
                 setSearchString(null);
@@ -413,8 +410,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      * @param src JTextField is the source and focus is reset there and searchQuery is reset
      */
     private void setFindValues()
-    {
-        //now get and reset fields
+    {  
         setSearchString(findTField.getText());
         findTField.requestFocus(); 
         //if the search is empty should it reset the caret position to the start

@@ -3113,7 +3113,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void initFindPanel(MoeEditor editor)
     {
-        finder.displayFindPanel(null, true);
+        finder.displayFindPanel(getSelectedText(), true);
     }
 
     /**
