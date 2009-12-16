@@ -35,24 +35,23 @@ import java.util.List;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Graph.java 6215 2009-03-30 13:28:25Z polle $
  */
 public abstract class Graph
 {
     private static final int RIGHT_PLACEMENT_MIN = 300;
     private static final int WHITESPACE_SIZE = 10;
     
-    private List listeners = new ArrayList();
+    private List<GraphListener> listeners = new ArrayList<GraphListener>();
 
     /**
      * Return an iterator over the vertices in this graph.
      */
-    public abstract Iterator getVertices();
+    public abstract Iterator<? extends Vertex> getVertices();
 
     /**
      * Return an iterator over the edges in this graph.
      */
-    public abstract Iterator getEdges();
+    public abstract Iterator<? extends Edge> getEdges();
 
     /**
      * Return the minimum size of this graph. The minimum size depends on the
@@ -66,7 +65,7 @@ public abstract class Graph
         int minWidth = 1;
         int minHeight = 1;
 
-        for (Iterator it = getVertices(); it.hasNext();) {
+        for (Iterator<? extends Vertex> it = getVertices(); it.hasNext();) {
             Vertex v = (Vertex) it.next();
 
             if (v.getX() + v.getWidth() > minWidth)
@@ -91,8 +90,8 @@ public abstract class Graph
     {
         Area a = new Area();
 
-        for (Iterator it = getVertices(); it.hasNext();) {
-            Vertex vertex = (Vertex) it.next();
+        for (Iterator<? extends Vertex> it = getVertices(); it.hasNext();) {
+            Vertex vertex = it.next();
 
             // lets discount the vertex we are adding from the space
             // calculations
@@ -155,11 +154,11 @@ public abstract class Graph
      */
     private Edge findEdge(int x, int y)
     {
-        GraphElement element = null;
-        for (Iterator it = getEdges(); it.hasNext();) {
-            element = (GraphElement) it.next();
+        Edge element = null;
+        for (Iterator<? extends Edge> it = getEdges(); it.hasNext();) {
+            element = it.next();
             if (element.contains(x, y)) {
-                return (Edge) element;
+                return element;
             }
         }
         return null;
@@ -184,8 +183,8 @@ public abstract class Graph
         // Rather than breaking when we find the vertex we keep searching
         // which will therefore find the LAST vertex containing the point
         // This turns out to be the vertex which is rendered at the front
-        for (Iterator it = getVertices(); it.hasNext();) {
-            element = (GraphElement) it.next();
+        for (Iterator<? extends Vertex> it = getVertices(); it.hasNext();) {
+            element = it.next();
             if (element.contains(x, y)) {
                 topElement = element;
             }
@@ -214,7 +213,7 @@ public abstract class Graph
      */
     protected void removedSelectableElement(SelectableGraphElement vertex)
     {
-        Iterator i = listeners.iterator();
+        Iterator<GraphListener> i = listeners.iterator();
         while (i.hasNext()) {
             GraphListener listener = (GraphListener) i.next();
             listener.selectableElementRemoved(vertex);
@@ -227,7 +226,7 @@ public abstract class Graph
      */
     protected void graphChanged()
     {
-        Iterator i = listeners.iterator();
+        Iterator<GraphListener> i = listeners.iterator();
         while (i.hasNext()) {
             GraphListener listener = (GraphListener) i.next();
             listener.graphChanged();

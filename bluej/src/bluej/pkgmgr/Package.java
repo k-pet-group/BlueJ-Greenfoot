@@ -53,7 +53,6 @@ import bluej.extensions.event.CompileEvent;
 import bluej.extmgr.ExtensionsManager;
 import bluej.graph.Edge;
 import bluej.graph.Graph;
-import bluej.graph.Vertex;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.dependency.Dependency;
@@ -84,7 +83,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 6682 2009-09-16 05:06:25Z davmac $
+ * @version $Id: Package.java 6952 2009-12-16 06:01:16Z davmac $
  */
 public final class Package extends Graph
 {
@@ -156,10 +155,10 @@ public final class Package extends Graph
     private TargetCollection targets;
 
     /** all the uses-arrows in a package */
-    private List usesArrows;
+    private List<Dependency> usesArrows;
 
     /** all the extends-arrows in a package */
-    private List extendsArrows;
+    private List<Dependency> extendsArrows;
 
     /** Holds the choice of "from" target for a new dependency */
     private DependentTarget fromChoice;
@@ -245,8 +244,8 @@ public final class Package extends Graph
         throws IOException
     {
         targets = new TargetCollection();
-        usesArrows = new ArrayList();
-        extendsArrows = new ArrayList();
+        usesArrows = new ArrayList<Dependency>();
+        extendsArrows = new ArrayList<Dependency>();
         callHistory = new CallHistory(HISTORY_LENGTH);
         dir = new File(project.getProjectDir(), getRelativePath().getPath());
         load();
@@ -392,7 +391,7 @@ public final class Package extends Graph
     {
         PackageTarget pt = null;
 
-        for (Iterator e = targets.iterator(); e.hasNext();) {
+        for (Iterator<Target> e = targets.iterator(); e.hasNext();) {
             Target target = (Target) e.next();
 
             if (target instanceof ClassTarget)
@@ -419,12 +418,12 @@ public final class Package extends Graph
      * 
      * @param getUncached   should be true if unopened packages should be included
      */
-    protected List getChildren(boolean getUncached)
+    protected List<Package> getChildren(boolean getUncached)
     {
-        List children = new ArrayList();
+        List<Package> children = new ArrayList<Package>();
 
-        for (Iterator e = targets.iterator(); e.hasNext();) {
-            Target target = (Target) e.next();
+        for (Iterator<Target> e = targets.iterator(); e.hasNext();) {
+            Target target = e.next();
 
             if (target instanceof PackageTarget && !(target instanceof ParentPackageTarget)) {
                 PackageTarget pt = (PackageTarget) target;
@@ -483,11 +482,11 @@ public final class Package extends Graph
     public Target[] getSelectedTargets()
     {
         Target[] targetArray = new Target[0];
-        LinkedList list = new LinkedList();
-        for (Iterator it = getVertices(); it.hasNext();) {
-            Vertex vertex = (Vertex) it.next();
-            if (vertex instanceof Target && ((Target) vertex).isSelected()) {
-                list.add(vertex);
+        LinkedList<Target> list = new LinkedList<Target>();
+        for (Iterator<Target> it = getVertices(); it.hasNext();) {
+            Target target = it.next();
+            if (target.isSelected()) {
+                list.add(target);
             }
         }
         return (Target[]) list.toArray(targetArray);
@@ -500,13 +499,10 @@ public final class Package extends Graph
      */
     public Dependency getSelectedDependency()
     {
-        for (Iterator it = getEdges(); it.hasNext();) {
-            Edge edge = (Edge) it.next();
-            if (edge instanceof Dependency) {
-                Dependency dependency = (Dependency) edge;
-                if (dependency.isSelected()) {
-                    return dependency;
-                }
+        for (Iterator<? extends Edge> it = getEdges(); it.hasNext();) {
+            Edge edge = it.next();
+            if (edge instanceof Dependency && edge.isSelected()) {
+                return (Dependency) edge;
             }
         }
         return null;
@@ -520,12 +516,12 @@ public final class Package extends Graph
      * 
      * The returned set is guaranteed to be only valid Java identifiers.
      */
-    private Set findTargets(File path)
+    private Set<String> findTargets(File path)
     {
         File srcFiles[] = path.listFiles(new JavaSourceFilter());
         File classFiles[] = path.listFiles(new JavaClassFilter());
 
-        Set interestingSet = new HashSet();
+        Set<String> interestingSet = new HashSet<String>();
 
         // process all *.java files
         for (int i = 0; i < srcFiles.length; i++) {
@@ -563,7 +559,7 @@ public final class Package extends Graph
                 // add only if there is no corresponding .java file
                 if (!interestingSet.contains(classFileName)) {
                     try {
-                        Class c = loadClass(getQualifiedName(classFileName));
+                        Class<?> c = loadClass(getQualifiedName(classFileName));
 
                         // fix for bug 152
                         // check that this class is a public class which means
@@ -607,7 +603,7 @@ public final class Package extends Graph
  
         // read in all the targets contained in this package
         // into this temporary map
-        Map propTargets = new HashMap();
+        Map<String,Target> propTargets = new HashMap<String,Target>();
 
         int numTargets = 0, numDependencies = 0;
 
@@ -649,7 +645,7 @@ public final class Package extends Graph
             if (!JavaNames.isIdentifier(subDirs[i].getName()))
                 continue;
 
-            Target target = (Target) propTargets.get(subDirs[i].getName());
+            Target target = propTargets.get(subDirs[i].getName());
 
             if (target == null || !(target instanceof PackageTarget)) {
                 target = new PackageTarget(this, subDirs[i].getName());
@@ -661,15 +657,15 @@ public final class Package extends Graph
 
         // now look for Java source files that may have been
         // added to the directory
-        Set interestingSet = findTargets(getPath());
+        Set<String> interestingSet = findTargets(getPath());
 
         // also we migrate targets from propTargets across
         // to our real list of targets in this loop.
-        Iterator it = interestingSet.iterator();
+        Iterator<String> it = interestingSet.iterator();
         while (it.hasNext()) {
-            String targetName = (String) it.next();
+            String targetName = it.next();
 
-            Target target = (Target) propTargets.get(targetName);
+            Target target = propTargets.get(targetName);
             if (target == null || !(target instanceof ClassTarget)) {
                 target = new ClassTarget(this, targetName);
                 findSpaceForVertex(target);
@@ -678,7 +674,7 @@ public final class Package extends Graph
         }
         
         //Now, parse the source files, and ensure they have the correct package statements
-        Iterator targetIt = targets.iterator();
+        Iterator<Target> targetIt = targets.iterator();
         while (targetIt.hasNext()) {
             Object target = targetIt.next();
             if(target instanceof ClassTarget) {
@@ -731,13 +727,13 @@ public final class Package extends Graph
         }
 
         //Update class roles, and their state
-        for (it = targets.iterator(); it.hasNext();) {
-            Target target = (Target) it.next();
+        for (targetIt = targets.iterator(); targetIt.hasNext();) {
+            Target target = targetIt.next();
 
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
 
-                Class cl = loadClass(ct.getQualifiedName());
+                Class<?> cl = loadClass(ct.getQualifiedName());
                 ct.determineRole(cl);
                 if (cl != null && ct.upToDate()) {
                     ct.setState(ClassTarget.S_NORMAL);
@@ -842,10 +838,10 @@ public final class Package extends Graph
             }
         }
 
-        Set interestingSet = findTargets(getPath());
+        Set<String> interestingSet = findTargets(getPath());
 
-        for (Iterator it = interestingSet.iterator(); it.hasNext();) {
-            String targetName = (String) it.next();
+        for (Iterator<String> it = interestingSet.iterator(); it.hasNext();) {
+            String targetName = it.next();
 
             Target target = targets.get(targetName);
 
@@ -855,7 +851,7 @@ public final class Package extends Graph
             }
         }
 
-        for (Iterator it = targets.iterator(); it.hasNext();) {
+        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
             Target target = (Target) it.next();
 
             if (target instanceof ClassTarget) {
@@ -865,13 +861,13 @@ public final class Package extends Graph
         }
         
         //Update class roles, and their state
-        for (Iterator it = targets.iterator(); it.hasNext();) {
+        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
             Target target = (Target) it.next();
 
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
 
-                Class cl = loadClass(ct.getQualifiedName());
+                Class<?> cl = loadClass(ct.getQualifiedName());
                 if (cl != null) {
                     ct.determineRole(cl);
                     if (ct.upToDate()) {
@@ -955,9 +951,9 @@ public final class Package extends Graph
 
         int t_count = 0;
 
-        Iterator t_enum = targets.iterator();
+        Iterator<Target> t_enum = targets.iterator();
         for (int i = 0; t_enum.hasNext(); i++) {
-            Target t = (Target) t_enum.next();
+            Target t = t_enum.next();
             // should we save this target
             if (t.isSaveable()) {
                 t.save(props, "target" + (t_count + 1));
@@ -1069,37 +1065,37 @@ public final class Package extends Graph
      * Loads a class using the current project class loader.
      * Return null if the class cannot be loaded.
      */
-    public Class loadClass(String className)
+    public Class<?> loadClass(String className)
     {
         return getProject().loadClass(className);
     }
 
-    public Iterator getVertices()
+    public Iterator<Target> getVertices()
     {
         return targets.sortediterator();
     }
 
-    public Iterator getEdges()
+    public Iterator<? extends Edge> getEdges()
     {
-        List iterations = new ArrayList();
+        List<Iterator<? extends Edge>> iterations = new ArrayList<Iterator<? extends Edge>>();
 
         if (showUses)
             iterations.add(usesArrows.iterator());
         if (showExtends)
             iterations.add(extendsArrows.iterator());
 
-        return new MultiIterator(iterations);
+        return new MultiIterator<Edge>(iterations);
     }
 
     /**
      * Return a List of all ClassTargets that have the role of a unit test.
      */
-    public List getTestTargets()
+    public List<ClassTarget> getTestTargets()
     {
-        List l = new ArrayList();
+        List<ClassTarget> l = new ArrayList<ClassTarget>();
 
-        for (Iterator it = targets.iterator(); it.hasNext();) {
-            Target target = (Target) it.next();
+        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
+            Target target = it.next();
 
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
@@ -1123,9 +1119,9 @@ public final class Package extends Graph
         }
 
         // build the list of targets that need to be compiled
-        Set toCompile = new HashSet();
-        for (Iterator it = targets.iterator(); it.hasNext();) {
-            Target target = (Target) it.next();
+        Set<ClassTarget> toCompile = new HashSet<ClassTarget>();
+        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
+            Target target = it.next();
 
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
@@ -1140,7 +1136,7 @@ public final class Package extends Graph
     /**
      * Compile a set of classes.
      */
-    private void compile(Set toCompile, CompileObserver observer)
+    private void compile(Set<? extends ClassTarget> toCompile, CompileObserver observer)
     {
         if (! toCompile.isEmpty()) {
             project.removeClassLoader();
@@ -1149,9 +1145,10 @@ public final class Package extends Graph
             // Clear-down the compiler Warning dialog box singleton
             bluej.compiler.CompilerWarningDialog.getDialog().reset();
 
-            for (Iterator i = toCompile.iterator(); i.hasNext(); ) {
+            for (Iterator<? extends ClassTarget> i = toCompile.iterator(); i.hasNext(); ) {
                 ClassTarget target = (ClassTarget) i.next();
-                boolean success = searchCompile(target, 1, new Stack(), new PackageCompileObserver());
+                boolean success = searchCompile(target, 1, new Stack<ClassTarget>(),
+                        new PackageCompileObserver());
                 if (! success)
                     break;
             }
@@ -1194,11 +1191,13 @@ public final class Package extends Graph
             bluej.compiler.CompilerWarningDialog.getDialog().reset();
 
             if (ct != null) {
-                searchCompile(ct, 1, new Stack(), new PackageCompileObserver());
+                searchCompile(ct, 1, new Stack<ClassTarget>(),
+                        new PackageCompileObserver());
             }
 
             if (assocTarget != null) {
-                searchCompile(assocTarget, 1, new Stack(), new QuietPackageCompileObserver());
+                searchCompile(assocTarget, 1, new Stack<ClassTarget>(),
+                        new QuietPackageCompileObserver());
             }
         }
     }
@@ -1213,7 +1212,7 @@ public final class Package extends Graph
         }
 
         ct.setInvalidState(); // to force compile
-        searchCompile(ct, 1, new Stack(), new QuietPackageCompileObserver());
+        searchCompile(ct, 1, new Stack<ClassTarget>(), new QuietPackageCompileObserver());
     }
 
     /**
@@ -1225,11 +1224,11 @@ public final class Package extends Graph
             return;
         }
 
-        List compileTargets = new ArrayList();
+        List<ClassTarget> compileTargets = new ArrayList<ClassTarget>();
 
         try {
-            for (Iterator it = targets.iterator(); it.hasNext();) {
-                Target target = (Target) it.next();
+            for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
+                Target target = it.next();
                 
                 if (target instanceof ClassTarget) {
                     ClassTarget ct = (ClassTarget) target;
@@ -1261,8 +1260,8 @@ public final class Package extends Graph
      */
     public void saveFilesInEditors() throws IOException
     {
-    	 for (Iterator it = targets.iterator(); it.hasNext();) {
-            Target target = (Target) it.next();
+    	 for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
+            Target target = it.next();
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
                 Editor ed = ct.getEditor();
@@ -1278,7 +1277,8 @@ public final class Package extends Graph
      * submitted together as one job; otherwise we attempt to submit every file as
      * a separate job, compiling dependencies before their dependents).
      */
-    private boolean searchCompile(ClassTarget t, int dfcount, Stack stack, CompileObserver observer)
+    private boolean searchCompile(ClassTarget t, int dfcount,
+            Stack<ClassTarget> stack, CompileObserver observer)
     {
         if (! t.isInvalidState() || t.isQueued()) {
             return true;
@@ -1302,7 +1302,7 @@ public final class Package extends Graph
 
         stack.push(t);
         
-        Iterator dependencies = t.dependencies();
+        Iterator<? extends Dependency> dependencies = t.dependencies();
 
         while (dependencies.hasNext()) {
             Dependency d = (Dependency) dependencies.next();
@@ -1326,7 +1326,7 @@ public final class Package extends Graph
         }
 
         if (t.link == t.dfn) {
-            List compileTargets = new ArrayList();
+            List<ClassTarget> compileTargets = new ArrayList<ClassTarget>();
             ClassTarget x;
 
             do {
@@ -1343,7 +1343,7 @@ public final class Package extends Graph
      * Compile every Target in 'targetList'. Every compilation goes through this method.
      * All targets in the list should have been saved beforehand.
      */
-    private void doCompile(List targetList, CompileObserver observer)
+    private void doCompile(List<ClassTarget> targetList, CompileObserver observer)
     {
         observer = new EventqueueCompileObserver(observer);
         if (targetList.size() == 0)
@@ -1352,7 +1352,7 @@ public final class Package extends Graph
         File[] srcFiles = new File[targetList.size()];
         
         for (int i = 0; i < targetList.size(); i++) {
-            ClassTarget ct = (ClassTarget) targetList.get(i);
+            ClassTarget ct = targetList.get(i);
             srcFiles[i] = ct.getSourceFile();
         }
         
@@ -1414,8 +1414,8 @@ public final class Package extends Graph
      */
     public void reInitBreakpoints()
     {
-        for (Iterator it = targets.iterator(); it.hasNext();) {
-            Target target = (Target) it.next();
+        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
+            Target target = it.next();
 
             if (target instanceof ClassTarget) {
                 ((ClassTarget) target).reInitBreakpoints();
@@ -1428,7 +1428,7 @@ public final class Package extends Graph
      */
     public void removeStepMarks()
     {
-        for (Iterator it = targets.iterator(); it.hasNext();) {
+        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
             Target target = (Target) it.next();
 
             if (target instanceof ClassTarget)
@@ -1568,7 +1568,7 @@ public final class Package extends Graph
                     // comma and the interface name but not before checking that we
                     // don't already have it
                     
-                    List exists = getInterfaceTexts(ed, info.getInterfaceSelections());
+                    List<String> exists = getInterfaceTexts(ed, info.getInterfaceSelections());
                     
                     // XXX make this equality check against full package name
                     if (!exists.contains(to.getBaseName()))
@@ -1616,7 +1616,7 @@ public final class Package extends Graph
                     // don't
                     // already have it
                     
-                    List exists = getInterfaceTexts(ed, info.getInterfaceSelections());
+                    List<String> exists = getInterfaceTexts(ed, info.getInterfaceSelections());
                     
                     // XXX make this equality check against full package name
                     if (!exists.contains(to.getBaseName()))
@@ -1694,7 +1694,8 @@ public final class Package extends Graph
                 Selection s1 = null;
                 
                 if (d instanceof ImplementsDependency) {
-                    List vsels, vtexts;
+                    List<Selection> vsels;
+                    List<String> vtexts;
                     
                     vsels = info.getInterfaceSelections();
                     vtexts = getInterfaceTexts(ed, vsels);
@@ -1735,12 +1736,12 @@ public final class Package extends Graph
      * Using a list of selections, retrieve a list of text strings from the editor which
      * correspond to those selections.
      */
-    private List getInterfaceTexts(Editor ed, List selections)
+    private List<String> getInterfaceTexts(Editor ed, List<Selection> selections)
     {
-        List r = new ArrayList(selections.size());
-        Iterator i = selections.iterator();
+        List<String> r = new ArrayList<String>(selections.size());
+        Iterator<Selection> i = selections.iterator();
         while (i.hasNext()) {
-            Selection sel = (Selection) i.next();
+            Selection sel = i.next();
             String text = ed.getText(new bluej.parser.SourceLocation(sel.getLine() - 1, sel.getColumn() -1),
                     new bluej.parser.SourceLocation(sel.getEndLine() - 1, sel.getEndColumn() - 1));
             
@@ -1756,7 +1757,7 @@ public final class Package extends Graph
     }
 
     /**
-     * Remove a dependancy from this package. The dependency is also removed
+     * Remove a dependency from this package. The dependency is also removed
      * from the individual targets involved.
      */
     public void removeDependency(Dependency d, boolean recalc)
@@ -1777,9 +1778,9 @@ public final class Package extends Graph
 
     public void recalcArrows()
     {
-        Iterator it = getVertices();
+        Iterator<Target> it = getVertices();
         while (it.hasNext()) {
-            Target t = (Target) it.next();
+            Target t = it.next();
 
             if (t instanceof DependentTarget) {
                 DependentTarget dt = (DependentTarget) t;
@@ -1830,15 +1831,15 @@ public final class Package extends Graph
      * Returns an ArrayList of ClassTargets holding all targets of this package.
      * @return a not null but possibly empty array list of ClassTargets for this package.
      */
-    public final ArrayList getClassTargets()
+    public final ArrayList<ClassTarget> getClassTargets()
     {
-        ArrayList risul = new ArrayList();
+        ArrayList<ClassTarget> risul = new ArrayList<ClassTarget>();
 
-        for (Iterator it = targets.iterator(); it.hasNext();) {
+        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
             Target target = (Target) it.next();
 
             if (target instanceof ClassTarget) {
-                risul.add(target);
+                risul.add((ClassTarget) target);
             }
         }
         return risul;
@@ -1847,12 +1848,12 @@ public final class Package extends Graph
     /**
      * Return a List of Strings with names of all classes in this package.
      */
-    public List getAllClassnames()
+    public List<String> getAllClassnames()
     {
-        List names = new ArrayList();
+        List<String> names = new ArrayList<String>();
         
-        for (Iterator it = targets.iterator(); it.hasNext();) {
-            Target t = (Target) it.next();
+        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
+            Target t = it.next();
 
             if (t instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) t;
@@ -1864,14 +1865,14 @@ public final class Package extends Graph
 
     /**
      * Return a List of Strings with names of all classes in this package that
-     * has acccompaning source.
+     * has accompanying source.
      */
-    public List getAllClassnamesWithSource()
+    public List<String> getAllClassnamesWithSource()
     {
-        List names = new ArrayList();
+        List<String> names = new ArrayList<String>();
 
-        for (Iterator it = targets.iterator(); it.hasNext();) {
-            Target t = (Target) it.next();
+        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
+            Target t = it.next();
 
             if (t instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) t;
@@ -1891,8 +1892,8 @@ public final class Package extends Graph
     {
         getProject().convertPathToPackageName(filename);
 
-        for (Iterator it = targets.iterator(); it.hasNext();) {
-            Target t = (Target) it.next();
+        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
+            Target t = it.next();
             if (!(t instanceof ClassTarget))
                 continue;
 
@@ -2196,7 +2197,7 @@ public final class Package extends Graph
      * Display an exception message. This is almost the same as "errorMessage"
      * except for different help texts.
      */
-    public void exceptionMessage(List stack, String message)
+    public void exceptionMessage(List<SourceLocation> stack, String message)
     {
         if ((stack == null) || (stack.size() == 0)) {
             // Stack empty or missing. This can happen when an exception is
@@ -2206,11 +2207,11 @@ public final class Package extends Graph
 
         // using the stack, try to find the source code
         boolean done = false;
-        Iterator iter = stack.iterator();
+        Iterator<SourceLocation> iter = stack.iterator();
         boolean firstTime = true;
 
         while (!done && iter.hasNext()) {
-            SourceLocation loc = (SourceLocation) iter.next();
+            SourceLocation loc = iter.next();
             String filename = new File(getPath(), loc.getFileName()).getPath();
             int lineNo = loc.getLineNumber();
             done = showEditorMessage(filename, lineNo, message, true, true, false, "exception");
@@ -2407,8 +2408,8 @@ public final class Package extends Graph
      */
     public void closeAllEditors()
     {
-        for (Iterator it = targets.iterator(); it.hasNext();) {
-            Target t = (Target) it.next();
+        for (Iterator<Target> it = targets.iterator(); it.hasNext();) {
+            Target t = it.next();
             if (t instanceof EditableTarget) {
                 EditableTarget et = (EditableTarget) t;
                 if (et.editorOpen()) {

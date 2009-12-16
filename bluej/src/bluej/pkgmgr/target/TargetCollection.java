@@ -24,24 +24,23 @@ package bluej.pkgmgr.target;
 import java.util.*;
 
 /**
- * 
+ * A collection of targets. 
  *
- * @author  Andrew Patterson
- * @version $Id: TargetCollection.java 6215 2009-03-30 13:28:25Z polle $
+ * @author Andrew Patterson
  */
 public class TargetCollection
 {
     /** all the targets in a package */
-    protected HashMap targets = new HashMap();
+    protected HashMap<String,Target> targets = new HashMap<String,Target>();
 
-    public Iterator iterator()
+    public Iterator<Target> iterator()
     {
         return targets.values().iterator();
     }
 
-    public Iterator sortediterator()
+    public Iterator<Target> sortediterator()
     {
-        return new TreeSet(targets.values()).iterator();
+        return new TreeSet<Target>(targets.values()).iterator();
     }
 
     public Target get(String identifierName)
