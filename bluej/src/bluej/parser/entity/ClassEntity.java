@@ -24,7 +24,7 @@ package bluej.parser.entity;
 import java.util.List;
 
 import bluej.debugger.gentype.GenTypeClass;
-import bluej.debugger.gentype.GenTypeParameter;
+import bluej.debugger.gentype.JavaType;
 
 
 /**
@@ -36,7 +36,7 @@ import bluej.debugger.gentype.GenTypeParameter;
  */
 public abstract class ClassEntity extends PackageOrClass
 {
-    public GenTypeParameter getType()
+    public JavaType getType()
     {
         return getClassType();
     }

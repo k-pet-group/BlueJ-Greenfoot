@@ -23,7 +23,7 @@ package bluej.parser.entity;
 
 import java.util.List;
 
-import bluej.debugger.gentype.GenTypeParameter;
+import bluej.debugger.gentype.JavaType;
 
 /**
  * An entity representing a package. The entity is only presumed to be a package
@@ -66,7 +66,7 @@ public class PackageEntity extends PackageOrClass
     }
 
     @Override
-    public GenTypeParameter getType()
+    public JavaType getType()
     {
         return null;
     }

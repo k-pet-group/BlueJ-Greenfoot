@@ -587,12 +587,18 @@ public class EditorParser extends JavaParser
     @Override
     protected void gotField(LocatableToken idToken)
     {
-        FieldNode field = new FieldNode(scopeStack.peek(), idToken.getText(), lastTypeSpec);
+        JavaEntity fieldType = getTypeEntity(scopeStack.peek(), lastTypeSpec);
+        
+        FieldNode field = new FieldNode(scopeStack.peek(), idToken.getText(), fieldType);
         int curOffset = getTopNodeOffset();
         int insPos = pcuNode.lineColToPosition(pcuStmtBegin.getLine(), pcuStmtBegin.getEndColumn());
         beginNode(insPos);
-        TypeInnerNode top = (TypeInnerNode) scopeStack.peek();
-        top.insertField(field, insPos - curOffset, 0);
+        
+        if (fieldType != null) {
+            TypeInnerNode top = (TypeInnerNode) scopeStack.peek();
+            top.insertField(field, insPos - curOffset, 0);
+        }
+        
         scopeStack.push(field);
     }
     
@@ -835,7 +841,6 @@ public class EditorParser extends JavaParser
                 break;
             }
         }
-        // TODO check the type arguments are actually valid
         return base.setTypeArgs(taList);
     }
 

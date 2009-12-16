@@ -31,7 +31,6 @@ import java.util.ListIterator;
 import java.util.Stack;
 
 import bluej.debugger.gentype.GenTypeClass;
-import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
@@ -592,7 +591,7 @@ public class TextParser extends JavaParser
                 if (taEnt == null) {
                     return null;
                 }
-                GenTypeParameter taType = taEnt.getType();
+                JavaType taType = taEnt.getType();
                 if (taType.isPrimitive()) {
                     return null;
                 }

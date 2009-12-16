@@ -26,6 +26,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.ValueEntity;
+
 /**
  * Node for the inner part of a type definition. This contains the declarations inside
  * the type.
@@ -86,4 +89,19 @@ public class TypeInnerNode extends ParentParsedNode
     {
         return methods;
     }
+    
+    // =================== EntityResolver interface ====================
+
+    public JavaEntity getValueEntity(String name, String querySource)
+    {
+        FieldNode field = fields.get(name);
+        if (field != null) {
+            JavaEntity fieldType = field.getFieldType().resolveAsType();
+            if (fieldType != null) {
+                return new ValueEntity(fieldType.getType());
+            }
+        }
+        return super.getValueEntity(name, querySource);
+    }
+
 }

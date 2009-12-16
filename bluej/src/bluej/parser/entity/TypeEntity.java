@@ -38,9 +38,9 @@ import bluej.utility.JavaReflective;
  */
 public class TypeEntity extends ClassEntity
 {
-    private GenTypeParameter thisType;
+    private JavaType thisType;
     
-    public TypeEntity(GenTypeParameter type)
+    public TypeEntity(JavaType type)
     {
         thisType = type;
     }
@@ -63,7 +63,7 @@ public class TypeEntity extends ClassEntity
         thisType = new GenTypeClass(r, Collections.<GenTypeParameter>emptyList(), outer);
     }
 
-    public GenTypeParameter getType()
+    public JavaType getType()
     {
         return thisType;
     }

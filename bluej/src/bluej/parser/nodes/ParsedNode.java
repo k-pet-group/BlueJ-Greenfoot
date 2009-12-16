@@ -261,6 +261,9 @@ public abstract class ParsedNode implements EntityResolver
     
     // =================== EntityResolver interface ====================
     
+    /*
+     * @see bluej.parser.entity.EntityResolver#resolveQualifiedClass(java.lang.String)
+     */
     public ClassEntity resolveQualifiedClass(String name)
     {
         if (parentNode != null) {
@@ -269,6 +272,9 @@ public abstract class ParsedNode implements EntityResolver
         return null;
     }
     
+    /*
+     * @see bluej.parser.entity.EntityResolver#resolvePackageOrClass(java.lang.String, java.lang.String)
+     */
     public PackageOrClass resolvePackageOrClass(String name, String querySource)
     {
         ParsedNode cnode = classNodes.get(name);
@@ -281,8 +287,17 @@ public abstract class ParsedNode implements EntityResolver
         return null;
     }
     
+    /*
+     * @see bluej.parser.entity.EntityResolver#getValueEntity(java.lang.String, java.lang.String)
+     */
     public JavaEntity getValueEntity(String name, String querySource)
     {
+        if (parentNode != null) {
+            JavaEntity rval = parentNode.getValueEntity(name, querySource);
+            if (rval != null) {
+                return rval;
+            }
+        }
         return resolvePackageOrClass(name, null);
     }
 }

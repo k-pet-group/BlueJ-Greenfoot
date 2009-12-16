@@ -21,9 +21,7 @@
  */
 package bluej.parser.nodes;
 
-import java.util.List;
-
-import bluej.parser.lexer.LocatableToken;
+import bluej.parser.entity.JavaEntity;
 
 /**
  * A node representing a parsed field.
@@ -33,13 +31,13 @@ import bluej.parser.lexer.LocatableToken;
 public class FieldNode extends ParentParsedNode
 {
     private String name;
-    private List<LocatableToken> typeTokens;
+    private JavaEntity fieldType;
     
-    public FieldNode(ParsedNode parent, String name, List<LocatableToken> typeTokens)
+    public FieldNode(ParsedNode parent, String name, JavaEntity fieldType)
     {
         super(parent);
         this.name = name;
-        this.typeTokens = typeTokens;
+        this.fieldType = fieldType;
     }
     
     @Override
@@ -54,4 +52,11 @@ public class FieldNode extends ParentParsedNode
         return name;
     }
 
+    /**
+     * Get the type of this field (as a JavaEntity, which needs to be resolved as a type).
+     */
+    public JavaEntity getFieldType()
+    {
+        return fieldType;
+    }
 }
