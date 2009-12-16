@@ -411,17 +411,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * Sets the caret back by the amount specified
-     * @param setback  sets the caret back by this amount
-     */   
-    public void setCaretBack(int setback)       
-    {        
-        if (sourcePane.getCaretPosition() >0 && sourcePane.getCaretPosition() >setback)
-            sourcePane.setCaretPosition(sourcePane.getCaretPosition() - setback);
-        else sourcePane.setCaretPosition(0);
-    }
-
-    /**
      * Show the editor window. This includes whatever is necessary of the
      * following: make visible, de-iconify, bring to front of window stack.
      * 

@@ -1048,23 +1048,11 @@ public final class MoeActions
         public void actionPerformed(ActionEvent e)
         {
             MoeEditor editor=getEditor(e);
-            if (editor==null)
-                editor=getFinderEditor(e);
-            editor.setFindPanelVisible(true);
-            editor.setReplacePanelVisible(true);
-            editor.setReplaceIcon(true);
-        }
-        
-        public MoeEditor getFinderEditor(ActionEvent e)
-        {
-            MoeEditor ed=null;
-            JTextComponent textComponent = getTextComponent(e);           
-            if (textComponent != null) {
-                Container c = ((JComponent)textComponent.getParent()).getTopLevelAncestor();
+            if (editor != null) {
+                editor.setFindPanelVisible(true);
+                editor.setReplacePanelVisible(true);
+                editor.setReplaceIcon(true);
             }
-            if (ed != null)
-                ed.clearMessage();
-            return ed;
         }
     }
 

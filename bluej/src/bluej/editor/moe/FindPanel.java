@@ -307,7 +307,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
 
     private void findEvent()
     {
-        boolean doFind=false;
         int caretPos=editor.getCaretPosition();
         //check there has been a legitimate change in the search criteria            
         if (getSearchString()!=null){
@@ -321,16 +320,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
                 editor.moveCaretPosition(caretPos);
                 writeMessage(false);
             }
-            else if (!getSearchString().equals(findTField.getText()))
-                doFind=true;
         }
-        //if it is the first letter of the search
-        if (findTField.getText().length()>0)
-            doFind=true;
-        if (doFind){
-            editor.moveCaretPosition(caretPos);
-            find(true, true);
-        }
+        editor.moveCaretPosition(caretPos);
+        find(true, true);
     }
 
     /**
@@ -338,26 +330,21 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void displayFindPanel(String selection, boolean visible)
     { 
-        boolean selectFindText=false;
         //if it is already visible and the request is to become 
         //visible just set the focus in the text field
         if (this.isVisible() && visible){
             findTField.requestFocus();
             return;
         }
+        
         if (selection==null)
             selection=getSearchString();
-        else   {      //need to highlight the text in the find field as it is from the editor
-             selectFindText=true;
-        }       
+        
         setSearchString(selection);
         updateDisplay();
         this.setVisible(true);
         setfindTextField(selection); //this triggers a find
-        if (selectFindText){
-            findTField.selectAll();
-            editor.setSelectionVisible();
-        }
+        findTField.selectAll();
         findTField.requestFocus();
     }
 
@@ -543,7 +530,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void insertUpdate(DocumentEvent e) 
     {
-            findEvent();
+        findEvent();
     }
 
     /**
