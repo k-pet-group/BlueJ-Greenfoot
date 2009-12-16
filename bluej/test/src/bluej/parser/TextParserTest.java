@@ -33,7 +33,7 @@ import bluej.parser.entity.EntityResolver;
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 6930 2009-12-10 12:19:37Z davmac $
+ * @version $Id: TextParserTest.java 6949 2009-12-16 04:37:32Z davmac $
  */
 public class TextParserTest extends TestCase
 {
@@ -270,5 +270,33 @@ public class TextParserTest extends TestCase
         TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("new Integer(4) + 5");
         assertEquals("int", r);
+    }
+    
+    public void testOperators()
+    {
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
+        String r = tp.parseCommand("3 << 2");
+        assertEquals("int", r);
+        r = tp.parseCommand("3 << 2l");
+        assertEquals("int", r);
+        
+        r = tp.parseCommand("3 >> 2l");
+        assertEquals("int", r);
+        
+        r = tp.parseCommand("3 >>> 2");
+        assertEquals("int", r);
+        
+        r = tp.parseCommand("3 == 4");
+        assertEquals("boolean", r);
+        r = tp.parseCommand("3 != 4");
+        assertEquals("boolean", r);
+        r = tp.parseCommand("3 < 4");
+        assertEquals("boolean", r);
+        r = tp.parseCommand("3 <= 4");
+        assertEquals("boolean", r);
+        r = tp.parseCommand("3 > 4");
+        assertEquals("boolean", r);
+        r = tp.parseCommand("3 >= 4");
+        assertEquals("boolean", r);
     }
 }
