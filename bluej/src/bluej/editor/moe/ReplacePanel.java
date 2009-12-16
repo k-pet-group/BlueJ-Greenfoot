@@ -1,3 +1,24 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.editor.moe;
 
 import javax.swing.BorderFactory;
@@ -22,7 +43,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-
+/**
+ * ReplacePanel display and functionality for replace
+ * 
+ * @author Marion Zalk
+ *
+ */
 public class ReplacePanel extends JPanel implements ActionListener, KeyListener {
 
     private MoeEditor editor;
@@ -97,15 +123,20 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
 
         body = new JPanel(new GridLayout(1, 2)); // one row, many columns
         rBody=new JPanel(new GridLayout(1, 2));
+        //rBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
         replaceBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
         optionsBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
-
+        body.setBorder(BorderFactory.createEmptyBorder(3,0,3,0));
+        
+        JPanel closeBody=new JPanel(new GridLayout(1,2));
+        closeBody.setBackground(MoeEditor.infoColor); 
         body.setBackground(MoeEditor.infoColor);
 
         replaceLabel=new JLabel("Replace: ");
         replaceLabel.setFont(font);
 
-        replaceText=new JTextField(10);
+        replaceText=new JTextField(11);
+        replaceText.setMaximumSize(replaceText.getPreferredSize());
         replaceText.setFont(font);
         replaceText.addKeyListener(this);
         replaceText.setName(REPLACE_TEXTFIELD);
@@ -119,20 +150,25 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
 
         replaceAllButton=new JButton();
         replaceAllButton.setName(REPLACE_ALL_BUTTON_NAME);
-        replaceAllButton.setText(" All ");
+        replaceAllButton.setText(" All  ");
         replaceAllButton.setFont(font);
         replaceAllButton.addActionListener(this);
         replaceAllButton.setEnabled(true);
 
-        JLabel closeBody=new JLabel(" ");
-
-        replaceBody.add(replaceLabel);
-        replaceBody.add(replaceText);
+        JPanel rTemp=new JPanel(new GridLayout(1, 1));
+        rTemp.add(replaceLabel);
+        JPanel rtTemp=new JPanel(new GridLayout(1, 1));
+        rtTemp.add(replaceText);
+        replaceBody.add(rTemp);
+        replaceBody.add(rtTemp);
+        //replaceBody.add(replaceLabel);
+        //replaceBody.add(replaceText, BorderLayout.EAST);
         optionsBody.add(replaceButton);
         optionsBody.add(replaceAllButton);
-        optionsBody.add(new JLabel(" "));
+        //optionsBody.add(new JLabel(" "));
         rBody.add(replaceBody);
         rBody.add(optionsBody);
+
 
         body.add(rBody);  
         body.add(closeBody);

@@ -129,13 +129,15 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         //findOptions=new JPanel(new GridLayout(1, 7));
         //findBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
         findBody=new JPanel(new GridLayout(1, 2));
+        //findBody=
         findTextBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
         optionsBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
-
+        
         otherBody=new JPanel (new GridLayout(1, 2));
         mcBody=new JPanel(new GridLayout(1, 1));
         closeBody=new JPanel(new GridLayout(1,2));
-        closeBody.setBackground(MoeEditor.infoColor);    
+        closeBody.setBackground(MoeEditor.infoColor);   
+        
     }
 
 
@@ -146,10 +148,11 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private void setFindDisplay()
     {
         findLabel = new JLabel();
-        findLabel.setText("Find:       ");
+        findLabel.setText("Find:      ");
         findLabel.setFont(findFont);
 
-        findTField=new JTextField(10);
+        findTField=new JTextField(11);
+        findTField.setMaximumSize(findTField.getPreferredSize());
         findTField.setFont(findFont);
         setSearchString("");
         setfindTextField("");
@@ -165,7 +168,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         previousButton=new JButton();
         previousButton.addActionListener(this);
         previousButton.setName(PREVIOUS_BUTTON_NAME);
-        previousButton.setText("Prev");
+        previousButton.setText("Prev ");
         previousButton.setEnabled(false);
         previousButton.setFont(findFont);
 
@@ -227,8 +230,15 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void addDisplayElements()
     {
-        findTextBody.add(findLabel);
-        findTextBody.add(findTField);
+        //findTextBody.add(findLabel);
+        JPanel fTemp = new JPanel(new GridLayout(1, 1));
+        fTemp.add(findLabel);
+        //findTextBody.add(findTField);
+        JPanel ftTemp = new JPanel(new GridLayout(1, 1));
+        ftTemp.add(findTField);
+        findTextBody.add(fTemp);
+        findTextBody.add(ftTemp);
+        
         optionsBody.add(previousButton);
         optionsBody.add(nextButton);
 
