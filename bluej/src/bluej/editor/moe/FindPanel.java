@@ -354,11 +354,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         this.setVisible(true);
         setfindTextField(selection); //this triggers a find
         if (selectFindText){
-            //findTField.selectAll();
+            findTField.selectAll();
             editor.setSelectionVisible();
         }
         findTField.requestFocus();
-
     }
 
     /**

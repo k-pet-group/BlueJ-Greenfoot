@@ -1416,8 +1416,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
+    
     /**
-     * doFind - do a find without visible feedback. Returns false if not found.
+     * doFind - search for and select the given search string forwards from
+     * the current caret position. Returns false if not found.
      */
     boolean doFind(String s, boolean ignoreCase, boolean wholeWord, boolean wrap)
     {
@@ -1572,7 +1574,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                             //caret correctly and the highlighter ensures the colouring is done correctly                                             
                             currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);
                             currentTextPane.select(start + foundPos, start + foundPos + s.length());
-                            currentTextPane.getCaret().setSelectionVisible(true);
+                            setSelectionVisible();
                             //reset the start position to the first caret of the selected item
                             //in order to ensure that none are missed
                             startPosition=start+foundPos;
@@ -3415,16 +3417,21 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * sets the caret selection true
+     * Sets the caret selection visible. The visibility will be persistent,
+     * until the caret is repositioned.
      */
     protected void setSelectionVisible()
     {
         currentTextPane.getCaret().setSelectionVisible(true);
+        Caret caret = currentTextPane.getCaret();
+        if (caret instanceof MoeCaret) {
+            MoeCaret mcaret = (MoeCaret) caret;
+            mcaret.setPersistentHighlight();
+        }
     }
 
     /**
      * getFindSearchString() returns the search string in the find panel
-     * @return String
      */
     protected String getFindSearchString()
     {

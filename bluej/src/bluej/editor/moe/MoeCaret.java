@@ -77,7 +77,6 @@ public class MoeCaret extends DefaultCaret
                 biasRet[0] = Position.Bias.Forward;
             if (pos >= 0) {
                 setDot(pos); 
-//                setMagicCaretPosition(null);
             }
         }
         else {
@@ -133,8 +132,6 @@ public class MoeCaret extends DefaultCaret
     public void focusLost(FocusEvent e)
     {
         super.focusLost(e);
-        if (persistentHighlight)
-            setSelectionVisible(true);
     }
     
     /**
@@ -176,6 +173,14 @@ public class MoeCaret extends DefaultCaret
             getComponent().getHighlighter().removeHighlight(matchingBracketHighlight);
             matchingBracketHighlight = null;        
         }  
+    }
+    
+    @Override
+    public void setSelectionVisible(boolean vis)
+    {
+        if (vis || ! persistentHighlight) {
+            super.setSelectionVisible(vis);
+        }
     }
     
 }
