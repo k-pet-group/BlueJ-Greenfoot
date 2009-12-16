@@ -27,6 +27,7 @@ indent-block=\n Add one level of indentation to each line in the current selecti
 deindent-block=\n Remove one level of indentation from each line in the current selection\n (or the current line if there is no selection).
 increase-font=\Increases the font by 1
 decrease-font=\Decreases the font by 1
+code-completion=\Aids in code completion
 
 select-word=\n Select the current word (also bound to\n left-mouse-button: double-click).
 select-line=\n Select the current line (also bound to\n left-mouse-button: triple-click).

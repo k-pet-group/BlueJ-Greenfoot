@@ -381,7 +381,7 @@ public final class MoeActions
             }
             if (version < 300) {
                 keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, Event.CTRL_MASK), (Action) (actions
-                        .get("content-assist")));
+                        .get("code-completion")));
             }
             return true;
         }
@@ -949,7 +949,7 @@ public final class MoeActions
 
         public ContentAssistAction()
         {
-            super("content-assist");
+            super("code-completion");
         }
 
         public void actionPerformed(ActionEvent e)
@@ -1881,7 +1881,7 @@ public final class MoeActions
                 (Action) (actions.get("go-to-line")),
                 (Action) (actions.get("increase-font")),
                 (Action) (actions.get("decrease-font")),
-                (Action) (actions.get("content-assist")),
+                (Action) (actions.get("code-completion")),
                 
         }; // 81
 
@@ -1993,7 +1993,7 @@ public final class MoeActions
         keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, SHORTCUT_MASK), (Action) (actions
                 .get("decrease-font")));
         keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, SHORTCUT_MASK), (Action) (actions
-                .get("content-assist")));
+                .get("code-completion")));
        
     }
 
