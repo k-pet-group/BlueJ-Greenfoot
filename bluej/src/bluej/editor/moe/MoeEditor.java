@@ -401,7 +401,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         //if there is no selection, need to find an instance of the search string
         if (getSelectionBegin()!=null && getSelectionBegin().getColumn()==getSelectionEnd().getColumn())
-            finder.find(true);
+            finder.find(true, true);
         if (getSelectedText()==null)
             return;
         sourcePane.replaceSelection(text);
@@ -1321,7 +1321,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         insertText(replaceText, true);
         //move the caret back to where it was before the replace
         moveCaretPosition(caretPos);
-        finder.find(true);
+        finder.find(true , true);
         //editor.writeMessage("Replaced " + count + " instances of " + searchString);
         writeMessage("Replaced an instance of " + 
                 searchString);

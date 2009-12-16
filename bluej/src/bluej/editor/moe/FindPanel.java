@@ -280,11 +280,11 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             enableReplace();
         }
         if (src.getName()==INPUT_QUERY_NAME){          
-                find(true);
+                find(true, true);
         }
         if (src.getName()==MATCHCASE_CHECKBOX){
             //editor.setCaretPositionForward(-getSearchString().length());
-            find(true);
+            find(true, true);
         }
     }
 
@@ -294,14 +294,15 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         if (getSearchString()!=null && getSearchString().equals(findTField.getText())){
             editor.moveCaretPosition(editor.getCaretPosition()+getSearchString().length());
         }
-        find(true);  
+        find(true, true);  
     }
 
-    public void getPrev(){
+    public void getPrev()
+    {
         if (getSearchString()!=null){
             editor.moveCaretPosition(editor.getCaretPosition()+getSearchString().length());
         }
-        find(false);
+        find(false, true);
     }
 
     private void findEvent()
@@ -328,7 +329,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             doFind=true;
         if (doFind){
             editor.moveCaretPosition(caretPos);
-            find(true);
+            find(true, true);
         }
     }
 
@@ -511,14 +512,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private void searchForward(boolean ignoreCase, boolean wholeWord, boolean wrap, boolean next, boolean select)
     {
         search(ignoreCase, wholeWord, wrap, select, next) ;
-    }
-
-    /**
-     * Assumes that the select is true, calls find(boolean next, boolean select)
-     * @param next forward/backward
-     */
-    protected void find(boolean next){
-        find(next, true);
     }
 
     /**
