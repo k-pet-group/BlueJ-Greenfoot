@@ -86,7 +86,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private final static String REPLACE_OPEN_BUTTON_NAME ="replaceOpen";
     private final static String REPLACE_CLOSE_BUTTON_NAME ="replaceClose";
 
-
     private String searchString=""; 
     private static Font findFont;
     private ImageIcon openIcon;
@@ -280,8 +279,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         if (src.getName()==REPLACE_OPEN_BUTTON_NAME){
             enableReplace();
         }
-        if (src.getName()==INPUT_QUERY_NAME){
-            find(true);
+        if (src.getName()==INPUT_QUERY_NAME){          
+                find(true);
         }
         if (src.getName()==MATCHCASE_CHECKBOX){
             //editor.setCaretPositionForward(-getSearchString().length());
@@ -338,6 +337,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void displayFindPanel(String selection, boolean visible)
     { 
+        boolean selectFindText=false;
         //if it is already visible and the request is to become 
         //visible just set the focus in the text field
         if (this.isVisible() && visible){
@@ -346,11 +346,17 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         }
         if (selection==null)
             selection=getSearchString();
+        else   {      //need to highlight the text in the find field as it is from the editor
+             selectFindText=true;
+        }       
         setSearchString(selection);
-        setfindTextField(selection);
         updateDisplay();
         this.setVisible(true);
-        findTField.requestFocus();
+        setfindTextField(selection); //this triggers a find
+        if (selectFindText){
+            //findTField.selectAll();
+            editor.setSelectionVisible();
+        }
 
     }
 
@@ -439,7 +445,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         searchForward(ignoreCase, wholeWord, wrap, next, select);
         writeMessage(true); 
-        editor.setCaretSelected();
     }
 
     /**
@@ -545,7 +550,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void insertUpdate(DocumentEvent e) 
     {
-        findEvent();
+            findEvent();
     }
 
     /**

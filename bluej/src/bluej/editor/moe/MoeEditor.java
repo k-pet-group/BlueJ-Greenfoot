@@ -3414,7 +3414,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     }
 
-    protected void setCaretSelected()
+    /**
+     * sets the caret selection true
+     */
+    protected void setSelectionVisible()
     {
         currentTextPane.getCaret().setSelectionVisible(true);
     }
