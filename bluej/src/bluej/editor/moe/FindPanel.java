@@ -328,7 +328,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
                 editor.removeSelectionHighlights();
                 setSearchString(null);
                 editor.moveCaretPosition(caretPos);
-                writeMessage(false);
+                writeMessage(false, 0);
             }
         }
         editor.moveCaretPosition(caretPos);
@@ -441,20 +441,25 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void highlightAll(boolean ignoreCase, boolean wholeWord, boolean wrap, boolean next, boolean select)
     {
+        int caretPos=editor.getCaretPosition();
         searchForward(ignoreCase, wholeWord, wrap, next, select);
-        writeMessage(true); 
+        int counter=editor.getNumHighlights();
+        //if there was nothing found, need to move the caret back to its original position
+        if (counter<1)
+            editor.moveCaretPosition(caretPos+getSearchString().length());
+        writeMessage(true, counter); 
     }
 
     /**
      * writeMessage either writes an empty message or a message reflecting the number of founds
      * @param emptyMessage
      */
-    private void writeMessage(boolean emptyMessage){
+    private void writeMessage(boolean emptyMessage, int counter){
         if (!emptyMessage){
             editor.writeMessage(" ");
             return;
         }
-        int counter=editor.getNumHighlights();
+
         if(counter > 0){
             if (editor.getSelectedText()!=null){
                 //move the caret to the beginning of the selected item
@@ -604,11 +609,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
 
     public void close()
     {
-        int caretPos=editor.getCaretPosition();
         editor.removeSelectionHighlights();
         this.setVisible(false);
         editor.toggleReplacePanelVisible();
-        editor.moveCaretPosition(caretPos);
         replaceIconLabel.setIcon(closedIcon);
     }
 
