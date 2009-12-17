@@ -44,7 +44,7 @@ import bluej.utility.DialogManager;
  * Window for controlling the debugger
  *
  * @author  Michael Kolling
- * @version $Id: ExecControls.java 6491 2009-08-06 23:20:51Z davmac $
+ * @version $Id: ExecControls.java 6954 2009-12-17 04:51:26Z davmac $
  */
 public class ExecControls extends JFrame
     implements ListSelectionListener, TreeSelectionListener, TreeModelListener
@@ -827,26 +827,4 @@ public class ExecControls extends JFrame
             debugger.hideSystemThreads(systemThreadItem.isSelected());
         }
     }
-    
-    /** 
-     * This method provides the user with an elegant way to decide on how to proceed if there is
-     * a debugger running in the background (Bug#138)
-     * returns boolean to whether it should continue processing original request
-     * (dependent on user choice)
-     * 
-     * @param dialogParent specifies the parent component for any necessary dialog
-     * @param canContinue specifies whether the "terminate (and continue)" option is allowed.
-     */
-    public boolean processDebuggerState(Component dialogParent, boolean canContinue)
-    {
-    	//only need to give user warnings if debugger is already initiated, double check status
-	    if (debugger.getStatus()==Debugger.IDLE || debugger.getStatus()==Debugger.NOTREADY) {
-	    	return true;
-	    }
-	    
-	    setVisible(true);
-        DialogManager.showError(dialogParent, "stuck-at-breakpoint");
-       	return false;
-    }
-
 }

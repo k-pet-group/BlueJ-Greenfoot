@@ -87,11 +87,6 @@ error-open-source
 Cannot open the source
 of this class.
 
-error-writing-readme
-The README file for this project could not be
-updated to add the main class information.
-There was an error changing this file.
-
 error-writing-jar
 The jar file could not be written correctly.
 (Check the file system for access rights and
@@ -134,7 +129,7 @@ does not exist.
 
 cannot-import
 Cannot import file. The file must
-be a Java source file (it's name
+be a Java source file (its name
 must end in ".java").
 
 docdir-blocked-by-file
@@ -183,7 +178,7 @@ in this project. You cannot have two
 classes or packages with the same name.
 
 error-in-import
-An error occured during the attempt to
+An error occurred during the attempt to
 import the file. Check access rights and
 disk space.
 
@@ -532,7 +527,11 @@ null
 stuck-at-breakpoint
 Your program is already running, and stopped at a breakpoint.
 You cannot start another execution while the current one is still
-active.
-    
-Use the debugger Controls to either continue or terminate the
-current execution first.
+active. Use the debugger Controls to either continue or terminate
+the current execution first.
+
+already-executing
+Your program is already running. You cannot start another
+execution (or inspect a class) until the execution finishes. If
+the program is stuck in a loop, you can use the debugger to
+terminate it.

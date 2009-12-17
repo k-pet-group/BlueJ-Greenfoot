@@ -24,20 +24,19 @@ package bluej.debugger;
 import java.util.List;
 
 /**
- ** 
- ** 
- **
- ** @author Michael Kolling
- **/
+ * A description of an exception.
+ *
+ * @author Michael Kolling
+ */
 
 public final class ExceptionDescription
 {
     private String className;
     private String text;
-    private List stack;
+    private List<SourceLocation> stack;
 
     public ExceptionDescription(String className, String text, 
-                                List stack)
+                                List<SourceLocation> stack)
     {
         this.className = className;
         this.text = text;
@@ -68,28 +67,11 @@ public final class ExceptionDescription
     }
 
     /**
-     * Return the file the exception was thrown from.
-     */    
-    //     public String getSourceFile()
-    //     {
-    // 	return sourceFile;
-    //     }
-
-    //     /**
-    //      * Return the line number in the source file where this exception was
-    //      * thrown.
-    //      */
-    //     public int getLineNumber()
-    //     {
-    // 	return lineNumber;
-    //     }
-
-    /**
      * Return the stack (a list of SourceLocation objects) for the exception
      * location. Element 0 in the list is the current frame, higher numbers
      * are caller frames.
      */
-    public List getStack()
+    public List<SourceLocation> getStack()
     {
         return stack;
     }

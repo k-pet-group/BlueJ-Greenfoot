@@ -59,7 +59,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 6905 2009-12-07 02:28:36Z davmac $
+ * @version $Id: Invoker.java 6954 2009-12-17 04:51:26Z davmac $
  */
 
 public class Invoker
@@ -246,8 +246,7 @@ public class Invoker
         }
         
         if (!Config.isGreenfoot()) {
-            boolean isStatic = constructing || member.isStatic();
-            if (!pkg.getProject().getExecControls().processDebuggerState(pmf, isStatic)) {
+            if (!pmf.checkDebuggerState()) {
                 return;
             }
         }

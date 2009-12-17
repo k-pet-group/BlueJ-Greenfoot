@@ -89,7 +89,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 6880 2009-12-02 04:02:12Z davmac $
+ * @version $Id: ClassTarget.java 6954 2009-12-17 04:51:26Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -1025,7 +1025,7 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
-     * Analyse the source code, and save retrieived information.
+     * Analyse the source code, and save retrieved information.
      * This includes comments and parameter names for methods/constructors,
      * class name, type parameters, etc.
      * <p>
@@ -1501,7 +1501,7 @@ public class ClassTarget extends DependentTarget
 
         public void actionPerformed(ActionEvent e)
         {	
-            if (doAction()){
+            if (checkDebuggerState()){
                 inspect();
             }
         }
@@ -1688,8 +1688,6 @@ public class ClassTarget extends DependentTarget
     }
 
     /*
-     * (non-Javadoc)
-     * 
      * @see bluej.editor.EditorWatcher#generateDoc()
      */
     public void generateDoc()
@@ -1697,7 +1695,7 @@ public class ClassTarget extends DependentTarget
         getPackage().generateDocumentation(this);
     }
 
-    /* (non-Javadoc)
+    /*
      * @see bluej.graph.GraphElement#remove()
      */
     public void remove()
@@ -1707,8 +1705,6 @@ public class ClassTarget extends DependentTarget
     }
 
     /*
-     * (non-Javadoc)
-     * 
      * @see bluej.graph.Moveable#isMoveable()
      */
     /**
@@ -1723,7 +1719,7 @@ public class ClassTarget extends DependentTarget
 
     /*
      * Set whether this ClassTarget can be moved by the user (dragged around).
-     * This is set false for unit tests which are assosciated with another class.
+     * This is set false for unit tests which are associated with another class.
      * 
      * @see bluej.graph.Moveable#setIsMoveable(boolean)
      */
@@ -1755,9 +1751,8 @@ public class ClassTarget extends DependentTarget
      * 
      * @return Whether the original request should be executed (dependent on how the user wants to proceed)
      */
-    public boolean doAction()
+    private boolean checkDebuggerState()
     {
-    	return getPackage().getProject().getExecControls()
-    	        .processDebuggerState(PkgMgrFrame.createFrame(getPackage()), true);
+        return PkgMgrFrame.createFrame(getPackage()).checkDebuggerState();
     }
 }

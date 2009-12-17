@@ -2369,6 +2369,31 @@ public class PkgMgrFrame extends JFrame
     }
 
     /**
+     * Check the debugger state is suitable for execution: that is, it is not already
+     * executing anything or stuck at a breakpoint.
+     * 
+     * <P>Returns true if the debugger is currently idle, or false if it is already
+     * executing, in which case an error dialog is also displayed and the debugger
+     * controls window is made visible.
+     */
+    public boolean checkDebuggerState()
+    {
+        Debugger debugger = getProject().getDebugger();
+        if (debugger.getStatus() == Debugger.SUSPENDED) {
+            setVisible(true);
+            DialogManager.showError(this, "stuck-at-breakpoint");
+            return false;
+        }
+        else if (debugger.getStatus() == Debugger.RUNNING) {
+            setVisible(true);
+            DialogManager.showError(this, "already-executing");
+            return false;
+        }
+        
+        return true;
+    }
+
+    /**
      * Show the debugger controls for the VM associated with this project.
      */
     public void showDebugger()
@@ -2411,11 +2436,6 @@ public class PkgMgrFrame extends JFrame
         return showExtendsMenuItem.isSelected();
     }
     
-   // public boolean includeLayout()
-   // {
-   //     return includeLayoutMenuItem.isSelected();
-   // }
-
     /**
      * Show or hide the testing tools.
      */
