@@ -662,6 +662,11 @@ public class NodeTree
         {
             return size;
         }
+        
+        public int getEnd()
+        {
+            return position + size;
+        }
     }
     
     /**

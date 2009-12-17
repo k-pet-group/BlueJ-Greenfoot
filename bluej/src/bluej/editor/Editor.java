@@ -33,7 +33,7 @@ import bluej.parser.SourceLocation;
 /**
  * Interface between an editor and the rest of BlueJ
  * 
- * @version $Id: Editor.java 6682 2009-09-16 05:06:25Z davmac $
+ * @version $Id: Editor.java 6956 2009-12-17 06:07:03Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -99,7 +99,7 @@ public interface Editor
      * Show the editor window. This includes whatever is necessary of the
      * following: make visible, de-iconify, bring to front of window stack.
      * 
-     * @param vis DOCUMENT ME!
+     * @param vis  true to make the editor visible, or false to hide it.
      */
     void setVisible(boolean vis);
 

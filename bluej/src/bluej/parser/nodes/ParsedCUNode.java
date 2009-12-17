@@ -39,11 +39,10 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 /**
  * A parsed compilation unit node.
  * 
- * @author davmac
+ * @author Davin McCall
  */
 public class ParsedCUNode extends ParentParsedNode
 {
-    //private JavaTokenMarker marker = new JavaTokenMarker();
     private Document document;
     private EntityResolver parentResolver;
 
@@ -125,7 +124,7 @@ public class ParsedCUNode extends ParentParsedNode
             NodeAndPosition nap = i.next();
             clearNode(nap.getNode());
             for (Iterator<NodeStructureListener> j = listeners.iterator(); j.hasNext(); ) {
-                j.next().nodeRemoved(nap.getNode());
+                j.next().nodeRemoved(nap);
             }
         }
         node.getNodeTree().clear();

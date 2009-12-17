@@ -961,17 +961,32 @@ public abstract class BlueJSyntaxView extends PlainView
      */
     protected void updateDamage(DocumentEvent changes, Shape a, ViewFactory f)
     {
+        int damageStart = getDocument().getLength();
+        int damageEnd = 0;
+        
         if (changes instanceof MoeSyntaxEvent) {
             MoeSyntaxEvent mse = (MoeSyntaxEvent) changes;
-            for (ParsedNode node : mse.getRemovedNodes()) {
-                nodeRemoved(node);
+            for (NodeAndPosition node : mse.getRemovedNodes()) {
+                nodeRemoved(node.getNode());
+                damageStart = Math.min(damageStart, node.getPosition());
+                damageEnd = Math.max(damageEnd, node.getEnd());
+            }
+            for (NodeAndPosition node : mse.getAddedNodes()) {
+                damageStart = Math.min(damageStart, node.getPosition());
+                damageEnd = Math.max(damageEnd, node.getEnd());
             }
         }
-        
+                
         Component host = getContainer();
-        Element elem = getElement();
-        DocumentEvent.ElementChange ec = changes.getChange(elem);
+        Element map = getElement();
         
+        if (damageStart < damageEnd) {
+            int line = map.getElementIndex(damageStart);
+            int lastline = map.getElementIndex(damageEnd - 1);
+            damageLineRange(line, lastline, a, host);
+        }
+        
+        DocumentEvent.ElementChange ec = changes.getChange(map);
         Element[] added = (ec != null) ? ec.getChildrenAdded() : null;
         Element[] removed = (ec != null) ? ec.getChildrenRemoved() : null;
         if (((added != null) && (added.length > 0)) || 
@@ -982,7 +997,6 @@ public abstract class BlueJSyntaxView extends PlainView
             // This is the case we have to fix. The PlainView implementation only
             // repaints a single line; we need to repaint the whole range.
             super.updateDamage(changes, a, f);
-            Element map = getElement();
             int choffset = changes.getOffset();
             int chlength = Math.max(changes.getLength(), 1);
             int line = map.getElementIndex(choffset);

@@ -4,7 +4,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 public interface NodeStructureListener
 {
-    public void nodeRemoved(ParsedNode node);
+    public void nodeRemoved(NodeAndPosition node);
     
     public void nodeAdded(NodeAndPosition node);
     
