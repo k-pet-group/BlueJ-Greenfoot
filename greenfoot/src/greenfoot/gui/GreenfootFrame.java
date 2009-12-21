@@ -98,8 +98,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.event.RCompileEvent;
@@ -194,24 +192,6 @@ public class GreenfootFrame extends JFrame
         throws HeadlessException
     {
         super("Greenfoot");
-        try {
-            if (Config.isWinOS()) {
-                // UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            }
-        }
-        catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        catch (InstantiationException e) {
-            e.printStackTrace();
-        }
-        catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        catch (UnsupportedLookAndFeelException e) {
-            e.printStackTrace();
-        }
         
         LocationTracker.instance(); //force initialisation
         ImageIcon icon = new ImageIcon(GreenfootUtil.getGreenfootLogoPath());
