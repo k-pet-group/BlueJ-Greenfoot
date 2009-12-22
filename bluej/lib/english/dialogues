@@ -377,16 +377,10 @@ null
 error-create-vm
 BlueJ was unable to create a virtual machine (VM) to execute projects.
 This is a serious problem - you will not be able to create objects 
-or execute methods without solving it.
-Usually, this problem is caused by specific network settings on your
-machine. BlueJ uses TCP/IP and sockets to achieve the creation of the 
-VM. The most common cause for this is an overly restrictive firewall that
-does not allow connections from your local host. Switch off the firewall
-(if you have one) to test this. If this solves it, try to find a firewall 
-setting that allows connections from localhost.
-Other possible causes are incorrect network settings. Check that TCP/IP
-is set up correctly check other networking parameters.
-If problems persist, ask for help (see http://www.bluej.org/help/ask-help.html).
+or execute methods without solving it. Often this is caused by overly
+restrictive firewall settings.
+Please see <http://www.bluej.org/help/faq.html#socket-exc> for more
+information.
 
 project-is-readonly
 The project is read-only. You will not be able to create objects
