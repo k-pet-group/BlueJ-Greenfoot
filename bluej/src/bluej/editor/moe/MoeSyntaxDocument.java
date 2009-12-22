@@ -49,13 +49,15 @@ public class MoeSyntaxDocument extends PlainDocument
     private static Color defaultColour = null;
     private static Color backgroundColour = null;
 	
-    private ParsedCUNode parsedNode = new ParsedCUNode(this);
+    private ParsedCUNode parsedNode;
     
     /**
      * Create an empty MoeSyntaxDocument.
      */
     public MoeSyntaxDocument()
     {
+        // DAV
+        System.out.println("MoeSyntaxDocument().");
         getUserColors();
         // defaults to 4 if cannot read property
         int tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
@@ -69,6 +71,9 @@ public class MoeSyntaxDocument extends PlainDocument
     public MoeSyntaxDocument(EntityResolver parentResolver)
     {
         this();
+        // DAV
+        System.out.println("MoeSyntaxDocument (with parser).");
+        parsedNode = new ParsedCUNode(this);;
         parsedNode.setParentResolver(parentResolver);
     }
 
@@ -240,9 +245,11 @@ public class MoeSyntaxDocument extends PlainDocument
     protected void fireInsertUpdate(DocumentEvent e)
     {
         MoeSyntaxEvent mse = new MoeSyntaxEvent(this, e);
-        parsedNode.addListener(mse);
-        parsedNode.textInserted(this, 0, e.getOffset(), e.getLength());
-        parsedNode.removeListener(mse);
+        if (parsedNode != null) {
+            parsedNode.addListener(mse);
+            parsedNode.textInserted(this, 0, e.getOffset(), e.getLength());
+            parsedNode.removeListener(mse);
+        }
         super.fireInsertUpdate(mse);
     }
     
@@ -252,9 +259,11 @@ public class MoeSyntaxDocument extends PlainDocument
     protected void fireRemoveUpdate(DocumentEvent e)
     {
         MoeSyntaxEvent mse = new MoeSyntaxEvent(this, e);
-        parsedNode.addListener(mse);
-        parsedNode.textRemoved(this, 0, e.getOffset(), e.getLength());
-        parsedNode.removeListener(mse);
+        if (parsedNode != null) {
+            parsedNode.addListener(mse);
+            parsedNode.textRemoved(this, 0, e.getOffset(), e.getLength());
+            parsedNode.removeListener(mse);
+        }
         super.fireRemoveUpdate(mse);
     }
     

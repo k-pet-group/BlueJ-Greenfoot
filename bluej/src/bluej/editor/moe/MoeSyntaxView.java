@@ -143,7 +143,12 @@ public class MoeSyntaxView extends BlueJSyntaxView
             MoeSyntaxDocument document, Color def, Element line) 
     {
         paintLineMarkers(lineIndex, g, x - LEFT_MARGIN, y, document, line);
-        paintSyntaxLine(lineText, lineIndex, x, y, g, document, def);
+        if (document.getParser() != null) {
+            paintSyntaxLine(lineText, lineIndex, x, y, g, document, def);
+        }
+        else {
+            paintPlainLine(lineIndex, g, x, y);
+        }
     }
         
    /*
@@ -169,10 +174,13 @@ public class MoeSyntaxView extends BlueJSyntaxView
         int spos = viewToModel(bounds.x, clip.y, allocation, new Position.Bias[1]);
         int epos = viewToModel(bounds.x, clip.y + clip.height - 1, allocation, new Position.Bias[1]);
         
-        Element map = getElement();
-        int firstLine = map.getElementIndex(spos);
-        int lastLine = map.getElementIndex(epos);
-        paintScopeMarkers(g, (MoeSyntaxDocument) getDocument(), allocation, firstLine, lastLine, false);
+        MoeSyntaxDocument document = (MoeSyntaxDocument)getDocument();
+        if (document.getParser() != null) {
+            Element map = getElement();
+            int firstLine = map.getElementIndex(spos);
+            int lastLine = map.getElementIndex(epos);
+            paintScopeMarkers(g, document, allocation, firstLine, lastLine, false);
+        }
         
         // paint the lines
         super.paint(g, allocation);

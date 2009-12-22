@@ -28,12 +28,13 @@ import java.io.IOException;
 import javax.swing.text.BadLocationException;
 
 import bluej.parser.SourceLocation;
+import bluej.parser.nodes.ParsedNode;
 
 
 /**
  * Interface between an editor and the rest of BlueJ
  * 
- * @version $Id: Editor.java 6956 2009-12-17 06:07:03Z davmac $
+ * @version $Id: Editor.java 6959 2009-12-22 03:23:48Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -360,5 +361,12 @@ public interface Editor
      */
     public int getTextLength ();    
     
+    /**
+     * Get a node representing the the parsed structure of the source
+     * document as a tree.
+     * 
+     * @return A ParsedNode instance, or null if not supported.
+     */
+    public ParsedNode getParsedNode();
     
 } // end interface Editor

@@ -85,6 +85,7 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
+import javax.swing.text.EditorKit;
 import javax.swing.text.Element;
 import javax.swing.text.Highlighter;
 import javax.swing.text.SimpleAttributeSet;
@@ -100,6 +101,7 @@ import bluej.editor.EditorWatcher;
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.EntityResolver;
+import bluej.parser.nodes.ParsedNode;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
@@ -223,7 +225,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     //new content assist
     private ContentAssistDisplay dlg;
-    private EntityResolver projectResolver;   // Resolves symbols
 
     /**
      * Property map, allows BlueJ extensions to associate property values with
@@ -241,7 +242,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         super("Moe");
         this.watcher = watcher;
         this.resources = resources;
-        this.projectResolver = projectResolver;
 
         filename = null;
         windowTitle = title;
@@ -252,7 +252,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         matchBrackets = PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS);
         undoManager = new MoeUndoManager(this);
 
-        initWindow();
+        initWindow(isCode ? projectResolver : null);
         editorHighlighter= new MoeHighlighter(sourcePane);
     }
 
@@ -1034,13 +1034,21 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * Return the number of lines in the documant.
+     * Return the number of lines in the document.
      */
     public int numberOfLines()
     {
         return sourceDocument.getDefaultRootElement().getElementCount();
     }
 
+    /*
+     * @see bluej.editor.Editor#getParsedNode()
+     */
+    public ParsedNode getParsedNode()
+    {
+        return sourceDocument.getParser();
+    }
+    
 
     // --------------------------------------------------------------------
     // ------------ end of interface inherited from Editor ----------------
@@ -2575,6 +2583,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
+    
     /**
      * Return the path to the class documentation.
      */
@@ -2597,11 +2606,13 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     // ======================= WINDOW INITIALISATION =======================
 
-    // --------------------------------------------------------------------
     /**
-     * Create all the Window components
+     * Create all the Window components.
+     * 
+     * @param projectResolver  the entity resolver for the project. If this is null
+     *   then it is assumed that this editor is for a README or other plain text file.
      */
-    private void initWindow()
+    private void initWindow(EntityResolver projectResolver)
     {
         setIconImage(iconImage);
 
@@ -2653,13 +2664,26 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         contentPane.add(bottomArea, BorderLayout.SOUTH);
 
         // create the text document
-
-        sourceDocument = new MoeSyntaxDocument(projectResolver);
+        
+        if (projectResolver != null) {
+            sourceDocument = new MoeSyntaxDocument(projectResolver);
+        }
+        else {
+            sourceDocument = new MoeSyntaxDocument();  // README file
+        }
         sourceDocument.addDocumentListener(this);
         sourceDocument.addUndoableEditListener(undoManager);               
+
         // create the text pane
 
-        MoeSyntaxEditorKit kit = new MoeSyntaxEditorKit(false, projectResolver);
+        EditorKit kit;
+        if (projectResolver != null) {
+            kit = new MoeSyntaxEditorKit(false, projectResolver);
+        }
+        else {
+            kit = new ReadmeEditorKit();
+        }
+        //MoeSyntaxEditorKit kit = new MoeSyntaxEditorKit(false, projectResolver);
         sourcePane = new MoeEditorPane();
         sourcePane.setDocument(sourceDocument);
         sourcePane.setCaretPosition(0);

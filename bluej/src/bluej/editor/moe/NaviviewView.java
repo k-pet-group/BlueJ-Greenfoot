@@ -82,10 +82,13 @@ public class NaviviewView extends BlueJSyntaxView
         imgG.setColor(g.getColor());
         
         if (SYNTAX_COLOURING) {
-            super.paintTaggedLine(line, lineIndex, imgG, x - clipBounds.x,
-                    metrics.getAscent(), document, def, lineElement);
-        }
-        else {
+            if (document.getParser() != null) {
+                super.paintTaggedLine(line, lineIndex, imgG, x - clipBounds.x,
+                        metrics.getAscent(), document, def, lineElement);
+            } else {
+                paintPlainLine(lineIndex, imgG, x - clipBounds.x, metrics.getAscent());
+            }
+        } else {
             paintPlainLine(lineIndex, imgG, x - clipBounds.x, metrics.getAscent());
         }
 
@@ -119,14 +122,17 @@ public class NaviviewView extends BlueJSyntaxView
         
         if (SCOPE_HIGHLIGHTING) {
             // Scope highlighting
-            int spos = viewToModel(bounds.x, clip.y, a, new Position.Bias[1]);
-            int epos = viewToModel(bounds.x, clip.y + clip.height - 1, a, new Position.Bias[1]);
+            MoeSyntaxDocument document = (MoeSyntaxDocument)getDocument();
+            if (document.getParser() != null) {
+                int spos = viewToModel(bounds.x, clip.y, a, new Position.Bias[1]);
+                int epos = viewToModel(bounds.x, clip.y + clip.height - 1, a, new Position.Bias[1]);
 
-            Element map = getElement();
-            int firstLine = map.getElementIndex(spos);
-            int lastLine = map.getElementIndex(epos);
-            paintScopeMarkers(g, (MoeSyntaxDocument) getDocument(), a,
-                    firstLine, lastLine, HIGHLIGHT_METHODS_ONLY, true);
+                Element map = getElement();
+                int firstLine = map.getElementIndex(spos);
+                int lastLine = map.getElementIndex(epos);
+                paintScopeMarkers(g, document, a, firstLine, lastLine,
+                        HIGHLIGHT_METHODS_ONLY, true);
+            }
         }
 
         super.paint(g, a);

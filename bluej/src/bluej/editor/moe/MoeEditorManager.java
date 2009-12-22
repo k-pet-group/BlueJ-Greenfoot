@@ -174,6 +174,7 @@ public final class MoeEditorManager
      *
      * @param filename	name of the source file to open (may be null)
      * @param docFilename	name of the documentation based on filename
+     * @param isCode       true if the file represents code, or false if it is plain text
      * @param windowTitle	title of window (usually class name)
      * @param watcher	an object interested in editing events
      * @param compiled	true, if the class has been compiled
