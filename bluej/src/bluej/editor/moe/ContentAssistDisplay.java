@@ -10,6 +10,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
@@ -29,28 +31,27 @@ import javax.swing.event.ListSelectionListener;
 
 
 public class ContentAssistDisplay extends JFrame implements ActionListener, 
-ListSelectionListener, FocusListener {
+ListSelectionListener, FocusListener, MouseListener {
 
+    private MoeEditor editor;
     private String[] methodsAvailable;
     private String[] methodDescrs;
     private AssistContent[] values;
 
     private JList methodList;
     private JTextArea methodDescription; 
-    private int selectedMethod=0;
-
     private int selectedValue=0;
 
     private JComponent pane;
 
-    public ContentAssistDisplay(Frame owner, AssistContent[] values) 
+    public ContentAssistDisplay(MoeEditor ed, AssistContent[] values) 
     {
         this.values=values;
         methodsAvailable=new String[values.length];
         methodDescrs=new String[values.length];
         populateMethods();
         makePanel();
-
+        editor=ed;
     }
 
     /*
@@ -61,15 +62,16 @@ ListSelectionListener, FocusListener {
     {
         GridLayout gridL=new GridLayout(1, 2);
         pane=(JComponent) getContentPane();
-        
+
         //pane.addKeyListener(this);
-        
+
         addWindowFocusListener(new WindowFocusListener() {
-            
+
             public void windowGainedFocus(WindowEvent e)
             {
+                requestFocus();
             }
-            
+
             public void windowLostFocus(WindowEvent e)
             {
                 setVisible(false);
@@ -81,25 +83,29 @@ ListSelectionListener, FocusListener {
 
         // create area for method names
         JPanel methodPanel = new JPanel();
+
+        // create function description area     
+        methodDescription=new JTextArea();
+        methodDescription.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        methodDescription.setSize((int)methodPanel.getSize().getWidth(), (int)methodPanel.getSize().getHeight());
+        methodDescription.setText(methodDescrs[selectedValue]);
+
         methodList = new JList(methodsAvailable);
         methodList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        methodList.setSelectedIndex(selectedValue);
         methodList.addListSelectionListener(this);
+        methodList.setSelectedIndex(selectedValue);
+        //methodList.ensureIndexIsVisible(selectedValue);
+        methodList.setRequestFocusEnabled(true);
+        methodList.addMouseListener(this);
         methodList.setVisibleRowCount(10);
 
         JScrollPane scrollPane;
         scrollPane = new JScrollPane(methodList);
         methodPanel.add(scrollPane);
 
-        // create function description area     
-        methodDescription=new JTextArea();
-        methodDescription.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        methodDescription.setSize((int)methodPanel.getSize().getWidth(), (int)methodPanel.getSize().getHeight());
-        methodDescription.setText(methodDescrs[selectedMethod]);
-
         mainPanel.add(methodPanel, BorderLayout.WEST);
         mainPanel.add(methodDescription, BorderLayout.EAST);
-		mainPanel.addFocusListener(this);
+        mainPanel.addFocusListener(this);
         pane.add(mainPanel);        
 
         KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0);
@@ -110,7 +116,16 @@ ListSelectionListener, FocusListener {
                 close();
             }
         });
-        
+
+        keyStroke=KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+        pane.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke ,"completeAction");
+        getRootPane().getActionMap().put("completeAction", new AbstractAction(){ //$NON-NLS-1$
+            public void actionPerformed(ActionEvent e)
+            {
+                codeComplete();
+            }
+        });
+
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) 
@@ -125,20 +140,13 @@ ListSelectionListener, FocusListener {
 
     }
 
-    public int getSelectedMethod() 
-    {
-        return selectedMethod;
-    }
-
-    public void setSelectedMethod(int selectedMethod) 
-    {
-        this.selectedMethod = selectedMethod;
-    }
-
     public void valueChanged(ListSelectionEvent e) 
     {
-        methodDescription.setText(methodDescrs[methodList.getSelectedIndex()]);
-        selectedValue=methodList.getSelectedIndex();
+        int index=methodList.getSelectedIndex();
+        if (index==0)
+            index=getSelectedValue();
+        methodDescription.setText(methodDescrs[index]);
+        setSelectedValue(methodList.getSelectedIndex());
     }
 
     //once off call when the panel is initialised as it will not be changing
@@ -152,26 +160,66 @@ ListSelectionListener, FocusListener {
 
     }
 
-    public void close()
+    public int getSelectedValue() {
+        return selectedValue;
+    }
+
+    public void setSelectedValue(int selectedValue) {
+        this.selectedValue = selectedValue;
+    }
+
+    /**
+     * close sets the window to invisible
+     */
+    private void close()
     {
         this.setVisible(false);
     }
 
+    /**
+     * codeComplete prints the selected text in the editor
+     */
+    private void codeComplete()
+    {
+        editor.codeComplete(values[selectedValue].getContentName());
+    }
+
     public void focusGained(FocusEvent e) 
     {
-        // TODO Auto-generated method stub
-        
+
     }
 
     public void focusLost(FocusEvent e) 
     {
-        // TODO Auto-generated method stub
-        
+
     }
-    
+
     public void actionPerformed(ActionEvent e) 
     {
-        // TODO Auto-generated method stub
+
+    }
+
+    public void mouseClicked(MouseEvent e) {
+        int count=e.getClickCount();
+        if (count==2){
+            codeComplete();
+        }
+    }
+
+
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    public void mouseExited(MouseEvent e) {
+
+    }
+
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    public void mouseReleased(MouseEvent e) {
 
     }
 

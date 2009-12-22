@@ -3487,5 +3487,19 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         finder.setFindReplaceIcon(open);
     }
+    
+    /**
+     * codeComplete completes the word in the editor with the word requested
+     * @param text word requested as the completion for the text 
+     */
+    public void codeComplete(String text)
+    {
+        try {
+            currentTextPane.getDocument().insertString(getCaretPosition(), text, null);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+
+    }
 
 }
