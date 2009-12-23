@@ -1048,7 +1048,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         return sourceDocument.getParser();
     }
-    
+
 
     // --------------------------------------------------------------------
     // ------------ end of interface inherited from Editor ----------------
@@ -1413,7 +1413,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
-    
+
     /**
      * doFind - search for and select the given search string forwards from
      * the current caret position. Returns false if not found.
@@ -2583,7 +2583,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
-    
+
     /**
      * Return the path to the class documentation.
      */
@@ -2664,7 +2664,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         contentPane.add(bottomArea, BorderLayout.SOUTH);
 
         // create the text document
-        
+
         if (projectResolver != null) {
             sourceDocument = new MoeSyntaxDocument(projectResolver);
         }
@@ -3487,19 +3487,49 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         finder.setFindReplaceIcon(open);
     }
-    
+
     /**
      * codeComplete completes the word in the editor with the word requested
-     * @param text word requested as the completion for the text 
+     * @param text word requested as the completion for the text
+     * @boolean successful execution  
      */
-    public void codeComplete(String text)
+    public boolean codeComplete(String text)
     {
+        int caretPos=getCaretPosition();
+        int caretBack=caretPos-text.length();
+        String insertText=text;
+        if (caretBack<0)
+            caretBack=0;
         try {
-            currentTextPane.getDocument().insertString(getCaretPosition(), text, null);
+            //the max size of the string already there
+            String docText=currentTextPane.getText(caretBack, text.length()).toLowerCase();
+            /* dot specific does not seem necessary at this time
+            if (docText.indexOf('.')==(text.length()-1))
+            {
+            }
+             */
+            //check if the text is already partially completed
+            //do a pattern match and decide from there
+            char ch=text.charAt(0);
+            int charIndex=docText.indexOf(ch);
+            while (charIndex>-1) {
+                //get the length of the resultant string for comparison
+                String docTextSubstring=docText.substring(charIndex);
+                int sLength= docTextSubstring.length();
+                if (docTextSubstring.equalsIgnoreCase(text.substring(0, sLength))){
+                    //removing the text in case there was a case difference
+                    currentTextPane.getDocument().remove(getCaretPosition()-sLength, sLength);
+                    charIndex=-1;
+                }               
+                //it has not been found so try further along the string
+                else charIndex=docText.indexOf(text.charAt(0), charIndex+1);                
+            }
+            currentTextPane.getDocument().insertString(getCaretPosition(), insertText, null);
+            return true;
         } catch (BadLocationException e) {
             e.printStackTrace();
+            return false;
         }
 
     }
-
 }

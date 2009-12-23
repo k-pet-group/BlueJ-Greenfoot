@@ -181,7 +181,9 @@ ListSelectionListener, FocusListener, MouseListener {
      */
     private void codeComplete()
     {
-        editor.codeComplete(values[selectedValue].getContentName());
+        boolean success=editor.codeComplete(values[selectedValue].getContentName());
+        if (success)
+            close();
     }
 
     public void focusGained(FocusEvent e) 
