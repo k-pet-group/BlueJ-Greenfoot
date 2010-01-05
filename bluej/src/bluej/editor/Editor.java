@@ -28,13 +28,12 @@ import java.io.IOException;
 import javax.swing.text.BadLocationException;
 
 import bluej.parser.SourceLocation;
-import bluej.parser.nodes.ParsedNode;
+import bluej.parser.nodes.ParsedCUNode;
 
 
 /**
  * Interface between an editor and the rest of BlueJ
  * 
- * @version $Id: Editor.java 6959 2009-12-22 03:23:48Z davmac $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -346,7 +345,7 @@ public interface Editor
     public int getLineLength(int line);
     
     /**
-     * Return the number of lines in the documant.
+     * Return the number of lines in the document.
      */
     public int numberOfLines();
     
@@ -367,6 +366,6 @@ public interface Editor
      * 
      * @return A ParsedNode instance, or null if not supported.
      */
-    public ParsedNode getParsedNode();
+    public ParsedCUNode getParsedNode();
     
-} // end interface Editor
+}

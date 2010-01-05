@@ -35,10 +35,10 @@ import java.awt.geom.*;
  * A general target in a package
  * 
  * @author Michael Cahill
- * @version $Id: Target.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: Target.java 6963 2010-01-05 05:41:50Z davmac $
  */
 public abstract class Target extends Vertex
-    implements Comparable
+    implements Comparable<Target>
 {
     static final int DEF_WIDTH = 80;
     static final int DEF_HEIGHT = 50;
@@ -278,12 +278,10 @@ public abstract class Target extends Vertex
         return identifierName.hashCode();
     }
 
-    public int compareTo(Object o)
+    public int compareTo(Target t)
     {
-        if (equals(o))
+        if (equals(t))
             return 0;
-
-        Target t = (Target) o;
 
         if (this.getY() < t.getY())
             return -1;

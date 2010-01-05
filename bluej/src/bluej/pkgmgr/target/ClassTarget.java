@@ -39,6 +39,7 @@ import javax.swing.JPopupMenu;
 
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
+import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
@@ -50,7 +51,9 @@ import bluej.extmgr.MenuManager;
 import bluej.graph.GraphEditor;
 import bluej.graph.Moveable;
 import bluej.graph.Vertex;
-import bluej.parser.entity.ClassLoaderResolver;
+import bluej.parser.entity.ParsedReflective;
+import bluej.parser.nodes.ParsedCUNode;
+import bluej.parser.nodes.ParsedTypeNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.Package;
@@ -75,6 +78,7 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileEditor;
 import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
+import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
@@ -89,7 +93,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 6954 2009-12-17 04:51:26Z davmac $
+ * @version $Id: ClassTarget.java 6963 2010-01-05 05:41:50Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -257,6 +261,41 @@ public class ClassTarget extends DependentTarget
         return sourceInfo;
     }
 
+    /**
+     * Get a reflective for the type represented by this target.
+     * 
+     * @return  A suitable reflective, or null.
+     */
+    public Reflective getTypeRefelective()
+    {
+        // If compiled, return a reflective based on actual reflection
+        if (isCompiled()) {
+            Class<?> cl = getPackage().loadClass(getQualifiedName());
+            if (cl != null) {
+                return new JavaReflective(cl);
+            }
+            else {
+                return null;
+            }
+        }
+        
+        // Not compiled; try to get a reflective from the parser
+        ParsedCUNode node = null;
+        getEditor();
+        if (editor != null) {
+            node = editor.getParsedNode();
+        }
+        
+        if (node != null) {
+            ParsedTypeNode ptn = (ParsedTypeNode) node.getTypeNode(getBaseName());
+            if (ptn != null) {
+                return new ParsedReflective(ptn);
+            }
+        }
+        
+        return null;
+    }
+    
     /**
      * Returns the text which the target is displaying as its label. For normal
      * classes this is just the identifier name. For generic classes the generic
@@ -767,7 +806,7 @@ public class ClassTarget extends DependentTarget
             }
             
             editor = EditorManager.getEditorManager().openClass(filename, docFilename, getBaseName(), this,
-                    isCompiled(), editorBounds, new ClassLoaderResolver(getPackage().getProject().getClassLoader()));
+                    isCompiled(), editorBounds, getPackage().getProject().getEntityResolver());
             
             // editor may be null if source has been deleted
             // for example.

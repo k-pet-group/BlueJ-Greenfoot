@@ -101,7 +101,7 @@ import bluej.editor.EditorWatcher;
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.EntityResolver;
-import bluej.parser.nodes.ParsedNode;
+import bluej.parser.nodes.ParsedCUNode;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
@@ -1044,7 +1044,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /*
      * @see bluej.editor.Editor#getParsedNode()
      */
-    public ParsedNode getParsedNode()
+    public ParsedCUNode getParsedNode()
     {
         return sourceDocument.getParser();
     }

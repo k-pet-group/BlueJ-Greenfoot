@@ -56,8 +56,6 @@ public class MoeSyntaxDocument extends PlainDocument
      */
     public MoeSyntaxDocument()
     {
-        // DAV
-        System.out.println("MoeSyntaxDocument().");
         getUserColors();
         // defaults to 4 if cannot read property
         int tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
@@ -71,9 +69,7 @@ public class MoeSyntaxDocument extends PlainDocument
     public MoeSyntaxDocument(EntityResolver parentResolver)
     {
         this();
-        // DAV
-        System.out.println("MoeSyntaxDocument (with parser).");
-        parsedNode = new ParsedCUNode(this);;
+        parsedNode = new ParsedCUNode(this);
         parsedNode.setParentResolver(parentResolver);
     }
 

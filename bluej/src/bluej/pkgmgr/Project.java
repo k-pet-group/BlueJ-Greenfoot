@@ -73,7 +73,6 @@ import bluej.groupwork.ui.CommitCommentsFrame;
 import bluej.groupwork.ui.StatusFrame;
 import bluej.groupwork.ui.TeamSettingsDialog;
 import bluej.groupwork.ui.UpdateFilesFrame;
-import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
@@ -98,7 +97,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 6880 2009-12-02 04:02:12Z davmac $
+ * @version $Id: Project.java 6963 2010-01-05 05:41:50Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -748,11 +747,11 @@ public class Project implements DebuggerListener, InspectorManager
     }
 
     /**
-     * Get an existing package from the project. The package is opened (i.e an
-     * new Package is created) if it's not already open. All parent packages on
+     * Get an existing package from the project. The package is opened (i.e a new
+     * Package object is constructed) if it's not already open. All parent packages on
      * the way to the root of the package tree will also be constructed.
      * 
-     * @param qualifiedName package name ie java.util or "" for unnamed package
+     * @param qualifiedName package name i.e. java.util or "" for unnamed package
      * @returns  the package, or null if the package doesn't exist (directory
      *           doesn't exist, or doesn't contain bluej.pkg file)
      */
@@ -1503,7 +1502,7 @@ public class Project implements DebuggerListener, InspectorManager
      */
     public EntityResolver getEntityResolver()
     {
-        return new ClassLoaderResolver(getClassLoader());
+        return new ProjectEntityResolver(this);
     }
     
     /**

@@ -298,6 +298,6 @@ public abstract class ParsedNode implements EntityResolver
                 return rval;
             }
         }
-        return resolvePackageOrClass(name, null);
+        return resolvePackageOrClass(name, querySource);
     }
 }
