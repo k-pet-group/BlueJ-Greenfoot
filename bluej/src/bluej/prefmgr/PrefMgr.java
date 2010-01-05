@@ -34,11 +34,10 @@ import bluej.pkgmgr.Project;
  * A class to manage the user editable preferences
  * settings.
  *
- * Note that this is a singleton class. There can be only one
+ * <p>Note that this is a singleton class. There can be only one
  * instance of PrefMgr at any time.
  *
  * @author  Andrew Patterson
- * @version $Id: PrefMgr.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class PrefMgr
 {
@@ -92,7 +91,7 @@ public class PrefMgr
     private static String projectDirectory;
 
     // list of recently used projects
-	private static List recentProjects;
+    private static List<String> recentProjects;
 	
     // flags are all boolean preferences
     private static HashMap flags = new HashMap();
@@ -157,7 +156,7 @@ public class PrefMgr
         Config.putPropString("bluej.projectPath", newDir);
     }
 
-    public static List getRecentProjects()
+    public static List<String> getRecentProjects()
     {
         return recentProjects;
     }

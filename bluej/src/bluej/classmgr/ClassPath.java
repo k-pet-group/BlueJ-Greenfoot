@@ -32,14 +32,13 @@ import java.util.jar.JarFile;
  * Class to maintain a list of ClassPathEntry's.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassPath.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class ClassPath
 {
     /**
      * The actual list of class path entries
      */
-    private ArrayList entries = new ArrayList();
+    private ArrayList<ClassPathEntry> entries = new ArrayList<ClassPathEntry>();
 
     /**
      * Construct an empty ClassPath
@@ -103,7 +102,7 @@ public class ClassPath
     /**
      * Return the list of entries (mutable, so only for close friends)
      */
-    protected List getEntries()
+    protected List<ClassPathEntry> getEntries()
     {
         return entries;
     }
@@ -111,7 +110,7 @@ public class ClassPath
     /**
      * Return the list of entries (immutable)
      */
-    public List getPathEntries()
+    public List<ClassPathEntry> getPathEntries()
     {
         return Collections.unmodifiableList(entries);
     }
@@ -156,17 +155,18 @@ public class ClassPath
         // make a copy of the entries.. don't just add the entries to the
         // new class path
 
-        Iterator it = classpath.entries.iterator();
+        Iterator<ClassPathEntry> it = classpath.entries.iterator();
 
         while (it.hasNext()) {
 
-            ClassPathEntry nextEntry = (ClassPathEntry)it.next();
+            ClassPathEntry nextEntry = it.next();
 
             try {
                 ClassPathEntry cpentry = (ClassPathEntry)nextEntry.clone();
 
-                if(!entries.contains(cpentry))
+                if(!entries.contains(cpentry)) {
                     entries.add(cpentry);
+                }
             } catch(CloneNotSupportedException e) {
                 e.printStackTrace();
             }
@@ -209,13 +209,13 @@ public class ClassPath
      * Return the class path entries as an ArrayList of URL.
      * @return a non null but possibly empty ArrayList of URL.
      */
-    public ArrayList getURLs()
+    public ArrayList<URL> getURLs()
     {
-        Iterator it = entries.iterator();
-        ArrayList risul = new ArrayList();
+        Iterator<ClassPathEntry> it = entries.iterator();
+        ArrayList<URL> risul = new ArrayList<URL>();
 
         while (it.hasNext()) {
-            ClassPathEntry path = (ClassPathEntry)it.next();
+            ClassPathEntry path = it.next();
 
             try {
                 risul.add(path.getURL());
@@ -237,10 +237,10 @@ public class ClassPath
      */
     public InputStream getFile(String filename) throws IOException
     {
-        Iterator it = entries.iterator();
+        Iterator<ClassPathEntry> it = entries.iterator();
 
         while (it.hasNext()) {
-            ClassPathEntry nextEntry = (ClassPathEntry)it.next();
+            ClassPathEntry nextEntry = it.next();
 
             // each entry can be either a jar/zip file or a directory
             // or neither in which case we ignore it
@@ -313,10 +313,10 @@ public class ClassPath
     {
         StringBuffer buf = new StringBuffer();
 
-        Iterator it = entries.iterator();
+        Iterator<ClassPathEntry> it = entries.iterator();
 
         while (it.hasNext()) {
-            ClassPathEntry nextEntry = (ClassPathEntry)it.next();
+            ClassPathEntry nextEntry = it.next();
 
             if(useURL) {
                 try {
