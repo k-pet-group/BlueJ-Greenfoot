@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
@@ -44,13 +43,11 @@ ListSelectionListener, FocusListener, MouseListener {
 
     private JComponent pane;
 
-    public ContentAssistDisplay(MoeEditor ed, AssistContent[] values, boolean valid) 
+    public ContentAssistDisplay(MoeEditor ed, AssistContent[] values) 
     {
         this.values=values;
         methodsAvailable=new String[values.length];
         methodDescrs=new String[values.length];
-        if (methodsAvailable.length<1)
-            valid=false;
         populateMethods();
         makePanel();
         editor=ed;
