@@ -49,17 +49,14 @@ public class ClassLoaderResolver implements EntityResolver
     
     public PackageOrClass resolvePackageOrClass(String name, String querySource)
     {
-//        String pkgScopePrefix = packageScope;
-//        if (packageScope.length() > 0) {
-//            pkgScopePrefix += ".";
-//        }
-//
-//        // Might be a class in the current package
-//        try {
-//            Class<?> cl = classLoader.loadClass(pkgScopePrefix + name);
-//            return new TypeEntity(cl);
-//        }
-//        catch (Exception e) {}
+        int lastDot = querySource.lastIndexOf('.');
+        if (lastDot != -1) {
+            String pkgName = querySource.substring(0, lastDot + 1); // include the dot
+            ClassEntity rval = resolveQualifiedClass(pkgName + name);
+            if (rval != null) {
+                return rval;
+            }
+        }
         
         // Try in java.lang
         try {

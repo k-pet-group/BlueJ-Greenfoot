@@ -59,7 +59,7 @@ public class CompletionTest extends TestCase
      */
     private ParsedCUNode cuForSource(String sourceCode)
     {
-        MoeSyntaxDocument document = new MoeSyntaxDocument();
+        MoeSyntaxDocument document = new MoeSyntaxDocument(resolver);
         try {
             document.insertString(0, sourceCode, null);
         }

@@ -58,12 +58,15 @@ public class TestEntityResolver implements EntityResolver
      */
     public void addCompilationUnit(String pkg, ParsedCUNode cunit)
     {
+        if (cunit == null) {
+            throw new NullPointerException();
+        }
         List<ParsedCUNode> clist = pkgMap.get(pkg);
         if (clist == null) {
             clist = new LinkedList<ParsedCUNode>();
+            pkgMap.put(pkg, clist);
         }
         clist.add(cunit);
-        pkgMap.put(pkg, clist);
     }
     
     private String getPackageFromClassName(String className)
