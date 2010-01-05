@@ -3,13 +3,13 @@ package bluej.editor.moe;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
@@ -44,11 +44,13 @@ ListSelectionListener, FocusListener, MouseListener {
 
     private JComponent pane;
 
-    public ContentAssistDisplay(MoeEditor ed, AssistContent[] values) 
+    public ContentAssistDisplay(MoeEditor ed, AssistContent[] values, boolean valid) 
     {
         this.values=values;
         methodsAvailable=new String[values.length];
         methodDescrs=new String[values.length];
+        if (methodsAvailable.length<1)
+            valid=false;
         populateMethods();
         makePanel();
         editor=ed;
@@ -88,7 +90,8 @@ ListSelectionListener, FocusListener, MouseListener {
         methodDescription=new JTextArea();
         methodDescription.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         methodDescription.setSize((int)methodPanel.getSize().getWidth(), (int)methodPanel.getSize().getHeight());
-        methodDescription.setText(methodDescrs[selectedValue]);
+        if (methodDescrs.length >selectedValue)
+            methodDescription.setText(methodDescrs[selectedValue]);
 
         methodList = new JList(methodsAvailable);
         methodList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -97,6 +100,8 @@ ListSelectionListener, FocusListener, MouseListener {
         //methodList.ensureIndexIsVisible(selectedValue);
         methodList.setRequestFocusEnabled(true);
         methodList.addMouseListener(this);
+        methodList.addFocusListener(this);
+        methodList.requestFocusInWindow();
         methodList.setVisibleRowCount(10);
 
         JScrollPane scrollPane;
@@ -105,12 +110,12 @@ ListSelectionListener, FocusListener, MouseListener {
 
         mainPanel.add(methodPanel, BorderLayout.WEST);
         mainPanel.add(methodDescription, BorderLayout.EAST);
-        mainPanel.addFocusListener(this);
+        
         pane.add(mainPanel);        
 
         KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0);
         pane.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke ,"escapeAction");
-        getRootPane().getActionMap().put("escapeAction", new AbstractAction(){ //$NON-NLS-1$
+        getRootPane().getActionMap().put("escapeAction", new AbstractAction(){ 
             public void actionPerformed(ActionEvent e)
             {
                 close();
@@ -119,7 +124,7 @@ ListSelectionListener, FocusListener, MouseListener {
 
         keyStroke=KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
         pane.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke ,"completeAction");
-        getRootPane().getActionMap().put("completeAction", new AbstractAction(){ //$NON-NLS-1$
+        getRootPane().getActionMap().put("completeAction", new AbstractAction(){ 
             public void actionPerformed(ActionEvent e)
             {
                 codeComplete();
@@ -133,11 +138,15 @@ ListSelectionListener, FocusListener, MouseListener {
                 close();
             }
         });
+        
+       
+
 
         //setLocationRelativeTo(location);
         this.setUndecorated(true);
         pack();
-
+        setSelectedValue(selectedValue); 
+        pane.requestFocusInWindow();
     }
 
     public void valueChanged(ListSelectionEvent e) 
@@ -201,6 +210,9 @@ ListSelectionListener, FocusListener, MouseListener {
 
     }
 
+    /**
+     * mouseClicked listener for when the item is double clicked. This should result in a code completion
+     */
     public void mouseClicked(MouseEvent e) {
         int count=e.getClickCount();
         if (count==2){

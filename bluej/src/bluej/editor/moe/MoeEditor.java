@@ -3269,7 +3269,12 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         closeContentAssist();
         AssistContent[] values = populateContentAssist();
         if (values != null) {
-            dlg=new ContentAssistDisplay(this, values);
+            boolean valid=false;
+            dlg=new ContentAssistDisplay(this, values, valid);
+            if (!valid){
+                info.warning("No completions available.");
+                return;
+            }
             int cpos = sourcePane.getCaretPosition();
             try {
                 Rectangle pos = sourcePane.modelToView(cpos);
