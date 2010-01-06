@@ -112,7 +112,7 @@ public class CompletionTest extends TestCase
 
         JavaEntity bClassEnt = resolver.resolvePackageOrClass("B", "");
         Reader r = new StringReader("A.");
-        CompletionParser cp = new CompletionParser(resolver, r, bClassEnt);
+        CompletionParser cp = new CompletionParser(bNode, r, bClassEnt);
         cp.parseExpression();
         
         Map<String,JavaType> fields = cp.getFieldSuggestions();
