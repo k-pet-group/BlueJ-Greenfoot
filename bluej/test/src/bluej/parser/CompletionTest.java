@@ -22,6 +22,9 @@
 package bluej.parser;
 
 import java.io.File;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.swing.text.BadLocationException;
@@ -29,6 +32,7 @@ import javax.swing.text.BadLocationException;
 import junit.framework.TestCase;
 import bluej.Boot;
 import bluej.Config;
+import bluej.debugger.gentype.JavaType;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.JavaEntity;
@@ -75,15 +79,48 @@ public class CompletionTest extends TestCase
         String aClassSrc = "class A {" +
         "  public static int f = 0;" +
         "}";
-        
+
         ParsedCUNode aNode = cuForSource(aClassSrc);
         resolver.addCompilationUnit("", aNode);
         
-        JavaEntity entity = resolver.getValueEntity("A", "B");
-        entity = entity.getSubentity("f");
-        entity = entity.resolveAsValue();
-        assertEquals("int", entity.getType().toString());
-    }        
+        JavaEntity aClassEnt = resolver.resolvePackageOrClass("A", "");
+        Reader r = new StringReader("");
+        CompletionParser cp = new CompletionParser(resolver, r, aClassEnt);
+        cp.parseExpression();
+        
+        Map<String,JavaType> fields = cp.getFieldSuggestions();
+        JavaType ftype = fields.get("f");
+        assertNotNull(ftype);
+        assertEquals("int", ftype.toString());
+    }
+    
+    /**
+     * Access of a static field from another class
+     */
+    public void test2()
+    {
+        String aClassSrc = "class A {" +
+        "  public static int f = 0;" +
+        "}";
+
+        ParsedCUNode aNode = cuForSource(aClassSrc);
+        resolver.addCompilationUnit("", aNode);
+
+        String bClassSrc = "class B { }";
+        ParsedCUNode bNode = cuForSource(bClassSrc);
+        resolver.addCompilationUnit("", bNode);
+
+        JavaEntity bClassEnt = resolver.resolvePackageOrClass("B", "");
+        Reader r = new StringReader("A.");
+        CompletionParser cp = new CompletionParser(resolver, r, bClassEnt);
+        cp.parseExpression();
+        
+        Map<String,JavaType> fields = cp.getFieldSuggestions();
+        JavaType ftype = fields.get("f");
+        assertNotNull(ftype);
+        assertEquals("int", ftype.toString());
+    }
+    
     
     // Test that multiple fields defined in a single statement are handled correctly,
     // particularly if one in the middle is assigned a complex expression involving an
@@ -92,4 +129,5 @@ public class CompletionTest extends TestCase
     // Test that forward references behave the same way as in Java
     // - field definitions may not forward reference other fields in the same class
     // - variables cannot be forward referenced
+
 }

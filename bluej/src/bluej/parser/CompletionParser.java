@@ -113,6 +113,9 @@ public class CompletionParser extends TextParser
     private void suggestFor(JavaEntity entity)
     {
         JavaEntity valueEnt = entity.resolveAsValue();
+        if (valueEnt == null) {
+            valueEnt = entity.resolveAsType();
+        }
         if (valueEnt != null) {
             JavaType type = valueEnt.getType().getCapture();
             GenTypeClass ctype = type.asClass();
