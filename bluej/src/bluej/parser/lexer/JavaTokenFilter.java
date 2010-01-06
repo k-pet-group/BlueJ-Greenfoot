@@ -38,7 +38,6 @@ public class JavaTokenFilter implements TokenStream
 {
     private TokenStream sourceStream;
     private LocatableToken lastComment;
-    private LocatableToken previousToken;
     private LocatableToken cachedToken;
     private List<LocatableToken> buffer = new LinkedList<LocatableToken>();
     private JavaParser parser;
@@ -116,24 +115,18 @@ public class JavaTokenFilter implements TokenStream
         while (true) {
             t = (LocatableToken) sourceStream.nextToken();
             
-            // The previous token ends at the beginning of this token.
-            if (previousToken != null) {
-//                previousToken.setEndLineAndCol(t.getLine(), t.getColumn());
-                if (parser != null) {
-                    if (previousToken.getType() == JavaTokenTypes.ML_COMMENT
-                            || previousToken.getType() == JavaTokenTypes.SL_COMMENT) {
-                    parser.gotComment(previousToken);
-                    }
-                }
-            }
-            previousToken = t;
-                        
             int ttype = t.getType();
             if (ttype == JavaTokenTypes.ML_COMMENT) {
                 // If we come across a comment, save it.
                 lastComment = t;
+                if (parser != null) {
+                    parser.gotComment(t);
+                }
             }
             else if (ttype == JavaTokenTypes.SL_COMMENT) {
+                if (parser != null) {
+                    parser.gotComment(t);
+                }
             }
             else {
                 // When we have an interesting token, attach the previous comment.

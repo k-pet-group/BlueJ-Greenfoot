@@ -25,15 +25,25 @@ import javax.swing.text.Document;
 
 import bluej.editor.moe.Token;
 
-
-public class ColourNode extends ParsedNode
+/**
+ * A node type for representing comments in the code.
+ * 
+ * @author Davin McCall
+ */
+public class CommentNode extends ParsedNode
 {
     byte colour;
     
-    public ColourNode(ParsedNode parentNode, byte colour)
+    public CommentNode(ParsedNode parentNode, byte colour)
     {
         super(parentNode);
         this.colour = colour;
+    }
+    
+    @Override
+    public int getNodeType()
+    {
+        return NODETYPE_COMMENT;
     }
     
     public Token getMarkTokensFor(int pos, int length, int nodePos,

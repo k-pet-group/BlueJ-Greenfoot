@@ -31,7 +31,6 @@ import java.io.Reader;
  * create dependencies to existing classes in the same package (as supplied).
  * 
  * @author Davin McCall
- * @version $Id: ClassParser.java 6501 2009-08-07 05:16:02Z davmac $
  */
 public class ClassParser extends InfoParser
 {

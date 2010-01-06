@@ -2,7 +2,7 @@ package bluej.parser;
 
 import junit.framework.TestCase;
 import bluej.editor.moe.Token;
-import bluej.parser.nodes.ColourNode;
+import bluej.parser.nodes.CommentNode;
 import bluej.parser.nodes.NodeTree;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -25,11 +25,11 @@ public class NodeTreeTest extends TestCase
     protected void setUp()
     {
         nt = new NodeTree();
-        pn1 = new ColourNode(null, Token.KEYWORD1);
-        pn2 = new ColourNode(null, Token.KEYWORD1);
-        pn3 = new ColourNode(null, Token.KEYWORD1);
-        pn4 = new ColourNode(null, Token.KEYWORD1);
-        pn5 = new ColourNode(null, Token.KEYWORD1);
+        pn1 = new CommentNode(null, Token.KEYWORD1);
+        pn2 = new CommentNode(null, Token.KEYWORD1);
+        pn3 = new CommentNode(null, Token.KEYWORD1);
+        pn4 = new CommentNode(null, Token.KEYWORD1);
+        pn5 = new CommentNode(null, Token.KEYWORD1);
 
         nt.insertNode(pn1, 0, 10);
         nt.insertNode(pn2, 20, 10);
@@ -136,7 +136,7 @@ public class NodeTreeTest extends TestCase
         nt.insertNode(pn5, 50, 10);
           // pn5 is red child of pn2
         
-        ParsedNode pn6 = new ColourNode(null, Token.KEYWORD1);
+        ParsedNode pn6 = new CommentNode(null, Token.KEYWORD1);
         nt.insertNode(pn6, 30, 10);
           // becomes a red child of pn5, uncle is pn4 (red)
           // pn4 is made black

@@ -46,6 +46,8 @@ public abstract class ParsedNode implements EntityResolver
     public static final int NODETYPE_FIELD = 5;  // field declaration
     public static final int NODETYPE_EXPRESSION = 6; // expression
     
+    public static final int NODETYPE_COMMENT = 7;
+    
     /** The NodeTree containing the child nodes of this node */
     private NodeTree nodeTree;
     /** The NodeTree node (belonging to the parent parse node) which contains this node */
@@ -105,10 +107,25 @@ public abstract class ParsedNode implements EntityResolver
         }
     }
     
+    /**
+     * Find the child node (if any) at the given position
+     * @param position   The position of the child node to find
+     * @param startpos   The position of this node
+     */
+    public final NodeAndPosition findNodeAt(int position, int startpos)
+    {
+        return nodeTree.findNode(position, startpos);
+    }
+
+    /**
+     * Find the child node (if any) at or after the given position
+     * @param position   The position of the child node to find
+     * @param startpos   The position of this node
+     */
     public final NodeAndPosition findNodeAtOrAfter(int position, int startpos)
     {
         return nodeTree.findNodeAtOrAfter(position, startpos);
-    }
+    }    
     
     /**
      * Set the size of this node. Following nodes shift position according to the change in
@@ -169,7 +186,10 @@ public abstract class ParsedNode implements EntityResolver
     {
         isInner = inner;
     }
-	
+    
+    /**
+     * Get the size of this node.
+     */
     public int getSize()
     {
         return getContainingNodeTree().getNodeSize();

@@ -42,7 +42,7 @@ import bluej.parser.entity.WildcardExtendsEntity;
 import bluej.parser.entity.WildcardSuperEntity;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
-import bluej.parser.nodes.ColourNode;
+import bluej.parser.nodes.CommentNode;
 import bluej.parser.nodes.ContainerNode;
 import bluej.parser.nodes.ExpressionNode;
 import bluej.parser.nodes.FieldNode;
@@ -123,7 +123,7 @@ public class EditorParser extends JavaParser
                 s.extendEnd(token.getEndLine(), token.getEndColumn());
                 int endpos = pcuNode.lineColToPosition(s.getEndLine(), s.getEndColumn());
 
-                ColourNode cn = new ColourNode(node, Token.COMMENT1);
+                CommentNode cn = new CommentNode(node, getCommentColour(token));
                 node.insertNode(cn, startpos - position, endpos - startpos);
                 
                 i.remove();
@@ -131,8 +131,37 @@ public class EditorParser extends JavaParser
         }
     }
 
+    /**
+     * Determine the appropriate colour for a comment.
+     */
+    private byte getCommentColour(LocatableToken token)
+    {
+        String text = token.getText();
+        if (token.getType() == JavaTokenTypes.ML_COMMENT) {
+            if (text.startsWith("/*#")) {
+                return Token.COMMENT3;
+            }
+            if (text.startsWith("/**#")) {
+                return Token.COMMENT3;
+            }
+            if (text.startsWith("/**")) {
+                return Token.COMMENT2;
+            }
+            return Token.COMMENT1;
+        }
+        
+        // Single line
+        if (text.startsWith("//#")) {
+            return Token.COMMENT3;
+        }
+        
+        return Token.COMMENT1;
+    }
+    
     protected void beginNode(int position)
     {
+        // If there are comments in the queue, and their position precedes that of the node
+        // just being created, then we have to create their nodes now.
         ListIterator<LocatableToken> i = commentQueue.listIterator();
         while (i.hasNext()) {
             LocatableToken token = i.next();
@@ -143,7 +172,7 @@ public class EditorParser extends JavaParser
             }
             i.remove();
             int topOffset = getTopNodeOffset();
-            ColourNode cn = new ColourNode(scopeStack.peek(), Token.COMMENT1);
+            CommentNode cn = new CommentNode(scopeStack.peek(), getCommentColour(token));
             scopeStack.peek().insertNode(cn, startpos - topOffset, endpos - startpos);
         }
     }
@@ -487,7 +516,7 @@ public class EditorParser extends JavaParser
         int endpos = pcuNode.lineColToPosition(s.getEndLine(), s.getEndColumn());
         
         // PkgStmtNode psn = new PkgStmtNode();
-        ColourNode cn = new ColourNode(pcuNode, Token.KEYWORD1);
+        CommentNode cn = new CommentNode(pcuNode, Token.KEYWORD1);
         beginNode(startpos);
         pcuNode.insertNode(cn, startpos, endpos - startpos);
         completedNode(cn, startpos, endpos - startpos);
@@ -674,7 +703,6 @@ public class EditorParser extends JavaParser
             ListIterator<LocatableToken> i, DepthRef depthRef)
     {
         LocatableToken token = i.next();
-        
         if (isPrimitiveType(token)) {
             if (token.getType() == JavaTokenTypes.LITERAL_void) {
                 return new TypeEntity(JavaPrimitiveType.getVoid());
