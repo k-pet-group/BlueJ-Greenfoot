@@ -5,9 +5,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -29,8 +26,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 
-public class ContentAssistDisplay extends JFrame implements ActionListener, 
-ListSelectionListener, FocusListener, MouseListener {
+public class ContentAssistDisplay extends JFrame implements /*ActionListener,*/ 
+ListSelectionListener, MouseListener {
 
     private MoeEditor editor;
     private String[] methodsAvailable;
@@ -68,7 +65,7 @@ ListSelectionListener, FocusListener, MouseListener {
 
             public void windowGainedFocus(WindowEvent e)
             {
-                requestFocus();
+                methodList.requestFocusInWindow();
             }
 
             public void windowLostFocus(WindowEvent e)
@@ -77,6 +74,7 @@ ListSelectionListener, FocusListener, MouseListener {
             }
         });
 
+        
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(gridL);
 
@@ -94,10 +92,7 @@ ListSelectionListener, FocusListener, MouseListener {
         methodList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         methodList.addListSelectionListener(this);
         methodList.setSelectedIndex(selectedValue);
-        //methodList.ensureIndexIsVisible(selectedValue);
-        methodList.setRequestFocusEnabled(true);
         methodList.addMouseListener(this);
-        methodList.addFocusListener(this);
         methodList.requestFocusInWindow();
         methodList.setVisibleRowCount(10);
 
@@ -108,7 +103,7 @@ ListSelectionListener, FocusListener, MouseListener {
         mainPanel.add(methodPanel, BorderLayout.WEST);
         mainPanel.add(methodDescription, BorderLayout.EAST);
         
-        pane.add(mainPanel);        
+        pane.add(mainPanel); 
 
         KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0);
         pane.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke ,"escapeAction");
@@ -135,15 +130,11 @@ ListSelectionListener, FocusListener, MouseListener {
                 close();
             }
         });
-        
-       
-
 
         //setLocationRelativeTo(location);
         this.setUndecorated(true);
         pack();
         setSelectedValue(selectedValue); 
-        pane.requestFocusInWindow();
     }
 
     public void valueChanged(ListSelectionEvent e) 
@@ -190,21 +181,6 @@ ListSelectionListener, FocusListener, MouseListener {
         boolean success=editor.codeComplete(values[selectedValue].getContentName());
         if (success)
             close();
-    }
-
-    public void focusGained(FocusEvent e) 
-    {
-
-    }
-
-    public void focusLost(FocusEvent e) 
-    {
-
-    }
-
-    public void actionPerformed(ActionEvent e) 
-    {
-
     }
 
     /**
