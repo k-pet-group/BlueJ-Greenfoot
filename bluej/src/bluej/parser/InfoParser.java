@@ -35,7 +35,7 @@ import bluej.parser.lexer.LocatableToken;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 
-public class InfoParser extends JavaParser
+public class InfoParser extends EditorParser
 {
     private ClassInfo info;
     private int classLevel = 0; // number of nested classes
@@ -125,6 +125,7 @@ public class InfoParser extends JavaParser
 
     protected void gotTypeSpec(List<LocatableToken> tokens)
     {
+        super.gotTypeSpec(tokens);
         LocatableToken first = tokens.get(0);
         if (!isPrimitiveType(first)) {
             if (storeCurrentClassInfo && ! gotExtends && ! gotImplements) {
@@ -168,6 +169,7 @@ public class InfoParser extends JavaParser
 
     protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken)
     {
+        super.gotMethodDeclaration(token, hiddenToken);
         if (hiddenToken != null) {
             lastComment = hiddenToken.getText();
         }
@@ -182,6 +184,7 @@ public class InfoParser extends JavaParser
 
     protected void gotConstructorDecl(LocatableToken token,	LocatableToken hiddenToken)
     {
+        super.gotConstructorDecl(token, hiddenToken);
         if (hiddenToken != null) {
             lastComment = hiddenToken.getText();
         }
@@ -196,6 +199,7 @@ public class InfoParser extends JavaParser
 
     protected void gotMethodParameter(LocatableToken token)
     {
+        super.gotMethodParameter(token);
         if (methodParamTypes != null) {
             methodParamNames += token.getText() + " ";
             methodParamTypes.add(lastTypespec);
@@ -204,6 +208,7 @@ public class InfoParser extends JavaParser
 
     protected void gotAllMethodParameters()
     {
+        super.gotAllMethodParameters();
         if (storeCurrentClassInfo && classLevel == 1) {
             // Build the method signature
             String methodSig;
@@ -230,11 +235,13 @@ public class InfoParser extends JavaParser
 
     protected void gotTypeDef(int tdType)
     {
+        super.gotTypeDef(tdType);
         lastTdType = tdType;
     }
 
     protected void gotTypeDefName(LocatableToken nameToken)
     {
+        super.gotTypeDefName(nameToken);
         gotExtends = false; // haven't seen "extends ..." yet
         gotImplements = false;
         if (classLevel == 1) {
@@ -255,11 +262,11 @@ public class InfoParser extends JavaParser
                 storeCurrentClassInfo = false;
             }
         }
-        super.gotTypeDefName(nameToken);
     }
 
     protected void gotTypeDefExtends(LocatableToken extendsToken)
     {
+        super.gotTypeDefExtends(extendsToken);
         if (classLevel == 1 && storeCurrentClassInfo) {
             // info.setExtendsReplaceSelection(s)
             gotExtends = true;
@@ -278,6 +285,7 @@ public class InfoParser extends JavaParser
 
     protected void gotTypeDefImplements(LocatableToken implementsToken)
     {
+        super.gotTypeDefImplements(implementsToken);
         if (classLevel == 1 && storeCurrentClassInfo) {
             gotImplements = true;
             interfaceSelections = new LinkedList<Selection>();
@@ -287,16 +295,19 @@ public class InfoParser extends JavaParser
 
     protected void beginPackageStatement(LocatableToken token)
     {
+        super.beginPackageStatement(token);
         pkgLiteralToken = token;
     }
 
     protected void gotPackage(List<LocatableToken> pkgTokens)
     {
+        super.gotPackage(pkgTokens);
         packageTokens = pkgTokens;
     }
 
     protected void gotPackageSemi(LocatableToken token)
     {
+        super.gotPackageSemi(token);
         pkgSemiToken = token;
     }
 

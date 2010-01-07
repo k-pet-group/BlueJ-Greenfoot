@@ -88,7 +88,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "b = (i < j);"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
 
@@ -100,7 +100,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "boolean.class.equals(T.class);"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
 
@@ -112,7 +112,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "class A<T>{}"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseTypeDef();
     }
 
@@ -124,7 +124,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "class A{;}"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseTypeDef();
     }
 
@@ -139,7 +139,7 @@ public class NewParserTest extends TestCase
                 "    private int x;" +
                 "}"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseTypeDef();
     }
 
@@ -151,7 +151,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "int a[] = {1, 2, 3};"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
 
@@ -163,7 +163,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "int a[], int[] b);"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseMethodParamsBody();
     }
 
@@ -175,7 +175,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "class A { int x[] = {1,2,3}, y = 5; }"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseTypeDef();
     }
     
@@ -187,7 +187,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "class A { private int x, y; }"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseTypeDef();
     }
 
@@ -199,7 +199,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "int x[], y = 3, z, q;"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
 
@@ -211,7 +211,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "public @interface Copyright{  String value();}"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseTypeDef();
     }
 
@@ -223,7 +223,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "@Preliminary public class TimeTravel { }"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseTypeDef();
     }
 
@@ -236,7 +236,7 @@ public class NewParserTest extends TestCase
                 "@Copyright(\"2002 Yoyodyne Propulsion Systems\")"+
                 "public class NewParserTest { }"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseTypeDef();
     }
 
@@ -248,7 +248,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "Object g = (x<y) ? null : null;"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
 
@@ -260,7 +260,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "AAA.bbb(1,2,3);"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
 
@@ -277,7 +277,7 @@ public class NewParserTest extends TestCase
                 "String date();      default \"[unimplemented]\"; "+
                 "}"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseTypeDef();
     }
 
@@ -296,7 +296,7 @@ public class NewParserTest extends TestCase
                 ")"+
                 "static void travelThroughTime(Date destination) { } }"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseClassBody();
     }
 
@@ -308,7 +308,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "@Test public static void m1() { } }"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseClassBody();
     }
 
@@ -320,7 +320,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "@Test.RequestForEnhancement req;"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
 
@@ -332,7 +332,7 @@ public class NewParserTest extends TestCase
                 "@Expression(\"execution(* com.mypackage.Target.*(..))\") "+
                 "Pointcut pc1; "
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
 
     }
@@ -343,7 +343,7 @@ public class NewParserTest extends TestCase
                 "@Expression(\"execution(* com.mypackage.Target.*(..))\") "+
                 "volatile Pointcut pc1; "
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
     
@@ -352,7 +352,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "(byte)++(bb)"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseExpression();
     }
 
@@ -361,7 +361,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "new String[]{\"hello\", \"goodbye\",}"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseExpression();
     }
     
@@ -373,7 +373,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "this.<String>someMethod(\"hello\")"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseExpression();
     }
     
@@ -382,7 +382,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "(byte)(a + 1)"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseExpression();
     }
     
@@ -393,15 +393,15 @@ public class NewParserTest extends TestCase
                 "synchronized int someMethod();" +
                 "}"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseTypeDef();
         
         sr = new StringReader("synchronized { throw new Exception(); }");
-        ip = new InfoParser(sr);
+        ip = new JavaParser(sr);
         ip.parseStatement();
         
         sr = new StringReader("synchronized(getSomeValue()) { throw new Exception(); }");
-        ip = new InfoParser(sr);
+        ip = new JavaParser(sr);
         ip.parseStatement();
     }
     
@@ -412,7 +412,7 @@ public class NewParserTest extends TestCase
                 "synchronized int someMethod(int ... a);" +
                 "}"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseTypeDef();
     }
 }

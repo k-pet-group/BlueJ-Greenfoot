@@ -65,12 +65,14 @@ public class EditorParser extends JavaParser
     public EditorParser(Reader r)
     {
         super(r);
+        pcuNode = new ParsedCUNode();
     }
     
     public EditorParser(Document document)
     {
         super(new DocumentReader(document));
         this.document = document;
+        pcuNode = new ParsedCUNode(document);
     }
     
     protected void error(String msg)
@@ -78,11 +80,20 @@ public class EditorParser extends JavaParser
         // ignore for now
     }
     
+    @Override
+    public void parseCU()
+    {
+        scopeStack.push(pcuNode);
+        super.parseCU();
+        scopeStack.pop();
+        completedNode(pcuNode, 0, pcuNode.getSize());
+    }
+    
     public void parseCU(ParsedCUNode pcuNode)
     {
         this.pcuNode = pcuNode;
         scopeStack.push(pcuNode);
-        parseCU();
+        super.parseCU();
         scopeStack.pop();
         completedNode(pcuNode, 0, pcuNode.getSize());
     }
@@ -166,6 +177,9 @@ public class EditorParser extends JavaParser
         return Token.COMMENT1;
     }
     
+    /**
+     * Prepare to begin a new node at the given position (document position).
+     */
     protected void beginNode(int position)
     {
         // If there are comments in the queue, and their position precedes that of the node
@@ -636,6 +650,7 @@ public class EditorParser extends JavaParser
             top.insertField(field, insPos - curOffset, 0);
         }
         
+        scopeStack.peek().insertNode(field, insPos - curOffset, 0);
         scopeStack.push(field);
     }
     

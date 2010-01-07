@@ -92,10 +92,15 @@ public class ParsedCUNode extends ParentParsedNode
      */
     public int getSize()
     {
-        //return document.getLength();
         return size;
     }
 
+    @Override
+    public void setNodeSize(int newSize)
+    {
+        size = newSize;
+    }
+    
     /**
      * Reparse this node from the specified offset.
      */

@@ -142,6 +142,9 @@ public abstract class ParsedNode implements EntityResolver
      */
     public int getOffsetFromParent()
     {
+        if (containingNodeTree == null) {
+            return 0;
+        }
         return getContainingNodeTree().getPosition();
     }
     
