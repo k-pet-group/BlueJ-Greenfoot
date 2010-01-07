@@ -98,18 +98,18 @@ public class BasicParseTest extends junit.framework.TestCase
     {
         // this file came from some guys web page.. it just includes lots of
         // Java constructs
-        ClassParser.parse(getFile("java_basic.dat"), null);
+        ClassParser.parse(getFile("java_basic.dat"));
 
         // these files came from the test suite accompanying antlr
-        ClassParser.parse(getFile("A.dat"),null);
-        ClassParser.parse(getFile("B.dat"),null);
-        ClassParser.parse(getFile("C.dat"),null);
-        ClassParser.parse(getFile("D.dat"),null);
-        ClassParser.parse(getFile("E.dat"),null);
+        ClassParser.parse(getFile("A.dat"));
+        ClassParser.parse(getFile("B.dat"));
+        ClassParser.parse(getFile("C.dat"));
+        ClassParser.parse(getFile("D.dat"));
+        ClassParser.parse(getFile("E.dat"));
         
         // these files were added later
-        ClassParser.parse(getFile("F.dat"),null);
-        ClassParser.parse(getFile("G.dat"),null);
+        ClassParser.parse(getFile("F.dat"));
+        ClassParser.parse(getFile("G.dat"));
         
     }
     
@@ -117,7 +117,7 @@ public class BasicParseTest extends junit.framework.TestCase
     	throws Exception
     {
     	// Parse generics
-    	ClassParser.parse(getFile("15_generic.dat"), null);
+    	ClassParser.parse(getFile("15_generic.dat"));
     }
     
     public void testValidClassInfo()
@@ -135,7 +135,7 @@ public class BasicParseTest extends junit.framework.TestCase
         references.add("Dummy2");
         
         File file = getFile("AffinedTransformer.dat");
-        ClassInfo info = ClassParser.parse(file, references);
+        ClassInfo info = ClassParser.parse(file);
 
         assertEquals("AffinedTransformer",info.getName());
         assertEquals("JFrame",info.getSuperclass());
@@ -266,7 +266,6 @@ public class BasicParseTest extends junit.framework.TestCase
     
     public void testValidClassInfo2() throws Exception
     {
-    	List<String> classes = new ArrayList<String>();
     	StringReader sr = new StringReader(
     			"class A implements II, IJ {\n" +
     			"  void someMethod() {\n" +
@@ -274,7 +273,7 @@ public class BasicParseTest extends junit.framework.TestCase
     			"  }\n" +
     			"}\n"
     	);
-    	ClassInfo info = ClassParser.parse(sr, classes);
+    	ClassInfo info = ClassParser.parse(sr);
     	List<String> implemented = info.getImplements();
     	assertNotNull(implemented);
     	assertEquals(2, implemented.size());
@@ -287,11 +286,10 @@ public class BasicParseTest extends junit.framework.TestCase
      */
     public void testValidClassInfo3() throws Exception
     {
-    	List<String> classes = new ArrayList<String>();
     	StringReader sr = new StringReader(
     			"interface A {}"
     	);
-    	ClassInfo info = ClassParser.parse(sr, classes);
+    	ClassInfo info = ClassParser.parse(sr);
     	assertTrue(info.isInterface());
     }
 
@@ -300,38 +298,26 @@ public class BasicParseTest extends junit.framework.TestCase
      */
     public void testValidClassInfo4() throws Exception
     {
-    	List<String> classes = new ArrayList<String>();
     	StringReader sr = new StringReader(
     			"enum A { monday, tuesday, wednesday }"
     	);
-    	ClassInfo info = ClassParser.parse(sr, classes);
+    	ClassInfo info = ClassParser.parse(sr);
     	assertTrue(info.isEnum());
     }
     
     public void testMultiDimensionalArrayParam() throws Exception
     {
         File file = getFile("I.dat");
-        List<String> packageClasses = new ArrayList<String>();
-        ClassInfo info = ClassParser.parse(file, packageClasses);
+        ClassInfo info = ClassParser.parse(file);
         
         // Check that comment is created with parameter names
         Properties comments = info.getComments();
         
-        boolean commentFound = false;
         String wantedComment = "void method(int[][])";
-        for (int commentNum = 0; ; commentNum++) {
-            String comment = comments.getProperty("comment" + commentNum + ".target");
-            if (comment == null) {
-                break;
-            }
-            if (comment.equals(wantedComment)) {
-                String paramNames = comments.getProperty("comment" + commentNum + ".params");
-                assertEquals(paramNames, "args");
-                commentFound = true;
-            }
-        }
-        
-        assertTrue(commentFound);
+        int commentNum = findTarget(comments, wantedComment);
+        assertTrue(commentNum != -1);
+        String paramNames = comments.getProperty("comment" + commentNum + ".params");
+        assertEquals(paramNames, "args");
     }
     
     public void testCommentExtraction() throws Exception
@@ -358,7 +344,7 @@ public class BasicParseTest extends junit.framework.TestCase
         classes.add("K");
         classes.add("L");
         classes.add("M");
-        ClassInfo info = ClassParser.parse(getFile("H.dat"), classes);
+        ClassInfo info = ClassParser.parse(getFile("H.dat"));
         
         List<String> used = info.getUsed();
         assertTrue(used.contains("I")); 
@@ -385,7 +371,7 @@ public class BasicParseTest extends junit.framework.TestCase
     			"  class I { }\n" +
     			"}\n"
     	);
-    	ClassInfo info = ClassParser.parse(sr, classes);
+    	ClassInfo info = ClassParser.parse(sr);
     	List<String> used = info.getUsed();
     	
     	assertFalse(used.contains("I"));
@@ -405,7 +391,7 @@ public class BasicParseTest extends junit.framework.TestCase
                         "  }\n" +
                         "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, classes);
+        ClassInfo info = ClassParser.parse(sr);
         List<String> used = info.getUsed();
         
         assertTrue(used.contains("I"));

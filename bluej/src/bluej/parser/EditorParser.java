@@ -53,7 +53,7 @@ import bluej.parser.symtab.Selection;
  */
 public class EditorParser extends JavaParser
 {
-    private Stack<ParsedNode> scopeStack = new Stack<ParsedNode>();
+    protected Stack<ParsedNode> scopeStack = new Stack<ParsedNode>();
     
     private LocatableToken pcuStmtBegin;
     private ParsedCUNode pcuNode;

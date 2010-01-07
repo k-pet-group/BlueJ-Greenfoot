@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import bluej.parser.entity.ClassEntity;
+import bluej.parser.entity.JavaEntity;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.symtab.ClassInfo;
@@ -39,18 +41,25 @@ public class InfoParser extends EditorParser
 {
     private ClassInfo info;
     private int classLevel = 0; // number of nested classes
-    private boolean gotTypeDef; // whether we just reach a type def
     private boolean isPublic;
     private int lastTdType; // last typedef type (TYPEDEF_CLASS, _INTERFACE etc)
     private boolean storeCurrentClassInfo;
 
-    private String lastComment; // last (javadoc) comment text we saw
-    private String lastMethodName;
-    private String lastMethodReturnType;
-    private String lastTypespec; // last type specification we saw
-    String methodParamNames; // method params as "<type> <name>"
-    private List<String> methodParamTypes; // method params as "<type> <name>"
-
+    private List<LocatableToken> lastTypespecToks;
+    private boolean modPublic;
+    private List<MethodDesc> methodDescs = new LinkedList<MethodDesc>();
+    MethodDesc currentMethod;
+    
+    /** Represents a method description */
+    class MethodDesc
+    {
+        String name;
+        JavaEntity returnType; // null for constructors
+        List<JavaEntity> paramTypes;
+        String paramNames; // space separated list
+        String javadocText;
+    }
+    
     private boolean gotExtends; // next type spec is the superclass/superinterfaces
     private boolean gotImplements; // next type spec(s) are interfaces
     private List<Selection> interfaceSelections;
@@ -67,20 +76,10 @@ public class InfoParser extends EditorParser
         super(r);
     }
 
-    public static ClassInfo parse(File f, List<String> l) throws FileNotFoundException
+    public static ClassInfo parse(File f) throws FileNotFoundException
     {
         FileInputStream fis = new FileInputStream(f);
         return parse(new InputStreamReader(fis));
-    }
-
-    public static ClassInfo parse(Reader r, List<String> l)
-    {
-        return parse(r);
-    }
-
-    public static ClassInfo parse(File f) throws FileNotFoundException
-    {
-        return parse(f, null);
     }
 
     public static ClassInfo parse(Reader r)
@@ -89,7 +88,8 @@ public class InfoParser extends EditorParser
         infoParser = new InfoParser(r);
         infoParser.parseCU();
 
-        if (infoParser.info != null) {
+        if (infoParser.info != null && !infoParser.hadError) {
+            infoParser.resolveComments();
             return infoParser.info;
         }
         else {
@@ -97,34 +97,70 @@ public class InfoParser extends EditorParser
         }
     }
 
+    public void resolveComments()
+    {
+        methodLoop:
+        for (MethodDesc md : methodDescs) {
+            // Build the method signature
+            String methodSig;
+            
+            if (md.returnType != null) {
+                md.returnType = md.returnType.resolveAsType();
+                if (md.returnType == null) {
+                    continue;
+                }
+                methodSig = md.returnType.getType().getErasedType() + " " + md.name + "(";
+            }
+            else {
+                // constructor
+                methodSig = md.name + "(";
+            }
+            
+            Iterator<JavaEntity> i = md.paramTypes.iterator();
+            while (i.hasNext()) {
+                JavaEntity paramEnt = i.next();
+                if (paramEnt == null) {
+                    continue methodLoop;
+                }
+                ClassEntity paramType = paramEnt.resolveAsType();
+                if (paramType == null) {
+                    continue methodLoop;
+                }
+                methodSig += paramType.getType().getErasedType().toString();
+                if (i.hasNext()) {
+                    methodSig += ", ";
+                }
+            }
+            
+            methodSig += ")";
+            md.paramNames = md.paramNames.trim();
+            info.addComment(methodSig, md.javadocText, md.paramNames);
+        }
+    }
+    
     protected void error(String msg)
     {
-        if (! hadError) {
-            //try {
-            super.error(msg);
-            //}
-            //catch (RuntimeException re) {
-            //	re.printStackTrace(System.out);
-            // throw re;
-            //}
-            hadError = true;
-        }
+        hadError = true;
         // Just try and recover.
     }
 
-    public void parseTypeDef()
+    @Override
+    protected void beginTypeBody(LocatableToken token)
     {
-        if (classLevel == 0) {
-            gotTypeDef = true;
-        }
+        super.beginTypeBody(token);
         classLevel++;
-        super.parseTypeDef();
-        classLevel--;
-        gotTypeDef = false;
     }
-
+    
+    @Override
+    protected void endTypeBody(LocatableToken token, boolean included)
+    {
+        super.endTypeBody(token, included);
+        classLevel--;
+    }
+    
     protected void gotTypeSpec(List<LocatableToken> tokens)
     {
+        lastTypespecToks = tokens;
         super.gotTypeSpec(tokens);
         LocatableToken first = tokens.get(0);
         if (!isPrimitiveType(first)) {
@@ -161,48 +197,37 @@ public class InfoParser extends EditorParser
                         interfaceSel.getEndColumn()));
             }
         }
-
-        if (storeCurrentClassInfo) {
-            lastTypespec = concatenate(tokens);
-        }
     }
 
     protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken)
     {
         super.gotMethodDeclaration(token, hiddenToken);
-        if (hiddenToken != null) {
-            lastComment = hiddenToken.getText();
-        }
-        else {
-            lastComment = null;
-        }
-        lastMethodReturnType = lastTypespec;
-        lastMethodName = token.getText();
-        methodParamNames = "";
-        methodParamTypes = new LinkedList<String>();
+        String lastComment = (hiddenToken != null) ? hiddenToken.getText() : null;
+        currentMethod = new MethodDesc();
+        currentMethod.returnType = ParseUtils.getTypeEntity(scopeStack.peek(), lastTypespecToks);
+        currentMethod.name = token.getText();
+        currentMethod.paramNames = "";
+        currentMethod.paramTypes = new LinkedList<JavaEntity>();
+        currentMethod.javadocText = lastComment;
     }
 
-    protected void gotConstructorDecl(LocatableToken token,	LocatableToken hiddenToken)
+    protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken)
     {
         super.gotConstructorDecl(token, hiddenToken);
-        if (hiddenToken != null) {
-            lastComment = hiddenToken.getText();
-        }
-        else {
-            lastComment = null;
-        }
-        lastMethodReturnType = null;
-        lastMethodName = token.getText();
-        methodParamNames = "";
-        methodParamTypes = new LinkedList<String>();
+        String lastComment = (hiddenToken != null) ? hiddenToken.getText() : null;
+        currentMethod = new MethodDesc();
+        currentMethod.name = token.getText();
+        currentMethod.paramNames = "";
+        currentMethod.paramTypes = new LinkedList<JavaEntity>();
+        currentMethod.javadocText = lastComment;
     }
 
     protected void gotMethodParameter(LocatableToken token)
     {
         super.gotMethodParameter(token);
-        if (methodParamTypes != null) {
-            methodParamNames += token.getText() + " ";
-            methodParamTypes.add(lastTypespec);
+        if (currentMethod != null) {
+            currentMethod.paramNames += token.getText() + " ";
+            currentMethod.paramTypes.add(ParseUtils.getTypeEntity(scopeStack.peek(), lastTypespecToks));
         }
     }
 
@@ -210,31 +235,14 @@ public class InfoParser extends EditorParser
     {
         super.gotAllMethodParameters();
         if (storeCurrentClassInfo && classLevel == 1) {
-            // Build the method signature
-            String methodSig;
-            if (lastMethodReturnType != null) {
-                methodSig = lastMethodReturnType + " " + lastMethodName + "(";
-            }
-            else {
-                // constructor
-                methodSig = lastMethodName + "(";
-            }
-            Iterator<String> i = methodParamTypes.iterator();
-            while (i.hasNext()) {
-                methodSig += i.next();
-                if (i.hasNext()) {
-                    methodSig += ", ";
-                }
-            }
-            methodSig += ")";
-            methodParamNames = methodParamNames.trim();
-            info.addComment(methodSig, lastComment, methodParamNames);
+            methodDescs.add(currentMethod);
+            currentMethod = null;
         }
-        methodParamTypes = null;
     }
 
     protected void gotTypeDef(int tdType)
     {
+        isPublic = modPublic;
         super.gotTypeDef(tdType);
         lastTdType = tdType;
     }
@@ -244,7 +252,7 @@ public class InfoParser extends EditorParser
         super.gotTypeDefName(nameToken);
         gotExtends = false; // haven't seen "extends ..." yet
         gotImplements = false;
-        if (classLevel == 1) {
+        if (classLevel == 0) {
             if (info == null || isPublic && !info.foundPublicClass()) {
                 info = new ClassInfo();
                 info.setName(nameToken.getText(), isPublic);
@@ -267,7 +275,7 @@ public class InfoParser extends EditorParser
     protected void gotTypeDefExtends(LocatableToken extendsToken)
     {
         super.gotTypeDefExtends(extendsToken);
-        if (classLevel == 1 && storeCurrentClassInfo) {
+        if (classLevel == 0 && storeCurrentClassInfo) {
             // info.setExtendsReplaceSelection(s)
             gotExtends = true;
             SourceLocation extendsStart = info.getExtendsInsertSelection().getStartLocation();
@@ -286,7 +294,7 @@ public class InfoParser extends EditorParser
     protected void gotTypeDefImplements(LocatableToken implementsToken)
     {
         super.gotTypeDefImplements(implementsToken);
-        if (classLevel == 1 && storeCurrentClassInfo) {
+        if (classLevel == 0 && storeCurrentClassInfo) {
             gotImplements = true;
             interfaceSelections = new LinkedList<Selection>();
             interfaceSelections.add(getSelection(implementsToken));
@@ -315,17 +323,13 @@ public class InfoParser extends EditorParser
     protected void gotModifier(LocatableToken token)
     {
         super.gotModifier(token);
-        if (gotTypeDef) {
-            if (token.getType() == JavaTokenTypes.LITERAL_public) {
-                isPublic = true;
-            }
-        }
+        modPublic = true;
     }
     
     @Override
     protected void modifiersConsumed()
     {
-        gotTypeDef = false;
+        modPublic = false;
     }
 
     private Selection getSelection(LocatableToken token)

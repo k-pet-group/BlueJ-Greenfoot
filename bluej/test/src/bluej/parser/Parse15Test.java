@@ -85,7 +85,7 @@ public class Parse15Test extends junit.framework.TestCase
     public void testNoParseExceptions()
         throws Exception
     {
-        ClassParser.parse(getFile("15_generic.dat"), null);
+        ClassParser.parse(getFile("15_generic.dat"));
     }
     
     public void testSelections()

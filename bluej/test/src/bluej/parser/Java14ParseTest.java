@@ -78,6 +78,6 @@ public class Java14ParseTest extends junit.framework.TestCase
     public void testStandardAssertion()
         throws FileNotFoundException
     {
-        ClassParser.parse(getFile("14_assertion.dat"), null);
+        ClassParser.parse(getFile("14_assertion.dat"));
     } 
 }

@@ -34,7 +34,7 @@ import com.sun.jdi.*;
  * @see Reflective.
  * 
  * @author Davin McCall
- * @version $Id: JdiReflective.java 6880 2009-12-02 04:02:12Z davmac $
+ * @version $Id: JdiReflective.java 6978 2010-01-07 13:12:36Z davmac $
  */
 public class JdiReflective extends Reflective
 {
@@ -156,13 +156,13 @@ public class JdiReflective extends Reflective
             return new JdiArrayReflective(new GenTypeClass(this), sourceLoader, sourceVM);
     }
     
-    public List getTypeParams()
+    public List<GenTypeDeclTpar> getTypeParams()
     {
         // Make sure we are loaded and a generic signature is present.
         checkLoaded();
         String gensig = JdiUtils.getJdiUtils().genericSignature(rclass);
         if (gensig == null)
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         
         // Read the type parameters from the generic signature.
         StringIterator s = new StringIterator(gensig);
@@ -181,9 +181,9 @@ public class JdiReflective extends Reflective
      * @return  A list of GenTypeDeclTpar, representing the type parameters of
      *          this class.
      */
-    private List getTypeParams(StringIterator s)
+    private List<GenTypeDeclTpar> getTypeParams(StringIterator s)
     {
-        List rlist = new ArrayList();
+        List<GenTypeDeclTpar> rlist = new ArrayList<GenTypeDeclTpar>();
 
         char c = s.peek();
         if (c != '<')
@@ -205,22 +205,22 @@ public class JdiReflective extends Reflective
                 s.next();
 
             // multiple bounds appear as T:bound1;:bound2; ... etc
-            ArrayList bounds = new ArrayList(3);
+            ArrayList<GenTypeSolid> bounds = new ArrayList<GenTypeSolid>(3);
             while (s.current() == ':') {
-                bounds.add(fromSignature(s, null, rclass));
+                bounds.add((GenTypeSolid) fromSignature(s, null, rclass));
                 
                 //we don't want the next char to be eaten...
                 if (s.peek() == ':')
                     s.next();
             }
-            rlist.add(new GenTypeDeclTpar(paramName, (GenTypeSolid []) bounds.toArray(new GenTypeSolid [0])));
+            rlist.add(new GenTypeDeclTpar(paramName, bounds.toArray(new GenTypeSolid [0])));
             c = s.peek();
         }
         s.next();
         return rlist;
     }
     
-    public List getSuperTypesR()
+    public List<Reflective> getSuperTypesR()
     {
         checkLoaded();
         if (rclass instanceof ClassType) {
@@ -250,7 +250,7 @@ public class JdiReflective extends Reflective
             return new LinkedList();
     }
 
-    public List getSuperTypes()
+    public List<GenTypeClass> getSuperTypes()
     {
         checkLoaded();
         List rlist = new ArrayList();

@@ -22,7 +22,6 @@
 package bluej.pkgmgr;
 
 import java.io.File;
-import java.util.List;
 
 import bluej.parser.InfoParser;
 import bluej.parser.symtab.ClassInfo;
@@ -33,7 +32,7 @@ import bluej.parser.symtab.ClassInfo;
  * automatic editing of the source.
  *
  * @author  Michael Kolling
- * @version $Id: SourceInfo.java 6495 2009-08-06 23:38:13Z davmac $
+ * @version $Id: SourceInfo.java 6978 2010-01-07 13:12:36Z davmac $
  */
 public final class SourceInfo
 {
@@ -61,8 +60,7 @@ public final class SourceInfo
         if(info == null)
         {
             try {
-                List classNames = pkg.getAllClassnames();
-                info = InfoParser.parse(sourceFile, classNames);
+                info = InfoParser.parse(sourceFile);
                 valid = true;
             }
             catch(Exception e) {

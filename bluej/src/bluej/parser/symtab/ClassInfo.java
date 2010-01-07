@@ -190,14 +190,10 @@ public final class ClassInfo
             used.add(name);
     }
 
-    public void addComment(String target, String comment)
-    {
-        addComment(target, comment, null);
-    }
-
     /**
-     * Add a javadoc comment to this class. The target specifies the method or constructor
-     * which the comment applies to. It takes the form:<p>
+     * Add a method/constructor description (with optional javadoc comment) to this
+     * class. The target specifies the method or constructor which the comment applies
+     * to. It takes the form:<p>
      * 
      *  <code>&lt;type-pars&gt; return_type method_name(arg_type_1,arg_type2,arg_type3)</code>
      * 
@@ -212,7 +208,7 @@ public final class ClassInfo
      *     (eg. List&lt;Thread&gt;[][]), followed by " ..." for a vararg parameter.
      * 
      * @param target  The method/constructor the comment applies to (see description above)
-     * @param comment   The comment text
+     * @param comment   The comment text (may be null)
      * @param paramnames  The parameter names from the method definition, as a space-seperated
      *                    list. May be null if there are no parameter names.
      */
