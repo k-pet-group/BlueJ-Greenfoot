@@ -175,10 +175,14 @@ public class ParentParsedNode extends ParsedNode
                 default:
                 }
             }
-            token.next = new Token(lt.getLength(), tokType);
+            int toklen = lt.getLength();
+            if (lt.getEndLine() > 1) {
+                toklen = length;
+            }
+            token.next = new Token(toklen, tokType);
             token = token.next;
-            length -= lt.getLength();
-            curcol += lt.getLength();
+            length -= toklen;
+            curcol += toklen;
         }
         
         token.next = new Token(0, Token.END);

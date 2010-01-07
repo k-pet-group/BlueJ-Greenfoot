@@ -97,6 +97,9 @@ public class EscapedUnicodeReader extends Reader
         int rchar;
         if (charIsBuffered) {
             charIsBuffered = false;
+            if (bufferedChar != -1) {
+                processChar((char) bufferedChar);
+            }
             return bufferedChar;
         }
         else {
@@ -106,13 +109,14 @@ public class EscapedUnicodeReader extends Reader
         if (rchar == '\\') {
             // This could be the beginning of an escaped unicode sequence,
             // \\uXXXX (with only a single backslash)
-            int nchar = readSourceChar();
+            int nchar = sourceReader.read();
 
             if (nchar == 'u') {
                 // set bumpColumn so that the column will be bumped just as the next
                 // character is read. We can't bump it now because doing so can confuse
                 // the lexer - it thinks that *this* character starts wherever the
                 // column is set to when getChar() returns.
+                column++; position++;
                 return readEscapedUnicodeSequence();
             }
             else {
@@ -161,14 +165,21 @@ public class EscapedUnicodeReader extends Reader
     {
         int rchar = sourceReader.read();
         if (rchar != -1) {
-            column++;
-            position++;
-            if (rchar == '\n') {
-                line++;
-                column = 1;
-            }
+            processChar((char) rchar);
         }
         return rchar;
+    }
+    
+    private void processChar(char ch)
+    {
+        position++;
+        if (ch == '\n') {
+            line++;
+            column = 1;
+        }
+        else {
+            column++;
+        }
     }
     
     /**

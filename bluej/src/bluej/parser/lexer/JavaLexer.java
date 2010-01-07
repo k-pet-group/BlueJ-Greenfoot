@@ -38,7 +38,8 @@ public class JavaLexer implements TokenStream
     private int beginColumn, beginLine;
     private int endColumn, endLine;
 
-    public JavaLexer(Reader in) {
+    public JavaLexer(Reader in)
+    {
         reader = new EscapedUnicodeReader(in);
         endColumn = beginColumn = reader.getColumn();
         endLine = beginLine = reader.getLine();
@@ -50,7 +51,8 @@ public class JavaLexer implements TokenStream
         }
     }
 
-    private LocatableToken makeToken(int type, String txt){           
+    private LocatableToken makeToken(int type, String txt)
+    {           
         LocatableToken tok = new LocatableToken(type, txt);
         tok.setColumn(getBeginColumn());
         tok.setLine(getBeginLine());        
@@ -58,18 +60,20 @@ public class JavaLexer implements TokenStream
         beginColumn = endColumn;
         beginLine = endLine;
         return tok;
-
     }
 
-    private int getBeginColumn() {
+    private int getBeginColumn()
+    {
         return beginColumn;
     }
 
-    private int getBeginLine() {
+    private int getBeginLine()
+    {
         return beginLine;
     }
 
-    public LocatableToken nextToken() {  
+    public LocatableToken nextToken()
+    {  
         resetText();
         while (Character.isWhitespace((char)rChar)) {
             beginLine = reader.getLine();
@@ -95,33 +99,13 @@ public class JavaLexer implements TokenStream
 
     /*
      * Does no checking on what it is appending
-     * 
      */
     public void consume(char c, boolean overwrite) /*throws Exception*/ {
         append(c, overwrite);
     }
 
-    /*
-     * Increases the column count and writes char always
-     * 
-     */
-    public void consume(boolean incColumn, char c, boolean overwrite) /*throws Exception*/ {
-        consume(false, incColumn, c);
-    }
-
-    /*
-     * Increases the column count
-     * 
-     */
-    public void consume(boolean isFirstChar, boolean incColumn, char c) /*throws Exception*/ {
-        append(c);
-    }
-    
-    public void consume(boolean incColumn, char c) /*throws Exception*/ {
-        consume(false, incColumn, c);           
-    }
-
-    private void append(char c){
+    private void append(char c)
+    {
         if (!Character.isWhitespace(c)){
             textBuffer.append(c);
         }
@@ -218,7 +202,7 @@ public class JavaLexer implements TokenStream
         boolean complete=false;
         boolean isDecimal=dot;
         boolean hexDecimalNumber=false;
-        consume(true, true, ch);
+        append(ch);
 
         while (!complete){ 
             rval=readNextChar(cb);
@@ -234,32 +218,32 @@ public class JavaLexer implements TokenStream
                     }
                     else {
                         isDecimal=true;
-                        consume(true, ch);
+                        append(ch);
                     }
                 }
                 else if (Character.isLetter(ch)){
                     if (ch=='f'|| ch=='F'){
-                        consume(true, ch);
+                        append(ch);
                         type= JavaTokenTypes.NUM_FLOAT;
                         isDecimal=false;
                     } else if (ch=='d'|| ch=='D'){
-                        consume(true, ch);
+                        append(ch);
                         type= JavaTokenTypes.NUM_DOUBLE;
                     } else if (ch=='l'|| ch=='L'){
-                        consume(true, ch);
+                        append(ch);
                         type= JavaTokenTypes.NUM_LONG;
                         isDecimal=false;
                     }
                     else if (ch=='e'|| ch=='E'){
-                        consume(true, ch);
+                        append(ch);
                         type= JavaTokenTypes.NUM_DOUBLE;
                     }
                     else if (ch=='x'){
                         hexDecimalNumber=true;
-                        consume(true, ch);
+                        append(ch);
                     }
                     else if (hexDecimalNumber && (ch=='a'|| ch=='A' || ch=='b' ||ch=='B'||ch=='c'||ch=='C'||ch=='e'||ch=='E')){
-                        consume(true, ch);
+                        append(ch);
                         type= JavaTokenTypes.NUM_INT;
                     }
                     else {
@@ -273,7 +257,7 @@ public class JavaLexer implements TokenStream
                 }              
 
             } else {
-                consume(true, ch);
+                append(ch);
                 type=JavaTokenTypes.NUM_INT;
             }
 
@@ -325,10 +309,11 @@ public class JavaLexer implements TokenStream
         return type;
     }
 
-    private int getSymbolType(char ch){
+    private int getSymbolType(char ch)
+    {
         int type= JavaTokenTypes.INVALID;
         char buf[] = new char[1];
-        consume(true, true, ch); 
+        append(ch); 
         if (match('"', ch))
             return getStringLiteral();
         if (match('\'', ch))
@@ -422,7 +407,7 @@ public class JavaLexer implements TokenStream
         }
         char thisChar=(char)cb[0]; 
         if (thisChar=='='){
-            consume(true, thisChar); 
+            append(thisChar); 
             readNextChar(cb);
             return JavaTokenTypes.BXOR_ASSIGN;
         }           
@@ -441,12 +426,12 @@ public class JavaLexer implements TokenStream
         }
         char thisChar=(char)cb[0]; 
         if (thisChar=='='){
-            consume(true, thisChar); 
+            append(thisChar); 
             readNextChar(cb);
             return JavaTokenTypes.BAND_ASSIGN; 
         }
         if (thisChar=='&'){
-            consume(true, thisChar); 
+            append(thisChar); 
             readNextChar(cb);
             return JavaTokenTypes.LAND; 
         }
@@ -510,12 +495,12 @@ public class JavaLexer implements TokenStream
         }
         char thisChar=(char)cb[0]; 
         if (thisChar=='='){
-            consume(true, thisChar); 
+            append(thisChar); 
             readNextChar(cb);
             return JavaTokenTypes.PLUS_ASSIGN; 
         }
         if (thisChar=='+'){
-            consume(true, thisChar); 
+            append(thisChar); 
             readNextChar(cb);
             return JavaTokenTypes.INC; 
         }
@@ -535,12 +520,12 @@ public class JavaLexer implements TokenStream
         }
         char thisChar=(char)cb[0]; 
         if (thisChar=='='){
-            consume(true, thisChar);
+            append(thisChar);
             readNextChar(cb);
             return JavaTokenTypes.MINUS_ASSIGN; 
         }
         if (thisChar=='-'){
-            consume(true, thisChar); 
+            append(thisChar); 
             readNextChar(cb);
             return JavaTokenTypes.DEC; 
         }
@@ -559,7 +544,7 @@ public class JavaLexer implements TokenStream
         }
         char thisChar=(char)cb[0]; 
         if (thisChar=='='){
-            consume(true, thisChar); 
+            append(thisChar); 
             readNextChar(cb);
             return JavaTokenTypes.EQUAL; 
         }
@@ -567,18 +552,14 @@ public class JavaLexer implements TokenStream
         return JavaTokenTypes.ASSIGN;
     }
 
-    private int getStarType(){
+    private int getStarType()
+    {
         //*, *=, 
-        char validChars[]=new char[1];
-        validChars[0]='=';
         char [] cb=new char[1];
-        int rval=readNextChar(cb);
-        if (isComplete(rval, cb[0])){
-            return JavaTokenTypes.STAR;
-        }
+        readNextChar(cb);
         char thisChar=(char)cb[0]; 
-        if (thisChar=='='){
-            consume(true, thisChar); 
+        if (thisChar == '=') {
+            append(thisChar); 
             readNextChar(cb);
             return JavaTokenTypes.STAR_ASSIGN; 
         }
@@ -586,7 +567,8 @@ public class JavaLexer implements TokenStream
         return JavaTokenTypes.STAR;
     }
 
-    private int getModType(){
+    private int getModType()
+    {
         //%, %=
         char validChars[]=new char[1];
         validChars[0]='=';
@@ -597,7 +579,7 @@ public class JavaLexer implements TokenStream
         }
         char thisChar=(char)cb[0]; 
         if (thisChar=='='){
-            consume(true, thisChar); 
+            append(thisChar); 
             readNextChar(cb);
             return JavaTokenTypes.MOD_ASSIGN; 
         }
@@ -605,7 +587,8 @@ public class JavaLexer implements TokenStream
         return JavaTokenTypes.MOD;
     }
 
-    private int getForwardSlashType(){
+    private int getForwardSlashType()
+    {
         // /,  /*, /= 
         char validChars[]=new char[3];
         validChars[0]='/';
@@ -618,7 +601,7 @@ public class JavaLexer implements TokenStream
         }
         char thisChar=(char)cb[0]; 
         if (thisChar=='='){
-            consume(true, thisChar); 
+            append(thisChar); 
             readNextChar(cb);
             return JavaTokenTypes.DIV_ASSIGN; 
         }
@@ -648,7 +631,8 @@ public class JavaLexer implements TokenStream
         return true;
     }
 
-    private int getGTType(){
+    private int getGTType()
+    {
         char validChars[]=new char[2];
         validChars[0]='>';
         validChars[1]='='; 
@@ -660,7 +644,7 @@ public class JavaLexer implements TokenStream
         char thisChar=(char)cb[0];
         //>=
         if (thisChar=='='){
-            consume(true, thisChar); 
+            append(thisChar); 
             readNextChar(cb);
             return JavaTokenTypes.GE; 
         }
@@ -682,13 +666,13 @@ public class JavaLexer implements TokenStream
                     return JavaTokenTypes.BSR;
                 }
                 if (thisChar=='='){
-                    consume(true, thisChar); 
+                    append(thisChar); 
                     readNextChar(cb);
                     return JavaTokenTypes.BSR_ASSIGN; 
                 }
             }
             if (thisChar=='='){
-                consume(true, thisChar); 
+                append(thisChar); 
                 readNextChar(cb);
                 return JavaTokenTypes.SR_ASSIGN; 
             }
@@ -708,7 +692,7 @@ public class JavaLexer implements TokenStream
         }
         char thisChar=(char)cb[0]; 
         if (thisChar=='='){
-            consume(true, thisChar); 
+            append(thisChar); 
             readNextChar(cb);
             return JavaTokenTypes.LE; 
         }
@@ -721,7 +705,7 @@ public class JavaLexer implements TokenStream
                 return JavaTokenTypes.SL;
             }
             if (thisChar=='='){
-                consume(true, thisChar); 
+                append(thisChar); 
                 readNextChar(cb);
                 return JavaTokenTypes.SL_ASSIGN;
             }
@@ -739,7 +723,7 @@ public class JavaLexer implements TokenStream
         }
         char thisChar=(char)cb[0]; 
         if (thisChar=='='){
-            consume(true, thisChar); 
+            append(thisChar); 
             readNextChar(cb);
             return JavaTokenTypes.NOT_EQUAL; 
         }
@@ -747,7 +731,8 @@ public class JavaLexer implements TokenStream
         return JavaTokenTypes.LNOT;
     }
 
-    private int getDotType(){
+    private int getDotType()
+    {
         char validChars[]=new char[1];
         validChars[0]='.';
         //. or .56f .12 
@@ -763,14 +748,14 @@ public class JavaLexer implements TokenStream
         }
         //...
         else if (ch=='.'){
-            consume(true, thisChar); 
+            append(thisChar); 
             rval= readNextChar(cb);
             if (rval==-1){
                 return JavaTokenTypes.INVALID;
             }
             ch=cb[0];
             if (ch=='.'){
-                consume(true, thisChar); 
+                append(thisChar); 
                 readNextChar(cb);
                 return JavaTokenTypes.TRIPLE_DOT;
             }
@@ -780,7 +765,8 @@ public class JavaLexer implements TokenStream
         return JavaTokenTypes.DOT;
     }
 
-    private int readNextChar(char cb[]){
+    private int readNextChar(char cb[])
+    {
         int rval=-1;
         endColumn = reader.getColumn();
         endLine = reader.getLine();
@@ -790,12 +776,11 @@ public class JavaLexer implements TokenStream
             if (rval == -1) {
                 rChar = -1;
             }
-        }catch(IOException e){
-
+        } catch(IOException e) {
+            rChar = -1;
         }
 
         return rval;
-
     }
 
     private int getWordType(){
@@ -993,7 +978,8 @@ public class JavaLexer implements TokenStream
 
     }
 
-    private boolean match(char c1, char c2){
+    private boolean match(char c1, char c2)
+    {
         if (c1==c2){
             return true;
         }
