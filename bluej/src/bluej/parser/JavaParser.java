@@ -84,6 +84,15 @@ public class JavaParser
     /** We've seen the semicolon at the end of a "package" statement. */
     protected void gotPackageSemi(LocatableToken token) { }
 
+    /** Saw a modifier (public,private etc) */
+    protected void gotModifier(LocatableToken token) { }
+    
+    /** 
+     * Modifiers were consumed. This is called after the entity to which the modifiers apply
+     * has been identified (eg gotTypeDef() called)
+     */
+    protected void modifiersConsumed() { }
+    
     /** Beginning of some arbitrary grammatical element */
     protected void beginElement(LocatableToken token) { }
 
@@ -438,6 +447,7 @@ public class JavaParser
             }
 
             gotTypeDef(tdType);
+            modifiersConsumed();
 
             // Class name
             token = tokenStream.nextToken();
@@ -631,7 +641,7 @@ public class JavaParser
         
         LocatableToken token = tokenStream.nextToken();
         while (isModifier(token)) {
-            if (token.getType()==JavaTokenTypes.AT) {
+            if (token.getType() == JavaTokenTypes.AT) {
                 if( tokenStream.LA(1).getType() != JavaTokenTypes.LITERAL_interface) {					
                     parseAnnotation();
                 }
@@ -639,6 +649,9 @@ public class JavaParser
                     tokenStream.pushBack(token);
                     return rval;
                 }
+            }
+            else {
+                gotModifier(token);
             }
             rval.add(token);
             token = tokenStream.nextToken();
@@ -668,7 +681,6 @@ public class JavaParser
                     || token.getType() == JavaTokenTypes.LITERAL_enum
                     || token.getType() == JavaTokenTypes.AT) {
                 tokenStream.pushBack(token);
-                pushBackAll(modifiers);
                 parseTypeDef();
             }
             else {
@@ -676,6 +688,7 @@ public class JavaParser
                 // or (possibly static) a initialisation block
                 if (token.getType() == JavaTokenTypes.SEMI) {
                     // A spurious semicolon.
+                    modifiersConsumed();
                     endElement(token, true);
                 }
                 else if (token.getType() == JavaTokenTypes.LCURLY) {
@@ -685,6 +698,7 @@ public class JavaParser
                         firstToken = modifiers.get(0);
                     }
                     beginInitBlock(firstToken, token);
+                    modifiersConsumed();
                     parseStmtBlock();
                     token = tokenStream.nextToken();
                     if (token.getType() != JavaTokenTypes.RCURLY) {
@@ -702,6 +716,7 @@ public class JavaParser
                         && tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
                     // constructor
                     gotConstructorDecl(token, hiddenToken);
+                    modifiersConsumed();
                     tokenStream.nextToken();
                     parseMethodParamsBody();
                 }
@@ -719,6 +734,7 @@ public class JavaParser
                     parseTypeSpec(true);
                     LocatableToken idToken = tokenStream.nextToken(); // identifier
                     if (idToken.getType() != JavaTokenTypes.IDENT) {
+                        modifiersConsumed();
                         error("Expected identifier (method or field name).");
                         token = idToken;
                         continue;
@@ -729,6 +745,7 @@ public class JavaParser
                     if (token.getType() == JavaTokenTypes.SEMI) {
                         // field declaration: done
                         gotField(idToken);
+                        modifiersConsumed();
                         endField(token, true);
                         token = tokenStream.nextToken();
                         continue;
@@ -736,6 +753,7 @@ public class JavaParser
                     else if (token.getType() == JavaTokenTypes.ASSIGN) {
                         // field declaration
                         gotField(idToken);
+                        modifiersConsumed();
                         parseExpression();
                         parseSubsequentDeclarations(true);
                         token = tokenStream.nextToken();
@@ -744,13 +762,17 @@ public class JavaParser
                     else if (token.getType() == JavaTokenTypes.LPAREN) {
                         // method declaration
                         gotMethodDeclaration(idToken, hiddenToken);
+                        modifiersConsumed();
                         parseMethodParamsBody();
                     }
                     else if (token.getType() == JavaTokenTypes.COMMA) {
+                        gotField(idToken);
                         tokenStream.pushBack(token);
                         parseSubsequentDeclarations(true);
+                        modifiersConsumed();
                     }
                     else {
+                        modifiersConsumed();
                         error("Expected ';' or '=' or '(' (in field or method declaration), got token type: " + token.getType());
                         tokenStream.pushBack(token);
                         endElement(token, false);
@@ -1529,6 +1551,7 @@ public class JavaParser
     {
         parseTypeSpec(true);
         LocatableToken token = tokenStream.nextToken();
+        modifiersConsumed();
         if (token.getType() != JavaTokenTypes.IDENT) {
             error("Expecting identifier (in variable/field declaration)");
             tokenStream.pushBack(token);
@@ -1587,7 +1610,7 @@ public class JavaParser
      */
     public boolean parseTypeSpec(boolean speculative, boolean processArray, List<LocatableToken> ttokens)
     {
-        ttokens.addAll(parseModifiers());
+        //ttokens.addAll(parseModifiers());
         int ttype = parseBaseType(speculative, ttokens);
         if (ttype == TYPE_ERROR) {
             return false;

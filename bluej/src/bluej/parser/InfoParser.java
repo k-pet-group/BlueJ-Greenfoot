@@ -311,18 +311,21 @@ public class InfoParser extends EditorParser
         pkgSemiToken = token;
     }
 
-    public List<LocatableToken> parseModifiers()
+    @Override
+    protected void gotModifier(LocatableToken token)
     {
-        List<LocatableToken> rval = super.parseModifiers();
+        super.gotModifier(token);
         if (gotTypeDef) {
-            for (LocatableToken lt: rval) {
-                if (lt.getType() == JavaTokenTypes.LITERAL_public) {
-                    isPublic = true;
-                }
+            if (token.getType() == JavaTokenTypes.LITERAL_public) {
+                isPublic = true;
             }
-            gotTypeDef = false;
         }
-        return rval;
+    }
+    
+    @Override
+    protected void modifiersConsumed()
+    {
+        gotTypeDef = false;
     }
 
     private Selection getSelection(LocatableToken token)
