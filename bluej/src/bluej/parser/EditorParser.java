@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Stack;
 
+import javax.swing.text.Document;
+
 import bluej.editor.moe.Token;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.lexer.JavaTokenTypes;
@@ -58,9 +60,17 @@ public class EditorParser extends JavaParser
     private List<LocatableToken> commentQueue = new LinkedList<LocatableToken>();
     private List<LocatableToken> lastTypeSpec;
     
+    private Document document;
+    
     public EditorParser(Reader r)
     {
         super(r);
+    }
+    
+    public EditorParser(Document document)
+    {
+        super(new DocumentReader(document));
+        this.document = document;
     }
     
     protected void error(String msg)
@@ -76,7 +86,15 @@ public class EditorParser extends JavaParser
         scopeStack.pop();
         completedNode(pcuNode, 0, pcuNode.getSize());
     }
-                
+
+    public int lineColToPosition(int line, int col)
+    {
+        if (document == null) {
+            return 0;
+        }
+        return document.getDefaultRootElement().getElement(line - 1).getStartOffset() + col - 1;
+    }
+
     private void endTopNode(LocatableToken token, boolean included)
     {
         int topPos = getTopNodeOffset();
@@ -84,10 +102,10 @@ public class EditorParser extends JavaParser
 
         int endPos;
         if (included) {
-            endPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
+            endPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
         }
         else {
-            endPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+            endPos = lineColToPosition(token.getLine(), token.getColumn());
         }
         top.setNodeSize(endPos - topPos);
         
@@ -107,11 +125,11 @@ public class EditorParser extends JavaParser
         ListIterator<LocatableToken> i = commentQueue.listIterator();
         while (i.hasNext()) {
             LocatableToken token = i.next();
-            int startpos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+            int startpos = lineColToPosition(token.getLine(), token.getColumn());
             if (startpos >= position && startpos < (position + size)) {
                 Selection s = new Selection(token.getLine(), token.getColumn());
                 s.extendEnd(token.getEndLine(), token.getEndColumn());
-                int endpos = pcuNode.lineColToPosition(s.getEndLine(), s.getEndColumn());
+                int endpos = lineColToPosition(s.getEndLine(), s.getEndColumn());
 
                 CommentNode cn = new CommentNode(node, getCommentColour(token));
                 node.insertNode(cn, startpos - position, endpos - startpos);
@@ -155,8 +173,8 @@ public class EditorParser extends JavaParser
         ListIterator<LocatableToken> i = commentQueue.listIterator();
         while (i.hasNext()) {
             LocatableToken token = i.next();
-            int startpos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
-            int endpos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
+            int startpos = lineColToPosition(token.getLine(), token.getColumn());
+            int endpos = lineColToPosition(token.getEndLine(), token.getEndColumn());
             if (startpos >= position) {
                 break;
             }
@@ -203,7 +221,7 @@ public class EditorParser extends JavaParser
             pcuStmtBegin = hidden; 
             // TODO: make certain hidden token not already consumed by prior sibling node
         }
-        int insPos = pcuNode.lineColToPosition(pcuStmtBegin.getLine(), pcuStmtBegin.getColumn());
+        int insPos = lineColToPosition(pcuStmtBegin.getLine(), pcuStmtBegin.getColumn());
         beginNode(insPos);
         scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
         scopeStack.push(pnode);
@@ -215,7 +233,7 @@ public class EditorParser extends JavaParser
         TypeInnerNode bodyNode = new TypeInnerNode(scopeStack.peek());
         bodyNode.setInner(true);
         int curOffset = getTopNodeOffset();
-        int insPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
+        int insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
         beginNode(insPos);
         ParsedTypeNode top = (ParsedTypeNode) scopeStack.peek();
         top.insertInner(bodyNode, insPos - curOffset, 0);
@@ -227,7 +245,7 @@ public class EditorParser extends JavaParser
     {
         ParentParsedNode loopNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_ITERATION);
         int curOffset = getTopNodeOffset();
-        int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+        int insPos = lineColToPosition(token.getLine(), token.getColumn());
         beginNode(insPos);
         scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
         scopeStack.push(loopNode);
@@ -242,7 +260,7 @@ public class EditorParser extends JavaParser
             ParentParsedNode loopNode = new ParentParsedNode(scopeStack.peek());
             loopNode.setInner(true);
             int curOffset = getTopNodeOffset();
-            int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+            int insPos = lineColToPosition(token.getLine(), token.getColumn());
             beginNode(insPos);
             scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
             scopeStack.push(loopNode);
@@ -262,7 +280,7 @@ public class EditorParser extends JavaParser
     {
         ParentParsedNode loopNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_ITERATION);
         int curOffset = getTopNodeOffset();
-        int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+        int insPos = lineColToPosition(token.getLine(), token.getColumn());
         beginNode(insPos);
         scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
         scopeStack.push(loopNode);
@@ -277,7 +295,7 @@ public class EditorParser extends JavaParser
             ParentParsedNode loopNode = new ParentParsedNode(scopeStack.peek());
             loopNode.setInner(true);
             int curOffset = getTopNodeOffset();
-            int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+            int insPos = lineColToPosition(token.getLine(), token.getColumn());
             beginNode(insPos);
             scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
             scopeStack.push(loopNode);
@@ -297,7 +315,7 @@ public class EditorParser extends JavaParser
     {
         ParentParsedNode loopNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_ITERATION);
         int curOffset = getTopNodeOffset();
-        int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+        int insPos = lineColToPosition(token.getLine(), token.getColumn());
         beginNode(insPos);
         scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
         scopeStack.push(loopNode);
@@ -312,7 +330,7 @@ public class EditorParser extends JavaParser
             ParentParsedNode loopNode = new ParentParsedNode(scopeStack.peek());
             loopNode.setInner(true);
             int curOffset = getTopNodeOffset();
-            int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+            int insPos = lineColToPosition(token.getLine(), token.getColumn());
             beginNode(insPos);
             scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
             scopeStack.push(loopNode);
@@ -332,7 +350,7 @@ public class EditorParser extends JavaParser
     {
         ParentParsedNode loopNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_SELECTION);
         int curOffset = getTopNodeOffset();
-        int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+        int insPos = lineColToPosition(token.getLine(), token.getColumn());
         beginNode(insPos);
         scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
         scopeStack.push(loopNode);
@@ -347,7 +365,7 @@ public class EditorParser extends JavaParser
             ParentParsedNode loopNode = new ParentParsedNode(scopeStack.peek());
             loopNode.setInner(true);
             int curOffset = getTopNodeOffset();
-            int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+            int insPos = lineColToPosition(token.getLine(), token.getColumn());
             beginNode(insPos);
             scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
             scopeStack.push(loopNode);
@@ -373,7 +391,7 @@ public class EditorParser extends JavaParser
     {
         ParentParsedNode tryNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_SELECTION);
         int curOffset = getTopNodeOffset();
-        int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+        int insPos = lineColToPosition(token.getLine(), token.getColumn());
         beginNode(insPos);
         scopeStack.peek().insertNode(tryNode, insPos - curOffset, 0);
         scopeStack.push(tryNode);
@@ -385,7 +403,7 @@ public class EditorParser extends JavaParser
         ParentParsedNode tryBlockNode = new ParentParsedNode(scopeStack.peek());
         tryBlockNode.setInner(true);
         int curOffset = getTopNodeOffset();
-        int insPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
+        int insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
         beginNode(insPos);
         scopeStack.peek().insertNode(tryBlockNode, insPos - curOffset, 0);
         scopeStack.push(tryBlockNode);
@@ -412,7 +430,7 @@ public class EditorParser extends JavaParser
             // statement which already exists.
             ParentParsedNode blockNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_NONE);
             blockNode.setInner(false);
-            int insPos = pcuNode.lineColToPosition(token.getLine(), token.getColumn());
+            int insPos = lineColToPosition(token.getLine(), token.getColumn());
             beginNode(insPos);
             scopeStack.peek().insertNode(blockNode, insPos - curOffset, 0);
             scopeStack.push(blockNode);
@@ -420,7 +438,7 @@ public class EditorParser extends JavaParser
         }
         ParentParsedNode blockInner = new ParentParsedNode(scopeStack.peek());
         blockInner.setInner(true);
-        int insPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
+        int insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
         beginNode(insPos);
         scopeStack.peek().insertNode(blockInner, insPos - curOffset, 0);
         scopeStack.push(blockInner);
@@ -441,7 +459,7 @@ public class EditorParser extends JavaParser
         int curOffset = getTopNodeOffset();
         ParentParsedNode blockNode = new ContainerNode(scopeStack.peek(), ParsedNode.NODETYPE_NONE);
         blockNode.setInner(false);
-        int insPos = pcuNode.lineColToPosition(first.getLine(), first.getColumn());
+        int insPos = lineColToPosition(first.getLine(), first.getColumn());
         beginNode(insPos);
         scopeStack.peek().insertNode(blockNode, insPos - curOffset, 0);
         scopeStack.push(blockNode);
@@ -449,7 +467,7 @@ public class EditorParser extends JavaParser
 
         ParentParsedNode blockInner = new ParentParsedNode(scopeStack.peek());
         blockInner.setInner(true);
-        insPos = pcuNode.lineColToPosition(lcurly.getEndLine(), lcurly.getEndColumn());
+        insPos = lineColToPosition(lcurly.getEndLine(), lcurly.getEndColumn());
         beginNode(insPos);
         scopeStack.peek().insertNode(blockInner, insPos - curOffset, 0);
         scopeStack.push(blockInner);
@@ -502,8 +520,8 @@ public class EditorParser extends JavaParser
         Selection s = new Selection(pcuStmtBegin.getLine(), pcuStmtBegin.getColumn());
         s.extendEnd(token.getLine(), token.getColumn() + token.getLength());
         
-        int startpos = pcuNode.lineColToPosition(s.getLine(), s.getColumn());
-        int endpos = pcuNode.lineColToPosition(s.getEndLine(), s.getEndColumn());
+        int startpos = lineColToPosition(s.getLine(), s.getColumn());
+        int endpos = lineColToPosition(s.getEndLine(), s.getEndColumn());
         
         // PkgStmtNode psn = new PkgStmtNode();
         CommentNode cn = new CommentNode(pcuNode, Token.KEYWORD1);
@@ -517,8 +535,8 @@ public class EditorParser extends JavaParser
         Selection s = new Selection(pcuStmtBegin.getLine(), pcuStmtBegin.getColumn());
         s.extendEnd(token.getLine(), token.getColumn() + token.getLength());
         
-        int startpos = pcuNode.lineColToPosition(s.getLine(), s.getColumn());
-        int endpos = pcuNode.lineColToPosition(s.getEndLine(), s.getEndColumn());
+        int startpos = lineColToPosition(s.getLine(), s.getColumn());
+        int endpos = lineColToPosition(s.getEndLine(), s.getEndColumn());
         
         // PkgStmtNode psn = new PkgStmtNode();
         ParentParsedNode cn = new ParentParsedNode(pcuNode);
@@ -544,7 +562,7 @@ public class EditorParser extends JavaParser
         
         ParsedNode pnode = new MethodNode(scopeStack.peek(), token.getText());
         int curOffset = getTopNodeOffset();
-        int insPos = pcuNode.lineColToPosition(start.getLine(), start.getColumn());
+        int insPos = lineColToPosition(start.getLine(), start.getColumn());
         beginNode(insPos);
         scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
         scopeStack.push(pnode);
@@ -564,7 +582,7 @@ public class EditorParser extends JavaParser
         MethodNode pnode = new MethodNode(scopeStack.peek(), token.getText(), rtype);
         
         int curOffset = getTopNodeOffset();
-        int insPos = pcuNode.lineColToPosition(start.getLine(), start.getColumn());
+        int insPos = lineColToPosition(start.getLine(), start.getColumn());
         beginNode(insPos);
         scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
         scopeStack.push(pnode);
@@ -585,7 +603,7 @@ public class EditorParser extends JavaParser
         ParsedNode pnode = new ParentParsedNode(scopeStack.peek());
         pnode.setInner(true);
         int curOffset = getTopNodeOffset();
-        int insPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
+        int insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
         beginNode(insPos);
         scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
         scopeStack.push(pnode);
@@ -610,7 +628,7 @@ public class EditorParser extends JavaParser
         
         FieldNode field = new FieldNode(scopeStack.peek(), idToken.getText(), fieldType);
         int curOffset = getTopNodeOffset();
-        int insPos = pcuNode.lineColToPosition(pcuStmtBegin.getLine(), pcuStmtBegin.getEndColumn());
+        int insPos = lineColToPosition(pcuStmtBegin.getLine(), pcuStmtBegin.getEndColumn());
         beginNode(insPos);
         
         if (fieldType != null) {
@@ -633,7 +651,7 @@ public class EditorParser extends JavaParser
         ParsedTypeNode pnode = new ParsedTypeNode(scopeStack.peek(), null); // TODO generate Abc$1 ?
         int curOffset = getTopNodeOffset();
         LocatableToken begin = lastTypeSpec.get(0);
-        int insPos = pcuNode.lineColToPosition(begin.getLine(), begin.getColumn());
+        int insPos = lineColToPosition(begin.getLine(), begin.getColumn());
         beginNode(insPos);
         scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
         scopeStack.push(pnode);
@@ -641,7 +659,7 @@ public class EditorParser extends JavaParser
         TypeInnerNode bodyNode = new TypeInnerNode(scopeStack.peek());
         bodyNode.setInner(true);
         curOffset = getTopNodeOffset();
-        insPos = pcuNode.lineColToPosition(token.getEndLine(), token.getEndColumn());
+        insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
         beginNode(insPos);
         pnode.insertInner(bodyNode, insPos - curOffset, 0);
         scopeStack.push(bodyNode);
@@ -660,7 +678,7 @@ public class EditorParser extends JavaParser
         ExpressionNode nnode = new ExpressionNode(scopeStack.peek());
         int curOffset = getTopNodeOffset();
         LocatableToken begin = token;
-        int insPos = pcuNode.lineColToPosition(begin.getLine(), begin.getColumn());
+        int insPos = lineColToPosition(begin.getLine(), begin.getColumn());
         beginNode(insPos);
         scopeStack.peek().insertNode(nnode, insPos - curOffset, 0);
         scopeStack.push(nnode);

@@ -21,7 +21,6 @@
  */
 package bluej.parser.nodes;
 
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,7 +28,6 @@ import java.util.List;
 import javax.swing.text.Document;
 
 import bluej.editor.moe.MoeSyntaxDocument;
-import bluej.parser.DocumentReader;
 import bluej.parser.EditorParser;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageOrClass;
@@ -43,17 +41,24 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  */
 public class ParsedCUNode extends ParentParsedNode
 {
-    private Document document;
     private EntityResolver parentResolver;
 
     private List<NodeStructureListener> listeners = new ArrayList<NodeStructureListener>();
+    private int size = 0;
+    
+    /**
+     * Construct a parsed node for as yet unknown source.
+     */
+    public ParsedCUNode()
+    {
+    }
     
     /**
      * Construct a parsed node for the given document.
      */
     public ParsedCUNode(Document document)
     {
-        this.document = document;
+        size = document.getLength();
     }
     
     /**
@@ -87,14 +92,10 @@ public class ParsedCUNode extends ParentParsedNode
      */
     public int getSize()
     {
-        return document.getLength();
+        //return document.getLength();
+        return size;
     }
 
-    public int lineColToPosition(int line, int col)
-    {
-        return document.getDefaultRootElement().getElement(line - 1).getStartOffset() + col - 1;
-    }
-	
     /**
      * Reparse this node from the specified offset.
      */
@@ -106,12 +107,28 @@ public class ParsedCUNode extends ParentParsedNode
     protected void doReparse(Document document, int nodePos, int pos)
     {
         clearNode(this);
+        size = document.getLength();
         
-        Reader r = new DocumentReader(document);
-        EditorParser parser = new EditorParser(r);
+        EditorParser parser = new EditorParser(document);
         parser.parseCU(this);
 	    
         ((MoeSyntaxDocument) document).documentChanged();
+    }
+    
+    @Override
+    public void textInserted(Document document, int nodePos, int insPos,
+            int length)
+    {
+        size += length;
+        super.textInserted(document, nodePos, insPos, length);
+    }
+    
+    @Override
+    public void textRemoved(Document document, int nodePos, int delPos,
+            int length)
+    {
+        size -= length;
+        super.textRemoved(document, nodePos, delPos, length);
     }
     
     /**
