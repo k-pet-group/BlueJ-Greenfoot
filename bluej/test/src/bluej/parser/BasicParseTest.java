@@ -42,12 +42,6 @@ public class BasicParseTest extends junit.framework.TestCase
     /**
      * Get a data or result file from our hidden stash..
      * NOTE: the stash of data files is in the ast/data directory.
-     * This is because eventually, we want all parsing in bluej to
-     * be done by the AST routines, and we can get rid of this
-     * parser. So we share the data file until then.
-     * 
-     * @param name
-     * @return
      */
     private File getFile(String name)
     {
@@ -77,6 +71,22 @@ public class BasicParseTest extends junit.framework.TestCase
     {
     }
 
+    /**
+     * Find a target method/class in the comments and return its index (or -1 if not found).
+     */
+    private int findTarget(Properties comments, String target)
+    {
+        for (int commentNum = 0; ; commentNum++) {
+            String comment = comments.getProperty("comment" + commentNum + ".target");
+            if (comment == null) {
+                return -1;
+            }
+            if (comment.equals(target)) {
+                return commentNum;
+            }
+        }
+    }
+    
     /**
      * Lots of sample files, none of which should cause exceptions
      * in our parser.
@@ -180,15 +190,10 @@ public class BasicParseTest extends junit.framework.TestCase
         Properties comments = info.getComments();
         
         String wantedComment = "void resizeToInternalSize(int, int)";
-        for (int commentNum = 0; ; commentNum++) {
-            String comment = comments.getProperty("comment" + commentNum + ".target");
-            if (comment.equals(wantedComment)) {
-                String paramNames = comments.getProperty("comment" + commentNum + ".params");
-                assertEquals("internalWidth internalHeight", paramNames);
-                break;
-            }
-            assertNotNull(comment);
-        }
+        int wci = findTarget(comments, wantedComment);
+        assertTrue(wci != -1);
+        String paramNames = comments.getProperty("comment" + wci + ".params");
+        assertEquals("internalWidth internalHeight", paramNames);
         
         /*
          * Second file - no superclass, multiple interfaces 
@@ -327,6 +332,21 @@ public class BasicParseTest extends junit.framework.TestCase
         }
         
         assertTrue(commentFound);
+    }
+    
+    public void testCommentExtraction() throws Exception
+    {
+        String aSrc = "class A {\n"
+            + "  void method1(int [] a) { }\n"
+            + "  void method2(int a[]) { }\n"
+            + "}\n";
+        
+        // List<String> packageClasses = new ArrayList<String>();
+        ClassInfo info = ClassParser.parse(new StringReader(aSrc));
+        Properties comments = info.getComments();
+        comments.list(System.out);
+        assertTrue(findTarget(comments, "void method1(int[])") != -1);
+        assertTrue(findTarget(comments, "void method2(int[])") != -1);
     }
     
     public void testDependencyAnalysis()
