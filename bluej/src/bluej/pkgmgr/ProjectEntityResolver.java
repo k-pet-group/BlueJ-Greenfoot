@@ -22,7 +22,6 @@
 package bluej.pkgmgr;
 
 import bluej.debugger.gentype.Reflective;
-import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageEntity;
@@ -65,7 +64,7 @@ public class ProjectEntityResolver implements EntityResolver
         else {
             pkgName = "";
         }
-        ClassEntity rval = resolveQualifiedClass(pkgName + name);
+        TypeEntity rval = resolveQualifiedClass(pkgName + name);
         if (rval != null) {
             return rval;
         }
@@ -82,7 +81,7 @@ public class ProjectEntityResolver implements EntityResolver
     }
 
     @Override
-    public ClassEntity resolveQualifiedClass(String name)
+    public TypeEntity resolveQualifiedClass(String name)
     {
         int lastDot = name.lastIndexOf('.');
         if (lastDot != -1) {

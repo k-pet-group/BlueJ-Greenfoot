@@ -99,8 +99,8 @@ import bluej.Config;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.editor.EditorWatcher;
 import bluej.parser.SourceLocation;
-import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.EntityResolver;
+import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
@@ -3298,7 +3298,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     private AssistContent[] populateContentAssist()
     {
-        ClassEntity exprType = sourceDocument.getParser().getExpressionType(getCaretPosition(),
+        TypeEntity exprType = sourceDocument.getParser().getExpressionType(getCaretPosition(),
                 sourceDocument);
 
         if (exprType != null) {

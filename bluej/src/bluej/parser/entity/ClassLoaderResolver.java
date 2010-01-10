@@ -35,7 +35,7 @@ public class ClassLoaderResolver implements EntityResolver
         this.classLoader = classLoader;
     }
     
-    public ClassEntity resolveQualifiedClass(String name)
+    public TypeEntity resolveQualifiedClass(String name)
     {
         try {
             // Try as a fully-qualified name 
@@ -52,7 +52,7 @@ public class ClassLoaderResolver implements EntityResolver
         int lastDot = querySource.lastIndexOf('.');
         if (lastDot != -1) {
             String pkgName = querySource.substring(0, lastDot + 1); // include the dot
-            ClassEntity rval = resolveQualifiedClass(pkgName + name);
+            TypeEntity rval = resolveQualifiedClass(pkgName + name);
             if (rval != null) {
                 return rval;
             }

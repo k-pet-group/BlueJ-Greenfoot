@@ -45,7 +45,7 @@ public interface EntityResolver
      * Resolve a class from its fully-qualified name. The supplied name should
      * be the same as would be returned by Class.getName() for the required type.
      */
-    public ClassEntity resolveQualifiedClass(String name);
+    public TypeEntity resolveQualifiedClass(String name);
     
     /**
      * Resolve a value. If a local variable or field with the given name exists in the resolver's

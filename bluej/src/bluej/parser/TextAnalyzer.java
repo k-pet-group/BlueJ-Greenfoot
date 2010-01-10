@@ -51,11 +51,11 @@ import bluej.debugger.gentype.MethodReflective;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
 import bluej.debugmgr.texteval.WildcardCapture;
-import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageEntity;
 import bluej.parser.entity.PackageOrClass;
+import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.ValueEntity;
 import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
@@ -163,7 +163,7 @@ public class TextAnalyzer
     {
         EntityResolver resolver = new EntityResolver()
         {
-            public ClassEntity resolveQualifiedClass(String name)
+            public TypeEntity resolveQualifiedClass(String name)
             {
                 return parentResolver.resolveQualifiedClass(name);
             }
@@ -176,14 +176,14 @@ public class TextAnalyzer
                 }
 
                 // Imported class?
-                ClassEntity entity = imports.getTypeImport(name);
+                TypeEntity entity = imports.getTypeImport(name);
                 if (entity != null)
                 {
                     return entity;
                 }
                 
                 // Might be a class in the current package
-                ClassEntity rval = parentResolver.resolveQualifiedClass(pkgScopePrefix + name);
+                TypeEntity rval = parentResolver.resolveQualifiedClass(pkgScopePrefix + name);
                 if (rval != null) {
                     return rval;
                 }
@@ -243,7 +243,7 @@ public class TextAnalyzer
                 }
                 else {
                     JavaEntity importEntity = parser.getImportEntity();
-                    ClassEntity classEnt = importEntity.resolveAsType();
+                    TypeEntity classEnt = importEntity.resolveAsType();
                     String name = classEnt.getType().toString(true);
                     imports.addNormalImport(name, classEnt);
                 }

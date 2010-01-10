@@ -35,7 +35,6 @@ import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.parser.TextAnalyzer.MethodCallDesc;
-import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.ErrorEntity;
 import bluej.parser.entity.JavaEntity;
@@ -251,7 +250,7 @@ public class TextParser extends JavaParser
         List<JavaEntity> argList = argumentStack.pop();
         JavaType [] argTypes = new JavaType[argList.size()];
         for (int i = 0; i < argTypes.length; i++) {
-            ClassEntity cent = argList.get(i).resolveAsType();
+            TypeEntity cent = argList.get(i).resolveAsType();
             if (cent == null) {
                 valueStack.push(new ErrorEntity());
                 return;
@@ -435,7 +434,7 @@ public class TextParser extends JavaParser
     /**
      * Resolve a type specification. Returns null if the type couldn't be resolved.
      */
-    private ClassEntity resolveTypeSpec(List<LocatableToken> tokens)
+    private TypeEntity resolveTypeSpec(List<LocatableToken> tokens)
     {
         DepthRef dr = new DepthRef();
         return resolveTypeSpec(tokens.listIterator(), dr);
@@ -444,7 +443,7 @@ public class TextParser extends JavaParser
     /**
      * Resolve a type specification. Returns null if the type couldn't be resolved.
      */
-    private ClassEntity resolveTypeSpec(ListIterator<LocatableToken> i, DepthRef depthRef)
+    private TypeEntity resolveTypeSpec(ListIterator<LocatableToken> i, DepthRef depthRef)
     {
         LocatableToken token = i.next();
         
@@ -497,7 +496,7 @@ public class TextParser extends JavaParser
             token = i.next();
             if (token.getType() == JavaTokenTypes.LT) {
                 // Type arguments
-                ClassEntity classEnt = poc.resolveAsType();
+                TypeEntity classEnt = poc.resolveAsType();
                 if (classEnt != null) {
                     classEnt = processTypeArgs(classEnt, i, depthRef);
                 }
@@ -552,7 +551,7 @@ public class TextParser extends JavaParser
      * @param depthRef  The argument depth
      * @return   A ClassEntity representing the type with type arguments applied (or null)
      */
-    private ClassEntity processTypeArgs(ClassEntity base, ListIterator<LocatableToken> i, DepthRef depthRef)
+    private TypeEntity processTypeArgs(TypeEntity base, ListIterator<LocatableToken> i, DepthRef depthRef)
     {
         int startDepth = depthRef.depth;
         List<TypeArgumentEntity> taList = new LinkedList<TypeArgumentEntity>();
@@ -567,14 +566,14 @@ public class TextParser extends JavaParser
                 }
                 token = i.next();
                 if (token.getType() == JavaTokenTypes.LITERAL_super) {
-                    ClassEntity taEnt = resolveTypeSpec(i, depthRef);
+                    TypeEntity taEnt = resolveTypeSpec(i, depthRef);
                     if (taEnt == null) {
                         return null;
                     }
                     taList.add(new WildcardSuperEntity(taEnt));
                 }
                 else if (token.getType() == JavaTokenTypes.LITERAL_extends) {
-                    ClassEntity taEnt = resolveTypeSpec(i, depthRef);
+                    TypeEntity taEnt = resolveTypeSpec(i, depthRef);
                     if (taEnt == null) {
                         return null;
                     }
@@ -587,7 +586,7 @@ public class TextParser extends JavaParser
             }
             else {
                 i.previous();
-                ClassEntity taEnt = resolveTypeSpec(i, depthRef);
+                TypeEntity taEnt = resolveTypeSpec(i, depthRef);
                 if (taEnt == null) {
                     return null;
                 }

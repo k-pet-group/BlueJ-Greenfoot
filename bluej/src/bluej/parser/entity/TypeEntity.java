@@ -36,7 +36,7 @@ import bluej.utility.JavaReflective;
  * 
  * @author Davin McCall
  */
-public class TypeEntity extends ClassEntity
+public class TypeEntity extends PackageOrClass
 {
     private JavaType thisType;
     
@@ -123,7 +123,7 @@ public class TypeEntity extends ClassEntity
     /* (non-Javadoc)
      * @see bluej.parser.entity.ClassEntity#setTypeParams(java.util.List)
      */
-    public ClassEntity setTypeArgs(List<TypeArgumentEntity> tparams)
+    public TypeEntity setTypeArgs(List<TypeArgumentEntity> tparams)
     {
         GenTypeClass classType = thisType.getCapture().asClass();
         if (classType == null) {
@@ -140,5 +140,11 @@ public class TypeEntity extends ClassEntity
         }
         
         return new TypeEntity(new GenTypeClass(classType.getReflective(), ttparams, outer));
+    }
+    
+    @Override
+    public TypeEntity resolveAsType()
+    {
+        return this;
     }
 }

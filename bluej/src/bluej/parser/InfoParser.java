@@ -30,8 +30,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.TypeEntity;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.symtab.ClassInfo;
@@ -122,7 +122,7 @@ public class InfoParser extends EditorParser
                 if (paramEnt == null) {
                     continue methodLoop;
                 }
-                ClassEntity paramType = paramEnt.resolveAsType();
+                TypeEntity paramType = paramEnt.resolveAsType();
                 if (paramType == null) {
                     continue methodLoop;
                 }

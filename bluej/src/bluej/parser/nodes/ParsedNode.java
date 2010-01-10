@@ -27,7 +27,6 @@ import java.util.Map;
 import javax.swing.text.Document;
 
 import bluej.editor.moe.Token;
-import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
@@ -247,7 +246,7 @@ public abstract class ParsedNode implements EntityResolver
      * determinable expression type.
      * @param document TODO
      */
-    public ClassEntity getExpressionType(int pos, Document document)
+    public TypeEntity getExpressionType(int pos, Document document)
     {
         return getExpressionType(pos, 0, null, document);
     }
@@ -268,7 +267,7 @@ public abstract class ParsedNode implements EntityResolver
      * @param defaultType  The type to return if there is no explicit type at the given location 
      * @param document  The source document
      */
-    protected ClassEntity getExpressionType(int pos, int nodePos, ClassEntity defaultType, Document document)
+    protected TypeEntity getExpressionType(int pos, int nodePos, TypeEntity defaultType, Document document)
     {
         NodeAndPosition child = getNodeTree().findNode(pos, nodePos);
         if (child != null) {
@@ -287,7 +286,7 @@ public abstract class ParsedNode implements EntityResolver
     /*
      * @see bluej.parser.entity.EntityResolver#resolveQualifiedClass(java.lang.String)
      */
-    public ClassEntity resolveQualifiedClass(String name)
+    public TypeEntity resolveQualifiedClass(String name)
     {
         if (parentNode != null) {
             return parentNode.resolveQualifiedClass(name);

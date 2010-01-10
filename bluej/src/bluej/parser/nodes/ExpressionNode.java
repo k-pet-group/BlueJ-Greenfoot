@@ -28,7 +28,6 @@ import javax.swing.text.Document;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.parser.CompletionParser;
 import bluej.parser.DocumentReader;
-import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.TypeEntity;
 
 /**
@@ -50,7 +49,7 @@ public class ExpressionNode extends ParentParsedNode
     }
     
     @Override
-    protected ClassEntity getExpressionType(int pos, int nodePos, ClassEntity defaultType, Document document)
+    protected TypeEntity getExpressionType(int pos, int nodePos, TypeEntity defaultType, Document document)
     {
         Reader r = new DocumentReader(document, nodePos, pos);
         CompletionParser parser = new CompletionParser(this, r, defaultType);

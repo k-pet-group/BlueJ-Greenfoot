@@ -41,7 +41,7 @@ public class WildcardSuperEntity extends TypeArgumentEntity
     @Override
     public GenTypeParameter getType()
     {
-        ClassEntity ebType = superBound.resolveAsType();
+        TypeEntity ebType = superBound.resolveAsType();
         if (ebType != null) {
             return new GenTypeSuper(ebType.getClassType());
         }

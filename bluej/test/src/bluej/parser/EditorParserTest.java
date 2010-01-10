@@ -34,8 +34,8 @@ import bluej.Config;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.editor.moe.MoeSyntaxDocument;
-import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.ClassLoaderResolver;
+import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -110,7 +110,7 @@ public class EditorParserTest extends TestCase
         ParsedCUNode aNode = cuForSource(aClassSrc);
         resolver.addCompilationUnit("", aNode);
         
-        ClassEntity aClassEnt = resolver.resolvePackageOrClass("A", "A").resolveAsType();
+        TypeEntity aClassEnt = resolver.resolvePackageOrClass("A", "A").resolveAsType();
         GenTypeClass aClass = aClassEnt.getType().getCapture().asClass();
         Map<String,Set<MethodReflective>> methods = aClass.getReflective().getDeclaredMethods();
         Set<MethodReflective> mset = methods.get("someMethod");

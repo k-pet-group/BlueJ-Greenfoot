@@ -109,7 +109,7 @@ public class UnresolvedEntity extends JavaEntity
     }
     
     @Override
-    public ClassEntity resolveAsType()
+    public TypeEntity resolveAsType()
     {
         Iterator<String> i = names.iterator();
         PackageOrClass entity = resolver.resolvePackageOrClass(i.next(), querySource);

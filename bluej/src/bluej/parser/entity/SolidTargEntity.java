@@ -19,7 +19,7 @@ public class SolidTargEntity extends TypeArgumentEntity
     @Override
     public GenTypeParameter getType()
     {
-        ClassEntity ce = solid.resolveAsType();
+        TypeEntity ce = solid.resolveAsType();
         if (ce != null) {
             return ce.getType();
         }

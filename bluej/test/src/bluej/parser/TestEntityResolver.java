@@ -26,7 +26,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import bluej.parser.entity.ClassEntity;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
@@ -95,13 +94,13 @@ public class TestEntityResolver implements EntityResolver
         return parent.resolvePackageOrClass(name, querySource);
     }
     
-    public ClassEntity resolveQualifiedClass(String name)
+    public TypeEntity resolveQualifiedClass(String name)
     {
         String pkg = getPackageFromClassName(name);
         List<ParsedCUNode> culist = pkgMap.get(pkg);
         if (culist != null) {
             for (ParsedCUNode node : culist) {
-                ClassEntity clent = node.resolveQualifiedClass(name);
+                TypeEntity clent = node.resolveQualifiedClass(name);
                 if (clent != null) {
                     return clent;
                 }
