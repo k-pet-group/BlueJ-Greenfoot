@@ -30,15 +30,20 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import bluej.debugger.gentype.JavaType;
+import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
+import bluej.pkgmgr.Package;
+import bluej.utility.JavaNames;
 
 public class InfoParser extends EditorParser
 {
+    private String targetPkg;
     private ClassInfo info;
     private int classLevel = 0; // number of nested classes
     private boolean isPublic;
@@ -60,6 +65,8 @@ public class InfoParser extends EditorParser
         String javadocText;
     }
     
+    private List<JavaEntity> references = new LinkedList<JavaEntity>();
+    
     private boolean gotExtends; // next type spec is the superclass/superinterfaces
     private boolean gotImplements; // next type spec(s) are interfaces
     private List<Selection> interfaceSelections;
@@ -71,21 +78,31 @@ public class InfoParser extends EditorParser
     private List<LocatableToken> packageTokens;
     private LocatableToken pkgSemiToken;
 
-    public InfoParser(Reader r)
+    public InfoParser(Reader r, EntityResolver resolver)
     {
-        super(r);
+        super(r, resolver);
     }
 
     public static ClassInfo parse(File f) throws FileNotFoundException
     {
         FileInputStream fis = new FileInputStream(f);
-        return parse(new InputStreamReader(fis));
+        return parse(new InputStreamReader(fis), null);
+    }
+    
+    public static ClassInfo parse(File f, Package pkg) throws FileNotFoundException
+    {
+        FileInputStream fis = new FileInputStream(f);
+        return parse(new InputStreamReader(fis), pkg);
     }
 
-    public static ClassInfo parse(Reader r)
+    public static ClassInfo parse(Reader r, Package pkg)
     {
         InfoParser infoParser = null;
-        infoParser = new InfoParser(r);
+        EntityResolver resolver = pkg != null ? pkg.getProject().getEntityResolver() : null;
+        infoParser = new InfoParser(r, resolver);
+        if (pkg != null) {
+            infoParser.targetPkg = pkg.getQualifiedName();
+        }
         infoParser.parseCU();
 
         if (infoParser.info != null && !infoParser.hadError) {
@@ -97,6 +114,10 @@ public class InfoParser extends EditorParser
         }
     }
 
+    /**
+     * All type references and method declarations are unresolved after parsing.
+     * Call this method to resolve them.
+     */
     public void resolveComments()
     {
         methodLoop:
@@ -109,7 +130,7 @@ public class InfoParser extends EditorParser
                 if (md.returnType == null) {
                     continue;
                 }
-                methodSig = md.returnType.getType().getErasedType() + " " + md.name + "(";
+                methodSig = getTypeString(md.returnType) + " " + md.name + "(";
             }
             else {
                 // constructor
@@ -126,7 +147,7 @@ public class InfoParser extends EditorParser
                 if (paramType == null) {
                     continue methodLoop;
                 }
-                methodSig += paramType.getType().getErasedType().toString();
+                methodSig += getTypeString(paramType);
                 if (i.hasNext()) {
                     methodSig += ", ";
                 }
@@ -136,8 +157,49 @@ public class InfoParser extends EditorParser
             md.paramNames = md.paramNames.trim();
             info.addComment(methodSig, md.javadocText, md.paramNames);
         }
+    
+        // Now also resolve references
+        for (JavaEntity entity: references) {
+            entity = entity.resolveAsType();
+            if (entity != null) {
+                JavaType etype = entity.getType();
+                if (! etype.isPrimitive()) {
+                    String typeString = entity.getType().getErasedType().toString();
+                    String prefix = JavaNames.getPrefix(typeString);
+                    if (prefix.equals(targetPkg)) {
+                        String name = JavaNames.getBase(typeString);
+                        int dollar = name.indexOf('$');
+                        if (dollar != -1) {
+                            name = name.substring(0, dollar);
+                        }
+                        info.addUsed(name);
+                    }
+                }
+            }
+        }
     }
     
+    /**
+     * Get a String describing a type as suitable for writing to the ctxt file.
+     * This is the qualified, erased type name, with "." rather than "$" separating
+     * inner class names from the outer class names, and the package name (if it
+     * matches the target package) stripped.
+     */
+    private String getTypeString(JavaEntity entity)
+    {
+        String erasedType = entity.getType().getErasedType().toString();
+        if (targetPkg != null && targetPkg.length() != 0) {
+            if (erasedType.startsWith(targetPkg + ".")) {
+                erasedType = erasedType.substring(targetPkg.length() + 1);
+            }
+        }
+        return erasedType.replace("$", ".");
+    }
+    
+    /* (non-Javadoc)
+     * @see bluej.parser.EditorParser#error(java.lang.String)
+     */
+    @Override
     protected void error(String msg)
     {
         hadError = true;
@@ -158,15 +220,15 @@ public class InfoParser extends EditorParser
         classLevel--;
     }
     
+    @Override
     protected void gotTypeSpec(List<LocatableToken> tokens)
     {
         lastTypespecToks = tokens;
         super.gotTypeSpec(tokens);
-        LocatableToken first = tokens.get(0);
-        if (!isPrimitiveType(first)) {
-            if (storeCurrentClassInfo && ! gotExtends && ! gotImplements) {
-                info.addUsed(first.getText());
-            }
+        // Dependency tracking
+        JavaEntity tentity = ParseUtils.getTypeEntity(scopeStack.peek(), tokens);
+        if (tentity != null && ! gotExtends && ! gotImplements) {
+            references.add(tentity);
         }
 
         if (gotExtends) {
@@ -358,21 +420,13 @@ public class InfoParser extends EditorParser
         return s;
     }
 
-    private String concatenate(List<LocatableToken> tokens)
-    {
-        String result = "";
-        for (LocatableToken tok : tokens) {
-            result += tok.getText();
-        }
-        return result;
-    }
-
     /**
      * Convert a list of tokens specifying a type, which may include type parameters, into a class name
      * without type parameters.
      */
     private String getClassName(List<LocatableToken> tokens)
     {
+        // DAV get rid of this method; should resolve the type instead.
         String name = "";
         for (Iterator<LocatableToken> i = tokens.iterator(); i.hasNext(); ) {
             name += i.next().getText();

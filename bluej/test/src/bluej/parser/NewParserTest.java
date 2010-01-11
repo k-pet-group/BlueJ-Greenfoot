@@ -18,7 +18,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "LinkedList<String[]>"
         );
-        InfoParser ip = new InfoParser(sr);
+        InfoParser ip = new InfoParser(sr, null);
         List<LocatableToken> ll = new LinkedList<LocatableToken>();
         assertTrue(ip.parseTypeSpec(false, true, ll));
         // 6 tokens: LinkedList, '<', String, '[', ']', '>'
@@ -33,7 +33,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "LinkedList<List<String[]>>"
         );
-        InfoParser ip = new InfoParser(sr);
+        InfoParser ip = new InfoParser(sr, null);
         List<LocatableToken> ll = new LinkedList<LocatableToken>();
         assertTrue(ip.parseTypeSpec(false, true, ll));
         // 8 tokens: LinkedList, '<', List, '<', String, '[', ']', '>>'
@@ -48,7 +48,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "Map<String,Integer> v1; "
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
 
@@ -60,7 +60,7 @@ public class NewParserTest extends TestCase
         StringReader sr = new StringReader(
                 "Outer<String>.Inner<String> v8; "
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
 
@@ -74,7 +74,7 @@ public class NewParserTest extends TestCase
                 "A<? extends String> v9; " +
                 "A<? super String> v10;"
         );
-        InfoParser ip = new InfoParser(sr);
+        JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
         ip.parseStatement();
         ip.parseStatement();

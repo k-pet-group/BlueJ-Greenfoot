@@ -97,7 +97,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 6963 2010-01-05 05:41:50Z davmac $
+ * @version $Id: Project.java 6984 2010-01-11 07:48:29Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -192,7 +192,9 @@ public class Project implements DebuggerListener, InspectorManager
         packages = new TreeMap<String, Package>();
 
         try {
-            packages.put("", new Package(this));
+            Package unnamed = new Package(this);
+            packages.put("", unnamed);
+            unnamed.refreshPackage();
         } catch (IOException exc) {
             Debug.reportError("could not read package file (unnamed package)");
         }
@@ -341,19 +343,19 @@ public class Project implements DebuggerListener, InspectorManager
         }
 
         if(Config.isWinOSVista()) {
-                WriteCapabilities capabilities = FileUtility.getVistaWriteCapabilities(projectDir);
-                switch (capabilities) {
-                        case VIRTUALIZED_WRITE:
-                        DialogManager.showMessage(parent, "project-is-virtualized");
-                                break;
-                        case READ_ONLY:
-                    DialogManager.showMessage(parent, "project-is-readonly");
-                                break;
-                        case NORMAL_WRITE:
-                                break;
-                        default:
-                                break;
-                        }
+            WriteCapabilities capabilities = FileUtility.getVistaWriteCapabilities(projectDir);
+            switch (capabilities) {
+            case VIRTUALIZED_WRITE:
+                DialogManager.showMessage(parent, "project-is-virtualized");
+                break;
+            case READ_ONLY:
+                DialogManager.showMessage(parent, "project-is-readonly");
+                break;
+            case NORMAL_WRITE:
+                break;
+            default:
+                break;
+            }
         }
         else if (!projectDir.canWrite()) {
             DialogManager.showMessage(parent, "project-is-readonly");
@@ -777,6 +779,7 @@ public class Project implements DebuggerListener, InspectorManager
                     pkg = new Package(this, JavaNames.getBase(qualifiedName),
                             parent);
                     packages.put(qualifiedName, pkg);
+                    pkg.refreshPackage();
                 } else { // parent package does not exist. How can it not exist ?
                     pkg = null;
                 }
@@ -906,6 +909,7 @@ public class Project implements DebuggerListener, InspectorManager
             Package pkg = new Package(this, JavaNames.getBase(qualifiedName),
                     parent);
             packages.put(qualifiedName, pkg);
+            pkg.refreshPackage();
         } catch (IOException exc) {
             return NEW_PACKAGE_BAD_NAME;
         }

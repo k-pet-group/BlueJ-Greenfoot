@@ -36,6 +36,6 @@ public class ClassParser extends InfoParser
 {
     public ClassParser(Reader r)
     {
-    	super(r);
+    	super(r, null);
     }
 }

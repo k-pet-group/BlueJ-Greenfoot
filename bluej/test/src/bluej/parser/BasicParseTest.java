@@ -273,7 +273,7 @@ public class BasicParseTest extends junit.framework.TestCase
     			"  }\n" +
     			"}\n"
     	);
-    	ClassInfo info = ClassParser.parse(sr);
+    	ClassInfo info = ClassParser.parse(sr, null);
     	List<String> implemented = info.getImplements();
     	assertNotNull(implemented);
     	assertEquals(2, implemented.size());
@@ -289,7 +289,7 @@ public class BasicParseTest extends junit.framework.TestCase
     	StringReader sr = new StringReader(
     			"interface A {}"
     	);
-    	ClassInfo info = ClassParser.parse(sr);
+    	ClassInfo info = ClassParser.parse(sr, null);
     	assertTrue(info.isInterface());
     }
 
@@ -301,7 +301,7 @@ public class BasicParseTest extends junit.framework.TestCase
     	StringReader sr = new StringReader(
     			"enum A { monday, tuesday, wednesday }"
     	);
-    	ClassInfo info = ClassParser.parse(sr);
+    	ClassInfo info = ClassParser.parse(sr, null);
     	assertTrue(info.isEnum());
     }
     
@@ -328,7 +328,7 @@ public class BasicParseTest extends junit.framework.TestCase
             + "}\n";
         
         // List<String> packageClasses = new ArrayList<String>();
-        ClassInfo info = ClassParser.parse(new StringReader(aSrc));
+        ClassInfo info = ClassParser.parse(new StringReader(aSrc), null);
         Properties comments = info.getComments();
         comments.list(System.out);
         assertTrue(findTarget(comments, "void method1(int[])") != -1);
@@ -371,7 +371,7 @@ public class BasicParseTest extends junit.framework.TestCase
     			"  class I { }\n" +
     			"}\n"
     	);
-    	ClassInfo info = ClassParser.parse(sr);
+    	ClassInfo info = ClassParser.parse(sr, null);
     	List<String> used = info.getUsed();
     	
     	assertFalse(used.contains("I"));
@@ -391,7 +391,7 @@ public class BasicParseTest extends junit.framework.TestCase
                         "  }\n" +
                         "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr);
+        ClassInfo info = ClassParser.parse(sr, null);
         List<String> used = info.getUsed();
         
         assertTrue(used.contains("I"));

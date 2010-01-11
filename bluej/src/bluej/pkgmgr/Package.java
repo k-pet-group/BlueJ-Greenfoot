@@ -83,7 +83,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 6952 2009-12-16 06:01:16Z davmac $
+ * @version $Id: Package.java 6984 2010-01-11 07:48:29Z davmac $
  */
 public final class Package extends Graph
 {
@@ -583,7 +583,7 @@ public final class Package extends Graph
      * Load the elements of a package from a specified directory. If the package
      * file (bluej.pkg) is not found, an IOException is thrown.
      */
-    private void load()
+    public void load()
         throws IOException
     {
         // read the package properties
@@ -600,7 +600,14 @@ public final class Package extends Graph
         } else {
             getProject().setJavaMEproject( false );
         }
- 
+    }
+    
+    /**
+     * Refresh the targets and dependency arrows in the package, based on whatever
+     * is actually on disk.
+     */
+    public void refreshPackage()
+    {
         // read in all the targets contained in this package
         // into this temporary map
         Map<String,Target> propTargets = new HashMap<String,Target>();
@@ -698,10 +705,10 @@ public final class Package extends Graph
 
             if ("UsesDependency".equals(type))
                 dep = new UsesDependency(this);
-            //		else if("ExtendsDependency".equals(type))
-            //		    dep = new ExtendsDependency(this);
-            //		else if("ImplementsDependency".equals(type))
-            //		    dep = new ImplementsDependency(this);
+            //          else if("ExtendsDependency".equals(type))
+            //              dep = new ExtendsDependency(this);
+            //          else if("ImplementsDependency".equals(type))
+            //              dep = new ImplementsDependency(this);
 
             if (dep != null) {
                 dep.load(lastSavedProps, "dependency" + (i + 1));
@@ -741,7 +748,7 @@ public final class Package extends Graph
             }
         }
     }
-
+    
     /**
      * Returns the file containing information about the package.
      * For BlueJ this is package.bluej (or for older versions bluej.pkg) 

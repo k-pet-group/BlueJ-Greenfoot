@@ -132,7 +132,7 @@ public class Parse15Test extends junit.framework.TestCase
             ClassParser.parse(new StringReader(
                     "import static java.awt.Color.BLACK;\n" +
                     "class A { }"
-            ));
+            ), null);
         }
         catch (Exception e) {
             success = false;

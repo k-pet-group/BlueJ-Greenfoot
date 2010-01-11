@@ -80,7 +80,6 @@ public class GenTypeArray extends GenTypeClass
             return this;
         else {
             GenTypeSolid Lbounds = ((GenTypeParameter) baseType).getLowerBound();
-            Reflective newR = Lbounds.getErasedType().asClass().reflective.getArrayOf();
             return new GenTypeArray(Lbounds);
         }
     }

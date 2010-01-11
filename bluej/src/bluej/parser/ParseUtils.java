@@ -69,10 +69,6 @@ public class ParseUtils
     {
         LocatableToken token = i.next();
         if (JavaParser.isPrimitiveType(token)) {
-            if (token.getType() == JavaTokenTypes.LITERAL_void) {
-                return new TypeEntity(JavaPrimitiveType.getVoid());
-            }
-            
             JavaType type = null;
             switch (token.getType()) {
             case JavaTokenTypes.LITERAL_int:
@@ -80,6 +76,9 @@ public class ParseUtils
                 break;
             case JavaTokenTypes.LITERAL_short:
                 type = JavaPrimitiveType.getShort();
+                break;
+            case JavaTokenTypes.LITERAL_long:
+                type = JavaPrimitiveType.getLong();
                 break;
             case JavaTokenTypes.LITERAL_char:
                 type = JavaPrimitiveType.getChar();
@@ -95,6 +94,9 @@ public class ParseUtils
                 break;
             case JavaTokenTypes.LITERAL_float:
                 type = JavaPrimitiveType.getFloat();
+                break;
+            case JavaTokenTypes.LITERAL_void:
+                type = JavaPrimitiveType.getVoid();
             }
             
             while (i.hasNext()) {

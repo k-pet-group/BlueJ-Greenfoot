@@ -25,7 +25,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -37,7 +36,6 @@ import java.util.Map;
 import bluej.Config;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
-import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
 
 /**
@@ -46,10 +44,9 @@ import bluej.debugger.gentype.JavaType;
  * to use. 
  *   
  * @author Davin McCall
- * @version $Id: JavaUtils.java 6927 2009-12-09 05:47:50Z davmac $
  */
-public abstract class JavaUtils {
-
+public abstract class JavaUtils
+{
     private static JavaUtils jutils;
     
     /**

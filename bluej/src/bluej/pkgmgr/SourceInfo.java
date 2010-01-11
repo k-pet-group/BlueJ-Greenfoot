@@ -32,7 +32,7 @@ import bluej.parser.symtab.ClassInfo;
  * automatic editing of the source.
  *
  * @author  Michael Kolling
- * @version $Id: SourceInfo.java 6978 2010-01-07 13:12:36Z davmac $
+ * @version $Id: SourceInfo.java 6984 2010-01-11 07:48:29Z davmac $
  */
 public final class SourceInfo
 {
@@ -60,7 +60,7 @@ public final class SourceInfo
         if(info == null)
         {
             try {
-                info = InfoParser.parse(sourceFile);
+                info = InfoParser.parse(sourceFile, pkg);
                 valid = true;
             }
             catch(Exception e) {
@@ -69,6 +69,8 @@ public final class SourceInfo
                 // else syntax errors in users programs will cause lots
                 // of debug messages
                 //e.printStackTrace();
+                // DAV
+                e.printStackTrace();
 
                 // exception during parsing
                 valid = false;

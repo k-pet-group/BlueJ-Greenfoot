@@ -31,6 +31,7 @@ import java.util.Stack;
 import javax.swing.text.Document;
 
 import bluej.editor.moe.Token;
+import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
@@ -62,17 +63,25 @@ public class EditorParser extends JavaParser
     
     private Document document;
     
-    public EditorParser(Reader r)
+    /**
+     * Constructor for use by subclasses (InfoReader).
+     */
+    protected EditorParser(Reader r, EntityResolver resolver)
     {
         super(r);
         pcuNode = new ParsedCUNode();
+        pcuNode.setParentResolver(resolver);
     }
     
+    /**
+     * Constructor for an EditorParser to parse a particular document.
+     * After construction the normal course of action is to call parseCU(ParsedCUNode).
+     */
     public EditorParser(Document document)
     {
         super(new DocumentReader(document));
         this.document = document;
-        pcuNode = new ParsedCUNode(document);
+        //pcuNode = new ParsedCUNode(document);
     }
     
     protected void error(String msg)
@@ -538,6 +547,7 @@ public class EditorParser extends JavaParser
         int endpos = lineColToPosition(s.getEndLine(), s.getEndColumn());
         
         // PkgStmtNode psn = new PkgStmtNode();
+        // DAV this should not be a CommentNode (make a new node type)
         CommentNode cn = new CommentNode(pcuNode, Token.KEYWORD1);
         beginNode(startpos);
         pcuNode.insertNode(cn, startpos, endpos - startpos);
