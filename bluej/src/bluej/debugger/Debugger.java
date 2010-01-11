@@ -34,7 +34,7 @@ import bluej.debugger.jdi.JdiDebugger;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: Debugger.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: Debugger.java 6983 2010-01-11 07:12:06Z davmac $
  */
 public abstract class Debugger
 {
@@ -52,20 +52,20 @@ public abstract class Debugger
     public static final int SUSPENDED = 4;
     public static final int LAUNCH_FAILED = 5; // failed to launch
 
-	/**
-	 * Create an instance of a debugger.
-	 * The constructor for the debugger should not be
-	 * a long process. Actual startup for the debug
-	 * VM should go in launch().
-	 * 
-	 * @return  a Debugger instance
-	 */
-	public static Debugger getDebuggerImpl(File startingDirectory, DebuggerTerminal terminal)
-	{
+    /**
+     * Create an instance of a debugger.
+     * The constructor for the debugger should not be
+     * a long process. Actual startup for the debug
+     * VM should go in launch().
+     * 
+     * @return  a Debugger instance
+     */
+    public static Debugger getDebuggerImpl(File startingDirectory, DebuggerTerminal terminal)
+    {
         return new JdiDebugger(startingDirectory, terminal);
-	}
-	
-	/**
+    }
+
+    /**
      * Start debugging.
      * 
      * This can be a lengthy process so this should be executed
@@ -78,20 +78,20 @@ public abstract class Debugger
      */
     public abstract void close(boolean restart);
 
-	/**
-	 * Add a listener for DebuggerEvents
-	 * 
-	 * @param l  the DebuggerListener to add
-	 */
-	public abstract void addDebuggerListener(DebuggerListener l);
+    /**
+     * Add a listener for DebuggerEvents
+     * 
+     * @param l  the DebuggerListener to add
+     */
+    public abstract void addDebuggerListener(DebuggerListener l);
 
-	/**
-	 * Remove a listener for DebuggerEvents.
-	 * 
-	 * @param l  the DebuggerListener to remove
-	 */
-	public abstract void removeDebuggerListener(DebuggerListener l);
-	
+    /**
+     * Remove a listener for DebuggerEvents.
+     * 
+     * @param l  the DebuggerListener to remove
+     */
+    public abstract void removeDebuggerListener(DebuggerListener l);
+
     /**
      * Create a class loader in the debugger.
      */
@@ -101,7 +101,7 @@ public abstract class Debugger
      * Remove all breakpoints in the given class.
      */
     public abstract void removeBreakpointsForClass(String className);
-	
+
     /**
      * Add a debugger object into the project scope.
      * 
@@ -118,26 +118,26 @@ public abstract class Debugger
      */
     public abstract void removeObject(String scopeId, String instanceName);
 
-	/**
-	 * Return the debugger objects that exist in the
-	 * debugger.
-	 * 
-	 * @return			a Map of (String name, DebuggerObject obj) entries
-	 */
-	public abstract Map getObjects();
-	
-	/**
-	 * Guess a suitable name for an object about to be put on the object bench.
-	 * 
-	 * @param	startingName  a fully qualified class name (will be stripped of
-	 *                        qualifying part) or a field name that will be used
-	 *                        as the basis for the new name.
-	 * @return				  a String suitable as a name for an object on the
-	 * 						  object bench. 
-	 */
-	public abstract String guessNewName(String className);
-	
-	/**
+    /**
+     * Return the debugger objects that exist in the
+     * debugger.
+     * 
+     * @return			a Map of (String name, DebuggerObject obj) entries
+     */
+    public abstract Map<String,DebuggerObject> getObjects();
+
+    /**
+     * Guess a suitable name for an object about to be put on the object bench.
+     * 
+     * @param	startingName  a fully qualified class name (will be stripped of
+     *                        qualifying part) or a field name that will be used
+     *                        as the basis for the new name.
+     * @return				  a String suitable as a name for an object on the
+     * 						  object bench. 
+     */
+    public abstract String guessNewName(String className);
+
+    /**
      * Guess a suitable name for an object about to be put on the object bench.
      * 
      * @param obj
@@ -153,27 +153,24 @@ public abstract class Debugger
      */
     public abstract int getStatus();
     
-	/**
-	 * Run the setUp() method of a test class and return the created
-	 * objects.
-	 * 
-	 * @param className	the fully qualified name of the class
-	 * @return			a Map of (String name, DebuggerObject obj) entries
-	 */
-    public abstract Map runTestSetUp(String className);
+    /**
+     * Run the setUp() method of a test class and return the created
+     * objects.
+     * 
+     * @param className	the fully qualified name of the class
+     * @return			a Map of (String name, DebuggerObject obj) entries
+     */
+    public abstract Map<String,DebuggerObject> runTestSetUp(String className);
 
-	/**
-	 * Run a single test method in a test class and return the result.
-	 * 
-	 * @param  className  the fully qualified name of the class
-	 * @param  methodName the name of the method
-	 * @return            a DebuggerTestResult object
-	 */
+    /**
+     * Run a single test method in a test class and return the result.
+     * 
+     * @param  className  the fully qualified name of the class
+     * @param  methodName the name of the method
+     * @return            a DebuggerTestResult object
+     */
     public abstract DebuggerTestResult runTestMethod(String className, String methodName);
 
-	//	BeanShell
-    //public abstract DebuggerObject executeCode(String code);
-    
     /**
      * Dispose all top level windows in the remote machine.
      */
