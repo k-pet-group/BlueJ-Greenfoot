@@ -1140,7 +1140,7 @@ public final class MoeActions
 
         public void actionPerformed(ActionEvent e)
         {
-            PrefMgrDialog.showDialog(0); // 0 is the index of the editor pane in
+            PrefMgrDialog.showDialog(0, actionTable, categories, categoryIndex); // 0 is the index of the editor pane in
                                          // the pref dialog
         }
     }
