@@ -237,8 +237,8 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
         this.categories=categories;
         functions = actiontable;
         this.categoryIndex=categoryIndex;
-        actions = MoeActions.getActions(null);
         openHelpFile();
+        focusMgr = FocusManager.getCurrentManager();
     }
 
     /**
