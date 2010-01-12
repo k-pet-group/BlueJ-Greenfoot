@@ -77,7 +77,16 @@ public class InfoParser extends EditorParser
         String javadocText;
     }
     
-    private List<JavaEntity> references = new LinkedList<JavaEntity>();
+    /** Represents an unresolved value identifier expression */
+    class UnresolvedVal
+    {
+        List<LocatableToken> components;
+        EntityResolver resolver;
+    }
+    
+    private List<JavaEntity> typeReferences = new LinkedList<JavaEntity>();
+    private List<UnresolvedVal> valueReferences = new LinkedList<UnresolvedVal>();
+    private UnresolvedVal currentUnresolvedVal;
     
     private boolean gotExtends; // next type spec is the superclass/superinterfaces
     private boolean gotImplements; // next type spec(s) are interfaces
@@ -170,23 +179,45 @@ public class InfoParser extends EditorParser
         }
     
         // Now also resolve references
-        for (JavaEntity entity: references) {
+        for (JavaEntity entity: typeReferences) {
             entity = entity.resolveAsType();
             if (entity != null) {
                 JavaType etype = entity.getType();
                 if (! etype.isPrimitive()) {
-                    String typeString = entity.getType().getErasedType().toString();
-                    String prefix = JavaNames.getPrefix(typeString);
-                    if (prefix.equals(targetPkg)) {
-                        String name = JavaNames.getBase(typeString);
-                        int dollar = name.indexOf('$');
-                        if (dollar != -1) {
-                            name = name.substring(0, dollar);
-                        }
-                        info.addUsed(name);
-                    }
+                    String typeString = etype.getErasedType().toString();
+                    addTypeReference(typeString);
                 }
             }
+        }
+        
+        for (UnresolvedVal val: valueReferences) {
+            Iterator<LocatableToken> i = val.components.iterator();
+            String name = i.next().getText();
+            JavaEntity entity = val.resolver.getValueEntity(name, ""); // DAV fix query source
+            while (entity != null && entity.resolveAsValue() == null && i.hasNext()) {
+                TypeEntity typeEnt = entity.resolveAsType();
+                if (typeEnt != null && ! typeEnt.getType().isPrimitive()) {
+                    String typeString = entity.getType().getErasedType().toString();
+                    addTypeReference(typeString);
+                }
+                entity = entity.getSubentity(i.next().getText());
+            }
+        }
+    }
+    
+    /**
+     * Add a reference to a type (fully-qualified type name) to the information to return.
+     */
+    private void addTypeReference(String typeString)
+    {
+        String prefix = JavaNames.getPrefix(typeString);
+        if (prefix.equals(targetPkg)) {
+            String name = JavaNames.getBase(typeString);
+            int dollar = name.indexOf('$');
+            if (dollar != -1) {
+                name = name.substring(0, dollar);
+            }
+            info.addUsed(name);
         }
     }
     
@@ -215,8 +246,6 @@ public class InfoParser extends EditorParser
     {
         hadError = true;
         // Just try and recover.
-        // DAV
-        System.out.println("Parser: " + msg + ": " + tokenStream.LA(1).getLine() + ":" + tokenStream.LA(1).getColumn());
     }
 
     @Override
@@ -241,7 +270,7 @@ public class InfoParser extends EditorParser
         // Dependency tracking
         JavaEntity tentity = ParseUtils.getTypeEntity(scopeStack.peek(), tokens);
         if (tentity != null && ! gotExtends && ! gotImplements) {
-            references.add(tentity);
+            typeReferences.add(tentity);
         }
 
         if (gotExtends) {
@@ -274,6 +303,38 @@ public class InfoParser extends EditorParser
         }
     }
 
+    @Override
+    protected void gotCompoundIdent(LocatableToken token)
+    {
+        super.gotCompoundIdent(token);
+        currentUnresolvedVal = new UnresolvedVal();
+        currentUnresolvedVal.components = new LinkedList<LocatableToken>();
+        currentUnresolvedVal.components.add(token);
+        currentUnresolvedVal.resolver = scopeStack.peek();
+    }
+    
+    @Override
+    protected void gotCompoundComponent(LocatableToken token)
+    {
+        super.gotCompoundComponent(token);
+        currentUnresolvedVal.components.add(token);
+    }
+    
+    @Override
+    protected void completeCompoundValue(LocatableToken token)
+    {
+        super.completeCompoundValue(token);
+        currentUnresolvedVal.components.add(token);
+        valueReferences.add(currentUnresolvedVal);
+    }
+    
+    @Override
+    protected void completeCompoundClass(LocatableToken token)
+    {
+        // TODO Auto-generated method stub
+        super.completeCompoundClass(token);
+    }
+    
     protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken)
     {
         super.gotMethodDeclaration(token, hiddenToken);

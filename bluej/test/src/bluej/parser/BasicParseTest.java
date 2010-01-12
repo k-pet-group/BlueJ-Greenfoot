@@ -546,5 +546,27 @@ public class BasicParseTest extends junit.framework.TestCase
         
         assertFalse(used.contains("N"));
     }
-    
+
+    /**
+     * Test reference to class via static value reference
+     */
+    public void testDependencyAnalysis9() throws Exception
+    {
+        InitConfig.init();
+        TestEntityResolver ter = new TestEntityResolver(
+                new ClassLoaderResolver(this.getClass().getClassLoader())
+                );
+        ter.addCompilationUnit("", cuForSource("class I { public static int xyz = 3; }", ter));
+        
+        StringReader sr = new StringReader(
+                        "class A {\n" +
+                        "  int n = I.xyz;" +
+                        "}\n"
+        );
+        ClassInfo info = ClassParser.parse(sr, ter, "");
+        List<String> used = info.getUsed();
+        
+        assertTrue(used.contains("I"));
+    }
+
 }

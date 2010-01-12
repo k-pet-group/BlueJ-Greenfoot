@@ -116,7 +116,7 @@ public class ParseUtils
         String text = token.getText();
         
         //PackageOrClass poc = resolver.resolvePackageOrClass(text, null);
-        JavaEntity poc = UnresolvedEntity.getEntity(resolver, text, "");
+        JavaEntity poc = UnresolvedEntity.getEntity(resolver, text, ""); // DAV fix query source
         while (poc != null && i.hasNext()) {
             token = i.next();
             if (token.getType() == JavaTokenTypes.LT) {
