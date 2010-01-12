@@ -63,6 +63,13 @@ public class CompletionParser extends TextParser
         super(resolver, reader);
         suggestionEntity = enclosingType;
     }
+
+    public CompletionParser(EntityResolver resolver, Reader reader,
+            JavaEntity enclosingType, int line, int col)
+    {
+        this(resolver, reader, enclosingType);
+        tokenStream.setLineCol(line, col);
+    }
     
     @Override
     protected void error(String msg)
@@ -80,6 +87,10 @@ public class CompletionParser extends TextParser
         return methodSuggestions;
     }
     
+    /**
+     * Get the type for which to make suggestions. The suggestions presented to the user
+     * should be members of the returned type.
+     */
     public GenTypeSolid getSuggestionType()
     {
         if (suggestionEntity != null) {
@@ -99,6 +110,20 @@ public class CompletionParser extends TextParser
     protected void gotDotEOF(LocatableToken token)
     {
         suggestionEntity = popValueStack();
+    }
+    
+    @Override
+    protected void gotIdentifierEOF(LocatableToken token)
+    {
+        // TODO Auto-generated method stub
+        super.gotIdentifierEOF(token);
+    }
+    
+    @Override
+    protected void completeCompoundValueEOF(LocatableToken token)
+    {
+        // TODO Auto-generated method stub
+        super.completeCompoundValueEOF(token);
     }
     
     @Override

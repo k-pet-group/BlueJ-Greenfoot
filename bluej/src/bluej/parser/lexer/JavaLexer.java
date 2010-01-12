@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 2009-2010  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,7 +29,11 @@ import bluej.parser.EscapedUnicodeReader;
 import bluej.parser.TokenStream;
 
 
-
+/**
+ * A Java lexer. Breaks up a source stream into tokens.
+ * 
+ * @author Marion Zalk
+ */
 public class JavaLexer implements TokenStream
 {
     private StringBuffer textBuffer; // text of current token
@@ -38,6 +42,9 @@ public class JavaLexer implements TokenStream
     private int beginColumn, beginLine;
     private int endColumn, endLine;
 
+    /**
+     * Construct a lexer which readers from the given Reader.
+     */
     public JavaLexer(Reader in)
     {
         reader = new EscapedUnicodeReader(in);
@@ -51,6 +58,27 @@ public class JavaLexer implements TokenStream
         }
     }
 
+    public void setLineCol(int line, int column)
+    {
+        reader.setLineCol(line, column);
+    }
+
+    /**
+     * Retrieve the next token.
+     */
+    public LocatableToken nextToken()
+    {  
+        resetText();
+        while (Character.isWhitespace((char)rChar)) {
+            beginLine = reader.getLine();
+            beginColumn = reader.getColumn();
+            char buf[] = new char[1];
+            readNextChar(buf);
+        }
+
+        return createToken();
+    }
+    
     private LocatableToken makeToken(int type, String txt)
     {           
         LocatableToken tok = new LocatableToken(type, txt);
@@ -72,24 +100,13 @@ public class JavaLexer implements TokenStream
         return beginLine;
     }
 
-    public LocatableToken nextToken()
-    {  
-        resetText();
-        while (Character.isWhitespace((char)rChar)) {
-            beginLine = reader.getLine();
-            beginColumn = reader.getColumn();
-            char buf[] = new char[1];
-            readNextChar(buf);
-        }
-
-        return createToken();
-    }
-
-    public void resetText() {
+    private void resetText()
+    {
         textBuffer=new StringBuffer();
     }
 
-    public void consume(char c) /*throws Exception*/ {
+    private void consume(char c)
+    {
         if (c=='\n'){
             //newline();
             return;

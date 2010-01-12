@@ -23,6 +23,7 @@ package bluej.parser.nodes;
 
 import javax.swing.text.Document;
 
+import bluej.parser.CodeSuggestions;
 import bluej.parser.entity.ParsedReflective;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -82,7 +83,7 @@ public class ParsedTypeNode extends ParentParsedNode
     }
     
     @Override
-    public TypeEntity getExpressionType(int pos, int nodePos, TypeEntity defaultType, Document document)
+    public CodeSuggestions getExpressionType(int pos, int nodePos, TypeEntity defaultType, Document document)
     {
         // The default type if the expression is not know should be this type
         TypeEntity myType = new TypeEntity(new ParsedReflective(this));

@@ -215,6 +215,8 @@ public class InfoParser extends EditorParser
     {
         hadError = true;
         // Just try and recover.
+        // DAV
+        System.out.println("Parser: " + msg + ": " + tokenStream.LA(1).getLine() + ":" + tokenStream.LA(1).getColumn());
     }
 
     @Override

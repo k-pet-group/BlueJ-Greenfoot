@@ -96,11 +96,12 @@ import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.Config;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.editor.EditorWatcher;
+import bluej.parser.CodeSuggestions;
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.EntityResolver;
-import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
@@ -224,7 +225,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     private MoeHighlighter editorHighlighter;
 
     //new content assist
-    private ContentAssistDisplay dlg;
+    private CodeCompletionDisplay dlg;
 
     /**
      * Property map, allows BlueJ extensions to associate property values with
@@ -3269,7 +3270,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         closeContentAssist();
         AssistContent[] values = populateContentAssist();
         if (values != null && values.length > 0) {
-            dlg=new ContentAssistDisplay(this, values);
+            dlg = new CodeCompletionDisplay(this, values);
             int cpos = sourcePane.getCaretPosition();
             try {
                 Rectangle pos = sourcePane.modelToView(cpos);
@@ -3298,18 +3299,23 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     private AssistContent[] populateContentAssist()
     {
-        TypeEntity exprType = sourceDocument.getParser().getExpressionType(getCaretPosition(),
+        CodeSuggestions suggests = sourceDocument.getParser().getExpressionType(getCaretPosition(),
                 sourceDocument);
 
-        if (exprType != null) {
+        if (suggests != null) {
             //Map<String,JavaType> fields = exprType.getClassType().getReflective().getDeclaredFields();
             //for (Iterator<String> i = fields.keySet().iterator(); i.hasNext(); ) {
             //    System.out.println(" field: " + i.next());
             //}
+            
+            GenTypeClass exprType = suggests.getSuggestionType().asClass();
+            if (exprType == null) {
+                return null;
+            }
 
             List<AssistContent> completions = new ArrayList<AssistContent>();
 
-            Map<String,Set<MethodReflective>> methods = exprType.getClassType().getReflective().getDeclaredMethods();
+            Map<String,Set<MethodReflective>> methods = exprType.getReflective().getDeclaredMethods();
             for (String name : methods.keySet()) {
                 Set<MethodReflective> mset = methods.get(name);
                 for (MethodReflective method : mset) {
@@ -3489,11 +3495,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * codeComplete completes the word in the editor with the word requested
+     * Completes the word in the editor with the word requested
      * @param text word requested as the completion for the text
-     * @boolean successful execution  
      */
-    public boolean codeComplete(String text)
+    public void codeComplete(String text)
     {
         int caretPos=getCaretPosition();
         int caretBack=caretPos-text.length();
@@ -3525,11 +3530,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 else charIndex=docText.indexOf(text.charAt(0), charIndex+1);                
             }
             currentTextPane.getDocument().insertString(getCaretPosition(), insertText, null);
-            return true;
         } catch (BadLocationException e) {
-            e.printStackTrace();
-            return false;
+            Debug.reportError("Error in editor", e);
         }
-
     }
 }

@@ -258,6 +258,15 @@ public class JavaParser
     
     /** Saw an identifier as (part of) an expression */
     protected void gotIdentifier(LocatableToken token) { }
+    protected void gotIdentifierEOF(LocatableToken token) { gotIdentifier(token); }
+    
+    protected void gotCompoundIdent(LocatableToken token) { gotIdentifier(token); }
+    protected void gotCompoundComponent(LocatableToken token) { gotMemberAccess(token); }
+    protected void completeCompoundValue(LocatableToken token) { gotMemberAccess(token); }
+    protected void completeCompoundValueEOF(LocatableToken token) { completeCompoundValue(token); }
+    protected void completeCompoundClass(LocatableToken token) { gotMemberAccess(token); }
+    
+    protected void gotMemberAccess(LocatableToken token) { }
     
     /** Saw a member method call (beginning), token is the method name; arguments to follow */
     protected void gotMemberCall(LocatableToken token) { }
@@ -2072,6 +2081,55 @@ public class JavaParser
                     gotMemberCall(token);
                     parseArgumentList(tokenStream.nextToken());
                 }
+                else if (tokenStream.LA(1).getType() == JavaTokenTypes.DOT &&
+                        tokenStream.LA(2).getType() == JavaTokenTypes.IDENT &&
+                        tokenStream.LA(3).getType() != JavaTokenTypes.LPAREN) {
+                    gotCompoundIdent(token);
+                    tokenStream.nextToken(); // dot
+                    token = tokenStream.nextToken();
+                    while (tokenStream.LA(1).getType() == JavaTokenTypes.DOT &&
+                            tokenStream.LA(2).getType() == JavaTokenTypes.IDENT &&
+                            tokenStream.LA(3).getType() != JavaTokenTypes.LPAREN)
+                    {
+                        gotCompoundComponent(token);
+                        tokenStream.nextToken(); // dot
+                        token = tokenStream.nextToken();
+                    }
+                    
+                    // We either don't have a dot, or we do have a dot but not an
+                    // identifier after it.
+                    if (tokenStream.LA(1).getType() == JavaTokenTypes.DOT) {
+                        LocatableToken dotToken = tokenStream.nextToken();
+                        LocatableToken ntoken = tokenStream.nextToken();
+                        if (ntoken.getType() == JavaTokenTypes.LITERAL_class) {
+                            completeCompoundClass(token);
+                        }
+                        else if (ntoken.getType() == JavaTokenTypes.LITERAL_this) {
+                            completeCompoundClass(token);
+                        }
+                        else if (ntoken.getType() == JavaTokenTypes.LITERAL_super) {
+                            completeCompoundClass(token);
+                        }
+                        else {
+                            completeCompoundValue(token);
+                            // Treat dot as an operator (below)
+                            tokenStream.pushBack(ntoken);
+                            tokenStream.pushBack(dotToken);
+                        }
+                    }
+                    else {
+                        // No dot follows; last member
+                        if (tokenStream.LA(1).getType() == JavaTokenTypes.EOF) {
+                            completeCompoundValueEOF(token);
+                        }
+                        else {
+                            completeCompoundValue(token);
+                        }
+                    }
+                }
+                else if (tokenStream.LA(1).getType() == JavaTokenTypes.EOF) {
+                    gotIdentifierEOF(token);
+                }
                 else {
                     gotIdentifier(token);
                 }
@@ -2204,6 +2262,17 @@ public class JavaParser
                         // Not valid, but may be useful for subclasses
                         gotDotEOF(opToken);
                         break;
+                    }
+                    else if (token.getType() == JavaTokenTypes.IDENT) {
+                        if (tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
+                            // Method call
+                            gotMemberCall(token);
+                            parseArgumentList(tokenStream.nextToken());
+                        }
+                        else {
+                            gotMemberAccess(token);
+                        }
+                        continue;
                     }
                     else if (token.getType() == JavaTokenTypes.LT) {
                         // generic method call

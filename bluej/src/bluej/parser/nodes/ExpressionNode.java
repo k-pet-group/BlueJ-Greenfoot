@@ -24,8 +24,10 @@ package bluej.parser.nodes;
 import java.io.Reader;
 
 import javax.swing.text.Document;
+import javax.swing.text.Element;
 
 import bluej.debugger.gentype.GenTypeSolid;
+import bluej.parser.CodeSuggestions;
 import bluej.parser.CompletionParser;
 import bluej.parser.DocumentReader;
 import bluej.parser.entity.TypeEntity;
@@ -49,15 +51,19 @@ public class ExpressionNode extends ParentParsedNode
     }
     
     @Override
-    protected TypeEntity getExpressionType(int pos, int nodePos, TypeEntity defaultType, Document document)
+    protected CodeSuggestions getExpressionType(int pos, int nodePos, TypeEntity defaultType, Document document)
     {
         Reader r = new DocumentReader(document, nodePos, pos);
-        CompletionParser parser = new CompletionParser(this, r, defaultType);
+        Element map = document.getDefaultRootElement();
+        int line = map.getElementIndex(nodePos) + 1;
+        int col = nodePos - map.getElement(line - 1).getStartOffset() + 1;
+        
+        CompletionParser parser = new CompletionParser(this, r, defaultType, line, col);
         parser.parseExpression();
         
         GenTypeSolid stype = parser.getSuggestionType();
         if (stype != null) {
-            return new TypeEntity(stype);
+            return new CodeSuggestions(stype, null);
         }
         else {
             return null;

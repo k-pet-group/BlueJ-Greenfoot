@@ -51,6 +51,12 @@ public class EscapedUnicodeReader extends Reader
     {
         sourceReader = source;
     }
+    
+    public void setLineCol(int line, int column)
+    {
+        this.line = line;
+        this.column = column;
+    }
 
     public int read(char [] buffer, int off, int len) throws IOException
     {

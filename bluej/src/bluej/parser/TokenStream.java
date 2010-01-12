@@ -11,4 +11,6 @@ import bluej.parser.lexer.LocatableToken;
 public interface TokenStream
 {
     public LocatableToken nextToken();
+    
+    public void setLineCol(int line, int column);
 }

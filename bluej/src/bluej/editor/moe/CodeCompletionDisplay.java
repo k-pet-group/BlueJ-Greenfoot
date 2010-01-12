@@ -1,3 +1,24 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.editor.moe;
 
 
@@ -26,9 +47,14 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 
-public class ContentAssistDisplay extends JFrame implements /*ActionListener,*/ 
-ListSelectionListener, MouseListener {
-
+/**
+ * Code completion panel for the Moe editor.
+ * 
+ * @author Marion Zalk
+ */
+public class CodeCompletionDisplay extends JFrame 
+    implements ListSelectionListener, MouseListener
+{
     private MoeEditor editor;
     private String[] methodsAvailable;
     private String[] methodDescrs;
@@ -40,7 +66,7 @@ ListSelectionListener, MouseListener {
 
     private JComponent pane;
 
-    public ContentAssistDisplay(MoeEditor ed, AssistContent[] values) 
+    public CodeCompletionDisplay(MoeEditor ed, AssistContent[] values) 
     {
         this.values=values;
         methodsAvailable=new String[values.length];
@@ -110,7 +136,7 @@ ListSelectionListener, MouseListener {
         getRootPane().getActionMap().put("escapeAction", new AbstractAction(){ 
             public void actionPerformed(ActionEvent e)
             {
-                close();
+                setVisible(false);
             }
         });
 
@@ -127,23 +153,22 @@ ListSelectionListener, MouseListener {
         addWindowListener(new WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) 
             {
-                close();
+                setVisible(false);
             }
         });
 
         //setLocationRelativeTo(location);
         this.setUndecorated(true);
         pack();
-        setSelectedValue(selectedValue); 
     }
 
     public void valueChanged(ListSelectionEvent e) 
     {
         int index=methodList.getSelectedIndex();
         if (index==0)
-            index=getSelectedValue();
+            index=selectedValue;
         methodDescription.setText(methodDescrs[index]);
-        setSelectedValue(methodList.getSelectedIndex());
+        this.selectedValue = methodList.getSelectedIndex();
     }
 
     //once off call when the panel is initialised as it will not be changing
@@ -154,23 +179,6 @@ ListSelectionListener, MouseListener {
             values[i].getContentReturnType()+" - "+values[i].getContentClass();
             methodDescrs[i]=values[i].getContentDString();
         }
-
-    }
-
-    public int getSelectedValue() {
-        return selectedValue;
-    }
-
-    public void setSelectedValue(int selectedValue) {
-        this.selectedValue = selectedValue;
-    }
-
-    /**
-     * close sets the window to invisible
-     */
-    private void close()
-    {
-        this.setVisible(false);
     }
 
     /**
@@ -178,9 +186,7 @@ ListSelectionListener, MouseListener {
      */
     private void codeComplete()
     {
-        boolean success=editor.codeComplete(values[selectedValue].getContentName());
-        if (success)
-            close();
+        editor.codeComplete(values[selectedValue].getContentName());
     }
 
     /**

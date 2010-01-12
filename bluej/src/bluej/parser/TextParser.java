@@ -363,21 +363,21 @@ public class TextParser extends JavaParser
     @Override
     protected void gotIdentifier(LocatableToken token)
     {
-        // Process any dot operator immediately
         String ident = token.getText();
-        if (! operatorStack.isEmpty() && operatorStack.peek().getType() == JavaTokenTypes.DOT) {
-            operatorStack.pop();
-            JavaEntity top = valueStack.pop();
-            JavaEntity newTop = top.getSubentity(ident);
-            if (newTop != null) {
-                valueStack.push(newTop);
-            }
-            else {
-                valueStack.push(new ErrorEntity());
-            }
+        valueStack.push(UnresolvedEntity.getEntity(resolver, ident, ""));
+    }
+    
+    @Override
+    protected void gotMemberAccess(LocatableToken token)
+    {
+        String ident = token.getText();
+        JavaEntity top = valueStack.pop();
+        JavaEntity newTop = top.getSubentity(ident);
+        if (newTop != null) {
+            valueStack.push(newTop);
         }
         else {
-            valueStack.push(UnresolvedEntity.getEntity(resolver, ident, ""));
+            valueStack.push(new ErrorEntity());
         }
     }
     
