@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,6 +33,7 @@ import java.util.ListIterator;
 
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -42,6 +43,7 @@ import bluej.Config;
 import bluej.classmgr.ClassMgrPrefPanel;
 import bluej.editor.moe.EditorPrefPanel;
 import bluej.editor.moe.KeyBindingsPanel;
+import bluej.editor.moe.MoeActions;
 import bluej.extmgr.ExtensionPrefManager;
 import bluej.extmgr.ExtensionsManager;
 
@@ -53,7 +55,7 @@ import bluej.extmgr.ExtensionsManager;
  *
  * @author  Andrew Patterson
  * @author  Michael Kolling
- * @version $Id: PrefMgrDialog.java 6985 2010-01-12 02:40:14Z marionz $
+ * @version $Id: PrefMgrDialog.java 6987 2010-01-12 04:17:59Z marionz $
  */
 public class PrefMgrDialog extends JFrame
 {
@@ -77,7 +79,7 @@ public class PrefMgrDialog extends JFrame
         dialog.setVisible(true);
     }
 
-    /**
+  /**
      * Show the preferences dialog.  The first argument should
      * be null if you want the dialog to come up in the center
      * of the screen.  Otherwise, the argument should be the
@@ -88,48 +90,16 @@ public class PrefMgrDialog extends JFrame
      * @param categories 
      * @param categoryIndex 
      */
-    public static void showDialog(int paneNumber, Action[] actiontable, 
-            String[] categories, int[] categoryIndex) {
-        dialog.prepareDialog(actiontable, categories, categoryIndex);
+    public static void showDialog(int paneNumber) {
+        dialog.prepareDialog();
         dialog.selectTab(paneNumber);
         dialog.setVisible(true);
     }
-    
-    /**
-     * Show the preferences dialog.  The first argument should
-     * be null if you want the dialog to come up in the center
-     * of the screen.  Otherwise, the argument should be the
-     * component on top of which the dialog should appear.
-     *
-     * @param actiontable 
-     * @param categories 
-     * @param categoryIndex 
-     */
-    public static void showDialog(Action[] actiontable, 
-            String[] categories, int[] categoryIndex) {
-        getInstance().prepareDialog(actiontable, categories, categoryIndex);
-        dialog.setVisible(true);
-    }
-
     /**
      * Prepare this dialog for display.
      */
     private synchronized void prepareDialog() {
         if (!prepared) {
-            makeDialog();
-            prepared = true;
-        }
-        dialog.startEditing();
-    }
-    
-    /**
-     * Prepare this dialog for display.
-     */
-    private synchronized void prepareDialog(Action[] actiontable, 
-            String[] categories, int[] categoryIndex) {
-        if (!prepared) {
-            kbPanel.setActionValues(actiontable, categories, categoryIndex);
-            kbPanel.updateDispay();
             makeDialog();
             prepared = true;
         }
@@ -145,7 +115,6 @@ public class PrefMgrDialog extends JFrame
         if (dialog == null) {
             dialog = new PrefMgrDialog();
         }
-
         return dialog;
     }
 

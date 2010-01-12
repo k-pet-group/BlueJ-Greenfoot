@@ -30,7 +30,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * preferences as to how BlueJ should behave.
  * 
  * @author Davin McCall
- * @version $Id: PreferencesAction.java 6985 2010-01-12 02:40:14Z marionz $
+ * @version $Id: PreferencesAction.java 6987 2010-01-12 04:17:59Z marionz $
  */
 
 final public class PreferencesAction extends PkgMgrAction {
@@ -56,8 +56,7 @@ final public class PreferencesAction extends PkgMgrAction {
     
     public void actionPerformed(PkgMgrFrame pmf)
     {
-        MoeActions actions = MoeActions.getActions(new JEditorPane());
         pmf.menuCall();
-        pmf.showPreferences(actions.getActionTable(),actions.getCategories(),actions.getCategoryIndex() );
+        pmf.showPreferences();
     }
 }

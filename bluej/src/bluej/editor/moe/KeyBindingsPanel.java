@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -39,6 +39,7 @@ import javax.swing.BorderFactory;
 import javax.swing.FocusManager;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -58,7 +59,6 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
 {
 
     // -------- CONSTANTS --------
-
     static final String title = Config.getString("editor.functions.title");
     static final String close = Config.getString("close");
     static final String defaultsLabel = Config.getString("editor.functions.defaults");
@@ -139,7 +139,7 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
         GridLayout gridL=new GridLayout(1, 2);
         JPanel mainPanel = new JPanel(gridL);  // has BorderLayout
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
-        
+
         // create function list area
         JPanel funcPanel = new JPanel(new BorderLayout());
         funcPanel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
@@ -156,7 +156,7 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
         categoryMenu = new JComboBox();
         categoryPanel.add(categoryMenu);
         funcPanel.add(categoryPanel, BorderLayout.NORTH);
-      
+
         // create control area on right (key bindings and buttons)
         JPanel controlPanel = new JPanel(new BorderLayout());
         controlPanel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
@@ -180,12 +180,12 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
         delKeyButton = new JButton(delKeyLabel);
         delKeyButton.setMargin(new Insets(2,2,2,2));
         keyButtonPanel.add(delKeyButton);
-        
+
         defaultsButton = new JButton(defaultsLabel);
         keyButtonPanel.add(defaultsButton);
         keyPanel.add(keyButtonPanel, BorderLayout.SOUTH);
         controlPanel.add(keyPanel);
-        
+
         // create help text area at bottom
         JPanel helpPanel = new JPanel(new GridLayout());
         helpPanel.setBorder(BorderFactory.createCompoundBorder(
@@ -198,16 +198,11 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
         helpLabel.setBackground(MoeEditor.infoColor);
         helpPanel.add(helpLabel);
         controlPanel.add(helpPanel,BorderLayout.SOUTH);
-        
-        mainPanel.add(funcPanel/*, BorderLayout.EAST*/);
-        mainPanel.add(controlPanel/*, BorderLayout.EAST*/);
 
-        //mainPanel.add(helpPanel, BorderLayout.SOUTH);
-        //mainPanel.add(Box.createHorizontalStrut(BlueJTheme.generalSpacingWidth));
+        mainPanel.add(funcPanel);
+        mainPanel.add(controlPanel);
+        updateDispay();
 
-       // mainPanel.add(Box.createHorizontalGlue());
-//        mainPanel.add(Box.createHorizontalGlue());
-//        mainPanel.add(Box.createHorizontalGlue());
         return mainPanel;
     }
 
@@ -237,12 +232,9 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
      */
     public void setActionValues(Action[] actiontable, 
             String[] categories, int[] categoryIndex){
-        actions = MoeActions.getActions(null);
         this.categories=categories;
         functions = actiontable;
         this.categoryIndex=categoryIndex;
-        openHelpFile();
-        focusMgr = FocusManager.getCurrentManager();
     }
 
     /**
@@ -255,6 +247,8 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
         addKeyButton.addActionListener(this);
         keyList.addListSelectionListener(this);
         defaultsButton.addActionListener(this);
+        focusMgr = FocusManager.getCurrentManager();
+        openHelpFile();
         for(int i=0; i<categories.length; i++)
             categoryMenu.addItem(categories[i]);
     }
@@ -443,8 +437,15 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
         if(help == null)
             return null;
         String helpText=help.getProperty(function);
-        if (helpText!=null)
+        if (helpText!=null) {
+            //remove the /n from the text (need to check if null first as some items do not have helpText)
             helpText=helpText.replaceAll("\n", "");
+            //remove the initial " " if there is one
+            if (helpText.substring(0, 1).equals((" ")))
+            {
+                helpText=helpText.substring(1, helpText.length());
+            }
+        }
         return helpText;
     }
 
@@ -457,5 +458,13 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
     {
         FocusManager.setCurrentManager(focusMgr);
     }
+
+
+    public KeyBindingsPanel() {
+        super();
+        actions = MoeActions.getActions(new JEditorPane());
+        setActionValues(actions.getActionTable(), actions.getCategories(), actions.getCategoryIndex());
+    }
+
 
 }

@@ -1146,9 +1146,7 @@ public final class MoeActions
 
         public void actionPerformed(ActionEvent e)
         {
-            FunctionDialog dlg = new FunctionDialog(getEditor(e), actionTable, categories, categoryIndex);
-
-            dlg.setVisible(true);
+            PrefMgrDialog.showDialog(1); // 1 is the index of the key bindings pane in the pref dialog
         }
     }
 
@@ -1164,7 +1162,7 @@ public final class MoeActions
 
         public void actionPerformed(ActionEvent e)
         {
-            PrefMgrDialog.showDialog(0, actionTable, categories, categoryIndex); // 0 is the index of the editor pane in
+            PrefMgrDialog.showDialog(0); // 0 is the index of the editor pane in
             // the pref dialog
         }
     }

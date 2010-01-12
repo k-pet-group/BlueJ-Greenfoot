@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1796,10 +1796,9 @@ public class PkgMgrFrame extends JFrame
     /**
      * Preferences menu was chosen.
      */
-    public void showPreferences( Action[] actiontable, 
-            String[] categories, int[] categoryIndex)
+    public void showPreferences( )
     {
-        PrefMgrDialog.showDialog(actiontable,categories, categoryIndex );
+        PrefMgrDialog.showDialog();
     }
 
     /**
