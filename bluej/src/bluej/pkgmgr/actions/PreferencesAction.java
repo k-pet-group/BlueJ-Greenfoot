@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,8 @@
  */
 package bluej.pkgmgr.actions;
 
+import javax.swing.JEditorPane;
+import bluej.editor.moe.MoeActions;
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
@@ -28,7 +30,7 @@ import bluej.pkgmgr.PkgMgrFrame;
  * preferences as to how BlueJ should behave.
  * 
  * @author Davin McCall
- * @version $Id: PreferencesAction.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: PreferencesAction.java 6985 2010-01-12 02:40:14Z marionz $
  */
 
 final public class PreferencesAction extends PkgMgrAction {
@@ -54,7 +56,8 @@ final public class PreferencesAction extends PkgMgrAction {
     
     public void actionPerformed(PkgMgrFrame pmf)
     {
+        MoeActions actions = MoeActions.getActions(new JEditorPane());
         pmf.menuCall();
-        pmf.showPreferences();
+        pmf.showPreferences(actions.getActionTable(),actions.getCategories(),actions.getCategoryIndex() );
     }
 }

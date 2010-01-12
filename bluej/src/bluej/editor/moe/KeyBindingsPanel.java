@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -43,6 +43,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
@@ -52,7 +53,6 @@ import bluej.Config;
 import bluej.prefmgr.PrefPanelListener;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
-import bluej.utility.FixedMultiLineLabel;
 
 public class KeyBindingsPanel extends JPanel implements ActionListener, ListSelectionListener, ItemListener, PrefPanelListener
 {
@@ -76,7 +76,7 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
     private JComboBox categoryMenu;
     private JList functionList;
     private JList keyList;
-    private FixedMultiLineLabel helpLabel;
+    private JTextArea helpLabel;
 
     private MoeActions actions;     // The Moe action manager
     private Action currentAction;       // the action currently selected
@@ -191,7 +191,10 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
         helpPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(10,0,0,0),
                 BorderFactory.createLineBorder(Color.black)));
-        helpLabel = new FixedMultiLineLabel(4);
+        helpLabel=new JTextArea();
+        helpLabel.setRows(6);
+        helpLabel.setLineWrap(true);
+        helpLabel.setWrapStyleWord(true);
         helpLabel.setBackground(MoeEditor.infoColor);
         helpPanel.add(helpLabel);
         controlPanel.add(helpPanel,BorderLayout.SOUTH);
@@ -234,6 +237,7 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
      */
     public void setActionValues(Action[] actiontable, 
             String[] categories, int[] categoryIndex){
+        actions = MoeActions.getActions(null);
         this.categories=categories;
         functions = actiontable;
         this.categoryIndex=categoryIndex;
@@ -438,7 +442,10 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
     {
         if(help == null)
             return null;
-        return help.getProperty(function);
+        String helpText=help.getProperty(function);
+        if (helpText!=null)
+            helpText=helpText.replaceAll("\n", "");
+        return helpText;
     }
 
     private void addKeyListener()

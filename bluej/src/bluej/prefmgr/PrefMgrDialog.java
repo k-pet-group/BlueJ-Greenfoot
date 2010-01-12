@@ -53,7 +53,7 @@ import bluej.extmgr.ExtensionsManager;
  *
  * @author  Andrew Patterson
  * @author  Michael Kolling
- * @version $Id: PrefMgrDialog.java 6980 2010-01-11 04:04:03Z marionz $
+ * @version $Id: PrefMgrDialog.java 6985 2010-01-12 02:40:14Z marionz $
  */
 public class PrefMgrDialog extends JFrame
 {
@@ -84,12 +84,30 @@ public class PrefMgrDialog extends JFrame
      * component on top of which the dialog should appear.
      *
      * @param comp the parent component for the dialog.
-     * @param comp the parent component for the dialog.
+     * @param actiontable 
+     * @param categories 
+     * @param categoryIndex 
      */
     public static void showDialog(int paneNumber, Action[] actiontable, 
             String[] categories, int[] categoryIndex) {
         dialog.prepareDialog(actiontable, categories, categoryIndex);
         dialog.selectTab(paneNumber);
+        dialog.setVisible(true);
+    }
+    
+    /**
+     * Show the preferences dialog.  The first argument should
+     * be null if you want the dialog to come up in the center
+     * of the screen.  Otherwise, the argument should be the
+     * component on top of which the dialog should appear.
+     *
+     * @param actiontable 
+     * @param categories 
+     * @param categoryIndex 
+     */
+    public static void showDialog(Action[] actiontable, 
+            String[] categories, int[] categoryIndex) {
+        getInstance().prepareDialog(actiontable, categories, categoryIndex);
         dialog.setVisible(true);
     }
 
@@ -155,7 +173,9 @@ public class PrefMgrDialog extends JFrame
     private void createPrefPanes()
     {
         EditorPrefPanel panel = new EditorPrefPanel();
-        add(panel, Config.getString("prefmgr.edit.prefpaneltitle"), panel);    
+        add(panel, Config.getString("prefmgr.edit.prefpaneltitle"), panel); 
+        kbPanel=new KeyBindingsPanel();
+        add(kbPanel.makePanel(), Config.getString("prefmgr.edit.keybindingstitle"), kbPanel);
         MiscPrefPanel panel2 = new MiscPrefPanel();
         add(panel2, Config.getString("prefmgr.misc.prefpaneltitle"), panel2);
         userConfigLibPanel = new ClassMgrPrefPanel();
@@ -164,8 +184,7 @@ public class PrefMgrDialog extends JFrame
             ExtensionPrefManager mgr = ExtensionsManager.getInstance().getPrefManager();
             add(mgr.getPanel(), Config.getString("extmgr.extensions"), mgr);
         }
-        kbPanel=new KeyBindingsPanel();
-        add(kbPanel.makePanel(), Config.getString("prefmgr.edit.keybindingstitle"), kbPanel);
+
     }
 
     /**

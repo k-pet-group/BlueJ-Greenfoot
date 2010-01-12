@@ -1796,9 +1796,10 @@ public class PkgMgrFrame extends JFrame
     /**
      * Preferences menu was chosen.
      */
-    public void showPreferences()
+    public void showPreferences( Action[] actiontable, 
+            String[] categories, int[] categoryIndex)
     {
-        PrefMgrDialog.showDialog();
+        PrefMgrDialog.showDialog(actiontable,categories, categoryIndex );
     }
 
     /**
