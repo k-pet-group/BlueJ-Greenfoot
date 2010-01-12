@@ -437,14 +437,11 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
         if(help == null)
             return null;
         String helpText=help.getProperty(function);
-        if (helpText!=null) {
-            //remove the /n from the text (need to check if null first as some items do not have helpText)
+        //need to check if null first as some items do not have helpText/helpText is empty
+        if (helpText!=null && helpText.length()>0) {
+            //remove the /n from the text 
             helpText=helpText.replaceAll("\n", "");
-            //remove the initial " " if there is one
-            if (helpText.substring(0, 1).equals((" ")))
-            {
-                helpText=helpText.substring(1, helpText.length());
-            }
+            helpText=helpText.trim();
         }
         return helpText;
     }
