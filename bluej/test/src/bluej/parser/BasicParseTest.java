@@ -337,7 +337,6 @@ public class BasicParseTest extends junit.framework.TestCase
         
         ClassInfo info = ClassParser.parse(new StringReader(aSrc), null, null);
         Properties comments = info.getComments();
-        comments.list(System.out);
         assertTrue(findTarget(comments, "void method1(int[])") != -1);
         assertTrue(findTarget(comments, "void method2(int[])") != -1);
     }
@@ -383,8 +382,11 @@ public class BasicParseTest extends junit.framework.TestCase
      */
     public void testDependencyAnalysis2() throws Exception
     {
-    	List<String> classes = new ArrayList<String>();
-    	classes.add("I");
+        InitConfig.init();
+        TestEntityResolver ter = new TestEntityResolver(
+                new ClassLoaderResolver(this.getClass().getClassLoader())
+                );
+        ter.addCompilationUnit("", cuForSource("class I {}", ter));
     	StringReader sr = new StringReader(
     			"class A {\n" +
     			"  void someMethod() {\n" +
@@ -409,6 +411,7 @@ public class BasicParseTest extends junit.framework.TestCase
                 new ClassLoaderResolver(this.getClass().getClassLoader())
                 );
         ter.addCompilationUnit("", cuForSource("class I {}", ter));
+        ter.addCompilationUnit("", cuForSource("class JJ { public static I someMethod() { return null; } }", ter));
         
         StringReader sr = new StringReader(
                         "class A {\n" +
@@ -422,4 +425,126 @@ public class BasicParseTest extends junit.framework.TestCase
         
         assertTrue(used.contains("I"));
     }
+    
+    /**
+     * Test reference to class via static method call
+     */
+    public void testDependencyAnalysis4() throws Exception
+    {
+        InitConfig.init();
+        TestEntityResolver ter = new TestEntityResolver(
+                new ClassLoaderResolver(this.getClass().getClassLoader())
+                );
+        ter.addCompilationUnit("", cuForSource("class I {}", ter));
+        ter.addCompilationUnit("", cuForSource("class JJ { public static I someMethod() { return null; } }", ter));
+        
+        StringReader sr = new StringReader(
+                        "class A {\n" +
+                        "  void someMethod() {\n" +
+                        "    for(I ii = JJ.someMethod(); ;) ;\n" +
+                        "  }\n" +
+                        "}\n"
+        );
+        ClassInfo info = ClassParser.parse(sr, ter, "");
+        List<String> used = info.getUsed();
+        
+        assertTrue(used.contains("JJ"));
+    }
+    
+    /**
+     * Test that type parameters are recognized and that they shadow classes with the same name
+     */
+    public void testDependencyAnalysis5() throws Exception
+    {
+        InitConfig.init();
+        TestEntityResolver ter = new TestEntityResolver(
+                new ClassLoaderResolver(this.getClass().getClassLoader())
+                );
+        ter.addCompilationUnit("", cuForSource("class T {}", ter));
+        
+        StringReader sr = new StringReader(
+                        "class A<T> {\n" +
+                        "  public T someVar;" +
+                        "}\n"
+        );
+        ClassInfo info = ClassParser.parse(sr, ter, "");
+        List<String> used = info.getUsed();
+        
+        assertFalse(used.contains("T"));
+    }
+
+    /**
+     * Test dependency analysis within a named package
+     */
+    public void testDependencyAnalysis6() throws Exception
+    {
+        InitConfig.init();
+        TestEntityResolver ter = new TestEntityResolver(
+                new ClassLoaderResolver(this.getClass().getClassLoader())
+                );
+        ter.addCompilationUnit("testpkg", cuForSource("class N {}", ter));
+        
+        StringReader sr = new StringReader(
+                        "package testpkg;" +
+                        "class A {\n" +
+                        "  public N someVar;" +
+                        "}\n"
+        );
+        ClassInfo info = ClassParser.parse(sr, ter, "testpkg");
+        List<String> used = info.getUsed();
+        
+        assertTrue(used.contains("N"));
+    }
+
+    /**
+     * Test dependency analysis handles qualified names
+     */
+    public void testDependencyAnalysis7() throws Exception
+    {
+        InitConfig.init();
+        TestEntityResolver ter = new TestEntityResolver(
+                new ClassLoaderResolver(this.getClass().getClassLoader())
+                );
+        ter.addCompilationUnit("testpkg", cuForSource("class N {}", ter));
+        ter.addCompilationUnit("testpkg", cuForSource("class M {}", ter));
+        
+        StringReader sr = new StringReader(
+                        "package testpkg;" +
+                        "class A {\n" +
+                        "  public testpkg.N someVar;" +
+                        "  public otherpkg.M otherVar;" +
+                        "}\n"
+        );
+        ClassInfo info = ClassParser.parse(sr, ter, "testpkg");
+        List<String> used = info.getUsed();
+        
+        assertTrue(used.contains("N"));
+        assertFalse(used.contains("M"));
+    }
+    
+    /**
+     * Test that an imported class shadows another class in the same package.
+     */
+    public void testDependencyAnalysis8() throws Exception
+    {
+        InitConfig.init();
+        TestEntityResolver ter = new TestEntityResolver(
+                new ClassLoaderResolver(this.getClass().getClassLoader())
+                );
+        ter.addCompilationUnit("testpkg", cuForSource("class N {}", ter));
+        ter.addCompilationUnit("otherpkg", cuForSource("class N {}", ter));
+        
+        StringReader sr = new StringReader(
+                        "package testpkg;" +
+                        "import otherpkg.N;" +
+                        "class A {\n" +
+                        "  public N someVar;" +
+                        "}\n"
+        );
+        ClassInfo info = ClassParser.parse(sr, ter, "testpkg");
+        List<String> used = info.getUsed();
+        
+        assertFalse(used.contains("N"));
+    }
+    
 }
