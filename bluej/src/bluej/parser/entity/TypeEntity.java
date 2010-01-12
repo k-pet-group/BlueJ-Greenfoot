@@ -107,9 +107,11 @@ public class TypeEntity extends PackageOrClass
         Reflective thisRef = thisClass.getReflective();
         if (thisRef != null) {
             Reflective member = thisRef.getRelativeClass(thisRef.getName() + '$' + name);
-            GenTypeClass inner = new GenTypeClass(member,
+            if (member != null) {
+                GenTypeClass inner = new GenTypeClass(member,
                     Collections.<GenTypeParameter>emptyList(), thisClass);
-            return new TypeEntity(inner);
+                return new TypeEntity(inner);
+            }
         }
         
         return null;

@@ -22,6 +22,8 @@
 package bluej.parser;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
@@ -29,6 +31,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import javax.swing.text.BadLocationException;
+
+import bluej.editor.moe.MoeSyntaxDocument;
+import bluej.parser.entity.ClassLoaderResolver;
+import bluej.parser.entity.EntityResolver;
+import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 
@@ -273,7 +281,7 @@ public class BasicParseTest extends junit.framework.TestCase
     			"  }\n" +
     			"}\n"
     	);
-    	ClassInfo info = ClassParser.parse(sr, null);
+    	ClassInfo info = ClassParser.parse(sr, null, null);
     	List<String> implemented = info.getImplements();
     	assertNotNull(implemented);
     	assertEquals(2, implemented.size());
@@ -289,7 +297,7 @@ public class BasicParseTest extends junit.framework.TestCase
     	StringReader sr = new StringReader(
     			"interface A {}"
     	);
-    	ClassInfo info = ClassParser.parse(sr, null);
+    	ClassInfo info = ClassParser.parse(sr, null, null);
     	assertTrue(info.isInterface());
     }
 
@@ -301,7 +309,7 @@ public class BasicParseTest extends junit.framework.TestCase
     	StringReader sr = new StringReader(
     			"enum A { monday, tuesday, wednesday }"
     	);
-    	ClassInfo info = ClassParser.parse(sr, null);
+    	ClassInfo info = ClassParser.parse(sr, null, null);
     	assertTrue(info.isEnum());
     }
     
@@ -327,24 +335,38 @@ public class BasicParseTest extends junit.framework.TestCase
             + "  void method2(int a[]) { }\n"
             + "}\n";
         
-        // List<String> packageClasses = new ArrayList<String>();
-        ClassInfo info = ClassParser.parse(new StringReader(aSrc), null);
+        ClassInfo info = ClassParser.parse(new StringReader(aSrc), null, null);
         Properties comments = info.getComments();
         comments.list(System.out);
         assertTrue(findTarget(comments, "void method1(int[])") != -1);
         assertTrue(findTarget(comments, "void method2(int[])") != -1);
     }
     
+    private ParsedCUNode cuForSource(String sourceCode, EntityResolver resolver)
+    {
+        MoeSyntaxDocument document = new MoeSyntaxDocument(resolver);
+        try {
+            document.insertString(0, sourceCode, null);
+        }
+        catch (BadLocationException ble) {}
+        return document.getParser();
+    }
+    
     public void testDependencyAnalysis()
         throws Exception
     {
-        List<String> classes = new ArrayList<String>();
-        classes.add("I");
-        classes.add("J");
-        classes.add("K");
-        classes.add("L");
-        classes.add("M");
-        ClassInfo info = ClassParser.parse(getFile("H.dat"));
+        InitConfig.init();
+        TestEntityResolver ter = new TestEntityResolver(
+                new ClassLoaderResolver(this.getClass().getClassLoader())
+                );
+        ter.addCompilationUnit("", cuForSource("class I {}", ter));
+        ter.addCompilationUnit("", cuForSource("class J<T> {}", ter));
+        ter.addCompilationUnit("", cuForSource("class K {}", ter));
+        ter.addCompilationUnit("", cuForSource("class L {}", ter));
+        ter.addCompilationUnit("", cuForSource("class M {}", ter));
+        
+        FileInputStream fis = new FileInputStream(getFile("H.dat"));
+        ClassInfo info = ClassParser.parse(new InputStreamReader(fis), ter, "");
         
         List<String> used = info.getUsed();
         assertTrue(used.contains("I")); 
@@ -371,7 +393,7 @@ public class BasicParseTest extends junit.framework.TestCase
     			"  class I { }\n" +
     			"}\n"
     	);
-    	ClassInfo info = ClassParser.parse(sr, null);
+    	ClassInfo info = ClassParser.parse(sr, null, null);
     	List<String> used = info.getUsed();
     	
     	assertFalse(used.contains("I"));
@@ -382,8 +404,12 @@ public class BasicParseTest extends junit.framework.TestCase
      */
     public void testDependencyAnalysis3() throws Exception
     {
-        List<String> classes = new ArrayList<String>();
-        classes.add("I");
+        InitConfig.init();
+        TestEntityResolver ter = new TestEntityResolver(
+                new ClassLoaderResolver(this.getClass().getClassLoader())
+                );
+        ter.addCompilationUnit("", cuForSource("class I {}", ter));
+        
         StringReader sr = new StringReader(
                         "class A {\n" +
                         "  void someMethod() {\n" +
@@ -391,7 +417,7 @@ public class BasicParseTest extends junit.framework.TestCase
                         "  }\n" +
                         "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, null);
+        ClassInfo info = ClassParser.parse(sr, ter, "");
         List<String> used = info.getUsed();
         
         assertTrue(used.contains("I"));

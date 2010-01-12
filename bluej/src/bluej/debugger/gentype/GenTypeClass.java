@@ -60,9 +60,7 @@ public class GenTypeClass extends GenTypeSolid
      */
     public GenTypeClass(Reflective r, List<GenTypeParameter> params)
     {
-        reflective = r;
-        if( params != null && ! params.isEmpty() )
-            this.params = params;
+        this(r, params, null);
     }
     
     /**
@@ -93,11 +91,11 @@ public class GenTypeClass extends GenTypeSolid
      * is treated as a raw type.
      * 
      * @param r  The Reflective representing the class.
-     * @param mparams  A map of String -> GenTypeParameterizable giving the
+     * @param mparams  A map of String -> GenTypeParameter giving the
      *                 type parameters. The map may be modified (if it is not
      *                 empty) by this constructor.
      */
-    public GenTypeClass(Reflective r, Map mparams)
+    public GenTypeClass(Reflective r, Map<String,GenTypeParameter> mparams)
     {
         reflective = r;
         
@@ -106,9 +104,9 @@ public class GenTypeClass extends GenTypeSolid
             return;
         
         params = new ArrayList<GenTypeParameter>();
-        Iterator declParmsI = r.getTypeParams().iterator();
+        Iterator<GenTypeDeclTpar> declParmsI = r.getTypeParams().iterator();
         while( declParmsI.hasNext() ) {
-            GenTypeDeclTpar next = (GenTypeDeclTpar)declParmsI.next();
+            GenTypeDeclTpar next = declParmsI.next();
             String nextName = next.getTparName();
             if(mparams.get(nextName) == null)
                 params.add(new GenTypeExtends(next.getBound()));
@@ -155,30 +153,29 @@ public class GenTypeClass extends GenTypeSolid
     }
     
     /**
-     * Get the raw name of the type. The name returned is encoded so that it
-     * can be passed to a ClassLoader's "loadClass" method (ie, dots between
-     * outer and inner class names are changed to $).
-     * 
-     * @return the raw name
+     * Get the name of the type as known to the classloader. The name returned is
+     * encoded so that it can be passed to a ClassLoader's "loadClass" method (dots
+     * between outer and inner class names are changed to '$', and arrays are
+     * encoded).
      */
-    public String rawName()
+    public String classloaderName()
     {
         return reflective.getName();
     }
     
     public String arrayComponentName()
     {
-        return "L" + rawName() + ";";
+        return "L" + classloaderName() + ";";
     }
     
     /**
      * Return an unmodifiable list of the type parameters applied to the
      * innermost class in this generic type. 
      */
-    public List getTypeParamList()
+    public List<GenTypeParameter> getTypeParamList()
     {
         if (params == null)
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         else
             return params;
     }
@@ -244,7 +241,7 @@ public class GenTypeClass extends GenTypeSolid
     // transform is only applied to outermost class
     public String toString(NameTransform nt)
     {
-        String baseClass = rawName();
+        String baseClass = classloaderName();
 
         if (outer != null) {
             int i = baseClass.lastIndexOf('$');
@@ -288,8 +285,17 @@ public class GenTypeClass extends GenTypeSolid
         
         GenTypeClass oClass = (GenTypeClass)other;
         
+        JavaType arrayComponent = getArrayComponent();
+        JavaType oarrayComponent = oClass.getArrayComponent();
+        if (arrayComponent != null) {
+            return arrayComponent.equals(oarrayComponent);
+        }
+        else if (oarrayComponent != null) {
+            return false;
+        }
+        
         // the class name must match
-        if (! rawName().equals(oClass.rawName()))
+        if (! classloaderName().equals(oClass.classloaderName()))
             return false;
         
         // outer class (if any) must match
@@ -466,7 +472,7 @@ public class GenTypeClass extends GenTypeSolid
      */
     public GenTypeClass mapToSuper(String basename)
     {
-        if( rawName().equals(basename))
+        if( classloaderName().equals(basename))
             return this;
         
         // the base type could actually be an interface, or a base class. 
@@ -548,12 +554,12 @@ public class GenTypeClass extends GenTypeSolid
         
         // One simple class is when super class = this.
         // TODO don't use class names as equality test
-        if( derivedType.getName().equals(rawName()))
+        if( derivedType.getName().equals(classloaderName()))
             return this;
         
         // Construct a list (actually a stack) of classes from the
         // super type down to this type.
-        Stack classes = getInheritanceChain(derivedType, rawName());
+        Stack classes = getInheritanceChain(derivedType, classloaderName());
         if( classes == null )
             return null;
         
@@ -569,7 +575,7 @@ public class GenTypeClass extends GenTypeSolid
             HashMap newMap = new HashMap();
            
             // Check that the super inherits from the generic version of base
-            GenTypeClass baseDecl = curSubtype.superTypeByName(curBaseC.rawName());
+            GenTypeClass baseDecl = curSubtype.superTypeByName(curBaseC.classloaderName());
             if (baseDecl.isRaw())
                 return new GenTypeClass(derivedType);
             
@@ -678,7 +684,7 @@ public class GenTypeClass extends GenTypeSolid
         
         if (template instanceof GenTypeClass) {
             GenTypeClass classTemplate = (GenTypeClass) template;
-            if (classTemplate.rawName().equals(rawName())) {
+            if (classTemplate.classloaderName().equals(classloaderName())) {
                 if (params == null || classTemplate.params == null)
                     return;
                 Iterator i = params.iterator();

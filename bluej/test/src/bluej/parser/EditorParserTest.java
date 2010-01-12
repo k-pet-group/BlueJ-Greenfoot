@@ -21,16 +21,12 @@
  */
 package bluej.parser;
 
-import java.io.File;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.swing.text.BadLocationException;
 
 import junit.framework.TestCase;
-import bluej.Boot;
-import bluej.Config;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.editor.moe.MoeSyntaxDocument;
@@ -43,8 +39,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 public class EditorParserTest extends TestCase
 {
     {
-        File bluejLibDir = Boot.getBluejLibDir();
-        Config.initialise(bluejLibDir, new Properties(), false);
+        InitConfig.init();
     }
     
     private TestEntityResolver resolver;

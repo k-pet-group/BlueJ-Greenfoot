@@ -38,7 +38,7 @@ import com.sun.jdi.*;
  * classes and objects involved.
  *
  *
- * @version    $Id: InvocationEvent.java 6215 2009-03-30 13:28:25Z polle $
+ * @version    $Id: InvocationEvent.java 6986 2010-01-12 02:58:23Z davmac $
  */
 
 /*
@@ -226,7 +226,7 @@ public class InvocationEvent implements ExtensionEvent
                 // don't want to reveal the JavaType hierarchy, so we use 
                 // the "raw" class name provided by the JavaType
 
-                String className = sig.asClass().rawName();
+                String className = sig.asClass().classloaderName();
                 risul[index] = bluej_pkg.getProject().loadClass(className);
             }
         }

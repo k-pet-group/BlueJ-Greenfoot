@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,6 +34,7 @@ import bluej.debugger.gentype.JavaType;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.TypeEntity;
+import bluej.parser.entity.UnresolvedArray;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.symtab.ClassInfo;
@@ -41,6 +42,17 @@ import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.Package;
 import bluej.utility.JavaNames;
 
+/**
+ * The main BlueJ parser, which extracts various information from source code including:
+ * <ul>
+ * <li> The name of the class
+ * <li> The superclass
+ * <li> Any implemented interfaces
+ * <li> Constructor and method signatures, including parameter names and javadoc comments
+ * </ul>
+ * 
+ * @author Davin McCall
+ */
 public class InfoParser extends EditorParser
 {
     private String targetPkg;
@@ -86,23 +98,22 @@ public class InfoParser extends EditorParser
     public static ClassInfo parse(File f) throws FileNotFoundException
     {
         FileInputStream fis = new FileInputStream(f);
-        return parse(new InputStreamReader(fis), null);
+        return parse(new InputStreamReader(fis), null, null);
     }
     
     public static ClassInfo parse(File f, Package pkg) throws FileNotFoundException
     {
         FileInputStream fis = new FileInputStream(f);
-        return parse(new InputStreamReader(fis), pkg);
+        return parse(new InputStreamReader(fis),
+                pkg.getProject().getEntityResolver(),
+                pkg.getQualifiedName());
     }
 
-    public static ClassInfo parse(Reader r, Package pkg)
+    public static ClassInfo parse(Reader r, EntityResolver resolver, String targetPkg)
     {
         InfoParser infoParser = null;
-        EntityResolver resolver = pkg != null ? pkg.getProject().getEntityResolver() : null;
         infoParser = new InfoParser(r, resolver);
-        if (pkg != null) {
-            infoParser.targetPkg = pkg.getQualifiedName();
-        }
+        infoParser.targetPkg = targetPkg;
         infoParser.parseCU();
 
         if (infoParser.info != null && !infoParser.hadError) {
@@ -113,7 +124,7 @@ public class InfoParser extends EditorParser
             throw new RuntimeException("Couldn't get class info");
         }
     }
-
+    
     /**
      * All type references and method declarations are unresolved after parsing.
      * Call this method to resolve them.
@@ -290,6 +301,18 @@ public class InfoParser extends EditorParser
         if (currentMethod != null) {
             currentMethod.paramNames += token.getText() + " ";
             currentMethod.paramTypes.add(ParseUtils.getTypeEntity(scopeStack.peek(), lastTypespecToks));
+        }
+    }
+    
+    @Override
+    protected void gotArrayDeclarator()
+    {
+        super.gotArrayDeclarator();
+        if (currentMethod != null) {
+            int index = currentMethod.paramTypes.size() - 1;
+            JavaEntity last = currentMethod.paramTypes.get(index);
+            currentMethod.paramTypes.remove(index);
+            currentMethod.paramTypes.add(new UnresolvedArray(last));
         }
     }
 

@@ -31,7 +31,7 @@ import com.sun.jdi.VirtualMachine;
  * A proxy-type reflective for arrays.
  * 
  * @author Davin McCall
- * @version $Id: JdiArrayReflective.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: JdiArrayReflective.java 6986 2010-01-12 02:58:23Z davmac $
  */
 public class JdiArrayReflective extends JdiReflective {
 
@@ -90,6 +90,6 @@ public class JdiArrayReflective extends JdiReflective {
 
         // If we get to here, assume it's a class/interface type.
         GenTypeClass gtc = (GenTypeClass) componentType;
-        return "L" + gtc.rawName() + ";";
+        return "L" + gtc.classloaderName() + ";";
     }
 }

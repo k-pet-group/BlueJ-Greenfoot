@@ -21,17 +21,13 @@
  */
 package bluej.parser;
 
-import java.io.File;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.swing.text.BadLocationException;
 
 import junit.framework.TestCase;
-import bluej.Boot;
-import bluej.Config;
 import bluej.debugger.gentype.JavaType;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
@@ -41,8 +37,7 @@ import bluej.parser.nodes.ParsedCUNode;
 public class CompletionTest extends TestCase
 {
     {
-        File bluejLibDir = Boot.getBluejLibDir();
-        Config.initialise(bluejLibDir, new Properties(), false);
+        InitConfig.init();
     }
     
     private TestEntityResolver resolver;

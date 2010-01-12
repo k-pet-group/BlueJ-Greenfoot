@@ -72,7 +72,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 6475 2009-07-31 14:30:38Z davmac $
+ * @version $Id: ObjectWrapper.java 6986 2010-01-12 02:58:23Z davmac $
  */
 public class ObjectWrapper extends JComponent implements InvokeListener, NamedValue
 {
@@ -291,7 +291,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
         // If the class is inaccessible, use the invocation type.
         if (cl != null) {
             if (! classIsAccessible(cl)) {
-                cl = pkg.loadClass(iType.rawName());
+                cl = pkg.loadClass(iType.classloaderName());
                 while (cl != null && ! classIsAccessible(cl)) {
                     cl = cl.getSuperclass();
                     if (cl != null) {

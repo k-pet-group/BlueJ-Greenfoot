@@ -276,6 +276,38 @@ public class JavaParser
     protected void gotWildcardImport(List<LocatableToken> tokens, boolean isStatic) { }
     
     /**
+     * We've seen a constructor declaration. The token supplied is the constructor name.
+     * The hiddenToken is the comment before the constructor.
+     */
+    protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken) {}
+
+    /**
+     * We've seen a method declaration; the token parameter is the method name;
+     * the hiddenToken parameter is the comment before the method
+     */
+    protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken) {}
+
+    /** 
+     * We saw a method (or constructor) parameter. The given token specifies the parameter name. 
+     * The last type parsed by parseTypeSpec(boolean) is the parameter type, however, there may
+     * be array declarators (after the identifier) yet to be parsed.
+     */
+    protected void gotMethodParameter(LocatableToken token) { }
+    
+    /**
+     * Called when, after a parameter/field/variable name, array declarators "[]" are seen.
+     * Will be called once for each set of "[]".
+     */
+    protected void gotArrayDeclarator() { }
+
+    protected void gotAllMethodParameters() { }
+
+    /**
+     * Called by the lexer when it sees a comment.
+     */
+    public void gotComment(LocatableToken token) { }
+
+    /**
      * Check whether a particular token is a type declaration initiator, i.e "class", "interface"
      * or "enum"
      */
@@ -807,6 +839,7 @@ public class JavaParser
                     return;
                 }
             }
+            gotArrayDeclarator();
             token = tokenStream.nextToken();
         }
         tokenStream.pushBack(token);
@@ -2377,32 +2410,6 @@ public class JavaParser
         tokenStream.pushBack(token);
     }
 	
-    /**
-     * We've seen a constructor declaration. The token supplied is the constructor name.
-     * The hiddenToken is the comment before the constructor.
-     */
-    protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken) {}
-
-    /**
-     * We've seen a method declaration; the token parameter is the method name;
-     * the hiddenToken parameter is the comment before the method
-     */
-    protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken) {}
-
-    /** 
-     * We saw a method (or constructor) parameter. The given token specifies the parameter name. 
-     * The last type parsed by parseTypeSpec(boolean) is the parameter type, however, there may
-     * be array declarators (after the identifier) yet to be parsed.
-     */
-    protected void gotMethodParameter(LocatableToken token) { }
-
-    protected void gotAllMethodParameters() { }
-
-    /**
-     * Called by the lexer when it sees a comment.
-     */
-    public void gotComment(LocatableToken token) { }
-
     private void pushBackAll(List<LocatableToken> tokens)
     {
         ListIterator<LocatableToken> i = tokens.listIterator(tokens.size());

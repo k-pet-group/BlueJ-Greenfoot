@@ -106,7 +106,7 @@ public abstract class Reflective
         Iterator<GenTypeClass> i = superTypes.iterator();
         while( i.hasNext() ) {
             GenTypeClass next = i.next();
-            if( next.rawName().equals(rawName) )
+            if( next.classloaderName().equals(rawName) )
                 return next;
         }
         return null;

@@ -1311,9 +1311,9 @@ public class TextAnalyzer
                 GenTypeClass [] asts = ((GenTypeSolid) a).getReferenceSupertypes();
                 for (int i = 0; i < asts.length; i++) {
                     try {
-                        GenTypeClass aMapped = asts[i].mapToSuper(cf.rawName());
+                        GenTypeClass aMapped = asts[i].mapToSuper(cf.classloaderName());
                         // Superclass relationship is by capture conversion
-                        if (! asts[i].rawName().equals(cf.rawName()))
+                        if (! asts[i].classloaderName().equals(cf.classloaderName()))
                             aMapped = (GenTypeClass) captureConversion(aMapped);
                         Map aMap = aMapped.getMap();
                         if (aMap != null) {
@@ -1397,7 +1397,7 @@ public class TextAnalyzer
             GenTypeClass cf = f.asClass();
             GenTypeClass af = a.asClass();
             if (af != null && cf != null) {
-                if (cf.rawName().equals(af.rawName())) {
+                if (cf.classloaderName().equals(af.classloaderName())) {
                     Map fMap = cf.getMap();
                     Map aMap = af.getMap();
                     if (fMap != null && aMap != null) {
@@ -1473,7 +1473,7 @@ public class TextAnalyzer
                 GenTypeClass [] asts = a.getReferenceSupertypes();
                 for (int i = 0; i < asts.length; i++) {
                     try {
-                        GenTypeClass fMapped = cf.mapToSuper(asts[i].rawName());
+                        GenTypeClass fMapped = cf.mapToSuper(asts[i].classloaderName());
                         Map aMap = asts[i].getMap();
                         Map fMap = fMapped.getMap();
                         if (aMap != null && fMap != null) {
@@ -1784,7 +1784,7 @@ public class TextAnalyzer
     {
         GenTypeClass c = b.asClass();
         if (c != null) {
-            String cName = c.rawName();
+            String cName = c.classloaderName();
             if (cName.equals("java.lang.Integer"))
                 return JavaPrimitiveType.getInt();
             else if (cName.equals("java.lang.Long"))
@@ -1850,7 +1850,7 @@ public class TextAnalyzer
     {
         GenTypeClass ct = t.asClass();
         if (ct != null) {
-            return ct.rawName().equals("java.lang.Boolean");
+            return ct.classloaderName().equals("java.lang.Boolean");
         }
         else
             return false;

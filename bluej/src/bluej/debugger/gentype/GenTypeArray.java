@@ -60,6 +60,12 @@ public class GenTypeArray extends GenTypeClass
         return "[" + baseType.arrayComponentName();
     }
     
+    @Override
+    public String classloaderName()
+    {
+        return arrayComponentName();
+    }
+    
     public JavaType getArrayComponent()
     {
         return baseType;
@@ -95,19 +101,20 @@ public class GenTypeArray extends GenTypeClass
             return this;
     }
 
-    public void erasedSuperTypes(Set s)
+    public void erasedSuperTypes(Set<Reflective> s)
     {
-        Stack refs = new Stack();
+        Stack<Reflective> refs = new Stack<Reflective>();
         if (baseType instanceof GenTypeSolid) {
             GenTypeSolid sbaseType = (GenTypeSolid) baseType;
-            Set baseEST = new HashSet();
+            Set<Reflective> baseEST = new HashSet<Reflective>();
             sbaseType.erasedSuperTypes(baseEST);
-            Iterator i = baseEST.iterator();
+            Iterator<Reflective> i = baseEST.iterator();
             while (i.hasNext()) {
                 refs.push(((Reflective) i.next()).getArrayOf());
             }
         }
         else
+            // DAV how can this work if reflective == null?!
             refs.push(reflective);
         
         while(! refs.empty()) {
