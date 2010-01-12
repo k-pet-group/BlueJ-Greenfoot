@@ -63,7 +63,7 @@ public class ExpressionNode extends ParentParsedNode
         
         GenTypeSolid stype = parser.getSuggestionType();
         if (stype != null) {
-            return new CodeSuggestions(stype, null);
+            return new CodeSuggestions(stype, parser.getSuggestionToken());
         }
         else {
             return null;

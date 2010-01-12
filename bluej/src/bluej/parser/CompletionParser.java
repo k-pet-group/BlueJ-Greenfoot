@@ -46,6 +46,7 @@ public class CompletionParser extends TextParser
     private Map<String,JavaType> fieldSuggestions = Collections.emptyMap();
     private Map<String,Set<MethodReflective>> methodSuggestions = Collections.emptyMap();
     private JavaEntity suggestionEntity;
+    private LocatableToken suggestionToken;
     
     /**
      * Construct an expression parser, used for suggesting completions.
@@ -106,6 +107,15 @@ public class CompletionParser extends TextParser
         return null;
     }
     
+    /**
+     * Get the token, if any, which represents the partial identifier just before the
+     * completion point.
+     */
+    public LocatableToken getSuggestionToken()
+    {
+        return suggestionToken;
+    }
+    
     @Override
     protected void gotDotEOF(LocatableToken token)
     {
@@ -115,15 +125,15 @@ public class CompletionParser extends TextParser
     @Override
     protected void gotIdentifierEOF(LocatableToken token)
     {
-        // TODO Auto-generated method stub
-        super.gotIdentifierEOF(token);
+        suggestionToken = token;
+        suggestionEntity = popValueStack();
     }
     
     @Override
     protected void completeCompoundValueEOF(LocatableToken token)
     {
-        // TODO Auto-generated method stub
-        super.completeCompoundValueEOF(token);
+        suggestionToken = token;
+        suggestionEntity = popValueStack();
     }
     
     @Override
