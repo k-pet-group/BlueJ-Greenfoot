@@ -1482,36 +1482,44 @@ public class JavaParser
     public LocatableToken parseIfStatement(LocatableToken token)
     {
         beginIfStmt(token);
-        token = tokenStream.nextToken();
-        if (token.getType() != JavaTokenTypes.LPAREN) {
-            error("Expecting '(' after 'if'");
-            tokenStream.pushBack(token);
-            endIfStmt(token, false);
-            return null;
-        }
-        parseExpression();
-        token = tokenStream.nextToken();
-        if (token.getType() != JavaTokenTypes.RPAREN) {
-            error("Expecting ')' after conditional expression (in 'if' statement)");
-            tokenStream.pushBack(token);
-            if (token.getType() != JavaTokenTypes.LCURLY) {
+        
+        mainLoop:
+        while(true) {
+            token = tokenStream.nextToken(); // "("
+            if (token.getType() != JavaTokenTypes.LPAREN) {
+                error("Expecting '(' after 'if'");
+                tokenStream.pushBack(token);
                 endIfStmt(token, false);
                 return null;
             }
-        }
-        token = tokenStream.nextToken();
-        beginIfCondBlock(token);
-        token = parseStatement(token);
-        endIfCondBlock(token);
-        while (tokenStream.LA(1).getType() == JavaTokenTypes.LITERAL_else) {
-            tokenStream.nextToken(); // else
+            parseExpression();
+            token = tokenStream.nextToken();
+            if (token.getType() != JavaTokenTypes.RPAREN) {
+                error("Expecting ')' after conditional expression (in 'if' statement)");
+                tokenStream.pushBack(token);
+                if (token.getType() != JavaTokenTypes.LCURLY) {
+                    endIfStmt(token, false);
+                    return null;
+                }
+            }
             token = tokenStream.nextToken();
             beginIfCondBlock(token);
             token = parseStatement(token);
             endIfCondBlock(token);
+            while (tokenStream.LA(1).getType() == JavaTokenTypes.LITERAL_else) {
+                tokenStream.nextToken(); // "else"
+                if (tokenStream.LA(1).getType() == JavaTokenTypes.LITERAL_if) {
+                    tokenStream.nextToken(); // "if"
+                    continue mainLoop;
+                }
+                token = tokenStream.nextToken();
+                beginIfCondBlock(token);
+                token = parseStatement(token);
+                endIfCondBlock(token);
+            }
+            endIfStmt(token);
+            return token;
         }
-        endIfStmt(token);
-        return token;
     }
     
     private void endIfCondBlock(LocatableToken token)
