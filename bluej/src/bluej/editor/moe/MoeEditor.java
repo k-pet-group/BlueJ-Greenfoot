@@ -102,6 +102,7 @@ import bluej.editor.EditorWatcher;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.EntityResolver;
+import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
@@ -3268,24 +3269,29 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         //need to recreate the dialog each time it is pressed as the values may be different 
         closeContentAssist();
-        AssistContent[] values = populateContentAssist();
-        if (values != null && values.length > 0) {
-            dlg = new CodeCompletionDisplay(this, values);
-            int cpos = sourcePane.getCaretPosition();
-            try {
-                Rectangle pos = sourcePane.modelToView(cpos);
-                Point spLoc = sourcePane.getLocationOnScreen();
-                int xpos = pos.x + spLoc.x;
-                int ypos = pos.y + pos.height + spLoc.y;
-                dlg.setLocation(xpos, ypos);
-                dlg.setVisible(true);
-                dlg.requestFocus();
+        CodeSuggestions suggests = sourceDocument.getParser().getExpressionType(getCaretPosition(),
+                sourceDocument);
+        if (suggests != null) {
+            LocatableToken suggestToken = suggests.getSuggestionToken();
+            String prefix = suggestToken != null ? suggestToken.getText() : "";
+            AssistContent[] values = populateContentAssist(suggests, prefix);
+            if (values != null && values.length > 0) {
+                dlg = new CodeCompletionDisplay(this, values, suggests.getSuggestionToken());
+                int cpos = sourcePane.getCaretPosition();
+                try {
+                    Rectangle pos = sourcePane.modelToView(cpos);
+                    Point spLoc = sourcePane.getLocationOnScreen();
+                    int xpos = pos.x + spLoc.x;
+                    int ypos = pos.y + pos.height + spLoc.y;
+                    dlg.setLocation(xpos, ypos);
+                    dlg.setVisible(true);
+                    dlg.requestFocus();
+                    return;
+                }
+                catch (BadLocationException ble) {}
             }
-            catch (BadLocationException ble) {}
         }
-        else {
-            info.warning("No completions available.");
-        }
+        info.warning("No completions available.");
     }
 
     protected void closeContentAssist()
@@ -3297,11 +3303,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /**
      * Populates the array with the relevant content 
      */
-    private AssistContent[] populateContentAssist()
+    private AssistContent[] populateContentAssist(CodeSuggestions suggests, String prefix)
     {
-        CodeSuggestions suggests = sourceDocument.getParser().getExpressionType(getCaretPosition(),
-                sourceDocument);
-
         if (suggests != null) {
             //Map<String,JavaType> fields = exprType.getClassType().getReflective().getDeclaredFields();
             //for (Iterator<String> i = fields.keySet().iterator(); i.hasNext(); ) {
@@ -3317,9 +3320,11 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
             Map<String,Set<MethodReflective>> methods = exprType.getReflective().getDeclaredMethods();
             for (String name : methods.keySet()) {
-                Set<MethodReflective> mset = methods.get(name);
-                for (MethodReflective method : mset) {
-                    completions.add(new AssistContent(name, method.getReturnType().toString(), "(Unknown)", "Unavailable."));
+                if (name.startsWith(prefix)) {
+                    Set<MethodReflective> mset = methods.get(name);
+                    for (MethodReflective method : mset) {
+                        completions.add(new AssistContent(name, method.getReturnType().toString(), "(Unknown)", "Unavailable."));
+                    }
                 }
             }
 

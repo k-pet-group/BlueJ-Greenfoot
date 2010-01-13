@@ -46,6 +46,9 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import bluej.parser.SourceLocation;
+import bluej.parser.lexer.LocatableToken;
+
 
 /**
  * Code completion panel for the Moe editor.
@@ -58,6 +61,7 @@ public class CodeCompletionDisplay extends JFrame
     private MoeEditor editor;
     private String[] methodsAvailable;
     private String[] methodDescrs;
+    private LocatableToken location;
     private AssistContent[] values;
 
     private JList methodList;
@@ -66,9 +70,15 @@ public class CodeCompletionDisplay extends JFrame
 
     private JComponent pane;
 
-    public CodeCompletionDisplay(MoeEditor ed, AssistContent[] values) 
+    /**
+     * Construct a code completion display panel, for the given editor and with the given
+     * suggestions. The location specifies the partial identifier entered by the user before
+     * requesting suggestions (if any - it may be null).
+     */
+    public CodeCompletionDisplay(MoeEditor ed, AssistContent[] values, LocatableToken location) 
     {
         this.values=values;
+        this.location = location;
         methodsAvailable=new String[values.length];
         methodDescrs=new String[values.length];
         populateMethods();
@@ -85,13 +95,12 @@ public class CodeCompletionDisplay extends JFrame
         GridLayout gridL=new GridLayout(1, 2);
         pane=(JComponent) getContentPane();
 
-        //pane.addKeyListener(this);
-
         addWindowFocusListener(new WindowFocusListener() {
 
             public void windowGainedFocus(WindowEvent e)
             {
                 methodList.requestFocusInWindow();
+                editor.currentTextPane.getCaret().setVisible(true);
             }
 
             public void windowLostFocus(WindowEvent e)
@@ -99,7 +108,6 @@ public class CodeCompletionDisplay extends JFrame
                 setVisible(false);
             }
         });
-
         
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(gridL);
@@ -186,7 +194,23 @@ public class CodeCompletionDisplay extends JFrame
      */
     private void codeComplete()
     {
-        editor.codeComplete(values[selectedValue].getContentName());
+        String selected = values[selectedValue].getContentName();
+        
+        //editor.codeComplete(values[selectedValue].getContentName());
+        if (location == null) {
+            editor.insertText(selected, false);
+        }
+        else {
+            System.out.println("location line = " + location.getLine());
+            System.out.println("location col = " + location.getColumn());
+            
+            SourceLocation begin = new SourceLocation(location.getLine(), location.getColumn());
+            SourceLocation end = new SourceLocation(location.getEndLine(), location.getEndColumn());
+            editor.setSelection(begin, end);
+            editor.insertText(selected, false);
+        }
+        
+        setVisible(false);
     }
 
     /**
