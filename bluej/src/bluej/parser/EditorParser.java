@@ -408,6 +408,36 @@ public class EditorParser extends JavaParser
     {
         endTopNode(token, included);
     }
+
+    @Override
+    protected void beginSwitchStmt(LocatableToken token)
+    {
+        beginIfStmt(token);
+    }
+    
+    @Override
+    protected void beginSwitchBlock(LocatableToken token)
+    {
+        ParentParsedNode loopNode = new ParentParsedNode(scopeStack.peek());
+        loopNode.setInner(true);
+        int curOffset = getTopNodeOffset();
+        int insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
+        beginNode(insPos);
+        scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
+        scopeStack.push(loopNode);
+    }
+    
+    @Override
+    protected void endSwitchBlock(LocatableToken token)
+    {
+        endTopNode(token, false);
+    }
+    
+    @Override
+    protected void endSwitchStmt(LocatableToken token, boolean included)
+    {
+        endTopNode(token, included);
+    }
     
     @Override
     protected void beginTryCatchSmt(LocatableToken token)

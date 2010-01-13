@@ -151,6 +151,14 @@ public class JavaParser
     
     protected void endIfStmt(LocatableToken token, boolean included) { }
     
+    protected void beginSwitchStmt(LocatableToken token) { }
+    
+    protected void beginSwitchBlock(LocatableToken token) { }
+    
+    protected void endSwitchBlock(LocatableToken token) { }
+    
+    protected void endSwitchStmt(LocatableToken token, boolean included) { }
+    
     protected void beginDoWhile(LocatableToken token) { }
     
     protected void beginDoWhileBody(LocatableToken token) { }
@@ -1244,12 +1252,15 @@ public class JavaParser
         return token;
     }
 
+    /** Parse a "switch(...) {  }" statement. */
     public LocatableToken parseSwitchStatement(LocatableToken token)
     {
+        beginSwitchStmt(token);
         token = tokenStream.nextToken();
         if (token.getType() != JavaTokenTypes.LPAREN) {
             error("Expected '(' after 'switch'");
             tokenStream.pushBack(token);
+            endSwitchStmt(token, false);
             return null;
         }
         parseExpression();
@@ -1257,21 +1268,28 @@ public class JavaParser
         if (token.getType() != JavaTokenTypes.RPAREN) {
             error("Expected ')' at end of expression (in 'switch(...)')");
             tokenStream.pushBack(token);
+            endSwitchStmt(token, false);
             return null;
         }
         token = tokenStream.nextToken();
         if (token.getType() != JavaTokenTypes.LCURLY) {
             error("Expected '{' after 'switch(...)'");
             tokenStream.pushBack(token);
+            endSwitchStmt(token, false);
             return null;
         }
+        beginSwitchBlock(token);
         parseStmtBlock();
         token = tokenStream.nextToken();
         if (token.getType() != JavaTokenTypes.RCURLY) {
             error("Missing '}' at end of 'switch' statement block");
             tokenStream.pushBack(token);
+            endSwitchBlock(token);
+            endSwitchStmt(token, false);
             return null;
         }
+        endSwitchBlock(token);
+        endSwitchStmt(token, true);
         return token;
     }
 	
