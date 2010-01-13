@@ -47,13 +47,11 @@ public class ProjectEntityResolver implements EntityResolver
         this.project = project;
     }
     
-    @Override
     public JavaEntity getValueEntity(String name, String querySource)
     {
         return resolvePackageOrClass(name, querySource);
     }
 
-    @Override
     public PackageOrClass resolvePackageOrClass(String name, String querySource)
     {
         int lastDot = querySource.lastIndexOf('.');
@@ -80,7 +78,6 @@ public class ProjectEntityResolver implements EntityResolver
         return new PackageEntity(name, this);
     }
 
-    @Override
     public TypeEntity resolveQualifiedClass(String name)
     {
         int lastDot = name.lastIndexOf('.');

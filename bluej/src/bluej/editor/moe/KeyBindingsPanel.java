@@ -206,19 +206,16 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
         return mainPanel;
     }
 
-    @Override
     public void beginEditing() {
         // TODO Auto-generated method stub
 
     }
 
-    @Override
     public void commitEditing() {
         // TODO Auto-generated method stub
 
     }
 
-    @Override
     public void revertEditing() {
         // TODO Auto-generated method stub
 
