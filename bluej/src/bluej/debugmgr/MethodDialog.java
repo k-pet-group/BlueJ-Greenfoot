@@ -56,7 +56,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: MethodDialog.java 7003 2010-01-13 04:44:57Z marionz $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -134,7 +134,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 6215 2009-03-30 13:28:25Z polle $
+     * @version $Id: MethodDialog.java 7003 2010-01-13 04:44:57Z marionz $
      */
     public static class ParameterList
     {
@@ -488,7 +488,7 @@ public class MethodDialog extends CallDialog implements FocusListener
     {
         if(dialogType == MD_CALL) {
             typeParameterMap = typeParams;
-            setCallLabel(instanceName, methodName);
+            //setCallLabel(instanceName, methodName);
             rawObject = instanceName != null && typeParams == null;
         }
         else {
@@ -796,7 +796,6 @@ public class MethodDialog extends CallDialog implements FocusListener
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.insets = INSETS;
         callLabel = new JLabel("", JLabel.RIGHT);
-
         if (method.isStatic())
             setCallLabel(className, methodName);
         else
@@ -816,8 +815,6 @@ public class MethodDialog extends CallDialog implements FocusListener
         tmpPanel.setAlignmentX(LEFT_ALIGNMENT);
         panel.add(tmpPanel);
     } // makeCallDialog
-
-
 
     /**
      * makeCreateDialog - create a dialog to create an object (including
@@ -1090,7 +1087,7 @@ public class MethodDialog extends CallDialog implements FocusListener
     /**
      * Set the text of the label showing the call to be made.
      */
-    private void setCallLabel(String instanceName, String methodName)
+    protected void setCallLabel(String instanceName, String methodName)
     {
         if (callLabel != null)
             callLabel.setText(JavaNames.stripPrefix(instanceName) + "." + methodName);
