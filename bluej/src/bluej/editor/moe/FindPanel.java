@@ -178,6 +178,13 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         nextButton.setText("Next");
         nextButton.setEnabled(false);
         nextButton.setFont(findFont);
+        
+        if (Config.isMacOS()) {
+        	previousButton.putClientProperty("JButton.buttonType", "segmented");
+        	previousButton.putClientProperty("JButton.segmentPosition", "first");
+        	nextButton.putClientProperty("JButton.buttonType", "segmented");
+        	nextButton.putClientProperty("JButton.segmentPosition", "last");
+        }
     }
 
     /**
@@ -239,8 +246,16 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         findTextBody.add(fTemp);
         findTextBody.add(ftTemp);
         
-        optionsBody.add(previousButton);
-        optionsBody.add(nextButton);
+        if (Config.isMacOS()) {
+        	DBox buttonBox = new DBox(DBoxLayout.X_AXIS, 0.5f);
+        	buttonBox.add(previousButton);
+        	buttonBox.add(nextButton);
+        	optionsBody.add(buttonBox);
+        }
+        else {
+        	optionsBody.add(previousButton);
+        	optionsBody.add(nextButton);
+        }
 
         findBody.add(findTextBody, BorderLayout.WEST);
         findBody.add(optionsBody, BorderLayout.EAST);
