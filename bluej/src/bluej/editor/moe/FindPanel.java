@@ -339,17 +339,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      * Display or remove the visibility of the find panel 
      */
     public void displayFindPanel(String selection, boolean visible)
-    { 
-        //if it is already visible and the request is to become 
-        //visible just set the focus in the text field
-        if (this.isVisible() && visible){
-            findTField.requestFocus();
-            return;
-        }
-        
+    {    
         if (selection==null)
-            selection=getSearchString();
-        
+            selection=getSearchString();       
         setSearchString(selection);
         updateDisplay();
         this.setVisible(true);
@@ -394,7 +386,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             nextButton.setEnabled(true); 
             //update display in the replace panel if necessary
             if (editor.isReplacePanelVisible())
-                // if (editor.isReplacePopulated())
                 editor.enableReplaceButtons(true); 
         }
         else{
@@ -446,7 +437,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         int counter=editor.getNumHighlights();
         //if there was nothing found, need to move the caret back to its original position
         if (counter<1)
-            editor.moveCaretPosition(caretPos+getSearchString().length());
+            editor.moveCaretPosition(caretPos);
         writeMessage(true, counter); 
     }
 
