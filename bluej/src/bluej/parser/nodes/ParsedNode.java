@@ -243,9 +243,7 @@ public abstract class ParsedNode implements EntityResolver
     protected void reparseNode(Document document, int nodePos, int offset) {}
     
     /**
-     * Get the expression type at a given point. Returns null if there is no
-     * determinable expression type.
-     * @param document TODO
+     * Get code completion suggestions at a particular point. May return null.
      */
     public CodeSuggestions getExpressionType(int pos, Document document)
     {
@@ -261,16 +259,16 @@ public abstract class ParsedNode implements EntityResolver
     }
     
     /**
-     * Get the expression type at a given point. Returns the specified default if there
-     * is no determinable expression type.
-     * @param pos     The position at which to determine the expression type
+     * Get code completion suggestions at a particular point. May return null.
+     *
+     * @param pos     The position to suggest completions for
      * @param nodePos   The position of this node
      * @param defaultType  The type to return if there is no explicit type at the given location 
      * @param document  The source document
      */
     protected CodeSuggestions getExpressionType(int pos, int nodePos, TypeEntity defaultType, Document document)
     {
-        NodeAndPosition child = getNodeTree().findNode(pos, nodePos);
+        NodeAndPosition child = getNodeTree().findNode(Math.max(pos - 1, 0), nodePos);
         if (child != null) {
             return child.getNode().getExpressionType(pos, child.getPosition(), defaultType, document);
         }
