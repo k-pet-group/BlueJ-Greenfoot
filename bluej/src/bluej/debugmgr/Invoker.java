@@ -59,7 +59,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 7003 2010-01-13 04:44:57Z marionz $
+ * @version $Id: Invoker.java 7006 2010-01-13 05:08:52Z marionz $
  */
 
 public class Invoker
@@ -267,7 +267,10 @@ public class Invoker
             }
             else {
                 mDialog.setInstanceInfo(objName, typeMap);
-                mDialog.setCallLabel(member.getClassName(), ((MethodView) member).getName());
+                String methodName=null;
+                if (member instanceof MethodView)
+                    methodName=((MethodView) member).getName();
+                mDialog.setCallLabel(member.getClassName(),methodName);
             }
 
             mDialog.setEnabled(true);
