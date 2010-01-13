@@ -675,7 +675,7 @@ public class EditorParser extends JavaParser
     {
         ParsedTypeNode pnode = new ParsedTypeNode(scopeStack.peek(), null); // TODO generate Abc$1 ?
         int curOffset = getTopNodeOffset();
-        LocatableToken begin = lastTypeSpec.get(0);
+        LocatableToken begin = token;
         int insPos = lineColToPosition(begin.getLine(), begin.getColumn());
         beginNode(insPos);
         scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
@@ -693,7 +693,7 @@ public class EditorParser extends JavaParser
     @Override
     protected void endAnonClassBody(LocatableToken token, boolean included)
     {
-        endTopNode(token, included);  // inner node
+        endTopNode(token, false);  // inner node
         endTopNode(token, included);  // outer node
     }
     

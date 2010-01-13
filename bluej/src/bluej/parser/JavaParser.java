@@ -144,6 +144,7 @@ public class JavaParser
     
     protected void beginIfStmt(LocatableToken token) { }
     
+    /** Begin an "if" conditional block (the part that is executed conditionally) */
     protected void beginIfCondBlock(LocatableToken token) { }
     
     protected void endIfCondBlock(LocatableToken token, boolean included) { }
@@ -2412,7 +2413,7 @@ public class JavaParser
 
         if (tokenStream.LA(1).getType() == JavaTokenTypes.LCURLY) {
             // a class body (anonymous inner class)
-            tokenStream.nextToken(); // LCURLY
+            token = tokenStream.nextToken(); // LCURLY
             beginAnonClassBody(token);
             parseClassBody();
             token = tokenStream.nextToken();

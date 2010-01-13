@@ -301,7 +301,6 @@ public abstract class BlueJSyntaxView extends PlainView
                     lines.thisLineEl.getEndOffset() - lines.thisLineEl.getStartOffset(),
                     lines.thisLineSeg);
 
-            //rootNode.getNodeStack(prevScopeStack, thisLineEl.getStartOffset(), 0);
             getScopeStackAfter(rootNode, 0, lines.thisLineEl.getStartOffset(), prevScopeStack);
 
             while (curLine <= lastLine) {
@@ -320,14 +319,19 @@ public abstract class BlueJSyntaxView extends PlainView
                     if (curLine + 1 < map.getElementCount()) {
                         lines.belowLineEl = map.getElement(curLine + 1);
                     }
+                    else {
+                        lines.belowLineEl = null;
+                    }
                     Segment oldAbove = lines.aboveLineSeg;
                     lines.aboveLineSeg = lines.thisLineSeg;
                     lines.thisLineSeg = lines.belowLineSeg;
                     lines.belowLineSeg = oldAbove; // recycle the object
-                    
-                    document.getText(lines.belowLineEl.getStartOffset(),
-                            lines.belowLineEl.getEndOffset() - lines.belowLineEl.getStartOffset(),
-                            lines.belowLineSeg);
+
+                    if (lines.belowLineEl != null) {
+                        document.getText(lines.belowLineEl.getStartOffset(),
+                                lines.belowLineEl.getEndOffset() - lines.belowLineEl.getStartOffset(),
+                                lines.belowLineSeg);
+                    }
                 }
             }
         }
@@ -454,7 +458,7 @@ public abstract class BlueJSyntaxView extends PlainView
                 if (! nodeSkipsStart(napPos, napEnd, lines.thisLineEl, lines.thisLineSeg)) {
                     if (drawNode(drawInfo, nextNap, napParent, onlyMethods)) {
                         // Draw it
-                        int xpos = getNodeIndent(a, document, nap, lines.thisLineEl,
+                        int xpos = getNodeIndent(a, document, nextNap, lines.thisLineEl,
                                 lines.thisLineSeg);
                         int rbound = getNodeRBound(a, napEnd, fullWidth - rightMargin, nodeDepth,
                                 lines.thisLineEl, lines.thisLineSeg);
@@ -764,7 +768,6 @@ public abstract class BlueJSyntaxView extends PlainView
             nodeIndents.put(nap.getNode(), indent);
         }
         
-        //int xpos = lmargin + charWidth * indent;
         int xpos = indent;
         
         // Corner case: node start position is on this line, and is greater than the node indent?
@@ -893,7 +896,7 @@ public abstract class BlueJSyntaxView extends PlainView
         for (i = segment.offset + startPos; i > lastP; i--) {
             char c = segment.array[i];
             if (c != ' ' && c != '\t' && c != '\n' && c != '\r') {
-                break;
+                return i - segment.offset;
             }
         }
         return i - segment.offset - 1;
