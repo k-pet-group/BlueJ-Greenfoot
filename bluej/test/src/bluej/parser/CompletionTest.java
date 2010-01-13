@@ -26,6 +26,7 @@ import java.io.StringReader;
 import java.util.Map;
 
 import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
 
 import junit.framework.TestCase;
 import bluej.debugger.gentype.JavaType;
@@ -115,6 +116,52 @@ public class CompletionTest extends TestCase
         assertNotNull(ftype);
         assertEquals("int", ftype.toString());
     }
+    
+    /**
+     * Completion from an expression involving a local variable
+     */
+    public void test3() throws Exception
+    {
+        String aClassSrc = "class A {\n" +   //       10 
+        "void someMethod() {\n" +            // +20 = 30 
+        "    Object b = new Object();\n" +   // +29 = 59 
+        "    int a = b.hashCode();\n" +      // int a = b. <-- 73
+        "}\n" +
+        "}\n";
+        
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+        
+        ParsedCUNode aNode = cuForSource(aClassSrc);
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(73, doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.Object", suggests.getSuggestionType().toString());
+    }
+    
+    /**
+     * Check that forward variable references aren't allowed
+     */
+    public void test4() throws Exception
+    {
+        String aClassSrc = "class A {\n" +   //       10 
+        "void someMethod() {\n" +            // +20 = 30 
+        "    int a = b.hashCode();\n" +      //    int a = b. <-- 44
+        "    Object b = new Object();\n" + 
+        "}\n" +
+        "}\n";
+        
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+        
+        ParsedCUNode aNode = cuForSource(aClassSrc);
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(44, doc);
+        assertNull(suggests);
+    }
+
     
     
     // Test that multiple fields defined in a single statement are handled correctly,
