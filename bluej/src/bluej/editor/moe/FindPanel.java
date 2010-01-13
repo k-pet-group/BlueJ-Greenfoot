@@ -180,9 +180,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         nextButton.setFont(findFont);
         
         if (Config.isMacOS()) {
-        	previousButton.putClientProperty("JButton.buttonType", "segmented");
+        	previousButton.putClientProperty("JButton.buttonType", "segmentedCapsule");
         	previousButton.putClientProperty("JButton.segmentPosition", "first");
-        	nextButton.putClientProperty("JButton.buttonType", "segmented");
+        	nextButton.putClientProperty("JButton.buttonType", "segmentedCapsule");
         	nextButton.putClientProperty("JButton.segmentPosition", "last");
         }
     }
