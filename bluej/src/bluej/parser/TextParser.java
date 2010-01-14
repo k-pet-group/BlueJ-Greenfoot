@@ -227,9 +227,15 @@ public class TextParser extends JavaParser
         // step 1 - determine type to search
         JavaEntity target = popValueStack();
         JavaEntity vtarget = target.resolveAsValue();
-        GenTypeSolid [] bounds;
+        GenTypeClass [] bounds;
         if (vtarget != null) {
-            bounds = vtarget.getType().getUpperBounds();
+            GenTypeSolid stype = vtarget.getType().asSolid();
+            if (stype == null) {
+                // call on a primitive
+                valueStack.push(new ErrorEntity());
+                return;
+            }
+            bounds = stype.getRealTypes();
         }
         else {
             // entity may be a type rather than a value
@@ -238,14 +244,15 @@ public class TextParser extends JavaParser
                 valueStack.push(new ErrorEntity());
                 return;
             }
-            bounds = target.getType().getUpperBounds();
+            GenTypeSolid stype = target.getType().asSolid();
+            if (stype == null) {
+                // call on a primitive
+                valueStack.push(new ErrorEntity());
+                return;
+            }
+            bounds = stype.getRealTypes();
         }
             
-        GenTypeClass [] boundsc = new GenTypeClass[bounds.length];
-        for (int i = 0; i < bounds.length; i++) {
-            boundsc[i] = bounds[i].asClass();
-        }
-
         List<JavaEntity> argList = argumentStack.pop();
         JavaType [] argTypes = new JavaType[argList.size()];
         for (int i = 0; i < argTypes.length; i++) {
@@ -259,7 +266,7 @@ public class TextParser extends JavaParser
 
         List<GenTypeClass> typeArgs = Collections.emptyList(); // TODO!
 
-        ArrayList<MethodCallDesc> suitable = TextAnalyzer.getSuitableMethods(op.getToken().getText(), boundsc, argTypes, typeArgs);
+        ArrayList<MethodCallDesc> suitable = TextAnalyzer.getSuitableMethods(op.getToken().getText(), bounds, argTypes, typeArgs);
         // DAV
         // assume for now all candidates have override-equivalent signatures
         if (suitable.size() == 0) {

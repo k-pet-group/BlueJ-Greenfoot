@@ -22,6 +22,9 @@
 package bluej.debugger.gentype;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,7 +33,7 @@ import java.util.Set;
  * as a type parameter anywhere else, except that it can be bounded.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeDeclTpar.java 6938 2009-12-15 03:26:24Z davmac $
+ * @version $Id: GenTypeDeclTpar.java 7011 2010-01-14 23:25:52Z davmac $
  */
 public class GenTypeDeclTpar extends GenTypeTpar {
 
@@ -101,6 +104,16 @@ public class GenTypeDeclTpar extends GenTypeTpar {
             return new GenTypeSolid[0];
         else
             return new GenTypeSolid [] {lBound};
+    }
+    
+    @Override
+    public GenTypeClass[] getRealTypes()
+    {
+        List<GenTypeClass> clist = new LinkedList<GenTypeClass>();
+        for (int i = 0; i < upperBounds.length; i++) {
+            Collections.addAll(clist, upperBounds[i].getRealTypes());
+        }
+        return clist.toArray(new GenTypeClass[clist.size()]);
     }
     
     /* (non-Javadoc)

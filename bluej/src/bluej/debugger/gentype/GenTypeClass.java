@@ -152,6 +152,12 @@ public class GenTypeClass extends GenTypeSolid
         return new GenTypeClass(reflective);
     }
     
+    @Override
+    public GenTypeClass[] getRealTypes()
+    {
+        return new GenTypeClass[] {this};
+    }
+    
     /**
      * Get the name of the type as known to the classloader. The name returned is
      * encoded so that it can be passed to a ClassLoader's "loadClass" method (dots

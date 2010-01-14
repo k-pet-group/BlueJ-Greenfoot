@@ -49,6 +49,14 @@ public class GenTypeTpar extends GenTypeSolid
         return name;
     }
     
+    @Override
+    public GenTypeClass[] getRealTypes()
+    {
+        // This call is somewhat meaningless if we don't how the type parameter was
+        // declared.
+        return new GenTypeClass[0];
+    }
+    
     public String toTypeArgString(NameTransform nt)
     {
         return name;
@@ -83,12 +91,12 @@ public class GenTypeTpar extends GenTypeSolid
             return newType.getCapture().asClass();
     }
     
-    public void getParamsFromTemplate(Map map, GenTypeParameter template)
+    public void getParamsFromTemplate(Map<String,GenTypeParameter> map, GenTypeParameter template)
     {
         // If a mapping already exists, precisify it against the template.
         // Otherwise, create a new mapping to the template.
         
-        GenTypeParameter x = (GenTypeSolid) map.get(name);
+        GenTypeParameter x = map.get(name);
         if (x != null)
             x = x.precisify(template);
         else

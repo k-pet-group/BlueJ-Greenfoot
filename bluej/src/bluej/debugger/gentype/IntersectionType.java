@@ -53,23 +53,22 @@ public class IntersectionType extends GenTypeSolid
         // First remove cruft. If there are two classes (as opposed to interfaces),
         // combine them.
         
-        ArrayList nonclasstypes = new ArrayList();
+        ArrayList<GenTypeSolid> nonclasstypes = new ArrayList<GenTypeSolid>();
         GenTypeClass classtype = null;
         
-        typeLoop:
-            for (int i = 0; i < types.length; i++) {
-                GenTypeClass tclass = types[i].asClass();
-                if (tclass != null && ! tclass.isInterface()) {
-                    if (classtype == null)
-                        classtype = tclass;
-                    else {
-                        classtype = combineClasses(tclass, classtype);
-                    }
-                }
+        for (int i = 0; i < types.length; i++) {
+            GenTypeClass tclass = types[i].asClass();
+            if (tclass != null && ! tclass.isInterface()) {
+                if (classtype == null)
+                    classtype = tclass;
                 else {
-                    nonclasstypes.add(types[i]);
+                    classtype = combineClasses(tclass, classtype);
                 }
             }
+            else {
+                nonclasstypes.add(types[i]);
+            }
+        }
         
         // If there is a class, insert it at the head of the list.
         if (classtype != null)
@@ -77,9 +76,9 @@ public class IntersectionType extends GenTypeSolid
         
         // If there's only type left, return it.
         if (nonclasstypes.size() == 1)
-            return (GenTypeSolid) nonclasstypes.get(0);
+            return nonclasstypes.get(0);
         
-        return new IntersectionType((GenTypeSolid []) nonclasstypes.toArray(new GenTypeSolid[nonclasstypes.size()]));
+        return new IntersectionType(nonclasstypes.toArray(new GenTypeSolid[nonclasstypes.size()]));
     }
     
     /**
@@ -127,14 +126,14 @@ public class IntersectionType extends GenTypeSolid
         }
         
         // Precisify type arguments
-        List newParams = null;
+        List<GenTypeParameter> newParams = null;
         if (a.params != null) {
-            newParams = new ArrayList();
-            Iterator ia = a.params.iterator();
-            Iterator ib = b.params.iterator();
+            newParams = new ArrayList<GenTypeParameter>();
+            Iterator<GenTypeParameter> ia = a.params.iterator();
+            Iterator<GenTypeParameter> ib = b.params.iterator();
             while (ia.hasNext()) {
-                GenTypeParameter tpa = (GenTypeParameter) ia.next();
-                GenTypeParameter tpb = (GenTypeParameter) ib.next();
+                GenTypeParameter tpa = ia.next();
+                GenTypeParameter tpb = ib.next();
                 newParams.add(tpa.precisify(tpb));
             }
         }
@@ -171,17 +170,27 @@ public class IntersectionType extends GenTypeSolid
 
     public GenTypeSolid[] getUpperBounds()
     {
-        ArrayList ubounds = new ArrayList();
+        ArrayList<GenTypeSolid> ubounds = new ArrayList<GenTypeSolid>();
         for (int i = 0; i < intersectTypes.length; i++) {
             GenTypeSolid [] itUbounds = intersectTypes[i].getUpperBounds();
-            ubounds.addAll(Arrays.asList(itUbounds));
+            Collections.addAll(ubounds, itUbounds);
         }
-        return (GenTypeSolid []) ubounds.toArray(new GenTypeSolid[ubounds.size()]);
+        return ubounds.toArray(new GenTypeSolid[ubounds.size()]);
     }
 
     public GenTypeSolid[] getLowerBounds()
     {
         return new GenTypeSolid[] {this};
+    }
+    
+    @Override
+    public GenTypeClass[] getRealTypes()
+    {
+        List<GenTypeClass> clist = new LinkedList<GenTypeClass>();
+        for (int i = 0; i < intersectTypes.length; i++) {
+            Collections.addAll(clist, intersectTypes[i].getRealTypes());
+        }
+        return clist.toArray(new GenTypeClass[clist.size()]);
     }
     
     public GenTypeSolid mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
