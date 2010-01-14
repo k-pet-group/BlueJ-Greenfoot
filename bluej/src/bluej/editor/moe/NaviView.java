@@ -35,6 +35,7 @@ import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
+import java.awt.image.RescaleOp;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -307,11 +308,16 @@ public class NaviView extends JPanel implements AdjustmentListener
             return;
         }
 
-        int docHeight;
+        int docHeight = Math.min(myHeight, prefHeight);
+        // Calculate the visible portion
+        int topV = scrollBar.getValue() * docHeight / scrollBar.getMaximum();
+        int bottomV = (scrollBar.getValue() + scrollBar.getVisibleAmount()) * docHeight / scrollBar.getMaximum();
+        int viewHeight = bottomV - topV;
+        RescaleOp darkenOp = new RescaleOp(0.9f,0,null);
+        
         if (prefHeight > myHeight) {
             // scale!
             int width = getWidth() * prefHeight / myHeight;
-            docHeight = myHeight;
  
             int ytop = clipBounds.y * prefHeight / myHeight;
             int ybtm = ((clipBounds.y + clipBounds.height) * prefHeight + myHeight - 1) / myHeight;
@@ -338,26 +344,59 @@ public class NaviView extends JPanel implements AdjustmentListener
             bg.setClip(0, 0, width, height);
             bg.translate(0, -ytop);
             view.paint(bg, shape);
-            g.drawImage(bimage, insets.left, clipBounds.y, getWidth() - insets.left - insets.right,
+            
+            // Create a darkened copy of the image:
+            BufferedImage darkBuffer = darkenOp.filter(bimage, null);
+            
+            // First draw on the darkened buffer:
+            g.drawImage(darkBuffer, insets.left, clipBounds.y, getWidth() - insets.right,
                     clipBounds.y + clipBounds.height, 0, 0, width, height, null);
+   
+            // Adjust the clip to the currently-visible portion of the naviview
+            // and draw the normal (light) buffer:
+            g.setClip(clipBounds.intersection(new Rectangle(insets.left,insets.top+topV,getWidth() - insets.left - insets.right,viewHeight)));
+            g.drawImage(bimage, insets.left, clipBounds.y, getWidth() - insets.right,
+                    clipBounds.y + clipBounds.height, 0, 0, width, height, null);
+            // Then set the clip back to what it was before:
+            g.setClip(clipBounds);
         }
         else {
-            docHeight = prefHeight;
-            
             Color background = MoeSyntaxDocument.getBackgroundColor();
-            g.setColor(background);
-            g.fillRect(clipBounds.x, clipBounds.y, clipBounds.width, clipBounds.height);
-                        
-            Rectangle shape = new Rectangle(insets.left,
-                    insets.top, getWidth() - insets.left - insets.right,
-                    myHeight);
-            view.paint(g, shape);
+            
+            int w = getWidth() - insets.left - insets.right;
+            int h = myHeight;
+            BufferedImage normalBuffer;
+            if (g instanceof Graphics2D) {
+                normalBuffer = ((Graphics2D) g).getDeviceConfiguration().createCompatibleImage(w, h);
+            }
+            else {
+            	normalBuffer = new BufferedImage(w, h, BufferedImage.TYPE_3BYTE_BGR);
+            }
+            
+            Rectangle bufferBounds = new Rectangle (0,0,w,h);
+            Graphics tg = normalBuffer.createGraphics();
+            // It is important that the clip is set on tg; otherwise the
+            // paint method throws an exception
+            tg.setClip(new Rectangle(clipBounds.x - insets.left, clipBounds.y - insets.top, clipBounds.width, clipBounds.height));
+            tg.setColor(background);
+            tg.fillRect(clipBounds.x - insets.left, clipBounds.y - insets.top, clipBounds.width, clipBounds.height);
+            
+            // Draw the code on the buffer image:
+            view.paint(tg, bufferBounds);
+            
+            // Make a darkened copy:
+            BufferedImage darkBuffer = darkenOp.filter(normalBuffer, null);
+            
+            // First draw on the darkened buffer:
+            g.drawImage(darkBuffer,insets.left,insets.top,null);
+            
+            // Adjust the clip to the currently-visible portion of the naviview
+            // and draw the normal (light) buffer:
+            g.setClip(clipBounds.intersection(new Rectangle(insets.left,insets.top+topV,w,viewHeight)));
+            g.drawImage(normalBuffer,insets.left,insets.top,null);
+            // Then set the clip back to what it was before:
+            g.setClip(clipBounds);
         }
-        
-        // Calculate the visible portion
-        int topV = scrollBar.getValue() * docHeight / scrollBar.getMaximum();
-        int bottomV = (scrollBar.getValue() + scrollBar.getVisibleAmount()) * docHeight / scrollBar.getMaximum();
-        int viewHeight = bottomV - topV;
 
         // Draw a border around the visible area
         g.setColor(new Color(140, 140, 255));
