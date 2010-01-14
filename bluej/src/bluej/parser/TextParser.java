@@ -107,7 +107,7 @@ public class TextParser extends JavaParser
     
     public JavaEntity getExpressionType()
     {
-        processHigherPrecedence(JavaTokenTypes.EOF);
+        processHigherPrecedence(getPrecedence(JavaTokenTypes.EOF));
         if (valueStack.isEmpty()) {
             return null;
         }
@@ -153,9 +153,8 @@ public class TextParser extends JavaParser
     }
     
     // Process all on-stack operators with a equal-or-higher precedence than that given
-    private void processHigherPrecedence(int tokenType)
+    private void processHigherPrecedence(int precedence)
     {
-        int precedence = getPrecedence(tokenType);
         while (! operatorStack.isEmpty()) {
             Operator top = operatorStack.peek();
             if (getPrecedence(top.getType()) < precedence) {
@@ -250,7 +249,7 @@ public class TextParser extends JavaParser
         List<JavaEntity> argList = argumentStack.pop();
         JavaType [] argTypes = new JavaType[argList.size()];
         for (int i = 0; i < argTypes.length; i++) {
-            TypeEntity cent = argList.get(i).resolveAsType();
+            JavaEntity cent = argList.get(i).resolveAsValue();
             if (cent == null) {
                 valueStack.push(new ErrorEntity());
                 return;
@@ -261,6 +260,7 @@ public class TextParser extends JavaParser
         List<GenTypeClass> typeArgs = Collections.emptyList(); // TODO!
 
         ArrayList<MethodCallDesc> suitable = TextAnalyzer.getSuitableMethods(op.getToken().getText(), boundsc, argTypes, typeArgs);
+        // DAV
         // assume for now all candidates have override-equivalent signatures
         if (suitable.size() == 0) {
             valueStack.push(new ErrorEntity());
@@ -330,7 +330,8 @@ public class TextParser extends JavaParser
     @Override
     protected void endExpression(LocatableToken token)
     {
-        processHigherPrecedence(PAREN_OPERATOR);
+        processHigherPrecedence(getPrecedence(PAREN_OPERATOR) + 1);
+        operatorStack.pop();
     }
     
     @Override
@@ -391,7 +392,7 @@ public class TextParser extends JavaParser
     @Override
     protected void gotBinaryOperator(LocatableToken token)
     {
-        processHigherPrecedence(token.getType());
+        processHigherPrecedence(getPrecedence(token.getType()));
         operatorStack.push(new Operator(token.getType(), token));
     }
     
@@ -637,7 +638,7 @@ public class TextParser extends JavaParser
     @Override
     protected void endArgument()
     {
-        processHigherPrecedence(JavaTokenTypes.COMMA);
+        // processHigherPrecedence(getPrecedence(JavaTokenTypes.COMMA));
         if (! valueStack.isEmpty()) {
             argumentStack.peek().add(valueStack.pop());
         }
