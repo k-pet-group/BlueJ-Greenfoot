@@ -681,8 +681,6 @@ public class EditorParser extends JavaParser
     protected void gotArrayDeclarator()
     {
         arrayDecls++;
-        // DAV
-        System.out.println("gotArrayDeclarator");
     }
     
     @Override
