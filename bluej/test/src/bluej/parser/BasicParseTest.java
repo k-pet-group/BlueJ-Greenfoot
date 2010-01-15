@@ -568,5 +568,48 @@ public class BasicParseTest extends junit.framework.TestCase
         
         assertTrue(used.contains("I"));
     }
+    
+    /**
+     * Test that a type argument generates a dependency.
+     */
+    public void testDependencyAnalysis10()
+    {
+        InitConfig.init();
+        TestEntityResolver ter = new TestEntityResolver(
+                new ClassLoaderResolver(this.getClass().getClassLoader())
+                );
+        ter.addCompilationUnit("", cuForSource("class I { }", ter));
 
+        StringReader sr = new StringReader(
+                "import java.util.List;" +
+                "class A {\n" +
+                "  List<I> list;" +
+                "}\n"
+        );
+        ClassInfo info = ClassParser.parse(sr, ter, "");
+        List<String> used = info.getUsed();
+
+        assertTrue(used.contains("I"));
+    }
+
+    /**
+     * Test that a type parameter bound generates a dependency.
+     */
+    public void testDependencyAnalysis11()
+    {
+        InitConfig.init();
+        TestEntityResolver ter = new TestEntityResolver(
+                new ClassLoaderResolver(this.getClass().getClassLoader())
+                );
+        ter.addCompilationUnit("", cuForSource("class I { }", ter));
+
+        StringReader sr = new StringReader(
+                "class A<T extends I> {\n" +
+                "}\n"
+        );
+        ClassInfo info = ClassParser.parse(sr, ter, "");
+        List<String> used = info.getUsed();
+
+        assertTrue(used.contains("I"));
+    }
 }
