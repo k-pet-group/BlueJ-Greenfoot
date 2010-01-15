@@ -70,7 +70,7 @@ public class CompletionTest extends TestCase
     /**
      * Basic field access test.
      */
-    public void test1()
+    public void testFieldAccess()
     {
         String aClassSrc = "class A {" +
         "  public static int f = 0;" +
@@ -88,6 +88,56 @@ public class CompletionTest extends TestCase
         JavaType ftype = fields.get("f");
         assertNotNull(ftype);
         assertEquals("int", ftype.toString());
+    }
+    
+    /**
+     * Field access - array declarators after field name
+     */
+    public void testArrayFieldAccess()
+    {
+        String aClassSrc = "class A {" +
+        "  public static int f[] = null;" +
+        "}";
+
+        ParsedCUNode aNode = cuForSource(aClassSrc);
+        resolver.addCompilationUnit("", aNode);
+        
+        JavaEntity aClassEnt = resolver.resolvePackageOrClass("A", "");
+        Reader r = new StringReader("");
+        CompletionParser cp = new CompletionParser(resolver, r, aClassEnt);
+        cp.parseExpression();
+        
+        Map<String,JavaType> fields = cp.getFieldSuggestions();
+        JavaType ftype = fields.get("f");
+        assertNotNull(ftype);
+        assertEquals("int[]", ftype.toString());
+    }
+    
+    /**
+     * Test multiple field declarations in one statement.
+     */
+    public void testMultiFieldAccess()
+    {
+        String aClassSrc = "class A {" +
+        "  public static int f, g[] = null;" +
+        "}";
+
+        ParsedCUNode aNode = cuForSource(aClassSrc);
+        resolver.addCompilationUnit("", aNode);
+        
+        JavaEntity aClassEnt = resolver.resolvePackageOrClass("A", "");
+        Reader r = new StringReader("");
+        CompletionParser cp = new CompletionParser(resolver, r, aClassEnt);
+        cp.parseExpression();
+        
+        Map<String,JavaType> fields = cp.getFieldSuggestions();
+        JavaType ftype = fields.get("f");
+        assertNotNull(ftype);
+        assertEquals("int", ftype.toString());
+        
+        ftype = fields.get("g");
+        assertNotNull(ftype);
+        assertEquals("int[]", ftype.toString());
     }
     
     /**
@@ -161,8 +211,6 @@ public class CompletionTest extends TestCase
         CodeSuggestions suggests = aNode.getExpressionType(44, doc);
         assertNull(suggests);
     }
-
-    
     
     // Test that multiple fields defined in a single statement are handled correctly,
     // particularly if one in the middle is assigned a complex expression involving an
