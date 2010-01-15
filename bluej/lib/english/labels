@@ -208,6 +208,10 @@ editor.state.changed = changed
 editor.key-bindingsLabel = Key Bindings...
 editor.preferencesLabel = Preferences...
 
+editor.printDialog.title=BlueJ:  Print Source Code
+editor.printDialog.printLineNumbers=Print Line Numbers
+editor.printDialog.printHighlighting=Print with Syntax Highlighting
+
 # Dialog titles and texts
 editor.functions.title = Editor Functions
 editor.functions.editFunctions = Edit Functions
