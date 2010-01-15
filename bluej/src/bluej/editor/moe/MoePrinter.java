@@ -50,6 +50,7 @@ public class MoePrinter
     static final String CONTINUED_LABEL = Config.getString("editor.printer.continued");
     private final int HEADER_SPACE = 30;
     private final int FOOTER_SPACE = 20;
+    private final int LINE_NUMBER_WIDTH = 20;
     private final int PADDING = 5;
     private final char TAB_CHAR = '\t';
     
@@ -60,6 +61,7 @@ public class MoePrinter
     private static Font titleFont = new Font("SansSerif", Font.BOLD, titleFontSize);
     private static Font smallTitleFont = new Font("SansSerif", Font.BOLD, 10);
     private static Font footerFont = new Font("SansSerif", Font.ITALIC, 9);
+    private static Font lineNumberFont = new Font("SansSerif", Font.PLAIN, 6);
      
     private String className;
     private int tabSize = Config.getPropInteger("bluej.editor.tabsize", 4); 
@@ -78,7 +80,7 @@ public class MoePrinter
      *
      * @returns   true if it was not cancelled.
      */
-    public boolean printDocument(PrinterJob printJob, MoeSyntaxDocument document, String className, 
+    public boolean printDocument(PrinterJob printJob, MoeSyntaxDocument document, boolean lineNumbers, String className, 
                                  Font font, PageFormat format) 
     {
         List<PrintLine> lines = new ArrayList<PrintLine>();
@@ -101,7 +103,7 @@ public class MoePrinter
             // Get each line element, get its text and put it in the string list
             for (int i = 0; i < count; i++) {
                 Element lineElement = (Element)root.getElement(i);
-                lines.add(removeNewLines(new PrintLine(document, lineElement)));
+                lines.add(removeNewLines(new PrintLine(document, lineElement, i)));
             }
         }
         // make sure that read lock is removed
@@ -109,7 +111,7 @@ public class MoePrinter
             document.readUnlock();
         }
 
-        return printText(printJob, lines, font, document, format);
+        return printText(printJob, lines, font, document, lineNumbers, format);
     }
 
 
@@ -143,10 +145,10 @@ public class MoePrinter
      *
      * @returns   true if it was not cancelled.
      */
-    private synchronized boolean printText(PrinterJob job, List<PrintLine> text, Font font, MoeSyntaxDocument document, PageFormat format) 
+    private synchronized boolean printText(PrinterJob job, List<PrintLine> text, Font font, MoeSyntaxDocument document, boolean lineNumbers, PageFormat format) 
     {
         try {
-            pages = paginateText(text, format, document, font);        
+            pages = paginateText(text, format, document, lineNumbers, font);        
 
             // set the book pageable so the printjob knows 
             // we are printing more than one page (maybe)
@@ -168,7 +170,7 @@ public class MoePrinter
      * The pagination method.  Paginate the text onto Printable page objects.
      * This includes wrapping long lines of text.
      */   
-    private Book paginateText(List<PrintLine> text, PageFormat pageFormat, MoeSyntaxDocument document, Font font) 
+    private Book paginateText(List<PrintLine> text, PageFormat pageFormat, MoeSyntaxDocument document, boolean lineNumbers, Font font) 
     {
         Book book = new Book();
         int currentLine = 0;       // line I am  currently reading
@@ -179,7 +181,7 @@ public class MoePrinter
 
         // number of lines on a page
         int linesPerPage = height / (font.getSize() + 2);   
-        wrapLines(text, pageFormat, font);
+        wrapLines(text, pageFormat, lineNumbers, font);
 
         // set number of pages
         int numberOfPages = ((int)(text.size() / linesPerPage)) + 1;  
@@ -196,7 +198,7 @@ public class MoePrinter
             }
 	    
             // create a new page object with the text and add it to the book
-            book.append(new MoePage(pageText, document, font), pageFormat);  
+            book.append(new MoePage(pageText, document, lineNumbers, font), pageFormat);  
             pageNum++;   // increase the page number I am on
         }
         return book;  // return the completed book
@@ -209,13 +211,17 @@ public class MoePrinter
      * through each line of text, calculates if there is an overlap and inserts 
      * overlapping text on the next line.
      */
-    private void wrapLines(List<PrintLine> text, PageFormat format, Font font)
+    private void wrapLines(List<PrintLine> text, PageFormat format, boolean lineNumbers, Font font)
     {
         // code to wrap lines of text for printing
         // get a line, get its length, do some font metrics,
         StyleContext context = new StyleContext();
         FontMetrics fontMetrics = context.getFontMetrics(font);
         int maxWidth = (int)format.getImageableWidth() - (PADDING * 2);
+        if (lineNumbers)
+        {
+        	maxWidth -= LINE_NUMBER_WIDTH;
+        }
         int fontWidth = fontMetrics.charWidth('m');           
         int chars = maxWidth / fontWidth;
 
@@ -300,13 +306,15 @@ public class MoePrinter
     { 
         private List<PrintLine> text;  // the text for the page
         private MoeSyntaxDocument document;
+        private boolean lineNumbers;
         private Font font;
 
-        MoePage(List<PrintLine> text, MoeSyntaxDocument document, Font font) 
+        MoePage(List<PrintLine> text, MoeSyntaxDocument document, boolean lineNumbers, Font font) 
         {
             this.text = text;  // set the page's text
             this.font = font;  // set the page's font
             this.document = document;
+            this.lineNumbers = lineNumbers; // whether to print line numbers
         }
         
         /** 
@@ -337,12 +345,32 @@ public class MoePrinter
 
             // print main text area
             int textYPosition = yPosition + HEADER_SPACE;
-            int textXPosition = xPosition + PADDING;
-            g.drawRect(xPosition, textYPosition, width, height - (HEADER_SPACE + FOOTER_SPACE));             
+            int textXPosition = xPosition + PADDING + (lineNumbers ? LINE_NUMBER_WIDTH : 0);
+            g.drawRect(xPosition, textYPosition, width, height - (HEADER_SPACE + FOOTER_SPACE));
+            
+            int lineNumberXPosition = xPosition + PADDING;
+            int lastLineNumber = 0;
+            if (lineNumbers)
+            {
+            	//The vertical line dividing the line numbers from the code:
+            	g.drawLine(xPosition + LINE_NUMBER_WIDTH, textYPosition
+            			  ,xPosition + LINE_NUMBER_WIDTH, yPosition + height - FOOTER_SPACE);
+            }
+            
+            
             // print the text
             for(ListIterator<PrintLine> li = text.listIterator(); li.hasNext(); ) {
                 position = textYPosition + (this.font.getSize() + 2) * (li.nextIndex() + 1);
                 PrintLine line = li.next();
+                
+                if (lineNumbers && line.getLineNumber() != lastLineNumber)
+                {
+                	g.setColor(Color.black);
+                	g.setFont(lineNumberFont);
+                	g.drawString(Integer.toString(line.getLineNumber()), lineNumberXPosition, position);
+                	lastLineNumber = line.getLineNumber();
+                	g.setFont(font);
+                }
                 
                 int x = textXPosition;
             	
@@ -487,18 +515,21 @@ public class MoePrinter
     	private MoeSyntaxDocument document;
     	private int startOffset;
     	private int endOffset;
-    	
-    	public PrintLine(MoeSyntaxDocument document, int startOffset,
-				int endOffset) {
+    	private int lineNumber;
+
+		public PrintLine(MoeSyntaxDocument document, int startOffset,
+				int endOffset, int lineNumber) {
 			this.document = document;
 			this.startOffset = startOffset;
 			this.endOffset = endOffset;
+			this.lineNumber = lineNumber;
 		}
     	
-    	public PrintLine(MoeSyntaxDocument document, Element e) {
+    	public PrintLine(MoeSyntaxDocument document, Element e, int lineNumber) {
 			this.document = document;
 			this.startOffset = e.getStartOffset();
 			this.endOffset = e.getEndOffset();
+			this.lineNumber = lineNumber;
 		}
 
 		public int getStartOffset() {
@@ -508,7 +539,12 @@ public class MoePrinter
 		public int getEndOffset() {
 			return endOffset;
 		}
+
     	
+    	public int getLineNumber() {
+			return lineNumber;
+		}		
+		
 		@Override
     	public int length() {
     		return endOffset - startOffset;
@@ -552,7 +588,7 @@ public class MoePrinter
     	
     	public PrintLine substring(int begin, int end)
     	{
-    		return new PrintLine(document, begin + startOffset, end + startOffset);
+    		return new PrintLine(document, begin + startOffset, end + startOffset, lineNumber);
     	}
     	
     	public Segment getSegment()

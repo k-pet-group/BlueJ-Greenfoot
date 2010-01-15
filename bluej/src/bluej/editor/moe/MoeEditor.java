@@ -3014,7 +3014,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
             // print document, using new pageformat object at present
             info.message(Config.getString("editor.info.printing"));
-            if (printer.printDocument(printJob, sourceDocument, windowTitle, printFont, pageFormat)) {
+            if (printer.printDocument(printJob, sourceDocument, false, windowTitle, printFont, pageFormat)) {
                 info.message(Config.getString("editor.info.printed"));
             }
             else {
