@@ -237,8 +237,7 @@ public class MoePrinter
                     PrintLine newSubString = pl.substring(begin, end);
                     if(newSubString.length() != 0)
                     {
-                    	Debug.message("Adding new line: \"" + newSubString.toString() + "\"");
-                        li.add(newSubString);
+                    	li.add(newSubString);
                     }
                 }
             }
