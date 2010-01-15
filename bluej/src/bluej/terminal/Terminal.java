@@ -67,6 +67,8 @@ public final class Terminal extends JFrame
 
     private static final String terminalFontPropertyName = "bluej.terminal.font";
     private static final String terminalFontSizePropertyName = "bluej.terminal.fontsize";
+    
+    private static int terminalFontSize = Config.getPropInteger(terminalFontSizePropertyName, 0);
 
     // -- instance --
 
@@ -96,18 +98,48 @@ public final class Terminal extends JFrame
     private boolean initialised = false; 
     
     /**
-     * Get the terminal font
+     * Get the terminal font using the configured size and initialise
+     * the terminal font size if it isn't already set
      */
     private static Font getTerminalFont()
     {
-        int fontSize = Config.getPropInteger(terminalFontSizePropertyName, 0);
-        if (fontSize == 0) {
-            fontSize = PrefMgr.getEditorFontSize();
+        if (terminalFontSize <= 0) {
+            resetTerminalFontSize();
         }
-         
-        return Config.getFont(terminalFontPropertyName, "Monospaced", fontSize); 
+        return Config.getFont(terminalFontPropertyName, "Monospaced", terminalFontSize);
     }
-    
+
+    /*
+     * Get the terminal font size or initialise it
+     */
+    private static int getTerminalFontSize()
+    {
+        if (terminalFontSize <= 0) {
+            resetTerminalFontSize();
+        }
+        return terminalFontSize;
+    }
+
+    /*
+     * Set the terminal font size to the parameter or the editor font size
+     */
+    private static void setTerminalFontSize(int size)
+    {
+        if (size <= 0) {
+            terminalFontSize = PrefMgr.getEditorFontSize();
+        } else {
+            terminalFontSize = size;
+        }
+    }
+
+    /*
+     * Resets the terminal font size to the original size
+     */
+    private static void resetTerminalFontSize()
+    {
+        terminalFontSize = Config.getPropInteger(terminalFontSizePropertyName, 0);
+    }
+
     /**
      * Create a new terminal window with default specifications.
      */
@@ -367,6 +399,24 @@ public final class Terminal extends JFrame
                 buffer.signalEOF();
                 writeToTerminal("\n");
                 break;
+
+            case KeyEvent.VK_EQUALS: // increase the font size
+                if (event.isControlDown()) {
+                    setTerminalFontSize(getTerminalFontSize() + 1);
+                    project.getTerminal().resetFont();
+                } else if (buffer.putChar(ch)) {
+                    writeToTerminal(String.valueOf(ch));
+                }
+                break;
+
+            case KeyEvent.VK_MINUS: // decrease the font size
+                if (event.isControlDown()) {
+                    setTerminalFontSize(getTerminalFontSize() - 1);
+                    project.getTerminal().resetFont();
+                } else if (buffer.putChar(ch)) {
+                    writeToTerminal(String.valueOf(ch));
+                }
+                break;
                 
             case '\b':	// backspace
                 if(buffer.backSpace()) {
@@ -389,8 +439,9 @@ public final class Terminal extends JFrame
                 break;
 
             default:
-                if(buffer.putChar(ch))
+                if(buffer.putChar(ch)) {
                     writeToTerminal(String.valueOf(ch));
+                }
                 break;
             }
         }
