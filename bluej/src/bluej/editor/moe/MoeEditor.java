@@ -217,6 +217,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     private boolean tabsAreExpanded = false;
 
     private MoePrinter printer;
+    private PrintDialog printDialog;
 
     private TextInsertNotifier doTextInsert = new TextInsertNotifier();
 
@@ -1190,8 +1191,13 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void print(PrinterJob printerJob)
     {
-        PrintHandler pt = new PrintHandler(printerJob, getPageFormat(printerJob));
-        pt.print();
+    	if (printDialog == null)
+            printDialog = new PrintDialog(this);
+
+        if (printDialog.display()) {
+        	PrintHandler pt = new PrintHandler(printerJob, getPageFormat(printerJob), printDialog.printLineNumbers(), printDialog.printHighlighting());
+        	pt.print();
+        }
     }
 
     /**
@@ -1209,13 +1215,18 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void print()
     {
-        // create a printjob
-        PrinterJob job = PrinterJob.getPrinterJob();
-        if (job.printDialog()) {
-            PrintHandler pt = new PrintHandler(job, getPageFormat(job));
-            Thread printJobThread = new Thread(pt);
-            printJobThread.setPriority((Thread.currentThread().getPriority() - 1));
-            printJobThread.start();
+    	if (printDialog == null)
+            printDialog = new PrintDialog(this);
+
+        if (printDialog.display()) {
+	        // create a printjob
+	        PrinterJob job = PrinterJob.getPrinterJob();
+	        if (job.printDialog()) {
+	            PrintHandler pt = new PrintHandler(job, getPageFormat(job), printDialog.printLineNumbers(), printDialog.printHighlighting());
+	            Thread printJobThread = new Thread(pt);
+	            printJobThread.setPriority((Thread.currentThread().getPriority() - 1));
+	            printJobThread.start();
+	        }
         }
     }
 
@@ -2984,15 +2995,19 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         PrinterJob printJob;
         PageFormat pageFormat;
+        boolean lineNumbers;
+        boolean syntaxHighlighting;
 
         /**
          * Construct the PrintHandler.
          */
-        public PrintHandler(PrinterJob pj, PageFormat format)
+        public PrintHandler(PrinterJob pj, PageFormat format, boolean lineNumbers, boolean syntaxHighlighting)
         {
             super();
             printJob = pj;
             pageFormat = format;
+            this.lineNumbers = lineNumbers;
+            this.syntaxHighlighting = syntaxHighlighting;
         }
 
         /**
@@ -3014,7 +3029,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
             // print document, using new pageformat object at present
             info.message(Config.getString("editor.info.printing"));
-            if (printer.printDocument(printJob, sourceDocument, false, windowTitle, printFont, pageFormat)) {
+            if (printer.printDocument(printJob, sourceDocument, lineNumbers, syntaxHighlighting, windowTitle, printFont, pageFormat)) {
                 info.message(Config.getString("editor.info.printed"));
             }
             else {

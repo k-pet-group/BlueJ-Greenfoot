@@ -80,8 +80,8 @@ public class MoePrinter
      *
      * @returns   true if it was not cancelled.
      */
-    public boolean printDocument(PrinterJob printJob, MoeSyntaxDocument document, boolean lineNumbers, String className, 
-                                 Font font, PageFormat format) 
+    public boolean printDocument(PrinterJob printJob, MoeSyntaxDocument document, boolean lineNumbers, boolean syntaxHighlighting,
+    		                     String className, Font font, PageFormat format) 
     {
         List<PrintLine> lines = new ArrayList<PrintLine>();
 
@@ -111,7 +111,7 @@ public class MoePrinter
             document.readUnlock();
         }
 
-        return printText(printJob, lines, font, document, lineNumbers, format);
+        return printText(printJob, lines, font, document, lineNumbers, syntaxHighlighting, format);
     }
 
 
@@ -145,10 +145,10 @@ public class MoePrinter
      *
      * @returns   true if it was not cancelled.
      */
-    private synchronized boolean printText(PrinterJob job, List<PrintLine> text, Font font, MoeSyntaxDocument document, boolean lineNumbers, PageFormat format) 
+    private synchronized boolean printText(PrinterJob job, List<PrintLine> text, Font font, MoeSyntaxDocument document, boolean lineNumbers, boolean syntaxHighlighting, PageFormat format) 
     {
         try {
-            pages = paginateText(text, format, document, lineNumbers, font);        
+            pages = paginateText(text, format, document, lineNumbers, syntaxHighlighting, font);        
 
             // set the book pageable so the printjob knows 
             // we are printing more than one page (maybe)
@@ -170,7 +170,7 @@ public class MoePrinter
      * The pagination method.  Paginate the text onto Printable page objects.
      * This includes wrapping long lines of text.
      */   
-    private Book paginateText(List<PrintLine> text, PageFormat pageFormat, MoeSyntaxDocument document, boolean lineNumbers, Font font) 
+    private Book paginateText(List<PrintLine> text, PageFormat pageFormat, MoeSyntaxDocument document, boolean lineNumbers, boolean syntaxHighlighting, Font font) 
     {
         Book book = new Book();
         int currentLine = 0;       // line I am  currently reading
@@ -198,7 +198,7 @@ public class MoePrinter
             }
 	    
             // create a new page object with the text and add it to the book
-            book.append(new MoePage(pageText, document, lineNumbers, font), pageFormat);  
+            book.append(new MoePage(pageText, document, lineNumbers, syntaxHighlighting, font), pageFormat);  
             pageNum++;   // increase the page number I am on
         }
         return book;  // return the completed book
@@ -307,14 +307,16 @@ public class MoePrinter
         private List<PrintLine> text;  // the text for the page
         private MoeSyntaxDocument document;
         private boolean lineNumbers;
+        private boolean syntaxHighlighting;
         private Font font;
 
-        MoePage(List<PrintLine> text, MoeSyntaxDocument document, boolean lineNumbers, Font font) 
+        MoePage(List<PrintLine> text, MoeSyntaxDocument document, boolean lineNumbers, boolean syntaxHighlighting, Font font) 
         {
             this.text = text;  // set the page's text
             this.font = font;  // set the page's font
             this.document = document;
             this.lineNumbers = lineNumbers; // whether to print line numbers
+            this.syntaxHighlighting = syntaxHighlighting; // whether to print with syntax highlighting
         }
         
         /** 
@@ -390,7 +392,10 @@ public class MoePrinter
                             color = colors[id];
                         else color = def;
                     }
-                    g.setColor(color == null ? def : color);
+                    if (syntaxHighlighting)
+                    {
+                    	g.setColor(color == null ? def : color);
+                    }
 
                     Segment lineSeg = line.getSegment();
                     lineSeg.count = length;
