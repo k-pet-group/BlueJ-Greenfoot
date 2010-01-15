@@ -94,7 +94,6 @@ public interface Editor
     void setSelection(int firstlineNumber, int firstColumn,
                       int secondLineNumber, int SecondColumn);
 
-
     /**
      * Show the editor window. This includes whatever is necessary of the
      * following: make visible, de-iconify, bring to front of window stack.

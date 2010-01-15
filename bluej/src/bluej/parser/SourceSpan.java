@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,17 +25,16 @@ package bluej.parser;
  * A span between two line/column locations.
  *
  * @author  Andrew Patterson
- * @version $Id: SourceSpan.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class SourceSpan
 {
     private SourceLocation start;
     private SourceLocation end;
     
-	/**
-	 * @param start  the line/column location where the span starts
-	 * @param end	 the line/column location where the span ends
-	 */
+    /**
+     * @param start  the line/column location where the span starts
+     * @param end	 the line/column location where the span ends
+     */
     public SourceSpan(SourceLocation start, SourceLocation end)
     {
         this.start = start;
@@ -62,9 +61,6 @@ public class SourceSpan
         return (start.getLine() == end.getLine() );
     }
     
-    /**
-     * @return
-     */
     public SourceLocation getStartLocation()
     {
         return start;

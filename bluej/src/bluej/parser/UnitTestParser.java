@@ -1,3 +1,24 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.parser;
 
 import java.io.Reader;
@@ -5,24 +26,33 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
+import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 
-
+/**
+ * A parser which extracts certain information needed for BlueJ's unit test
+ * (junit) functionality.
+ * 
+ * @author Davin McCall
+ */
 public class UnitTestParser extends JavaParser
 {
-    private LocatableToken beginningElement;
     private int classLevel = 0; // level of class nesting
     private int elementLevel = 0;
-    private boolean inField = false;
     private boolean inMethod = false; // are we in an interesting method
     private String methodName;
     private LocatableToken methodBegin;
+    private boolean isPublic = false;
+    private boolean haveClassInfo = false;
     
     private List<SourceSpan> fieldSpans = new LinkedList<SourceSpan>();
     private SourceLocation methodInsertLocation;
     private SourceLocation fixtureInsertLocation;
     private Map<String,SourceSpan> methodSpans = new HashMap<String,SourceSpan>();
+    
+    private Stack<SourceLocation> fieldStarts = new Stack<SourceLocation>();
     
     public UnitTestParser(Reader r)
     {
@@ -31,7 +61,6 @@ public class UnitTestParser extends JavaParser
             parseCU();
         }
         catch (Exception e) {
-            
         }
     }
     
@@ -55,42 +84,66 @@ public class UnitTestParser extends JavaParser
         return methodSpans.get(name);
     }
     
+    @Override
     protected void error(String msg)
     {
         throw new RuntimeException("Parse error: " + msg);
     }
     
+    @Override
     protected void beginElement(LocatableToken token)
     {
         elementLevel++;
-        if (classLevel == 1 && elementLevel == 2) {
-            beginningElement = token;
+    }
+    
+    @Override
+    protected void gotModifier(LocatableToken token)
+    {
+        if (token.getType() == JavaTokenTypes.LITERAL_public) {
+            isPublic = true;
         }
     }
     
-    protected void gotField(LocatableToken idToken)
+    @Override
+    protected void modifiersConsumed()
     {
-        if (elementLevel == 2) {
-            inField = true;
+        isPublic = false;
+    }
+    
+    @Override
+    protected void gotField(LocatableToken first, LocatableToken idToken)
+    {
+        if (classLevel == 1 && !haveClassInfo) {
+            fieldStarts.push(new SourceLocation(first.getLine(), first.getColumn()));
         }
     }
     
     protected void endElement(LocatableToken token, boolean included)
     {
-        if (elementLevel == 2 && inField) {
-            inField = false;
-            SourceLocation start = new SourceLocation(beginningElement.getLine(), beginningElement.getColumn());
+        elementLevel--;
+    }
+    
+    @Override
+    protected void endFieldDeclarations(LocatableToken token, boolean included)
+    {
+        if (classLevel == 1 && !haveClassInfo) {
+            SourceLocation start = fieldStarts.pop();
             SourceLocation end = new SourceLocation(token.getEndLine(), token.getEndColumn());
             SourceSpan ss = new SourceSpan(start, end);
             fieldSpans.add(ss);
         }
-        elementLevel--;
     }
     
     @Override
     protected void gotTypeDef(int tdType)
     {
         classLevel++;
+        if (haveClassInfo && isPublic) {
+            // A public class overrides a non-public class
+            haveClassInfo = false;
+            fieldSpans = new LinkedList<SourceSpan>();
+            methodSpans = new HashMap<String,SourceSpan>();
+        }
     }
     
     @Override
@@ -103,16 +156,12 @@ public class UnitTestParser extends JavaParser
     }
     
     @Override
-    protected void endTypeBody(LocatableToken endCurlyToken, boolean included)
-    {
-    }
-    
-    @Override
     protected void gotTypeDefEnd(LocatableToken token, boolean included)
     {
         classLevel--;
         endElement(token, included);
         if (classLevel == 0) {
+            haveClassInfo = true;
             methodInsertLocation = new SourceLocation(token.getLine(), token.getColumn());
         }
     }
@@ -121,7 +170,7 @@ public class UnitTestParser extends JavaParser
     protected void gotMethodDeclaration(LocatableToken token,
             LocatableToken hiddenToken)
     {
-        if (elementLevel == 2) {
+        if (classLevel == 1 && ! haveClassInfo) {
             inMethod = true;
             methodName = token.getText();
         }
@@ -144,7 +193,7 @@ public class UnitTestParser extends JavaParser
     @Override
     protected void endMethodBody(LocatableToken token, boolean included)
     {
-        if (elementLevel == 2 && methodBegin != null) {
+        if (classLevel == 1 && !haveClassInfo && methodBegin != null) {
             SourceLocation start = new SourceLocation(methodBegin.getLine(), methodBegin.getColumn());
             SourceLocation end = new SourceLocation(token.getEndLine(), token.getEndColumn());
             SourceSpan ss = new SourceSpan(start, end);

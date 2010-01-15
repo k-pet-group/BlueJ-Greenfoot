@@ -37,7 +37,9 @@ public class InitConfig
 {
     static {
         File bluejLibDir = Boot.getBluejLibDir();
-        Config.initialise(bluejLibDir, new Properties(), false);
+        Properties p = new Properties();
+        p.put("bluej.debug", "true");
+        Config.initialise(bluejLibDir, p, false);
     }
     
     public static void init() { }

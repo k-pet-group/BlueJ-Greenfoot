@@ -44,6 +44,7 @@ import bluej.parser.nodes.ParentParsedNode;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ParsedTypeNode;
+import bluej.parser.nodes.PkgStmtNode;
 import bluej.parser.nodes.TypeInnerNode;
 import bluej.parser.symtab.Selection;
 
@@ -60,6 +61,8 @@ public class EditorParser extends JavaParser
     private ParsedCUNode pcuNode;
     private List<LocatableToken> commentQueue = new LinkedList<LocatableToken>();
     private List<LocatableToken> lastTypeSpec;
+    private FieldNode lastField;
+    private int arrayDecls;
     
     private Document document;
     
@@ -576,12 +579,10 @@ public class EditorParser extends JavaParser
         int startpos = lineColToPosition(s.getLine(), s.getColumn());
         int endpos = lineColToPosition(s.getEndLine(), s.getEndColumn());
         
-        // PkgStmtNode psn = new PkgStmtNode();
-        // DAV this should not be a CommentNode (make a new node type)
-        CommentNode cn = new CommentNode(pcuNode, Token.KEYWORD1);
+        PkgStmtNode psn = new PkgStmtNode(pcuNode);
         beginNode(startpos);
-        pcuNode.insertNode(cn, startpos, endpos - startpos);
-        completedNode(cn, startpos, endpos - startpos);
+        pcuNode.insertNode(psn, startpos, endpos - startpos);
+        completedNode(psn, startpos, endpos - startpos);
     }
     
     protected void gotImportStmtSemi(LocatableToken token)
@@ -673,24 +674,63 @@ public class EditorParser extends JavaParser
     protected void gotTypeSpec(List<LocatableToken> tokens)
     {
         lastTypeSpec = tokens;
+        arrayDecls = 0;
     }
     
     @Override
-    protected void gotField(LocatableToken idToken)
+    protected void gotArrayDeclarator()
+    {
+        arrayDecls++;
+        // DAV
+        System.out.println("gotArrayDeclarator");
+    }
+    
+    @Override
+    protected void beginFieldDeclarations(LocatableToken first)
+    {
+        arrayDecls = 0;
+    }
+    
+    @Override
+    protected void gotField(LocatableToken first, LocatableToken idToken)
     {
         JavaEntity fieldType = ParseUtils.getTypeEntity(scopeStack.peek(), lastTypeSpec);
         
-        FieldNode field = new FieldNode(scopeStack.peek(), idToken.getText(), fieldType);
+        lastField = new FieldNode(scopeStack.peek(), idToken.getText(), fieldType, arrayDecls);
+        arrayDecls = 0;
         int curOffset = getTopNodeOffset();
-        int insPos = lineColToPosition(pcuStmtBegin.getLine(), pcuStmtBegin.getEndColumn());
+        int insPos = lineColToPosition(first.getLine(), first.getEndColumn());
         beginNode(insPos);
         
         if (fieldType != null) {
             TypeInnerNode top = (TypeInnerNode) scopeStack.peek();
-            top.insertField(field, insPos - curOffset, 0);
+            top.insertField(lastField, insPos - curOffset, 0);
+        }
+        else {
+            scopeStack.peek().insertNode(lastField, insPos - curOffset, 0);
         }
         
-        scopeStack.peek().insertNode(field, insPos - curOffset, 0);
+        scopeStack.push(lastField);
+    }
+    
+    @Override
+    protected void gotSubsequentField(LocatableToken first,
+            LocatableToken idToken)
+    {
+        FieldNode field = new FieldNode(scopeStack.peek(), idToken.getText(), lastField, arrayDecls);
+        arrayDecls = 0;
+        int curOffset = getTopNodeOffset();
+        int insPos = lineColToPosition(first.getLine(), first.getEndColumn());
+        beginNode(insPos);
+        
+        if (lastField.getFieldType() != null) {
+            TypeInnerNode top = (TypeInnerNode) scopeStack.peek();
+            top.insertField(field, insPos - curOffset, 0);
+        }
+        else {
+            scopeStack.peek().insertNode(field, insPos - curOffset, 0);
+        }
+        
         scopeStack.push(field);
     }
     
@@ -743,6 +783,7 @@ public class EditorParser extends JavaParser
     protected void endExpression(LocatableToken token)
     {
         endTopNode(token, false);
+        arrayDecls = 0;
     }
 
 }

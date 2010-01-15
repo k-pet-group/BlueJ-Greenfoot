@@ -794,7 +794,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             return null;
         }
 
-        Element lineElement = getLineAt(offset);
+        Element lineElement = sourceDocument.getDefaultRootElement().getElement(lineNumber);
         int column = offset - lineElement.getStartOffset();
 
         if (column < 0) {

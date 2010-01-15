@@ -61,6 +61,7 @@ public class InfoParser extends EditorParser
     private boolean isPublic;
     private int lastTdType; // last typedef type (TYPEDEF_CLASS, _INTERFACE etc)
     private boolean storeCurrentClassInfo;
+    private int arrayCount = 0;
 
     private List<LocatableToken> lastTypespecToks;
     private boolean modPublic;
@@ -363,7 +364,12 @@ public class InfoParser extends EditorParser
         super.gotMethodParameter(token);
         if (currentMethod != null) {
             currentMethod.paramNames += token.getText() + " ";
-            currentMethod.paramTypes.add(ParseUtils.getTypeEntity(scopeStack.peek(), lastTypespecToks));
+            JavaEntity ptype = ParseUtils.getTypeEntity(scopeStack.peek(), lastTypespecToks);
+            while (arrayCount > 0) {
+                ptype = new UnresolvedArray(ptype);
+                arrayCount--;
+            }
+            currentMethod.paramTypes.add(ptype);
         }
     }
     
@@ -371,12 +377,13 @@ public class InfoParser extends EditorParser
     protected void gotArrayDeclarator()
     {
         super.gotArrayDeclarator();
-        if (currentMethod != null) {
-            int index = currentMethod.paramTypes.size() - 1;
-            JavaEntity last = currentMethod.paramTypes.get(index);
-            currentMethod.paramTypes.remove(index);
-            currentMethod.paramTypes.add(new UnresolvedArray(last));
-        }
+        arrayCount++;
+//        if (currentMethod != null) {
+//            int index = currentMethod.paramTypes.size() - 1;
+//            JavaEntity last = currentMethod.paramTypes.get(index);
+//            currentMethod.paramTypes.remove(index);
+//            currentMethod.paramTypes.add(new UnresolvedArray(last));
+//        }
     }
 
     protected void gotAllMethodParameters()

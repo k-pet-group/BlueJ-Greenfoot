@@ -126,7 +126,7 @@ public class JavaParser
         endElement(token, true);
     }
 
-    protected void beginForLoop(LocatableToken token) { }
+    protected void beginForLoop(LocatableToken token) { beginElement(token); }
     
     protected void beginForLoopBody(LocatableToken token) { }
     
@@ -159,7 +159,7 @@ public class JavaParser
     
     protected void endSwitchStmt(LocatableToken token, boolean included) { }
     
-    protected void beginDoWhile(LocatableToken token) { }
+    protected void beginDoWhile(LocatableToken token) { beginElement(token); }
     
     protected void beginDoWhileBody(LocatableToken token) { }
     
@@ -236,16 +236,30 @@ public class JavaParser
         endElement(token, included);
     }
     
+    /** 
+     * Got a field declaration, which might declare multiple fields. Each field will generate
+     * gotField() or gotSubsequentField().
+     * @param first  The first token in the declaration
+     */
+    protected void beginFieldDeclarations(LocatableToken first) { }
+    
     /**
-     * Got a field (inside a type definition). The beginning is marked by the previous beginElement().
+     * Got a field (inside a type definition).
+     * @param first     The first token that forms part of the field declaration
      * @param idToken   The token with the name of the field.
      */
-    protected void gotField(LocatableToken idToken) { }
+    protected void gotField(LocatableToken first, LocatableToken idToken) { }
 
+    protected void gotSubsequentField(LocatableToken first, LocatableToken idToken) { }
+    
+    /** End a single field declaration (but not necessarily the field declaration statement) */
     protected void endField(LocatableToken token, boolean included)
     {
         endElement(token, included);
     }
+    
+    /** End a field declaration statement */
+    protected void endFieldDeclarations(LocatableToken token, boolean included) { }
 
     /** We've seen a type specification or something that looks a lot like one. */
     protected void gotTypeSpec(List<LocatableToken> tokens) { }
@@ -314,7 +328,8 @@ public class JavaParser
     
     /**
      * Called when, after a parameter/field/variable name, array declarators "[]" are seen.
-     * Will be called once for each set of "[]".
+     * Will be called once for each set of "[]", immediately before gotField() or equivalent
+     * is called.
      */
     protected void gotArrayDeclarator() { }
 
@@ -723,8 +738,14 @@ public class JavaParser
             beginElement(token);
             tokenStream.pushBack(token);
             LocatableToken hiddenToken = (LocatableToken) token.getHiddenBefore();
+            
             // field declaration, method declaration, inner class
             List<LocatableToken> modifiers = parseModifiers();
+            LocatableToken firstMod = null;
+            if (! modifiers.isEmpty()) {
+                firstMod = modifiers.get(0);
+            }
+            
             token = tokenStream.nextToken();
             if (token.getType() == JavaTokenTypes.LITERAL_class
                     || token.getType() == JavaTokenTypes.LITERAL_interface
@@ -774,6 +795,7 @@ public class JavaParser
                         || token.getType() == JavaTokenTypes.IDENT
                         || isPrimitiveType(token)) {
                     // method, field
+                    LocatableToken first = firstMod != null ? firstMod : token;
                     if (token.getType() == JavaTokenTypes.LT) {
                         // generic method
                         parseTemplateParams();
@@ -789,37 +811,45 @@ public class JavaParser
                         token = idToken;
                         continue;
                     }
-                    parseArrayDeclarators();
 
                     token = tokenStream.nextToken();
-                    if (token.getType() == JavaTokenTypes.SEMI) {
-                        // field declaration: done
-                        gotField(idToken);
+                    int ttype = token.getType();
+                    if (ttype == JavaTokenTypes.LBRACK || ttype == JavaTokenTypes.SEMI
+                            || ttype == JavaTokenTypes.ASSIGN || ttype == JavaTokenTypes.COMMA) {
+                        // This must be a field declaration
+                        beginFieldDeclarations(first);
+                        if (ttype == JavaTokenTypes.LBRACK) {
+                            tokenStream.pushBack(token);
+                            parseArrayDeclarators();
+                            token = tokenStream.nextToken();
+                            ttype = token.getType();
+                        }
+                        gotField(first, idToken);
+                        if (ttype == JavaTokenTypes.SEMI) {
+                            endField(token, true);
+                            endFieldDeclarations(token, true);
+                        }
+                        else if (ttype == JavaTokenTypes.ASSIGN) {
+                            parseExpression();
+                            parseSubsequentDeclarations(true);
+                        }
+                        else if (ttype == JavaTokenTypes.COMMA) {
+                            tokenStream.pushBack(token);
+                            parseSubsequentDeclarations(true);
+                        }
+                        else {
+                            error("Expected ',', '=' or ';' after field declaration");
+                            tokenStream.pushBack(token);
+                            endField(token, false);
+                            endFieldDeclarations(token, false);
+                        }
                         modifiersConsumed();
-                        endField(token, true);
-                        token = tokenStream.nextToken();
-                        continue;
                     }
-                    else if (token.getType() == JavaTokenTypes.ASSIGN) {
-                        // field declaration
-                        gotField(idToken);
-                        modifiersConsumed();
-                        parseExpression();
-                        parseSubsequentDeclarations(true);
-                        token = tokenStream.nextToken();
-                        continue;
-                    }
-                    else if (token.getType() == JavaTokenTypes.LPAREN) {
+                    else if (ttype == JavaTokenTypes.LPAREN) {
                         // method declaration
                         gotMethodDeclaration(idToken, hiddenToken);
                         modifiersConsumed();
                         parseMethodParamsBody();
-                    }
-                    else if (token.getType() == JavaTokenTypes.COMMA) {
-                        gotField(idToken);
-                        tokenStream.pushBack(token);
-                        parseSubsequentDeclarations(true);
-                        modifiersConsumed();
                     }
                     else {
                         modifiersConsumed();
@@ -1579,12 +1609,22 @@ public class JavaParser
     {
         LocatableToken token = tokenStream.nextToken();
         while (token.getType() == JavaTokenTypes.COMMA) {
+            if (isField) {
+                endField(token, false);
+            }
+            LocatableToken first = token;
             token = tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.IDENT) {
+                if (isField) {
+                    endFieldDeclarations(token, false);
+                }
                 error("Expecting variable identifier (or change ',' to ';')");
                 return;
             }
             parseArrayDeclarators();
+            if (isField) {
+                gotSubsequentField(first, token);
+            }
             token = tokenStream.nextToken();
             if (token.getType() == JavaTokenTypes.ASSIGN) {
                 parseExpression();
@@ -1597,6 +1637,7 @@ public class JavaParser
             tokenStream.pushBack(token);
             if (isField) {
                 endField(token, false);
+                endFieldDeclarations(token, false);
             }
             else {
                 endElement(token, false);
@@ -1605,6 +1646,7 @@ public class JavaParser
         else {
             if (isField) {
                 endField(token, true);
+                endFieldDeclarations(token, true);
             }
             else {
                 endElement(token, true);
@@ -2495,8 +2537,8 @@ public class JavaParser
                 tokenStream.pushBack(idToken);
                 return;
             }
-            gotMethodParameter(idToken);
             parseArrayDeclarators();
+            gotMethodParameter(idToken);
             token = tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.COMMA) {
                 break;

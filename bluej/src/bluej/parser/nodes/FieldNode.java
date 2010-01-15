@@ -22,6 +22,7 @@
 package bluej.parser.nodes;
 
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.UnresolvedArray;
 
 /**
  * A node representing a parsed field.
@@ -32,12 +33,34 @@ public class FieldNode extends ParentParsedNode
 {
     private String name;
     private JavaEntity fieldType;
+    private FieldNode firstNode;
+    /** Number of extra array declarators */
+    private int arrayDecls;
     
-    public FieldNode(ParsedNode parent, String name, JavaEntity fieldType)
+    /**
+     * Construct a field node representing the first declared field in a field
+     * declaration. The fieldType may be null if it appears invalid.
+     */
+    public FieldNode(ParsedNode parent, String name, JavaEntity fieldType, int arrayDecls)
     {
         super(parent);
         this.name = name;
         this.fieldType = fieldType;
+        this.arrayDecls = arrayDecls;
+    }
+    
+    /**
+     * Construct a field node representing the second or a subsequent field
+     * declared in a field declaration.
+     * @param parent     The parent parsed node (should be a TypeInnerNode)
+     * @param firstNode  The node representing the first declared field
+     */
+    public FieldNode(ParsedNode parent, String name, FieldNode firstNode, int arrayDecls)
+    {
+        super(parent);
+        this.name = name;
+        this.firstNode = firstNode;
+        this.arrayDecls = arrayDecls;
     }
     
     @Override
@@ -57,6 +80,10 @@ public class FieldNode extends ParentParsedNode
      */
     public JavaEntity getFieldType()
     {
-        return fieldType;
+        JavaEntity ftype = firstNode == null ? fieldType : firstNode.fieldType;
+        for (int i = 0; i < arrayDecls; i++) {
+            ftype = new UnresolvedArray(ftype);
+        }
+        return ftype;
     }
 }

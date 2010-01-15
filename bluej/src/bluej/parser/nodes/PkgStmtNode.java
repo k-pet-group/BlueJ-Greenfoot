@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,48 +19,18 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.parser;
+package bluej.parser.nodes;
 
 /**
- * A line/column location in a source file.
- *
- * Note that all line/column numbers start counting from 1.
- *
- * @author  Andrew Patterson
+ * A node for representing package statements at the beginning of a
+ * compilation unit.
+ * 
+ * @author Davin McCall
  */
-public class SourceLocation
+public class PkgStmtNode extends ParentParsedNode
 {
-    private int line;
-    private int column;
-    
-    public SourceLocation(int line, int column)
+    public PkgStmtNode(ParsedNode parent)
     {
-        if (line < 1 || column < 1)
-            throw new IllegalArgumentException("line/column numbers must be >= 0");
-
-        this.line = line;
-        this.column = column;
-    }
-
-    /**
-     * Gets the line number of this location
-     */
-    public int getLine()
-    {
-        return line;
-    }
-
-    /**
-     * gets the column where this node reside
-     * @return <code>int</code>
-     */
-    public int getColumn()
-    {
-        return column;
-    }
-
-    public String toString()
-    {   
-        return "<" + line + "," + column + ">";
+        super(parent);
     }
 }

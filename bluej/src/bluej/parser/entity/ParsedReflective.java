@@ -31,7 +31,6 @@ import java.util.Set;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
-import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
@@ -121,7 +120,11 @@ public class ParsedReflective extends Reflective
         Map<String,FieldNode> fields = pnode.getInner().getFields();
         Map<String,JavaType> rmap = new HashMap<String, JavaType>();
         for (Iterator<String> i = fields.keySet().iterator(); i.hasNext(); ) {
-            rmap.put(i.next(), JavaPrimitiveType.getInt()); // TODO not all fields are int!!
+            String fieldName = i.next();
+            JavaEntity ftypeEnt = fields.get(fieldName).getFieldType().resolveAsType();
+            if (ftypeEnt != null) {
+                rmap.put(fieldName, ftypeEnt.getType());
+            }
         }
         return rmap;
     }

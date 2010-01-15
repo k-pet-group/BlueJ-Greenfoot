@@ -201,9 +201,6 @@ public class CodeCompletionDisplay extends JFrame
             editor.insertText(selected, false);
         }
         else {
-            System.out.println("location line = " + location.getLine());
-            System.out.println("location col = " + location.getColumn());
-            
             SourceLocation begin = new SourceLocation(location.getLine(), location.getColumn());
             SourceLocation end = new SourceLocation(location.getEndLine(), location.getEndColumn());
             editor.setSelection(begin, end);
