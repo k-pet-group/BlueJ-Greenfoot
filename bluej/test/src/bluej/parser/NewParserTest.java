@@ -415,4 +415,17 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseTypeDef();
     }
+    
+    /**
+     * Test for loop with double initializer
+     */
+    public void testForLoop()
+    {
+        StringReader sr = new StringReader(
+                "for (int i = 8, j; ; ) {" +
+                "}"
+        );
+        JavaParser ip = new JavaParser(sr);
+        ip.parseStatement();
+    }
 }
