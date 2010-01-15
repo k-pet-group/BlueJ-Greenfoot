@@ -117,17 +117,21 @@ public class MoePrinter
      * Remove newline and carriage return characters from the end 
      * of this string. This is needed to fix a printing bug with 
      * the handling of newline characters on some printers
+     * 
+     * Having trailing spaces in the comments also seems to screw up
+     * the spacing when printing with syntax highlighting, so we remove
+     * them too.
      */
     private PrintLine removeNewLines(PrintLine line)
     {
         int length = line.length();
-        char lastChar = (length > 0 ? line.charAt(line.length()-1) : ' ');
+        char lastChar = (length > 0 ? line.charAt(line.length()-1) : 'a');
 
-        while((lastChar == '\n') || (lastChar == '\r')) {
+        while((lastChar == '\n') || (lastChar == '\r') || (lastChar == ' ') || (lastChar == '\t')) {
             
             line.chopLast();
             length = line.length();
-            lastChar = (length > 0 ? line.charAt(line.length()-1) : ' ');
+            lastChar = (length > 0 ? line.charAt(line.length()-1) : 'a');
         }
         return line;
     }
