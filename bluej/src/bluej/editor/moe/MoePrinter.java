@@ -227,21 +227,69 @@ public class MoePrinter
             
             // if line needs to be wrapped
             if(width > maxWidth) {
-                int indexOfLine = li.previousIndex();
+            	int[] tabSpaces = calculateTabSpaces(pl.toString());
                 // remove original
                 li.remove();
                 double iterations = (currentLineLength / chars) + 1;
-                for(int begin = 0, end = 0; iterations > 0; iterations--, begin += chars) {
-                    if(begin + chars < currentLineLength)
-                        end = begin + chars;
-                    else
-                        end = currentLineLength;
+                for(int begin = 0, end = 0; iterations > 0; iterations--, begin = advanceChars(pl.toString(),tabSpaces,begin,chars)) {
+                    end = advanceChars(pl.toString(),tabSpaces,begin,chars);
+                    
                     PrintLine newSubString = pl.substring(begin, end);
                     if(newSubString.length() != 0)
+                    {
+                    	Debug.message("Adding new line: \"" + newSubString.toString() + "\"");
                         li.add(newSubString);
+                    }
                 }
             }
         }
+    }
+    
+    /**
+     * Given a String and an index into it, along with the pre-calculated tabSpaces array,
+     * advances the index by the given number of character widths.
+     * 
+     * If the String contains to tabs, this effectively adds advanceBy to index.
+     * 
+     * If the String does contain tabs, their width is taken into account
+     * as the index is advanced through the array.
+     * 
+     */
+    private int advanceChars(String line, int[] tabSpaces, int index, int advanceBy)
+    {
+    	while (advanceBy > 0 && index < line.length())
+    	{
+    		int width = (line.charAt(index) == '\t') ? tabSpaces[index] : 1;	
+    		advanceBy -= width;
+    		index += 1;
+    	}
+    	return index;
+    }
+    
+    /**
+     * Calculates how many spaces each tab in the given string turns into.
+     * 
+     * If there is a tab at character index N, the array entry N in the
+     * returned array will indicate how many spaces the tab converts into.
+     * The value of all other entries is undefined.
+     */
+    private int[] calculateTabSpaces(String line)
+    {
+    	// Bigger array than necessary, but we're only doing one line at a time:
+        int[] tabSpaces = new int[line.length()];
+        int curPos = 0;
+        for (int i = 0; i < line.length(); i++) {
+            if (line.charAt(i) == '\t') {
+                // calculate how many spaces to add
+                int numberOfSpaces = tabSize - (curPos % tabSize);
+                tabSpaces[i] = numberOfSpaces;
+                curPos += numberOfSpaces;
+            }
+            else {
+            	curPos += 1;
+            }
+        }
+        return tabSpaces;
     }
 
 
@@ -342,7 +390,7 @@ public class MoePrinter
             printFooter(g, xPosition, footerYPosition, width, FOOTER_SPACE); 
     
             return Printable.PAGE_EXISTS;   // print the page
-        } 
+        }
 
         /**
          * Makes a TabExpander object that will turn tabs into the appropriate
@@ -353,20 +401,7 @@ public class MoePrinter
          */
         private TabExpander makeTabExpander(String line, final FontMetrics fontMetrics)
         {
-        	// Bigger array than necessary, but we're only doing one line at a time:
-            final int[] tabSpaces = new int[line.length()];
-            int curPos = 0;
-            for (int i = 0; i < line.length(); i++) {
-                if (line.charAt(i) == '\t') {
-                    // calculate how many spaces to add
-                    int numberOfSpaces = tabSize - (curPos % tabSize);
-                    tabSpaces[i] = numberOfSpaces;
-                    curPos += numberOfSpaces;
-                }
-                else {
-                	curPos += 1;
-                }
-            }
+            final int[] tabSpaces = calculateTabSpaces(line);
             
             return new TabExpander() {
         		@Override
