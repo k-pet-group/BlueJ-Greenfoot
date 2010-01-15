@@ -160,12 +160,12 @@ editor.closeLabel = Close
 editor.page-setupLabel = Page Setup...
 
 # menu labels (MUST be defined)
-editor.classLabel = Class
-editor.editLabel = Edit
-editor.toolsLabel = Tools
-editor.debugLabel = Debug
-editor.optionLabel = Options
-editor.helpLabel = Help
+editor.classLabel = _Class
+editor.editLabel = _Edit
+editor.toolsLabel = _Tools
+editor.debugLabel = _Debug
+editor.optionLabel = _Options
+editor.helpLabel = _Help
 
 # item labels (can be omitted if same as action name)
 editor.saveLabel = Save

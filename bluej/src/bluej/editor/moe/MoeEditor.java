@@ -2800,6 +2800,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         // get menu title
         JMenu menu = new JMenu(Config.getString("editor." + key + LabelSuffix));
+        int mnemonic = Config.getMnemonicKey("editor." + key + LabelSuffix);
+        menu.setMnemonic(mnemonic);
 
         // get menu definition
         String itemString = getResource(key);
