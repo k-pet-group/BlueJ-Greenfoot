@@ -1439,18 +1439,12 @@ public class JavaParser
                 }
                 else {
                     // Old style loop with initialiser
-                    if (token.getType() != JavaTokenTypes.ASSIGN) {
-                        error("Expecting '=' to complete initializer (in for loop)");
-                        tokenStream.pushBack(token);
-                        endForLoop(token, false);
-                        return null;
+                    beginElement(tlist.get(0));
+                    if (token.getType() == JavaTokenTypes.ASSIGN) {
+                        parseExpression();
                     }
-                    parseExpression();
-                    token = tokenStream.nextToken();
-                    if (token.getType() != JavaTokenTypes.SEMI) {
-                        error("Expecting ';' after initialiser (in for statement)");
-                        tokenStream.pushBack(token);
-                        endForLoop(token, false);
+                    if (!parseSubsequentDeclarations(false)) {
+                        endForLoop(tokenStream.LA(1), false);
                         return null;
                     }
                 }
@@ -1605,7 +1599,7 @@ public class JavaParser
      * After seeing a type and identifier declaration, this will parse any
      * the subsequent declarations, and check for a terminating semicolon.
      */
-    protected void parseSubsequentDeclarations(boolean isField)
+    protected boolean parseSubsequentDeclarations(boolean isField)
     {
         LocatableToken token = tokenStream.nextToken();
         while (token.getType() == JavaTokenTypes.COMMA) {
@@ -1619,7 +1613,7 @@ public class JavaParser
                     endFieldDeclarations(token, false);
                 }
                 error("Expecting variable identifier (or change ',' to ';')");
-                return;
+                return false;
             }
             parseArrayDeclarators();
             if (isField) {
@@ -1633,7 +1627,7 @@ public class JavaParser
         }
 
         if (token.getType() != JavaTokenTypes.SEMI) {
-            error("Expecting ';' at end of variable declaration");
+            error("Expecting ';' at end of variable/field declaration");
             tokenStream.pushBack(token);
             if (isField) {
                 endField(token, false);
@@ -1642,6 +1636,7 @@ public class JavaParser
             else {
                 endElement(token, false);
             }
+            return false;
         }
         else {
             if (isField) {
@@ -1651,6 +1646,7 @@ public class JavaParser
             else {
                 endElement(token, true);
             }
+            return true;
         }
     }
 
