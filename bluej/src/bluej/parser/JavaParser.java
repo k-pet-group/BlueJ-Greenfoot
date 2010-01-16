@@ -1443,6 +1443,9 @@ public class JavaParser
                     if (token.getType() == JavaTokenTypes.ASSIGN) {
                         parseExpression();
                     }
+                    else {
+                        tokenStream.pushBack(token);
+                    }
                     if (!parseSubsequentDeclarations(false)) {
                         endForLoop(tokenStream.LA(1), false);
                         return null;
@@ -1475,10 +1478,14 @@ public class JavaParser
         if (tokenStream.LA(1).getType() != JavaTokenTypes.RPAREN) {
             // loop increment expression
             parseExpression();
+            while (tokenStream.LA(1).getType() == JavaTokenTypes.COMMA) {
+                tokenStream.nextToken();
+                parseExpression();
+            }
         }
-        token = tokenStream.nextToken();
+        token = tokenStream.nextToken(); // ')'?
         if (token.getType() != JavaTokenTypes.RPAREN) {
-            error("Expecting ')' at end of 'for(...'");
+            error("Expecting ')' (or ',') after 'for(...'");
             tokenStream.pushBack(token);
             endForLoop(token, false);
             return null;
