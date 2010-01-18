@@ -45,7 +45,7 @@ import bluej.utility.Utility;
  * The Frame part of the Terminal window used for I/O when running programs
  * under BlueJ.
  *
- * @author  Michael Kolling
+ * @author  Michael Kolling, Philip Stevens
  */
 @SuppressWarnings("serial")
 public final class Terminal extends JFrame
@@ -69,7 +69,8 @@ public final class Terminal extends JFrame
     private static final String terminalFontSizePropertyName = "bluej.terminal.fontsize";
 
     // initialise to config value or zero.
-    private static int terminalFontSize = Config.getPropInteger(terminalFontSizePropertyName, 0);
+    private static int terminalFontSize = Config.getPropInteger(
+            terminalFontSizePropertyName, PrefMgr.getEditorFontSize());
 
     // -- instance --
 
@@ -107,7 +108,8 @@ public final class Terminal extends JFrame
         if (terminalFontSize <= 0) {
             resetTerminalFontSize();
         }
-        return Config.getFont(terminalFontPropertyName, "Monospaced", terminalFontSize);
+        return Config.getFont(
+                terminalFontPropertyName, "Monospaced", terminalFontSize);
     }
 
     /*
@@ -139,7 +141,8 @@ public final class Terminal extends JFrame
      */
     private static void resetTerminalFontSize()
     {
-        terminalFontSize = Config.getPropInteger(terminalFontSizePropertyName, PrefMgr.getEditorFontSize());
+        terminalFontSize = Config.getPropInteger(
+                terminalFontSizePropertyName, PrefMgr.getEditorFontSize());
     }
 
     /**
