@@ -403,7 +403,7 @@ public class MoePrinter
                     
                     // workaround for strange problem on Mac:
                     // trying to print empty lines throws exception
-                    if (lineSeg.length() == 0) {
+                    if (lineSeg.count == 0) {
                     	char[] chars = new char[]{' '};
                     	Segment nonBlank = new Segment(chars,0,1);
                     	x = Utilities.drawTabbedText(nonBlank, x, position, g, null, 0);
@@ -436,7 +436,6 @@ public class MoePrinter
             final int[] tabSpaces = calculateTabSpaces(line);
             
             return new TabExpander() {
-        		@Override
         		public float nextTabStop(float x, int tabOffset) {
         			return x + tabSpaces[tabOffset] * fontMetrics.charWidth(' ');
         		}
@@ -550,7 +549,6 @@ public class MoePrinter
 			return lineNumber;
 		}		
 		
-		@Override
     	public int length() {
     		return endOffset - startOffset;
     	}
@@ -575,12 +573,10 @@ public class MoePrinter
     		}
     	}
 
-		@Override
 		public char charAt(int n) {
 			return toString().charAt(n);
 		}
 
-		@Override
 		public CharSequence subSequence(int start, int end) {
 			return toString().subSequence(start, end);
 		}
