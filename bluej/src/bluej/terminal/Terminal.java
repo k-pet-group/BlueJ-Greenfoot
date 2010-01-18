@@ -67,7 +67,8 @@ public final class Terminal extends JFrame
 
     private static final String terminalFontPropertyName = "bluej.terminal.font";
     private static final String terminalFontSizePropertyName = "bluej.terminal.fontsize";
-    
+
+    // initialise to config value or zero.
     private static int terminalFontSize = Config.getPropInteger(terminalFontSizePropertyName, 0);
 
     // -- instance --
@@ -98,8 +99,8 @@ public final class Terminal extends JFrame
     private boolean initialised = false; 
     
     /**
-     * Get the terminal font using the configured size and initialise
-     * the terminal font size if it isn't already set
+     * Get the terminal font using the configured size or initialise/reset
+     * if the current size is zero or less.
      */
     private static Font getTerminalFont()
     {
@@ -110,7 +111,7 @@ public final class Terminal extends JFrame
     }
 
     /*
-     * Get the terminal font size or initialise it
+     * Get the terminal font size or initialise/reset it.
      */
     private static int getTerminalFontSize()
     {
@@ -121,23 +122,24 @@ public final class Terminal extends JFrame
     }
 
     /*
-     * Set the terminal font size to the parameter or the editor font size
+     * Set the terminal font size to the parameter, or reset if the value is
+     * zero or less.
      */
     private static void setTerminalFontSize(int size)
     {
-        if (size <= 0) {
-            terminalFontSize = PrefMgr.getEditorFontSize();
-        } else {
-            terminalFontSize = size;
+        terminalFontSize = size;
+        if (terminalFontSize <= 0) {
+            resetTerminalFontSize();
         }
     }
 
     /*
-     * Resets the terminal font size to the original size
+     * Resets the terminal font size to the original size or use the editor
+     * default if terminal font size is not set.
      */
     private static void resetTerminalFontSize()
     {
-        terminalFontSize = Config.getPropInteger(terminalFontSizePropertyName, 0);
+        terminalFontSize = Config.getPropInteger(terminalFontSizePropertyName, PrefMgr.getEditorFontSize());
     }
 
     /**
@@ -401,6 +403,7 @@ public final class Terminal extends JFrame
                 break;
 
             case KeyEvent.VK_EQUALS: // increase the font size
+            case KeyEvent.VK_PLUS: // increase the font size (non-uk keyboards)
                 if (event.isControlDown()) {
                     setTerminalFontSize(getTerminalFontSize() + 1);
                     project.getTerminal().resetFont();
