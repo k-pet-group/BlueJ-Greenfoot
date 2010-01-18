@@ -382,6 +382,10 @@ bluej.print.scale=60
 bluej.terminal.height=22
 bluej.terminal.width=80
 
+bluej.terminal.clearscreen=false
+bluej.terminal.recordcalls=false
+bluej.terminal.buffering=false
+
 # Default is to use system encoding, uncomment only to provide an explicit encoding 
 #bluej.terminal.encoding=UTF-8
 

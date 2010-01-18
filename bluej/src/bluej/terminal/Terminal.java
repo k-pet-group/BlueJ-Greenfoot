@@ -52,25 +52,29 @@ public final class Terminal extends JFrame
     implements KeyListener, BlueJEventListener, DebuggerTerminal
 {
     private static final String WINDOWTITLE = Config.getApplicationName() + ": " + Config.getString("terminal.title");
-    private static final int windowHeight =
+    private static final int WINDOWHEIGHT =
         Config.getPropInteger("bluej.terminal.height", 22);
-    private static final int windowWidth =
+    private static final int WINDOWWIDTH =
         Config.getPropInteger("bluej.terminal.width", 80);
 
-    private static final Color fgColour = Color.black;
-    private static final Color errorColour = Color.red;
+    private static final Color FGCOLOUR = Color.black;
+    private static final Color ERRORCOLOUR = Color.red;
 
     private static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
     static boolean enabled = true;
 
-    private static final String terminalFontPropertyName = "bluej.terminal.font";
-    private static final String terminalFontSizePropertyName = "bluej.terminal.fontsize";
-
+    private static final String TERMINALFONTPROPNAME = "bluej.terminal.font";
+    private static final String TERMINALFONTSIZEPROPNAME = "bluej.terminal.fontsize";
+    
+    private static final String RECORDMETHODCALLSPROPNAME = "bluej.terminal.recordcalls";
+    private static final String CLEARONMETHODCALLSPROPNAME = "bluej.terminal.clearscreen";
+    private static final String UNLIMITEDBUFFERINGCALLPROPNAME = "bluej.terminal.buffering";
+    
     // initialise to config value or zero.
     private static int terminalFontSize = Config.getPropInteger(
-            terminalFontSizePropertyName, PrefMgr.getEditorFontSize());
+            TERMINALFONTSIZEPROPNAME, PrefMgr.getEditorFontSize());
 
     // -- instance --
 
@@ -82,8 +86,9 @@ public final class Terminal extends JFrame
     private JScrollPane scrollPane;
     private JSplitPane splitPane;
     private boolean isActive = false;
-    private boolean recordMethodCalls = false;
-    private boolean clearOnMethodCall = false;
+    private static boolean recordMethodCalls = Config.getPropBoolean(RECORDMETHODCALLSPROPNAME);
+    private static boolean clearOnMethodCall = Config.getPropBoolean(CLEARONMETHODCALLSPROPNAME);
+    private static boolean unlimitedBufferingCall = Config.getPropBoolean(UNLIMITEDBUFFERINGCALLPROPNAME);
     private boolean newMethodCall = true;
     private boolean errorShown = false;
     private InputBuffer buffer;
@@ -109,7 +114,7 @@ public final class Terminal extends JFrame
             resetTerminalFontSize();
         }
         return Config.getFont(
-                terminalFontPropertyName, "Monospaced", terminalFontSize);
+                TERMINALFONTPROPNAME, "Monospaced", terminalFontSize);
     }
 
     /*
@@ -142,7 +147,7 @@ public final class Terminal extends JFrame
     private static void resetTerminalFontSize()
     {
         terminalFontSize = Config.getPropInteger(
-                terminalFontSizePropertyName, PrefMgr.getEditorFontSize());
+                TERMINALFONTSIZEPROPNAME, PrefMgr.getEditorFontSize());
     }
 
     /**
@@ -163,7 +168,7 @@ public final class Terminal extends JFrame
     {
         if(! initialised) {            
             buffer = new InputBuffer(256);
-            makeWindow(windowWidth, windowHeight);
+            makeWindow(WINDOWWIDTH, WINDOWHEIGHT);
             initialised = true;
         }
     }
@@ -488,7 +493,7 @@ public final class Terminal extends JFrame
         text.setFont(getTerminalFont());
         text.setEditable(true);
         text.setLineWrap(false);
-        text.setForeground(fgColour);
+        text.setForeground(FGCOLOUR);
         text.setMargin(new Insets(6, 6, 6, 6));
         //text.setBackground(inactiveBgColour);
         text.addKeyListener(this);
@@ -539,7 +544,7 @@ public final class Terminal extends JFrame
         errorText.setFont(getTerminalFont());
         errorText.setEditable(false);
         errorText.setLineWrap(false);
-        errorText.setForeground(errorColour);
+        errorText.setForeground(ERRORCOLOUR);
         errorText.setMargin(new Insets(6, 6, 6, 6));
 
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
@@ -619,12 +624,15 @@ public final class Terminal extends JFrame
         menu.add(new JSeparator());
 
         autoClear = new JCheckBoxMenuItem(new AutoClearAction());
+        autoClear.setSelected(clearOnMethodCall);
         menu.add(autoClear);
 
         recordCalls = new JCheckBoxMenuItem(new RecordCallAction());
+        recordCalls.setSelected(recordMethodCalls);
         menu.add(recordCalls);
 
         unlimitedBuffering = new JCheckBoxMenuItem(new BufferAction());
+        unlimitedBuffering.setSelected(unlimitedBufferingCall);
         menu.add(unlimitedBuffering);
 
         menu.add(new JSeparator());
@@ -692,6 +700,7 @@ public final class Terminal extends JFrame
 
         public void actionPerformed(ActionEvent e) {
             clearOnMethodCall = autoClear.isSelected();
+            Config.putPropBoolean(CLEARONMETHODCALLSPROPNAME, clearOnMethodCall);
         }
     }
 
@@ -704,6 +713,7 @@ public final class Terminal extends JFrame
 
         public void actionPerformed(ActionEvent e) {
             recordMethodCalls = recordCalls.isSelected();
+            Config.putPropBoolean(RECORDMETHODCALLSPROPNAME, recordMethodCalls);
         }
     }
 
@@ -715,7 +725,9 @@ public final class Terminal extends JFrame
         }
 
         public void actionPerformed(ActionEvent e) {
-            text.setUnlimitedBuffering(unlimitedBuffering.isSelected());
+            unlimitedBufferingCall = unlimitedBuffering.isSelected();
+            text.setUnlimitedBuffering(unlimitedBufferingCall);
+            Config.putPropBoolean(UNLIMITEDBUFFERINGCALLPROPNAME, unlimitedBufferingCall);
         }
     }
             
