@@ -410,52 +410,43 @@ public final class Terminal extends JFrame
                 project.getTerminal().resetFont();
             }
             break;
-        }
-        
-        if (isActive) {
-            switch(ch) {
+        default:
+            if (isActive) {
+                switch (ch) {
 
-            case 4:   // CTRL-D (unix/Mac EOF)
-            case 26:  // CTRL-Z (DOS/Windows EOF)
-                buffer.signalEOF();
-                writeToTerminal("\n");
-                break;
-                
-            case '\b':	// backspace
-                if(buffer.backSpace()) {
-                    try {
-                        int length = text.getDocument().getLength();
-                        text.replaceRange("", length-1, length);
+                case 4:   // CTRL-D (unix/Mac EOF)
+                case 26:  // CTRL-Z (DOS/Windows EOF)
+                    buffer.signalEOF();
+                    writeToTerminal("\n");
+                    break;
+
+                case '\b':	// backspace
+                    if (buffer.backSpace()) {
+                        try {
+                            int length = text.getDocument().getLength();
+                            text.replaceRange("", length - 1, length);
+                        } catch (Exception exc) {
+                            Debug.reportError("bad location " + exc);
+                        }
                     }
-                    catch (Exception exc) {
-                        Debug.reportError("bad location " + exc);
+                    break;
+
+                case '\r':	// carriage return
+                case '\n':	// newline
+                    if (buffer.putChar('\n')) {
+                        writeToTerminal(String.valueOf(ch));
+                        buffer.notifyReaders();
                     }
-                }
-                break;
+                    break;
 
-            case '\r':	// carriage return
-            case '\n':	// newline
-                if(buffer.putChar('\n')) {
-                    writeToTerminal(String.valueOf(ch));
-                    buffer.notifyReaders();
-                }
-                break;
-
-            // silently ignore these if they were font increases/decreases
-            case KeyEvent.VK_EQUALS:
-            case KeyEvent.VK_PLUS:
-            case KeyEvent.VK_MINUS:
-                if ((event.isControlDown() && (ALT_SHORTCUT_MASK == Event.CTRL_MASK)) ||
-                    (event.isMetaDown() && (ALT_SHORTCUT_MASK == Event.META_MASK))) {
+                default:
+                    if (buffer.putChar(ch)) {
+                        writeToTerminal(String.valueOf(ch));
+                    }
                     break;
                 }
-                
-            default:
-                if(buffer.putChar(ch)) {
-                    writeToTerminal(String.valueOf(ch));
-                }
-                break;
             }
+            break;
         }
         event.consume();	// make sure the text area doesn't handle this
     }
