@@ -1084,8 +1084,7 @@ public class JavaParser
             pushBackAll(tlist);
             if (isTypeSpec && token.getType() == JavaTokenTypes.IDENT) {
                 gotTypeSpec(tlist);
-                parseVariableDeclarations();
-                return null; // DAV
+                return parseVariableDeclarations();
             }
             else {
                 parseExpression();						
@@ -1446,7 +1445,7 @@ public class JavaParser
                     else {
                         tokenStream.pushBack(token);
                     }
-                    if (!parseSubsequentDeclarations(false)) {
+                    if (parseSubsequentDeclarations(false) == null) {
                         endForLoop(tokenStream.LA(1), false);
                         return null;
                     }
@@ -1595,18 +1594,19 @@ public class JavaParser
     /**
      * Parse a variable declaration, possibly with an initialiser, always followed by ';'
      */
-    public void parseVariableDeclarations()
+    public LocatableToken parseVariableDeclarations()
     {
         parseModifiers();
         parseVariableDeclaration();
-        parseSubsequentDeclarations(false);
+        return parseSubsequentDeclarations(false);
     }
 
     /**
      * After seeing a type and identifier declaration, this will parse any
      * the subsequent declarations, and check for a terminating semicolon.
+     * @return  the last token that is part of the declarations, or null on error
      */
-    protected boolean parseSubsequentDeclarations(boolean isField)
+    protected LocatableToken parseSubsequentDeclarations(boolean isField)
     {
         LocatableToken token = tokenStream.nextToken();
         while (token.getType() == JavaTokenTypes.COMMA) {
@@ -1620,7 +1620,7 @@ public class JavaParser
                     endFieldDeclarations(token, false);
                 }
                 error("Expecting variable identifier (or change ',' to ';')");
-                return false;
+                return null;
             }
             parseArrayDeclarators();
             if (isField) {
@@ -1643,7 +1643,7 @@ public class JavaParser
             else {
                 endElement(token, false);
             }
-            return false;
+            return null;
         }
         else {
             if (isField) {
@@ -1653,7 +1653,7 @@ public class JavaParser
             else {
                 endElement(token, true);
             }
-            return true;
+            return token;
         }
     }
 

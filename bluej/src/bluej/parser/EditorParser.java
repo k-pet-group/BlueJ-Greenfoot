@@ -110,7 +110,13 @@ public class EditorParser extends JavaParser
         completedNode(pcuNode, 0, pcuNode.getSize());
     }
 
-    public int lineColToPosition(int line, int col)
+    /**
+     * Convert a line and column number to an absolute position within the document
+     * @param line  Line number (1..N)
+     * @param col   Column number (1..N)
+     * @return   The absolute position (0..N)
+     */
+    private int lineColToPosition(int line, int col)
     {
         if (document == null) {
             return 0;
@@ -118,6 +124,11 @@ public class EditorParser extends JavaParser
         return document.getDefaultRootElement().getElement(line - 1).getStartOffset() + col - 1;
     }
 
+    /**
+     * Close the node which is currently at the top of the node stack.
+     * @param token     The token which finishes the node
+     * @param included  Whether the token itself is part of the node
+     */
     private void endTopNode(LocatableToken token, boolean included)
     {
         int topPos = getTopNodeOffset();
