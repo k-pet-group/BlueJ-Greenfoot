@@ -190,6 +190,28 @@ public class CompletionTest extends TestCase
         assertEquals("java.lang.Object", suggests.getSuggestionType().toString());
     }
     
+    /** Test that a for-loop initializer creates a recognized variable */
+    public void testForInitializer() throws Exception
+    {
+        String aClassSrc = "class A {\n" +   //       10 
+        "void someMethod() {\n" +            // +20 = 30 
+        "    for (Object o = null ; ; ) {\n" + // +33 = 63
+        "        o.wait();\n" +   // o. <-- 73
+        "    }" +
+        "}\n" +
+        "}\n";
+        
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+        
+        ParsedCUNode aNode = cuForSource(aClassSrc);
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(73, doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.Object", suggests.getSuggestionType().toString());
+    }
+    
     /**
      * Check that forward variable references aren't allowed
      */
