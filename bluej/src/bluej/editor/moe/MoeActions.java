@@ -2390,9 +2390,17 @@ public final class MoeActions
     	// everything works nicely.
     	public void updateDocument(MoeSyntaxDocument doc)
     	{
-    		//TODO this won't work correctly with tab characters at the moment
-    		int lengthPrevWhitespace = findFirstNonIndentChar(getElementContents(doc, el), true);
-			if (indent != null && indent.length() != lengthPrevWhitespace) {
+			String line = getElementContents(doc, el);
+			int lengthPrevWhitespace = findFirstNonIndentChar(line, true);
+			boolean anyTabs = false;
+			for (char c : line.substring(0, lengthPrevWhitespace).toCharArray()) {
+				if (c == '\t')
+					anyTabs = true;
+			}
+    		// If we want to put in 4 spaces, and there are already exactly 4 tabs,
+    		// without the anyTabs check, we would leave the whitespace alone;
+    		// hence why we need the check:
+			if (indent != null && (anyTabs || (indent.length() != lengthPrevWhitespace))) {
 				try {
 					doc.replace(el.getStartOffset(), lengthPrevWhitespace,
 						        indent, null);
