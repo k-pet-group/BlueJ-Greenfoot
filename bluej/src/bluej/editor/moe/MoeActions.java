@@ -45,6 +45,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.Action;
@@ -750,18 +751,17 @@ public final class MoeActions
         	doc = editor.getSourceDocument();
                         
 			editor.undoManager.beginCompoundEdit();
-			List<DocumentUpdate> updates = calculateIndents();
-			for (DocumentUpdate update : updates) {
-				update.updateDocument(doc);
+			List<DocumentAction> updates = calculateIndents();
+			for (DocumentAction update : updates) {
+				update.apply(doc);
 			}
 			editor.undoManager.endCompoundEdit();
         }
         
-		private List<DocumentUpdate> calculateIndents()
+		private List<DocumentAction> calculateIndents()
 		{
 			Element rootElement = doc.getDefaultRootElement();
-			List<DocumentUpdate> updates = new ArrayList<DocumentUpdate>(
-					rootElement.getElementCount());
+			List<DocumentAction> updates = new LinkedList<DocumentAction>();
 
 			IndentCalculator ii = new RootIndentCalculator();
 
@@ -769,7 +769,7 @@ public final class MoeActions
 				Element el = rootElement.getElement(i);
 				NodeAndPosition root = new NodeAndPosition(doc.getParser(),0,doc.getParser().getSize());
 				String indent = calculateIndent(el, root, ii);
-				updates.add(new DocumentUpdate(el, indent));
+				updates.add(new DocumentIndentAction(el, indent));
 			}
 
 			return updates;
@@ -2369,17 +2369,23 @@ public final class MoeActions
 				return existingIndent;
 		}
 	}
+	
+	interface DocumentAction
+	{
+		public void apply(MoeSyntaxDocument doc);
+
+	}
 
 	/**
-	 * A class representing an update to the document.  This is different
+	 * A class representing an update to the indentation on a line of the document.  This is different
 	 * to a LineAction because it intrinsically knows which line it needs to update
 	 */
-    private static class DocumentUpdate
+    private static class DocumentIndentAction implements DocumentAction
     {
     	private Element el;
     	private String indent;
     	
-    	public DocumentUpdate(Element el, String indent)
+    	public DocumentIndentAction(Element el, String indent)
     	{
 			this.el = el;
 			this.indent = indent;
@@ -2388,7 +2394,7 @@ public final class MoeActions
 		// Because we keep element references, we don't have to worry about the offsets
     	// altering, because they will alter before we process the line, and thus
     	// everything works nicely.
-    	public void updateDocument(MoeSyntaxDocument doc)
+    	public void apply(MoeSyntaxDocument doc)
     	{
 			String line = getElementContents(doc, el);
 			int lengthPrevWhitespace = findFirstNonIndentChar(line, true);
