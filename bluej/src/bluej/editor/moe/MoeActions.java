@@ -45,6 +45,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.InputMap;
@@ -66,6 +67,13 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import bluej.Config;
+import bluej.parser.nodes.CommentNode;
+import bluej.parser.nodes.ContainerNode;
+import bluej.parser.nodes.ExpressionNode;
+import bluej.parser.nodes.MethodNode;
+import bluej.parser.nodes.ParsedNode;
+import bluej.parser.nodes.TypeInnerNode;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
@@ -726,7 +734,91 @@ public final class MoeActions
     }
 
     // --------------------------------------------------------------------
+    
+    class AutoIndentAction extends MoeAbstractAction
+    {
+    	private MoeSyntaxDocument doc;
 
+        public AutoIndentAction()
+        {
+            super("autoindent");
+        }
+
+        public void actionPerformed(ActionEvent e)
+        {
+        	MoeEditor editor = getEditor(e);
+        	doc = editor.getSourceDocument();
+                        
+			editor.undoManager.beginCompoundEdit();
+			List<DocumentUpdate> updates = calculateIndents();
+			for (DocumentUpdate update : updates) {
+				update.updateDocument(doc);
+			}
+			editor.undoManager.endCompoundEdit();
+        }
+        
+		private List<DocumentUpdate> calculateIndents()
+		{
+			Element rootElement = doc.getDefaultRootElement();
+			List<DocumentUpdate> updates = new ArrayList<DocumentUpdate>(
+					rootElement.getElementCount());
+
+			IndentCalculator ii = new RootIndentCalculator();
+
+			for (int i = 0; i < rootElement.getElementCount(); i++) {
+				Element el = rootElement.getElement(i);
+				NodeAndPosition root = new NodeAndPosition(doc.getParser(),0,doc.getParser().getSize());
+				String indent = calculateIndent(el, root, ii);
+				updates.add(new DocumentUpdate(el, indent));
+			}
+
+			return updates;
+		}
+
+		/**
+		 * Finds the indent for the given element by looking at the nodes in the parse tree
+		 * 
+		 * @param el The element to calculate the indent for
+		 * @param start The Node that is either the one directly containing the given element,
+		 *              or is an ancestor of the one that directly contains the given element,
+		 *              or may not contain the element at all (in which case null will be returned)
+		 * @param startIC The IndentCalculator corresponding to start
+         * @return The indent that the element should have, up to the first non-whitespace character.
+         *         Returns null if start does not contain the given element
+		 */
+		private String calculateIndent(Element el,
+				NodeAndPosition start, IndentCalculator startIC)
+		{
+			int pos = el.getStartOffset()
+					+ findFirstNonIndentChar(getElementContents(doc, el), true);
+			if (pos >= start.getPosition() && pos < start.getEnd()) {
+
+				// The slightly awkward way to loop through the children of "start":
+				for (NodeAndPosition nap = start.getNode().findNodeAtOrAfter(start.getPosition(), start.getPosition())
+				    ; nap != null
+				    ; nap = start.getNode().findNodeAtOrAfter(nap.getEnd(), start.getPosition())
+				    ) {
+					
+					String inner = calculateIndent(el, nap, startIC.getForChild(nap.getNode()));
+					if (inner != null)
+						return inner;
+				}
+				try {
+					return startIC.getCurIndent(doc.getText(pos, 1).charAt(0));
+				}
+				catch (BadLocationException e) {
+					return "";
+				}
+			}
+			else {
+				return null;
+			}
+		}
+    }
+    
+    // --------------------------------------------------------------------
+    
+    
     class InsertMethodAction extends MoeAbstractAction
     {
 
@@ -1529,7 +1621,7 @@ public final class MoeActions
      * Find the position of the first non-indentation character in a string.
      * Indentation characters are <whitespace>, //, *, /*, /**.
      */
-    private int findFirstNonIndentChar(String s, boolean whitespaceOnly)
+    private static int findFirstNonIndentChar(String s, boolean whitespaceOnly)
     {
         int cnt = 0;
         char ch = s.charAt(0);
@@ -1743,6 +1835,7 @@ public final class MoeActions
                 redoAction, 
                 new CommentBlockAction(), 
                 new UncommentBlockAction(), 
+                new AutoIndentAction(),
                 new IndentBlockAction(),
                 new DeindentBlockAction(), 
                 new InsertMethodAction(), 
@@ -1817,10 +1910,11 @@ public final class MoeActions
                 (Action) (actions.get("insert-method")),
                 (Action) (actions.get("comment-block")), 
                 (Action) (actions.get("uncomment-block")),
+                (Action) (actions.get("autoindent")), 
                 (Action) (actions.get("indent-block")), 
                 (Action) (actions.get("deindent-block")),
 
-                (Action) (actions.get(DefaultEditorKit.selectWordAction)), // 20
+                (Action) (actions.get(DefaultEditorKit.selectWordAction)), // 21
                 (Action) (actions.get(DefaultEditorKit.selectLineAction)),
                 (Action) (actions.get(DefaultEditorKit.selectParagraphAction)),
                 (Action) (actions.get(DefaultEditorKit.selectAllAction)),
@@ -1830,7 +1924,7 @@ public final class MoeActions
                 (Action) (actions.get(DefaultEditorKit.selectionDownAction)),
                 (Action) (actions.get(DefaultEditorKit.selectionBeginWordAction)),
                 (Action) (actions.get(DefaultEditorKit.selectionEndWordAction)),
-                (Action) (actions.get(DefaultEditorKit.selectionPreviousWordAction)), // 30
+                (Action) (actions.get(DefaultEditorKit.selectionPreviousWordAction)), // 31
                 (Action) (actions.get(DefaultEditorKit.selectionNextWordAction)),
                 (Action) (actions.get(DefaultEditorKit.selectionBeginLineAction)),
                 (Action) (actions.get(DefaultEditorKit.selectionEndLineAction)),
@@ -1843,7 +1937,7 @@ public final class MoeActions
                 (Action) (actions.get("unselect")),
 
                 // move and scroll functions
-                (Action) (actions.get(DefaultEditorKit.backwardAction)), // 41
+                (Action) (actions.get(DefaultEditorKit.backwardAction)), // 42
                 (Action) (actions.get(DefaultEditorKit.forwardAction)),
                 (Action) (actions.get(DefaultEditorKit.upAction)), 
                 (Action) (actions.get(DefaultEditorKit.downAction)),
@@ -1852,7 +1946,7 @@ public final class MoeActions
                 (Action) (actions.get(DefaultEditorKit.previousWordAction)),
                 (Action) (actions.get(DefaultEditorKit.nextWordAction)),
                 (Action) (actions.get(DefaultEditorKit.beginLineAction)),
-                (Action) (actions.get(DefaultEditorKit.endLineAction)),    // 50
+                (Action) (actions.get(DefaultEditorKit.endLineAction)),    // 51
                 (Action) (actions.get(DefaultEditorKit.beginParagraphAction)),
                 (Action) (actions.get(DefaultEditorKit.endParagraphAction)),
                 (Action) (actions.get(DefaultEditorKit.pageUpAction)),
@@ -1861,24 +1955,24 @@ public final class MoeActions
                 (Action) (actions.get(DefaultEditorKit.endAction)),
 
                 // class functions
-                (Action) (actions.get("save")), // 57
+                (Action) (actions.get("save")), // 58
                 (Action) (actions.get("reload")), 
                 (Action) (actions.get("close")), 
                 (Action) (actions.get("print")),
                 (Action) (actions.get("page-setup")),
 
                 // customisation functions
-                (Action) (actions.get("key-bindings")), // 62
+                (Action) (actions.get("key-bindings")), // 63
                 (Action) (actions.get("preferences")),
 
                 // help functions
-                (Action) (actions.get("describe-key")), // 64
+                (Action) (actions.get("describe-key")), // 65
                 (Action) (actions.get("help-mouse")), 
                 (Action) (actions.get("show-manual")),
                 (Action) (actions.get("about-editor")),
 
                 // misc functions
-                undoAction, // 68
+                undoAction, // 69
                 redoAction, 
                 (Action) (actions.get("find")), 
                 (Action) (actions.get("find-next")),
@@ -1892,7 +1986,7 @@ public final class MoeActions
                 (Action) (actions.get("decrease-font")),
                 (Action) (actions.get("code-completion")),
 
-        }; // 81
+        }; // 82
 
         categories = new String[] { 
                 Config.getString("editor.functions.editFunctions"),
@@ -1903,7 +1997,7 @@ public final class MoeActions
                 Config.getString("editor.functions.misc")
         };
 
-        categoryIndex = new int[] { 0, 41, 57, 62, 64, 68, 81 };
+        categoryIndex = new int[] { 0, 42, 58, 63, 65, 69, 82 };
     }
 
     /**
@@ -2176,4 +2270,149 @@ public final class MoeActions
         }
 
     }
+
+
+    // ---------------------------------------
+    // Indent calculation:
+    
+
+    /**
+     * An interface that calculates the indentation level that
+     * the corresponding node should have.  You should use getForChild as you
+     * descend the parse tree to get the indentation for child nodes.
+     */
+    private static interface IndentCalculator
+    {
+    	/**
+    	 * Gets the IndentCalculator for the given child node of the node that this
+    	 * IndentCalculator instance corresponds to
+    	 */
+    	public IndentCalculator getForChild(ParsedNode n);
+    	/**
+    	 * Gets the indent for a line in the current node that begins with the
+    	 * given character.  This allows for comments (such as this one right here)
+    	 * to have their leading asterisks indented by an extra space. 
+    	 */
+    	public String getCurIndent(char beginsWith);
+    }
+    
+    /**
+     * An implementation of IndentCalculator for the root node of the document.
+     */
+	private static class RootIndentCalculator implements IndentCalculator
+	{
+		public IndentCalculator getForChild(ParsedNode n)
+		{
+			return new NodeIndentCalculator("", n);
+		}
+
+		public String getCurIndent(char beginsWith)
+		{
+			return "";
+		}
+	}
+	
+	private static class NodeIndentCalculator implements IndentCalculator
+	{
+		private final String existingIndent;
+		private final ParsedNode parent;
+
+		private final static String STANDARD_INDENT = "    ";
+		private final static String CONTINUATION_INDENT = "    ";
+		// To make it line up like this:
+		// /**
+		//  *
+		//  *
+		//  */
+		// This must be a single space:
+		private final static String COMMENT_ASTERISK_INDENT = " ";
+
+		public NodeIndentCalculator(String existingIndent, ParsedNode parent)
+		{
+			this.existingIndent = existingIndent;
+			this.parent = parent;
+		}
+
+		public IndentCalculator getForChild(ParsedNode child)
+		{
+			String newIndent = existingIndent;
+			
+			// I realise that using instanceof is sinful, but because I need
+			// to know the type of both the parent and the child node, there is no
+			// easy way to fold this method into either the parent or child node type
+			// (either would still use instanceof on the other), so I'm keeping
+			// it here for now:			
+			
+			if (child instanceof TypeInnerNode)
+				newIndent += STANDARD_INDENT;
+			else if (parent instanceof MethodNode
+					&& !(child instanceof CommentNode))
+				// comments that are children of methods are actually the comment
+				// before the method, and thus shouldn't be indented any differently
+				newIndent += STANDARD_INDENT;
+			else if (parent instanceof ContainerNode)
+				newIndent += STANDARD_INDENT;
+			else if (parent instanceof ExpressionNode
+					&& child instanceof ExpressionNode)
+				// Expressions that are children of expressions are function arguments,
+				// and thus use the continuation indent:
+				newIndent += CONTINUATION_INDENT;
+
+			return new NodeIndentCalculator(newIndent, child);
+		}
+
+		public String getCurIndent(char beginsWith)
+		{
+			if (parent instanceof CommentNode && beginsWith == '*')
+				return existingIndent + COMMENT_ASTERISK_INDENT;
+			else
+				return existingIndent;
+		}
+	}
+
+	/**
+	 * A class representing an update to the document.  This is different
+	 * to a LineAction because it intrinsically knows which line it needs to update
+	 */
+    private static class DocumentUpdate
+    {
+    	private Element el;
+    	private String indent;
+    	
+    	public DocumentUpdate(Element el, String indent)
+    	{
+			this.el = el;
+			this.indent = indent;
+		}
+
+		// Because we keep element references, we don't have to worry about the offsets
+    	// altering, because they will alter before we process the line, and thus
+    	// everything works nicely.
+    	public void updateDocument(MoeSyntaxDocument doc)
+    	{
+    		//TODO this won't work correctly with tab characters at the moment
+    		int lengthPrevWhitespace = findFirstNonIndentChar(getElementContents(doc, el), true);
+			if (indent != null && indent.length() != lengthPrevWhitespace) {
+				try {
+					doc.replace(el.getStartOffset(), lengthPrevWhitespace,
+						        indent, null);
+				}
+				catch (BadLocationException e) {
+					Debug.reportError("Error doing indent in DocumentUpdate", e);
+				}
+			}
+    	}
+    }
+    
+    private static String getElementContents(MoeSyntaxDocument doc, Element el)
+    {
+		try {
+			return doc.getText(el.getStartOffset(), el.getEndOffset() - el.getStartOffset());
+		}
+		catch (BadLocationException e) {
+			Debug.reportError("Error getting element contents in document", e);
+			return "";
+		}
+    }
+
 }
