@@ -761,15 +761,39 @@ public final class MoeActions
 		private List<DocumentAction> calculateIndents()
 		{
 			Element rootElement = doc.getDefaultRootElement();
-			List<DocumentAction> updates = new LinkedList<DocumentAction>();
+			List<DocumentAction> updates = new ArrayList<DocumentAction>(rootElement.getElementCount());
 
 			IndentCalculator ii = new RootIndentCalculator();
+			
+			boolean lastLineWasBlank = false;
 
 			for (int i = 0; i < rootElement.getElementCount(); i++) {
 				Element el = rootElement.getElement(i);
-				NodeAndPosition root = new NodeAndPosition(doc.getParser(),0,doc.getParser().getSize());
-				String indent = calculateIndent(el, root, ii);
-				updates.add(new DocumentIndentAction(el, indent));
+
+				boolean thisLineBlank = isWhiteSpaceOnly(getElementContents(
+						doc, el));
+				DocumentAction update;
+
+				if (thisLineBlank) {
+					if (lastLineWasBlank) {
+						// Consecutive blank lines; remove this one:
+						update = new DocumentRemoveLineAction(el);
+					}
+					else {
+						// Single blank line (thus far), remove all spaces from
+						// it:
+						update = new DocumentIndentAction(el, "");
+					}
+				}
+				else {
+					NodeAndPosition root = new NodeAndPosition(doc.getParser(),
+							0, doc.getParser().getSize());
+					String indent = calculateIndent(el, root, ii);
+					update = new DocumentIndentAction(el, indent);
+				}
+
+				updates.add(update);
+				lastLineWasBlank = thisLineBlank;
 			}
 
 			return updates;
@@ -2374,6 +2398,26 @@ public final class MoeActions
 	{
 		public void apply(MoeSyntaxDocument doc);
 
+	}
+
+	private static class DocumentRemoveLineAction implements DocumentAction
+	{
+		private Element lineToRemove;
+
+		public DocumentRemoveLineAction(Element lineToRemove)
+		{
+			this.lineToRemove = lineToRemove;
+		}
+
+		public void apply(MoeSyntaxDocument doc)
+		{
+			try {
+				doc.remove(lineToRemove.getStartOffset(), lineToRemove.getEndOffset() - lineToRemove.getStartOffset());
+			}
+			catch (BadLocationException e) {
+				Debug.reportError("Problem while trying to remove line from document", e);
+			}
+		}
 	}
 
 	/**
