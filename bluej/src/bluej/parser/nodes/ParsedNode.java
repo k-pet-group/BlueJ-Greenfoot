@@ -22,6 +22,7 @@
 package bluej.parser.nodes;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.swing.text.Document;
@@ -70,6 +71,11 @@ public abstract class ParsedNode implements EntityResolver
         this.parentNode = parentNode;
     }
 
+    public Iterator<NodeAndPosition> getChildren()
+    {
+        return nodeTree.iterator();
+    }
+    
     /**
      * Get the type of this node. One of:
      * <ul>

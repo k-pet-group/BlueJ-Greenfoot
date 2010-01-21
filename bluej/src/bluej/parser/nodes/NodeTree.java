@@ -707,13 +707,13 @@ public class NodeTree
 
             if (pos == 1) {
                 pos = 2;
+                NodeAndPosition rval = new NodeAndPosition(top.pnode,
+                        top.pnodeOffset + offset,
+                        top.pnodeSize);
                 if (top.right == null) {
                     downStack();
                 }
-                // return top.pnode;
-                return new NodeAndPosition(top.pnode,
-                        top.pnodeOffset + offset,
-                        top.pnodeSize);
+                return rval;
             }
 
             // pos == 2
