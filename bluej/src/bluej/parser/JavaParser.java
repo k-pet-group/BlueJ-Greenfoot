@@ -1413,7 +1413,17 @@ public class JavaParser
         if (tokenStream.LA(1).getType() != JavaTokenTypes.SEMI) {
             // Could be an old or new style for-loop.
             List<LocatableToken> tlist = new LinkedList<LocatableToken>();
-            boolean isTypeSpec = parseTypeSpec(true, true, tlist);
+
+            boolean isTypeSpec = false;
+            if (isModifier(tokenStream.LA(1))) {
+                parseModifiers();
+                isTypeSpec = true;
+                parseTypeSpec(false, true, tlist);
+            }
+            else {
+                isTypeSpec = parseTypeSpec(true, true, tlist);
+            }
+            
             if (isTypeSpec && tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
                 // for (type var ...
                 gotTypeSpec(tlist);

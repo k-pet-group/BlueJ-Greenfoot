@@ -428,4 +428,17 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
+    
+    /**
+     * Test for loop where initializer has modifier(s)
+     */
+    public void testForLoop2()
+    {
+        StringReader sr = new StringReader(
+                "for (final int i : intArray) {" +
+                "}"
+        );
+        JavaParser ip = new JavaParser(sr);
+        ip.parseStatement();
+    }
 }
