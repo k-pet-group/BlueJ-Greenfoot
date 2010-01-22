@@ -751,14 +751,14 @@ public final class MoeActions
         	doc = editor.getSourceDocument();
                         
 			editor.undoManager.beginCompoundEdit();
-			List<DocumentAction> updates = calculateIndents();
+			List<DocumentAction> updates = calculateIndents(editor);
 			for (DocumentAction update : updates) {
 				update.apply(doc);
 			}
 			editor.undoManager.endCompoundEdit();
         }
         
-		private List<DocumentAction> calculateIndents()
+		private List<DocumentAction> calculateIndents(MoeEditor editor)
 		{
 			Element rootElement = doc.getDefaultRootElement();
 			List<DocumentAction> updates = new ArrayList<DocumentAction>(rootElement.getElementCount());
@@ -766,22 +766,27 @@ public final class MoeActions
 			IndentCalculator ii = new RootIndentCalculator();
 			
 			boolean lastLineWasBlank = false;
+			boolean perfect = true;
 
 			for (int i = 0; i < rootElement.getElementCount(); i++) {
 				Element el = rootElement.getElement(i);
 
 				boolean thisLineBlank = isWhiteSpaceOnly(getElementContents(
 						doc, el));
-				DocumentAction update;
+				DocumentAction update = null;
 
 				if (thisLineBlank) {
 					if (lastLineWasBlank) {
 						// Consecutive blank lines; remove this one:
-						update = new DocumentRemoveLineAction(el);
+						if (el.getEndOffset() <= doc.getLength())
+						{
+							update = new DocumentRemoveLineAction(el);
+							perfect = false;
+						}
 					}
 					else {
 						// Single blank line (thus far), remove all spaces from
-						// it:
+						// it (and don't interrupt perfect status):
 						update = new DocumentIndentAction(el, "");
 					}
 				}
@@ -790,11 +795,16 @@ public final class MoeActions
 							0, doc.getParser().getSize());
 					String indent = calculateIndent(el, root, ii);
 					update = new DocumentIndentAction(el, indent);
+					perfect = perfect && getElementContents(doc, el).startsWith(indent);
 				}
-
-				updates.add(update);
+				
+				if (update != null)
+					updates.add(update);
 				lastLineWasBlank = thisLineBlank;
 			}
+			
+			if (perfect)
+				editor.writeMessage(Config.getString("editor.info.perfectIndent"));
 
 			return updates;
 		}
@@ -2415,7 +2425,9 @@ public final class MoeActions
 				doc.remove(lineToRemove.getStartOffset(), lineToRemove.getEndOffset() - lineToRemove.getStartOffset());
 			}
 			catch (BadLocationException e) {
-				Debug.reportError("Problem while trying to remove line from document", e);
+				Debug.reportError("Problem while trying to remove line from document: "
+						+ lineToRemove.getStartOffset() + "->" + lineToRemove.getEndOffset()
+						+ " in document of size " + doc.getLength(), e);
 			}
 		}
 	}
