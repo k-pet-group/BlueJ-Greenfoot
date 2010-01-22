@@ -1531,7 +1531,7 @@ public final class MoeActions
 
             String indent = prevLineText.substring(0, indentPos);
 
-            if (isNewLine && isCommentStart(indent)) {
+            if (isNewLine && isNewCommentStart(indent, doc, lineStart)) {
                 completeNewCommentBlock(textPane, indent);
                 return;
             }
@@ -1616,11 +1616,42 @@ public final class MoeActions
 
     /**
      * Check whether the indentation s opens a new multi-line comment
+     * @param lineStart The position in the document of the (newly-added) line start
      */
-    private boolean isCommentStart(String s)
+    private boolean isNewCommentStart(String s, MoeSyntaxDocument doc, int lineStart)
     {
         s = s.trim();
-        return s.endsWith("/**") || s.endsWith("/*");
+        if (s.endsWith("/**") || s.endsWith("/*"))
+        {
+        	// The user has just pressed enter after the beginning of a comment
+        	// We must now decide if their comment was already fine
+        	// (and thus we shouldn't add the ending), or if they had, in fact,
+        	// begun a new comment (and do need the ending)
+        	
+        	// Find the comment node that corresponds to our position:
+        	NodeAndPosition curNode = doc.getParser().findNodeAt(lineStart, 0);
+        	while (curNode != null && !(curNode.getNode() instanceof CommentNode))
+        	{
+        		curNode = curNode.getNode().findNodeAt(lineStart, curNode.getPosition());
+        	}
+        	
+        	if (curNode == null)
+        		//Can't work it out; it's probably a new comment that is unterminated:
+        		return true;
+        	
+        	String comment = getNodeContents(doc, curNode);
+        	
+        	// If the comment has a comment begin inside it (after the first two characters)
+        	// it is likely a new comment that has over-run and matched an ending further
+        	// down.  If it has no comment begin inside it, it's probably a pre-existing
+        	// valid comment.
+        	comment = comment.substring(2);
+        	boolean commentHasBeginning = comment.contains("/*");
+        	
+        	return commentHasBeginning;
+        }
+        else
+        	return false;
     }
 
     /**
@@ -2481,6 +2512,17 @@ public final class MoeActions
 		}
 		catch (BadLocationException e) {
 			Debug.reportError("Error getting element contents in document", e);
+			return "";
+		}
+    }
+    
+    private static String getNodeContents(MoeSyntaxDocument doc, NodeAndPosition nap)
+    {
+		try {
+			return doc.getText(nap.getPosition(), nap.getSize());
+		}
+		catch (BadLocationException e) {
+			Debug.reportError("Error getting node contents in document", e);
 			return "";
 		}
     }
