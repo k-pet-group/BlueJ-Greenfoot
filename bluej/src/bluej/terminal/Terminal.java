@@ -75,7 +75,7 @@ public final class Terminal extends JFrame
     // initialise to config value or zero.
     private static int terminalFontSize = Config.getPropInteger(
             TERMINALFONTSIZEPROPNAME, PrefMgr.getEditorFontSize());
-    
+
     // -- instance --
 
     private Project project;
@@ -371,14 +371,16 @@ public final class Terminal extends JFrame
 
     // ---- KeyListener interface ----
 
-    public void keyPressed(KeyEvent event) {
+    public void keyPressed(KeyEvent event)
+    {
         // Let menu commands and dead keys (if active) pass
         // Dead keys are passed because they wont work on Windows otherwise
         if(event.getModifiers() != SHORTCUT_MASK && !(Utility.isDeadKey(event) && isActive) )  
             event.consume();
     }
     
-    public void keyReleased(KeyEvent event) {
+    public void keyReleased(KeyEvent event)
+    {
         // Let menu commands and dead keys (if active) pass
         // Dead keys are passed because they wont work on Windows otherwise
         if(event.getModifiers() != SHORTCUT_MASK && !(Utility.isDeadKey(event) && isActive) )  
@@ -391,7 +393,7 @@ public final class Terminal extends JFrame
         char ch = event.getKeyChar();
         
         switch (ch) {
-
+            
         case KeyEvent.VK_EQUALS: // increase the font size
         case KeyEvent.VK_PLUS: // increase the font size (non-uk keyboards)
             if ((event.isControlDown() && (ALT_SHORTCUT_MASK == Event.CTRL_MASK)) ||
@@ -411,6 +413,27 @@ public final class Terminal extends JFrame
         default:
             if (isActive) {
                 switch (ch) {
+
+                case 3: // CTRL-C
+                    break;
+
+                /*
+                 * Due to how JTextArea handles pastes we have overwridden
+                 * its paste method to output all results to the
+                 * "pasteBuffer". Therefore we take this pasteBuffer (emptying
+                 * it in the process) and then output each character to
+                 * our buffer and the terminal, enabling the characters to be
+                 * deleted just like typed characters.
+                 */
+                case 22: // CTRL-V
+                    if (!text.pasteBufferEmpty()) {
+                        for (char tch : text.takePasteBuffer()) {
+                            if (buffer.putChar(tch)) {
+                                writeToTerminal(String.valueOf(tch));
+                            }
+                        }
+                    }
+                    break;
 
                 case 4:   // CTRL-D (unix/Mac EOF)
                 case 26:  // CTRL-Z (DOS/Windows EOF)
