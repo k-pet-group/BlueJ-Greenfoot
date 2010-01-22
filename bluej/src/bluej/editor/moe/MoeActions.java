@@ -1543,7 +1543,10 @@ public final class MoeActions
             indentPos = findFirstNonIndentChar(lineText, true);
             char firstChar = lineText.charAt(indentPos);
             doc.remove(lineStart, indentPos);
-            doc.insertString(lineStart, nextIndent(indent, isOpenBrace, isCommentEndOnly), null);
+            String newIndent = nextIndent(indent, isOpenBrace, isCommentEndOnly);
+            if (firstChar == '*')
+            	newIndent = newIndent.replace('*', ' ');
+            doc.insertString(lineStart, newIndent, null);
             if(firstChar == '}')
                 removeTab(textPane, doc);
         }
