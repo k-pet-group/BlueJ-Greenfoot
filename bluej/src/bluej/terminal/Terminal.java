@@ -76,8 +76,6 @@ public final class Terminal extends JFrame
     private static int terminalFontSize = Config.getPropInteger(
             TERMINALFONTSIZEPROPNAME, PrefMgr.getEditorFontSize());
     
-    public static boolean enabled = true;
-
     // -- instance --
 
     private Project project;
@@ -483,7 +481,7 @@ public final class Terminal extends JFrame
         text = new TermTextArea(rows, columns);
         scrollPane = new JScrollPane(text);
         text.setFont(getTerminalFont());
-        text.setEditable(true);
+        text.setEditable(false);
         text.setLineWrap(false);
         text.setForeground(FGCOLOUR);
         text.setMargin(new Insets(6, 6, 6, 6));
@@ -769,30 +767,28 @@ public final class Terminal extends JFrame
 
         public void write(final char[] cbuf, final int off, final int len)
         {
-            if (enabled) {
-                try {
-                    // We use invokeAndWait so that terminal output is limited to
-                    // the processing speed of the event queue. This means the UI
-                    // will still respond to user input even if the output is really
-                    // gushing.
-                    EventQueue.invokeAndWait(new Runnable() {
-                        public void run()
-                        {
-                            initialise();
-                            if(isErrorOut) {
-                                writeToErrorOut(new String(cbuf, off, len));
-                            }
-                            else {
-                                writeToTerminal(new String(cbuf, off, len));
-                            }
+            try {
+                // We use invokeAndWait so that terminal output is limited to
+                // the processing speed of the event queue. This means the UI
+                // will still respond to user input even if the output is really
+                // gushing.
+                EventQueue.invokeAndWait(new Runnable() {
+                    public void run()
+                    {
+                        initialise();
+                        if(isErrorOut) {
+                            writeToErrorOut(new String(cbuf, off, len));
                         }
-                    });
-                }
-                catch (InvocationTargetException ite) {
-                    ite.printStackTrace();
-                }
-                catch (InterruptedException ie) {}
+                        else {
+                            writeToTerminal(new String(cbuf, off, len));
+                        }
+                    }
+                });
             }
+            catch (InvocationTargetException ite) {
+                ite.printStackTrace();
+            }
+            catch (InterruptedException ie) {}
         }
 
         public void flush()
