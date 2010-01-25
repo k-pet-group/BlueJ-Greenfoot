@@ -36,8 +36,8 @@ import java.util.List;
 import java.util.ArrayList;
 
 import bluej.*;
-import bluej.Config;
 import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
 import bluej.prefmgr.*;
 
 /**
@@ -46,7 +46,7 @@ import bluej.prefmgr.*;
  * archive) with an associated description.
  *
  * @author  Andrew Patterson
- * @version $Id: ClassMgrPrefPanel.java 6964 2010-01-05 05:59:12Z davmac $
+ * @version $Id: ClassMgrPrefPanel.java 7051 2010-01-25 15:31:24Z nccb $
  */
 public class ClassMgrPrefPanel extends JPanel
     implements PrefPanelListener
@@ -290,24 +290,16 @@ public class ClassMgrPrefPanel extends JPanel
      **/
     private void addUserLibrary()
     {
-        // when adding a new library,
-        // ask the user to select the file or directory
-        JFileChooser chooser = new JFileChooser();
-        {
-            // LibraryFileFilter is a private class defined below
-            chooser.setFileFilter(new LibraryFileFilter());
-            // files for archive libraries, directories for library trees
-            chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-            chooser.setDialogTitle(Config.getString("prefmgr.misc.addLibTitle"));
-            int returnVal = chooser.showOpenDialog(getParent());
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                String librarylocation = chooser.getSelectedFile().getAbsolutePath();
+    	File file = FileUtility.getFile(getParent(), Config.getString("prefmgr.misc.addLibTitle"),
+    			null, new LibraryFileFilter(), false);
+    	
+    	if (file != null) {
+    		String librarylocation = file.getAbsolutePath();
 
-                userLibrariesModel.addEntry(new ClassPathEntry(librarylocation,"", true));
-                
-                classPathModified = true;
-            }
-        }
+            userLibrariesModel.addEntry(new ClassPathEntry(librarylocation,"", true));
+            
+            classPathModified = true;
+    	}
     }
 
     /**

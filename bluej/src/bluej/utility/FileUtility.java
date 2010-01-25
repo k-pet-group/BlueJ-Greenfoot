@@ -114,9 +114,9 @@ public class FileUtility
      *  Get a file name from the user, using a file selection dialogue.
      *  If cancelled or an invalid name was specified, return null.
      */
-    public static String getFileName(Component parent, String title,
-                                     String buttonLabel, FileFilter filter,
-                                     boolean rememberDir)
+    public static File getFile(Component parent, String title,
+                                   String buttonLabel, FileFilter filter,
+                                   boolean rememberDir)
     {
         JFileChooser newChooser = getFileChooser(false, filter);
         
@@ -129,7 +129,7 @@ public class FileUtility
                 PrefMgr.setProjectDirectory(
                       newChooser.getSelectedFile().getParentFile().getPath());
             }
-            return newChooser.getSelectedFile().getPath();
+            return newChooser.getSelectedFile();
         }
         else if (result == JFileChooser.CANCEL_OPTION) {
             return null;
@@ -138,6 +138,17 @@ public class FileUtility
             DialogManager.showError(parent, "error-no-name");
             return null;
         }
+    }
+    
+    public static String getFileName(Component parent, String title,
+            String buttonLabel, FileFilter filter,
+            boolean rememberDir)
+    {
+    	File file = getFile(parent, title, buttonLabel, filter, rememberDir);
+    	if (file == null)
+    		return null;
+    	else
+    		return file.getPath();
     }
     
     /**
