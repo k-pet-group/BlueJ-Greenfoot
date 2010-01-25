@@ -127,14 +127,6 @@ public final class Terminal extends JFrame
     }
 
     /*
-     * Get the terminal font size
-     */
-    private static int getTerminalFontSize()
-    {
-        return terminalFontSize;
-    }
-
-    /*
      * Set the terminal font size to equal either the passed parameter, or the
      * editor font size if the passed parameter is too low. Place the updated
      * value into the configuration.
@@ -398,24 +390,26 @@ public final class Terminal extends JFrame
         case KeyEvent.VK_PLUS: // increase the font size (non-uk keyboards)
             if ((event.isControlDown() && (ALT_SHORTCUT_MASK == Event.CTRL_MASK)) ||
                 (event.isMetaDown() && (ALT_SHORTCUT_MASK == Event.META_MASK))) {
-                setTerminalFontSize(getTerminalFontSize() + 1);
+                setTerminalFontSize(terminalFontSize + 1);
                 project.getTerminal().resetFont();
+                break;
             }
-            break;
 
         case KeyEvent.VK_MINUS: // decrease the font size
             if ((event.isControlDown() && (ALT_SHORTCUT_MASK == Event.CTRL_MASK)) ||
                 (event.isMetaDown() && (ALT_SHORTCUT_MASK == Event.META_MASK))) {
-                setTerminalFontSize(getTerminalFontSize() - 1);
+                setTerminalFontSize(terminalFontSize - 1);
                 project.getTerminal().resetFont();
+                break;
             }
-            break;
+
+        // VK_(EQUALS|PLUS|MINUS) all fall through to here if no shortcut mask.
         default:
             if (isActive) {
                 switch (ch) {
 
-                case 3: // CTRL-C (linux)
-                case 22: // CTRL-V (linux)
+                case 3: // CTRL-C (linux/Windows)
+                case 22: // CTRL-V (linux/Windows)
                     break;
 
                 case 4:   // CTRL-D (unix/Mac EOF)
