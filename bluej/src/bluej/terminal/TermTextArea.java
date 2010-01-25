@@ -36,7 +36,7 @@ import java.awt.datatransfer.Transferable;
  * A customised text area for use in the BlueJ text terminal.
  *
  * @author  Michael Kolling
- * @version $Id: TermTextArea.java 7046 2010-01-22 14:56:08Z plcs $
+ * @version $Id: TermTextArea.java 7049 2010-01-25 11:51:03Z plcs $
  */
 public final class TermTextArea extends JTextArea
 {
@@ -44,14 +44,17 @@ public final class TermTextArea extends JTextArea
 
     private boolean unlimitedBuffer = false;
 
-    private static StringBuffer pasteBuffer = new StringBuffer();
+    private InputBuffer buffer;
+    private Terminal terminal;
 
     /**
      * Create a new text area with given size.
      */
-    public TermTextArea(int rows, int columns)
+    public TermTextArea(int rows, int columns, InputBuffer buffer, Terminal terminal)
     {
         super(rows, columns);
+        this.buffer = buffer;
+        this.terminal = terminal;
     }
 
     public void setUnlimitedBuffering(boolean arg)
@@ -79,10 +82,7 @@ public final class TermTextArea extends JTextArea
     }
 
     /*
-     * Overrides the default method to stop it append to the JTextArea straight
-     * away, instead we add the resultant string to our pasteBuffer for use
-     * elsewhere
-     * @see Terminal.keyTyped(KeyEvent event)
+     * 
      */
     @Override
     public void paste()
@@ -98,38 +98,17 @@ public final class TermTextArea extends JTextArea
             } catch (IOException ex) {
                 Debug.message(ex.getMessage());
             }
-
-            // replace the contents of the pasteBuffer with this
-            // it will resize the buffer to be the correct size for the
-            // input string
+            
             if (result != null) {
-                pasteBuffer.replace(0, pasteBuffer.length(), result);
+                for (char ch : result.toCharArray()) {
+                    if (buffer.putChar(ch)) {
+                        terminal.writeToTerminal(String.valueOf(ch));
+                    }
+                }
             }
         } else {
             // if it isn't a string, let the usual paint method handle it.
             super.paste();
         }
-    }
-
-    /*
-     * Returns true only if the pasteBuffer contains any characters
-     */
-    protected synchronized boolean pasteBufferEmpty()
-    {
-        return 0 == pasteBuffer.length();
-    }
-
-    /*
-     * Returns a char array of the contents of the pasteBuffer and then
-     * deletes the contents of the pasteBuffer.
-     */
-    protected synchronized char[] takePasteBuffer()
-    {
-        char[] temp = pasteBuffer.toString().toCharArray();
-        // setLength means subsequent additions to the buffer will require
-        // it to resize itself, whereas delete should not.
-        // pasteBuffer.setLength(0)
-        pasteBuffer.delete(0, pasteBuffer.length());
-        return temp;
     }
 }

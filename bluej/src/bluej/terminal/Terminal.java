@@ -250,7 +250,7 @@ public final class Terminal extends JFrame
     /**
      * Write some text to the terminal.
      */
-    private void writeToTerminal(String s)
+    public void writeToTerminal(String s)
     {
         prepare();
         
@@ -414,25 +414,8 @@ public final class Terminal extends JFrame
             if (isActive) {
                 switch (ch) {
 
-                case 3: // CTRL-C
-                    break;
-
-                /*
-                 * Due to how JTextArea handles pastes we have overwridden
-                 * its paste method to output all results to the
-                 * "pasteBuffer". Therefore we take this pasteBuffer (emptying
-                 * it in the process) and then output each character to
-                 * our buffer and the terminal, enabling the characters to be
-                 * deleted just like typed characters.
-                 */
-                case 22: // CTRL-V
-                    if (!text.pasteBufferEmpty()) {
-                        for (char tch : text.takePasteBuffer()) {
-                            if (buffer.putChar(tch)) {
-                                writeToTerminal(String.valueOf(tch));
-                            }
-                        }
-                    }
+                case 3: // CTRL-C (linux)
+                case 22: // CTRL-V (linux)
                     break;
 
                 case 4:   // CTRL-D (unix/Mac EOF)
@@ -501,7 +484,7 @@ public final class Terminal extends JFrame
     private void makeWindow(int columns, int rows)
     {
         setIconImage(Config.getImage("image.icon.terminal"));        
-        text = new TermTextArea(rows, columns);
+        text = new TermTextArea(rows, columns, buffer, this);
         scrollPane = new JScrollPane(text);
         text.setFont(getTerminalFont());
         text.setEditable(false);
