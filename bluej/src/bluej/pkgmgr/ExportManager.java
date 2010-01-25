@@ -47,6 +47,7 @@ final class ExportManager
     private static final String packageFileBackup = "bluej.pkh";
 
     private PkgMgrFrame frame;
+    private ExportDialog dialog;
 
     public ExportManager(PkgMgrFrame frame)
     {
@@ -59,7 +60,10 @@ final class ExportManager
      */
     public void export()
     {
-        ExportDialog dialog = new ExportDialog(frame);
+    	if (dialog == null)
+    		dialog = new ExportDialog(frame);
+    	else
+    		dialog.updateDialog(frame);
         boolean okay = dialog.display();
 
         if(!okay)

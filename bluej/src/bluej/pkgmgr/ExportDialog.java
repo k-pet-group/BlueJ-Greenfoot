@@ -42,7 +42,7 @@ import bluej.utility.*;
  * creation options can be specified.
  *
  * @author  Michael Kolling
- * @version $Id: ExportDialog.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ExportDialog.java 7050 2010-01-25 14:55:27Z nccb $
  */
 class ExportDialog extends EscapeDialog
 {
@@ -65,11 +65,23 @@ class ExportDialog extends EscapeDialog
     private UserLibInfo[] userLibs;
     
     private boolean ok;		// result: which button?
+	private JPanel userLibPanel;
 
     public ExportDialog(PkgMgrFrame parent)
     {
         super(parent, dialogTitle, true);
         makeDialog(parent.getProject());
+    }
+    
+    public void updateDialog(PkgMgrFrame parent)
+    {
+    	Project project = parent.getProject();
+		fillClassPopup(project);
+    	fillUserLibPanel(project, getSelectedLibs());
+    	String sel = mainClassName;
+    	if (sel.equals(""))
+    		sel = noClassText;
+    	classSelect.setSelectedItem(sel);
     }
 
     /**
@@ -95,9 +107,9 @@ class ExportDialog extends EscapeDialog
      * Return userlibs selected in the dialogue.
      * @return  A list of File objects.
      */
-    public List getSelectedLibs()
+    public List<File> getSelectedLibs()
     {
-        List selected = new ArrayList();
+        List<File> selected = new ArrayList<File>();
 
         if(userLibs != null) {
             for(int i = 0; i < userLibs.length; i++) {
@@ -183,8 +195,9 @@ class ExportDialog extends EscapeDialog
                 {
                     JLabel classLabel = new JLabel(classLabelText);
                     mainClassPanel.add(classLabel);
-
-                    classSelect = makeClassPopup(project);
+                    
+                    createClassPopup();
+                    fillClassPopup(project);
                     mainClassPanel.add(classSelect);
                     
                 }
@@ -192,8 +205,9 @@ class ExportDialog extends EscapeDialog
                 inputPanel.add(mainClassPanel);
                 inputPanel.add(Box.createVerticalStrut(5));
                 
-                JPanel userLibPanel = createUserLibPanel(project);
-                if(userLibPanel != null) {
+                {
+                	createUserLibPanel();
+                	fillUserLibPanel(project, null);
                     userLibPanel.setAlignmentX(LEFT_ALIGNMENT);
                     inputPanel.add(userLibPanel);
                     inputPanel.add(Box.createVerticalStrut(5));
@@ -239,58 +253,64 @@ class ExportDialog extends EscapeDialog
         DialogManager.centreDialog(this);
     }
 
+	private void createClassPopup()
+	{
+		classSelect = new JComboBox();
+		classSelect.setFont(PrefMgr.getPopupMenuFont());
+	}
+
     /**
      * Fill the class name popup selector with all classes of the project
      */
-    private JComboBox makeClassPopup(Project project)
+    private void fillClassPopup(Project project)
     {
-        JComboBox popup = new JComboBox();
-
-        popup.setFont(PrefMgr.getPopupMenuFont());
-        popup.addItem(noClassText);
-
-        List packageNames = project.getPackageNames();
+    	classSelect.removeAllItems();
+    	classSelect.addItem(noClassText);
+    	
+        List<String> packageNames = project.getPackageNames();
         Collections.sort(packageNames);
 
-        for (Iterator packages = packageNames.iterator(); packages.hasNext(); ) {
+        for (Iterator<String> packages = packageNames.iterator(); packages.hasNext(); ) {
             String pkgName = (String)packages.next();
             // SHould be a getPackage, Damiano
-            List classNames = project.getPackage(pkgName).getAllClassnames();
+            List<String> classNames = project.getPackage(pkgName).getAllClassnames();
             Collections.sort(classNames);
             if(pkgName.length() > 0) 
-                for (Iterator classes = classNames.iterator(); classes.hasNext();)
-                    popup.addItem(pkgName + "." + classes.next());
+                for (Iterator<String> classes = classNames.iterator(); classes.hasNext();)
+                	classSelect.addItem(pkgName + "." + classes.next());
             else
-                for (Iterator classes = classNames.iterator(); classes.hasNext();)
-                    popup.addItem(classes.next());
+                for (Iterator<String> classes = classNames.iterator(); classes.hasNext();)
+                	classSelect.addItem(classes.next());
         }
-        
-        return popup;
     }
     
     /**
      * Return a prepared panel listing the user libraries with check boxes.
      * @param project the project the libraries belong to.
      */
-    private JPanel createUserLibPanel(Project project)
+    private void fillUserLibPanel(Project project, List<File> startChecked)
     {
+    	userLibPanel.removeAll();
+    	
         // collect info about jar files from the project classloader.
-        ArrayList userlibList = new ArrayList();
+        ArrayList<UserLibInfo> userlibList = new ArrayList<UserLibInfo>();
         
         // get user specified libs
-        ArrayList libList = PrefMgrDialog.getInstance().getUserConfigLibPanel().getUserConfigContent(); 
+        ArrayList<URL> libList = PrefMgrDialog.getInstance().getUserConfigLibPanel().getUserConfigContent(); 
         
         // also get any libs in userlib directory
         libList.addAll(Project.getUserlibContent());
         
-        for (Iterator it = libList.iterator(); it.hasNext(); ) {
+        for (Iterator<URL> it = libList.iterator(); it.hasNext(); ) {
             URL url = (URL)it.next();
             try {
                 File file = new File(new URI(url.toString()));
                 
                 if ( file == null || file.isDirectory() ) continue;
                 
-                userlibList.add (new UserLibInfo(file));
+                boolean shouldBeChecked = startChecked != null && startChecked.contains(file);
+                
+                userlibList.add (new UserLibInfo(file, shouldBeChecked));
             } catch (URISyntaxException use) {
                 // Should never happen. If there is a problem with the conversion we want to know about it.
                 Debug.reportError("ExportDialog.createUserLibPanel(Project) invalid url=" + url.getPath());
@@ -299,36 +319,41 @@ class ExportDialog extends EscapeDialog
             
         }
         
-        if ( userlibList.size() < 1 ) return null;
-        
-        userLibs = (UserLibInfo[])userlibList.toArray(new UserLibInfo[userlibList.size()]);
+        if ( userlibList.size() < 1 ) { 
+        	userLibPanel.setVisible(false);
+        }
+        else {
+        	userLibPanel.setVisible(true);
+            userLibs = (UserLibInfo[])userlibList.toArray(new UserLibInfo[userlibList.size()]);
 
-        // Create the panel with the user libs listed
-        
-        JPanel panel = new JPanel(new GridLayout(0,2));
+            for(int i = 0; i < userLibs.length; i++) {
+            	userLibPanel.add(userLibs[i].getCheckBox());
+            }
+        }
+    }
 
-        panel.setBorder(BorderFactory.createCompoundBorder(
+	private void createUserLibPanel()
+	{
+		userLibPanel = new JPanel(new GridLayout(0,2));
+
+		userLibPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createTitledBorder(libsLabel),
                 BorderFactory.createEmptyBorder(5, 10, 5, 10)));
-
-        for(int i = 0; i < userLibs.length; i++) {
-            panel.add(userLibs[i].getCheckBox());
-        }
-        return panel;
-    }
+	}
     
     class UserLibInfo {
         private File sourceFile;
         private JCheckBox checkBox;
         
-        public UserLibInfo(File source)
+        public UserLibInfo(File source, boolean selected)
         {
             sourceFile = source;
-            this.checkBox = new JCheckBox(sourceFile.getName(), false);
+            this.checkBox = new JCheckBox(sourceFile.getName(), selected);
         }
         
         /**
          * Return a checkBox with this lib's name as a label.
+         * @param shouldBeChecked 
          */
         public JCheckBox getCheckBox()
         {

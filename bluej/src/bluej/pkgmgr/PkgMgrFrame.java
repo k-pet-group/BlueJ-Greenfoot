@@ -217,6 +217,8 @@ public class PkgMgrFrame extends JFrame
 
     private static ExtensionsManager extMgr = ExtensionsManager.getInstance();
 
+	private ExportManager exporter;
+
     
     /**
      * Prepare MacOS specific behaviour (About menu, Preferences menu, Quit
@@ -1721,7 +1723,8 @@ public class PkgMgrFrame extends JFrame
      */
     public void doExport()
     {
-        ExportManager exporter = new ExportManager(this);
+    	if (exporter == null)
+    		exporter = new ExportManager(this);
         exporter.export();
     }
 
