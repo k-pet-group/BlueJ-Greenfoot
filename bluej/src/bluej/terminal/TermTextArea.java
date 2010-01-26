@@ -36,7 +36,7 @@ import java.awt.datatransfer.Transferable;
  * A customised text area for use in the BlueJ text terminal.
  *
  * @author  Michael Kolling
- * @version $Id: TermTextArea.java 7049 2010-01-25 11:51:03Z plcs $
+ * @version $Id: TermTextArea.java 7053 2010-01-26 04:04:55Z davmac $
  */
 public final class TermTextArea extends JTextArea
 {
@@ -87,6 +87,10 @@ public final class TermTextArea extends JTextArea
     @Override
     public void paste()
     {
+        if (! terminal.checkActive()) {
+            return;
+        }
+        
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         Transferable contents = clipboard.getContents(null);
         if (contents.isDataFlavorSupported(DataFlavor.stringFlavor)) {

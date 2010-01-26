@@ -62,8 +62,8 @@ public final class Terminal extends JFrame
 
     private static final int SHORTCUT_MASK =
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-    private static final int ALT_SHORTCUT_MASK =
-            SHORTCUT_MASK == Event.CTRL_MASK ? Event.CTRL_MASK : Event.META_MASK;
+    //private static final int ALT_SHORTCUT_MASK =
+    //        SHORTCUT_MASK == Event.CTRL_MASK ? Event.CTRL_MASK : Event.META_MASK;
 
     private static final String TERMINALFONTPROPNAME = "bluej.terminal.font";
     private static final String TERMINALFONTSIZEPROPNAME = "bluej.terminal.fontsize";
@@ -183,12 +183,23 @@ public final class Terminal extends JFrame
         if(active != isActive) {
             initialise();
             text.setEditable(active);
+            if (!active) {
+                text.getCaret().setVisible(false);
+            }
             //text.setEnabled(active);
             //text.setBackground(active ? activeBgColour : inactiveBgColour);
             isActive = active;
         }
     }
 
+    /**
+     * Check whether the terminal is active (accepting input).
+     */
+    public boolean checkActive()
+    {
+        return isActive;
+    }
+    
     /**
      * Reset the font according to preferences.
      */
@@ -388,16 +399,14 @@ public final class Terminal extends JFrame
             
         case KeyEvent.VK_EQUALS: // increase the font size
         case KeyEvent.VK_PLUS: // increase the font size (non-uk keyboards)
-            if ((event.isControlDown() && (ALT_SHORTCUT_MASK == Event.CTRL_MASK)) ||
-                (event.isMetaDown() && (ALT_SHORTCUT_MASK == Event.META_MASK))) {
+            if (event.getModifiers() == SHORTCUT_MASK) {
                 setTerminalFontSize(terminalFontSize + 1);
                 project.getTerminal().resetFont();
                 break;
             }
 
         case KeyEvent.VK_MINUS: // decrease the font size
-            if ((event.isControlDown() && (ALT_SHORTCUT_MASK == Event.CTRL_MASK)) ||
-                (event.isMetaDown() && (ALT_SHORTCUT_MASK == Event.META_MASK))) {
+            if (event.getModifiers() == SHORTCUT_MASK) {
                 setTerminalFontSize(terminalFontSize - 1);
                 project.getTerminal().resetFont();
                 break;
@@ -405,6 +414,9 @@ public final class Terminal extends JFrame
 
         // VK_(EQUALS|PLUS|MINUS) all fall through to here if no shortcut mask.
         default:
+            if ((event.getModifiers() & Event.META_MASK) != 0) {
+                return; // return without consuming the event
+            }
             if (isActive) {
                 switch (ch) {
 
