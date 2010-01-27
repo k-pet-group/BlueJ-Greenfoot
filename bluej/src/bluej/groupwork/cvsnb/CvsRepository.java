@@ -57,7 +57,7 @@ import bluej.utility.filefilter.DirectoryFilter;
  * This class handles communication with the repository.
  *
  * @author fisker
- * @version $Id: CvsRepository.java 6313 2009-05-07 06:03:39Z davmac $
+ * @version $Id: CvsRepository.java 7056 2010-01-27 15:12:34Z nccb $
  */
 public class CvsRepository implements Repository
 {
@@ -135,7 +135,12 @@ public class CvsRepository implements Repository
      */
     public void setPassword(TeamSettings newSettings)
     {
-        setCvsRoot(CvsProvider.makeCvsRoot(newSettings));
+    	try {
+    		setCvsRoot(CvsProvider.makeCvsRoot(newSettings));
+    	}
+    	catch (UnsupportedSettingException e) {
+    		Debug.reportError("CvsRepository.setPassword error", e);
+    	}
     }
     
     /**
