@@ -36,7 +36,7 @@ import java.awt.datatransfer.Transferable;
  * A customised text area for use in the BlueJ text terminal.
  *
  * @author  Michael Kolling
- * @version $Id: TermTextArea.java 7053 2010-01-26 04:04:55Z davmac $
+ * @version $Id: TermTextArea.java 7054 2010-01-27 03:58:25Z davmac $
  */
 public final class TermTextArea extends JTextArea
 {
@@ -82,7 +82,10 @@ public final class TermTextArea extends JTextArea
     }
 
     /*
-     * 
+     * Overrides the default method to stop it append to the JTextArea straight
+     * away, instead we add the resultant string to our pasteBuffer for use
+     * elsewhere
+     * @see Terminal.keyTyped(KeyEvent event)
      */
     @Override
     public void paste()
