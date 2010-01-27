@@ -36,7 +36,7 @@ import javax.swing.*;
 /**
  * Dialog for creating a new Package
  * 
- * @version $Id: ProjectPrintDialog.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ProjectPrintDialog.java 7055 2010-01-27 13:58:55Z plcs $
  * @author Bruce Quig
  */
 public class ProjectPrintDialog extends EscapeDialog
@@ -96,8 +96,7 @@ public class ProjectPrintDialog extends EscapeDialog
         	public void actionPerformed(ActionEvent evt) { doCancel(); }        		
 		});
 
-        buttonPanel.add(okButton);
-        buttonPanel.add(cancelButton);
+        DialogManager.addOKCancelButtons(buttonPanel, okButton, cancelButton);
 
         getRootPane().setDefaultButton(okButton);
 

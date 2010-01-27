@@ -35,7 +35,7 @@ import bluej.utility.*;
  * Dialog implementing version check functionality.
  *
  * @author  Michael Kolling
- * @version $Id: VersionCheckDialog.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: VersionCheckDialog.java 7055 2010-01-27 13:58:55Z plcs $
  */
 
 final public class VersionCheckDialog extends EscapeDialog
@@ -143,8 +143,7 @@ final public class VersionCheckDialog extends EscapeDialog
                 closeButton = new JButton(close);
                 closeButton.addActionListener(this);
 
-                buttonPanel.add(checkButton);
-                buttonPanel.add(closeButton);
+                DialogManager.addOKCancelButtons(buttonPanel, checkButton, closeButton);
 
                 getRootPane().setDefaultButton(checkButton);
                 checkButton.requestFocus();

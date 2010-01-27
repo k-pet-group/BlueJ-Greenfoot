@@ -36,6 +36,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import bluej.BlueJTheme;
+import bluej.Config;
 import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectBenchEvent;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
@@ -50,7 +51,7 @@ import bluej.utility.MultiLineLabel;
  *
  * @author  Michael Kolling
  *
- * @version $Id: CallDialog.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: CallDialog.java 7055 2010-01-27 13:58:55Z plcs $
  */
 public abstract class CallDialog extends EscapeDialog
 	implements ObjectBenchListener
@@ -201,13 +202,13 @@ public abstract class CallDialog extends EscapeDialog
             okButton.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent evt) { doOk(); }
                     });
-            buttonPanel.add(okButton);
 
             JButton cancelButton = BlueJTheme.getCancelButton();
             cancelButton.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent evt) { doCancel(); }
                     });
-            buttonPanel.add(cancelButton);
+                    
+            DialogManager.addOKCancelButtons(buttonPanel, okButton, cancelButton);
 
             getRootPane().setDefaultButton(okButton);
         }

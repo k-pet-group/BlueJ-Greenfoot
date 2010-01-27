@@ -46,6 +46,7 @@ import bluej.editor.moe.KeyBindingsPanel;
 import bluej.editor.moe.MoeActions;
 import bluej.extmgr.ExtensionPrefManager;
 import bluej.extmgr.ExtensionsManager;
+import bluej.utility.DialogManager;
 
 /**
  * A JDialog subclass to allow the user to interactively edit
@@ -55,7 +56,7 @@ import bluej.extmgr.ExtensionsManager;
  *
  * @author  Andrew Patterson
  * @author  Michael Kolling
- * @version $Id: PrefMgrDialog.java 6987 2010-01-12 04:17:59Z marionz $
+ * @version $Id: PrefMgrDialog.java 7055 2010-01-27 13:58:55Z plcs $
  */
 public class PrefMgrDialog extends JFrame
 {
@@ -244,8 +245,7 @@ public class PrefMgrDialog extends JFrame
                     });
                 }
 
-                buttonPanel.add(okButton);
-                buttonPanel.add(cancelButton);
+                DialogManager.addOKCancelButtons(buttonPanel, okButton, cancelButton);
             }
 
             contentPanel.add(tabbedPane, BorderLayout.CENTER);

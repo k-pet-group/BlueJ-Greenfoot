@@ -43,7 +43,7 @@ import bluej.views.*;
  *
  * @author  Michael Kolling
  *
- * @version $Id: LibraryCallDialog.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: LibraryCallDialog.java 7055 2010-01-27 13:58:55Z plcs $
  */
 public class LibraryCallDialog extends EscapeDialog
 	implements ActionListener, ListSelectionListener
@@ -335,8 +335,7 @@ public class LibraryCallDialog extends EscapeDialog
             cancelButton = BlueJTheme.getCancelButton();
             cancelButton.addActionListener(this);
             
-            buttonPanel.add(okButton);
-            buttonPanel.add(cancelButton);
+            DialogManager.addOKCancelButtons(buttonPanel, okButton, cancelButton);
 
             getRootPane().setDefaultButton(okButton);
             okButton.setEnabled(false);

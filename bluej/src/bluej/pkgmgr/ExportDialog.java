@@ -42,7 +42,7 @@ import bluej.utility.*;
  * creation options can be specified.
  *
  * @author  Michael Kolling
- * @version $Id: ExportDialog.java 7050 2010-01-25 14:55:27Z nccb $
+ * @version $Id: ExportDialog.java 7055 2010-01-27 13:58:55Z plcs $
  */
 class ExportDialog extends EscapeDialog
 {
@@ -238,8 +238,7 @@ class ExportDialog extends EscapeDialog
 					public void actionPerformed(ActionEvent evt) { doCancel(); }        		
 				});
 
-                buttonPanel.add(continueButton);
-                buttonPanel.add(cancelButton);
+                DialogManager.addOKCancelButtons(buttonPanel, continueButton, cancelButton);
 
                 getRootPane().setDefaultButton(continueButton);
             }

@@ -37,7 +37,7 @@ import javax.swing.*;
  * internationalised, using BlueJ's langauage library system.
  *
  * @author Michael Kolling
- * @version $Id: DialogManager.java 6353 2009-05-27 04:26:36Z marionz $
+ * @version $Id: DialogManager.java 7055 2010-01-27 13:58:55Z plcs $
  */
 public class DialogManager
 {
@@ -354,4 +354,15 @@ public class DialogManager
         }
         return 0;
     }
+
+    public static void addOKCancelButtons(JPanel panel, JButton okButton, JButton cancelButton) {
+        if (Config.isMacOS()) {
+            panel.add(cancelButton);
+            panel.add(okButton);
+        } else {
+            panel.add(okButton);
+            panel.add(cancelButton);
+        }
+    }
+
 }

@@ -33,6 +33,7 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamSettingsController;
+import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
 
 /**
@@ -40,7 +41,7 @@ import bluej.utility.EscapeDialog;
  *
  * @author fisker
  * @author bquig
- * @version $Id: TeamSettingsDialog.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: TeamSettingsDialog.java 7055 2010-01-27 13:58:55Z plcs $
  */
 public class TeamSettingsDialog extends EscapeDialog
 {
@@ -128,8 +129,7 @@ public class TeamSettingsDialog extends EscapeDialog
                     }
                 });
 
-            buttonPanel.add(okButton);
-            buttonPanel.add(cancelButton);
+            DialogManager.addOKCancelButtons(buttonPanel, okButton, cancelButton);
         }
 
         return buttonPanel;

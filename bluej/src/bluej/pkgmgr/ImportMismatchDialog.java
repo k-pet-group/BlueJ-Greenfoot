@@ -36,7 +36,7 @@ import javax.swing.*;
  * had mismatched package lines on an open non-BlueJ.
  *
  * @author  Andrew Patterson
- * @version $Id: ImportMismatchDialog.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ImportMismatchDialog.java 7055 2010-01-27 13:58:55Z plcs $
  */
 public class ImportMismatchDialog extends EscapeDialog
 {
@@ -122,8 +122,7 @@ public class ImportMismatchDialog extends EscapeDialog
 					public void actionPerformed(ActionEvent evt) { doCancel(); }        		
 				});
 
-                buttonPanel.add(continueButton);
-                buttonPanel.add(cancelButton);
+                DialogManager.addOKCancelButtons(buttonPanel, continueButton, cancelButton);
 
                 getRootPane().setDefaultButton(cancelButton);
             }

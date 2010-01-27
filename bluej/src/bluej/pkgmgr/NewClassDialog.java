@@ -39,7 +39,7 @@ import bluej.utility.*;
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewClassDialog.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: NewClassDialog.java 7055 2010-01-27 13:58:55Z plcs $
  */
 class NewClassDialog extends EscapeDialog
 {
@@ -132,9 +132,8 @@ class NewClassDialog extends EscapeDialog
 					});
                 }
 
-                buttonPanel.add(okButton);
-                buttonPanel.add(cancelButton);
-
+                DialogManager.addOKCancelButtons(buttonPanel, okButton, cancelButton);
+                
                 getRootPane().setDefaultButton(okButton);
             }
 

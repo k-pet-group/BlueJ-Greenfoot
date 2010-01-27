@@ -71,8 +71,7 @@ public class PrintDialog extends EscapeDialog
         	public void actionPerformed(ActionEvent evt) { doCancel(); }        		
 		});
 
-        buttonPanel.add(okButton);
-        buttonPanel.add(cancelButton);
+        DialogManager.addOKCancelButtons(buttonPanel, okButton, cancelButton);
 
         getRootPane().setDefaultButton(okButton);
 
