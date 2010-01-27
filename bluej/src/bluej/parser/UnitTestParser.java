@@ -40,7 +40,6 @@ import bluej.parser.lexer.LocatableToken;
 public class UnitTestParser extends JavaParser
 {
     private int classLevel = 0; // level of class nesting
-    private int elementLevel = 0;
     private boolean inMethod = false; // are we in an interesting method
     private String methodName;
     private LocatableToken methodBegin;
@@ -89,13 +88,7 @@ public class UnitTestParser extends JavaParser
     {
         throw new RuntimeException("Parse error: " + msg);
     }
-    
-    @Override
-    protected void beginElement(LocatableToken token)
-    {
-        elementLevel++;
-    }
-    
+        
     @Override
     protected void gotModifier(LocatableToken token)
     {
@@ -116,11 +109,6 @@ public class UnitTestParser extends JavaParser
         if (classLevel == 1 && !haveClassInfo) {
             fieldStarts.push(new SourceLocation(first.getLine(), first.getColumn()));
         }
-    }
-    
-    protected void endElement(LocatableToken token, boolean included)
-    {
-        elementLevel--;
     }
     
     @Override

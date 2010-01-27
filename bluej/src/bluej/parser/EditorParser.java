@@ -712,8 +712,8 @@ public class EditorParser extends JavaParser
         beginNode(insPos);
         
         if (fieldType != null) {
-            TypeInnerNode top = (TypeInnerNode) scopeStack.peek();
-            top.insertField(lastField, insPos - curOffset, 0);
+            ParentParsedNode top = (ParentParsedNode) scopeStack.peek();
+            top.insertVariable(lastField, insPos - curOffset, 0);
         }
         else {
             scopeStack.peek().insertNode(lastField, insPos - curOffset, 0);

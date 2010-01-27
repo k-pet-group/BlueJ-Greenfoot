@@ -25,7 +25,7 @@ import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.UnresolvedArray;
 
 /**
- * A node representing a parsed field.
+ * A node representing a parsed field or variable declaration.
  * 
  * @author Davin McCall
  */
@@ -86,4 +86,5 @@ public class FieldNode extends ParentParsedNode
         }
         return ftype;
     }
+    
 }
