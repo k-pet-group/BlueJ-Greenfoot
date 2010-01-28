@@ -46,15 +46,7 @@ public class TypeInnerNode extends ParentParsedNode
     {
         return true;
     }
-    
-    /**
-     * Insert a field child.
-     */
-    public void insertField(FieldNode child, int position, int size)
-    {
-        insertVariable(child, position, size);
-    }
-    
+        
     /**
      * A method was added.
      */

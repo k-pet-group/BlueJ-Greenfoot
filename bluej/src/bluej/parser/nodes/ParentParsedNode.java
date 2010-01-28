@@ -112,6 +112,14 @@ public class ParentParsedNode extends ParsedNode
         variables.put(varNode.getName(), varNode);
     }
     
+    /**
+     * Insert a field child (alias for insertVariable).
+     */
+    public void insertField(FieldNode child, int position, int size)
+    {
+        insertVariable(child, position, size);
+    }
+    
     @Override
     public JavaEntity getValueEntity(String name, String querySource)
     {

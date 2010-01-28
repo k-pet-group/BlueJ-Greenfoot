@@ -237,6 +237,36 @@ public class JavaParser
     }
     
     /** 
+     * Got a variable declaration, which might declare multiple variables. Each
+     * variable will generate gotVariable() or gotSubsequentVar().
+     * @param first  The first token in the declaration
+     */
+    protected void beginVariableDecl(LocatableToken first) { }
+    
+    /**
+     * Got the (first) variable in a variable declaration.
+     * @param first    The first token in the declaration
+     * @param idToken  The token with the variable identifier
+     */
+    protected void gotVariableDecl(LocatableToken first, LocatableToken idToken) { }
+
+    protected void gotSubsequentVar(LocatableToken first, LocatableToken idToken) { }
+
+    protected void endVariable(LocatableToken token, boolean included) { }
+
+    protected void endVariableDecls(LocatableToken token, boolean included) { }
+    
+    protected void beginForInitDecl(LocatableToken first) { }
+    
+    protected void gotForInit(LocatableToken first, LocatableToken idToken) { }
+    
+    protected void gotSubsequentForInit(LocatableToken first, LocatableToken idToken) { }
+    
+    protected void endForInit(LocatableToken token, boolean included) { }
+    
+    protected void endForInitDecls(LocatableToken token, boolean included) { }
+    
+    /** 
      * Got a field declaration, which might declare multiple fields. Each field will generate
      * gotField() or gotSubsequentField().
      * @param first  The first token in the declaration
@@ -253,10 +283,7 @@ public class JavaParser
     protected void gotSubsequentField(LocatableToken first, LocatableToken idToken) { }
     
     /** End a single field declaration (but not necessarily the field declaration statement) */
-    protected void endField(LocatableToken token, boolean included)
-    {
-        endElement(token, included);
-    }
+    protected void endField(LocatableToken token, boolean included) { }
     
     /** End a field declaration statement */
     protected void endFieldDeclarations(LocatableToken token, boolean included) { }
@@ -831,11 +858,11 @@ public class JavaParser
                         }
                         else if (ttype == JavaTokenTypes.ASSIGN) {
                             parseExpression();
-                            parseSubsequentDeclarations(true);
+                            parseSubsequentDeclarations(DECL_TYPE_FIELD);
                         }
                         else if (ttype == JavaTokenTypes.COMMA) {
                             tokenStream.pushBack(token);
-                            parseSubsequentDeclarations(true);
+                            parseSubsequentDeclarations(DECL_TYPE_FIELD);
                         }
                         else {
                             error("Expected ',', '=' or ';' after field declaration");
@@ -1084,7 +1111,7 @@ public class JavaParser
             pushBackAll(tlist);
             if (isTypeSpec && token.getType() == JavaTokenTypes.IDENT) {
                 gotTypeSpec(tlist);
-                return parseVariableDeclarations();
+                return parseVariableDeclarations(tlist.get(0));
             }
             else {
                 parseExpression();						
@@ -1133,7 +1160,7 @@ public class JavaParser
                 parseTypeDef();
             }
             else {
-                parseVariableDeclarations();
+                parseVariableDeclarations(token);
             }
             return null;
         }
@@ -1154,7 +1181,7 @@ public class JavaParser
             }
             else {
                 pushBackAll(tlist);
-                parseVariableDeclarations();
+                parseVariableDeclarations(token);
             }
             return null;
         }
@@ -1397,7 +1424,12 @@ public class JavaParser
         }
         return token;
     }
-	
+
+    /**
+     * Parse a "for(...)" loop (old or new style).
+     * @param forToken  The "for" token, which has already been extracted from the token stream.
+     * @return The last token that is part of the loop (or null).
+     */
     public LocatableToken parseForStatement(LocatableToken forToken)
     {
         // TODO: if we get an unexpected token in the part between '(' and ')' check
@@ -1414,6 +1446,7 @@ public class JavaParser
             // Could be an old or new style for-loop.
             List<LocatableToken> tlist = new LinkedList<LocatableToken>();
 
+            LocatableToken first = tokenStream.LA(1);
             boolean isTypeSpec = false;
             if (isModifier(tokenStream.LA(1))) {
                 parseModifiers();
@@ -1426,11 +1459,15 @@ public class JavaParser
             
             if (isTypeSpec && tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
                 // for (type var ...
+                beginForInitDecl(first);
                 gotTypeSpec(tlist);
-                token = tokenStream.nextToken(); // identifier
+                LocatableToken idToken = tokenStream.nextToken(); // identifier
+                gotForInit(first, idToken);
                 token = tokenStream.nextToken();
                 if (token.getType() == JavaTokenTypes.COLON) {
                     // This is a "new" for loop (Java 5)
+                    endForInit(idToken, true);
+                    endForInitDecls(idToken, true);
                     parseExpression();
                     token = tokenStream.nextToken();
                     if (token.getType() != JavaTokenTypes.RPAREN) {
@@ -1448,17 +1485,18 @@ public class JavaParser
                 }
                 else {
                     // Old style loop with initialiser
-                    beginElement(tlist.get(0));
                     if (token.getType() == JavaTokenTypes.ASSIGN) {
                         parseExpression();
                     }
                     else {
                         tokenStream.pushBack(token);
                     }
-                    if (parseSubsequentDeclarations(false) == null) {
+                    if (parseSubsequentDeclarations(DECL_TYPE_FORINIT) == null) {
                         endForLoop(tokenStream.LA(1), false);
+                        modifiersConsumed();
                         return null;
                     }
+                    modifiersConsumed();
                 }
             }
             else {
@@ -1603,39 +1641,46 @@ public class JavaParser
 	
     /**
      * Parse a variable declaration, possibly with an initialiser, always followed by ';'
+     * 
+     * @param first   The first token of the declaration (should still be
+     *                in the token stream, unless it is a modifier)
      */
-    public LocatableToken parseVariableDeclarations()
+    public LocatableToken parseVariableDeclarations(LocatableToken first)
     {
+        beginVariableDecl(first);
         parseModifiers();
-        parseVariableDeclaration();
-        return parseSubsequentDeclarations(false);
+        parseVariableDeclaration(first);
+        return parseSubsequentDeclarations(DECL_TYPE_VAR);
     }
 
+    /* Types for parseSubsequentDeclarations and friends */
+    
+    /** for loop initializer */
+    protected static final int DECL_TYPE_FORINIT = 0;
+    /** variable */
+    protected static final int DECL_TYPE_VAR = 1;
+    /** field */
+    protected static final int DECL_TYPE_FIELD = 2;
+    
     /**
      * After seeing a type and identifier declaration, this will parse any
      * the subsequent declarations, and check for a terminating semicolon.
      * @return  the last token that is part of the declarations, or null on error
      */
-    protected LocatableToken parseSubsequentDeclarations(boolean isField)
+    protected LocatableToken parseSubsequentDeclarations(int type)
     {
         LocatableToken token = tokenStream.nextToken();
         while (token.getType() == JavaTokenTypes.COMMA) {
-            if (isField) {
-                endField(token, false);
-            }
+            endDeclaration(type, token, false);
             LocatableToken first = token;
             token = tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.IDENT) {
-                if (isField) {
-                    endFieldDeclarations(token, false);
-                }
+                endDeclarationStmt(type, token, false);
                 error("Expecting variable identifier (or change ',' to ';')");
                 return null;
             }
             parseArrayDeclarators();
-            if (isField) {
-                gotSubsequentField(first, token);
-            }
+            gotSubsequentDecl(type, first, token);
             token = tokenStream.nextToken();
             if (token.getType() == JavaTokenTypes.ASSIGN) {
                 parseExpression();
@@ -1646,32 +1691,61 @@ public class JavaParser
         if (token.getType() != JavaTokenTypes.SEMI) {
             error("Expecting ';' at end of variable/field declaration");
             tokenStream.pushBack(token);
-            if (isField) {
-                endField(token, false);
-                endFieldDeclarations(token, false);
-            }
-            else {
-                endElement(token, false);
-            }
+            endDeclaration(type, token, false);
+            endDeclarationStmt(type, token, false);
             return null;
         }
         else {
-            if (isField) {
-                endField(token, true);
-                endFieldDeclarations(token, true);
-            }
-            else {
-                endElement(token, true);
-            }
+            endDeclaration(type, token, true);
+            endDeclarationStmt(type, token, true);
             return token;
         }
     }
 
+    private void endDeclaration(int type, LocatableToken token, boolean included)
+    {
+        if (type == DECL_TYPE_FIELD) {
+            endField(token, included);
+        }
+        else if (type == DECL_TYPE_VAR) {
+            endVariable(token, included);
+        }
+        else {
+            endForInit(token, included);
+        }
+    }
+    
+    private void endDeclarationStmt(int type, LocatableToken token, boolean included)
+    {
+        if (type == DECL_TYPE_FIELD) {
+            endFieldDeclarations(token, included);
+        }
+        else if (type == DECL_TYPE_VAR) {
+            endVariableDecls(token, included);
+        }
+        else {
+            endForInitDecls(token, included);
+        }
+    }
+    
+    private void gotSubsequentDecl(int type, LocatableToken firstToken, LocatableToken nameToken)
+    {
+        if (type == DECL_TYPE_FIELD) {
+            gotSubsequentField(firstToken, nameToken);
+        }
+        else if (type == DECL_TYPE_VAR) {
+            gotSubsequentVar(firstToken, nameToken);
+        }
+        else {
+            gotSubsequentForInit(firstToken, nameToken);
+        }
+    }
+    
     /**
      * Parse a variable (or field or parameter) declaration, possibly including an initialiser
      * (but not including modifiers)
      */
-    public void parseVariableDeclaration()
+    public void parseVariableDeclaration(LocatableToken first)
     {
         parseTypeSpec(true);
         LocatableToken token = tokenStream.nextToken();
@@ -1681,6 +1755,8 @@ public class JavaParser
             tokenStream.pushBack(token);
             return;
         }
+        
+        gotVariableDecl(first, token);
 
         // Array declarators can follow name
         parseArrayDeclarators();

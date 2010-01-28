@@ -693,7 +693,7 @@ public class EditorParser extends JavaParser
     {
         arrayDecls++;
     }
-    
+        
     @Override
     protected void beginFieldDeclarations(LocatableToken first)
     {
@@ -713,7 +713,7 @@ public class EditorParser extends JavaParser
         
         if (fieldType != null) {
             ParentParsedNode top = (ParentParsedNode) scopeStack.peek();
-            top.insertVariable(lastField, insPos - curOffset, 0);
+            top.insertField(lastField, insPos - curOffset, 0);
         }
         else {
             scopeStack.peek().insertNode(lastField, insPos - curOffset, 0);
@@ -733,7 +733,7 @@ public class EditorParser extends JavaParser
         beginNode(insPos);
         
         if (lastField.getFieldType() != null) {
-            TypeInnerNode top = (TypeInnerNode) scopeStack.peek();
+            ParentParsedNode top = (ParentParsedNode) scopeStack.peek();
             top.insertField(field, insPos - curOffset, 0);
         }
         else {
@@ -747,6 +747,59 @@ public class EditorParser extends JavaParser
     protected void endField(LocatableToken token, boolean included)
     {
         endTopNode(token, included);
+    }
+    
+    // Variables can be treated exactly like fields:
+    
+    @Override
+    protected void beginVariableDecl(LocatableToken first)
+    {
+        beginFieldDeclarations(first);
+    }
+    
+    @Override
+    protected void gotVariableDecl(LocatableToken first, LocatableToken idToken)
+    {
+        gotField(first, idToken);
+    }
+    
+    @Override
+    protected void gotSubsequentVar(LocatableToken first, LocatableToken idToken)
+    {
+        gotSubsequentField(first, idToken);
+    }
+    
+    @Override
+    protected void endVariable(LocatableToken token, boolean included)
+    {
+        endField(token, included);
+    }
+    
+    // For-initializers are like variables/fields
+    
+    @Override
+    protected void beginForInitDecl(LocatableToken first)
+    {
+        beginFieldDeclarations(first);
+    }
+    
+    @Override
+    protected void gotForInit(LocatableToken first, LocatableToken idToken)
+    {
+        gotField(first, idToken);
+    }
+    
+    @Override
+    protected void gotSubsequentForInit(LocatableToken first,
+            LocatableToken idToken)
+    {
+        gotSubsequentField(first, idToken);
+    }
+    
+    @Override
+    protected void endForInit(LocatableToken token, boolean included)
+    {
+        endField(token, included);
     }
     
     @Override

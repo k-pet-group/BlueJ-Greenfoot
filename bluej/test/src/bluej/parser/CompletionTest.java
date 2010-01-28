@@ -196,7 +196,7 @@ public class CompletionTest extends TestCase
         String aClassSrc = "class A {\n" +   //       10 
         "void someMethod() {\n" +            // +20 = 30 
         "    for (Object o = null ; ; ) {\n" + // +33 = 63
-        "        o.wait();\n" +   // o. <-- 73
+        "        o.wait();\n" +              // o. <-- 73
         "    }" +
         "}\n" +
         "}\n";
@@ -213,9 +213,33 @@ public class CompletionTest extends TestCase
     }
     
     /**
+     * Test a variable reference.
+     */
+    public void testVariableRef() throws Exception
+    {
+        String aClassSrc = "class A {\n" +   //       10 
+        "void someMethod() {\n" +            // +20 = 30 
+        "    String s = \"hello\";\n" +      // +24 = 54
+        "    s.length();" +                  // s. <--  60 
+        "    }" +
+        "}\n" +
+        "}\n";
+        
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+        
+        ParsedCUNode aNode = cuForSource(aClassSrc);
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(60, doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.String", suggests.getSuggestionType().toString());
+    }
+    
+    /**
      * Check that forward variable references aren't allowed
      */
-    public void test4() throws Exception
+    public void testNoBwardVarRef() throws Exception
     {
         String aClassSrc = "class A {\n" +   //       10 
         "void someMethod() {\n" +            // +20 = 30 
@@ -240,6 +264,7 @@ public class CompletionTest extends TestCase
     
     // Test that forward references behave the same way as in Java
     // - field definitions may not forward reference other fields in the same class
-    // - variables cannot be forward referenced
+    //   (although the declarations are visible!)
+    // - variables cannot be forward referenced (declarations are not visible).
 
 }
