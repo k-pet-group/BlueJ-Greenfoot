@@ -23,6 +23,7 @@ package bluej.terminal;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.print.PrinterJob;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 
@@ -247,6 +248,16 @@ public final class Terminal extends JFrame
                 DialogManager.showError(this, "error-save-file");
             }
         }
+    }
+    
+    public void print()
+    {
+    	PrinterJob job = PrinterJob.getPrinterJob();
+    	int printFontSize = Config.getPropInteger("bluej.fontsize.printText", 10);
+    	Font font = new Font("Monospaced", Font.PLAIN, printFontSize);
+    	if (job.printDialog()) {
+    		TerminalPrinter.printTerminal(job, text, job.defaultPage(), font);
+    	}
     }
 
 
@@ -623,6 +634,7 @@ public final class Terminal extends JFrame
         item = menu.add(new SaveAction());
         item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
                                                    SHORTCUT_MASK));
+        menu.add(new PrintAction());
         menu.add(new JSeparator());
 
         autoClear = new JCheckBoxMenuItem(new AutoClearAction());
@@ -668,6 +680,18 @@ public final class Terminal extends JFrame
 
         public void actionPerformed(ActionEvent e) {
             save();
+        }
+    }
+    
+    private class PrintAction extends AbstractAction
+    {
+        public PrintAction()
+        {
+            super(Config.getString("terminal.print"));
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            print();
         }
     }
 

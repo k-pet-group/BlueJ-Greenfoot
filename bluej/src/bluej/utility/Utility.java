@@ -43,6 +43,7 @@ import java.util.Set;
 
 import javax.swing.AbstractButton;
 import javax.swing.border.Border;
+import javax.swing.text.TabExpander;
 
 import bluej.Config;
 
@@ -51,7 +52,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 6688 2009-09-16 14:16:56Z davmac $
+ * @version $Id: Utility.java 7062 2010-01-28 17:52:58Z nccb $
  */
 public class Utility
 {
@@ -621,6 +622,73 @@ public class Utility
         else
             return originalString;
     }
+    
+    /**
+     * Calculates how many spaces each tab in the given string turns into.
+     * 
+     * If there is a tab at character index N, the array entry N in the
+     * returned array will indicate how many spaces the tab converts into.
+     * The value of all other entries is undefined.
+     */
+    public static int[] calculateTabSpaces(String line, int tabSize)
+    {
+    	// Bigger array than necessary, but we're only doing one line at a time:
+        int[] tabSpaces = new int[line.length()];
+        int curPos = 0;
+        for (int i = 0; i < line.length(); i++) {
+            if (line.charAt(i) == '\t') {
+                // calculate how many spaces to add
+                int numberOfSpaces = tabSize - (curPos % tabSize);
+                tabSpaces[i] = numberOfSpaces;
+                curPos += numberOfSpaces;
+            }
+            else {
+            	curPos += 1;
+            }
+        }
+        return tabSpaces;
+    }
+    
+    /**
+     * Makes a TabExpander object that will turn tabs into the appropriate
+     * white-space, based on the original String.  This means that the tabs
+     * will get aligned to the correct tab-stops rather than just being
+     * converted into a set number of spaces.  Thus, the TabExpander will match
+     * the behaviour of the editor.
+     */
+    public static TabExpander makeTabExpander(String line, int tabSize, final FontMetrics fontMetrics)
+    {
+        final int[] tabSpaces = Utility.calculateTabSpaces(line, tabSize);
+        
+        return new TabExpander() {
+    		public float nextTabStop(float x, int tabOffset) {
+    			return x + tabSpaces[tabOffset] * fontMetrics.charWidth(' ');
+    		}
+    	};
+    }
+    
+    /**
+     * Given a String and an index into it, along with the pre-calculated tabSpaces array,
+     * advances the index by the given number of character widths.
+     * 
+     * If the String contains to tabs, this effectively adds advanceBy to index.
+     * 
+     * If the String does contain tabs, their width is taken into account
+     * as the index is advanced through the array.
+     * 
+     */
+    public static int advanceChars(String line, int[] tabSpaces, int index, int advanceBy)
+    {
+    	while (advanceBy > 0 && index < line.length())
+    	{
+    		int width = (line.charAt(index) == '\t') ? tabSpaces[index] : 1;	
+    		advanceBy -= width;
+    		index += 1;
+    	}
+    	return index;
+    }
+    
+    
 
     /**
      * Check if this is the first time a particular event (identified by the
