@@ -21,44 +21,45 @@
  */
 package bluej.editor.moe;
 
-public class AssistContent {
+/**
+ * Describes a possible code completion.
+ * 
+ * @author Marion Zalk
+ */
+public class AssistContent
+{
     private String contentName; 
     private String contentReturnType;
-    private String contentClass;
-    private String contentDString;
+    private String definingClass;
+    private String javaDoc;
         
     public AssistContent(String contentName, String contentReturnType,
-            String contentClass, String contentDString) {
+            String definingClass, String javaDoc)
+    {
         super();
         this.contentName = contentName;
         this.contentReturnType = contentReturnType;
-        this.contentClass = contentClass;
-        this.contentDString = contentDString;
+        this.definingClass = definingClass;
+        this.javaDoc = javaDoc;
     }
     
-    public String getContentName() {
+    public String getContentName()
+    {
         return contentName;
     }
-    private void setContentName(String contentName) {
-        this.contentName = contentName;
-    }
-    public String getContentReturnType() {
+
+    public String getContentReturnType()
+    {
         return contentReturnType;
     }
-    private void setContentReturnType(String contentReturnType) {
-        this.contentReturnType = contentReturnType;
-    }
-    public String getContentClass() {
-        return contentClass;
-    }
-    private void setContentClass(String contentClass) {
-        this.contentClass = contentClass;
-    }
-    public String getContentDString() {
-        return contentDString;
-    }
-    private void setContentDString(String contentDString) {
-        this.contentDString = contentDString;
-    }
 
+    public String getContentClass()
+    {
+        return definingClass;
+    }
+    
+    public String getJavadoc()
+    {
+        return javaDoc;
+    }
 }

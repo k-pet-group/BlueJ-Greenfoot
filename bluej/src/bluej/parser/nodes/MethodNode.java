@@ -32,18 +32,20 @@ import bluej.parser.entity.JavaEntity;
 public class MethodNode extends ParentParsedNode
 {
     private String name;
-    // private List<MethodParam> params;
+    private String javadoc;
     private JavaEntity returnType;
     
     /**
      * Construct a MethodNode representing a constructor or method.
      * @param parent  The parent node (containing this node)
      * @param name    The constructor/method name
+     * @param javadoc The javadoc comment text (or null)
      */
-    public MethodNode(ParsedNode parent, String name)
+    public MethodNode(ParsedNode parent, String name, String javadoc)
     {
         super(parent);
         this.name = name;
+        this.javadoc = javadoc;
     }
 
     /**
@@ -51,12 +53,22 @@ public class MethodNode extends ParentParsedNode
      * @param parent   The parent node (containing this node)
      * @param name     The method name
      * @param returnType   The method return type
+     * @param javadoc  The javadoc comment text (or null)
      */
-    public MethodNode(ParsedNode parent, String name, JavaEntity returnType)
+    public MethodNode(ParsedNode parent, String name, JavaEntity returnType, String javadoc)
     {
         super(parent);
         this.name = name;
         this.returnType = returnType;
+        this.javadoc = javadoc;
+    }
+    
+    /**
+     * Get the javadoc comment text for this node. May return null.
+     */
+    public String getJavadoc()
+    {
+        return javadoc;
     }
     
     @Override

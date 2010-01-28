@@ -185,7 +185,7 @@ public class CodeCompletionDisplay extends JFrame
         for (int i=0;i <values.length; i++ ){
             methodsAvailable[i]=values[i].getContentName()+" : "+
             values[i].getContentReturnType()+" - "+values[i].getContentClass();
-            methodDescrs[i]=values[i].getContentDString();
+            methodDescrs[i]=values[i].getJavadoc();
         }
     }
 

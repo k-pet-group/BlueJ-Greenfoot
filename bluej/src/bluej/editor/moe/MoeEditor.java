@@ -109,6 +109,7 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
+import bluej.utility.JavaNames;
 import bluej.utility.Utility;
 
 /**
@@ -3340,7 +3341,17 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 if (name.startsWith(prefix)) {
                     Set<MethodReflective> mset = methods.get(name);
                     for (MethodReflective method : mset) {
-                        completions.add(new AssistContent(name, method.getReturnType().toString(), "(Unknown)", "Unavailable."));
+                        String declName = method.getDeclaringType().getName();
+                        declName = JavaNames.stripPrefix(declName);
+                        declName = declName.replace('$', '.');
+                        String comment = method.getJavaDoc(); 
+                        if (comment == null) {
+                            comment = "No documentation available.";
+                        }
+                        completions.add(new AssistContent(name,
+                                method.getReturnType().toString(),
+                                declName,
+                                comment));
                     }
                 }
             }

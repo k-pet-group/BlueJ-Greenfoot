@@ -146,8 +146,9 @@ public class ParsedReflective extends Reflective
                 if (rtypeEnt == null) continue;
                 JavaType rtype = rtypeEnt.getType().getCapture();
                 List<JavaType> paramTypes = new ArrayList<JavaType>();
-                MethodReflective mref = new MethodReflective(rtype, null,
-                        paramTypes, false, false);
+                MethodReflective mref = new MethodReflective(name, rtype, null,
+                        paramTypes, this, false, false);
+                mref.setJavaDoc(method.getJavadoc());
                 rset.add(mref);
             }
             if (! rset.isEmpty()) {

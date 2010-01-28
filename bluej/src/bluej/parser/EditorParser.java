@@ -620,13 +620,15 @@ public class EditorParser extends JavaParser
     protected void gotConstructorDecl(LocatableToken token,
             LocatableToken hiddenToken)
     {
-        super.gotConstructorDecl(token, hiddenToken);
         LocatableToken start = pcuStmtBegin;
+        String jdcomment = null;
         if (hiddenToken != null) {
             start = hiddenToken;
+            // TODO: make certain hidden token not already consumed by prior sibling node
+            jdcomment = hiddenToken.getText();
         }
         
-        ParsedNode pnode = new MethodNode(scopeStack.peek(), token.getText());
+        ParsedNode pnode = new MethodNode(scopeStack.peek(), token.getText(), jdcomment);
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(start.getLine(), start.getColumn());
         beginNode(insPos);
@@ -639,13 +641,15 @@ public class EditorParser extends JavaParser
             LocatableToken hiddenToken)
     {
         LocatableToken start = pcuStmtBegin;
+        String jdcomment = null;
         if (hiddenToken != null) {
             start = hiddenToken;
             // TODO: make certain hidden token not already consumed by prior sibling node
+            jdcomment = hiddenToken.getText();
         }
         
         JavaEntity rtype = ParseUtils.getTypeEntity(scopeStack.peek(), lastTypeSpec);
-        MethodNode pnode = new MethodNode(scopeStack.peek(), token.getText(), rtype);
+        MethodNode pnode = new MethodNode(scopeStack.peek(), token.getText(), rtype, jdcomment);
         
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(start.getLine(), start.getColumn());

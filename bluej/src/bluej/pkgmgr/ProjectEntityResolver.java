@@ -81,22 +81,20 @@ public class ProjectEntityResolver implements EntityResolver
     public TypeEntity resolveQualifiedClass(String name)
     {
         int lastDot = name.lastIndexOf('.');
-        if (lastDot != -1) {
-            String pkgName = name.substring(0, lastDot);
-            String baseName = name.substring(lastDot + 1);
-            Package pkg = project.getPackage(pkgName);
-            if (pkg != null) {
-                Target target = pkg.getTarget(baseName);
-                if (target instanceof ClassTarget) {
-                    ClassTarget ct = (ClassTarget) target;
-                    Reflective ref = ct.getTypeRefelective();
-                    if (ref != null) {
-                        return new TypeEntity(ref);
-                    }
+        String pkgName = lastDot != -1 ? name.substring(0, lastDot) : "";
+        String baseName = name.substring(lastDot + 1);
+        Package pkg = project.getPackage(pkgName);
+        if (pkg != null) {
+            Target target = pkg.getTarget(baseName);
+            if (target instanceof ClassTarget) {
+                ClassTarget ct = (ClassTarget) target;
+                Reflective ref = ct.getTypeRefelective();
+                if (ref != null) {
+                    return new TypeEntity(ref);
                 }
             }
         }
-        
+
         try {
             // Try as a class which might be external to the project 
             Class<?> cl = project.getClassLoader().loadClass(name);

@@ -30,11 +30,14 @@ import java.util.List;
  */
 public class MethodReflective
 {
+    private String name;
     private JavaType returnType;
     private List<GenTypeDeclTpar> tparTypes;
     private List<JavaType> paramTypes;
     private boolean isVarArgs;
     private boolean isStatic;
+    private Reflective declaringType;
+    private String javaDoc;
     
     /**
      * Construct a MethodReflective object.
@@ -45,14 +48,41 @@ public class MethodReflective
      *                    the component type, not the array type.
      * @param isStatic    Whether the method is a static method
      */
-    public MethodReflective(JavaType returnType, List<GenTypeDeclTpar> tparTypes, List<JavaType> paramTypes, boolean isVarArgs,
-            boolean isStatic)
+    public MethodReflective(String name, JavaType returnType, List<GenTypeDeclTpar> tparTypes,
+            List<JavaType> paramTypes, Reflective declaringType, boolean isVarArgs, boolean isStatic)
     {
+        this.name = name;
         this.returnType = returnType;
         this.tparTypes = tparTypes;
         this.paramTypes = paramTypes;
+        this.declaringType = declaringType;
         this.isVarArgs = isVarArgs;
         this.isStatic = isStatic;
+    }
+    
+    /**
+     * Set the javadoc for this method.
+     */
+    public void setJavaDoc(String javaDoc)
+    {
+        this.javaDoc = javaDoc;
+    }
+    
+    /**
+     * Get the javadoc for this method. Returns null if not available
+     * (if it has not been set).
+     */
+    public String getJavaDoc()
+    {
+        return javaDoc;
+    }
+    
+    /**
+     * Get the method name.
+     */
+    public String getName()
+    {
+        return name;
     }
     
     public boolean isStatic()
@@ -87,5 +117,10 @@ public class MethodReflective
     public JavaType getReturnType()
     {
         return returnType;
+    }
+    
+    public Reflective getDeclaringType()
+    {
+        return declaringType;
     }
 }

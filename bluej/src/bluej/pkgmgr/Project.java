@@ -97,7 +97,7 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 6984 2010-01-11 07:48:29Z davmac $
+ * @version $Id: Project.java 7061 2010-01-28 06:17:34Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -190,6 +190,7 @@ public class Project implements DebuggerListener, InspectorManager
         this.projectDir = projectDir;
         inspectors = new HashMap<Object,Inspector>();
         packages = new TreeMap<String, Package>();
+        docuGenerator = new DocuGenerator(this);
 
         try {
             Package unnamed = new Package(this);
@@ -204,8 +205,6 @@ public class Project implements DebuggerListener, InspectorManager
         debugger.newClassLoader(getClassLoader());
         debugger.addDebuggerListener(this);
         debugger.launch();
-
-        docuGenerator = new DocuGenerator(this);
 
         // Check whether this is a shared project
         File ccfFile = new File(projectDir.getAbsoluteFile(), "team.defs");

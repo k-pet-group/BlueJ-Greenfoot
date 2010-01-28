@@ -44,7 +44,7 @@ import bluej.debugger.gentype.Reflective;
  * A reflective for GenTypeClass which uses the standard java reflection API.  
  * 
  * @author Davin McCall
- * @version $Id: JavaReflective.java 6927 2009-12-09 05:47:50Z davmac $
+ * @version $Id: JavaReflective.java 7061 2010-01-28 06:17:34Z davmac $
  */
 public class JavaReflective extends Reflective {
 
@@ -232,7 +232,9 @@ public class JavaReflective extends Reflective {
             List<JavaType> paramTypesList = new ArrayList<JavaType>(paramTypes.length);
             Collections.addAll(paramTypesList, paramTypes);
             
-            MethodReflective mr = new MethodReflective(rtype, tpars, paramTypesList,
+            String name = method.getName();
+            MethodReflective mr = new MethodReflective(name, rtype, tpars, paramTypesList,
+                    this,
                     JavaUtils.getJavaUtils().isVarArgs(method),
                     (method.getModifiers() & Modifier.STATIC) != 0);
             Set<MethodReflective> rset = rmap.get(method.getName());
