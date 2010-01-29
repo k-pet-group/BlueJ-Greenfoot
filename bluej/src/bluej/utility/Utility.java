@@ -52,7 +52,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 7062 2010-01-28 17:52:58Z nccb $
+ * @version $Id: Utility.java 7065 2010-01-29 11:43:40Z nccb $
  */
 public class Utility
 {
@@ -632,7 +632,7 @@ public class Utility
      */
     public static int[] calculateTabSpaces(String line, int tabSize)
     {
-    	// Bigger array than necessary, but we're only doing one line at a time:
+        // Bigger array than necessary, but we're only doing one line at a time:
         int[] tabSpaces = new int[line.length()];
         int curPos = 0;
         for (int i = 0; i < line.length(); i++) {
@@ -643,7 +643,7 @@ public class Utility
                 curPos += numberOfSpaces;
             }
             else {
-            	curPos += 1;
+                curPos += 1;
             }
         }
         return tabSpaces;
@@ -661,10 +661,10 @@ public class Utility
         final int[] tabSpaces = Utility.calculateTabSpaces(line, tabSize);
         
         return new TabExpander() {
-    		public float nextTabStop(float x, int tabOffset) {
-    			return x + tabSpaces[tabOffset] * fontMetrics.charWidth(' ');
-    		}
-    	};
+            public float nextTabStop(float x, int tabOffset) {
+                return x + tabSpaces[tabOffset] * fontMetrics.charWidth(' ');
+            }
+        };
     }
     
     /**
@@ -679,13 +679,13 @@ public class Utility
      */
     public static int advanceChars(String line, int[] tabSpaces, int index, int advanceBy)
     {
-    	while (advanceBy > 0 && index < line.length())
-    	{
-    		int width = (line.charAt(index) == '\t') ? tabSpaces[index] : 1;	
-    		advanceBy -= width;
-    		index += 1;
-    	}
-    	return index;
+        while (advanceBy > 0 && index < line.length())
+        {
+            int width = (line.charAt(index) == '\t') ? tabSpaces[index] : 1;	
+            advanceBy -= width;
+            index += 1;
+        }
+        return index;
     }
     
     

@@ -1,3 +1,25 @@
+/*
+ This file is part of the BlueJ program.
+ Copyright (C) 2010  Michael Kolling and John Rosenberg
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+ This file is subject to the Classpath exception as provided in the
+ LICENSE.txt file that accompanied this code.
+ */
+
 package bluej.terminal;
 
 import java.awt.Color;
@@ -23,29 +45,35 @@ import javax.swing.text.Utilities;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 
+/**
+ * Handles the printing of the Terminal window, including pagination and line-wrapping.
+ *
+ * @author nccb
+ *
+ */
 public class TerminalPrinter
 {	
-	// This is done to match with the terminal text area which uses the
-	// JTextArea default, which is that every tab is 8 spaces:
-	private static final int tabSize = 8;
-	
-	private static final int PADDING = 5;
-	
-	public static class TerminalPage implements Printable
-	{
-		private List<String> pageText;
-		private Font font;
-		
-		public TerminalPage(List<String> pageText, Font font)
-		{
-			this.pageText = pageText;
-			this.font = font;
-		}
+    // This is done to match with the terminal text area which uses the
+    // JTextArea default, which is that every tab is 8 spaces:
+    private static final int tabSize = 8;
+    
+    private static final int PADDING = 5;
+    
+    public static class TerminalPage implements Printable
+    {
+        private List<String> pageText;
+        private Font font;
+        
+        public TerminalPage(List<String> pageText, Font font)
+        {
+            this.pageText = pageText;
+            this.font = font;
+        }
 
-		public int print(Graphics g, PageFormat pageFormat, int pageIndex)
-				throws PrinterException
-		{
-			
+        public int print(Graphics g, PageFormat pageFormat, int pageIndex)
+                throws PrinterException
+        {
+            
             // the printing part
             int position;
             g.setFont(this.font);     // Set the font
@@ -72,29 +100,29 @@ public class TerminalPrinter
                 String line = li.next();
                 
                 int x = textXPosition;
-            	
+                
                 // workaround for strange problem on Mac:
                 // trying to print empty lines throws exception
                 if (line.length() == 0) {
-                	char[] nonBlank = new char[] {' '};
-                	Segment lineSeg = new Segment(nonBlank,0,1);
+                    char[] nonBlank = new char[] {' '};
+                    Segment lineSeg = new Segment(nonBlank,0,1);
                     x = Utilities.drawTabbedText(lineSeg, x, position, g, null, 0);
                 }
                 else {
-                	Segment lineSeg = new Segment(line.toCharArray(), 0, line.length());
-                  	TabExpander tab = Utility.makeTabExpander(line, tabSize, fontMetrics);
-                   	x = Utilities.drawTabbedText(lineSeg,x,position,g,tab,0);                    
+                    Segment lineSeg = new Segment(line.toCharArray(), 0, line.length());
+                    TabExpander tab = Utility.makeTabExpander(line, tabSize, fontMetrics);
+                    x = Utilities.drawTabbedText(lineSeg,x,position,g,tab,0);                    
                 } 
             }
    
             return Printable.PAGE_EXISTS;   // print the page
 
-		}
+        }
 
-	}
+    }
 
-	public static boolean printTerminal(PrinterJob job, TermTextArea textArea, PageFormat pageFormat, Font font)
-	{
+    public static boolean printTerminal(PrinterJob job, TermTextArea textArea, PageFormat pageFormat, Font font)
+    {
         try {
             Book pages = paginateText(textArea, pageFormat, font);        
 
@@ -112,14 +140,14 @@ public class TerminalPrinter
             return false;
         }
 
-	}
+    }
 
-	private static Book paginateText(TermTextArea textArea, PageFormat pageFormat, Font font)
-	{
-		// It is important to make a new linked list because we may
-		// manipulate it later if lines need to be wrapped:
-		List<String> text = new LinkedList<String>(Arrays.asList(textArea.getText().split("\r\n|\r|\n")));
-		
+    private static Book paginateText(TermTextArea textArea, PageFormat pageFormat, Font font)
+    {
+        // It is important to make a new linked list because we may
+        // manipulate it later if lines need to be wrapped:
+        List<String> text = new LinkedList<String>(Arrays.asList(textArea.getText().split("\r\n|\r|\n")));
+        
         Book book = new Book();
         int currentLine = 0;       // line I am  currently reading
         int pageNum = 1;        // page #
@@ -144,14 +172,14 @@ public class TerminalPrinter
                 pageText.add(li.next());
                 currentLine++; //bq needed?
             }
-	    
+        
             // create a new page object with the text and add it to the book
             book.append(new TerminalPage(pageText, font), pageFormat);  
             pageNum++;   // increase the page number I am on
         }
         return book;  // return the completed book
-	}
-	
+    }
+    
     /**
      * Wraps lines so that long lines of text outside of print page dimensions for a 
      * given page format and font are printed as a new line.  This method iterates 
@@ -169,14 +197,14 @@ public class TerminalPrinter
         int chars = maxWidth / fontWidth;
 
         for(ListIterator<String> li = text.listIterator(); li.hasNext(); ) {
-        	String pl = li.next();
+            String pl = li.next();
             String currentLine = Utility.convertTabsToSpaces(pl.toString(), tabSize);
             int currentLineLength = currentLine.length();
             int width = fontMetrics.stringWidth(currentLine);
             
             // if line needs to be wrapped
             if(width > maxWidth) {
-            	int[] tabSpaces = Utility.calculateTabSpaces(pl.toString(), tabSize);
+                int[] tabSpaces = Utility.calculateTabSpaces(pl.toString(), tabSize);
                 // remove original
                 li.remove();
                 double iterations = (currentLineLength / chars) + 1;
@@ -186,7 +214,7 @@ public class TerminalPrinter
                     String newSubString = pl.substring(begin, end);
                     if(newSubString.length() != 0)
                     {
-                    	li.add(newSubString);
+                        li.add(newSubString);
                     }
                 }
             }

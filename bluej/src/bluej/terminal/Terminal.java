@@ -252,14 +252,13 @@ public final class Terminal extends JFrame
     
     public void print()
     {
-    	PrinterJob job = PrinterJob.getPrinterJob();
-    	int printFontSize = Config.getPropInteger("bluej.fontsize.printText", 10);
-    	Font font = new Font("Monospaced", Font.PLAIN, printFontSize);
-    	if (job.printDialog()) {
-    		TerminalPrinter.printTerminal(job, text, job.defaultPage(), font);
-    	}
+        PrinterJob job = PrinterJob.getPrinterJob();
+        int printFontSize = Config.getPropInteger("bluej.fontsize.printText", 10);
+        Font font = new Font("Monospaced", Font.PLAIN, printFontSize);
+        if (job.printDialog()) {
+            TerminalPrinter.printTerminal(job, text, job.defaultPage(), font);
+        }
     }
-
 
     /**
      * Write some text to the terminal.

@@ -81,7 +81,7 @@ public class MoePrinter
      * @returns   true if it was not cancelled.
      */
     public boolean printDocument(PrinterJob printJob, MoeSyntaxDocument document, boolean lineNumbers, boolean syntaxHighlighting,
-    		                     String className, Font font, PageFormat format) 
+                                 String className, Font font, PageFormat format) 
     {
         List<PrintLine> lines = new ArrayList<PrintLine>();
 
@@ -196,7 +196,7 @@ public class MoePrinter
                 pageText.add(li.next());
                 currentLine++; //bq needed?
             }
-	    
+        
             // create a new page object with the text and add it to the book
             book.append(new MoePage(pageText, document, lineNumbers, syntaxHighlighting, font), pageFormat);  
             pageNum++;   // increase the page number I am on
@@ -220,20 +220,20 @@ public class MoePrinter
         int maxWidth = (int)format.getImageableWidth() - (PADDING * 2);
         if (lineNumbers)
         {
-        	maxWidth -= LINE_NUMBER_WIDTH;
+            maxWidth -= LINE_NUMBER_WIDTH;
         }
         int fontWidth = fontMetrics.charWidth('m');           
         int chars = maxWidth / fontWidth;
 
         for(ListIterator<PrintLine> li = text.listIterator(); li.hasNext(); ) {
-        	PrintLine pl = li.next();
+            PrintLine pl = li.next();
             String currentLine = Utility.convertTabsToSpaces(pl.toString(), tabSize);
             int currentLineLength = currentLine.length();
             int width = fontMetrics.stringWidth(currentLine);
             
             // if line needs to be wrapped
             if(width > maxWidth) {
-            	int[] tabSpaces = Utility.calculateTabSpaces(pl.toString(), tabSize);
+                int[] tabSpaces = Utility.calculateTabSpaces(pl.toString(), tabSize);
                 // remove original
                 li.remove();
                 double iterations = (currentLineLength / chars) + 1;
@@ -243,7 +243,7 @@ public class MoePrinter
                     PrintLine newSubString = pl.substring(begin, end);
                     if(newSubString.length() != 0)
                     {
-                    	li.add(newSubString);
+                        li.add(newSubString);
                     }
                 }
             }
@@ -306,9 +306,9 @@ public class MoePrinter
             int lastLineNumber = 0;
             if (lineNumbers)
             {
-            	//The vertical line dividing the line numbers from the code:
-            	g.drawLine(xPosition + LINE_NUMBER_WIDTH, textYPosition
-            			  ,xPosition + LINE_NUMBER_WIDTH, yPosition + height - FOOTER_SPACE);
+                //The vertical line dividing the line numbers from the code:
+                g.drawLine(xPosition + LINE_NUMBER_WIDTH, textYPosition
+                          ,xPosition + LINE_NUMBER_WIDTH, yPosition + height - FOOTER_SPACE);
             }
             
             
@@ -319,16 +319,16 @@ public class MoePrinter
                 
                 if (lineNumbers && line.getLineNumber() != lastLineNumber)
                 {
-                	g.setColor(Color.black);
-                	g.setFont(lineNumberFont);
-                	g.drawString(Integer.toString(line.getLineNumber()), lineNumberXPosition, position);
-                	lastLineNumber = line.getLineNumber();
-                	g.setFont(font);
+                    g.setColor(Color.black);
+                    g.setFont(lineNumberFont);
+                    g.drawString(Integer.toString(line.getLineNumber()), lineNumberXPosition, position);
+                    lastLineNumber = line.getLineNumber();
+                    g.setFont(font);
                 }
                 
                 int x = textXPosition;
-            	
-            	Token tokens = document.getParser().getMarkTokensFor(line.getStartOffset(), Math.min(line.getEndOffset(),document.getLength()) - line.getStartOffset(), 0, document);
+                
+                Token tokens = document.getParser().getMarkTokensFor(line.getStartOffset(), Math.min(line.getEndOffset(),document.getLength()) - line.getStartOffset(), 0, document);
                 int offset = 0;
                 while (tokens.id != Token.END) {
                     byte id = tokens.id;
@@ -346,7 +346,7 @@ public class MoePrinter
                     }
                     if (syntaxHighlighting)
                     {
-                    	g.setColor(color == null ? def : color);
+                        g.setColor(color == null ? def : color);
                     }
 
                     Segment lineSeg = line.getSegment();
@@ -356,13 +356,13 @@ public class MoePrinter
                     // workaround for strange problem on Mac:
                     // trying to print empty lines throws exception
                     if (lineSeg.count == 0) {
-                    	char[] chars = new char[]{' '};
-                    	Segment nonBlank = new Segment(chars,0,1);
-                    	x = Utilities.drawTabbedText(nonBlank, x, position, g, null, 0);
+                        char[] chars = new char[]{' '};
+                        Segment nonBlank = new Segment(chars,0,1);
+                        x = Utilities.drawTabbedText(nonBlank, x, position, g, null, 0);
                     }
                     else {
-                    	TabExpander tab = Utility.makeTabExpander(lineSeg.toString(), tabSize, fontMetrics);
-                    	x = Utilities.drawTabbedText(lineSeg,x,position,g,tab,offset);
+                        TabExpander tab = Utility.makeTabExpander(lineSeg.toString(), tabSize, fontMetrics);
+                        x = Utilities.drawTabbedText(lineSeg,x,position,g,tab,offset);
                     }
                     offset += length;
                     tokens = tokens.next;
@@ -418,7 +418,7 @@ public class MoePrinter
         /**
          * Prints a footer box on a page that shows the print date.
          */
-	    private void printFooter(Graphics g, int xPos, int yPos, int width, int height) 
+        private void printFooter(Graphics g, int xPos, int yPos, int width, int height) 
         {
             // set up font and text position
             g.setFont(footerFont);
@@ -438,7 +438,7 @@ public class MoePrinter
             g.setFont(font);
 
         }
-	
+    
     }
     
     /**
@@ -450,96 +450,96 @@ public class MoePrinter
      */
     private class PrintLine implements CharSequence
     {
-    	private MoeSyntaxDocument document;
-    	private int startOffset;
-    	private int endOffset;
-    	private int lineNumber;
+        private MoeSyntaxDocument document;
+        private int startOffset;
+        private int endOffset;
+        private int lineNumber;
 
-		public PrintLine(MoeSyntaxDocument document, int startOffset,
-				int endOffset, int lineNumber) {
-			this.document = document;
-			this.startOffset = startOffset;
-			this.endOffset = endOffset;
-			this.lineNumber = lineNumber;
-		}
-    	
-    	public PrintLine(MoeSyntaxDocument document, Element e, int lineNumber) {
-			this.document = document;
-			this.startOffset = e.getStartOffset();
-			this.endOffset = e.getEndOffset();
-			this.lineNumber = lineNumber;
-		}
+        public PrintLine(MoeSyntaxDocument document, int startOffset,
+                int endOffset, int lineNumber) {
+            this.document = document;
+            this.startOffset = startOffset;
+            this.endOffset = endOffset;
+            this.lineNumber = lineNumber;
+        }
+        
+        public PrintLine(MoeSyntaxDocument document, Element e, int lineNumber) {
+            this.document = document;
+            this.startOffset = e.getStartOffset();
+            this.endOffset = e.getEndOffset();
+            this.lineNumber = lineNumber;
+        }
 
-		public int getStartOffset() {
-			return startOffset;
-		}
-		
-		public int getEndOffset() {
-			return endOffset;
-		}
+        public int getStartOffset() {
+            return startOffset;
+        }
+        
+        public int getEndOffset() {
+            return endOffset;
+        }
 
-    	
-    	public int getLineNumber() {
-			return lineNumber;
-		}		
-		
-    	public int length() {
-    		return endOffset - startOffset;
-    	}
-    	
-    	@Override
-    	public String toString() {
-    		try
-    		{
-    			if (length() == 0)
-    			{
-    				return "";
-    			}
-    			else
-    			{
-    				return document.getText(startOffset, length());
-    			}
-    		}
-    		catch (BadLocationException e)
-    		{
-    			Debug.reportError("PrintLine.toString(), offsets: " + startOffset + " and " + endOffset, e);
-    			return null;
-    		}
-    	}
+        
+        public int getLineNumber() {
+            return lineNumber;
+        }		
+        
+        public int length() {
+            return endOffset - startOffset;
+        }
+        
+        @Override
+        public String toString() {
+            try
+            {
+                if (length() == 0)
+                {
+                    return "";
+                }
+                else
+                {
+                    return document.getText(startOffset, length());
+                }
+            }
+            catch (BadLocationException e)
+            {
+                Debug.reportError("PrintLine.toString(), offsets: " + startOffset + " and " + endOffset, e);
+                return null;
+            }
+        }
 
-		public char charAt(int n) {
-			return toString().charAt(n);
-		}
+        public char charAt(int n) {
+            return toString().charAt(n);
+        }
 
-		public CharSequence subSequence(int start, int end) {
-			return toString().subSequence(start, end);
-		}
-    	
-    	public void chopLast()
-    	{
-    		if (endOffset > startOffset)
-    			endOffset -= 1;
-    	}
-    	
-    	public PrintLine substring(int begin, int end)
-    	{
-    		return new PrintLine(document, begin + startOffset, end + startOffset, lineNumber);
-    	}
-    	
-    	public Segment getSegment()
-    	{
-    		try
-    		{
-    			Segment seg = new Segment();
-    			document.getText(getStartOffset(), getEndOffset() - getStartOffset(), seg);
-    			return seg;
-    		}
-    		catch (BadLocationException e)
-    		{
-    			Debug.reportError("PrintLine.getSegment(), offsets: " + startOffset + " and " + endOffset, e);
-    			return null;
-    		}
-    	}
+        public CharSequence subSequence(int start, int end) {
+            return toString().subSequence(start, end);
+        }
+        
+        public void chopLast()
+        {
+            if (endOffset > startOffset)
+                endOffset -= 1;
+        }
+        
+        public PrintLine substring(int begin, int end)
+        {
+            return new PrintLine(document, begin + startOffset, end + startOffset, lineNumber);
+        }
+        
+        public Segment getSegment()
+        {
+            try
+            {
+                Segment seg = new Segment();
+                document.getText(getStartOffset(), getEndOffset() - getStartOffset(), seg);
+                return seg;
+            }
+            catch (BadLocationException e)
+            {
+                Debug.reportError("PrintLine.getSegment(), offsets: " + startOffset + " and " + endOffset, e);
+                return null;
+            }
+        }
     }
 }
 
