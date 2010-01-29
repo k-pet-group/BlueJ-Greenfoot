@@ -47,9 +47,20 @@ public class JavaLexer implements TokenStream
      */
     public JavaLexer(Reader in)
     {
+        this(in, 1, 1);
+    }
+
+    /**
+     * Construct a lexer which readers from the given Reader, assuming that the
+     * reader is already positioned at the given line and column within the source
+     * document.
+     */
+    public JavaLexer(Reader in, int line, int col)
+    {
         reader = new EscapedUnicodeReader(in);
-        endColumn = beginColumn = reader.getColumn();
-        endLine = beginLine = reader.getLine();
+        reader.setLineCol(line, col);
+        endColumn = beginColumn = col;
+        endLine = beginLine = line;
         try {
             rChar = reader.read();
         }
@@ -57,12 +68,7 @@ public class JavaLexer implements TokenStream
             rChar = -1;
         }
     }
-
-    public void setLineCol(int line, int column)
-    {
-        reader.setLineCol(line, column);
-    }
-
+    
     /**
      * Retrieve the next token.
      */
@@ -630,7 +636,8 @@ public class JavaLexer implements TokenStream
         return JavaTokenTypes.DIV;
     }
 
-    private boolean isComplete(int rval, char ch) {
+    private boolean isComplete(int rval, char ch)
+    {
         if (rval==-1 || Character.isWhitespace(ch)
                 || Character.isLetterOrDigit(ch) || Character.isJavaIdentifierStart(ch) ){
             return true;
@@ -638,7 +645,8 @@ public class JavaLexer implements TokenStream
         return false;
     }
 
-    private boolean isComplete(int rval, char ch, char validChars[]){
+    private boolean isComplete(int rval, char ch, char validChars[])
+    {
         if (!isComplete(rval, ch)) {
             for (int i=0; i<validChars.length; i++){
                 if (validChars[i]==ch)
@@ -698,7 +706,8 @@ public class JavaLexer implements TokenStream
         return JavaTokenTypes.GT;
     }
 
-    private int getLTType(){
+    private int getLTType()
+    {
         char validChars[]=new char[2];
         validChars[0]='<';
         validChars[1]='='; 
@@ -750,29 +759,26 @@ public class JavaLexer implements TokenStream
 
     private int getDotType()
     {
-        char validChars[]=new char[1];
-        validChars[0]='.';
         //. or .56f .12 
-        char [] cb=new char[1];
+        char [] cb = new char[1];
         int rval=readNextChar(cb);
         char ch=cb[0];
         if (rval==-1 || Character.isWhitespace((char)ch)|| Character.isLetter(ch) || ch=='\n'){
             return JavaTokenTypes.DOT;
         }
-        char thisChar=(char)cb[0]; 
-        if (Character.isDigit(thisChar)){
-            return getDigitType(thisChar, true);
+        if (Character.isDigit(ch)){
+            return getDigitType(ch, true);
         }
         //...
         else if (ch=='.'){
-            append(thisChar); 
+            append(ch); 
             rval= readNextChar(cb);
             if (rval==-1){
                 return JavaTokenTypes.INVALID;
             }
             ch=cb[0];
             if (ch=='.'){
-                append(thisChar); 
+                append(ch); 
                 readNextChar(cb);
                 return JavaTokenTypes.TRIPLE_DOT;
             }

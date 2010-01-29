@@ -68,8 +68,8 @@ public class CompletionParser extends TextParser
     public CompletionParser(EntityResolver resolver, Reader reader,
             JavaEntity enclosingType, int line, int col)
     {
-        this(resolver, reader, enclosingType);
-        tokenStream.setLineCol(line, col);
+        super(resolver, reader, line, col);
+        suggestionEntity = enclosingType;
     }
     
     @Override

@@ -46,14 +46,20 @@ public class JavaParser
 {
     protected JavaTokenFilter tokenStream;
 
-    public static TokenStream getLexer(Reader r)
+    public static TokenStream getLexer(Reader r, int line, int col)
     {
-        return new JavaLexer(r);
+        return new JavaLexer(r, line, col);
     }
     
     public JavaParser(Reader r)
     {
-        TokenStream lexer = getLexer(r);
+        TokenStream lexer = getLexer(r, 1, 1);
+        tokenStream = new JavaTokenFilter(lexer, this);
+    }
+    
+    public JavaParser(Reader r, int line, int col)
+    {
+        TokenStream lexer = getLexer(r, line, col);
         tokenStream = new JavaTokenFilter(lexer, this);
     }
 

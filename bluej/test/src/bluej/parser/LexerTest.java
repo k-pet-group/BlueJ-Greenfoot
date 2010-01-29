@@ -21,13 +21,13 @@ public class LexerTest extends junit.framework.TestCase
 {
     private TokenStream getLexerFor(String s)
     {
-        TokenStream lexer = JavaParser.getLexer(new StringReader(s));
+        TokenStream lexer = JavaParser.getLexer(new StringReader(s),1,1);
         return new JavaTokenFilter(lexer, null);
     }
     
     private TokenStream getNonfilteringLexerFor(String s)
     {
-        return JavaParser.getLexer(new StringReader(s));
+        return JavaParser.getLexer(new StringReader(s),1,1);
     }
     
     public void testKeywordParse()

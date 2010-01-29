@@ -945,12 +945,12 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public int getOffsetFromLineColumn(SourceLocation location)
     {
-        if (location.getLine() < 0) {
-            throw new IllegalArgumentException("line < 0");
+        if (location.getLine() < 1) {
+            throw new IllegalArgumentException("line < 1");
         }
 
         Element lineElement = sourceDocument.getDefaultRootElement()
-        .getElement(location.getLine());
+                .getElement(location.getLine() - 1);
         if (lineElement == null) {
             throw new IllegalArgumentException("line=" + location.getLine()
                     + " is out of bound");
@@ -958,17 +958,18 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         int lineOffset = lineElement.getStartOffset();
 
-        if (location.getColumn() < 0) {
-            throw new IllegalArgumentException("column < 0 ");
+        if (location.getColumn() < 1) {
+            throw new IllegalArgumentException("column < 1 ");
         }
 
         int lineLen = lineElement.getEndOffset() - lineOffset;
+        int col = location.getColumn() - 1;
 
-        if (location.getColumn() >= lineLen) {
+        if (col >= lineLen) {
             throw new IllegalArgumentException("column=" + location.getColumn() + " greater than line len=" + lineLen);
         }
 
-        return lineOffset + location.getColumn();
+        return lineOffset + col;
     }
 
     /**

@@ -95,6 +95,12 @@ public class TextParser extends JavaParser
         this.resolver = resolver;
     }
     
+    public TextParser(EntityResolver resolver, Reader r, int line, int col)
+    {
+        super(r, line, col);
+        this.resolver = resolver;
+    }
+    
     public TextParser(EntityResolver resolver, String s)
     {
         this(resolver, new StringReader(s));

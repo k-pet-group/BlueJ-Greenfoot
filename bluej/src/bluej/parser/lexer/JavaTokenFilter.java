@@ -53,12 +53,7 @@ public class JavaTokenFilter implements TokenStream
         this(source);
         this.parser = parser;
     }
-    
-    public void setLineCol(int line, int column)
-    {
-        sourceStream.setLineCol(line, column);
-    }
-    
+        
     public LocatableToken nextToken()
     {
         if (! buffer.isEmpty()) {

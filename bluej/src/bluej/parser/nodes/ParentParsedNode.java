@@ -136,7 +136,7 @@ public class ParentParsedNode extends ParsedNode
     protected static Token tokenizeText(Document document, int pos, int length)
     {
         DocumentReader dr = new DocumentReader(document, pos);
-        TokenStream lexer = JavaParser.getLexer(dr);
+        TokenStream lexer = JavaParser.getLexer(dr,1,1);
         TokenStream tokenStream = new JavaTokenFilter(lexer, null);
 
         Token dummyTok = new Token(0, Token.END);
