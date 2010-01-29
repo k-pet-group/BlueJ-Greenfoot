@@ -33,9 +33,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import bluej.Config;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
+import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaType;
 
 /**
@@ -59,19 +59,7 @@ public abstract class JavaUtils
             return jutils;
         }
         
-        if (Config.isJava15()) {
-            try {
-                Class J15Class = Class.forName("bluej.utility.JavaUtils15");
-                jutils = (JavaUtils)J15Class.newInstance();
-            }
-            catch(ClassNotFoundException cnfe) { }
-            catch(IllegalAccessException iae) { }
-            catch(InstantiationException ie) { }
-        }
-        else {
-            jutils = new JavaUtils14();
-        }
-        
+        jutils = new JavaUtils15();
         return jutils;
     }
     
@@ -82,8 +70,50 @@ public abstract class JavaUtils
      * @param method The method to get the signature for
      * @return the signature string
      */
-    abstract public String getSignature(Method method);
-    
+    public static String getSignature(Method method)
+    {
+        String name = getFQTypeName(method.getReturnType()) + " " + method.getName();
+        Class<?>[] params = method.getParameterTypes();
+        return makeSignature(name, params);
+    }
+
+    /**
+     * Get a fully-qualified type name. For array types return the base type
+     * name plus the appropriate number of "[]" qualifiers.
+     */
+    static public String getFQTypeName(Class<?> type)
+    {
+        Class<?> primtype = type;
+        int dimensions = 0;
+        while (primtype.isArray()) {
+            dimensions++;
+            primtype = primtype.getComponentType();
+        }
+        StringBuffer sb = new StringBuffer();
+        sb.append(primtype.getName());
+        for (int i = 0; i < dimensions; i++)
+            sb.append("[]");
+        return sb.toString();
+    }
+
+    /**
+     * Build the signature string. Format: name(type,type,type)
+     */
+    private static String makeSignature(String name, Class<?>[] params)
+    {
+        StringBuffer sb = new StringBuffer();
+        sb.append(name);
+        sb.append("(");
+        for (int j = 0; j < params.length; j++) {
+            String typeName = getFQTypeName(params[j]);
+            sb.append(typeName);
+            if (j < (params.length - 1))
+                sb.append(", ");
+        }
+        sb.append(")");
+        return sb.toString();
+    }
+
     /**
      * Get a "signature" description of a constructor.
      * Looks like:  ClassName(int, int, int)
@@ -91,7 +121,12 @@ public abstract class JavaUtils
      * @param cons the Constructor to get the signature for
      * @return the signature string
      */
-    abstract public String getSignature(Constructor cons);
+    public static String getSignature(Constructor<?> cons)
+    {
+        String name = JavaNames.getBase(cons.getName());
+        Class<?>[] params = cons.getParameterTypes();
+        return makeSignature(name, params);
+    }
  
     /**
      * Get a "short description" of a method. This is like the signature,
@@ -251,8 +286,6 @@ public abstract class JavaUtils
      */
     abstract public JavaType[] getParamGenTypes(Constructor constructor);
 
-
-    
     /**
      * Build a JavaType structure from a "Class" object.
      */
@@ -271,13 +304,13 @@ public abstract class JavaUtils
         // on Java 5 and earlier.
         
         try {
-            Class cl = Class.forName("java.awt.Desktop");
+            Class<?> cl = Class.forName("java.awt.Desktop");
             Method m = cl.getMethod("isDesktopSupported", new Class[0]);
-            Boolean result = (Boolean) m.invoke(null, null);
+            Boolean result = (Boolean) m.invoke(null, (Object[]) null);
             if (result.booleanValue()) {
                 // The Desktop abstraction is supported
                 m = cl.getMethod("getDesktop", new Class[0]);
-                Object desktop = m.invoke(null, null);
+                Object desktop = m.invoke(null, (Object[]) null);
                 
                 // Invoke the browse method
                 m = cl.getMethod("browse", new Class[] {URI.class});
@@ -300,11 +333,11 @@ public abstract class JavaUtils
      * @param tparams   A list of GenTypeDeclTpar
      * @return          A map (String -> GenTypeSolid)
      */
-    public static Map TParamsToMap(List tparams)
+    public static Map<String,GenTypeSolid> TParamsToMap(List<GenTypeDeclTpar> tparams)
     {
-        Map rmap = new HashMap();
-        for( Iterator i = tparams.iterator(); i.hasNext(); ) {
-            GenTypeDeclTpar n = (GenTypeDeclTpar)i.next();
+        Map<String,GenTypeSolid> rmap = new HashMap<String,GenTypeSolid>();
+        for( Iterator<GenTypeDeclTpar> i = tparams.iterator(); i.hasNext(); ) {
+            GenTypeDeclTpar n = i.next();
             rmap.put(n.getTparName(), n.getBound().mapTparsToTypes(rmap));
         }
         return rmap;

@@ -67,10 +67,9 @@ public class JavaUtilTests extends TestCase
     public void testSignatures()
     {
         JavaUtils jutils = JavaUtils.getJavaUtils();
-        JavaUtils jutils14 = new JavaUtils14();
-        boolean onjava5 = ! (jutils instanceof JavaUtils14);
+        boolean onjava5 = true;
         String majorVersion = System.getProperty("java.specification.version");        
-        boolean onjava6 = majorVersion.compareTo("1.6") >= 0;
+        // boolean onjava6 = majorVersion.compareTo("1.6") >= 0;
         
         Method sampleMeth = null;
         
@@ -86,10 +85,6 @@ public class JavaUtilTests extends TestCase
         assertEquals(sig, "void sampleMethod(int, int)");
         
         if (onjava5) {
-            // repeat the same test using the java 1.4 javautils
-            sig = jutils14.getSignature(sampleMeth);
-            assertEquals(sig, "void sampleMethod(int, int)");
-            
             // test a varargs method
             Class<Class> clazz = Class.class;
             try {
@@ -100,12 +95,7 @@ public class JavaUtilTests extends TestCase
             }
             
             sig = jutils.getSignature(sampleMeth);
-            if (! onjava6) {
-                assertEquals("Constructor<T> getConstructor(Class ...)", sig);
-            }
-            else {
-                assertEquals("Constructor<T> getConstructor(Class<?> ...)", sig);
-            }
+            assertEquals("java.lang.reflect.Constructor getConstructor(java.lang.Class[])", sig);
         }
         
     }

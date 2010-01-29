@@ -27,33 +27,15 @@ import java.util.*;
 import bluej.debugger.gentype.*;
 
 /**
- * Java 1.5 version of JavaUtils.
+ * Java 1.5+ version of JavaUtils.
  * 
  * @author Davin McCall
- * @version $Id: JavaUtils15.java 6986 2010-01-12 02:58:23Z davmac $
  */
-public class JavaUtils15 extends JavaUtils {
-
+public class JavaUtils15 extends JavaUtils
+{
     /*
      * Make signatures for methods, constructors
      */
-    
-    public String getSignature(Method method)
-    {
-        String name = getTypeParameters(method);
-        name += getTypeName(method.getGenericReturnType()) + " " + method.getName();
-        Type[] params = method.getGenericParameterTypes();
-        return makeSignature(name, params, method.isVarArgs());
-    }
-    
-    public String getSignature(Constructor cons)
-    {
-        String name = getTypeParameters(cons);
-        name += JavaNames.getBase(cons.getName());
-        Type[] params = cons.getGenericParameterTypes();
-        
-        return makeSignature(name, params, cons.isVarArgs());
-    }
     
     /**
      * Build the signature string. Format: name(type,type,type)
