@@ -35,7 +35,7 @@ import bluej.utility.JavaUtils;
  *
  * A representation of a Java method in BlueJ
  * 
- *  @version $Id: MethodView.java 6215 2009-03-30 13:28:25Z polle $
+ *  @version $Id: MethodView.java 7066 2010-01-29 12:26:27Z nccb $
  * @author Michael Cahill
  * @author Michael Kolling
  */
@@ -86,7 +86,7 @@ public class MethodView extends CallableView implements Comparable
      */
     public String getSignature()
     {
-        return JavaUtils.getJavaUtils().getSignature(method);
+        return JavaUtils.getSignature(method);
     }
     
     /**
