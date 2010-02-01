@@ -35,7 +35,7 @@ import javax.swing.*;
  * The BlueJ about box.
  *
  * @author  Michael Kolling
- * @version $Id: AboutBlue.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: AboutBlue.java 7067 2010-02-01 00:06:35Z marionz $
  */
 class AboutBlue extends EscapeDialog
 {
@@ -58,10 +58,11 @@ class AboutBlue extends EscapeDialog
         MultiLineLabel text = new MultiLineLabel(LEFT_ALIGNMENT, 6);
         text.setBackground(Color.white);
         text.addText(Config.getString("about.theTeam") + "\n ", false, true);
-        text.addText("      Poul Henriksen, Michael K\u00F6lling,\n");
-        text.addText("      Davin McCall, Bruce Quig,\n");
+        text.addText("      Neil Brown, Poul Henriksen,\n");
+        text.addText("      Michael K\u00F6lling"+ ", Davin McCall, \n"); 
+        text.addText("      Bruce Quig, Philip Stevens,\n");
         text.addText("      John Rosenberg, Ian Utting,\n");
-        text.addText("      Cecilia Vargas");
+        text.addText("      Marion Zalk\n");
 
         aboutPanel.add(text, BorderLayout.CENTER);
 
