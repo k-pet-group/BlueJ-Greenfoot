@@ -33,7 +33,7 @@ import bluej.parser.entity.EntityResolver;
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 7008 2010-01-14 06:07:07Z davmac $
+ * @version $Id: TextParserTest.java 7072 2010-02-01 12:14:09Z nccb $
  */
 public class TextParserTest extends TestCase
 {
@@ -240,6 +240,13 @@ public class TextParserTest extends TestCase
         tp.confirmCommand();
         r = tp.parseCommand("BLACK");
         assertEquals("java.awt.Color", r);
+        
+        // Try one that's not the same type as its enclosing class:
+        r = tp.parseCommand("import static Math.PI;");
+        assertNull(r);
+        tp.confirmCommand();
+        r = tp.parseCommand("PI");
+        assertEquals("double", r);
     }
     
     public void testStaticWildcardImport()
@@ -250,6 +257,13 @@ public class TextParserTest extends TestCase
         tp.confirmCommand();
         r = tp.parseCommand("BLACK");
         assertEquals("java.awt.Color", r);
+        
+        // Try one that's not the same type as its enclosing class:
+        r = tp.parseCommand("import static Math.*;");
+        assertNull(r);
+        tp.confirmCommand();
+        r = tp.parseCommand("PI");
+        assertEquals("double", r);
     }
     
     public void testStringConcat()
