@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -38,6 +38,7 @@ public class MethodReflective
     private boolean isStatic;
     private Reflective declaringType;
     private String javaDoc;
+    private List<String> paramNames;
     
     /**
      * Construct a MethodReflective object.
@@ -75,6 +76,26 @@ public class MethodReflective
     public String getJavaDoc()
     {
         return javaDoc;
+    }
+    
+    /**
+     * Set the parameter names for this method.
+     * @param paramNames  A list of parameter names. The MethodReflective takes ownership
+     *                    of the given list (it should not be later modified).
+     */
+    public void setParamNames(List<String> paramNames)
+    {
+        this.paramNames = paramNames;
+    }
+    
+    /**
+     * Get the parameter names for this method, if know.
+     * @return A list of the parameter names in order, or null if the parameter names are
+     *         not known.
+     */
+    public List<String> getParamNames()
+    {
+        return paramNames;
     }
     
     /**

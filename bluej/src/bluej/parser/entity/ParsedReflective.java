@@ -149,6 +149,7 @@ public class ParsedReflective extends Reflective
                 MethodReflective mref = new MethodReflective(name, rtype, null,
                         paramTypes, this, false, false);
                 mref.setJavaDoc(method.getJavadoc());
+                mref.setParamNames(method.getParamNames());
                 rset.add(mref);
             }
             if (! rset.isEmpty()) {

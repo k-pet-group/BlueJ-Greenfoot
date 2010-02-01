@@ -33,6 +33,7 @@ import javax.swing.text.Document;
 import bluej.editor.moe.Token;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.UnresolvedArray;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.CommentNode;
@@ -656,6 +657,20 @@ public class EditorParser extends JavaParser
         beginNode(insPos);
         scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
         scopeStack.push(pnode);
+    }
+    
+    @Override
+    protected void gotMethodParameter(LocatableToken token)
+    {
+        JavaEntity paramType = ParseUtils.getTypeEntity(scopeStack.peek(), lastTypeSpec);
+        if (paramType == null) {
+            return;
+        }
+        while (arrayDecls-- > 0) {
+            paramType = new UnresolvedArray(paramType);
+        }
+        MethodNode mNode = (MethodNode) scopeStack.peek();
+        mNode.addParameter(token.getText(), paramType);
     }
     
     @Override

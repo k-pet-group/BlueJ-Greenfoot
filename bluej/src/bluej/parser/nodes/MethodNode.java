@@ -21,6 +21,9 @@
  */
 package bluej.parser.nodes;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import bluej.parser.entity.JavaEntity;
 
 
@@ -34,6 +37,9 @@ public class MethodNode extends ParentParsedNode
     private String name;
     private String javadoc;
     private JavaEntity returnType;
+    private List<String> paramNames = new ArrayList<String>();
+    private List<JavaEntity> paramTypes = new ArrayList<JavaEntity>();
+    private boolean isVarArgs = false;
     
     /**
      * Construct a MethodNode representing a constructor or method.
@@ -61,6 +67,51 @@ public class MethodNode extends ParentParsedNode
         this.name = name;
         this.returnType = returnType;
         this.javadoc = javadoc;
+    }
+    
+    /**
+     * Add a method parameter
+     * @param name  The parameter name
+     * @param type  The parameter type
+     */
+    public void addParameter(String name, JavaEntity type)
+    {
+        paramNames.add(name);
+        paramTypes.add(type);
+    }
+    
+    /**
+     * Mark this method as a varargs method (or not).
+     * @param isVarArgs  Whether this method is a varargs method.
+     */
+    public void setVarArgs(boolean isVarArgs)
+    {
+        this.isVarArgs = isVarArgs;
+    }
+    
+    /**
+     * Check whether this method is a varargs method.
+     */
+    public boolean isVarArgs()
+    {
+        return isVarArgs;
+    }
+    
+    /**
+     * Get the parameter names of this method
+     * @return
+     */
+    public List<String> getParamNames()
+    {
+        return paramNames;
+    }
+    
+    /**
+     * Get the parameter types of this method.
+     */
+    public List<JavaEntity> getParamTypes()
+    {
+        return paramTypes;
     }
     
     /**

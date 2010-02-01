@@ -354,8 +354,8 @@ public class JavaParser
 
     /** 
      * We saw a method (or constructor) parameter. The given token specifies the parameter name. 
-     * The last type parsed by parseTypeSpec(boolean) is the parameter type, however, there may
-     * be array declarators (after the identifier) yet to be parsed.
+     * The last type parsed by parseTypeSpec(boolean) is the parameter type, after any additonal
+     * array declarators (see gotArrayDeclarator()) are applied.
      */
     protected void gotMethodParameter(LocatableToken token) { }
     
