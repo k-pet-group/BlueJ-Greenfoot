@@ -33,7 +33,7 @@ import bluej.parser.entity.EntityResolver;
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 7078 2010-02-01 15:15:09Z nccb $
+ * @version $Id: TextParserTest.java 7079 2010-02-01 15:23:25Z nccb $
  */
 public class TextParserTest extends TestCase
 {
@@ -52,6 +52,13 @@ public class TextParserTest extends TestCase
         TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("System.out.println(\"no comment\");");
         assertNull(r);
+    }
+    
+    public void testNull()
+    {
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
+        String r = tp.parseCommand("null");
+        assertEquals("null", r);
     }
     
     public void testArithmeticPromotion()
@@ -340,10 +347,10 @@ public class TextParserTest extends TestCase
         assertEquals("boolean", r);
         
         r = tp.parseCommand("new Integer(7) < null");
-        assertEquals(null, r);
+        assertNull(r);
         
         r = tp.parseCommand("3 < null");
-        assertEquals(null, r);
+        assertNull(r);
         
         r = tp.parseCommand("3.0f < (Integer)null");
         assertEquals("boolean", r);
@@ -364,7 +371,7 @@ public class TextParserTest extends TestCase
         // This shouldn't convert to numeric types, at least one must be numeric,
         // and they don't inherit from each other so it's invalid:
         r = tp.parseCommand("new Integer(4) != new Double(6)");
-        assertEquals(null, r);
+        assertNull(r);
 
         // These should work because the numeric types inherit from Object:
         r = tp.parseCommand("new Object() != new Double(6)");
