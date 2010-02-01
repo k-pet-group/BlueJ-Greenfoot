@@ -49,7 +49,7 @@ public interface EntityResolver
     
     /**
      * Resolve a value. If a local variable or field with the given name exists in the resolver's
-     * scope, it is returned; otherwise the effect is as if resolvePackageOrClass was called.
+     * scope (or if there is a static import of that name), it is returned; otherwise the effect is as if resolvePackageOrClass was called.
      * 
      * <p>To resolve the final value entity, call resolveAsValue() on the returned entity.
      * 

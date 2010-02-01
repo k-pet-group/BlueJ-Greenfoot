@@ -210,6 +210,11 @@ public class TextAnalyzer
                 if (obVal != null) {
                     return new ValueEntity(obVal.getGenType());
                 }
+                List<TypeEntity> importStaticVals = imports.getStaticImports(name);
+                if (importStaticVals != null && !importStaticVals.isEmpty()) {
+                    return importStaticVals.get(0).getSubentity(name);
+                }
+                
                 return resolvePackageOrClass(name, querySource);
             }
         };
