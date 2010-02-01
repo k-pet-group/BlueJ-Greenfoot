@@ -307,7 +307,7 @@ public class TextParser extends JavaParser
         switch (ttype) {
         // TODO and remember unboxing conversion
         case JavaTokenTypes.PLUS:
-            if (! a1type.isNumeric()) {
+            if (! a1type.isNumeric() && !(TextAnalyzer.unBox(a1type).isNumeric())) {
                 if (a1type.asClass().getReflective().getName().equals("java.lang.String")) {
                     valueStack.push(new ValueEntity(a1type));
                     return;
