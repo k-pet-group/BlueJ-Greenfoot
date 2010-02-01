@@ -139,16 +139,24 @@ public class TextParser extends JavaParser
         switch (tokenType) {
         case PAREN_OPERATOR:
             return -1;
+        case JavaTokenTypes.EQUAL:
+        case JavaTokenTypes.NOT_EQUAL:
+            return 8;
+        case JavaTokenTypes.LT:
+        case JavaTokenTypes.LE:
+        case JavaTokenTypes.GT:
+        case JavaTokenTypes.GE:
+            return 9;        
         case JavaTokenTypes.SL:
         case JavaTokenTypes.SR:
         case JavaTokenTypes.BSR:
-            return 0;
+            return 10;
         case JavaTokenTypes.PLUS:
         case JavaTokenTypes.MINUS:
-            return 1;
+            return 11;
         case JavaTokenTypes.STAR:
         case JavaTokenTypes.DIV:
-            return 2;
+            return 12;
         case JavaTokenTypes.DOT:
             return 25;
         case CAST_OPERATOR:
@@ -195,6 +203,12 @@ public class TextParser extends JavaParser
         case JavaTokenTypes.SL:
         case JavaTokenTypes.SR:
         case JavaTokenTypes.BSR:
+        case JavaTokenTypes.LT:
+        case JavaTokenTypes.LE:
+        case JavaTokenTypes.GT:
+        case JavaTokenTypes.GE:
+        case JavaTokenTypes.EQUAL:
+        case JavaTokenTypes.NOT_EQUAL:
             arg2 = popValueStack();
             arg1 = popValueStack();
             checkArgs(arg1, arg2, token);
@@ -347,6 +361,33 @@ public class TextParser extends JavaParser
                 // (see http://java.sun.com/docs/books/jls/third_edition/html/expressions.html#15.19) 
                 valueStack.push(new ValueEntity("", a1typeP));
             }
+            break;
+        case JavaTokenTypes.LT:
+        case JavaTokenTypes.LE:
+        case JavaTokenTypes.GT:
+        case JavaTokenTypes.GE:
+            {
+                JavaType promotedType = TextAnalyzer.binaryNumericPromotion(a1type, a2type);
+                if (promotedType == null) {
+                    valueStack.push(new ErrorEntity());
+                }
+                else {
+                    valueStack.push(new ValueEntity("", JavaPrimitiveType.getBoolean()));
+                }
+            }
+            break;
+        case JavaTokenTypes.EQUAL:
+        case JavaTokenTypes.NOT_EQUAL:
+            if (a1type.isNumeric() || a2type.isNumeric()) {
+                JavaType promotedType = TextAnalyzer.binaryNumericPromotion(a1type, a2type);
+                if (promotedType == null) {
+                    valueStack.push(new ErrorEntity());
+                }
+                else {
+                    valueStack.push(new ValueEntity("", JavaPrimitiveType.getBoolean()));
+                }
+            }
+            //TODO other cases (check same type hierarchy, or null-ness)
             break;
         case JavaTokenTypes.DOT:
             // This is handled elsewhere
