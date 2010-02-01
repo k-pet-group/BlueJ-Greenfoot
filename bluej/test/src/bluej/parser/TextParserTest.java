@@ -33,7 +33,7 @@ import bluej.parser.entity.EntityResolver;
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 7074 2010-02-01 14:19:20Z nccb $
+ * @version $Id: TextParserTest.java 7078 2010-02-01 15:15:09Z nccb $
  */
 public class TextParserTest extends TestCase
 {
@@ -318,6 +318,58 @@ public class TextParserTest extends TestCase
         r = tp.parseCommand("3 > 4");
         assertEquals("boolean", r);
         r = tp.parseCommand("3 >= 4");
+        assertEquals("boolean", r);
+    }
+    
+    public void testUnboxingNumericComparison()
+    {
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
+        String r = tp.parseCommand("3 == new Integer(6)");
+        assertEquals("boolean", r);
+        
+        r = tp.parseCommand("new Integer(6) != 3");
+        assertEquals("boolean", r);
+        
+        r = tp.parseCommand("new Integer(7) != 0.0f");
+        assertEquals("boolean", r);
+        
+        r = tp.parseCommand("new Integer(7) < 0.0f");
+        assertEquals("boolean", r);
+        
+        r = tp.parseCommand("new Integer(7) < new Double(8)");
+        assertEquals("boolean", r);
+        
+        r = tp.parseCommand("new Integer(7) < null");
+        assertEquals(null, r);
+        
+        r = tp.parseCommand("3 < null");
+        assertEquals(null, r);
+        
+        r = tp.parseCommand("3.0f < (Integer)null");
+        assertEquals("boolean", r);
+    }
+    
+    //TODO test instanceof
+    
+    public void testEqualityReferenceOperators()
+    {
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
+        String r = tp.parseCommand("null == null");
+        assertEquals("boolean", r);
+        r = tp.parseCommand("new Integer(4) == null");
+        assertEquals("boolean", r);
+        // Perform an object reference check:
+        r = tp.parseCommand("new Integer(4) != new Integer(5)");
+        assertEquals("boolean", r);
+        // This shouldn't convert to numeric types, at least one must be numeric,
+        // and they don't inherit from each other so it's invalid:
+        r = tp.parseCommand("new Integer(4) != new Double(6)");
+        assertEquals(null, r);
+
+        // These should work because the numeric types inherit from Object:
+        r = tp.parseCommand("new Object() != new Double(6)");
+        assertEquals("boolean", r);
+        r = tp.parseCommand("new Integer(5) == new Object()");
         assertEquals("boolean", r);
     }
 }
