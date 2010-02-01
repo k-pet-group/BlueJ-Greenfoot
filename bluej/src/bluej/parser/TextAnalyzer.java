@@ -214,6 +214,14 @@ public class TextAnalyzer
                 if (importStaticVals != null && !importStaticVals.isEmpty()) {
                     return importStaticVals.get(0).getSubentity(name);
                 }
+                importStaticVals = imports.getStaticWildcardImports();
+                if (importStaticVals != null) {
+                    for (TypeEntity importStatic : importStaticVals) {
+                        JavaEntity entity = importStatic.getSubentity(name);
+                        if (entity != null)
+                            return entity;
+                    }
+                }
                 
                 return resolvePackageOrClass(name, querySource);
             }
