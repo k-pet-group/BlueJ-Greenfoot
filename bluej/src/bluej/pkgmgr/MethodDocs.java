@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,28 +19,33 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.editor.moe;
+package bluej.pkgmgr;
+
+import java.util.List;
 
 /**
- * Describes a possible code completion.
+ * Simple container class for capturing method documentation - javadoc and parameter names.
  * 
- * @author Marion Zalk
+ * @author Davin McCall
  */
-public abstract class AssistContent
+public class MethodDocs
 {
-    /** Get the text to display in the code completion box for this completion */
-    public abstract String getDisplayName();
-
-    /** Get the return type for this completion (as a string) */
-    public abstract String getReturnType();
-
-    /** Get the declaring class of this completion (as a string) */
-    public abstract String getDeclaringClass();
+    private String javaDoc;
+    private List<String> paramNames;
     
-    /**
-     * Get the javadoc comment for this completion. The comment has been stripped of the
-     * delimiters (slash-star at the start and star-slash at the end) and intermediate
-     * star characters.
-     */
-    public abstract String getJavadoc();
+    public MethodDocs(String javaDoc, List<String> paramNames)
+    {
+        this.javaDoc = javaDoc;
+        this.paramNames = paramNames;
+    }
+    
+    public String getJavaDoc()
+    {
+        return javaDoc;
+    }
+    
+    public List<String> getParamNames()
+    {
+        return paramNames;
+    }
 }

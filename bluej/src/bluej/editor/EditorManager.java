@@ -25,6 +25,7 @@ import java.awt.Rectangle;
 
 import bluej.editor.moe.MoeEditorManager;
 import bluej.parser.entity.EntityResolver;
+import bluej.pkgmgr.JavadocResolver;
 
 /**
  * Interface between the editor manager and the rest of BlueJ.
@@ -32,7 +33,7 @@ import bluej.parser.entity.EntityResolver;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: EditorManager.java 6880 2009-12-02 04:02:12Z davmac $
+ * @version $Id: EditorManager.java 7070 2010-02-01 06:20:09Z davmac $
  */
 public abstract class EditorManager
 {
@@ -62,6 +63,7 @@ public abstract class EditorManager
      * @param compiled     true, if the class has been compiled
      * @param bounds       the bounds of the window to appear on screen
      * @param projectResolver   A resolver for external symbols
+     * @param javadocResolver   A resolver for javadoc on external methods
      * 
      * @return          the new editor, or null if there was a problem
      */
@@ -71,7 +73,8 @@ public abstract class EditorManager
         EditorWatcher watcher, 
         boolean compiled, 
         Rectangle bounds,
-        EntityResolver projectResolver);
+        EntityResolver projectResolver,
+        JavadocResolver javadocResolver);
 
 
     /**

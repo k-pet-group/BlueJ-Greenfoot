@@ -505,7 +505,8 @@ public class TextParser extends JavaParser
         }
 
         String text = token.getText();
-        PackageOrClass poc = resolver.resolvePackageOrClass(text, null);
+        // DAV use correct request source:
+        PackageOrClass poc = resolver.resolvePackageOrClass(text, "");
         while (poc != null && i.hasNext()) {
             token = i.next();
             if (token.getType() == JavaTokenTypes.LT) {

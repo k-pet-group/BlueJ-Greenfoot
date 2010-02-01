@@ -104,12 +104,12 @@ import bluej.parser.SourceLocation;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.ParsedCUNode;
+import bluej.pkgmgr.JavadocResolver;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
-import bluej.utility.JavaNames;
 import bluej.utility.Utility;
 
 /**
@@ -201,7 +201,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     private ReplacePanel replacer;
 
     private JScrollPane scrollPane;
-    private NaviView naviView;               // Navigation view (mini-source view)
+    private NaviView naviView;              // Navigation view (mini-source view)
     private JComponent toolbar;             // The toolbar
 
     private String filename;                // name of file or null
@@ -229,6 +229,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     //new content assist
     private CodeCompletionDisplay dlg;
+    
+    /** Used to obtain javadoc for arbitrary methods */
+    private JavadocResolver javadocResolver;
 
     /**
      * Property map, allows BlueJ extensions to associate property values with
@@ -239,24 +242,25 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     /**
      * Constructor. Title may be null
+     * @param parameters TODO
      */
-    public MoeEditor(String title, boolean isCode, EditorWatcher watcher, boolean showToolbar, 
-            boolean showLineNum, Properties resources, EntityResolver projectResolver)
+    public MoeEditor(MoeEditorParameters parameters)
     {
         super("Moe");
-        this.watcher = watcher;
-        this.resources = resources;
+        watcher = parameters.getWatcher();
+        resources = parameters.getResources();
+        javadocResolver = parameters.getJavadocResolver();
 
         filename = null;
-        windowTitle = title;
-        sourceIsCode = isCode;
+        windowTitle = parameters.getTitle();
+        sourceIsCode = parameters.isCode();
         viewingHTML = false;
         currentStepPos = -1;
         mayHaveBreakpoints = false;
         matchBrackets = PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS);
         undoManager = new MoeUndoManager(this);
 
-        initWindow(isCode ? projectResolver : null);
+        initWindow(parameters.getProjectResolver());
         editorHighlighter= new MoeHighlighter(sourcePane);
     }
 
@@ -267,10 +271,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void updateUndoControls()
     {
-        //actions.setUndoEnabled(undoManager.canUndo());
-        boolean canUndo=false;
-        if (undoManager.canUndo())
-            canUndo=true;
+        boolean canUndo = undoManager.canUndo();
         displayMenuItem("undo", canUndo);
         displayToolbarItem("undo", canUndo);
     }
@@ -280,10 +281,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void updateRedoControls()
     {
-        //actions.setRedoEnabled(undoManager.canRedo());
-        boolean canRedo=false;
-        if (undoManager.canRedo())
-            canRedo=true;
+        boolean canRedo = undoManager.canRedo();
         displayMenuItem("redo", canRedo);
         displayToolbarItem("redo", canRedo);
     }
@@ -3342,17 +3340,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 if (name.startsWith(prefix)) {
                     Set<MethodReflective> mset = methods.get(name);
                     for (MethodReflective method : mset) {
-                        String declName = method.getDeclaringType().getName();
-                        declName = JavaNames.stripPrefix(declName);
-                        declName = declName.replace('$', '.');
-                        String comment = method.getJavaDoc(); 
-                        if (comment == null) {
-                            comment = "No documentation available.";
-                        }
-                        completions.add(new AssistContent(name,
-                                method.getReturnType().toString(),
-                                declName,
-                                comment));
+                        completions.add(new MethodCompletion(method, javadocResolver));
                     }
                 }
             }

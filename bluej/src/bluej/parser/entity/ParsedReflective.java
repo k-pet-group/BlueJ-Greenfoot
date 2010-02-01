@@ -138,6 +138,8 @@ public class ParsedReflective extends Reflective
             String name = i.next();
             Set<MethodNode> mset = methods.get(name);
             Set<MethodReflective> rset = new HashSet<MethodReflective>();
+            
+            methodLoop:
             for (Iterator<MethodNode> j = mset.iterator(); j.hasNext(); ) {
                 MethodNode method = j.next();
                 JavaEntity rtypeEnt = method.getReturnType();
@@ -146,8 +148,14 @@ public class ParsedReflective extends Reflective
                 if (rtypeEnt == null) continue;
                 JavaType rtype = rtypeEnt.getType().getCapture();
                 List<JavaType> paramTypes = new ArrayList<JavaType>();
+                List<JavaEntity> mparamTypes = method.getParamTypes();
+                for (JavaEntity mparam : mparamTypes) {
+                    TypeEntity mtent = mparam.resolveAsType();
+                    if (mtent == null) continue methodLoop;
+                    paramTypes.add(mtent.getType());
+                }
                 MethodReflective mref = new MethodReflective(name, rtype, null,
-                        paramTypes, this, false, false);
+                        paramTypes, this, method.isVarArgs(), false);
                 mref.setJavaDoc(method.getJavadoc());
                 mref.setParamNames(method.getParamNames());
                 rset.add(mref);

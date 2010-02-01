@@ -97,7 +97,6 @@ import bluej.views.View;
  * @author  Axel Schmolitzky
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: Project.java 7061 2010-01-28 06:17:34Z davmac $
  */
 public class Project implements DebuggerListener, InspectorManager 
 {
@@ -171,6 +170,9 @@ public class Project implements DebuggerListener, InspectorManager
     
     // Flag signalling whether this is a Java Micro Edition project
     private boolean isJavaMEproject = false;    
+    
+    /** Resolve javadoc for this project */
+    private JavadocResolver javadocResolver;
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -187,6 +189,7 @@ public class Project implements DebuggerListener, InspectorManager
 
         Debug.log("Opening project: " + projectDir.toString());
         
+        javadocResolver = new ProjectJavadocResolver(this);
         this.projectDir = projectDir;
         inspectors = new HashMap<Object,Inspector>();
         packages = new TreeMap<String, Package>();
@@ -1506,6 +1509,14 @@ public class Project implements DebuggerListener, InspectorManager
     public EntityResolver getEntityResolver()
     {
         return new ProjectEntityResolver(this);
+    }
+    
+    /**
+     * Get a javadoc resolver, which can be used to retrieve comments for methods.
+     */
+    public JavadocResolver getJavadocResolver()
+    {
+        return javadocResolver;
     }
     
     /**

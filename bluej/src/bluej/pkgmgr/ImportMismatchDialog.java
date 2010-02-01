@@ -21,22 +21,33 @@
  */
 package bluej.pkgmgr;
 
-import bluej.*;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.List;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.WindowConstants;
+
+import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
-
-import java.util.List;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
 
 /**
  * Dialog for showing the user a list of files which
  * had mismatched package lines on an open non-BlueJ.
  *
  * @author  Andrew Patterson
- * @version $Id: ImportMismatchDialog.java 7055 2010-01-27 13:58:55Z plcs $
  */
 public class ImportMismatchDialog extends EscapeDialog
 {
@@ -44,8 +55,8 @@ public class ImportMismatchDialog extends EscapeDialog
 
     private boolean result = false;
 
-    public ImportMismatchDialog(JFrame parent, List files,
-                                 List packageNamesOriginal, List packageNamesChanged)
+    public ImportMismatchDialog(JFrame parent, List<File> files,
+                                 List<String> packageNamesOriginal, List<String> packageNamesChanged)
     {
         super(parent, dialogTitle, true);
 

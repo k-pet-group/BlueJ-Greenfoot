@@ -183,8 +183,8 @@ public class CodeCompletionDisplay extends JFrame
     private void populateMethods()
     {  
         for (int i=0;i <values.length; i++ ){
-            methodsAvailable[i]=values[i].getContentName()+" : "+
-            values[i].getContentReturnType()+" - "+values[i].getContentClass();
+            methodsAvailable[i]=values[i].getDisplayName()+" : "+
+            values[i].getReturnType()+" - "+values[i].getDeclaringClass();
             methodDescrs[i]=values[i].getJavadoc();
         }
     }
@@ -194,7 +194,7 @@ public class CodeCompletionDisplay extends JFrame
      */
     private void codeComplete()
     {
-        String selected = values[selectedValue].getContentName();
+        String selected = values[selectedValue].getDisplayName();
         
         //editor.codeComplete(values[selectedValue].getContentName());
         if (location == null) {

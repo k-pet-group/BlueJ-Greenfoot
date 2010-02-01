@@ -32,6 +32,7 @@ import bluej.Config;
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 import bluej.parser.entity.EntityResolver;
+import bluej.pkgmgr.JavadocResolver;
 
 /**
  * Implementation of EditorManager for the Moe editor.
@@ -95,10 +96,11 @@ public final class MoeEditorManager
                 EditorWatcher watcher, 
                 boolean compiled,
                 Rectangle bounds,
-                EntityResolver projectResolver)
+                EntityResolver projectResolver,
+                JavadocResolver javadocResolver)
     {
         return openEditor (filename, docFilename, true, windowTitle, watcher, compiled,
-                           bounds, projectResolver);
+                           bounds, projectResolver, javadocResolver);
     }
 
     // ------------------------------------------------------------------------
@@ -117,7 +119,7 @@ public final class MoeEditorManager
     public Editor openText(String filename, String windowTitle,
                            Rectangle bounds)	// inherited from EditorManager
     {
-        return openEditor (filename, null, false, windowTitle, null, false, bounds, null);
+        return openEditor (filename, null, false, windowTitle, null, false, bounds, null, null);
     }
 
     public void refreshAll()
@@ -185,12 +187,17 @@ public final class MoeEditorManager
     private Editor openEditor(String filename, String docFilename,
             boolean isCode, String windowTitle, 
             EditorWatcher watcher, boolean compiled, 
-            Rectangle bounds, EntityResolver projectResolver)
+            Rectangle bounds, EntityResolver projectResolver,
+            JavadocResolver javadocResolver)
     {
         MoeEditor editor;
 
-        editor = new MoeEditor(windowTitle, isCode, watcher, showToolBar,
-                               showLineNum, resources, projectResolver);
+        MoeEditorParameters mep = new MoeEditorParameters(windowTitle, watcher,
+                resources, projectResolver, javadocResolver);
+        mep.setCode(isCode);
+        mep.setShowToolbar(showToolBar);
+        mep.setShowLineNum(showLineNum);
+        editor = new MoeEditor(mep);
         editors.add(editor);
         if (editor.showFile(filename, compiled, docFilename, bounds))
             return editor;
