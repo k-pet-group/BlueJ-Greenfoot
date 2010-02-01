@@ -665,6 +665,33 @@ public class TextAnalyzer
     }
     
     /**
+     * Unary numeric promotion, as defined by JLS section 5.6.1
+     *  (http://java.sun.com/docs/books/jls/third_edition/html/conversions.html#5.6.1)
+     * 
+     */
+    public static JavaType unaryNumericPromotion(JavaType a)
+    {
+        JavaType ua = unBox(a);
+        
+        // long float and double are merely unboxed; everything else is unboxed and widened to int:
+        if (ua.typeIs(JavaType.JT_DOUBLE))
+            return JavaPrimitiveType.getDouble();
+
+        if (ua.typeIs(JavaType.JT_FLOAT))
+            return JavaPrimitiveType.getFloat();
+
+        if (ua.typeIs(JavaType.JT_LONG))
+            return JavaPrimitiveType.getLong();
+        
+        if (ua.isNumeric()) {
+            return JavaPrimitiveType.getInt();
+        }
+        else {
+            return null;
+        }
+    }
+    
+    /**
      * Get the GenType of a character literal node.
      * 
      * @throws RecognitionException

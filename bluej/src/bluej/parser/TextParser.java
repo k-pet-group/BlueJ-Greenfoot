@@ -139,12 +139,16 @@ public class TextParser extends JavaParser
         switch (tokenType) {
         case PAREN_OPERATOR:
             return -1;
+        case JavaTokenTypes.SL:
+        case JavaTokenTypes.SR:
+        case JavaTokenTypes.BSR:
+            return 0;
         case JavaTokenTypes.PLUS:
         case JavaTokenTypes.MINUS:
-            return 0;
+            return 1;
         case JavaTokenTypes.STAR:
         case JavaTokenTypes.DIV:
-            return 1;
+            return 2;
         case JavaTokenTypes.DOT:
             return 25;
         case CAST_OPERATOR:
@@ -188,6 +192,9 @@ public class TextParser extends JavaParser
         case JavaTokenTypes.STAR:
         case JavaTokenTypes.DIV:
         case JavaTokenTypes.MOD:
+        case JavaTokenTypes.SL:
+        case JavaTokenTypes.SR:
+        case JavaTokenTypes.BSR:
             arg2 = popValueStack();
             arg1 = popValueStack();
             checkArgs(arg1, arg2, token);
@@ -325,6 +332,20 @@ public class TextParser extends JavaParser
             }
             else {
                 valueStack.push(new ValueEntity("", resultType));
+            }
+            break;
+        case JavaTokenTypes.SL:
+        case JavaTokenTypes.SR:
+        case JavaTokenTypes.BSR:
+            JavaType a1typeP = TextAnalyzer.unaryNumericPromotion(a1type);
+            JavaType a2typeP = TextAnalyzer.unaryNumericPromotion(a1type);
+            if (a1typeP == null || a2typeP == null) {
+                valueStack.push(new ErrorEntity());
+            }
+            else {
+                // The result is the type of the LHS
+                // (see http://java.sun.com/docs/books/jls/third_edition/html/expressions.html#15.19) 
+                valueStack.push(new ValueEntity("", a1typeP));
             }
             break;
         case JavaTokenTypes.DOT:
