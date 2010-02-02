@@ -139,5 +139,21 @@ public class EditorParserTest extends TestCase
         assertEquals(12, methodNP.getPosition());
         assertEquals(58, methodNP.getPosition() + methodNP.getSize());
     }
+    
+    /**
+     * Test parsing a broken source doesn't break the parser...
+     */
+    public void testBroken()
+    {
+        String sourceCode = ""
+            + "class A\n"       // position 0
+            + "{\n"             // position 8
+            + "  A() {\n"
+            + "    int\n"
+            + "  }"
+            + "}\n";
+            
+        ParsedCUNode pcuNode = cuForSource(sourceCode);
+    }
 
 }
