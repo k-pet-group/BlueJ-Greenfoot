@@ -81,7 +81,7 @@ public class JavaParser
     {
         parseCU(0);
     }
-	
+    
     protected void beginPackageStatement(LocatableToken token) {  }
 
     /** We have the package name for this source */
@@ -516,17 +516,17 @@ public class JavaParser
     {
         // possibly, modifiers: [public|private|protected] [static]
         parseModifiers();
-        LocatableToken token = tokenStream.nextToken();					
+        LocatableToken token = tokenStream.nextToken();
 
         boolean isAnnotation = token.getType() == JavaTokenTypes.AT;
         if (isAnnotation) {
             token = tokenStream.nextToken();
         }
 
-        // [class|interface|enum]						
+        // [class|interface|enum]
         if (isTypeDeclarator(token)) {
             int tdType = -1;
-            String typeDesc;			
+            String typeDesc;                    
             if (token.getType() == JavaTokenTypes.LITERAL_class) {
                 typeDesc = "class";
                 tdType = TYPEDEF_CLASS;
@@ -536,7 +536,7 @@ public class JavaParser
                 tdType = TYPEDEF_INTERFACE;
                 //check for annotation type
                 if(isAnnotation) {
-                    tdType = TYPEDEF_ANNOTATION;						 
+                    tdType = TYPEDEF_ANNOTATION;                                                 
                 }
             }
             else {
@@ -616,7 +616,7 @@ public class JavaParser
             error("Expected type declarator: 'class', 'interface', or 'enum'");
         }
     }
-	
+        
     public void parseEnumConstants()
     {
         LocatableToken token = tokenStream.nextToken();
@@ -656,7 +656,7 @@ public class JavaParser
             token = tokenStream.nextToken();
         }
     }
-	
+        
     /**
      * Parse template parameters. The opening '<' should have been read already.
      */
@@ -740,7 +740,7 @@ public class JavaParser
         LocatableToken token = tokenStream.nextToken();
         while (isModifier(token)) {
             if (token.getType() == JavaTokenTypes.AT) {
-                if( tokenStream.LA(1).getType() != JavaTokenTypes.LITERAL_interface) {					
+                if( tokenStream.LA(1).getType() != JavaTokenTypes.LITERAL_interface) {                                  
                     parseAnnotation();
                 }
                 else {
@@ -753,12 +753,12 @@ public class JavaParser
             }
             rval.add(token);
             token = tokenStream.nextToken();
-        }			
+        }                       
         tokenStream.pushBack(token);
         
         return rval;
     }
-	
+        
     public void parseClassBody()
     {
         LocatableToken token = tokenStream.nextToken();
@@ -925,7 +925,7 @@ public class JavaParser
         }
         tokenStream.pushBack(token);
     }
-	
+        
     /**
      * We've got the return type, name, and opening parenthesis of a method/constructor
      * declaration. Parse the rest.
@@ -973,7 +973,7 @@ public class JavaParser
             endMethodDecl(token, true);
         }
     }
-	
+        
     /**
      * Parse a statement block - such as a method body
      */
@@ -1120,7 +1120,7 @@ public class JavaParser
                 return parseVariableDeclarations(tlist.get(0));
             }
             else {
-                parseExpression();						
+                parseExpression();                                              
                 token = tokenStream.nextToken();
                 if (token.getType() != JavaTokenTypes.SEMI) {
                     error("Expected ';' at end of previous statement");
@@ -1159,7 +1159,7 @@ public class JavaParser
                 return null;
             }
         }
-        else if (isModifier(token)) {	
+        else if (isModifier(token)) {   
             tokenStream.pushBack(token);
             parseModifiers();
             if (isTypeDeclarator(tokenStream.LA(1)) || tokenStream.LA(1).getType() == JavaTokenTypes.AT) {
@@ -1184,12 +1184,17 @@ public class JavaParser
                 // int.class, or int[].class are possible
                 pushBackAll(tlist);
                 parseExpression();
+                token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.SEMI) {
+                    error("Expected ';' after expression-statement");
+                    return null;
+                }
+                return token;
             }
             else {
                 pushBackAll(tlist);
-                parseVariableDeclarations(token);
+                return parseVariableDeclarations(token);
             }
-            return null;
         }
         else if (token.getType() == JavaTokenTypes.LCURLY) {
             beginStmtblockBody(token);
@@ -1296,7 +1301,7 @@ public class JavaParser
         }
         return token;
     }
-	
+        
     public LocatableToken parseAssertStatement(LocatableToken token)
     {
         parseExpression();
@@ -1354,7 +1359,7 @@ public class JavaParser
         endSwitchStmt(token, true);
         return token;
     }
-	
+    
     public LocatableToken parseDoWhileStatement(LocatableToken token)
     {
         beginDoWhile(token);
@@ -1396,7 +1401,7 @@ public class JavaParser
         endDoWhile(token, true);
         return token;
     }
-	
+        
     public LocatableToken parseWhileStatement(LocatableToken token)
     {
         beginWhileLoop(token);
@@ -1577,7 +1582,7 @@ public class JavaParser
             endForLoopBody(token, true);
         }
     }
-	
+        
     /**
      * Parse an "if" statement.
      * @param token  The token corresponding to the "if" literal.
@@ -1644,7 +1649,7 @@ public class JavaParser
             endIfStmt(tokenStream.LA(1), false);
         }
     }
-	
+        
     /**
      * Parse a variable declaration, possibly with an initialiser, always followed by ';'
      * 
@@ -1655,8 +1660,14 @@ public class JavaParser
     {
         beginVariableDecl(first);
         parseModifiers();
-        parseVariableDeclaration(first);
-        return parseSubsequentDeclarations(DECL_TYPE_VAR);
+        boolean r = parseVariableDeclaration(first);
+        if (r) {
+            return parseSubsequentDeclarations(DECL_TYPE_VAR);
+        }
+        else {
+            endVariableDecls(tokenStream.LA(1), false);
+            return null;
+        }
     }
 
     /* Types for parseSubsequentDeclarations and friends */
@@ -1751,15 +1762,17 @@ public class JavaParser
      * Parse a variable (or field or parameter) declaration, possibly including an initialiser
      * (but not including modifiers)
      */
-    public void parseVariableDeclaration(LocatableToken first)
+    public boolean parseVariableDeclaration(LocatableToken first)
     {
-        parseTypeSpec(true);
+        if (!parseTypeSpec(true)) {
+            return false;
+        }
         LocatableToken token = tokenStream.nextToken();
         modifiersConsumed();
         if (token.getType() != JavaTokenTypes.IDENT) {
             error("Expecting identifier (in variable/field declaration)");
             tokenStream.pushBack(token);
-            return;
+            return false;
         }
         
         gotVariableDecl(first, token);
@@ -1774,8 +1787,9 @@ public class JavaParser
         else {
             tokenStream.pushBack(token);
         }
+        return true;
     }
-	
+        
     /**
      * Parse a type specification. This includes class name(s) (Xyz.Abc), type arguments
      * to generic types, and array declarators.
@@ -1794,7 +1808,7 @@ public class JavaParser
         }
         return rval;
     }
-	
+        
     /**
      * Parse a type specification. This could be a primitive type (including void),
      * or a class type (qualified or not, possibly with type parameters). This can
@@ -1811,8 +1825,8 @@ public class JavaParser
      *                  pushed back on the token stream.
      * 
      * @return true if we saw what might be a type specification (even if it
-     * 		               contains errors), or false if it does not appear to be
-     *                     a type specification. (only meaningful if speculative == true).
+     *                         contains errors), or false if it does not appear to be
+     *                     a type specification.
      */
     public boolean parseTypeSpec(boolean speculative, boolean processArray, List<LocatableToken> ttokens)
     {
@@ -2022,7 +2036,7 @@ public class JavaParser
 
         return true;
     }
-	
+        
     /**
      * Parse a dotted identifier. This could be a variable, method or type name.
      * @param first The first token in the dotted identifier (should be an IDENT)
@@ -2047,7 +2061,7 @@ public class JavaParser
         tokenStream.pushBack(token);
         return rval;
     }
-	
+        
     /**
      * Check whether a token is an operator. Note that the LPAREN token can be an operator
      * (method call) or value (parenthesized expression).
@@ -2091,7 +2105,7 @@ public class JavaParser
         || ttype == JavaTokenTypes.MOD_ASSIGN
         || ttype == JavaTokenTypes.LITERAL_instanceof;
     }
-	
+        
     /**
      * Check whether an operator is a binary operator.
      * 
@@ -2133,7 +2147,7 @@ public class JavaParser
         || ttype == JavaTokenTypes.LAND
         || ttype == JavaTokenTypes.LOR;
     }
-	
+        
     public boolean isUnaryOperator(LocatableToken token)
     {
         int ttype = token.getType();
@@ -2170,7 +2184,7 @@ public class JavaParser
         }
         return parsed;
     }
-	
+        
     /**
      * Parse an annotation body
      */
@@ -2210,7 +2224,7 @@ public class JavaParser
         }   
         tokenStream.pushBack(token);
     }
-	
+        
     /**
      * Parse an expression
      */
@@ -2609,7 +2623,7 @@ public class JavaParser
         endArgumentList(token);
         return;
     }
-	
+    
     /**
      * Parse a list of formal parameters (possibly empty)
      */
@@ -2642,7 +2656,7 @@ public class JavaParser
         }
         tokenStream.pushBack(token);
     }
-	
+        
     private void pushBackAll(List<LocatableToken> tokens)
     {
         ListIterator<LocatableToken> i = tokens.listIterator(tokens.size());
