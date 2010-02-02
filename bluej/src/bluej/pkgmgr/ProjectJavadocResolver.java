@@ -21,13 +21,23 @@
  */
 package bluej.pkgmgr;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
+import bluej.parser.InfoParser;
+import bluej.parser.symtab.ClassInfo;
 import bluej.views.Comment;
 import bluej.views.MethodView;
 import bluej.views.View;
@@ -40,6 +50,7 @@ import bluej.views.View;
 public class ProjectJavadocResolver implements JavadocResolver
 {
     private Project project;
+    private CommentCache commentCache = new CommentCache();
     
     public ProjectJavadocResolver(Project project)
     {
@@ -67,15 +78,70 @@ public class ProjectJavadocResolver implements JavadocResolver
                             paramNames.add(comment.getParamName(j));
                         }
                         method.setParamNames(paramNames);
+                        return;
                     }
-                    return;
+                    break;
                 }
             }
         }
         catch (ClassNotFoundException cnfe) {}
         catch (LinkageError e) {}
+        
+        Properties comments = commentCache.get(declName);
+        if (comments == null) {
+            comments = getCommentsFromSource(declName);
+            if (comments == null) {
+                return;
+            }
+            commentCache.put(declName, comments);
+        }
+
+        // Find the comment for the particular method we want
+        for (int i = 0; ; i++) {
+            String comtarget = comments.getProperty("comment" + i + ".target");
+            if (comtarget == null) {
+                break;
+            }
+            if (comtarget.equals(methodSig)) {
+                method.setJavaDoc(comments.getProperty("comment" + i + ".text"));
+                break;
+            }
+        }
     }
 
+    /**
+     * Find the javadoc for a given class (target) by searching the project source path.
+     * In particular, this normally includes the JDK source. When source for the required
+     * class is found, it is parsed to extract comments.
+     */
+    private Properties getCommentsFromSource(String target)
+    {
+        List<File> sourcePath = project.getSourcePath();
+        String entName = target.replace('.', '/') + ".java";
+        
+        for (File pathEntry : sourcePath) {
+            if (pathEntry.isFile()) {
+                try {
+                    ZipFile zipFile = new ZipFile(pathEntry);
+                    ZipEntry zipEnt = zipFile.getEntry(entName);
+                    if (zipEnt != null) {
+                        InputStream zeis = zipFile.getInputStream(zipEnt);
+                        Reader r = new InputStreamReader(zeis);
+                        ClassInfo info = InfoParser.parse(r, project.getEntityResolver(), null);
+                        if (info == null) {
+                            return null;
+                        }
+                        return info.getComments();
+                    }
+                }
+                catch (IOException ioe) {}
+                catch (Exception e) {}  // probably a parse exception
+            }
+        }
+        
+        return null;
+    }
+    
     /**
      * Build a method signature from a MethodReflective.
      */

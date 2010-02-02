@@ -173,6 +173,9 @@ public class Project implements DebuggerListener, InspectorManager
     
     /** Resolve javadoc for this project */
     private JavadocResolver javadocResolver;
+    
+    /** Where to find JDK and other library sources (for extracting javadoc) */
+    private List<File> sourcePath;
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -189,7 +192,22 @@ public class Project implements DebuggerListener, InspectorManager
 
         Debug.log("Opening project: " + projectDir.toString());
         
+        // Make JDK's javadoc available, if we can find the source
         javadocResolver = new ProjectJavadocResolver(this);
+        sourcePath = new ArrayList<File>();
+        File javaHome = Boot.getInstance().getJavaHome();
+        File jdkSourceZip = new File(javaHome, "src.zip");
+        if (jdkSourceZip.isFile()) {
+            sourcePath.add(jdkSourceZip);
+        }
+        else {
+            File javaHomeParent = javaHome.getParentFile();
+            jdkSourceZip = new File(javaHomeParent, "src.zip");
+            if (jdkSourceZip.exists()) {
+                sourcePath.add(jdkSourceZip);
+            }
+        }
+        
         this.projectDir = projectDir;
         inspectors = new HashMap<Object,Inspector>();
         packages = new TreeMap<String, Package>();
@@ -719,6 +737,16 @@ public class Project implements DebuggerListener, InspectorManager
         return projectDir;
     }
 
+    /**
+     * Return the source path for the project. The source path contains the JDK source,
+     * if available, and the source for any other libraries which have been explicitly
+     * added.
+     */
+    public List<File> getSourcePath()
+    {
+        return sourcePath;
+    }
+    
     /**
      * Get the project repository. If the user cancels the credentials dialog,
      * or this is not a team project, returns null.
