@@ -23,6 +23,7 @@ package bluej.parser.symtab;
 
 import java.util.*;
 
+import bluej.utility.JavaUtils;
 import bluej.utility.SortedProperties;
 
 /**
@@ -206,6 +207,7 @@ public final class ClassInfo
      * <li>method_name is the name of the method (or the class name for a constructor)
      * <li>arg_type_X is the generic parameter type, followed by "[]" if an array type
      *     (eg. List&lt;Thread&gt;[][]), followed by " ..." for a vararg parameter.
+     * </ul>
      * 
      * @param target  The method/constructor the comment applies to (see description above)
      * @param comment   The comment text (may be null)
@@ -215,28 +217,7 @@ public final class ClassInfo
     public void addComment(String target, String comment, String paramnames)
     {
         // remove asterisks (*) from beginning of comment
-
-        // a valid comment must being with /* and end with */ so we have
-        // at least 4 characters
-
-        if(comment != null && comment.length() > 4) {
-            comment = comment.substring(2, comment.length()-2);
-
-            StringBuffer finalComment = new StringBuffer(comment.length());
-            StringTokenizer tokenizer = new StringTokenizer(comment,"\n\r\f");
-
-            while(tokenizer.hasMoreTokens()) {
-                StringBuffer line = new StringBuffer(tokenizer.nextToken());
-                char ch = (line.length() > 0 ? line.charAt(0) : 'x');
-                while(ch == ' ' || ch == '\t' || ch == '*') {
-                    line.deleteCharAt(0);
-                    ch = (line.length() > 0 ? line.charAt(0) : 'x');
-                }
-                finalComment.append(line.toString());
-                finalComment.append('\n');
-            }
-            comment = finalComment.toString();
-        }
+        comment = JavaUtils.javadocToString(comment);
         comments.add(new SavedComment(target, comment, paramnames));
     }
 

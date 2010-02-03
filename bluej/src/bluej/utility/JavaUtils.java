@@ -35,6 +35,7 @@ import java.util.Map;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
+import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaType;
 
@@ -149,7 +150,8 @@ public abstract class JavaUtils
      * @param tparams  The map (String -> GenType) for class type parameters
      * @return The description.
      */
-    abstract public String getShortDesc(Method method, String [] paramnames, Map tparams);
+    abstract public String getShortDesc(Method method, String [] paramnames,
+            Map<String,GenTypeParameter> tparams);
 
     /**
      * Get a long String describing the method. A long description is
@@ -168,7 +170,8 @@ public abstract class JavaUtils
      * @param tparams  The map (String -> GenType) for class type parameters
      * @return The long description string.
      */
-    abstract public String getLongDesc(Method method, String [] paramnames, Map tparams);
+    abstract public String getLongDesc(Method method, String [] paramnames,
+            Map<String,GenTypeParameter> tparams);
     
     /**
      * Get a "short description" of a constructor. This is like the signature,
@@ -177,22 +180,22 @@ public abstract class JavaUtils
      * @param constructor   The constructor to get the description of
      * @return The description.
      */
-    abstract public String getShortDesc(Constructor constructor, String [] paramnames);
+    abstract public String getShortDesc(Constructor<?> constructor, String [] paramnames);
     
     /**
      * Get a long String describing the constructor. A long description is
      * similar to the short description, but it has type names and parameters
      * included.
      */
-    abstract public String getLongDesc(Constructor constructor, String [] paramnames);
+    abstract public String getLongDesc(Constructor<?> constructor, String [] paramnames);
     
-    abstract public boolean isVarArgs(Constructor cons);
+    abstract public boolean isVarArgs(Constructor<?> cons);
     
     abstract public boolean isVarArgs(Method method);    
    
     abstract public boolean isSynthetic(Method method);
     
-    abstract public boolean isEnum(Class cl);    
+    abstract public boolean isEnum(Class<?> cl);
     
     /**
      * Get the return type of a method.
@@ -238,14 +241,14 @@ public abstract class JavaUtils
     /**
      * Get the declared supertype of a class.
      */
-    abstract public GenTypeClass getSuperclass(Class cl);
+    abstract public GenTypeClass getSuperclass(Class<?> cl);
     
     /**
      * Get a list of the interfaces directly implemented by the given class.
      * @param cl  The class for which to find the interfaces
      * @return    An array of interfaces
      */
-    abstract public GenTypeClass [] getInterfaces(Class cl);
+    abstract public GenTypeClass [] getInterfaces(Class<?> cl);
     
     /**
      * Gets an array of nicely formatted strings with the types of the parameters.
@@ -273,7 +276,7 @@ public abstract class JavaUtils
      * 
      * @param constructor The constructor to get the parameters for.
      */
-    abstract public String[] getParameterTypes(Constructor constructor);
+    abstract public String[] getParameterTypes(Constructor<?> constructor);
     
     /**
      * Get an array containing the argument types of the method.
@@ -284,7 +287,7 @@ public abstract class JavaUtils
      * @param method  the method whose argument types to get
      * @return  the argument types
      */
-    abstract public JavaType[] getParamGenTypes(Constructor constructor);
+    abstract public JavaType[] getParamGenTypes(Constructor<?> constructor);
 
     /**
      * Build a JavaType structure from a "Class" object.
@@ -385,5 +388,122 @@ public abstract class JavaUtils
         }
         sb.append(")");
         return sb.toString();
+    }
+    
+    /**
+     * Convert a javadoc comment to a string with just the comment body, i.e. strip the
+     * leading asterisks.
+     */
+    public static String javadocToString(String javadoc)
+    {
+        String eol = System.getProperty("line.separator");
+        
+        if (javadoc == null || javadoc.length() < 5) {
+            return null;
+        }
+        
+        StringBuffer outbuf = new StringBuffer();
+        
+        String str = javadoc.substring(3, javadoc.length() - 2);
+        int nl = str.indexOf('\n');
+        int cr = str.indexOf('\r');
+        int pos = 0;
+        while (nl != -1 || cr != -1) {
+            int lineEnd = Math.min(nl, cr);
+            lineEnd = (nl == -1) ? cr : lineEnd;
+            lineEnd = (cr == -1) ? nl : lineEnd;
+            
+            String line = str.substring(pos, lineEnd);
+            line = stripLeadingStars(line);
+            
+            outbuf.append(line);
+            outbuf.append(eol);
+            
+            pos = lineEnd + 1;
+            if (pos == nl) {
+                pos++;
+            }
+
+            nl = str.indexOf('\n', pos);
+            cr = str.indexOf('\r', pos);
+        }
+        
+        String line = stripLeadingStars(str.substring(pos)).trim();
+        if (line.length() > 0) {
+            outbuf.append(line);
+        }
+        
+        return outbuf.toString();
+    }
+    
+    /**
+     * Convert javadoc comment body (as extracted by javadocToString for instance)
+     * to HTML suitable for display by HTMLEditorKit.
+     */
+    public static String javadocToHtml(String javadocString)
+    {
+        // find the first block tag
+        int i;
+        for (i = 0; i < javadocString.length(); i++) {
+            // Here we are the start of the line
+            while (i < javadocString.length() && Character.isWhitespace(javadocString.charAt(i))) {
+                i++;
+            }
+            if (i >= javadocString.length() || javadocString.charAt(i) == '@') {
+                break;
+            }
+            while (i < javadocString.length()
+                    && javadocString.charAt(i) != '\n'
+                    && javadocString.charAt(i) != '\r') {
+                i++;
+            }
+        }
+        
+        if (i < javadocString.length()) {
+            String rval = javadocString.substring(0, i);
+            rval += "<p>";
+            String block = javadocString.substring(i);
+            String [] lines = Utility.splitLines(block);
+            if (lines.length > 0) {
+                rval += lines[0];
+                for (int j = 1; j < lines.length; j++) {
+                    for (int k = 0; k < lines[j].length(); k++) {
+                        if (lines[j].charAt(k) == '@') {
+                            rval += "<br>";
+                            break;
+                        }
+                        if (! Character.isWhitespace(lines[j].charAt(k))) {
+                            break;
+                        }
+                    }
+                    rval += lines[j];
+                }
+                rval += "<br>";
+                javadocString = rval;
+            }
+        }
+        
+        return javadocString;
+    }
+    
+    /**
+     * Strip leading asterisk characters (and any preceding whitespace) from a single
+     * line of text.
+     */
+    private static String stripLeadingStars(String s)
+    {
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == '*') {
+                do {
+                    i++;
+                } while (i < s.length() && s.charAt(i) == '*');
+                s = s.substring(i);
+                break;
+            }
+            if (! Character.isWhitespace(s.charAt(i))) {
+                break;
+            }
+        }
+        return s;
     }
 }

@@ -37,6 +37,7 @@ import bluej.debugger.gentype.Reflective;
 import bluej.parser.nodes.FieldNode;
 import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.ParsedTypeNode;
+import bluej.utility.JavaUtils;
 
 /**
  * A Reflective implementation for classes which are parsed, but not necessarily compiled.
@@ -156,7 +157,7 @@ public class ParsedReflective extends Reflective
                 }
                 MethodReflective mref = new MethodReflective(name, rtype, null,
                         paramTypes, this, method.isVarArgs(), false);
-                mref.setJavaDoc(method.getJavadoc());
+                mref.setJavaDoc(JavaUtils.javadocToString(method.getJavadoc()));
                 mref.setParamNames(method.getParamNames());
                 rset.add(mref);
             }

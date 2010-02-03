@@ -36,20 +36,23 @@ import java.awt.event.WindowFocusListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.InputMap;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.text.html.HTMLEditorKit;
 
 import bluej.parser.SourceLocation;
 import bluej.parser.lexer.LocatableToken;
+import bluej.utility.JavaUtils;
 
 
 /**
@@ -67,7 +70,7 @@ public class CodeCompletionDisplay extends JFrame
     private AssistContent[] values;
 
     private JList methodList;
-    private JTextArea methodDescription; 
+    private JEditorPane methodDescription; 
     private int selectedValue=0;
 
     private JComponent pane;
@@ -118,9 +121,27 @@ public class CodeCompletionDisplay extends JFrame
         JPanel methodPanel = new JPanel();
 
         // create function description area     
-        methodDescription=new JTextArea();
+//        methodDescription=new JTextArea();
+        methodDescription = new JEditorPane();
         methodDescription.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         methodDescription.setEditable(false);
+        
+        methodDescription.setEditorKit(new HTMLEditorKit());
+        methodDescription.setEditable(false);
+        //methodDescription.addHyperlinkListener(this);
+        methodDescription.setInputMap(JComponent.WHEN_FOCUSED, new InputMap() {
+            public Object get(KeyStroke keyStroke)
+            {
+                // Define no action for up/down, which allows the parent scroll
+                // pane to process the keys instead. This means the view will scroll,
+                // rather than just moving an invisible cursor.
+                Object action = super.get(keyStroke);
+                if ("caret-up".equals(action) || "caret-down".equals(action)) {
+                    return null;
+                }
+                return action;
+            }
+        });
         
         methodList = new JList(methodsAvailable);
         methodList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -140,11 +161,14 @@ public class CodeCompletionDisplay extends JFrame
         scrollPane.setPreferredSize(size);
         methodPanel.add(scrollPane);
         
-        methodDescription.setPreferredSize(size);
-        methodDescription.setMaximumSize(size);
+        //methodDescription.setPreferredSize(size);
+        //methodDescription.setMaximumSize(size);
+        scrollPane = new JScrollPane(methodDescription);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setPreferredSize(size);
 
         mainPanel.add(methodPanel);
-        mainPanel.add(methodDescription);
+        mainPanel.add(scrollPane);
         
         pane.add(mainPanel); 
 
@@ -234,7 +258,13 @@ public class CodeCompletionDisplay extends JFrame
     public void valueChanged(ListSelectionEvent e) 
     {
         selectedValue = methodList.getSelectedIndex();
-        methodDescription.setText(methodDescrs[selectedValue]);
+        String jdHtml = methodDescrs[selectedValue];
+        if (jdHtml != null) {
+            jdHtml = JavaUtils.javadocToHtml(jdHtml);
+        }
+        
+        methodDescription.setText(jdHtml);
+        methodDescription.setCaretPosition(0); // scroll to top
     }
     
 }
