@@ -346,6 +346,7 @@ public class InfoParser extends EditorParser
         currentMethod.paramNames = "";
         currentMethod.paramTypes = new LinkedList<JavaEntity>();
         currentMethod.javadocText = lastComment;
+        arrayCount = 0;
     }
 
     protected void gotConstructorDecl(LocatableToken token, LocatableToken hiddenToken)
@@ -378,12 +379,6 @@ public class InfoParser extends EditorParser
     {
         super.gotArrayDeclarator();
         arrayCount++;
-//        if (currentMethod != null) {
-//            int index = currentMethod.paramTypes.size() - 1;
-//            JavaEntity last = currentMethod.paramTypes.get(index);
-//            currentMethod.paramTypes.remove(index);
-//            currentMethod.paramTypes.add(new UnresolvedArray(last));
-//        }
     }
 
     protected void gotAllMethodParameters()

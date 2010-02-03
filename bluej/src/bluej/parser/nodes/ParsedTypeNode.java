@@ -38,12 +38,21 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 public class ParsedTypeNode extends ParentParsedNode
 {
     private String name;
+    private String prefix;
     private TypeInnerNode inner;
     
-    public ParsedTypeNode(ParsedNode parent, String name)
+    /**
+     * Construct a new ParsedTypeNode
+     * @param parent  The parent node
+     * @param name    The base name of the type
+     * @param prefix  The prefix of the name, including the final ".", to make this a full
+     *                type name
+     */
+    public ParsedTypeNode(ParsedNode parent, String name, String prefix)
     {
         super(parent);
         this.name = name;
+        this.prefix = prefix;
     }
     
     @Override
@@ -61,6 +70,11 @@ public class ParsedTypeNode extends ParentParsedNode
     public String getName()
     {
         return name;
+    }
+    
+    public String getPrefix()
+    {
+        return prefix;
     }
     
     /**

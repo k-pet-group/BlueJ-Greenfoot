@@ -258,6 +258,30 @@ public class CompletionTest extends TestCase
         assertNull(suggests);
     }
     
+    /**
+     * Test an expression referencing the containing class, and make sure it resolves
+     * correctly.
+     */
+    public void testSelfRef() throws Exception
+    {
+        String aClassSrc = "package abc;\n" + //       13  
+        "class A {\n" +                       // +10 = 23 
+        "void someMethod() {\n" +             // +20 = 43 
+        "    new A().hashCode();\n" +         //    new A(). <-- 55
+        "}\n" +
+        "}\n";
+
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+        
+        ParsedCUNode aNode = cuForSource(aClassSrc);
+        resolver.addCompilationUnit("abc", aNode);
+
+        CodeSuggestions suggests = aNode.getExpressionType(44, doc);
+        assertNotNull(suggests);
+        assertEquals("abc.A", suggests.getSuggestionType().toString());
+    }
+    
     // Test that multiple fields defined in a single statement are handled correctly,
     // particularly if one in the middle is assigned a complex expression involving an
     // anonymous inner class

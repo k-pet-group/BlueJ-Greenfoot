@@ -64,6 +64,7 @@ public class EditorParser extends JavaParser
     private List<LocatableToken> lastTypeSpec;
     private FieldNode lastField;
     private int arrayDecls;
+    private String declaredPkg = "";
     
     private Document document;
     
@@ -241,6 +242,18 @@ public class EditorParser extends JavaParser
         return rval;
     }
     
+    /**
+     * Join a sequence of tokens together to form a string.
+     */
+    protected String joinTokens(List<LocatableToken> tokens)
+    {
+        StringBuffer r = new StringBuffer();
+        for (LocatableToken token : tokens) {
+            r.append(token.getText());
+        }
+        return r.toString();
+    }
+    
     //  -------------- Callbacks from the superclass ----------------------
 
     @Override
@@ -250,9 +263,17 @@ public class EditorParser extends JavaParser
     }
     
     @Override
+    protected void gotPackage(List<LocatableToken> pkgTokens)
+    {
+        super.gotPackage(pkgTokens);
+        declaredPkg = joinTokens(pkgTokens);
+    }
+    
+    @Override
     protected void gotTypeDefName(LocatableToken nameToken)
     {
-        ParsedNode pnode = new ParsedTypeNode(scopeStack.peek(), nameToken.getText());
+        String pkgPrefix = (declaredPkg.length() == 0) ? "" : (declaredPkg + ".");
+        ParsedNode pnode = new ParsedTypeNode(scopeStack.peek(), nameToken.getText(), pkgPrefix);
         int curOffset = getTopNodeOffset();
         LocatableToken hidden = pcuStmtBegin.getHiddenBefore();
         if (hidden != null && hidden.getType() == JavaTokenTypes.ML_COMMENT) {
@@ -824,7 +845,7 @@ public class EditorParser extends JavaParser
     @Override
     protected void beginAnonClassBody(LocatableToken token)
     {
-        ParsedTypeNode pnode = new ParsedTypeNode(scopeStack.peek(), null); // TODO generate Abc$1 ?
+        ParsedTypeNode pnode = new ParsedTypeNode(scopeStack.peek(), null, null); // TODO generate Abc$1 ?
         int curOffset = getTopNodeOffset();
         LocatableToken begin = token;
         int insPos = lineColToPosition(begin.getLine(), begin.getColumn());

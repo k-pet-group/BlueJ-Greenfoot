@@ -56,7 +56,7 @@ public class ParsedReflective extends Reflective
     @Override
     public String getName()
     {
-        return pnode.getName();
+        return pnode.getPrefix() + pnode.getName();
     }
 
     @Override
