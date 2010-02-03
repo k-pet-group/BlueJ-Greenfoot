@@ -358,6 +358,7 @@ public class InfoParser extends EditorParser
         currentMethod.paramNames = "";
         currentMethod.paramTypes = new LinkedList<JavaEntity>();
         currentMethod.javadocText = lastComment;
+        arrayCount = 0;
     }
 
     protected void gotMethodParameter(LocatableToken token)
