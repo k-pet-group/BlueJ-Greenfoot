@@ -23,6 +23,7 @@ package bluej.parser.entity;
 
 import java.util.List;
 
+import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 
 /**
@@ -47,7 +48,7 @@ public class NullEntity extends JavaEntity
     @Override
     public JavaType getType()
     {
-        return null;
+        return JavaPrimitiveType.getNull();
     }
     
     @Override
@@ -61,4 +62,12 @@ public class NullEntity extends JavaEntity
     {
         return null;
     }
+
+    @Override
+    public JavaEntity resolveAsValue()
+    {
+        return this;
+    }
+    
+    
 }
