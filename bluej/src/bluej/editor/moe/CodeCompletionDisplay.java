@@ -121,7 +121,6 @@ public class CodeCompletionDisplay extends JFrame
         JPanel methodPanel = new JPanel();
 
         // create function description area     
-//        methodDescription=new JTextArea();
         methodDescription = new JEditorPane();
         methodDescription.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         methodDescription.setEditable(false);
@@ -161,8 +160,6 @@ public class CodeCompletionDisplay extends JFrame
         scrollPane.setPreferredSize(size);
         methodPanel.add(scrollPane);
         
-        //methodDescription.setPreferredSize(size);
-        //methodDescription.setMaximumSize(size);
         scrollPane = new JScrollPane(methodDescription);
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setPreferredSize(size);
