@@ -30,6 +30,12 @@ public abstract class AssistContent
 {
     /** Get the text to display in the code completion box for this completion */
     public abstract String getDisplayName();
+    
+    /** Get the completion text (to appear in front of the cursor) */
+    public abstract String getCompletionText();
+    
+    /** Get the completion text (portion to appear behind the cursor) */
+    public abstract String getCompletionTextPost();
 
     /** Get the return type for this completion (as a string) */
     public abstract String getReturnType();

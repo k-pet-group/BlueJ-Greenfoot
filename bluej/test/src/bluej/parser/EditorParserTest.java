@@ -154,6 +154,7 @@ public class EditorParserTest extends TestCase
             + "}\n";
             
         ParsedCUNode pcuNode = cuForSource(sourceCode);
+        assertNotNull(pcuNode);
     }
 
 }

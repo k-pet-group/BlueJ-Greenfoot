@@ -21,6 +21,10 @@
  */
 package bluej.editor.moe;
 
+import java.util.Iterator;
+import java.util.List;
+
+import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.pkgmgr.JavadocResolver;
 
@@ -52,9 +56,32 @@ public class MethodCompletion extends AssistContent
     @Override
     public String getDisplayName()
     {
-        return method.getName();
+        String displayName = method.getName() + "(";
+        List<JavaType> paramTypes = method.getParamTypes();
+        for (Iterator<JavaType> i = paramTypes.iterator(); i.hasNext(); ) {
+            displayName += i.next().toString(true);
+            if (i.hasNext()) {
+                displayName += ", ";
+            }
+        }
+        displayName += ")";
+        
+        return displayName;
+        
     }
 
+    @Override
+    public String getCompletionText()
+    {
+        return method.getName() + "(";
+    }
+    
+    @Override
+    public String getCompletionTextPost()
+    {
+        return ")";
+    }
+    
     @Override
     public String getReturnType()
     {

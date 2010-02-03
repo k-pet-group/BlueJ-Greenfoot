@@ -22,14 +22,15 @@
 package bluej.editor.moe;
 
 
-import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 
@@ -43,6 +44,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -81,20 +83,10 @@ public class CodeCompletionDisplay extends JFrame
         this.location = location;
         methodsAvailable=new String[values.length];
         methodDescrs=new String[values.length];
-        populateMethods();
+        populatePanel();
         makePanel();
         editor=ed;
-    }
-
-    /*
-     * Creates a component with a main panel (list of available methods & values)
-     * and a text area where the description of the chosen value is displayed
-     */
-    private void makePanel()
-    {
-        GridLayout gridL=new GridLayout(1, 2);
-        pane=(JComponent) getContentPane();
-
+        
         addWindowFocusListener(new WindowFocusListener() {
 
             public void windowGainedFocus(WindowEvent e)
@@ -105,10 +97,20 @@ public class CodeCompletionDisplay extends JFrame
 
             public void windowLostFocus(WindowEvent e)
             {
-                setVisible(false);
+                dispose();
             }
         });
-        
+    }
+
+    /**
+     * Creates a component with a main panel (list of available methods & values)
+     * and a text area where the description of the chosen value is displayed
+     */
+    private void makePanel()
+    {
+        GridLayout gridL=new GridLayout(1, 2);
+        pane = (JComponent) getContentPane();
+
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(gridL);
 
@@ -118,24 +120,31 @@ public class CodeCompletionDisplay extends JFrame
         // create function description area     
         methodDescription=new JTextArea();
         methodDescription.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        methodDescription.setSize((int)methodPanel.getSize().getWidth(), (int)methodPanel.getSize().getHeight());
-        if (methodDescrs.length >selectedValue)
-            methodDescription.setText(methodDescrs[selectedValue]);
-
+        methodDescription.setEditable(false);
+        
         methodList = new JList(methodsAvailable);
         methodList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         methodList.addListSelectionListener(this);
         methodList.setSelectedIndex(selectedValue);
         methodList.addMouseListener(this);
         methodList.requestFocusInWindow();
-        methodList.setVisibleRowCount(10);
+        
+        // Set a standard height/width
+        Font mlFont = methodList.getFont();
+        FontMetrics metrics = methodList.getFontMetrics(mlFont);
+        Dimension size = new Dimension(metrics.charWidth('m') * 30, metrics.getHeight() * 15);
 
         JScrollPane scrollPane;
         scrollPane = new JScrollPane(methodList);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setPreferredSize(size);
         methodPanel.add(scrollPane);
+        
+        methodDescription.setPreferredSize(size);
+        methodDescription.setMaximumSize(size);
 
-        mainPanel.add(methodPanel, BorderLayout.WEST);
-        mainPanel.add(methodDescription, BorderLayout.EAST);
+        mainPanel.add(methodPanel);
+        mainPanel.add(methodDescription);
         
         pane.add(mainPanel); 
 
@@ -144,7 +153,7 @@ public class CodeCompletionDisplay extends JFrame
         getRootPane().getActionMap().put("escapeAction", new AbstractAction(){ 
             public void actionPerformed(ActionEvent e)
             {
-                setVisible(false);
+                dispose();
             }
         });
 
@@ -157,30 +166,13 @@ public class CodeCompletionDisplay extends JFrame
             }
         });
 
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
-            public void windowClosing(java.awt.event.WindowEvent evt) 
-            {
-                setVisible(false);
-            }
-        });
-
-        //setLocationRelativeTo(location);
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setUndecorated(true);
         pack();
     }
 
-    public void valueChanged(ListSelectionEvent e) 
-    {
-        int index=methodList.getSelectedIndex();
-        if (index==0)
-            index=selectedValue;
-        methodDescription.setText(methodDescrs[index]);
-        this.selectedValue = methodList.getSelectedIndex();
-    }
-
     //once off call when the panel is initialised as it will not be changing
-    private void populateMethods()
+    private void populatePanel()
     {  
         for (int i=0;i <values.length; i++ ){
             methodsAvailable[i]=values[i].getDisplayName()+" : "+
@@ -194,47 +186,55 @@ public class CodeCompletionDisplay extends JFrame
      */
     private void codeComplete()
     {
-        String selected = values[selectedValue].getDisplayName();
+        String completion = values[selectedValue].getCompletionText();
+        String completionPost = values[selectedValue].getCompletionTextPost();
         
         //editor.codeComplete(values[selectedValue].getContentName());
         if (location == null) {
-            editor.insertText(selected, false);
+            editor.insertText(completion, false);
+            editor.insertText(completionPost, true);
         }
         else {
             SourceLocation begin = new SourceLocation(location.getLine(), location.getColumn());
             SourceLocation end = new SourceLocation(location.getEndLine(), location.getEndColumn());
             editor.setSelection(begin, end);
-            editor.insertText(selected, false);
+            editor.insertText(completion, false);
+            editor.insertText(completionPost, true);
         }
         
         setVisible(false);
     }
 
-    /**
-     * mouseClicked listener for when the item is double clicked. This should result in a code completion
+    // ---------------- MouseListener -------------------
+    
+    /*
+     * A double click results in a completion.
      */
-    public void mouseClicked(MouseEvent e) {
+    public void mouseClicked(MouseEvent e)
+    {
         int count=e.getClickCount();
         if (count==2){
             codeComplete();
         }
     }
 
+    public void mouseEntered(MouseEvent e) { }
 
-    public void mouseEntered(MouseEvent e) {
+    public void mouseExited(MouseEvent e) { }
 
+    public void mousePressed(MouseEvent e) { }
+
+    public void mouseReleased(MouseEvent e) { }
+
+    // ---------------- ListSelectionListener -------------------
+    
+    /* (non-Javadoc)
+     * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
+     */
+    public void valueChanged(ListSelectionEvent e) 
+    {
+        selectedValue = methodList.getSelectedIndex();
+        methodDescription.setText(methodDescrs[selectedValue]);
     }
-
-    public void mouseExited(MouseEvent e) {
-
-    }
-
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
+    
 }
