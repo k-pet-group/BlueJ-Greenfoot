@@ -32,7 +32,7 @@ public class JavaPrimitiveType
     extends JavaType
 {
     private static JavaPrimitiveType [] primitiveTypes = new JavaPrimitiveType[JavaType.JT_MAX+1];
-    private static String [] typeNames = { "void", "java.lang.Object", "boolean", "char",
+    private static String [] typeNames = { "void", "null", "boolean", "char",
             "byte", "short", "int", "long", "float", "double" };
     // note, the types above should be valid java types. So the type of null
     // is java.lang.Object.
