@@ -22,6 +22,7 @@
 package bluej.parser;
 
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,6 +34,8 @@ import javax.swing.text.Document;
 import bluej.editor.moe.Token;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.PackageOrClass;
+import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.UnresolvedArray;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
@@ -267,6 +270,68 @@ public class EditorParser extends JavaParser
     {
         super.gotPackage(pkgTokens);
         declaredPkg = joinTokens(pkgTokens);
+    }
+
+    @Override
+    protected void gotImport(List<LocatableToken> tokens, boolean isStatic)
+    {
+        EntityResolver parentResolver = pcuNode.getParentResolver();
+        if (parentResolver == null) {
+            return;
+        }
+        
+        if (isStatic) {
+            // Apparently static inner classes can be imported with or without the "static" keyword
+            // So, a static import imports a field and/or method and/or class.
+            // That's right - the same import statement pulls in all three.
+            
+            // We want to pull the name out
+            int newSize = tokens.size() - 2;
+            String memberName = tokens.get(newSize + 1).getText();
+            
+            List<LocatableToken> newList = new ArrayList<LocatableToken>(newSize);
+            Iterator<LocatableToken> i = tokens.iterator();
+            while (newSize > 0) {
+                newList.add(i.next());
+                newSize--;
+            }
+            JavaEntity entity = ParseUtils.getTypeEntity(parentResolver, newList);
+            TypeEntity tentity = (entity != null) ? entity.resolveAsType() : null;
+            pcuNode.getImports().addStaticImport(memberName, tentity);
+        }
+        else {
+            String memberName = tokens.get(tokens.size() - 1).getText();
+            JavaEntity entity = ParseUtils.getTypeEntity(parentResolver, tokens);
+            TypeEntity tentity = (entity != null) ? entity.resolveAsType() : null;
+            pcuNode.getImports().addNormalImport(memberName, tentity);
+        }
+    }
+    
+    @Override
+    protected void gotWildcardImport(List<LocatableToken> tokens,
+            boolean isStatic)
+    {
+        EntityResolver parentResolver = pcuNode.getParentResolver();
+        if (parentResolver == null) {
+            return;
+        }
+
+        JavaEntity importEntity = ParseUtils.getTypeEntity(parentResolver, tokens);
+        if (importEntity == null) {
+            return;
+        }
+        if (! isStatic) {
+            PackageOrClass poc = importEntity.resolveAsPackageOrClass();
+            if (poc != null) {
+                pcuNode.getImports().addWildcardImport(poc);
+            }
+        }
+        else {
+            TypeEntity tentity = importEntity.resolveAsType();
+            if (tentity != null) {
+                pcuNode.getImports().addStaticWildcardImport(tentity);
+            }
+        }
     }
     
     @Override

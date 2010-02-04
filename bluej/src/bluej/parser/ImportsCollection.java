@@ -41,7 +41,7 @@ import bluej.parser.entity.TypeEntity;
  */
 public class ImportsCollection
 {
-    private Map<String,PackageOrClass> normalImports; // non-wildcard non-static type imports
+    private Map<String,TypeEntity> normalImports; // non-wildcard non-static type imports
     private List<PackageOrClass> wildcardImports;  // wildcard imports
     private List<TypeEntity> staticWildcardImports; // list of TypeEntity
     private Map<String,List<TypeEntity>> staticImports; // The String gives
@@ -50,7 +50,7 @@ public class ImportsCollection
     
     public ImportsCollection()
     {
-        normalImports = new HashMap<String,PackageOrClass>();
+        normalImports = new HashMap<String,TypeEntity>();
         wildcardImports = new ArrayList<PackageOrClass>();
         staticWildcardImports = new ArrayList<TypeEntity>(); 
         staticImports = new HashMap<String,List<TypeEntity>>();
@@ -70,7 +70,7 @@ public class ImportsCollection
      * @param name          The short name of the import
      * @param importEntity  The entity corresponding to the import
      */
-    public void addNormalImport(String name, PackageOrClass importEntity)
+    public void addNormalImport(String name, TypeEntity importEntity)
     {
         normalImports.put(name, importEntity);
     }

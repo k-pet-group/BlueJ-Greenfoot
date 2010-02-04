@@ -53,7 +53,7 @@ public class ParseUtils
     
     /**
      * Get an entity for a type specification (specified by a list of tokens). The
-     * returned entity be unresolved.
+     * returned entity might be unresolved.
      */
     public static JavaEntity getTypeEntity(EntityResolver resolver, List<LocatableToken> tokens)
     {

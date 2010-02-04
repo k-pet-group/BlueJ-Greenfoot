@@ -22,6 +22,7 @@
 package bluej.parser.entity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -171,7 +172,7 @@ public class ParsedReflective extends Reflective
     @Override
     public List<GenTypeClass> getInners()
     {
-        // TODO Auto-generated method stub
-        return null;
+        // DAV fix
+        return Collections.emptyList();
     }
 }

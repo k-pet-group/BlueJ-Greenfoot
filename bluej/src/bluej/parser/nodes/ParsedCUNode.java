@@ -29,8 +29,11 @@ import javax.swing.text.Document;
 
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.EditorParser;
+import bluej.parser.ImportsCollection;
 import bluej.parser.entity.EntityResolver;
+import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
+import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 
@@ -42,6 +45,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 public class ParsedCUNode extends ParentParsedNode
 {
     private EntityResolver parentResolver;
+    private ImportsCollection imports = new ImportsCollection();
 
     private List<NodeStructureListener> listeners = new ArrayList<NodeStructureListener>();
     private int size = 0;
@@ -83,6 +87,16 @@ public class ParsedCUNode extends ParentParsedNode
     public void removeListener(NodeStructureListener listener)
     {
         listeners.remove(listener);
+    }
+    
+    public ImportsCollection getImports()
+    {
+        return imports;
+    }
+    
+    public EntityResolver getParentResolver()
+    {
+        return parentResolver;
     }
     
     /**
@@ -156,9 +170,45 @@ public class ParsedCUNode extends ParentParsedNode
     public PackageOrClass resolvePackageOrClass(String name, String querySource)
     {
         PackageOrClass poc = super.resolvePackageOrClass(name, querySource);
+        if (poc == null) {
+            poc = imports.getTypeImport(name);
+        }
+        if (poc == null) {
+            poc = imports.getTypeImportWC(name);
+        }
         if (poc == null && parentResolver != null) {
             return parentResolver.resolvePackageOrClass(name, querySource);
         }
         return poc;
+    }
+    
+    @Override
+    public JavaEntity getValueEntity(String name, String querySource)
+    {
+        // We may have static imports
+        
+        List<TypeEntity> simports = imports.getStaticImports(name);
+        for (TypeEntity importType : simports) {
+            JavaEntity subEnt = importType.getSubentity(name);
+            if (subEnt != null) {
+                JavaEntity value = subEnt.resolveAsValue();
+                if (value != null) {
+                    return value;
+                }
+            }
+        }
+        
+        simports = imports.getStaticWildcardImports();
+        for (TypeEntity importType : simports) {
+            JavaEntity subEnt = importType.getSubentity(name);
+            if (subEnt != null) {
+                JavaEntity value = subEnt.resolveAsValue();
+                if (value != null) {
+                    return value;
+                }
+            }
+        }
+        
+        return resolvePackageOrClass(name, querySource);
     }
 }
