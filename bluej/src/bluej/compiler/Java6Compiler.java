@@ -60,13 +60,14 @@ public class Java6Compiler extends Compiler {
             boolean internal) {
         boolean result = true;
         JavaCompiler jc = ToolProvider.getSystemJavaCompiler();
-        String[] options = new String[]{}; 
+        String[] options = new String[]{};
+        JavacErrorWriter output = new JavacErrorWriter(internal);
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
         try
         {  
             //setup the filemanager
             StandardJavaFileManager sjfm = jc.getStandardFileManager(diagnostics, null, null);
-            List<File> pathList = new ArrayList<File>();
+            List <File>pathList = new ArrayList<File>();
             List<File> outputList= new ArrayList<File>();
             outputList.add(getDestDir());
             pathList.addAll(Arrays.asList(getProjectClassLoader().getClassPathAsFiles()));
@@ -102,34 +103,97 @@ public class Java6Compiler extends Compiler {
         String msg=null;
         boolean error=false;
         boolean warning=false;
-
-        if (diagnosticList!=null && diagnosticList.size()>0){
-            if (diagnosticList.get(0).getKind().equals(Diagnostic.Kind.ERROR))
+        int diagnosticErrorPosition=-1;
+        int diagnosticWarningPosition=-1;
+        //as there is no ordering of errors/warnings in terms of importance
+        //need to find an error if there is one, else use the warning
+        for (int i=0; i< diagnosticList.size(); i++){
+            if (diagnosticList.get(i).getKind().equals(Diagnostic.Kind.ERROR))
+            {
+                diagnosticErrorPosition=i;
                 error=true;
-            if (diagnosticList.get(0).getKind().equals(Diagnostic.Kind.WARNING)||
-                    diagnosticList.get(0).getKind().equals(Diagnostic.Kind.MANDATORY_WARNING))
+                warning=false;
+                break;
+            }
+            if (diagnosticList.get(i).getKind().equals(Diagnostic.Kind.WARNING)||
+                    diagnosticList.get(i).getKind().equals(Diagnostic.Kind.NOTE))
+            {
                 warning=true;
-            src= ((Diagnostic<?>)diagnosticList.get(0)).getSource().toString();
-            pos= (int)((Diagnostic<?>)diagnosticList.get(0)).getLineNumber();
-            msg=((Diagnostic<?>)diagnosticList.get(0)).getMessage(null);
-            //the message is in this format 
-            //path:line number:message
-            //i.e includes the path and line number so need to strip that off
-            msg=msg.substring(msg.indexOf(':', src.length()+1)+1);
+                diagnosticWarningPosition=i;
+            }
         }
-       
-        // Handle compiler error messages 
-        if (error) 
-        {
-            result=false;
-            observer.errorMessage(src, pos, msg);
-        }
-        // Handle compiler warning messages        
-        if (warning) 
-        {
-            observer.warningMessage(src, pos, msg);
+        //diagnosticErrorPosition can either be the warning/error
+        if (diagnosticErrorPosition<0)
+            diagnosticErrorPosition=diagnosticWarningPosition;
+        //set the necessary values
+        if (warning||error){
+            if (((Diagnostic<?>)diagnosticList.get(diagnosticErrorPosition)).getSource()!=null)
+                src= ((Diagnostic<?>)diagnosticList.get(diagnosticErrorPosition)).getSource().toString();
+            pos= (int)((Diagnostic<?>)diagnosticList.get(diagnosticErrorPosition)).getLineNumber();
+            msg=((Diagnostic<?>)diagnosticList.get(diagnosticErrorPosition)).getMessage(null);
+            msg=processMessage(msg);
+
+            // Handle compiler error messages 
+            if (error) 
+            {
+                result=false;
+                observer.errorMessage(src, pos, msg);
+            }
+            // Handle compiler warning messages        
+            if (warning) 
+            {
+                observer.warningMessage(src, pos, msg);
+            }
         }
         return result;
+
     }
 
+    /**
+     * @param  String msg representing the message retrieved from the diagnostic tool
+     * processMessage tidies up the message returned from the diagnostic tool
+     * @return message String
+     */
+    protected String processMessage(String msg){
+        //the message is in this format 
+        //path:line number:message
+        //i.e includes the path and line number so need to strip that off
+        //trimming the message to exclude path etc
+        if (msg.indexOf(':')!=-1){
+            msg=msg.substring(msg.indexOf(':')+1, msg.length());
+            if (msg.indexOf(':')!=-1){
+                msg=msg.substring(msg.indexOf(':')+1, msg.length());
+            }
+        }
+        String message =msg;
+        if (msg.contains("cannot resolve symbol")
+                || msg.contains("cannot find symbol")
+                || msg.contains("incompatible types")) {
+            //dividing the message into its different lines so can retrieve necessary values
+            int index1,index2, index3=0;
+            String line2, line3;
+            index1=msg.indexOf('\n');
+            index2=msg.indexOf('\n',index1+1);
+            index3=msg.length();
+            //i.e there are only 2 lines not 3
+            if (index2<index1)
+                index2=index3;
+            message=msg.substring(0, index1);
+            line2=msg.substring(index1, index2);
+            line3=msg.substring(index2,index3);
+
+            //e.g incompatible types
+            //found   : int
+            //required: java.lang.String
+            if (line2.contains("found"))                
+                message= message +" - found "+line2.substring(line2.indexOf(':')+2, line2.length());
+            if (line3.contains("required"))
+                message= message +" but expected "+line3.substring(line3.indexOf(':')+2, line3.length());
+            //e.g cannot find symbol
+            //symbol: class Persons
+            if (line2.contains("symbol"))                
+                message= message +" - "+line2.substring(line2.indexOf(':')+2, line2.length());          
+        }
+        return message;
+    }
 }
