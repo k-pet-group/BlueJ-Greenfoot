@@ -99,6 +99,7 @@ import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.Config;
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.editor.EditorWatcher;
 import bluej.parser.CodeSuggestions;
@@ -3337,11 +3338,12 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             List<AssistContent> completions = new ArrayList<AssistContent>();
 
             Map<String,Set<MethodReflective>> methods = exprType.getReflective().getDeclaredMethods();
+            Map<String,GenTypeParameter> typeArgs = exprType.getMap();
             for (String name : methods.keySet()) {
                 if (name.startsWith(prefix)) {
                     Set<MethodReflective> mset = methods.get(name);
                     for (MethodReflective method : mset) {
-                        completions.add(new MethodCompletion(method, javadocResolver));
+                        completions.add(new MethodCompletion(method, typeArgs, javadocResolver));
                     }
                 }
             }

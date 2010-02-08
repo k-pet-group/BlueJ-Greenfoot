@@ -23,7 +23,9 @@ package bluej.editor.moe;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.pkgmgr.JavadocResolver;
@@ -37,11 +39,20 @@ public class MethodCompletion extends AssistContent
 {
     private MethodReflective method;
     private JavadocResolver javadocResolver;
+    private Map<String,GenTypeParameter> typeArgs;
     
+    /**
+     * Construct a new method completion
+     * @param method    The method to represent
+     * @param typeArgs   The type arguments (may be null if there are none)
+     * @param javadocResolver  The javadoc resolver to use
+     */
     public MethodCompletion(MethodReflective method,
+            Map<String,GenTypeParameter> typeArgs,
             JavadocResolver javadocResolver)
     {
         this.method = method;
+        this.typeArgs = typeArgs;
         this.javadocResolver = javadocResolver;
     }
     
@@ -59,7 +70,8 @@ public class MethodCompletion extends AssistContent
         String displayName = method.getName() + "(";
         List<JavaType> paramTypes = method.getParamTypes();
         for (Iterator<JavaType> i = paramTypes.iterator(); i.hasNext(); ) {
-            displayName += i.next().toString(true);
+            JavaType paramType = convertToSolid(i.next());
+            displayName += paramType.toString(true);
             if (i.hasNext()) {
                 displayName += ", ";
             }
@@ -67,7 +79,6 @@ public class MethodCompletion extends AssistContent
         displayName += ")";
         
         return displayName;
-        
     }
 
     @Override
@@ -85,7 +96,7 @@ public class MethodCompletion extends AssistContent
     @Override
     public String getReturnType()
     {
-        return method.getReturnType().toString(true);
+        return convertToSolid(method.getReturnType()).toString(true);
     }
 
     @Override
@@ -98,5 +109,15 @@ public class MethodCompletion extends AssistContent
         }
         return jd;
     }
-
+    
+    private JavaType convertToSolid(JavaType type)
+    {
+        if (! type.isPrimitive()) {
+            type = type.getUpperBound();
+            if (typeArgs != null) {
+                type = type.mapTparsToTypes(typeArgs);
+            }
+        }
+        return type;
+    }
 }
