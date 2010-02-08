@@ -530,7 +530,7 @@ public class GenTypeClass extends GenTypeSolid
      *                 can be null to return the raw type.
      * @return the corresponding type structure, with parameters mapped.
      */
-    public GenTypeSolid mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
+    public GenTypeClass mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
         // If there are no generic parameters, there's nothing to map...
         if( params == null && outer == null )

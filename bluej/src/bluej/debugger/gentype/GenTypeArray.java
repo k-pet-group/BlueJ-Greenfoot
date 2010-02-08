@@ -71,7 +71,7 @@ public class GenTypeArray extends GenTypeClass
         return baseType;
     }
     
-    public GenTypeSolid mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
+    public GenTypeClass mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
         JavaType newBase = baseType.mapTparsToTypes(tparams);
         if( newBase == baseType )

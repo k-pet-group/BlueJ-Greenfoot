@@ -54,6 +54,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -3335,19 +3337,43 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 return null;
             }
 
+            // Use two sets, one to keep track of which types we have already processed,
+            // another for individual methods.
+            Set<String> contentSigs = new HashSet<String>();
+            Set<String> typesDone = new HashSet<String>();
             List<AssistContent> completions = new ArrayList<AssistContent>();
 
-            Map<String,Set<MethodReflective>> methods = exprType.getReflective().getDeclaredMethods();
-            Map<String,GenTypeParameter> typeArgs = exprType.getMap();
-            for (String name : methods.keySet()) {
-                if (name.startsWith(prefix)) {
-                    Set<MethodReflective> mset = methods.get(name);
-                    for (MethodReflective method : mset) {
-                        completions.add(new MethodCompletion(method, typeArgs, javadocResolver));
+            LinkedList<GenTypeClass> typeQueue = new LinkedList<GenTypeClass>();
+            typeQueue.add(exprType);
+            
+            while (! typeQueue.isEmpty()) {
+                exprType = typeQueue.removeFirst();
+                if (! typesDone.add(exprType.getReflective().getName())) {
+                    // we've already done this type...
+                    continue;
+                }
+                Map<String,Set<MethodReflective>> methods = exprType.getReflective().getDeclaredMethods();
+                Map<String,GenTypeParameter> typeArgs = exprType.getMap();
+
+                for (String name : methods.keySet()) {
+                    if (name.startsWith(prefix)) {
+                        Set<MethodReflective> mset = methods.get(name);
+                        for (MethodReflective method : mset) {
+                            MethodCompletion completion = new MethodCompletion(method,
+                                    typeArgs, javadocResolver);
+                            String sig = completion.getDisplayName();
+                            if (contentSigs.add(sig)) {
+                                completions.add(new MethodCompletion(method, typeArgs, javadocResolver));
+                            }
+                        }
                     }
                 }
+
+                for (GenTypeClass stype : exprType.getReflective().getSuperTypes()) {
+                    typeQueue.add(stype.mapTparsToTypes(typeArgs));
+                }
             }
-            
+
             // Sort the completions by name
             Collections.sort(completions, new Comparator<AssistContent>() {
                 @Override

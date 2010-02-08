@@ -78,21 +78,21 @@ public class ParsedReflective extends Reflective
     public List<GenTypeClass> getSuperTypes()
     {
         // TODO Auto-generated method stub
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
     public List<Reflective> getSuperTypesR()
     {
         // TODO Auto-generated method stub
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
     public List<GenTypeDeclTpar> getTypeParams()
     {
-        // TODO Auto-generated method stub
-        return null;
+        // TODO complete
+        return Collections.emptyList();
     }
 
     @Override
