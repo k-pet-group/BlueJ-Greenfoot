@@ -51,6 +51,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -241,8 +243,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
 
     /**
-     * Constructor. Title may be null
-     * @param parameters TODO
+     * Constructor. Title may be null.
      */
     public MoeEditor(MoeEditorParameters parameters)
     {
@@ -3344,6 +3345,15 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                     }
                 }
             }
+            
+            // Sort the completions by name
+            Collections.sort(completions, new Comparator<AssistContent>() {
+                @Override
+                public int compare(AssistContent o1, AssistContent o2)
+                {
+                    return o1.getDisplayName().compareTo(o2.getDisplayName());
+                }
+            });
 
             return (AssistContent []) completions.toArray(new AssistContent[completions.size()]);
         }
