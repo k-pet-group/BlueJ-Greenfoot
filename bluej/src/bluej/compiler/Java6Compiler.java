@@ -61,7 +61,6 @@ public class Java6Compiler extends Compiler {
         boolean result = true;
         JavaCompiler jc = ToolProvider.getSystemJavaCompiler();
         String[] options = new String[]{};
-        JavacErrorWriter output = new JavacErrorWriter(internal);
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
         try
         {  
@@ -119,7 +118,10 @@ public class Java6Compiler extends Compiler {
                     diagnosticList.get(i).getKind().equals(Diagnostic.Kind.NOTE))
             {
                 warning=true;
-                diagnosticWarningPosition=i;
+                //just to ensure the first instance of the warning position is recorded (not the last)
+                if (diagnosticWarningPosition==-1){
+                    diagnosticWarningPosition=i;
+                }
             }
         }
         //diagnosticErrorPosition can either be the warning/error
@@ -131,18 +133,23 @@ public class Java6Compiler extends Compiler {
                 src= ((Diagnostic<?>)diagnosticList.get(diagnosticErrorPosition)).getSource().toString();
             pos= (int)((Diagnostic<?>)diagnosticList.get(diagnosticErrorPosition)).getLineNumber();
             msg=((Diagnostic<?>)diagnosticList.get(diagnosticErrorPosition)).getMessage(null);
-            msg=processMessage(msg);
 
             // Handle compiler error messages 
             if (error) 
             {
                 result=false;
+                msg=processMessage(msg);
                 observer.errorMessage(src, pos, msg);
             }
-            // Handle compiler warning messages        
+            // Handle compiler warning messages  
+            // If it is a warning message, need to get all the messages
             if (warning) 
             {
                 observer.warningMessage(src, pos, msg);
+                for (int i=diagnosticErrorPosition+1; i< diagnosticList.size(); i++){
+                    msg=((Diagnostic<?>)diagnosticList.get(i)).getMessage(null);
+                    observer.warningMessage(src, pos, msg);
+                }              
             }
         }
         return result;
