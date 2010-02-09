@@ -21,6 +21,7 @@
  */
 package bluej.parser;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,6 +32,7 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
+import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
@@ -155,6 +157,34 @@ public class EditorParserTest extends TestCase
             
         ParsedCUNode pcuNode = cuForSource(sourceCode);
         assertNotNull(pcuNode);
+    }
+    
+    public void testSuperclass()
+    {
+        String sourceCode = ""
+            + "class A { }\n";
+        ParsedCUNode aNode = cuForSource(sourceCode);
+        PackageOrClass apoc = aNode.resolvePackageOrClass("A", "");
+        assertNotNull(apoc);
+        TypeEntity aTyent = apoc.resolveAsType();
+        assertNotNull(aTyent);
+        GenTypeClass aClass = aTyent.getType().asClass();
+        assertNotNull(aClass);
+        List<GenTypeClass> supers = aClass.getReflective().getSuperTypes();
+        assertEquals(1, supers.size());
+        assertEquals("java.lang.Object", supers.get(0).toString());
+        
+        sourceCode = "class B extends A {}\n";
+        ParsedCUNode bNode = cuForSource(sourceCode);
+        PackageOrClass bpoc = bNode.resolvePackageOrClass("B", "");
+        assertNotNull(bpoc);
+        TypeEntity bTyent = bpoc.resolveAsType();
+        assertNotNull(bTyent);
+        GenTypeClass bClass = bTyent.getType().asClass();
+        assertNotNull(bClass);
+        supers = bClass.getReflective().getSuperTypes();
+        assertEquals(1, supers.size());
+        assertEquals("A", supers.get(0).toString());
     }
 
 }
