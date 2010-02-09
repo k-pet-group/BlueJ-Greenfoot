@@ -112,6 +112,9 @@ public class Project implements DebuggerListener, InspectorManager
 
     public static final String projectLibDirName = "+libs";
     
+    /** Property specifying location of JDK source */
+    private static final String JDK_SOURCE_PATH_PROPERTY = "bluej.jdk.source";
+    
     /* ------------------- end of static declarations ------------------ */
 
     // instance fields
@@ -206,6 +209,11 @@ public class Project implements DebuggerListener, InspectorManager
             if (jdkSourceZip.exists()) {
                 sourcePath.add(jdkSourceZip);
             }
+        }
+        
+        String jdkSourcePath = Config.getPropString(JDK_SOURCE_PATH_PROPERTY, null);
+        if (jdkSourcePath != null) {
+            sourcePath.add(new File(jdkSourcePath));
         }
         
         this.projectDir = projectDir;
