@@ -179,9 +179,9 @@ public class Java6Compiler extends Compiler {
         //beginIndex=src.length +1 (:) + number of digits in pos +1(:)
         int  beginIndex=src.length()+1+String.valueOf(pos).length()+2;
         String message=msg.substring(beginIndex, msg.length());
-        if (msg.contains("cannot resolve symbol")
-                || msg.contains("cannot find symbol")
-                || msg.contains("incompatible types")) {
+        if (message.contains("cannot resolve symbol")
+                || message.contains("cannot find symbol")
+                || message.contains("incompatible types")) {
             //dividing the message into its different lines so can retrieve necessary values
             int index1,index2, index3=0;
             String line2, line3;
@@ -191,7 +191,7 @@ public class Java6Compiler extends Compiler {
             //i.e there are only 2 lines not 3
             if (index2<index1)
                 index2=index3;
-            message=msg.substring(0, index1);
+            message=msg.substring(beginIndex, index1);
             line2=msg.substring(index1, index2);
             line3=msg.substring(index2,index3);
 
