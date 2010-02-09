@@ -276,7 +276,8 @@ public class InfoParser extends EditorParser
         lastTypespecToks = tokens;
         super.gotTypeSpec(tokens);
         // Dependency tracking
-        JavaEntity tentity = ParseUtils.getTypeEntity(scopeStack.peek(), tokens);
+        JavaEntity tentity = ParseUtils.getTypeEntity(scopeStack.peek(),
+                currentQuerySource(), tokens);
         if (tentity != null && ! gotExtends && ! gotImplements) {
             typeReferences.add(tentity);
         }
@@ -354,7 +355,8 @@ public class InfoParser extends EditorParser
         super.gotMethodDeclaration(token, hiddenToken);
         String lastComment = (hiddenToken != null) ? hiddenToken.getText() : null;
         currentMethod = new MethodDesc();
-        currentMethod.returnType = ParseUtils.getTypeEntity(scopeStack.peek(), lastTypespecToks);
+        currentMethod.returnType = ParseUtils.getTypeEntity(scopeStack.peek(),
+                currentQuerySource(), lastTypespecToks);
         currentMethod.name = token.getText();
         currentMethod.paramNames = "";
         currentMethod.paramTypes = new LinkedList<JavaEntity>();
@@ -379,7 +381,8 @@ public class InfoParser extends EditorParser
         super.gotMethodParameter(token);
         if (currentMethod != null) {
             currentMethod.paramNames += token.getText() + " ";
-            JavaEntity ptype = ParseUtils.getTypeEntity(scopeStack.peek(), lastTypespecToks);
+            JavaEntity ptype = ParseUtils.getTypeEntity(scopeStack.peek(),
+                    currentQuerySource(), lastTypespecToks);
             while (arrayCount > 0) {
                 ptype = new UnresolvedArray(ptype);
                 arrayCount--;

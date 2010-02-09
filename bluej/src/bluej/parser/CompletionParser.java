@@ -126,6 +126,12 @@ public class CompletionParser extends TextParser
     protected void gotIdentifierEOF(LocatableToken token)
     {
         suggestionToken = token;
+    }
+    
+    @Override
+    protected void gotMemberAccessEOF(LocatableToken token)
+    {
+        suggestionToken = token;
         suggestionEntity = popValueStack();
     }
     
@@ -141,18 +147,14 @@ public class CompletionParser extends TextParser
     {
         super.endExpression(token);
         if (token.getType() == JavaTokenTypes.EOF) {
-            suggestFor(suggestionEntity);
+            suggestFor(getSuggestionType());
         }
     }
     
-    private void suggestFor(JavaEntity entity)
+    private void suggestFor(GenTypeSolid type)
     {
-        JavaEntity valueEnt = entity.resolveAsValue();
-        if (valueEnt == null) {
-            valueEnt = entity.resolveAsType();
-        }
-        if (valueEnt != null) {
-            JavaType type = valueEnt.getType().getCapture();
+        if (type != null) {
+            //JavaType type = valueEnt.getType().getCapture();
             GenTypeClass ctype = type.asClass();
             if (ctype != null) {
                 Reflective r = ctype.getReflective();

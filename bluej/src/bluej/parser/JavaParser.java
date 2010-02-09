@@ -314,7 +314,13 @@ public class JavaParser
     
     /** Saw an identifier as (part of) an expression */
     protected void gotIdentifier(LocatableToken token) { }
+    /**
+     * Got an identifier (possibly part of a compound identifier) immediately followed by
+     * end of input stream.
+     */
     protected void gotIdentifierEOF(LocatableToken token) { gotIdentifier(token); }
+    
+    protected void gotMemberAccessEOF(LocatableToken token) { gotMemberAccess(token); }
     
     protected void gotCompoundIdent(LocatableToken token) { gotIdentifier(token); }
     protected void gotCompoundComponent(LocatableToken token) { gotMemberAccess(token); }
@@ -2267,7 +2273,8 @@ public class JavaParser
                     token = tokenStream.nextToken();
                     while (tokenStream.LA(1).getType() == JavaTokenTypes.DOT &&
                             tokenStream.LA(2).getType() == JavaTokenTypes.IDENT &&
-                            tokenStream.LA(3).getType() != JavaTokenTypes.LPAREN)
+                            tokenStream.LA(3).getType() != JavaTokenTypes.LPAREN &&
+                            tokenStream.LA(3).getType() != JavaTokenTypes.EOF)
                     {
                         gotCompoundComponent(token);
                         tokenStream.nextToken(); // dot
@@ -2446,6 +2453,9 @@ public class JavaParser
                             // Method call
                             gotMemberCall(token);
                             parseArgumentList(tokenStream.nextToken());
+                        }
+                        else if (tokenStream.LA(1).getType() == JavaTokenTypes.EOF) {
+                            gotMemberAccessEOF(token);
                         }
                         else {
                             gotMemberAccess(token);

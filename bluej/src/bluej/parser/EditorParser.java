@@ -257,6 +257,12 @@ public class EditorParser extends JavaParser
         return r.toString();
     }
     
+    protected String currentQuerySource()
+    {
+        return ""; // DAV fix this
+    }
+    
+    
     //  -------------- Callbacks from the superclass ----------------------
 
     @Override
@@ -295,13 +301,15 @@ public class EditorParser extends JavaParser
                 newList.add(i.next());
                 newSize--;
             }
-            JavaEntity entity = ParseUtils.getTypeEntity(parentResolver, newList);
+            JavaEntity entity = ParseUtils.getTypeEntity(parentResolver,
+                    currentQuerySource(), newList);
             TypeEntity tentity = (entity != null) ? entity.resolveAsType() : null;
             pcuNode.getImports().addStaticImport(memberName, tentity);
         }
         else {
             String memberName = tokens.get(tokens.size() - 1).getText();
-            JavaEntity entity = ParseUtils.getTypeEntity(parentResolver, tokens);
+            JavaEntity entity = ParseUtils.getTypeEntity(parentResolver,
+                    currentQuerySource(), tokens);
             TypeEntity tentity = (entity != null) ? entity.resolveAsType() : null;
             pcuNode.getImports().addNormalImport(memberName, tentity);
         }
@@ -316,7 +324,8 @@ public class EditorParser extends JavaParser
             return;
         }
 
-        JavaEntity importEntity = ParseUtils.getTypeEntity(parentResolver, tokens);
+        JavaEntity importEntity = ParseUtils.getTypeEntity(parentResolver,
+                currentQuerySource(), tokens);
         if (importEntity == null) {
             return;
         }
@@ -735,7 +744,8 @@ public class EditorParser extends JavaParser
             jdcomment = hiddenToken.getText();
         }
         
-        JavaEntity rtype = ParseUtils.getTypeEntity(scopeStack.peek(), lastTypeSpec);
+        JavaEntity rtype = ParseUtils.getTypeEntity(scopeStack.peek(),
+                currentQuerySource(), lastTypeSpec);
         MethodNode pnode = new MethodNode(scopeStack.peek(), token.getText(), rtype, jdcomment);
         
         int curOffset = getTopNodeOffset();
@@ -748,7 +758,8 @@ public class EditorParser extends JavaParser
     @Override
     protected void gotMethodParameter(LocatableToken token)
     {
-        JavaEntity paramType = ParseUtils.getTypeEntity(scopeStack.peek(), lastTypeSpec);
+        JavaEntity paramType = ParseUtils.getTypeEntity(scopeStack.peek(),
+                currentQuerySource(), lastTypeSpec);
         if (paramType == null) {
             return;
         }
@@ -808,7 +819,8 @@ public class EditorParser extends JavaParser
     @Override
     protected void gotField(LocatableToken first, LocatableToken idToken)
     {
-        JavaEntity fieldType = ParseUtils.getTypeEntity(scopeStack.peek(), lastTypeSpec);
+        JavaEntity fieldType = ParseUtils.getTypeEntity(scopeStack.peek(),
+                currentQuerySource(), lastTypeSpec);
         
         lastField = new FieldNode(scopeStack.peek(), idToken.getText(), fieldType, arrayDecls);
         arrayDecls = 0;

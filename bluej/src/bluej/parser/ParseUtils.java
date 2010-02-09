@@ -54,17 +54,22 @@ public class ParseUtils
     /**
      * Get an entity for a type specification (specified by a list of tokens). The
      * returned entity might be unresolved.
+     * 
+     * @param resolver   Entity resolver which will (eventually) resolve the entity
+     * @param querySource  The source of the query - a fully qualified class name
+     * @param tokens  The tokens specifying the type
      */
-    public static JavaEntity getTypeEntity(EntityResolver resolver, List<LocatableToken> tokens)
+    public static JavaEntity getTypeEntity(EntityResolver resolver,
+            String querySource, List<LocatableToken> tokens)
     {
         DepthRef dr = new DepthRef();
-        return getTypeEntity(resolver, tokens.listIterator(), dr);
+        return getTypeEntity(resolver, querySource, tokens.listIterator(), dr);
     }
     
     /**
      * Get an entity for a type specification. The returned entity be unresolved.
      */
-    private static JavaEntity getTypeEntity(EntityResolver resolver,
+    private static JavaEntity getTypeEntity(EntityResolver resolver, String querySource,
             ListIterator<LocatableToken> i, DepthRef depthRef)
     {
         LocatableToken token = i.next();
@@ -115,13 +120,12 @@ public class ParseUtils
         
         String text = token.getText();
         
-        //PackageOrClass poc = resolver.resolvePackageOrClass(text, null);
-        JavaEntity poc = UnresolvedEntity.getEntity(resolver, text, ""); // DAV fix query source
+        JavaEntity poc = UnresolvedEntity.getEntity(resolver, text, querySource);
         while (poc != null && i.hasNext()) {
             token = i.next();
             if (token.getType() == JavaTokenTypes.LT) {
                 // Type arguments
-                poc = processTypeArgs(resolver, poc, i, depthRef);
+                poc = processTypeArgs(resolver, querySource, poc, i, depthRef);
                 if (poc == null) {
                     return null;
                 }
@@ -167,8 +171,8 @@ public class ParseUtils
      * @param depthRef  The argument depth
      * @return   A JavaEntity representing the type with type arguments applied (or null)
      */
-    private static JavaEntity processTypeArgs(EntityResolver resolver, JavaEntity base,
-            ListIterator<LocatableToken> i, DepthRef depthRef)
+    private static JavaEntity processTypeArgs(EntityResolver resolver, String querySource, 
+            JavaEntity base, ListIterator<LocatableToken> i, DepthRef depthRef)
     {
         int startDepth = depthRef.depth;
         List<TypeArgumentEntity> taList = new LinkedList<TypeArgumentEntity>();
@@ -183,14 +187,14 @@ public class ParseUtils
                 }
                 token = i.next();
                 if (token.getType() == JavaTokenTypes.LITERAL_super) {
-                    JavaEntity taEnt = getTypeEntity(resolver, i, depthRef);
+                    JavaEntity taEnt = getTypeEntity(resolver, querySource, i, depthRef);
                     if (taEnt == null) {
                         return null;
                     }
                     taList.add(new WildcardSuperEntity(taEnt));
                 }
                 else if (token.getType() == JavaTokenTypes.LITERAL_extends) {
-                    JavaEntity taEnt = getTypeEntity(resolver, i, depthRef);
+                    JavaEntity taEnt = getTypeEntity(resolver, querySource, i, depthRef);
                     if (taEnt == null) {
                         return null;
                     }
@@ -203,7 +207,7 @@ public class ParseUtils
             }
             else {
                 i.previous();
-                JavaEntity taEnt = getTypeEntity(resolver, i, depthRef);
+                JavaEntity taEnt = getTypeEntity(resolver, querySource, i, depthRef);
                 if (taEnt == null) {
                     return null;
                 }

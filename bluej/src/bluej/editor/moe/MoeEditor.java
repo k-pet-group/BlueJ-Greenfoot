@@ -201,7 +201,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     private JComboBox interfaceToggle;
     private GoToLineDialog goToLineDialog;
 
-    //new find functionality
+    // new find functionality
     private FindPanel finder;
     private ReplacePanel replacer;
 
@@ -227,13 +227,15 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     private TextInsertNotifier doTextInsert = new TextInsertNotifier();
 
-    //list of actions that are dis/enabled depending on the view
+    /**
+     * list of actions that are dis/enabled depending on the selected view
+     * (source/documentation)
+     */
     private ArrayList<String> flaggedActions;
 
     private MoeHighlighter editorHighlighter;
 
-    //new content assist
-    private CodeCompletionDisplay dlg;
+    private CodeCompletionDisplay codeCompletionDlg;
     
     /** Used to obtain javadoc for arbitrary methods */
     private JavadocResolver javadocResolver;
@@ -3297,16 +3299,16 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             String prefix = suggestToken != null ? suggestToken.getText() : "";
             AssistContent[] values = getPossibleCompletions(suggests, prefix);
             if (values != null && values.length > 0) {
-                dlg = new CodeCompletionDisplay(this, values, suggests.getSuggestionToken());
+                codeCompletionDlg = new CodeCompletionDisplay(this, values, suggests.getSuggestionToken());
                 int cpos = sourcePane.getCaretPosition();
                 try {
                     Rectangle pos = sourcePane.modelToView(cpos);
                     Point spLoc = sourcePane.getLocationOnScreen();
                     int xpos = pos.x + spLoc.x;
                     int ypos = pos.y + pos.height + spLoc.y;
-                    dlg.setLocation(xpos, ypos);
-                    dlg.setVisible(true);
-                    dlg.requestFocus();
+                    codeCompletionDlg.setLocation(xpos, ypos);
+                    codeCompletionDlg.setVisible(true);
+                    codeCompletionDlg.requestFocus();
                     return;
                 }
                 catch (BadLocationException ble) {}
@@ -3315,14 +3317,19 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         info.warning("No completions available.");
     }
 
-    protected void closeContentAssist()
+    /**
+     * Close the content assist popup window.
+     */
+    private void closeContentAssist()
     {
-        if (dlg!=null)
-            dlg.setVisible(false);
+        if (codeCompletionDlg != null) {
+            codeCompletionDlg.setVisible(false);
+            codeCompletionDlg.dispose();
+        }
     }
 
     /**
-     * Populates the array with the relevant content 
+     * Get the possible code completions.
      */
     private AssistContent[] getPossibleCompletions(CodeSuggestions suggests, String prefix)
     {
