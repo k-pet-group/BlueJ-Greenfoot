@@ -83,7 +83,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 7100 2010-02-09 01:16:08Z marionz $
+ * @version $Id: Package.java 7102 2010-02-09 02:19:24Z marionz $
  */
 public final class Package extends Graph
 {
@@ -2154,7 +2154,6 @@ public final class Package extends Graph
         }
 
         Editor editor = t.getEditor();
-        System.out.println("editor "+editor);
         if (editor != null) {
             if (bringToFront || !editor.isShowing()) {
                 t.open();
