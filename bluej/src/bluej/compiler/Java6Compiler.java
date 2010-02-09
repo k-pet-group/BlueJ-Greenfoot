@@ -57,7 +57,8 @@ public class Java6Compiler extends Compiler {
      * @return    success
      */
     public boolean compile(File[] sources, CompileObserver observer,
-            boolean internal) {
+            boolean internal) 
+    {
         boolean result = true;
         JavaCompiler jc = ToolProvider.getSystemJavaCompiler();
         String[] options = new String[]{};
@@ -139,7 +140,7 @@ public class Java6Compiler extends Compiler {
             {
                 result=false;
                 msg=((Diagnostic<?>)diagnosticList.get(diagnosticErrorPosition)).getMessage(null);
-                msg=processMessage(msg);
+                msg=processMessage(src, pos, msg);
                 observer.errorMessage(src, pos, msg);
             }
             // Handle compiler warning messages  
@@ -147,8 +148,9 @@ public class Java6Compiler extends Compiler {
             if (warning) 
             {
                 for (int i=diagnosticErrorPosition; i< diagnosticList.size(); i++){
-                    //'display unchecked warning messages' in the preferences dialog
-                    //is unchecked and therefore notes should not be displayed
+                    //'display unchecked warning messages' in the preferences dialog is unchecked
+                    //therefore notes should not be displayed
+                    //warnings can still be displayed
                     if (internal && ((Diagnostic<?>)diagnosticList.get(i)).getKind().equals(Diagnostic.Kind.NOTE)){
                         continue;
                     }
@@ -168,18 +170,15 @@ public class Java6Compiler extends Compiler {
      * processMessage tidies up the message returned from the diagnostic tool
      * @return message String
      */
-    protected String processMessage(String msg){
+    protected String processMessage(String src, int pos, String msg)
+    {
         //the message is in this format 
-        //path:line number:message
+        //path and filename:line number:message
         //i.e includes the path and line number so need to strip that off
         //trimming the message to exclude path etc
-        if (msg.indexOf(':')!=-1){
-            msg=msg.substring(msg.indexOf(':')+1, msg.length());
-            if (msg.indexOf(':')!=-1){
-                msg=msg.substring(msg.indexOf(':')+1, msg.length());
-            }
-        }
-        String message =msg;
+        //beginIndex=src.length +1 (:) + number of digits in pos +1(:)
+        int  beginIndex=src.length()+1+String.valueOf(pos).length()+2;
+        String message=msg.substring(beginIndex, msg.length());
         if (msg.contains("cannot resolve symbol")
                 || msg.contains("cannot find symbol")
                 || msg.contains("incompatible types")) {
