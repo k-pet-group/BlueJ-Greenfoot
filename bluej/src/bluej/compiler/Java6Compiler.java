@@ -102,27 +102,22 @@ public class Java6Compiler extends Compiler {
         String msg=null;
         boolean error=false;
         boolean warning=false;
-        boolean note=false;
         int diagnosticErrorPosition=-1;
         int diagnosticWarningPosition=-1;
-        //as there is no ordering of errors/warnings in terms of importance
-        //need to find an error if there is one, else use the warning
+        //ensure an error is printed if there is one, else use the warning/s; note/s
+        //(errors should have priority in the diagnostic list, but this is just in case not)
         for (int i=0; i< diagnosticList.size(); i++){
             if (diagnosticList.get(i).getKind().equals(Diagnostic.Kind.ERROR))
             {
                 diagnosticErrorPosition=i;
                 error=true;
                 warning=false;
-                note=false;
                 break;
             }
             if (diagnosticList.get(i).getKind().equals(Diagnostic.Kind.WARNING)||
                     diagnosticList.get(i).getKind().equals(Diagnostic.Kind.NOTE))
             {
-                if (diagnosticList.get(i).getKind().equals(Diagnostic.Kind.NOTE))
-                    note=true;
-                else
-                    warning=true;
+                warning=true;
                 //just to ensure the first instance of the warning position is recorded 
                 //(not the last position)
                 if (diagnosticWarningPosition==-1){
@@ -134,31 +129,34 @@ public class Java6Compiler extends Compiler {
         if (diagnosticErrorPosition<0)
             diagnosticErrorPosition=diagnosticWarningPosition;
         //set the necessary values
-        if (warning||error||note){
+        if (warning||error){
             if (((Diagnostic<?>)diagnosticList.get(diagnosticErrorPosition)).getSource()!=null)
                 src= ((Diagnostic<?>)diagnosticList.get(diagnosticErrorPosition)).getSource().toString();
             pos= (int)((Diagnostic<?>)diagnosticList.get(diagnosticErrorPosition)).getLineNumber();
-            msg=((Diagnostic<?>)diagnosticList.get(diagnosticErrorPosition)).getMessage(null);
-
+            
             // Handle compiler error messages 
             if (error) 
             {
                 result=false;
+                msg=((Diagnostic<?>)diagnosticList.get(diagnosticErrorPosition)).getMessage(null);
                 msg=processMessage(msg);
                 observer.errorMessage(src, pos, msg);
             }
             // Handle compiler warning messages  
             // If it is a warning message, need to get all the messages
-            if (warning||note) 
+            if (warning) 
             {
-                //'display unchecked warning messages' in the preferences dialog
-                //is unchecked and therefore notes should not be displayed
-                if (internal && note)
-                    return result;
-                observer.warningMessage(src, pos, msg);
-                for (int i=diagnosticErrorPosition+1; i< diagnosticList.size(); i++){
-                    msg=((Diagnostic<?>)diagnosticList.get(i)).getMessage(null);
-                    observer.warningMessage(src, pos, msg);
+                for (int i=diagnosticErrorPosition; i< diagnosticList.size(); i++){
+                    //'display unchecked warning messages' in the preferences dialog
+                    //is unchecked and therefore notes should not be displayed
+                    if (internal && ((Diagnostic<?>)diagnosticList.get(i)).getKind().equals(Diagnostic.Kind.NOTE)){
+                        continue;
+                    }
+                    else
+                    {
+                        msg=((Diagnostic<?>)diagnosticList.get(i)).getMessage(null);
+                        observer.warningMessage(src, pos, msg);
+                    }
                 }              
             }
         }
