@@ -90,7 +90,7 @@ public class GenTypeArray extends GenTypeClass
         }
     }
     
-    public JavaType getErasedType()
+    public GenTypeClass getErasedType()
     {
         if (baseType instanceof GenTypeParameter) {
             GenTypeParameter pbtype = (GenTypeParameter) baseType;

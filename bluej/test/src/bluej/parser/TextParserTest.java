@@ -33,7 +33,7 @@ import bluej.parser.entity.EntityResolver;
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 7091 2010-02-03 14:26:39Z nccb $
+ * @version $Id: TextParserTest.java 7105 2010-02-09 02:51:40Z davmac $
  */
 public class TextParserTest extends TestCase
 {
@@ -217,6 +217,9 @@ public class TextParserTest extends TestCase
         TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
         String r = tp.parseCommand("Object.class");
         assertEquals("java.lang.Class<java.lang.Object>", r);
+        
+        r = tp.parseCommand("int.class");
+        assertEquals("java.lang.Class<java.lang.Integer>", r);
     }
     
     public void testImport()

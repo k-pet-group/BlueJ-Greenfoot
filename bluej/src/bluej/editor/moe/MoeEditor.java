@@ -3295,7 +3295,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         if (suggests != null) {
             LocatableToken suggestToken = suggests.getSuggestionToken();
             String prefix = suggestToken != null ? suggestToken.getText() : "";
-            AssistContent[] values = populateContentAssist(suggests, prefix);
+            AssistContent[] values = getPossibleCompletions(suggests, prefix);
             if (values != null && values.length > 0) {
                 dlg = new CodeCompletionDisplay(this, values, suggests.getSuggestionToken());
                 int cpos = sourcePane.getCaretPosition();
@@ -3324,7 +3324,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /**
      * Populates the array with the relevant content 
      */
-    private AssistContent[] populateContentAssist(CodeSuggestions suggests, String prefix)
+    private AssistContent[] getPossibleCompletions(CodeSuggestions suggests, String prefix)
     {
         if (suggests != null) {
             //Map<String,JavaType> fields = exprType.getClassType().getReflective().getDeclaredFields();
@@ -3370,7 +3370,12 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 }
 
                 for (GenTypeClass stype : exprType.getReflective().getSuperTypes()) {
-                    typeQueue.add(stype.mapTparsToTypes(typeArgs));
+                    if (typeArgs != null) {
+                        typeQueue.add(stype.mapTparsToTypes(typeArgs));
+                    }
+                    else {
+                        typeQueue.add(stype.getErasedType());
+                    }
                 }
             }
 

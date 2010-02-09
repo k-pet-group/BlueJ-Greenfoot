@@ -71,8 +71,7 @@ public class GenTypeCapture extends GenTypeTpar
     @Override
     public JavaType getErasedType()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return wildcard.getUpperBound().getErasedType();
     }
 
 }

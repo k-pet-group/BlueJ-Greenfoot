@@ -147,7 +147,7 @@ public class GenTypeClass extends GenTypeSolid
         return this;
     }
     
-    public JavaType getErasedType()
+    public GenTypeClass getErasedType()
     {
         return new GenTypeClass(reflective);
     }
@@ -235,7 +235,7 @@ public class GenTypeClass extends GenTypeSolid
         // raw anyway).
         if (outer != null)
             return false;
-        List formalParams = reflective.getTypeParams();
+        List<?> formalParams = reflective.getTypeParams();
         return params == null && ! formalParams.isEmpty();
     }
 
@@ -266,8 +266,8 @@ public class GenTypeClass extends GenTypeSolid
         if(params == null)
             return baseClass;
         String r = baseClass + '<';
-        for(Iterator i = params.iterator(); i.hasNext(); ) {
-            r += ((GenTypeParameter)i.next()).toTypeArgString(nt);
+        for(Iterator<GenTypeParameter> i = params.iterator(); i.hasNext(); ) {
+            r += i.next().toTypeArgString(nt);
             if( i.hasNext() )
                 r += ',';
         }
@@ -318,17 +318,14 @@ public class GenTypeClass extends GenTypeSolid
         if (params != null && oClass.params == null)
             return false;
         
-        Iterator i = params.iterator();
-        Iterator j = oClass.params.iterator();
+        Iterator<GenTypeParameter> i = params.iterator();
+        Iterator<GenTypeParameter> j = oClass.params.iterator();
         
         // All the parameter types must match...
         while( i.hasNext() ) {
-            if( ! j.hasNext() )
+            if( ! j.hasNext() || ! i.next().equals(j.next())) {
                 return false;
-            GenTypeParameter iNext = (GenTypeParameter)i.next();
-            GenTypeParameter jNext = (GenTypeParameter)j.next();
-            if( ! iNext.equals(jNext) )
-                return false;
+            }
         }
         
         // and there must be the same number of parameters

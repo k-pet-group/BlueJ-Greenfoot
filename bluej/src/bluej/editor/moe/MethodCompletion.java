@@ -113,9 +113,12 @@ public class MethodCompletion extends AssistContent
     private JavaType convertToSolid(JavaType type)
     {
         if (! type.isPrimitive()) {
-            type = type.getUpperBound();
             if (typeArgs != null) {
                 type = type.mapTparsToTypes(typeArgs);
+                type = type.getUpperBound();
+            }
+            else {
+                type = type.getErasedType();
             }
         }
         return type;

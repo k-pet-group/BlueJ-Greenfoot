@@ -38,6 +38,7 @@ import java.util.Set;
 import bluej.Config;
 import bluej.debugger.gentype.BadInheritanceChainException;
 import bluej.debugger.gentype.GenTypeArray;
+import bluej.debugger.gentype.GenTypeCapture;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.GenTypeParameter;
@@ -50,7 +51,6 @@ import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
-import bluej.debugmgr.texteval.WildcardCapture;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageEntity;
@@ -618,14 +618,14 @@ public class TextAnalyzer
                 }
                 if (lbound != null) {
                     // ? super XX
-                    newArg = new WildcardCapture(tpbounds, lbound);
+                    newArg = new GenTypeCapture(new GenTypeWildcard(tpbounds, new GenTypeSolid[] {lbound}));
                 }
                 else {
                     // ? extends ...
                     GenTypeSolid [] newBounds = new GenTypeSolid[ubounds.length + tpbounds.length];
                     System.arraycopy(ubounds, 0, newBounds, 0, ubounds.length);
                     System.arraycopy(tpbounds, 0, newBounds, ubounds.length, tpbounds.length);
-                    newArg = new WildcardCapture(newBounds);
+                    newArg = new GenTypeCapture(new GenTypeWildcard(ubounds, new GenTypeSolid[0]));
                 }
             }
             else {
