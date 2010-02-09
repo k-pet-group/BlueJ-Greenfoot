@@ -203,6 +203,13 @@ public class InfoParser extends EditorParser
                 }
                 entity = entity.getSubentity(i.next().getText());
             }
+            if (! i.hasNext() && entity != null) {
+                TypeEntity typeEnt = entity.resolveAsType();
+                if (typeEnt != null && ! typeEnt.getType().isPrimitive()) {
+                    String typeString = entity.getType().getErasedType().toString();
+                    addTypeReference(typeString);
+                }
+            }
         }
     }
     
@@ -305,9 +312,15 @@ public class InfoParser extends EditorParser
     }
 
     @Override
+    protected void gotIdentifier(LocatableToken token)
+    {
+        gotCompoundIdent(token);
+        valueReferences.add(currentUnresolvedVal);
+    }
+    
+    @Override
     protected void gotCompoundIdent(LocatableToken token)
     {
-        super.gotCompoundIdent(token);
         currentUnresolvedVal = new UnresolvedVal();
         currentUnresolvedVal.components = new LinkedList<LocatableToken>();
         currentUnresolvedVal.components.add(token);
