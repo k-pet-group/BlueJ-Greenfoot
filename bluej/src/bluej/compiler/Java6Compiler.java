@@ -102,6 +102,7 @@ public class Java6Compiler extends Compiler {
         String msg=null;
         boolean error=false;
         boolean warning=false;
+        boolean note=false;
         int diagnosticErrorPosition=-1;
         int diagnosticWarningPosition=-1;
         //as there is no ordering of errors/warnings in terms of importance
@@ -112,13 +113,18 @@ public class Java6Compiler extends Compiler {
                 diagnosticErrorPosition=i;
                 error=true;
                 warning=false;
+                note=false;
                 break;
             }
             if (diagnosticList.get(i).getKind().equals(Diagnostic.Kind.WARNING)||
                     diagnosticList.get(i).getKind().equals(Diagnostic.Kind.NOTE))
             {
-                warning=true;
-                //just to ensure the first instance of the warning position is recorded (not the last)
+                if (diagnosticList.get(i).getKind().equals(Diagnostic.Kind.NOTE))
+                    note=true;
+                else
+                    warning=true;
+                //just to ensure the first instance of the warning position is recorded 
+                //(not the last position)
                 if (diagnosticWarningPosition==-1){
                     diagnosticWarningPosition=i;
                 }
@@ -128,7 +134,7 @@ public class Java6Compiler extends Compiler {
         if (diagnosticErrorPosition<0)
             diagnosticErrorPosition=diagnosticWarningPosition;
         //set the necessary values
-        if (warning||error){
+        if (warning||error||note){
             if (((Diagnostic<?>)diagnosticList.get(diagnosticErrorPosition)).getSource()!=null)
                 src= ((Diagnostic<?>)diagnosticList.get(diagnosticErrorPosition)).getSource().toString();
             pos= (int)((Diagnostic<?>)diagnosticList.get(diagnosticErrorPosition)).getLineNumber();
@@ -143,8 +149,12 @@ public class Java6Compiler extends Compiler {
             }
             // Handle compiler warning messages  
             // If it is a warning message, need to get all the messages
-            if (warning) 
+            if (warning||note) 
             {
+                //'display unchecked warning messages' in the preferences dialog
+                //is unchecked and therefore notes should not be displayed
+                if (internal && note)
+                    return result;
                 observer.warningMessage(src, pos, msg);
                 for (int i=diagnosticErrorPosition+1; i< diagnosticList.size(); i++){
                     msg=((Diagnostic<?>)diagnosticList.get(i)).getMessage(null);
@@ -153,7 +163,6 @@ public class Java6Compiler extends Compiler {
             }
         }
         return result;
-
     }
 
     /**

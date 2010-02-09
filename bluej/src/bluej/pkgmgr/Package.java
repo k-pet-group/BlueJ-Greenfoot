@@ -83,7 +83,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 6984 2010-01-11 07:48:29Z davmac $
+ * @version $Id: Package.java 7100 2010-02-09 01:16:08Z marionz $
  */
 public final class Package extends Graph
 {
@@ -1352,6 +1352,7 @@ public final class Package extends Graph
      */
     private void doCompile(List<ClassTarget> targetList, CompileObserver observer)
     {
+
         observer = new EventqueueCompileObserver(observer);
         if (targetList.size() == 0)
             return;
@@ -1364,7 +1365,7 @@ public final class Package extends Graph
         }
         
         JobQueue.getJobQueue().addJob(srcFiles, observer, getProject().getClassLoader(), getProject().getProjectDir(),
-                ! PrefMgr.getFlag("bluej.compiler.showunchecked"));
+                ! PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED));
     }
 
     /**
@@ -2153,6 +2154,7 @@ public final class Package extends Graph
         }
 
         Editor editor = t.getEditor();
+        System.out.println("editor "+editor);
         if (editor != null) {
             if (bringToFront || !editor.isShowing()) {
                 t.open();
