@@ -36,25 +36,25 @@ import bluej.utility.*;
  * @author  Michael Kolling
  * @author  Andrew Patterson
  * @author  Bruce Quig
- * @version $Id: JavacCompilerInternal.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: JavacCompilerInternal.java 7103 2010-02-09 02:22:41Z davmac $
  */
 class JavacCompilerInternal extends Compiler
 {
     // private ErrorStream firstStream = null;
-	
-	public JavacCompilerInternal()
-	{
-		setDebug(true);
-        setDeprecation(true);
-	}
-	
 
-	public boolean compile(File[] sources, CompileObserver watcher, boolean internal)
-	{
-		List args = new ArrayList();		
+    public JavacCompilerInternal()
+    {
+        setDebug(true);
+        setDeprecation(true);
+    }
+
+
+    public boolean compile(File[] sources, CompileObserver watcher, boolean internal)
+    {
+        List args = new ArrayList();		
 
         args.addAll(getCompileOptions());      
-                
+
         for(int i = 0; i < sources.length; i++)
             args.add(sources[i].getPath());
 
@@ -73,7 +73,7 @@ class JavacCompilerInternal extends Compiler
         // There are two "compile" methods, one which takes a printwriter as an
         // argument. We'd prefer to use that one if we can find it.
         boolean compileMethodTakesPrintWriter = false;
-        
+
         try {
             compiler = Class.forName("com.sun.tools.javac.Main");
 
@@ -90,7 +90,7 @@ class JavacCompilerInternal extends Compiler
             catch (NoSuchMethodException nsme) {
                 compileMethod = compiler.getMethod("compile", p);
             }
-            
+
         } catch (ClassNotFoundException e) {
             Debug.message("com.sun.tools.javac.Main compiler is not available");
             return false;
@@ -131,7 +131,7 @@ class JavacCompilerInternal extends Compiler
             e.printStackTrace(System.out);
             return false;
         }
-        
+
         if (! compileMethodTakesPrintWriter) {
             try {
                 outputS.close();
@@ -140,19 +140,19 @@ class JavacCompilerInternal extends Compiler
             System.setErr(systemErr);   // restore
         }
 
-		if (output.hasError()) {
-			watcher.errorMessage(output.getFilename(),
-						output.getLineNo(),
-						output.getMessage());
-		}
+        if (output.hasError()) {
+            watcher.errorMessage(output.getFilename(),
+                    output.getLineNo(),
+                    output.getMessage());
+        }
 
         // Handle compiler warning messages        
         if (output.hasWarnings()) {
             watcher.warningMessage(output.getFilename(),
-						output.getLineNo(),
-						output.getWarning());
+                    output.getLineNo(),
+                    output.getWarning());
         }
-        
-		return result==0;
-	}
+
+        return result==0;
+    }
 }
