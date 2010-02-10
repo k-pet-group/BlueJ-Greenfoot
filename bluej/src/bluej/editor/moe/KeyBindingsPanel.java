@@ -55,6 +55,11 @@ import bluej.prefmgr.PrefPanelListener;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 
+/**
+ * KeyBindingsPanel panel for the key bindings in preferences
+ * @author Marion Zalk
+ *
+ */
 public class KeyBindingsPanel extends JPanel implements ActionListener, ListSelectionListener, ItemListener, PrefPanelListener
 {
 
