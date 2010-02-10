@@ -313,6 +313,16 @@ public class InfoParser extends EditorParser
     }
 
     @Override
+    protected void gotTypeParamBound(List<LocatableToken> tokens)
+    {
+        super.gotTypeParamBound(tokens);
+        JavaEntity ent = ParseUtils.getTypeEntity(scopeStack.peek(), currentQuerySource(), tokens);
+        if (ent != null) {
+            typeReferences.add(ent);
+        }
+    }
+    
+    @Override
     protected void gotIdentifier(LocatableToken token)
     {
         gotCompoundIdent(token);
