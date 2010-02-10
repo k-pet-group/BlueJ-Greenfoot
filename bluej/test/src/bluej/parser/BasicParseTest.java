@@ -482,7 +482,7 @@ public class BasicParseTest extends junit.framework.TestCase
         TestEntityResolver ter = new TestEntityResolver(
                 new ClassLoaderResolver(this.getClass().getClassLoader())
                 );
-        ter.addCompilationUnit("testpkg", cuForSource("class N {}", ter));
+        ter.addCompilationUnit("testpkg", cuForSource("package testpkg; class N {}", ter));
         
         StringReader sr = new StringReader(
                         "package testpkg;" +

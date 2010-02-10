@@ -264,9 +264,23 @@ public class EditorParser extends JavaParser
         return r.toString();
     }
     
+    /**
+     * Get the current query source - a fully qualified class name representing
+     * the current context. (This is mainly used to determine what members of a
+     * class are accessible).
+     */
     protected String currentQuerySource()
     {
-        return ""; // DAV fix this
+        ListIterator<ParsedNode> i = scopeStack.listIterator(scopeStack.size());
+        while (i.hasPrevious()) {
+            ParsedNode pn = i.previous();
+            if (pn.getNodeType() == ParsedNode.NODETYPE_TYPEDEF) {
+                ParsedTypeNode ptn = (ParsedTypeNode)pn;
+                return ptn.getPrefix() + ptn.getName();
+            }
+        }
+        
+        return "";
     }
     
     
