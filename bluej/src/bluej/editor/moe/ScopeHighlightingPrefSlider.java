@@ -21,10 +21,6 @@
  */
 package bluej.editor.moe;
 
-import java.awt.Color;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
-
 import java.util.Hashtable;
 
 import javax.swing.JLabel;
@@ -45,7 +41,6 @@ public class ScopeHighlightingPrefSlider extends JSlider implements ChangeListen
 
     public static final int MIN=0;
     public static final int MAX=255;
-    Color bg=new Color(245, 245, 253, PrefMgr.getTransparency());
     JSlider slider;
 
    /**
