@@ -23,16 +23,19 @@ package bluej.parser;
 
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Stack;
 
 import javax.swing.text.Document;
 
 import bluej.editor.moe.Token;
 import bluej.parser.entity.EntityResolver;
+import bluej.parser.entity.IntersectionTypeEntity;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.TypeEntity;
@@ -68,6 +71,10 @@ public class EditorParser extends JavaParser
     private FieldNode lastField;
     private int arrayDecls;
     private String declaredPkg = "";
+    
+    private Map<String,JavaEntity> typeParams;
+    private String lastTypeParamName;
+    private List<JavaEntity> lastTypeParBounds;
     
     private Document document;
     
@@ -358,17 +365,44 @@ public class EditorParser extends JavaParser
         beginNode(insPos);
         scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
         scopeStack.push(pnode);
+        
+        typeParams = new HashMap<String,JavaEntity>();
+    }
+    
+    @Override
+    protected void gotTypeParam(LocatableToken idToken)
+    {
+        if (lastTypeParamName != null) {
+            typeParams.put(lastTypeParamName,
+                    IntersectionTypeEntity.getIntersectionEntity(lastTypeParBounds, pcuNode));
+        }
+        lastTypeParamName = idToken.getText();
+        lastTypeParBounds = new ArrayList<JavaEntity>();
+    }
+    
+    @Override
+    protected void gotTypeParamBound(List<LocatableToken> tokens)
+    {
+        lastTypeParBounds.add(ParseUtils.getTypeEntity(scopeStack.peek(),
+                currentQuerySource(), tokens));
     }
     
     @Override
     protected void beginTypeBody(LocatableToken token)
     {
+        if (lastTypeParamName != null) {
+            typeParams.put(lastTypeParamName,
+                    IntersectionTypeEntity.getIntersectionEntity(lastTypeParBounds, pcuNode));
+        }
+        
+        ParsedTypeNode top = (ParsedTypeNode) scopeStack.peek();
+        top.setTypeParams(typeParams);
+        
         TypeInnerNode bodyNode = new TypeInnerNode(scopeStack.peek());
         bodyNode.setInner(true);
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
         beginNode(insPos);
-        ParsedTypeNode top = (ParsedTypeNode) scopeStack.peek();
         top.insertInner(bodyNode, insPos - curOffset, 0);
         scopeStack.push(bodyNode);
     }

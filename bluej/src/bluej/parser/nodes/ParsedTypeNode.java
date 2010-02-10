@@ -21,9 +21,13 @@
  */
 package bluej.parser.nodes;
 
+import java.util.Map;
+
 import javax.swing.text.Document;
 
 import bluej.parser.CodeSuggestions;
+import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.ParsedReflective;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -40,6 +44,7 @@ public class ParsedTypeNode extends ParentParsedNode
     private String name;
     private String prefix;
     private TypeInnerNode inner;
+    private Map<String,JavaEntity> typeParams;
     
     /**
      * Construct a new ParsedTypeNode
@@ -53,6 +58,11 @@ public class ParsedTypeNode extends ParentParsedNode
         super(parent);
         this.name = name;
         this.prefix = prefix;
+    }
+    
+    public void setTypeParams(Map<String, JavaEntity> typeParams)
+    {
+        this.typeParams = typeParams;
     }
     
     @Override
@@ -110,5 +120,20 @@ public class ParsedTypeNode extends ParentParsedNode
         // can be no completions because no completions can occur except in the context
         // of child nodes.
         return null;
+    }
+    
+    @Override
+    public PackageOrClass resolvePackageOrClass(String name, String querySource)
+    {
+        if (typeParams != null) {
+            JavaEntity ent = typeParams.get(name);
+            if (ent != null) {
+                TypeEntity tent = ent.resolveAsType();
+                if (tent != null) {
+                    return tent;
+                }
+            }
+        }
+        return super.resolvePackageOrClass(name, querySource);
     }
 }

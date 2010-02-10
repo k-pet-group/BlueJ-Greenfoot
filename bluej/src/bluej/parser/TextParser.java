@@ -294,7 +294,7 @@ public class TextParser extends JavaParser
         List<GenTypeClass> typeArgs = Collections.emptyList(); // TODO!
 
         ArrayList<MethodCallDesc> suitable = TextAnalyzer.getSuitableMethods(op.getToken().getText(), bounds, argTypes, typeArgs);
-        // DAV
+        // DAV fix
         // assume for now all candidates have override-equivalent signatures
         if (suitable.size() == 0) {
             valueStack.push(new ErrorEntity());

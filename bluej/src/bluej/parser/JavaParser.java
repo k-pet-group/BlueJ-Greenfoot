@@ -373,12 +373,16 @@ public class JavaParser
     protected void gotArrayDeclarator() { }
 
     protected void gotAllMethodParameters() { }
+    
+    protected void gotTypeParam(LocatableToken idToken) { }
+    
+    protected void gotTypeParamBound(List<LocatableToken> tokens) { }
 
     /**
      * Called by the lexer when it sees a comment.
      */
     public void gotComment(LocatableToken token) { }
-
+    
     /**
      * Check whether a particular token is a type declaration initiator, i.e "class", "interface"
      * or "enum"
@@ -565,7 +569,7 @@ public class JavaParser
             // template arguments
             token = tokenStream.nextToken();
             if (token.getType() == JavaTokenTypes.LT) {
-                parseTemplateParams();
+                parseTypeParams();
                 token = tokenStream.nextToken();
             }
 
@@ -666,23 +670,27 @@ public class JavaParser
     /**
      * Parse template parameters. The opening '<' should have been read already.
      */
-    public void parseTemplateParams()
+    public void parseTypeParams()
     {
         DepthRef dr = new DepthRef();
         dr.depth = 1;
 
         while (true) {
-            LocatableToken token = tokenStream.nextToken();
-            if (token.getType() != JavaTokenTypes.IDENT) {
+            LocatableToken idToken = tokenStream.nextToken();
+            if (idToken.getType() != JavaTokenTypes.IDENT) {
                 error("Expected identifier (in type parameter list)");
-                tokenStream.pushBack(token);
+                tokenStream.pushBack(idToken);
                 return;
             }
+            gotTypeParam(idToken);
 
-            token = tokenStream.nextToken();
+            LocatableToken token = tokenStream.nextToken();
             if (token.getType() == JavaTokenTypes.LITERAL_extends) {
                 do {
-                    parseTargType(false, new LinkedList<LocatableToken>(), dr);
+                    LinkedList<LocatableToken> boundTokens = new LinkedList<LocatableToken>();
+                    if (parseTargType(false, boundTokens, dr)) {
+                        gotTypeParamBound(boundTokens);
+                    }
                     if (dr.depth <= 0) {
                         return;
                     }
@@ -837,7 +845,7 @@ public class JavaParser
                     LocatableToken first = firstMod != null ? firstMod : token;
                     if (token.getType() == JavaTokenTypes.LT) {
                         // generic method
-                        parseTemplateParams();
+                        parseTypeParams();
                     }
                     else {
                         tokenStream.pushBack(token);

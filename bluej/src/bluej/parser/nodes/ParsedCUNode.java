@@ -211,4 +211,14 @@ public class ParsedCUNode extends ParentParsedNode
         
         return resolvePackageOrClass(name, querySource);
     }
+    
+    @Override
+    public TypeEntity resolveQualifiedClass(String name)
+    {
+        if (parentResolver != null) {
+            return parentResolver.resolveQualifiedClass(name);
+        }
+        return null;
+    }
+
 }
