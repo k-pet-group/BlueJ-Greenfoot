@@ -109,6 +109,7 @@ prefmgr.misc.filechooser.title=Select Wireless Toolkit directory
 prefmgr.edit.prefpaneltitle=Editor
 prefmgr.edit.editor.title=Editor settings
 prefmgr.edit.editorfontsize=Font size
+prefmgr.edit.colortransparency=Scope Highlighting
 prefmgr.edit.usesyntaxhilighting=Use syntax hilighting
 prefmgr.edit.autoindent=Auto-indent (Enter and Tab keys)
 prefmgr.edit.displaylinenumbers=Display line numbers

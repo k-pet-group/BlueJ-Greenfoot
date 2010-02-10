@@ -27,6 +27,7 @@ import java.util.*;
 
 import bluej.Config;
 import bluej.editor.EditorManager;
+import bluej.editor.moe.BlueJSyntaxView;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 
@@ -53,6 +54,7 @@ public class PrefMgr
     public static final String SHOW_JAVAME_TOOLS = "bluej.javame.showtools";   
     public static final String SHOW_TEXT_EVAL = "bluej.startWithTextEval";
     public static final String SHOW_UNCHECKED = "bluej.compiler.showunchecked";
+    public static final String SCOPE_HIGHLIGHTING_STRENGTH = "bluej.compiler.showunchecked";
     
     public static final String USE_THEMES = "bluej.useTheme";
 
@@ -86,7 +88,8 @@ public class PrefMgr
     private static Font editorStandardFont, editorStandoutFont;
 
 	// preference variables: (other than fonts)
-	
+    //transparency of the scope highlighting; defaulted to highlighted
+	private static int transparency=255; 
     // the current project directory
     private static String projectDirectory;
 
@@ -144,7 +147,7 @@ public class PrefMgr
     }
 
     // ----- system interface to read or set prefences: -----
-    
+
     public static String getProjectDirectory()
     {
         return projectDirectory;
@@ -323,5 +326,14 @@ public class PrefMgr
     public static int getEditorFontSize()
     {
         return editorFontSize;
+    }
+    
+    public static int getTransparency() {
+        return transparency;
+    }
+
+    public static void setTransparency(int transparency) {
+        PrefMgr.transparency = transparency;
+        BlueJSyntaxView.setTransparency(transparency);
     }
 }

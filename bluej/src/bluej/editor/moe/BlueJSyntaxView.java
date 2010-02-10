@@ -70,22 +70,23 @@ public abstract class BlueJSyntaxView extends PlainView
     private static final int LEFT_INNER_SCOPE_MARGIN = 5;
     private static final int LEFT_OUTER_SCOPE_MARGIN = 2;
     private static final int RIGHT_SCOPE_MARGIN = 4;
+    private static int transparency=255;
     
     /* Scope painting colours */
+
+    private static Color C1 = new Color(210, 230, 210, transparency); // green border (container)
+    private static Color C2 = new Color(245, 253, 245, transparency); // green wash
+    private static Color C3 = new Color(230, 240, 230, transparency); // green border (inner).
+    private static Color C4 = new Color(255, 255, 255, transparency); // white wash
     
-    private static final Color C1 = new Color(210, 230, 210); // green border (container)
-    private static final Color C2 = new Color(245, 253, 245); // green wash
-    private static final Color C3 = new Color(230, 240, 230); // green border (inner).
-    private static final Color C4 = new Color(255, 255, 255); // white wash
+    private static Color M1 = new Color(230, 230, 210, transparency); // yellow border (methods)
+    private static Color M2 = new Color(253, 253, 245, transparency); // yellow wash
     
-    private static final Color M1 = new Color(230, 230, 210); // yellow border (methods)
-    private static final Color M2 = new Color(253, 253, 245); // yellow wash
+    private static Color S1 = new Color(215, 215, 230, transparency); // blue border (selection)
+    private static Color S2 = new Color(245, 245, 253, transparency); // blue wash
     
-    private static final Color S1 = new Color(215, 215, 230); // blue border (selection)
-    private static final Color S2 = new Color(245, 245, 253); // blue wash
-    
-    private static final Color I1 = new Color(230, 210, 230); // pink border (iteration)
-    private static final Color I2 = new Color(253, 245, 253); // pink wash
+    private static Color I1 = new Color(230, 210, 230, transparency); // pink border (iteration)
+    private static Color I2 = new Color(253, 245, 253, transparency); // pink wash
     
     
     /** System settings for graphics rendering (inc. font antialiasing etc.) */
@@ -1011,5 +1012,26 @@ public abstract class BlueJSyntaxView extends PlainView
     private void nodeRemoved(ParsedNode node)
     {
         nodeIndents.remove(node);
+    }
+
+    public static void setTransparency(int transparency) {
+        BlueJSyntaxView.transparency = transparency;
+        resetColors();
+    }
+    
+    private static void resetColors(){
+        C1 = new Color(210, 230, 210, transparency); // green border (container)
+        C2 = new Color(245, 253, 245, transparency); // green wash
+        C3 = new Color(230, 240, 230, transparency); // green border (inner).
+        C4 = new Color(255, 255, 255, transparency); // white wash
+        
+        M1 = new Color(230, 230, 210, transparency); // yellow border (methods)
+        M2 = new Color(253, 253, 245, transparency); // yellow wash
+        
+        S1 = new Color(215, 215, 230, transparency); // blue border (selection)
+        S2 = new Color(245, 245, 253, transparency); // blue wash
+        
+        I1 = new Color(230, 210, 230, transparency); // pink border (iteration)
+        I2 = new Color(253, 245, 253, transparency); // pink wash
     }
 }

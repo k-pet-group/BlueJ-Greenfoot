@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -23,8 +23,11 @@ package bluej.editor.moe;
 
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.util.Hashtable;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import bluej.BlueJTheme;
 import bluej.Config;
@@ -36,7 +39,7 @@ import bluej.prefmgr.PrefPanelListener;
  * editor settings
  *
  * @author  Michael Kolling
- * @version $Id: EditorPrefPanel.java 6619 2009-09-04 02:33:09Z davmac $
+ * @version $Id: EditorPrefPanel.java 7111 2010-02-10 03:12:54Z marionz $
  */
 public class EditorPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -55,32 +58,46 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BlueJTheme.generalBorder);
 
-//        add(Box.createVerticalGlue());
+        //        add(Box.createVerticalGlue());
 
-        JPanel editorPanel = new JPanel(new GridLayout(4,2,0,0));
+        JPanel editorPanel = new JPanel(new GridLayout(5,2,0,0));
         {
             String editorTitle = Config.getString("prefmgr.edit.editor.title");
             editorPanel.setBorder(BorderFactory.createCompoundBorder(
-                                        BorderFactory.createTitledBorder(editorTitle),
-                                        BlueJTheme.generalBorder));
+                    BorderFactory.createTitledBorder(editorTitle),
+                    BlueJTheme.generalBorder));
             editorPanel.setAlignmentX(LEFT_ALIGNMENT);
 
-            JPanel fontPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+            
+            JPanel fontPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
             {
-                fontPanel.add(new JLabel(Config.getString("prefmgr.edit.editorfontsize")));
+                fontPanel.add(new JLabel(Config.getString("prefmgr.edit.editorfontsize")+"  "));
                 editorFontField = new JTextField(4);
                 fontPanel.add(editorFontField);
             }
             editorPanel.add(fontPanel);
-            editorPanel.add(new JLabel(" "));
             autoIndentBox = new JCheckBox(Config.getString("prefmgr.edit.autoindent"));
             editorPanel.add(autoIndentBox);
+            
+            //colour scope highlighter slider
+            editorPanel.add(new JLabel(Config.getString("prefmgr.edit.colortransparency")));
             lineNumbersBox = new JCheckBox(Config.getString("prefmgr.edit.displaylinenumbers"));
             editorPanel.add(lineNumbersBox);
+            
+            JPanel sliderPanel=new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+            {               
+                ScopeHighlightingPrefSlider colorSlider=new ScopeHighlightingPrefSlider();
+                sliderPanel.add(colorSlider);
+            }
+            editorPanel.add(sliderPanel);           
             hilightingBox = new JCheckBox(Config.getString("prefmgr.edit.usesyntaxhilighting"));
             editorPanel.add(hilightingBox);
+            
+            editorPanel.add(new JLabel(" "));
             makeBackupBox = new JCheckBox(Config.getString("prefmgr.edit.makeBackup"));
             editorPanel.add(makeBackupBox);
+            
+            editorPanel.add(new JLabel(" "));
             matchBracketsBox= new JCheckBox(Config.getString("prefmgr.edit.matchBrackets"));
             editorPanel.add(matchBracketsBox);
         }
@@ -88,6 +105,8 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
 
         add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
 
+        //ScopeHighlightingSliderPanel scopePanel=new ScopeHighlightingSliderPanel();
+        //add(scopePanel);
         add(Box.createVerticalGlue());
         add(Box.createVerticalGlue());
         add(Box.createVerticalGlue());
@@ -123,4 +142,28 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
         PrefMgr.setFlag(PrefMgr.MAKE_BACKUP, makeBackupBox.isSelected());
         PrefMgr.setFlag(PrefMgr.MATCH_BRACKETS, matchBracketsBox.isSelected());
     }
+
+    /**
+     * scope highlighting colour slider
+     */
+  /*  class ScopeHighlightingSlider extends JSlider implements ChangeListener {
+
+        public static final int MIN=0;
+        public static final int MAX=255;
+        public ScopeHighlightingSlider(){
+            super(MIN, MAX);
+            setValue(PrefMgr.getTransparency());
+            Hashtable<Integer, JLabel>labelTable = new Hashtable<Integer, JLabel>();
+            labelTable.put( new Integer(MIN), new JLabel("Transparent") );
+            labelTable.put( new Integer(MAX), new JLabel("Highlighted") );
+            setLabelTable( labelTable );
+            setPaintLabels(true);
+            addChangeListener(this);
+        }
+
+        public void stateChanged(ChangeEvent e) {
+            JSlider slider = (JSlider) e.getSource();
+            PrefMgr.setTransparency(slider.getValue());
+        }
+    }*/
 }
