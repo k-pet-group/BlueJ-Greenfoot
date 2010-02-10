@@ -28,12 +28,14 @@ import java.util.Map;
 
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.PackageEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.ParsedReflective;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ParsedTypeNode;
+import bluej.utility.JavaNames;
 
 /**
  * An entity resolver for testing purposes.
@@ -91,6 +93,9 @@ public class TestEntityResolver implements EntityResolver
                 }
             }
         }
+        if (pkgMap.get(name) != null) {
+            return new PackageEntity(name, this);
+        }
         return parent.resolvePackageOrClass(name, querySource);
     }
     
@@ -100,9 +105,13 @@ public class TestEntityResolver implements EntityResolver
         List<ParsedCUNode> culist = pkgMap.get(pkg);
         if (culist != null) {
             for (ParsedCUNode node : culist) {
-                TypeEntity clent = node.resolveQualifiedClass(name);
-                if (clent != null) {
-                    return clent;
+                String baseName = JavaNames.getBase(name);
+                PackageOrClass poc = node.resolvePackageOrClass(baseName, "");
+                if (poc != null) {
+                    TypeEntity tent = poc.resolveAsType();
+                    if (tent != null) {
+                        return tent;
+                    }
                 }
             }
         }
