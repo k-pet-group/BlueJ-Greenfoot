@@ -21,6 +21,7 @@
  */
 package bluej.parser.nodes;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.text.Document;
@@ -45,6 +46,8 @@ public class ParsedTypeNode extends ParentParsedNode
     private String prefix;
     private TypeInnerNode inner;
     private Map<String,JavaEntity> typeParams;
+    private List<JavaEntity> extendedTypes;
+    private List<JavaEntity> implementedTypes;
     
     /**
      * Construct a new ParsedTypeNode
@@ -63,6 +66,26 @@ public class ParsedTypeNode extends ParentParsedNode
     public void setTypeParams(Map<String, JavaEntity> typeParams)
     {
         this.typeParams = typeParams;
+    }
+    
+    public void setImplementedTypes(List<JavaEntity> implementedTypes)
+    {
+        this.implementedTypes = implementedTypes;
+    }
+    
+    public List<JavaEntity> getImplementedTypes()
+    {
+        return implementedTypes;
+    }
+    
+    public void setExtendedTypes(List<JavaEntity> extendedTypes)
+    {
+        this.extendedTypes = extendedTypes;
+    }
+    
+    public List<JavaEntity> getExtendedTypes()
+    {
+        return extendedTypes;
     }
     
     @Override

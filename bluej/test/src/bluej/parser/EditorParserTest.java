@@ -173,6 +173,7 @@ public class EditorParserTest extends TestCase
         List<GenTypeClass> supers = aClass.getReflective().getSuperTypes();
         assertEquals(1, supers.size());
         assertEquals("java.lang.Object", supers.get(0).toString());
+        resolver.addCompilationUnit("", aNode);
         
         sourceCode = "class B extends A {}\n";
         ParsedCUNode bNode = cuForSource(sourceCode);

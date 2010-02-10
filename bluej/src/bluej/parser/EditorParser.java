@@ -76,7 +76,13 @@ public class EditorParser extends JavaParser
     private String lastTypeParamName;
     private List<JavaEntity> lastTypeParBounds;
     
+    private List<JavaEntity> extendedTypes;
+    private List<JavaEntity> implementedTypes;
+    
     private Document document;
+    
+    private boolean gotExtends = false;
+    private boolean gotImplements = false;
     
     /**
      * Constructor for use by subclasses (InfoReader).
@@ -381,6 +387,8 @@ public class EditorParser extends JavaParser
         scopeStack.push(pnode);
         
         typeParams = new HashMap<String,JavaEntity>();
+        extendedTypes = new LinkedList<JavaEntity>();
+        implementedTypes = new LinkedList<JavaEntity>();
     }
     
     @Override
@@ -411,6 +419,10 @@ public class EditorParser extends JavaParser
         
         ParsedTypeNode top = (ParsedTypeNode) scopeStack.peek();
         top.setTypeParams(typeParams);
+        top.setExtendedTypes(extendedTypes);
+        top.setImplementedTypes(implementedTypes);
+        gotExtends = false;
+        gotImplements = false;
         
         TypeInnerNode bodyNode = new TypeInnerNode(scopeStack.peek());
         bodyNode.setInner(true);
@@ -703,6 +715,8 @@ public class EditorParser extends JavaParser
     protected void gotTypeDefEnd(LocatableToken token, boolean included)
     {
         endTopNode(token, included);
+        gotExtends = false;
+        gotImplements = false;
     }
     
     @Override
@@ -848,8 +862,24 @@ public class EditorParser extends JavaParser
     @Override
     protected void gotTypeSpec(List<LocatableToken> tokens)
     {
-        lastTypeSpec = tokens;
-        arrayDecls = 0;
+        if (gotExtends) {
+            JavaEntity supert = ParseUtils.getTypeEntity(scopeStack.peek(),
+                    currentQuerySource(), tokens);
+            if (supert != null) {
+                extendedTypes.add(supert);
+            }
+        }
+        else if (gotImplements) {
+            JavaEntity supert = ParseUtils.getTypeEntity(scopeStack.peek(),
+                    currentQuerySource(), tokens);
+            if (supert != null) {
+                implementedTypes.add(supert);
+            }
+        }
+        else {
+            lastTypeSpec = tokens;
+            arrayDecls = 0;
+        }
     }
     
     @Override
@@ -1013,4 +1043,18 @@ public class EditorParser extends JavaParser
         arrayDecls = 0;
     }
 
+    @Override
+    protected void gotTypeDefExtends(LocatableToken extendsToken)
+    {
+        gotExtends = true;
+        gotImplements = false;
+    }
+    
+    @Override
+    protected void gotTypeDefImplements(LocatableToken implementsToken)
+    {
+        gotImplements = true;
+        gotExtends = false;
+    }
+    
 }

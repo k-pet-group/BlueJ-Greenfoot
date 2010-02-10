@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -77,8 +78,39 @@ public class ParsedReflective extends Reflective
     @Override
     public List<GenTypeClass> getSuperTypes()
     {
-        // TODO Auto-generated method stub
-        return Collections.emptyList();
+        List<GenTypeClass> rval = new LinkedList<GenTypeClass>();
+        
+        for (JavaEntity etype : pnode.getExtendedTypes()) {
+            TypeEntity tent = etype.resolveAsType();
+            if (tent != null) {
+                GenTypeClass ct = tent.getType().asClass();
+                if (ct != null) {
+                    rval.add(ct);
+                }
+            }
+        }
+
+        for (JavaEntity etype : pnode.getImplementedTypes()) {
+            TypeEntity tent = etype.resolveAsType();
+            if (tent != null) {
+                GenTypeClass ct = tent.getType().asClass();
+                if (ct != null) {
+                    rval.add(ct);
+                }
+            }
+        }
+        
+        if (rval.size() == 0 && !isInterface()) {
+            TypeEntity tent = pnode.resolveQualifiedClass("java.lang.Object");
+            if (tent != null) {
+                GenTypeClass ct = tent.getType().asClass();
+                if (ct != null) {
+                    rval.add(ct);
+                }
+            }
+        }
+
+        return rval;
     }
 
     @Override
