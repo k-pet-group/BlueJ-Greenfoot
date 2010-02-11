@@ -23,7 +23,6 @@ package bluej.parser;
 
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;

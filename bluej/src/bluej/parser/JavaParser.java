@@ -677,7 +677,7 @@ public class JavaParser
     }
         
     /**
-     * Parse template parameters. The opening '<' should have been read already.
+     * Parse formal type parameters. The opening '<' should have been read already.
      */
     public void parseTypeParams()
     {
@@ -1869,7 +1869,7 @@ public class JavaParser
                 // Type parameters? (or is it a "less than" comparison?)
                 DepthRef dr = new DepthRef();
                 dr.depth = 1;
-                if (!parseTpars(speculative, ttokens, dr)) {
+                if (!parseTargs(speculative, ttokens, dr)) {
                     return false;
                 }
             }
@@ -1941,7 +1941,7 @@ public class JavaParser
         return TYPE_OTHER;
     }
 
-    private boolean parseTpars(boolean speculative, List<LocatableToken> ttokens, DepthRef dr)
+    private boolean parseTargs(boolean speculative, List<LocatableToken> ttokens, DepthRef dr)
     {
         // We already have opening '<' and depth reflects this.
 
@@ -2018,6 +2018,7 @@ public class JavaParser
      */
     private boolean parseTargType(boolean speculative, List<LocatableToken> ttokens, DepthRef dr)
     {
+        LocatableToken token;
         int beginDepth = dr.depth;
         int ttype = parseBaseType(speculative, ttokens);
         if (ttype == TYPE_ERROR) {
@@ -2029,7 +2030,7 @@ public class JavaParser
             if (tokenStream.LA(1).getType() == JavaTokenTypes.LT) {
                 dr.depth++;
                 ttokens.add(tokenStream.nextToken());
-                if (!parseTpars(speculative, ttokens, dr)) {
+                if (!parseTargs(speculative, ttokens, dr)) {
                     return false;
                 }
                 if (dr.depth < beginDepth) {
@@ -2037,25 +2038,29 @@ public class JavaParser
                 }
             }
 
-            LocatableToken token = tokenStream.nextToken();
+            token = tokenStream.nextToken();
             if (token.getType() == JavaTokenTypes.DOT && tokenStream.LA(1).getType() == JavaTokenTypes.IDENT) {
                 ttokens.add(token);
                 if (!parseTargType(speculative, ttokens, dr)) {
                     return false;
                 }
+                return true;
             }
-            else 
-                // Array declarators?
-                while (token.getType() == JavaTokenTypes.LBRACK
-                        && tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
-                    ttokens.add(token);
-                    token = tokenStream.nextToken(); // RBRACK
-                    ttokens.add(token);
-                    token = tokenStream.nextToken();
-                }
-
-            tokenStream.pushBack(token);
         }
+        else {
+            token = tokenStream.nextToken();
+        }
+
+        // Array declarators?
+        while (token.getType() == JavaTokenTypes.LBRACK
+                && tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
+            ttokens.add(token);
+            token = tokenStream.nextToken(); // RBRACK
+            ttokens.add(token);
+            token = tokenStream.nextToken();
+        }
+
+        tokenStream.pushBack(token);
 
         return true;
     }
@@ -2532,7 +2537,7 @@ public class JavaParser
                         DepthRef dr = new DepthRef();
                         List<LocatableToken> ttokens = new LinkedList<LocatableToken>();
                         dr.depth = 1;
-                        if (!parseTpars(false, ttokens, dr)) {
+                        if (!parseTargs(false, ttokens, dr)) {
                             continue;  // we're a bit lost now really...
                         }
                         token = tokenStream.nextToken();

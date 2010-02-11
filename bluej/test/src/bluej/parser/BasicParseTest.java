@@ -128,6 +128,22 @@ public class BasicParseTest extends junit.framework.TestCase
     	ClassParser.parse(getFile("15_generic.dat"));
     }
     
+    public void testCode()
+    {
+        InitConfig.init();
+        TestEntityResolver ter = new TestEntityResolver(
+                new ClassLoaderResolver(this.getClass().getClassLoader())
+                );
+
+        StringReader sr = new StringReader(
+                "class A {\n" +
+                "  Class<int[]> cc = int[].class;" +
+                "}\n"
+        );
+        ClassInfo info = ClassParser.parse(sr, ter, "testpkg");
+        assertNotNull(info);
+    }
+    
     public void testValidClassInfo()
         throws Exception
     {
