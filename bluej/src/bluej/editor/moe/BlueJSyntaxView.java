@@ -572,7 +572,7 @@ public abstract class BlueJSyntaxView extends PlainView
         // g.fillRect(xpos + hoffs, info.ypos, endX - xpos - hoffs, ypos2 - ypos);
 
         int edgeTop = info.ypos + (info.starts ? hoffs : 0);
-        int edgeBtm = info.ypos2 - 1 - (info.ends ? hoffs : 0);
+        int edgeBtm = info.ypos2 - (info.ends ? hoffs : 0);
 
         g.setColor(info.color2);
         g.fillRect(xpos, edgeTop, hoffs, edgeBtm - edgeTop);
@@ -612,7 +612,7 @@ public abstract class BlueJSyntaxView extends PlainView
 
         int hoffs = info.small ? 0 : 4; // determines size of corner arcs        
         int edgeTop = info.ypos + (info.starts ? hoffs : 0);
-        int edgeBtm = info.ypos2 - 1 - (info.ends ? hoffs : 0);
+        int edgeBtm = info.ypos2 - (info.ends ? hoffs + 1 : 0);
 
         g.setColor(info.color2);
         g.fillRect(xpos, edgeTop, hoffs, edgeBtm - edgeTop);
