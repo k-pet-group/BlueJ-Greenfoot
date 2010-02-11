@@ -113,7 +113,7 @@ public abstract class BlueJSyntaxView extends PlainView
         line = new Segment();
         this.leftMargin = leftMargin;
         //setting up the scope highlighting colour strength 
-        strength=PrefMgr.getTransparency();
+        strength=PrefMgr.getScopeHighlightStrength();
         resetColors();
     }
 
@@ -675,7 +675,7 @@ public abstract class BlueJSyntaxView extends PlainView
      */
     private int getNodeRBound(Shape a, int napEnd, int fullWidth, int nodeDepth,
             Element lineEl, Segment lineSeg) throws BadLocationException
-            {
+    {
         int rbound = fullWidth - nodeDepth * RIGHT_SCOPE_MARGIN;
         if (lineEl == null || napEnd >= lineEl.getEndOffset()) {
             return rbound;
@@ -689,7 +689,7 @@ public abstract class BlueJSyntaxView extends PlainView
             return Math.min(rbound, ebounds.x);
         }
         return rbound;
-            }
+    }
 
     /**
      * Checks whether the given node should be skipped on the given line (because it
@@ -743,7 +743,7 @@ public abstract class BlueJSyntaxView extends PlainView
      */
     private int getNodeIndent(Shape a, MoeSyntaxDocument doc, NodeAndPosition nap, Element lineEl,
             Segment segment)
-    throws BadLocationException
+        throws BadLocationException
     {
         int napPos = nap.getPosition();
         int napEnd = napPos + nap.getSize();
@@ -1017,11 +1017,13 @@ public abstract class BlueJSyntaxView extends PlainView
         nodeIndents.remove(node);
     }
 
-    public static int getStrength() {
+    public static int getStrength()
+    {
         return strength;
     }
 
-    public static void setStrength(int strength) {
+    public static void setStrength(int strength)
+    {
         BlueJSyntaxView.strength = strength;
         resetColors();
     }

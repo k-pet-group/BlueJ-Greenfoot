@@ -27,7 +27,6 @@ import java.util.*;
 
 import bluej.Config;
 import bluej.editor.EditorManager;
-import bluej.editor.moe.BlueJSyntaxView;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 
@@ -58,7 +57,7 @@ public class PrefMgr
     
     public static final String USE_THEMES = "bluej.useTheme";
 
-	// font property names
+    // font property names
     private static final String editorFontPropertyName = "bluej.editor.font";
     private static final String editorMacFontPropertyName = "bluej.editor.MacOS.font";
     private static final String editorFontSizePropertyName = "bluej.editor.fontsize";
@@ -66,7 +65,7 @@ public class PrefMgr
     // other constants
     private static final int NUM_RECENT_PROJECTS = Config.getPropInteger("bluej.numberOfRecentProjects", 12);
     
-	// preference variables: FONTS
+    // preference variables: FONTS
     private static int fontSize;
     private static int editFontsize;
     private static int printFontsize;
@@ -87,9 +86,11 @@ public class PrefMgr
     private static int editorFontSize;
     private static Font editorStandardFont, editorStandoutFont;
 
-	// preference variables: (other than fonts)
-    //transparency of the scope highlighting; defaulted to highlighted
-	private static int highlightStrength; 
+    // preference variables: (other than fonts)
+    
+    /** transparency of the scope highlighting */
+    private static int highlightStrength; 
+    
     // the current project directory
     private static String projectDirectory;
 
@@ -97,15 +98,15 @@ public class PrefMgr
     private static List<String> recentProjects;
 	
     // flags are all boolean preferences
-    private static HashMap flags = new HashMap();
+    private static HashMap<String,String> flags = new HashMap<String,String>();
 
-	// the pref-mgr object
+    // the pref-mgr object
     private static PrefMgr prefmgr = new PrefMgr();
 
     /**
      * Initialise the preference manager. Font information is loaded from bluej.defs,
      * defaults for other prefs are loaded from bluej.defs.
-	 */
+     */
     private PrefMgr()
     {
         //set up fonts
@@ -267,7 +268,7 @@ public class PrefMgr
     
     /**
      * The following methods are protected and should only be accessed by the
-     * code which implements the various preferneces dialog panels
+     * code which implements the various preferences dialog panels
      */
 
     /**
@@ -329,12 +330,14 @@ public class PrefMgr
         return editorFontSize;
     }
     
-    public static int getTransparency() {
+    public static int getScopeHighlightStrength()
+    {
         return highlightStrength;
     }
 
-    public static void setTransparency(int transparency) {
-        PrefMgr.highlightStrength = transparency;
-        Config.putPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, transparency);
+    public static void setScopeHighlightStrength(int strength)
+    {
+        highlightStrength = strength;
+        Config.putPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, strength);
     }
 }

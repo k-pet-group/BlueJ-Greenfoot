@@ -46,10 +46,11 @@ public class ScopeHighlightingPrefSlider extends JSlider implements ChangeListen
    /**
     * Constructor that sets up the look and feel for the scope highlighting colour slider
     */
- public ScopeHighlightingPrefSlider(){
+    public ScopeHighlightingPrefSlider()
+    {
         super(MIN, MAX);
         //set the transparency value from the prefMgr
-        setValue(PrefMgr.getTransparency());
+        setValue(PrefMgr.getScopeHighlightStrength());
         //labels
         Hashtable<Integer, JLabel>labelTable = new Hashtable<Integer, JLabel>();
         labelTable.put(new Integer(MIN), new JLabel("Transparent"));
@@ -59,7 +60,8 @@ public class ScopeHighlightingPrefSlider extends JSlider implements ChangeListen
         addChangeListener(this);
     }
 
-    public void stateChanged(ChangeEvent e) {
+    public void stateChanged(ChangeEvent e)
+    {
         slider = (JSlider) e.getSource();
         BlueJSyntaxView.setStrength(slider.getValue());
     }

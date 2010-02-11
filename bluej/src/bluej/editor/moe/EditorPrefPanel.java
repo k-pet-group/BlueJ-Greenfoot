@@ -23,11 +23,14 @@ package bluej.editor.moe;
 
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.util.Hashtable;
 
-import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import bluej.BlueJTheme;
 import bluej.Config;
@@ -39,7 +42,6 @@ import bluej.prefmgr.PrefPanelListener;
  * editor settings
  *
  * @author  Michael Kolling
- * @version $Id: EditorPrefPanel.java 7118 2010-02-11 02:55:59Z marionz $
  */
 public class EditorPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -135,7 +137,7 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
             PrefMgr.setEditorFontSize(newFontSize);
             //set scope highlighting strength
             scopeHighlightStrength=BlueJSyntaxView.getStrength();
-            PrefMgr.setTransparency(scopeHighlightStrength);
+            PrefMgr.setScopeHighlightStrength(scopeHighlightStrength);
         }
         catch (NumberFormatException nfe) { }
 
