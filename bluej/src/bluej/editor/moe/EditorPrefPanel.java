@@ -39,7 +39,7 @@ import bluej.prefmgr.PrefPanelListener;
  * editor settings
  *
  * @author  Michael Kolling
- * @version $Id: EditorPrefPanel.java 7111 2010-02-10 03:12:54Z marionz $
+ * @version $Id: EditorPrefPanel.java 7118 2010-02-11 02:55:59Z marionz $
  */
 public class EditorPrefPanel extends JPanel implements PrefPanelListener
 {
@@ -129,10 +129,13 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
     public void commitEditing()
     {
         int newFontSize = 0;
-
+        int scopeHighlightStrength=0;
         try {
             newFontSize = Integer.parseInt(editorFontField.getText());
             PrefMgr.setEditorFontSize(newFontSize);
+            //set scope highlighting strength
+            scopeHighlightStrength=BlueJSyntaxView.getStrength();
+            PrefMgr.setTransparency(scopeHighlightStrength);
         }
         catch (NumberFormatException nfe) { }
 
@@ -143,27 +146,4 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
         PrefMgr.setFlag(PrefMgr.MATCH_BRACKETS, matchBracketsBox.isSelected());
     }
 
-    /**
-     * scope highlighting colour slider
-     */
-  /*  class ScopeHighlightingSlider extends JSlider implements ChangeListener {
-
-        public static final int MIN=0;
-        public static final int MAX=255;
-        public ScopeHighlightingSlider(){
-            super(MIN, MAX);
-            setValue(PrefMgr.getTransparency());
-            Hashtable<Integer, JLabel>labelTable = new Hashtable<Integer, JLabel>();
-            labelTable.put( new Integer(MIN), new JLabel("Transparent") );
-            labelTable.put( new Integer(MAX), new JLabel("Highlighted") );
-            setLabelTable( labelTable );
-            setPaintLabels(true);
-            addChangeListener(this);
-        }
-
-        public void stateChanged(ChangeEvent e) {
-            JSlider slider = (JSlider) e.getSource();
-            PrefMgr.setTransparency(slider.getValue());
-        }
-    }*/
 }

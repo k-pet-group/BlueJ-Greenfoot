@@ -1,21 +1,21 @@
 /*
  This file is part of the BlueJ program. 
  Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
- 
+
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
- 
+
  This program is distributed in the hope that it will be useful, 
  but WITHOUT ANY WARRANTY; without even the implied warranty of 
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
- 
+
  You should have received a copy of the GNU General Public License 
  along with this program; if not, write to the Free Software 
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
+
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
@@ -47,6 +47,7 @@ import javax.swing.text.ViewFactory;
 
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import bluej.prefmgr.PrefMgr;
 
 /**
  * A Swing view implementation that does syntax colouring and adds some utility.
@@ -66,29 +67,28 @@ public abstract class BlueJSyntaxView extends PlainView
 {
     /** (NaviView) Paint method inner scope? if false, whole method will be highlighted as a single block */
     private static final boolean PAINT_METHOD_INNER = false;
-    
+
     private static final int LEFT_INNER_SCOPE_MARGIN = 5;
     private static final int LEFT_OUTER_SCOPE_MARGIN = 2;
     private static final int RIGHT_SCOPE_MARGIN = 4;
-    private static int transparency=255;
-    
-    /* Scope painting colours */
+    private static int strength=10;
 
-    private static Color C1 = new Color(210, 230, 210, transparency); // green border (container)
-    private static Color C2 = new Color(245, 253, 245, transparency); // green wash
-    private static Color C3 = new Color(230, 240, 230, transparency); // green border (inner).
-    private static Color C4 = new Color(255, 255, 255, transparency); // white wash
-    
-    private static Color M1 = new Color(230, 230, 210, transparency); // yellow border (methods)
-    private static Color M2 = new Color(253, 253, 245, transparency); // yellow wash
-    
-    private static Color S1 = new Color(215, 215, 230, transparency); // blue border (selection)
-    private static Color S2 = new Color(245, 245, 253, transparency); // blue wash
-    
-    private static Color I1 = new Color(230, 210, 230, transparency); // pink border (iteration)
-    private static Color I2 = new Color(253, 245, 253, transparency); // pink wash
-    
-    
+    /* Scope painting colours */
+    private static Color C1 = getGreenContainerBorder(); // green border (container)
+    private static Color C2 = getGreenWash(); // green wash
+    private static Color C3 = getGreenBorder(); // green border (inner).
+    private static Color C4 = new Color(255, 255, 255); // white wash
+
+    private static Color M1 = getYellowBorder(); // yellow border (methods)
+    private static Color M2 = getYellowWash(); // yellow wash
+
+    private static Color S1 = getBlueBorder(); // blue border (selection)
+    private static Color S2 = getBlueWash(); // blue wash
+
+    private static Color I1 = getPinkBorder(); // pink border (iteration)
+    private static Color I2 = getPinkWash(); // pink wash
+
+
     /** System settings for graphics rendering (inc. font antialiasing etc.) */
     private static Map<?,?> desktopHints = null;
 
@@ -98,11 +98,11 @@ public abstract class BlueJSyntaxView extends PlainView
     protected Font defaultFont;
     // protected FontMetrics metrics;  is inherited from PlainView
     private boolean initialised = false;
-    
+
     private Map<ParsedNode,Integer> nodeIndents = new HashMap<ParsedNode,Integer>();
-    
+
     private int leftMargin = 0;
-    
+
     /**
      * Creates a new BlueJSyntaxView.
      * @param elem The element
@@ -112,6 +112,9 @@ public abstract class BlueJSyntaxView extends PlainView
         super(elem);
         line = new Segment();
         this.leftMargin = leftMargin;
+        //setting up the scope highlighting colour strength 
+        strength=PrefMgr.getTransparency();
+        resetColors();
     }
 
     @Override
@@ -121,10 +124,10 @@ public abstract class BlueJSyntaxView extends PlainView
             Graphics2D g2d = (Graphics2D) g;
             g2d.addRenderingHints(desktopHints); 
         }
-        
+
         super.paint(g, a);
     }
-    
+
     /* Override default viewToModel translation to account for margin
      * @see javax.swing.text.PlainView#viewToModel(float, float, java.awt.Shape, javax.swing.text.Position.Bias[])
      */
@@ -133,7 +136,7 @@ public abstract class BlueJSyntaxView extends PlainView
     {
         return super.viewToModel(fx - leftMargin, fy, a, bias);
     }
-    
+
     /*
      * redefined from PlainView method to allow for redefinition of modelToView translation
      */
@@ -147,7 +150,7 @@ public abstract class BlueJSyntaxView extends PlainView
         }
         return r;
     }
-    
+
     /*
      * Paints the specified line. This is called by the paint() method from PlainView.
      *
@@ -161,7 +164,7 @@ public abstract class BlueJSyntaxView extends PlainView
         if(!initialised) {
             initialise(g);
         }
-        
+
         MoeSyntaxDocument document = (MoeSyntaxDocument)getDocument();
 
         Color def = MoeSyntaxDocument.getDefaultColor();
@@ -173,7 +176,7 @@ public abstract class BlueJSyntaxView extends PlainView
 
             document.getText(start, end - (start + 1), line);
             g.setColor(def);
-            
+
             paintTaggedLine(line, lineIndex, g, x, y, document, def, lineElement);
         }
         catch(BadLocationException bl) {
@@ -181,7 +184,7 @@ public abstract class BlueJSyntaxView extends PlainView
             bl.printStackTrace();
         }
     }
-    
+
     /**
      * Paint a line of text, without syntax colouring. This is provided as a convenience for subclasses.
      */
@@ -207,8 +210,8 @@ public abstract class BlueJSyntaxView extends PlainView
      *           to the left of this point)
      */
     protected final void paintSyntaxLine(Segment line, int lineIndex, int x, int y,
-                                 Graphics g, MoeSyntaxDocument document, 
-                                 Color def)
+            Graphics g, MoeSyntaxDocument document, 
+            Color def)
     {
         Color[] colors = document.getColors();
         Token tokens = document.getTokensForLine(lineIndex);
@@ -245,7 +248,7 @@ public abstract class BlueJSyntaxView extends PlainView
     {
         paintScopeMarkers(g, document, a, firstLine, lastLine, onlyMethods, false);
     }
-    
+
     /**
      * A container for three line segments and elements: the previous (or above) line, the
      * current line, and the next (or below) line.
@@ -255,12 +258,12 @@ public abstract class BlueJSyntaxView extends PlainView
         Segment aboveLineSeg;
         Segment thisLineSeg;
         Segment belowLineSeg;
-        
+
         Element aboveLineEl;
         Element thisLineEl;
         Element belowLineEl;
     }
-    
+
     protected void paintScopeMarkers(Graphics g, MoeSyntaxDocument document, Shape a,
             int firstLine, int lastLine, boolean onlyMethods, boolean small)
     {
@@ -275,13 +278,13 @@ public abstract class BlueJSyntaxView extends PlainView
         int aboveLine = firstLine - 1;
         List<NodeAndPosition> prevScopeStack = new LinkedList<NodeAndPosition>();
         int curLine = firstLine;
-        
+
         try {
             ThreeLines lines = new ThreeLines();
             lines.aboveLineSeg = new Segment();
             lines.thisLineSeg = new Segment();
             lines.belowLineSeg = new Segment();
-            
+
             lines.aboveLineEl = null;
             lines.thisLineEl = map.getElement(firstLine);
             if (aboveLine >= 0) {
@@ -297,7 +300,7 @@ public abstract class BlueJSyntaxView extends PlainView
                         lines.belowLineEl.getEndOffset() - lines.belowLineEl.getStartOffset(),
                         lines.belowLineSeg);
             }
-            
+
             document.getText(lines.thisLineEl.getStartOffset(),
                     lines.thisLineEl.getEndOffset() - lines.thisLineEl.getStartOffset(),
                     lines.thisLineSeg);
@@ -305,13 +308,13 @@ public abstract class BlueJSyntaxView extends PlainView
             getScopeStackAfter(rootNode, 0, lines.thisLineEl.getStartOffset(), prevScopeStack);
 
             while (curLine <= lastLine) {
-                
+
                 if (prevScopeStack.size() == 0) {
                     break;
                 }
-                
+
                 drawScopes(a, g, document, lines, char_width, prevScopeStack, small, onlyMethods, 0);
-                
+
                 // Next line
                 curLine++;
                 if (curLine <= lastLine) {
@@ -344,7 +347,7 @@ public abstract class BlueJSyntaxView extends PlainView
         Graphics g;
         ThreeLines lines;
         boolean small;
-        
+
         ParsedNode node;
         int ypos;
         int ypos2;
@@ -360,13 +363,13 @@ public abstract class BlueJSyntaxView extends PlainView
     private void drawScopes(Shape a, Graphics g, MoeSyntaxDocument document, ThreeLines lines,
             int charWidth, List<NodeAndPosition> prevScopeStack, boolean small, boolean onlyMethods,
             int nodeDepth)
-        throws BadLocationException
+    throws BadLocationException
     {
         Rectangle clipBounds = g.getClipBounds();
         if (clipBounds == null) {
             clipBounds = a.getBounds();
         }
-        
+
         Rectangle lbounds = modelToView(lines.thisLineEl.getStartOffset(), a,
                 Position.Bias.Forward).getBounds();
         int ypos = lbounds.y;
@@ -377,7 +380,7 @@ public abstract class BlueJSyntaxView extends PlainView
 
         ListIterator<NodeAndPosition> li = prevScopeStack.listIterator();
         //Color lastLineColor = C3;
-        
+
         NodeAndPosition parent = null;
 
         DrawInfo drawInfo = new DrawInfo();
@@ -396,7 +399,7 @@ public abstract class BlueJSyntaxView extends PlainView
                 // The node isn't even on this line, go to the next line
                 break;
             }
-            
+
             if (nodeSkipsEnd(napPos, napEnd, lines.thisLineEl, lines.thisLineSeg)) {
                 break;
             }
@@ -405,7 +408,7 @@ public abstract class BlueJSyntaxView extends PlainView
                 parent = nap;
                 continue;
             }
-            
+
             // Draw the start node
             int xpos = getNodeIndent(a, document, nap, lines.thisLineEl,
                     lines.thisLineSeg);
@@ -429,7 +432,7 @@ public abstract class BlueJSyntaxView extends PlainView
 
             //lastNodePos = nap;
         }
-                
+
         // Move along.
         li = prevScopeStack.listIterator(prevScopeStack.size());
         NodeAndPosition nap = li.previous(); // last node
@@ -503,7 +506,7 @@ public abstract class BlueJSyntaxView extends PlainView
         if (! nap.getNode().isContainer() && ! nap.getNode().isInner()) {
             return false;
         }
-        
+
         if (onlyMethods) {
             if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_METHODDEF) {
                 return true;
@@ -517,20 +520,20 @@ public abstract class BlueJSyntaxView extends PlainView
                 return true;
             }
             return false;
-            */
+             */
         }
-        
+
         if (nodeSkipsStart(napPos, napEnd, info.lines.thisLineEl, info.lines.thisLineSeg)) {
             return false; // just white space on this line
         }
-        
+
         if (nodeSkipsEnd(napPos, napEnd, info.lines.thisLineEl, info.lines.thisLineSeg)) {
             return false;
         }
-        
+
         return true;
     }
-    
+
     /**
      * Get the scope highlighting colours for a given node.
      */
@@ -540,19 +543,19 @@ public abstract class BlueJSyntaxView extends PlainView
             return new Color[] { C3, C4 };
         }
         else {
-          if (node.getNodeType() == ParsedNode.NODETYPE_METHODDEF) {
-              return new Color[] { M1, M2 };
-          }
-          if (node.getNodeType() == ParsedNode.NODETYPE_ITERATION) {
-              return new Color[] { I1, I2 };
-          }
-          if (node.getNodeType() == ParsedNode.NODETYPE_SELECTION) {
-              return new Color[] { S1, S2 };
-          }
-          return new Color[] { C1, C2 };
-      }
+            if (node.getNodeType() == ParsedNode.NODETYPE_METHODDEF) {
+                return new Color[] { M1, M2 };
+            }
+            if (node.getNodeType() == ParsedNode.NODETYPE_ITERATION) {
+                return new Color[] { I1, I2 };
+            }
+            if (node.getNodeType() == ParsedNode.NODETYPE_SELECTION) {
+                return new Color[] { S1, S2 };
+            }
+            return new Color[] { C1, C2 };
+        }
     }
-    
+
     /**
      * Draw the left edge of the scope, and the middle part up the given bound.
      */
@@ -567,7 +570,7 @@ public abstract class BlueJSyntaxView extends PlainView
         int hoffs = info.small ? 0 : 4; // determines size of corner arcs
         //g.setColor(info.color2);
         // g.fillRect(xpos + hoffs, info.ypos, endX - xpos - hoffs, ypos2 - ypos);
-        
+
         int edgeTop = info.ypos + (info.starts ? hoffs : 0);
         int edgeBtm = info.ypos2 - 1 - (info.ends ? hoffs : 0);
 
@@ -575,13 +578,13 @@ public abstract class BlueJSyntaxView extends PlainView
         g.fillRect(xpos, edgeTop, hoffs, edgeBtm - edgeTop);
         g.setColor(info.color1);
         g.drawLine(xpos, edgeTop, xpos, edgeBtm);
-        
-        
+
+
         if(info.starts) {
             // Top left corner
             g.setColor(info.color2);
             g.fillArc(xpos, info.ypos, hoffs * 2, hoffs * 2, 180, -90);
-            
+
             // Top edge
             g.setColor(info.color1);
             g.drawArc(xpos, info.ypos, hoffs * 2, hoffs * 2, 180, -90);
@@ -596,7 +599,7 @@ public abstract class BlueJSyntaxView extends PlainView
             g.drawArc(xpos, edgeBtm - hoffs, hoffs * 2, hoffs * 2, 180, 90);
             //g.drawLine(xpos + hoffs, ypos2 - 1, rbounds, ypos2 - 1);
         }
-        
+
         drawScope(info, xpos + hoffs, rbound);
     }
 
@@ -613,15 +616,15 @@ public abstract class BlueJSyntaxView extends PlainView
 
         g.setColor(info.color2);
         g.fillRect(xpos, edgeTop, hoffs, edgeBtm - edgeTop);
-        
+
         g.setColor(info.color1);
         g.drawLine(xpos + hoffs, edgeTop, xpos + hoffs, edgeBtm);
-        
+
         if(info.starts) {
             // Top right corner
             g.setColor(info.color2);
             g.fillArc(xpos - hoffs, info.ypos, hoffs * 2, hoffs * 2, 0, 90);
-            
+
             g.setColor(info.color1);
             g.drawArc(xpos - hoffs, info.ypos, hoffs * 2, hoffs * 2, 0, 90);
         }
@@ -634,7 +637,7 @@ public abstract class BlueJSyntaxView extends PlainView
             g.drawArc(xpos - hoffs, edgeBtm - hoffs, hoffs * 2, hoffs * 2, 0, -90);
         }
     }
-    
+
     /**
      * Draw the center part of a scope (not the left or right edge, but the bit in between)
      * @param info  general drawing information
@@ -650,11 +653,11 @@ public abstract class BlueJSyntaxView extends PlainView
         boolean endsThisLine = info.ends;
         int ypos = info.ypos;
         int ypos2 = info.ypos2;
-        
+
         // draw node start
         g.setColor(color2);
         g.fillRect(xpos, ypos, rbounds - xpos, ypos2 - ypos);
-        
+
         if(startsThisLine) {
             // Top edge
             g.setColor(color1);
@@ -666,13 +669,13 @@ public abstract class BlueJSyntaxView extends PlainView
             g.drawLine(xpos, ypos2 - 1, rbounds, ypos2 - 1);
         }
     }
-    
+
     /**
      * Find the rightmost bound of a node.
      */
     private int getNodeRBound(Shape a, int napEnd, int fullWidth, int nodeDepth,
             Element lineEl, Segment lineSeg) throws BadLocationException
-    {
+            {
         int rbound = fullWidth - nodeDepth * RIGHT_SCOPE_MARGIN;
         if (lineEl == null || napEnd >= lineEl.getEndOffset()) {
             return rbound;
@@ -686,8 +689,8 @@ public abstract class BlueJSyntaxView extends PlainView
             return Math.min(rbound, ebounds.x);
         }
         return rbound;
-    }
-    
+            }
+
     /**
      * Checks whether the given node should be skipped on the given line (because it
      * starts later). This takes into account that the node may "officially" start on the
@@ -711,7 +714,7 @@ public abstract class BlueJSyntaxView extends PlainView
         }
         return false;
     }
-    
+
     private boolean nodeSkipsEnd(int napPos, int napEnd, Element lineEl, Segment segment)
     {
         if (lineEl == null) {
@@ -733,44 +736,44 @@ public abstract class BlueJSyntaxView extends PlainView
         }
         return false;
     }
-    
+
     /**
      * Get a node's indent amount (in component co-ordinate space) for a given line.
      * If the node isn't present on the line, returns Integer.MAX_VALUE.
      */
     private int getNodeIndent(Shape a, MoeSyntaxDocument doc, NodeAndPosition nap, Element lineEl,
             Segment segment)
-        throws BadLocationException
+    throws BadLocationException
     {
         int napPos = nap.getPosition();
         int napEnd = napPos + nap.getSize();
-        
+
         if (lineEl == null) {
             return Integer.MAX_VALUE;
         }
-        
+
         if (nap.getPosition() >= lineEl.getEndOffset()) {
             return Integer.MAX_VALUE;
         }
-        
+
         if (nap.getPosition() + nap.getSize() <= lineEl.getStartOffset()) {
             return Integer.MAX_VALUE;
         }
-        
+
         if (nodeSkipsStart(napPos, napEnd, lineEl, segment)
                 || nodeSkipsEnd(napPos, napEnd, lineEl, segment)) {
             return Integer.MAX_VALUE;
         }
-        
+
         // int indent = nap.getNode().getLeftmostIndent(doc, 0, 0);
         Integer indent = nodeIndents.get(nap.getNode());
         if (indent == null) {
             indent = getNodeIndent(a, doc, nap);
             nodeIndents.put(nap.getNode(), indent);
         }
-        
+
         int xpos = indent;
-        
+
         // Corner case: node start position is on this line, and is greater than the node indent?
         if (napPos > lineEl.getStartOffset()) {
             int nws = findNonWhitespaceBwards(segment, napPos - lineEl.getStartOffset() - 1, 0);
@@ -780,10 +783,10 @@ public abstract class BlueJSyntaxView extends PlainView
                 xpos = Math.max(xpos, lbounds.x);
             }
         }
-        
+
         return xpos;
     }
-    
+
     int getNodeIndent(Shape a, MoeSyntaxDocument doc, NodeAndPosition nap)
     {
         try {
@@ -845,7 +848,7 @@ public abstract class BlueJSyntaxView extends PlainView
             return -1;
         }
     }
-    
+
     private void getScopeStackAt(ParsedNode root, int rootPos, int position, List<NodeAndPosition> list)
     {
         list.add(new NodeAndPosition(root, 0, root.getSize()));
@@ -885,7 +888,7 @@ public abstract class BlueJSyntaxView extends PlainView
         }
         return -1;
     }
-    
+
     /**
      * Search backwards for a non-whitespace character. If no such character
      * is found, returns (endPos - 1).
@@ -902,7 +905,7 @@ public abstract class BlueJSyntaxView extends PlainView
         }
         return i - segment.offset - 1;
     }
-   
+
     /**
      * Check whether a given line is tagged with a given tag.
      * @param line The line to check
@@ -913,15 +916,15 @@ public abstract class BlueJSyntaxView extends PlainView
     {
         return Boolean.TRUE.equals(line.getAttributes().getAttribute(tag)); 
     }
-    
-    
+
+
     /**
      * Initialise some fields after we get a graphics context for the first time
      */
     protected void initialise(Graphics g)
     {
         defaultFont = g.getFont();
-        
+
         // Use system settings for text rendering (Java 6 only)
         if (desktopHints == null) {
             Toolkit tk = Toolkit.getDefaultToolkit(); 
@@ -958,7 +961,7 @@ public abstract class BlueJSyntaxView extends PlainView
         int tabStopNumber = (int)((x - leftMargin) / tabSize) + 1;
         return (tabStopNumber * tabSize) + leftMargin + 2;
     }
-    
+
     /**
      * Need to override this method from PlainView because the PlainView version is buggy for
      * changes (which aren't inserts/removes) of multiple lines.
@@ -967,7 +970,7 @@ public abstract class BlueJSyntaxView extends PlainView
     {
         int damageStart = getDocument().getLength();
         int damageEnd = 0;
-        
+
         if (changes instanceof MoeSyntaxEvent) {
             MoeSyntaxEvent mse = (MoeSyntaxEvent) changes;
             for (NodeAndPosition node : mse.getRemovedNodes()) {
@@ -980,21 +983,21 @@ public abstract class BlueJSyntaxView extends PlainView
                 damageEnd = Math.max(damageEnd, node.getEnd());
             }
         }
-                
+
         Component host = getContainer();
         Element map = getElement();
-        
+
         if (damageStart < damageEnd) {
             int line = map.getElementIndex(damageStart);
             int lastline = map.getElementIndex(damageEnd - 1);
             damageLineRange(line, lastline, a, host);
         }
-        
+
         DocumentEvent.ElementChange ec = changes.getChange(map);
         Element[] added = (ec != null) ? ec.getChildrenAdded() : null;
         Element[] removed = (ec != null) ? ec.getChildrenRemoved() : null;
         if (((added != null) && (added.length > 0)) || 
-            ((removed != null) && (removed.length > 0))) {
+                ((removed != null) && (removed.length > 0))) {
             // This case is handled Ok by the superclass.
             super.updateDamage(changes, a, f);
         } else {
@@ -1008,30 +1011,185 @@ public abstract class BlueJSyntaxView extends PlainView
             damageLineRange(line, lastline, a, host);
         }
     }
-    
+
     private void nodeRemoved(ParsedNode node)
     {
         nodeIndents.remove(node);
     }
 
-    public static void setTransparency(int transparency) {
-        BlueJSyntaxView.transparency = transparency;
+    public static int getStrength() {
+        return strength;
+    }
+
+    public static void setStrength(int strength) {
+        BlueJSyntaxView.strength = strength;
         resetColors();
     }
-    
-    private static void resetColors(){
-        C1 = new Color(210, 230, 210, transparency); // green border (container)
-        C2 = new Color(245, 253, 245, transparency); // green wash
-        C3 = new Color(230, 240, 230, transparency); // green border (inner).
-        C4 = new Color(255, 255, 255, transparency); // white wash
-        
-        M1 = new Color(230, 230, 210, transparency); // yellow border (methods)
-        M2 = new Color(253, 253, 245, transparency); // yellow wash
-        
-        S1 = new Color(215, 215, 230, transparency); // blue border (selection)
-        S2 = new Color(245, 245, 253, transparency); // blue wash
-        
-        I1 = new Color(230, 210, 230, transparency); // pink border (iteration)
-        I2 = new Color(253, 245, 253, transparency); // pink wash
+
+    /**
+     * Sets up the colors based on the strength value 
+     * (from strongest (20) to white (0)
+     */
+    private static void resetColors()
+    {       
+        C1 = getGreenContainerBorder();
+        C2 = getGreenWash(); 
+        C3 = getGreenBorder();
+        M1 = getYellowBorder();
+        M2 = getYellowWash();
+        S1 = getBlueBorder();
+        S2 = getBlueWash();
+        I1 = getPinkBorder();
+        I2 = getPinkWash();             
+    }
+
+    /** 
+     * C2 = new Color(235, 253, 235);  
+     * Return the green wash color
+     * modified to become less strong (until white) based on the 'strength' value
+     */
+    private static Color getGreenWash()
+    {
+        int R, G, B;
+        //increasing R and B by 1 as the slider is lowered
+        R=20-strength+235;
+        B=20-strength+235;
+        //increasing G by 1 if transparency is between 10-19
+        //else increase it by 2
+        if (strength==20)
+            G=253;
+        else if (strength<20 && strength>=10)
+            G=254;
+        else G=255;
+        return new Color (R, G, B);
+    }
+
+    /** 
+     * C1 = new Color(215, 235, 215); 
+     * Return the green container border color
+     * modified to become less strong (until white) based on the 'strength' value
+     */
+    private static Color getGreenContainerBorder()
+    {
+        int R, G, B;
+        //increasing R and B by 2 as the slider is lowered
+        R=(20-strength)*2 +215;
+        B=(20-strength)*2 +215;
+        //increasing G by 1 as the slider is lowered
+        G=20-strength+235;
+        return new Color (R, G, B);
+    }
+
+    /** 
+     * C3 = new Color(235, 245, 235);
+     * Return the green border color
+     * modified to become less strong (until white) based on the 'strength' value
+     */
+    private static Color getGreenBorder()
+    {
+        int R, G, B;
+        //increasing R and B by 1 as the slider is lowered
+        R=(20-strength) +235;
+        B=(20-strength) +235;
+        //increasing G by 1/2 as the slider is lowered
+        G=(20-strength)/2 +245;
+        return new Color (R, G, B);
+    }
+
+    /**
+     * M1 = new Color(235, 235, 215); 
+     * Return the yellow border color
+     * modified to become less strong (until white) based on the 'strength' value
+     */
+    private static Color getYellowBorder()
+    {
+        int R, G, B;
+        //increasing R and G by 1 as the slider is lowered
+        R=(20-strength) +235;
+        G=(20-strength) +235;
+        //increasing G by *2 as the slider is lowered
+        B=(20-strength)*2 +215;
+        return new Color (R, G, B);
+    }
+    /**
+     * M2 = new Color (255, 255, 235 ); // 
+     * Return the yellow wash color
+     * modified to become less strong (until white) based on the 'strength' value
+     */
+    private static Color getYellowWash()
+    {
+        //increasing B by 1 as the slider is lowered
+        int B=(20-strength)/2 +245;
+        return new Color (255, 255, B);
+    }
+
+    /**
+     * S1 = new Color(215, 215, 235); 
+     * Return the blue border (selection) color
+     * modified to become less strong (until white) based on the 'strength' value
+     */
+    private static Color getBlueBorder()
+    {
+        int R, G, B;
+        //increasing R and G by 2 as the slider is lowered
+        R=(20-strength)*2 +215;
+        G=(20-strength)*2 +215;
+        //increasing B by 1 as the slider is lowered
+        B=20-strength+235;
+        return new Color (R, G, B);
+    }
+
+    /**
+     * S2 = new Color(235, 235, 255);  
+     * Return the blue wash color
+     * modified to become less strong (until white) based on the 'strength' value
+     */
+    private static Color getBlueWash()
+    {
+        int R, G;
+        //increasing R and G by 2 as the slider is lowered
+        R=(20-strength)*2 +215;
+        G=(20-strength)*2 +215;
+        return new Color (R, G, 255);
+    }
+
+    /**
+     *  I1 = new Color(235, 215, 235); 
+     *  Return the pink border (iteration) color
+     *  modified to become less strong (until white) based on the 'strength' value
+     */
+    private static Color getPinkBorder()
+    {
+        int R, G, B;
+        //increasing R and G by 2 as the slider is lowered
+        R=(20-strength)+235;
+        B=(20-strength)+235;
+        G=(20-strength)*2 +215;
+        return new Color (R, G, B);
+    }
+
+    /**
+     *  I2 = new Color(253, 235, 253); 
+     *  Return the pink wash color
+     *  modified to become less strong (until white) based on the 'strength' value
+     */
+    private static Color getPinkWash()
+    {
+        int R, B, G;
+        //increasing R and G by 2 as the slider is lowered
+        G=(20-strength) +235;
+        if (strength==20){
+            R=253;
+            B=253;
+        }
+        else if (strength<20 && strength>=10){
+            R=254;
+            B=254;
+        }
+        else {
+            R=255;
+            B=255;
+        }
+        return new Color (R, G, B);
     }
 }

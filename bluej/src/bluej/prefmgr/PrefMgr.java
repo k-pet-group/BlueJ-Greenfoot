@@ -54,7 +54,7 @@ public class PrefMgr
     public static final String SHOW_JAVAME_TOOLS = "bluej.javame.showtools";   
     public static final String SHOW_TEXT_EVAL = "bluej.startWithTextEval";
     public static final String SHOW_UNCHECKED = "bluej.compiler.showunchecked";
-    public static final String SCOPE_HIGHLIGHTING_STRENGTH = "bluej.compiler.showunchecked";
+    public static final String SCOPE_HIGHLIGHTING_STRENGTH = "bluej.editor.syntaxHilightingStrength";
     
     public static final String USE_THEMES = "bluej.useTheme";
 
@@ -89,7 +89,7 @@ public class PrefMgr
 
 	// preference variables: (other than fonts)
     //transparency of the scope highlighting; defaulted to highlighted
-	private static int transparency=255; 
+	private static int highlightStrength; 
     // the current project directory
     private static String projectDirectory;
 
@@ -128,6 +128,7 @@ public class PrefMgr
         targetFont = Config.getFont("bluej.target.font", "SansSerif-bold", targetFontSize);
         
         // preferences other than fonts:
+        highlightStrength = Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 0);
         
         projectDirectory = Config.getPropString("bluej.projectPath");
         recentProjects = readRecentProjects();
@@ -329,11 +330,11 @@ public class PrefMgr
     }
     
     public static int getTransparency() {
-        return transparency;
+        return highlightStrength;
     }
 
     public static void setTransparency(int transparency) {
-        PrefMgr.transparency = transparency;
-        BlueJSyntaxView.setTransparency(transparency);
+        PrefMgr.highlightStrength = transparency;
+        Config.putPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, transparency);
     }
 }

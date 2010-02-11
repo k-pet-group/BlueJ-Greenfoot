@@ -40,7 +40,7 @@ import bluej.prefmgr.PrefMgr;
 public class ScopeHighlightingPrefSlider extends JSlider implements ChangeListener{
 
     public static final int MIN=0;
-    public static final int MAX=255;
+    public static final int MAX=20;
     JSlider slider;
 
    /**
@@ -61,6 +61,6 @@ public class ScopeHighlightingPrefSlider extends JSlider implements ChangeListen
 
     public void stateChanged(ChangeEvent e) {
         slider = (JSlider) e.getSource();
-        PrefMgr.setTransparency(slider.getValue());
+        BlueJSyntaxView.setStrength(slider.getValue());
     }
 }

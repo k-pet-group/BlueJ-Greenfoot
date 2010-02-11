@@ -398,6 +398,7 @@ bluej.terminal.buffering=false
 
 bluej.editor.autoIndent=true
 bluej.editor.syntaxHilighting=true
+bluej.editor.syntaxHilightingStrength=10
 bluej.editor.displayLineNumbers=false
 bluej.editor.makeBackup=false
 bluej.editor.matchBrackets=true
