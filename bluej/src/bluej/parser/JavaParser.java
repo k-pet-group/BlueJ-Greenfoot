@@ -312,6 +312,13 @@ public class JavaParser
     /** Saw a literal as part of an expression */
     protected void gotLiteral(LocatableToken token) { }
     
+    /**
+     * Saw a primitive type literal in an expression; usually occurs as "int.class"
+     * or "int[].class" for example.
+     * @param token  The primitive token
+     */
+    protected void gotPrimitiveTypeLiteral(LocatableToken token) { }
+    
     /** Saw an identifier as (part of) an expression */
     protected void gotIdentifier(LocatableToken token) { }
     /**
@@ -338,6 +345,8 @@ public class JavaParser
     {
         gotBinaryOperator(token);
     }
+    
+    protected void gotClassLiteral(LocatableToken token) { }
     
     /** Saw a binary operator as part of an expression */
     protected void gotBinaryOperator(LocatableToken token) { }
@@ -2296,6 +2305,7 @@ public class JavaParser
                         LocatableToken ntoken = tokenStream.nextToken();
                         if (ntoken.getType() == JavaTokenTypes.LITERAL_class) {
                             completeCompoundClass(token);
+                            gotClassLiteral(ntoken);
                         }
                         else if (ntoken.getType() == JavaTokenTypes.LITERAL_this) {
                             completeCompoundClass(token);
@@ -2316,8 +2326,44 @@ public class JavaParser
                             completeCompoundValueEOF(token);
                         }
                         else {
+                            if (tokenStream.LA(1).getType() == JavaTokenTypes.LBRACK
+                                    && tokenStream.LA(2).getType() == JavaTokenTypes.RBRACK) {
+                                completeCompoundClass(token);
+                                parseArrayDeclarators();
+                                if (tokenStream.LA(1).getType() == JavaTokenTypes.DOT &&
+                                        tokenStream.LA(2).getType() == JavaTokenTypes.LITERAL_class) {
+                                    token = tokenStream.nextToken();
+                                    token = tokenStream.nextToken();
+                                    gotClassLiteral(token);
+                                }
+                                else {
+                                    error("Expecting \".class\"");
+                                }
+                            }
                             completeCompoundValue(token);
                         }
+                    }
+                }
+                else if (tokenStream.LA(1).getType() == JavaTokenTypes.DOT) {
+                    gotIdentifier(token);
+                    if (tokenStream.LA(2).getType() == JavaTokenTypes.LITERAL_class) {
+                        token = tokenStream.nextToken(); // dot
+                        token = tokenStream.nextToken(); // class
+                        gotClassLiteral(token);
+                    }
+                }
+                else if (tokenStream.LA(1).getType() == JavaTokenTypes.LBRACK
+                        && tokenStream.LA(2).getType() == JavaTokenTypes.RBRACK) {
+                    gotIdentifier(token);
+                    parseArrayDeclarators();
+                    if (tokenStream.LA(1).getType() == JavaTokenTypes.DOT &&
+                            tokenStream.LA(2).getType() == JavaTokenTypes.LITERAL_class) {
+                        token = tokenStream.nextToken();
+                        token = tokenStream.nextToken();
+                        gotClassLiteral(token);
+                    }
+                    else {
+                        error("Expecting \".class\"");
                     }
                 }
                 else if (tokenStream.LA(1).getType() == JavaTokenTypes.EOF) {
@@ -2353,6 +2399,17 @@ public class JavaParser
             else if (isPrimitiveType(token)) {
                 // Not really part of an expression, but may be followed by
                 // .class or [].class  (eg int.class, int[][].class)
+                gotPrimitiveTypeLiteral(token);
+                parseArrayDeclarators();
+                if (tokenStream.LA(1).getType() == JavaTokenTypes.DOT &&
+                        tokenStream.LA(2).getType() == JavaTokenTypes.LITERAL_class) {
+                    token = tokenStream.nextToken();
+                    token = tokenStream.nextToken();
+                    gotClassLiteral(token);
+                }
+                else {
+                    error("Expecting \".class\"");
+                }
             }
             else if (isUnaryOperator(token)) {
                 // Unary operator

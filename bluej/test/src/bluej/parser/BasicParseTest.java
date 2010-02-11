@@ -612,4 +612,27 @@ public class BasicParseTest extends junit.framework.TestCase
 
         assertTrue(used.contains("I"));
     }
+    
+    public void testDependencyAnalysis12()
+    {
+        InitConfig.init();
+        TestEntityResolver ter = new TestEntityResolver(
+                new ClassLoaderResolver(this.getClass().getClassLoader())
+                );
+        ter.addCompilationUnit("testpkg", cuForSource("package testpkg; class I { }", ter));
+        ter.addCompilationUnit("testpkg", cuForSource("package testpkg; class J { }", ter));
+
+        StringReader sr = new StringReader(
+                "package testpkg;" +
+                "class A {\n" +
+                "  Class<?> cc = I.class;" +
+                "  Class<?> cc2 = testpkg.J.class;" +
+                "}\n"
+        );
+        ClassInfo info = ClassParser.parse(sr, ter, "testpkg");
+        List<String> used = info.getUsed();
+
+        assertTrue(used.contains("I"));
+        assertTrue(used.contains("J"));
+    }
 }

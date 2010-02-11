@@ -35,6 +35,7 @@ import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.UnresolvedArray;
+import bluej.parser.entity.UnresolvedEntity;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.symtab.ClassInfo;
@@ -191,17 +192,24 @@ public class InfoParser extends EditorParser
             }
         }
         
+        refloop:
         for (UnresolvedVal val: valueReferences) {
             Iterator<LocatableToken> i = val.components.iterator();
             String name = i.next().getText();
             JavaEntity entity = val.resolver.getValueEntity(name, ""); // DAV fix query source
-            while (entity != null && entity.resolveAsValue() == null && i.hasNext()) {
+            if (entity != null && entity.resolveAsValue() != null) {
+                continue refloop;
+            }
+            while (entity != null && i.hasNext()) {
                 TypeEntity typeEnt = entity.resolveAsType();
                 if (typeEnt != null && ! typeEnt.getType().isPrimitive()) {
                     String typeString = entity.getType().getErasedType().toString();
                     addTypeReference(typeString);
                 }
                 entity = entity.getSubentity(i.next().getText());
+                if (entity != null && entity.resolveAsValue() != null) {
+                    continue refloop;
+                }
             }
             if (! i.hasNext() && entity != null) {
                 TypeEntity typeEnt = entity.resolveAsType();
@@ -356,8 +364,18 @@ public class InfoParser extends EditorParser
     @Override
     protected void completeCompoundClass(LocatableToken token)
     {
-        // TODO Auto-generated method stub
         super.completeCompoundClass(token);
+        List<LocatableToken> components = currentUnresolvedVal.components;
+        components.add(token);
+        Iterator<LocatableToken> i = components.iterator();
+        JavaEntity entity = UnresolvedEntity.getEntity(scopeStack.peek(),
+                i.next().getText(), currentQuerySource());
+        while (entity != null && i.hasNext()) {
+            entity = entity.getSubentity(i.next().getText());
+        }
+        if (entity != null) {
+            typeReferences.add(entity);
+        }
     }
     
     protected void gotMethodDeclaration(LocatableToken token, LocatableToken hiddenToken)

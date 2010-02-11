@@ -23,6 +23,7 @@ package bluej.parser;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -62,6 +63,7 @@ public class TextParser extends JavaParser
     private EntityResolver resolver;
     
     private Stack<JavaEntity> valueStack = new Stack<JavaEntity>();
+    private int arrayCount = 0;
     
     /** A class to represent operators, possibly associated with a token */
     protected class Operator
@@ -441,6 +443,7 @@ public class TextParser extends JavaParser
     {
         String ident = token.getText();
         valueStack.push(UnresolvedEntity.getEntity(resolver, ident, ""));
+        arrayCount = 0;
     }
     
     @Override
@@ -500,6 +503,93 @@ public class TextParser extends JavaParser
         else {
             operatorStack.push(new Operator(BAD_CAST_OPERATOR, null));
         }
+    }
+    
+    @Override
+    protected void gotArrayDeclarator()
+    {
+        arrayCount++;
+    }
+    
+    @Override
+    protected void gotPrimitiveTypeLiteral(LocatableToken token)
+    {
+        List<LocatableToken> ltokens = new ArrayList<LocatableToken>(1);
+        ltokens.add(token);
+        TypeEntity tent = resolveTypeSpec(ltokens);
+        valueStack.push(tent);
+        arrayCount = 0;
+    }
+    
+    @Override
+    protected void gotClassLiteral(LocatableToken token)
+    {
+        JavaEntity ent = popValueStack();
+        TypeEntity tent = ent.resolveAsType();
+        if (tent != null) {
+            JavaType ttype = tent.getType();
+            if (arrayCount > 0) {
+                while (arrayCount-- > 0) {
+                    ttype = ttype.getArray();
+                }
+                tent = new TypeEntity(ttype);
+            }
+            GenTypeClass ctype = ttype.asClass();
+            if (ctype != null) {
+                TypeEntity jlcEnt = resolver.resolveQualifiedClass("java.lang.Class");
+                if (jlcEnt != null) {
+                    List<TypeArgumentEntity> targs = new ArrayList<TypeArgumentEntity>(1);
+                    targs.add(new SolidTargEntity(tent));
+                    jlcEnt = jlcEnt.setTypeArgs(targs);
+                    if (jlcEnt != null) {
+                        valueStack.push(new ValueEntity(jlcEnt.getType()));
+                        return;
+                    }
+                }
+            }
+            else {
+                String repClass = null;
+                if (ttype.typeIs(JavaType.JT_BOOLEAN)) {
+                    repClass = "java.lang.Boolean";
+                }
+                else if (ttype.typeIs(JavaType.JT_BYTE)) {
+                    repClass = "java.lang.Byte";
+                }
+                else if (ttype.typeIs(JavaType.JT_CHAR)) {
+                    repClass = "java.lang.Char";
+                }
+                else if (ttype.typeIs(JavaType.JT_DOUBLE)) {
+                    repClass = "java.lang.Double";
+                }
+                else if (ttype.typeIs(JavaType.JT_FLOAT)) {
+                    repClass = "java.lang.Float";
+                }
+                else if (ttype.typeIs(JavaType.JT_INT)) {
+                    repClass = "java.lang.Integer";
+                }
+                else if (ttype.typeIs(JavaType.JT_LONG)) {
+                    repClass = "java.lang.Long";
+                }
+                else if (ttype.typeIs(JavaType.JT_VOID)) {
+                    repClass = "java.lang.Void";
+                }
+                if (repClass != null) {
+                    TypeEntity jlcEnt = resolver.resolveQualifiedClass("java.lang.Class");
+                    TypeEntity repEnt = resolver.resolveQualifiedClass(repClass);
+                    if (jlcEnt != null && repEnt != null) {
+                        List<TypeArgumentEntity> targs = new ArrayList<TypeArgumentEntity>(1);
+                        targs.add(new SolidTargEntity(repEnt));
+                        jlcEnt = jlcEnt.setTypeArgs(targs);
+                        if (jlcEnt != null) {
+                            valueStack.push(new ValueEntity(jlcEnt.getType()));
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        valueStack.push(new ErrorEntity());
     }
     
     private class DepthRef
