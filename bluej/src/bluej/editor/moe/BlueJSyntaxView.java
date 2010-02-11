@@ -71,13 +71,16 @@ public abstract class BlueJSyntaxView extends PlainView
     private static final int LEFT_INNER_SCOPE_MARGIN = 5;
     private static final int LEFT_OUTER_SCOPE_MARGIN = 2;
     private static final int RIGHT_SCOPE_MARGIN = 4;
-    private static int strength=10;
+    private static int strength = PrefMgr.getScopeHighlightStrength();
+    
+    {
+        resetColors();
+    }
 
     /* Scope painting colours */
     private static Color C1 = getGreenContainerBorder(); // green border (container)
     private static Color C2 = getGreenWash(); // green wash
     private static Color C3 = getGreenBorder(); // green border (inner).
-    private static Color C4 = new Color(255, 255, 255); // white wash
 
     private static Color M1 = getYellowBorder(); // yellow border (methods)
     private static Color M2 = getYellowWash(); // yellow wash
@@ -112,9 +115,7 @@ public abstract class BlueJSyntaxView extends PlainView
         super(elem);
         line = new Segment();
         this.leftMargin = leftMargin;
-        //setting up the scope highlighting colour strength 
-        strength=PrefMgr.getScopeHighlightStrength();
-        resetColors();
+
     }
 
     @Override
@@ -540,7 +541,7 @@ public abstract class BlueJSyntaxView extends PlainView
     private Color[] colorsForNode(ParsedNode node)
     {
         if (node.isInner()) {
-            return new Color[] { C3, C4 };
+            return new Color[] { C3, MoeSyntaxDocument.getBackgroundColor() };
         }
         else {
             if (node.getNodeType() == ParsedNode.NODETYPE_METHODDEF) {
@@ -1017,12 +1018,7 @@ public abstract class BlueJSyntaxView extends PlainView
         nodeIndents.remove(node);
     }
 
-    public static int getStrength()
-    {
-        return strength;
-    }
-
-    public static void setStrength(int strength)
+    public static void setHighlightStrength(int strength)
     {
         BlueJSyntaxView.strength = strength;
         resetColors();
@@ -1045,153 +1041,95 @@ public abstract class BlueJSyntaxView extends PlainView
         I2 = getPinkWash();             
     }
 
+    private static Color getReducedColor(int r, int g, int b)
+    {
+        Color bg = MoeSyntaxDocument.getBackgroundColor();
+        double factor = strength / 20.0;
+        double other = 1 - factor;
+        int nr = Math.min((int)(r * factor + bg.getRed() * other), 255);
+        int ng = Math.min((int)(g * factor + bg.getGreen() * other), 255);
+        int nb = Math.min((int)(b * factor + bg.getBlue() * other), 255);
+        return new Color(nr, ng, nb);
+    }
+    
     /** 
-     * C2 = new Color(235, 253, 235);  
      * Return the green wash color
-     * modified to become less strong (until white) based on the 'strength' value
+     * modified to become less strong based on the 'strength' value
      */
     private static Color getGreenWash()
     {
-        int R, G, B;
-        //increasing R and B by 1 as the slider is lowered
-        R=20-strength+235;
-        B=20-strength+235;
-        //increasing G by 1 if transparency is between 10-19
-        //else increase it by 2
-        if (strength==20)
-            G=253;
-        else if (strength<20 && strength>=10)
-            G=254;
-        else G=255;
-        return new Color (R, G, B);
+        return getReducedColor(235, 250, 235);
     }
 
     /** 
-     * C1 = new Color(215, 235, 215); 
      * Return the green container border color
-     * modified to become less strong (until white) based on the 'strength' value
+     * modified to become less strong based on the 'strength' value
      */
     private static Color getGreenContainerBorder()
     {
-        int R, G, B;
-        //increasing R and B by 2 as the slider is lowered
-        R=(20-strength)*2 +215;
-        B=(20-strength)*2 +215;
-        //increasing G by 1 as the slider is lowered
-        G=20-strength+235;
-        return new Color (R, G, B);
+        return getReducedColor(210, 230, 210);
     }
 
     /** 
-     * C3 = new Color(235, 245, 235);
      * Return the green border color
-     * modified to become less strong (until white) based on the 'strength' value
+     * modified to become less strong based on the 'strength' value
      */
     private static Color getGreenBorder()
     {
-        int R, G, B;
-        //increasing R and B by 1 as the slider is lowered
-        R=(20-strength) +235;
-        B=(20-strength) +235;
-        //increasing G by 1/2 as the slider is lowered
-        G=(20-strength)/2 +245;
-        return new Color (R, G, B);
+        return getReducedColor(225, 238, 225);
     }
 
     /**
-     * M1 = new Color(235, 235, 215); 
      * Return the yellow border color
      * modified to become less strong (until white) based on the 'strength' value
      */
     private static Color getYellowBorder()
     {
-        int R, G, B;
-        //increasing R and G by 1 as the slider is lowered
-        R=(20-strength) +235;
-        G=(20-strength) +235;
-        //increasing G by *2 as the slider is lowered
-        B=(20-strength)*2 +215;
-        return new Color (R, G, B);
+        return getReducedColor(228, 228, 205);
     }
+    
     /**
-     * M2 = new Color (255, 255, 235 ); // 
      * Return the yellow wash color
      * modified to become less strong (until white) based on the 'strength' value
      */
     private static Color getYellowWash()
     {
-        //increasing B by 1 as the slider is lowered
-        int B=(20-strength)/2 +245;
-        return new Color (255, 255, B);
+        return getReducedColor(250, 250, 225);
     }
 
     /**
-     * S1 = new Color(215, 215, 235); 
      * Return the blue border (selection) color
      * modified to become less strong (until white) based on the 'strength' value
      */
     private static Color getBlueBorder()
     {
-        int R, G, B;
-        //increasing R and G by 2 as the slider is lowered
-        R=(20-strength)*2 +215;
-        G=(20-strength)*2 +215;
-        //increasing B by 1 as the slider is lowered
-        B=20-strength+235;
-        return new Color (R, G, B);
+        return getReducedColor(210, 210, 225);
     }
 
     /**
-     * S2 = new Color(235, 235, 255);  
      * Return the blue wash color
      * modified to become less strong (until white) based on the 'strength' value
      */
     private static Color getBlueWash()
     {
-        int R, G;
-        //increasing R and G by 2 as the slider is lowered
-        R=(20-strength)*2 +215;
-        G=(20-strength)*2 +215;
-        return new Color (R, G, 255);
+        return getReducedColor(240, 240, 250);
     }
 
     /**
-     *  I1 = new Color(235, 215, 235); 
      *  Return the pink border (iteration) color
      *  modified to become less strong (until white) based on the 'strength' value
      */
     private static Color getPinkBorder()
     {
-        int R, G, B;
-        //increasing R and G by 2 as the slider is lowered
-        R=(20-strength)+235;
-        B=(20-strength)+235;
-        G=(20-strength)*2 +215;
-        return new Color (R, G, B);
+        return getReducedColor(225, 203, 225);
     }
 
     /**
-     *  I2 = new Color(253, 235, 253); 
      *  Return the pink wash color
      *  modified to become less strong (until white) based on the 'strength' value
      */
     private static Color getPinkWash()
     {
-        int R, B, G;
-        //increasing R and G by 2 as the slider is lowered
-        G=(20-strength) +235;
-        if (strength==20){
-            R=253;
-            B=253;
-        }
-        else if (strength<20 && strength>=10){
-            R=254;
-            B=254;
-        }
-        else {
-            R=255;
-            B=255;
-        }
-        return new Color (R, G, B);
+        return getReducedColor(250, 240, 250);
     }
 }

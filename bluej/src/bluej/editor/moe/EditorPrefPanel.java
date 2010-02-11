@@ -51,6 +51,7 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
     private JCheckBox lineNumbersBox;
     private JCheckBox makeBackupBox;
     private JCheckBox matchBracketsBox;
+    private ScopeHighlightingPrefSlider colorSlider;
 
     /**
      * Setup the UI for the dialog and event handlers for the buttons.
@@ -88,7 +89,7 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
             
             JPanel sliderPanel=new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
             {               
-                ScopeHighlightingPrefSlider colorSlider=new ScopeHighlightingPrefSlider();
+                colorSlider=new ScopeHighlightingPrefSlider();
                 sliderPanel.add(colorSlider);
             }
             editorPanel.add(sliderPanel);           
@@ -131,13 +132,9 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
     public void commitEditing()
     {
         int newFontSize = 0;
-        int scopeHighlightStrength=0;
         try {
             newFontSize = Integer.parseInt(editorFontField.getText());
             PrefMgr.setEditorFontSize(newFontSize);
-            //set scope highlighting strength
-            scopeHighlightStrength=BlueJSyntaxView.getStrength();
-            PrefMgr.setScopeHighlightStrength(scopeHighlightStrength);
         }
         catch (NumberFormatException nfe) { }
 
@@ -146,6 +143,7 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
         PrefMgr.setFlag(PrefMgr.LINENUMBERS, lineNumbersBox.isSelected());
         PrefMgr.setFlag(PrefMgr.MAKE_BACKUP, makeBackupBox.isSelected());
         PrefMgr.setFlag(PrefMgr.MATCH_BRACKETS, matchBracketsBox.isSelected());
+        PrefMgr.setScopeHighlightStrength(colorSlider.getValue());
     }
 
 }

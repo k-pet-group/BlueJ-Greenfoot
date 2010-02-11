@@ -27,6 +27,7 @@ import java.util.*;
 
 import bluej.Config;
 import bluej.editor.EditorManager;
+import bluej.editor.moe.BlueJSyntaxView;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 
@@ -338,6 +339,7 @@ public class PrefMgr
     public static void setScopeHighlightStrength(int strength)
     {
         highlightStrength = strength;
+        BlueJSyntaxView.setHighlightStrength(strength);
         Config.putPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, strength);
     }
 }
