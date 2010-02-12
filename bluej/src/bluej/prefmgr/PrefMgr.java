@@ -68,10 +68,6 @@ public class PrefMgr
     
     // preference variables: FONTS
     private static int fontSize;
-    private static int editFontsize;
-    private static int printFontsize;
-    private static int printTitleFontsize;
-    private static int printInfoFontsize;
     private static int targetFontSize;
 
     private static Font normalFont;
@@ -85,7 +81,7 @@ public class PrefMgr
 
     // initialised by a call to setEditorFontSize()
     private static int editorFontSize;
-    private static Font editorStandardFont, editorStandoutFont;
+    private static Font editorStandardFont;
 
     // preference variables: (other than fonts)
     
@@ -101,15 +97,11 @@ public class PrefMgr
     // flags are all boolean preferences
     private static HashMap<String,String> flags = new HashMap<String,String>();
 
-    // the pref-mgr object
-    private static PrefMgr prefmgr = new PrefMgr();
-
     /**
      * Initialise the preference manager. Font information is loaded from bluej.defs,
      * defaults for other prefs are loaded from bluej.defs.
      */
-    private PrefMgr()
-    {
+    static {
         //set up fonts
         initEditorFontSize(Config.getPropInteger(editorFontSizePropertyName, 12));
 
@@ -149,6 +141,14 @@ public class PrefMgr
         flags.put(SHOW_UNCHECKED, Config.getPropString(SHOW_UNCHECKED, "true"));
     }
 
+    /**
+     * Private constructor to prevent instantiation
+     */
+    private PrefMgr()
+    {
+        
+    }
+    
     // ----- system interface to read or set prefences: -----
 
     public static String getProjectDirectory()
@@ -255,9 +255,9 @@ public class PrefMgr
 
     // ----- end of system preference interface -----
     
-    private static List readRecentProjects()
+    private static List<String> readRecentProjects()
     {
-        List projects = new ArrayList(NUM_RECENT_PROJECTS);
+        List<String> projects = new ArrayList<String>(NUM_RECENT_PROJECTS);
         
         for(int i = 0; i < NUM_RECENT_PROJECTS; i++) {
             String projectName = Config.getPropString("bluej.recentProject" + i, "");
@@ -282,10 +282,10 @@ public class PrefMgr
         if (size > 0) {
             initEditorFontSize(size);
             EditorManager.getEditorManager().refreshAll();
-            Collection projects = Project.getProjects();
-            Iterator i = projects.iterator();
+            Collection<Project> projects = Project.getProjects();
+            Iterator<Project> i = projects.iterator();
             while (i.hasNext()) {
-                Project project = (Project) i.next();
+                Project project = i.next();
                 if (project.hasTerminal()) {
                     project.getTerminal().resetFont();
                 }
@@ -318,7 +318,6 @@ public class PrefMgr
                 font = Config.getFont(editorFontPropertyName, "Monospaced", size);
             }
             editorStandardFont = font;
-            editorStandoutFont = font.deriveFont(Font.BOLD);
         }
     }
     
