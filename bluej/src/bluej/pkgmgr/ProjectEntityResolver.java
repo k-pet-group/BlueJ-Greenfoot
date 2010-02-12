@@ -54,19 +54,6 @@ public class ProjectEntityResolver implements EntityResolver
 
     public PackageOrClass resolvePackageOrClass(String name, String querySource)
     {
-        int lastDot = querySource.lastIndexOf('.');
-        String pkgName;
-        if (lastDot != -1) {
-            pkgName = querySource.substring(0, lastDot + 1); // include the dot
-        }
-        else {
-            pkgName = "";
-        }
-        TypeEntity rval = resolveQualifiedClass(pkgName + name);
-        if (rval != null) {
-            return rval;
-        }
-
         // Try in java.lang
         try {
             Class<?> cl = project.getClassLoader().loadClass("java.lang." + name);

@@ -36,6 +36,7 @@ import javax.swing.text.BadLocationException;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
+import bluej.parser.entity.PackageResolver;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
@@ -374,14 +375,15 @@ public class BasicParseTest extends junit.framework.TestCase
         TestEntityResolver ter = new TestEntityResolver(
                 new ClassLoaderResolver(this.getClass().getClassLoader())
                 );
-        ter.addCompilationUnit("", cuForSource("class I {}", ter));
-        ter.addCompilationUnit("", cuForSource("class J<T> {}", ter));
-        ter.addCompilationUnit("", cuForSource("class K {}", ter));
-        ter.addCompilationUnit("", cuForSource("class L {}", ter));
-        ter.addCompilationUnit("", cuForSource("class M {}", ter));
+        PackageResolver pkgr = new PackageResolver(ter, "");
+        ter.addCompilationUnit("", cuForSource("class I {}", pkgr));
+        ter.addCompilationUnit("", cuForSource("class J<T> {}", pkgr));
+        ter.addCompilationUnit("", cuForSource("class K {}", pkgr));
+        ter.addCompilationUnit("", cuForSource("class L {}", pkgr));
+        ter.addCompilationUnit("", cuForSource("class M {}", pkgr));
         
         FileInputStream fis = new FileInputStream(getFile("H.dat"));
-        ClassInfo info = ClassParser.parse(new InputStreamReader(fis), ter, "");
+        ClassInfo info = ClassParser.parse(new InputStreamReader(fis), pkgr, "");
         
         List<String> used = info.getUsed();
         assertTrue(used.contains("I")); 
@@ -426,8 +428,9 @@ public class BasicParseTest extends junit.framework.TestCase
         TestEntityResolver ter = new TestEntityResolver(
                 new ClassLoaderResolver(this.getClass().getClassLoader())
                 );
-        ter.addCompilationUnit("", cuForSource("class I {}", ter));
-        ter.addCompilationUnit("", cuForSource("class JJ { public static I someMethod() { return null; } }", ter));
+        PackageResolver pkgr = new PackageResolver(ter, "");
+        ter.addCompilationUnit("", cuForSource("class I {}", pkgr));
+        ter.addCompilationUnit("", cuForSource("class JJ { public static I someMethod() { return null; } }", pkgr));
         
         StringReader sr = new StringReader(
                         "class A {\n" +
@@ -436,7 +439,7 @@ public class BasicParseTest extends junit.framework.TestCase
                         "  }\n" +
                         "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, ter, "");
+        ClassInfo info = ClassParser.parse(sr, pkgr, "");
         List<String> used = info.getUsed();
         
         assertTrue(used.contains("I"));
@@ -451,8 +454,9 @@ public class BasicParseTest extends junit.framework.TestCase
         TestEntityResolver ter = new TestEntityResolver(
                 new ClassLoaderResolver(this.getClass().getClassLoader())
                 );
-        ter.addCompilationUnit("", cuForSource("class I {}", ter));
-        ter.addCompilationUnit("", cuForSource("class JJ { public static I someMethod() { return null; } }", ter));
+        PackageResolver pkgr = new PackageResolver(ter, "");
+        ter.addCompilationUnit("", cuForSource("class I {}", pkgr));
+        ter.addCompilationUnit("", cuForSource("class JJ { public static I someMethod() { return null; } }", pkgr));
         
         StringReader sr = new StringReader(
                         "class A {\n" +
@@ -461,7 +465,7 @@ public class BasicParseTest extends junit.framework.TestCase
                         "  }\n" +
                         "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, ter, "");
+        ClassInfo info = ClassParser.parse(sr, pkgr, "");
         List<String> used = info.getUsed();
         
         assertTrue(used.contains("JJ"));
@@ -498,7 +502,8 @@ public class BasicParseTest extends junit.framework.TestCase
         TestEntityResolver ter = new TestEntityResolver(
                 new ClassLoaderResolver(this.getClass().getClassLoader())
                 );
-        ter.addCompilationUnit("testpkg", cuForSource("package testpkg; class N {}", ter));
+        PackageResolver pkgr = new PackageResolver(ter, "testpkg");
+        ter.addCompilationUnit("testpkg", cuForSource("package testpkg; class N {}", pkgr));
         
         StringReader sr = new StringReader(
                         "package testpkg;" +
@@ -506,7 +511,7 @@ public class BasicParseTest extends junit.framework.TestCase
                         "  public N someVar;" +
                         "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, ter, "testpkg");
+        ClassInfo info = ClassParser.parse(sr, pkgr, "testpkg");
         List<String> used = info.getUsed();
         
         assertTrue(used.contains("N"));
@@ -521,8 +526,10 @@ public class BasicParseTest extends junit.framework.TestCase
         TestEntityResolver ter = new TestEntityResolver(
                 new ClassLoaderResolver(this.getClass().getClassLoader())
                 );
-        ter.addCompilationUnit("testpkg", cuForSource("package testpkg; class N {}", ter));
-        ter.addCompilationUnit("testpkg", cuForSource("package testpkg; class M {}", ter));
+        PackageResolver pkgr = new PackageResolver(ter, "testpkg");
+        PackageResolver pkgmr = new PackageResolver(ter, "otherpkg");
+        ter.addCompilationUnit("testpkg", cuForSource("package testpkg; class N {}", pkgr));
+        ter.addCompilationUnit("otherpkg", cuForSource("package otherpkg; class M {}", pkgmr));
         
         StringReader sr = new StringReader(
                         "package testpkg;" +
@@ -531,7 +538,7 @@ public class BasicParseTest extends junit.framework.TestCase
                         "  public otherpkg.M otherVar;" +
                         "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, ter, "testpkg");
+        ClassInfo info = ClassParser.parse(sr, pkgr, "testpkg");
         List<String> used = info.getUsed();
         
         assertTrue(used.contains("N"));
@@ -572,14 +579,15 @@ public class BasicParseTest extends junit.framework.TestCase
         TestEntityResolver ter = new TestEntityResolver(
                 new ClassLoaderResolver(this.getClass().getClassLoader())
                 );
-        ter.addCompilationUnit("", cuForSource("class I { public static int xyz = 3; }", ter));
+        PackageResolver pkgr = new PackageResolver(ter, "");
+        ter.addCompilationUnit("", cuForSource("class I { public static int xyz = 3; }", pkgr));
         
         StringReader sr = new StringReader(
                         "class A {\n" +
                         "  int n = I.xyz;" +
                         "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, ter, "");
+        ClassInfo info = ClassParser.parse(sr, pkgr, "");
         List<String> used = info.getUsed();
         
         assertTrue(used.contains("I"));
@@ -594,7 +602,8 @@ public class BasicParseTest extends junit.framework.TestCase
         TestEntityResolver ter = new TestEntityResolver(
                 new ClassLoaderResolver(this.getClass().getClassLoader())
                 );
-        ter.addCompilationUnit("", cuForSource("class I { }", ter));
+        PackageResolver pkgr = new PackageResolver(ter, "");
+        ter.addCompilationUnit("", cuForSource("class I { }", pkgr));
 
         StringReader sr = new StringReader(
                 "import java.util.List;" +
@@ -602,7 +611,7 @@ public class BasicParseTest extends junit.framework.TestCase
                 "  List<I> list;" +
                 "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, ter, "");
+        ClassInfo info = ClassParser.parse(sr, pkgr, "");
         List<String> used = info.getUsed();
 
         assertTrue(used.contains("I"));
@@ -617,13 +626,14 @@ public class BasicParseTest extends junit.framework.TestCase
         TestEntityResolver ter = new TestEntityResolver(
                 new ClassLoaderResolver(this.getClass().getClassLoader())
                 );
-        ter.addCompilationUnit("", cuForSource("class I { }", ter));
+        PackageResolver pkgr = new PackageResolver(ter, "");
+        ter.addCompilationUnit("", cuForSource("class I { }", pkgr));
 
         StringReader sr = new StringReader(
                 "class A<T extends I> {\n" +
                 "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, ter, "");
+        ClassInfo info = ClassParser.parse(sr, pkgr, "");
         List<String> used = info.getUsed();
 
         assertTrue(used.contains("I"));
@@ -635,8 +645,9 @@ public class BasicParseTest extends junit.framework.TestCase
         TestEntityResolver ter = new TestEntityResolver(
                 new ClassLoaderResolver(this.getClass().getClassLoader())
                 );
-        ter.addCompilationUnit("testpkg", cuForSource("package testpkg; class I { }", ter));
-        ter.addCompilationUnit("testpkg", cuForSource("package testpkg; class J { }", ter));
+        PackageResolver pkgr = new PackageResolver(ter, "testpkg");
+        ter.addCompilationUnit("testpkg", cuForSource("package testpkg; class I { }", pkgr));
+        ter.addCompilationUnit("testpkg", cuForSource("package testpkg; class J { }", pkgr));
 
         StringReader sr = new StringReader(
                 "package testpkg;" +
@@ -645,7 +656,7 @@ public class BasicParseTest extends junit.framework.TestCase
                 "  Class<?> cc2 = testpkg.J.class;" +
                 "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, ter, "testpkg");
+        ClassInfo info = ClassParser.parse(sr, pkgr, "testpkg");
         List<String> used = info.getUsed();
 
         assertTrue(used.contains("I"));

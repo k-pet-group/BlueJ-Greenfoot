@@ -33,7 +33,6 @@ import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.ParsedReflective;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.ParsedCUNode;
-import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ParsedTypeNode;
 import bluej.utility.JavaNames;
 
@@ -82,21 +81,7 @@ public class TestEntityResolver implements EntityResolver
     
     public PackageOrClass resolvePackageOrClass(String name, String querySource)
     {
-        String pkg = getPackageFromClassName(querySource);
-        List<ParsedCUNode> culist = pkgMap.get(pkg);
-        if (culist != null) {
-            for (ParsedCUNode node : culist) {
-                ParsedNode tnode = node.getTypeNode(name);
-                if (tnode instanceof ParsedTypeNode) {
-                    // (and it should be)
-                    return new TypeEntity(new ParsedReflective((ParsedTypeNode) tnode));
-                }
-            }
-        }
-        if (pkgMap.get(name) != null) {
-            return new PackageEntity(name, this);
-        }
-        return parent.resolvePackageOrClass(name, querySource);
+        return new PackageEntity(name, this);
     }
     
     public TypeEntity resolveQualifiedClass(String name)
@@ -106,12 +91,9 @@ public class TestEntityResolver implements EntityResolver
         if (culist != null) {
             for (ParsedCUNode node : culist) {
                 String baseName = JavaNames.getBase(name);
-                PackageOrClass poc = node.resolvePackageOrClass(baseName, "");
-                if (poc != null) {
-                    TypeEntity tent = poc.resolveAsType();
-                    if (tent != null) {
-                        return tent;
-                    }
+                ParsedTypeNode ptn = (ParsedTypeNode) node.getTypeNode(baseName);
+                if (ptn != null) {
+                    return new TypeEntity(new ParsedReflective(ptn));
                 }
             }
         }

@@ -33,6 +33,7 @@ import java.util.List;
 import bluej.debugger.gentype.JavaType;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.PackageResolver;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.UnresolvedArray;
 import bluej.parser.entity.UnresolvedEntity;
@@ -115,9 +116,9 @@ public class InfoParser extends EditorParser
     public static ClassInfo parse(File f, Package pkg) throws FileNotFoundException
     {
         FileInputStream fis = new FileInputStream(f);
-        return parse(new InputStreamReader(fis),
-                pkg.getProject().getEntityResolver(),
+        EntityResolver resolver = new PackageResolver(pkg.getProject().getEntityResolver(),
                 pkg.getQualifiedName());
+        return parse(new InputStreamReader(fis), resolver, pkg.getQualifiedName());
     }
 
     public static ClassInfo parse(Reader r, EntityResolver resolver, String targetPkg)

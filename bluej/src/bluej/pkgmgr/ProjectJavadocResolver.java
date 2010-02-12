@@ -37,7 +37,10 @@ import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.InfoParser;
+import bluej.parser.entity.EntityResolver;
+import bluej.parser.entity.PackageResolver;
 import bluej.parser.symtab.ClassInfo;
+import bluej.utility.JavaNames;
 import bluej.views.Comment;
 import bluej.views.MethodView;
 import bluej.views.View;
@@ -117,6 +120,7 @@ public class ProjectJavadocResolver implements JavadocResolver
     private Properties getCommentsFromSource(String target)
     {
         List<File> sourcePath = project.getSourcePath();
+        String pkg = JavaNames.getPrefix(target);
         String entName = target.replace('.', '/') + ".java";
         
         for (File pathEntry : sourcePath) {
@@ -127,7 +131,9 @@ public class ProjectJavadocResolver implements JavadocResolver
                     if (zipEnt != null) {
                         InputStream zeis = zipFile.getInputStream(zipEnt);
                         Reader r = new InputStreamReader(zeis);
-                        ClassInfo info = InfoParser.parse(r, project.getEntityResolver(), null);
+                        EntityResolver resolver = new PackageResolver(project.getEntityResolver(),
+                                pkg);
+                        ClassInfo info = InfoParser.parse(r, resolver, null);
                         if (info == null) {
                             return null;
                         }

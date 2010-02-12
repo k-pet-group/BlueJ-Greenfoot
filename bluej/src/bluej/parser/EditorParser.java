@@ -339,6 +339,8 @@ public class EditorParser extends JavaParser
                     currentQuerySource(), tokens);
             TypeEntity tentity = (entity != null) ? entity.resolveAsType() : null;
             pcuNode.getImports().addNormalImport(memberName, tentity);
+            // DAV we should look up the name fully qualified
+            //    be careful of inner types though.
         }
     }
     

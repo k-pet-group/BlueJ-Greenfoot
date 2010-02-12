@@ -51,6 +51,8 @@ import bluej.extmgr.MenuManager;
 import bluej.graph.GraphEditor;
 import bluej.graph.Moveable;
 import bluej.graph.Vertex;
+import bluej.parser.entity.EntityResolver;
+import bluej.parser.entity.PackageResolver;
 import bluej.parser.entity.ParsedReflective;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedTypeNode;
@@ -93,7 +95,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 7070 2010-02-01 06:20:09Z davmac $
+ * @version $Id: ClassTarget.java 7126 2010-02-12 05:09:17Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -806,8 +808,10 @@ public class ClassTarget extends DependentTarget
             }
             
             Project project = getPackage().getProject();
-            editor = EditorManager.getEditorManager().openClass(filename, docFilename, getBaseName(), this,
-                    isCompiled(), editorBounds, project.getEntityResolver(),
+            EntityResolver resolver = new PackageResolver(project.getEntityResolver(),
+                    getPackage().getQualifiedName());
+            editor = EditorManager.getEditorManager().openClass(filename, docFilename,
+                    getBaseName(), this, isCompiled(), editorBounds, resolver,
                     project.getJavadocResolver());
             
             // editor may be null if source has been deleted

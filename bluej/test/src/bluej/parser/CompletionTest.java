@@ -32,7 +32,9 @@ import junit.framework.TestCase;
 import bluej.debugger.gentype.JavaType;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
+import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.PackageResolver;
 import bluej.parser.nodes.ParsedCUNode;
 
 public class CompletionTest extends TestCase
@@ -79,6 +81,7 @@ public class CompletionTest extends TestCase
         ParsedCUNode aNode = cuForSource(aClassSrc);
         resolver.addCompilationUnit("", aNode);
         
+        EntityResolver resolver = new PackageResolver(this.resolver, "");
         JavaEntity aClassEnt = resolver.resolvePackageOrClass("A", "");
         Reader r = new StringReader("");
         CompletionParser cp = new CompletionParser(resolver, r, aClassEnt);
@@ -102,6 +105,7 @@ public class CompletionTest extends TestCase
         ParsedCUNode aNode = cuForSource(aClassSrc);
         resolver.addCompilationUnit("", aNode);
         
+        EntityResolver resolver = new PackageResolver(this.resolver, "");
         JavaEntity aClassEnt = resolver.resolvePackageOrClass("A", "");
         Reader r = new StringReader("");
         CompletionParser cp = new CompletionParser(resolver, r, aClassEnt);
@@ -125,6 +129,7 @@ public class CompletionTest extends TestCase
         ParsedCUNode aNode = cuForSource(aClassSrc);
         resolver.addCompilationUnit("", aNode);
         
+        EntityResolver resolver = new PackageResolver(this.resolver, "");
         JavaEntity aClassEnt = resolver.resolvePackageOrClass("A", "");
         Reader r = new StringReader("");
         CompletionParser cp = new CompletionParser(resolver, r, aClassEnt);
@@ -156,6 +161,7 @@ public class CompletionTest extends TestCase
         ParsedCUNode bNode = cuForSource(bClassSrc);
         resolver.addCompilationUnit("", bNode);
 
+        EntityResolver resolver = new PackageResolver(this.resolver, "");
         JavaEntity bClassEnt = resolver.resolvePackageOrClass("B", "");
         Reader r = new StringReader("A.");
         CompletionParser cp = new CompletionParser(bNode, r, bClassEnt);
