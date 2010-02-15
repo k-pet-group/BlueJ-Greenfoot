@@ -177,6 +177,10 @@ public class ParsedCUNode extends ParentParsedNode
             poc = imports.getTypeImportWC(name);
         }
         if (poc == null && parentResolver != null) {
+            // Implicit "import java.lang.*"
+            poc = parentResolver.resolveQualifiedClass("java.lang." + name);
+        }
+        if (poc == null && parentResolver != null) {
             return parentResolver.resolvePackageOrClass(name, querySource);
         }
         return poc;

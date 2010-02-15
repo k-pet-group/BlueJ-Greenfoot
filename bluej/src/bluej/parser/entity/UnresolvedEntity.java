@@ -117,7 +117,15 @@ public class UnresolvedEntity extends JavaEntity
             entity = entity.getPackageOrClassMember(i.next());
         }
         if (entity != null) {
-            return entity.resolveAsType();
+            TypeEntity tentity = entity.resolveAsType();
+            if (tentity != null) {
+                if (typeArguments != null) {
+                    return tentity.setTypeArgs(typeArguments);
+                }
+                else {
+                    return tentity;
+                }
+            }
         }
         return null;
     }

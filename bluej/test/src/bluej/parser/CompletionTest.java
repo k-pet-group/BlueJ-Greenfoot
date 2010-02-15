@@ -59,9 +59,10 @@ public class CompletionTest extends TestCase
     /**
      * Generate a compilation unit node based on some source code.
      */
-    private ParsedCUNode cuForSource(String sourceCode)
+    private ParsedCUNode cuForSource(String sourceCode, String pkg)
     {
-        MoeSyntaxDocument document = new MoeSyntaxDocument(resolver);
+        EntityResolver presolver = new PackageResolver(resolver, pkg);
+        MoeSyntaxDocument document = new MoeSyntaxDocument(presolver);
         try {
             document.insertString(0, sourceCode, null);
         }
@@ -78,7 +79,7 @@ public class CompletionTest extends TestCase
         "  public static int f = 0;" +
         "}";
 
-        ParsedCUNode aNode = cuForSource(aClassSrc);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
         
         EntityResolver resolver = new PackageResolver(this.resolver, "");
@@ -102,7 +103,7 @@ public class CompletionTest extends TestCase
         "  public static int f[] = null;" +
         "}";
 
-        ParsedCUNode aNode = cuForSource(aClassSrc);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
         
         EntityResolver resolver = new PackageResolver(this.resolver, "");
@@ -126,7 +127,7 @@ public class CompletionTest extends TestCase
         "  public static int f, g[] = null;" +
         "}";
 
-        ParsedCUNode aNode = cuForSource(aClassSrc);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
         
         EntityResolver resolver = new PackageResolver(this.resolver, "");
@@ -154,11 +155,11 @@ public class CompletionTest extends TestCase
         "  public static int f = 0;" +
         "}";
 
-        ParsedCUNode aNode = cuForSource(aClassSrc);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
 
         String bClassSrc = "class B { }";
-        ParsedCUNode bNode = cuForSource(bClassSrc);
+        ParsedCUNode bNode = cuForSource(bClassSrc, "");
         resolver.addCompilationUnit("", bNode);
 
         EntityResolver resolver = new PackageResolver(this.resolver, "");
@@ -188,7 +189,7 @@ public class CompletionTest extends TestCase
         PlainDocument doc = new PlainDocument();
         doc.insertString(0, aClassSrc, null);
         
-        ParsedCUNode aNode = cuForSource(aClassSrc);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
         
         CodeSuggestions suggests = aNode.getExpressionType(73, doc);
@@ -210,7 +211,7 @@ public class CompletionTest extends TestCase
         PlainDocument doc = new PlainDocument();
         doc.insertString(0, aClassSrc, null);
         
-        ParsedCUNode aNode = cuForSource(aClassSrc);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
         
         CodeSuggestions suggests = aNode.getExpressionType(73, doc);
@@ -234,7 +235,7 @@ public class CompletionTest extends TestCase
         PlainDocument doc = new PlainDocument();
         doc.insertString(0, aClassSrc, null);
         
-        ParsedCUNode aNode = cuForSource(aClassSrc);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
         
         CodeSuggestions suggests = aNode.getExpressionType(60, doc);
@@ -257,7 +258,7 @@ public class CompletionTest extends TestCase
         PlainDocument doc = new PlainDocument();
         doc.insertString(0, aClassSrc, null);
         
-        ParsedCUNode aNode = cuForSource(aClassSrc);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
         
         CodeSuggestions suggests = aNode.getExpressionType(44, doc);
@@ -280,7 +281,7 @@ public class CompletionTest extends TestCase
         PlainDocument doc = new PlainDocument();
         doc.insertString(0, aClassSrc, null);
         
-        ParsedCUNode aNode = cuForSource(aClassSrc);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("abc", aNode);
 
         CodeSuggestions suggests = aNode.getExpressionType(44, doc);

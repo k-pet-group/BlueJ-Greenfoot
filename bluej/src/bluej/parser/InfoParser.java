@@ -30,6 +30,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeParameter;
+import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaType;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
@@ -187,8 +190,7 @@ public class InfoParser extends EditorParser
             if (entity != null) {
                 JavaType etype = entity.getType();
                 if (! etype.isPrimitive()) {
-                    String typeString = etype.getErasedType().toString();
-                    addTypeReference(typeString);
+                    addTypeReference(etype);
                 }
             }
         }
@@ -204,8 +206,7 @@ public class InfoParser extends EditorParser
             while (entity != null && i.hasNext()) {
                 TypeEntity typeEnt = entity.resolveAsType();
                 if (typeEnt != null && ! typeEnt.getType().isPrimitive()) {
-                    String typeString = entity.getType().getErasedType().toString();
-                    addTypeReference(typeString);
+                    addTypeReference(entity.getType());
                 }
                 entity = entity.getSubentity(i.next().getText());
                 if (entity != null && entity.resolveAsValue() != null) {
@@ -215,8 +216,28 @@ public class InfoParser extends EditorParser
             if (! i.hasNext() && entity != null) {
                 TypeEntity typeEnt = entity.resolveAsType();
                 if (typeEnt != null && ! typeEnt.getType().isPrimitive()) {
-                    String typeString = entity.getType().getErasedType().toString();
-                    addTypeReference(typeString);
+                    addTypeReference(entity.getType());
+                }
+            }
+        }
+    }
+    
+    /**
+     * Add a reference to a type, and recursively process its type arguments (if any)
+     */
+    private void addTypeReference(JavaType type)
+    {
+        GenTypeClass ctype = type.asClass();
+        if (ctype != null) {
+            addTypeReference(ctype.getErasedType().toString());
+            List<GenTypeParameter> plist = ctype.getTypeParamList();
+            for (GenTypeParameter param : plist) {
+                GenTypeSolid [] ubounds = param.getUpperBounds();
+                for (GenTypeSolid ubound : ubounds) {
+                    GenTypeClass ubctype = ubound.asClass();
+                    if (ubctype != null) {
+                        addTypeReference(ubctype);
+                    }
                 }
             }
         }

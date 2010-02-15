@@ -32,7 +32,9 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
+import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageOrClass;
+import bluej.parser.entity.PackageResolver;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
@@ -60,8 +62,9 @@ public class EditorParserTest extends TestCase
     /**
      * Generate a compilation unit node based on some source code.
      */
-    private ParsedCUNode cuForSource(String sourceCode)
+    private ParsedCUNode cuForSource(String sourceCode, String pkg)
     {
+        EntityResolver resolver = new PackageResolver(this.resolver, pkg);
         MoeSyntaxDocument document = new MoeSyntaxDocument(resolver);
         try {
             document.insertString(0, sourceCode, null);
@@ -80,7 +83,7 @@ public class EditorParserTest extends TestCase
             + "    }\n"
             + "}\n";
             
-        ParsedCUNode pcuNode = cuForSource(sourceCode);
+        ParsedCUNode pcuNode = cuForSource(sourceCode, "");
         NodeAndPosition classNP = pcuNode.findNodeAtOrAfter(0, 0);
         assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNP.getNode().getNodeType());
         assertEquals(0, classNP.getPosition());
@@ -104,9 +107,10 @@ public class EditorParserTest extends TestCase
         "  }\n" +
         "}\n";
 
-        ParsedCUNode aNode = cuForSource(aClassSrc);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
         
+        EntityResolver resolver = new PackageResolver(this.resolver, "");
         TypeEntity aClassEnt = resolver.resolvePackageOrClass("A", "A").resolveAsType();
         GenTypeClass aClass = aClassEnt.getType().getCapture().asClass();
         Map<String,Set<MethodReflective>> methods = aClass.getReflective().getDeclaredMethods();
@@ -128,7 +132,7 @@ public class EditorParserTest extends TestCase
         "  }\n" +                            // position 55 
         "}\n";
 
-        ParsedCUNode aNode = cuForSource(aClassSrc);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
         NodeAndPosition classNP = aNode.findNodeAtOrAfter(0, 0);
         assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNP.getNode().getNodeType());
         assertEquals(0, classNP.getPosition());
@@ -155,7 +159,7 @@ public class EditorParserTest extends TestCase
             + "  }"
             + "}\n";
             
-        ParsedCUNode pcuNode = cuForSource(sourceCode);
+        ParsedCUNode pcuNode = cuForSource(sourceCode, "");
         assertNotNull(pcuNode);
     }
     
@@ -163,7 +167,7 @@ public class EditorParserTest extends TestCase
     {
         String sourceCode = ""
             + "class A { }\n";
-        ParsedCUNode aNode = cuForSource(sourceCode);
+        ParsedCUNode aNode = cuForSource(sourceCode, "");
         PackageOrClass apoc = aNode.resolvePackageOrClass("A", "");
         assertNotNull(apoc);
         TypeEntity aTyent = apoc.resolveAsType();
@@ -176,7 +180,7 @@ public class EditorParserTest extends TestCase
         resolver.addCompilationUnit("", aNode);
         
         sourceCode = "class B extends A {}\n";
-        ParsedCUNode bNode = cuForSource(sourceCode);
+        ParsedCUNode bNode = cuForSource(sourceCode, "");
         PackageOrClass bpoc = bNode.resolvePackageOrClass("B", "");
         assertNotNull(bpoc);
         TypeEntity bTyent = bpoc.resolveAsType();

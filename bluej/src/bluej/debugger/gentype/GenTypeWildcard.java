@@ -36,7 +36,7 @@ import bluej.utility.Debug;
  * This is an Immutable type.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeWildcard.java 6938 2009-12-15 03:26:24Z davmac $
+ * @version $Id: GenTypeWildcard.java 7129 2010-02-15 03:11:04Z davmac $
  */
 public class GenTypeWildcard extends GenTypeParameter
 {
@@ -193,7 +193,12 @@ public class GenTypeWildcard extends GenTypeParameter
      */
     public GenTypeSolid[] getUpperBounds()
     {
-        return upperBound.getUpperBounds();
+        if (upperBound != null) {
+            return upperBound.getUpperBounds();
+        }
+        else {
+            return new GenTypeSolid[0];
+        }
     }
     
     public GenTypeSolid getUpperBound()

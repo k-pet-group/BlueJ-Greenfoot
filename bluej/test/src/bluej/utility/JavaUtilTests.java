@@ -68,7 +68,7 @@ public class JavaUtilTests extends TestCase
     {
         JavaUtils jutils = JavaUtils.getJavaUtils();
         boolean onjava5 = true;
-        String majorVersion = System.getProperty("java.specification.version");        
+        // String majorVersion = System.getProperty("java.specification.version");        
         // boolean onjava6 = majorVersion.compareTo("1.6") >= 0;
         
         Method sampleMeth = null;
