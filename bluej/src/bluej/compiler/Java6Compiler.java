@@ -172,39 +172,49 @@ public class Java6Compiler extends Compiler {
      */
     protected String processMessage(String src, int pos, String msg)
     {
-        //the message is in this format 
-        //path and filename:line number:message
-        //i.e includes the path and line number so need to strip that off
-        //trimming the message to exclude path etc
-        //beginIndex=src.length +1 (:) + number of digits in pos +1(:)
-        int  beginIndex=src.length()+1+String.valueOf(pos).length()+2;
-        String message=msg.substring(beginIndex, msg.length());
+        // The message is in this format: 
+        //   path and filename:line number:message
+        // i.e includes the path and line number; so we need to strip that off
+        String expected = src + ":" + pos + ": ";
+        if (! msg.startsWith(expected)) {
+            // Hmm, it's not a format we recgonize
+            return src;
+        }
+        
+        String message = msg.substring(expected.length());
         if (message.contains("cannot resolve symbol")
                 || message.contains("cannot find symbol")
                 || message.contains("incompatible types")) {
-            //dividing the message into its different lines so can retrieve necessary values
-            int index1,index2, index3=0;
+            // divide the message into lines so we can retrieve necessary values
+            int index1, index2;
             String line2, line3;
-            index1=msg.indexOf('\n');
-            index2=msg.indexOf('\n',index1+1);
-            index3=msg.length();
+            index1=message.indexOf('\n');
+            if (index1 == -1) {
+                // We don't know how to handle this.
+                return msg;
+            }
+            index2=message.indexOf('\n',index1+1);
             //i.e there are only 2 lines not 3
-            if (index2<index1)
-                index2=index3;
-            message=msg.substring(beginIndex, index1);
-            line2=msg.substring(index1, index2);
-            line3=msg.substring(index2,index3);
+            if (index2 < index1) {
+                line2 = message.substring(index1).trim();
+                line3 = "";
+            }
+            else {
+                line2 = message.substring(index1, index2).trim();
+                line3 = message.substring(index2).trim();
+            }
+            message=message.substring(0, index1);
 
             //e.g incompatible types
             //found   : int
             //required: java.lang.String
-            if (line2.contains("found"))                
+            if (line2.startsWith("found"))                
                 message= message +" - found "+line2.substring(line2.indexOf(':')+2, line2.length());
-            if (line3.contains("required"))
+            if (line3.startsWith("required"))
                 message= message +" but expected "+line3.substring(line3.indexOf(':')+2, line3.length());
             //e.g cannot find symbol
             //symbol: class Persons
-            if (line2.contains("symbol"))                
+            if (line2.startsWith("symbol:"))                
                 message= message +" - "+line2.substring(line2.indexOf(':')+2, line2.length());          
         }
         return message;
