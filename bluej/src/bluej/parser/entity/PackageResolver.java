@@ -42,7 +42,6 @@ public class PackageResolver implements EntityResolver
     /* (non-Javadoc)
      * @see bluej.parser.entity.EntityResolver#getValueEntity(java.lang.String, java.lang.String)
      */
-    @Override
     public JavaEntity getValueEntity(String name, String querySource)
     {
         return resolvePackageOrClass(name, querySource);
@@ -51,7 +50,6 @@ public class PackageResolver implements EntityResolver
     /* (non-Javadoc)
      * @see bluej.parser.entity.EntityResolver#resolvePackageOrClass(java.lang.String, java.lang.String)
      */
-    @Override
     public PackageOrClass resolvePackageOrClass(String name, String querySource)
     {
         String fqName = (pkg.length() == 0) ? name : pkg + "." + name;
@@ -67,7 +65,6 @@ public class PackageResolver implements EntityResolver
     /* (non-Javadoc)
      * @see bluej.parser.entity.EntityResolver#resolveQualifiedClass(java.lang.String)
      */
-    @Override
     public TypeEntity resolveQualifiedClass(String name)
     {
         return parentResolver.resolveQualifiedClass(name);

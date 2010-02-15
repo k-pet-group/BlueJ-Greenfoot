@@ -3388,7 +3388,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
             // Sort the completions by name
             Collections.sort(completions, new Comparator<AssistContent>() {
-                @Override
                 public int compare(AssistContent o1, AssistContent o2)
                 {
                     return o1.getDisplayName().compareTo(o2.getDisplayName());
