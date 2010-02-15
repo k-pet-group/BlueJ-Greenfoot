@@ -33,6 +33,7 @@ import bluej.parser.entity.SolidTargEntity;
 import bluej.parser.entity.TypeArgumentEntity;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.UnboundedWildcardEntity;
+import bluej.parser.entity.UnresolvedArray;
 import bluej.parser.entity.UnresolvedEntity;
 import bluej.parser.entity.WildcardExtendsEntity;
 import bluej.parser.entity.WildcardSuperEntity;
@@ -67,7 +68,7 @@ public class ParseUtils
     }
     
     /**
-     * Get an entity for a type specification. The returned entity be unresolved.
+     * Get an entity for a type specification. The returned entity may be unresolved.
      */
     private static JavaEntity getTypeEntity(EntityResolver resolver, String querySource,
             ListIterator<LocatableToken> i, DepthRef depthRef)
@@ -135,24 +136,19 @@ public class ParseUtils
                 token = i.next();
             }
             if (token.getType() != JavaTokenTypes.DOT) {
-                poc = poc.resolveAsType();
-                if (poc == null) {
-                    return null;
-                }
-                
                 while (token.getType() == JavaTokenTypes.LBRACK) {
-                    poc = new TypeEntity(poc.getType().getCapture().getArray());
+                    poc = new UnresolvedArray(poc);
                     if (i.hasNext()) {
                         token = i.next(); // RBRACK
                     }
                     if (! i.hasNext()) {
-                        return poc.resolveAsType();
+                        return poc;
                     }
                     token = i.next();
                 }
                 
                 i.previous(); // allow token to be re-read by caller
-                return poc.resolveAsType();
+                return poc;
             }
             token = i.next();            
             if (token.getType() != JavaTokenTypes.IDENT) {
