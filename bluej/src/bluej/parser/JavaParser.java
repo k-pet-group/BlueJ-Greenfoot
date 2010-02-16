@@ -1672,7 +1672,13 @@ public class JavaParser
             endIfStmt(tokenStream.LA(1), false);
         }
     }
-        
+       
+    public LocatableToken parseVariableDeclarations()
+    {
+        LocatableToken first = tokenStream.LA(1);
+        return parseVariableDeclarations(first);
+    }
+    
     /**
      * Parse a variable declaration, possibly with an initialiser, always followed by ';'
      * 
@@ -1684,6 +1690,10 @@ public class JavaParser
         beginVariableDecl(first);
         parseModifiers();
         boolean r = parseVariableDeclaration(first);
+        // parseVariableDeclaration calls modifiersConsumed(); i.e. we act as if
+        // the modifiers are consumed by the type rather than the variables.
+        // This is necessary because an initializer expression might contain an anonymous
+        // class containing modifiers.
         if (r) {
             return parseSubsequentDeclarations(DECL_TYPE_VAR);
         }
@@ -1785,7 +1795,7 @@ public class JavaParser
      * Parse a variable (or field or parameter) declaration, possibly including an initialiser
      * (but not including modifiers)
      */
-    public boolean parseVariableDeclaration(LocatableToken first)
+    private boolean parseVariableDeclaration(LocatableToken first)
     {
         if (!parseTypeSpec(true)) {
             return false;

@@ -140,6 +140,13 @@ public class TextAnalyzer
         }
         catch (Exception e) {}
         
+        parser = new TextParser(resolver, command);
+        try {
+            if (parser.parseVariableDeclarations() != null && parser.atEnd()) {
+            }
+        }
+        catch (Exception e) {}
+        
         // Check if it's an expression
         parser = new TextParser(resolver, command);
         try {
