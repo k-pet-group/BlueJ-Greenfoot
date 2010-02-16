@@ -33,6 +33,7 @@ import bluej.debugger.gentype.MethodReflective;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
+import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.PackageResolver;
 import bluej.parser.entity.TypeEntity;
@@ -192,4 +193,29 @@ public class EditorParserTest extends TestCase
         assertEquals("A", supers.get(0).toString());
     }
 
+    public void testImport()
+    {
+        String abcSrc = "package xyz; public class abc { public static class def { }}";
+        ParsedCUNode abcNode = cuForSource(abcSrc, "xyz");
+        resolver.addCompilationUnit("xyz", abcNode);
+        
+        String defSrc = "package abc; public class def { }";
+        ParsedCUNode defNode = cuForSource(defSrc, "abc");
+        resolver.addCompilationUnit("abc", defNode);
+        
+        String tSrc = "package xyz; import abc.def; class T { public static def field; }";
+        ParsedCUNode tNode = cuForSource(tSrc, "xyz");
+        resolver.addCompilationUnit("xyz", tNode);
+        
+        // We want to check that "import abc.def" correctly imports the "def" class from
+        // the "abc" package rather than importing the "def" inner class from the "abc"
+        // class in the current package ("xyz").
+        TypeEntity tent = resolver.resolveQualifiedClass("xyz.T");
+        assertNotNull(tent);
+        JavaEntity fEnt = tent.getSubentity("field");
+        assertNotNull(fEnt);
+        JavaEntity fVal = fEnt.resolveAsValue();
+        assertNotNull(fVal);
+        assertEquals("abc.def", fVal.getType().toString());
+    }
 }

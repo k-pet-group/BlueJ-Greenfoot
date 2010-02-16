@@ -331,16 +331,22 @@ public class EditorParser extends JavaParser
             JavaEntity entity = ParseUtils.getTypeEntity(parentResolver,
                     currentQuerySource(), newList);
             TypeEntity tentity = (entity != null) ? entity.resolveAsType() : null;
-            pcuNode.getImports().addStaticImport(memberName, tentity);
+            if (tentity != null) {
+                pcuNode.getImports().addStaticImport(memberName, tentity);
+            }
         }
         else {
             String memberName = tokens.get(tokens.size() - 1).getText();
             JavaEntity entity = ParseUtils.getTypeEntity(parentResolver,
                     currentQuerySource(), tokens);
             TypeEntity tentity = (entity != null) ? entity.resolveAsType() : null;
-            pcuNode.getImports().addNormalImport(memberName, tentity);
-            // DAV we should look up the name fully qualified
-            //    be careful of inner types though.
+            if (tentity != null) {
+                pcuNode.getImports().addNormalImport(memberName, tentity);
+            }
+            // TODO we should look up the name fully qualified, that is, the first
+            // component *must* be a package and not a class in the current package.
+            // Be careful of inner types though (i.e. the imported type might be
+            // an inner class).
         }
     }
     
