@@ -21,9 +21,7 @@
  */
 package bluej.editor.moe;
 
-import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 
 import javax.swing.BorderFactory;

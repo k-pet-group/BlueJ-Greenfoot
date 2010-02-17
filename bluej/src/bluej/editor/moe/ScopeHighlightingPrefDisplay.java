@@ -46,18 +46,22 @@ public class ScopeHighlightingPrefDisplay extends JPanel implements ChangeListen
     public static final int MAX=20;
     JSlider slider;
     JPanel colorPanel;
-    JPanel greenTextArea;
-    JPanel yellowTextArea;
-    JPanel pinkTextArea;
-    JPanel blueTextArea;
+    JPanel greenPanelArea;
+    JPanel yellowPanelArea;
+    JPanel pinkPanelArea;
+    JPanel bluePanelArea;
     Color greenArea=new Color(235, 250, 235);
     Color pinkArea=new Color(250, 240, 250);
     Color yellowArea=new Color(250, 250, 225);
     Color blueArea=new Color(240, 240, 250);
-    Color greenSetting;
-    Color yellowSetting;
-    Color pinkSetting;
-    Color blueSetting;
+    Color greenBorder=new Color(225, 238, 225);
+    Color pinkBorder=new Color(225, 203, 225);
+    Color yellowBorder=new Color(228, 228, 205);
+    Color blueBorder=new Color(210, 210, 225);
+    Color greenSetting, greenSettingBorder;
+    Color yellowSetting, yellowSettingBorder;
+    Color pinkSetting, pinkSettingBorder;
+    Color blueSetting, blueSettingBorder;
     Color bg;
 
     /**
@@ -84,20 +88,16 @@ public class ScopeHighlightingPrefDisplay extends JPanel implements ChangeListen
         //initialises the color palette
         {
             colorPanel=new JPanel(new GridLayout(4,1,0,0));     
-            colorPanel.setBorder(BorderFactory.createLineBorder(bg,5));
-            //colorPanel.get
-            greenTextArea=new JPanel();
-            setGreenPalette();
-            yellowTextArea=new JPanel();
-            setYellowPalette();
-            pinkTextArea=new JPanel();
-            setPinkPalette();
-            blueTextArea=new JPanel();
-            setBluePalette();
-            colorPanel.add(greenTextArea);
-            colorPanel.add(yellowTextArea);
-            colorPanel.add(pinkTextArea);  
-            colorPanel.add(blueTextArea);
+            colorPanel.setBorder(BorderFactory.createLineBorder(bg, 10));
+            greenPanelArea=new JPanel();
+            yellowPanelArea=new JPanel();
+            pinkPanelArea=new JPanel();
+            bluePanelArea=new JPanel();
+            setPaletteValues();
+            colorPanel.add(greenPanelArea);
+            colorPanel.add(yellowPanelArea);
+            colorPanel.add(pinkPanelArea);  
+            colorPanel.add(bluePanelArea);
         }
     }
 
@@ -108,7 +108,7 @@ public class ScopeHighlightingPrefDisplay extends JPanel implements ChangeListen
         return slider;
 
     }
-    
+
     /*
      * Returns the color palette
      */
@@ -127,6 +127,7 @@ public class ScopeHighlightingPrefDisplay extends JPanel implements ChangeListen
 
     /*
      * Setting the colour relative to the background colour of the document
+     * and using the value of the slider to calculate strength
      */
     private Color getReducedColor(Color thisColor)
     {
@@ -145,40 +146,56 @@ public class ScopeHighlightingPrefDisplay extends JPanel implements ChangeListen
     protected void setGreenPalette()
     {
         greenSetting= getReducedColor(greenArea);
-        greenTextArea.setBackground(greenSetting);
+        greenPanelArea.setBackground(greenSetting);
+        greenSettingBorder=getReducedColor(greenBorder);
+        greenPanelArea.setBorder(BorderFactory.createLineBorder(greenSettingBorder));
     }
-    
+
     /*
      * Sets the yellow palette
      */
     protected void setYellowPalette()
     {
         yellowSetting= getReducedColor(yellowArea);
-        yellowTextArea.setBackground(yellowSetting);
+        yellowPanelArea.setBackground(yellowSetting);
+        yellowSettingBorder=getReducedColor(yellowBorder);
+        yellowPanelArea.setBorder(BorderFactory.createLineBorder(yellowSettingBorder));
     }
-    
+
     /*
      * Sets the pink palette
      */
     protected void setPinkPalette()
     {
         pinkSetting= getReducedColor(pinkArea);
-        pinkTextArea.setBackground(pinkSetting);
+        pinkPanelArea.setBackground(pinkSetting);
+        pinkSettingBorder=getReducedColor(pinkBorder);
+        pinkPanelArea.setBorder(BorderFactory.createLineBorder(pinkSettingBorder));
     }
-    
+
     /*
      * Sets the blue palette
      */
     protected void setBluePalette()
     {
         blueSetting= getReducedColor(blueArea);
-        blueTextArea.setBackground(blueSetting);
+        bluePanelArea.setBackground(blueSetting);
+        blueSettingBorder=getReducedColor(blueBorder);
+        bluePanelArea.setBorder(BorderFactory.createLineBorder(blueSettingBorder));
     }
 
     /*
      * When the slider is moved, the color palette updates immediately 
      */
     public void stateChanged(ChangeEvent e) {
+        setPaletteValues();
+    }
+
+    /*
+     * Updates the palette with the color of the wash and border
+     */
+    private void setPaletteValues()
+    {
         setGreenPalette();
         setYellowPalette();
         setBluePalette();
