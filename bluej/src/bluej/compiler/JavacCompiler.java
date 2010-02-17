@@ -34,7 +34,7 @@ import bluej.utility.DialogManager;
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Bruce Quig
- * @version $Id: JavacCompiler.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: JavacCompiler.java 7139 2010-02-17 05:36:05Z davmac $
  */
 class JavacCompiler extends Compiler
 {
@@ -49,7 +49,7 @@ class JavacCompiler extends Compiler
 
     public boolean compile(File[] sources, CompileObserver watcher, boolean internal)
     {
-        List args = new ArrayList();
+        List<String> args = new ArrayList<String>();
 
         args.add(executable);       
 

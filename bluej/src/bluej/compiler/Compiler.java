@@ -33,12 +33,9 @@ import bluej.Config;
  * Compiler class - an abstract interface to a source -> bytecode compiler. This
  * can be implemented by different compiler implementations.
  * 
- * Currently known implementations: JavacCompiler, JikesCompiler.
- * 
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: Compiler.java 7085 2010-02-03 02:28:15Z marionz $
  */
 abstract class Compiler
 {
@@ -95,9 +92,9 @@ abstract class Compiler
      * 
      * @return A list of compile options.
      */
-    protected List getCompileOptions()
+    protected List<String> getCompileOptions()
     {
-        List args = new ArrayList();
+        List<String> args = new ArrayList<String>();
 
         if (getDestDir() != null) {
             args.add("-d");
@@ -135,7 +132,7 @@ abstract class Compiler
         return args;
     }
 
-    protected void addUserSpecifiedOptions(List args, String options)
+    protected void addUserSpecifiedOptions(List<String> args, String options)
     {
         String compilerOptions = Config.getPropString(options, null);
         if (compilerOptions != null) {
