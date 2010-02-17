@@ -31,12 +31,11 @@ import bluej.terminal.InputBuffer;
  * signals (CTRL-Z or CTRL-D) from a terminal
  * 
  * @author Davin McCall
- * @version $Id: BJInputStream.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: BJInputStream.java 7142 2010-02-17 23:47:00Z davmac $
  */
 public class BJInputStream extends InputStream
 {
     private InputStream source;
-    private byte [] buffer = null;
     int buffoffset = 0;
     
     boolean endOfLine = false;
