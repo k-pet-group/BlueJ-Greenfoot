@@ -961,13 +961,13 @@ public class EditorParser extends JavaParser
     }
     
     @Override
-    protected void gotVariableDecl(LocatableToken first, LocatableToken idToken)
+    protected void gotVariableDecl(LocatableToken first, LocatableToken idToken, boolean inited)
     {
         gotField(first, idToken);
     }
     
     @Override
-    protected void gotSubsequentVar(LocatableToken first, LocatableToken idToken)
+    protected void gotSubsequentVar(LocatableToken first, LocatableToken idToken, boolean inited)
     {
         gotSubsequentField(first, idToken);
     }

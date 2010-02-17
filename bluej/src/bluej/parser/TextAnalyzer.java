@@ -51,6 +51,7 @@ import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
+import bluej.debugmgr.texteval.DeclaredVar;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageEntity;
@@ -140,9 +141,34 @@ public class TextAnalyzer
         }
         catch (Exception e) {}
         
-        parser = new TextParser(resolver, command);
+        CodepadVarParser vparser = new CodepadVarParser(resolver, command);
         try {
-            if (parser.parseVariableDeclarations() != null && parser.atEnd()) {
+            if (vparser.parseVariableDeclarations() != null) {
+                declVars = vparser.getVariables();
+                if (! declVars.isEmpty()) {
+                    for (DeclaredVar var : declVars) {
+                        if (! var.isInitialized() && ! var.isFinal()) {
+                            amendedCommand += "\n" + var.getName();
+                            String text;
+                            JavaType declVarType = var.getDeclaredType();
+                            if (declVarType.isPrimitive()) {
+                                if (declVarType.isNumeric()) {
+                                    text = " = 0";
+                                }
+                                else {
+                                    text = " = false";
+                                }
+                            }
+                            else {
+                                // reference type
+                                text = " = null";
+                            }
+                            amendedCommand += text + ";\n";
+                            System.out.println("amendedCommand = " + amendedCommand);
+                        }
+                    }
+                    return null; // not an expression
+                }
             }
         }
         catch (Exception e) {}
@@ -270,125 +296,6 @@ public class TextAnalyzer
             }
         }
     }
-
-    /**
-     * Add an import (be it regular or wildcard, normal or static) to the collection
-     * of imports.
-     * 
-     * @param importNode  The AST node representing the import statement
-     * 
-     * @throws SemanticException
-     * @throws RecognitionException
-     */
-//    void addImportToCollection(AST importNode)
-//        throws SemanticException, RecognitionException
-//    {
-//        if (importNode.getType() == JavaTokenTypes.IMPORT) {
-//            // Non-static import
-//            AST classNode = importNode.getFirstChild();
-//            AST fpNode = classNode.getFirstChild();
-//            AST className = fpNode.getNextSibling();
-//            
-//            // if className == '*' this is a wildcard
-//            if (className.getType() == JavaTokenTypes.STAR) {
-//                PackageOrClass importEntity = getPackageOrType(fpNode, true);
-//                imports.addWildcardImport(importEntity);
-//            }
-//            else {
-//                // A non-wildcard import.
-//                PackageOrClass importEntity = getPackageOrType(classNode, true);
-//                if (importEntity.isClass()) {
-//                    imports.addNormalImport(className.getText(), importEntity);
-//                }
-//            }
-//        }
-//        else if (importNode.getType() == JavaTokenTypes.STATIC_IMPORT) {
-//            // static import
-//            AST impNode = importNode.getFirstChild().getFirstChild();
-//            AST impNameNode = impNode.getNextSibling();
-//            if (impNameNode.getType() == JavaTokenTypes.STAR) {
-//                ClassEntity importEntity = (ClassEntity) getPackageOrType(impNode, true);
-//                imports.addStaticWildcardImport(importEntity);
-//            }
-//            else {
-//                String impName = impNameNode.getText();
-//                ClassEntity importEntity = (ClassEntity) getPackageOrType(impNode, true);
-//                imports.addStaticImport(impName, importEntity);
-//            }
-//        }
-//    }
-    
-    /**
-     * Check the command string for variable declarations/definitions.
-     * @param fcnode  The AST root.
-     * 
-     * @throws RecognitionException
-     */
-//    private void checkVars(LocatableAST fcnode, String command)
-//        throws RecognitionException
-//    {
-//        try {
-//            declVars = new ArrayList();
-//            ArrayList insPoint = new ArrayList(); // list of initializer insertion points
-//            ArrayList insText = new ArrayList();  // list of initializer insertion texts
-//            
-//            while (fcnode != null) {
-//
-//                // store the end position of the AST
-//                int ecol = fcnode.getEndColumn() - 2; // column numbers start at 1
-//                    // additionally, the end column is the column just beyond the
-//                    // semicolon or comma
-//
-//                // is a variable declared?
-//                if (fcnode.getType() == JavaTokenTypes.VARIABLE_DEF) {
-//                    boolean isFinal = false;
-//
-//                    // check modifiers for "final"
-//                    AST modnode = fcnode.getFirstChild(); // modifiers
-//                    AST firstMod = modnode.getFirstChild();
-//                    if (firstMod != null && firstMod.getType() == JavaTokenTypes.FINAL)
-//                        isFinal = true;
-//                    
-//                    // get type and name
-//                    AST typenode = modnode.getNextSibling();
-//                    JavaType declVarType = getTypeFromTypeNode(typenode);
-//                    AST namenode = typenode.getNextSibling();
-//                    String varName = namenode.getText();
-//                    boolean isVarInit = namenode.getNextSibling() != null;
-//                    declVars.add(new DeclaredVar(isVarInit, isFinal, declVarType, varName));
-//                    
-//                    if (! isVarInit) {
-//                        insPoint.add(new Integer(ecol - 1));
-//                        String text;
-//                        if (declVarType.isPrimitive()) {
-//                            if (declVarType.isNumeric()) {
-//                                text = "= 0";
-//                            }
-//                            else {
-//                                text = "= false";
-//                            }
-//                        }
-//                        else {
-//                            // reference type
-//                            text = "= null";
-//                        }
-//                        insText.add(text);
-//                    }
-//                }
-//                fcnode = (LocatableAST) fcnode.getNextSibling();
-//            }
-//            
-//            // insert the initialization strings
-//            amendedCommand = command;
-//            int i = insPoint.size();
-//            while (i-- > 0) {
-//                int ipoint = ((Integer) insPoint.get(i)).intValue();
-//                String itext = (String) insText.get(i);
-//                amendedCommand = amendedCommand.substring(0, ipoint) + itext + amendedCommand.substring(ipoint);
-//            }
-//        }
-//        catch (SemanticException se) {}
-//    }
     
     /**
      * Get a list of the variables declared in the recently parsed statement
@@ -1521,14 +1428,14 @@ public class TextAnalyzer
                 for (int i = 0; i < asts.length; i++) {
                     try {
                         GenTypeClass fMapped = cf.mapToSuper(asts[i].classloaderName());
-                        Map aMap = asts[i].getMap();
-                        Map fMap = fMapped.getMap();
+                        Map<String,GenTypeParameter> aMap = asts[i].getMap();
+                        Map<String,GenTypeParameter> fMap = fMapped.getMap();
                         if (aMap != null && fMap != null) {
-                            Iterator j = fMap.keySet().iterator();
+                            Iterator<String> j = fMap.keySet().iterator();
                             while (j.hasNext()) {
-                                String tpName = (String) j.next();
-                                GenTypeParameter fPar = (GenTypeParameter) fMap.get(tpName);
-                                GenTypeParameter aPar = (GenTypeParameter) aMap.get(tpName);
+                                String tpName = j.next();
+                                GenTypeParameter fPar = fMap.get(tpName);
+                                GenTypeParameter aPar = aMap.get(tpName);
                                 processFtoAtpar(aPar, fPar, tlbConstraints, teqConstraints);
                             }
                         }
@@ -2126,14 +2033,14 @@ public class TextAnalyzer
             // I am reasonably sure this gives the same result as the algorithm
             // described in the JLS section 15.12.2.5, and it has the advantage
             // of being a great deal simpler.
-            Iterator i = argTypes.iterator();
-            Iterator j = other.argTypes.iterator();
+            Iterator<JavaType> i = argTypes.iterator();
+            Iterator<JavaType> j = other.argTypes.iterator();
             int upCount = 0;
             int downCount = 0;
             
             while (i.hasNext()) {
-                JavaType myArg = (JavaType) i.next();
-                JavaType otherArg = (JavaType) j.next();
+                JavaType myArg = i.next();
+                JavaType otherArg = j.next();
                 
                 if (myArg.isAssignableFrom(otherArg)) {
                     if (! otherArg.isAssignableFrom(myArg))
@@ -2281,59 +2188,6 @@ public class TextAnalyzer
         public double doubleValue()
         {
             return val.doubleValue();
-        }
-    }
-    
-    /**
-     * A class to represent a variable declared by a statement. This contains
-     * the variable name and type, and whether or not it was initialized.
-     */
-    public class DeclaredVar
-    {
-        private boolean isVarInit = false;
-        private JavaType declVarType;
-        private String varName;
-        private boolean isFinal = false;
-        
-        public DeclaredVar(boolean isVarInit, boolean isFinal, JavaType varType, String varName)
-        {
-            this.isVarInit = isVarInit;
-            this.declVarType = varType;
-            this.varName = varName;
-            this.isFinal = isFinal;
-        }
-        
-        /**
-         * Check whether the variable declaration included an initialization.
-         */
-        public boolean checkVarInit()
-        {
-            return isVarInit;
-        }
-        
-        /**
-         * Get the type of variable which was declared by the recently parsed
-         * statement. 
-         */
-        public JavaType getDeclaredVarType()
-        {
-            return declVarType;
-        }
-        
-        /**
-         * Get the name of the declared variable.
-         */
-        public String getName()
-        {
-            return varName;
-        }
-        
-        /**
-         * Check whether the variable was declared "final".
-         */
-        public boolean checkFinal()
-        {
-            return isFinal;
         }
     }
 }

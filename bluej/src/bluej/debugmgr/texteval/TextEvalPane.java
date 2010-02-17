@@ -60,7 +60,6 @@ import bluej.debugmgr.ValueCollection;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.MoeSyntaxEditorKit;
 import bluej.parser.TextAnalyzer;
-import bluej.parser.TextAnalyzer.DeclaredVar;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
@@ -74,7 +73,7 @@ import bluej.utility.Utility;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 6930 2009-12-10 12:19:37Z davmac $
+ * @version $Id: TextEvalPane.java 7136 2010-02-17 03:15:57Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ValueCollection, ResultWatcher, MouseMotionListener
@@ -823,7 +822,7 @@ public class TextEvalPane extends JEditorPane
                                 autoInitializedVars = new ArrayList<String>();
                             }
                             
-                            TextAnalyzer.DeclaredVar dv = (TextAnalyzer.DeclaredVar) i.next();
+                            DeclaredVar dv = i.next();
                             String declaredName = dv.getName();
                             
                             if (getLocalVar(declaredName) != null) {
@@ -835,14 +834,14 @@ public class TextEvalPane extends JEditorPane
                                 return;
                             }
                             
-                            CodepadVar cpv = new CodepadVar(dv.getName(), dv.getDeclaredVarType(), dv.checkFinal());
+                            CodepadVar cpv = new CodepadVar(dv.getName(), dv.getDeclaredType(), dv.isFinal());
                             newlyDeclareds.add(cpv);
                             localVars.add(cpv);
 
                             // If the variable was declared but not initialized, the codepad
                             // auto-initializes it. We add to a list so that we can display
                             // a warning to that effect, once the command has completed.
-                            if (! dv.checkVarInit()) {
+                            if (! dv.isInitialized()) {
                                 autoInitializedVars.add(dv.getName());
                             }
                         }

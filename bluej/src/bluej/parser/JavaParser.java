@@ -253,10 +253,11 @@ public class JavaParser
      * Got the (first) variable in a variable declaration.
      * @param first    The first token in the declaration
      * @param idToken  The token with the variable identifier
+     * @param inited   Whether the variable is initialized as part of the declaration
      */
-    protected void gotVariableDecl(LocatableToken first, LocatableToken idToken) { }
+    protected void gotVariableDecl(LocatableToken first, LocatableToken idToken, boolean inited) { }
 
-    protected void gotSubsequentVar(LocatableToken first, LocatableToken idToken) { }
+    protected void gotSubsequentVar(LocatableToken first, LocatableToken idToken, boolean inited) { }
 
     protected void endVariable(LocatableToken token, boolean included) { }
 
@@ -1730,8 +1731,9 @@ public class JavaParser
                 return null;
             }
             parseArrayDeclarators();
-            gotSubsequentDecl(type, first, token);
+            LocatableToken idtoken = token;
             token = tokenStream.nextToken();
+            gotSubsequentDecl(type, first, idtoken, token.getType() == JavaTokenTypes.ASSIGN);
             if (token.getType() == JavaTokenTypes.ASSIGN) {
                 parseExpression();
                 token = tokenStream.nextToken();
@@ -1778,13 +1780,14 @@ public class JavaParser
         }
     }
     
-    private void gotSubsequentDecl(int type, LocatableToken firstToken, LocatableToken nameToken)
+    private void gotSubsequentDecl(int type, LocatableToken firstToken,
+            LocatableToken nameToken, boolean inited)
     {
         if (type == DECL_TYPE_FIELD) {
             gotSubsequentField(firstToken, nameToken);
         }
         else if (type == DECL_TYPE_VAR) {
-            gotSubsequentVar(firstToken, nameToken);
+            gotSubsequentVar(firstToken, nameToken, inited);
         }
         else {
             gotSubsequentForInit(firstToken, nameToken);
@@ -1808,12 +1811,13 @@ public class JavaParser
             return false;
         }
         
-        gotVariableDecl(first, token);
-
         // Array declarators can follow name
         parseArrayDeclarators();
 
+        LocatableToken idToken = token;
         token = tokenStream.nextToken();
+        gotVariableDecl(first, idToken, token.getType() == JavaTokenTypes.ASSIGN);
+
         if (token.getType() == JavaTokenTypes.ASSIGN) {
             parseExpression();
         }
