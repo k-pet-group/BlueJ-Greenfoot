@@ -54,7 +54,7 @@ public class PrefMgr
     public static final String SHOW_JAVAME_TOOLS = "bluej.javame.showtools";   
     public static final String SHOW_TEXT_EVAL = "bluej.startWithTextEval";
     public static final String SHOW_UNCHECKED = "bluej.compiler.showunchecked";
-    public static final String SCOPE_HIGHLIGHTING_STRENGTH = "bluej.editor.syntaxHilightingStrength";
+    public static final String SCOPE_HIGHLIGHTING_STRENGTH = "bluej.editor.scopeHilightingStrength";
     
     public static final String USE_THEMES = "bluej.useTheme";
 
@@ -122,7 +122,7 @@ public class PrefMgr
         targetFont = Config.getFont("bluej.target.font", "SansSerif-bold", targetFontSize);
         
         // preferences other than fonts:
-        highlightStrength = Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 0);
+        highlightStrength = Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 10);
         
         projectDirectory = Config.getPropString("bluej.projectPath");
         recentProjects = readRecentProjects();
