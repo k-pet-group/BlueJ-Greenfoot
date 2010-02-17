@@ -164,7 +164,6 @@ public class TextAnalyzer
                                 text = " = null";
                             }
                             amendedCommand += text + ";\n";
-                            System.out.println("amendedCommand = " + amendedCommand);
                         }
                     }
                     return null; // not an expression
