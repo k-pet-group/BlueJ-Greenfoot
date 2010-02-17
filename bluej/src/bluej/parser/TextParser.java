@@ -61,7 +61,7 @@ public class TextParser extends JavaParser
 {
     private EntityResolver resolver;
     
-    private Stack<JavaEntity> valueStack = new Stack<JavaEntity>();
+    protected Stack<JavaEntity> valueStack = new Stack<JavaEntity>();
     private int arrayCount = 0;
     
     /** A class to represent operators, possibly associated with a token */
@@ -434,6 +434,10 @@ public class TextParser extends JavaParser
         else if (token.getType() == JavaTokenTypes.STRING_LITERAL) {
             ValueEntity ent = new ValueEntity(new GenTypeClass(new JavaReflective(String.class)));
             valueStack.push(ent);
+        }
+        else {
+            // LITERAL_this or LITERAL_super
+            valueStack.push(new ErrorEntity());
         }
     }
     

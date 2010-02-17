@@ -163,4 +163,15 @@ public class CompletionParser extends TextParser
             }
         }
     }
+    
+    @Override
+    protected void gotLiteral(LocatableToken token)
+    {
+        if (token.getType() == JavaTokenTypes.LITERAL_this) {
+            valueStack.push(suggestionEntity);
+        }
+        else {
+            super.gotLiteral(token);
+        }
+    }
 }
