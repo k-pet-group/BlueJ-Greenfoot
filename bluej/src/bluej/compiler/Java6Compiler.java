@@ -208,14 +208,17 @@ public class Java6Compiler extends Compiler {
             //e.g incompatible types
             //found   : int
             //required: java.lang.String
-            if (line2.startsWith("found"))                
+            if (line2.startsWith("found") && line2.indexOf(':') != -1) {
                 message= message +" - found "+line2.substring(line2.indexOf(':')+2, line2.length());
-            if (line3.startsWith("required"))
+            }
+            if (line3.startsWith("required") && line3.indexOf(':') != -1) {
                 message= message +" but expected "+line3.substring(line3.indexOf(':')+2, line3.length());
+            }
             //e.g cannot find symbol
             //symbol: class Persons
-            if (line2.startsWith("symbol:"))                
-                message= message +" - "+line2.substring(line2.indexOf(':')+2, line2.length());          
+            if (line2.startsWith("symbol") && line2.indexOf(':') != -1) {
+                message= message +" - "+line2.substring(line2.indexOf(':')+2, line2.length());
+            }
         }
         return message;
     }
