@@ -177,8 +177,11 @@ A class or package with this name already exists
 in this project. You cannot have two
 classes or packages with the same name.
 
-windowsrestricted-class-name
-This class name is restricted on Windows.
+windows-reserved-class-name
+This class name cannot be used on the Windows operating
+system. Windows reserves several special file names for
+DOS compatibility, and those reserved names cannot be used
+as class names.
 
 error-in-import
 An error occurred during the attempt to

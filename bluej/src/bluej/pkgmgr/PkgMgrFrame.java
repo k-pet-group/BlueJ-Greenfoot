@@ -217,9 +217,11 @@ public class PkgMgrFrame extends JFrame
 
     private static ExtensionsManager extMgr = ExtensionsManager.getInstance();
 
-	private ExportManager exporter;
-	//stores restricted windows class filenames
+    private ExportManager exporter;
+    
+    //stores restricted windows class filenames
     private static List<String> windowsRestrictedWords;  
+    
     /**
      * Prepare MacOS specific behaviour (About menu, Preferences menu, Quit
      * menu)
@@ -1113,7 +1115,7 @@ public class PkgMgrFrame extends JFrame
         //should not create a class name
         if ((isWindowsRestrictedWord(name)) && (Config.isWinOS()))
         {
-            DialogManager.showError((JFrame)this.getParent(), "windowsrestricted-class-name");            
+            DialogManager.showError((JFrame)this.getParent(), "windows-reserved-class-name");            
             return false;
         }
         // check whether name is already used
