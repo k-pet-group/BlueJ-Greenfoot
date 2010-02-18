@@ -25,6 +25,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -38,6 +39,7 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.Reflective;
 
 /**
  * Utilities for dealing with reflection, which must behave differently for
@@ -344,6 +346,34 @@ public abstract class JavaUtils
             rmap.put(n.getTparName(), n.getBound().mapTparsToTypes(rmap));
         }
         return rmap;
+    }
+    
+    /**
+     * Check whether a member of some container type can be accessed from another type
+     * according to its modifiers.
+     * 
+     * @param container  The type containing the member to which access is being checked
+     * @param accessor   The type trying to access the member
+     * @param modifiers  The modifiers of the member
+     * @return  true if the access is allowed, false otherwise
+     */
+    public static boolean checkMemberAccess(Reflective container, Reflective accessor, int modifiers)
+    {
+        // access class == container class, then access is always allowed
+        if (accessor.getName().equals(container.getName())) {
+            return true;
+        }
+        
+        // inner classes can access outer class members
+        if (accessor.getName().startsWith(container.getName() + '$')) {
+            return true;
+        }
+        
+        if (Modifier.isPrivate(modifiers)) {
+            return false;
+        }
+        
+        return true;
     }
 
     /**

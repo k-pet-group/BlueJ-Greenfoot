@@ -21,6 +21,7 @@
  */
 package bluej.debugger.gentype;
 
+import java.lang.reflect.Modifier;
 import java.util.List;
 
 /**
@@ -35,10 +36,10 @@ public class MethodReflective
     private List<GenTypeDeclTpar> tparTypes;
     private List<JavaType> paramTypes;
     private boolean isVarArgs;
-    private boolean isStatic;
     private Reflective declaringType;
     private String javaDoc;
     private List<String> paramNames;
+    private int modifiers;
     
     /**
      * Construct a MethodReflective object.
@@ -50,7 +51,7 @@ public class MethodReflective
      * @param isStatic    Whether the method is a static method
      */
     public MethodReflective(String name, JavaType returnType, List<GenTypeDeclTpar> tparTypes,
-            List<JavaType> paramTypes, Reflective declaringType, boolean isVarArgs, boolean isStatic)
+            List<JavaType> paramTypes, Reflective declaringType, boolean isVarArgs, int modifiers)
     {
         this.name = name;
         this.returnType = returnType;
@@ -58,7 +59,7 @@ public class MethodReflective
         this.paramTypes = paramTypes;
         this.declaringType = declaringType;
         this.isVarArgs = isVarArgs;
-        this.isStatic = isStatic;
+        this.modifiers = modifiers;
     }
     
     /**
@@ -108,7 +109,12 @@ public class MethodReflective
     
     public boolean isStatic()
     {
-        return isStatic;
+        return Modifier.isStatic(modifiers);
+    }
+    
+    public int getModifiers()
+    {
+        return modifiers;
     }
     
     public boolean isVarArgs()

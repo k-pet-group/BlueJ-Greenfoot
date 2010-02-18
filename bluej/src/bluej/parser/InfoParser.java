@@ -34,6 +34,7 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.Reflective;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageResolver;
@@ -94,6 +95,7 @@ public class InfoParser extends EditorParser
     {
         List<LocatableToken> components;
         EntityResolver resolver;
+        Reflective accessSource;
     }
     
     private List<JavaEntity> typeReferences = new LinkedList<JavaEntity>();
@@ -211,7 +213,7 @@ public class InfoParser extends EditorParser
         for (UnresolvedVal val: valueReferences) {
             Iterator<LocatableToken> i = val.components.iterator();
             String name = i.next().getText();
-            JavaEntity entity = val.resolver.getValueEntity(name, null); // DAV fix query source
+            JavaEntity entity = val.resolver.getValueEntity(name, val.accessSource);
             if (entity != null && entity.resolveAsValue() != null) {
                 continue refloop;
             }
@@ -220,7 +222,7 @@ public class InfoParser extends EditorParser
                 if (typeEnt != null && ! typeEnt.getType().isPrimitive()) {
                     addTypeReference(entity.getType());
                 }
-                entity = entity.getSubentity(i.next().getText(), null); // DAV access source
+                entity = entity.getSubentity(i.next().getText(), val.accessSource);
                 if (entity != null && entity.resolveAsValue() != null) {
                     continue refloop;
                 }
@@ -408,6 +410,7 @@ public class InfoParser extends EditorParser
         currentUnresolvedVal.components = new LinkedList<LocatableToken>();
         currentUnresolvedVal.components.add(token);
         currentUnresolvedVal.resolver = scopeStack.peek();
+        currentUnresolvedVal.accessSource = currentQuerySource();
     }
     
     @Override
@@ -435,7 +438,7 @@ public class InfoParser extends EditorParser
         JavaEntity entity = UnresolvedEntity.getEntity(scopeStack.peek(),
                 i.next().getText(), currentQuerySource());
         while (entity != null && i.hasNext()) {
-            entity = entity.getSubentity(i.next().getText(), null); // DAV access source
+            entity = entity.getSubentity(i.next().getText(), currentQuerySource());
         }
         if (entity != null) {
             typeReferences.add(entity);
@@ -522,7 +525,7 @@ public class InfoParser extends EditorParser
                 info.setImplementsInsertSelection(insertSelection);
                 if (pkgSemiToken != null) {
                     info.setPackageSelections(getSelection(pkgLiteralToken), getSelection(packageTokens),
-                            combineNameTokens(packageTokens), getSelection(pkgSemiToken));
+                            joinTokens(packageTokens), getSelection(pkgSemiToken));
                 }
                 storeCurrentClassInfo = true;
             } else {
@@ -616,18 +619,5 @@ public class InfoParser extends EditorParser
             s.combineWith(getSelection(last));
         }
         return s;
-    }
-
-    /**
-     * Convert a list of tokens specifying a type, which may include type parameters, into a class name
-     * without type parameters.
-     */
-    private String combineNameTokens(List<LocatableToken> tokens)
-    {
-        StringBuffer name = new StringBuffer();
-        for (Iterator<LocatableToken> i = tokens.iterator(); i.hasNext(); ) {
-            name.append(i.next().getText());
-        }
-        return name.toString();
     }
 }

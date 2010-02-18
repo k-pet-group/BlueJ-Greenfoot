@@ -195,8 +195,9 @@ public class ParsedReflective extends Reflective
                     if (mtent == null) continue methodLoop;
                     paramTypes.add(mtent.getType());
                 }
+                // DAV need to set the type parameters properly
                 MethodReflective mref = new MethodReflective(name, rtype, null,
-                        paramTypes, this, method.isVarArgs(), false);
+                        paramTypes, this, method.isVarArgs(), method.getModifiers());
                 mref.setJavaDoc(JavaUtils.javadocToString(method.getJavadoc()));
                 mref.setParamNames(method.getParamNames());
                 rset.add(mref);

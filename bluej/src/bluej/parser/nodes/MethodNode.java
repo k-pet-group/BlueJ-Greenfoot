@@ -40,6 +40,7 @@ public class MethodNode extends ParentParsedNode
     private List<String> paramNames = new ArrayList<String>();
     private List<JavaEntity> paramTypes = new ArrayList<JavaEntity>();
     private boolean isVarArgs = false;
+    private int modifiers = 0;
     
     /**
      * Construct a MethodNode representing a constructor or method.
@@ -95,6 +96,22 @@ public class MethodNode extends ParentParsedNode
     public boolean isVarArgs()
     {
         return isVarArgs;
+    }
+    
+    /**
+     * Set the modifiers on this method (as per java.lang.reflect.Modifier)
+     */
+    public void setModifiers(int modifiers)
+    {
+        this.modifiers = modifiers;
+    }
+    
+    /**
+     * Get the modifiers on this method (as per java.lang.reflect.Modifier)
+     */
+    public int getModifiers()
+    {
+        return modifiers;
     }
     
     /**

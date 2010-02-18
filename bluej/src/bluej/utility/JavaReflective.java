@@ -243,7 +243,7 @@ public class JavaReflective extends Reflective {
             MethodReflective mr = new MethodReflective(name, rtype, tpars, paramTypesList,
                     this,
                     JavaUtils.getJavaUtils().isVarArgs(method),
-                    (method.getModifiers() & Modifier.STATIC) != 0);
+                    method.getModifiers());
             Set<MethodReflective> rset = rmap.get(method.getName());
             if (rset == null) {
                 rset = new HashSet<MethodReflective>();

@@ -26,6 +26,7 @@ import java.io.Reader;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
 
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.CompletionParser;
@@ -62,8 +63,9 @@ public class ExpressionNode extends ParentParsedNode
         parser.parseExpression();
         
         GenTypeSolid stype = parser.getSuggestionType();
+        GenTypeClass atype = (defaultType != null) ? defaultType.getType().asClass() : null;
         if (stype != null) {
-            return new CodeSuggestions(stype, parser.getSuggestionToken());
+            return new CodeSuggestions(stype, atype, parser.getSuggestionToken());
         }
         else {
             return null;

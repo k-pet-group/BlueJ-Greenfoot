@@ -103,6 +103,7 @@ import bluej.Config;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.MethodReflective;
+import bluej.debugger.gentype.Reflective;
 import bluej.editor.EditorWatcher;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.SourceLocation;
@@ -115,6 +116,7 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
+import bluej.utility.JavaUtils;
 import bluej.utility.Utility;
 
 /**
@@ -3343,6 +3345,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             if (exprType == null) {
                 return null;
             }
+            
+            GenTypeClass accessType = suggests.getAccessType();
+            Reflective accessReflective = (accessType != null) ? accessType.getReflective() : null;
 
             // Use two sets, one to keep track of which types we have already processed,
             // another for individual methods.
@@ -3366,6 +3371,12 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                     if (name.startsWith(prefix)) {
                         Set<MethodReflective> mset = methods.get(name);
                         for (MethodReflective method : mset) {
+                            if (accessReflective != null &&
+                                    ! JavaUtils.checkMemberAccess(method.getDeclaringType(),
+                                    suggests.getAccessType().getReflective(),
+                                    method.getModifiers())) {
+                                continue;
+                            }
                             MethodCompletion completion = new MethodCompletion(method,
                                     typeArgs, javadocResolver);
                             String sig = completion.getDisplayName();

@@ -27,6 +27,7 @@ import java.util.Map;
 
 import javax.swing.text.Document;
 
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
 import bluej.editor.moe.Token;
 import bluej.parser.CodeSuggestions;
@@ -279,7 +280,11 @@ public abstract class ParsedNode implements EntityResolver
         if (child != null) {
             return child.getNode().getExpressionType(pos, child.getPosition(), defaultType, document);
         }
-        return new CodeSuggestions(defaultType.getType(), null);
+        GenTypeClass atype = (defaultType != null) ? defaultType.getType().asClass() : null;
+        if (atype == null) {
+            return null;
+        }
+        return new CodeSuggestions(atype, atype, null);
     }
     
     protected Map<String,ParsedNode> getClassNodes()

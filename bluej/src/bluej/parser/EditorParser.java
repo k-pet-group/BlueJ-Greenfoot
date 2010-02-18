@@ -22,6 +22,7 @@
 package bluej.parser;
 
 import java.io.Reader;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -85,6 +86,8 @@ public class EditorParser extends JavaParser
     
     private boolean gotExtends = false;
     private boolean gotImplements = false;
+    
+    private int currentModifiers = 0;
     
     /**
      * Constructor for use by subclasses (InfoReader).
@@ -294,6 +297,47 @@ public class EditorParser extends JavaParser
     
     //  -------------- Callbacks from the superclass ----------------------
 
+    @Override
+    protected void gotModifier(LocatableToken token)
+    {
+        switch (token.getType()) {
+        case JavaTokenTypes.ABSTRACT:
+            currentModifiers |= Modifier.ABSTRACT;
+            break;
+        case JavaTokenTypes.LITERAL_private:
+            currentModifiers |= Modifier.PRIVATE;
+            break;
+        case JavaTokenTypes.LITERAL_public:
+            currentModifiers |= Modifier.PUBLIC;
+            break;
+        case JavaTokenTypes.LITERAL_protected:
+            currentModifiers |= Modifier.PROTECTED;
+            break;
+        case JavaTokenTypes.FINAL:
+            currentModifiers |= Modifier.FINAL;
+            break;
+        case JavaTokenTypes.LITERAL_synchronized:
+            currentModifiers |= Modifier.SYNCHRONIZED;
+            break;
+        case JavaTokenTypes.STRICTFP:
+            currentModifiers |= Modifier.STRICT;
+            break;
+        case JavaTokenTypes.LITERAL_native:
+            currentModifiers |= Modifier.NATIVE;
+            break;
+        case JavaTokenTypes.LITERAL_static:
+            currentModifiers |= Modifier.STATIC;
+            break;
+        default:
+        }
+    }
+    
+    @Override
+    protected void modifiersConsumed()
+    {
+        currentModifiers = 0;
+    }
+    
     @Override
     protected void beginPackageStatement(LocatableToken token)
     {
@@ -796,7 +840,8 @@ public class EditorParser extends JavaParser
             jdcomment = hiddenToken.getText();
         }
         
-        ParsedNode pnode = new MethodNode(scopeStack.peek(), token.getText(), jdcomment);
+        MethodNode pnode = new MethodNode(scopeStack.peek(), token.getText(), jdcomment);
+        pnode.setModifiers(currentModifiers);
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(start.getLine(), start.getColumn());
         beginNode(insPos);
@@ -819,6 +864,7 @@ public class EditorParser extends JavaParser
         JavaEntity rtype = ParseUtils.getTypeEntity(scopeStack.peek(),
                 currentQuerySource(), lastTypeSpec);
         MethodNode pnode = new MethodNode(scopeStack.peek(), token.getText(), rtype, jdcomment);
+        pnode.setModifiers(currentModifiers);
         
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(start.getLine(), start.getColumn());
