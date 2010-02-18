@@ -102,6 +102,9 @@ null
 invalid-class-name
 Invalid Class Name.
 
+windowsrestricted-class-name
+Restricted Class Name on Windows.
+
 invalid-package-name
 Invalid Package Name.
 

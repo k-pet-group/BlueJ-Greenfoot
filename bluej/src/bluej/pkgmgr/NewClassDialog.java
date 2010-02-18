@@ -38,7 +38,7 @@ import bluej.utility.*;
  *
  * @author  Justin Tan
  * @author  Michael Kolling
- * @version $Id: NewClassDialog.java 7145 2010-02-18 01:23:44Z marionz $
+ * @version $Id: NewClassDialog.java 7146 2010-02-18 01:57:47Z marionz $
  */
 class NewClassDialog extends EscapeDialog
 {
@@ -250,11 +250,19 @@ class NewClassDialog extends EscapeDialog
     public void doOK()
     {
         newClassName = textFld.getText().trim();
-        initialiseRestrictedWordList();
-        if (JavaNames.isIdentifier(newClassName) && 
-                !(isWindowsRestrictedWord(newClassName))) {
-            ok = true;
-            setVisible(false);
+        initialiseRestrictedWordList();        
+        if (JavaNames.isIdentifier(newClassName)) {
+            //if the class name is in the restricted list and the OS is Windows, 
+            //should not create a class name
+            if ((isWindowsRestrictedWord(newClassName)) && (Config.isWinOS()))
+            {
+                DialogManager.showError((JFrame)this.getParent(), "windowsrestricted-class-name");            
+                textFld.selectAll();
+                textFld.requestFocus();
+            }else  {
+                ok = true;
+                setVisible(false);
+            }
         }
         else 
         {
