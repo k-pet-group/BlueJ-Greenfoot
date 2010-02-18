@@ -44,7 +44,6 @@ import bluej.debugger.gentype.Reflective;
  * A reflective for GenTypeClass which uses the standard java reflection API.  
  * 
  * @author Davin McCall
- * @version $Id: JavaReflective.java 7061 2010-01-28 06:17:34Z davmac $
  */
 public class JavaReflective extends Reflective {
 
@@ -74,14 +73,22 @@ public class JavaReflective extends Reflective {
         return c.getName();
     }
 
+    @Override
     public boolean isInterface()
     {
         return c.isInterface();
     }
     
+    @Override
     public boolean isStatic()
     {
-        return (c.getModifiers() & Modifier.STATIC) != 0;
+        return Modifier.isStatic(c.getModifiers());
+    }
+    
+    @Override
+    public boolean isPublic()
+    {
+        return Modifier.isPublic(c.getModifiers());
     }
     
     public List<GenTypeDeclTpar> getTypeParams()

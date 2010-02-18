@@ -34,7 +34,6 @@ import com.sun.jdi.*;
  * @see Reflective.
  * 
  * @author Davin McCall
- * @version $Id: JdiReflective.java 6978 2010-01-07 13:12:36Z davmac $
  */
 public class JdiReflective extends Reflective
 {
@@ -136,16 +135,25 @@ public class JdiReflective extends Reflective
         return rclass.name();
     }
     
+    @Override
     public boolean isInterface()
     {
         checkLoaded();
         return rclass instanceof InterfaceType;
     }
     
+    @Override
     public boolean isStatic()
     {
         checkLoaded();
         return rclass.isStatic();
+    }
+    
+    @Override
+    public boolean isPublic()
+    {
+        checkLoaded();
+        return rclass.isPublic();
     }
 
     public Reflective getArrayOf()
@@ -224,18 +232,18 @@ public class JdiReflective extends Reflective
     {
         checkLoaded();
         if (rclass instanceof ClassType) {
-            List l = new LinkedList();
-            Iterator i = ((ClassType) rclass).interfaces().iterator();
+            List<Reflective> l = new LinkedList<Reflective>();
+            Iterator<InterfaceType> i = ((ClassType) rclass).interfaces().iterator();
             while (i.hasNext())
-                l.add(new JdiReflective((ReferenceType) i.next()));
+                l.add(new JdiReflective(i.next()));
             if (((ClassType) rclass).superclass() != null)
                 l.add(new JdiReflective(((ClassType) rclass).superclass()));
             return l;
         }
         else if (rclass instanceof InterfaceType) {
             // interface
-            List l = new LinkedList();
-            Iterator i = ((InterfaceType) rclass).superinterfaces().iterator();
+            List<Reflective> l = new LinkedList<Reflective>();
+            Iterator<InterfaceType> i = ((InterfaceType) rclass).superinterfaces().iterator();
             while (i.hasNext())
                 l.add(new JdiReflective((ReferenceType) i.next()));
             
@@ -247,7 +255,7 @@ public class JdiReflective extends Reflective
             return l;
         }
         else
-            return new LinkedList();
+            return new LinkedList<Reflective>();
     }
 
     public List<GenTypeClass> getSuperTypes()

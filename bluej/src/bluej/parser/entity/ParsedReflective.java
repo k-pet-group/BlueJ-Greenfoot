@@ -149,6 +149,13 @@ public class ParsedReflective extends Reflective
     }
     
     @Override
+    public boolean isPublic()
+    {
+        // TODO Auto-generated method stub
+        return true;
+    }
+    
+    @Override
     public Map<String,JavaType> getDeclaredFields()
     {
         Map<String,FieldNode> fields = pnode.getInner().getFields();

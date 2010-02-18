@@ -21,6 +21,8 @@
  */
 package bluej.parser.entity;
 
+import bluej.debugger.gentype.Reflective;
+
 
 /**
  * A resolver for a package scope level. Classes within the package are found
@@ -58,7 +60,7 @@ public class PackageResolver implements EntityResolver
             return tent;
         }
         else {
-            return parentResolver.resolvePackageOrClass(name, querySource);
+            return new PackageEntity(name, this);
         }
     }
 
@@ -67,7 +69,23 @@ public class PackageResolver implements EntityResolver
      */
     public TypeEntity resolveQualifiedClass(String name)
     {
-        return parentResolver.resolveQualifiedClass(name);
+        TypeEntity tent = parentResolver.resolveQualifiedClass(name);
+        if (tent != null) {
+            Reflective r = tent.getClassType().getReflective();
+            if (r.isPublic()) {
+                return tent;
+            }
+            // The returned type is not public: is it actually in this package though?
+            // In that case it may still be accessible
+            String fname = r.getName();
+            if (fname.startsWith(pkg + ".") && fname.indexOf('.', pkg.length() + 1) == -1) {
+                // TODO inner classes of another class in the same package might be private,
+                //   in which case access should be denied.
+                return tent;
+            }
+            return null;
+        }
+        return tent;
     }
 
 }

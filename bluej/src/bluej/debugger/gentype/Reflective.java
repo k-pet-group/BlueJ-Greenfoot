@@ -127,6 +127,11 @@ public abstract class Reflective
     abstract public boolean isStatic();
     
     /**
+     * Determine whether this class is declared public.
+     */
+    abstract public boolean isPublic();
+    
+    /**
      * Get the methods declared in the type represented by this Reflective.
      * This does not include methods declared in the superclass(es).
      * @return a map which maps method names to a set of methods

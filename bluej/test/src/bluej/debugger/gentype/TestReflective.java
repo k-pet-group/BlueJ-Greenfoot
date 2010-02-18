@@ -33,7 +33,6 @@ import java.util.Set;
  * of a test.
  * 
  * @author Davin McCall
- * @version $Id: TestReflective.java 6880 2009-12-02 04:02:12Z davmac $
  */
 public class TestReflective extends Reflective
 {
@@ -53,14 +52,22 @@ public class TestReflective extends Reflective
         return name;
     }
     
+    @Override
     public boolean isInterface()
     {
         return false;
     }
     
+    @Override
     public boolean isStatic()
     {
         return false;
+    }
+    
+    @Override
+    public boolean isPublic()
+    {
+        return true;
     }
     
     public Reflective getRelativeClass(String name)
