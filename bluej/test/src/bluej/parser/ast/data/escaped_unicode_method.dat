@@ -1,6 +1,6 @@
-\u0070ublic class EscapedUnicodeMethod extends \u0045\u0045
+\u0070ublic class EscapedUnicodeMethod extends \u0045rror
 {
-	// The above translates to "public class EscapedUnicodeMethod extends EE".
+	// The above translates to "public class EscapedUnicodeMethod extends Error".
 
     public void \u00E1\u00E4\u010Dd\u00E9\u011B\u00Eb\u00ED\u013A\u013E\u0148\u00F3\u00F6\u0155\u0159\u0161f\u00FA\u016F\u00FC\u00FD\u017E()
     {

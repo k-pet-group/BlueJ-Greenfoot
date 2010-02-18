@@ -140,11 +140,11 @@ public class CodepadImportParser extends JavaParser
     {
         Iterator<LocatableToken> i = tokens.iterator();
         String name = i.next().getText();
-        JavaEntity entity = UnresolvedEntity.getEntity(resolver, name, null); // DAV query source
+        JavaEntity entity = UnresolvedEntity.getEntity(resolver, name, null);
         while (entity != null && i.hasNext()) {
             i.next(); // should be the '.' token
             name = i.next().getText();
-            entity = entity.getSubentity(name, null); // DAV access source
+            entity = entity.getSubentity(name, null);
         }
         return entity;
     }

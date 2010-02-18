@@ -71,7 +71,13 @@ public class InfoParser extends EditorParser
     private List<LocatableToken> lastTypespecToks;
     private boolean modPublic;
     private List<MethodDesc> methodDescs = new LinkedList<MethodDesc>();
-    MethodDesc currentMethod;
+    private MethodDesc currentMethod;
+    
+    private JavaEntity superclassEntity;
+    
+    private List<JavaEntity> interfaceEntities;
+    //private List<Selection> interfaceSelections;
+    
     
     /** Represents a method description */
     class MethodDesc
@@ -114,6 +120,12 @@ public class InfoParser extends EditorParser
     {
         FileInputStream fis = new FileInputStream(f);
         return parse(new InputStreamReader(fis), null, null);
+    }
+    
+    public static ClassInfo parse(File f, EntityResolver resolver) throws FileNotFoundException
+    {
+        FileInputStream fis = new FileInputStream(f);
+        return parse(new InputStreamReader(fis), resolver, null);
     }
     
     public static ClassInfo parse(File f, Package pkg) throws FileNotFoundException
@@ -220,6 +232,31 @@ public class InfoParser extends EditorParser
                 }
             }
         }
+        
+        if (superclassEntity != null) {
+            superclassEntity = superclassEntity.resolveAsType();
+            if (superclassEntity != null) {
+                JavaType sceType = superclassEntity.getType();
+                GenTypeClass scecType = sceType.asClass();
+                if (scecType != null) {
+                    info.setSuperclass(scecType.getReflective().getName());
+                }
+            }
+        }
+        
+        if (interfaceEntities != null && ! interfaceEntities.isEmpty()) {
+            for (JavaEntity ifaceEnt : interfaceEntities) {
+                TypeEntity iEnt = ifaceEnt.resolveAsType();
+                if (iEnt != null) {
+                    GenTypeClass iType = iEnt.getType().asClass();
+                    if (iType != null) {
+                        info.addImplements(iType.getReflective().getName());
+                        continue;
+                    }
+                }
+                info.addImplements(""); // gap filler
+            }
+        }
     }
     
     /**
@@ -312,16 +349,17 @@ public class InfoParser extends EditorParser
             typeReferences.add(tentity);
         }
 
-        if (gotExtends) {
+        if (gotExtends && storeCurrentClassInfo) {
             // The list of tokens gives us the name of the class that we extend
-            info.setSuperclass(getClassName(tokens));
+            superclassEntity = ParseUtils.getTypeEntity(scopeStack.get(0), null, tokens);
+            info.setSuperclass(""); // this will be corrected when the type is resolved
             Selection superClassSelection = getSelection(tokens);
             info.setSuperReplaceSelection(superClassSelection);
             info.setImplementsInsertSelection(new Selection(superClassSelection.getEndLine(),
                     superClassSelection.getEndColumn()));
             gotExtends = false;
         }
-        else if (gotImplements && interfaceSelections != null) {
+        else if (gotImplements && storeCurrentClassInfo) {
             Selection interfaceSel = getSelection(tokens);
             if (lastCommaSelection != null) {
                 lastCommaSelection.extendEnd(interfaceSel.getLine(), interfaceSel.getColumn());
@@ -329,7 +367,11 @@ public class InfoParser extends EditorParser
                 lastCommaSelection = null;
             }
             interfaceSelections.add(interfaceSel);
-            info.addImplements(getClassName(tokens));
+            JavaEntity interfaceEnt = ParseUtils.getTypeEntity(scopeStack.get(0), null, tokens);
+            if (interfaceEnt != null) {
+                interfaceEntities.add(interfaceEnt);
+            }
+            //info.addImplements(getClassName(tokens));
             if (tokenStream.LA(1).getType() == JavaTokenTypes.COMMA) {
                 lastCommaSelection = getSelection(tokenStream.LA(1));
             }
@@ -480,7 +522,7 @@ public class InfoParser extends EditorParser
                 info.setImplementsInsertSelection(insertSelection);
                 if (pkgSemiToken != null) {
                     info.setPackageSelections(getSelection(pkgLiteralToken), getSelection(packageTokens),
-                            getClassName(packageTokens), getSelection(pkgSemiToken));
+                            combineNameTokens(packageTokens), getSelection(pkgSemiToken));
                 }
                 storeCurrentClassInfo = true;
             } else {
@@ -515,6 +557,7 @@ public class InfoParser extends EditorParser
             gotImplements = true;
             interfaceSelections = new LinkedList<Selection>();
             interfaceSelections.add(getSelection(implementsToken));
+            interfaceEntities = new LinkedList<JavaEntity>();
         }
     }
 
@@ -579,48 +622,12 @@ public class InfoParser extends EditorParser
      * Convert a list of tokens specifying a type, which may include type parameters, into a class name
      * without type parameters.
      */
-    private String getClassName(List<LocatableToken> tokens)
+    private String combineNameTokens(List<LocatableToken> tokens)
     {
-        // DAV get rid of this method; should resolve the type instead.
-        String name = "";
+        StringBuffer name = new StringBuffer();
         for (Iterator<LocatableToken> i = tokens.iterator(); i.hasNext(); ) {
-            name += i.next().getText();
-            if (i.hasNext()) {
-                // there may be type parameters, array
-                LocatableToken tok = i.next();
-                if (tok.getType() == JavaTokenTypes.LT) {
-                    skipTypePars(i);
-                    if (!i.hasNext()) {
-                        return name;
-                    }
-                    tok = i.next(); // DOT
-                }
-                else if (tok.getType() == JavaTokenTypes.LBRACK) {
-                    return name;
-                }
-                name += ".";
-            }
+            name.append(i.next().getText());
         }
-        return name;
-    }
-
-    private void skipTypePars(Iterator<LocatableToken> i)
-    {
-        int level = 1;
-        while (level > 0 && i.hasNext()) {
-            LocatableToken tok = i.next();
-            if (tok.getType() == JavaTokenTypes.LT) {
-                level++;
-            }
-            else if (tok.getType() == JavaTokenTypes.GT) {
-                level--;
-            }
-            else if (tok.getType() == JavaTokenTypes.SR) {
-                level -= 2;
-            }
-            else if (tok.getType() == JavaTokenTypes.BSR) {
-                level -= 3;
-            }
-        }
+        return name.toString();
     }
 }

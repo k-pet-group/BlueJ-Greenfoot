@@ -437,6 +437,9 @@ public final class ClassInfo
 
     // accessors:
 
+    /**
+     * Get the (fully-qualified) name of the superclass of the represented class.
+     */
     public String getSuperclass()
     {
         return superclass;
@@ -447,6 +450,10 @@ public final class ClassInfo
         return name;
     }
 
+    /**
+     * Get a list of the (fully-qualified) interface names that the represented
+     * class implements.
+     */
     public List<String> getImplements()
     {
         return implemented;

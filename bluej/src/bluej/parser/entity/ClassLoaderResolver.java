@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -51,22 +51,6 @@ public class ClassLoaderResolver implements EntityResolver
     
     public PackageOrClass resolvePackageOrClass(String name, Reflective querySource)
     {
-//        int lastDot = querySource.lastIndexOf('.');
-//        if (lastDot != -1) {
-//            String pkgName = querySource.substring(0, lastDot + 1); // include the dot
-//            TypeEntity rval = resolveQualifiedClass(pkgName + name);
-//            if (rval != null) {
-//                return rval;
-//            }
-//        }
-        
-        // Try in java.lang
-//        try {
-//            Class<?> cl = classLoader.loadClass("java.lang." + name);
-//            return new TypeEntity(cl);
-//        }
-//        catch (Exception e) {}
-        
         // Have to assume it's a package
         return new PackageEntity(name, this);
     }

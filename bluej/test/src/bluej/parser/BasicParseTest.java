@@ -160,10 +160,10 @@ public class BasicParseTest extends junit.framework.TestCase
         references.add("Dummy2");
         
         File file = getFile("AffinedTransformer.dat");
-        ClassInfo info = ClassParser.parse(file);
+        ClassInfo info = ClassParser.parse(file, new ClassLoaderResolver(this.getClass().getClassLoader()));
 
         assertEquals("AffinedTransformer",info.getName());
-        assertEquals("JFrame",info.getSuperclass());
+        assertEquals("javax.swing.JFrame",info.getSuperclass());
         assertEquals("bluej.parser.ast.data",info.getPackage());
 
         //assertEquals(7, info.getUsed().size());
@@ -292,18 +292,19 @@ public class BasicParseTest extends junit.framework.TestCase
     public void testValidClassInfo2() throws Exception
     {
     	StringReader sr = new StringReader(
-    			"class A implements II, IJ {\n" +
+    			"class A implements Runnable, Iterable {\n" +
     			"  void someMethod() {\n" +
     			"    I i = new I();\n" +
     			"  }\n" +
     			"}\n"
     	);
-    	ClassInfo info = ClassParser.parse(sr, null, null);
+    	ClassInfo info = ClassParser.parse(sr,
+    	        new ClassLoaderResolver(this.getClass().getClassLoader()), null);
     	List<String> implemented = info.getImplements();
     	assertNotNull(implemented);
     	assertEquals(2, implemented.size());
-    	assertTrue(implemented.contains("II"));
-    	assertTrue(implemented.contains("IJ"));
+    	assertTrue(implemented.contains("java.lang.Runnable"));
+    	assertTrue(implemented.contains("java.lang.Iterable"));
     }
 
     /**

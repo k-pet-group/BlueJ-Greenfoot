@@ -95,7 +95,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 7126 2010-02-12 05:09:17Z davmac $
+ * @version $Id: ClassTarget.java 7147 2010-02-18 03:11:13Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -1189,11 +1189,18 @@ public class ClassTarget extends DependentTarget
         removeInheritDependencies();
         unflagAllOutDependencies();
 
+        String pkgPrefix = getPackage().getQualifiedName();
+        pkgPrefix = (pkgPrefix.length() == 0) ? pkgPrefix : pkgPrefix + ".";
+        
         // handle superclass dependency
         if (info.getSuperclass() != null) {
-            DependentTarget superclass = getPackage().getDependentTarget(info.getSuperclass());
-            if (superclass != null) {
-                getPackage().addDependency(new ExtendsDependency(getPackage(), this, superclass), false);
+            String superName = info.getSuperclass();
+            if (superName.startsWith(pkgPrefix)) {
+                superName = superName.substring(pkgPrefix.length());
+                DependentTarget superclass = getPackage().getDependentTarget(superName);
+                if (superclass != null) {
+                    getPackage().addDependency(new ExtendsDependency(getPackage(), this, superclass), false);
+                }
             }
         }
 
@@ -1201,10 +1208,13 @@ public class ClassTarget extends DependentTarget
         List<String> vect = info.getImplements();
         for (Iterator<String> it = vect.iterator(); it.hasNext();) {
             String name = it.next();
-            DependentTarget interfce = getPackage().getDependentTarget(name);
+            if (name.startsWith(pkgPrefix)) {
+                name = name.substring(pkgPrefix.length());
+                DependentTarget interfce = getPackage().getDependentTarget(name);
 
-            if (interfce != null) {
-                getPackage().addDependency(new ImplementsDependency(getPackage(), this, interfce), false);
+                if (interfce != null) {
+                    getPackage().addDependency(new ImplementsDependency(getPackage(), this, interfce), false);
+                }
             }
         }
 

@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
 
+import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 
@@ -80,14 +81,15 @@ public class InternationalParseTest extends junit.framework.TestCase
     {
         ClassParser.parse(getFile("escaped_unicode_string.dat"));
         
-        ClassInfo info = ClassParser.parse(getFile("escaped_unicode_method.dat"));
+        ClassInfo info = ClassParser.parse(getFile("escaped_unicode_method.dat"),
+                new ClassLoaderResolver(this.getClass().getClassLoader()));
         
-        // Superclass name is EE (encoded)
-        assertEquals("EE", info.getSuperclass());
+        // Superclass name is Error (encoded)
+        assertEquals("java.lang.Error", info.getSuperclass());
         
         // The selection should be 12 characters long (2 * 6)
         Selection testSel = info.getSuperReplaceSelection();
         assertEquals(48, testSel.getColumn());
-        assertEquals(60, testSel.getEndColumn());
+        assertEquals(58, testSel.getEndColumn());
     } 
 }
