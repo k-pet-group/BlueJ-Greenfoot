@@ -86,7 +86,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <!-- Compile the java code from ${boot.src} into ${boot.build} -->
         <!-- Boot should not need any other jars or classes other than standard JDK -->
         <javac
-                executable="${build_java_home}/bin/javac"
+                executable="${java_command_dir}/javac"
                 fork="yes"
                 srcdir="${boot.src}"
                 destdir="${boot.build}"
@@ -105,7 +105,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <mkdir dir="${core.build}"/>
         <!-- Compile the java code from ${core.src} into ${core.build} -->
         <javac
-                executable="${build_java_home}/bin/javac"
+                executable="${java_command_dir}/javac"
                 fork="yes"
                 source="1.5"
                 target="1.5"
@@ -136,7 +136,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <mkdir dir="${test.report}"/>
         <!-- Compile the java code from ${test.src} into ${test.build} -->
         <javac
-                executable="${build_java_home}/bin/javac"
+                executable="${java_command_dir}/javac"
                 fork="yes"
                 srcdir="${test.src}"
                 source="1.5"
@@ -216,7 +216,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <!-- delete the greenfoot jar (if it exists) since it screws up BlueJ -->
         <delete quiet="true" file="${extensions.lib}/greenfoot.jar"/>
         <!-- run the java code built into the jar files -->
-        <java classname="bluej.Boot" fork="yes" jvm="${run_java_home}/bin/java">
+        <java classname="bluej.Boot" fork="yes" jvm="${java_command_dir}/java">
             <classpath>
                 <pathelement location="${boot.jar}"/>
                 <pathelement location="${run_java_home}/lib/tools.jar"/>
@@ -238,7 +238,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <!-- delete the greenfoot jar (if it exists) since it screws up BlueJ -->
         <delete quiet="true" file="${extensions.lib}/greenfoot.jar"/>
         <!-- run the java code built into the jar files -->
-        <java classname="bluej.Boot" fork="yes" jvm="${run_java_home}/bin/java">
+        <java classname="bluej.Boot" fork="yes" jvm="${java_command_dir}/java">
             <classpath>
                 <pathelement location="${boot.jar}"/>
                 <pathelement location="${run_java_home}/lib/tools.jar"/>
