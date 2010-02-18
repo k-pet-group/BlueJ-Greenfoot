@@ -33,11 +33,13 @@ import java.util.Stack;
 
 import javax.swing.text.Document;
 
+import bluej.debugger.gentype.Reflective;
 import bluej.editor.moe.Token;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.IntersectionTypeEntity;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
+import bluej.parser.entity.ParsedReflective;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.UnresolvedArray;
 import bluej.parser.lexer.JavaTokenTypes;
@@ -275,18 +277,18 @@ public class EditorParser extends JavaParser
      * the current context. (This is mainly used to determine what members of a
      * class are accessible).
      */
-    protected String currentQuerySource()
+    protected Reflective currentQuerySource()
     {
         ListIterator<ParsedNode> i = scopeStack.listIterator(scopeStack.size());
         while (i.hasPrevious()) {
             ParsedNode pn = i.previous();
             if (pn.getNodeType() == ParsedNode.NODETYPE_TYPEDEF) {
                 ParsedTypeNode ptn = (ParsedTypeNode)pn;
-                return ptn.getPrefix() + ptn.getName();
+                return new ParsedReflective(ptn);
             }
         }
         
-        return "";
+        return null;
     }
     
     

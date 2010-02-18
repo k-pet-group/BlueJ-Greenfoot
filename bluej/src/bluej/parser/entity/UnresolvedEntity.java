@@ -26,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.Reflective;
 
 /**
  * Represents a java entity whose nature (value or type) is not yet known,
@@ -38,18 +39,18 @@ public class UnresolvedEntity extends JavaEntity
     private EntityResolver resolver;
     private List<String> names;
     private List<TypeArgumentEntity> typeArguments;
-    private String querySource;
+    private Reflective querySource;
     
     /**
      * Get an entity whose type (value or class) is not yet known. The returned entity
      * can later be resolved to either a value or type.
      */
-    public static JavaEntity getEntity(EntityResolver resolver, String name, String querySource)
+    public static JavaEntity getEntity(EntityResolver resolver, String name, Reflective querySource)
     {
         return new UnresolvedEntity(resolver, name, querySource);
     }
     
-    protected UnresolvedEntity(EntityResolver resolver, String name, String querySource)
+    protected UnresolvedEntity(EntityResolver resolver, String name, Reflective querySource)
     {
         this.resolver = resolver;
         this.names = new LinkedList<String>();
@@ -58,7 +59,7 @@ public class UnresolvedEntity extends JavaEntity
     }
     
     protected UnresolvedEntity(EntityResolver resolver, List<String> names,
-            String querySource, List<TypeArgumentEntity> typeArguments)
+            Reflective querySource, List<TypeArgumentEntity> typeArguments)
     {
         this.resolver = resolver;
         this.names = names;
@@ -73,7 +74,7 @@ public class UnresolvedEntity extends JavaEntity
     }
 
     @Override
-    public JavaEntity getSubentity(String name)
+    public JavaEntity getSubentity(String name, Reflective accessSource)
     {
         List<String> newNames = new LinkedList<String>();
         newNames.addAll(names);
@@ -100,7 +101,7 @@ public class UnresolvedEntity extends JavaEntity
         String name = i.next();
         JavaEntity entity = resolver.getValueEntity(name, querySource);
         while (entity != null && i.hasNext()) {
-            entity = entity.getSubentity(i.next());
+            entity = entity.getSubentity(i.next(), querySource);
         }
         if (entity != null) {
             return entity.resolveAsValue();

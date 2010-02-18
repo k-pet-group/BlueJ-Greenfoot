@@ -83,7 +83,7 @@ public class CompletionTest extends TestCase
         resolver.addCompilationUnit("", aNode);
         
         EntityResolver resolver = new PackageResolver(this.resolver, "");
-        JavaEntity aClassEnt = resolver.resolvePackageOrClass("A", "");
+        JavaEntity aClassEnt = resolver.resolvePackageOrClass("A", null);
         Reader r = new StringReader("");
         CompletionParser cp = new CompletionParser(resolver, r, aClassEnt);
         cp.parseExpression();
@@ -107,7 +107,7 @@ public class CompletionTest extends TestCase
         resolver.addCompilationUnit("", aNode);
         
         EntityResolver resolver = new PackageResolver(this.resolver, "");
-        JavaEntity aClassEnt = resolver.resolvePackageOrClass("A", "");
+        JavaEntity aClassEnt = resolver.resolvePackageOrClass("A", null);
         Reader r = new StringReader("");
         CompletionParser cp = new CompletionParser(resolver, r, aClassEnt);
         cp.parseExpression();
@@ -131,7 +131,7 @@ public class CompletionTest extends TestCase
         resolver.addCompilationUnit("", aNode);
         
         EntityResolver resolver = new PackageResolver(this.resolver, "");
-        JavaEntity aClassEnt = resolver.resolvePackageOrClass("A", "");
+        JavaEntity aClassEnt = resolver.resolvePackageOrClass("A", null);
         Reader r = new StringReader("");
         CompletionParser cp = new CompletionParser(resolver, r, aClassEnt);
         cp.parseExpression();
@@ -163,7 +163,7 @@ public class CompletionTest extends TestCase
         resolver.addCompilationUnit("", bNode);
 
         EntityResolver resolver = new PackageResolver(this.resolver, "");
-        JavaEntity bClassEnt = resolver.resolvePackageOrClass("B", "");
+        JavaEntity bClassEnt = resolver.resolvePackageOrClass("B", null);
         Reader r = new StringReader("A.");
         CompletionParser cp = new CompletionParser(bNode, r, bClassEnt);
         cp.parseExpression();

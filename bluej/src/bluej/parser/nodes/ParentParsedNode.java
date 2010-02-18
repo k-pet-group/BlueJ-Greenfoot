@@ -26,6 +26,7 @@ import java.util.Map;
 
 import javax.swing.text.Document;
 
+import bluej.debugger.gentype.Reflective;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.Token;
 import bluej.parser.DocumentReader;
@@ -121,7 +122,7 @@ public class ParentParsedNode extends ParsedNode
     }
     
     @Override
-    public JavaEntity getValueEntity(String name, String querySource)
+    public JavaEntity getValueEntity(String name, Reflective querySource)
     {
         FieldNode var = variables.get(name);
         if (var != null) {

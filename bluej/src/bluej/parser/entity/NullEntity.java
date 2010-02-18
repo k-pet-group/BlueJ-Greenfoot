@@ -25,6 +25,7 @@ import java.util.List;
 
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.Reflective;
 
 /**
  * The "null" entity. This represents the "null" value (literal).
@@ -40,7 +41,7 @@ public class NullEntity extends JavaEntity
     }
 
     @Override
-    public JavaEntity getSubentity(String name)
+    public JavaEntity getSubentity(String name, Reflective accessSource)
     {
         return null;
     }

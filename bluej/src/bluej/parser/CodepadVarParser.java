@@ -74,7 +74,7 @@ public class CodepadVarParser extends JavaParser
     protected void gotTypeSpec(List<LocatableToken> tokens)
     {
         if (! gotFirstVar) {
-            JavaEntity bent = ParseUtils.getTypeEntity(resolver, "", tokens);
+            JavaEntity bent = ParseUtils.getTypeEntity(resolver, null, tokens);
             if (bent == null) {
                 return;
             }

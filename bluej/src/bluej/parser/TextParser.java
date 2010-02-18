@@ -445,7 +445,7 @@ public class TextParser extends JavaParser
     protected void gotIdentifier(LocatableToken token)
     {
         String ident = token.getText();
-        valueStack.push(UnresolvedEntity.getEntity(resolver, ident, ""));
+        valueStack.push(UnresolvedEntity.getEntity(resolver, ident, null)); // DAV access source
         arrayCount = 0;
     }
     
@@ -454,7 +454,7 @@ public class TextParser extends JavaParser
     {
         String ident = token.getText();
         JavaEntity top = valueStack.pop();
-        JavaEntity newTop = top.getSubentity(ident);
+        JavaEntity newTop = top.getSubentity(ident, null); // DAV access source
         if (newTop != null) {
             valueStack.push(newTop);
         }
@@ -661,7 +661,7 @@ public class TextParser extends JavaParser
 
         String text = token.getText();
         // DAV use correct request source:
-        PackageOrClass poc = resolver.resolvePackageOrClass(text, "");
+        PackageOrClass poc = resolver.resolvePackageOrClass(text, null);
         while (poc != null && i.hasNext()) {
             token = i.next();
             if (token.getType() == JavaTokenTypes.LT) {

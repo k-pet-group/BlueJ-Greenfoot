@@ -112,7 +112,7 @@ public class EditorParserTest extends TestCase
         resolver.addCompilationUnit("", aNode);
         
         EntityResolver resolver = new PackageResolver(this.resolver, "");
-        TypeEntity aClassEnt = resolver.resolvePackageOrClass("A", "A").resolveAsType();
+        TypeEntity aClassEnt = resolver.resolvePackageOrClass("A", null).resolveAsType();
         GenTypeClass aClass = aClassEnt.getType().getCapture().asClass();
         Map<String,Set<MethodReflective>> methods = aClass.getReflective().getDeclaredMethods();
         Set<MethodReflective> mset = methods.get("someMethod");
@@ -169,7 +169,7 @@ public class EditorParserTest extends TestCase
         String sourceCode = ""
             + "class A { }\n";
         ParsedCUNode aNode = cuForSource(sourceCode, "");
-        PackageOrClass apoc = aNode.resolvePackageOrClass("A", "");
+        PackageOrClass apoc = aNode.resolvePackageOrClass("A", null);
         assertNotNull(apoc);
         TypeEntity aTyent = apoc.resolveAsType();
         assertNotNull(aTyent);
@@ -182,7 +182,7 @@ public class EditorParserTest extends TestCase
         
         sourceCode = "class B extends A {}\n";
         ParsedCUNode bNode = cuForSource(sourceCode, "");
-        PackageOrClass bpoc = bNode.resolvePackageOrClass("B", "");
+        PackageOrClass bpoc = bNode.resolvePackageOrClass("B", null);
         assertNotNull(bpoc);
         TypeEntity bTyent = bpoc.resolveAsType();
         assertNotNull(bTyent);
@@ -212,7 +212,7 @@ public class EditorParserTest extends TestCase
         // class in the current package ("xyz").
         TypeEntity tent = resolver.resolveQualifiedClass("xyz.T");
         assertNotNull(tent);
-        JavaEntity fEnt = tent.getSubentity("field");
+        JavaEntity fEnt = tent.getSubentity("field", null);
         assertNotNull(fEnt);
         JavaEntity fVal = fEnt.resolveAsValue();
         assertNotNull(fVal);

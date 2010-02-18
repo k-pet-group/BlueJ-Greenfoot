@@ -27,6 +27,7 @@ import java.util.List;
 
 import javax.swing.text.Document;
 
+import bluej.debugger.gentype.Reflective;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.EditorParser;
 import bluej.parser.ImportsCollection;
@@ -167,7 +168,7 @@ public class ParsedCUNode extends ParentParsedNode
     }
     
     @Override
-    public PackageOrClass resolvePackageOrClass(String name, String querySource)
+    public PackageOrClass resolvePackageOrClass(String name, Reflective querySource)
     {
         PackageOrClass poc = super.resolvePackageOrClass(name, querySource);
         if (poc == null) {
@@ -187,13 +188,13 @@ public class ParsedCUNode extends ParentParsedNode
     }
     
     @Override
-    public JavaEntity getValueEntity(String name, String querySource)
+    public JavaEntity getValueEntity(String name, Reflective querySource)
     {
         // We may have static imports
         
         List<TypeEntity> simports = imports.getStaticImports(name);
         for (TypeEntity importType : simports) {
-            JavaEntity subEnt = importType.getSubentity(name);
+            JavaEntity subEnt = importType.getSubentity(name, querySource);
             if (subEnt != null) {
                 JavaEntity value = subEnt.resolveAsValue();
                 if (value != null) {
@@ -204,7 +205,7 @@ public class ParsedCUNode extends ParentParsedNode
         
         simports = imports.getStaticWildcardImports();
         for (TypeEntity importType : simports) {
-            JavaEntity subEnt = importType.getSubentity(name);
+            JavaEntity subEnt = importType.getSubentity(name, querySource);
             if (subEnt != null) {
                 JavaEntity value = subEnt.resolveAsValue();
                 if (value != null) {

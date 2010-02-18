@@ -24,6 +24,7 @@ package bluej.parser.entity;
 import java.util.List;
 
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.Reflective;
 
 /**
  * An array entity, where the element type hasn't yet been resolved.
@@ -46,7 +47,7 @@ public class UnresolvedArray extends JavaEntity
     }
 
     @Override
-    public JavaEntity getSubentity(String name)
+    public JavaEntity getSubentity(String name, Reflective accessSource)
     {
         return null;
     }

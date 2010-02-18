@@ -26,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import bluej.debugger.gentype.Reflective;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageEntity;
@@ -79,7 +80,7 @@ public class TestEntityResolver implements EntityResolver
     }
     
     
-    public PackageOrClass resolvePackageOrClass(String name, String querySource)
+    public PackageOrClass resolvePackageOrClass(String name, Reflective querySource)
     {
         return new PackageEntity(name, this);
     }
@@ -100,7 +101,7 @@ public class TestEntityResolver implements EntityResolver
         return parent.resolveQualifiedClass(name);
     }
     
-    public JavaEntity getValueEntity(String name, String querySource)
+    public JavaEntity getValueEntity(String name, Reflective querySource)
     {
         return resolvePackageOrClass(name, querySource);
     }

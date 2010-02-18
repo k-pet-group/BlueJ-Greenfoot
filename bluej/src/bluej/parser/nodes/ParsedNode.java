@@ -27,6 +27,7 @@ import java.util.Map;
 
 import javax.swing.text.Document;
 
+import bluej.debugger.gentype.Reflective;
 import bluej.editor.moe.Token;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.entity.EntityResolver;
@@ -302,7 +303,7 @@ public abstract class ParsedNode implements EntityResolver
     /*
      * @see bluej.parser.entity.EntityResolver#resolvePackageOrClass(java.lang.String, java.lang.String)
      */
-    public PackageOrClass resolvePackageOrClass(String name, String querySource)
+    public PackageOrClass resolvePackageOrClass(String name, Reflective querySource)
     {
         ParsedNode cnode = classNodes.get(name);
         if (cnode != null) {
@@ -317,7 +318,7 @@ public abstract class ParsedNode implements EntityResolver
     /*
      * @see bluej.parser.entity.EntityResolver#getValueEntity(java.lang.String, java.lang.String)
      */
-    public JavaEntity getValueEntity(String name, String querySource)
+    public JavaEntity getValueEntity(String name, Reflective querySource)
     {
         if (parentNode != null) {
             JavaEntity rval = parentNode.getValueEntity(name, querySource);

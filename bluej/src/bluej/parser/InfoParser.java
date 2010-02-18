@@ -199,7 +199,7 @@ public class InfoParser extends EditorParser
         for (UnresolvedVal val: valueReferences) {
             Iterator<LocatableToken> i = val.components.iterator();
             String name = i.next().getText();
-            JavaEntity entity = val.resolver.getValueEntity(name, ""); // DAV fix query source
+            JavaEntity entity = val.resolver.getValueEntity(name, null); // DAV fix query source
             if (entity != null && entity.resolveAsValue() != null) {
                 continue refloop;
             }
@@ -208,7 +208,7 @@ public class InfoParser extends EditorParser
                 if (typeEnt != null && ! typeEnt.getType().isPrimitive()) {
                     addTypeReference(entity.getType());
                 }
-                entity = entity.getSubentity(i.next().getText());
+                entity = entity.getSubentity(i.next().getText(), null); // DAV access source
                 if (entity != null && entity.resolveAsValue() != null) {
                     continue refloop;
                 }
@@ -393,7 +393,7 @@ public class InfoParser extends EditorParser
         JavaEntity entity = UnresolvedEntity.getEntity(scopeStack.peek(),
                 i.next().getText(), currentQuerySource());
         while (entity != null && i.hasNext()) {
-            entity = entity.getSubentity(i.next().getText());
+            entity = entity.getSubentity(i.next().getText(), null); // DAV access source
         }
         if (entity != null) {
             typeReferences.add(entity);

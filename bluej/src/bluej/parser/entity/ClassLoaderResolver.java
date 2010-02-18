@@ -21,6 +21,8 @@
  */
 package bluej.parser.entity;
 
+import bluej.debugger.gentype.Reflective;
+
 /**
  * An entity resolver which resolves classes using a ClassLoader.
  * 
@@ -47,30 +49,30 @@ public class ClassLoaderResolver implements EntityResolver
         return null;
     }
     
-    public PackageOrClass resolvePackageOrClass(String name, String querySource)
+    public PackageOrClass resolvePackageOrClass(String name, Reflective querySource)
     {
-        int lastDot = querySource.lastIndexOf('.');
-        if (lastDot != -1) {
-            String pkgName = querySource.substring(0, lastDot + 1); // include the dot
-            TypeEntity rval = resolveQualifiedClass(pkgName + name);
-            if (rval != null) {
-                return rval;
-            }
-        }
+//        int lastDot = querySource.lastIndexOf('.');
+//        if (lastDot != -1) {
+//            String pkgName = querySource.substring(0, lastDot + 1); // include the dot
+//            TypeEntity rval = resolveQualifiedClass(pkgName + name);
+//            if (rval != null) {
+//                return rval;
+//            }
+//        }
         
         // Try in java.lang
-        try {
-            Class<?> cl = classLoader.loadClass("java.lang." + name);
-            return new TypeEntity(cl);
-        }
-        catch (Exception e) {}
+//        try {
+//            Class<?> cl = classLoader.loadClass("java.lang." + name);
+//            return new TypeEntity(cl);
+//        }
+//        catch (Exception e) {}
         
         // Have to assume it's a package
         return new PackageEntity(name, this);
     }
     
-    public JavaEntity getValueEntity(String name, String querySource)
+    public JavaEntity getValueEntity(String name, Reflective querySource)
     {
-        return resolvePackageOrClass(name, null);
+        return resolvePackageOrClass(name, querySource);
     }
 }

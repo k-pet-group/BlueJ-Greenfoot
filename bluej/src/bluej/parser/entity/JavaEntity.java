@@ -24,6 +24,7 @@ package bluej.parser.entity;
 import java.util.List;
 
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.Reflective;
 
 /**
  * A general abstraction for handling entities which may have fields or
@@ -84,9 +85,10 @@ public abstract class JavaEntity
     /**
      * Get a sub-entity (member, field, whatever) by name.
      * @param name  The name of the subentity
+     * @param accessSource  The source of the access (for access control purposes)
      * @return  The subentity  (or null if one does not exist)
      */
-    public abstract JavaEntity getSubentity(String name);
+    public abstract JavaEntity getSubentity(String name, Reflective accessSource);
     
     /**
      * Get the name of the entity. This returns the fully-qualified name of the

@@ -24,6 +24,7 @@ package bluej.parser.entity;
 import java.util.List;
 
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.Reflective;
 
 /**
  * An entity representing a package. The entity is only presumed to be a package
@@ -60,7 +61,7 @@ public class PackageEntity extends PackageOrClass
     }
 
     @Override
-    public JavaEntity getSubentity(String name)
+    public JavaEntity getSubentity(String name, Reflective accessSource)
     {
         return getPackageOrClassMember(name);
     }

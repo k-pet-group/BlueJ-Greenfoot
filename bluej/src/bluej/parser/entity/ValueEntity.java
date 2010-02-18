@@ -25,6 +25,7 @@ import java.util.List;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.Reflective;
 
 public class ValueEntity extends JavaEntity
 {
@@ -49,7 +50,7 @@ public class ValueEntity extends JavaEntity
     }
 
     @Override
-    public JavaEntity getSubentity(String name)
+    public JavaEntity getSubentity(String name, Reflective accessSource)
     {
         GenTypeClass ctype = type.asClass();
         if (ctype != null) {

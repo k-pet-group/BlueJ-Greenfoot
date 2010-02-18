@@ -26,6 +26,7 @@ import java.util.List;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.IntersectionType;
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.Reflective;
 
 /**
  * An entity representing intersection types (such as the bounds for type parameters).
@@ -69,7 +70,7 @@ public class IntersectionTypeEntity extends JavaEntity
     }
     
     @Override
-    public JavaEntity getSubentity(String name)
+    public JavaEntity getSubentity(String name, Reflective accessSource)
     {
         return null;
     }

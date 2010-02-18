@@ -73,7 +73,7 @@ public class TypeEntity extends PackageOrClass
         return thisType.getCapture().asClass();
     }
     
-    public JavaEntity getSubentity(String name)
+    public JavaEntity getSubentity(String name, Reflective reflective)
     {
         GenTypeClass thisClass = thisType.getCapture().asClass();
         if (thisClass == null) {

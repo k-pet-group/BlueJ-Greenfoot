@@ -47,12 +47,12 @@ public class ProjectEntityResolver implements EntityResolver
         this.project = project;
     }
     
-    public JavaEntity getValueEntity(String name, String querySource)
+    public JavaEntity getValueEntity(String name, Reflective querySource)
     {
         return resolvePackageOrClass(name, querySource);
     }
 
-    public PackageOrClass resolvePackageOrClass(String name, String querySource)
+    public PackageOrClass resolvePackageOrClass(String name, Reflective querySource)
     {
         // Try in java.lang
         try {

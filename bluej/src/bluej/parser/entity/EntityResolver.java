@@ -21,6 +21,8 @@
  */
 package bluej.parser.entity;
 
+import bluej.debugger.gentype.Reflective;
+
 /**
  * An EntityResolver, broadly speaking, resolves identifiers into packages, classes,
  * fields and variables. A resolver can be specific to a context; for instance a
@@ -39,7 +41,7 @@ public interface EntityResolver
      * @param querySource  The source of the query (a fully qualified class name,
      *            as would be returned by Class.getName()).
      */
-    public PackageOrClass resolvePackageOrClass(String name, String querySource);
+    public PackageOrClass resolvePackageOrClass(String name, Reflective querySource);
     
     /**
      * Resolve a class from its fully-qualified name. The supplied name should
@@ -57,5 +59,5 @@ public interface EntityResolver
      * @param querySource The source of the query (a fully qualified class name,
      *            as would be returned by Class.getName()).
      */
-    public JavaEntity getValueEntity(String name, String querySource);
+    public JavaEntity getValueEntity(String name, Reflective querySource);
 }

@@ -44,7 +44,7 @@ public class PackageResolver implements EntityResolver
     /* (non-Javadoc)
      * @see bluej.parser.entity.EntityResolver#getValueEntity(java.lang.String, java.lang.String)
      */
-    public JavaEntity getValueEntity(String name, String querySource)
+    public JavaEntity getValueEntity(String name, Reflective querySource)
     {
         return resolvePackageOrClass(name, querySource);
     }
@@ -52,7 +52,7 @@ public class PackageResolver implements EntityResolver
     /* (non-Javadoc)
      * @see bluej.parser.entity.EntityResolver#resolvePackageOrClass(java.lang.String, java.lang.String)
      */
-    public PackageOrClass resolvePackageOrClass(String name, String querySource)
+    public PackageOrClass resolvePackageOrClass(String name, Reflective querySource)
     {
         String fqName = (pkg.length() == 0) ? name : pkg + "." + name;
         TypeEntity tent = parentResolver.resolveQualifiedClass(fqName);

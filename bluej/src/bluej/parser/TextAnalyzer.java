@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import bluej.Config;
 import bluej.debugger.gentype.BadInheritanceChainException;
 import bluej.debugger.gentype.GenTypeArray;
 import bluej.debugger.gentype.GenTypeCapture;
@@ -49,6 +48,7 @@ import bluej.debugger.gentype.IntersectionType;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
+import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
 import bluej.debugmgr.texteval.DeclaredVar;
@@ -77,7 +77,7 @@ public class TextAnalyzer
     private ValueCollection objectBench;
 
     private static JavaUtils jutils = JavaUtils.getJavaUtils();
-    private static boolean java15 = Config.isJava15();
+    //private static boolean java15 = Config.isJava15();
     
     private List<DeclaredVar> declVars; // variables declared in the parsed statement block
     private String amendedCommand;  // command string amended with initializations for
@@ -200,7 +200,7 @@ public class TextAnalyzer
                 return parentResolver.resolveQualifiedClass(name);
             }
             
-            public PackageOrClass resolvePackageOrClass(String name, String querySource)
+            public PackageOrClass resolvePackageOrClass(String name, Reflective querySource)
             {
                 String pkgScopePrefix = packageScope;
                 if (packageScope.length() > 0) {
@@ -236,7 +236,7 @@ public class TextAnalyzer
                 return new PackageEntity(name, this);
             }
             
-            public JavaEntity getValueEntity(String name, String querySource)
+            public JavaEntity getValueEntity(String name, Reflective querySource)
             {
                 NamedValue obVal = objectBench.getNamedValue(name);
                 if (obVal != null) {
@@ -244,12 +244,12 @@ public class TextAnalyzer
                 }
                 List<TypeEntity> importStaticVals = imports.getStaticImports(name);
                 if (importStaticVals != null && !importStaticVals.isEmpty()) {
-                    return importStaticVals.get(0).getSubentity(name);
+                    return importStaticVals.get(0).getSubentity(name, querySource);
                 }
                 importStaticVals = imports.getStaticWildcardImports();
                 if (importStaticVals != null) {
                     for (TypeEntity importStatic : importStaticVals) {
-                        JavaEntity entity = importStatic.getSubentity(name);
+                        JavaEntity entity = importStatic.getSubentity(name, querySource);
                         if (entity != null)
                             return entity;
                     }
@@ -380,10 +380,10 @@ public class TextAnalyzer
      * Test if a given type is one of the "minor" integral types: byte, char
      * or short.
      */
-    private static boolean isMinorInteger(JavaType a)
-    {
-        return a.typeIs(JavaType.JT_BYTE) || a.typeIs(JavaType.JT_CHAR) || a.typeIs(JavaType.JT_SHORT); 
-    }
+//    private static boolean isMinorInteger(JavaType a)
+//    {
+//        return a.typeIs(JavaType.JT_BYTE) || a.typeIs(JavaType.JT_CHAR) || a.typeIs(JavaType.JT_SHORT); 
+//    }
     
     /**
      * Java 1.5 version of the trinary "? :" operator.

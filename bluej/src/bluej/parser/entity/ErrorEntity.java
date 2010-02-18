@@ -24,6 +24,7 @@ package bluej.parser.entity;
 import java.util.List;
 
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.Reflective;
 
 /**
  * An entity representing an erroneous expression in a Java program. This is sometimes
@@ -40,7 +41,7 @@ public class ErrorEntity extends JavaEntity
     }
     
     @Override
-    public JavaEntity getSubentity(String name)
+    public JavaEntity getSubentity(String name, Reflective accessSource)
     {
         return this;
     }

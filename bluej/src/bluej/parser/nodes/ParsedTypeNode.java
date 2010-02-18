@@ -26,6 +26,7 @@ import java.util.Map;
 
 import javax.swing.text.Document;
 
+import bluej.debugger.gentype.Reflective;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
@@ -146,7 +147,7 @@ public class ParsedTypeNode extends ParentParsedNode
     }
     
     @Override
-    public PackageOrClass resolvePackageOrClass(String name, String querySource)
+    public PackageOrClass resolvePackageOrClass(String name, Reflective querySource)
     {
         if (typeParams != null) {
             JavaEntity ent = typeParams.get(name);

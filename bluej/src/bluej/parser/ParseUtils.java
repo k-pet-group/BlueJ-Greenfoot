@@ -27,6 +27,7 @@ import java.util.ListIterator;
 
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.Reflective;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.SolidTargEntity;
@@ -61,7 +62,7 @@ public class ParseUtils
      * @param tokens  The tokens specifying the type
      */
     public static JavaEntity getTypeEntity(EntityResolver resolver,
-            String querySource, List<LocatableToken> tokens)
+            Reflective querySource, List<LocatableToken> tokens)
     {
         DepthRef dr = new DepthRef();
         return getTypeEntity(resolver, querySource, tokens.listIterator(), dr);
@@ -70,7 +71,7 @@ public class ParseUtils
     /**
      * Get an entity for a type specification. The returned entity may be unresolved.
      */
-    private static JavaEntity getTypeEntity(EntityResolver resolver, String querySource,
+    private static JavaEntity getTypeEntity(EntityResolver resolver, Reflective querySource,
             ListIterator<LocatableToken> i, DepthRef depthRef)
     {
         LocatableToken token = i.next();
@@ -154,7 +155,7 @@ public class ParseUtils
             if (token.getType() != JavaTokenTypes.IDENT) {
                 break;
             }
-            poc = poc.getSubentity(token.getText());
+            poc = poc.getSubentity(token.getText(), querySource);
         }
         
         return poc;
@@ -167,7 +168,7 @@ public class ParseUtils
      * @param depthRef  The argument depth
      * @return   A JavaEntity representing the type with type arguments applied (or null)
      */
-    private static JavaEntity processTypeArgs(EntityResolver resolver, String querySource, 
+    private static JavaEntity processTypeArgs(EntityResolver resolver, Reflective querySource, 
             JavaEntity base, ListIterator<LocatableToken> i, DepthRef depthRef)
     {
         int startDepth = depthRef.depth;
