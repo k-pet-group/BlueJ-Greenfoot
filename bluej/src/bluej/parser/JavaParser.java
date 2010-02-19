@@ -1006,8 +1006,7 @@ public class JavaParser
         while(true) {
             LocatableToken token = tokenStream.nextToken();
             if (token.getType() == JavaTokenTypes.EOF
-                    || token.getType() == JavaTokenTypes.RCURLY
-                    || token.getType() == JavaTokenTypes.RPAREN) {
+                    || token.getType() == JavaTokenTypes.RCURLY) {
                 tokenStream.pushBack(token);
                 return;
             }
