@@ -31,10 +31,13 @@ public abstract class AssistContent
     /** Get the text to display in the code completion box for this completion */
     public abstract String getDisplayName();
     
-    /** Get the completion text (to appear in front of the cursor) */
+    /** Get the completion text (to appear in front of the cursor/selection) */
     public abstract String getCompletionText();
     
-    /** Get the completion text (portion to appear behind the cursor) */
+    /** Get the completion text to appear selected */
+    public abstract String getCompletionTextSel();
+    
+    /** Get the completion text (portion to appear behind the cursor/selection) */
     public abstract String getCompletionTextPost();
 
     /** Get the return type for this completion (as a string) */

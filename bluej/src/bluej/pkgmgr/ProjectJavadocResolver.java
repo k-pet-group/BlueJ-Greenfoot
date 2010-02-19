@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -79,6 +80,8 @@ public class ProjectJavadocResolver implements JavadocResolver
                         List<String> paramNames = new ArrayList<String>(comment.getParamCount());
                         for (int j = 0; j < comment.getParamCount(); j++) {
                             paramNames.add(comment.getParamName(j));
+                            // DAV
+                            System.out.println("Got param name: " + comment.getParamName(j));
                         }
                         method.setParamNames(paramNames);
                         return;
@@ -107,6 +110,13 @@ public class ProjectJavadocResolver implements JavadocResolver
             }
             if (comtarget.equals(methodSig)) {
                 method.setJavaDoc(comments.getProperty("comment" + i + ".text"));
+                String paramNames = comments.getProperty("comment" + i + ".params");
+                StringTokenizer tokenizer = new StringTokenizer(paramNames);
+                List<String> paramNamesList = new ArrayList<String>();
+                while (tokenizer.hasMoreTokens()) {
+                    paramNamesList.add(tokenizer.nextToken());
+                }
+                method.setParamNames(paramNamesList);
                 break;
             }
         }

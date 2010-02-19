@@ -90,7 +90,7 @@ public class MethodReflective
     }
     
     /**
-     * Get the parameter names for this method, if know.
+     * Get the parameter names for this method, if known.
      * @return A list of the parameter names in order, or null if the parameter names are
      *         not known.
      */

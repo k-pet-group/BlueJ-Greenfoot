@@ -21,6 +21,7 @@
  */
 package bluej.editor.moe;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -88,9 +89,43 @@ public class MethodCompletion extends AssistContent
     }
     
     @Override
+    public String getCompletionTextSel()
+    {
+        List<JavaType> paramTypes = method.getParamTypes();
+        if (! paramTypes.isEmpty()) {
+            List<String> paramNames = method.getParamNames();
+            if (paramNames == null || paramNames.isEmpty()) {
+                return buildParam(1, paramTypes.get(0), null);
+            }
+            else {
+                return buildParam(1, paramTypes.get(0), paramNames.get(0));
+            }
+        }
+        return "";
+    }
+    
+    @Override
     public String getCompletionTextPost()
     {
-        return ")";
+        String r = ")";
+        List<JavaType> paramTypes = method.getParamTypes();
+        if (paramTypes.size() > 1) {
+            String paramStr = "";
+            List<String> paramNames = method.getParamNames();
+            paramNames = (paramNames == null) ? Collections.<String>emptyList() : paramNames;
+            Iterator<JavaType> ti = paramTypes.iterator();
+            Iterator<String> ni = paramNames.iterator();
+            ti.next();
+            if (ni.hasNext()) ni.next();
+            int i = 2;
+            while (ti.hasNext()) {
+                String name = ni.hasNext() ? ni.next() : null;
+                paramStr += ", " + buildParam(i++, ti.next(), name);
+            }
+            r = paramStr + r;
+        }
+        
+        return r;
     }
     
     @Override
@@ -122,5 +157,15 @@ public class MethodCompletion extends AssistContent
             }
         }
         return type;
+    }
+    
+    private static String buildParam(int pnum, JavaType paramType, String paramName)
+    {
+        if (paramName != null) {
+            return paramName + ":" + paramType.toString(true);
+        }
+        else {
+            return "#" + pnum + ":" + paramType.toString(true);
+        }
     }
 }

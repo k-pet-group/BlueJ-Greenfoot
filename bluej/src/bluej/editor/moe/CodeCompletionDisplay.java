@@ -208,20 +208,20 @@ public class CodeCompletionDisplay extends JFrame
     private void codeComplete()
     {
         String completion = values[selectedValue].getCompletionText();
+        String completionSel = values[selectedValue].getCompletionTextSel();
         String completionPost = values[selectedValue].getCompletionTextPost();
         
-        //editor.codeComplete(values[selectedValue].getContentName());
-        if (location == null) {
-            editor.insertText(completion, false);
-            editor.insertText(completionPost, true);
-        }
-        else {
+        if (location != null) {
             SourceLocation begin = new SourceLocation(location.getLine(), location.getColumn());
             SourceLocation end = new SourceLocation(location.getEndLine(), location.getEndColumn());
             editor.setSelection(begin, end);
-            editor.insertText(completion, false);
-            editor.insertText(completionPost, true);
         }
+        
+        editor.insertText(completion, false);
+        SourceLocation selLoc = editor.getCaretLocation();
+        editor.insertText(completionSel, false);
+        editor.insertText(completionPost, true);
+        editor.setSelection(selLoc.getLine(), selLoc.getColumn(), completionSel.length());
         
         setVisible(false);
     }
