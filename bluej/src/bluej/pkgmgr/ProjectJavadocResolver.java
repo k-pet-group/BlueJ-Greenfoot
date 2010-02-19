@@ -80,8 +80,6 @@ public class ProjectJavadocResolver implements JavadocResolver
                         List<String> paramNames = new ArrayList<String>(comment.getParamCount());
                         for (int j = 0; j < comment.getParamCount(); j++) {
                             paramNames.add(comment.getParamName(j));
-                            // DAV
-                            System.out.println("Got param name: " + comment.getParamName(j));
                         }
                         method.setParamNames(paramNames);
                         return;
