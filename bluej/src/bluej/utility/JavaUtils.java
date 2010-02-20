@@ -30,9 +30,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
@@ -359,21 +361,55 @@ public abstract class JavaUtils
      */
     public static boolean checkMemberAccess(Reflective container, Reflective accessor, int modifiers)
     {
+        if (Modifier.isPublic(modifiers)) {
+            return true;
+        }
+        
+        if (! Modifier.isPrivate(modifiers)) {
+            String cpackage = JavaNames.getPrefix(container.getName());
+            if (accessor.getName().startsWith(cpackage)
+                    && accessor.getName().indexOf('.', cpackage.length() + 1) == -1) {
+                // Classes are in the same package, and the member is not private: access allowed
+                return true;
+            }
+        }
+        
         // access class == container class, then access is always allowed
         if (accessor.getName().equals(container.getName())) {
             return true;
         }
         
-        // inner classes can access outer class members
-        if (accessor.getName().startsWith(container.getName() + '$')) {
-            return true;
+        int dollarIndex = accessor.getName().lastIndexOf('$');
+        if (dollarIndex != -1) {
+            // Inner classes can access outer class members with outer class privileges
+            Reflective outer = container.getRelativeClass(accessor.getName().substring(0, dollarIndex));
+            if (checkMemberAccess(container, outer, modifiers)) {
+                return true;
+            }
         }
         
-        if (Modifier.isPrivate(modifiers)) {
-            return false;
+        List<Reflective> supers = accessor.getSuperTypesR();
+        Set<String> done = new HashSet<String>();
+        String cpackage = JavaNames.getPrefix(container.getName());
+        while (! supers.isEmpty()) {
+            Reflective r = supers.remove(0);
+            if (done.add(r.getName())) {
+                if (r.getName().equals(container.getName())) {
+                    if (Modifier.isProtected(modifiers)) {
+                        return true;
+                    }
+                    if (! Modifier.isPrivate(modifiers)) {
+                        if (accessor.getName().startsWith(cpackage)
+                                && accessor.getName().indexOf('.', cpackage.length() + 1) == -1) {
+                            // Classes are in the same package, and the member is not private: access allowed
+                            return true;
+                        }
+                    }
+                }
+            }
         }
         
-        return true;
+        return false;
     }
 
     /**
