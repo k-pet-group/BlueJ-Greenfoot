@@ -106,7 +106,7 @@
         <!-- distribution jar, and stores its length in the        -->
         <!-- installer properties                                  -->
         <javac
-               executable="${build_java_home}/bin/javac"
+               executable="${java_command_dir}/javac"
                fork="yes"
                srcdir="."
                destdir="install_tmp"
@@ -118,7 +118,7 @@
         <java
                classname="InstallerProps"
                fork="yes"
-               jvm="${build_java_home}/bin/java"
+               jvm="${java_command_dir}/java"
             >
             <classpath>
                 <pathelement location="install_tmp" />
@@ -135,7 +135,7 @@
 
         <!-- compile the installer -->
         <javac
-               executable="${build_java_home}/bin/javac"
+               executable="${java_command_dir}/javac"
                fork="yes"
                srcdir="."
                destdir="install_tmp"
