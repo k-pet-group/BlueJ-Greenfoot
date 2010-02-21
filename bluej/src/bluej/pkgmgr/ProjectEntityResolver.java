@@ -55,11 +55,10 @@ public class ProjectEntityResolver implements EntityResolver
     public PackageOrClass resolvePackageOrClass(String name, Reflective querySource)
     {
         // Try in java.lang
-        try {
-            Class<?> cl = project.getClassLoader().loadClass("java.lang." + name);
+        Class<?> cl = project.loadClass("java.lang." + name);
+        if (cl != null) {
             return new TypeEntity(cl);
         }
-        catch (Exception e) {}
         
         // Have to assume it's a package
         return new PackageEntity(name, this);
@@ -82,12 +81,11 @@ public class ProjectEntityResolver implements EntityResolver
             }
         }
 
-        try {
-            // Try as a class which might be external to the project 
-            Class<?> cl = project.getClassLoader().loadClass(name);
+        // Try as a class which might be external to the project 
+        Class<?> cl = project.loadClass(name);
+        if (cl != null) {
             return new TypeEntity(cl);
         }
-        catch (Exception e) {}
         
         return null;
     }
