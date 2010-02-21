@@ -1106,14 +1106,15 @@ public class PkgMgrFrame extends JFrame
      * @param showErr
      *            true if a "duplicate name" dialog should be shown if
      *            the named class already exists
-     * @return  true if successful, false is the named class already exists/restricted word on Windows
+     * @return  true if successful, false is the named class already exists or is a restricted word 
+     *          (names that cause problems on Windows)
      */
     public boolean createNewClass(String name, String template, boolean showErr)
     {
         initialiseRestrictedWordList();
-        //if the class name is in the restricted list and the OS is Windows, 
+        //if the class name is in the restricted list, 
         //should not create a class name
-        if ((isWindowsRestrictedWord(name)) && (Config.isWinOS()))
+        if (isWindowsRestrictedWord(name))
         {
             DialogManager.showError((JFrame)this.getParent(), "windows-reserved-class-name");            
             return false;
