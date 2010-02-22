@@ -83,7 +83,7 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 7102 2010-02-09 02:19:24Z marionz $
+ * @version $Id: Package.java 7166 2010-02-22 23:54:36Z davmac $
  */
 public final class Package extends Graph
 {
@@ -679,17 +679,34 @@ public final class Package extends Graph
             }
             addTarget(target);
         }
-        
-        //Now, parse the source files, and ensure they have the correct package statements
+
+        //Update class roles, and their state
         Iterator<Target> targetIt = targets.iterator();
+        for ( ; targetIt.hasNext();) {
+            Target target = targetIt.next();
+
+            if (target instanceof ClassTarget) {
+                ClassTarget ct = (ClassTarget) target;
+                Class<?> cl = loadClass(ct.getQualifiedName());
+                ct.determineRole(cl);
+                if (cl != null && ct.upToDate()) {
+                    ct.setState(ClassTarget.S_NORMAL);
+                }
+            }
+        }
+
+        //Now, parse the source files, and ensure they have the correct package statements
+        targetIt = targets.iterator();
         while (targetIt.hasNext()) {
             Object target = targetIt.next();
             if(target instanceof ClassTarget) {
                 try {
                     ClassTarget ct = (ClassTarget) target;
-                    if (ct.hasSourceCode()) {
-                        ct.analyseSource();
-                        ct.enforcePackage(getQualifiedName());
+                    if (! ct.isCompiled()) {
+                        if (ct.hasSourceCode()) {
+                            ct.analyseSource();
+                            ct.enforcePackage(getQualifiedName());
+                        }
                     }
                 }
                 catch (IOException ioe) {
@@ -729,21 +746,6 @@ public final class Package extends Graph
                 if (t1 != null && t2 != null && t1 instanceof DependentTarget) {
                     DependentTarget dt = (DependentTarget) t1;
                     dt.setAssociation((DependentTarget)t2);
-                }
-            }
-        }
-
-        //Update class roles, and their state
-        for (targetIt = targets.iterator(); targetIt.hasNext();) {
-            Target target = targetIt.next();
-
-            if (target instanceof ClassTarget) {
-                ClassTarget ct = (ClassTarget) target;
-
-                Class<?> cl = loadClass(ct.getQualifiedName());
-                ct.determineRole(cl);
-                if (cl != null && ct.upToDate()) {
-                    ct.setState(ClassTarget.S_NORMAL);
                 }
             }
         }
