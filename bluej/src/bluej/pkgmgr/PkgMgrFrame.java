@@ -1103,8 +1103,8 @@ public class PkgMgrFrame extends JFrame
      * @param showErr
      *            true if a "duplicate name" dialog should be shown if
      *            the named class already exists
-     * @return  true if successful, false is the named class already exists or is a restricted word 
-     *          (names that cause problems on Windows)
+     * @return  true if successful, false is the named class already exists
+
      */
     public boolean createNewClass(String name, String template, boolean showErr)
     {
@@ -1117,9 +1117,10 @@ public class PkgMgrFrame extends JFrame
         if (pkg.loadClass(name)!=null){
             Object[] options = {"Continue Anyway",
                     "Cancel"};
-            int result=DialogManager.showWarning(this, "library-class", options);
+            int defaultOption=1;
+            int result=DialogManager.showWarning(this, "library-class", options, defaultOption);
             //cancel was chosen
-            if (result==1)
+            if (result==defaultOption)
                 return false;
         }
 
