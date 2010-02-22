@@ -184,10 +184,9 @@ with the correct class to use. Choosing another
 name will avoid this.
 
 windows-reserved-class-name
-This class name cannot be used on the Windows operating
-system. Windows reserves several special file names for
-DOS compatibility, and those reserved names cannot be used
-as class names.
+The chosen class name cannot be used, because it
+conflicts with a reserved filename on some operating
+systems.
 
 error-in-import
 An error occurred during the attempt to
