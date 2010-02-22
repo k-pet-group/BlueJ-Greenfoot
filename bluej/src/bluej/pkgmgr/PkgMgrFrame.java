@@ -219,9 +219,6 @@ public class PkgMgrFrame extends JFrame
 
     private ExportManager exporter;
     
-    //stores restricted windows class filenames
-    private static List<String> windowsRestrictedWords;  
-    
     /**
      * Prepare MacOS specific behaviour (About menu, Preferences menu, Quit
      * menu)
@@ -1111,20 +1108,20 @@ public class PkgMgrFrame extends JFrame
      */
     public boolean createNewClass(String name, String template, boolean showErr)
     {
-        initialiseRestrictedWordList();
-        //if the class name is in the restricted list, 
-        //should not create a class name
-        if (isWindowsRestrictedWord(name))
-        {
-            DialogManager.showError((JFrame)this.getParent(), "windows-reserved-class-name");            
-            return false;
-        }
         // check whether name is already used
         if (pkg.getTarget(name) != null) {
             DialogManager.showError(this, "duplicate-name");
             return false;
         }
-        
+        //check if there already exists a class in a library with that name 
+        if (pkg.loadClass(name)!=null){
+            Object[] options = {"Continue Anyway",
+                    "Cancel"};
+            int result=DialogManager.showWarning(this, "library-class", options);
+            //cancel was chosen
+            if (result==1)
+                return false;
+        }
 
         ClassTarget target = null;
         target = new ClassTarget(pkg, name, template);
@@ -3307,48 +3304,4 @@ public class PkgMgrFrame extends JFrame
         }
     }
     
-    /**
-     * Tests for restricted class names (case insensitive)
-     * @param fileName potential class name
-     * @return true if restricted word
-     */
-    private boolean isWindowsRestrictedWord(String fileName)
-    {
-        if (windowsRestrictedWords.contains(fileName.toUpperCase())){
-            return true;
-        }
-        return false;
-    }
-    
-    /**
-     * Initialises the list of restricted words
-     */
-    private void initialiseRestrictedWordList()
-    {
-        if (windowsRestrictedWords==null){
-            windowsRestrictedWords=new ArrayList<String>();
-            windowsRestrictedWords.add("CON");
-            windowsRestrictedWords.add("PRN");
-            windowsRestrictedWords.add("AUX");
-            windowsRestrictedWords.add("NUL");
-            windowsRestrictedWords.add("COM1");
-            windowsRestrictedWords.add("COM2");
-            windowsRestrictedWords.add("COM3");
-            windowsRestrictedWords.add("COM4");
-            windowsRestrictedWords.add("COM5");
-            windowsRestrictedWords.add("COM6");
-            windowsRestrictedWords.add("COM7");
-            windowsRestrictedWords.add("COM8");
-            windowsRestrictedWords.add("COM9");
-            windowsRestrictedWords.add("LPT1");
-            windowsRestrictedWords.add("LPT2");
-            windowsRestrictedWords.add("LPT3");
-            windowsRestrictedWords.add("LPT4");
-            windowsRestrictedWords.add("LPT5");
-            windowsRestrictedWords.add("LPT6");
-            windowsRestrictedWords.add("LPT7");
-            windowsRestrictedWords.add("LPT8");
-            windowsRestrictedWords.add("LPT9");
-        }
-    }
 }
