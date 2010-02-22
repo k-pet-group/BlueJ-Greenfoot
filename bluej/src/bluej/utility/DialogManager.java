@@ -37,7 +37,7 @@ import javax.swing.*;
  * internationalised, using BlueJ's langauage library system.
  *
  * @author Michael Kolling
- * @version $Id: DialogManager.java 7055 2010-01-27 13:58:55Z plcs $
+ * @version $Id: DialogManager.java 7164 2010-02-22 23:42:45Z marionz $
  */
 public class DialogManager
 {
@@ -56,6 +56,20 @@ public class DialogManager
             JOptionPane.showMessageDialog(parent, message,
                                           Config.getString("dialogmgr.message"),
                                           JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    /**
+     * 
+     * @param parent
+     * @param msgID
+     */
+    public static int showWarning(Component parent, String msgID, Object[] options){
+        String message = getMessage(msgID);
+        if(message != null)
+            return JOptionPane.showOptionDialog(parent, message,
+                                          Config.getString("dialogmgr.message"),JOptionPane.YES_NO_OPTION,
+                                          JOptionPane.WARNING_MESSAGE, null, options, options[1]);
+        return 0;
     }
 
 
