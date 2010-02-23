@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,15 +30,14 @@ import javax.swing.text.*;
 
 
 /**
- * A customised caret for Moe. It gets most of its bahaviour from
+ * A customised caret for Moe. It gets most of its behaviour from
  * Swing's "DefaultCaret" and adds some functionality.
  *
  * @author  Michael Kolling
  */
-
 public class MoeCaret extends DefaultCaret  
 {
-    private static final Color bracketHighlightColour = new Color(196, 196, 196);
+    private static final Color bracketHighlightColour = new Color(230, 200, 200);
     
     private static final LayeredHighlighter.LayerPainter bracketPainter = 
         new BracketMatchPainter(bracketHighlightColour);

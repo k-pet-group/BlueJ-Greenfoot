@@ -54,7 +54,7 @@ public class BracketMatchPainter extends DefaultHighlighter.DefaultHighlightPain
                                            end,Position.Bias.Backward,
                                            bounds);
             rect = shape.getBounds();                
-            g.drawRect(rect.x, rect.y, rect.width -1, rect.height - 1);
+            g.fillRect(rect.x, rect.y, rect.width -1, rect.height - 1);
         } catch (BadLocationException ble) {
             Debug.reportError("bad location exception thrown");
             ble.printStackTrace();
