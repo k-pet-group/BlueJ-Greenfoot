@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -100,7 +100,9 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
         if (src.getName()== REPLACE_TEXTFIELD){
             setReplaceString(replaceText.getText());
             //only enable the once and all buttons if both find and replace are populated
-            if (editor.getFindSearchString()!=null && editor.getFindSearchString().length()!=0){
+            //and if there is selected text (else will insert replace where the caret is
+            if (editor.getFindSearchString()!=null && editor.getFindSearchString().length()!=0
+                    && editor.getSelectedText()!=null){
                 enableButtons(true);
             }
             else

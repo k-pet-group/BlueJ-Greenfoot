@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -38,6 +38,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.print.PageFormat;
@@ -133,7 +135,7 @@ import bluej.utility.Utility;
  */
 
 public final class MoeEditor extends JFrame
-implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentListener
+implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentListener, MouseListener
 {
     // -------- CONSTANTS --------
 
@@ -331,6 +333,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 File file = new File(filename);
                 lastModified = file.lastModified();
 
+                sourcePane.addMouseListener(this);
                 sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
                 naviView.setDocument(sourceDocument);
                 sourceDocument.addDocumentListener(this);
@@ -3593,5 +3596,34 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         } catch (BadLocationException e) {
             Debug.reportError("Error in editor", e);
         }
+    }
+    
+    /**
+     * When the mouse is clicked away from the selected text, 
+     * the replace buttons need to be disabled
+     */
+    public void mouseClicked(MouseEvent e) {
+        if (getSelectedText()==null){
+            enableReplaceButtons(false);
+        }           
+    }
+
+    public void mouseEntered(MouseEvent e) {
+        
+    }
+
+
+    public void mouseExited(MouseEvent e) {
+        
+    }
+
+
+    public void mousePressed(MouseEvent e) {
+        
+    }
+
+
+    public void mouseReleased(MouseEvent e) {
+
     }
 }
