@@ -50,14 +50,14 @@ public class ScopeHighlightingPrefDisplay extends JPanel implements ChangeListen
     JPanel yellowPanelArea;
     JPanel pinkPanelArea;
     JPanel bluePanelArea;
-    Color greenArea=new Color(235, 250, 235);
-    Color pinkArea=new Color(250, 240, 250);
-    Color yellowArea=new Color(250, 250, 225);
-    Color blueArea=new Color(240, 240, 250);
-    Color greenBorder=new Color(225, 238, 225);
-    Color pinkBorder=new Color(225, 203, 225);
-    Color yellowBorder=new Color(228, 228, 205);
-    Color blueBorder=new Color(210, 210, 225);
+    Color greenArea = BlueJSyntaxView.GREEN_BASE;
+    Color pinkArea = BlueJSyntaxView.PINK_BASE;
+    Color yellowArea = BlueJSyntaxView.YELLOW_BASE;
+    Color blueArea = BlueJSyntaxView.BLUE_BASE;
+    Color greenBorder = BlueJSyntaxView.GREEN_OUTER_BASE;
+    Color pinkBorder = BlueJSyntaxView.PINK_OUTER_BASE;
+    Color yellowBorder = BlueJSyntaxView.YELLOW_OUTER_BASE;
+    Color blueBorder = BlueJSyntaxView.BLUE_OUTER_BASE;
     Color greenSetting, greenSettingBorder;
     Color yellowSetting, yellowSettingBorder;
     Color pinkSetting, pinkSettingBorder;
@@ -89,6 +89,7 @@ public class ScopeHighlightingPrefDisplay extends JPanel implements ChangeListen
         {
             colorPanel=new JPanel(new GridLayout(4,1,0,0));     
             colorPanel.setBorder(BorderFactory.createLineBorder(bg, 10));
+            colorPanel.setBackground(bg);
             greenPanelArea=new JPanel();
             yellowPanelArea=new JPanel();
             pinkPanelArea=new JPanel();
@@ -129,15 +130,10 @@ public class ScopeHighlightingPrefDisplay extends JPanel implements ChangeListen
      * Setting the colour relative to the background colour of the document
      * and using the value of the slider to calculate strength
      */
-    private Color getReducedColor(Color thisColor)
+    private Color getReducedColor(Color c)
     {
-        colorPanel.setBackground(bg);
-        double factor = getStrengthValue() / 20.0;
-        double other = 1 - factor;
-        int nr = Math.min((int)(thisColor.getRed() * factor + bg.getRed() * other), 255);
-        int ng = Math.min((int)(thisColor.getGreen() * factor + bg.getGreen() * other), 255);
-        int nb = Math.min((int)(thisColor.getBlue() * factor + bg.getBlue() * other), 255);
-        return new Color(nr, ng, nb);
+        return BlueJSyntaxView.getReducedColor(c.getRed(), c.getGreen(),
+                c.getBlue(), getStrengthValue());
     }
 
     /*
@@ -178,7 +174,7 @@ public class ScopeHighlightingPrefDisplay extends JPanel implements ChangeListen
      */
     protected void setBluePalette()
     {
-        blueSetting= getReducedColor(blueArea);
+        blueSetting = getReducedColor(blueArea);
         bluePanelArea.setBackground(blueSetting);
         blueSettingBorder=getReducedColor(blueBorder);
         bluePanelArea.setBorder(BorderFactory.createLineBorder(blueSettingBorder));

@@ -74,22 +74,34 @@ public abstract class BlueJSyntaxView extends PlainView
     private static int strength = PrefMgr.getScopeHighlightStrength();
     
     {
+        MoeSyntaxDocument.getColors(); // initialize colors
         resetColors();
     }
 
     /* Scope painting colours */
-    private static Color C1 = getGreenContainerBorder(); // green border (container)
-    private static Color C2 = getGreenWash(); // green wash
-    private static Color C3 = getGreenBorder(); // green border (inner).
+    public static final Color GREEN_BASE = new Color(225, 248, 225);
+    public static final Color BLUE_BASE = new Color(233, 233, 248);
+    public static final Color YELLOW_BASE = new Color(250, 250, 180);
+    public static final Color PINK_BASE = new Color(248, 233, 248);
+    public static final Color GREEN_OUTER_BASE = new Color(188, 218, 188);
+    public static final Color BLUE_OUTER_BASE = new Color(188, 188, 210);
+    public static final Color YELLOW_OUTER_BASE = new Color(215, 215, 205);
+    public static final Color PINK_OUTER_BASE = new Color(210, 177, 210);
+    public static final Color GREEN_INNER_BASE = new Color(210, 230, 210);
+    
+    /* The following are initialized by resetColors() */
+    private static Color C1; // green border (container)
+    private static Color C2; // green wash
+    private static Color C3; // green border (inner).
 
-    private static Color M1 = getYellowBorder(); // yellow border (methods)
-    private static Color M2 = getYellowWash(); // yellow wash
+    private static Color M1; // yellow border (methods)
+    private static Color M2; // yellow wash
 
-    private static Color S1 = getBlueBorder(); // blue border (selection)
-    private static Color S2 = getBlueWash(); // blue wash
+    private static Color S1; // blue border (selection)
+    private static Color S2; // blue wash
 
-    private static Color I1 = getPinkBorder(); // pink border (iteration)
-    private static Color I2 = getPinkWash(); // pink wash
+    private static Color I1; // pink border (iteration)
+    private static Color I2; // pink wash
 
 
     /** System settings for graphics rendering (inc. font antialiasing etc.) */
@@ -1041,7 +1053,17 @@ public abstract class BlueJSyntaxView extends PlainView
         I2 = getPinkWash();             
     }
 
-    private static Color getReducedColor(int r, int g, int b)
+    private static Color getReducedColor(Color c)
+    {
+        return getReducedColor(c.getRed(), c.getGreen(), c.getBlue(), strength);
+    }
+    
+    /**
+     * Get a colour which has been faded toward the background according to the
+     * given strength value. The higher the strength value, the less the color
+     * is faded.
+     */
+    public static Color getReducedColor(int r, int g, int b, int strength)
     {
         Color bg = MoeSyntaxDocument.getBackgroundColor();
         double factor = strength / 20.0;
@@ -1058,7 +1080,7 @@ public abstract class BlueJSyntaxView extends PlainView
      */
     private static Color getGreenWash()
     {
-        return getReducedColor(235, 250, 235);
+        return getReducedColor(GREEN_BASE);
     }
 
     /** 
@@ -1067,7 +1089,7 @@ public abstract class BlueJSyntaxView extends PlainView
      */
     private static Color getGreenContainerBorder()
     {
-        return getReducedColor(210, 230, 210);
+        return getReducedColor(GREEN_OUTER_BASE);
     }
 
     /** 
@@ -1076,7 +1098,7 @@ public abstract class BlueJSyntaxView extends PlainView
      */
     private static Color getGreenBorder()
     {
-        return getReducedColor(225, 238, 225);
+        return getReducedColor(GREEN_INNER_BASE);
     }
 
     /**
@@ -1085,7 +1107,7 @@ public abstract class BlueJSyntaxView extends PlainView
      */
     private static Color getYellowBorder()
     {
-        return getReducedColor(228, 228, 205);
+        return getReducedColor(YELLOW_OUTER_BASE);
     }
     
     /**
@@ -1094,7 +1116,7 @@ public abstract class BlueJSyntaxView extends PlainView
      */
     private static Color getYellowWash()
     {
-        return getReducedColor(250, 250, 225);
+        return getReducedColor(YELLOW_BASE);
     }
 
     /**
@@ -1103,7 +1125,7 @@ public abstract class BlueJSyntaxView extends PlainView
      */
     private static Color getBlueBorder()
     {
-        return getReducedColor(210, 210, 225);
+        return getReducedColor(BLUE_OUTER_BASE);
     }
 
     /**
@@ -1112,7 +1134,7 @@ public abstract class BlueJSyntaxView extends PlainView
      */
     private static Color getBlueWash()
     {
-        return getReducedColor(240, 240, 250);
+        return getReducedColor(BLUE_BASE);
     }
 
     /**
@@ -1121,7 +1143,7 @@ public abstract class BlueJSyntaxView extends PlainView
      */
     private static Color getPinkBorder()
     {
-        return getReducedColor(225, 203, 225);
+        return getReducedColor(PINK_OUTER_BASE);
     }
 
     /**
@@ -1130,6 +1152,6 @@ public abstract class BlueJSyntaxView extends PlainView
      */
     private static Color getPinkWash()
     {
-        return getReducedColor(250, 240, 250);
+        return getReducedColor(PINK_BASE);
     }
 }
