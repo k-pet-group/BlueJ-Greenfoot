@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,14 +21,17 @@
  */
 package bluej.utility;
 
+import java.awt.Component;
+import java.awt.Point;
+import java.awt.Window;
+import java.io.File;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
 import bluej.Config;
-
-import java.awt.*;
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.swing.*;
 
 /**
  * The dialog manager is a utility class to simplyfy communication with 
@@ -37,7 +40,7 @@ import javax.swing.*;
  * internationalised, using BlueJ's langauage library system.
  *
  * @author Michael Kolling
- * @version $Id: DialogManager.java 7165 2010-02-22 23:47:32Z marionz $
+ * @version $Id: DialogManager.java 7172 2010-02-23 01:16:24Z marionz $
  */
 public class DialogManager
 {
@@ -57,24 +60,6 @@ public class DialogManager
                                           Config.getString("dialogmgr.message"),
                                           JOptionPane.INFORMATION_MESSAGE);
     }
-    
-    /**
-     * Show an warning dialog with message with configurable choice
-     * of two options. The default choice of option is also specified.
-     * The message itself is identified by a message ID (a short string)
-     * which is looked up in the language specific dialogue text file
-     * @param parent
-     * @param msgID
-     */
-    public static int showWarning(Component parent, String msgID, Object[] options, int defaultOption){
-        String message = getMessage(msgID);
-        if(message != null)
-            return JOptionPane.showOptionDialog(parent, message,
-                                          Config.getString("dialogmgr.message"),JOptionPane.YES_NO_OPTION,
-                                          JOptionPane.WARNING_MESSAGE, null, options, options[defaultOption]);
-        return defaultOption;
-    }
-
 
     /**
      * Show an information dialog with message and "OK" button. The

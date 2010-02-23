@@ -21,18 +21,66 @@
  */
 package bluej.pkgmgr;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.Insets;
+import java.awt.KeyboardFocusManager;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.awt.print.PrinterJob;
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Properties;
+import java.util.StringTokenizer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
+import javax.swing.JToggleButton;
+import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
 
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
@@ -54,7 +102,49 @@ import bluej.extmgr.MenuManager;
 import bluej.groupwork.actions.CheckoutAction;
 import bluej.groupwork.actions.TeamActionGroup;
 import bluej.groupwork.ui.ActivityIndicator;
-import bluej.pkgmgr.actions.*;
+import bluej.pkgmgr.actions.AddClassAction;
+import bluej.pkgmgr.actions.CancelTestRecordAction;
+import bluej.pkgmgr.actions.CheckExtensionsAction;
+import bluej.pkgmgr.actions.CheckVersionAction;
+import bluej.pkgmgr.actions.CloseProjectAction;
+import bluej.pkgmgr.actions.CompileAction;
+import bluej.pkgmgr.actions.CompileSelectedAction;
+import bluej.pkgmgr.actions.DeployMIDletAction;
+import bluej.pkgmgr.actions.EndTestRecordAction;
+import bluej.pkgmgr.actions.ExportProjectAction;
+import bluej.pkgmgr.actions.GenerateDocsAction;
+import bluej.pkgmgr.actions.HelpAboutAction;
+import bluej.pkgmgr.actions.ImportProjectAction;
+import bluej.pkgmgr.actions.NewClassAction;
+import bluej.pkgmgr.actions.NewInheritsAction;
+import bluej.pkgmgr.actions.NewMEprojectAction;
+import bluej.pkgmgr.actions.NewPackageAction;
+import bluej.pkgmgr.actions.NewProjectAction;
+import bluej.pkgmgr.actions.NewUsesAction;
+import bluej.pkgmgr.actions.OpenNonBlueJAction;
+import bluej.pkgmgr.actions.OpenProjectAction;
+import bluej.pkgmgr.actions.PageSetupAction;
+import bluej.pkgmgr.actions.PkgMgrAction;
+import bluej.pkgmgr.actions.PreferencesAction;
+import bluej.pkgmgr.actions.PrintAction;
+import bluej.pkgmgr.actions.QuitAction;
+import bluej.pkgmgr.actions.RebuildAction;
+import bluej.pkgmgr.actions.RemoveAction;
+import bluej.pkgmgr.actions.RestartVMAction;
+import bluej.pkgmgr.actions.RunTestsAction;
+import bluej.pkgmgr.actions.SaveProjectAction;
+import bluej.pkgmgr.actions.SaveProjectAsAction;
+import bluej.pkgmgr.actions.ShowCopyrightAction;
+import bluej.pkgmgr.actions.ShowDebuggerAction;
+import bluej.pkgmgr.actions.ShowInheritsAction;
+import bluej.pkgmgr.actions.ShowTerminalAction;
+import bluej.pkgmgr.actions.ShowTestResultsAction;
+import bluej.pkgmgr.actions.ShowTextEvalAction;
+import bluej.pkgmgr.actions.ShowUsesAction;
+import bluej.pkgmgr.actions.StandardAPIHelpAction;
+import bluej.pkgmgr.actions.TutorialAction;
+import bluej.pkgmgr.actions.UseLibraryAction;
+import bluej.pkgmgr.actions.WebsiteAction;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.PackageTarget;
@@ -70,8 +160,8 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
-import bluej.utility.Utility;
 import bluej.utility.SortedProperties;
+import bluej.utility.Utility;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
@@ -1114,13 +1204,8 @@ public class PkgMgrFrame extends JFrame
             return false;
         }
         //check if there already exists a class in a library with that name 
-        if (pkg.loadClass(pkg.getQualifiedName())!=null){
-            Object[] options = {"Continue Anyway",
-                    "Cancel"};
-            int defaultOption=1;
-            int result=DialogManager.showWarning(this, "library-class", options, defaultOption);
-            //cancel was chosen
-            if (result==defaultOption)
+        if (pkg.loadClass(pkg.getQualifiedName(name))!=null){
+            if (DialogManager.askQuestion(this, "class-already-in-library")==0)
                 return false;
         }
 
