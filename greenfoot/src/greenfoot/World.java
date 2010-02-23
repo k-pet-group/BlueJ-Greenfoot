@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,7 +24,6 @@ package greenfoot;
 
 import greenfoot.collision.ColManager;
 import greenfoot.collision.CollisionChecker;
-import greenfoot.collision.ibsp.IBSPColChecker;
 import greenfoot.collision.ibsp.Rect;
 import greenfoot.core.ActInterruptedException;
 import greenfoot.core.WorldHandler;
@@ -125,10 +124,7 @@ public abstract class World
     }
 
     /**
-     * Sets the size of the world. <br>
-     * 
-     * This will remove all objects from the world. TODO Maybe it shouldn't!
-     * 
+     * Sets the size of the world.
      */
     private void initialize(int width, int height, int cellSize)
     {
@@ -705,13 +701,11 @@ public abstract class World
         // when using the mouse to select objects, which is not a time-critical
         // task.
         
-        //long start = System.nanoTime();
-        
         List<Actor> result = new LinkedList<Actor>();
         TreeActorSet objects = getObjectsListInPaintOrder();
         for (Actor actor : objects) {
             Rect bounds = actor.getBoundingRect();
-            if(x >= bounds.getX()  && x <= bounds.getRight() && y>=bounds.getY() && y<= bounds.getTop()) {
+            if(bounds != null && x >= bounds.getX()  && x <= bounds.getRight() && y>=bounds.getY() && y<= bounds.getTop()) {
                 int xClickCell = toCellFloor(x);
                 int yClickCell = toCellFloor(y);
                 if(actor.contains(xClickCell - actor.getX(), yClickCell - actor.getY())){
@@ -719,9 +713,6 @@ public abstract class World
                 }
             }
         } 
-        //long end = System.nanoTime();
-
-        //System.out.println("getObjectsAt took: " + (end - start)/1000000000d );
       
         return result;
         // return collisionChecker.getObjectsAt(Floor(x), toCellFloor(y), null);
