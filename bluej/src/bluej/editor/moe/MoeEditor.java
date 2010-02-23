@@ -83,8 +83,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.HyperlinkEvent;
@@ -2703,7 +2703,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         naviView = new NaviView(sourceDocument, scrollPane.getVerticalScrollBar());
         naviView.setPreferredSize(new Dimension(NAVIVIEW_WIDTH, 0));
         naviView.setMaximumSize(new Dimension(NAVIVIEW_WIDTH, Integer.MAX_VALUE));
-        naviView.setBorder(LineBorder.createBlackLineBorder());
+        naviView.setBorder(new BevelBorder(BevelBorder.LOWERED));
 
         editorPane.add(scrollPane);
         editorPane.add(naviView);

@@ -94,18 +94,18 @@ public class NaviviewView extends BlueJSyntaxView
 
         // Filter the image - adjust alpha channel to darken the image.
         for (int iy = 0; iy < img.getHeight(); iy++) {
-        	for (int ix = 0; ix < img.getWidth(); ix++) {
-        		int rgb = img.getRGB(ix, iy);
-        		Color c = new Color(rgb, true);
-        		int red = c.getRed();
-        		int green = c.getGreen();
-        		int blue = c.getBlue();
-        		int alpha = c.getAlpha();
+            for (int ix = 0; ix < img.getWidth(); ix++) {
+                int rgb = img.getRGB(ix, iy);
+                Color c = new Color(rgb, true);
+                int red = c.getRed();
+                int green = c.getGreen();
+                int blue = c.getBlue();
+                int alpha = c.getAlpha();
 
-        		// Make it more opaque
-        		alpha = darken(alpha);
-        		img.setRGB(ix, iy, new Color(red, green, blue, alpha).getRGB());
-        	}
+                // Make it more opaque
+                alpha = darken(alpha);
+                img.setRGB(ix, iy, new Color(red, green, blue, alpha).getRGB());
+            }
         }
 
         g.drawImage(img, clipBounds.x, y - metrics.getAscent(), null);

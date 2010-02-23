@@ -313,7 +313,7 @@ public class NaviView extends JPanel implements AdjustmentListener
         int topV = scrollBar.getValue() * docHeight / scrollBar.getMaximum();
         int bottomV = (scrollBar.getValue() + scrollBar.getVisibleAmount()) * docHeight / scrollBar.getMaximum();
         int viewHeight = bottomV - topV;
-        RescaleOp darkenOp = new RescaleOp(0.9f,0,null);
+        RescaleOp darkenOp = new RescaleOp(0.85f,0,null);
         
         if (prefHeight > myHeight) {
             // scale!
