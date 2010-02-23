@@ -30,6 +30,7 @@ import java.awt.EventQueue;
 import java.awt.FocusTraversalPolicy;
 import java.awt.Font;
 import java.awt.Frame;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
@@ -2693,7 +2694,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         JPanel editorPane = new JPanel();
         editorPane.setLayout(new BoxLayout(editorPane, BoxLayout.X_AXIS));
-        editorPane.setPreferredSize(new Dimension(598, 400));
         scrollPane = new JScrollPane(currentTextPane);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
@@ -2744,6 +2744,13 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         setWindowTitle();
         pack();
+        
+        // Set the size, respecting the current environment maximums.
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        Rectangle maxBounds = ge.getMaximumWindowBounds();
+        int myWidth = Math.min(900, (int) maxBounds.getWidth());
+        int myHeight = Math.min(700, (int) maxBounds.getHeight());
+        setSize(myWidth, myHeight);
     }
 
     // --------------------------------------------------------------------
