@@ -70,13 +70,13 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private JPanel mcBody;
     private JPanel closeBody;
     private JLabel findLabel;
-    private JButton closeButton;
     private JTextField findTField;
     private JButton previousButton;
     private JButton nextButton;
     private JCheckBox matchCaseCheckBox;
     private JLabel replaceLabel;
     private JLabel replaceIconLabel;
+    private JLabel closeIconLabel;
 
     private final static String CLOSE_BUTTON_NAME ="closeBtn";
     private final static String INPUT_QUERY_NAME ="queryText";
@@ -176,10 +176,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         nextButton.setFont(findFont);
         
         if (Config.isMacOS()) {
-        	previousButton.putClientProperty("JButton.buttonType", "segmentedCapsule");
-        	previousButton.putClientProperty("JButton.segmentPosition", "first");
-        	nextButton.putClientProperty("JButton.buttonType", "segmentedCapsule");
-        	nextButton.putClientProperty("JButton.segmentPosition", "last");
+            previousButton.putClientProperty("JButton.buttonType", "segmentedCapsule");
+            previousButton.putClientProperty("JButton.segmentPosition", "first");
+            nextButton.putClientProperty("JButton.buttonType", "segmentedCapsule");
+            nextButton.putClientProperty("JButton.segmentPosition", "last");
         }
     }
 
@@ -207,11 +207,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void setCloseDisplay()
     {
-        closeButton=new JButton();
-        closeButton.setText("Done");
-        closeButton.addActionListener(this);
-        closeButton.setName(CLOSE_BUTTON_NAME); 
-        closeButton.setFont(findFont);
+        closeIconLabel=new JLabel();
+        closeIconLabel.setIcon(Config.getImageAsIcon("image.findpanel.close")); 
+        closeIconLabel.addMouseListener(this);
+        closeIconLabel.setName(CLOSE_BUTTON_NAME); 
     }
 
     /**
@@ -243,20 +242,20 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         findTextBody.add(ftTemp);
         
         if (Config.isMacOS()) {
-        	DBox buttonBox = new DBox(DBoxLayout.X_AXIS, 0.5f);
-        	buttonBox.add(previousButton);
-        	buttonBox.add(nextButton);
-        	optionsBody.add(buttonBox);
+            DBox buttonBox = new DBox(DBoxLayout.X_AXIS, 0.5f);
+            buttonBox.add(previousButton);
+            buttonBox.add(nextButton);
+            optionsBody.add(buttonBox);
         }
         else {
-        	optionsBody.add(previousButton);
-        	optionsBody.add(nextButton);
+            optionsBody.add(previousButton);
+            optionsBody.add(nextButton);
         }
 
         findBody.add(findTextBody, BorderLayout.WEST);
         findBody.add(optionsBody, BorderLayout.EAST);
         closeBody.add(replaceIconLabel);
-        closeBody.add(closeButton);
+        closeBody.add(closeIconLabel);
 
         mcBody.add(matchCaseCheckBox);
         otherBody.add(mcBody);
@@ -284,10 +283,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     public void actionPerformed(ActionEvent e) 
     {
         JComponent src = (JComponent) e.getSource();
-        if(src.getName() == CLOSE_BUTTON_NAME){
-            close();
-            return;
-        }
+
         if (src.getName()==NEXT__BUTTON_NAME){  
             getNext();
         }
@@ -581,6 +577,11 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
 
 
     public void mouseClicked(MouseEvent e) {
+        JComponent src = (JComponent) e.getSource();
+        if(src.getName() == CLOSE_BUTTON_NAME){
+            close();
+            return;
+        }
         enableReplace();
         if (replaceIconLabel.getIcon()==openIcon){
             replaceIconLabel.setIcon(closedIcon);

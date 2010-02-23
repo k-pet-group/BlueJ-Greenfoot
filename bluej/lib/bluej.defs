@@ -679,6 +679,7 @@ image.testmgr.failure=failure.gif
 #find-replace panel
 image.replace.open=bluej_arrow_open.gif
 image.replace.close=bluej_arrow_close.gif
+image.findpanel.close=cross.png
 
 # extensions manager help page
 image.extmgr.info=extmgr-info.gif
