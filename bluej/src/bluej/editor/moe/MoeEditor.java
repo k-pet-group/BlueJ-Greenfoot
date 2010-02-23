@@ -332,10 +332,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
                 sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
                 naviView.setDocument(sourceDocument);
-
-                // set TokenMarker for syntax highlighting if desired
-                checkSyntaxStatus();
-
                 sourceDocument.addDocumentListener(this);
                 sourceDocument.addUndoableEditListener(undoManager);
                 document = sourceDocument;
@@ -430,7 +426,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         if (vis) {
             sourcePane.setFont(PrefMgr.getStandardEditorFont());
-            checkSyntaxStatus();
             checkBracketStatus();  
         }
 
@@ -450,7 +445,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         sourcePane.setFont(PrefMgr.getStandardEditorFont());
         checkBracketStatus();
-        checkSyntaxStatus();
         currentTextPane.repaint();
     }
 
@@ -1900,7 +1894,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         viewingHTML = false;
         scrollPane.setViewportView(currentTextPane);
         naviView.setVisible(true);
-        checkSyntaxStatus();
         currentTextPane.requestFocus();
     }
 
@@ -2418,7 +2411,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
             // flag document type as a java file by associating a
             // JavaTokenMarker for syntax colouring if specified
-            checkSyntaxStatus();
             sourceDocument.addDocumentListener(this);
             sourceDocument.addUndoableEditListener(undoManager);
 
@@ -2446,27 +2438,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
-    /**
-     * Checks that current status of syntax highlighting option is consistent
-     * with desired option eg off/on.
-     */
-    private void checkSyntaxStatus()
-    {
-        if (sourceDocument != null) {
-
-            // flag document type as a java file by associating a
-            // JavaTokenMarker for syntax colouring if specified
-            if (viewingCode() && PrefMgr.getFlag(PrefMgr.HILIGHTING)) {
-                //                if (sourceDocument.getTokenMarker() == null) {
-                //                    sourceDocument.setTokenMarker(new JavaTokenMarker());
-                //                }
-            }
-            else {
-                //                sourceDocument.setTokenMarker(null);
-            }
-        }
-        // else ??
-    }
 
     /**
      * Checks that current status of syntax highlighting option is consistent

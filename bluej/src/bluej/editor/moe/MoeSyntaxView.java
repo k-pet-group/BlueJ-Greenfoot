@@ -52,6 +52,8 @@ public class MoeSyntaxView extends BlueJSyntaxView
     protected static final int BREAKPOINT_OFFSET = TAG_WIDTH + 2;
     protected static final int LEFT_MARGIN = BREAKPOINT_OFFSET + 8;
     
+    private static boolean syntaxHighlighting = PrefMgr.getFlag(PrefMgr.HILIGHTING);
+    
     protected Font lineNumberFont;
     protected Font smallLineNumberFont;
     protected FontMetrics lineNumberMetrics;
@@ -76,6 +78,14 @@ public class MoeSyntaxView extends BlueJSyntaxView
         super(elem, LEFT_MARGIN);
     }
 
+    /**
+     * Reset the syntax highlighting status (on/off) according to preferences.
+     */
+    public static void resetSyntaxHighlighting()
+    {
+        syntaxHighlighting = PrefMgr.getFlag(PrefMgr.HILIGHTING);
+    }
+    
     @Override
     protected void initialise(Graphics g)
     {
@@ -143,7 +153,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
             MoeSyntaxDocument document, Color def, Element line) 
     {
         paintLineMarkers(lineIndex, g, x - LEFT_MARGIN, y, document, line);
-        if (document.getParser() != null) {
+        if (document.getParser() != null && syntaxHighlighting) {
             paintSyntaxLine(lineText, lineIndex, x, y, g, document, def);
         }
         else {

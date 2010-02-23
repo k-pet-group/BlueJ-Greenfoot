@@ -144,6 +144,7 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
         catch (NumberFormatException nfe) { }
 
         PrefMgr.setFlag(PrefMgr.HILIGHTING, hilightingBox.isSelected());
+        MoeSyntaxView.resetSyntaxHighlighting();
         PrefMgr.setFlag(PrefMgr.AUTO_INDENT, autoIndentBox.isSelected());
         PrefMgr.setFlag(PrefMgr.LINENUMBERS, lineNumbersBox.isSelected());
         PrefMgr.setFlag(PrefMgr.MAKE_BACKUP, makeBackupBox.isSelected());
