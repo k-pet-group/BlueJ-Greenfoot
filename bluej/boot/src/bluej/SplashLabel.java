@@ -48,7 +48,7 @@ public abstract class SplashLabel extends JComponent
     public SplashLabel(String imageName)
     {
         loadImage(imageName);
-        setBorder(BorderFactory.createLineBorder(Color.black, 1));
+        //setBorder(BorderFactory.createLineBorder(Color.black, 1));
     }
     
     public BufferedImage getImage() {
