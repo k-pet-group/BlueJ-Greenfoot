@@ -313,6 +313,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         }
     }
 
+    /**
+     * Search forwards
+     */
     public void getNext()
     {
         //move the caret forward ONLY if the search string is the same
@@ -322,6 +325,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         find(true, true);  
     }
 
+    /**
+     * Search backwards
+     */
     public void getPrev()
     {
         if (getSearchString()!=null){
@@ -330,6 +336,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         find(false, true);
     }
 
+    /**
+     * Finds a instance of the search string, writes a 
+     * message and moves the caret as required.
+     */
     private void findEvent()
     {
         int caretPos=editor.getCaretPosition();
@@ -400,13 +410,13 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             previousButton.setEnabled(true);
             nextButton.setEnabled(true); 
             //update display in the replace panel if necessary
-            if (editor.isReplacePanelVisible())
+            if (editor.isReplacePanelVisible() && editor.isReplacePopulated())
                 editor.enableReplaceButtons(true); 
         }
         else{
             previousButton.setEnabled(false);
             nextButton.setEnabled(false);
-            editor.enableReplaceButtons(false);
+            editor.enableReplaceButtons(false); 
         }
 
         findTField.requestFocus();
@@ -451,8 +461,13 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         searchForward(ignoreCase, wholeWord, wrap, next, select);
         int counter=editor.getNumHighlights();
         //if there was nothing found, need to move the caret back to its original position
-        if (counter<1)
+        //need also disable buttons accordingly
+        if (counter<1) {
             editor.moveCaretPosition(caretPos);
+            previousButton.setEnabled(false);
+            nextButton.setEnabled(false);
+            editor.enableReplaceButtons(false); 
+        }
         writeMessage(true, counter); 
     }
 

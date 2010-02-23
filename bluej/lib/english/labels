@@ -250,7 +250,7 @@ editor.replaceAll.notFoundNothingReplaced=\ not found. Nothing replaced.
 
 #Messages shown as a result of a search with highlight all
 editor.highlight.found=Found 
-editor.highlight.notFound=\ not found. Nothing highlighted.
+editor.highlight.notFound=\ not found.
 
 #Messages shown when determining what function is bound to a given key
 editor.keypressed.keyIsNotBound=\ in not bound to a function.
