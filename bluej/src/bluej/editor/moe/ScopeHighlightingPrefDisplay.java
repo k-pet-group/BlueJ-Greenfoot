@@ -79,8 +79,8 @@ public class ScopeHighlightingPrefDisplay extends JPanel implements ChangeListen
             slider.setValue(PrefMgr.getScopeHighlightStrength());
             //labels
             Hashtable<Integer, JLabel>labelTable = new Hashtable<Integer, JLabel>();
-            labelTable.put(new Integer(MIN), new JLabel("Transparent"));
-            labelTable.put(new Integer(MAX), new JLabel("Highlighted"));
+            labelTable.put(new Integer(MIN), new JLabel("Lighter"));
+            labelTable.put(new Integer(MAX), new JLabel("Darker"));
             slider.setLabelTable( labelTable );
             slider.setPaintLabels(true);
             slider.addChangeListener(this);
