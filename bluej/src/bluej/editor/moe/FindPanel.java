@@ -121,8 +121,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         //body = new JPanel(new BorderLayout()); // one row, many columns
         body = new JPanel(new GridLayout(1, 2));
-        body.setBackground(MoeEditor.infoColor);
-        //body.setBorder(new EmptyBorder(3,6,3,4));
         body.setBorder(BorderFactory.createEmptyBorder(3,0,3,0));
         body.setName("FindPanelBody");
 
@@ -136,8 +134,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         otherBody=new JPanel (new GridLayout(1, 2));
         mcBody=new JPanel(new GridLayout(1, 1));
         closeBody=new JPanel(new GridLayout(1,2));
-        closeBody.setBackground(MoeEditor.infoColor);   
-        
     }
 
 

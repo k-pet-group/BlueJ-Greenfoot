@@ -131,8 +131,6 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
         body.setBorder(BorderFactory.createEmptyBorder(3,0,3,0));
         
         JPanel closeBody=new JPanel(new GridLayout(1,2));
-        closeBody.setBackground(MoeEditor.infoColor); 
-        body.setBackground(MoeEditor.infoColor);
 
         replaceLabel=new JLabel("Replace: ");
         replaceLabel.setFont(font);
