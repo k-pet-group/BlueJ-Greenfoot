@@ -1114,7 +1114,7 @@ public class PkgMgrFrame extends JFrame
             return false;
         }
         //check if there already exists a class in a library with that name 
-        if (pkg.loadClass(name)!=null){
+        if (pkg.loadClass(pkg.getQualifiedName())!=null){
             Object[] options = {"Continue Anyway",
                     "Cancel"};
             int defaultOption=1;
