@@ -1410,6 +1410,7 @@ public final class Config
             }
             else if(laf.equals("crossplatform")) {
                 UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+                usingMacOSScreenMenubar = false; // Screen menu bar requires aqua look-and-feel
                 return;
             }
             
@@ -1424,6 +1425,7 @@ public final class Config
                 
                 // Try as a class name
                 UIManager.setLookAndFeel(laf);
+                return;
             }
             
             // do the "default, ie. let BlueJ decide
