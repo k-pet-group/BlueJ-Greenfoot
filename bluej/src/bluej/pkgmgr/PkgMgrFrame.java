@@ -313,36 +313,36 @@ public class PkgMgrFrame extends JFrame
      * Prepare MacOS specific behaviour (About menu, Preferences menu, Quit
      * menu)
      */
-    private static Application prepareMacOSApp()
+    private static void prepareMacOSApp()
     {
         Application macApp = Application.getApplication();
-        macApp.setEnabledPreferencesMenu(true);
-        macApp.addApplicationListener(new com.apple.eawt.ApplicationAdapter() {
-            public void handleAbout(ApplicationEvent e)
-            {
-                HelpAboutAction.getInstance().actionPerformed(getMostRecent());
-                e.setHandled(true);
-            }
+        if (macApp != null) {
+            macApp.setEnabledPreferencesMenu(true);
+            macApp.addApplicationListener(new com.apple.eawt.ApplicationAdapter() {
+                public void handleAbout(ApplicationEvent e)
+                {
+                    HelpAboutAction.getInstance().actionPerformed(getMostRecent());
+                    e.setHandled(true);
+                }
 
-            public void handlePreferences(ApplicationEvent e)
-            {
-                PreferencesAction.getInstance().actionPerformed(getMostRecent());
-                e.setHandled(true);
-            }
+                public void handlePreferences(ApplicationEvent e)
+                {
+                    PreferencesAction.getInstance().actionPerformed(getMostRecent());
+                    e.setHandled(true);
+                }
 
-            public void handleQuit(ApplicationEvent e)
-            {
-                QuitAction.getInstance().actionPerformed(getMostRecent());
-            }
-            
-            public void handleOpenFile(ApplicationEvent event) 
-            {                
-                String projectPath = event.getFilename();                
-                PkgMgrFrame.doOpen(new File(projectPath), null);                
-            }
-        });
+                public void handleQuit(ApplicationEvent e)
+                {
+                    QuitAction.getInstance().actionPerformed(getMostRecent());
+                }
 
-        return macApp;
+                public void handleOpenFile(ApplicationEvent event) 
+                {                
+                    String projectPath = event.getFilename();                
+                    PkgMgrFrame.doOpen(new File(projectPath), null);                
+                }
+            });
+        }
     }
     
     static { 
