@@ -1310,7 +1310,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 finder.setVisible(visible);
             replacer.setVisible(visible);
         }
-        replacer.setRequestFocusEnabled(true);
+        replacer.requestReplaceTextFocus();
     }
 
     // --------------------------------------------------------------------

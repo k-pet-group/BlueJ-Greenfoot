@@ -197,4 +197,11 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
         replaceButton.setEnabled(enable);
     }
 
+    /**
+     * 
+     */
+    protected void requestReplaceFocus()
+    {
+        replaceText.requestFocus();
+    }
 }
