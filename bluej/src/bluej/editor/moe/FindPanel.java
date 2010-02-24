@@ -292,8 +292,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             optionsBody.add(nextButton);
         }
 
-
-        //findBody.add(replaceIconLabel);
         closeBody.add(closeIconLabel, BorderLayout.EAST);
 
         mcBody.add(matchCaseCheckBox);

@@ -24,13 +24,11 @@ package bluej.editor.moe;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -117,11 +115,7 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener
 
     private void addReplaceBody()
     {
-        JPanel body = new JPanel(new BorderLayout());
-
-        body = new JPanel(new GridLayout(1, 2));
-        body.setBorder(BorderFactory.createEmptyBorder(2, 0, 5, 0));
-        JComponent rBody = new DBox(DBox.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
+        JComponent rBody = new DBox(DBox.X_AXIS, 0, BlueJTheme.componentSpacingLarge, 0.5f);
         DBox replaceBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
         DBox optionsBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
         DBox tempBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
@@ -157,12 +151,8 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener
         replaceAllButton.addActionListener(this);
         replaceAllButton.setEnabled(true);
 
-        JPanel rTemp=new JPanel(new GridLayout(1, 1));
-        rTemp.add(replaceLabelBox);
-        JPanel rtTemp=new JPanel(new GridLayout(1, 1));
-        rtTemp.add(replaceText);
-        replaceBody.add(rTemp);
-        replaceBody.add(rtTemp);
+        replaceBody.add(replaceLabelBox);
+        replaceBody.add(replaceText);
         optionsBody.add(replaceButton);
         optionsBody.add(replaceAllButton);
         rBody.add(replaceBody);
@@ -171,8 +161,7 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener
         rBody.setMaximumSize(rBody.getPreferredSize());
         rBody.add(Box.createHorizontalGlue());
 
-        body.add(rBody);  
-        add(body, BorderLayout.WEST);
+        add(rBody, BorderLayout.WEST);
     }
 
     public void requestReplaceTextFocus()

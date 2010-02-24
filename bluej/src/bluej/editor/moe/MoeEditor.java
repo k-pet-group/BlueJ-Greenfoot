@@ -102,6 +102,7 @@ import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
+import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
@@ -116,6 +117,8 @@ import bluej.parser.nodes.ParsedCUNode;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
+import bluej.utility.DBox;
+import bluej.utility.DBoxLayout;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
@@ -2617,14 +2620,27 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         // create panel for info/status
         bottomArea.setLayout(new BorderLayout(6, 1));
-        //bottomArea.setBackground(frameBgColor);
-
+        
+        JPanel finderPanel = new JPanel(new DBoxLayout(DBox.Y_AXIS, 0, 0));
+        finderPanel.setBorder(BorderFactory.createEmptyBorder(0, BlueJTheme.componentSpacingLarge, 0, 0));
+        
+        int smallSpc = BlueJTheme.componentSpacingSmall;
+        
         //area for new find functionality
         finder=new FindPanel(this);
         finder.setVisible(false);
-        finder.setBorder(BorderFactory.createEmptyBorder());
+        finder.setBorder(BorderFactory.createEmptyBorder(0, 0, smallSpc, 0));
         finder.setName("FinderPanel");
-        bottomArea.add(finder, BorderLayout.NORTH);
+        finder.setAlignmentX(0.0f);
+        finderPanel.add(finder);
+
+        replacer=new ReplacePanel(this, finder);
+        replacer.setVisible(false);
+        replacer.setBorder(BorderFactory.createEmptyBorder(0, 0, smallSpc, 0));
+        replacer.setAlignmentX(0.0f);
+        finderPanel.add(replacer);
+        
+        bottomArea.add(finderPanel, BorderLayout.NORTH);
 
         statusArea = new JPanel();
         statusArea.setLayout(new GridLayout(0, 1));
@@ -2637,12 +2653,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         //bottomArea.add(statusArea, BorderLayout.EAST);
 
         info = new Info();
-        //bottomArea.add(info, BorderLayout.SOUTH);
-
-        replacer=new ReplacePanel(this, finder);
-        replacer.setVisible(false);
-        bottomArea.add(replacer, BorderLayout.CENTER);
-
         JPanel commentsPanel=new JPanel(new BorderLayout(6,1));
         commentsPanel.add(info, BorderLayout.CENTER);
         commentsPanel.add(statusArea, BorderLayout.EAST);
