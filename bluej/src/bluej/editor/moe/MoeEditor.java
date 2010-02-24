@@ -2655,9 +2655,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         info = new Info();
         //bottomArea.add(info, BorderLayout.SOUTH);
 
-        replacer=new ReplacePanel(this);
+        replacer=new ReplacePanel(this, finder);
         replacer.setVisible(false);
-        replacer.setBorder(BorderFactory.createEmptyBorder());
         bottomArea.add(replacer, BorderLayout.CENTER);
 
         JPanel commentsPanel=new JPanel(new BorderLayout(6,1));

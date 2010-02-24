@@ -23,8 +23,8 @@ package bluej.editor.moe;
 
 import java.awt.AWTKeyStroke;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,6 +36,7 @@ import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -60,18 +61,17 @@ import bluej.utility.DBoxLayout;
  *
  * @author  Marion Zalk
  */
-
-public class FindPanel extends JPanel implements ActionListener, DocumentListener, MouseListener {
-
+public class FindPanel extends JPanel implements ActionListener, DocumentListener, MouseListener
+{
     private MoeEditor editor;
 
-    private JPanel body;
-    private JPanel findBody;
+    private JComponent findBody;
     private DBox findTextBody;
     private DBox optionsBody;
     private JPanel mcBody;
     private JPanel closeBody;
-    private JLabel findLabel;
+    private DBox findLabelBox;
+    private JLabel replaceLabel;
     private JTextField findTField;
     private JButton previousButton;
     private JButton nextButton;
@@ -95,13 +95,13 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     /**
      * Constructor that creates and displays the different elements of the Find Panel
      */
-    public FindPanel(MoeEditor ed) {
-        super();
+    public FindPanel(MoeEditor ed)
+    {
+        super(new BorderLayout());
+        setBorder(BorderFactory.createEmptyBorder(2, 0, 5, 0));
         openIcon=Config.getImageAsIcon("image.replace.open");
         closedIcon=Config.getImageAsIcon("image.replace.close");
-        findFont=new Font(PrefMgr.getStandardFont().getFontName(), PrefMgr.getStandardFont().getSize(), PrefMgr.getStandardFont().getSize());
-        setLayout(new BorderLayout());
-
+        findFont=PrefMgr.getStandardFont();
 
         editor=ed;
         initDisplay();
@@ -116,33 +116,46 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     }
 
     /**
+     * Get the maximum and preferred width of the "find:" label.
+     */
+    public int getLabelBoxWidth()
+    {
+        return findLabelBox.getPreferredSize().width;
+    }
+    
+    /**
      * Initialise the structure for the display panel
      */
     private void initDisplay()
     {
-        body = new JPanel(new GridLayout(1, 2));
-        body.setBorder(BorderFactory.createEmptyBorder(2, 0, 5, 0));
-        body.setName("FindPanelBody");
-
-        findBody=new JPanel(new GridLayout(1, 3));
-        findTextBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
+        findBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.componentSpacingLarge, 0.5f);
+        findTextBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
         //prev, next
-        optionsBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
-        mcBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);;
-
-        closeBody=new JPanel(new BorderLayout(2, 200));       
+        optionsBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
+        mcBody=new DBox(DBoxLayout.X_AXIS, 0, 0, 0.5f);;
+        
+        closeBody=new JPanel(new BorderLayout());       
     }
-
-
 
     /**
      * Initialise find buttons and labels
      */
     private void setFindDisplay()
     {
-        findLabel = new JLabel();
-        findLabel.setText("        Find: ");
+        JLabel findLabel = new JLabel("Find:");
         findLabel.setFont(findFont);
+        
+        replaceLabel = new JLabel("Replace:");
+        replaceLabel.setFont(findFont);
+        
+        Dimension lblSize = findLabel.getPreferredSize();
+        lblSize.width = Math.max(lblSize.width, replaceLabel.getPreferredSize().width);
+        
+        findLabelBox = new DBox(DBox.X_AXIS, 0.5f);
+        findLabelBox.setMaximumSize(lblSize);
+        findLabelBox.setPreferredSize(lblSize);
+        findLabelBox.add(Box.createHorizontalGlue());
+        findLabelBox.add(findLabel);
 
         findTField=new JTextField(11);
         findTField.setMaximumSize(findTField.getPreferredSize());
@@ -171,7 +184,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         nextButton.setText("Next");
         nextButton.setEnabled(false);
         nextButton.setFont(findFont);
-
+        
         if (Config.isMacOS()) {
             previousButton.putClientProperty("JButton.buttonType", "segmentedCapsule");
             previousButton.putClientProperty("JButton.segmentPosition", "first");
@@ -196,9 +209,11 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     /**
      * Returns true if the case should be matched
      */
-    public boolean getMatchCase(){
+    public boolean getMatchCase()
+    {
         return matchCaseCheckBox.isSelected();
     }
+    
     /**
      * Initialise the close button
      */
@@ -227,13 +242,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void addDisplayElements()
     {
-        JPanel fTemp = new JPanel(new GridLayout(1, 1));
-        fTemp.add(findLabel);
-        JPanel ftTemp = new JPanel(new GridLayout(1, 1));
-        ftTemp.add(findTField);
-        findTextBody.add(fTemp);
-        findTextBody.add(ftTemp);
-
+        findTextBody.add(findLabelBox);
+        findTextBody.add(findTField);
+        
         if (Config.isMacOS()) {
             DBox buttonBox = new DBox(DBoxLayout.X_AXIS, 0.5f);
             buttonBox.add(previousButton);
@@ -250,16 +261,15 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         closeBody.add(closeIconLabel, BorderLayout.EAST);
 
         mcBody.add(matchCaseCheckBox);
+        mcBody.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingLarge * 2));
         mcBody.add(replaceIconLabel);
-
+        
         findBody.add(findTextBody);
         findBody.add(optionsBody);
         findBody.add(mcBody);
 
-        body.add(findBody);
-        body.add(closeBody,BorderLayout.LINE_END);
-
-        this.add(body);
+        add(findBody, BorderLayout.WEST);
+        add(closeBody, BorderLayout.EAST);
 
         KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0);
         this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke ,"escapeAction");

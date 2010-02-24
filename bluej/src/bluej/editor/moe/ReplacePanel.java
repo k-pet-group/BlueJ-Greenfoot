@@ -21,7 +21,17 @@
  */
 package bluej.editor.moe;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -34,23 +44,15 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.DBox;
 import bluej.utility.DBoxLayout;
 
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-
 /**
  * ReplacePanel display and functionality for replace
  * 
  * @author Marion Zalk
- *
  */
-public class ReplacePanel extends JPanel implements ActionListener, KeyListener {
-
+public class ReplacePanel extends JPanel implements ActionListener, KeyListener
+{
     private MoeEditor editor;
+    private FindPanel finder;
     private Font font;
     private JTextField replaceText;
     private String replaceString="";
@@ -61,16 +63,17 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
     private final static String REPLACE_ALL_BUTTON_NAME ="replaceAllBtn";
     private final static String REPLACE_TEXTFIELD ="replaceTextField";
 
-    public ReplacePanel(MoeEditor ed) {
-        super();
-        font=new Font(PrefMgr.getStandardFont().getFontName(), PrefMgr.getStandardFont().getSize(), PrefMgr.getStandardFont().getSize());
-        setLayout(new BorderLayout());
-        //setBorder(BorderFactory.createLineBorder(Color.black));
+    public ReplacePanel(MoeEditor ed, FindPanel finder)
+    {
+        super(new BorderLayout());
+        this.finder = finder;
+        font = PrefMgr.getStandardFont();
         addReplaceBody();
         editor=ed;
     }
 
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e)
+    {
         JComponent src = (JComponent) e.getSource();
         setReplaceString(replaceText.getText());
         if (getReplaceString()==null){
@@ -79,22 +82,22 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
             return;
         }         
         if (src.getName()==REPLACE_BUTTON_NAME){
-            if (getReplaceString()!=null)
+            if (getReplaceString()!=null) {
                 editor.replace(getReplaceString());
+            }
         }
         if (src.getName()==REPLACE_ALL_BUTTON_NAME){
-            if (getReplaceString()!=null)
+            if (getReplaceString()!=null) {
                 editor.replaceAll(getReplaceString());
-
+            }
         }
 
     }
 
-    public void keyPressed(KeyEvent e) {
+    public void keyPressed(KeyEvent e) { }
 
-    }
-
-    public void keyReleased(KeyEvent e) {
+    public void keyReleased(KeyEvent e)
+    {
         JComponent src = (JComponent) e.getSource();
         if (src.getName()== REPLACE_TEXTFIELD){
             setReplaceString(replaceText.getText());
@@ -104,36 +107,34 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
                     && editor.getSelectedText()!=null){
                 enableButtons(true);
             }
-            else
+            else {
                 enableButtons(false);
-
+            }
         }
     }
 
-    public void keyTyped(KeyEvent e) {
-
-    }
+    public void keyTyped(KeyEvent e) {  }
 
     private void addReplaceBody()
     {
-        JLabel replaceLabel;
-        DBox replaceBody;
-        DBox optionsBody;
-        DBox tempBody;
-        JPanel rBody;
-        JPanel body;
+        JPanel body = new JPanel(new BorderLayout());
 
         body = new JPanel(new GridLayout(1, 2));
         body.setBorder(BorderFactory.createEmptyBorder(2, 0, 5, 0));
-        rBody=new JPanel(new GridLayout(1, 3));
-        replaceBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
-        optionsBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
-        tempBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
+        JComponent rBody = new DBox(DBox.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
+        DBox replaceBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
+        DBox optionsBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
+        DBox tempBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
         
-        JPanel closeBody=new JPanel(new GridLayout(1,2));
-
-        replaceLabel=new JLabel("   Replace: ");
+        JLabel replaceLabel=new JLabel("Replace:");
         replaceLabel.setFont(font);
+        DBox replaceLabelBox = new DBox(DBox.X_AXIS, 0.5f);
+        replaceLabelBox.add(Box.createHorizontalGlue());
+        replaceLabelBox.add(replaceLabel);
+        Dimension d = replaceLabelBox.getPreferredSize();
+        d.width = finder.getLabelBoxWidth();
+        replaceLabelBox.setPreferredSize(d);
+        replaceLabelBox.setMaximumSize(d);
 
         replaceText=new JTextField(11);
         replaceText.setMaximumSize(replaceText.getPreferredSize());
@@ -157,7 +158,7 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
         replaceAllButton.setEnabled(true);
 
         JPanel rTemp=new JPanel(new GridLayout(1, 1));
-        rTemp.add(replaceLabel);
+        rTemp.add(replaceLabelBox);
         JPanel rtTemp=new JPanel(new GridLayout(1, 1));
         rtTemp.add(replaceText);
         replaceBody.add(rTemp);
@@ -167,23 +168,26 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
         rBody.add(replaceBody);
         rBody.add(optionsBody);
         rBody.add(tempBody);
-
+        rBody.setMaximumSize(rBody.getPreferredSize());
+        rBody.add(Box.createHorizontalGlue());
 
         body.add(rBody);  
-        body.add(closeBody);
-        add(body);
+        add(body, BorderLayout.WEST);
     }
 
-    public void requestReplaceTextFocus(){
+    public void requestReplaceTextFocus()
+    {
         replaceText.requestFocus();
         replaceText.setText(getReplaceString());
     }
 
-    protected String getReplaceString() {
+    protected String getReplaceString()
+    {
         return replaceString;
     }
 
-    protected void setReplaceString(String replaceString) {
+    protected void setReplaceString(String replaceString)
+    {
         this.replaceString = replaceString;
     }
 
