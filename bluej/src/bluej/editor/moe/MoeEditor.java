@@ -1496,7 +1496,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         return found;
     }
 
-    // --------------------------------------------------------------------
     /**
      * doFindBackward - do a find backwards without visible feedback. Returns
      * false if not found.
@@ -1554,16 +1553,15 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         return found;
     }
 
-    // --------------------------------------------------------------------
     /**
      * doFindSelect - finds all the instances in the document from where the 
-     * caret position is and selects the first one and highlights all others
-     * @param select indicates whether this word should be selected or only highlighted
+     * caret position is, optionally selects the first one and highlights all others
+     * @param select indicates whether the first occurrence should be selected or only highlighted
      * @param s search string 
      * 
      * @return Returns false if not found.
      */
-    boolean doFindSelect (String s, boolean ignoreCase, boolean wholeWord, boolean wrap, boolean select)
+    boolean doFindSelect(String s, boolean ignoreCase, boolean wholeWord, boolean wrap, boolean select)
     {
         int temp=0;
         int docLength = document.getLength();
@@ -1576,16 +1574,11 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         int start = startPosition;
         Element line = getLineAt(start);
-        int lineEnd = Math.min(line.getEndOffset(), endPos);   
+        int lineEnd = line.getEndOffset();   
         int foundPos =0; 
-        boolean first=true;
-        String firstLine="";
         try {
             while (!finished) {
                 String lineText = document.getText(start, lineEnd - start);
-                //String lineText = document.getText(line.getStartOffset(), lineEnd - line.getStartOffset());
-                if (first)
-                    firstLine=lineText;
                 while (lineText != null && lineText.length() > 0) {
                     foundPos = findSubstring(lineText, s, ignoreCase, wholeWord, false, foundPos);
                     if (foundPos != -1) {
@@ -1611,7 +1604,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 if (lineEnd >= endPos) {
                     if (wrap) {
                         // do the wrapping
-                        endPos = startPosition;
+                        endPos = Math.min(startPosition + s.length(), document.getLength());
                         line = document.getParagraphElement(0);
                         start = line.getStartOffset();
                         lineEnd = Math.min(line.getEndOffset(), endPos);
@@ -1619,12 +1612,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                         // don't wrap again
                     }
                     else {
-                        //just a check for the first line if it is missing any
-                        foundPos=s.length();
-                        foundPos=findSubstring(firstLine, s, ignoreCase, wholeWord, true, foundPos);
-                        if (foundPos!=-1){
-                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);
-                        }
                         finished = true;
                     }
                 }
@@ -1637,7 +1624,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             }
         }
         catch (BadLocationException ex) {
-            Debug.message("error in editor find operation");
+            Debug.reportError("Error in editor find operation", ex);
         }
         return found;
     }  
