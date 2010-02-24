@@ -83,7 +83,6 @@ import bluej.utility.filefilter.SubPackageFilter;
  * @author Michael Kolling
  * @author Axel Schmolitzky
  * @author Andrew Patterson
- * @version $Id: Package.java 7166 2010-02-22 23:54:36Z davmac $
  */
 public final class Package extends Graph
 {
@@ -689,6 +688,7 @@ public final class Package extends Graph
                 ClassTarget ct = (ClassTarget) target;
                 Class<?> cl = loadClass(ct.getQualifiedName());
                 ct.determineRole(cl);
+                ct.analyseDependencies(cl);
                 if (cl != null && ct.upToDate()) {
                     ct.setState(ClassTarget.S_NORMAL);
                 }

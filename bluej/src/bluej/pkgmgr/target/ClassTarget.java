@@ -95,7 +95,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 7147 2010-02-18 03:11:13Z davmac $
+ * @version $Id: ClassTarget.java 7200 2010-02-24 12:15:46Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -625,7 +625,6 @@ public class ClassTarget extends DependentTarget
     /**
      * Verify whether this class target is an interface class
      * 
-     * 
      * @return true if class target is an interface class, else returns false
      */
     public boolean isInterface()
@@ -635,7 +634,6 @@ public class ClassTarget extends DependentTarget
 
     /**
      * Verify whether this class target is an unit test class
-     * 
      * 
      * @return true if class target is a unit test class, else returns false
      */
@@ -968,6 +966,7 @@ public class ClassTarget extends DependentTarget
         Class<?> cl = getPackage().loadClass(getQualifiedName());
 
         determineRole(cl);
+        analyseDependencies(cl);
     }
 
     /**
@@ -1178,8 +1177,6 @@ public class ClassTarget extends DependentTarget
     /**
      * Analyse the current dependencies in the source code and update the
      * dependencies in the graphical display accordingly.
-     * 
-     * @param info Description of the Parameter
      */
     public void analyseDependencies(ClassInfo info)
     {
@@ -1194,28 +1191,14 @@ public class ClassTarget extends DependentTarget
         
         // handle superclass dependency
         if (info.getSuperclass() != null) {
-            String superName = info.getSuperclass();
-            if (superName.startsWith(pkgPrefix)) {
-                superName = superName.substring(pkgPrefix.length());
-                DependentTarget superclass = getPackage().getDependentTarget(superName);
-                if (superclass != null) {
-                    getPackage().addDependency(new ExtendsDependency(getPackage(), this, superclass), false);
-                }
-            }
+            setSuperClass(info.getSuperclass());
         }
 
         // handle implemented interfaces
         List<String> vect = info.getImplements();
         for (Iterator<String> it = vect.iterator(); it.hasNext();) {
             String name = it.next();
-            if (name.startsWith(pkgPrefix)) {
-                name = name.substring(pkgPrefix.length());
-                DependentTarget interfce = getPackage().getDependentTarget(name);
-
-                if (interfce != null) {
-                    getPackage().addDependency(new ImplementsDependency(getPackage(), this, interfce), false);
-                }
-            }
+            addInterface(name);
         }
 
         // handle used classes
@@ -1242,6 +1225,59 @@ public class ClassTarget extends DependentTarget
         }
     }
 
+    /**
+     * Analyse the current dependencies in the compiled class and update the
+     * dependencies in the graphical display accordingly.
+     */
+    public void analyseDependencies(Class<?> cl)
+    {
+        removeInheritDependencies();
+        
+        Class<?> superClass = cl.getSuperclass();
+        if (superClass != null) {
+            setSuperClass(superClass.getName());
+        }
+        
+        Class<?> [] interfaces = cl.getInterfaces();
+        for (int i = 0; i < interfaces.length; i++) {
+            addInterface(interfaces[i].getName());
+        }
+    }
+    
+    
+    /**
+     * Set the superclass. This adds an extends dependency to the appropriate class.
+     * The old extends dependency (if any) must be removed separately.
+     */
+    private void setSuperClass(String superName)
+    {
+        String pkgPrefix = getPackage().getQualifiedName();
+        if (superName.startsWith(pkgPrefix)) {
+            superName = superName.substring(pkgPrefix.length());
+            DependentTarget superclass = getPackage().getDependentTarget(superName);
+            if (superclass != null) {
+                getPackage().addDependency(new ExtendsDependency(getPackage(), this, superclass), false);
+            }
+        }
+    }
+    
+    /**
+     * Add an interface. This adds an implements dependency to the appropriate interface.
+     */
+    private void addInterface(String interfaceName)
+    {
+        String pkgPrefix = getPackage().getQualifiedName();
+        if (interfaceName.startsWith(pkgPrefix)) {
+            interfaceName = interfaceName.substring(pkgPrefix.length());
+            DependentTarget interfce = getPackage().getDependentTarget(interfaceName);
+
+            if (interfce != null) {
+                getPackage().addDependency(new ImplementsDependency(getPackage(), this, interfce), false);
+            }
+        }
+    }
+    
+    
     /**
      * Check to see that name has not changed. If name has changed then update
      * details. Return true if the name has changed.
