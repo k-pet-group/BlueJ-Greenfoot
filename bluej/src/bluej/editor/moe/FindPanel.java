@@ -21,6 +21,7 @@
  */
 package bluej.editor.moe;
 
+import java.awt.AWTKeyStroke;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -269,8 +270,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             }
         });
         
-        Set forwardKeys = this.getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS);  
-        Set newForwardKeys = new HashSet(forwardKeys);  
+        Set <AWTKeyStroke> forwardKeys = this.getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS);  
+        Set <AWTKeyStroke> newForwardKeys = new HashSet<AWTKeyStroke>(forwardKeys);  
         newForwardKeys.remove(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0));  
         this.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, newForwardKeys);
         
@@ -319,9 +320,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void getNext()
     {
-        //move the caret forward ONLY if the search string is the same
-        if (getSearchString()!=null && getSearchString().equals(findTField.getText())){
-            editor.moveCaretPosition(editor.getCaretPosition()+getSearchString().length());
+        if (getSearchString()!=null){
+            editor.moveCaretPosition(editor.getCaretPosition()+1);
         }
         find(true, true);  
     }
