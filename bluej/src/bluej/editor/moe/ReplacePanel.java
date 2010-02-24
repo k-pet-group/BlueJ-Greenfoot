@@ -35,7 +35,6 @@ import bluej.utility.DBox;
 import bluej.utility.DBoxLayout;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -54,7 +53,7 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
     private MoeEditor editor;
     private Font font;
     private JTextField replaceText;
-    private String replaceString;
+    private String replaceString="";
     private JButton replaceButton;
     private JButton replaceAllButton;
 
@@ -66,7 +65,7 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
         super();
         font=new Font(PrefMgr.getStandardFont().getFontName(), PrefMgr.getStandardFont().getSize(), PrefMgr.getStandardFont().getSize());
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createLineBorder(Color.black));
+        //setBorder(BorderFactory.createLineBorder(Color.black));
         addReplaceBody();
         editor=ed;
     }
@@ -120,24 +119,26 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
         JLabel replaceLabel;
         DBox replaceBody;
         DBox optionsBody;
+        DBox tempBody;
         JPanel rBody;
         JPanel body;
 
-        body = new JPanel(new GridLayout(1, 2)); // one row, many columns
-        rBody=new JPanel(new GridLayout(1, 2));
-        //rBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
+        body = new JPanel(new GridLayout(1, 2));
+        body.setBorder(BorderFactory.createEmptyBorder(2, 0, 5, 0));
+        rBody=new JPanel(new GridLayout(1, 3));
         replaceBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
         optionsBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
-        body.setBorder(BorderFactory.createEmptyBorder(3,0,3,0));
+        tempBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
         
         JPanel closeBody=new JPanel(new GridLayout(1,2));
 
-        replaceLabel=new JLabel("Replace: ");
+        replaceLabel=new JLabel("   Replace: ");
         replaceLabel.setFont(font);
 
         replaceText=new JTextField(11);
         replaceText.setMaximumSize(replaceText.getPreferredSize());
         replaceText.setFont(font);
+        replaceText.setText(getReplaceString());
         replaceText.addKeyListener(this);
         replaceText.setName(REPLACE_TEXTFIELD);
 
@@ -161,13 +162,11 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener 
         rtTemp.add(replaceText);
         replaceBody.add(rTemp);
         replaceBody.add(rtTemp);
-        //replaceBody.add(replaceLabel);
-        //replaceBody.add(replaceText, BorderLayout.EAST);
         optionsBody.add(replaceButton);
         optionsBody.add(replaceAllButton);
-        //optionsBody.add(new JLabel(" "));
         rBody.add(replaceBody);
         rBody.add(optionsBody);
+        rBody.add(tempBody);
 
 
         body.add(rBody);  

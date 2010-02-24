@@ -33,6 +33,7 @@ import java.awt.event.MouseListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -66,7 +67,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private JPanel findBody;
     private DBox findTextBody;
     private DBox optionsBody;
-    private JPanel otherBody;
     private JPanel mcBody;
     private JPanel closeBody;
     private JLabel findLabel;
@@ -74,7 +74,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private JButton previousButton;
     private JButton nextButton;
     private JCheckBox matchCaseCheckBox;
-    private JLabel replaceLabel;
     private JLabel replaceIconLabel;
     private JLabel closeIconLabel;
 
@@ -100,7 +99,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         closedIcon=Config.getImageAsIcon("image.replace.close");
         findFont=new Font(PrefMgr.getStandardFont().getFontName(), PrefMgr.getStandardFont().getSize(), PrefMgr.getStandardFont().getSize());
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createLineBorder(Color.black));
+//        setBorder(BorderFactory.createLineBorder(Color.black));
 
         editor=ed;
         initDisplay();
@@ -119,21 +118,17 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void initDisplay()
     {
-        //body = new JPanel(new BorderLayout()); // one row, many columns
         body = new JPanel(new GridLayout(1, 2));
-        body.setBorder(BorderFactory.createEmptyBorder(3,0,3,0));
+        body.setBorder(BorderFactory.createEmptyBorder(2, 0, 5, 0));
         body.setName("FindPanelBody");
 
-        //findOptions=new JPanel(new GridLayout(1, 7));
-        //findBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
-        findBody=new JPanel(new GridLayout(1, 2));
-        //findBody=
+        findBody=new JPanel(new GridLayout(1, 3));
         findTextBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
+        //prev, next
         optionsBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
+        mcBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);;
         
-        otherBody=new JPanel (new GridLayout(1, 2));
-        mcBody=new JPanel(new GridLayout(1, 1));
-        closeBody=new JPanel(new GridLayout(1,2));
+        closeBody=new JPanel(new BorderLayout(2, 200));       
     }
 
 
@@ -144,7 +139,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private void setFindDisplay()
     {
         findLabel = new JLabel();
-        findLabel.setText("Find:      ");
+        findLabel.setText("        Find: ");
         findLabel.setFont(findFont);
 
         findTField=new JTextField(11);
@@ -208,6 +203,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private void setCloseDisplay()
     {
         closeIconLabel=new JLabel();
+        closeIconLabel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 10));
         closeIconLabel.setIcon(Config.getImageAsIcon("image.findpanel.close")); 
         closeIconLabel.addMouseListener(this);
         closeIconLabel.setName(CLOSE_BUTTON_NAME); 
@@ -218,9 +214,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void setReplaceDisplay()
     { 
-        replaceLabel=new JLabel(" Replace");
-        replaceLabel.setFont(findFont);
-
         replaceIconLabel=new JLabel("  Replace  ");
         replaceIconLabel.setFont(findFont);
         replaceIconLabel.setIcon(closedIcon);
@@ -232,10 +225,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void addDisplayElements()
     {
-        //findTextBody.add(findLabel);
         JPanel fTemp = new JPanel(new GridLayout(1, 1));
         fTemp.add(findLabel);
-        //findTextBody.add(findTField);
         JPanel ftTemp = new JPanel(new GridLayout(1, 1));
         ftTemp.add(findTField);
         findTextBody.add(fTemp);
@@ -252,17 +243,20 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             optionsBody.add(nextButton);
         }
 
-        findBody.add(findTextBody, BorderLayout.WEST);
-        findBody.add(optionsBody, BorderLayout.EAST);
-        closeBody.add(replaceIconLabel);
-        closeBody.add(closeIconLabel);
+
+        //findBody.add(replaceIconLabel);
+        closeBody.add(closeIconLabel, BorderLayout.EAST);
 
         mcBody.add(matchCaseCheckBox);
-        otherBody.add(mcBody);
-        otherBody.add(closeBody);
+        mcBody.add(replaceIconLabel);
+        
+        findBody.add(findTextBody);
+        findBody.add(optionsBody);
+        findBody.add(mcBody);
 
-        body.add(findBody, BorderLayout.WEST);
-        body.add(otherBody, BorderLayout.EAST);    
+        body.add(findBody);
+        body.add(closeBody,BorderLayout.LINE_END);
+        
         this.add(body);
 
         KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0);
