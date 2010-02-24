@@ -22,18 +22,19 @@
 package bluej.editor.moe;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -99,7 +100,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         closedIcon=Config.getImageAsIcon("image.replace.close");
         findFont=new Font(PrefMgr.getStandardFont().getFontName(), PrefMgr.getStandardFont().getSize(), PrefMgr.getStandardFont().getSize());
         setLayout(new BorderLayout());
-//        setBorder(BorderFactory.createLineBorder(Color.black));
+
 
         editor=ed;
         initDisplay();
@@ -127,7 +128,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         //prev, next
         optionsBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
         mcBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);;
-        
+
         closeBody=new JPanel(new BorderLayout(2, 200));       
     }
 
@@ -169,7 +170,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         nextButton.setText("Next");
         nextButton.setEnabled(false);
         nextButton.setFont(findFont);
-        
+
         if (Config.isMacOS()) {
             previousButton.putClientProperty("JButton.buttonType", "segmentedCapsule");
             previousButton.putClientProperty("JButton.segmentPosition", "first");
@@ -231,7 +232,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         ftTemp.add(findTField);
         findTextBody.add(fTemp);
         findTextBody.add(ftTemp);
-        
+
         if (Config.isMacOS()) {
             DBox buttonBox = new DBox(DBoxLayout.X_AXIS, 0.5f);
             buttonBox.add(previousButton);
@@ -249,14 +250,14 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
 
         mcBody.add(matchCaseCheckBox);
         mcBody.add(replaceIconLabel);
-        
+
         findBody.add(findTextBody);
         findBody.add(optionsBody);
         findBody.add(mcBody);
 
         body.add(findBody);
         body.add(closeBody,BorderLayout.LINE_END);
-        
+
         this.add(body);
 
         KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0);
@@ -267,6 +268,20 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
                 close();
             }
         });
+        
+        Set forwardKeys = this.getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS);  
+        Set newForwardKeys = new HashSet(forwardKeys);  
+        newForwardKeys.remove(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0));  
+        this.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, newForwardKeys);
+        
+        KeyStroke tabKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_TAB,0);
+        this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(tabKeyStroke ,"tabAction");
+        this.getActionMap().put("tabAction", new AbstractAction(){ //$NON-NLS-1$
+            public void actionPerformed(ActionEvent e)
+            {
+                editor.requestReplaceTextFocus();
+            }
+        });   
 
     }
 
@@ -291,7 +306,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             enableReplace();
         }
         if (src.getName()==INPUT_QUERY_NAME){          
-                find(true, true);
+            find(true, true);
         }
         if (src.getName()==MATCHCASE_CHECKBOX){
             //editor.setCaretPositionForward(-getSearchString().length());

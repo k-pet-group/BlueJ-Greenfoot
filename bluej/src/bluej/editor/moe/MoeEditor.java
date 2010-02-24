@@ -1300,7 +1300,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * setReplacePanelVisible
+     * setReplacePanelVisible either opens the replace panel and if the replace 
+     * panel is already open, it changes the focus to the replace text field 
      * @param visible 
      */
     protected void setReplacePanelVisible(boolean visible)
@@ -1310,6 +1311,14 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 finder.setVisible(visible);
             replacer.setVisible(visible);
         }
+        replacer.requestReplaceTextFocus();
+    }
+    
+    /**
+     * requestReplaceTextFocus moves the focus to the replace text field
+     */
+    protected void requestReplaceTextFocus()
+    {
         replacer.requestReplaceTextFocus();
     }
 
