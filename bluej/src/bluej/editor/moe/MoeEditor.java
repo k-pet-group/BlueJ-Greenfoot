@@ -409,11 +409,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void insertText(String text, boolean caretBack)       // inherited from Editor, redefined
     {
-        //if there is no selection, need to find an instance of the search string
-        if (getSelectionBegin()!=null && 
-                getSelectionBegin().getColumn()==getSelectionEnd().getColumn() && 
-                getSelectionBegin().getLine()==getSelectionEnd().getLine())
-            finder.find(true, true);
         sourcePane.replaceSelection(text);
         if (caretBack) {
             sourcePane.setCaretPosition(sourcePane.getCaretPosition() - text.length());
@@ -1346,7 +1341,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         insertText(replaceText, true);
         //move the caret back to where it was before the replace
         moveCaretPosition(caretPos);
-        finder.find(true , true);
+        finder.find(true);
         //editor.writeMessage("Replaced " + count + " instances of " + searchString);
         writeMessage("Replaced an instance of " + 
                 searchString);

@@ -317,11 +317,11 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             enableReplace();
         }
         if (src.getName()==INPUT_QUERY_NAME){          
-            find(true, true);
+            find(true);
         }
         if (src.getName()==MATCHCASE_CHECKBOX){
             //editor.setCaretPositionForward(-getSearchString().length());
-            find(true, true);
+            find(true);
         }
     }
 
@@ -333,7 +333,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         if (getSearchString()!=null){
             editor.moveCaretPosition(editor.getCaretPosition()+1);
         }
-        find(true, true);  
+        find(true);  
     }
 
     /**
@@ -341,10 +341,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void getPrev()
     {
-        if (getSearchString()!=null){
+        if (getSearchString()!=null) {
             editor.moveCaretPosition(editor.getCaretPosition()+getSearchString().length());
         }
-        find(false, true);
+        find(false);
     }
 
     /**
@@ -358,7 +358,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         if (getSearchString()!=null){
             //previous search had a value and this search is empty
             //need to remove highlighting and have no message
-            if (findTField.getText().length()==0){
+            if (findTField.getText().length()==0) {
                 caretPos=caretPos-getSearchString().length();
                 //need to reset the search to the beginning of the last selected
                 editor.removeSelectionHighlights();
@@ -368,7 +368,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             }
         }
         editor.moveCaretPosition(caretPos);
-        find(true, true);
+        find(true);
     }
 
     /**
@@ -444,11 +444,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {  
         setSearchString(findTField.getText());
         findTField.requestFocus(); 
-        //if the search is empty should it reset the caret position to the start
-        //of the doc? so that it can start searching from there
-        if (getSearchString().length()==0){
-
-        }
     }
 
     /**
@@ -549,9 +544,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     }
 
     /**
-     * Find requires the display to be reset (i.e button enabled/disabled) and calling the editor to find
+     * Find the current search string in either the forwards or backwards direection, and
+     * select the first found occurrence.
      */
-    protected void find(boolean next, boolean select)
+    protected void find(boolean next)
     {
         if (getSearchString()!=null){
             editor.moveCaretPosition(editor.getCaretPosition()-getSearchString().length());
@@ -559,7 +555,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         setFindValues(); 
         updateDisplay();
         editor.removeSelectionHighlights();
-        highlightAll(!matchCaseCheckBox.isSelected(), false, true, next, select);
+        highlightAll(!matchCaseCheckBox.isSelected(), false, true, next, true);
     }
 
     public String getSearchTextfield()
