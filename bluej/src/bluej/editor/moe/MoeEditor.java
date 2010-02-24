@@ -1280,18 +1280,17 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /**
      * toggleReplacePanelVisible sets the replace panel editor in/visible
      * if visible sets the necessary other values
-     * @param isVisible
      */
     public void toggleReplacePanelVisible()
     {
-        //!finder.isVisible() ensures that there is not the case that the replace is open
-        //and the find is not
-        if (replacer.isVisible()|| !finder.isVisible()){
+        if (replacer.isVisible() || !finder.isVisible()) {
             replacer.setVisible(false);
             return;
         }
-        replacer.setVisible(true);
-        replacer.requestReplaceTextFocus();
+        else {
+            replacer.setVisible(true);
+            replacer.requestReplaceTextFocus();
+        }
     }
 
     /**
@@ -1305,8 +1304,11 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             if (!finder.isVisible())
                 finder.setVisible(visible);
             replacer.setVisible(visible);
+            replacer.requestReplaceTextFocus();
         }
-        replacer.requestReplaceTextFocus();
+        else {
+            replacer.setVisible(false);
+        }
     }
     
     /**

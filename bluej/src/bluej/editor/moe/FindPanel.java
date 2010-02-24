@@ -146,6 +146,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             }
         }
         super.setVisible(aFlag);
+        if (aFlag) {
+            findTField.requestFocus();
+        }
     }
     
     /**
@@ -344,10 +347,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             getPrev();   
         }
         if (src.getName()==REPLACE_CLOSE_BUTTON_NAME){
-            enableReplace();
+            editor.toggleReplacePanelVisible();
         }
         if (src.getName()==REPLACE_OPEN_BUTTON_NAME){
-            enableReplace();
+            editor.toggleReplacePanelVisible();
         }
         if (src.getName()==MATCHCASE_CHECKBOX){
             if (searchStart != null) {
@@ -413,11 +416,13 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         }
         
         editor.setCaretLocation(selBegin);
-        if (! find(true) && searchStart != null) {
+        boolean found = find(true);
+        if (!found && searchStart != null) {
             // If nothing found, caret should be moved back to position it was in before
             // the search started.
             editor.setCaretLocation(searchStart);
         }
+        updateDisplay(found);
     }
 
     /**
@@ -428,7 +433,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         if (selection==null)
             selection=getSearchString();       
         setSearchString(selection);
-        updateDisplay();
         this.setVisible(true);
         setfindTextField(selection); //this triggers a find
         findTField.selectAll();
@@ -453,27 +457,12 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      * Enable (previous and next) buttons if there is a valid search string.
      * If not these buttons should be disabled
      */
-    private void updateDisplay()
+    private void updateDisplay(boolean enable)
     {
-        boolean validSearch=false;
-        if(getSearchString() != null && getSearchString().length() > 0) 
-            validSearch=true;  
-        if (validSearch){
-            previousButton.setEnabled(true);
-            nextButton.setEnabled(true); 
-            //update display in the replace panel if necessary
-            if (editor.isReplacePanelVisible() && editor.isReplacePopulated())
-                editor.enableReplaceButtons(true); 
-        }
-        else{
-            previousButton.setEnabled(false);
-            nextButton.setEnabled(false);
-            editor.enableReplaceButtons(false); 
-        }
-
-        findTField.requestFocus();
+        previousButton.setEnabled(enable);
+        nextButton.setEnabled(enable); 
+        editor.enableReplaceButtons(enable); 
     }
-
 
     /**
      * When the editor finds a value it needs to reset the caret to before the search string
@@ -485,15 +474,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {  
         setSearchString(findTField.getText());
         findTField.requestFocus(); 
-    }
-
-    /**
-     * Replaces selected text with the contents of the replaceField and return
-     * next instance of the searchString.
-     */
-    private void enableReplace()
-    {
-        editor.toggleReplacePanelVisible();
     }
 
     /**
@@ -525,7 +505,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     }
 
     /**
-     * writeMessage either writes an empty message or a message reflecting the number of founds
+     * Display either writes an empty message or a message reflecting the
+     * number of occurrences found
      */
     private void writeMessage(boolean emptyMessage, int counter)
     {
@@ -581,7 +562,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     protected boolean find(boolean forward)
     {
         setFindValues(); 
-        updateDisplay();
         editor.removeSelectionHighlights();
         return highlightAll(!matchCaseCheckBox.isSelected(), false, forward, true);
     }
@@ -591,10 +571,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         return findTField.getText();   
     }
 
-    public void changedUpdate(DocumentEvent e) 
-    {
-
-    }
+    public void changedUpdate(DocumentEvent e) {  }
 
     /**
      * Initiates a find
@@ -609,8 +586,19 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void removeUpdate(DocumentEvent e) 
     {
-        findEvent();
-        updateDisplay();
+        if (findTField.getText().length()==0) {
+            //need to reset the search to the beginning of the last selected
+            editor.removeSelectionHighlights();
+            setSearchString(null);
+            if (searchStart != null) {
+                editor.setCaretLocation(searchStart);
+            }
+            writeMessage(false, 0);
+            updateDisplay(false);
+        }
+        else {
+            findEvent();
+        }
     }
 
     public void setfindTextField(String selection)
@@ -619,13 +607,14 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     }
 
 
-    public void mouseClicked(MouseEvent e) {
+    public void mouseClicked(MouseEvent e)
+    {
         JComponent src = (JComponent) e.getSource();
         if(src.getName() == CLOSE_BUTTON_NAME){
             close();
             return;
         }
-        enableReplace();
+        editor.toggleReplacePanelVisible();
         if (replaceIconLabel.getIcon()==openIcon){
             replaceIconLabel.setIcon(closedIcon);
         }
@@ -634,24 +623,16 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         }
     }
 
+    public void mouseEntered(MouseEvent e) {  }
 
-    public void mouseEntered(MouseEvent e) {
+    public void mouseExited(MouseEvent e) {  }
 
-    }
+    public void mousePressed(MouseEvent e) {  }
 
-    public void mouseExited(MouseEvent e) {
+    public void mouseReleased(MouseEvent e) {  }
 
-    }
-
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    public void setTextfieldSelected(){
+    public void setTextfieldSelected()
+    {
         findTField.selectAll();
     }
 
@@ -667,12 +648,11 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             replaceIconLabel.setIcon(closedIcon);
     }
 
-
     public void close()
     {
         editor.removeSelectionHighlights();
         this.setVisible(false);
-        editor.toggleReplacePanelVisible();
+        editor.setReplacePanelVisible(false);
         replaceIconLabel.setIcon(closedIcon);
     }
 
