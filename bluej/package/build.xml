@@ -19,7 +19,7 @@
         <include name="lib/bluejext.jar" />
         <include name="lib/antlr.jar" />
         <include name="lib/junit.jar" />
-        <include name="lib/MRJ141Stubs.jar" />
+        <include name="lib/AppleJavaExtensions.jar" />
         <include name="lib/sshconnection.jar" />
         <include name="lib/org-netbeans-lib-cvsclient.jar" />
         <include name="lib/jsch.jar" />

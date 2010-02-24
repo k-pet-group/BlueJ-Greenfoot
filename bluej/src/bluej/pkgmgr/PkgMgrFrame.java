@@ -315,7 +315,7 @@ public class PkgMgrFrame extends JFrame
      */
     private static Application prepareMacOSApp()
     {
-        Application macApp = new Application();
+        Application macApp = Application.getApplication();
         macApp.setEnabledPreferencesMenu(true);
         macApp.addApplicationListener(new com.apple.eawt.ApplicationAdapter() {
             public void handleAbout(ApplicationEvent e)
@@ -335,7 +335,6 @@ public class PkgMgrFrame extends JFrame
                 QuitAction.getInstance().actionPerformed(getMostRecent());
             }
             
-            @SuppressWarnings("unused")
             public void handleOpenFile(ApplicationEvent event) 
             {                
                 String projectPath = event.getFilename();                

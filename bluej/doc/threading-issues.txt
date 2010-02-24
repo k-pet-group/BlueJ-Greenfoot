@@ -75,7 +75,7 @@ previous invocation finishing and the result of that invocation being fetched.
 3. The compiler thread
 
 Currently there is only one compiler thread for the whole BlueJ process (not one per
-Project). Compiler events (notified through the CompileObserver interface) will excute on
+Project). Compiler events (notified through the CompileObserver interface) will execute on
 this thread.
 
 The EventqueueCompileObserver class provides a wrapper for CompileObserver instances which
