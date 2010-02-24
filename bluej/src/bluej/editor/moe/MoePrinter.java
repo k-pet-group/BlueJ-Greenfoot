@@ -41,23 +41,20 @@ import bluej.Config;
  * Class to handle printing for the MoeEditor.
  * This borrows ideas and some source code from Andrew Weiland's Print example
  * at http://www.wam.umd.edu/~aweiland/Print.java.  Which no longer exists..
+ *
  * @author Bruce Quig
- * @version $ Id: $
  */
 public class MoePrinter
 {
-
     static final String CONTINUED_LABEL = Config.getString("editor.printer.continued");
     private final int HEADER_SPACE = 30;
     private final int FOOTER_SPACE = 20;
     private final int LINE_NUMBER_WIDTH = 20;
     private final int PADDING = 5;
-    private final char TAB_CHAR = '\t';
     
     private Book pages = new Book();  // This holds each page
     
     private static int titleFontSize = Config.getPropInteger("bluej.fontsize.printTitle", 14);
-    private static int footerFontSize = Config.getPropInteger("bluej.fontsize.printInfo", 10);
     private static Font titleFont = new Font("SansSerif", Font.BOLD, titleFontSize);
     private static Font smallTitleFont = new Font("SansSerif", Font.BOLD, 10);
     private static Font footerFont = new Font("SansSerif", Font.ITALIC, 9);
@@ -387,7 +384,6 @@ public class MoePrinter
             g.setColor(Color.black);  // set color
             g.drawRect(xPos, yPos, width, height);
             int titleYPos = yPos + HEADER_SPACE - this.font.getSize() + 2;
-            Font currentFont = null;
             String title = "Class " + className;
 
             // print class name on left

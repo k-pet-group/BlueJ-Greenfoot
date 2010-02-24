@@ -369,7 +369,6 @@ bluej.editor.MacOS.font=Monaco
 # fonts for printing source text
 bluej.fontsize.printText=10
 bluej.fontsize.printTitle=14
-bluej.fontsize.printInfo=9
 
 # scale factor for printing the class diagram. The value is in percent.
 # (a value of 100 will print at approx same size as the diagram on 
