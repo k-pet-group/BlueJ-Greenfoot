@@ -59,7 +59,7 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
     public EditorPrefPanel()
     {
         scopeHighlightingPrefDisplay=new ScopeHighlightingPrefDisplay();
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        //setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BlueJTheme.generalBorder);
 
         JPanel editorPanel = new JPanel(new GridLayout(2,1,0,0));
@@ -71,7 +71,7 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
             editorPanel.setAlignmentX(LEFT_ALIGNMENT);            
             JPanel topPanel=new JPanel(new GridLayout(3,1,0,0));
             
-            JPanel fontPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 15));
+            JPanel fontPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
             {
                 fontPanel.add(new JLabel(Config.getString("prefmgr.edit.editorfontsize")+"  "));
                 editorFontField = new JTextField(4);
