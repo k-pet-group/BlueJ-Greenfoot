@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,8 +26,8 @@ import java.awt.GridLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -36,6 +36,8 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefPanelListener;
+import bluej.utility.DBox;
+import bluej.utility.DBoxLayout;
 
 /**
  * A PrefPanel subclass to allow the user to interactively edit
@@ -59,19 +61,18 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
     public EditorPrefPanel()
     {
         scopeHighlightingPrefDisplay=new ScopeHighlightingPrefDisplay();
-        //setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BlueJTheme.generalBorder);
 
-        JPanel editorPanel = new JPanel(new GridLayout(2,1,0,0));
+        JComponent editorPanel = new DBox(DBoxLayout.Y_AXIS, 0, BlueJTheme.componentSpacingSmall, 0.5f);
         {
             String editorTitle = Config.getString("prefmgr.edit.editor.title");
             editorPanel.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createTitledBorder(editorTitle),
                     BlueJTheme.generalBorder));
             editorPanel.setAlignmentX(LEFT_ALIGNMENT);            
-            JPanel topPanel=new JPanel(new GridLayout(3,1,0,0));
+            JPanel topPanel=new JPanel(new GridLayout(3,2,0,0));
             
-            JPanel fontPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+            JPanel fontPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
             {
                 fontPanel.add(new JLabel(Config.getString("prefmgr.edit.editorfontsize")+"  "));
                 editorFontField = new JTextField(4);
@@ -93,8 +94,6 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
             matchBracketsBox= new JCheckBox(Config.getString("prefmgr.edit.matchBrackets"));
             topPanel.add(matchBracketsBox);
             
-            editorPanel.add(topPanel);
-            
             JPanel bottomPanel=new JPanel(new GridLayout(1,2,0,0));
             bottomPanel.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createTitledBorder(Config.getString("prefmgr.edit.colortransparency")),
@@ -109,6 +108,7 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
             bottomPanel.add(scopeHighlightingPrefDisplay.getColourPalette());
                         
             editorPanel.add(topPanel);
+            editorPanel.add(Box.createVerticalGlue());
             editorPanel.add(bottomPanel);
         }
         add(editorPanel);
