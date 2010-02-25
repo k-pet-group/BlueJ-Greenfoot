@@ -36,7 +36,6 @@ import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
-import java.awt.image.RescaleOp;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -76,12 +75,15 @@ public class NaviView extends JPanel implements AdjustmentListener
     private int dragOffset;
     private boolean haveToolTip = false;
     
+    private BufferedImage imgBuffer;
+    
     public NaviView(Document document, JScrollBar scrollBar)
     {
         this.scrollBar = scrollBar;
         editorPane = new NVDrawPane(this);
         
         setDocument(document);
+        setDoubleBuffered(false);
         
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         enableEvents(MouseEvent.MOUSE_WHEEL_EVENT_MASK);
@@ -299,10 +301,10 @@ public class NaviView extends JPanel implements AdjustmentListener
     @Override
     protected void paintComponent(Graphics g)
     {   
+        createImgBuffer(g);
         Rectangle clipBounds = new Rectangle(new Point(0,0), getSize());
         Insets insets = getInsets();
         g.getClipBounds(clipBounds);
-        int frw = 5; // frame width
         
         View view = editorPane.getUI().getRootView(editorPane);
         int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
@@ -315,17 +317,24 @@ public class NaviView extends JPanel implements AdjustmentListener
         }
 
         int docHeight = Math.min(myHeight, prefHeight);
+
         // Calculate the visible portion
+        // topV = the topmost visible line (in local coordinate space)
+        // bottomV = the bottommost visible line (in local coordinate space)
         int topV = insets.top + frw + scrollBar.getValue() * docHeight / scrollBar.getMaximum();
-        int bottomV = insets.top + frw + (scrollBar.getValue() + scrollBar.getVisibleAmount()) * docHeight / scrollBar.getMaximum();
+        int bottomV = insets.top + frw + ((scrollBar.getValue() + scrollBar.getVisibleAmount()) * docHeight + (scrollBar.getMaximum() - 1)) / scrollBar.getMaximum();
         int viewHeight = bottomV - topV;
-        RescaleOp darkenOp = new RescaleOp(0.85f,0,null);
         
-        // Clear the border (frw width)
-        g.setColor(getBackground());
-        g.fillRect(insets.left, insets.top, getWidth() - insets.left - insets.right, frw);
-        g.fillRect(insets.left, insets.top, frw, getHeight() - insets.top - insets.bottom);
-        g.fillRect(getWidth() - insets.right - frw, insets.top, frw, getHeight() - insets.top - insets.bottom);
+        Color background = MoeSyntaxDocument.getBackgroundColor();
+
+        Graphics2D tg = imgBuffer.createGraphics();
+        tg.setClip(new Rectangle(clipBounds.x - insets.left, clipBounds.y - insets.top, clipBounds.width, clipBounds.height));
+
+        // Clear the border area (frw width)
+        tg.setColor(getBackground());
+        tg.fillRect(0, 0, getWidth() - insets.left - insets.right, frw);
+        tg.fillRect(0, 0, frw, getHeight() - insets.top - insets.bottom);
+        tg.fillRect(getWidth() - insets.right - insets.left - frw, 0, frw, getHeight() - insets.top - insets.bottom);
         
         if (prefHeight > myHeight) {
             // scale!
@@ -348,7 +357,6 @@ public class NaviView extends JPanel implements AdjustmentListener
             }
             
             Graphics2D bg = bimage.createGraphics();
-            Color background = MoeSyntaxDocument.getBackgroundColor();
             bg.setColor(background);
             bg.fillRect(0, 0, width, height);
             
@@ -357,60 +365,52 @@ public class NaviView extends JPanel implements AdjustmentListener
             bg.translate(0, -ytop);
             view.paint(bg, shape);
             
-            // Create a darkened copy of the image:
-            BufferedImage darkBuffer = darkenOp.filter(bimage, null);
-            
-            // First draw on the darkened buffer:
-            g.drawImage(darkBuffer, insets.left + frw, clipBounds.y, getWidth() - insets.right - frw,
+            tg.drawImage(bimage, frw, clipBounds.y - insets.top,
+                    getWidth() - insets.left - insets.right - frw,
                     clipBounds.y + clipBounds.height, 0, 0, width, height, null);
-   
-            // Adjust the clip to the currently-visible portion of the naviview
-            // and draw the normal (light) buffer:
-            g.setClip(clipBounds.intersection(new Rectangle(insets.left, topV,
-                    getWidth() - insets.left - insets.right,viewHeight)));
-            g.drawImage(bimage, insets.left + frw, clipBounds.y, getWidth() - insets.right - frw,
-                    clipBounds.y + clipBounds.height, 0, 0, width, height, null);
-            // Then set the clip back to what it was before:
-            g.setClip(clipBounds);
         }
         else {
             // Scaling not necessary
-            Color background = MoeSyntaxDocument.getBackgroundColor();
-            
             int w = getWidth() - insets.left - insets.right - frw*2;
             int h = myHeight;
-            BufferedImage normalBuffer;
-            if (g instanceof Graphics2D) {
-                normalBuffer = ((Graphics2D) g).getDeviceConfiguration().createCompatibleImage(w, h);
-            }
-            else {
-            	normalBuffer = new BufferedImage(w, h, BufferedImage.TYPE_3BYTE_BGR);
-            }
             
-            Rectangle bufferBounds = new Rectangle (0,0,w,h);
-            Graphics tg = normalBuffer.createGraphics();
-            // It is important that the clip is set on tg; otherwise the
-            // paint method throws an exception
-            tg.setClip(new Rectangle(clipBounds.x - insets.left - frw, clipBounds.y - insets.top - frw, clipBounds.width, clipBounds.height));
+            Rectangle rb = new Rectangle();
+            rb.x = Math.max(frw, clipBounds.x - insets.left);
+            rb.y = Math.max(frw, clipBounds.y - insets.top);
+            rb.width = Math.min(w - rb.x + frw, clipBounds.width);
+            rb.height = Math.min(h - rb.y + frw, clipBounds.height);
+            
+            tg.setClip(rb);
             tg.setColor(background);
-            tg.fillRect(clipBounds.x - insets.left - frw, clipBounds.y - insets.top - frw, clipBounds.width, clipBounds.height);
+            tg.fillRect(rb.x, rb.y, rb.width, rb.height);
             
             // Draw the code on the buffer image:
+            Rectangle bufferBounds = new Rectangle (frw,frw,w,h);
             view.paint(tg, bufferBounds);
             
-            // Make a darkened copy:
-            BufferedImage darkBuffer = darkenOp.filter(normalBuffer, null);
-            
-            // First draw on the darkened buffer:
-            g.drawImage(darkBuffer, insets.left+frw, insets.top+frw, null);
-            
-            // Adjust the clip to the currently-visible portion of the naviview
-            // and draw the normal (light) buffer:
-            g.setClip(clipBounds.intersection(new Rectangle(insets.left+frw, topV, w, viewHeight)));
-            g.drawImage(normalBuffer, insets.left+frw, insets.top+frw, null);
-            // Then set the clip back to what it was before:
-            g.setClip(clipBounds);
+            tg.setClip(new Rectangle(clipBounds.x - insets.left, clipBounds.y - insets.top, clipBounds.width, clipBounds.height));
         }
+            
+        // Darken the area outside the viewport (above)
+        tg.setColor(new Color(0, 0, 0, 0.15f));
+        if (topV > clipBounds.y) {
+            tg.fillRect(clipBounds.x - insets.left, clipBounds.y - insets.top, clipBounds.width, topV - clipBounds.y);
+        }
+
+        // Darken the area outside the viewport (below)
+        int docBottom = docHeight + frw + insets.top;
+        if (bottomV < docBottom) {
+            tg.fillRect(clipBounds.x - insets.left, bottomV - insets.top, clipBounds.width, docBottom - bottomV);
+        }
+
+        // Fill the area between the document end and bottom of the component
+        if (docBottom < clipBounds.y + clipBounds.height) {
+            tg.setColor(getBackground());
+            tg.fillRect(clipBounds.x - insets.left, docBottom - insets.top, clipBounds.width,
+                    clipBounds.y + clipBounds.height - docBottom);
+        }
+
+        g.drawImage(imgBuffer, insets.left, insets.top, null);
 
         // Draw a border around the visible area
         int fx1 = insets.left;
@@ -436,4 +436,24 @@ public class NaviView extends JPanel implements AdjustmentListener
         g.drawImage(frame, fx2-5, fy2-5, fx2, fy2, fw-5, fh-5, fw, fh, null);
     }
     
+    public void createImgBuffer(Graphics g)
+    {
+        Insets insets = getInsets();
+        int w = getWidth() - insets.left - insets.right;
+        int h = getHeight() - insets.top - insets.bottom;
+        
+        if (imgBuffer != null) {
+            if (imgBuffer.getHeight() >= h && imgBuffer.getWidth() >= w) {
+                return;
+            }
+        }
+        
+        if (g instanceof Graphics2D) {
+            Graphics2D g2d = (Graphics2D) g;
+            imgBuffer = g2d.getDeviceConfiguration().createCompatibleImage(w, h);
+        }
+        else {
+            imgBuffer = new BufferedImage(w, h, BufferedImage.TYPE_3BYTE_BGR);
+        }
+    }
 }
