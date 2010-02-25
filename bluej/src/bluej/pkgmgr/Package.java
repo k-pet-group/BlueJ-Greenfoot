@@ -830,10 +830,6 @@ public final class Package extends Graph
      */
     public void reload()
     {
-        // DAV
-        System.out.println("reload()");
-        new Exception().printStackTrace(System.out);
-        
         File subDirs[] = getPath().listFiles(new SubPackageFilter());
 
         for (int i = 0; i < subDirs.length; i++) {
@@ -1747,6 +1743,8 @@ public final class Package extends Graph
     /**
      * Using a list of selections, retrieve a list of text strings from the editor which
      * correspond to those selections.
+     * TODO this is usually used to get the implemented interfaces, but it is a clumsy way
+     *      to do that.
      */
     private List<String> getInterfaceTexts(Editor ed, List<Selection> selections)
     {
