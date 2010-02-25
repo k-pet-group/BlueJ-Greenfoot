@@ -276,6 +276,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         initWindow(parameters.getProjectResolver());
         editorHighlighter= new MoeHighlighter(sourcePane);
+
     }
 
     // --------------------------------------------------------------------
@@ -3068,12 +3069,21 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     class MoeFocusTraversalPolicy extends FocusTraversalPolicy
     {
-
         public Component getComponentAfter(Container focusCycleRoot,  Component aComponent) {
+            if (aComponent.equals(finder.getFindTField())) {
+                if (replacer.isVisible()){
+                    return replacer.getReplaceText();
+                }
+            } else if (aComponent.equals(replacer.getReplaceText())) {
+                return finder;
+            } 
             return currentTextPane;
         }
 
         public Component getComponentBefore(Container focusCycleRoot,  Component aComponent) {
+            if (aComponent.equals(replacer.getReplaceText())) {
+                return finder.getFindTField();
+            } 
             return currentTextPane;
         }
 

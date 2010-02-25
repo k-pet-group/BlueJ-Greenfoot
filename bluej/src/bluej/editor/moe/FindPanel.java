@@ -21,11 +21,9 @@
  */
 package bluej.editor.moe;
 
-import java.awt.AWTKeyStroke;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -33,8 +31,6 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -94,7 +90,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private static Font findFont;
     private ImageIcon openIcon;
     private ImageIcon closedIcon;
-    
+
     private SourceLocation searchStart;
 
     /**
@@ -118,7 +114,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         setReplaceDisplay();
 
         addDisplayElements();  
-        
+
         findTField.addFocusListener(new FocusListener() {
             public void focusGained(FocusEvent e)
             {
@@ -126,12 +122,13 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
                     searchStart = editor.getCaretLocation();
                 }
             }
-            
+
             public void focusLost(FocusEvent e)
             {
                 searchStart = null;
             }
         });
+
     }
 
     @Override
@@ -150,7 +147,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             findTField.requestFocus();
         }
     }
-    
+
     /**
      * Get the maximum and preferred width of the "find:" label.
      */
@@ -158,7 +155,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         return findLabelBox.getPreferredSize().width;
     }
-    
+
     /**
      * Initialise the structure for the display panel
      */
@@ -169,7 +166,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         //prev, next
         optionsBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
         mcBody=new DBox(DBoxLayout.X_AXIS, 0, 0, 0.5f);;
-        
+
         closeBody=new JPanel(new BorderLayout());       
     }
 
@@ -180,13 +177,13 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         JLabel findLabel = new JLabel("Find:");
         findLabel.setFont(findFont);
-        
+
         replaceLabel = new JLabel("Replace:");
         replaceLabel.setFont(findFont);
-        
+
         Dimension lblSize = findLabel.getPreferredSize();
         lblSize.width = Math.max(lblSize.width, replaceLabel.getPreferredSize().width);
-        
+
         findLabelBox = new DBox(DBox.X_AXIS, 0.5f);
         findLabelBox.setMaximumSize(lblSize);
         findLabelBox.setPreferredSize(lblSize);
@@ -220,7 +217,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         nextButton.setText("Next");
         nextButton.setEnabled(false);
         nextButton.setFont(findFont);
-        
+
         if (Config.isMacOS()) {
             previousButton.putClientProperty("JButton.buttonType", "segmentedCapsule");
             previousButton.putClientProperty("JButton.segmentPosition", "first");
@@ -249,7 +246,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         return matchCaseCheckBox.isSelected();
     }
-    
+
     /**
      * Initialise the close button
      */
@@ -280,7 +277,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         findTextBody.add(findLabelBox);
         findTextBody.add(findTField);
-        
+
         if (Config.isMacOS()) {
             DBox buttonBox = new DBox(DBoxLayout.X_AXIS, 0.5f);
             buttonBox.add(previousButton);
@@ -297,7 +294,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         mcBody.add(matchCaseCheckBox);
         mcBody.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingLarge * 2));
         mcBody.add(replaceIconLabel);
-        
+
         findBody.add(findTextBody);
         findBody.add(optionsBody);
         findBody.add(mcBody);
@@ -313,20 +310,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
                 close();
             }
         });
-        
-        Set <AWTKeyStroke> forwardKeys = this.getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS);  
-        Set <AWTKeyStroke> newForwardKeys = new HashSet<AWTKeyStroke>(forwardKeys);  
-        newForwardKeys.remove(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0));  
-        this.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, newForwardKeys);
-        
-        KeyStroke tabKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_TAB,0);
-        this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(tabKeyStroke ,"tabAction");
-        this.getActionMap().put("tabAction", new AbstractAction(){ //$NON-NLS-1$
-            public void actionPerformed(ActionEvent e)
-            {
-                editor.requestReplaceTextFocus();
-            }
-        });   
 
     }
 
@@ -398,7 +381,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         if (selBegin == null) {
             selBegin = editor.getCaretLocation();
         }
-        
+
         //check there has been a legitimate change in the search criteria            
         if (getSearchString()!=null){
             //previous search had a value and this search is empty
@@ -412,7 +395,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
                 return;
             }
         }
-        
+
         editor.setCaretLocation(selBegin);
         boolean found = find(true);
         if (!found && searchStart != null) {
@@ -484,9 +467,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         SourceLocation caretLoc = forwards ? editor.getSelectionBegin() : editor.getSelectionEnd();
         if (caretLoc == null) {
-           caretLoc = editor.getCaretLocation();
+            caretLoc = editor.getCaretLocation();
         }
-        
+
         editor.setCaretLocation(caretLoc);
         search(ignoreCase, wholeWord, true, select, forwards) ;
         int counter=editor.getNumHighlights();
@@ -646,6 +629,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             replaceIconLabel.setIcon(closedIcon);
     }
 
+    /**
+     * Removes the highlights and sets the find and replace panel to invisible
+     * Also resets the replace Icon to closed
+     */
     public void close()
     {
         editor.removeSelectionHighlights();
@@ -653,5 +640,15 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         editor.setReplacePanelVisible(false);
         replaceIconLabel.setIcon(closedIcon);
     }
+
+    /**
+     * 
+     * @return text field for search text
+     */
+    protected JTextField getFindTField() 
+    {
+        return findTField;
+    } 
+
 
 }

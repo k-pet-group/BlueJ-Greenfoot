@@ -70,6 +70,10 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener
         editor=ed;
     }
 
+    protected JTextField getReplaceText() {
+        return replaceText;
+    }
+
     public void actionPerformed(ActionEvent e)
     {
         JComponent src = (JComponent) e.getSource();
@@ -113,6 +117,9 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener
 
     public void keyTyped(KeyEvent e) {  }
 
+    /**
+     * Display the replace panel
+     */
     private void addReplaceBody()
     {
         JComponent rBody = new DBox(DBox.X_AXIS, 0, BlueJTheme.componentSpacingLarge, 0.5f);
