@@ -916,7 +916,8 @@ public class Project implements DebuggerListener, InspectorManager
      * @return Project.NEW_PACKAGE_DONE, Project.NEW_PACKAGE_EXIST,
      *         Project.NEW_PACKAGE_BAD_NAME
      */
-    public int newPackage(String qualifiedName) {
+    public int newPackage(String qualifiedName)
+    {
         if (qualifiedName == null) {
             return NEW_PACKAGE_BAD_NAME;
         }

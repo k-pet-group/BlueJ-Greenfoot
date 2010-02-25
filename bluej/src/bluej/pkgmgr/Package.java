@@ -678,54 +678,24 @@ public final class Package extends Graph
             }
             addTarget(target);
         }
-
-        //Update class roles, and their state
+        
+        // Start with all classes in the normal (compiled) state.
         Iterator<Target> targetIt = targets.iterator();
         for ( ; targetIt.hasNext();) {
             Target target = targetIt.next();
-
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
-                Class<?> cl = loadClass(ct.getQualifiedName());
-                ct.determineRole(cl);
-                ct.analyseDependencies(cl);
-                if (cl != null && ct.upToDate()) {
-                    ct.setState(ClassTarget.S_NORMAL);
-                }
+                ct.setState(ClassTarget.S_NORMAL);
             }
         }
 
-        //Now, parse the source files, and ensure they have the correct package statements
-        targetIt = targets.iterator();
-        while (targetIt.hasNext()) {
-            Object target = targetIt.next();
-            if(target instanceof ClassTarget) {
-                try {
-                    ClassTarget ct = (ClassTarget) target;
-                    if (! ct.isCompiled()) {
-                        if (ct.hasSourceCode()) {
-                            ct.analyseSource();
-                            ct.enforcePackage(getQualifiedName());
-                        }
-                    }
-                }
-                catch (IOException ioe) {
-                    Debug.message(ioe.getLocalizedMessage());
-                }
-                catch (ClassCastException cce) {}
-            }
-        }
-
+        // Fix up dependency information
         for (int i = 0; i < numDependencies; i++) {
             Dependency dep = null;
             String type = lastSavedProps.getProperty("dependency" + (i + 1) + ".type");
 
             if ("UsesDependency".equals(type))
                 dep = new UsesDependency(this);
-            //          else if("ExtendsDependency".equals(type))
-            //              dep = new ExtendsDependency(this);
-            //          else if("ImplementsDependency".equals(type))
-            //              dep = new ImplementsDependency(this);
 
             if (dep != null) {
                 dep.load(lastSavedProps, "dependency" + (i + 1));
@@ -734,8 +704,36 @@ public final class Package extends Graph
         }
         recalcArrows();
 
+        //Update class roles, and their state
+        targetIt = targets.iterator();
+        for ( ; targetIt.hasNext();) {
+            Target target = targetIt.next();
+
+            if (target instanceof ClassTarget) {
+                ClassTarget ct = (ClassTarget) target;
+                if (ct.isCompiled() && ct.upToDate()) {
+                    Class<?> cl = loadClass(ct.getQualifiedName());
+                    ct.determineRole(cl);
+                    ct.analyseDependencies(cl);
+                    if (cl == null) {
+                        ct.setState(ClassTarget.S_INVALID);
+                    }
+                }
+                else {
+                    ct.setState(ClassTarget.S_INVALID);
+                    ct.analyseSource();
+                    try {
+                        ct.enforcePackage(getQualifiedName());
+                    }
+                    catch (IOException ioe) {
+                        Debug.message("Error enforcing class package: " + ioe.getLocalizedMessage());
+                    }
+                }
+            }
+        }
+
         // our associations are based on name so we mustn't deal with
-        // them till all classes/packages have been loaded
+        // them until all classes/packages have been loaded
         for (int i = 0; i < numTargets; i++) {
             String assoc = lastSavedProps.getProperty("target" + (i + 1) + ".association");
             String identifierName = lastSavedProps.getProperty("target" + (i + 1) + ".name");
@@ -832,6 +830,10 @@ public final class Package extends Graph
      */
     public void reload()
     {
+        // DAV
+        System.out.println("reload()");
+        new Exception().printStackTrace(System.out);
+        
         File subDirs[] = getPath().listFiles(new SubPackageFilter());
 
         for (int i = 0; i < subDirs.length; i++) {
@@ -1685,7 +1687,7 @@ public final class Package extends Graph
     /**
      * A user initiated removal of a dependency
      *
-     * @pre d is an instance of an Implements or Extends dependency
+     * @param d  an instance of an Implements or Extends dependency
      */
     public void userRemoveDependency(Dependency d)
     {
@@ -1786,7 +1788,10 @@ public final class Package extends Graph
         removedSelectableElement(d);
     }
 
-    public void recalcArrows()
+    /**
+     * Lay out the arrows between targets.
+     */
+    private void recalcArrows()
     {
         Iterator<Target> it = getVertices();
         while (it.hasNext()) {

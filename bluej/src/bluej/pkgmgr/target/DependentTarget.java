@@ -35,7 +35,7 @@ import bluej.utility.MultiIterator;
  * A target that has relationships to other targets
  *
  * @author 	Michael Cahill
- * @version	$Id: DependentTarget.java 6683 2009-09-16 10:17:14Z davmac $
+ * @version	$Id: DependentTarget.java 7201 2010-02-25 00:40:01Z davmac $
  */
 public abstract class DependentTarget extends EditableTarget
 {
@@ -297,6 +297,9 @@ public abstract class DependentTarget extends EditableTarget
         }
     }
 
+    /**
+     * Re-layout arrows into this target
+     */
     public void recalcInUses()
     {
         // Order the arrows by quadrant and then appropriate coordinate

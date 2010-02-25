@@ -95,7 +95,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 7200 2010-02-24 12:15:46Z davmac $
+ * @version $Id: ClassTarget.java 7201 2010-02-25 00:40:01Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -1231,16 +1231,18 @@ public class ClassTarget extends DependentTarget
      */
     public void analyseDependencies(Class<?> cl)
     {
-        removeInheritDependencies();
-        
-        Class<?> superClass = cl.getSuperclass();
-        if (superClass != null) {
-            setSuperClass(superClass.getName());
-        }
-        
-        Class<?> [] interfaces = cl.getInterfaces();
-        for (int i = 0; i < interfaces.length; i++) {
-            addInterface(interfaces[i].getName());
+        if (cl != null) {
+            removeInheritDependencies();
+
+            Class<?> superClass = cl.getSuperclass();
+            if (superClass != null) {
+                setSuperClass(superClass.getName());
+            }
+
+            Class<?> [] interfaces = cl.getInterfaces();
+            for (int i = 0; i < interfaces.length; i++) {
+                addInterface(interfaces[i].getName());
+            }
         }
     }
     
@@ -1257,6 +1259,9 @@ public class ClassTarget extends DependentTarget
             DependentTarget superclass = getPackage().getDependentTarget(superName);
             if (superclass != null) {
                 getPackage().addDependency(new ExtendsDependency(getPackage(), this, superclass), false);
+                if (superclass.getState() != S_NORMAL) {
+                    setState(S_INVALID);
+                }
             }
         }
     }
@@ -1273,6 +1278,9 @@ public class ClassTarget extends DependentTarget
 
             if (interfce != null) {
                 getPackage().addDependency(new ImplementsDependency(getPackage(), this, interfce), false);
+                if (interfce.getState() != S_NORMAL) {
+                    setState(S_INVALID);
+                }
             }
         }
     }
