@@ -26,6 +26,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -47,6 +48,7 @@ import javax.swing.text.Document;
 import javax.swing.text.View;
 import javax.swing.text.Position.Bias;
 
+import bluej.Config;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
@@ -58,6 +60,9 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  */
 public class NaviView extends JPanel implements AdjustmentListener
 {
+    private static final Image frame = Config.getImageAsIcon("image.editor.naviview.frame").getImage();
+    private static final int frw = 5;  // frame width
+    
     private Document document;
     private JEditorPane editorPane;
     
@@ -135,9 +140,9 @@ public class NaviView extends JPanel implements AdjustmentListener
     {
         View view = editorPane.getUI().getRootView(editorPane);
         Insets insets = getInsets();
-        vpos -= insets.top;
+        vpos -= insets.top + frw;
         int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
-        int myHeight = getHeight() - insets.top - insets.bottom;
+        int myHeight = getHeight() - insets.top - insets.bottom - frw*2;
         if (prefHeight > myHeight) {
             vpos = vpos * prefHeight / myHeight;
         }
@@ -161,7 +166,7 @@ public class NaviView extends JPanel implements AdjustmentListener
         View view = editorPane.getUI().getRootView(editorPane);
         Insets insets = getInsets();
         int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
-        int myHeight = getHeight() - insets.top - insets.bottom;
+        int myHeight = getHeight() - insets.top - insets.bottom - frw*2;
         
         if (prefHeight > myHeight) {
             int ptop = top * myHeight / prefHeight;
@@ -181,19 +186,19 @@ public class NaviView extends JPanel implements AdjustmentListener
         View view = editorPane.getUI().getRootView(editorPane);
         int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
         Insets insets = getInsets();
-        int height = Math.min(prefHeight, getHeight() - insets.top - insets.bottom); 
+        int height = Math.min(prefHeight, getHeight() - insets.top - insets.bottom - 2*frw); 
         
-        int topV = e.getValue() * height / (scrollBar.getMaximum()) + insets.top;
+        int topV = e.getValue() * height / (scrollBar.getMaximum()) + insets.top + frw;
         int bottomV = (e.getValue() + scrollBar.getVisibleAmount()) * height
-                / scrollBar.getMaximum() + insets.top;
+                / scrollBar.getMaximum() + insets.top + frw;
 
         int repaintTop = Math.min(topV, currentViewPos);
         int repaintBottom = Math.max(bottomV, currentViewPosBottom);
 
         currentViewPos = topV;
         currentViewPosBottom = bottomV;
-
-        repaint(0, repaintTop, getWidth(), repaintBottom - repaintTop + 1);
+        
+        repaint(0, repaintTop - frw, getWidth(), repaintBottom - repaintTop + 2 + frw*2);
     }
 
     @Override
@@ -297,10 +302,11 @@ public class NaviView extends JPanel implements AdjustmentListener
         Rectangle clipBounds = new Rectangle(new Point(0,0), getSize());
         Insets insets = getInsets();
         g.getClipBounds(clipBounds);
+        int frw = 5; // frame width
         
         View view = editorPane.getUI().getRootView(editorPane);
         int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
-        int myHeight = getHeight() - insets.top - insets.bottom;
+        int myHeight = getHeight() - insets.top - insets.bottom - frw*2;
 
         Document document = getDocument();
         if (document == null) {
@@ -310,17 +316,23 @@ public class NaviView extends JPanel implements AdjustmentListener
 
         int docHeight = Math.min(myHeight, prefHeight);
         // Calculate the visible portion
-        int topV = scrollBar.getValue() * docHeight / scrollBar.getMaximum();
-        int bottomV = (scrollBar.getValue() + scrollBar.getVisibleAmount()) * docHeight / scrollBar.getMaximum();
+        int topV = insets.top + frw + scrollBar.getValue() * docHeight / scrollBar.getMaximum();
+        int bottomV = insets.top + frw + (scrollBar.getValue() + scrollBar.getVisibleAmount()) * docHeight / scrollBar.getMaximum();
         int viewHeight = bottomV - topV;
         RescaleOp darkenOp = new RescaleOp(0.85f,0,null);
         
+        // Clear the border (frw width)
+        g.setColor(getBackground());
+        g.fillRect(insets.left, insets.top, getWidth() - insets.left - insets.right, frw);
+        g.fillRect(insets.left, insets.top, frw, getHeight() - insets.top - insets.bottom);
+        g.fillRect(getWidth() - insets.right - frw, insets.top, frw, getHeight() - insets.top - insets.bottom);
+        
         if (prefHeight > myHeight) {
             // scale!
-            int width = getWidth() * prefHeight / myHeight;
+            int width = (getWidth() - insets.left - insets.right - frw*2) * prefHeight / myHeight;
  
-            int ytop = clipBounds.y * prefHeight / myHeight;
-            int ybtm = ((clipBounds.y + clipBounds.height) * prefHeight + myHeight - 1) / myHeight;
+            int ytop = (clipBounds.y - insets.top - frw) * prefHeight / myHeight;
+            int ybtm = ((clipBounds.y + clipBounds.height - insets.top - frw) * prefHeight + myHeight - 1) / myHeight;
             int height = ybtm - ytop;
             
             // Create a buffered image to use
@@ -349,21 +361,23 @@ public class NaviView extends JPanel implements AdjustmentListener
             BufferedImage darkBuffer = darkenOp.filter(bimage, null);
             
             // First draw on the darkened buffer:
-            g.drawImage(darkBuffer, insets.left, clipBounds.y, getWidth() - insets.right,
+            g.drawImage(darkBuffer, insets.left + frw, clipBounds.y, getWidth() - insets.right - frw,
                     clipBounds.y + clipBounds.height, 0, 0, width, height, null);
    
             // Adjust the clip to the currently-visible portion of the naviview
             // and draw the normal (light) buffer:
-            g.setClip(clipBounds.intersection(new Rectangle(insets.left,insets.top+topV,getWidth() - insets.left - insets.right,viewHeight)));
-            g.drawImage(bimage, insets.left, clipBounds.y, getWidth() - insets.right,
+            g.setClip(clipBounds.intersection(new Rectangle(insets.left, topV,
+                    getWidth() - insets.left - insets.right,viewHeight)));
+            g.drawImage(bimage, insets.left + frw, clipBounds.y, getWidth() - insets.right - frw,
                     clipBounds.y + clipBounds.height, 0, 0, width, height, null);
             // Then set the clip back to what it was before:
             g.setClip(clipBounds);
         }
         else {
+            // Scaling not necessary
             Color background = MoeSyntaxDocument.getBackgroundColor();
             
-            int w = getWidth() - insets.left - insets.right;
+            int w = getWidth() - insets.left - insets.right - frw*2;
             int h = myHeight;
             BufferedImage normalBuffer;
             if (g instanceof Graphics2D) {
@@ -377,9 +391,9 @@ public class NaviView extends JPanel implements AdjustmentListener
             Graphics tg = normalBuffer.createGraphics();
             // It is important that the clip is set on tg; otherwise the
             // paint method throws an exception
-            tg.setClip(new Rectangle(clipBounds.x - insets.left, clipBounds.y - insets.top, clipBounds.width, clipBounds.height));
+            tg.setClip(new Rectangle(clipBounds.x - insets.left - frw, clipBounds.y - insets.top - frw, clipBounds.width, clipBounds.height));
             tg.setColor(background);
-            tg.fillRect(clipBounds.x - insets.left, clipBounds.y - insets.top, clipBounds.width, clipBounds.height);
+            tg.fillRect(clipBounds.x - insets.left - frw, clipBounds.y - insets.top - frw, clipBounds.width, clipBounds.height);
             
             // Draw the code on the buffer image:
             view.paint(tg, bufferBounds);
@@ -388,20 +402,38 @@ public class NaviView extends JPanel implements AdjustmentListener
             BufferedImage darkBuffer = darkenOp.filter(normalBuffer, null);
             
             // First draw on the darkened buffer:
-            g.drawImage(darkBuffer,insets.left,insets.top,null);
+            g.drawImage(darkBuffer, insets.left+frw, insets.top+frw, null);
             
             // Adjust the clip to the currently-visible portion of the naviview
             // and draw the normal (light) buffer:
-            g.setClip(clipBounds.intersection(new Rectangle(insets.left,insets.top+topV,w,viewHeight)));
-            g.drawImage(normalBuffer,insets.left,insets.top,null);
+            g.setClip(clipBounds.intersection(new Rectangle(insets.left+frw, topV, w, viewHeight)));
+            g.drawImage(normalBuffer, insets.left+frw, insets.top+frw, null);
             // Then set the clip back to what it was before:
             g.setClip(clipBounds);
         }
 
         // Draw a border around the visible area
-        g.setColor(new Color(140, 140, 255));
-        g.drawRect(0 + insets.left, topV + insets.top, getWidth() - insets.left - insets.right - 1,
-               viewHeight);
+        int fx1 = insets.left;
+        int fy1 = topV - frw;
+        int fx2 = getWidth() - insets.right;
+        int fy2 = fy1 + viewHeight + frw*2;
+        
+        int fh = frame.getHeight(null);
+        int fw = frame.getWidth(null);
+        
+        // top - left corner, straight, right corner
+        g.drawImage(frame, fx1, fy1, fx1+5, fy1+5, 0, 0, 5, 5, null);
+        g.drawImage(frame, fx1+5, fy1, fx2-5, fy1+5, 5, 0, fw - 5, 5, null);
+        g.drawImage(frame, fx2-5, fy1, fx2, fy1+5, fw-5, 0, fw, 5, null);
+        
+        // sides
+        g.drawImage(frame, fx1, fy1+5, fx1+5, fy2-5, 0, 5, 5, fh-5, null);
+        g.drawImage(frame, fx2-5, fy1+5, fx2, fy2-5, fw-5, 5, fw, fh-5, null);
+        
+        // bottom - left corner, straight, right corner
+        g.drawImage(frame, fx1, fy2-5, fx1+5, fy2, 0, fh-5, 5, fh, null);
+        g.drawImage(frame, fx1+5, fy2-5, fx2-5, fy2, 5, fh-5, fw-5, fh, null);
+        g.drawImage(frame, fx2-5, fy2-5, fx2, fy2, fw-5, fh-5, fw, fh, null);
     }
     
 }

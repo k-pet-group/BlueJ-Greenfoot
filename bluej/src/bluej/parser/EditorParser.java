@@ -39,7 +39,6 @@ import bluej.editor.moe.Token;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.IntersectionTypeEntity;
 import bluej.parser.entity.JavaEntity;
-import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.ParsedReflective;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.UnresolvedArray;
