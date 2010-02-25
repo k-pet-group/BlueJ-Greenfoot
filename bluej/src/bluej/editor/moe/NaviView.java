@@ -329,12 +329,6 @@ public class NaviView extends JPanel implements AdjustmentListener
 
         Graphics2D tg = imgBuffer.createGraphics();
         tg.setClip(new Rectangle(clipBounds.x - insets.left, clipBounds.y - insets.top, clipBounds.width, clipBounds.height));
-
-        // Clear the border area (frw width)
-        tg.setColor(getBackground());
-        tg.fillRect(0, 0, getWidth() - insets.left - insets.right, frw);
-        tg.fillRect(0, 0, frw, getHeight() - insets.top - insets.bottom);
-        tg.fillRect(getWidth() - insets.right - insets.left - frw, 0, frw, getHeight() - insets.top - insets.bottom);
         
         if (prefHeight > myHeight) {
             // scale!
@@ -390,7 +384,16 @@ public class NaviView extends JPanel implements AdjustmentListener
             
             tg.setClip(new Rectangle(clipBounds.x - insets.left, clipBounds.y - insets.top, clipBounds.width, clipBounds.height));
         }
-            
+        
+        // Clear the border area (frw width)
+        tg.setColor(background);
+        tg.fillRect(0, 0, getWidth() - insets.left - insets.right, frw);
+        tg.fillRect(0, 0, frw, docHeight + frw);
+        tg.fillRect(getWidth() - insets.right - insets.left - frw, 0, frw, docHeight + frw);        
+
+        tg.setColor(getBackground());
+        tg.fillRect(0, docHeight + frw, getWidth() - insets.left - insets.right, myHeight + insets.top + insets.bottom + frw*2);
+                   
         // Darken the area outside the viewport (above)
         tg.setColor(new Color(0, 0, 0, 0.15f));
         if (topV > clipBounds.y) {
@@ -402,38 +405,42 @@ public class NaviView extends JPanel implements AdjustmentListener
         if (bottomV < docBottom) {
             tg.fillRect(clipBounds.x - insets.left, bottomV - insets.top, clipBounds.width, docBottom - bottomV);
         }
-
+        
         // Fill the area between the document end and bottom of the component
         if (docBottom < clipBounds.y + clipBounds.height) {
-            tg.setColor(getBackground());
+            Color myBgColor = getBackground();
+            // This odd statement is necessary to avoid a weird Mac OS X bug
+            // (OS X 10.6.2, Java 1.6.0_17) with repaint which occurs when
+            // a tooltip is showing.
+            tg.setColor(new Color(myBgColor.getRGB()));
             tg.fillRect(clipBounds.x - insets.left, docBottom - insets.top, clipBounds.width,
                     clipBounds.y + clipBounds.height - docBottom);
         }
 
-        g.drawImage(imgBuffer, insets.left, insets.top, null);
-
         // Draw a border around the visible area
-        int fx1 = insets.left;
-        int fy1 = topV - frw;
-        int fx2 = getWidth() - insets.right;
+        int fx1 = 0;
+        int fy1 = topV - frw - insets.top;
+        int fx2 = getWidth() - insets.right - insets.left;
         int fy2 = fy1 + viewHeight + frw*2;
         
         int fh = frame.getHeight(null);
         int fw = frame.getWidth(null);
         
         // top - left corner, straight, right corner
-        g.drawImage(frame, fx1, fy1, fx1+5, fy1+5, 0, 0, 5, 5, null);
-        g.drawImage(frame, fx1+5, fy1, fx2-5, fy1+5, 5, 0, fw - 5, 5, null);
-        g.drawImage(frame, fx2-5, fy1, fx2, fy1+5, fw-5, 0, fw, 5, null);
+        tg.drawImage(frame, fx1, fy1, fx1+5, fy1+5, 0, 0, 5, 5, null);
+        tg.drawImage(frame, fx1+5, fy1, fx2-5, fy1+5, 5, 0, fw - 5, 5, null);
+        tg.drawImage(frame, fx2-5, fy1, fx2, fy1+5, fw-5, 0, fw, 5, null);
         
         // sides
-        g.drawImage(frame, fx1, fy1+5, fx1+5, fy2-5, 0, 5, 5, fh-5, null);
-        g.drawImage(frame, fx2-5, fy1+5, fx2, fy2-5, fw-5, 5, fw, fh-5, null);
+        tg.drawImage(frame, fx1, fy1+5, fx1+5, fy2-5, 0, 5, 5, fh-5, null);
+        tg.drawImage(frame, fx2-5, fy1+5, fx2, fy2-5, fw-5, 5, fw, fh-5, null);
         
         // bottom - left corner, straight, right corner
-        g.drawImage(frame, fx1, fy2-5, fx1+5, fy2, 0, fh-5, 5, fh, null);
-        g.drawImage(frame, fx1+5, fy2-5, fx2-5, fy2, 5, fh-5, fw-5, fh, null);
-        g.drawImage(frame, fx2-5, fy2-5, fx2, fy2, fw-5, fh-5, fw, fh, null);
+        tg.drawImage(frame, fx1, fy2-5, fx1+5, fy2, 0, fh-5, 5, fh, null);
+        tg.drawImage(frame, fx1+5, fy2-5, fx2-5, fy2, 5, fh-5, fw-5, fh, null);
+        tg.drawImage(frame, fx2-5, fy2-5, fx2, fy2, fw-5, fh-5, fw, fh, null);
+
+        g.drawImage(imgBuffer, insets.left, insets.top, null);
     }
     
     public void createImgBuffer(Graphics g)
