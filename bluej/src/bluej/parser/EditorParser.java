@@ -385,9 +385,8 @@ public class EditorParser extends JavaParser
             String memberName = tokens.get(tokens.size() - 1).getText();
             JavaEntity entity = ParseUtils.getTypeEntity(parentResolver,
                     currentQuerySource(), tokens);
-            TypeEntity tentity = (entity != null) ? entity.resolveAsType() : null;
-            if (tentity != null) {
-                pcuNode.getImports().addNormalImport(memberName, tentity);
+            if (entity != null) {
+                pcuNode.getImports().addNormalImport(memberName, entity);
             }
             // TODO we should look up the name fully qualified, that is, the first
             // component *must* be a package and not a class in the current package.
@@ -411,10 +410,7 @@ public class EditorParser extends JavaParser
             return;
         }
         if (! isStatic) {
-            PackageOrClass poc = importEntity.resolveAsPackageOrClass();
-            if (poc != null) {
-                pcuNode.getImports().addWildcardImport(poc);
-            }
+            pcuNode.getImports().addWildcardImport(importEntity);
         }
         else {
             TypeEntity tentity = importEntity.resolveAsType();

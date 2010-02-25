@@ -192,8 +192,12 @@ public class ParsedCUNode extends ParentParsedNode
     {
         // We may have static imports
         
-        List<TypeEntity> simports = imports.getStaticImports(name);
-        for (TypeEntity importType : simports) {
+        List<JavaEntity> simports = imports.getStaticImports(name);
+        for (JavaEntity importType : simports) {
+            importType = importType.resolveAsType();
+            if (importType == null) {
+                continue;
+            }
             JavaEntity subEnt = importType.getSubentity(name, querySource);
             if (subEnt != null) {
                 JavaEntity value = subEnt.resolveAsValue();
@@ -204,7 +208,11 @@ public class ParsedCUNode extends ParentParsedNode
         }
         
         simports = imports.getStaticWildcardImports();
-        for (TypeEntity importType : simports) {
+        for (JavaEntity importType : simports) {
+            importType = importType.resolveAsType();
+            if (importType == null) {
+                continue;
+            }
             JavaEntity subEnt = importType.getSubentity(name, querySource);
             if (subEnt != null) {
                 JavaEntity value = subEnt.resolveAsValue();

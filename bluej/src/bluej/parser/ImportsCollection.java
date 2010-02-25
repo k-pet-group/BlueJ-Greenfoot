@@ -41,19 +41,22 @@ import bluej.parser.entity.TypeEntity;
  */
 public class ImportsCollection
 {
-    private Map<String,TypeEntity> normalImports; // non-wildcard non-static type imports
-    private List<PackageOrClass> wildcardImports;  // wildcard imports
-    private List<TypeEntity> staticWildcardImports; // list of TypeEntity
-    private Map<String,List<TypeEntity>> staticImports; // The String gives
+    /** non-wildcard non-static type imports. the entities should resolve to types. */
+    private Map<String,JavaEntity> normalImports;
+    /** non-static wildcard imports. The entities should resolve to PackageOrClass */
+    private List<JavaEntity> wildcardImports;
+    /** static wildcard imports. The entities should resolve to types. */
+    private List<JavaEntity> staticWildcardImports; // list of TypeEntity
+    private Map<String,List<JavaEntity>> staticImports; // The String gives
                                 // the name of the imported static member(s) from the given
                                 // class(es).
     
     public ImportsCollection()
     {
-        normalImports = new HashMap<String,TypeEntity>();
-        wildcardImports = new ArrayList<PackageOrClass>();
-        staticWildcardImports = new ArrayList<TypeEntity>(); 
-        staticImports = new HashMap<String,List<TypeEntity>>();
+        normalImports = new HashMap<String,JavaEntity>();
+        wildcardImports = new ArrayList<JavaEntity>();
+        staticWildcardImports = new ArrayList<JavaEntity>(); 
+        staticImports = new HashMap<String,List<JavaEntity>>();
     }
     
     /**
@@ -68,9 +71,9 @@ public class ImportsCollection
     /**
      * Add a (non-wildcard) import to the collection.
      * @param name          The short name of the import
-     * @param importEntity  The entity corresponding to the import
+     * @param importEntity  The entity corresponding to the imported type
      */
-    public void addNormalImport(String name, TypeEntity importEntity)
+    public void addNormalImport(String name, JavaEntity importEntity)
     {
         normalImports.put(name, importEntity);
     }
@@ -79,7 +82,7 @@ public class ImportsCollection
      * Add a wildcard import to the collection.
      * @param importEntity  The entity representing the import excluding the final '*' part.
      */
-    public void addWildcardImport(PackageOrClass importEntity)
+    public void addWildcardImport(JavaEntity importEntity)
     {
         wildcardImports.add(importEntity);
     }
@@ -89,11 +92,11 @@ public class ImportsCollection
      * @param name           The name of the imported member(s)
      * @param importEntity   The class from which members are imported
      */
-    public void addStaticImport(String name, TypeEntity importEntity)
+    public void addStaticImport(String name, JavaEntity importEntity)
     {
-        List<TypeEntity> l = staticImports.get(name);
+        List<JavaEntity> l = staticImports.get(name);
         if (l == null) {
-            l = new ArrayList<TypeEntity>();
+            l = new ArrayList<JavaEntity>();
             staticImports.put(name, l);
         }
         l.add(importEntity);
@@ -118,19 +121,22 @@ public class ImportsCollection
     public TypeEntity getTypeImport(String name)
     {
         // See if there is a normal import for the given name
-        TypeEntity r = (TypeEntity) normalImports.get(name);
+        JavaEntity r = normalImports.get(name);
         if (r != null)
-            return r;
+            return r.resolveAsType();
         
         // There might be a suitable static import
-        List<TypeEntity> l = staticImports.get(name);
+        List<JavaEntity> l = staticImports.get(name);
         if (l != null) {
-            Iterator<TypeEntity> i = l.iterator();
+            Iterator<JavaEntity> i = l.iterator();
             while (i.hasNext()) {
-                r = (TypeEntity) i.next();
-                r = (TypeEntity) r.getPackageOrClassMember(name);
-                if (r != null) {
-                    return r;
+                TypeEntity rt = i.next().resolveAsType();
+                if (rt == null) {
+                    continue;
+                }
+                rt = (TypeEntity) rt.getPackageOrClassMember(name);
+                if (rt != null) {
+                    return rt;
                 }
             }
         }
@@ -144,9 +150,9 @@ public class ImportsCollection
      * 
      * @param name  The name of the import to retrieve.
      */
-    public List<TypeEntity> getStaticImports(String name)
+    public List<JavaEntity> getStaticImports(String name)
     {
-        List<TypeEntity> l = staticImports.get(name);
+        List<JavaEntity> l = staticImports.get(name);
         if (l == null) {
             l = Collections.emptyList();
         }
@@ -157,7 +163,7 @@ public class ImportsCollection
      * Retrieve a list of all the static wildcard imports.
      * @return  A List of TypeEntity
      */
-    public List<TypeEntity> getStaticWildcardImports()
+    public List<JavaEntity> getStaticWildcardImports()
     {
         return staticWildcardImports;
     }
@@ -171,10 +177,14 @@ public class ImportsCollection
     public TypeEntity getTypeImportWC(String name)
     {
         // Try non-static wildcard imports first
-        Iterator<PackageOrClass> i = wildcardImports.iterator();
+        Iterator<JavaEntity> i = wildcardImports.iterator();
         
         while (i.hasNext()) {
-            PackageOrClass importEntity = i.next();
+            JavaEntity entity = i.next();
+            PackageOrClass importEntity = entity.resolveAsPackageOrClass();
+            if (importEntity == null) {
+                continue;
+            }
             PackageOrClass member = importEntity.getPackageOrClassMember(name);
             if (member == null) {
                 continue;
@@ -186,9 +196,12 @@ public class ImportsCollection
         }
         
         // Now try static wildcard imports
-        Iterator<TypeEntity> j = staticWildcardImports.iterator();
+        Iterator<JavaEntity> j = staticWildcardImports.iterator();
         while (j.hasNext()) {
-            TypeEntity importEntity = j.next();
+            TypeEntity importEntity = j.next().resolveAsType();
+            if (importEntity == null) {
+                continue;
+            }
             GenTypeClass clType = importEntity.getClassType();
             List<GenTypeClass> inners = clType.getReflective().getInners();
             for (GenTypeClass inner : inners) {
@@ -212,10 +225,10 @@ public class ImportsCollection
         String rr = "";
         
         // First process the normal (non-wildcard non-static) imports
-        Iterator<? extends PackageOrClass> i = normalImports.values().iterator();
+        Iterator<? extends JavaEntity> i = normalImports.values().iterator();
         while (i.hasNext()) {
             // String importName = ()
-            JavaEntity importEntity = (JavaEntity) i.next();
+            JavaEntity importEntity = i.next();
             
             // build the statement string
             rr += "import ";
@@ -234,19 +247,21 @@ public class ImportsCollection
         Iterator<String> ii = staticImports.keySet().iterator();
         while (ii.hasNext()) {
             String importName = ii.next();
-            List<TypeEntity> l = staticImports.get(importName);
-            Iterator<TypeEntity> j = l.iterator();
+            List<JavaEntity> l = staticImports.get(importName);
+            Iterator<JavaEntity> j = l.iterator();
             while (j.hasNext()) {
-                TypeEntity importEntity = (TypeEntity) j.next();
-                rr += "import static " + importEntity.getName();
-                rr += "." + importName + ";" + Config.nl;
+                TypeEntity importEntity = j.next().resolveAsType();
+                if (importEntity != null) {
+                    rr += "import static " + importEntity.getName();
+                    rr += "." + importName + ";" + Config.nl;
+                }
             }
         }
         
         // Finally the wildcard static imports
-        Iterator<TypeEntity> iii = staticWildcardImports.iterator();
+        Iterator<JavaEntity> iii = staticWildcardImports.iterator();
         while (i.hasNext()) {
-            TypeEntity importEntity = iii.next();
+            JavaEntity importEntity = iii.next();
             rr += "import static " + importEntity.getName();
             rr += ".*;" + Config.nl;
         }

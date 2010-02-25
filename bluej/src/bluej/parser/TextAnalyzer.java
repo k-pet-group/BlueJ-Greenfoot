@@ -242,16 +242,21 @@ public class TextAnalyzer
                 if (obVal != null) {
                     return new ValueEntity(obVal.getGenType());
                 }
-                List<TypeEntity> importStaticVals = imports.getStaticImports(name);
+                List<JavaEntity> importStaticVals = imports.getStaticImports(name);
                 if (importStaticVals != null && !importStaticVals.isEmpty()) {
                     return importStaticVals.get(0).getSubentity(name, querySource);
                 }
                 importStaticVals = imports.getStaticWildcardImports();
                 if (importStaticVals != null) {
-                    for (TypeEntity importStatic : importStaticVals) {
+                    for (JavaEntity importStatic : importStaticVals) {
+                        importStatic = importStatic.resolveAsType();
+                        if (importStatic == null) {
+                            continue;
+                        }
                         JavaEntity entity = importStatic.getSubentity(name, querySource);
-                        if (entity != null)
+                        if (entity != null) {
                             return entity;
+                        }
                     }
                 }
                 
