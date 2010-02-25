@@ -354,14 +354,14 @@ public class NaviView extends JPanel implements AdjustmentListener
             bg.setColor(background);
             bg.fillRect(0, 0, width, height);
             
-            Rectangle shape = new Rectangle(width, Integer.MAX_VALUE);
+            Rectangle shape = new Rectangle(frw, 0, width, prefHeight);
             bg.setClip(0, 0, width, height);
-            bg.translate(0, -ytop);
+            bg.translate(-frw, -ytop);
             view.paint(bg, shape);
             
             tg.drawImage(bimage, frw, clipBounds.y - insets.top,
                     getWidth() - insets.left - insets.right - frw,
-                    clipBounds.y + clipBounds.height, 0, 0, width, height, null);
+                    clipBounds.y + clipBounds.height - insets.top, 0, 0, width, height, null);
         }
         else {
             // Scaling not necessary
