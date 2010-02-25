@@ -3074,8 +3074,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 if (replacer.isVisible()){
                     return replacer.getReplaceText();
                 }
-            } else if (aComponent.equals(replacer.getReplaceText())) {
-                return finder;
             } 
             return currentTextPane;
         }
