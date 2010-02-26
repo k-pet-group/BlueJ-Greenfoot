@@ -39,10 +39,14 @@ import javax.tools.ToolProvider;
  * Compiler class implemented using the JavaCompiler
  * 
  * @author Marion Zalk
- *
  */
-public class Java6Compiler extends Compiler {
-
+public class Java6Compiler extends Compiler
+{
+    public Java6Compiler()
+    {
+        setDebug(true);
+    }
+    
     /**
      * Compile some source files by using the JavaCompiler API. Allows for the addition of user
      * options
@@ -61,7 +65,7 @@ public class Java6Compiler extends Compiler {
     {
         boolean result = true;
         JavaCompiler jc = ToolProvider.getSystemJavaCompiler();
-        String[] options = new String[]{};
+        List<String> optionsList = new ArrayList<String>();
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
         try
         {  
@@ -79,11 +83,9 @@ public class Java6Compiler extends Compiler {
                 sjfm.getJavaFileObjectsFromFiles(Arrays.asList(sources));
             //add any options
             if(isDebug())
-                options[0]="-g";
+                optionsList.add("-g");
             if(isDeprecation())
-                options[1]="-deprecation"; 
-            List<String> optionsList=new ArrayList<String>();
-            optionsList.addAll(Arrays.asList(options));
+                optionsList.add("-deprecation"); 
             addUserSpecifiedOptions(optionsList, COMPILER_OPTIONS);
             //compile
             jc.getTask(null, sjfm, diagnostics, optionsList, null, compilationUnits1).call();
