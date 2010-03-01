@@ -73,7 +73,7 @@ public class MoeBorderHighlighterPainter extends MoeHighlighterPainter {
                         bounds);
                 Rectangle r = (shape instanceof Rectangle) ?
                         (Rectangle)shape : shape.getBounds();                                             
-                        g.draw3DRect(r.x-1,r.y-1, r.width+1, r.height+1, false);
+                        g.drawRect(r.x,r.y, r.width-1, r.height-1);
                         return r;
             } catch (BadLocationException e) {
                 // can't render

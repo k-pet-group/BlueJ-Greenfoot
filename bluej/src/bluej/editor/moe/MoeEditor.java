@@ -1583,11 +1583,11 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                     if (foundPos != -1) {
                         if (select){
                             //purposely using both select and the highlight because the select sets the                         
-                            //caret correctly and the highlighter ensures the colouring is done correctly  
+                            //caret correctly and the highlighter ensures the colouring is done correctly 
+                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.borderPainter);
                             currentTextPane.select(start + foundPos, start + foundPos + s.length());
                             setSelectionVisible();
-                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);
-                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.borderPainter);
+                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);                            
                             //reset the start position to the first caret of the selected item
                             //in order to ensure that none are missed
                             startPosition=start+foundPos;
@@ -1595,8 +1595,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                             select=false;
                         }else {
                             temp=temp+1;
-                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);
                             currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.borderPainter);
+                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);                           
                         }
                         foundPos=foundPos+s.length();
                     }else 
