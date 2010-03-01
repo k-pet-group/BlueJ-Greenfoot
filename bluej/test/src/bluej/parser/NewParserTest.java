@@ -441,4 +441,13 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
+    
+    public void testFunkyCast()
+    {
+        StringReader sr = new StringReader(
+                "return (Insets)((ContainerPeer)peer).insets().clone();"
+                );
+        JavaParser ip = new JavaParser(sr);
+        ip.parseStatement();
+    }
 }
