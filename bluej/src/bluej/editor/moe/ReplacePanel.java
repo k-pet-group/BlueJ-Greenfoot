@@ -157,6 +157,13 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener
         replaceAllButton.setFont(font);
         replaceAllButton.addActionListener(this);
         replaceAllButton.setEnabled(true);
+        
+        if (Config.isMacOS()) {
+            replaceButton.putClientProperty("JButton.buttonType", "segmentedCapsule");
+            replaceButton.putClientProperty("JButton.segmentPosition", "only");
+            replaceAllButton.putClientProperty("JButton.buttonType", "segmentedCapsule");
+            replaceAllButton.putClientProperty("JButton.segmentPosition", "only");
+        }
 
         replaceBody.add(replaceLabelBox);
         replaceBody.add(replaceText);
