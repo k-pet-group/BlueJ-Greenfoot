@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,14 +37,16 @@ public class MoeHighlighter extends DefaultHighlighter {
 
     protected HighlightPainter selectPainter ;
     protected HighlightPainter highlightPainter;
+    protected HighlightPainter borderPainter;
     
     public MoeHighlighter(JTextComponent comp) 
     {
         super();
         Color temp=Config.getHighlightColour();
-        final Color highlight = new Color(temp.getRed(),temp.getGreen(),temp.getBlue(),100);
+        final Color highlight = new Color(temp.getRed(),temp.getGreen(),temp.getBlue());
         selectPainter=new MoeHighlighterPainter(Config.getSelectionColour()); 
         highlightPainter=new MoeHighlighterPainter(highlight);
+        borderPainter=new MoeBorderHighlighterPainter(Color.BLACK);
         install(comp);
     }
 

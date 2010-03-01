@@ -1089,7 +1089,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void insertUpdate(DocumentEvent e)
     {
-        removeSelectionHighlights();
+        removeSearchHighlights();
         if (!saveState.isChanged()) {
             saveState.setState(StatusLabel.CHANGED);
             setChanged();
@@ -1104,7 +1104,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void removeUpdate(DocumentEvent e)
     {
-        removeSelectionHighlights();
+        removeSearchHighlights();
         if (!saveState.isChanged()) {
             saveState.setState(StatusLabel.CHANGED);
             setChanged();
@@ -1116,7 +1116,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * Document properties have changed
      */
     public void changedUpdate(DocumentEvent e) { 
-        removeSelectionHighlights();
+        removeSearchHighlights();
     }
 
     // --------------------------------------------------------------------
@@ -1365,7 +1365,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             else
                 finder.getNext();
         }else {
-            removeSelectionHighlights();
+            removeSearchHighlights();
             findString(selection, backwards, !finder.getMatchCase(), false, true);
         }
     }
@@ -1583,10 +1583,11 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                     if (foundPos != -1) {
                         if (select){
                             //purposely using both select and the highlight because the select sets the                         
-                            //caret correctly and the highlighter ensures the colouring is done correctly                                             
-                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);
+                            //caret correctly and the highlighter ensures the colouring is done correctly  
                             currentTextPane.select(start + foundPos, start + foundPos + s.length());
                             setSelectionVisible();
+                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);
+                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.borderPainter);
                             //reset the start position to the first caret of the selected item
                             //in order to ensure that none are missed
                             startPosition=start+foundPos;
@@ -1595,6 +1596,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                         }else {
                             temp=temp+1;
                             currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);
+                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.borderPainter);
                         }
                         foundPos=foundPos+s.length();
                     }else 
@@ -3231,7 +3233,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * Removes only the  selected highlights i.e. the other highlights
      * such as the brackets etc remain
      */
-    public void removeSelectionHighlights()
+    public void removeSearchHighlights()
     {
         Highlighter hilite = currentTextPane.getHighlighter();
         Highlighter.Highlight[] hilites = hilite.getHighlights();
@@ -3472,7 +3474,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         int caretPos=getCaretPosition();
         if (getSelectionBegin()!=null)
             moveCaretPosition(getSelectionBegin().getColumn());
-        removeSelectionHighlights();
+        removeSearchHighlights();
         String searchString = finder.getSearchString();
         boolean isMatchCase=finder.getMatchCase();
         int count = 0;
@@ -3486,7 +3488,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             count++;
         }
 
-        removeSelectionHighlights();
+        removeSearchHighlights();
         moveCaretPosition(caretPos);
 
         if(count > 0)

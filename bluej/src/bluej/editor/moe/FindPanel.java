@@ -388,7 +388,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             //need to remove highlighting and have no message
             if (findTField.getText().length()==0) {
                 //need to reset the search to the beginning of the last selected
-                editor.removeSelectionHighlights();
+                editor.removeSearchHighlights();
                 setSearchString(null);
                 editor.setCaretLocation(selBegin);
                 writeMessage(false, 0);
@@ -541,7 +541,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     protected boolean find(boolean forward)
     {
         setFindValues(); 
-        editor.removeSelectionHighlights();
+        editor.removeSearchHighlights();
         return highlightAll(!matchCaseCheckBox.isSelected(), false, forward, true);
     }
 
@@ -567,7 +567,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         if (findTField.getText().length()==0) {
             //need to reset the search to the beginning of the last selected
-            editor.removeSelectionHighlights();
+            editor.removeSearchHighlights();
             setSearchString(null);
             if (searchStart != null) {
                 editor.setCaretLocation(searchStart);
@@ -633,7 +633,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void close()
     {
-        editor.removeSelectionHighlights();
+        editor.removeSearchHighlights();
         this.setVisible(false);
         editor.setReplacePanelVisible(false);
         replaceIconLabel.setIcon(closedIcon);
