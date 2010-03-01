@@ -1293,13 +1293,13 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         }
         else {
             replacer.setVisible(true);
-            replacer.requestReplaceTextFocus();
+            finder.requestFindfieldFocus();
         }
     }
 
     /**
-     * setReplacePanelVisible either opens the replace panel and if the replace 
-     * panel is already open, it changes the focus to the replace text field 
+     * setReplacePanelVisible opens/closes the replace panel
+     * sets the focus to the find field
      * @param visible 
      */
     protected void setReplacePanelVisible(boolean visible)
@@ -1308,19 +1308,12 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             if (!finder.isVisible())
                 finder.setVisible(visible);
             replacer.setVisible(visible);
-            replacer.requestReplaceTextFocus();
+            //put the focus in the find (not replace)
+            finder.requestFindfieldFocus();
         }
         else {
             replacer.setVisible(false);
         }
-    }
-    
-    /**
-     * requestReplaceTextFocus moves the focus to the replace text field
-     */
-    protected void requestReplaceTextFocus()
-    {
-        replacer.requestReplaceTextFocus();
     }
 
     // --------------------------------------------------------------------
@@ -3635,5 +3628,13 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     public void mouseReleased(MouseEvent e) {
 
+    }
+ 
+    /**
+     * Populates the find field and requests focus
+     * @param text
+     */
+    public void setFindTextfield(String text){
+        finder.populateFindTextfield(text);
     }
 }

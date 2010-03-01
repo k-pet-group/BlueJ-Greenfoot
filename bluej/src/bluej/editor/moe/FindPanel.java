@@ -415,9 +415,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             selection=getSearchString();       
         setSearchString(selection);
         this.setVisible(true);
-        setfindTextField(selection); //this triggers a find
-        findTField.selectAll();
-        findTField.requestFocus();
+        populateFindTextfield(selection);
     }
 
     public String getSearchString() 
@@ -649,6 +647,22 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         return findTField;
     } 
-
+    
+    /**
+     * Puts the focus in the find field
+     */
+    protected void requestFindfieldFocus()
+    {
+        findTField.requestFocus();
+    }
+    
+    /**
+     * Populates the field and puts the focus in the text field
+     */
+    protected void populateFindTextfield(String selection){
+        setfindTextField(selection); 
+        findTField.selectAll();
+        findTField.requestFocus();
+    }
 
 }

@@ -1201,6 +1201,9 @@ public final class MoeActions
                 editor.setFindPanelVisible(true);
                 editor.setReplacePanelVisible(true);
                 editor.setReplaceIcon(true);
+                if (editor.getSelectedText()!=null){
+                    editor.setFindTextfield(editor.getSelectedText());
+                }
             }
         }
     }

@@ -204,4 +204,8 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener
     {
         replaceText.requestFocus();
     }
+    
+    protected void populateReplaceField(String replaceString){
+        replaceText.setText(replaceString);
+    }
 }
