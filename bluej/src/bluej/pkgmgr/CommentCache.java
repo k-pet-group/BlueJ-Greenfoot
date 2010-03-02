@@ -21,12 +21,9 @@
  */
 package bluej.pkgmgr;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
 import java.util.Properties;
+
+import bluej.utility.GeneralCache;
 
 /**
  * A cache for class comments (javadoc/parameter names). Adding new entries to the cache
@@ -34,39 +31,10 @@ import java.util.Properties;
  * 
  * @author Davin McCall
  */
-public class CommentCache
+public class CommentCache extends GeneralCache<String,Properties>
 {
-    private Map<String,Properties> cache = new HashMap<String,Properties>();
-    private List<String> targets = new LinkedList<String>();
-    
-    public void put(String target, Properties comments)
+    public CommentCache()
     {
-        cache.put(target, comments);
-        targets.add(target);
-        if (targets.size() > 20) {
-            String removed = targets.remove(0);
-            cache.remove(removed);
-        }
-    }
-    
-    public Properties get(String target)
-    {
-        Properties props = cache.get(target);
-        if (props != null) {
-            // Move the entry up in the list
-            for (ListIterator<String> i = targets.listIterator(); ; ) {
-                String tcheck = i.next();
-                if (tcheck.equals(target)) {
-                    i.remove();
-                    if (i.hasPrevious())
-                        i.previous();
-                    if (i.hasPrevious())
-                        i.previous();
-                    i.add(tcheck);
-                    break;
-                }
-            }
-        }
-        return props;
+        super(20);
     }
 }

@@ -23,7 +23,6 @@ package bluej.parser.nodes;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map;
 
 import javax.swing.text.Document;
@@ -38,6 +37,7 @@ import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.ParsedReflective;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import bluej.utility.GeneralCache;
 
 public abstract class ParsedNode implements EntityResolver
 {
@@ -61,8 +61,10 @@ public abstract class ParsedNode implements EntityResolver
     
     private Map<String,ParsedNode> classNodes = new HashMap<String,ParsedNode>();
     
-    private Map<String,JavaEntity> valueEntityCache = new HashMap<String,JavaEntity>();
-    private LinkedList<String> valueEntityLIFO = new LinkedList<String>();
+    private GeneralCache<String,JavaEntity> valueEntityCache =
+        new GeneralCache<String,JavaEntity>(10);
+    private GeneralCache<String,PackageOrClass> pocEntityCache =
+        new GeneralCache<String,PackageOrClass>(10);
     
     private boolean isInner = false;
 	
@@ -318,10 +320,18 @@ public abstract class ParsedNode implements EntityResolver
         if (cnode != null) {
             return new TypeEntity(new ParsedReflective((ParsedTypeNode) cnode));
         }
-        if (parentNode != null) {
-            return parentNode.resolvePackageOrClass(name, querySource);
+        
+        String accessp = name + ":" + (querySource != null ? querySource.getName() : ""); 
+        PackageOrClass rval = pocEntityCache.get(accessp);
+        if (rval != null || pocEntityCache.containsKey(accessp)) {
+            return rval;
         }
-        return null;
+        
+        if (parentNode != null) {
+            rval = parentNode.resolvePackageOrClass(name, querySource);
+            pocEntityCache.put(accessp, rval);
+        }
+        return rval;
     }
     
     /*
@@ -331,15 +341,7 @@ public abstract class ParsedNode implements EntityResolver
     {        
         String accessp = name + ":" + (querySource != null ? querySource.getName() : ""); 
         JavaEntity rval = valueEntityCache.get(accessp);
-        if (rval != null) {
-            for (Iterator<String> i = valueEntityLIFO.iterator(); i.hasNext(); ) {
-                String n = i.next();
-                if (n.equals(accessp)) {
-                    i.remove();
-                    valueEntityLIFO.add(accessp);
-                    break;
-                }
-            }
+        if (rval != null || valueEntityCache.containsKey(accessp)) {
             return rval;
         }
         
@@ -351,13 +353,7 @@ public abstract class ParsedNode implements EntityResolver
             rval = resolvePackageOrClass(name, querySource);
         }
         
-        if (valueEntityLIFO.size() >= 10) {
-            String toRemove = valueEntityLIFO.remove(0);
-            valueEntityCache.remove(toRemove);
-        }
-        
         valueEntityCache.put(accessp, rval);
-        valueEntityLIFO.add(accessp);
         return rval;
     }
 }
