@@ -194,13 +194,11 @@ public class NaviView extends JPanel implements AdjustmentListener
         int bottomV = (e.getValue() + scrollBar.getVisibleAmount()) * height
                 / scrollBar.getMaximum() + insets.top + frw;
 
-        int repaintTop = Math.min(topV, currentViewPos);
-        int repaintBottom = Math.max(bottomV, currentViewPosBottom);
+        repaint(0, topV - frw, getWidth(), bottomV - topV + 2 + frw*2);
+        repaint(0, currentViewPos - frw, getWidth(), currentViewPosBottom - currentViewPos + 2 + frw*2);
 
         currentViewPos = topV;
         currentViewPosBottom = bottomV;
-        
-        repaint(0, repaintTop - frw, getWidth(), repaintBottom - repaintTop + 2 + frw*2);
     }
 
     @Override
