@@ -77,7 +77,7 @@ public abstract class JavaUtils
      */
     public static String getSignature(Method method)
     {
-        String name = getFQTypeName(method.getReturnType()) + " " + method.getName();
+        String name = getFQTypeName(method.getReturnType()).replace('$', '.') + " " + method.getName();
         Class<?>[] params = method.getParameterTypes();
         return makeSignature(name, params);
     }
@@ -110,7 +110,7 @@ public abstract class JavaUtils
         sb.append(name);
         sb.append("(");
         for (int j = 0; j < params.length; j++) {
-            String typeName = getFQTypeName(params[j]);
+            String typeName = getFQTypeName(params[j]).replace('$', '.');
             sb.append(typeName);
             if (j < (params.length - 1))
                 sb.append(", ");

@@ -42,6 +42,7 @@ import bluej.BlueJEvent;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
@@ -72,7 +73,7 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 6986 2010-01-12 02:58:23Z davmac $
+ * @version $Id: ObjectWrapper.java 7228 2010-03-02 03:53:23Z davmac $
  */
 public class ObjectWrapper extends JComponent implements InvokeListener, NamedValue
 {
@@ -465,7 +466,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
      * @param actions 
      */
     private static void createMenuItems(JComponent menu, MethodView[] methods, InvokeListener il, ViewFilter filter,
-            int sizeLimit, Map<?, ?> genericParams, Hashtable<JMenuItem, MethodView> actions, Hashtable<String, String> methodsUsed)
+            int sizeLimit, Map<String,GenTypeParameter> genericParams, Hashtable<JMenuItem, MethodView> actions, Hashtable<String, String> methodsUsed)
     {
         JMenuItem item;
         boolean menuEmpty = true;

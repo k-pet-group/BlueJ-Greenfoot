@@ -23,23 +23,21 @@ package bluej.views;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
 import bluej.debugger.gentype.GenTypeDeclTpar;
+import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
 import bluej.utility.JavaUtils;
 
 /**
- *
  * A representation of a Java method in BlueJ
  * 
- *  @version $Id: MethodView.java 7066 2010-01-29 12:26:27Z nccb $
  * @author Michael Cahill
  * @author Michael Kolling
  */
-public class MethodView extends CallableView implements Comparable
+public class MethodView extends CallableView implements Comparable<MethodView>
 {
     protected Method method;
     protected View returnType;
@@ -47,7 +45,8 @@ public class MethodView extends CallableView implements Comparable
     /**
      * Constructor.
      */
-    public MethodView(View view, Method method) {
+    public MethodView(View view, Method method)
+    {
         super(view);
         this.method = method;
     }
@@ -100,7 +99,7 @@ public class MethodView extends CallableView implements Comparable
         StringBuffer name = new StringBuffer();
         name.append(method.getName());
         name.append('(');
-        Class[] params = method.getParameterTypes();
+        Class<?>[] params = method.getParameterTypes();
         for(int i = 0; i < params.length; i++) {
             name.append(params[i].getName());
             if (i != params.length - 1)
@@ -124,10 +123,10 @@ public class MethodView extends CallableView implements Comparable
      * contained in the map are mapped to their erasure type; type parameters
      * from a generic method are left unmapped.
      *  
-     * @param genericParams  The map of String -> GenType
+     * @param genericParams  The map of name to type
      * @return  the signature string with type parameters mapped
      */
-    public String getShortDesc(Map genericParams)
+    public String getShortDesc(Map<String,GenTypeParameter> genericParams)
     {
         return JavaUtils.getJavaUtils().getShortDesc(method, getParamNames(), genericParams);
     }
@@ -150,7 +149,7 @@ public class MethodView extends CallableView implements Comparable
      * @param genericParams  The map of String -> GenType
      * @return  the signature string with type parameters mapped
      */
-    public String getLongDesc(Map genericParams)
+    public String getLongDesc(Map<String,GenTypeParameter> genericParams)
     {
         if (genericParams == null && isStatic()) {
             return JavaUtils.getJavaUtils().getLongDesc(method, getParamNames());
@@ -164,7 +163,8 @@ public class MethodView extends CallableView implements Comparable
      * Get an array of Class objects representing method's parameters
      * @returns array of Class objects
      */
-    public Class[] getParameters() {
+    public Class<?>[] getParameters()
+    {
         return method.getParameterTypes();
     }
     
@@ -178,8 +178,8 @@ public class MethodView extends CallableView implements Comparable
     public GenTypeDeclTpar[] getTypeParams()
     {
         JavaUtils jutils = JavaUtils.getJavaUtils();
-        List tparams = jutils.getTypeParams(method);
-        return (GenTypeDeclTpar[]) tparams.toArray(new GenTypeDeclTpar[0]);
+        List<GenTypeDeclTpar> tparams = jutils.getTypeParams(method);
+        return tparams.toArray(new GenTypeDeclTpar[0]);
     }
     
     public String[] getParamTypeStrings() 
@@ -210,7 +210,7 @@ public class MethodView extends CallableView implements Comparable
         if (!isVoid())
             return false;
         if ("main".equals(getName())) {
-            Class[] c = getParameters();
+            Class<?>[] c = getParameters();
             if (c.length != 1)
                 return false;
             if (c[0].isArray() && String.class.equals(c[0].getComponentType())) {
@@ -252,7 +252,7 @@ public class MethodView extends CallableView implements Comparable
         return JavaUtils.getJavaUtils().getReturnType(method);
     }
     
-    public void print(FormattedPrintWriter out, Map typeParams, int indents)
+    public void print(FormattedPrintWriter out, Map<String,GenTypeParameter> typeParams, int indents)
     {
         Comment comment = getComment();
         if(comment != null)
@@ -266,11 +266,12 @@ public class MethodView extends CallableView implements Comparable
     }
 
     // ==== Comparable interface ====
+    
     /**
      * Compare operation to provide alphabetical sorting by method name.
      */
-    public int compareTo(Object other) {
-        MethodView otherView = (MethodView) other;
-        return method.getName().compareTo(otherView.method.getName());
+    public int compareTo(MethodView other)
+    {
+        return method.getName().compareTo(other.method.getName());
     }
 }

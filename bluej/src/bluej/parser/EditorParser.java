@@ -422,8 +422,16 @@ public class EditorParser extends JavaParser
     @Override
     protected void gotTypeDefName(LocatableToken nameToken)
     {
-        String pkgPrefix = (declaredPkg.length() == 0) ? "" : (declaredPkg + ".");
-        ParsedNode pnode = new ParsedTypeNode(scopeStack.peek(), nameToken.getText(), pkgPrefix);
+        Reflective ref = currentQuerySource();
+        String prefix;
+        if (ref != null) {
+            prefix = ref.getName() + '$';
+        }
+        else {
+            prefix = (declaredPkg.length() == 0) ? "" : (declaredPkg + ".");
+        }
+        
+        ParsedNode pnode = new ParsedTypeNode(scopeStack.peek(), nameToken.getText(), prefix);
         int curOffset = getTopNodeOffset();
         LocatableToken hidden = pcuStmtBegin.getHiddenBefore();
         if (hidden != null && hidden.getType() == JavaTokenTypes.ML_COMMENT) {
