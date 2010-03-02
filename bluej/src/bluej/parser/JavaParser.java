@@ -2442,21 +2442,23 @@ public class JavaParser
 
                 List<LocatableToken> tlist = new LinkedList<LocatableToken>();
                 boolean isTypeSpec = parseTypeSpec(true, true, tlist);
-                // if
+                
+                // We have a cast if
                 // -it's a type spec
                 // -it's followed by ')'
                 // -it's not followed by an operator OR
                 //  the type is primitive and the following operator is a unary operator
-                //  OR the type is primitive and the following is '('
+                //  OR following the ')' is '('
                 // -it's not followed by an expression terminator - ; , )
 
                 int tt2 = tokenStream.LA(2).getType();
                 boolean isCast = isTypeSpec && tokenStream.LA(1).getType() == JavaTokenTypes.RPAREN;
-                isCast &= !isOperator(tokenStream.LA(2)) || (isPrimitive
-                        && (isUnaryOperator(tokenStream.LA(2)) ||
-                                tokenStream.LA(2).getType() == JavaTokenTypes.LPAREN));
-                isCast &= tt2 != JavaTokenTypes.SEMI && tt2 != JavaTokenTypes.RPAREN
-                && tt2 != JavaTokenTypes.RCURLY && tt2 != JavaTokenTypes.EOF;
+                if (tt2 != JavaTokenTypes.LPAREN) {
+                    isCast &= !isOperator(tokenStream.LA(2)) || (isPrimitive
+                            && isUnaryOperator(tokenStream.LA(2)));
+                    isCast &= tt2 != JavaTokenTypes.SEMI && tt2 != JavaTokenTypes.RPAREN
+                            && tt2 != JavaTokenTypes.RCURLY && tt2 != JavaTokenTypes.EOF;
+                }
 
                 if (isCast) {
                     // This surely must be type cast
