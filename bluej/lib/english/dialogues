@@ -113,15 +113,6 @@ directory-exists
 A file or directory with this
 name already exists.
 
-class-already-in-library
-A class with this name already exists in a library.
-This will cause confusion in certain circumstances 
-with the correct class to use. Choosing another 
-name will avoid this.
-Cancel
-Continue Anyway
-null
-
 cannot-create-directory
 Cannot create the directory. Check that 
 it has a valid name and that the parent 

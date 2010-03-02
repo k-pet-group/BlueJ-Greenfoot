@@ -1202,11 +1202,6 @@ public class PkgMgrFrame extends JFrame
             DialogManager.showError(this, "duplicate-name");
             return false;
         }
-        //check if there already exists a class in a library with that name 
-        if (pkg.loadClass(pkg.getQualifiedName(name))!=null){
-            if (DialogManager.askQuestion(this, "class-already-in-library")==0)
-                return false;
-        }
 
         ClassTarget target = null;
         target = new ClassTarget(pkg, name, template);
