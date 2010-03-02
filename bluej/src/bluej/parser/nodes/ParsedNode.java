@@ -23,6 +23,7 @@ package bluej.parser.nodes;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 
 import javax.swing.text.Document;
@@ -59,6 +60,9 @@ public abstract class ParsedNode implements EntityResolver
     private ParsedNode parentNode;
     
     private Map<String,ParsedNode> classNodes = new HashMap<String,ParsedNode>();
+    
+    private Map<String,JavaEntity> valueEntityCache = new HashMap<String,JavaEntity>();
+    private LinkedList<String> valueEntityLIFO = new LinkedList<String>();
     
     private boolean isInner = false;
 	
@@ -324,13 +328,36 @@ public abstract class ParsedNode implements EntityResolver
      * @see bluej.parser.entity.EntityResolver#getValueEntity(java.lang.String, java.lang.String)
      */
     public JavaEntity getValueEntity(String name, Reflective querySource)
-    {
-        if (parentNode != null) {
-            JavaEntity rval = parentNode.getValueEntity(name, querySource);
-            if (rval != null) {
-                return rval;
+    {        
+        String accessp = name + ":" + (querySource != null ? querySource.getName() : ""); 
+        JavaEntity rval = valueEntityCache.get(accessp);
+        if (rval != null) {
+            for (Iterator<String> i = valueEntityLIFO.iterator(); i.hasNext(); ) {
+                String n = i.next();
+                if (n.equals(accessp)) {
+                    i.remove();
+                    valueEntityLIFO.add(accessp);
+                    break;
+                }
             }
+            return rval;
         }
-        return resolvePackageOrClass(name, querySource);
+        
+        if (parentNode != null) {
+            rval = parentNode.getValueEntity(name, querySource);
+        }
+        
+        if (rval == null) {
+            rval = resolvePackageOrClass(name, querySource);
+        }
+        
+        if (valueEntityLIFO.size() >= 10) {
+            String toRemove = valueEntityLIFO.remove(0);
+            valueEntityCache.remove(toRemove);
+        }
+        
+        valueEntityCache.put(accessp, rval);
+        valueEntityLIFO.add(accessp);
+        return rval;
     }
 }
