@@ -116,6 +116,8 @@ prefmgr.edit.displaylinenumbers=Display line numbers
 prefmgr.edit.makeBackup=Make backup of source files
 prefmgr.edit.matchBrackets=Match brackets
 prefmgr.edit.keybindingstitle=Key Bindings
+prefmgr.edit.highlightLighter=Lighter
+prefmgr.edit.highlightDarker=Darker
 
 
 # Extensions Manager Help panel
@@ -241,6 +243,18 @@ editor.find.wholeWord=Whole word
 editor.find.backward=backward
 editor.find.forward=forward
 editor.find.wrapAround=wrap around
+
+# FindPanel
+editor.findpanel.replacePanel=  Replace
+editor.findpanel.findLabel=Find:
+editor.findpanel.findNext=Next
+editor.findpanel.findPrevious=Prev
+editor.findpanel.matchCase=Match Case
+
+# ReplacePanel
+editor.replacePanel.replaceLabel=Replace:
+editor.replacePanel.replaceOnce=Once
+editor.replacePanel.replaceAll= All
 
 #Messages shown as a result of a search with replace all
 editor.replaceAll.replaced=Replaced 

@@ -175,10 +175,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void setFindDisplay()
     {
-        JLabel findLabel = new JLabel("Find:");
+        JLabel findLabel = new JLabel(Config.getString("editor.findpanel.findLabel"));
         findLabel.setFont(findFont);
 
-        replaceLabel = new JLabel("Replace:");
+        replaceLabel = new JLabel(Config.getString("editor.replacePanel.replaceLabel"));
         replaceLabel.setFont(findFont);
 
         Dimension lblSize = findLabel.getPreferredSize();
@@ -207,14 +207,14 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         previousButton=new JButton();
         previousButton.addActionListener(this);
         previousButton.setName(PREVIOUS_BUTTON_NAME);
-        previousButton.setText("Prev ");
+        previousButton.setText(Config.getString("editor.findpanel.findPrevious")+" ");
         previousButton.setEnabled(false);
         previousButton.setFont(findFont);
 
         nextButton=new JButton();
         nextButton.addActionListener(this);
         nextButton.setName(NEXT__BUTTON_NAME);
-        nextButton.setText("Next");
+        nextButton.setText(Config.getString("editor.findpanel.findNext"));
         nextButton.setEnabled(false);
         nextButton.setFont(findFont);
 
@@ -232,7 +232,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private void setCaseCheckDisplay()
     {
         matchCaseCheckBox=new JCheckBox();
-        matchCaseCheckBox.setText("Match Case");
+        matchCaseCheckBox.setText(Config.getString("editor.findpanel.matchCase"));
         matchCaseCheckBox.setSelected(false);
         matchCaseCheckBox.setFont(findFont);
         matchCaseCheckBox.setName(MATCHCASE_CHECKBOX);
@@ -264,7 +264,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void setReplaceDisplay()
     { 
-        replaceIconLabel=new JLabel("  Replace  ");
+        replaceIconLabel=new JLabel(Config.getString("editor.findpanel.replacePanel"));
         replaceIconLabel.setFont(findFont);
         replaceIconLabel.setIcon(closedIcon);
         replaceIconLabel.addMouseListener(this);

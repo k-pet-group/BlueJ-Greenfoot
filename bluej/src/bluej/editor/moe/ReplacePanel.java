@@ -127,7 +127,7 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener
         DBox optionsBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
         DBox tempBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
         
-        JLabel replaceLabel=new JLabel("Replace:");
+        JLabel replaceLabel=new JLabel(Config.getString("editor.replacePanel.replaceLabel"));
         replaceLabel.setFont(font);
         DBox replaceLabelBox = new DBox(DBox.X_AXIS, 0.5f);
         replaceLabelBox.add(Box.createHorizontalGlue());
@@ -146,14 +146,14 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener
 
         replaceButton=new JButton();
         replaceButton.setName(REPLACE_BUTTON_NAME);
-        replaceButton.setText("Once");
+        replaceButton.setText(Config.getString("editor.replacePanel.replaceOnce"));
         replaceButton.setFont(font);
         replaceButton.addActionListener(this);
         replaceButton.setEnabled(true);
 
         replaceAllButton=new JButton();
         replaceAllButton.setName(REPLACE_ALL_BUTTON_NAME);
-        replaceAllButton.setText(" All  ");
+        replaceAllButton.setText(Config.getString("editor.replacePanel.replaceAll")+"   ");
         replaceAllButton.setFont(font);
         replaceAllButton.addActionListener(this);
         replaceAllButton.setEnabled(true);

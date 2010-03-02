@@ -32,6 +32,7 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 
 /**
@@ -72,15 +73,17 @@ public class ScopeHighlightingPrefDisplay extends JPanel implements ChangeListen
     {
         MoeSyntaxDocument.getColors();
         bg = MoeSyntaxDocument.getBackgroundColor();
+        //initialises the slider functionality
         {
-            //initialises the slider functionality
             slider=new JSlider(MIN, MAX);
             //set the transparency value from the prefMgr
             slider.setValue(PrefMgr.getScopeHighlightStrength());
             //labels
             Hashtable<Integer, JLabel>labelTable = new Hashtable<Integer, JLabel>();
-            labelTable.put(new Integer(MIN), new JLabel("Lighter"));
-            labelTable.put(new Integer(MAX), new JLabel("Darker"));
+            labelTable.put(new Integer(MIN), new JLabel(Config.getString
+                    ("prefmgr.edit.highlightLighter")));
+            labelTable.put(new Integer(MAX), new JLabel(Config.getString
+                    ("prefmgr.edit.highlightDarker")));
             slider.setLabelTable( labelTable );
             slider.setPaintLabels(true);
             slider.addChangeListener(this);
