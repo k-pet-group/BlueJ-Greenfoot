@@ -2729,6 +2729,7 @@ public class JavaParser
                 && token.getType() != JavaTokenTypes.RCURLY) {
             tokenStream.pushBack(token);
 
+            parseModifiers();
             parseTypeSpec(true);
             LocatableToken idToken = tokenStream.nextToken(); // identifier
             if (idToken.getType() == JavaTokenTypes.TRIPLE_DOT) {
@@ -2743,6 +2744,7 @@ public class JavaParser
             }
             parseArrayDeclarators();
             gotMethodParameter(idToken);
+            modifiersConsumed();
             token = tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.COMMA) {
                 break;

@@ -450,4 +450,15 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
+    
+    public void testMethodParamModifier()
+    {
+        StringReader sr = new StringReader(
+                "interface I {" +
+                "void someMethod(final String argument);" +
+                "}"
+                );
+        JavaParser ip = new JavaParser(sr);
+        ip.parseStatement();
+    }
 }
