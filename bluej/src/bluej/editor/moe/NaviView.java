@@ -36,7 +36,10 @@ import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import javax.swing.JEditorPane;
@@ -83,7 +86,6 @@ public class NaviView extends JPanel implements AdjustmentListener
         editorPane = new NVDrawPane(this);
         
         setDocument(document);
-        setDoubleBuffered(false);
         
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         enableEvents(MouseEvent.MOUSE_WHEEL_EVENT_MASK);
@@ -162,7 +164,7 @@ public class NaviView extends JPanel implements AdjustmentListener
      */
     public void repaintModel(int top, int bottom)
     {
-        if (editorPane == null) {
+        if (editorPane == null || imgBuffer == null) {
             return;
         }
         View view = editorPane.getUI().getRootView(editorPane);
@@ -173,10 +175,12 @@ public class NaviView extends JPanel implements AdjustmentListener
         if (prefHeight > myHeight) {
             int ptop = top * myHeight / prefHeight;
             int pbottom = (bottom * myHeight + prefHeight - 1) / prefHeight;
-            repaint(0, ptop, getWidth(), pbottom - ptop);
+            paintImgBuffer(ptop, pbottom);
+            repaint(0, ptop + insets.top + frw, getWidth(), pbottom - ptop);
         }
         else {
-            repaint(0, top, getWidth(), bottom - top);
+            paintImgBuffer(top, bottom);
+            repaint(0, top + insets.top + frw, getWidth(), bottom - top);
         }
     }
     
@@ -296,10 +300,116 @@ public class NaviView extends JPanel implements AdjustmentListener
         scrollBar.setValue(pos);
     }
     
+    /**
+     * Paint to the backing image buffer.
+     * 
+     * @param top  The top line (in model co-ordinates) to paint
+     * @param bottom  The bottom line (in model co-ordinates) to paint
+     */
+    private void paintImgBuffer(int top, int bottom)
+    {
+        int myHeight = imgBuffer.getHeight();
+        View view = editorPane.getUI().getRootView(editorPane);
+        int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
+
+        Color background = MoeSyntaxDocument.getBackgroundColor();
+        
+        Graphics2D g = imgBuffer.createGraphics();
+
+        if (prefHeight > myHeight) {
+            // scale!
+            int width = (imgBuffer.getWidth() - frw*2) * prefHeight / myHeight;
+ 
+            int ytop = top * prefHeight / myHeight;
+            int ybtm = (bottom * prefHeight + myHeight - 1) / myHeight;
+            int height = ybtm - ytop;
+            
+            if (height > 800) {
+                height = 800;
+                ybtm = ytop + 800;
+                int newbottom = top + (height * myHeight / prefHeight);
+                if (newbottom <= top) {
+                    newbottom = top + 1;
+                    ybtm = (newbottom* prefHeight + myHeight - 1) / myHeight;
+                    height = ybtm - ytop; 
+                }
+                enqueueRepaint(newbottom, bottom);
+                bottom = newbottom;
+            }
+            
+            // Create a buffered image to use
+            BufferedImage bimage = ((Graphics2D) g).getDeviceConfiguration().createCompatibleImage(width, height);
+            Map<Object,Object> hints = new HashMap<Object,Object>();
+            hints.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            ((Graphics2D) g).addRenderingHints(hints);
+            
+            Graphics2D bg = bimage.createGraphics();
+            bg.setColor(background);
+            bg.fillRect(0, 0, width, height);
+            
+            Rectangle shape = new Rectangle(frw, 0, width, prefHeight);
+            bg.setClip(0, 0, width, height);
+            bg.translate(-frw, -ytop);
+            view.paint(bg, shape);
+            
+            g.drawImage(bimage, frw, top,
+                    imgBuffer.getWidth() - frw,
+                    bottom, 0, 0, width, height, null);
+            
+            bg.dispose();
+        }
+        else {
+            // Scaling not necessary
+            int w = imgBuffer.getWidth() - frw*2;
+            int h = myHeight;
+            
+            Rectangle rb = new Rectangle();
+            rb.x = frw;
+            rb.y = Math.max(frw, top);
+            rb.width = imgBuffer.getWidth() - frw*2;
+            rb.height = bottom - top;
+            
+            g.setClip(rb);
+            g.setColor(background);
+            g.fillRect(rb.x, rb.y, rb.width, rb.height);
+            
+            // Draw the code on the buffer image:
+            Rectangle bufferBounds = new Rectangle (frw,frw,w,h);
+            view.paint(g, bufferBounds);
+        }
+        
+        g.dispose();
+    }
+    
+    private List<Integer> tops = new ArrayList<Integer>();
+    private List<Integer> bottoms = new ArrayList<Integer>();
+    
+    private void enqueueRepaint(int top, int bottom)
+    {
+        ListIterator<Integer> i = tops.listIterator();
+        ListIterator<Integer> j = bottoms.listIterator();
+        while (i.hasNext()) {
+            int etop = i.next();
+            int ebtm = j.next();
+            if (top < etop) {
+                bottom = Math.min(bottom, etop);
+            }
+            else if (bottom > ebtm) {
+                top = Math.max(top, ebtm);
+            }
+            else {
+                // fully contained
+                return;
+            }
+        }
+        
+        tops.add(top);
+        bottoms.add(bottom);
+    }
+    
     @Override
     protected void paintComponent(Graphics g)
     {   
-        createImgBuffer(g);
         Rectangle clipBounds = new Rectangle(new Point(0,0), getSize());
         Insets insets = getInsets();
         g.getClipBounds(clipBounds);
@@ -321,87 +431,35 @@ public class NaviView extends JPanel implements AdjustmentListener
         // bottomV = the bottommost visible line (in local coordinate space)
         int topV = insets.top + frw + scrollBar.getValue() * docHeight / scrollBar.getMaximum();
         int bottomV = insets.top + frw + ((scrollBar.getValue() + scrollBar.getVisibleAmount()) * docHeight + (scrollBar.getMaximum() - 1)) / scrollBar.getMaximum();
-        int viewHeight = bottomV - topV;
+        
+        createImgBuffer(g, prefHeight > myHeight);
+        g.drawImage(imgBuffer, insets.left, insets.top, null);
         
         Color background = MoeSyntaxDocument.getBackgroundColor();
-
-        Graphics2D tg = imgBuffer.createGraphics();
-        tg.setClip(new Rectangle(clipBounds.x - insets.left, clipBounds.y - insets.top, clipBounds.width, clipBounds.height));
         
-        if (prefHeight > myHeight) {
-            // scale!
-            int width = (getWidth() - insets.left - insets.right - frw*2) * prefHeight / myHeight;
- 
-            int ytop = (clipBounds.y - insets.top - frw) * prefHeight / myHeight;
-            int ybtm = ((clipBounds.y + clipBounds.height - insets.top - frw) * prefHeight + myHeight - 1) / myHeight;
-            int height = ybtm - ytop;
-            
-            // Create a buffered image to use
-            BufferedImage bimage;
-            if (g instanceof Graphics2D) {
-                bimage = ((Graphics2D) g).getDeviceConfiguration().createCompatibleImage(width, height);
-                Map<Object,Object> hints = new HashMap<Object,Object>();
-                hints.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                ((Graphics2D) g).addRenderingHints(hints);
-            }
-            else {
-                bimage = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
-            }
-            
-            Graphics2D bg = bimage.createGraphics();
-            bg.setColor(background);
-            bg.fillRect(0, 0, width, height);
-            
-            Rectangle shape = new Rectangle(frw, 0, width, prefHeight);
-            bg.setClip(0, 0, width, height);
-            bg.translate(-frw, -ytop);
-            view.paint(bg, shape);
-            
-            tg.drawImage(bimage, frw, clipBounds.y - insets.top,
-                    getWidth() - insets.left - insets.right - frw,
-                    clipBounds.y + clipBounds.height - insets.top, 0, 0, width, height, null);
-        }
-        else {
-            // Scaling not necessary
-            int w = getWidth() - insets.left - insets.right - frw*2;
-            int h = myHeight;
-            
-            Rectangle rb = new Rectangle();
-            rb.x = Math.max(frw, clipBounds.x - insets.left);
-            rb.y = Math.max(frw, clipBounds.y - insets.top);
-            rb.width = Math.min(w - rb.x + frw, clipBounds.width);
-            rb.height = Math.min(h - rb.y + frw, clipBounds.height);
-            
-            tg.setClip(rb);
-            tg.setColor(background);
-            tg.fillRect(rb.x, rb.y, rb.width, rb.height);
-            
-            // Draw the code on the buffer image:
-            Rectangle bufferBounds = new Rectangle (frw,frw,w,h);
-            view.paint(tg, bufferBounds);
-            
-            tg.setClip(new Rectangle(clipBounds.x - insets.left, clipBounds.y - insets.top, clipBounds.width, clipBounds.height));
-        }
+        int lx = insets.left;
+        int rx = getWidth() - insets.right;
+        int ty = insets.top;
         
         // Clear the border area (frw width)
-        tg.setColor(background);
-        tg.fillRect(0, 0, getWidth() - insets.left - insets.right, frw);
-        tg.fillRect(0, 0, frw, docHeight + frw);
-        tg.fillRect(getWidth() - insets.right - insets.left - frw, 0, frw, docHeight + frw);        
+        g.setColor(background);
+        g.fillRect(lx, ty, rx - lx, frw);
+        g.fillRect(lx, ty, frw, docHeight + frw);
+        g.fillRect(rx - frw, ty, frw, docHeight + frw);        
 
-        tg.setColor(getBackground());
-        tg.fillRect(0, docHeight + frw, getWidth() - insets.left - insets.right, myHeight + insets.top + insets.bottom + frw*2);
+        g.setColor(getBackground());
+        g.fillRect(lx, docHeight + frw + insets.top, rx - lx, myHeight - docHeight + frw);
                    
         // Darken the area outside the viewport (above)
-        tg.setColor(new Color(0, 0, 0, 0.15f));
+        g.setColor(new Color(0, 0, 0, 0.15f));
         if (topV > clipBounds.y) {
-            tg.fillRect(clipBounds.x - insets.left, clipBounds.y - insets.top, clipBounds.width, topV - clipBounds.y);
+            g.fillRect(clipBounds.x, clipBounds.y, clipBounds.width, topV - clipBounds.y);
         }
 
         // Darken the area outside the viewport (below)
         int docBottom = docHeight + frw + insets.top;
         if (bottomV < docBottom) {
-            tg.fillRect(clipBounds.x - insets.left, bottomV - insets.top, clipBounds.width, docBottom - bottomV);
+            g.fillRect(clipBounds.x, bottomV, clipBounds.width, docBottom - bottomV);
         }
         
         // Fill the area between the document end and bottom of the component
@@ -410,48 +468,55 @@ public class NaviView extends JPanel implements AdjustmentListener
             // This odd statement is necessary to avoid a weird Mac OS X bug
             // (OS X 10.6.2, Java 1.6.0_17) with repaint which occurs when
             // a tooltip is showing.
-            tg.setColor(new Color(myBgColor.getRGB()));
-            tg.fillRect(clipBounds.x - insets.left, docBottom - insets.top, clipBounds.width,
+            g.setColor(new Color(myBgColor.getRGB()));
+            g.fillRect(clipBounds.x, docBottom, clipBounds.width,
                     clipBounds.y + clipBounds.height - docBottom);
         }
 
         // Draw a border around the visible area
-        int fx1 = 0;
-        int fy1 = topV - frw - insets.top;
-        int fx2 = getWidth() - insets.right - insets.left;
-        int fy2 = fy1 + viewHeight + frw*2;
+        int fx1 = lx;
+        int fy1 = topV - frw;
+        int fx2 = rx;
+        int fy2 = bottomV;
         
         int fh = frame.getHeight(null);
         int fw = frame.getWidth(null);
         
         // top - left corner, straight, right corner
-        tg.drawImage(frame, fx1, fy1, fx1+5, fy1+5, 0, 0, 5, 5, null);
-        tg.drawImage(frame, fx1+5, fy1, fx2-5, fy1+5, 5, 0, fw - 5, 5, null);
-        tg.drawImage(frame, fx2-5, fy1, fx2, fy1+5, fw-5, 0, fw, 5, null);
+        g.drawImage(frame, fx1, fy1, fx1+5, fy1+5, 0, 0, 5, 5, null);
+        g.drawImage(frame, fx1+5, fy1, fx2-5, fy1+5, 5, 0, fw - 5, 5, null);
+        g.drawImage(frame, fx2-5, fy1, fx2, fy1+5, fw-5, 0, fw, 5, null);
         
         // sides
-        tg.drawImage(frame, fx1, fy1+5, fx1+5, fy2-5, 0, 5, 5, fh-5, null);
-        tg.drawImage(frame, fx2-5, fy1+5, fx2, fy2-5, fw-5, 5, fw, fh-5, null);
+        g.drawImage(frame, fx1, fy1+5, fx1+5, fy2, 0, 5, 5, fh-5, null);
+        g.drawImage(frame, fx2-5, fy1+5, fx2, fy2, fw-5, 5, fw, fh-5, null);
         
         // bottom - left corner, straight, right corner
-        tg.drawImage(frame, fx1, fy2-5, fx1+5, fy2, 0, fh-5, 5, fh, null);
-        tg.drawImage(frame, fx1+5, fy2-5, fx2-5, fy2, 5, fh-5, fw-5, fh, null);
-        tg.drawImage(frame, fx2-5, fy2-5, fx2, fy2, fw-5, fh-5, fw, fh, null);
-
-        g.drawImage(imgBuffer, insets.left, insets.top, null);
+        g.drawImage(frame, fx1, fy2, fx1+5, fy2+5, 0, fh-5, 5, fh, null);
+        g.drawImage(frame, fx1+5, fy2, fx2-5, fy2+5, 5, fh-5, fw-5, fh, null);
+        g.drawImage(frame, fx2-5, fy2, fx2, fy2+5, fw-5, fh-5, fw, fh, null);
+        
+        if (! tops.isEmpty()) {
+            int rtop = tops.remove(0);
+            int rbottom = bottoms.remove(0);
+            paintImgBuffer(rtop, rbottom);
+            repaint(0, rtop, getWidth(), rbottom - rtop);
+        }
     }
     
-    public void createImgBuffer(Graphics g)
+    public void createImgBuffer(Graphics g, boolean scaling)
     {
         Insets insets = getInsets();
         int w = getWidth() - insets.left - insets.right;
         int h = getHeight() - insets.top - insets.bottom;
-        
+                
         if (imgBuffer != null) {
-            if (imgBuffer.getHeight() >= h && imgBuffer.getWidth() >= w) {
+            if (imgBuffer.getHeight() == h && imgBuffer.getWidth() == w) {
                 return;
             }
         }
+        
+        BufferedImage oldImgBuffer = imgBuffer;
         
         if (g instanceof Graphics2D) {
             Graphics2D g2d = (Graphics2D) g;
@@ -460,5 +525,23 @@ public class NaviView extends JPanel implements AdjustmentListener
         else {
             imgBuffer = new BufferedImage(w, h, BufferedImage.TYPE_3BYTE_BGR);
         }
+        
+        // Create the new image buffer and paint the old one onto it if possible.
+        Graphics2D g2d = imgBuffer.createGraphics();
+        if (oldImgBuffer == null) {
+            g2d.setColor(getBackground());
+            g2d.fillRect(0, 0, imgBuffer.getWidth(), imgBuffer.getHeight());
+            paintImgBuffer(0, imgBuffer.getHeight());
+        }
+        else if (! scaling) {
+            g2d.drawImage(oldImgBuffer, 0, 0, null);
+            paintImgBuffer(oldImgBuffer.getHeight(), imgBuffer.getHeight());
+        }
+        else {
+            g2d.drawImage(oldImgBuffer, 0, 0, imgBuffer.getWidth(), imgBuffer.getHeight(),
+                    0, 0, oldImgBuffer.getWidth(), oldImgBuffer.getHeight(), null);
+            paintImgBuffer(0, imgBuffer.getHeight());
+        }
+        g2d.dispose();
     }
 }

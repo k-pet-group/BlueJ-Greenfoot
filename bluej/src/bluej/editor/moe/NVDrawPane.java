@@ -58,6 +58,7 @@ public class NVDrawPane extends JEditorPane
     public void setDocument(Document doc)
     {
         super.setDocument(doc);
+        setBorder(null);
         // Hack: the BasicTextUI.UpdateHandler passes a null allocation to the view
         //      if it hasn't painted yet. The result is that same-line updates aren't
         //      handled. If we do a pretend paint here, the problem is solved.
