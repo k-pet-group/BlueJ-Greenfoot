@@ -22,9 +22,13 @@
 package bluej.parser.nodes;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import bluej.debugger.gentype.Reflective;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.TypeEntity;
+import bluej.parser.entity.ValueEntity;
 
 
 /**
@@ -164,5 +168,23 @@ public class MethodNode extends ParentParsedNode
     public JavaEntity getReturnType()
     {
         return returnType;
+    }
+    
+    @Override
+    public JavaEntity getValueEntity(String name, Reflective querySource)
+    {
+        Iterator<String> i = paramNames.iterator();
+        Iterator<JavaEntity> j = paramTypes.iterator();
+        while (i.hasNext()) {
+            if (i.next().equals(name)) {
+                TypeEntity tent = j.next().resolveAsType();
+                if (tent != null) {
+                    return new ValueEntity(name, tent.getType());
+                }
+                return null;
+            }
+            j.next();
+        }
+        return super.getValueEntity(name, querySource);
     }
 }
