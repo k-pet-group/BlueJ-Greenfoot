@@ -162,10 +162,10 @@ public class MethodCompletion extends AssistContent
     private static String buildParam(int pnum, JavaType paramType, String paramName)
     {
         if (paramName != null) {
-            return paramName + ":" + paramType.toString(true);
+            return "_" + paramName + "_";
         }
         else {
-            return "#" + pnum + ":" + paramType.toString(true);
+            return "_" + paramType.toString(true) + "_";
         }
     }
 }
