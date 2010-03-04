@@ -173,7 +173,6 @@ public class CodeCompletionDisplay extends JFrame
                 if (keyStroke.getKeyChar() == 8 && keyStroke.getKeyEventType() == KeyEvent.KEY_TYPED) {
                     // keyChar 8 = backspace
                     return new AbstractAction() {
-                        @Override
                         public void actionPerformed(ActionEvent e)
                         {
                             if (prefix.length() > 0) {
@@ -191,7 +190,6 @@ public class CodeCompletionDisplay extends JFrame
                 if (actionName == null && keyStroke.getKeyEventType() == KeyEvent.KEY_TYPED) {
                     if (keyStroke.getKeyChar() >= 32) {
                         return new AbstractAction() {
-                            @Override
                             public void actionPerformed(ActionEvent e)
                             {
                                 editor.insertText("" + keyStroke.getKeyChar(), false);

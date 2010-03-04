@@ -35,7 +35,6 @@ public class CodeCompleteCellRenderer extends JLabel implements ListCellRenderer
         setBorder(null);
     }
     
-    @Override
     public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean cellHasFocus)
     {
