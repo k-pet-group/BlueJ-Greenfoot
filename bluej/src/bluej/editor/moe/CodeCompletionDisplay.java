@@ -35,7 +35,9 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 
 import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
+import javax.swing.ComponentInputMap;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
@@ -128,7 +130,7 @@ public class CodeCompletionDisplay extends JFrame
         methodDescription.setEditorKit(new HTMLEditorKit());
         methodDescription.setEditable(false);
         //methodDescription.addHyperlinkListener(this);
-        methodDescription.setInputMap(JComponent.WHEN_FOCUSED, new InputMap() {
+        InputMap inputMap = new InputMap() {
             public Object get(KeyStroke keyStroke)
             {
                 // Define no action for up/down, which allows the parent scroll
@@ -140,7 +142,9 @@ public class CodeCompletionDisplay extends JFrame
                 }
                 return action;
             }
-        });
+        };
+        inputMap.setParent(methodDescription.getInputMap(JComponent.WHEN_FOCUSED));
+        methodDescription.setInputMap(JComponent.WHEN_FOCUSED, inputMap);
         
         methodList = new JList(methodsAvailable);
         methodList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -169,23 +173,30 @@ public class CodeCompletionDisplay extends JFrame
         
         pane.add(mainPanel); 
 
+        inputMap = new ComponentInputMap(pane.getRootPane());
+        inputMap.setParent(pane.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW));
+
         KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0);
-        pane.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke ,"escapeAction");
-        getRootPane().getActionMap().put("escapeAction", new AbstractAction(){ 
+        inputMap.put(keyStroke, "escapeAction");
+        keyStroke=KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+        inputMap.put(keyStroke, "completeAction");
+        
+        pane.getRootPane().setInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW, inputMap);
+        
+        ActionMap actionMap = new ActionMap();
+        actionMap.put("escapeAction", new AbstractAction() {
             public void actionPerformed(ActionEvent e)
             {
                 dispose();
             }
         });
-
-        keyStroke=KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
-        pane.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke ,"completeAction");
-        getRootPane().getActionMap().put("completeAction", new AbstractAction(){ 
+        actionMap.put("completeAction", new AbstractAction(){ 
             public void actionPerformed(ActionEvent e)
             {
                 codeComplete();
             }
         });
+        pane.getRootPane().setActionMap(actionMap);
 
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setUndecorated(true);
