@@ -33,11 +33,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
+import java.util.Vector;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
-import javax.swing.ComponentInputMap;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
@@ -66,14 +67,13 @@ public class CodeCompletionDisplay extends JFrame
     implements ListSelectionListener, MouseListener
 {
     private MoeEditor editor;
-    private String[] methodsAvailable;
-    private String[] methodDescrs;
-    private LocatableToken location;
     private AssistContent[] values;
+    private String prefix;
+    private SourceLocation prefixBegin;
+    private SourceLocation prefixEnd;
 
     private JList methodList;
     private JEditorPane methodDescription; 
-    private int selectedValue=0;
 
     private JComponent pane;
 
@@ -85,13 +85,22 @@ public class CodeCompletionDisplay extends JFrame
     public CodeCompletionDisplay(MoeEditor ed, AssistContent[] values, LocatableToken location) 
     {
         this.values=values;
-        this.location = location;
-        methodsAvailable=new String[values.length];
-        methodDescrs=new String[values.length];
-        populatePanel();
         makePanel();
         editor=ed;
         
+        if (location != null) {
+            prefixBegin = new SourceLocation(location.getLine(), location.getColumn());
+            prefixEnd = new SourceLocation(location.getEndLine(), location.getEndColumn());
+            prefix = location.getText();
+        }
+        else {
+            prefixBegin = editor.getCaretLocation();
+            prefixEnd = prefixBegin;
+            prefix = "";
+        }
+
+        populatePanel();
+
         addWindowFocusListener(new WindowFocusListener() {
 
             public void windowGainedFocus(WindowEvent e)
@@ -129,7 +138,6 @@ public class CodeCompletionDisplay extends JFrame
         
         methodDescription.setEditorKit(new HTMLEditorKit());
         methodDescription.setEditable(false);
-        //methodDescription.addHyperlinkListener(this);
         InputMap inputMap = new InputMap() {
             public Object get(KeyStroke keyStroke)
             {
@@ -146,12 +154,72 @@ public class CodeCompletionDisplay extends JFrame
         inputMap.setParent(methodDescription.getInputMap(JComponent.WHEN_FOCUSED));
         methodDescription.setInputMap(JComponent.WHEN_FOCUSED, inputMap);
         
-        methodList = new JList(methodsAvailable);
+        methodList = new JList();
         methodList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         methodList.addListSelectionListener(this);
-        methodList.setSelectedIndex(selectedValue);
         methodList.addMouseListener(this);
         methodList.requestFocusInWindow();
+        methodList.setCellRenderer(new CodeCompleteCellRenderer());
+        
+        // To allow continued typing of method name prefix, we map keys to equivalent actions
+        // within the editor. I.e. typing a key inserts that key character.
+        inputMap = new InputMap() {
+            @Override
+            public Object get(final KeyStroke keyStroke)
+            {
+                if (keyStroke.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    return null;
+                }
+                if (keyStroke.getKeyChar() == 8 && keyStroke.getKeyEventType() == KeyEvent.KEY_TYPED) {
+                    // keyChar 8 = backspace
+                    return new AbstractAction() {
+                        @Override
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            if (prefix.length() > 0) {
+                                SourceLocation back = new SourceLocation(prefixEnd.getLine(), prefixEnd.getColumn() - 1);
+                                editor.setSelection(back, prefixEnd);
+                                editor.insertText("", false);
+                                prefix = prefix.substring(0, prefix.length() - 1);
+                                prefixEnd = editor.getCaretLocation();
+                                updatePrefix();
+                            }
+                        }
+                    };
+                }
+                Object actionName = super.get(keyStroke);
+                if (actionName == null && keyStroke.getKeyEventType() == KeyEvent.KEY_TYPED) {
+                    if (keyStroke.getKeyChar() >= 32) {
+                        return new AbstractAction() {
+                            @Override
+                            public void actionPerformed(ActionEvent e)
+                            {
+                                editor.insertText("" + keyStroke.getKeyChar(), false);
+                                prefix += keyStroke.getKeyChar();
+                                prefixEnd = editor.getCaretLocation();
+                                updatePrefix();
+                            }
+                        };
+                    }
+                }
+                return actionName;
+            }
+        };
+        inputMap.setParent(methodList.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
+        methodList.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, inputMap);
+
+        ActionMap actionMap = new ActionMap() {
+            @Override
+            public Action get(Object key)
+            {
+                if (key instanceof Action) {
+                    return (Action) key;
+                }
+                return super.get(key);
+            }
+        };
+        actionMap.setParent(methodList.getActionMap());
+        methodList.setActionMap(actionMap);
         
         // Set a standard height/width
         Font mlFont = methodList.getFont();
@@ -173,17 +241,26 @@ public class CodeCompletionDisplay extends JFrame
         
         pane.add(mainPanel); 
 
-        inputMap = new ComponentInputMap(pane.getRootPane());
-        inputMap.setParent(pane.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW));
+        inputMap = new InputMap();
+        inputMap.setParent(pane.getRootPane().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
 
         KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0);
         inputMap.put(keyStroke, "escapeAction");
         keyStroke=KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
         inputMap.put(keyStroke, "completeAction");
         
-        pane.getRootPane().setInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW, inputMap);
+        pane.getRootPane().setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, inputMap);
         
-        ActionMap actionMap = new ActionMap();
+        actionMap = new ActionMap() {
+            @Override
+            public Action get(Object key)
+            {
+                if (key instanceof Action) {
+                    return (Action) key;
+                }
+                return super.get(key);
+            }
+        };
         actionMap.put("escapeAction", new AbstractAction() {
             public void actionPerformed(ActionEvent e)
             {
@@ -203,14 +280,24 @@ public class CodeCompletionDisplay extends JFrame
         pack();
     }
 
-    //once off call when the panel is initialised as it will not be changing
+    private void updatePrefix()
+    {
+        Vector<AssistContent> listData = new Vector<AssistContent>();
+        for (int i=0;i <values.length; i++ ){
+            if (values[i].getDisplayName().startsWith(prefix)) {
+                listData.add(values[i]);
+            }
+        }
+        methodList.setListData(listData);
+        methodList.setSelectedIndex(0);
+    }
+    
+    /**
+     * Populate the completion list.
+     */
     private void populatePanel()
     {  
-        for (int i=0;i <values.length; i++ ){
-            methodsAvailable[i]=values[i].getDisplayName()+" : "+
-            values[i].getReturnType()+" - "+values[i].getDeclaringClass();
-            methodDescrs[i]=values[i].getJavadoc();
-        }
+        updatePrefix();
     }
 
     /**
@@ -218,21 +305,20 @@ public class CodeCompletionDisplay extends JFrame
      */
     private void codeComplete()
     {
-        String completion = values[selectedValue].getCompletionText();
-        String completionSel = values[selectedValue].getCompletionTextSel();
-        String completionPost = values[selectedValue].getCompletionTextPost();
-        
-        if (location != null) {
-            SourceLocation begin = new SourceLocation(location.getLine(), location.getColumn());
-            SourceLocation end = new SourceLocation(location.getEndLine(), location.getEndColumn());
-            editor.setSelection(begin, end);
+        AssistContent selected = (AssistContent) methodList.getSelectedValue();
+        if (selected != null) {
+            String completion = selected.getCompletionText();
+            String completionSel = selected.getCompletionTextSel();
+            String completionPost = selected.getCompletionTextPost();
+
+            editor.setSelection(prefixBegin, prefixEnd);
+
+            editor.insertText(completion, false);
+            SourceLocation selLoc = editor.getCaretLocation();
+            editor.insertText(completionSel, false);
+            editor.insertText(completionPost, true);
+            editor.setSelection(selLoc.getLine(), selLoc.getColumn(), completionSel.length());
         }
-        
-        editor.insertText(completion, false);
-        SourceLocation selLoc = editor.getCaretLocation();
-        editor.insertText(completionSel, false);
-        editor.insertText(completionPost, true);
-        editor.setSelection(selLoc.getLine(), selLoc.getColumn(), completionSel.length());
         
         setVisible(false);
     }
@@ -265,14 +351,19 @@ public class CodeCompletionDisplay extends JFrame
      */
     public void valueChanged(ListSelectionEvent e) 
     {
-        selectedValue = methodList.getSelectedIndex();
-        String jdHtml = methodDescrs[selectedValue];
-        if (jdHtml != null) {
-            jdHtml = JavaUtils.javadocToHtml(jdHtml);
+        AssistContent selected = (AssistContent) methodList.getSelectedValue();
+        if (selected != null) {
+            String jdHtml = selected.getJavadoc();
+            if (jdHtml != null) {
+                jdHtml = JavaUtils.javadocToHtml(jdHtml);
+            }
+
+            methodDescription.setText(jdHtml);
+            methodDescription.setCaretPosition(0); // scroll to top
         }
-        
-        methodDescription.setText(jdHtml);
-        methodDescription.setCaretPosition(0); // scroll to top
+        else {
+            methodDescription.setText("");
+        }
     }
     
 }

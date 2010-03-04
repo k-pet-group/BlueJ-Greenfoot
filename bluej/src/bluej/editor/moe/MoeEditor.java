@@ -3284,10 +3284,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 sourceDocument);
         if (suggests != null) {
             LocatableToken suggestToken = suggests.getSuggestionToken();
-            String prefix = suggestToken != null ? suggestToken.getText() : "";
-            AssistContent[] values = getPossibleCompletions(suggests, prefix);
+            AssistContent[] values = getPossibleCompletions(suggests, "");
             if (values != null && values.length > 0) {
-                codeCompletionDlg = new CodeCompletionDisplay(this, values, suggests.getSuggestionToken());
+                codeCompletionDlg = new CodeCompletionDisplay(this, values, suggestToken);
                 int cpos = sourcePane.getCaretPosition();
                 try {
                     Rectangle pos = sourcePane.modelToView(cpos);
