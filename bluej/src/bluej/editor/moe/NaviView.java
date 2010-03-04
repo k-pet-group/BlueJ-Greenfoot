@@ -337,6 +337,12 @@ public class NaviView extends JPanel implements AdjustmentListener
                 bottom = newbottom;
             }
             
+            if (height < 1) {
+                height = 1;
+                ybtm = ytop + 1;
+                bottom = top + (height * myHeight / prefHeight);
+            }
+            
             // Create a buffered image to use
             BufferedImage bimage = ((Graphics2D) g).getDeviceConfiguration().createCompatibleImage(width, height);
             Map<Object,Object> hints = new HashMap<Object,Object>();
