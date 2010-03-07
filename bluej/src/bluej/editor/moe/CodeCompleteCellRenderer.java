@@ -22,17 +22,41 @@
 package bluej.editor.moe;
 
 import java.awt.Component;
+import java.awt.Dimension;
 
+import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
+import bluej.utility.DBoxLayout;
 
-public class CodeCompleteCellRenderer extends JLabel implements ListCellRenderer
+
+public class CodeCompleteCellRenderer extends JPanel implements ListCellRenderer
 {
-    public CodeCompleteCellRenderer()
+    private JLabel typeLabel = new JLabel();
+    private JLabel descriptionLabel = new JLabel();
+    private JLabel ellipsisLabel = new JLabel("\u2026 ");
+    private Dimension rtypeSize;
+    private Dimension collapsedRtypeSize;
+    
+    CodeCompleteCellRenderer()
     {
         setBorder(null);
+        setLayout(new DBoxLayout(DBoxLayout.X_AXIS));
+        add(typeLabel);
+        typeLabel.setText("String1234"); // for assigning width
+        rtypeSize = typeLabel.getPreferredSize();
+        collapsedRtypeSize = new Dimension(rtypeSize.width - ellipsisLabel.getPreferredSize().width,
+                rtypeSize.height);
+        
+        add(ellipsisLabel);
+        
+        typeLabel.setMaximumSize(rtypeSize);
+        typeLabel.setPreferredSize(rtypeSize);
+        add(descriptionLabel);
+        add(Box.createHorizontalGlue());
     }
     
     public Component getListCellRendererComponent(JList list, Object value,
@@ -40,8 +64,20 @@ public class CodeCompleteCellRenderer extends JLabel implements ListCellRenderer
     {
         if (value != null) {
             AssistContent content = (AssistContent) value;
-            setText(content.getDisplayName() + " : " + content.getReturnType() + " - " +
-                    content.getDeclaringClass());
+            typeLabel.setText(content.getReturnType().toString());
+            descriptionLabel.setText(content.getDisplayName());
+            typeLabel.setPreferredSize(null);
+            int prefWidth = typeLabel.getPreferredSize().width;
+            //if (prefWidth + 5 > rtypeSize.width) {
+            //    typeLabel.setPreferredSize(collapsedRtypeSize);
+            //    typeLabel.setMaximumSize(collapsedRtypeSize);
+            //    ellipsisLabel.setVisible(true);
+            //}
+            //else {
+                typeLabel.setPreferredSize(rtypeSize);
+                typeLabel.setMaximumSize(rtypeSize);
+                ellipsisLabel.setVisible(false);                
+            //}
         }
         
         if (isSelected) {
