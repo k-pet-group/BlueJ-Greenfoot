@@ -525,17 +525,61 @@ public abstract class JavaUtils
             }
         }
         
+        // Process the block tags
         if (i < javadocString.length()) {
             String rval = javadocString.substring(0, i);
-            rval += "<p>";
             String block = javadocString.substring(i);
             String [] lines = Utility.splitLines(block);
-            if (lines.length > 0) {
-                rval += lines[0];
-                for (int j = 1; j < lines.length; j++) {
+            boolean paramsMode = lines.length > 0 && lines[0].substring(0, 7).equals("@param ");
+            int j = 0;
+            if (paramsMode) {
+                rval += "<h3>Parameters</h3>";
+                rval += "<table border=0>";
+                int p = 7;
+                do {
+                    // Find the parameter name
+                    while (Character.isWhitespace(lines[j].charAt(p))) {
+                        p++;
+                    }
+                    int k = p;
+                    while (!Character.isWhitespace(lines[j].charAt(k))) {
+                        k++;
+                    }
+                    String paramName = lines[j].substring(p, k);
+                    String paramDesc = lines[j].substring(k);
+                    paramsMode = false;
+                    
+                    descLoop:
+                    while (++j < lines.length) {
+                        for (k = 0; k < lines[j].length(); k++) {
+                            if (lines[j].charAt(k) == '@') {
+                                p = k + 7;
+                                paramsMode = lines[j].substring(k, p).equals("@param ");
+                                break descLoop;
+                            }
+                            else if (! Character.isWhitespace(lines[j].charAt(k))) { 
+                                paramDesc += lines[j];
+                                break;
+                            }
+                        }
+                    }
+                    
+                    rval += "<tr><td>&nbsp;&nbsp;&nbsp;" + paramName + "</td><td> - " + paramDesc + "</td></tr>";
+                } while (paramsMode);
+                rval += "</table>";
+            }
+            else {
+                rval += "<p>";
+            }
+            
+            // Handle non-"@param" block tags
+            while (j < lines.length) {
+                rval += convertBlockTag(lines[j]);
+                for (j = j+1; j < lines.length; j++) {
                     for (int k = 0; k < lines[j].length(); k++) {
                         if (lines[j].charAt(k) == '@') {
                             rval += "<br>";
+                            lines[j] = convertBlockTag(lines[j]);
                             break;
                         }
                         if (! Character.isWhitespace(lines[j].charAt(k))) {
@@ -545,11 +589,24 @@ public abstract class JavaUtils
                     rval += lines[j];
                 }
                 rval += "<br>";
-                javadocString = rval;
             }
+            javadocString = rval;
         }
         
         return javadocString;
+    }
+    
+    private static String convertBlockTag(String line)
+    {
+        int i = 0;
+        while (line.charAt(i) != '@') i++;
+        
+        int k = i;
+        while (k < line.length() && !Character.isWhitespace(line.charAt(k))) k++;
+        
+        String r = "<b>" + line.substring(i+1, k) + "</b> - " + line.substring(k);
+        
+        return r;
     }
     
     /**

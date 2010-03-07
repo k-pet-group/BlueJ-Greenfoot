@@ -360,6 +360,18 @@ public class CodeCompletionDisplay extends JFrame
             if (jdHtml != null) {
                 jdHtml = JavaUtils.javadocToHtml(jdHtml);
             }
+            else {
+                jdHtml = "";
+            }
+            
+            String sig = selected.getReturnType() + " " + selected.getDisplayName();
+            sig = sig.replace("<", "&lt;");
+            sig = sig.replace(">", "&gt;");
+            sig = "<b>" + sig + "</b>";
+            
+            jdHtml = "<h3>" + selected.getDeclaringClass() + "</h3>" + 
+                "<blockquote>" + sig + "</blockquote>" +
+                jdHtml;
 
             methodDescription.setText(jdHtml);
             methodDescription.setCaretPosition(0); // scroll to top
