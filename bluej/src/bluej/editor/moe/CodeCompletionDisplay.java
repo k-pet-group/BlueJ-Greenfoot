@@ -156,6 +156,7 @@ public class CodeCompletionDisplay extends JFrame
         };
         inputMap.setParent(methodDescription.getInputMap(JComponent.WHEN_FOCUSED));
         methodDescription.setInputMap(JComponent.WHEN_FOCUSED, inputMap);
+        methodDescription.setBackground(new Color(255,255,205)); // yellowish
         
         methodList = new JList();
         methodList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -163,6 +164,7 @@ public class CodeCompletionDisplay extends JFrame
         methodList.addMouseListener(this);
         methodList.requestFocusInWindow();
         methodList.setCellRenderer(new CodeCompleteCellRenderer(suggestionType));
+        methodList.setBackground(new Color(255,255,235));  // pale yellow
         
         // To allow continued typing of method name prefix, we map keys to equivalent actions
         // within the editor. I.e. typing a key inserts that key character.
