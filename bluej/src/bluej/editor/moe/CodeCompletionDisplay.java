@@ -69,6 +69,7 @@ public class CodeCompletionDisplay extends JFrame
     private MoeEditor editor;
     private AssistContent[] values;
     private String prefix;
+    private String suggestionType;
     private SourceLocation prefixBegin;
     private SourceLocation prefixEnd;
 
@@ -82,9 +83,11 @@ public class CodeCompletionDisplay extends JFrame
      * suggestions. The location specifies the partial identifier entered by the user before
      * requesting suggestions (if any - it may be null).
      */
-    public CodeCompletionDisplay(MoeEditor ed, AssistContent[] values, LocatableToken location) 
+    public CodeCompletionDisplay(MoeEditor ed, String suggestionType, 
+            AssistContent[] values, LocatableToken location) 
     {
         this.values=values;
+        this.suggestionType = suggestionType;
         makePanel();
         editor=ed;
         
@@ -159,7 +162,7 @@ public class CodeCompletionDisplay extends JFrame
         methodList.addListSelectionListener(this);
         methodList.addMouseListener(this);
         methodList.requestFocusInWindow();
-        methodList.setCellRenderer(new CodeCompleteCellRenderer());
+        methodList.setCellRenderer(new CodeCompleteCellRenderer(suggestionType));
         
         // To allow continued typing of method name prefix, we map keys to equivalent actions
         // within the editor. I.e. typing a key inserts that key character.

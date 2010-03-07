@@ -23,6 +23,7 @@ package bluej.editor.moe;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 
 import javax.swing.Box;
 import javax.swing.JLabel;
@@ -30,6 +31,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.DBoxLayout;
 
 
@@ -37,26 +39,25 @@ public class CodeCompleteCellRenderer extends JPanel implements ListCellRenderer
 {
     private JLabel typeLabel = new JLabel();
     private JLabel descriptionLabel = new JLabel();
-    private JLabel ellipsisLabel = new JLabel("\u2026 ");
     private Dimension rtypeSize;
-    private Dimension collapsedRtypeSize;
+    private String immediateType;
     
-    CodeCompleteCellRenderer()
+    CodeCompleteCellRenderer(String immediateType)
     {
         setBorder(null);
         setLayout(new DBoxLayout(DBoxLayout.X_AXIS));
-        add(typeLabel);
-        typeLabel.setText("String1234"); // for assigning width
+        typeLabel.setFont(PrefMgr.getStandardEditorFont());
+        typeLabel.setText("String123456"); // for assigning width
         rtypeSize = typeLabel.getPreferredSize();
-        collapsedRtypeSize = new Dimension(rtypeSize.width - ellipsisLabel.getPreferredSize().width,
-                rtypeSize.height);
-        
-        add(ellipsisLabel);
-        
         typeLabel.setMaximumSize(rtypeSize);
         typeLabel.setPreferredSize(rtypeSize);
+        add(typeLabel);
+        
+        descriptionLabel.setFont(PrefMgr.getStandardEditorFont());
         add(descriptionLabel);
         add(Box.createHorizontalGlue());
+        
+        this.immediateType = immediateType;
     }
     
     public Component getListCellRendererComponent(JList list, Object value,
@@ -66,18 +67,14 @@ public class CodeCompleteCellRenderer extends JPanel implements ListCellRenderer
             AssistContent content = (AssistContent) value;
             typeLabel.setText(content.getReturnType().toString());
             descriptionLabel.setText(content.getDisplayName());
-            typeLabel.setPreferredSize(null);
-            int prefWidth = typeLabel.getPreferredSize().width;
-            //if (prefWidth + 5 > rtypeSize.width) {
-            //    typeLabel.setPreferredSize(collapsedRtypeSize);
-            //    typeLabel.setMaximumSize(collapsedRtypeSize);
-            //    ellipsisLabel.setVisible(true);
-            //}
-            //else {
-                typeLabel.setPreferredSize(rtypeSize);
-                typeLabel.setMaximumSize(rtypeSize);
-                ellipsisLabel.setVisible(false);                
-            //}
+            
+            Font font = PrefMgr.getStandardEditorFont();
+
+            if (content.getDeclaringClass().equals(immediateType)) {
+                font = font.deriveFont(Font.BOLD);
+            }
+            
+            descriptionLabel.setFont(font);
         }
         
         if (isSelected) {
