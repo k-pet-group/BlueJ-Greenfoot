@@ -41,7 +41,6 @@ import java.util.Properties;
  * @author  Damiano Bolla
  * @author  Michael Kolling
  * @author  Bruce Quig
- * @version $Id: Boot.java 7187 2010-02-24 02:12:37Z davmac $
  */
 public class Boot
 {
@@ -51,7 +50,7 @@ public class Boot
     public static final int BLUEJ_VERSION_MAJOR = 3;
     public static final int BLUEJ_VERSION_MINOR = 0;
     public static final int BLUEJ_VERSION_RELEASE = 0;
-    public static final String BLUEJ_VERSION_SUFFIX = " beta";
+    public static final String BLUEJ_VERSION_SUFFIX = " preview";
 
     // public static final int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
     //                                                BLUEJ_VERSION_MINOR * 100 +
