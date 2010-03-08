@@ -564,7 +564,7 @@ public abstract class JavaUtils
                         }
                     }
                     
-                    rval += "<tr><td>&nbsp;&nbsp;&nbsp;" + paramName + "</td><td> - " + paramDesc + "</td></tr>";
+                    rval += "<tr><td valign=\"top\">&nbsp;&nbsp;&nbsp;" + paramName + "</td><td> - " + paramDesc + "</td></tr>";
                 } while (paramsMode);
                 rval += "</table>";
             }
