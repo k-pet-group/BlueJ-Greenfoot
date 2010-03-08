@@ -3,8 +3,8 @@
 
 [Setup]
 AppName=BlueJ
-AppVerName=BlueJ 2.5.2
-AppPublisher=Deakin University
+AppVerName=BlueJ 3.0.0
+AppPublisher=La Trobe University
 AppPublisherURL=http://www.bluej.org
 AppSupportURL=http://www.bluej.org
 AppUpdatesURL=http://www.bluej.org
@@ -12,7 +12,7 @@ UninstallFilesDir={app}\uninst
 DefaultDirName={sd}\BlueJ
 DefaultGroupName=BlueJ
 Compression=bzip/9
-OutputBaseFilename=BlueJ-windows-252
+OutputBaseFilename=BlueJ-windows-300
 OutputDir=.
 PrivilegesRequired=none
 
@@ -31,6 +31,12 @@ Name: "{group}\BlueJ"; Filename: "{app}\bluej.exe"; WorkingDir: "{app}"
 Name: "{userdesktop}\BlueJ"; Filename: "{app}\bluej.exe"; WorkingDir: "{app}"; Tasks: desktopicon
 Name: "{group}\Select VM"; Filename: "{app}\bluej.exe"; WorkingDir: "{app}"; Parameters: "/select"; IconIndex: 1
 Name: "{app}\Select VM"; Filename: "{app}\bluej.exe"; WorkingDir: "{app}"; Parameters: "/select"; IconIndex: 1
+
+[Registry]
+Root: HKCR; Subkey: ".bluej"; ValueType: string; ValueName: ""; ValueData: "BlueJProject"; Flags: uninsdeletevalue; Tasks: associations
+Root: HKCR; Subkey: "BlueJProject"; ValueType: string; ValueName: ""; ValueData: "BlueJ project file"; Flags: uninsdeletekey; Tasks: associations
+Root: HKCR; Subkey: "BlueJProject\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\bluej.exe,0"; Flags: uninsdeletekey; Tasks: associations
+Root: HKCR; Subkey: "BlueJProject\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\bluej.exe"" ""%1"""; Flags: uninsdeletekey; Tasks: associations
 
 [InstallDelete]
 Type: files; Name: "{app}\lib\extensions\submission.jar"
