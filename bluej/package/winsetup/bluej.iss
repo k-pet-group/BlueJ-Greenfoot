@@ -3,7 +3,7 @@
 
 [Setup]
 AppName=BlueJ
-AppVerName=BlueJ 3.0.0
+AppVerName=BlueJ 3.0.0 preview
 AppPublisher=La Trobe University
 AppPublisherURL=http://www.bluej.org
 AppSupportURL=http://www.bluej.org
@@ -12,7 +12,7 @@ UninstallFilesDir={app}\uninst
 DefaultDirName={sd}\BlueJ
 DefaultGroupName=BlueJ
 Compression=bzip/9
-OutputBaseFilename=BlueJ-windows-300
+OutputBaseFilename=BlueJ-windows-300 preview
 OutputDir=.
 PrivilegesRequired=none
 
@@ -25,6 +25,7 @@ WelcomeLabel2=This installer will install [name/ver] on your computer.%n%nIt is 
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a &desktop icon"; GroupDescription: "Additional icons:"; MinVersion: 4,4
+Name: "associations"; Description: "Create file association (*.bluej)"; GroupDescription: "File associations"; MinVersion: 4,4
 
 [Icons]
 Name: "{group}\BlueJ"; Filename: "{app}\bluej.exe"; WorkingDir: "{app}"
