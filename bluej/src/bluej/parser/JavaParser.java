@@ -62,6 +62,11 @@ public class JavaParser
         TokenStream lexer = getLexer(r, line, col);
         tokenStream = new JavaTokenFilter(lexer, this);
     }
+    
+    public JavaTokenFilter getTokenStream()
+    {
+        return tokenStream;
+    }
 
     /**
      * An error occurred during parsing. Override this method to control error behaviour.

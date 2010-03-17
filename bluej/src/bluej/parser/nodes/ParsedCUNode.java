@@ -21,7 +21,6 @@
  */
 package bluej.parser.nodes;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -48,7 +47,6 @@ public class ParsedCUNode extends ParentParsedNode
     private EntityResolver parentResolver;
     private ImportsCollection imports = new ImportsCollection();
 
-    private List<NodeStructureListener> listeners = new ArrayList<NodeStructureListener>();
     private int size = 0;
     
     /**
@@ -74,22 +72,6 @@ public class ParsedCUNode extends ParentParsedNode
         this.parentResolver = parentResolver;
     }
 
-    /**
-     * Add a structure listener to this compilation unit.
-     */
-    public void addListener(NodeStructureListener listener)
-    {
-        listeners.add(listener);
-    }
-    
-    /**
-     * Remove a structure listener from this compilation unit.
-     */
-    public void removeListener(NodeStructureListener listener)
-    {
-        listeners.remove(listener);
-    }
-    
     public ImportsCollection getImports()
     {
         return imports;
@@ -119,14 +101,15 @@ public class ParsedCUNode extends ParentParsedNode
     /**
      * Reparse this node from the specified offset.
      */
-    protected void reparseNode(Document document, int nodePos, int offset)
+    @Override
+    protected void reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
     {
-        doReparse(document, 0, offset);
+        doReparse(document, 0, offset, listener);
     }
     
-    protected void doReparse(Document document, int nodePos, int pos)
+    protected void doReparse(Document document, int nodePos, int pos, NodeStructureListener listener)
     {
-        clearNode(this);
+        clearNode(this, listener);
         size = document.getLength();
         
         EditorParser parser = new EditorParser(document);
@@ -137,32 +120,30 @@ public class ParsedCUNode extends ParentParsedNode
     
     @Override
     public void textInserted(Document document, int nodePos, int insPos,
-            int length)
+            int length, NodeStructureListener listener)
     {
         size += length;
-        super.textInserted(document, nodePos, insPos, length);
+        super.textInserted(document, nodePos, insPos, length, listener);
     }
     
     @Override
     public void textRemoved(Document document, int nodePos, int delPos,
-            int length)
+            int length, NodeStructureListener listener)
     {
         size -= length;
-        super.textRemoved(document, nodePos, delPos, length);
+        super.textRemoved(document, nodePos, delPos, length, listener);
     }
     
     /**
      * Remove all subnodes from the given node.
      */
-    private void clearNode(ParsedNode node)
+    private void clearNode(ParsedNode node, NodeStructureListener listener)
     {
         Iterator<NodeAndPosition> i = node.getNodeTree().iterator();
         while (i.hasNext()) {
             NodeAndPosition nap = i.next();
-            clearNode(nap.getNode());
-            for (Iterator<NodeStructureListener> j = listeners.iterator(); j.hasNext(); ) {
-                j.next().nodeRemoved(nap);
-            }
+            clearNode(nap.getNode(), listener);
+            listener.nodeRemoved(nap);
         }
         node.getNodeTree().clear();
     }

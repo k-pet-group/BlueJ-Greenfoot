@@ -220,9 +220,9 @@ public abstract class ParsedNode implements EntityResolver
      * - node terminates earlier (eg ';' or '}' inserted)
      * - subnode created, and this node extended (eg insert '{')
      */
-    public abstract void textInserted(Document document, int nodePos, int insPos, int length);
+    public abstract void textInserted(Document document, int nodePos, int insPos, int length, NodeStructureListener listener);
 	
-    public abstract void textRemoved(Document document, int nodePos, int delPos, int length);
+    public abstract void textRemoved(Document document, int nodePos, int delPos, int length, NodeStructureListener listener);
 
     public abstract Token getMarkTokensFor(int pos, int length, int nodePos, Document document);
 
@@ -254,7 +254,7 @@ public abstract class ParsedNode implements EntityResolver
     /**
      * This node should be re-parsed from the specified point.
      */
-    protected void reparseNode(Document document, int nodePos, int offset) {}
+    protected void reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener) {}
     
     /**
      * Get code completion suggestions at a particular point. May return null.

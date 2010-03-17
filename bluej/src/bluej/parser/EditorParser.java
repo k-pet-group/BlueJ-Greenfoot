@@ -109,6 +109,14 @@ public class EditorParser extends JavaParser
         //pcuNode = new ParsedCUNode(document);
     }
     
+    public EditorParser(Reader r, int line, int col, Stack<ParsedNode> scopeStack)
+    {
+        super(r, line, col);
+        this.scopeStack = scopeStack;
+        pcuNode = (ParsedCUNode) scopeStack.get(0);
+    }
+    
+    @Override
     protected void error(String msg)
     {
         // ignore for now

@@ -27,7 +27,6 @@ import java.util.Map;
 import javax.swing.text.Document;
 
 import bluej.debugger.gentype.Reflective;
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.Token;
 import bluej.parser.DocumentReader;
 import bluej.parser.JavaParser;
@@ -227,8 +226,9 @@ public class ParentParsedNode extends ParsedNode
         return dummyTok.next;
     }
 
+    @Override
     public void textInserted(Document document, int nodePos, int insPos,
-            int length)
+            int length, NodeStructureListener listener)
     {
         NodeAndPosition child = getNodeTree().findNode(insPos, nodePos);
         if (child != null) {
@@ -237,18 +237,19 @@ public class ParentParsedNode extends ParsedNode
             // grow the child node
             cnodeTree.setNodeSize(cnodeTree.getNodeSize() + length);
             // inform the child node of the change
-            child.getNode().textInserted(document, child.getPosition(), insPos, length);
+            child.getNode().textInserted(document, child.getPosition(), insPos, length, listener);
         }
         else {
             // We must handle the insertion ourself
             // TODO
             // for now just do a full reparse
-            reparseNode(document, nodePos, 0);
+            reparseNode(document, nodePos, insPos, listener);
         }
     }
     
+    @Override
     public void textRemoved(Document document, int nodePos, int delPos,
-            int length)
+            int length, NodeStructureListener listener)
     {
         int endPos = delPos + length;
         
@@ -259,18 +260,15 @@ public class ParentParsedNode extends ParsedNode
             int childEndPos = child.getPosition() + child.getSize();
             if (childEndPos > endPos) {
                 // Remove the middle of the child node
-                child.getNode().textRemoved(document, child.getPosition() + nodePos, delPos, length);
+                child.getNode().textRemoved(document, child.getPosition() + nodePos, delPos, length, listener);
                 NodeTree childTree = child.getNode().getContainingNodeTree();
                 childTree.setNodeSize(childTree.getNodeSize() - length);
-
-                reparseNode(document, nodePos, 0);
-                ((MoeSyntaxDocument) document).documentChanged();
                 return;
             }
             else {
                 // Remove the end portion of the child node
                 int rlength = childEndPos - delPos; // how much is removed
-                child.getNode().textRemoved(document, child.getPosition() + nodePos, delPos, rlength);
+                child.getNode().textRemoved(document, child.getPosition() + nodePos, delPos, rlength, listener);
                 NodeTree childTree = child.getNode().getContainingNodeTree();
                 childTree.setNodeSize(childTree.getNodeSize() - length);
                 length -= rlength;
@@ -286,6 +284,7 @@ public class ParentParsedNode extends ParsedNode
             while (childPos + childLen < endPos) {
                 // The whole child should be removed
                 child.getNode().getContainingNodeTree().remove();
+                listener.nodeRemoved(child);
                 child = getNodeTree().findNodeAtOrAfter(delPos, nodePos);
                 if (child == null) {
                     break;
@@ -299,7 +298,7 @@ public class ParentParsedNode extends ParsedNode
                     int slideLen = childPos - delPos;
                     child.getNode().getContainingNodeTree().slideNode(-slideLen);
                     length -= slideLen;
-                    child.getNode().textRemoved(document, childPos, delPos, length - slideLen);
+                    child.getNode().textRemoved(document, childPos, delPos, length - slideLen, listener);
                     child.getNode().getContainingNodeTree().setNodeSize(child.getSize() - length);
                 }
                 else {
@@ -309,22 +308,22 @@ public class ParentParsedNode extends ParsedNode
             
         }
         
-        reparseNode(document, nodePos, 0);
-        ((MoeSyntaxDocument) document).documentChanged();
+        reparseNode(document, nodePos, delPos, listener);
     }
 
     /**
      * Re-parse the node. The default implementation passes the request down to the parent.
      * The tree root must provide a different implementation.
      */
-    protected void reparseNode(Document document, int nodePos, int offset)
+    @Override
+    protected void reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
     {
         // Get own offset
         int noffset = offset;
         if (getContainingNodeTree() != null) {
             noffset += getContainingNodeTree().getPosition();
         }
-        getParentNode().reparseNode(document, nodePos - noffset, 0);
+        getParentNode().reparseNode(document, nodePos - noffset, offset + noffset, listener);
     }
     
 }

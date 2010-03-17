@@ -242,9 +242,7 @@ public class MoeSyntaxDocument extends PlainDocument
     {
         MoeSyntaxEvent mse = new MoeSyntaxEvent(this, e);
         if (parsedNode != null) {
-            parsedNode.addListener(mse);
-            parsedNode.textInserted(this, 0, e.getOffset(), e.getLength());
-            parsedNode.removeListener(mse);
+            parsedNode.textInserted(this, 0, e.getOffset(), e.getLength(), mse);
         }
         super.fireInsertUpdate(mse);
     }
@@ -256,9 +254,7 @@ public class MoeSyntaxDocument extends PlainDocument
     {
         MoeSyntaxEvent mse = new MoeSyntaxEvent(this, e);
         if (parsedNode != null) {
-            parsedNode.addListener(mse);
-            parsedNode.textRemoved(this, 0, e.getOffset(), e.getLength());
-            parsedNode.removeListener(mse);
+            parsedNode.textRemoved(this, 0, e.getOffset(), e.getLength(), mse);
         }
         super.fireRemoveUpdate(mse);
     }

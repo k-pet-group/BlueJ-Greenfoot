@@ -54,14 +54,16 @@ public class CommentNode extends ParsedNode
         return tok;
     }
 
-    public void textInserted(Document document, int nodePos, int insPos, int length)
+    @Override
+    public void textInserted(Document document, int nodePos, int insPos, int length, NodeStructureListener listener)
     {
-        getParentNode().reparseNode(document, nodePos, 0);
+        getParentNode().reparseNode(document, nodePos, insPos, listener);
     }
 
-    public void textRemoved(Document document, int nodePos, int delPos, int length)
+    @Override
+    public void textRemoved(Document document, int nodePos, int delPos, int length, NodeStructureListener listener)
     {
-        getParentNode().reparseNode(document, nodePos, 0);
+        getParentNode().reparseNode(document, nodePos, delPos, listener);
     }
 
 }
