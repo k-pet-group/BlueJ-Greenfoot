@@ -80,6 +80,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -216,6 +217,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     private JScrollPane scrollPane;
     private NaviView naviView;              // Navigation view (mini-source view)
     private JComponent toolbar;             // The toolbar
+    private JPopupMenu popup;               // Popup menu options
 
     private String filename;                // name of file or null
     private long lastModified;              // time of last modification of file
@@ -2728,6 +2730,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         toolbar = createToolbar();
         toolbar.setName("toolbar");
         contentPane.add(toolbar, BorderLayout.NORTH);
+        
+        //add popup menu
+        
+        popup= createPopupMenu();
 
         // add event listener to handle the window close requests
 
@@ -2774,6 +2780,36 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         return menubar;
     }
 
+    // --------------------------------------------------------------------
+    
+    /**
+     * Create the pop up menu bar
+     */
+    private JPopupMenu createPopupMenu()
+    {
+        JMenuItem menuItem;
+        Action action;
+        String label;
+        String actionName;
+        popup = new JPopupMenu();
+        String [] popupKeys=getResource("popupmenu").split(" ");
+        for (int i=0; i< popupKeys.length; i++){
+            label = Config.getString("editor." + popupKeys[i] + LabelSuffix);
+            actionName = getResource(popupKeys[i] + ActionSuffix);
+            action = actions.getActionByName(actionName);
+            if (action == null) {               
+                Debug.message("Moe: cannot find action " + popupKeys[i]);
+            }
+            else {
+                menuItem=new JMenuItem(action);
+                menuItem.setText(label);
+                popup.add(menuItem);
+            }
+        }      
+        return popup;
+
+    }
+    
     // --------------------------------------------------------------------
 
     /**
@@ -3611,7 +3647,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     public void mouseClicked(MouseEvent e) {
         if (getSelectedText()==null){
             enableReplaceButtons(false);
-        }           
+        }  
     }
 
     public void mouseEntered(MouseEvent e) {
@@ -3625,12 +3661,23 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
 
     public void mousePressed(MouseEvent e) {
-        
+        showPopup(e);
     }
 
 
     public void mouseReleased(MouseEvent e) {
-
+        showPopup(e);
+    }
+    
+    /**
+     * showPopup displays the popup menu if triggered
+     * @param e MouseEvent
+     */
+    private void showPopup(MouseEvent e) {
+        if (e.isPopupTrigger()) {
+            popup.show(e.getComponent(),
+                       e.getX(), e.getY());
+        }
     }
  
     /**

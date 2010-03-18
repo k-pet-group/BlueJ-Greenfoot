@@ -15,6 +15,12 @@ pasteAction = paste-from-clipboard
 find-nextAction = find-next
 
 ##
+##  Define the popup menu
+##
+
+popupmenu = cut copy paste
+
+##
 ##  Define the menus. Each menu gets a key, which is used afterwards to
 ##  define the menu's details.
 ##
