@@ -34,7 +34,7 @@ import bluej.parser.TokenStream;
  * 
  * @author Davin McCall
  */
-public class JavaTokenFilter implements TokenStream
+public final class JavaTokenFilter implements TokenStream
 {
     private TokenStream sourceStream;
     private LocatableToken lastComment;

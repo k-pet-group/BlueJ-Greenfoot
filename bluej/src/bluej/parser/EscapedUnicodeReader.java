@@ -35,7 +35,7 @@ import java.io.Reader;
  * 
  * @author Davin McCall
  */
-public class EscapedUnicodeReader extends Reader
+public final class EscapedUnicodeReader extends Reader
 {
     Reader sourceReader;
 
