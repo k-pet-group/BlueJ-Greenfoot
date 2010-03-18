@@ -300,47 +300,45 @@ public final class JavaLexer implements TokenStream
         return type;
     }
 
-    private int getCommentType(char ch, int type)
+    private int getMLCommentType(char ch)
+    {
+        do{  
+            textBuffer.append(ch);
+            int rval = readNextChar();
+            if (rval == -1) {
+                //eof
+                return JavaTokenTypes.INVALID;
+            }
+            
+            ch=(char)rval;
+
+            if (ch=='*') {
+                rval = readNextChar();
+                if (rval == -1) {
+                    return JavaTokenTypes.INVALID;
+                }
+                textBuffer.append((char)rval);
+                if (rval == '/') {
+                    readNextChar();
+                    return JavaTokenTypes.ML_COMMENT;
+                }
+            }
+
+        } while (true);
+    }
+    
+    private int getSLCommentType(char ch)
     {
         int rval=0;     
-        boolean complete=false;
-        boolean checkflag=false;
 
         do{  
             textBuffer.append(ch);
             rval=readNextChar();
             //eof
-            if (rval==-1){
-                if (type==JavaTokenTypes.ML_COMMENT)
-                    return JavaTokenTypes.INVALID;
-                else return type;
+            if (rval==-1 || rval == '\n') {
+                return JavaTokenTypes.SL_COMMENT;
             }
-            ch=(char)rval;
-            if (ch=='\n'){
-                if (type==JavaTokenTypes.SL_COMMENT)
-                    return type;
-            }
-
-            if (checkflag){
-                if (ch=='/'){
-                    complete=true;
-                    textBuffer.append(ch);
-                    readNextChar();
-                }
-                else {
-                    //it was a false alarm and we have not reached the end of the comment
-                    //reset flag and buffer
-                    checkflag=false;
-                }
-            }      
-            //endChar is the flag for the end of reading
-            if (ch=='*' && type==JavaTokenTypes.ML_COMMENT){
-                checkflag=true;
-            }
-
-        } while (!complete);
-
-        return type;
+        } while (true);
     }
 
     private int getSymbolType(char ch)
@@ -591,10 +589,12 @@ public final class JavaLexer implements TokenStream
             readNextChar();
             return JavaTokenTypes.DIV_ASSIGN; 
         }
-        if (thisChar=='/')
-            return getCommentType(thisChar, JavaTokenTypes.SL_COMMENT);
-        if (thisChar=='*')
-            return getCommentType(thisChar, JavaTokenTypes.ML_COMMENT);
+        if (thisChar=='/') {
+            return getSLCommentType(thisChar);
+        }
+        if (thisChar=='*') {
+            return getMLCommentType(thisChar);
+        }
 
         return JavaTokenTypes.DIV;
     }
