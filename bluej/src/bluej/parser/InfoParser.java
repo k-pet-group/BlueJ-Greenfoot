@@ -21,6 +21,7 @@
  */
 package bluej.parser;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -127,7 +128,7 @@ public class InfoParser extends EditorParser
     public static ClassInfo parse(File f, EntityResolver resolver) throws FileNotFoundException
     {
         FileInputStream fis = new FileInputStream(f);
-        return parse(new InputStreamReader(fis), resolver, null);
+        return parse(new BufferedReader(new InputStreamReader(fis)), resolver, null);
     }
     
     public static ClassInfo parse(File f, Package pkg) throws FileNotFoundException
@@ -135,7 +136,7 @@ public class InfoParser extends EditorParser
         FileInputStream fis = new FileInputStream(f);
         EntityResolver resolver = new PackageResolver(pkg.getProject().getEntityResolver(),
                 pkg.getQualifiedName());
-        return parse(new InputStreamReader(fis), resolver, pkg.getQualifiedName());
+        return parse(new BufferedReader(new InputStreamReader(fis)), resolver, pkg.getQualifiedName());
     }
 
     public static ClassInfo parse(Reader r, EntityResolver resolver, String targetPkg)
