@@ -219,6 +219,12 @@ public abstract class ParsedNode implements EntityResolver
      * - text absorbed, no change to node structure
      * - node terminates earlier (eg ';' or '}' inserted)
      * - subnode created, and this node extended (eg insert '{')
+     * 
+     * @param document   The document
+     * @param nodePos    The position of "this" node (relative to the document).
+     * @param insPos     The position of the insert (relative to the document).
+     * @param length     The length of the insert
+     * @param listener   The listener for node structural changes
      */
     public abstract void textInserted(Document document, int nodePos, int insPos, int length, NodeStructureListener listener);
 	
@@ -252,7 +258,8 @@ public abstract class ParsedNode implements EntityResolver
     protected void nodeIncomplete() {}
 
     /**
-     * This node should be re-parsed from the specified point.
+     * This node should be re-parsed from the specified point. The node position
+     * and offset are relative to the document beginning.
      */
     protected void reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener) {}
     

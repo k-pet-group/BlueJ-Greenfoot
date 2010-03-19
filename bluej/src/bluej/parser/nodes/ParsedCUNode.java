@@ -118,22 +118,6 @@ public class ParsedCUNode extends ParentParsedNode
         ((MoeSyntaxDocument) document).documentChanged();
     }
     
-    @Override
-    public void textInserted(Document document, int nodePos, int insPos,
-            int length, NodeStructureListener listener)
-    {
-        size += length;
-        super.textInserted(document, nodePos, insPos, length, listener);
-    }
-    
-    @Override
-    public void textRemoved(Document document, int nodePos, int delPos,
-            int length, NodeStructureListener listener)
-    {
-        size -= length;
-        super.textRemoved(document, nodePos, delPos, length, listener);
-    }
-    
     /**
      * Remove all subnodes from the given node.
      */
@@ -214,5 +198,4 @@ public class ParsedCUNode extends ParentParsedNode
         }
         return null;
     }
-
 }

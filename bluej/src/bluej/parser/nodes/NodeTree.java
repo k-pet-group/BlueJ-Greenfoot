@@ -54,7 +54,7 @@ public class NodeTree
 
     public Iterator<NodeAndPosition> iterator()
     {
-        return new NodeTreeIterator(this);
+        return new NodeTreeIterator(this, true);
     }
 
     /**
@@ -182,6 +182,11 @@ public class NodeTree
     public void slideNode(int offset)
     {
         pnodeOffset += offset;
+        NodeTree nt = this;
+        while (nt.parent != null && nt.parent.left == nt) {
+            nt = nt.parent;
+            nt.pnodeOffset += offset;
+        }
     }
 
     /**
@@ -667,6 +672,18 @@ public class NodeTree
         {
             return position + size;
         }
+        
+        public NodeAndPosition nextSibling()
+        {
+            NodeTreeIterator ni = new NodeTreeIterator(parsedNode.getContainingNodeTree(), false);
+            if (ni.hasNext()) {
+                NodeAndPosition next = ni.next();
+                next.position += position + size;
+            }
+            return null;
+        }
+        
+        
     }
     
     /**
@@ -679,11 +696,11 @@ public class NodeTree
         int offset = 0;
         NodeTree current = null;
 
-        public NodeTreeIterator(NodeTree tree)
+        public NodeTreeIterator(NodeTree tree, boolean leftFirst)
         {
             if (tree.pnode != null) {
                 current = tree;
-                if (tree.left == null) {
+                if (!leftFirst || tree.left == null) {
                     pos = 1;
                 }
             }
@@ -697,37 +714,38 @@ public class NodeTree
 
         public NodeAndPosition next()
         {
-            while (pos == 0) {
-                current = current.left;
-                if (current.left == null) {
-                    pos = 1;
+            while (true) {
+                while (pos == 0) {
+                    current = current.left;
+                    if (current.left == null) {
+                        pos = 1;
+                    }
                 }
-            }
-            NodeTree top = current;
+                NodeTree top = current;
 
-            if (pos == 1) {
-                pos = 2;
-                NodeAndPosition rval = new NodeAndPosition(top.pnode,
-                        top.pnodeOffset + offset,
-                        top.pnodeSize);
+                if (pos == 1) {
+                    pos = 2;
+                    NodeAndPosition rval = new NodeAndPosition(top.pnode,
+                            top.pnodeOffset + offset,
+                            top.pnodeSize);
+                    if (top.right == null) {
+                        downStack();
+                    }
+                    return rval;
+                }
+
+                // pos == 2
                 if (top.right == null) {
-                    downStack();
+                    throw new NullPointerException();
                 }
-                return rval;
+                offset += top.pnodeOffset + top.pnodeSize;
+                top = top.right;
+                // stack.push(top);
+                current = top;
+                pos = (top.left != null) ? 0 : 1;
             }
-
-            // pos == 2
-            if (top.right == null) {
-                throw new NullPointerException();
-            }
-            offset += top.pnodeOffset + top.pnodeSize;
-            top = top.right;
-            // stack.push(top);
-            current = top;
-            pos = (top.left != null) ? 0 : 1;
-            return next();
         }
-
+        
         private void downStack()
         {
             NodeTree top = current;
