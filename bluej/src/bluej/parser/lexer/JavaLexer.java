@@ -313,6 +313,7 @@ public final class JavaLexer implements TokenStream
             ch=(char)rval;
 
             if (ch=='*') {
+                textBuffer.append((char)rval);
                 rval = readNextChar();
                 if (rval == -1) {
                     return JavaTokenTypes.INVALID;
