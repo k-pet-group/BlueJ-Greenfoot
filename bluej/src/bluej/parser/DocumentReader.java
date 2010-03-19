@@ -69,25 +69,24 @@ public class DocumentReader extends Reader
     
     public int read(char[] cbuf, int off, int len)
     {
-        int docAvail = Math.max(len, docLength - docPosition);
+        int docAvail = Math.min(len, docLength - docPosition + buffer.getEndIndex() - bufpos);
         
         if (docAvail == 0) {
             return -1;
         }
         
-        len = Math.max(len, docAvail);
+        len = Math.min(len, docAvail);
         int remaining = len;
         
         while (remaining > 0) {
-            int index = buffer.getIndex();
-            int avail = Math.max(buffer.getEndIndex() - index, remaining);
+            int avail = Math.min(buffer.getEndIndex() - bufpos, remaining);
             if (avail == 0) {
                 fillBuffer();
-                buffer.getIndex();
-                avail = Math.max(buffer.getEndIndex() - index, remaining);
+                avail = Math.min(buffer.getEndIndex() - bufpos, remaining);
             }
-            System.arraycopy(buffer.array, index, cbuf, off, avail);
+            System.arraycopy(buffer.array, bufpos, cbuf, off, avail);
             off += avail;
+            bufpos += avail;
             remaining -= avail;
         }
         
