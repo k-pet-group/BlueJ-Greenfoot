@@ -746,107 +746,107 @@ public final class MoeActions
 
         public void actionPerformed(ActionEvent e)
         {
-        	MoeEditor editor = getEditor(e);
-        	doc = editor.getSourceDocument();
-                        
-			editor.undoManager.beginCompoundEdit();
-			List<DocumentAction> updates = calculateIndents(editor);
-			for (DocumentAction update : updates) {
-				update.apply(doc);
-			}
-			editor.undoManager.endCompoundEdit();
+            MoeEditor editor = getEditor(e);
+            doc = editor.getSourceDocument();
+
+            editor.undoManager.beginCompoundEdit();
+            List<DocumentAction> updates = calculateIndents(editor);
+            for (DocumentAction update : updates) {
+                update.apply(doc);
+            }
+            editor.undoManager.endCompoundEdit();
         }
         
-		private List<DocumentAction> calculateIndents(MoeEditor editor)
-		{
-			Element rootElement = doc.getDefaultRootElement();
-			List<DocumentAction> updates = new ArrayList<DocumentAction>(rootElement.getElementCount());
+        private List<DocumentAction> calculateIndents(MoeEditor editor)
+        {
+            Element rootElement = doc.getDefaultRootElement();
+            List<DocumentAction> updates = new ArrayList<DocumentAction>(rootElement.getElementCount());
 
-			IndentCalculator ii = new RootIndentCalculator();
-			
-			boolean lastLineWasBlank = false;
-			boolean perfect = true;
+            IndentCalculator ii = new RootIndentCalculator();
 
-			for (int i = 0; i < rootElement.getElementCount(); i++) {
-				Element el = rootElement.getElement(i);
+            boolean lastLineWasBlank = false;
+            boolean perfect = true;
 
-				boolean thisLineBlank = isWhiteSpaceOnly(getElementContents(
-						doc, el));
-				DocumentAction update = null;
+            for (int i = 0; i < rootElement.getElementCount(); i++) {
+                Element el = rootElement.getElement(i);
 
-				if (thisLineBlank) {
-					if (lastLineWasBlank) {
-						// Consecutive blank lines; remove this one:
-						if (el.getEndOffset() <= doc.getLength())
-						{
-							update = new DocumentRemoveLineAction(el);
-							perfect = false;
-						}
-					}
-					else {
-						// Single blank line (thus far), remove all spaces from
-						// it (and don't interrupt perfect status):
-						update = new DocumentIndentAction(el, "");
-					}
-				}
-				else {
-					NodeAndPosition root = new NodeAndPosition(doc.getParser(),
-							0, doc.getParser().getSize());
-					String indent = calculateIndent(el, root, ii);
-					update = new DocumentIndentAction(el, indent);
-					perfect = perfect && getElementContents(doc, el).startsWith(indent);
-				}
-				
-				if (update != null)
-					updates.add(update);
-				lastLineWasBlank = thisLineBlank;
-			}
-			
-			if (perfect)
-				editor.writeMessage(Config.getString("editor.info.perfectIndent"));
+                boolean thisLineBlank = isWhiteSpaceOnly(getElementContents(
+                        doc, el));
+                DocumentAction update = null;
 
-			return updates;
-		}
+                if (thisLineBlank) {
+                    if (lastLineWasBlank) {
+                        // Consecutive blank lines; remove this one:
+                        if (el.getEndOffset() <= doc.getLength())
+                        {
+                            update = new DocumentRemoveLineAction(el);
+                            perfect = false;
+                        }
+                    }
+                    else {
+                        // Single blank line (thus far), remove all spaces from
+                        // it (and don't interrupt perfect status):
+                        update = new DocumentIndentAction(el, "");
+                    }
+                }
+                else {
+                    NodeAndPosition root = new NodeAndPosition(doc.getParser(),
+                            0, doc.getParser().getSize());
+                    String indent = calculateIndent(el, root, ii);
+                    update = new DocumentIndentAction(el, indent);
+                    perfect = perfect && getElementContents(doc, el).startsWith(indent);
+                }
 
-		/**
-		 * Finds the indent for the given element by looking at the nodes in the parse tree
-		 * 
-		 * @param el The element to calculate the indent for
-		 * @param start The Node that is either the one directly containing the given element,
-		 *              or is an ancestor of the one that directly contains the given element,
-		 *              or may not contain the element at all (in which case null will be returned)
-		 * @param startIC The IndentCalculator corresponding to start
+                if (update != null)
+                    updates.add(update);
+                lastLineWasBlank = thisLineBlank;
+            }
+
+            if (perfect)
+                editor.writeMessage(Config.getString("editor.info.perfectIndent"));
+
+            return updates;
+        }
+
+        /**
+         * Finds the indent for the given element by looking at the nodes in the parse tree
+         * 
+         * @param el The element to calculate the indent for
+         * @param start The Node that is either the one directly containing the given element,
+         *              or is an ancestor of the one that directly contains the given element,
+         *              or may not contain the element at all (in which case null will be returned)
+         * @param startIC The IndentCalculator corresponding to start
          * @return The indent that the element should have, up to the first non-whitespace character.
          *         Returns null if start does not contain the given element
-		 */
-		private String calculateIndent(Element el,
-				NodeAndPosition start, IndentCalculator startIC)
-		{
-			int pos = el.getStartOffset()
-					+ findFirstNonIndentChar(getElementContents(doc, el), true);
-			if (pos >= start.getPosition() && pos < start.getEnd()) {
+         */
+        private String calculateIndent(Element el,
+                NodeAndPosition start, IndentCalculator startIC)
+        {
+            int pos = el.getStartOffset()
+            + findFirstNonIndentChar(getElementContents(doc, el), true);
+            if (pos >= start.getPosition() && pos < start.getEnd()) {
 
-				// The slightly awkward way to loop through the children of "start":
-				for (NodeAndPosition nap = start.getNode().findNodeAtOrAfter(start.getPosition(), start.getPosition())
-				    ; nap != null
-				    ; nap = start.getNode().findNodeAtOrAfter(nap.getEnd(), start.getPosition())
-				    ) {
-					
-					String inner = calculateIndent(el, nap, startIC.getForChild(nap.getNode()));
-					if (inner != null)
-						return inner;
-				}
-				try {
-					return startIC.getCurIndent(doc.getText(pos, 1).charAt(0));
-				}
-				catch (BadLocationException e) {
-					return "";
-				}
-			}
-			else {
-				return null;
-			}
-		}
+                // The slightly awkward way to loop through the children of "start":
+                for (NodeAndPosition nap = start.getNode().findNodeAtOrAfter(start.getPosition(), start.getPosition())
+                        ; nap != null
+                        ; nap = start.getNode().findNodeAtOrAfter(nap.getEnd(), start.getPosition())
+                ) {
+
+                    String inner = calculateIndent(el, nap, startIC.getForChild(nap.getNode()));
+                    if (inner != null)
+                        return inner;
+                }
+                try {
+                    return startIC.getCurIndent(doc.getText(pos, 1).charAt(0));
+                }
+                catch (BadLocationException e) {
+                    return "";
+                }
+            }
+            else {
+                return null;
+            }
+        }
     }
     
     // --------------------------------------------------------------------
@@ -2369,167 +2369,167 @@ public final class MoeActions
     /**
      * An implementation of IndentCalculator for the root node of the document.
      */
-	private static class RootIndentCalculator implements IndentCalculator
-	{
-		public IndentCalculator getForChild(ParsedNode n)
-		{
-			return new NodeIndentCalculator("", n);
-		}
+    private static class RootIndentCalculator implements IndentCalculator
+    {
+        public IndentCalculator getForChild(ParsedNode n)
+        {
+            return new NodeIndentCalculator("", n);
+        }
 
-		public String getCurIndent(char beginsWith)
-		{
-			return "";
-		}
-	}
+        public String getCurIndent(char beginsWith)
+        {
+            return "";
+        }
+    }
 	
-	private static class NodeIndentCalculator implements IndentCalculator
-	{
-		private final String existingIndent;
-		private final ParsedNode parent;
+    private static class NodeIndentCalculator implements IndentCalculator
+    {
+        private final String existingIndent;
+        private final ParsedNode parent;
 
-		private final static String STANDARD_INDENT = "    ";
-		private final static String CONTINUATION_INDENT = "    ";
-		// To make it line up like this:
-		// /**
-		//  *
-		//  *
-		//  */
-		// This must be a single space:
-		private final static String COMMENT_ASTERISK_INDENT = " ";
+        private final static String STANDARD_INDENT = "    ";
+        private final static String CONTINUATION_INDENT = "    ";
+        // To make it line up like this:
+        // /**
+        //  *
+        //  *
+        //  */
+        // This must be a single space:
+        private final static String COMMENT_ASTERISK_INDENT = " ";
 
-		public NodeIndentCalculator(String existingIndent, ParsedNode parent)
-		{
-			this.existingIndent = existingIndent;
-			this.parent = parent;
-		}
+        public NodeIndentCalculator(String existingIndent, ParsedNode parent)
+        {
+            this.existingIndent = existingIndent;
+            this.parent = parent;
+        }
 
-		public IndentCalculator getForChild(ParsedNode child)
-		{
-			String newIndent = existingIndent;
-			
-			// I realise that using instanceof is sinful, but because I need
-			// to know the type of both the parent and the child node, there is no
-			// easy way to fold this method into either the parent or child node type
-			// (either would still use instanceof on the other), so I'm keeping
-			// it here for now:			
-			
-			if (child instanceof TypeInnerNode)
-				newIndent += STANDARD_INDENT;
-			else if (parent instanceof MethodNode
-					&& !(child instanceof CommentNode))
-				// comments that are children of methods are actually the comment
-				// before the method, and thus shouldn't be indented any differently
-				newIndent += STANDARD_INDENT;
-			else if (parent instanceof ContainerNode)
-				newIndent += STANDARD_INDENT;
-			else if (parent instanceof ExpressionNode
-					&& child instanceof ExpressionNode)
-				// Expressions that are children of expressions are function arguments,
-				// and thus use the continuation indent:
-				newIndent += CONTINUATION_INDENT;
+        public IndentCalculator getForChild(ParsedNode child)
+        {
+            String newIndent = existingIndent;
 
-			return new NodeIndentCalculator(newIndent, child);
-		}
+            // I realise that using instanceof is sinful, but because I need
+            // to know the type of both the parent and the child node, there is no
+            // easy way to fold this method into either the parent or child node type
+            // (either would still use instanceof on the other), so I'm keeping
+            // it here for now:			
 
-		public String getCurIndent(char beginsWith)
-		{
-			if (parent instanceof CommentNode && beginsWith == '*')
-				return existingIndent + COMMENT_ASTERISK_INDENT;
-			else
-				return existingIndent;
-		}
-	}
-	
-	interface DocumentAction
-	{
-		public void apply(MoeSyntaxDocument doc);
+            if (child instanceof TypeInnerNode)
+                newIndent += STANDARD_INDENT;
+            else if (parent instanceof MethodNode
+                    && !(child instanceof CommentNode))
+                // comments that are children of methods are actually the comment
+                // before the method, and thus shouldn't be indented any differently
+                newIndent += STANDARD_INDENT;
+            else if (parent instanceof ContainerNode)
+                newIndent += STANDARD_INDENT;
+            else if (parent instanceof ExpressionNode
+                    && child instanceof ExpressionNode)
+                // Expressions that are children of expressions are function arguments,
+                // and thus use the continuation indent:
+                newIndent += CONTINUATION_INDENT;
 
-	}
+            return new NodeIndentCalculator(newIndent, child);
+        }
 
-	private static class DocumentRemoveLineAction implements DocumentAction
-	{
-		private Element lineToRemove;
+        public String getCurIndent(char beginsWith)
+        {
+            if (parent instanceof CommentNode && beginsWith == '*')
+                return existingIndent + COMMENT_ASTERISK_INDENT;
+            else
+                return existingIndent;
+        }
+    }
 
-		public DocumentRemoveLineAction(Element lineToRemove)
-		{
-			this.lineToRemove = lineToRemove;
-		}
+    interface DocumentAction
+    {
+        public void apply(MoeSyntaxDocument doc);
 
-		public void apply(MoeSyntaxDocument doc)
-		{
-			try {
-				doc.remove(lineToRemove.getStartOffset(), lineToRemove.getEndOffset() - lineToRemove.getStartOffset());
-			}
-			catch (BadLocationException e) {
-				Debug.reportError("Problem while trying to remove line from document: "
-						+ lineToRemove.getStartOffset() + "->" + lineToRemove.getEndOffset()
-						+ " in document of size " + doc.getLength(), e);
-			}
-		}
-	}
+    }
 
-	/**
-	 * A class representing an update to the indentation on a line of the document.  This is different
-	 * to a LineAction because it intrinsically knows which line it needs to update
-	 */
+    private static class DocumentRemoveLineAction implements DocumentAction
+    {
+        private Element lineToRemove;
+
+        public DocumentRemoveLineAction(Element lineToRemove)
+        {
+            this.lineToRemove = lineToRemove;
+        }
+
+        public void apply(MoeSyntaxDocument doc)
+        {
+            try {
+                doc.remove(lineToRemove.getStartOffset(), lineToRemove.getEndOffset() - lineToRemove.getStartOffset());
+            }
+            catch (BadLocationException e) {
+                Debug.reportError("Problem while trying to remove line from document: "
+                        + lineToRemove.getStartOffset() + "->" + lineToRemove.getEndOffset()
+                        + " in document of size " + doc.getLength(), e);
+            }
+        }
+    }
+
+    /**
+     * A class representing an update to the indentation on a line of the document.  This is different
+     * to a LineAction because it intrinsically knows which line it needs to update
+     */
     private static class DocumentIndentAction implements DocumentAction
     {
-    	private Element el;
-    	private String indent;
-    	
-    	public DocumentIndentAction(Element el, String indent)
-    	{
-			this.el = el;
-			this.indent = indent;
-		}
+        private Element el;
+        private String indent;
 
-		// Because we keep element references, we don't have to worry about the offsets
-    	// altering, because they will alter before we process the line, and thus
-    	// everything works nicely.
-    	public void apply(MoeSyntaxDocument doc)
-    	{
-			String line = getElementContents(doc, el);
-			int lengthPrevWhitespace = findFirstNonIndentChar(line, true);
-			boolean anyTabs = false;
-			for (char c : line.substring(0, lengthPrevWhitespace).toCharArray()) {
-				if (c == '\t')
-					anyTabs = true;
-			}
-    		// If we want to put in 4 spaces, and there are already exactly 4 tabs,
-    		// without the anyTabs check, we would leave the whitespace alone;
-    		// hence why we need the check:
-			if (indent != null && (anyTabs || (indent.length() != lengthPrevWhitespace))) {
-				try {
-					doc.replace(el.getStartOffset(), lengthPrevWhitespace,
-						        indent, null);
-				}
-				catch (BadLocationException e) {
-					Debug.reportError("Error doing indent in DocumentUpdate", e);
-				}
-			}
-    	}
+        public DocumentIndentAction(Element el, String indent)
+        {
+            this.el = el;
+            this.indent = indent;
+        }
+
+        // Because we keep element references, we don't have to worry about the offsets
+        // altering, because they will alter before we process the line, and thus
+        // everything works nicely.
+        public void apply(MoeSyntaxDocument doc)
+        {
+            String line = getElementContents(doc, el);
+            int lengthPrevWhitespace = findFirstNonIndentChar(line, true);
+            boolean anyTabs = false;
+            for (char c : line.substring(0, lengthPrevWhitespace).toCharArray()) {
+                if (c == '\t')
+                    anyTabs = true;
+            }
+            // If we want to put in 4 spaces, and there are already exactly 4 tabs,
+            // without the anyTabs check, we would leave the whitespace alone;
+            // hence why we need the check:
+            if (indent != null && (anyTabs || (indent.length() != lengthPrevWhitespace))) {
+                try {
+                    doc.replace(el.getStartOffset(), lengthPrevWhitespace,
+                            indent, null);
+                }
+                catch (BadLocationException e) {
+                    Debug.reportError("Error doing indent in DocumentUpdate", e);
+                }
+            }
+        }
     }
     
     private static String getElementContents(MoeSyntaxDocument doc, Element el)
     {
-		try {
-			return doc.getText(el.getStartOffset(), el.getEndOffset() - el.getStartOffset());
-		}
-		catch (BadLocationException e) {
-			Debug.reportError("Error getting element contents in document", e);
-			return "";
-		}
+        try {
+            return doc.getText(el.getStartOffset(), el.getEndOffset() - el.getStartOffset());
+        }
+        catch (BadLocationException e) {
+            Debug.reportError("Error getting element contents in document", e);
+            return "";
+        }
     }
-    
+
     private static String getNodeContents(MoeSyntaxDocument doc, NodeAndPosition nap)
     {
-		try {
-			return doc.getText(nap.getPosition(), nap.getSize());
-		}
-		catch (BadLocationException e) {
-			Debug.reportError("Error getting node contents in document", e);
-			return "";
-		}
+        try {
+            return doc.getText(nap.getPosition(), nap.getSize());
+        }
+        catch (BadLocationException e) {
+            Debug.reportError("Error getting node contents in document", e);
+            return "";
+        }
     }
 
 }
