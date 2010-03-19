@@ -362,6 +362,7 @@ public class BasicParseTest extends junit.framework.TestCase
     private ParsedCUNode cuForSource(String sourceCode, EntityResolver resolver)
     {
         MoeSyntaxDocument document = new MoeSyntaxDocument(resolver);
+        document.enableParser(true);
         try {
             document.insertString(0, sourceCode, null);
         }

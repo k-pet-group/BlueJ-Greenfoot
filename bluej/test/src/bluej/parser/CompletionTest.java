@@ -63,6 +63,7 @@ public class CompletionTest extends TestCase
     {
         EntityResolver presolver = new PackageResolver(resolver, pkg);
         MoeSyntaxDocument document = new MoeSyntaxDocument(presolver);
+        document.enableParser(true);
         try {
             document.insertString(0, sourceCode, null);
         }

@@ -22,6 +22,7 @@
 package bluej.parser.nodes;
 
 import java.io.Reader;
+import java.util.LinkedList;
 import java.util.Stack;
 
 import javax.swing.text.Document;
@@ -29,6 +30,7 @@ import javax.swing.text.Document;
 import bluej.parser.DocumentReader;
 import bluej.parser.EditorParser;
 import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 public class MethodBodyNode extends ParentParsedNode
@@ -37,16 +39,31 @@ public class MethodBodyNode extends ParentParsedNode
     {
         super(parent);
     }
-    
+
     @Override
     protected void reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
     {
-        // Remove any child nodes straddling the offset
-        NodeAndPosition nap = getNodeTree().findNodeAtOrBefore(offset);
+        // Find the nearest container node prior to the reparse point.
+        NodeAndPosition nap = null;
+        if (offset > nodePos) {
+            nap = getNodeTree().findNodeAtOrBefore(offset - 1, nodePos);
+        }
+        
+        while (nap != null && !nap.getNode().isContainer()) {
+            if (nap.getPosition() > nodePos) {
+                nap = getNodeTree().findNodeAtOrBefore(nap.getPosition() - 1, nodePos);
+            }
+            else {
+                nap = null;
+            }
+        }
+        
+        NodeAndPosition nextNap = null;
         if (nap != null) {
+            nextNap = nap.nextSibling();
             if (nap.getEnd() > offset) {
-                nap.getNode().remove();
-                listener.nodeRemoved(nap);
+                // The reparse position straddles the child node. Remove the child.
+                removeChild(nap, listener);
                 offset = nap.getPosition(); // re-parse from where the removed child was
             }
             else {
@@ -54,30 +71,92 @@ public class MethodBodyNode extends ParentParsedNode
             }
         }
         else {
-            offset = 0; // reparse from this node's beginning
+            offset = nodePos; // reparse from this node's beginning
         }
         
+        // Pull out the current child nodes into a queue. We re-insert them if we get the opportunity;
+        // otherwise we'll have to dispose of them properly later.
+        LinkedList<NodeAndPosition> childQueue = new LinkedList<NodeAndPosition>();
+        if (nap == null) {
+            nap = findNodeAtOrAfter(offset, nodePos);
+        }
+        else {
+            nap = nextNap;
+        }
+        while (nap != null) {
+            childQueue.add(nap);
+            nextNap = nap.nextSibling();
+            nap.getNode().remove();
+            nap = nextNap;
+        }
+        
+        // Make a reader and parser
         int pline = document.getDefaultRootElement().getElementIndex(offset) + 1;
         int pcol = offset - document.getDefaultRootElement().getElement(pline - 1).getStartOffset() + 1;
-        Reader r = new DocumentReader(document, nodePos + offset, nodePos + getSize());
+        Reader r = new DocumentReader(document, offset, nodePos + getSize());
+        EditorParser parser = new EditorParser(document, r, pline, pcol, buildScopeStack());
         
-        EditorParser parser = new EditorParser(r, pline, pcol, buildScopeStack());
+        // Find the next child node, which we may bump into when we are parsing.
+        NodeAndPosition nextChild = childQueue.poll();
         
-        int ttype = parser.getTokenStream().LA(1).getType();
+        LocatableToken laToken = parser.getTokenStream().LA(1);
+        int ttype = laToken.getType();
+        
         while (ttype != JavaTokenTypes.RCURLY && ttype != JavaTokenTypes.EOF) {
-            parser.parseStatement();
             
-            // PROBLEM: the above may create a new node which overlaps subsequent child nodes.
-            // Maybe insert a false duplicate of us in the scopestack, rather than insert ourselves
-            // directly? Then we need to pull children from the duplicate afterwards.
-            // But this breaks getOffsetFromParent() so we might have to duplicate the whole stack of
-            // nodes... ugly.
+            int tokpos = lineColToPos(document, laToken.getLine(), laToken.getColumn());
+            if (nextChild != null && nextChild.getPosition() <= tokpos) {
+                break; // we're done!
+            }
             
-            ttype = parser.getTokenStream().LA(1).getType();
+            LocatableToken last = parser.parseStatement(parser.getTokenStream().nextToken());
+            
+            LocatableToken nlaToken = parser.getTokenStream().LA(1);
+            if (nlaToken.getType() == JavaTokenTypes.EOF) {
+                // The statement wants more... or, at least, the statement consumed
+                // what used to be our closing curly brace.
+                
+                // getParentNode().expandChild
+                // then reparse this node - either from the current end
+                //   (if last != null) or from laToken (if last == null).
+                // DAV TODO
+            }
+            
+            if (nextChild != null) {
+                // Perhaps we've now overwritten part of nextChild, or otherwise we may have pushed
+                // it further back.
+                int epos;
+                if (last != null) {
+                    epos = lineColToPos(document, last.getEndLine(), last.getEndColumn());
+                }
+                else {
+                    epos = lineColToPos(document, parser.getTokenStream().LA(1).getLine(),
+                            parser.getTokenStream().LA(1).getColumn());
+                }
+                
+                while (epos > nextChild.getPosition()) {
+                    // Remove nextChild, we've eaten into it.
+                    //NodeAndPosition sibling = nextChild.nextSibling();
+                    childRemoved(nextChild, listener);
+                    nextChild = childQueue.poll();
+                    if (nextChild == null) {
+                        break;
+                    }
+                }
+            }
+            
+            laToken = parser.getTokenStream().LA(1);
+            ttype = laToken.getType();
         }
         
-        // TODO: lots. If we have '}', check it matches the expected end of this node (otherwise, we
-        // have been cut short). If we have EOF, we have been extended...
+        // Process the child queue
+        while (nextChild != null) {
+            insertNode(nextChild.getNode(), nextChild.getPosition() - nodePos, nextChild.getSize());
+            nextChild = childQueue.poll();
+        }
+        
+        // DAV TODO: lots. If we have '}', check it matches the expected end of this node
+        // (otherwise, we have been cut short). If we have EOF, we have been extended...
     }
     
     protected Stack<ParsedNode> buildScopeStack()
@@ -90,5 +169,10 @@ public class MethodBodyNode extends ParentParsedNode
         } while (pn != null);
         
         return r;
+    }
+    
+    private static int lineColToPos(Document document, int line, int col)
+    {
+        return document.getDefaultRootElement().getElement(line - 1).getStartOffset() + col - 1;
     }
 }

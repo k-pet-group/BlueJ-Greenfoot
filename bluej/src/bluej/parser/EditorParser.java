@@ -48,6 +48,7 @@ import bluej.parser.nodes.CommentNode;
 import bluej.parser.nodes.ContainerNode;
 import bluej.parser.nodes.ExpressionNode;
 import bluej.parser.nodes.FieldNode;
+import bluej.parser.nodes.MethodBodyNode;
 import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.ParentParsedNode;
 import bluej.parser.nodes.ParsedCUNode;
@@ -109,9 +110,10 @@ public class EditorParser extends JavaParser
         //pcuNode = new ParsedCUNode(document);
     }
     
-    public EditorParser(Reader r, int line, int col, Stack<ParsedNode> scopeStack)
+    public EditorParser(Document document, Reader r, int line, int col, Stack<ParsedNode> scopeStack)
     {
         super(r, line, col);
+        this.document = document;
         this.scopeStack = scopeStack;
         pcuNode = (ParsedCUNode) scopeStack.get(0);
     }
@@ -911,6 +913,7 @@ public class EditorParser extends JavaParser
     @Override
     protected void beginMethodBody(LocatableToken token)
     {
+        // ParsedNode pnode = new MethodBodyNode(scopeStack.peek());
         ParsedNode pnode = new ParentParsedNode(scopeStack.peek());
         pnode.setInner(true);
         int curOffset = getTopNodeOffset();

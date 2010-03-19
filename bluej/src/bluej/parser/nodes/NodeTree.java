@@ -52,9 +52,9 @@ public class NodeTree
         black = true;
     }
 
-    public Iterator<NodeAndPosition> iterator()
+    public Iterator<NodeAndPosition> iterator(int offset)
     {
-        return new NodeTreeIterator(this, true);
+        return new NodeTreeIterator(offset, this, true);
     }
 
     /**
@@ -118,7 +118,7 @@ public class NodeTree
 
         NodeAndPosition rval = null;
         if (right != null) {
-            pos -= (pnodeOffset + pnodeSize);
+            //pos -= (pnodeOffset + pnodeSize);
             rval = right.findNodeAtOrBefore(pos, startpos + pnodeOffset + pnodeSize);
         }
 
@@ -172,7 +172,15 @@ public class NodeTree
      */
     public void setNodeSize(int newSize)
     {
+        int delta = newSize - pnodeSize;
         pnodeSize = newSize;
+        NodeTree nt = this;
+        while (nt.parent != null) {
+            if (nt.parent.left == nt) {
+                nt.parent.pnodeOffset += delta;
+            }
+            nt = nt.parent;
+        }
     }
 
     /**
@@ -183,9 +191,11 @@ public class NodeTree
     {
         pnodeOffset += offset;
         NodeTree nt = this;
-        while (nt.parent != null && nt.parent.left == nt) {
+        while (nt.parent != null) {
+            if (nt.parent.left == nt) {
+                nt.parent.pnodeOffset += offset;
+            }
             nt = nt.parent;
-            nt.pnodeOffset += offset;
         }
     }
 
@@ -675,15 +685,16 @@ public class NodeTree
         
         public NodeAndPosition nextSibling()
         {
-            NodeTreeIterator ni = new NodeTreeIterator(parsedNode.getContainingNodeTree(), false);
+            NodeTreeIterator ni = new NodeTreeIterator(position - parsedNode.getContainingNodeTree().pnodeOffset,
+                    parsedNode.getContainingNodeTree(), false);
+            ni.next();  // skip "this" node
             if (ni.hasNext()) {
                 NodeAndPosition next = ni.next();
-                next.position += position + size;
+                // next.position += parsedNode.getContainingNodeTree().pnodeOffset;
+                return next;
             }
             return null;
         }
-        
-        
     }
     
     /**
@@ -696,8 +707,9 @@ public class NodeTree
         int offset = 0;
         NodeTree current = null;
 
-        public NodeTreeIterator(NodeTree tree, boolean leftFirst)
+        public NodeTreeIterator(int offset, NodeTree tree, boolean leftFirst)
         {
+            this.offset = offset;
             if (tree.pnode != null) {
                 current = tree;
                 if (!leftFirst || tree.left == null) {
@@ -740,7 +752,6 @@ public class NodeTree
                 }
                 offset += top.pnodeOffset + top.pnodeSize;
                 top = top.right;
-                // stack.push(top);
                 current = top;
                 pos = (top.left != null) ? 0 : 1;
             }

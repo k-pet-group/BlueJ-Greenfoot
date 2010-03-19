@@ -123,7 +123,7 @@ public class ParsedCUNode extends ParentParsedNode
      */
     private void clearNode(ParsedNode node, NodeStructureListener listener)
     {
-        Iterator<NodeAndPosition> i = node.getNodeTree().iterator();
+        Iterator<NodeAndPosition> i = node.getChildren(0);
         while (i.hasNext()) {
             NodeAndPosition nap = i.next();
             clearNode(nap.getNode(), listener);
@@ -198,4 +198,16 @@ public class ParsedCUNode extends ParentParsedNode
         }
         return null;
     }
+    
+//    private static void printTree(ParsedNode node, int nodepos, int indent)
+//    {
+//        for (int i = 0; i < indent; i++) {
+//            System.out.print("  ");
+//        }
+//        System.out.println("Node=" + node + " pos=" + nodepos + " size=" + node.getSize());
+//        for (Iterator<NodeAndPosition> i = node.getChildren(nodepos); i.hasNext(); ) {
+//            NodeAndPosition nap = i.next();
+//            printTree(nap.getNode(), nap.getPosition(), indent+1);
+//        }
+//    }
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,6 +39,16 @@ import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.utility.GeneralCache;
 
+/**
+ * A "parsed node" represents a node in a limited parse tree. The tree is limited because
+ * it contains only a subset of elements that might normally be found in a full parse tree.
+ * A ParsedNode tree does however contain information to precisely map nodes to source code
+ * document positions.<p>
+ * 
+ * Also included is basic infrastructure for incremental parsing.
+ * 
+ * @author Davin McCall
+ */
 public abstract class ParsedNode implements EntityResolver
 {
     public static final int NODETYPE_NONE = 0;
@@ -79,9 +89,9 @@ public abstract class ParsedNode implements EntityResolver
         this.parentNode = parentNode;
     }
 
-    public Iterator<NodeAndPosition> getChildren()
+    public Iterator<NodeAndPosition> getChildren(int offset)
     {
-        return nodeTree.iterator();
+        return nodeTree.iterator(offset);
     }
     
     /**
@@ -164,6 +174,7 @@ public abstract class ParsedNode implements EntityResolver
     
     /**
      * Remove this node from the parent, without disturbing the position of any sibling nodes.
+     * Probably, you don't want to call this directly; call removeChild() on the parent instead.
      */
     public void remove()
     {

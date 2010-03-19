@@ -67,6 +67,7 @@ public class EditorParserTest extends TestCase
     {
         EntityResolver resolver = new PackageResolver(this.resolver, pkg);
         MoeSyntaxDocument document = new MoeSyntaxDocument(resolver);
+        document.enableParser(true);
         try {
             document.insertString(0, sourceCode, null);
         }

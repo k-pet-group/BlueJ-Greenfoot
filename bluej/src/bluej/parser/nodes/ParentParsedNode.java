@@ -22,6 +22,7 @@
 package bluej.parser.nodes;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.swing.text.Document;
@@ -230,7 +231,7 @@ public class ParentParsedNode extends ParsedNode
     public void textInserted(Document document, int nodePos, int insPos,
             int length, NodeStructureListener listener)
     {
-        // grow ourselves:
+        // grow ourself:
         int newSize = getSize() + length;
         setNodeSize(newSize);
         
@@ -254,7 +255,7 @@ public class ParentParsedNode extends ParsedNode
     public void textRemoved(Document document, int nodePos, int delPos,
             int length, NodeStructureListener listener)
     {
-        // shrink ourselves:
+        // shrink ourself:
         int newSize = getSize() - length;
         setNodeSize(newSize);
         
@@ -265,55 +266,74 @@ public class ParentParsedNode extends ParsedNode
         if (child != null && child.getPosition() < delPos) {
             // Remove the end portion (or middle) of the child node
             int childEndPos = child.getPosition() + child.getSize();
-            if (childEndPos > endPos) {
+            if (childEndPos >= endPos) {
                 // Remove the middle of the child node
-                child.getNode().textRemoved(document, child.getPosition() + nodePos, delPos, length, listener);
+                child.getNode().textRemoved(document, child.getPosition(), delPos, length, listener);
                 return;
             }
-            else {
+            
+            do {
                 // Remove the end portion of the child node
                 int rlength = childEndPos - delPos; // how much is removed
-                child.getNode().textRemoved(document, child.getPosition() + nodePos, delPos, rlength, listener);
+                child.getNode().textRemoved(document, child.getPosition(), delPos, rlength, listener);
                 length -= rlength;
                 endPos -= rlength;
+                // This is done in a loop in case the child has enlarged itself
+            } while (child.getEnd() > delPos && length > 0);
+            if (length == 0) {
+                return;
             }
-            child = getNodeTree().findNodeAtOrAfter(delPos, nodePos);
+            child = child.nextSibling();
         }
         
-        if (child != null) {
-            int childPos = child.getPosition();
-            int childLen = child.getSize();
-            
-            while (childPos + childLen < endPos) {
-                // The whole child should be removed
-                child.getNode().getContainingNodeTree().remove();
-                listener.nodeRemoved(child);
-                child = getNodeTree().findNodeAtOrAfter(delPos, nodePos);
-                if (child == null) {
-                    break;
-                }
-                childPos = child.getPosition();
-                childLen = child.getSize();
+        while (child != null) {
+            if (child.getPosition() >= endPos) {
+                child.getNode().getContainingNodeTree().slideNode(-length);
+                break;
             }
             
-            if (child != null) {
-                if (childPos < endPos) {
-                    int slideLen = childPos - delPos;
-                    child.getNode().getContainingNodeTree().slideNode(-slideLen);
-                    length -= slideLen;
-                    child.getNode().textRemoved(document, childPos, delPos, length - slideLen, listener);
-                    child.getNode().getContainingNodeTree().setNodeSize(child.getSize() - length);
-                }
-                else {
-                    child.getNode().getContainingNodeTree().slideNode(-length);
-                }
-            }
-            
+            // Either remove the whole child node, or its beginning. Seeing as it's
+            // unlikely that removing the beginning of a node is helpful, we'll just
+            // remove it all.
+            NodeAndPosition nextChild = child.nextSibling();
+            removeChild(child, listener);
+            child = nextChild;
         }
         
         reparseNode(document, nodePos, delPos, listener);
     }
 
+    /**
+     * Remove a child node, and notify the NodeStructureListener that the child and
+     * its descendants have been removed. 
+     */
+    protected final void removeChild(NodeAndPosition child, NodeStructureListener listener)
+    {
+        child.getNode().remove();
+        childRemoved(child, listener);
+    }
+    
+    protected void childRemoved(NodeAndPosition child, NodeStructureListener listener)
+    {
+        listener.nodeRemoved(child);
+        removeChildren(child, listener);
+    }
+    
+    /**
+     * Notify the NodeStructureListener that all descendants of a particular node
+     * are removed, due to the node itself having been removed. (Note this does not actually
+     * remove the children from the parent node).
+     */
+    protected static void removeChildren(NodeAndPosition node, NodeStructureListener listener)
+    {
+        Iterator<NodeAndPosition> i = node.getNode().getChildren(node.getPosition());
+        while (i.hasNext()) {
+            NodeAndPosition nap = i.next();
+            listener.nodeRemoved(nap);
+            removeChildren(nap, listener);
+        }
+    }
+    
     /**
      * Re-parse the node. The default implementation passes the request down to the parent.
      * The tree root must provide a different implementation.
