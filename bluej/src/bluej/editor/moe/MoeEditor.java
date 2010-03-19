@@ -345,6 +345,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 sourceDocument.addDocumentListener(this);
                 sourceDocument.addUndoableEditListener(undoManager);
                 document = sourceDocument;
+                
+                sourceDocument.enableParser(false);
                 loaded = true;
             }
             catch (FileNotFoundException ex) {

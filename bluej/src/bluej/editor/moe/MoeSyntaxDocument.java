@@ -32,7 +32,9 @@ import javax.swing.text.PlainDocument;
 
 import bluej.Config;
 import bluej.parser.entity.EntityResolver;
+import bluej.parser.nodes.NodeStructureListener;
 import bluej.parser.nodes.ParsedCUNode;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 
 /**
@@ -50,6 +52,7 @@ public class MoeSyntaxDocument extends PlainDocument
     private static Color backgroundColour = null;
 	
     private ParsedCUNode parsedNode;
+    private EntityResolver parentResolver;
     
     /**
      * Create an empty MoeSyntaxDocument.
@@ -69,8 +72,8 @@ public class MoeSyntaxDocument extends PlainDocument
     public MoeSyntaxDocument(EntityResolver parentResolver)
     {
         this();
-        parsedNode = new ParsedCUNode(this);
-        parsedNode.setParentResolver(parentResolver);
+        // parsedNode = new ParsedCUNode(this);
+        this.parentResolver = parentResolver;
     }
 
     /**
@@ -79,6 +82,23 @@ public class MoeSyntaxDocument extends PlainDocument
     public ParsedCUNode getParser()
     {
         return parsedNode;
+    }
+    
+    /**
+     * Enable the parser. This should be called after loading a document.
+     * @param force  whether to force-enable the parser. If false, the parser will only
+     *                be enabled if an entity resolver is available.
+     */
+    public void enableParser(boolean force)
+    {
+        if (parentResolver != null || force) {
+            parsedNode = new ParsedCUNode(this);
+            parsedNode.setParentResolver(parentResolver);
+            parsedNode.textInserted(this, 0, 0, getLength(), new NodeStructureListener() {
+                public void nodeAdded(NodeAndPosition node) { }
+                public void nodeRemoved(NodeAndPosition node) { }
+            });
+        }
     }
     
     /**
