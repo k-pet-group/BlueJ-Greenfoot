@@ -49,7 +49,7 @@ public class MethodBodyNode extends ParentParsedNode
             nap = getNodeTree().findNodeAtOrBefore(offset - 1, nodePos);
         }
         
-        while (nap != null && !nap.getNode().isContainer()) {
+        while (nap != null && !isDelimitingNode(nap)) {
             if (nap.getPosition() > nodePos) {
                 nap = getNodeTree().findNodeAtOrBefore(nap.getPosition() - 1, nodePos);
             }
@@ -106,22 +106,13 @@ public class MethodBodyNode extends ParentParsedNode
             
             int tokpos = lineColToPos(document, laToken.getLine(), laToken.getColumn());
             if (nextChild != null && nextChild.getPosition() <= tokpos) {
-                break; // we're done!
+                if (isDelimitingNode(nextChild)) {
+                    break; // we're done!
+                }
             }
             
-            LocatableToken last = parser.parseStatement(parser.getTokenStream().nextToken());
-            
-            LocatableToken nlaToken = parser.getTokenStream().LA(1);
-            if (nlaToken.getType() == JavaTokenTypes.EOF) {
-                // The statement wants more... or, at least, the statement consumed
-                // what used to be our closing curly brace.
-                
-                // getParentNode().expandChild
-                // then reparse this node - either from the current end
-                //   (if last != null) or from laToken (if last == null).
-                // DAV TODO
-            }
-            
+            LocatableToken last = doPartialParse(parser);
+                        
             if (nextChild != null) {
                 // Perhaps we've now overwritten part of nextChild, or otherwise we may have pushed
                 // it further back.
@@ -145,7 +136,18 @@ public class MethodBodyNode extends ParentParsedNode
                 }
             }
             
-            laToken = parser.getTokenStream().LA(1);
+            LocatableToken nlaToken = parser.getTokenStream().LA(1);
+            if (nlaToken.getType() == JavaTokenTypes.EOF) {
+                // The statement wants more... or, at least, the statement consumed
+                // what used to be our closing curly brace.
+                if (getParentNode().growChild(new NodeAndPosition(this, nodePos, getSize()))) {
+                    // Successfully grew... now do some more parsing
+                    reparseNode(document, nodePos, tokpos, listener);
+                }
+                return;
+            }
+            
+            laToken = nlaToken;
             ttype = laToken.getType();
         }
         
@@ -157,6 +159,16 @@ public class MethodBodyNode extends ParentParsedNode
         
         // DAV TODO: lots. If we have '}', check it matches the expected end of this node
         // (otherwise, we have been cut short). If we have EOF, we have been extended...
+    }
+    
+    protected boolean isDelimitingNode(NodeAndPosition nap)
+    {
+        return nap.getNode().isContainer();
+    }
+    
+    protected LocatableToken doPartialParse(EditorParser parser)
+    {
+        return parser.parseStatement(parser.getTokenStream().nextToken());
     }
     
     protected Stack<ParsedNode> buildScopeStack()

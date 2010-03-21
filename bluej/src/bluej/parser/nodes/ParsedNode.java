@@ -267,6 +267,13 @@ public abstract class ParsedNode implements EntityResolver
      * This node has become incomplete (needs to be extended).
      */
     protected void nodeIncomplete() {}
+    
+    protected boolean growChild(NodeAndPosition child)
+    {
+        return false;
+    }
+    
+    protected void childShrunk(NodeAndPosition child) {}
 
     /**
      * This node should be re-parsed from the specified point. The node position
