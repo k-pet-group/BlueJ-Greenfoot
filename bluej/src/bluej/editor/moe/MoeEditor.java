@@ -2407,6 +2407,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             lastModified = file.lastModified();
 
             sourceDocument = (MoeSyntaxDocument) sourcePane.getDocument();
+            sourceDocument.enableParser(false);
             naviView.setDocument(sourceDocument);
 
             // flag document type as a java file by associating a
