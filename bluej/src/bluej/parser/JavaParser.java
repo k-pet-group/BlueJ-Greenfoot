@@ -796,137 +796,142 @@ public class JavaParser
                 error("Unexpected end-of-file in type body; missing '}'");
                 return;
             }
-
-            beginElement(token);
-            tokenStream.pushBack(token);
-            LocatableToken hiddenToken = (LocatableToken) token.getHiddenBefore();
-            
-            // field declaration, method declaration, inner class
-            List<LocatableToken> modifiers = parseModifiers();
-            LocatableToken firstMod = null;
-            if (! modifiers.isEmpty()) {
-                firstMod = modifiers.get(0);
-            }
-            
-            token = tokenStream.nextToken();
-            if (token.getType() == JavaTokenTypes.LITERAL_class
-                    || token.getType() == JavaTokenTypes.LITERAL_interface
-                    || token.getType() == JavaTokenTypes.LITERAL_enum
-                    || token.getType() == JavaTokenTypes.AT) {
-                tokenStream.pushBack(token);
-                parseTypeDef();
-            }
-            else {
-                // Not an inner type: should be a method/constructor or field,
-                // or (possibly static) a initialisation block
-                if (token.getType() == JavaTokenTypes.SEMI) {
-                    // A spurious semicolon.
-                    modifiersConsumed();
-                    endElement(token, true);
-                }
-                else if (token.getType() == JavaTokenTypes.LCURLY) {
-                    // initialisation block
-                    LocatableToken firstToken = token;
-                    if (! modifiers.isEmpty()) {
-                        firstToken = modifiers.get(0);
-                    }
-                    beginInitBlock(firstToken, token);
-                    modifiersConsumed();
-                    parseStmtBlock();
-                    token = tokenStream.nextToken();
-                    if (token.getType() != JavaTokenTypes.RCURLY) {
-                        error("Expecting '}' (at end of initialisation block)");
-                        tokenStream.pushBack(token);
-                        endInitBlock(token, false);
-                        endElement(token, false);
-                    }
-                    else {
-                        endInitBlock(token, true);
-                        endElement(token, true);
-                    }
-                }
-                else if (token.getType() == JavaTokenTypes.IDENT
-                        && tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
-                    // constructor
-                    gotConstructorDecl(token, hiddenToken);
-                    modifiersConsumed();
-                    tokenStream.nextToken();
-                    parseMethodParamsBody();
-                }
-                else if (token.getType() == JavaTokenTypes.LT
-                        || token.getType() == JavaTokenTypes.IDENT
-                        || isPrimitiveType(token)) {
-                    // method, field
-                    LocatableToken first = firstMod != null ? firstMod : token;
-                    if (token.getType() == JavaTokenTypes.LT) {
-                        // generic method
-                        parseTypeParams();
-                    }
-                    else {
-                        tokenStream.pushBack(token);
-                    }
-                    parseTypeSpec(true);
-                    LocatableToken idToken = tokenStream.nextToken(); // identifier
-                    if (idToken.getType() != JavaTokenTypes.IDENT) {
-                        modifiersConsumed();
-                        error("Expected identifier (method or field name).");
-                        token = idToken;
-                        continue;
-                    }
-
-                    token = tokenStream.nextToken();
-                    int ttype = token.getType();
-                    if (ttype == JavaTokenTypes.LBRACK || ttype == JavaTokenTypes.SEMI
-                            || ttype == JavaTokenTypes.ASSIGN || ttype == JavaTokenTypes.COMMA) {
-                        // This must be a field declaration
-                        beginFieldDeclarations(first);
-                        if (ttype == JavaTokenTypes.LBRACK) {
-                            tokenStream.pushBack(token);
-                            parseArrayDeclarators();
-                            token = tokenStream.nextToken();
-                            ttype = token.getType();
-                        }
-                        gotField(first, idToken);
-                        if (ttype == JavaTokenTypes.SEMI) {
-                            endField(token, true);
-                            endFieldDeclarations(token, true);
-                        }
-                        else if (ttype == JavaTokenTypes.ASSIGN) {
-                            parseExpression();
-                            parseSubsequentDeclarations(DECL_TYPE_FIELD);
-                        }
-                        else if (ttype == JavaTokenTypes.COMMA) {
-                            tokenStream.pushBack(token);
-                            parseSubsequentDeclarations(DECL_TYPE_FIELD);
-                        }
-                        else {
-                            error("Expected ',', '=' or ';' after field declaration");
-                            tokenStream.pushBack(token);
-                            endField(token, false);
-                            endFieldDeclarations(token, false);
-                        }
-                        modifiersConsumed();
-                    }
-                    else if (ttype == JavaTokenTypes.LPAREN) {
-                        // method declaration
-                        gotMethodDeclaration(idToken, hiddenToken);
-                        modifiersConsumed();
-                        parseMethodParamsBody();
-                    }
-                    else {
-                        modifiersConsumed();
-                        error("Expected ';' or '=' or '(' (in field or method declaration), got token type: " + token.getType());
-                        tokenStream.pushBack(token);
-                        endElement(token, false);
-                    }
-                }
-                else {
-                    error("Unexpected token \"" + token.getText() + "\" in type declaration body");
-                }
-            }
+            parseClassElement(token);
             token = tokenStream.nextToken();
         }
         tokenStream.pushBack(token);
+    }
+    
+    public final void parseClassElement(LocatableToken token)
+    {
+        beginElement(token);
+        tokenStream.pushBack(token);
+        LocatableToken hiddenToken = (LocatableToken) token.getHiddenBefore();
+        
+        // field declaration, method declaration, inner class
+        List<LocatableToken> modifiers = parseModifiers();
+        LocatableToken firstMod = null;
+        if (! modifiers.isEmpty()) {
+            firstMod = modifiers.get(0);
+        }
+        
+        token = tokenStream.nextToken();
+        if (token.getType() == JavaTokenTypes.LITERAL_class
+                || token.getType() == JavaTokenTypes.LITERAL_interface
+                || token.getType() == JavaTokenTypes.LITERAL_enum
+                || token.getType() == JavaTokenTypes.AT) {
+            tokenStream.pushBack(token);
+            parseTypeDef();
+        }
+        else {
+            // Not an inner type: should be a method/constructor or field,
+            // or (possibly static) a initialisation block
+            if (token.getType() == JavaTokenTypes.SEMI) {
+                // A spurious semicolon.
+                modifiersConsumed();
+                endElement(token, true);
+            }
+            else if (token.getType() == JavaTokenTypes.LCURLY) {
+                // initialisation block
+                LocatableToken firstToken = token;
+                if (! modifiers.isEmpty()) {
+                    firstToken = modifiers.get(0);
+                }
+                beginInitBlock(firstToken, token);
+                modifiersConsumed();
+                parseStmtBlock();
+                token = tokenStream.nextToken();
+                if (token.getType() != JavaTokenTypes.RCURLY) {
+                    error("Expecting '}' (at end of initialisation block)");
+                    tokenStream.pushBack(token);
+                    endInitBlock(token, false);
+                    endElement(token, false);
+                }
+                else {
+                    endInitBlock(token, true);
+                    endElement(token, true);
+                }
+            }
+            else if (token.getType() == JavaTokenTypes.IDENT
+                    && tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
+                // constructor
+                gotConstructorDecl(token, hiddenToken);
+                modifiersConsumed();
+                tokenStream.nextToken();
+                parseMethodParamsBody();
+            }
+            else if (token.getType() == JavaTokenTypes.LT
+                    || token.getType() == JavaTokenTypes.IDENT
+                    || isPrimitiveType(token)) {
+                // method, field
+                LocatableToken first = firstMod != null ? firstMod : token;
+                if (token.getType() == JavaTokenTypes.LT) {
+                    // generic method
+                    parseTypeParams();
+                }
+                else {
+                    tokenStream.pushBack(token);
+                }
+                parseTypeSpec(true);
+                LocatableToken idToken = tokenStream.nextToken(); // identifier
+                if (idToken.getType() != JavaTokenTypes.IDENT) {
+                    modifiersConsumed();
+                    error("Expected identifier (method or field name).");
+                    tokenStream.pushBack(idToken);
+                    return;
+                }
+
+                token = tokenStream.nextToken();
+                int ttype = token.getType();
+                if (ttype == JavaTokenTypes.LBRACK || ttype == JavaTokenTypes.SEMI
+                        || ttype == JavaTokenTypes.ASSIGN || ttype == JavaTokenTypes.COMMA) {
+                    // This must be a field declaration
+                    beginFieldDeclarations(first);
+                    if (ttype == JavaTokenTypes.LBRACK) {
+                        tokenStream.pushBack(token);
+                        parseArrayDeclarators();
+                        token = tokenStream.nextToken();
+                        ttype = token.getType();
+                    }
+                    gotField(first, idToken);
+                    if (ttype == JavaTokenTypes.SEMI) {
+                        endField(token, true);
+                        endFieldDeclarations(token, true);
+                    }
+                    else if (ttype == JavaTokenTypes.ASSIGN) {
+                        parseExpression();
+                        parseSubsequentDeclarations(DECL_TYPE_FIELD);
+                    }
+                    else if (ttype == JavaTokenTypes.COMMA) {
+                        tokenStream.pushBack(token);
+                        parseSubsequentDeclarations(DECL_TYPE_FIELD);
+                    }
+                    else {
+                        error("Expected ',', '=' or ';' after field declaration");
+                        tokenStream.pushBack(token);
+                        endField(token, false);
+                        endFieldDeclarations(token, false);
+                    }
+                    modifiersConsumed();
+                }
+                else if (ttype == JavaTokenTypes.LPAREN) {
+                    // method declaration
+                    gotMethodDeclaration(idToken, hiddenToken);
+                    modifiersConsumed();
+                    parseMethodParamsBody();
+                }
+                else {
+                    modifiersConsumed();
+                    error("Expected ';' or '=' or '(' (in field or method declaration), got token type: " + token.getType());
+                    tokenStream.pushBack(token);
+                    endElement(token, false);
+                }
+            }
+            else {
+                error("Unexpected token \"" + token.getText() + "\" in type declaration body");
+            }
+        }
+        
     }
 
     protected void parseArrayDeclarators()

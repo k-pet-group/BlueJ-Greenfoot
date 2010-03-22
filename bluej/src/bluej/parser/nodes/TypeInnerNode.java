@@ -26,13 +26,17 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import bluej.parser.EditorParser;
+import bluej.parser.lexer.LocatableToken;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
+
 /**
  * Node for the inner part of a type definition. This contains the declarations inside
  * the type.
  * 
  * @author Davin McCall
  */
-public class TypeInnerNode extends ParentParsedNode
+public class TypeInnerNode extends IncrementalParsingNode
 {
     private Map<String,Set<MethodNode>> methods = new HashMap<String,Set<MethodNode>>();
 
@@ -76,4 +80,22 @@ public class TypeInnerNode extends ParentParsedNode
     {
         return methods;
     }
+    
+    @Override
+    protected LocatableToken doPartialParse(EditorParser parser)
+    {
+        parser.parseClassElement(parser.getTokenStream().nextToken());
+        return null;
+    }
+    
+    @Override
+    protected boolean isDelimitingNode(NodeAndPosition nap)
+    {
+        return nap.getNode().isContainer();
+    }
+    
+    protected boolean lastPartialCompleted(EditorParser parser, LocatableToken token)
+    {
+        return false;
+    };
 }

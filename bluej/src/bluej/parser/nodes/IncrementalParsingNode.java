@@ -183,8 +183,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             LocatableToken nlaToken = parser.getTokenStream().LA(1);
             if (nlaToken.getType() == JavaTokenTypes.EOF) {
                 if (! lastPartialCompleted(parser, last)) {
-                    // The statement wants more... or, at least, the statement consumed
-                    // what used to be our closing curly brace.
+                    // The parsed piece wants more...
                     if (getParentNode().growChild(document,
                             new NodeAndPosition(this, nodePos, getSize()), listener)) {
                         // Successfully grew... now do some more parsing
@@ -254,7 +253,23 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             return true;
         }
         
-        reparseNode(document, mypos, mypos, listener);
+        // The child can soak up anything remaining at the end of this node.
+        int myEnd = mypos + getSize();
+        if (myEnd > child.getEnd()) {
+            int newsize = myEnd - child.getPosition();
+            child.getNode().resize(newsize);
+            return true;
+        }
+        
+        // Maybe this node can grow, and then its child can also grow.
+        if (getParentNode().growChild(document,
+                new NodeAndPosition(this, mypos, getSize()), listener)) {
+            int newsize = myEnd - child.getPosition();
+            child.getNode().resize(newsize);
+            return true;
+        }
+        
+        getParentNode().reparseNode(document, mypos, mypos, listener);
         return false;
     }
 }
