@@ -800,7 +800,7 @@ public abstract class BlueJSyntaxView extends PlainView
         return xpos;
     }
 
-    int getNodeIndent(Shape a, MoeSyntaxDocument doc, NodeAndPosition nap)
+    private int getNodeIndent(Shape a, MoeSyntaxDocument doc, NodeAndPosition nap)
     {
         try {
             int indent = Integer.MAX_VALUE;
@@ -861,16 +861,83 @@ public abstract class BlueJSyntaxView extends PlainView
             return -1;
         }
     }
+    
+    private void reassesIndents(Shape a, int dmgStart, int dmgEnd)
+    {
+        MoeSyntaxDocument doc = (MoeSyntaxDocument) getDocument();
+        Element map = getDocument().getDefaultRootElement();
+        int ls = map.getElementIndex(dmgStart);
+        int le = map.getElementIndex(dmgEnd);
+        Segment segment = new Segment();
+        
+        try {
+            if (ls == le) {
+                // Single line
+                Element lineEl = map.getElement(ls);
+                doc.getText(lineEl.getStartOffset(), lineEl.getEndOffset() - lineEl.getStartOffset(), segment);
+                int nws = findNonWhitespace(segment, 0);
+                
+                if (nws != -1) {
+                    List<NodeAndPosition> scopeStack = new LinkedList<NodeAndPosition>();
+                    getScopeStackAt(doc.getParser(), 0, lineEl.getStartOffset() + nws, scopeStack);
+                    ListIterator<NodeAndPosition> i = scopeStack.listIterator(scopeStack.size());
+                    Rectangle cbounds = modelToView(lineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds();
+                    int indent = cbounds.x;
 
+                    while (i.hasPrevious()) {
+                        NodeAndPosition nap = i.previous();
+                        Integer indentO = nodeIndents.get(nap.getNode());
+                        if (indentO != null) {
+                            int oldIndent = indentO;
+                            if (indent < oldIndent) {
+                                nodeIndents.put(nap.getNode(), indent);
+                            }
+                            else if (indent > oldIndent) {
+                                // Need to check if the indent as a whole has increased.
+                                // TODO: improve efficiency.
+                                // For now just throw away cached value
+                                nodeIndents.remove(nap.getNode());
+                            }
+                            else {
+                                // should treat this as above
+                                nodeIndents.remove(nap.getNode());
+                            }
+                        }
+                    }
+                    return;
+                }
+                
+              for (int i = ls; i <= le; i++) {
+                  lineEl = map.getElement(i);
+                  doc.getText(lineEl.getStartOffset(), lineEl.getEndOffset(), segment);
+                  nws = findNonWhitespace(segment, 0);
+                  if (nws != -1) {
+                      List<NodeAndPosition> scopeStack = new LinkedList<NodeAndPosition>();
+                      getScopeStackAt(doc.getParser(), 0, lineEl.getStartOffset() + nws, scopeStack);
+                      ListIterator<NodeAndPosition> j = scopeStack.listIterator(scopeStack.size());
+                      while (j.hasPrevious()) {
+                          NodeAndPosition nap = j.previous();
+                          nodeIndents.remove(nap.getNode());
+                          if (nap.getNode().isInner()) {
+                              break;
+                          }
+                      }
+                  }
+              }
+            }
+        }
+        catch (BadLocationException ble) {}
+    }
+    
     private void getScopeStackAt(ParsedNode root, int rootPos, int position, List<NodeAndPosition> list)
     {
         list.add(new NodeAndPosition(root, 0, root.getSize()));
         int curpos = rootPos;
-        NodeAndPosition nap = root.findNodeAtOrAfter(position, curpos);
-        while (nap != null && nap.getPosition() <= position) {
+        NodeAndPosition nap = root.findNodeAt(position, curpos);
+        while (nap != null) {
             list.add(nap);
             curpos = nap.getPosition();
-            nap = nap.getNode().findNodeAtOrAfter(position, curpos);
+            nap = nap.getNode().findNodeAt(position, curpos);
         }
     }
 
@@ -1000,6 +1067,8 @@ public abstract class BlueJSyntaxView extends PlainView
         Component host = getContainer();
         Element map = getElement();
 
+        reassesIndents(a, damageStart, damageEnd);
+        
         if (damageStart < damageEnd) {
             int line = map.getElementIndex(damageStart);
             int lastline = map.getElementIndex(damageEnd - 1);

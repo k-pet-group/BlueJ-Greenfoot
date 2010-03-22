@@ -156,9 +156,20 @@ public abstract class ParsedNode implements EntityResolver
      * size; this should normally be used when inserting or removing text from the node.
      * @param newSize  The new node size
      */
-    public void setNodeSize(int newSize)
+    public void resize(int newSize)
     {
-        getContainingNodeTree().setNodeSize(newSize);
+        getContainingNodeTree().resize(newSize);
+    }
+    
+    /**
+     * Set the size of this node, without moving following nodes. It is the caller's
+     * responsibility to ensure that setting the new size does not cause this node
+     * to overlap following nodes.
+     * @param newSize  The new size of this node.
+     */
+    public void setSize(int newSize)
+    {
+        getContainingNodeTree().setSize(newSize);
     }
     
     /**
@@ -268,12 +279,20 @@ public abstract class ParsedNode implements EntityResolver
      */
     protected void nodeIncomplete() {}
     
-    protected boolean growChild(NodeAndPosition child)
+    /**
+     * growChild() is called by a child node when, during incremental parsing, it determines
+     * that it needs to grow in size. The response must be to increase the size of the child
+     * and return true, or (if increasing size is really not possible) to return false, or to
+     * return false and assume responsibility for re-parsing.
+     */
+    protected boolean growChild(Document document, NodeAndPosition child,
+            NodeStructureListener listener)
     {
         return false;
     }
     
-    protected void childShrunk(NodeAndPosition child) {}
+    protected void childShrunk(Document document,
+            NodeAndPosition child, NodeStructureListener listener) {}
 
     /**
      * This node should be re-parsed from the specified point. The node position

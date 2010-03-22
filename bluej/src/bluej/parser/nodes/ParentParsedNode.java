@@ -233,7 +233,7 @@ public class ParentParsedNode extends ParsedNode
     {
         // grow ourself:
         int newSize = getSize() + length;
-        setNodeSize(newSize);
+        resize(newSize);
         
         NodeAndPosition child = getNodeTree().findNodeAtOrAfter(insPos, nodePos);
         if (child != null && child.getPosition() < insPos) {
@@ -257,7 +257,7 @@ public class ParentParsedNode extends ParsedNode
     {
         // shrink ourself:
         int newSize = getSize() - length;
-        setNodeSize(newSize);
+        resize(newSize);
         
         int endPos = delPos + length;
         
@@ -347,6 +347,25 @@ public class ParentParsedNode extends ParsedNode
             noffset = getContainingNodeTree().getPosition();
         }
         getParentNode().reparseNode(document, nodePos - noffset, offset, listener);
+    }
+    
+    @Override
+    protected void childShrunk(Document document, NodeAndPosition child,
+            NodeStructureListener listener)
+    {
+        int mypos = child.getPosition() - child.getNode().getOffsetFromParent();
+        reparseNode(document, mypos, child.getEnd(), listener);
+    }
+    
+    @Override
+    protected boolean growChild(Document document, NodeAndPosition child,
+            NodeStructureListener listener)
+    {
+        // Without any further knowledge, we're just going to have to do a full reparse.
+        // Subclasses should override this to improve performance.
+        int mypos = child.getPosition() - child.getNode().getOffsetFromParent();
+        reparseNode(document, mypos, mypos, listener);
+        return false;
     }
     
 }

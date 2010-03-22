@@ -93,7 +93,7 @@ public class ParsedCUNode extends ParentParsedNode
     }
 
     @Override
-    public void setNodeSize(int newSize)
+    public void resize(int newSize)
     {
         size = newSize;
     }

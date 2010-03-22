@@ -173,7 +173,7 @@ public class EditorParser extends JavaParser
         else {
             endPos = lineColToPosition(token.getLine(), token.getColumn());
         }
-        top.setNodeSize(endPos - topPos);
+        top.resize(endPos - topPos);
         
         completedNode(top, topPos, endPos - topPos);
     }
@@ -913,9 +913,7 @@ public class EditorParser extends JavaParser
     @Override
     protected void beginMethodBody(LocatableToken token)
     {
-        // ParsedNode pnode = new MethodBodyNode(scopeStack.peek());
-        ParsedNode pnode = new ParentParsedNode(scopeStack.peek());
-        pnode.setInner(true);
+        ParsedNode pnode = new MethodBodyNode(scopeStack.peek());
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
         beginNode(insPos);

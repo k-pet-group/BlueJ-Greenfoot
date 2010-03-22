@@ -59,7 +59,7 @@ public class CommentNode extends ParsedNode
     {
         // grow ourself:
         int newSize = getSize() + length;
-        setNodeSize(newSize);
+        resize(newSize);
         reparseNode(document, nodePos, insPos, listener);
     }
 
@@ -68,7 +68,7 @@ public class CommentNode extends ParsedNode
     {
         // shrink ourself:
         int newSize = getSize() - length;
-        setNodeSize(newSize);
+        resize(newSize);
         reparseNode(document, nodePos, delPos, listener);
     }
 

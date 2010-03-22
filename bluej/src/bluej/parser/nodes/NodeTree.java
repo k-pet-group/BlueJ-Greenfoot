@@ -168,9 +168,9 @@ public class NodeTree
     /**
      * Set the size of the contained ParsedNode. This is to be used in cases where the
      * node has shrunk or grown because of text being removed or inserted, not for cases
-     * when the node is taking on more (or less) text from the document.
+     * when the node is taking on more (or less) text from the document (see also setSize()).
      */
-    public void setNodeSize(int newSize)
+    public void resize(int newSize)
     {
         int delta = newSize - pnodeSize;
         pnodeSize = newSize;
@@ -180,6 +180,21 @@ public class NodeTree
                 nt.parent.pnodeOffset += delta;
             }
             nt = nt.parent;
+        }
+    }
+    
+    /**
+     * Set the size of the contained ParsedNode, without moving nodes to the right of it.
+     * See also resize().
+     */
+    public void setSize(int newSize)
+    {
+        int delta = newSize - pnodeSize;
+        pnodeSize = newSize;
+        NodeTree nt = this.right;
+        while (nt != null) {
+            nt.pnodeOffset -= delta;
+            nt = nt.left;
         }
     }
 
