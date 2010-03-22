@@ -144,8 +144,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     // -------- CONSTANTS --------
 
     // version number
-    final static int version = 252;
-    final static String versionString = "2.5.2";
+    final static int version = 300;
+    final static String versionString = "3.0.0";
 
     // colours
     final static Color cursorColor = new Color(255, 0, 100);                 // cursor
