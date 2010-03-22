@@ -212,18 +212,15 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
     }
 
     public void beginEditing() {
-        // TODO Auto-generated method stub
-
+       
     }
 
     public void commitEditing() {
-        // TODO Auto-generated method stub
-
+       handleClose();
     }
 
     public void revertEditing() {
-        // TODO Auto-generated method stub
-
+        
     }
 
     /**
@@ -363,6 +360,16 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
     }
 
     /**
+     * Handle click on Close button.
+     */
+    private void handleClose()
+    {
+        removeKeyListener();
+        if(!actions.save())
+            DialogManager.showError(this, "cannot-save-keys");
+        setVisible(false);
+    }
+    /**
      * Handle click on Add Key button.
      */
     private void handleAddKey()
@@ -464,6 +471,5 @@ public class KeyBindingsPanel extends JPanel implements ActionListener, ListSele
         actions = MoeActions.getActions(new JEditorPane());
         setActionValues(actions.getActionTable(), actions.getCategories(), actions.getCategoryIndex());
     }
-
 
 }
