@@ -411,7 +411,7 @@ public final class MoeActions
                 keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, SHORTCUT_MASK),
                         (Action) (actions.get("decrease-font")));
             }
-            if (version < 301) {
+            if (version < 300) {
                 keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, Event.CTRL_MASK), (Action) (actions
                         .get("code-completion")));
             }
