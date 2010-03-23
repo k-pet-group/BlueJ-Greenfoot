@@ -309,7 +309,7 @@ public final class JavaLexer implements TokenStream
                 //eof
                 return JavaTokenTypes.INVALID;
             }
-            
+
             ch=(char)rval;
             while (ch=='*') {
                 textBuffer.append((char)rval);
@@ -317,17 +317,13 @@ public final class JavaLexer implements TokenStream
                 if (rval == -1) {
                     return JavaTokenTypes.INVALID;
                 }
-                if ((char)rval!='*'){
+                if (rval == '/') {
                     textBuffer.append((char)rval);
-                    if (rval == '/') {
-                        readNextChar();
-                        return JavaTokenTypes.ML_COMMENT;
-                    }
-                    else break;
+                    readNextChar();
+                    return JavaTokenTypes.ML_COMMENT;
                 }
-                else ch=(char)rval;              
-            }
-            
+                ch=(char)rval; 
+            }             
         } while (true);
     }
     

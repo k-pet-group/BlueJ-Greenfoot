@@ -420,6 +420,22 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(33, token.getEndColumn());
         assertEquals(1, token.getEndLine());
         
+        //more complicated comments
+        ts = getNonfilteringLexerFor("/**test*this***/");
+        token = (LocatableToken) ts.nextToken();
+        assertTrue(token.getType() == JavaTokenTypes.ML_COMMENT);
+        assertEquals("/**test*this***/", token.getText());
+        
+        ts = getNonfilteringLexerFor("/*test/check*/");
+        token = (LocatableToken) ts.nextToken();
+        assertTrue(token.getType() == JavaTokenTypes.ML_COMMENT);
+        assertEquals("/*test/check*/", token.getText());
+        
+        ts = getNonfilteringLexerFor("/*test//check*/");
+        token = (LocatableToken) ts.nextToken();
+        assertTrue(token.getType() == JavaTokenTypes.ML_COMMENT);
+        assertEquals("/*test//check*/", token.getText());
+        
         // Make sure single line comment terminates
         ts = getNonfilteringLexerFor("// single line comment\n  an_identifier");
         token = (LocatableToken) ts.nextToken();
