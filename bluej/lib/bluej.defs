@@ -403,6 +403,9 @@ bluej.editor.matchBrackets=true
 
 bluej.editor.tabsize=4
 
+## Code Completion. When true it is enabled; when false it is disabled
+## There is no option to change this from the preferences dialogue
+bluej.editor.codecompletion=true
 
 #######################################################################
 ## Settings for test, teamwork, and Java ME tools preferences.

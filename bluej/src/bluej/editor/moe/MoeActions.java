@@ -1104,7 +1104,9 @@ public final class MoeActions
         public void actionPerformed(ActionEvent e)
         { 
             MoeEditor editor = getEditor(e);
-            editor.createContentAssist();
+            if (Config.getPropBoolean("bluej.editor.codecompletion", true)){
+                editor.createContentAssist();
+            }
         }
     }
 
