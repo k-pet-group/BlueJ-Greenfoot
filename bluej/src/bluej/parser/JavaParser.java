@@ -2576,7 +2576,7 @@ public class JavaParser
                 // -it's not followed by an operator OR
                 //  the type is primitive and the following operator is a unary operator
                 //  OR following the ')' is '('
-                // -it's not followed by an expression terminator - ; , )
+                // -it's not followed by an expression terminator - ; : , ) } ] EOF
 
                 int tt2 = tokenStream.LA(2).getType();
                 boolean isCast = isTypeSpec && tokenStream.LA(1).getType() == JavaTokenTypes.RPAREN;
@@ -2585,6 +2585,8 @@ public class JavaParser
                             && isUnaryOperator(tokenStream.LA(2)));
                     isCast &= tt2 != JavaTokenTypes.SEMI && tt2 != JavaTokenTypes.RPAREN
                             && tt2 != JavaTokenTypes.RCURLY && tt2 != JavaTokenTypes.EOF;
+                    isCast &= tt2 != JavaTokenTypes.COMMA && tt2 != JavaTokenTypes.COLON
+                            && tt2 != JavaTokenTypes.RBRACK;
                 }
 
                 if (isCast) {
