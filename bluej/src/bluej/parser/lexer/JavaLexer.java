@@ -302,7 +302,7 @@ public final class JavaLexer implements TokenStream
 
     private int getMLCommentType(char ch)
     {
-        do{  
+        do{
             textBuffer.append(ch);
             int rval = readNextChar();
             if (rval == -1) {
@@ -311,20 +311,23 @@ public final class JavaLexer implements TokenStream
             }
             
             ch=(char)rval;
-
-            if (ch=='*') {
+            while (ch=='*') {
                 textBuffer.append((char)rval);
                 rval = readNextChar();
                 if (rval == -1) {
                     return JavaTokenTypes.INVALID;
                 }
-                textBuffer.append((char)rval);
-                if (rval == '/') {
-                    readNextChar();
-                    return JavaTokenTypes.ML_COMMENT;
+                if ((char)rval!='*'){
+                    textBuffer.append((char)rval);
+                    if (rval == '/') {
+                        readNextChar();
+                        return JavaTokenTypes.ML_COMMENT;
+                    }
+                    else break;
                 }
+                else ch=(char)rval;              
             }
-
+            
         } while (true);
     }
     
