@@ -273,7 +273,7 @@ public class NodeTree
             }
             swapNodeData(this, sub);
 
-            pnodeOffset -= nmoffset;
+            pnodeOffset += nmoffset;
             int rchange = (sub.pnodeOffset + sub.pnodeSize) - (pnodeOffset + pnodeSize);
             right.adjustLeftOffsets(rchange);
 
@@ -611,9 +611,7 @@ public class NodeTree
             n.right.pnodeOffset -= (n.pnodeOffset + n.pnodeSize);
             return;
         }
-        
-        n.right.pnodeOffset -= (n.pnodeOffset + n.pnodeSize);
-        
+                
         NodeTree oldRight = n.right;
         n.right = n.left;
         n.left = n.right.left;
@@ -625,6 +623,8 @@ public class NodeTree
         if (oldRight != null) {
             oldRight.parent = n.right;
         }
+        
+        n.right.pnodeOffset -= (n.pnodeOffset + n.pnodeSize);
     }
 	
     private NodeTree getGrandparent()

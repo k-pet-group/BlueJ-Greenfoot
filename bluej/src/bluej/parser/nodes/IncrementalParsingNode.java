@@ -138,6 +138,13 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         
         LocatableToken laToken = parser.getTokenStream().LA(1);
         int ttype = laToken.getType();
+        if (ttype == JavaTokenTypes.EOF) {
+            while (nextChild != null) {
+                childRemoved(nextChild, listener);
+                nextChild = childQueue.poll();
+            }
+            return;
+        }
         
         while (! isNodeEndMarker(ttype)) {
             
@@ -196,7 +203,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             laToken = nlaToken;
             ttype = laToken.getType();
         }
-        
+
         // Process the child queue
         while (nextChild != null) {
             insertNode(nextChild.getNode(), nextChild.getPosition() - nodePos, nextChild.getSize());
