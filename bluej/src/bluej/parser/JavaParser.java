@@ -650,17 +650,7 @@ public class JavaParser
             token = tokenStream.nextToken();
             if (token.getType() == JavaTokenTypes.LPAREN) {
                 parseArgumentList(token);
-                if (token.getType() != JavaTokenTypes.RPAREN) {
-                    error("Expecting ')' at end of enum constant constructor arguments");
-                    if (token.getType() != JavaTokenTypes.COMMA
-                            && token.getType() != JavaTokenTypes.SEMI) {
-                        tokenStream.pushBack(token);
-                        return;
-                    }
-                }
-                else {
-                    token = tokenStream.nextToken();
-                }
+                token = tokenStream.nextToken();
             }
 
             if (token.getType() == JavaTokenTypes.SEMI) {
