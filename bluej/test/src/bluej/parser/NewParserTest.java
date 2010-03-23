@@ -461,4 +461,13 @@ public class NewParserTest extends TestCase
         JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
+    
+    public void testParenthesizedValue()
+    {
+        StringReader sr = new StringReader(
+                "new int[] { 1, 2 + (someValue), 3 }"
+                );
+        JavaParser ip = new JavaParser(sr);
+        ip.parseExpression();
+    }
 }
