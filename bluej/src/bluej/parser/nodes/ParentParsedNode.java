@@ -22,7 +22,6 @@
 package bluej.parser.nodes;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.swing.text.Document;
@@ -302,37 +301,6 @@ public class ParentParsedNode extends ParsedNode
         
         reparseNode(document, nodePos, delPos, listener);
     }
-
-    /**
-     * Remove a child node, and notify the NodeStructureListener that the child and
-     * its descendants have been removed. 
-     */
-    protected final void removeChild(NodeAndPosition child, NodeStructureListener listener)
-    {
-        child.getNode().remove();
-        childRemoved(child, listener);
-    }
-    
-    protected void childRemoved(NodeAndPosition child, NodeStructureListener listener)
-    {
-        listener.nodeRemoved(child);
-        removeChildren(child, listener);
-    }
-    
-    /**
-     * Notify the NodeStructureListener that all descendants of a particular node
-     * are removed, due to the node itself having been removed. (Note this does not actually
-     * remove the children from the parent node).
-     */
-    protected static void removeChildren(NodeAndPosition node, NodeStructureListener listener)
-    {
-        Iterator<NodeAndPosition> i = node.getNode().getChildren(node.getPosition());
-        while (i.hasNext()) {
-            NodeAndPosition nap = i.next();
-            listener.nodeRemoved(nap);
-            removeChildren(nap, listener);
-        }
-    }
     
     /**
      * Re-parse the node. The default implementation passes the request down to the parent.
@@ -346,6 +314,7 @@ public class ParentParsedNode extends ParsedNode
         if (getContainingNodeTree() != null) {
             noffset = getContainingNodeTree().getPosition();
         }
+        getParentNode().removeChild(new NodeAndPosition(this, nodePos, getSize()), listener);
         getParentNode().reparseNode(document, nodePos - noffset, offset, listener);
     }
     

@@ -342,6 +342,37 @@ public abstract class ParsedNode implements EntityResolver
         return classNodes;
     }
     
+    /**
+     * Remove a child node, and notify the NodeStructureListener that the child and
+     * its descendants have been removed. 
+     */
+    protected final void removeChild(NodeAndPosition child, NodeStructureListener listener)
+    {
+        child.getNode().remove();
+        childRemoved(child, listener);
+    }
+    
+    protected void childRemoved(NodeAndPosition child, NodeStructureListener listener)
+    {
+        listener.nodeRemoved(child);
+        removeChildren(child, listener);
+    }
+    
+    /**
+     * Notify the NodeStructureListener that all descendants of a particular node
+     * are removed, due to the node itself having been removed. (Note this does not actually
+     * remove the children from the parent node).
+     */
+    protected static void removeChildren(NodeAndPosition node, NodeStructureListener listener)
+    {
+        Iterator<NodeAndPosition> i = node.getNode().getChildren(node.getPosition());
+        while (i.hasNext()) {
+            NodeAndPosition nap = i.next();
+            listener.nodeRemoved(nap);
+            removeChildren(nap, listener);
+        }
+    }
+    
     // =================== EntityResolver interface ====================
     
     /*
