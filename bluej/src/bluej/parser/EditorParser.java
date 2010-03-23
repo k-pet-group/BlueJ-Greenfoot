@@ -186,7 +186,7 @@ public class EditorParser extends JavaParser
      * @param position  The absolute position of the new node
      * @param size  The size of the new node
      */
-    protected void completedNode(ParsedNode node, int position, int size)
+    public void completedNode(ParsedNode node, int position, int size)
     {
         ListIterator<LocatableToken> i = commentQueue.listIterator();
         while (i.hasNext()) {

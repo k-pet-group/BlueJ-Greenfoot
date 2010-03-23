@@ -143,6 +143,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 childRemoved(nextChild, listener);
                 nextChild = childQueue.poll();
             }
+            parser.completedNode(this, nodePos, getSize());
             return;
         }
         
@@ -159,11 +160,8 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             if (parser.getTokenStream().LA(1) == laToken) {
                 // We didn't manage to parse anything?
                 parser.getTokenStream().nextToken();
-                laToken = parser.getTokenStream().LA(1);
-                ttype = laToken.getType();
-                continue;
             }
-                        
+            
             if (nextChild != null) {
                 // Perhaps we've now overwritten part of nextChild, or otherwise we may have pushed
                 // it further back.
@@ -195,8 +193,10 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                             new NodeAndPosition(this, nodePos, getSize()), listener)) {
                         // Successfully grew... now do some more parsing
                         reparseNode(document, nodePos, tokpos, listener);
+                        return;
                     }
                 }
+                parser.completedNode(this, nodePos, getSize());
                 return;
             }
             
