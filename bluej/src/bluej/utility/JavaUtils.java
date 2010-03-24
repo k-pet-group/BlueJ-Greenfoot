@@ -357,10 +357,15 @@ public abstract class JavaUtils
      * @param container  The type containing the member to which access is being checked
      * @param accessor   The type trying to access the member
      * @param modifiers  The modifiers of the member
+     * @param isStatic   True if the type is a class; false if not
      * @return  true if the access is allowed, false otherwise
      */
-    public static boolean checkMemberAccess(Reflective container, Reflective accessor, int modifiers)
+    public static boolean checkMemberAccess(Reflective container, Reflective accessor, int modifiers, boolean isStatic)
     {
+        //if it is a class then only static methods are available
+        if (isStatic && !Modifier.isStatic(modifiers))
+            return false;
+        
         if (Modifier.isPublic(modifiers)) {
             return true;
         }
@@ -383,7 +388,7 @@ public abstract class JavaUtils
         if (dollarIndex != -1) {
             // Inner classes can access outer class members with outer class privileges
             Reflective outer = container.getRelativeClass(accessor.getName().substring(0, dollarIndex));
-            if (checkMemberAccess(container, outer, modifiers)) {
+            if (checkMemberAccess(container, outer, modifiers, isStatic)) {
                 return true;
             }
         }

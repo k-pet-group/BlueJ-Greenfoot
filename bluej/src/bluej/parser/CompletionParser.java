@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -47,7 +47,8 @@ public class CompletionParser extends TextParser
     private Map<String,Set<MethodReflective>> methodSuggestions = Collections.emptyMap();
     private JavaEntity suggestionEntity;
     private LocatableToken suggestionToken;
-    
+    private boolean staticRestricted=false;
+
     /**
      * Construct an expression parser, used for suggesting completions.
      * 
@@ -101,6 +102,7 @@ public class CompletionParser extends TextParser
             }
             valEnt = suggestionEntity.resolveAsType();
             if (valEnt != null) {
+                setStatic(true);
                 return valEnt.getType().getCapture().asSolid();
             }
         }
@@ -173,5 +175,13 @@ public class CompletionParser extends TextParser
         else {
             super.gotLiteral(token);
         }
+    }
+    
+    public boolean isSuggestionStatic() {
+        return staticRestricted;
+    }
+
+    protected void setStatic(boolean restricted) {
+        this.staticRestricted = restricted;
     }
 }

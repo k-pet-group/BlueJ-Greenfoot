@@ -3400,9 +3400,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                             if (accessReflective != null &&
                                     ! JavaUtils.checkMemberAccess(method.getDeclaringType(),
                                     suggests.getAccessType().getReflective(),
-                                    method.getModifiers())) {
-                                continue;
-                            }
+                                    method.getModifiers(), suggests.isStatic()))
+                                    continue;
                             MethodCompletion completion = new MethodCompletion(method,
                                     typeArgs, javadocResolver);
                             String sig = completion.getDisplayName();
