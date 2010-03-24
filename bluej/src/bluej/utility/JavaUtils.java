@@ -357,7 +357,7 @@ public abstract class JavaUtils
      * @param container  The type containing the member to which access is being checked
      * @param accessor   The type trying to access the member
      * @param modifiers  The modifiers of the member
-     * @param isStatic   True if the type is a class; false if not
+     * @param isStatic   True if the access is a in static context; false if not
      * @return  true if the access is allowed, false otherwise
      */
     public static boolean checkMemberAccess(Reflective container, Reflective accessor, int modifiers, boolean isStatic)
