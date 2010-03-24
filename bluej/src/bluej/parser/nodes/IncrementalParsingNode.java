@@ -21,14 +21,17 @@
  */
 package bluej.parser.nodes;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.util.LinkedList;
 import java.util.Stack;
 
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
 import bluej.parser.DocumentReader;
 import bluej.parser.EditorParser;
+import bluej.parser.EscapedUnicodeReader;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -144,6 +147,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 nextChild = childQueue.poll();
             }
             parser.completedNode(this, nodePos, getSize());
+            checkEnd(document, nodePos, listener);
             return;
         }
         
@@ -197,6 +201,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                     }
                 }
                 parser.completedNode(this, nodePos, getSize());
+                checkEnd(document, nodePos, listener);
                 return;
             }
             
@@ -222,7 +227,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         }
     }    
     
-    protected Stack<ParsedNode> buildScopeStack()
+    private Stack<ParsedNode> buildScopeStack()
     {
         Stack<ParsedNode> r = new Stack<ParsedNode>();
         ParsedNode pn = this;
@@ -234,9 +239,54 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         return r;
     }
     
+    /**
+     * Convert a line and column number to an absolute position.
+     */
     private static int lineColToPos(Document document, int line, int col)
     {
         return document.getDefaultRootElement().getElement(line - 1).getStartOffset() + col - 1;
+    }
+    
+    /**
+     * Check if a single line comment exists at the end of this node, which is not properly
+     * terminated - that is, it ends before the end of the line. This can happen if such a
+     * comment is inserted into an existing node which ends on the same line.
+     */
+    private void checkEnd(Document document, int nodePos, NodeStructureListener listener)
+    {
+        int end = nodePos + getSize();
+        NodeAndPosition nap = findNodeAt(end - 1, nodePos);
+        if (nap == null) {
+            return;
+        }
+        int offset = nap.getPosition();
+        if (offset + nap.getSize() < end
+                || nap.getNode().getNodeType() != ParsedNode.NODETYPE_COMMENT) {
+            // The final child node isn't a comment, or it ends before the end of this node.
+            return;
+        }
+        
+        Reader r = new DocumentReader(document, offset, nodePos + getSize());
+        EscapedUnicodeReader eur = new EscapedUnicodeReader(r);
+        try {
+            if (eur.read() == '/' && eur.read() == '/') {
+                // It's a single-line comment
+                String str = document.getText(end, 1);
+                if (str.charAt(0) != '\n') {
+                    // The comment should extend to the end of the line, but it doesn't.
+                    if (getParentNode().growChild(document,
+                            new NodeAndPosition(this, nodePos, getSize()), listener)) {
+                        // Successfully grew... now do some more parsing
+                        reparseNode(document, nodePos, offset, listener);
+                        return;
+                    }
+                }
+            }
+        }
+        catch (IOException ioe) {}
+        catch (BadLocationException ble) {
+            // We might actually get this, but it's fine to return.
+        }
     }
     
     @Override

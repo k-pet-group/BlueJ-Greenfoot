@@ -332,6 +332,9 @@ public class NodeTree
         }
     }
 
+    /**
+     * Remove, in the special case that one or both children are null.
+     */
     private void one_child_remove()
     {
         if (left == null && right == null) {
@@ -340,6 +343,8 @@ public class NodeTree
                 if (black) {
                     delete_case_1();
                 }
+                // If we're not black, we are red. So removing us doesn't change
+                // the number of black nodes in any path from the parent.
                 if (parent.left == this) {
                     parent.left = null;
                 }
