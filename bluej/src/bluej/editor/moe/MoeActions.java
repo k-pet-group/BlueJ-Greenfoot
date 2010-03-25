@@ -414,6 +414,8 @@ public final class MoeActions
             if (version < 300) {
                 keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, Event.CTRL_MASK), (Action) (actions
                         .get("code-completion")));
+                keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_I, SHIFT_SHORTCUT_MASK ), (Action) (actions
+                        .get("autoindent")));
             }
             return true;
         }
@@ -2169,6 +2171,8 @@ public final class MoeActions
                 .get("decrease-font")));
         keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, Event.CTRL_MASK), (Action) (actions
                 .get("code-completion")));
+        keymap.addActionForKeyStroke(KeyStroke.getKeyStroke(KeyEvent.VK_I, SHIFT_SHORTCUT_MASK ), (Action) (actions
+                .get("autoindent")));
 
     }
 
