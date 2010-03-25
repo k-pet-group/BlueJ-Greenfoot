@@ -298,7 +298,9 @@ public class ParentParsedNode extends ParsedNode
             // Remove any following nodes as necessary
             NodeAndPosition next = child.nextSibling();
             while (next != null && next.getEnd() < endPos) {
+                NodeAndPosition nnext = next.nextSibling();
                 removeChild(next, listener);
+                next = nnext;
             }
             if (next != null) {
                 next.getNode().getContainingNodeTree().slideNode(-length);
