@@ -81,7 +81,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
     }
 
     @Override
-    protected void reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
+    protected int reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
     {
         // Find the nearest container node prior to the reparse point.
         NodeAndPosition nap = null;
@@ -147,8 +147,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 nextChild = childQueue.poll();
             }
             parser.completedNode(this, nodePos, getSize());
-            checkEnd(document, nodePos, listener);
-            return;
+            return checkEnd(document, nodePos, listener);
         }
         
         while (! isNodeEndMarker(ttype)) {
@@ -196,13 +195,13 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                     if (getParentNode().growChild(document,
                             new NodeAndPosition(this, nodePos, getSize()), listener)) {
                         // Successfully grew... now do some more parsing
-                        reparseNode(document, nodePos, tokpos, listener);
-                        return;
+                        int rep = reparseNode(document, nodePos, tokpos, listener);
+                        return rep == ALL_OK ? NODE_GREW : rep;
                     }
                 }
                 parser.completedNode(this, nodePos, getSize());
                 checkEnd(document, nodePos, listener);
-                return;
+                return ALL_OK;
             }
             
             laToken = nlaToken;
@@ -221,10 +220,10 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             int newsize = tokpos - nodePos;
             if (newsize < getSize()) {
                 setSize(newsize);
-                getParentNode().childShrunk(document,
-                        new NodeAndPosition(this, nodePos, newsize), listener);
+                return NODE_SHRUNK;
             }
         }
+        return ALL_OK;
     }    
     
     private Stack<ParsedNode> buildScopeStack()
@@ -252,18 +251,21 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
      * terminated - that is, it ends before the end of the line. This can happen if such a
      * comment is inserted into an existing node which ends on the same line.
      */
-    private void checkEnd(Document document, int nodePos, NodeStructureListener listener)
+    private int checkEnd(Document document, int nodePos, NodeStructureListener listener)
     {
         int end = nodePos + getSize();
+        if (end >= document.getLength()) {
+            return ALL_OK;
+        }
         NodeAndPosition nap = findNodeAt(end - 1, nodePos);
         if (nap == null) {
-            return;
+            return ALL_OK;
         }
         int offset = nap.getPosition();
         if (offset + nap.getSize() < end
                 || nap.getNode().getNodeType() != ParsedNode.NODETYPE_COMMENT) {
             // The final child node isn't a comment, or it ends before the end of this node.
-            return;
+            return ALL_OK;
         }
         
         Reader r = new DocumentReader(document, offset, nodePos + getSize());
@@ -277,9 +279,9 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                     if (getParentNode().growChild(document,
                             new NodeAndPosition(this, nodePos, getSize()), listener)) {
                         // Successfully grew... now do some more parsing
-                        reparseNode(document, nodePos, offset, listener);
-                        return;
+                        return reparseNode(document, nodePos, offset, listener);
                     }
+                    return REMOVE_NODE;
                 }
             }
         }
@@ -287,6 +289,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         catch (BadLocationException ble) {
             // We might actually get this, but it's fine to return.
         }
+        return ALL_OK;
     }
     
     @Override
@@ -326,7 +329,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             return true;
         }
         
-        getParentNode().reparseNode(document, mypos, mypos, listener);
+        //getParentNode().reparseNode(document, mypos, mypos, listener);
         return false;
     }
 }

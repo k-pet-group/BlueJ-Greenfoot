@@ -55,29 +55,30 @@ public class CommentNode extends ParsedNode
     }
 
     @Override
-    public void textInserted(Document document, int nodePos, int insPos, int length, NodeStructureListener listener)
+    public int textInserted(Document document, int nodePos, int insPos, int length, NodeStructureListener listener)
     {
         // grow ourself:
         int newSize = getSize() + length;
         resize(newSize);
-        reparseNode(document, nodePos, insPos, listener);
+        return reparseNode(document, nodePos, insPos, listener);
     }
 
     @Override
-    public void textRemoved(Document document, int nodePos, int delPos, int length, NodeStructureListener listener)
+    public int textRemoved(Document document, int nodePos, int delPos, int length, NodeStructureListener listener)
     {
         // shrink ourself:
         int newSize = getSize() - length;
         resize(newSize);
-        reparseNode(document, nodePos, delPos, listener);
+        return reparseNode(document, nodePos, delPos, listener);
     }
 
     @Override
-    protected void reparseNode(Document document, int nodePos, int offset,
+    protected int reparseNode(Document document, int nodePos, int offset,
             NodeStructureListener listener)
     {
         // DAV TODO
-        getParentNode().reparseNode(document, nodePos - getOffsetFromParent(), offset, listener);
+        //getParentNode().reparseNode(document, nodePos - getOffsetFromParent(), offset, listener);
+        return REMOVE_NODE;
     }
     
 }

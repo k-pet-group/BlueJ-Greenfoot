@@ -57,6 +57,7 @@ public class ParentParsedNode extends ParsedNode
         super(myParent);
     }
     
+    @Override
     public Token getMarkTokensFor(int pos, int length, int nodePos,
             Document document)
     {
@@ -227,7 +228,7 @@ public class ParentParsedNode extends ParsedNode
     }
 
     @Override
-    public void textInserted(Document document, int nodePos, int insPos,
+    public int textInserted(Document document, int nodePos, int insPos,
             int length, NodeStructureListener listener)
     {
         // grow ourself:
@@ -238,7 +239,16 @@ public class ParentParsedNode extends ParsedNode
         if (child != null && child.getPosition() < insPos) {
             ParsedNode cnode = child.getNode();
             // let the child handle the change.
-            cnode.textInserted(document, child.getPosition(), insPos, length, listener);
+            int r = cnode.textInserted(document, child.getPosition(), insPos, length, listener);
+            if (r == NODE_GREW || r == NODE_SHRUNK) {
+                newSize = child.getNode().getSize();
+                return reparseNode(document, nodePos, child.getPosition() + newSize, listener);
+            }
+            else if (r == REMOVE_NODE) {
+                removeChild(child, listener);
+                return reparseNode(document, nodePos, child.getPosition(), listener);
+            }
+            return ALL_OK;
         }
         else {
             // We must handle the insertion ourself
@@ -246,17 +256,17 @@ public class ParentParsedNode extends ParsedNode
             if (child != null) {
                 child.getNode().getContainingNodeTree().slideNode(length);
             }
-            reparseNode(document, nodePos, insPos, listener);
+            return reparseNode(document, nodePos, insPos, listener);
         }
     }
     
     @Override
-    public void textRemoved(Document document, int nodePos, int delPos,
+    public int textRemoved(Document document, int nodePos, int delPos,
             int length, NodeStructureListener listener)
     {
         // shrink ourself:
-        int newSize = getSize() - length;
-        resize(newSize);
+        //int newSize = getSize() - length;
+        //resize(newSize);
         
         int endPos = delPos + length;
         
@@ -267,39 +277,57 @@ public class ParentParsedNode extends ParsedNode
             int childEndPos = child.getPosition() + child.getSize();
             if (childEndPos >= endPos) {
                 // Remove the middle of the child node
-                child.getNode().textRemoved(document, child.getPosition(), delPos, length, listener);
-                return;
+                child.getNode().resize(child.getSize() - length);
+                int r = child.getNode().textRemoved(document, child.getPosition(), delPos, length, listener);
+                if (r == REMOVE_NODE) {
+                    removeChild(child, listener);
+                    return reparseNode(document, nodePos, child.getPosition(), listener);
+                }
+                else if (r != ALL_OK) {
+                    int newSize = child.getSize();
+                    return reparseNode(document, nodePos, child.getPosition() + newSize, listener);
+                }
+                return ALL_OK;
             }
             
-            do {
-                // Remove the end portion of the child node
-                int rlength = childEndPos - delPos; // how much is removed
-                child.getNode().textRemoved(document, child.getPosition(), delPos, rlength, listener);
-                length -= rlength;
-                endPos -= rlength;
-                // This is done in a loop in case the child has enlarged itself
-            } while (child.getEnd() > delPos && length > 0);
-            if (length == 0) {
-                return;
+            // Remove the end portion of the child node
+            int rlength = childEndPos - delPos; // how much is removed
+            child.getNode().setSize(child.getSize() - rlength);
+            int reparseOffset;
+
+            // Remove any following nodes as necessary
+            NodeAndPosition next = child.nextSibling();
+            while (next != null && next.getEnd() < endPos) {
+                removeChild(next, listener);
             }
-            child = child.nextSibling();
+            if (next != null) {
+                next.getNode().getContainingNodeTree().slideNode(-length);
+            }
+
+            // Inform the child of the removed text 
+            int r = child.getNode().textRemoved(document, child.getPosition(), delPos, rlength, listener);
+            if (r == REMOVE_NODE) {
+                reparseOffset = child.getPosition();
+                removeChild(child, listener);
+            }
+            else {
+                reparseOffset = child.getPosition() + child.getNode().getSize();
+            }
+
+            return reparseNode(document, nodePos, reparseOffset, listener);
         }
         
-        while (child != null) {
-            if (child.getPosition() >= endPos) {
-                child.getNode().getContainingNodeTree().slideNode(-length);
-                break;
-            }
-            
-            // Either remove the whole child node, or its beginning. Seeing as it's
-            // unlikely that removing the beginning of a node is helpful, we'll just
-            // remove it all.
-            NodeAndPosition nextChild = child.nextSibling();
-            removeChild(child, listener);
-            child = nextChild;
+        while (child != null && child.getPosition() < endPos) {
+                NodeAndPosition nextChild = child.nextSibling();
+                removeChild(child, listener);
+                child = nextChild;
+        }
+
+        if (child != null) {
+            child.getNode().getContainingNodeTree().slideNode(-length);
         }
         
-        reparseNode(document, nodePos, delPos, listener);
+        return reparseNode(document, nodePos, delPos, listener);
     }
     
     /**
@@ -307,23 +335,9 @@ public class ParentParsedNode extends ParsedNode
      * The tree root must provide a different implementation.
      */
     @Override
-    protected void reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
+    protected int reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
     {
-        // Get own offset
-        int noffset = 0;
-        if (getContainingNodeTree() != null) {
-            noffset = getContainingNodeTree().getPosition();
-        }
-        getParentNode().removeChild(new NodeAndPosition(this, nodePos, getSize()), listener);
-        getParentNode().reparseNode(document, nodePos - noffset, offset, listener);
-    }
-    
-    @Override
-    protected void childShrunk(Document document, NodeAndPosition child,
-            NodeStructureListener listener)
-    {
-        int mypos = child.getPosition() - child.getNode().getOffsetFromParent();
-        reparseNode(document, mypos, child.getEnd(), listener);
+        return REMOVE_NODE;
     }
     
     @Override
@@ -332,8 +346,6 @@ public class ParentParsedNode extends ParsedNode
     {
         // Without any further knowledge, we're just going to have to do a full reparse.
         // Subclasses should override this to improve performance.
-        int mypos = child.getPosition() - child.getNode().getOffsetFromParent();
-        reparseNode(document, mypos, mypos, listener);
         return false;
     }
     

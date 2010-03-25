@@ -234,13 +234,18 @@ public abstract class ParsedNode implements EntityResolver
         return getContainingNodeTree().getNodeSize();
     }
 
+    /* Constants for status of various methods defined below */
+    protected final static int ALL_OK = 0;
+    protected final static int NODE_GREW = 1;
+    protected final static int NODE_SHRUNK = 2;
+    protected final static int REMOVE_NODE = 3; // (and reparse parent)
+    
     /**
-     * Insert the given text.
+     * Insert the given text.<p>
      * 
-     * The result can be:
-     * - text absorbed, no change to node structure
-     * - node terminates earlier (eg ';' or '}' inserted)
-     * - subnode created, and this node extended (eg insert '{')
+     * The result should be one of ALL_OK, NODE_GREW, NODE_SHRUNK, or REMOVE_NODE.
+     * The latter indicates that the caller should remove the node. Except in the
+     * case of ALL_OK, the parent node must generally be re-parsed.
      * 
      * @param document   The document
      * @param nodePos    The position of "this" node (relative to the document).
@@ -248,10 +253,46 @@ public abstract class ParsedNode implements EntityResolver
      * @param length     The length of the insert
      * @param listener   The listener for node structural changes
      */
-    public abstract void textInserted(Document document, int nodePos, int insPos, int length, NodeStructureListener listener);
-	
-    public abstract void textRemoved(Document document, int nodePos, int delPos, int length, NodeStructureListener listener);
+    public abstract int textInserted(Document document, int nodePos, int insPos, int length, NodeStructureListener listener);
 
+    /**
+     * The specified portion of text within the node has been removed.<p>
+     * 
+     * The result should be one of ALL_OK, NODE_GREW, NODE_SHRUNK, or REMOVE_NODE.
+     * The latter indicates that the caller should remove the node. Except in the
+     * case of ALL_OK, the parent node must generally be re-parsed.
+     * 
+     * @param document   The document
+     * @param nodePos    The position of "this" node (relative to the document).
+     * @param insPos     The position of the removal (relative to the document).
+     * @param length     The length of the removal
+     * @param listener   The listener for node structural changes
+     */
+    public abstract int textRemoved(Document document, int nodePos, int delPos, int length, NodeStructureListener listener);
+
+    /**
+     * This node should be re-parsed from the specified point. The node position
+     * and offset are relative to the document beginning.<p>
+     * 
+     * The result should be one of ALL_OK, NODE_GREW, NODE_SHRUNK, or REMOVE_NODE.
+     * The latter indicates that the caller should remove the node. Except in the
+     * case of ALL_OK, the parent node must generally also be re-parsed.
+     */
+    protected int reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
+    {
+        return ALL_OK;
+    }
+    
+    /**
+     * Get a sequence of "tokens" which indicate the colour and position/size of various tokens
+     * in a line of source code text. 
+     * @param pos       The position of the text to tokenize (document relative). Must be on a
+     *                  line or token boundary.
+     * @param length    The length of the text to tokenize. Must be on a line or token boundary.
+     * @param nodePos   The position of the node
+     * @param document  The source document
+     * @return  A linked list of Token objects
+     */
     public abstract Token getMarkTokensFor(int pos, int length, int nodePos, Document document);
 
     protected ParsedNode getParentNode()
@@ -264,7 +305,7 @@ public abstract class ParsedNode implements EntityResolver
         return nodeTree;
     }
 
-    protected NodeTree getContainingNodeTree()
+    protected final NodeTree getContainingNodeTree()
     {
         return containingNodeTree;
     }
@@ -290,16 +331,7 @@ public abstract class ParsedNode implements EntityResolver
     {
         return false;
     }
-    
-    protected void childShrunk(Document document,
-            NodeAndPosition child, NodeStructureListener listener) {}
-
-    /**
-     * This node should be re-parsed from the specified point. The node position
-     * and offset are relative to the document beginning.
-     */
-    protected void reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener) {}
-    
+        
     /**
      * Get code completion suggestions at a particular point. May return null.
      */
@@ -344,7 +376,8 @@ public abstract class ParsedNode implements EntityResolver
     
     /**
      * Remove a child node, and notify the NodeStructureListener that the child and
-     * its descendants have been removed. 
+     * its descendants have been removed.  Won't disturb the position of subsequent
+     * children.
      */
     protected final void removeChild(NodeAndPosition child, NodeStructureListener listener)
     {

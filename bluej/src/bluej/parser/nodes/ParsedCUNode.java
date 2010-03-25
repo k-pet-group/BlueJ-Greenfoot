@@ -57,11 +57,13 @@ public class ParsedCUNode extends ParentParsedNode
     }
     
     /**
-     * Construct a parsed node for the given document.
+     * Construct a parsed node for the given document. The node will
+     * assume its size is 0; the text from the document (if any) should
+     * be explicitly inserted.
      */
     public ParsedCUNode(Document document)
     {
-        size = document.getLength();
+        size = 0;
     }
     
     /**
@@ -102,9 +104,10 @@ public class ParsedCUNode extends ParentParsedNode
      * Reparse this node from the specified offset.
      */
     @Override
-    protected void reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
+    protected int reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
     {
         doReparse(document, 0, offset, listener);
+        return ALL_OK;
     }
     
     protected void doReparse(Document document, int nodePos, int pos, NodeStructureListener listener)
