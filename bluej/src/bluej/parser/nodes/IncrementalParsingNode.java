@@ -44,12 +44,20 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  * where we can re-parse from if a modification is made.<p>
  * 
  * Sub-classes must provide implementations for several methods to parse a piece,
- * determine whether a subnode represents a complete piece, etc.
+ * determine whether a subnode represents a complete piece, etc.<p>
+ * 
+ * IncrementalParsingNode has basic support for sequential parse states, where a node
+ * consists of several parts in sequence and each part must be parsed differently. The
+ * "stateMarkers" array contains the offset (from the node beginning) of each state
+ * transition; subclasses should assign it an array of appropriate size. A value of -1
+ * in any entry means the marker is invalid.
  * 
  * @author Davin McCall
  */
 public abstract class IncrementalParsingNode extends ParentParsedNode
 {
+    int [] stateMarkers = new int[0];
+    
     public IncrementalParsingNode(ParsedNode parent)
     {
         super(parent);
@@ -139,6 +147,9 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         // Find the next child node, which we may bump into when we are parsing.
         NodeAndPosition nextChild = childQueue.poll();
         
+        int state = getCurrentState(offset - nodePos);
+        int nextStatePos = (state < stateMarkers.length) ? stateMarkers[state] + nodePos : -1;
+        
         LocatableToken laToken = parser.getTokenStream().LA(1);
         int ttype = laToken.getType();
         if (ttype == JavaTokenTypes.EOF) {
@@ -157,6 +168,19 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 if (isDelimitingNode(nextChild)) {
                     break; // we're done!
                 }
+            }
+            if (tokpos == nextStatePos && tokpos == (nodePos + stateMarkers[state])) {
+                // If we reached the next state state position, we're at a safe boundary
+                // Note that we cache "nextStatePos" because a partial parse might move the
+                // state marker to the next token; it is only safe to stop parsing if the
+                // state boundary hasn't moved.
+                break;
+            }
+            
+            // We may have transitioned to the next (or a later?) state
+            while (state < stateMarkers.length && (tokpos - nodePos) >= stateMarkers[state]) {
+                state++;
+                nextStatePos = (state < stateMarkers.length) ? stateMarkers[state] + nodePos : -1;
             }
             
             LocatableToken last = doPartialParse(parser);
@@ -246,6 +270,44 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         return document.getDefaultRootElement().getElement(line - 1).getStartOffset() + col - 1;
     }
     
+    private int getCurrentState(int pos)
+    {
+        for (int i = stateMarkers.length - 1; i >= 0; i--) {
+            if (pos >= stateMarkers[i] && stateMarkers[i] >= 0) {
+                return i + 1;
+            }
+        }
+        return 0;
+    }
+    
+    @Override
+    public int textInserted(Document document, int nodePos, int insPos,
+            int length, NodeStructureListener listener)
+    {
+        for (int i = 0; i < stateMarkers.length; i++) {
+            if (stateMarkers[i] > (insPos - nodePos)) {
+                stateMarkers[i] += length;
+            }
+        }
+        return super.textInserted(document, nodePos, insPos, length, listener);
+    }
+    
+    @Override
+    public int textRemoved(Document document, int nodePos, int delPos,
+            int length, NodeStructureListener listener)
+    {
+        for (int i = 0; i < stateMarkers.length; i++) {
+            if (stateMarkers[i] > (delPos - nodePos)) {
+                stateMarkers[i] -= length;
+                if (stateMarkers[i] < (delPos - nodePos)) {
+                    // The removed text straddles the state marker
+                    stateMarkers[i] = -1;
+                }
+            }
+        }
+        return super.textRemoved(document, nodePos, delPos, length, listener);
+    }
+    
     /**
      * Check if a single line comment exists at the end of this node, which is not properly
      * terminated - that is, it ends before the end of the line. This can happen if such a
@@ -329,7 +391,6 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             return true;
         }
         
-        //getParentNode().reparseNode(document, mypos, mypos, listener);
         return false;
     }
 }
