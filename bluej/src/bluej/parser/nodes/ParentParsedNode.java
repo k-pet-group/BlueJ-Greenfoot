@@ -235,7 +235,7 @@ public class ParentParsedNode extends ParsedNode
         int newSize = getSize() + length;
         resize(newSize);
         
-        NodeAndPosition child = getNodeTree().findNodeAtOrAfter(insPos, nodePos);
+        NodeAndPosition child = getNodeTree().findNodeAtOrAfter(insPos - 1, nodePos);
         if (child != null && child.getPosition() < insPos) {
             ParsedNode cnode = child.getNode();
             // let the child handle the change.

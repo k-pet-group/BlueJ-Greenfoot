@@ -57,6 +57,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 public abstract class IncrementalParsingNode extends ParentParsedNode
 {
     int [] stateMarkers = new int[0];
+    boolean [] marksEnd = new boolean[0];
     
     public IncrementalParsingNode(ParsedNode parent)
     {
@@ -164,9 +165,13 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         while (! isNodeEndMarker(ttype)) {
             
             int tokpos = lineColToPos(document, laToken.getLine(), laToken.getColumn());
+            nextChild = removeOverwrittenChildren(childQueue, nextChild, tokpos, listener);
+            
             if (nextChild != null && nextChild.getPosition() <= tokpos) {
                 if (isDelimitingNode(nextChild)) {
-                    break; // we're done!
+                    processChildQueue(nodePos, childQueue, nextChild);
+                    parser.completedNode(this, nodePos, tokpos - nodePos);
+                    return ALL_OK; // we're done!
                 }
             }
             if (tokpos == nextStatePos && tokpos == (nodePos + stateMarkers[state])) {
@@ -174,7 +179,9 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 // Note that we cache "nextStatePos" because a partial parse might move the
                 // state marker to the next token; it is only safe to stop parsing if the
                 // state boundary hasn't moved.
-                break;
+                processChildQueue(nodePos, childQueue, nextChild);
+                parser.completedNode(this, nodePos, tokpos - nodePos);
+                return ALL_OK;
             }
             
             // We may have transitioned to the next (or a later?) state
@@ -184,35 +191,32 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             }
             
             LocatableToken last = doPartialParse(parser);
-            if (parser.getTokenStream().LA(1) == laToken) {
+            
+            LocatableToken nlaToken = parser.getTokenStream().LA(1);
+            if (nlaToken == laToken) {
                 // We didn't manage to parse anything?
                 parser.getTokenStream().nextToken();
+                nlaToken = parser.getTokenStream().LA(1);
+            }
+                        
+            // Maybe we transitioned to a new state now?
+            if (last != null && state < marksEnd.length && marksEnd[state]) {
+                int epos = lineColToPos(document, last.getEndLine(), last.getEndColumn());
+                if ((epos - nodePos) == stateMarkers[state]) {
+                    nextChild = removeOverwrittenChildren(childQueue, nextChild, epos, listener);
+                    processChildQueue(nodePos, childQueue, nextChild);
+                    parser.completedNode(this, nodePos, epos - nodePos);
+                    return ALL_OK;
+                }
             }
             
             if (nextChild != null) {
-                // Perhaps we've now overwritten part of nextChild, or otherwise we may have pushed
-                // it further back.
-                int epos;
-                if (last != null) {
-                    epos = lineColToPos(document, last.getEndLine(), last.getEndColumn());
-                }
-                else {
-                    epos = lineColToPos(document, parser.getTokenStream().LA(1).getLine(),
-                            parser.getTokenStream().LA(1).getColumn());
-                }
-                
-                while (epos > nextChild.getPosition()) {
-                    // Remove nextChild, we've eaten into it.
-                    //NodeAndPosition sibling = nextChild.nextSibling();
-                    childRemoved(nextChild, listener);
-                    nextChild = childQueue.poll();
-                    if (nextChild == null) {
-                        break;
-                    }
-                }
+                // Perhaps we've now overwritten some old child nodes
+                int epos = lineColToPos(document, nlaToken.getLine(),
+                            nlaToken.getColumn()) - 1;
+                nextChild = removeOverwrittenChildren(childQueue, nextChild, epos, listener);
             }
-            
-            LocatableToken nlaToken = parser.getTokenStream().LA(1);
+                        
             if (nlaToken.getType() == JavaTokenTypes.EOF) {
                 if (! lastPartialCompleted(parser, last)) {
                     // The parsed piece wants more...
@@ -232,21 +236,23 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             ttype = laToken.getType();
         }
 
-        // Process the child queue
-        while (nextChild != null) {
-            insertNode(nextChild.getNode(), nextChild.getPosition() - nodePos, nextChild.getSize());
-            nextChild = childQueue.poll();
-        }
-        
         if (isNodeEndMarker(ttype)) {
-            // Did we shrink?
+            removeOverwrittenChildren(childQueue, nextChild, Integer.MAX_VALUE, listener);
             int tokpos = lineColToPos(document, laToken.getLine(), laToken.getColumn());
+            // Did we shrink?
             int newsize = tokpos - nodePos;
+            parser.completedNode(this, nodePos, newsize);
             if (newsize < getSize()) {
                 setSize(newsize);
                 return NODE_SHRUNK;
             }
         }
+        else while (nextChild != null) {
+            // Process the child queue
+            insertNode(nextChild.getNode(), nextChild.getPosition() - nodePos, nextChild.getSize());
+            nextChild = childQueue.poll();
+        }
+        
         return ALL_OK;
     }    
     
@@ -260,6 +266,35 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         } while (pn != null);
         
         return r;
+    }
+    
+    private NodeAndPosition removeOverwrittenChildren(LinkedList<NodeAndPosition> childQueue,
+            NodeAndPosition nextChild, int epos, NodeStructureListener listener)
+    {
+        if (nextChild != null) {
+            // Perhaps we've now overwritten part or all of nextChild
+            
+            while (epos >= nextChild.getPosition()) {
+                // Remove nextChild, we've eaten into it.
+                //NodeAndPosition sibling = nextChild.nextSibling();
+                childRemoved(nextChild, listener);
+                nextChild = childQueue.poll();
+                if (nextChild == null) {
+                    break;
+                }
+            }
+        }
+        
+        return nextChild;
+    }
+    
+    private void processChildQueue(int nodePos, LinkedList<NodeAndPosition> childQueue,
+            NodeAndPosition nextChild)
+    {
+        while (nextChild != null) {
+            insertNode(nextChild.getNode(), nextChild.getPosition() - nodePos, nextChild.getSize());
+            nextChild = childQueue.poll();
+        }
     }
     
     /**
