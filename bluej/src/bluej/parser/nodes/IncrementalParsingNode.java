@@ -226,6 +226,10 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                         int rep = reparseNode(document, nodePos, tokpos, listener);
                         return rep == ALL_OK ? NODE_GREW : rep;
                     }
+                    else if (nodePos + getSize() < document.getLength()) {
+                        // No option but to reparse the parent node.
+                        return REMOVE_NODE;
+                    }
                 }
                 parser.completedNode(this, nodePos, getSize());
                 checkEnd(document, nodePos, listener);
