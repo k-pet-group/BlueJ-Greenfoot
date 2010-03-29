@@ -21,6 +21,8 @@
  */
 package bluej.parser;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,6 +32,8 @@ import javax.swing.text.BadLocationException;
 import junit.framework.TestCase;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.MethodReflective;
+import bluej.debugmgr.objectbench.ObjectBench;
+import bluej.debugmgr.texteval.DeclaredVar;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
@@ -208,15 +212,62 @@ public class EditorParserTest extends TestCase
         ParsedCUNode tNode = cuForSource(tSrc, "xyz");
         resolver.addCompilationUnit("xyz", tNode);
         
-        // We want to check that "import abc.def" correctly imports the "def" class from
-        // the "abc" package rather than importing the "def" inner class from the "abc"
-        // class in the current package ("xyz").
         TypeEntity tent = resolver.resolveQualifiedClass("xyz.T");
         assertNotNull(tent);
+        
         JavaEntity fEnt = tent.getSubentity("field", null);
         assertNotNull(fEnt);
         JavaEntity fVal = fEnt.resolveAsValue();
         assertNotNull(fVal);
         assertEquals("abc.def", fVal.getType().toString());
     }
+    
+    //test behaviour of parsing of statements and expressions
+    //please refer to #Bug 213
+    public void testObjectBench()
+    {
+        ObjectBench objectBench = new ObjectBench();
+        
+        String lalaSrc = "package xyz; public class Lala { " +
+                "public String toString() { return \"haha\"; }" +
+                "public String foo() { return \"mama\"; } }";
+        
+        String nanaSrc="package xyz; public class Nana extends Lala " +
+                "{int bar() { return 99; }}";
+
+        ParsedCUNode lalaNode = cuForSource(lalaSrc, "xyz");
+        resolver.addCompilationUnit("xyz", lalaNode);
+       
+        ParsedCUNode nanaNode = cuForSource(nanaSrc, "xyz");
+        resolver.addCompilationUnit("xyz", nanaNode);
+
+        EntityResolver res = new PackageResolver(this.resolver, "xyz");
+                
+        TextAnalyzer tp = new TextAnalyzer(res, "xyz", objectBench);
+        
+        String r = tp.parseCommand("46");        
+        assertEquals("int", r);
+        tp.confirmCommand();
+        
+        r = tp.parseCommand("new Lala()");        
+        assertEquals("xyz.Lala", r);
+        tp.confirmCommand();
+            
+        r = tp.parseCommand("(new Lala()).toString()");
+        assertEquals("java.lang.String", r);
+        tp.confirmCommand();
+       
+        r = tp.parseCommand("(new Lala()).foo()");
+        assertEquals("java.lang.String", r);
+        tp.confirmCommand();
+        
+        r = tp.parseCommand("(new Nana()).foo()");
+        assertEquals("java.lang.String", r);
+        tp.confirmCommand();
+
+        r = tp.parseCommand("(new Nana()).bar()");
+        assertEquals("int", r);
+        tp.confirmCommand();     
+    }
+  
 }
