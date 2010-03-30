@@ -118,10 +118,6 @@ public final class EscapedUnicodeReader extends Reader
             int nchar = sourceReader.read();
 
             if (nchar == 'u') {
-                // set bumpColumn so that the column will be bumped just as the next
-                // character is read. We can't bump it now because doing so can confuse
-                // the lexer - it thinks that *this* character starts wherever the
-                // column is set to when getChar() returns.
                 column++; position++;
                 return readEscapedUnicodeSequence();
             }
@@ -142,29 +138,35 @@ public final class EscapedUnicodeReader extends Reader
 
     private int readEscapedUnicodeSequence() throws IOException
     {
-        int d1 = sourceReader.read();
-        int d2 = sourceReader.read();
-        int d3 = sourceReader.read();
-        int d4 = sourceReader.read();
-        position += 4;
-        column += 4;
-
-        // Note, any of the above reads might return a non-hex-digit, including the
-        // end-of-stream marker, but in this case hexDigitValue() will throw IOException.
-
-        int rval = hexDigitValue(d1) * 0x1000;
-        rval += hexDigitValue(d2) * 0x100;
-        rval += hexDigitValue(d3) * 0x10;
-        rval += hexDigitValue(d4);
-        return rval;
-    }
-
-    private int hexDigitValue(int hexDigit) throws IOException
-    {
-        int hval = Character.digit((char) hexDigit, 16);
-        if (hval == -1)
-            throw new IOException();
-        return hval;
+        // The Java Language Spec specifies that any number of 'u' characters may appear in sequence
+        // as part of a unicode escape.
+        int uc = sourceReader.read();
+        while (uc == 'u') {
+            processChar((char)uc);
+            uc = sourceReader.read();
+        }
+        
+        int val = Character.digit((char) uc, 16);
+        if (val == -1) {
+            return 0xFFFF;
+        }
+        processChar((char)uc);
+        
+        int i = 0;
+        do {
+            val *= 0x10;
+            uc = sourceReader.read();
+            int digitVal = Character.digit((char) uc, 16);
+            if (digitVal == -1) {
+                putBuffer(uc);
+                return 0xFFFF;
+            }
+            processChar((char)uc);
+            val += digitVal;
+            i++;
+        } while (i < 3);
+        
+        return val;
     }
 
     private int readSourceChar() throws IOException

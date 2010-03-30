@@ -698,14 +698,14 @@ public class LexerTest extends junit.framework.TestCase
         assertEquals(2, token.getColumn());
         assertEquals(2, token.getEndLine());
         
-//        ts = getLexerFor("\\u95 incomplete unicode escape");
-//        token = (LocatableToken) ts.nextToken();
-//        assertEquals(JavaTokenTypes.INVALID, token.getType());
-//        assertEquals(1, token.getColumn());
-//        assertEquals(6, token.getEndColumn());
-//        token = (LocatableToken) ts.nextToken();
-//        assertEquals(JavaTokenTypes.IDENT, token.getType());
-//        assertEquals(7, token.getColumn());
+        ts = getLexerFor("\\u95 incomplete unicode escape");
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.INVALID, token.getType());
+        assertEquals(1, token.getColumn());
+        assertEquals(5, token.getEndColumn());
+        token = (LocatableToken) ts.nextToken();
+        assertEquals(JavaTokenTypes.IDENT, token.getType());
+        assertEquals(6, token.getColumn());
         
         ts = getLexerFor(".. incomplete ellipsis");
         token = (LocatableToken) ts.nextToken();
