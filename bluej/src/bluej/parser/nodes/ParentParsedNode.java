@@ -265,8 +265,8 @@ public class ParentParsedNode extends ParsedNode
             int length, NodeStructureListener listener)
     {
         // shrink ourself:
-        //int newSize = getSize() - length;
-        //resize(newSize);
+        int newSize = getSize() - length;
+        resize(newSize);
         
         int endPos = delPos + length;
         
@@ -277,14 +277,14 @@ public class ParentParsedNode extends ParsedNode
             int childEndPos = child.getPosition() + child.getSize();
             if (childEndPos >= endPos) {
                 // Remove the middle of the child node
-                child.getNode().resize(child.getSize() - length);
+                //child.getNode().resize(child.getSize() - length);
                 int r = child.getNode().textRemoved(document, child.getPosition(), delPos, length, listener);
                 if (r == REMOVE_NODE) {
                     removeChild(child, listener);
                     return reparseNode(document, nodePos, child.getPosition(), listener);
                 }
                 else if (r != ALL_OK) {
-                    int newSize = child.getSize();
+                    newSize = child.getSize();
                     return reparseNode(document, nodePos, child.getPosition() + newSize, listener);
                 }
                 return ALL_OK;
@@ -292,8 +292,6 @@ public class ParentParsedNode extends ParsedNode
             
             // Remove the end portion of the child node
             int rlength = childEndPos - delPos; // how much is removed
-            child.getNode().setSize(child.getSize() - rlength);
-            int reparseOffset;
 
             // Remove any following nodes as necessary
             NodeAndPosition next = child.nextSibling();
@@ -302,12 +300,14 @@ public class ParentParsedNode extends ParsedNode
                 removeChild(next, listener);
                 next = nnext;
             }
-            if (next != null) {
-                next.getNode().getContainingNodeTree().slideNode(-length);
-            }
 
             // Inform the child of the removed text 
+            if (next != null) {
+                next.getNode().getContainingNodeTree().slideNode(rlength - length);
+            }
+            //child.getNode().resize(child.getSize() - rlength);
             int r = child.getNode().textRemoved(document, child.getPosition(), delPos, rlength, listener);
+            int reparseOffset;
             if (r == REMOVE_NODE) {
                 reparseOffset = child.getPosition();
                 removeChild(child, listener);
@@ -320,9 +320,9 @@ public class ParentParsedNode extends ParsedNode
         }
         
         while (child != null && child.getPosition() < endPos) {
-                NodeAndPosition nextChild = child.nextSibling();
-                removeChild(child, listener);
-                child = nextChild;
+            NodeAndPosition nextChild = child.nextSibling();
+            removeChild(child, listener);
+            child = nextChild;
         }
 
         if (child != null) {

@@ -21,19 +21,19 @@
  */
 package bluej.parser.nodes;
 
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.text.Document;
 
 import bluej.debugger.gentype.Reflective;
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.EditorParser;
 import bluej.parser.ImportsCollection;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.TypeEntity;
+import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 
@@ -42,7 +42,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  * 
  * @author Davin McCall
  */
-public class ParsedCUNode extends ParentParsedNode
+public class ParsedCUNode extends IncrementalParsingNode
 {
     private EntityResolver parentResolver;
     private ImportsCollection imports = new ImportsCollection();
@@ -54,6 +54,7 @@ public class ParsedCUNode extends ParentParsedNode
      */
     public ParsedCUNode()
     {
+        super(null);
     }
     
     /**
@@ -63,6 +64,7 @@ public class ParsedCUNode extends ParentParsedNode
      */
     public ParsedCUNode(Document document)
     {
+        super(null);
         size = 0;
     }
     
@@ -100,39 +102,29 @@ public class ParsedCUNode extends ParentParsedNode
         size = newSize;
     }
     
-    /**
-     * Reparse this node from the specified offset.
-     */
     @Override
-    protected int reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
+    public void setSize(int newSize)
     {
-        doReparse(document, 0, offset, listener);
-        return ALL_OK;
+        size = newSize;
     }
     
-    protected void doReparse(Document document, int nodePos, int pos, NodeStructureListener listener)
+    @Override
+    protected LocatableToken doPartialParse(EditorParser parser, int state)
     {
-        clearNode(this, listener);
-        size = document.getLength();
-        
-        EditorParser parser = new EditorParser(document);
-        parser.parseCU(this);
-	    
-        ((MoeSyntaxDocument) document).documentChanged();
+        parser.parseCUpart(state);
+        return null;
+    };
+    
+    @Override
+    protected boolean isDelimitingNode(NodeAndPosition nap)
+    {
+        return nap.getNode().isContainer();
     }
     
-    /**
-     * Remove all subnodes from the given node.
-     */
-    private void clearNode(ParsedNode node, NodeStructureListener listener)
+    @Override
+    protected boolean isNodeEndMarker(int tokenType)
     {
-        Iterator<NodeAndPosition> i = node.getChildren(0);
-        while (i.hasNext()) {
-            NodeAndPosition nap = i.next();
-            clearNode(nap.getNode(), listener);
-            listener.nodeRemoved(nap);
-        }
-        node.getNodeTree().clear();
+        return tokenType == JavaTokenTypes.EOF;
     }
     
     @Override

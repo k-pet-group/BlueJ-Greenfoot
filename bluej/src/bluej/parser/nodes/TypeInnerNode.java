@@ -82,7 +82,7 @@ public class TypeInnerNode extends IncrementalParsingNode
     }
     
     @Override
-    protected LocatableToken doPartialParse(EditorParser parser)
+    protected LocatableToken doPartialParse(EditorParser parser, int state)
     {
         parser.parseClassElement(parser.getTokenStream().nextToken());
         return null;

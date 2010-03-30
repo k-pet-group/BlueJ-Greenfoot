@@ -436,40 +436,63 @@ public class JavaParser
      */
     public void parseCU(int state)
     {
-        while (true) {              // optional: package statement
-            LocatableToken token = tokenStream.nextToken();
-            if (token.getType() == JavaTokenTypes.LITERAL_package) {
-                beginPackageStatement(token);
-                token = tokenStream.nextToken();
-                List<LocatableToken> pkgTokens = parseDottedIdent(token);
-                gotPackage(pkgTokens);
-                token = tokenStream.nextToken();
-                if (token.getType() != JavaTokenTypes.SEMI) {
-                    error("Expecting ';' at end of package declaration");
-                    tokenStream.pushBack(token);
-                }
-                else {
-                    gotPackageSemi(token);
-                }
+        while (tokenStream.LA(1).getType() != JavaTokenTypes.EOF) {
+            state = parseCUpart(state);
+        }
+    }
+    
+    public final int parseCUpart(int state)
+    {
+        LocatableToken token = tokenStream.nextToken();
+        if (token.getType() == JavaTokenTypes.LITERAL_package) {
+            token = parsePackageStmt(token);
+            if (token != null) {
                 reachedCUstate(1); state = 1;
             }
-            else if (token.getType() == JavaTokenTypes.LITERAL_import) {
-                parseImportStatement(token);
-            }
-            else if (isModifier(token) || isTypeDeclarator(token)) {
-                // optional: class/interface/enum
-                beginElement(token);
-                tokenStream.pushBack(token);
-                parseTypeDef();
-                reachedCUstate(2); state = 2;
-            }
-            else if (token.getType() == JavaTokenTypes.EOF) {
-                break;
-            }
-            else {
-                // TODO give different diagnostic depending on state
-                error("Expected: Type definition (class, interface or enum)");
-            }
+        }
+        else if (token.getType() == JavaTokenTypes.LITERAL_import) {
+            parseImportStatement(token);
+        }
+        else if (isModifier(token) || isTypeDeclarator(token)) {
+            // optional: class/interface/enum
+            beginElement(token);
+            tokenStream.pushBack(token);
+            parseTypeDef();
+            reachedCUstate(2); state = 2;
+        }
+        else if (token.getType() == JavaTokenTypes.EOF) {
+            return state;
+        }
+        else {
+            // TODO give different diagnostic depending on state
+            error("Expected: Type definition (class, interface or enum)");
+        }
+        return state;
+    }
+    
+    /**
+     * Parse a "package xyz;"-type statement. The "package"-literal token must have already
+     * been read from the token stream.
+     */
+    public final LocatableToken parsePackageStmt(LocatableToken token)
+    {
+        beginPackageStatement(token);
+        token = tokenStream.nextToken();
+        if (token.getType() != JavaTokenTypes.IDENT) {
+            error("Expected identifier after 'package'");
+            return null;
+        }
+        List<LocatableToken> pkgTokens = parseDottedIdent(token);
+        gotPackage(pkgTokens);
+        token = tokenStream.nextToken();
+        if (token.getType() != JavaTokenTypes.SEMI) {
+            error("Expecting ';' at end of package declaration");
+            tokenStream.pushBack(token);
+            return null;
+        }
+        else {
+            gotPackageSemi(token);
+            return token;
         }
     }
     

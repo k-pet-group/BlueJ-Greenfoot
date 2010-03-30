@@ -77,7 +77,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
      * the last token forming part of the parsed piece or null if there was a
      * parsing error. (It is safe to always return null).
      */
-    protected abstract LocatableToken doPartialParse(EditorParser parser);
+    protected abstract LocatableToken doPartialParse(EditorParser parser, int state);
     
     protected boolean lastPartialCompleted(EditorParser parser, LocatableToken token)
     {
@@ -165,22 +165,32 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         while (! isNodeEndMarker(ttype)) {
             
             int tokpos = lineColToPos(document, laToken.getLine(), laToken.getColumn());
-            nextChild = removeOverwrittenChildren(childQueue, nextChild, tokpos, listener);
             
+            int overwritePos = tokpos;
+            LocatableToken hiddenBefore = laToken.getHiddenBefore();
+            if (hiddenBefore != null) {
+                overwritePos = lineColToPos(document, hiddenBefore.getLine(),
+                        hiddenBefore.getColumn());
+            }
+            
+            nextChild = removeOverwrittenChildren(childQueue, nextChild, overwritePos, listener);
             if (nextChild != null && nextChild.getPosition() <= tokpos) {
                 if (isDelimitingNode(nextChild)) {
                     processChildQueue(nodePos, childQueue, nextChild);
-                    parser.completedNode(this, nodePos, tokpos - nodePos);
+                    // parser.completedNode(this, nodePos, tokpos - nodePos);
+                    parser.completedNode(this, nodePos, nextChild.getPosition() - nodePos);
                     return ALL_OK; // we're done!
                 }
             }
-            if (tokpos == nextStatePos && tokpos == (nodePos + stateMarkers[state])) {
+            if (tokpos == nextStatePos && tokpos == (nodePos + stateMarkers[state])
+                    || overwritePos == nextStatePos && overwritePos == (nodePos + stateMarkers[state])) {
                 // If we reached the next state state position, we're at a safe boundary
                 // Note that we cache "nextStatePos" because a partial parse might move the
                 // state marker to the next token; it is only safe to stop parsing if the
                 // state boundary hasn't moved.
+                removeOverwrittenChildren(childQueue, nextChild, nextStatePos, listener);
                 processChildQueue(nodePos, childQueue, nextChild);
-                parser.completedNode(this, nodePos, tokpos - nodePos);
+                parser.completedNode(this, nodePos, nextStatePos - nodePos);
                 return ALL_OK;
             }
             
@@ -190,7 +200,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 nextStatePos = (state < stateMarkers.length) ? stateMarkers[state] + nodePos : -1;
             }
             
-            LocatableToken last = doPartialParse(parser);
+            LocatableToken last = doPartialParse(parser, state);
             
             LocatableToken nlaToken = parser.getTokenStream().LA(1);
             if (nlaToken == laToken) {
@@ -210,17 +220,13 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 }
             }
             
-            if (nextChild != null) {
-                // Perhaps we've now overwritten some old child nodes
-                int epos = lineColToPos(document, nlaToken.getLine(),
-                            nlaToken.getColumn()) - 1;
-                nextChild = removeOverwrittenChildren(childQueue, nextChild, epos, listener);
-            }
-                        
             if (nlaToken.getType() == JavaTokenTypes.EOF) {
+                int epos = lineColToPos(document, nlaToken.getLine(), nlaToken.getColumn());
+                nextChild = removeOverwrittenChildren(childQueue, nextChild, epos, listener);
                 if (! lastPartialCompleted(parser, last)) {
                     // The parsed piece wants more...
-                    if (getParentNode().growChild(document,
+                    ParsedNode parentNode = getParentNode();
+                    if (parentNode != null && parentNode.growChild(document,
                             new NodeAndPosition(this, nodePos, getSize()), listener)) {
                         // Successfully grew... now do some more parsing
                         int rep = reparseNode(document, nodePos, tokpos, listener);
@@ -240,25 +246,18 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             ttype = laToken.getType();
         }
 
-        if (isNodeEndMarker(ttype)) {
-            removeOverwrittenChildren(childQueue, nextChild, Integer.MAX_VALUE, listener);
-            int tokpos = lineColToPos(document, laToken.getLine(), laToken.getColumn());
-            // Did we shrink?
-            int newsize = tokpos - nodePos;
-            parser.completedNode(this, nodePos, newsize);
-            if (newsize < getSize()) {
-                setSize(newsize);
-                return NODE_SHRUNK;
-            }
-        }
-        else while (nextChild != null) {
-            // Process the child queue
-            insertNode(nextChild.getNode(), nextChild.getPosition() - nodePos, nextChild.getSize());
-            nextChild = childQueue.poll();
+        removeOverwrittenChildren(childQueue, nextChild, Integer.MAX_VALUE, listener);
+        int tokpos = lineColToPos(document, laToken.getLine(), laToken.getColumn());
+        // Did we shrink?
+        int newsize = tokpos - nodePos;
+        parser.completedNode(this, nodePos, newsize);
+        if (newsize < getSize()) {
+            setSize(newsize);
+            return NODE_SHRUNK;
         }
         
         return ALL_OK;
-    }    
+    }
     
     private Stack<ParsedNode> buildScopeStack()
     {
@@ -272,15 +271,18 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         return r;
     }
     
+    /**
+     * If during parsing we reach some point (epos) then we have overwritten any old child nodes
+     * which overlap or occur before epos and so we need to remove them properly.
+     */
     private NodeAndPosition removeOverwrittenChildren(LinkedList<NodeAndPosition> childQueue,
             NodeAndPosition nextChild, int epos, NodeStructureListener listener)
     {
         if (nextChild != null) {
             // Perhaps we've now overwritten part or all of nextChild
             
-            while (epos >= nextChild.getPosition()) {
+            while (epos > nextChild.getPosition()) {
                 // Remove nextChild, we've eaten into it.
-                //NodeAndPosition sibling = nextChild.nextSibling();
                 childRemoved(nextChild, listener);
                 nextChild = childQueue.poll();
                 if (nextChild == null) {
@@ -377,7 +379,8 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 String str = document.getText(end, 1);
                 if (str.charAt(0) != '\n') {
                     // The comment should extend to the end of the line, but it doesn't.
-                    if (getParentNode().growChild(document,
+                    ParsedNode parentNode = getParentNode();
+                    if (parentNode != null && parentNode.growChild(document,
                             new NodeAndPosition(this, nodePos, getSize()), listener)) {
                         // Successfully grew... now do some more parsing
                         return reparseNode(document, nodePos, offset, listener);
@@ -423,7 +426,8 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         }
         
         // Maybe this node can grow, and then its child can also grow.
-        if (getParentNode().growChild(document,
+        ParsedNode parentNode = getParentNode();
+        if (parentNode != null && parentNode.growChild(document,
                 new NodeAndPosition(this, mypos, getSize()), listener)) {
             int newsize = myEnd - child.getPosition();
             child.getNode().resize(newsize);

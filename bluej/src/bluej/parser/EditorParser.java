@@ -829,7 +829,6 @@ public class EditorParser extends JavaParser
         int startpos = lineColToPosition(s.getLine(), s.getColumn());
         int endpos = lineColToPosition(s.getEndLine(), s.getEndColumn());
         
-        // PkgStmtNode psn = new PkgStmtNode();
         ParentParsedNode cn = new ParentParsedNode(pcuNode);
         beginNode(startpos);
         pcuNode.insertNode(cn, startpos, endpos - startpos);
