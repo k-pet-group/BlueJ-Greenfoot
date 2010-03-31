@@ -359,6 +359,14 @@ public class BasicParseTest extends junit.framework.TestCase
         assertTrue(findTarget(comments, "void method2(int[])") != -1);
     }
     
+    public void testMultipleInterfaceExtends() throws Exception
+    {
+        String aSrc = "interface A extends B, C { }";
+        
+        ClassInfo info = ClassParser.parse(new StringReader(aSrc), null, null);
+        assertNotNull(info);
+    }
+    
     private ParsedCUNode cuForSource(String sourceCode, EntityResolver resolver)
     {
         MoeSyntaxDocument document = new MoeSyntaxDocument(resolver);
