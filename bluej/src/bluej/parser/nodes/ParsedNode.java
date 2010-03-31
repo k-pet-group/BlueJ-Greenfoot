@@ -131,6 +131,16 @@ public abstract class ParsedNode implements EntityResolver
         }
     }
     
+    public void childChangedName(ParsedNode child, String oldName)
+    {
+        if (child.getNodeType() == NODETYPE_TYPEDEF) {
+            if (classNodes.get(oldName) == child) {
+                classNodes.remove(oldName);
+            }
+            classNodes.put(child.getName(), child);
+        }
+    }
+    
     /**
      * Find the child node (if any) at the given position
      * @param position   The position of the child node to find

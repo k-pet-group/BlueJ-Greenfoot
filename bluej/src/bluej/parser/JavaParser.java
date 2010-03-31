@@ -428,7 +428,11 @@ public class JavaParser
     public static int TYPEDEF_CLASS = 0;
     public static int TYPEDEF_INTERFACE = 1;
     public static int TYPEDEF_ENUM = 2;
-    public static int TYPEDEF_ANNOTATION=3;
+    public static int TYPEDEF_ANNOTATION = 3;
+    /** looks like a type definition, but has an error */
+    public static int TYPEDEF_ERROR = 4;
+    /** doesn't parse as a type definition at all */
+    public static int TYPEDEF_EPIC_FAIL = 5;
 
     /**
      * Parse a compilation unit.
@@ -560,80 +564,30 @@ public class JavaParser
     /**
      * Parse a type definition (class, interface, enum).
      */
-    public void parseTypeDef()
+    public final void parseTypeDef()
     {
-        // possibly, modifiers: [public|private|protected] [static]
-        parseModifiers();
-        LocatableToken token = tokenStream.nextToken();
-
-        boolean isAnnotation = token.getType() == JavaTokenTypes.AT;
-        if (isAnnotation) {
-            token = tokenStream.nextToken();
-        }
-
-        // [class|interface|enum]
-        if (isTypeDeclarator(token)) {
-            int tdType = -1;
-            String typeDesc;                    
-            if (token.getType() == JavaTokenTypes.LITERAL_class) {
-                typeDesc = "class";
-                tdType = TYPEDEF_CLASS;
-            }
-            else if (token.getType() == JavaTokenTypes.LITERAL_interface) {
-                typeDesc = "interface";
-                tdType = TYPEDEF_INTERFACE;
-                //check for annotation type
-                if(isAnnotation) {
-                    tdType = TYPEDEF_ANNOTATION;                                                 
-                }
-            }
-            else {
-                typeDesc = "enum";
-                tdType = TYPEDEF_ENUM;
-            }
-
+        int tdType = parseTypeDefBegin();
+        if (tdType != TYPEDEF_EPIC_FAIL) {
             gotTypeDef(tdType);
-            modifiersConsumed();
-
+        }
+        modifiersConsumed();
+        
+        if (tdType != TYPEDEF_EPIC_FAIL && tdType != TYPEDEF_ERROR) {
+            
             // Class name
-            token = tokenStream.nextToken();
+            LocatableToken token = tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.IDENT) {
-                error("Expected identifier (in " + typeDesc + " definition)");
                 tokenStream.pushBack(token);
+                error("Expected identifier (in type definition)");
                 return;
             }
             gotTypeDefName(token);
 
-            // template arguments
-            token = tokenStream.nextToken();
-            if (token.getType() == JavaTokenTypes.LT) {
-                parseTypeParams();
-                token = tokenStream.nextToken();
-            }
-
-            // extends...
-            if (token.getType() == JavaTokenTypes.LITERAL_extends) {
-                gotTypeDefExtends(token);
-                parseTypeSpec(true);
-                token = tokenStream.nextToken();
-            }
-
-            // implements...
-            if (token.getType() == JavaTokenTypes.LITERAL_implements) {
-                gotTypeDefImplements(token);
-                parseTypeSpec(true);
-                token = tokenStream.nextToken();
-                while (token.getType() == JavaTokenTypes.COMMA) {
-                    parseTypeSpec(true);
-                    token = tokenStream.nextToken();
-                }
-            }
+            token = parseTypeDefPart2();
 
             // Body!
-            if (token.getType() != JavaTokenTypes.LCURLY) {
-                error("Expected '{' (in class definition)");
-                tokenStream.pushBack(token);
-                gotTypeDefEnd(token, false);
+            if (token == null) {
+                gotTypeDefEnd(tokenStream.LA(1), false);
                 return;
             }
 
@@ -662,6 +616,97 @@ public class JavaParser
         }
         else {
             error("Expected type declarator: 'class', 'interface', or 'enum'");
+        }
+    }
+    
+    // Possiblities:
+    // 1 - parses ok, body should follow
+    //       - class/interface TYPEDEF_CLAS / TYPEDEF_INTERFACE
+    //       - enum            TYPEDEF_ENUM
+    //       - annotation      TYPEDEF_ANNOTATION
+    // 2 - looks like a type definition but has an error. No type body. (TYPEDEF_ERROR)
+    // 3 - doesn't even look like a type definition (TYPEDEF_EPIC_FAIL)
+    public final int parseTypeDefBegin()
+    {
+        parseModifiers();
+        LocatableToken token = tokenStream.nextToken();
+        
+        boolean isAnnotation = token.getType() == JavaTokenTypes.AT;
+        if (isAnnotation) {
+            LocatableToken tdToken = tokenStream.nextToken();
+            if (tdToken.getType() != JavaTokenTypes.LITERAL_interface) {
+                error("Expected 'interface' after '@' in interface definition");
+                tokenStream.pushBack(tdToken);
+                return TYPEDEF_EPIC_FAIL;
+            }
+            token = tdToken;
+        }
+        
+        if (isTypeDeclarator(token)) {
+            int tdType = -1;
+            if (token.getType() == JavaTokenTypes.LITERAL_class) {
+                tdType = TYPEDEF_CLASS;
+            }
+            else if (token.getType() == JavaTokenTypes.LITERAL_interface) {
+                tdType = TYPEDEF_INTERFACE;
+                //check for annotation type
+                if(isAnnotation) {
+                    tdType = TYPEDEF_ANNOTATION;                                                 
+                }
+            }
+            else {
+                tdType = TYPEDEF_ENUM;
+            }
+            
+            return tdType;
+        }
+        else {
+            error("Expected type declarator: 'class', 'interface', or 'enum'");
+            return TYPEDEF_EPIC_FAIL;
+        }
+    }
+    
+    /**
+     * Parse the part of a type definition after the name - the type parameters,
+     * extended classes/interfaces and implemented interfaces. Returns the '{' token
+     * (which begins the type definition body) on success or null on failure.
+     */
+    public LocatableToken parseTypeDefPart2()
+    {
+        // template arguments
+        LocatableToken token = tokenStream.nextToken();
+        if (token.getType() == JavaTokenTypes.LT) {
+            parseTypeParams();
+            token = tokenStream.nextToken();
+        }
+
+        // extends...
+        if (token.getType() == JavaTokenTypes.LITERAL_extends) {
+            gotTypeDefExtends(token);
+            do {
+                parseTypeSpec(true);
+                token = tokenStream.nextToken();
+            }
+            while (token.getType() == JavaTokenTypes.COMMA);
+        }
+
+        // implements...
+        if (token.getType() == JavaTokenTypes.LITERAL_implements) {
+            gotTypeDefImplements(token);
+            do {
+                parseTypeSpec(true);
+                token = tokenStream.nextToken();
+            }
+            while (token.getType() == JavaTokenTypes.COMMA);
+        }
+        
+        if (token.getType() == JavaTokenTypes.LCURLY) {
+            return token;
+        }
+        else {
+            tokenStream.pushBack(token);
+            error("Expected '{' (in type definition)");
+            return null;
         }
     }
         
@@ -1914,6 +1959,7 @@ public class JavaParser
      * Eg for "Abc[10][][]" this method will leave "[10][][]" unprocessed and still in the token stream.
      * 
      *  @param processArray   if false, no '[]' sequences will be parsed, only the element type.
+     *  @return  true iff a type specification was successfully parsed
      */
     public boolean parseTypeSpec(boolean processArray)
     {

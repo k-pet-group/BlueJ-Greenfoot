@@ -56,8 +56,16 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  */
 public abstract class IncrementalParsingNode extends ParentParsedNode
 {
-    int [] stateMarkers = new int[0];
-    boolean [] marksEnd = new boolean[0];
+    protected int [] stateMarkers = new int[0];
+    protected boolean [] marksEnd = new boolean[0];
+    
+    /** The final token in the last partial parse. Should be set by doPartialParse if possible. */
+    protected LocatableToken last;
+    
+    // Partial parse status values
+    protected final static int PP_OK = 0;
+    protected final static int PP_ENDS_NODE = 1;
+    protected final static int PP_EPIC_FAIL = 2;
     
     public IncrementalParsingNode(ParsedNode parent)
     {
@@ -73,11 +81,15 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
     protected abstract boolean isDelimitingNode(NodeAndPosition nap);
     
     /**
-     * Actually perform a partial parse. If possible, this method should return
-     * the last token forming part of the parsed piece or null if there was a
-     * parsing error. (It is safe to always return null).
+     * Actually perform a partial parse. If possible, this method should set
+     * "last" to the last token forming part of the parsed piece or null if there was a
+     * parsing error. (It is safe to always set it to null).<p>
+     * 
+     * The return value is one of the PP_ constants: PP_OK, PP_ENDS_NODE if the parse
+     * succeeds but requires that the node ends immediately, PP_EPIC_FAIL if the parse
+     * fails and indicates that the node is not what it purports to be.
      */
-    protected abstract LocatableToken doPartialParse(EditorParser parser, int state);
+    protected abstract int doPartialParse(EditorParser parser, int state);
     
     protected boolean lastPartialCompleted(EditorParser parser, LocatableToken token)
     {
@@ -200,7 +212,8 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 nextStatePos = (state < stateMarkers.length) ? stateMarkers[state] + nodePos : -1;
             }
             
-            LocatableToken last = doPartialParse(parser, state);
+            // DAV check return value from this:
+            doPartialParse(parser, state);
             
             LocatableToken nlaToken = parser.getTokenStream().LA(1);
             if (nlaToken == laToken) {

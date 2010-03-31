@@ -430,7 +430,7 @@ public class EditorParser extends JavaParser
     }
     
     @Override
-    protected void gotTypeDefName(LocatableToken nameToken)
+    protected void gotTypeDef(int tdType)
     {
         Reflective ref = currentQuerySource();
         String prefix;
@@ -441,7 +441,7 @@ public class EditorParser extends JavaParser
             prefix = (declaredPkg.length() == 0) ? "" : (declaredPkg + ".");
         }
         
-        ParsedNode pnode = new ParsedTypeNode(scopeStack.peek(), nameToken.getText(), prefix);
+        ParsedNode pnode = new ParsedTypeNode(scopeStack.peek(), tdType, prefix);
         int curOffset = getTopNodeOffset();
         LocatableToken hidden = pcuStmtBegin.getHiddenBefore();
         if (hidden != null && hidden.getType() == JavaTokenTypes.ML_COMMENT) {
@@ -456,6 +456,13 @@ public class EditorParser extends JavaParser
         typeParams = new HashMap<String,JavaEntity>();
         extendedTypes = new LinkedList<JavaEntity>();
         implementedTypes = new LinkedList<JavaEntity>();
+    }
+    
+    @Override
+    protected void gotTypeDefName(LocatableToken nameToken)
+    {
+        ParsedTypeNode tnode = (ParsedTypeNode) scopeStack.peek();
+        tnode.setName(nameToken.getText());
     }
     
     @Override
@@ -1067,7 +1074,7 @@ public class EditorParser extends JavaParser
     @Override
     protected void beginAnonClassBody(LocatableToken token)
     {
-        ParsedTypeNode pnode = new ParsedTypeNode(scopeStack.peek(), null, null); // TODO generate Abc$1 ?
+        ParsedTypeNode pnode = new ParsedTypeNode(scopeStack.peek(), JavaParser.TYPEDEF_CLASS, null); // TODO generate Abc$1 ?
         int curOffset = getTopNodeOffset();
         LocatableToken begin = token;
         int insPos = lineColToPosition(begin.getLine(), begin.getColumn());

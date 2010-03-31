@@ -33,7 +33,6 @@ import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.lexer.JavaTokenTypes;
-import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 
@@ -109,10 +108,10 @@ public class ParsedCUNode extends IncrementalParsingNode
     }
     
     @Override
-    protected LocatableToken doPartialParse(EditorParser parser, int state)
+    protected int doPartialParse(EditorParser parser, int state)
     {
         parser.parseCUpart(state);
-        return null;
+        return PP_OK;
     };
     
     @Override

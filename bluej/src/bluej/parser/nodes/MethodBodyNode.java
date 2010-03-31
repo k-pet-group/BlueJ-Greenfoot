@@ -44,9 +44,10 @@ public class MethodBodyNode extends IncrementalParsingNode
         return nap.getNode().isContainer();
     }
     
-    protected LocatableToken doPartialParse(EditorParser parser, int state)
+    protected int doPartialParse(EditorParser parser, int state)
     {
-        return parser.parseStatement(parser.getTokenStream().nextToken());
+        last = parser.parseStatement(parser.getTokenStream().nextToken());
+        return PP_OK;
     }
     
     protected boolean lastPartialCompleted(EditorParser parser, LocatableToken token)

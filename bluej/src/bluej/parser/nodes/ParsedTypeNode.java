@@ -50,6 +50,8 @@ public class ParsedTypeNode extends ParentParsedNode
     private List<JavaEntity> extendedTypes;
     private List<JavaEntity> implementedTypes;
     
+    private int type; // one of JavaParser.TYPEDEF_CLASS, INTERFACE, ENUM, ANNOTATION
+    
     /**
      * Construct a new ParsedTypeNode
      * @param parent  The parent node
@@ -57,10 +59,10 @@ public class ParsedTypeNode extends ParentParsedNode
      * @param prefix  The prefix of the name, including the final ".", to make this a full
      *                type name
      */
-    public ParsedTypeNode(ParsedNode parent, String name, String prefix)
+    public ParsedTypeNode(ParsedNode parent, int type, String prefix)
     {
         super(parent);
-        this.name = name;
+        this.type = type;
         this.prefix = prefix;
     }
     
@@ -98,6 +100,13 @@ public class ParsedTypeNode extends ParentParsedNode
     public boolean isContainer()
     {
         return true;
+    }
+    
+    public void setName(String name)
+    {
+        String oldName = this.name;
+        this.name = name;
+        getParentNode().childChangedName(this, oldName);
     }
     
     @Override
