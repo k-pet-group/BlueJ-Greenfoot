@@ -64,7 +64,9 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
     
     // Partial parse status values
     protected final static int PP_OK = 0;
+    /** Node ends just before the "last" token */
     protected final static int PP_ENDS_NODE = 1;
+    /** Parse completely failed. The node must be removed and the parent re-parsed. */
     protected final static int PP_EPIC_FAIL = 2;
     
     public IncrementalParsingNode(ParsedNode parent)
@@ -212,8 +214,22 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 nextStatePos = (state < stateMarkers.length) ? stateMarkers[state] + nodePos : -1;
             }
             
-            // DAV check return value from this:
-            doPartialParse(parser, state);
+            // Do a partial parse and check the result
+            int ppr = doPartialParse(parser, state);
+            if (ppr == PP_ENDS_NODE) {
+                removeOverwrittenChildren(childQueue, nextChild, Integer.MAX_VALUE, listener);
+                int pos = lineColToPos(document, last.getLine(), last.getColumn());
+                int newsize = pos - nodePos;
+                if (newsize != getSize()) {
+                    setSize(newsize);
+                    return NODE_SHRUNK;
+                }
+                return ALL_OK;
+            }
+            else if (ppr == PP_EPIC_FAIL) {
+                removeOverwrittenChildren(childQueue, nextChild, Integer.MAX_VALUE, listener);
+                return REMOVE_NODE;
+            }
             
             LocatableToken nlaToken = parser.getTokenStream().LA(1);
             if (nlaToken == laToken) {

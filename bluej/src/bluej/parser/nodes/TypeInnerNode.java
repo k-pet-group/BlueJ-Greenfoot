@@ -98,4 +98,10 @@ public class TypeInnerNode extends IncrementalParsingNode
     {
         return false;
     };
+    
+    @Override
+    public boolean growsForward()
+    {
+        return true;
+    }
 }

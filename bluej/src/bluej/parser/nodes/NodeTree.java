@@ -213,6 +213,16 @@ public class NodeTree
             nt = nt.parent;
         }
     }
+    
+    /**
+     * Move the node's beginning, but not its end position. This shrinks or grows
+     * the node accordingly. The position of any subsequent node is not affected.
+     */
+    public void slideStart(int offset)
+    {
+        pnodeOffset += offset;
+        pnodeSize -= offset;
+    }
 
     /**
      * Get the size of the contained ParsedNode.

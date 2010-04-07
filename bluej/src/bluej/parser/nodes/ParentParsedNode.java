@@ -236,7 +236,8 @@ public class ParentParsedNode extends ParsedNode
         resize(newSize);
         
         NodeAndPosition child = getNodeTree().findNodeAtOrAfter(insPos - 1, nodePos);
-        if (child != null && child.getPosition() < insPos) {
+        if (child != null && (child.getPosition() < insPos
+                || child.getPosition() == insPos && child.getNode().growsForward())) {
             ParsedNode cnode = child.getNode();
             // let the child handle the change.
             int r = cnode.textInserted(document, child.getPosition(), insPos, length, listener);

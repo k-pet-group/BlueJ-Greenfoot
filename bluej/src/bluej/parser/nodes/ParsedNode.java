@@ -123,6 +123,17 @@ public abstract class ParsedNode implements EntityResolver
         return obj == this;
     }
     
+    /**
+     * If text is inserted immediately before this node, should it be made part of this
+     * node? For instance in a method inner body, this would be true, seeing as anything
+     * after the '{' (which is part of the outer body) must by definition be part of the
+     * inner body.
+     */
+    public boolean growsForward()
+    {
+        return false;
+    }
+    
     public void insertNode(ParsedNode child, int position, int size)
     {
         getNodeTree().insertNode(child, position, size);

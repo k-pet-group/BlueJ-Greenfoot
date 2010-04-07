@@ -27,7 +27,8 @@ import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 /**
- * A node representing a method or constructor body.
+ * A node representing a method or constructor inner body (the part between, but not
+ * including, the '{' and '}').
  * 
  * @author Davin McCall
  */
@@ -39,11 +40,13 @@ public class MethodBodyNode extends IncrementalParsingNode
         setInner(true);
     }
     
+    @Override
     protected boolean isDelimitingNode(NodeAndPosition nap)
     {
         return nap.getNode().isContainer();
     }
     
+    @Override
     protected int doPartialParse(EditorParser parser, int state)
     {
         last = parser.parseStatement(parser.getTokenStream().nextToken());
@@ -58,5 +61,11 @@ public class MethodBodyNode extends IncrementalParsingNode
     protected boolean isNodeEndMarker(int tokenType)
     {
         return tokenType == JavaTokenTypes.RCURLY;
+    }
+    
+    @Override
+    public boolean growsForward()
+    {
+        return true;
     }
 }

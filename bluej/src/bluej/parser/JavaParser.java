@@ -593,14 +593,13 @@ public class JavaParser
 
             beginTypeBody(token);
 
-            if (tdType == TYPEDEF_ENUM) {
-                parseEnumConstants();
-            }
-
             if (tdType == TYPEDEF_ANNOTATION) {
                 parseAnnotationBody();
             }
             else { 
+                if (tdType == TYPEDEF_ENUM) {
+                    parseEnumConstants();
+                }
                 parseClassBody();
             }
 
