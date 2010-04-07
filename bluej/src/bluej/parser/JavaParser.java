@@ -571,51 +571,53 @@ public class JavaParser
             gotTypeDef(tdType);
         }
         modifiersConsumed();
+        if (tdType == TYPEDEF_EPIC_FAIL) {
+            return;
+        }
         
-        if (tdType != TYPEDEF_EPIC_FAIL && tdType != TYPEDEF_ERROR) {
-            
-            // Class name
-            LocatableToken token = tokenStream.nextToken();
-            if (token.getType() != JavaTokenTypes.IDENT) {
-                tokenStream.pushBack(token);
-                error("Expected identifier (in type definition)");
-                return;
-            }
-            gotTypeDefName(token);
-
-            token = parseTypeDefPart2();
-
-            // Body!
-            if (token == null) {
-                gotTypeDefEnd(tokenStream.LA(1), false);
-                return;
-            }
-
-            beginTypeBody(token);
-
-            if (tdType == TYPEDEF_ANNOTATION) {
-                parseAnnotationBody();
-            }
-            else { 
-                if (tdType == TYPEDEF_ENUM) {
-                    parseEnumConstants();
-                }
-                parseClassBody();
-            }
-
-            token = tokenStream.nextToken();
-            if (token.getType() != JavaTokenTypes.RCURLY) {
-                error("Expected '}' (in class definition)");
-                endTypeBody(token, false);
-                gotTypeDefEnd(token, false);
-                return;
-            }
-            endTypeBody(token, true);
-            gotTypeDefEnd(token, true);
+        // Class name
+        LocatableToken token = tokenStream.nextToken();
+        if (token.getType() != JavaTokenTypes.IDENT) {
+            tokenStream.pushBack(token);
+            gotTypeDefEnd(token, false);
+            error("Expected identifier (in type definition)");
+            return;
         }
-        else {
-            error("Expected type declarator: 'class', 'interface', or 'enum'");
+        gotTypeDefName(token);
+
+        token = parseTypeDefPart2();
+
+        // Body!
+        if (token == null) {
+            gotTypeDefEnd(tokenStream.LA(1), false);
+            return;
         }
+
+        token = parseTypeBody(tdType, token);
+        gotTypeDefEnd(token, token.getType() == JavaTokenTypes.RCURLY);
+    }
+    
+    public final LocatableToken parseTypeBody(int tdType, LocatableToken token)
+    {
+        beginTypeBody(token);
+
+        if (tdType == TYPEDEF_ANNOTATION) {
+            parseAnnotationBody();
+        }
+        else { 
+            if (tdType == TYPEDEF_ENUM) {
+                parseEnumConstants();
+            }
+            parseClassBody();
+        }
+
+        token = tokenStream.nextToken();
+        if (token.getType() != JavaTokenTypes.RCURLY) {
+            error("Expected '}' (in class definition)");
+        }
+
+        endTypeBody(token, token.getType() == JavaTokenTypes.RCURLY);
+        return token;
     }
     
     // Possiblities:
@@ -623,8 +625,7 @@ public class JavaParser
     //       - class/interface TYPEDEF_CLAS / TYPEDEF_INTERFACE
     //       - enum            TYPEDEF_ENUM
     //       - annotation      TYPEDEF_ANNOTATION
-    // 2 - looks like a type definition but has an error. No type body. (TYPEDEF_ERROR)
-    // 3 - doesn't even look like a type definition (TYPEDEF_EPIC_FAIL)
+    // 2 - doesn't even look like a type definition (TYPEDEF_EPIC_FAIL)
     public final int parseTypeDefBegin()
     {
         parseModifiers();

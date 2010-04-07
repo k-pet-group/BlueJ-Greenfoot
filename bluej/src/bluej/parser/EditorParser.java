@@ -452,7 +452,14 @@ public class EditorParser extends JavaParser
         beginNode(insPos);
         scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
         scopeStack.push(pnode);
-        
+        initializeTypeExtras();
+    }
+    
+    /**
+     * Initialize the lists for holding type parameters, supertypes, etc.
+     */
+    public final void initializeTypeExtras()
+    {
         typeParams = new HashMap<String,JavaEntity>();
         extendedTypes = new LinkedList<JavaEntity>();
         implementedTypes = new LinkedList<JavaEntity>();

@@ -64,10 +64,14 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
     
     // Partial parse status values
     protected final static int PP_OK = 0;
+    /** last partial did not complete before EOF */
+    protected final static int PP_INCOMPLETE = 1;
     /** Node ends just before the "last" token */
-    protected final static int PP_ENDS_NODE = 1;
+    protected final static int PP_ENDS_NODE = 2;
     /** Parse completely failed. The node must be removed and the parent re-parsed. */
-    protected final static int PP_EPIC_FAIL = 2;
+    protected final static int PP_EPIC_FAIL = 3;
+    /** The "last" token ends the state. The new state begins. */
+    protected final static int PP_ENDS_STATE = 4;
     
     public IncrementalParsingNode(ParsedNode parent)
     {
@@ -209,7 +213,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             }
             
             // We may have transitioned to the next (or a later?) state
-            while (state < stateMarkers.length && (tokpos - nodePos) >= stateMarkers[state]) {
+            while (state < stateMarkers.length && (tokpos - nodePos) >= stateMarkers[state] && stateMarkers[state] != -1) {
                 state++;
                 nextStatePos = (state < stateMarkers.length) ? stateMarkers[state] + nodePos : -1;
             }
@@ -230,6 +234,19 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 removeOverwrittenChildren(childQueue, nextChild, Integer.MAX_VALUE, listener);
                 return REMOVE_NODE;
             }
+            else if (ppr == PP_ENDS_STATE) {
+                int pos = lineColToPos(document, last.getEndLine(), last.getEndColumn());
+                if (stateMarkers[state] == (pos - nodePos)) {
+                    // We transitioned to the existing state border.
+                    nextChild = removeOverwrittenChildren(childQueue, nextChild, pos, listener);
+                    processChildQueue(nodePos, childQueue, nextChild);
+                    parser.completedNode(this, nodePos, pos - nodePos);
+                    return ALL_OK;
+                }
+                stateMarkers[state] = pos - nodePos;
+                marksEnd[state] = true;
+                state++;
+            }
             
             LocatableToken nlaToken = parser.getTokenStream().LA(1);
             if (nlaToken == laToken) {
@@ -238,17 +255,6 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 nlaToken = parser.getTokenStream().LA(1);
             }
                         
-            // Maybe we transitioned to a new state now?
-            if (last != null && state < marksEnd.length && marksEnd[state]) {
-                int epos = lineColToPos(document, last.getEndLine(), last.getEndColumn());
-                if ((epos - nodePos) == stateMarkers[state]) {
-                    nextChild = removeOverwrittenChildren(childQueue, nextChild, epos, listener);
-                    processChildQueue(nodePos, childQueue, nextChild);
-                    parser.completedNode(this, nodePos, epos - nodePos);
-                    return ALL_OK;
-                }
-            }
-            
             if (nlaToken.getType() == JavaTokenTypes.EOF) {
                 int epos = lineColToPos(document, nlaToken.getLine(), nlaToken.getColumn());
                 nextChild = removeOverwrittenChildren(childQueue, nextChild, epos, listener);
@@ -355,7 +361,8 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             int length, NodeStructureListener listener)
     {
         for (int i = 0; i < stateMarkers.length; i++) {
-            if (stateMarkers[i] > (insPos - nodePos)) {
+            if (stateMarkers[i] > (insPos - nodePos)
+                    || (stateMarkers[i] == (insPos - nodePos) && !marksEnd[i])) {
                 stateMarkers[i] += length;
             }
         }
@@ -369,7 +376,8 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         for (int i = 0; i < stateMarkers.length; i++) {
             if (stateMarkers[i] > (delPos - nodePos)) {
                 stateMarkers[i] -= length;
-                if (stateMarkers[i] < (delPos - nodePos)) {
+                if (stateMarkers[i] < (delPos - nodePos)
+                        || (stateMarkers[i] == (delPos - nodePos) && marksEnd[i])) {
                     // The removed text straddles the state marker
                     stateMarkers[i] = -1;
                 }

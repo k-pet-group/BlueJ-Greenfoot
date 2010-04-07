@@ -28,10 +28,14 @@ import javax.swing.text.Document;
 
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.CodeSuggestions;
+import bluej.parser.EditorParser;
+import bluej.parser.JavaParser;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.ParsedReflective;
 import bluej.parser.entity.TypeEntity;
+import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 
@@ -41,7 +45,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  * 
  * @author Davin McCall
  */
-public class ParsedTypeNode extends ParentParsedNode
+public class ParsedTypeNode extends IncrementalParsingNode
 {
     private String name;
     private String prefix;
@@ -62,6 +66,10 @@ public class ParsedTypeNode extends ParentParsedNode
     public ParsedTypeNode(ParsedNode parent, int type, String prefix)
     {
         super(parent);
+        stateMarkers = new int[2];
+        marksEnd = new boolean[2];
+        stateMarkers[0] = -1;
+        stateMarkers[1] = -1;
         this.type = type;
         this.prefix = prefix;
     }
@@ -130,13 +138,64 @@ public class ParsedTypeNode extends ParentParsedNode
         inner = child;
     }
     
-    /**
-     * Get the fields in this node. (A map of field name to its node).
-     * The returned map is live and should not be modified.
-     */
     public TypeInnerNode getInner()
     {
         return inner;
+    }
+    
+    @Override
+    protected int doPartialParse(EditorParser parser, int state)
+    {
+        if (state == 0) {
+            // [modifiers] {class|interface|enum|@interface} name [<type params>] [extends...] {
+            int r = parser.parseTypeDefBegin();
+            if (r == JavaParser.TYPEDEF_EPIC_FAIL) {
+                return PP_EPIC_FAIL;
+            }
+            
+            type = r;
+            parser.initializeTypeExtras();
+            
+            LocatableToken token = parser.getTokenStream().nextToken();
+            if (token.getType() != JavaTokenTypes.IDENT) {
+                last = token;
+                return PP_ENDS_NODE;
+            }
+            setName(token.getText());
+            
+            token = parser.parseTypeDefPart2();
+            if (token == null) {
+                return PP_ENDS_NODE;
+            }
+            last = token;
+            return PP_ENDS_STATE;
+        }
+        else if (state == 1) {
+            // class body '}'
+            // We only get into this state rarely
+            last = parser.parseTypeBody(type, last);
+            return last.getType() == JavaTokenTypes.RCURLY ? PP_ENDS_STATE : PP_INCOMPLETE;
+        }
+        else if (state == 2) {
+            last = parser.getTokenStream().LA(1);
+            return PP_ENDS_NODE;
+        }
+        
+        return PP_EPIC_FAIL;
+    }
+    
+    @Override
+    protected boolean lastPartialCompleted(EditorParser parser,
+            LocatableToken token)
+    {
+        // TODO Auto-generated method stub
+        return super.lastPartialCompleted(parser, token);
+    }
+    
+    @Override
+    protected boolean isDelimitingNode(NodeAndPosition nap)
+    {
+        return false;
     }
     
     @Override
