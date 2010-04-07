@@ -114,11 +114,15 @@ prefmgr.misc.filechooser.title=Seleziona directory del Wireless Toolkit
 prefmgr.edit.prefpaneltitle=Editor
 prefmgr.edit.editor.title=Preferenze dell'Editor
 prefmgr.edit.editorfontsize=Dimensione dei caratteri
+prefmgr.edit.colortransparency=Colorazione sintattica
 prefmgr.edit.usesyntaxhilighting=Attiva la colorazione sintattica
 prefmgr.edit.autoindent=Attiva il rientro automatico (con Invio e Tab)
 prefmgr.edit.displaylinenumbers=Mostra i numeri di linea
 prefmgr.edit.makeBackup=Tieni una copia di sicurezza dei file sorgente
 prefmgr.edit.matchBrackets=Mostra le parentesi corrispondenti
+prefmgr.edit.keybindingstitle=Combinazioni di tasti
+prefmgr.edit.highlightLighter=Chiaro
+prefmgr.edit.highlightDarker=Scuro
 
 
 # Extensions Manager Help panel
@@ -183,10 +187,12 @@ editor.copy-to-clipboardLabel = Copia
 editor.paste-from-clipboardLabel = Incolla
 editor.indent-blockLabel = Aumenta rientro
 editor.deindent-blockLabel = Diminuisci rientro
+editor.autoindentLabel = Rientro automatico
 editor.comment-blockLabel = Commenta
 editor.uncomment-blockLabel = Togli commento
 editor.insert-methodLabel = Inserisci metodo
 
+editor.new-findLabel = Nuova Ricerca
 editor.findLabel = Trova...
 editor.find-nextLabel = Trova successivo
 editor.find-next-backwardLabel = Trova precedente
@@ -201,8 +207,8 @@ editor.gotoline.title = Vai alla linea
 editor.gotoline.label = Specifica la linea 
 editor.gotoline.notNumericMessage = Il valore deve essere numerico
 
-editor.implementationLabel = Implementazione
-editor.interfaceLabel = Specifiche
+editor.implementationLabel = Codice sorgente
+editor.interfaceLabel = Documentazione
 
 editor.state.readOnly = sola lettura
 editor.state.saved = salvato
@@ -210,6 +216,10 @@ editor.state.changed = modificato
 
 editor.key-bindingsLabel = Combinazioni di tasti...
 editor.preferencesLabel = Preferenze...
+
+editor.printDialog.title=BlueJ:  Stampa codice sorgente
+editor.printDialog.printLineNumbers=Stampa numeri di linea
+editor.printDialog.printHighlighting=Stampa con colorazione sintattica
 
 # Dialog titles and texts
 editor.functions.title = Funzioni dell'Editor
@@ -239,11 +249,27 @@ editor.find.backward=indietro
 editor.find.forward=avanti
 editor.find.wrapAround=a capo automatico
 
+# FindPanel
+editor.findpanel.replacePanel=  Sostituisci
+editor.findpanel.findLabel=Cerca:
+editor.findpanel.findNext=Prossimo
+editor.findpanel.findPrevious=Precedente
+editor.findpanel.matchCase=Parola esatta
+
+# ReplacePanel
+editor.replacePanel.replaceLabel=Sostituisci:
+editor.replacePanel.replaceOnce=Sostituisci
+editor.replacePanel.replaceAll= Sostituisci tutti
+
 #Messages shown as a result of a search with replace all
 editor.replaceAll.replaced=Sostituisci 
 editor.replaceAll.intancesOf=\ instanza di 
 editor.replaceAll.string=Stringa
 editor.replaceAll.notFoundNothingReplaced=\ non trovato. Nessuna sostituzione.
+
+#Messages shown as a result of a search with highlight all
+editor.highlight.found=Trovato 
+editor.highlight.notFound=\ non trovato.
 
 #Messages shown when determining what function is bound to a given key
 editor.keypressed.keyIsNotBound=\ non legato alla funzione.
@@ -276,6 +302,7 @@ editor.info.docAborted = Si \u00e8 verificato un grave problema durante la gener
 editor.info.docDisappeared = Non riesco a trovare il file HTML:
 editor.info.docNoFrames = La visualizzazione a frame \u00e8 disabilitata durante l'anteprima dell'Editor.
 editor.info.tabsExpanded = Tutti i TAB convertiti a spazi.\n(Stai lavorando con soft TABs,\nil file conteneva hard TABs.)
+editor.info.perfectIndent = Indentazzione era già corretta
 editor.printer.continued=continuato
 #End Editor labels
 
@@ -342,7 +369,7 @@ pkgmgr.test.recording=registro
 
 pkgmgr.test.popup.testAll=Esegui il test di tutto
 pkgmgr.test.popup.noTests=Nessun metodo di test
-pkgmgr.test.popup.abstract=La classe del test � "abstract"
+pkgmgr.test.popup.abstract=La classe del test è "abstract"
 pkgmgr.test.popup.testPrefix=Test
 pkgmgr.test.popup.createTest=Crea il metodo di test...
 pkgmgr.test.popup.benchToFixture=da Object Bench a Test Fixture
@@ -485,6 +512,7 @@ terminal.title = BlueJ:  Terminale
 terminal.clear = Pulisci
 terminal.copy = Copia
 terminal.save = Salva nel file...
+terminal.print = Stampa
 terminal.close = Chiudi
 terminal.clearScreen = Pulisci lo schermo alla chiamata a metodo
 terminal.recordCalls = Registra le chiamate a metodo
@@ -613,6 +641,9 @@ team.status.refresh=Aggiornamento
 team.conflicts.title=Trovato conflitto
 team.conflicts.classes=Le seguenti classi hanno conflitti
 team.conflicts.show=Mostra conflitti
+team.error.username.at=L' username ha questo @ carattere non valido per BlueJ.
+team.error.username.colon=L' username ha questo : carattere non valido per BlueJ.
+team.error.password.at=L' password ha questo @ carattere non valido per BlueJ.
 
 # The following appear in brackets after a filename, in the
 # update/commit dialogs.
