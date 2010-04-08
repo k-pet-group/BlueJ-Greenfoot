@@ -21,6 +21,7 @@
  */
 package greenfoot.platforms;
 
+import greenfoot.Actor;
 import greenfoot.World;
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.input.InputManager;
@@ -50,6 +51,8 @@ public interface WorldHandlerDelegate
 
     void setWorldHandler(WorldHandler handler);
     
+    void addActor(Actor actor, int x, int y); 
+    
     /**
      * Instantiate a new world and do any initialisation needed to activate that world.
      */
@@ -58,4 +61,6 @@ public interface WorldHandlerDelegate
     InputManager getInputManager();
 
     void discardWorld(World world);
+
+    void createdActor(Class<?> theClass, Object actor, String[] args);
 }

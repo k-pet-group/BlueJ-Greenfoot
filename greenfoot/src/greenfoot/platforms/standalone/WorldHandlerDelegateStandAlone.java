@@ -21,6 +21,7 @@
  */
 package greenfoot.platforms.standalone;
 
+import greenfoot.Actor;
 import greenfoot.World;
 import greenfoot.core.WorldHandler;
 import greenfoot.export.GreenfootScenarioViewer;
@@ -115,5 +116,15 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     public void discardWorld(World world)
     {
     	// Nothing special to do.    
+    }
+
+    public void addActor(Actor actor, int x, int y)
+    {
+        // Nothing to be done
+    }
+
+    public void createdActor(Class<?> theClass, Object actor, String[] args)
+    {
+        // Nothing to be done      
     }
 }

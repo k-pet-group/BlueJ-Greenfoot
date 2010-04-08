@@ -191,6 +191,7 @@ public class WorldInvokeListener
                         final Constructor c = cl.getDeclaredConstructor(new Class[0]);
                         c.setAccessible(true);
                         Object o = c.newInstance((Object[]) null);
+                        WorldHandler.getInstance().notifyCreatedActor(cl, o, new String[0]);
                         ActorInstantiationListener invocListener = GreenfootMain.getInstance().getInvocationListener();
                         invocListener.localObjectCreated(o, LocationTracker.instance().getMouseButtonEvent());
                     }
@@ -407,6 +408,7 @@ public class WorldInvokeListener
                                 RObject rresult = pkg.getObject(resultName);
                                 Object resultw = ObjectTracker.getRealObject(rresult);
                                 rresult.removeFromBench();
+                                WorldHandler.getInstance().notifyCreatedActor(cl,resultw,mdlg.getArgs());
                                 ActorInstantiationListener invocListener = GreenfootMain.getInstance()
                                         .getInvocationListener();
                                 invocListener.localObjectCreated(resultw, location);

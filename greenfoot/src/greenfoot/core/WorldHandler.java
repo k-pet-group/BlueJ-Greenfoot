@@ -163,6 +163,14 @@ public class WorldHandler
             public void setWorldHandler(WorldHandler handler)
             {
             }
+            
+            public void addActor(Actor actor, int x, int y)
+            {
+            }
+
+            public void createdActor(Class<?> theClass, Object actor, String[] args)
+            {
+            }
         };
     }
         
@@ -179,6 +187,7 @@ public class WorldHandler
         this.handlerDelegate.setWorldHandler(this);
 
         this.worldCanvas = worldCanvas;
+        
         mousePollingManager = new MousePollingManager(new WorldLocator() {
             public Actor getTopMostActorAt(MouseEvent e)
             {
@@ -581,6 +590,7 @@ public class WorldHandler
         int y = WorldVisitor.toCellFloor(world, yPixel);
         if (x < world.getWidth() && y < world.getHeight()) {
             world.addObject(actor, x, y);
+            handlerDelegate.addActor(actor, x, y);
             return true;
         }
         else {
@@ -794,6 +804,10 @@ public class WorldHandler
             Point p = new Point(x, y);
             startDrag(actor, p);
         }
-    } 
-
+    }
+    
+    public void notifyCreatedActor(Class<?> theClass, Object actor, String[] args)
+    {
+        handlerDelegate.createdActor(theClass, actor, args);
+    }
 }

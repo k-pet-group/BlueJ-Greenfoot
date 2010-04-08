@@ -60,7 +60,7 @@ import bluej.utility.Utility;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 6478 2009-08-04 11:12:45Z polle $
+ * @version $Id: ClassView.java 7306 2010-04-08 16:22:11Z nccb $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -426,6 +426,7 @@ public class ClassView extends JToggleButton
             Constructor constructor = realClass.getConstructor(new Class[]{});
 
             Object newObject = constructor.newInstance(new Object[]{});
+            WorldHandler.getInstance().notifyCreatedActor(realClass, newObject, new String [0]);            
             ActorInstantiationListener invocationListener = GreenfootMain.getInstance().getInvocationListener();
             if(invocationListener != null) {
                 invocationListener.localObjectCreated(newObject, LocationTracker.instance().getMouseButtonEvent());

@@ -34,6 +34,7 @@ import greenfoot.gui.MessageDialog;
 import greenfoot.gui.input.InputManager;
 import greenfoot.localdebugger.LocalObject;
 import greenfoot.platforms.WorldHandlerDelegate;
+import greenfoot.record.GreenfootRecorder;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
@@ -93,6 +94,9 @@ public class WorldHandlerDelegateIDE
     private GreenfootFrame frame;
 
     private JLabel worldTitle;
+    
+    // Records actions manually performed on the world:
+    private GreenfootRecorder greenfootRecorder;
 
     public WorldHandlerDelegateIDE(GreenfootFrame frame)
     {
@@ -100,6 +104,7 @@ public class WorldHandlerDelegateIDE
         worldTitle.setBorder(BorderFactory.createEmptyBorder(18, 0, 4, 0));
         worldTitle.setHorizontalAlignment(SwingConstants.CENTER);
         this.frame = frame;
+        greenfootRecorder = new GreenfootRecorder();
     }
 
     /**
@@ -201,6 +206,8 @@ public class WorldHandlerDelegateIDE
         if (oldWorld != null) {
             discardWorld(oldWorld);
         }
+        
+        greenfootRecorder = new GreenfootRecorder();
 
         EventQueue.invokeLater(new Runnable() {
             public void run()
@@ -469,5 +476,15 @@ public class WorldHandlerDelegateIDE
         inputManager.setMoveListeners(worldHandler, worldHandler, worldHandler);
         
         return inputManager;
+    }
+    
+    public void addActor(Actor actor, int x, int y)
+    {
+        greenfootRecorder.addActorToWorld(actor, x, y);
+    }
+
+    public void createdActor(Class<?> theClass, Object actor, String[] args)
+    {
+        greenfootRecorder.createActor(theClass, actor, args);
     }
 }
