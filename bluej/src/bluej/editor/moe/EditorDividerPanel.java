@@ -1,3 +1,24 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 2010  Michael Kolling and John Rosenberg 
+
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.editor.moe;
 
 import java.awt.BorderLayout;
@@ -14,6 +35,11 @@ import bluej.Config;
 import bluej.utility.DBox;
 import bluej.utility.DBoxLayout;
 
+/**
+ * Simple divider between the editor and the naviview to provide expand/collapse functionality
+ * @author Marion Zalk  
+ *
+ */
 public class EditorDividerPanel extends JPanel implements MouseListener {
     
     boolean expanded=true;
@@ -25,6 +51,7 @@ public class EditorDividerPanel extends JPanel implements MouseListener {
     
     public EditorDividerPanel(NaviView naviview) {
         super();
+        //display consists of a label with an image
         nav=naviview;
         openNavArrow=Config.getImageAsIcon("image.replace.open");
         closeNavArrow=Config.getImageAsIcon("image.replace.close");
@@ -50,6 +77,7 @@ public class EditorDividerPanel extends JPanel implements MouseListener {
 
     public void mouseClicked(MouseEvent e) {
         JComponent src = (JComponent) e.getSource();
+        //if expanded/collapse set the necessary images and flags 
         if (src.getName()==EXPAND_COLLAPSE_NAVIVIEW){  
             if (isExpanded()){
                 nav.setVisible(false);
