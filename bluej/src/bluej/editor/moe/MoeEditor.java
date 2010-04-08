@@ -250,6 +250,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     
     /** Used to obtain javadoc for arbitrary methods */
     private JavadocResolver javadocResolver;
+    private ReparseRunner reparseRunner;
 
     /**
      * Property map, allows BlueJ extensions to associate property values with
@@ -1062,7 +1063,26 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         return sourceDocument.getParser();
     }
 
-
+    /**
+     * Schedule the ReparseRunner on the AWT event queue, if it is not already scheduled.
+     */
+    private void scheduleReparseRunner()
+    {
+        if (reparseRunner == null) {
+            reparseRunner = new ReparseRunner();
+            EventQueue.invokeLater(reparseRunner);
+        }
+    }
+    
+    /**
+     * Informs the editor that the reparse runner has de-schedule itself due to lack
+     * of work.
+     */
+    public void reparseRunnerFinished()
+    {
+        reparseRunner = null;
+    }
+    
     // --------------------------------------------------------------------
     // ------------ end of interface inherited from Editor ----------------
     // --------------------------------------------------------------------
@@ -1102,6 +1122,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         actions.userAction();
         doTextInsert.setEvent(e, sourcePane);
         SwingUtilities.invokeLater(doTextInsert);
+        scheduleReparseRunner();
     }
 
     /**
@@ -1115,15 +1136,14 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             setChanged();
         }
         actions.userAction();
+        scheduleReparseRunner();
     }
 
     /**
      * Document properties have changed
      */
-    public void changedUpdate(DocumentEvent e) { 
-        removeSearchHighlights();
-    }
-
+    public void changedUpdate(DocumentEvent e) { }
+    
     // --------------------------------------------------------------------
     /**
      * Clear the message in the info area.

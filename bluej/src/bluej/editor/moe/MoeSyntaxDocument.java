@@ -33,7 +33,9 @@ import javax.swing.text.PlainDocument;
 import bluej.Config;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.nodes.NodeStructureListener;
+import bluej.parser.nodes.NodeTree;
 import bluej.parser.nodes.ParsedCUNode;
+import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 
@@ -53,6 +55,7 @@ public class MoeSyntaxDocument extends PlainDocument
 	
     private ParsedCUNode parsedNode;
     private EntityResolver parentResolver;
+    private NodeTree<ReparseRecord> reparseRecordTree;
     
     /**
      * Create an empty MoeSyntaxDocument.
@@ -74,6 +77,9 @@ public class MoeSyntaxDocument extends PlainDocument
         this();
         // parsedNode = new ParsedCUNode(this);
         this.parentResolver = parentResolver;
+        if (parentResolver != null) {
+            reparseRecordTree = new NodeTree<ReparseRecord>();
+        }
     }
 
     /**
@@ -95,10 +101,38 @@ public class MoeSyntaxDocument extends PlainDocument
             parsedNode = new ParsedCUNode(this);
             parsedNode.setParentResolver(parentResolver);
             parsedNode.textInserted(this, 0, 0, getLength(), new NodeStructureListener() {
-                public void nodeAdded(NodeAndPosition node) { }
-                public void nodeRemoved(NodeAndPosition node) { }
+                public void nodeAdded(NodeAndPosition<ParsedNode> node) { }
+                public void nodeRemoved(NodeAndPosition<ParsedNode> node) { }
             });
         }
+    }
+    
+    /**
+     * Run an item from the re-parse queue, if there are any. Return true if
+     * a qeued re-parse was processed or false if the queue was empty.
+     */
+    public boolean pollReparseQueue()
+    {
+        NodeAndPosition<ReparseRecord> nap = reparseRecordTree.findNodeAtOrAfter(0);
+        if (nap != null) {
+            int pos = nap.getPosition();
+            
+            ParsedNode pn = getParser();
+            int ppos = 0;
+            if (pn != null) {
+                NodeAndPosition<ParsedNode> cn = pn.findNodeAt(pos, ppos);
+                while (cn != null) {
+                    ppos = cn.getPosition();
+                    pn = cn.getNode();
+                    cn = pn.findNodeAt(nap.getPosition(), ppos);
+                }
+                
+                // DAV now reparse pn
+                
+                return true;
+            }
+        }
+        return false;
     }
     
     /**
@@ -154,7 +188,7 @@ public class MoeSyntaxDocument extends PlainDocument
     }
     
     /**
-     * Allows user-defined colours to be set for synax highlighting. The file
+     * Allows user-defined colours to be set for syntax highlighting. The file
      * containing the colour values is 'lib/moe.defs'. If this file is
      * not found, or not all colours are defined, the BlueJ default colours are
      * used.
