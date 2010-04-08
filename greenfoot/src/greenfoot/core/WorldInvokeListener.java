@@ -122,6 +122,7 @@ public class WorldInvokeListener
                         try {
                             final Object r = m.invoke(obj, (Object[])null);
                             update();
+                            WorldHandler.getInstance().notifyActorMethodCall(instanceName, m.getName(), new String[0]);
                             if (m.getReturnType() != void.class) {
                                 final ExpressionInformation ei = new ExpressionInformation(WorldInvokeListener.this.mv, instanceName);
                                 EventQueue.invokeLater(new Runnable() {
