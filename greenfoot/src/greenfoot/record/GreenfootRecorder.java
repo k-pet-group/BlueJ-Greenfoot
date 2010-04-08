@@ -157,5 +157,21 @@ public class GreenfootRecorder
         spitCode();
     }
 
+    public void removeActor(Actor obj)
+    {
+        currentlyDraggedActor = null;
+        String actorObjectName = objectNames.get(obj);
+        if (null == actorObjectName) {
+            // This could happen with programmatically generated actors (e.g. in a World's method)
+            // if the user tries to remove them afterwards:
+            Debug.reportError("WorldRecorder.removeActor called with unknown actor (created programmatically?)");
+            return;
+        }
+        code.add("removeObject(" + actorObjectName + ");");
+        objectNames.remove(obj);
+        
+        spitCode();
+    }
+
 
 }

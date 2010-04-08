@@ -140,5 +140,11 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
 
     public void movedActor(Actor actor, int xCell, int yCell)
     {
+        // Nothing to be done
+    }
+
+    public void removedActor(Actor obj)
+    {
+        // Nothing to be done
     }
 }

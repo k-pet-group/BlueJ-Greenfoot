@@ -128,6 +128,7 @@ public class WorldHandlerDelegateIDE
             public void actionPerformed(ActionEvent e)
             {
                 worldHandler.getWorld().removeObject(obj);
+                worldHandler.notifyRemovedActor(obj);
                 worldHandler.repaint();
             }
         });
@@ -501,5 +502,10 @@ public class WorldHandlerDelegateIDE
     public void movedActor(Actor actor, int xCell, int yCell)
     {
         greenfootRecorder.moveActor(actor, xCell, yCell);
+    }
+
+    public void removedActor(Actor obj)
+    {
+        greenfootRecorder.removeActor(obj);        
     }
 }

@@ -183,6 +183,10 @@ public class WorldHandler
             public void movedActor(Actor actor, int xCell, int yCell)
             {
             }
+
+            public void removedActor(Actor obj)
+            {
+            }
         };
     }
         
@@ -845,5 +849,10 @@ public class WorldHandler
     private void notifyMovedActor(Actor actor, int xCell, int yCell)
     {
         handlerDelegate.movedActor(actor, xCell, yCell);        
+    }
+
+    public void notifyRemovedActor(Actor obj)
+    {
+        handlerDelegate.removedActor(obj);        
     }
 }

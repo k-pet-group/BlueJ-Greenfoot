@@ -69,4 +69,6 @@ public interface WorldHandlerDelegate
     void staticMethodCall(String className, String name, String[] args);
 
     void movedActor(Actor actor, int xCell, int yCell);
+
+    void removedActor(Actor obj);
 }
