@@ -84,29 +84,6 @@ public class GreenfootRecorder
         } //generateObjectName(theClass);
     }
     
-    private String generateObjectName(Class<?> theClass)
-    {
-        String className = theClass.getName();
-        // Take the last part of the possibly-qualified name:
-        int lastDot = className.lastIndexOf('.');
-        if (lastDot != -1) {
-            className = className.substring(lastDot + 1);
-        }
-        
-        // It is very important that we copy the names into a new collection here.
-        // The values() method on IdentityHashMap also uses identity for equality
-        // which is not what we want for Strings!
-        ArrayList<String> existingNames = new ArrayList<String>(objectNames.values());
-        
-        // Find the first name not already taken of the form classname0, classname1, etc
-        for (int n = 0;;n++) {
-            String candidateName = className.toLowerCase() + n;
-            if (false == existingNames.contains(candidateName)) {
-                return candidateName;
-            }
-        }
-    }
-    
     public void addActorToWorld(Actor actor, int x, int y)
     {
         String actorObjectName = objectNames.get(actor);
