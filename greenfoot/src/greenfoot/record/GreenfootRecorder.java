@@ -23,11 +23,8 @@
 package greenfoot.record;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
-import java.util.List;
 
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
@@ -41,8 +38,9 @@ import greenfoot.World;
 public class GreenfootRecorder
 {
     private IdentityHashMap<Object, String> objectNames;
-    private List<String> code;
+    private LinkedList<String> code;
     private World world;
+    private Actor currentlyDraggedActor;
     
     public GreenfootRecorder()
     {
@@ -52,6 +50,7 @@ public class GreenfootRecorder
 
     public void createActor(Class<?> theClass, Object actor, String[] args)
     {
+        currentlyDraggedActor = null;
         try {
             String name = ObjectTracker.getRObject(actor).getInstanceName();
             objectNames.put(actor, name);
@@ -92,6 +91,7 @@ public class GreenfootRecorder
     
     public void addActorToWorld(Actor actor, int x, int y)
     {
+        currentlyDraggedActor = null;
         String actorObjectName = objectNames.get(actor);
         if (null == actorObjectName) {
             //oops!
@@ -105,6 +105,7 @@ public class GreenfootRecorder
 
     public void callActorMethod(Object obj, String actorName, String name, String[] args)
     {
+        currentlyDraggedActor = null;
         if (world != null && world == obj) {
             // Called on the world, so don't use the world's object name before the call:
             code.add(name + "(" + withCommas(args) + ");");
@@ -118,11 +119,12 @@ public class GreenfootRecorder
     private void spitCode()
     {
         int i = code.size() - 1;
-        Debug.message("#" + i + code.get(i));
+        Debug.message("#" + i + code.peekLast());
     }
 
     public void callStaticMethod(String className, String name, String[] args)
     {
+        currentlyDraggedActor = null;
         // No difference in syntax, so no need to replicate the code:
         callActorMethod(null, className, name, args);
     }
@@ -130,6 +132,29 @@ public class GreenfootRecorder
     public void reset(World newWorld)
     {
         world = newWorld;
+        code.clear();
+        objectNames.clear();
+        currentlyDraggedActor = null;
+    }
+
+    public void moveActor(Actor actor, int xCell, int yCell)
+    {        
+        String actorObjectName = objectNames.get(actor);
+        if (null == actorObjectName) {
+            // This could happen with programmatically generated actors (e.g. in a World's method)
+            // if the user drags them around afterwards.
+            Debug.reportError("WorldRecorder.moveActor called with unknown actor (created programmatically?)");
+            return;
+        }
+        if (actor == currentlyDraggedActor) {
+            // Remove the last line, which must be the previous setLocation caused by the drag: 
+            code.removeLast();
+        } else {
+            currentlyDraggedActor = actor;
+        }
+        code.add(actorObjectName + ".setLocation(" + xCell + ", " + yCell + ");");
+        
+        spitCode();
     }
 
 

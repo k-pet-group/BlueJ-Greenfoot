@@ -179,6 +179,10 @@ public class WorldHandler
             public void staticMethodCall(String className, String name, String[] args)
             {
             }
+
+            public void movedActor(Actor actor, int xCell, int yCell)
+            {
+            }
         };
     }
         
@@ -483,7 +487,9 @@ public class WorldHandler
     }
 
     /**
-     * Handle drop of actors. Handles all types of drops (Move, QuickAddd etc)
+     * Handle drop of actors. Handles QuickAdd
+     * 
+     * When existing actors are dragged around in the world, that uses drag -- drop is *not* called for those
      */
     public boolean drop(Object o, Point p)
     {
@@ -551,10 +557,17 @@ public class WorldHandler
                     if (x < world.getWidth() && y < world.getHeight() && x >= 0 && y >= 0) {
                         ActorVisitor.setLocationInPixels(actor, (int) p.getX() + dragOffsetX, (int) p.getY()
                                 + dragOffsetY);
+                        notifyMovedActor(actor, x, y);
+
                         repaint();
                     }
                     else {
                         ActorVisitor.setLocationInPixels(actor, dragBeginX, dragBeginY);
+                        
+                        x = WorldVisitor.toCellFloor(getWorld(), dragBeginX);
+                        y = WorldVisitor.toCellFloor(getWorld(), dragBeginY);
+                        notifyMovedActor(actor, x, y);
+                        
                         repaint();
                         return false;
                     }
@@ -827,5 +840,10 @@ public class WorldHandler
     public void notifyStaticMethodCall(String className, String name, String[] args)
     {
         handlerDelegate.staticMethodCall(className, name, args);
+    }
+
+    private void notifyMovedActor(Actor actor, int xCell, int yCell)
+    {
+        handlerDelegate.movedActor(actor, xCell, yCell);        
     }
 }

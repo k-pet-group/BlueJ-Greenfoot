@@ -497,4 +497,9 @@ public class WorldHandlerDelegateIDE
     {
         greenfootRecorder.callStaticMethod(className, name, args);        
     }
+
+    public void movedActor(Actor actor, int xCell, int yCell)
+    {
+        greenfootRecorder.moveActor(actor, xCell, yCell);
+    }
 }
