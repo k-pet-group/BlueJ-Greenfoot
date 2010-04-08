@@ -207,7 +207,7 @@ public class WorldHandlerDelegateIDE
             discardWorld(oldWorld);
         }
         
-        greenfootRecorder = new GreenfootRecorder();
+        greenfootRecorder.reset(newWorld);
 
         EventQueue.invokeLater(new Runnable() {
             public void run()
@@ -488,13 +488,11 @@ public class WorldHandlerDelegateIDE
         greenfootRecorder.createActor(theClass, actor, args);
     }
 
-    @Override
-    public void actorMethodCall(String actorName, String name, String[] args)
+    public void methodCall(Object obj, String actorName, String name, String[] args)
     {
-        greenfootRecorder.callActorMethod(actorName, name, args);        
+        greenfootRecorder.callActorMethod(obj, actorName, name, args);        
     }
 
-    @Override
     public void staticMethodCall(String className, String name, String[] args)
     {
         greenfootRecorder.callStaticMethod(className, name, args);        

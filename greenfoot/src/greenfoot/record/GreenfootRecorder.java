@@ -36,11 +36,13 @@ import bluej.utility.Debug;
 
 import greenfoot.Actor;
 import greenfoot.ObjectTracker;
+import greenfoot.World;
 
 public class GreenfootRecorder
 {
     private IdentityHashMap<Object, String> objectNames;
     private List<String> code;
+    private World world;
     
     public GreenfootRecorder()
     {
@@ -101,9 +103,14 @@ public class GreenfootRecorder
         spitCode();
     }
 
-    public void callActorMethod(String actorName, String name, String[] args)
+    public void callActorMethod(Object obj, String actorName, String name, String[] args)
     {
-        code.add(actorName + "." + name + "(" + withCommas(args) + ");");
+        if (world != null && world == obj) {
+            // Called on the world, so don't use the world's object name before the call:
+            code.add(name + "(" + withCommas(args) + ");");
+        } else {
+            code.add(actorName + "." + name + "(" + withCommas(args) + ");");
+        }
         spitCode();
     }
     
@@ -117,7 +124,12 @@ public class GreenfootRecorder
     public void callStaticMethod(String className, String name, String[] args)
     {
         // No difference in syntax, so no need to replicate the code:
-        callActorMethod(className, name, args);
+        callActorMethod(null, className, name, args);
+    }
+
+    public void reset(World newWorld)
+    {
+        world = newWorld;
     }
 
 

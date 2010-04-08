@@ -172,7 +172,7 @@ public class WorldHandler
             {
             }
 
-            public void actorMethodCall(String actorName, String name, String[] args)
+            public void methodCall(Object obj, String actorName, String name, String[] args)
             {
             }
 
@@ -819,9 +819,9 @@ public class WorldHandler
         handlerDelegate.createdActor(theClass, actor, args);
     }
 
-    public void notifyActorMethodCall(String instanceName, String name, String[] args)
+    public void notifyMethodCall(Object obj, String instanceName, String name, String[] args)
     {
-        handlerDelegate.actorMethodCall(instanceName, name, args);
+        handlerDelegate.methodCall(obj, instanceName, name, args);
     }
     
     public void notifyStaticMethodCall(String className, String name, String[] args)

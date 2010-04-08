@@ -122,7 +122,7 @@ public class WorldInvokeListener
                         try {
                             final Object r = m.invoke(obj, (Object[])null);
                             update();
-                            WorldHandler.getInstance().notifyActorMethodCall(instanceName, m.getName(), new String[0]);
+                            WorldHandler.getInstance().notifyMethodCall(obj, instanceName, m.getName(), new String[0]);
                             if (m.getReturnType() != void.class) {
                                 final ExpressionInformation ei = new ExpressionInformation(WorldInvokeListener.this.mv, instanceName);
                                 EventQueue.invokeLater(new Runnable() {
@@ -346,7 +346,7 @@ public class WorldInvokeListener
                         }
                         else {
                             if (rObj != null)
-                                WorldHandler.getInstance().notifyActorMethodCall(rObj.getInstanceName(), mv.getName(), mdlg.getArgs());
+                                WorldHandler.getInstance().notifyMethodCall(ObjectTracker.getRealObject(rObj), rObj.getInstanceName(), mv.getName(), mdlg.getArgs());
                             else
                                 WorldHandler.getInstance().notifyStaticMethodCall(cl.getName(), mv.getName(), mdlg.getArgs());
                             

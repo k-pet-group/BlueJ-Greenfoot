@@ -128,7 +128,7 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         // Nothing to be done      
     }
 
-    public void actorMethodCall(String actorName, String name, String[] args)
+    public void methodCall(Object obj, String actorName, String name, String[] args)
     {
         // Nothing to be done        
     }

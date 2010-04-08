@@ -64,7 +64,7 @@ public interface WorldHandlerDelegate
 
     void createdActor(Class<?> theClass, Object actor, String[] args);
     
-    void actorMethodCall(String actorName, String name, String[] args);
+    void methodCall(Object obj, String actorName, String name, String[] args);
 
     void staticMethodCall(String className, String name, String[] args);
 }
