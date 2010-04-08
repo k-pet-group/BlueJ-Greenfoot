@@ -19,6 +19,7 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
+
 #define UNICODE
 
 #include <windows.h>
@@ -455,10 +456,10 @@ bool launchVM(string jdkLocation)
 
 
 // Find VMs under a VM provider key eg (sun, ibm)
-static void findRegistryVMs(string providerKey)
+static void findRegistryVMs(string providerKey, int extraFlags)
 {
 	HKEY regKey;
-	LONG rval = RegOpenKeyEx(HKEY_LOCAL_MACHINE, providerKey.c_str(), 0, KEY_READ, &regKey);
+	LONG rval = RegOpenKeyEx(HKEY_LOCAL_MACHINE, providerKey.c_str(), 0, KEY_READ | extraFlags, &regKey);
 	
 	TCHAR buffer[1024];
 	
@@ -469,7 +470,7 @@ static void findRegistryVMs(string providerKey)
 			rval = RegEnumKeyEx(regKey, dwIndex, buffer, &bufSize, NULL, NULL, NULL, NULL);
 			if (rval == ERROR_SUCCESS) {
 				HKEY subKey;
-				LONG vval = RegOpenKeyEx(regKey, buffer, 0, KEY_QUERY_VALUE, &subKey);
+				LONG vval = RegOpenKeyEx(regKey, buffer, 0, KEY_QUERY_VALUE | extraFlags, &subKey);
 				if (vval == ERROR_SUCCESS) {
 					if (lstrcmp(buffer, TEXT(REQUIREDJAVA)) > 0) {
 						// Ok - suitable version
@@ -487,11 +488,17 @@ static void findRegistryVMs(string providerKey)
 	}
 }
 
+#ifndef KEY_WOW64_64KEY
+#define KEY_WOW64_64KEY 0x100
+#endif
+
 // Find VMs from the registry
 static void findRegistryVMs()
 {
-	findRegistryVMs(TEXT("Software\\JavaSoft\\Java Development Kit"));
-	findRegistryVMs(TEXT("Software\\IBM\\Java Development Kit"));
+	findRegistryVMs(TEXT("Software\\JavaSoft\\Java Development Kit"), 0);
+	findRegistryVMs(TEXT("Software\\JavaSoft\\Java Development Kit"), KEY_WOW64_64KEY);
+	findRegistryVMs(TEXT("Software\\IBM\\Java Development Kit"), 0);
+	findRegistryVMs(TEXT("Software\\IBM\\Java Development Kit"), KEY_WOW64_64KEY);
 }
 
 

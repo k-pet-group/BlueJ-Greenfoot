@@ -19,6 +19,7 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
+
 /* Read Java property files */
 
 #define UNICODE
