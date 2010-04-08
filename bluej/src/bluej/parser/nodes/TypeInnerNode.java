@@ -89,7 +89,7 @@ public class TypeInnerNode extends IncrementalParsingNode
     }
     
     @Override
-    protected boolean isDelimitingNode(NodeAndPosition nap)
+    protected boolean isDelimitingNode(NodeAndPosition<ParsedNode> nap)
     {
         return nap.getNode().isContainer();
     }

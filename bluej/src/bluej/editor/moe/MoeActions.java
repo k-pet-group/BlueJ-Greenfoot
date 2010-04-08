@@ -792,7 +792,7 @@ public final class MoeActions
                     }
                 }
                 else {
-                    NodeAndPosition root = new NodeAndPosition(doc.getParser(),
+                    NodeAndPosition<ParsedNode> root = new NodeAndPosition<ParsedNode>(doc.getParser(),
                             0, doc.getParser().getSize());
                     String indent = calculateIndent(el, root, ii);
                     update = new DocumentIndentAction(el, indent);
@@ -822,14 +822,14 @@ public final class MoeActions
          *         Returns null if start does not contain the given element
          */
         private String calculateIndent(Element el,
-                NodeAndPosition start, IndentCalculator startIC)
+                NodeAndPosition<ParsedNode> start, IndentCalculator startIC)
         {
             int pos = el.getStartOffset()
             + findFirstNonIndentChar(getElementContents(doc, el), true);
             if (pos >= start.getPosition() && pos < start.getEnd()) {
 
                 // The slightly awkward way to loop through the children of "start":
-                for (NodeAndPosition nap = start.getNode().findNodeAtOrAfter(start.getPosition(), start.getPosition())
+                for (NodeAndPosition<ParsedNode> nap = start.getNode().findNodeAtOrAfter(start.getPosition(), start.getPosition())
                         ; nap != null
                         ; nap = start.getNode().findNodeAtOrAfter(nap.getEnd(), start.getPosition())
                 ) {
@@ -1638,7 +1638,7 @@ public final class MoeActions
         	// begun a new comment (and do need the ending)
         	
         	// Find the comment node that corresponds to our position:
-        	NodeAndPosition curNode = doc.getParser().findNodeAt(lineStart, 0);
+        	NodeAndPosition<ParsedNode> curNode = doc.getParser().findNodeAt(lineStart, 0);
         	while (curNode != null && !(curNode.getNode() instanceof CommentNode))
         	{
         		curNode = curNode.getNode().findNodeAt(lineStart, curNode.getPosition());
@@ -2527,7 +2527,7 @@ public final class MoeActions
         }
     }
 
-    private static String getNodeContents(MoeSyntaxDocument doc, NodeAndPosition nap)
+    private static String getNodeContents(MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap)
     {
         try {
             return doc.getText(nap.getPosition(), nap.getSize());

@@ -49,7 +49,7 @@ import bluej.utility.GeneralCache;
  * 
  * @author Davin McCall
  */
-public abstract class ParsedNode implements EntityResolver
+public abstract class ParsedNode extends RBTreeNode implements EntityResolver
 {
     public static final int NODETYPE_NONE = 0;
     public static final int NODETYPE_TYPEDEF = 1;
@@ -63,9 +63,7 @@ public abstract class ParsedNode implements EntityResolver
     public static final int NODETYPE_COMMENT = 7;
     
     /** The NodeTree containing the child nodes of this node */
-    private NodeTree nodeTree;
-    /** The NodeTree node (belonging to the parent parse node) which contains this node */
-    private NodeTree containingNodeTree;
+    private NodeTree<ParsedNode> nodeTree;
     /** The parent ParsedNode which contains us */
     private ParsedNode parentNode;
     
@@ -80,7 +78,7 @@ public abstract class ParsedNode implements EntityResolver
 	
     public ParsedNode()
     {
-        nodeTree = new NodeTree();
+        nodeTree = new NodeTree<ParsedNode>();
     }
 	
     ParsedNode(ParsedNode parentNode)
@@ -89,7 +87,7 @@ public abstract class ParsedNode implements EntityResolver
         this.parentNode = parentNode;
     }
 
-    public Iterator<NodeAndPosition> getChildren(int offset)
+    public Iterator<NodeAndPosition<ParsedNode>> getChildren(int offset)
     {
         return nodeTree.iterator(offset);
     }
@@ -157,7 +155,7 @@ public abstract class ParsedNode implements EntityResolver
      * @param position   The position of the child node to find
      * @param startpos   The position of this node
      */
-    public final NodeAndPosition findNodeAt(int position, int startpos)
+    public final NodeAndPosition<ParsedNode> findNodeAt(int position, int startpos)
     {
         return nodeTree.findNode(position, startpos);
     }
@@ -167,7 +165,7 @@ public abstract class ParsedNode implements EntityResolver
      * @param position   The position of the child node to find
      * @param startpos   The position of this node
      */
-    public final NodeAndPosition findNodeAtOrAfter(int position, int startpos)
+    public final NodeAndPosition<ParsedNode> findNodeAtOrAfter(int position, int startpos)
     {
         return nodeTree.findNodeAtOrAfter(position, startpos);
     }    
@@ -198,7 +196,7 @@ public abstract class ParsedNode implements EntityResolver
      */
     public int getOffsetFromParent()
     {
-        if (containingNodeTree == null) {
+        if (getContainingNodeTree() == null) {
             return 0;
         }
         return getContainingNodeTree().getPosition();
@@ -211,15 +209,6 @@ public abstract class ParsedNode implements EntityResolver
     public void remove()
     {
         getContainingNodeTree().remove();
-    }
-    
-    /**
-     * Set the containing node tree. This is normally only called by NodeTree when inserting
-     * this node into the tree.
-     */
-    void setContainingNodeTree(NodeTree cnode)
-    {
-        containingNodeTree = cnode;
     }
     
     /**
@@ -321,14 +310,9 @@ public abstract class ParsedNode implements EntityResolver
         return parentNode;
     }
 
-    protected NodeTree getNodeTree()
+    protected NodeTree<ParsedNode> getNodeTree()
     {
         return nodeTree;
-    }
-
-    protected final NodeTree getContainingNodeTree()
-    {
-        return containingNodeTree;
     }
 
     /**
@@ -347,7 +331,7 @@ public abstract class ParsedNode implements EntityResolver
      * and return true, or (if increasing size is really not possible) to return false, or to
      * return false and assume responsibility for re-parsing.
      */
-    protected boolean growChild(Document document, NodeAndPosition child,
+    protected boolean growChild(Document document, NodeAndPosition<ParsedNode> child,
             NodeStructureListener listener)
     {
         return false;
@@ -379,7 +363,7 @@ public abstract class ParsedNode implements EntityResolver
      */
     protected CodeSuggestions getExpressionType(int pos, int nodePos, TypeEntity defaultType, Document document)
     {
-        NodeAndPosition child = getNodeTree().findNode(Math.max(pos - 1, 0), nodePos);
+        NodeAndPosition<ParsedNode> child = getNodeTree().findNode(Math.max(pos - 1, 0), nodePos);
         if (child != null) {
             return child.getNode().getExpressionType(pos, child.getPosition(), defaultType, document);
         }
@@ -400,13 +384,13 @@ public abstract class ParsedNode implements EntityResolver
      * its descendants have been removed.  Won't disturb the position of subsequent
      * children.
      */
-    protected final void removeChild(NodeAndPosition child, NodeStructureListener listener)
+    protected final void removeChild(NodeAndPosition<ParsedNode> child, NodeStructureListener listener)
     {
         child.getNode().remove();
         childRemoved(child, listener);
     }
     
-    protected void childRemoved(NodeAndPosition child, NodeStructureListener listener)
+    protected void childRemoved(NodeAndPosition<ParsedNode> child, NodeStructureListener listener)
     {
         listener.nodeRemoved(child);
         removeChildren(child, listener);
@@ -417,11 +401,11 @@ public abstract class ParsedNode implements EntityResolver
      * are removed, due to the node itself having been removed. (Note this does not actually
      * remove the children from the parent node).
      */
-    protected static void removeChildren(NodeAndPosition node, NodeStructureListener listener)
+    protected static void removeChildren(NodeAndPosition<ParsedNode> node, NodeStructureListener listener)
     {
-        Iterator<NodeAndPosition> i = node.getNode().getChildren(node.getPosition());
+        Iterator<NodeAndPosition<ParsedNode>> i = node.getNode().getChildren(node.getPosition());
         while (i.hasNext()) {
-            NodeAndPosition nap = i.next();
+            NodeAndPosition<ParsedNode> nap = i.next();
             listener.nodeRemoved(nap);
             removeChildren(nap, listener);
         }

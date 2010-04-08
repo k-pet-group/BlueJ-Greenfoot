@@ -193,7 +193,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     }
     
     @Override
-    protected boolean isDelimitingNode(NodeAndPosition nap)
+    protected boolean isDelimitingNode(NodeAndPosition<ParsedNode> nap)
     {
         return false;
     }
@@ -203,7 +203,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     {
         // The default type if the expression is not know should be this type
         TypeEntity myType = new TypeEntity(new ParsedReflective(this));
-        NodeAndPosition child = getNodeTree().findNode(pos, nodePos);
+        NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, nodePos);
         if (child != null) {
             return child.getNode().getExpressionType(pos, child.getPosition(), myType, document);
         }

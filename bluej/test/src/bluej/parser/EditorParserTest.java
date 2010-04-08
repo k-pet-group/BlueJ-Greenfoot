@@ -21,8 +21,6 @@
  */
 package bluej.parser;
 
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +31,6 @@ import junit.framework.TestCase;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugmgr.objectbench.ObjectBench;
-import bluej.debugmgr.texteval.DeclaredVar;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
@@ -90,13 +87,13 @@ public class EditorParserTest extends TestCase
             + "}\n";
             
         ParsedCUNode pcuNode = cuForSource(sourceCode, "");
-        NodeAndPosition classNP = pcuNode.findNodeAtOrAfter(0, 0);
+        NodeAndPosition<ParsedNode> classNP = pcuNode.findNodeAtOrAfter(0, 0);
         assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNP.getNode().getNodeType());
         assertEquals(0, classNP.getPosition());
         
-        NodeAndPosition innerNP = classNP.getNode().findNodeAtOrAfter(9, 0);
+        NodeAndPosition<ParsedNode> innerNP = classNP.getNode().findNodeAtOrAfter(9, 0);
         
-        NodeAndPosition classBNP = innerNP.getNode().findNodeAtOrAfter(innerNP.getPosition(),
+        NodeAndPosition<ParsedNode> classBNP = innerNP.getNode().findNodeAtOrAfter(innerNP.getPosition(),
                 innerNP.getPosition());
         assertEquals(ParsedNode.NODETYPE_TYPEDEF, classBNP.getNode().getNodeType());
         assertEquals(13, classBNP.getPosition());
@@ -139,13 +136,13 @@ public class EditorParserTest extends TestCase
         "}\n";
 
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
-        NodeAndPosition classNP = aNode.findNodeAtOrAfter(0, 0);
+        NodeAndPosition<ParsedNode> classNP = aNode.findNodeAtOrAfter(0, 0);
         assertEquals(ParsedNode.NODETYPE_TYPEDEF, classNP.getNode().getNodeType());
         assertEquals(0, classNP.getPosition());
         
-        NodeAndPosition innerNP = classNP.getNode().findNodeAtOrAfter(9, 0);
+        NodeAndPosition<ParsedNode> innerNP = classNP.getNode().findNodeAtOrAfter(9, 0);
         
-        NodeAndPosition methodNP = innerNP.getNode().findNodeAtOrAfter(
+        NodeAndPosition<ParsedNode> methodNP = innerNP.getNode().findNodeAtOrAfter(
                 innerNP.getPosition(), innerNP.getPosition());
         
         assertEquals(12, methodNP.getPosition());

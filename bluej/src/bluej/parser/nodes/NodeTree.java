@@ -29,18 +29,18 @@ import java.util.Iterator;
  *
  * @author davmac
  */
-public class NodeTree
+public class NodeTree<T extends RBTreeNode>
 {
     // The following two instance variables specify the position of the contained ParsedNode,
     // relative to the position that this NodeTree represents.
     private int pnodeOffset; // offset of the ParsedNode in this tree node from the node start
     private int pnodeSize; // size of the ParsedNode in this tree node
 
-    private NodeTree parent;
+    private NodeTree<T> parent;
 
-    private NodeTree left;
-    private ParsedNode pnode;
-    private NodeTree right; // offset pnodeOffset + pnodeSize
+    private NodeTree<T> left;
+    private T pnode;
+    private NodeTree<T> right; // offset pnodeOffset + pnodeSize
 
     private boolean black;  // true = black, false = red
 
@@ -52,21 +52,21 @@ public class NodeTree
         black = true;
     }
 
-    public Iterator<NodeAndPosition> iterator(int offset)
+    public Iterator<NodeAndPosition<T>> iterator(int offset)
     {
-        return new NodeTreeIterator(offset, this, true);
+        return new NodeTreeIterator<T>(offset, this, true);
     }
 
     /**
      * Find the ParsedNode leaf corresponding to a certain position within the parent.
      * Returns null if no leaf contains exactly the given position.
      */
-    public NodeAndPosition findNode(int pos)
+    public NodeAndPosition<T> findNode(int pos)
     {
         return findNode(pos, 0);
     }
 
-    public NodeAndPosition findNode(int pos, int startpos)
+    public NodeAndPosition<T> findNode(int pos, int startpos)
     {		
         if (pnode == null) {
             return null; // empty node tree
@@ -82,7 +82,7 @@ public class NodeTree
         }
 
         if (startpos + pnodeSize + pnodeOffset > pos) {
-            return new NodeAndPosition(pnode, startpos + pnodeOffset, pnodeSize);
+            return new NodeAndPosition<T>(pnode, startpos + pnodeOffset, pnodeSize);
         }
 
         if (right != null) {
@@ -92,12 +92,12 @@ public class NodeTree
         return null;
     }
 
-    public NodeAndPosition findNodeAtOrBefore(int pos)
+    public NodeAndPosition<T> findNodeAtOrBefore(int pos)
     {
         return findNodeAtOrBefore(pos, 0);
     }
 
-    public NodeAndPosition findNodeAtOrBefore(int pos, int startpos)
+    public NodeAndPosition<T> findNodeAtOrBefore(int pos, int startpos)
     {
         if (pnode == null) {
             return null; // empty node tree
@@ -113,23 +113,23 @@ public class NodeTree
         }
 
         if (startpos + pnodeSize + pnodeOffset > pos) {
-            return new NodeAndPosition(pnode, startpos + pnodeOffset, pnodeSize);
+            return new NodeAndPosition<T>(pnode, startpos + pnodeOffset, pnodeSize);
         }
 
-        NodeAndPosition rval = null;
+        NodeAndPosition<T> rval = null;
         if (right != null) {
             //pos -= (pnodeOffset + pnodeSize);
             rval = right.findNodeAtOrBefore(pos, startpos + pnodeOffset + pnodeSize);
         }
 
         if (rval == null) {
-            rval = new NodeAndPosition(pnode, startpos + pnodeOffset, pnodeSize);
+            rval = new NodeAndPosition<T>(pnode, startpos + pnodeOffset, pnodeSize);
         }
 
         return rval;
     }
 
-    public NodeAndPosition findNodeAtOrAfter(int pos)
+    public NodeAndPosition<T> findNodeAtOrAfter(int pos)
     {
         return findNodeAtOrAfter(pos, 0);
     }
@@ -139,7 +139,7 @@ public class NodeTree
      * @param pos       The position to start the search from
      * @param startpos  The offset to assume the tree represents
      */
-    public NodeAndPosition findNodeAtOrAfter(int pos, int startpos)
+    public NodeAndPosition<T> findNodeAtOrAfter(int pos, int startpos)
     {
         if (pnode == null) {
             return null; // empty node tree
@@ -147,7 +147,7 @@ public class NodeTree
 
         if (startpos + pnodeOffset > pos) {
             if (left != null) {
-                NodeAndPosition rval = left.findNodeAtOrAfter(pos, startpos);
+                NodeAndPosition<T> rval = left.findNodeAtOrAfter(pos, startpos);
                 if (rval != null) {
                     return rval;
                 }
@@ -155,10 +155,10 @@ public class NodeTree
         }
 
         if (startpos + pnodeSize + pnodeOffset > pos) {
-            return new NodeAndPosition(pnode, startpos + pnodeOffset, pnodeSize);
+            return new NodeAndPosition<T>(pnode, startpos + pnodeOffset, pnodeSize);
         }
 
-        NodeAndPosition rval = null;
+        NodeAndPosition<T> rval = null;
         if (right != null) {
             rval = right.findNodeAtOrAfter(pos, startpos + pnodeOffset + pnodeSize);
         }
@@ -174,7 +174,7 @@ public class NodeTree
     {
         int delta = newSize - pnodeSize;
         pnodeSize = newSize;
-        NodeTree nt = this;
+        NodeTree<T> nt = this;
         while (nt.parent != null) {
             if (nt.parent.left == nt) {
                 nt.parent.pnodeOffset += delta;
@@ -191,7 +191,7 @@ public class NodeTree
     {
         int delta = newSize - pnodeSize;
         pnodeSize = newSize;
-        NodeTree nt = this.right;
+        NodeTree<T> nt = this.right;
         while (nt != null) {
             nt.pnodeOffset -= delta;
             nt = nt.left;
@@ -205,7 +205,7 @@ public class NodeTree
     public void slideNode(int offset)
     {
         pnodeOffset += offset;
-        NodeTree nt = this;
+        NodeTree<T> nt = this;
         while (nt.parent != null) {
             if (nt.parent.left == nt) {
                 nt.parent.pnodeOffset += offset;
@@ -232,7 +232,7 @@ public class NodeTree
         return pnodeSize;
     }
 
-    public void insertNode(ParsedNode newNode, int pos, int size)
+    public void insertNode(T newNode, int pos, int size)
     {
         if (pnode == null) {
             pnode = newNode;
@@ -245,7 +245,7 @@ public class NodeTree
             if (pos < pnodeOffset) {
                 assert(pos + size <= pnodeOffset);
                 if (left == null) {
-                    left = new NodeTree(this, newNode, pos, size);
+                    left = new NodeTree<T>(this, newNode, pos, size);
                     fixupNewNode(left);
                 }
                 else {
@@ -256,7 +256,7 @@ public class NodeTree
                 assert(pnodeOffset + pnodeSize <= pos);
                 pos -= (pnodeOffset + pnodeSize);
                 if (right == null) {
-                    right = new NodeTree(this, newNode, pos, size);
+                    right = new NodeTree<T>(this, newNode, pos, size);
                     fixupNewNode(right);
                 }
                 else {
@@ -275,7 +275,7 @@ public class NodeTree
             one_child_remove();
         }
         else {
-            NodeTree sub = left;
+            NodeTree<T> sub = left;
             int nmoffset = 0;
             while (sub.right != null) {
                 nmoffset += (sub.pnodeOffset + sub.pnodeSize);
@@ -299,8 +299,8 @@ public class NodeTree
     {
         int pos = pnodeOffset;
 
-        NodeTree parent = this.parent;
-        NodeTree current = this;
+        NodeTree<T> parent = this.parent;
+        NodeTree<T> current = this;
 
         while (parent != null) {
             if (current == parent.right) {
@@ -315,7 +315,7 @@ public class NodeTree
 
     private void adjustLeftOffsets(int amount)
     {
-        NodeTree nt = this;
+        NodeTree<T> nt = this;
         while (nt != null) {
             nt.pnodeOffset += amount;
             nt = nt.left;
@@ -327,7 +327,7 @@ public class NodeTree
      * The "dest" node (and any of its subtrees, except "with") will then no longer be part
      * of the tree.
      */
-    private static void replace_node(NodeTree dest, NodeTree with)
+    private static <T extends RBTreeNode> void replace_node(NodeTree<T> dest, NodeTree<T> with)
     {
         if (dest.parent != null) {
             if (dest.parent.left == dest) {
@@ -392,7 +392,7 @@ public class NodeTree
         }
     }
 
-    private NodeTree getSibling()
+    private NodeTree<T> getSibling()
     {
         if (parent != null) {
             if (parent.left == this) {
@@ -417,7 +417,7 @@ public class NodeTree
         // We may or may not have any children; regardless, we must have a sibling.
         if (parent != null) {
             // delete case 2
-            NodeTree sibling = getSibling();
+            NodeTree<T> sibling = getSibling();
             if (! sibling.black) {
                 // we are black, so our red sibling must have children...
                 parent.black = false;
@@ -437,7 +437,7 @@ public class NodeTree
     private void delete_case_3()
     {
         // To get here, we must have both a parent and a sibling.
-        NodeTree sibling = getSibling();
+        NodeTree<T> sibling = getSibling();
         if (parent.black && sibling.black && isBlack(sibling.left) && isBlack(sibling.right)) {
             // That's a lot of black.
             sibling.black = false; // remove a black node from sibling path...
@@ -492,7 +492,7 @@ public class NodeTree
     /**
      * This node has been inserted into the tree. Fix up the tree to maintain balance.
      */
-    private static void fixupNewNode(NodeTree n)
+    private static <T extends RBTreeNode> void fixupNewNode(NodeTree<T> n)
     {
         if (n.parent == null) {
             n.black = true;
@@ -505,8 +505,8 @@ public class NodeTree
 
         // We know from here on the parent is red.
 
-        NodeTree grandparent = n.getGrandparent(); // cannot be null (root is always black).
-        NodeTree uncle = n.getUncle();
+        NodeTree<T> grandparent = n.getGrandparent(); // cannot be null (root is always black).
+        NodeTree<T> uncle = n.getUncle();
         if (! isBlack(uncle)) {
             uncle.black = true;
             n.parent.black = true;
@@ -515,7 +515,7 @@ public class NodeTree
             return;
         }
 
-        NodeTree parent = n.parent;
+        NodeTree<T> parent = n.parent;
         if (n == parent.right && parent == grandparent.left) {
             rotateLeft(parent);
             //grandparent = parent;
@@ -546,9 +546,9 @@ public class NodeTree
      * @param n  The first node
      * @param m  The second node
      */
-    private static void swapNodeData(NodeTree n, NodeTree m)
+    private static <T extends RBTreeNode> void swapNodeData(NodeTree<T> n, NodeTree<T> m)
     {
-        ParsedNode pn = n.pnode;
+        T pn = n.pnode;
         int offset = n.pnodeOffset;
         int size = n.pnodeSize;
 
@@ -569,7 +569,7 @@ public class NodeTree
         }
     }
 
-    private static void rotateLeft(NodeTree n)
+    private static <T extends RBTreeNode> void rotateLeft(NodeTree<T> n)
     {
         // Right child of n becomes n's parent
         // We swap the data to avoid actually moving node n.
@@ -592,7 +592,7 @@ public class NodeTree
             return;
         }
         
-        NodeTree oldLeft = n.left;
+        NodeTree<T> oldLeft = n.left;
         n.left = n.right;
         n.right = n.left.right;
         if (n.right != null) {
@@ -605,7 +605,7 @@ public class NodeTree
         }
     }
 	
-    private static void rotateRight(NodeTree n)
+    private static <T extends RBTreeNode> void rotateRight(NodeTree<T> n)
     {
         // Left child of n becomes n's parent
         // We swap the data to avoid actually moving node n.
@@ -627,7 +627,7 @@ public class NodeTree
             return;
         }
                 
-        NodeTree oldRight = n.right;
+        NodeTree<T> oldRight = n.right;
         n.right = n.left;
         n.left = n.right.left;
         if (n.left != null) {
@@ -642,7 +642,7 @@ public class NodeTree
         n.right.pnodeOffset -= (n.pnodeOffset + n.pnodeSize);
     }
 	
-    private NodeTree getGrandparent()
+    private NodeTree<T> getGrandparent()
     {
         if (parent != null) {
             return parent.parent;
@@ -652,12 +652,12 @@ public class NodeTree
         }
     }
 
-    private NodeTree getUncle()
+    private NodeTree<T> getUncle()
     {
         return parent.getSibling();
     }
 
-    private NodeTree(NodeTree parent, ParsedNode node, int offset, int size)
+    private NodeTree(NodeTree<T> parent, T node, int offset, int size)
     {
         this.parent = parent;
         pnode = node;
@@ -672,7 +672,7 @@ public class NodeTree
         return black;
     }
 
-    private static boolean isBlack(NodeTree n)
+    private static boolean isBlack(NodeTree<?> n)
     {
         return n == null || n.black;
     }
@@ -680,20 +680,20 @@ public class NodeTree
     /**
      * A class to represent a [node, position] tuple.
      */
-    public static class NodeAndPosition
+    public static class NodeAndPosition<T extends RBTreeNode>
     {
-        private ParsedNode parsedNode;
+        private T parsedNode;
         private int position;
         private int size;
 
-        public NodeAndPosition(ParsedNode pn, int position, int size)
+        public NodeAndPosition(T pn, int position, int size)
         {
             this.parsedNode = pn;
             this.position = position;
             this.size = size;
         }
 
-        public ParsedNode getNode()
+        public T getNode()
         {
             return parsedNode;
         }
@@ -713,13 +713,14 @@ public class NodeTree
             return position + size;
         }
         
-        public NodeAndPosition nextSibling()
+        @SuppressWarnings("unchecked")
+        public NodeAndPosition<T> nextSibling()
         {
-            NodeTreeIterator ni = new NodeTreeIterator(position - parsedNode.getContainingNodeTree().pnodeOffset,
-                    parsedNode.getContainingNodeTree(), false);
+            NodeTreeIterator<T> ni = new NodeTreeIterator<T>(position - parsedNode.getContainingNodeTree().pnodeOffset,
+                    (NodeTree<T>) parsedNode.getContainingNodeTree(), false);
             ni.next();  // skip "this" node
             if (ni.hasNext()) {
-                NodeAndPosition next = ni.next();
+                NodeAndPosition<T> next = ni.next();
                 // next.position += parsedNode.getContainingNodeTree().pnodeOffset;
                 return next;
             }
@@ -730,14 +731,14 @@ public class NodeTree
     /**
      * An iterator through a node tree.
      */
-    private static class NodeTreeIterator implements Iterator<NodeAndPosition>
+    private static class NodeTreeIterator<T extends RBTreeNode> implements Iterator<NodeAndPosition<T>>
     {
         //Stack<NodeTree> stack;
         int pos = 0; // 0 - left, 1 = middle, 2 = right
         int offset = 0;
-        NodeTree current = null;
+        NodeTree<T> current = null;
 
-        public NodeTreeIterator(int offset, NodeTree tree, boolean leftFirst)
+        public NodeTreeIterator(int offset, NodeTree<T> tree, boolean leftFirst)
         {
             this.offset = offset;
             if (tree.pnode != null) {
@@ -754,7 +755,7 @@ public class NodeTree
             return current != null;
         }
 
-        public NodeAndPosition next()
+        public NodeAndPosition<T> next()
         {
             while (true) {
                 while (pos == 0) {
@@ -763,11 +764,11 @@ public class NodeTree
                         pos = 1;
                     }
                 }
-                NodeTree top = current;
+                NodeTree<T> top = current;
 
                 if (pos == 1) {
                     pos = 2;
-                    NodeAndPosition rval = new NodeAndPosition(top.pnode,
+                    NodeAndPosition<T> rval = new NodeAndPosition<T>(top.pnode,
                             top.pnodeOffset + offset,
                             top.pnodeSize);
                     if (top.right == null) {
@@ -789,7 +790,7 @@ public class NodeTree
         
         private void downStack()
         {
-            NodeTree top = current;
+            NodeTree<T> top = current;
             current = current.parent;
             while (current != null && current.right == top) {
                 top = current;

@@ -290,7 +290,7 @@ public abstract class BlueJSyntaxView extends PlainView
         int char_width = metrics.charWidth('m');
 
         int aboveLine = firstLine - 1;
-        List<NodeAndPosition> prevScopeStack = new LinkedList<NodeAndPosition>();
+        List<NodeAndPosition<ParsedNode>> prevScopeStack = new LinkedList<NodeAndPosition<ParsedNode>>();
         int curLine = firstLine;
 
         try {
@@ -375,8 +375,8 @@ public abstract class BlueJSyntaxView extends PlainView
      * Draw the scope highlighting for one line of the document.
      */
     private void drawScopes(Shape a, Graphics g, MoeSyntaxDocument document, ThreeLines lines,
-            int charWidth, List<NodeAndPosition> prevScopeStack, boolean small, boolean onlyMethods,
-            int nodeDepth)
+            int charWidth, List<NodeAndPosition<ParsedNode>> prevScopeStack, boolean small,
+            boolean onlyMethods, int nodeDepth)
     throws BadLocationException
     {
         Rectangle clipBounds = g.getClipBounds();
@@ -392,10 +392,10 @@ public abstract class BlueJSyntaxView extends PlainView
         int rightMargin = small ? 0 : 20;
         int fullWidth = a.getBounds().width + a.getBounds().x;
 
-        ListIterator<NodeAndPosition> li = prevScopeStack.listIterator();
+        ListIterator<NodeAndPosition<ParsedNode>> li = prevScopeStack.listIterator();
         //Color lastLineColor = C3;
 
-        NodeAndPosition parent = null;
+        NodeAndPosition<ParsedNode> parent = null;
 
         DrawInfo drawInfo = new DrawInfo();
         drawInfo.g = g;
@@ -405,7 +405,7 @@ public abstract class BlueJSyntaxView extends PlainView
         drawInfo.ypos2 = ypos2;
 
         while (li.hasNext()) {
-            NodeAndPosition nap = li.next();
+            NodeAndPosition<ParsedNode> nap = li.next();
             int napPos = nap.getPosition();
             int napEnd = napPos + nap.getSize();
 
@@ -449,7 +449,7 @@ public abstract class BlueJSyntaxView extends PlainView
 
         // Move along.
         li = prevScopeStack.listIterator(prevScopeStack.size());
-        NodeAndPosition nap = li.previous(); // last node
+        NodeAndPosition<ParsedNode> nap = li.previous(); // last node
         int napPos = nap.getPosition();
         int napEnd = napPos + nap.getSize();
 
@@ -459,10 +459,10 @@ public abstract class BlueJSyntaxView extends PlainView
             li.remove(); nodeDepth--;
 
             if (! li.hasPrevious()) return;
-            NodeAndPosition napParent = li.previous();
+            NodeAndPosition<ParsedNode> napParent = li.previous();
             li.next();
 
-            NodeAndPosition nextNap = napParent.getNode().findNodeAtOrAfter(napEnd,
+            NodeAndPosition<ParsedNode> nextNap = napParent.getNode().findNodeAtOrAfter(napEnd,
                     napParent.getPosition());
             napPos = napParent.getPosition();
             napEnd = napPos + napParent.getSize();
@@ -507,7 +507,7 @@ public abstract class BlueJSyntaxView extends PlainView
      * @param node
      * @return
      */
-    private boolean drawNode(DrawInfo info, NodeAndPosition nap, NodeAndPosition parent, boolean onlyMethods)
+    private boolean drawNode(DrawInfo info, NodeAndPosition<ParsedNode> nap, NodeAndPosition<ParsedNode> parent, boolean onlyMethods)
     {
         int napPos = nap.getPosition();
         int napEnd = napPos + nap.getSize();
@@ -760,7 +760,7 @@ public abstract class BlueJSyntaxView extends PlainView
      * Get a node's indent amount (in component co-ordinate space) for a given line.
      * If the node isn't present on the line, returns Integer.MAX_VALUE.
      */
-    private int getNodeIndent(Shape a, MoeSyntaxDocument doc, NodeAndPosition nap, Element lineEl,
+    private int getNodeIndent(Shape a, MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap, Element lineEl,
             Segment segment)
         throws BadLocationException
     {
@@ -808,7 +808,7 @@ public abstract class BlueJSyntaxView extends PlainView
         return xpos;
     }
 
-    private int getNodeIndent(Shape a, MoeSyntaxDocument doc, NodeAndPosition nap)
+    private int getNodeIndent(Shape a, MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap)
     {
         try {
             int indent = Integer.MAX_VALUE;
@@ -817,15 +817,15 @@ public abstract class BlueJSyntaxView extends PlainView
             int napEnd = curpos + nap.getSize();
 
             Element map = doc.getDefaultRootElement();
-            Stack<NodeAndPosition> scopeStack = new Stack<NodeAndPosition>();
+            Stack<NodeAndPosition<ParsedNode>> scopeStack = new Stack<NodeAndPosition<ParsedNode>>();
             getScopeStackAt(nap.getNode(), nap.getPosition(), 0, scopeStack);
 
             while (curpos < napEnd) {
                 // First skip over inner nodes
-                ListIterator<NodeAndPosition> i = scopeStack.listIterator();
+                ListIterator<NodeAndPosition<ParsedNode>> i = scopeStack.listIterator();
                 i.next();
                 while (i.hasNext()) {
-                    NodeAndPosition inner = i.next();
+                    NodeAndPosition<ParsedNode> inner = i.next();
                     if (inner.getNode().isInner()) {
                         int skip = inner.getPosition() + inner.getSize();
                         i.remove();
@@ -834,7 +834,7 @@ public abstract class BlueJSyntaxView extends PlainView
                             i.remove();
                         }
                         curpos = skip;
-                        NodeAndPosition parent = i.previous();
+                        NodeAndPosition<ParsedNode> parent = i.previous();
                         int pindex = i.nextIndex();
                         getScopeStackAt(parent.getNode(), parent.getPosition(), curpos, scopeStack);
                         // Urgh. Java invalidates all iterators when the list is modified. Must recreate.
@@ -886,14 +886,14 @@ public abstract class BlueJSyntaxView extends PlainView
                 int nws = findNonWhitespace(segment, 0);
                 
                 if (nws != -1) {
-                    List<NodeAndPosition> scopeStack = new LinkedList<NodeAndPosition>();
+                    List<NodeAndPosition<ParsedNode>> scopeStack = new LinkedList<NodeAndPosition<ParsedNode>>();
                     getScopeStackAt(doc.getParser(), 0, lineEl.getStartOffset() + nws, scopeStack);
-                    ListIterator<NodeAndPosition> i = scopeStack.listIterator(scopeStack.size());
+                    ListIterator<NodeAndPosition<ParsedNode>> i = scopeStack.listIterator(scopeStack.size());
                     Rectangle cbounds = modelToView(lineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds();
                     int indent = cbounds.x;
 
                     while (i.hasPrevious()) {
-                        NodeAndPosition nap = i.previous();
+                        NodeAndPosition<ParsedNode> nap = i.previous();
                         Integer indentO = nodeIndents.get(nap.getNode());
                         if (indentO != null) {
                             int oldIndent = indentO;
@@ -923,11 +923,11 @@ public abstract class BlueJSyntaxView extends PlainView
                 doc.getText(lineEl.getStartOffset(), lineEl.getEndOffset(), segment);
                 int nws = findNonWhitespace(segment, 0);
                 if (nws != -1) {
-                    List<NodeAndPosition> scopeStack = new LinkedList<NodeAndPosition>();
+                    List<NodeAndPosition<ParsedNode>> scopeStack = new LinkedList<NodeAndPosition<ParsedNode>>();
                     getScopeStackAt(doc.getParser(), 0, lineEl.getStartOffset() + nws, scopeStack);
-                    ListIterator<NodeAndPosition> j = scopeStack.listIterator(scopeStack.size());
+                    ListIterator<NodeAndPosition<ParsedNode>> j = scopeStack.listIterator(scopeStack.size());
                     while (j.hasPrevious()) {
-                        NodeAndPosition nap = j.previous();
+                        NodeAndPosition<ParsedNode> nap = j.previous();
                         nodeIndents.remove(nap.getNode());
                         if (nap.getNode().isInner()) {
                             break;
@@ -940,11 +940,12 @@ public abstract class BlueJSyntaxView extends PlainView
         catch (BadLocationException ble) {}
     }
     
-    private void getScopeStackAt(ParsedNode root, int rootPos, int position, List<NodeAndPosition> list)
+    private void getScopeStackAt(ParsedNode root, int rootPos, int position,
+            List<NodeAndPosition<ParsedNode>> list)
     {
-        list.add(new NodeAndPosition(root, 0, root.getSize()));
+        list.add(new NodeAndPosition<ParsedNode>(root, 0, root.getSize()));
         int curpos = rootPos;
-        NodeAndPosition nap = root.findNodeAt(position, curpos);
+        NodeAndPosition<ParsedNode> nap = root.findNodeAt(position, curpos);
         while (nap != null) {
             list.add(nap);
             curpos = nap.getPosition();
@@ -952,11 +953,11 @@ public abstract class BlueJSyntaxView extends PlainView
         }
     }
 
-    private void getScopeStackAfter(ParsedNode root, int rootPos, int position, List<NodeAndPosition> list)
+    private void getScopeStackAfter(ParsedNode root, int rootPos, int position, List<NodeAndPosition<ParsedNode>> list)
     {
-        list.add(new NodeAndPosition(root, 0, root.getSize()));
+        list.add(new NodeAndPosition<ParsedNode>(root, 0, root.getSize()));
         int curpos = rootPos;
-        NodeAndPosition nap = root.findNodeAtOrAfter(position, curpos);
+        NodeAndPosition<ParsedNode> nap = root.findNodeAtOrAfter(position, curpos);
         while (nap != null) {
             list.add(nap);
             curpos = nap.getPosition();
@@ -1064,12 +1065,12 @@ public abstract class BlueJSyntaxView extends PlainView
 
         if (changes instanceof MoeSyntaxEvent) {
             MoeSyntaxEvent mse = (MoeSyntaxEvent) changes;
-            for (NodeAndPosition node : mse.getRemovedNodes()) {
+            for (NodeAndPosition<ParsedNode> node : mse.getRemovedNodes()) {
                 nodeRemoved(node.getNode());
                 damageStart = Math.min(damageStart, node.getPosition());
                 damageEnd = Math.max(damageEnd, node.getEnd());
             }
-            for (NodeAndPosition node : mse.getAddedNodes()) {
+            for (NodeAndPosition<ParsedNode> node : mse.getAddedNodes()) {
                 damageStart = Math.min(damageStart, node.getPosition());
                 damageEnd = Math.max(damageEnd, node.getEnd());
             }

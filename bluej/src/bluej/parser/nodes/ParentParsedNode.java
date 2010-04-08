@@ -67,7 +67,7 @@ public class ParentParsedNode extends ParsedNode
         }
         Token dummyTok = tok;
         
-        NodeAndPosition np = getNodeTree().findNodeAtOrAfter(pos, nodePos);
+        NodeAndPosition<ParsedNode> np = getNodeTree().findNodeAtOrAfter(pos, nodePos);
         
         int cp = pos;
         while (np != null && np.getPosition() < (pos + length)) {
@@ -235,7 +235,7 @@ public class ParentParsedNode extends ParsedNode
         int newSize = getSize() + length;
         resize(newSize);
         
-        NodeAndPosition child = getNodeTree().findNodeAtOrAfter(insPos - 1, nodePos);
+        NodeAndPosition<ParsedNode> child = getNodeTree().findNodeAtOrAfter(insPos - 1, nodePos);
         if (child != null && (child.getPosition() < insPos
                 || child.getPosition() == insPos && child.getNode().growsForward())) {
             ParsedNode cnode = child.getNode();
@@ -271,7 +271,7 @@ public class ParentParsedNode extends ParsedNode
         
         int endPos = delPos + length;
         
-        NodeAndPosition child = getNodeTree().findNodeAtOrAfter(delPos, nodePos);
+        NodeAndPosition<ParsedNode> child = getNodeTree().findNodeAtOrAfter(delPos, nodePos);
         
         if (child != null && child.getPosition() < delPos) {
             // Remove the end portion (or middle) of the child node
@@ -295,9 +295,9 @@ public class ParentParsedNode extends ParsedNode
             int rlength = childEndPos - delPos; // how much is removed
 
             // Remove any following nodes as necessary
-            NodeAndPosition next = child.nextSibling();
+            NodeAndPosition<ParsedNode> next = child.nextSibling();
             while (next != null && next.getEnd() < endPos) {
-                NodeAndPosition nnext = next.nextSibling();
+                NodeAndPosition<ParsedNode> nnext = next.nextSibling();
                 removeChild(next, listener);
                 next = nnext;
             }
@@ -321,7 +321,7 @@ public class ParentParsedNode extends ParsedNode
         }
         
         while (child != null && child.getPosition() < endPos) {
-            NodeAndPosition nextChild = child.nextSibling();
+            NodeAndPosition<ParsedNode> nextChild = child.nextSibling();
             removeChild(child, listener);
             child = nextChild;
         }
@@ -344,7 +344,7 @@ public class ParentParsedNode extends ParsedNode
     }
     
     @Override
-    protected boolean growChild(Document document, NodeAndPosition child,
+    protected boolean growChild(Document document, NodeAndPosition<ParsedNode> child,
             NodeStructureListener listener)
     {
         // Without any further knowledge, we're just going to have to do a full reparse.

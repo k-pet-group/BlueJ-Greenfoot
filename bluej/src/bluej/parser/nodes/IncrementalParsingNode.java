@@ -84,7 +84,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
      * end. Also, if we are incrementally parsing, and we complete a piece
      * at the boundary with this node, we don't need to continue parsing.
      */
-    protected abstract boolean isDelimitingNode(NodeAndPosition nap);
+    protected abstract boolean isDelimitingNode(NodeAndPosition<ParsedNode> nap);
     
     /**
      * Actually perform a partial parse. If possible, this method should set
@@ -111,7 +111,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
     protected int reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
     {
         // Find the nearest container node prior to the reparse point.
-        NodeAndPosition nap = null;
+        NodeAndPosition<ParsedNode> nap = null;
         if (offset > nodePos) {
             nap = getNodeTree().findNodeAtOrBefore(offset - 1, nodePos);
         }
@@ -125,7 +125,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             }
         }
         
-        NodeAndPosition nextNap = null;
+        NodeAndPosition<ParsedNode> nextNap = null;
         if (nap != null) {
             nextNap = nap.nextSibling();
             if (nap.getEnd() > offset) {
@@ -143,7 +143,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         
         // Pull out the current child nodes into a queue. We re-insert them if we get the opportunity;
         // otherwise we'll have to dispose of them properly later.
-        LinkedList<NodeAndPosition> childQueue = new LinkedList<NodeAndPosition>();
+        LinkedList<NodeAndPosition<ParsedNode>> childQueue = new LinkedList<NodeAndPosition<ParsedNode>>();
         if (nap == null) {
             nap = findNodeAtOrAfter(offset, nodePos);
         }
@@ -164,7 +164,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         EditorParser parser = new EditorParser(document, r, pline, pcol, buildScopeStack());
         
         // Find the next child node, which we may bump into when we are parsing.
-        NodeAndPosition nextChild = childQueue.poll();
+        NodeAndPosition<ParsedNode> nextChild = childQueue.poll();
         
         int state = getCurrentState(offset - nodePos);
         int nextStatePos = (state < stateMarkers.length) ? stateMarkers[state] + nodePos : -1;
@@ -262,7 +262,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                     // The parsed piece wants more...
                     ParsedNode parentNode = getParentNode();
                     if (parentNode != null && parentNode.growChild(document,
-                            new NodeAndPosition(this, nodePos, getSize()), listener)) {
+                            new NodeAndPosition<ParsedNode>(this, nodePos, getSize()), listener)) {
                         // Successfully grew... now do some more parsing
                         int rep = reparseNode(document, nodePos, tokpos, listener);
                         return rep == ALL_OK ? NODE_GREW : rep;
@@ -310,8 +310,8 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
      * If during parsing we reach some point (epos) then we have overwritten any old child nodes
      * which overlap or occur before epos and so we need to remove them properly.
      */
-    private NodeAndPosition removeOverwrittenChildren(LinkedList<NodeAndPosition> childQueue,
-            NodeAndPosition nextChild, int epos, NodeStructureListener listener)
+    private NodeAndPosition<ParsedNode> removeOverwrittenChildren(LinkedList<NodeAndPosition<ParsedNode>> childQueue,
+            NodeAndPosition<ParsedNode> nextChild, int epos, NodeStructureListener listener)
     {
         if (nextChild != null) {
             // Perhaps we've now overwritten part or all of nextChild
@@ -329,8 +329,8 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         return nextChild;
     }
     
-    private void processChildQueue(int nodePos, LinkedList<NodeAndPosition> childQueue,
-            NodeAndPosition nextChild)
+    private void processChildQueue(int nodePos, LinkedList<NodeAndPosition<ParsedNode>> childQueue,
+            NodeAndPosition<ParsedNode> nextChild)
     {
         while (nextChild != null) {
             insertNode(nextChild.getNode(), nextChild.getPosition() - nodePos, nextChild.getSize());
@@ -397,7 +397,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         if (end >= document.getLength()) {
             return ALL_OK;
         }
-        NodeAndPosition nap = findNodeAt(end - 1, nodePos);
+        NodeAndPosition<ParsedNode> nap = findNodeAt(end - 1, nodePos);
         if (nap == null) {
             return ALL_OK;
         }
@@ -418,7 +418,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                     // The comment should extend to the end of the line, but it doesn't.
                     ParsedNode parentNode = getParentNode();
                     if (parentNode != null && parentNode.growChild(document,
-                            new NodeAndPosition(this, nodePos, getSize()), listener)) {
+                            new NodeAndPosition<ParsedNode>(this, nodePos, getSize()), listener)) {
                         // Successfully grew... now do some more parsing
                         return reparseNode(document, nodePos, offset, listener);
                     }
@@ -434,12 +434,12 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
     }
     
     @Override
-    protected boolean growChild(Document document, NodeAndPosition child,
+    protected boolean growChild(Document document, NodeAndPosition<ParsedNode> child,
             NodeStructureListener listener)
     {
         int mypos = child.getPosition() - child.getNode().getOffsetFromParent();
         
-        NodeAndPosition nap = child.nextSibling();
+        NodeAndPosition<ParsedNode> nap = child.nextSibling();
         if (nap != null && nap.getPosition() > child.getEnd()) {
             int newsize = nap.getPosition() - child.getPosition();
             child.getNode().resize(newsize);
@@ -465,7 +465,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         // Maybe this node can grow, and then its child can also grow.
         ParsedNode parentNode = getParentNode();
         if (parentNode != null && parentNode.growChild(document,
-                new NodeAndPosition(this, mypos, getSize()), listener)) {
+                new NodeAndPosition<ParsedNode>(this, mypos, getSize()), listener)) {
             int newsize = myEnd - child.getPosition();
             child.getNode().resize(newsize);
             return true;

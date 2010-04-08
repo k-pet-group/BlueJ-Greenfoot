@@ -9,7 +9,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 public class NodeTreeTest extends TestCase
 {
-    private NodeTree nt;
+    private NodeTree<ParsedNode> nt;
     private ParsedNode pn1;
     private ParsedNode pn2;
     private ParsedNode pn3;
@@ -24,7 +24,7 @@ public class NodeTreeTest extends TestCase
      */
     protected void setUp()
     {
-        nt = new NodeTree();
+        nt = new NodeTree<ParsedNode>();
         pn1 = new CommentNode(null, Token.KEYWORD1);
         pn2 = new CommentNode(null, Token.KEYWORD1);
         pn3 = new CommentNode(null, Token.KEYWORD1);
@@ -49,7 +49,7 @@ public class NodeTreeTest extends TestCase
 
     public void testBasic()
     {        
-        NodeAndPosition np = nt.findNode(5);
+        NodeAndPosition<ParsedNode> np = nt.findNode(5);
         assertNotNull(np);
         assertTrue(np.getNode() == pn1);
         assertTrue(np.getPosition() == 0);
@@ -77,7 +77,7 @@ public class NodeTreeTest extends TestCase
     
     public void testRemoval()
     {
-        NodeAndPosition np = nt.findNode(65);
+        NodeAndPosition<ParsedNode> np = nt.findNode(65);
         np.getNode().remove();
         
         np = nt.findNode(5);
@@ -97,7 +97,7 @@ public class NodeTreeTest extends TestCase
     public void testRemoval2()
     {
         // Remove all nodes
-        NodeAndPosition np = nt.findNode(65);
+        NodeAndPosition<ParsedNode> np = nt.findNode(65);
         np.getNode().remove();
         np = nt.findNode(45);
         np.getNode().remove();
@@ -157,7 +157,7 @@ public class NodeTreeTest extends TestCase
         //
         // pn4 and pn5 match criteria for delete case 4, however, pn5.left is red.
         
-        NodeAndPosition nap = nt.findNode(35); // find pn6
+        NodeAndPosition<ParsedNode> nap = nt.findNode(35); // find pn6
         nap.getNode().remove();
         // The tree hasn't changed, except pn6 is gone.
         
@@ -172,7 +172,7 @@ public class NodeTreeTest extends TestCase
         nt.insertNode(pn2, 50, 10);
         nt.insertNode(pn3, 70, 10); // causes rotation
         
-        NodeAndPosition nap = nt.findNode(105);
+        NodeAndPosition<ParsedNode> nap = nt.findNode(105);
         assertTrue(nap.getNode() == pn1);
         nap = nt.findNode(55);
         assertTrue(nap.getNode() == pn2);

@@ -233,7 +233,7 @@ public class NaviView extends JPanel implements AdjustmentListener
                 return pn.getName();
             }
             
-            NodeAndPosition nap = pn.findNodeAtOrAfter(pos, startpos);
+            NodeAndPosition<ParsedNode> nap = pn.findNodeAtOrAfter(pos, startpos);
             if (nap == null || nap.getPosition() > pos) {
                 break;
             }
