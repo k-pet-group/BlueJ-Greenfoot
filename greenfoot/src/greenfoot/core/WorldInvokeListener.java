@@ -347,7 +347,8 @@ public class WorldInvokeListener
                         else {
                             if (rObj != null)
                                 WorldHandler.getInstance().notifyActorMethodCall(rObj.getInstanceName(), mv.getName(), mdlg.getArgs());
-                            //TODO record static method calls too
+                            else
+                                WorldHandler.getInstance().notifyStaticMethodCall(cl.getName(), mv.getName(), mdlg.getArgs());
                             
                             SwingUtilities.invokeLater(new Runnable() {
                                 public void run()

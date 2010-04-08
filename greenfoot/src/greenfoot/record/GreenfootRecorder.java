@@ -114,5 +114,11 @@ public class GreenfootRecorder
         Debug.message("#" + i + code.get(i));
     }
 
+    public void callStaticMethod(String className, String name, String[] args)
+    {
+        // No difference in syntax, so no need to replicate the code:
+        callActorMethod(className, name, args);
+    }
+
 
 }

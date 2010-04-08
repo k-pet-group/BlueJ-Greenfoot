@@ -493,4 +493,10 @@ public class WorldHandlerDelegateIDE
     {
         greenfootRecorder.callActorMethod(actorName, name, args);        
     }
+
+    @Override
+    public void staticMethodCall(String className, String name, String[] args)
+    {
+        greenfootRecorder.callStaticMethod(className, name, args);        
+    }
 }

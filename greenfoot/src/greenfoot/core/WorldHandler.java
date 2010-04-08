@@ -175,6 +175,10 @@ public class WorldHandler
             public void actorMethodCall(String actorName, String name, String[] args)
             {
             }
+
+            public void staticMethodCall(String className, String name, String[] args)
+            {
+            }
         };
     }
         
@@ -818,5 +822,10 @@ public class WorldHandler
     public void notifyActorMethodCall(String instanceName, String name, String[] args)
     {
         handlerDelegate.actorMethodCall(instanceName, name, args);
+    }
+    
+    public void notifyStaticMethodCall(String className, String name, String[] args)
+    {
+        handlerDelegate.staticMethodCall(className, name, args);
     }
 }
