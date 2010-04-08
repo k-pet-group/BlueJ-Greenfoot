@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentEvent.EventType;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 import javax.swing.text.PlainView;
@@ -728,6 +729,11 @@ public abstract class BlueJSyntaxView extends PlainView
         return false;
     }
 
+    /**
+     * Check whether a node which overlaps a line of the document actually finishes on the
+     * previous line, by way of not having any actual text on this line. Return true if
+     * so.
+     */
     private boolean nodeSkipsEnd(int napPos, int napEnd, Element lineEl, Segment segment)
     {
         if (lineEl == null) {
@@ -789,6 +795,8 @@ public abstract class BlueJSyntaxView extends PlainView
 
         // Corner case: node start position is on this line, and is greater than the node indent?
         if (napPos > lineEl.getStartOffset()) {
+            // In this case, we'll stretch the border to the regular indent only if
+            // we can do it without hitting non-whitespace (which must belong to another node).
             int nws = findNonWhitespaceBwards(segment, napPos - lineEl.getStartOffset() - 1, 0);
             if (nws != -1) {
                 Rectangle lbounds = modelToView(lineEl.getStartOffset() + nws + 1, a,
@@ -899,32 +907,35 @@ public abstract class BlueJSyntaxView extends PlainView
                                 nodeIndents.remove(nap.getNode());
                             }
                             else {
-                                // should treat this as above
-                                nodeIndents.remove(nap.getNode());
+                                // the indent hasn't changed
+                                // nodeIndents.remove(nap.getNode());
                             }
                         }
                     }
-                    return;
                 }
-                
-              for (int i = ls; i <= le; i++) {
-                  lineEl = map.getElement(i);
-                  doc.getText(lineEl.getStartOffset(), lineEl.getEndOffset(), segment);
-                  nws = findNonWhitespace(segment, 0);
-                  if (nws != -1) {
-                      List<NodeAndPosition> scopeStack = new LinkedList<NodeAndPosition>();
-                      getScopeStackAt(doc.getParser(), 0, lineEl.getStartOffset() + nws, scopeStack);
-                      ListIterator<NodeAndPosition> j = scopeStack.listIterator(scopeStack.size());
-                      while (j.hasPrevious()) {
-                          NodeAndPosition nap = j.previous();
-                          nodeIndents.remove(nap.getNode());
-                          if (nap.getNode().isInner()) {
-                              break;
-                          }
-                      }
-                  }
-              }
+
+                return;
             }
+            
+            // It's a multiple line change
+            for (int i = ls; i <= le; i++) {
+                Element lineEl = map.getElement(i);
+                doc.getText(lineEl.getStartOffset(), lineEl.getEndOffset(), segment);
+                int nws = findNonWhitespace(segment, 0);
+                if (nws != -1) {
+                    List<NodeAndPosition> scopeStack = new LinkedList<NodeAndPosition>();
+                    getScopeStackAt(doc.getParser(), 0, lineEl.getStartOffset() + nws, scopeStack);
+                    ListIterator<NodeAndPosition> j = scopeStack.listIterator(scopeStack.size());
+                    while (j.hasPrevious()) {
+                        NodeAndPosition nap = j.previous();
+                        nodeIndents.remove(nap.getNode());
+                        if (nap.getNode().isInner()) {
+                            break;
+                        }
+                    }
+                }
+            }
+
         }
         catch (BadLocationException ble) {}
     }
@@ -1067,7 +1078,12 @@ public abstract class BlueJSyntaxView extends PlainView
         Component host = getContainer();
         Element map = getElement();
 
-        reassesIndents(a, damageStart, damageEnd);
+        if (changes.getType() == EventType.INSERT) {
+            reassesIndents(a, damageStart, damageEnd);
+        }
+        else if (changes.getType() == EventType.REMOVE) {
+            reassesIndents(a, damageStart, damageStart);
+        }
         
         if (damageStart < damageEnd) {
             int line = map.getElementIndex(damageStart);
