@@ -216,6 +216,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     private JScrollPane scrollPane;
     private NaviView naviView;              // Navigation view (mini-source view)
+    private EditorDividerPanel dividerPanel;  // Divider Panel to indicate separation between the editor and navigation view
     private JComponent toolbar;             // The toolbar
     private JPopupMenu popup;               // Popup menu options
 
@@ -2702,14 +2703,18 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         editorPane.setLayout(new BoxLayout(editorPane, BoxLayout.X_AXIS));
         scrollPane = new JScrollPane(currentTextPane);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-
+        
         naviView = new NaviView(sourceDocument, scrollPane.getVerticalScrollBar());
         naviView.setPreferredSize(new Dimension(NAVIVIEW_WIDTH, 0));
         naviView.setMaximumSize(new Dimension(NAVIVIEW_WIDTH, Integer.MAX_VALUE));
-        naviView.setBorder(new BevelBorder(BevelBorder.LOWERED));
-
+        naviView.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+        
+        dividerPanel=new EditorDividerPanel(naviView);
+      
         editorPane.add(scrollPane);
+        editorPane.add(dividerPanel);
         editorPane.add(naviView);
+
         contentPane.add(editorPane, BorderLayout.CENTER);
 
         // get table of edit actions
