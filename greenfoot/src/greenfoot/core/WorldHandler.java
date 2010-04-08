@@ -171,6 +171,10 @@ public class WorldHandler
             public void createdActor(Class<?> theClass, Object actor, String[] args)
             {
             }
+
+            public void actorMethodCall(String actorName, String name, String[] args)
+            {
+            }
         };
     }
         
@@ -809,5 +813,10 @@ public class WorldHandler
     public void notifyCreatedActor(Class<?> theClass, Object actor, String[] args)
     {
         handlerDelegate.createdActor(theClass, actor, args);
+    }
+
+    public void notifyActorMethodCall(String instanceName, String name, String[] args)
+    {
+        handlerDelegate.actorMethodCall(instanceName, name, args);
     }
 }

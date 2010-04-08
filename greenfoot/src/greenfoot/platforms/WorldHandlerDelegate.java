@@ -63,4 +63,6 @@ public interface WorldHandlerDelegate
     void discardWorld(World world);
 
     void createdActor(Class<?> theClass, Object actor, String[] args);
+    
+    void actorMethodCall(String actorName, String name, String[] args);
 }

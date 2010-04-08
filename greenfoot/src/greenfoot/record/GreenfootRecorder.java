@@ -54,16 +54,7 @@ public class GreenfootRecorder
             String name = ObjectTracker.getRObject(actor).getInstanceName();
             objectNames.put(actor, name);
             
-            StringBuffer commaArgs = new StringBuffer();
-            
-            for (int i = 0; i < args.length;i++) {
-                commaArgs.append(args[i]);
-                if (i != args.length - 1) {
-                    commaArgs.append(", ");
-                }
-            }
-            
-            code.add(theClass.getCanonicalName() + " " + name + " = new " + theClass.getCanonicalName() + "(" + commaArgs.toString() + ");");
+            code.add(theClass.getCanonicalName() + " " + name + " = new " + theClass.getCanonicalName() + "(" + withCommas(args) + ");");
             
             spitCode();
         }
@@ -83,6 +74,19 @@ public class GreenfootRecorder
             e.printStackTrace();
         } //generateObjectName(theClass);
     }
+
+    private static String withCommas(String[] args)
+    {
+        StringBuffer commaArgs = new StringBuffer();
+        
+        for (int i = 0; i < args.length;i++) {
+            commaArgs.append(args[i]);
+            if (i != args.length - 1) {
+                commaArgs.append(", ");
+            }
+        }
+        return commaArgs.toString();
+    }
     
     public void addActorToWorld(Actor actor, int x, int y)
     {
@@ -96,6 +100,12 @@ public class GreenfootRecorder
         
         spitCode();
     }
+
+    public void callActorMethod(String actorName, String name, String[] args)
+    {
+        code.add(actorName + "." + name + "(" + withCommas(args) + ");");
+        spitCode();
+    }
     
     //TEMP for debugging:
     private void spitCode()
@@ -103,5 +113,6 @@ public class GreenfootRecorder
         int i = code.size() - 1;
         Debug.message("#" + i + code.get(i));
     }
+
 
 }

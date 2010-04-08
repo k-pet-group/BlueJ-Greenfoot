@@ -344,6 +344,10 @@ public class WorldInvokeListener
                             });
                         }
                         else {
+                            if (rObj != null)
+                                WorldHandler.getInstance().notifyActorMethodCall(rObj.getInstanceName(), mv.getName(), mdlg.getArgs());
+                            //TODO record static method calls too
+                            
                             SwingUtilities.invokeLater(new Runnable() {
                                 public void run()
                                 {

@@ -487,4 +487,10 @@ public class WorldHandlerDelegateIDE
     {
         greenfootRecorder.createActor(theClass, actor, args);
     }
+
+    @Override
+    public void actorMethodCall(String actorName, String name, String[] args)
+    {
+        greenfootRecorder.callActorMethod(actorName, name, args);        
+    }
 }
