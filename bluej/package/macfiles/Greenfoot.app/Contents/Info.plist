@@ -65,7 +65,7 @@
 			<string>$JAVAROOT/bluejeditor.jar</string>
 			<string>$JAVAROOT/bluejext.jar</string>
 			<string>$JAVAROOT/junit.jar</string>
-			<string>$JAVAROOT/MRJ141Stubs.jar</string>
+			<string>$JAVAROOT/AppleJavaExtensions.jar</string>
 			<string>/System/Library/Java</string>
 			<string>$JAVAROOT/extensions/greenfoot.jar</string>
 		</array>
