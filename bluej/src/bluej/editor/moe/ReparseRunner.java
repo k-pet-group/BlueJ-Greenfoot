@@ -23,9 +23,6 @@ package bluej.editor.moe;
 
 import java.awt.EventQueue;
 
-import bluej.parser.nodes.NodeTree.NodeAndPosition;
-
-
 /**
  * Process the document re-parse queue.
  * 
@@ -39,14 +36,21 @@ public class ReparseRunner implements Runnable
 {
     private MoeEditor editor;
     
+    public ReparseRunner(MoeEditor editor)
+    {
+        this.editor = editor;
+    }
+    
     public void run()
     {
-        if (editor.getSourceDocument().pollReparseQueue()) {
+        MoeSyntaxDocument document = editor.getSourceDocument();
+        if (document != null && document.pollReparseQueue()) {
             // Continue processing
             EventQueue.invokeLater(this);
         }
         else {
             // tell MoeEditor we are no longer scheduled.
+            editor.reparseRunnerFinished();
         }
     }
 }

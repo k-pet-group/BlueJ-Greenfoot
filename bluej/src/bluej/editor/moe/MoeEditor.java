@@ -1069,7 +1069,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     private void scheduleReparseRunner()
     {
         if (reparseRunner == null) {
-            reparseRunner = new ReparseRunner();
+            reparseRunner = new ReparseRunner(this);
             EventQueue.invokeLater(reparseRunner);
         }
     }
