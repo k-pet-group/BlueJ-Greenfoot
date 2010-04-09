@@ -41,6 +41,7 @@ import greenfoot.actions.RunOnceSimulationAction;
 import greenfoot.actions.RunSimulationAction;
 import greenfoot.actions.SaveCopyAction;
 import greenfoot.actions.SaveProjectAction;
+import greenfoot.actions.SaveWorldAction;
 import greenfoot.actions.ShowApiDocAction;
 import greenfoot.actions.ShowCopyrightAction;
 import greenfoot.actions.ShowReadMeAction;
@@ -91,6 +92,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -160,6 +162,7 @@ public class GreenfootFrame extends JFrame
     private RemoveSelectedClassAction removeSelectedClassAction;
     private CompileAllAction compileAllAction;
     private EditImagesAction editImagesAction;
+    private SaveWorldAction saveWorldAction;
     
     private JMenu recentProjectsMenu;
     
@@ -427,10 +430,23 @@ public class GreenfootFrame extends JFrame
         // EAST side: project info button and class browser
         
         JPanel eastPanel = new JPanel(new BorderLayout(12, 12));
+        
+        // Two buttons, scenario information and save the world:
+        JComponent northEastBox = new Box(BoxLayout.Y_AXIS);
+        eastPanel.add(northEastBox, BorderLayout.NORTH);
 
         JButton readMeButton = GreenfootUtil.createButton(showReadMeAction); 
         readMeButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource(readMeIconFile)));
-        eastPanel.add(readMeButton, BorderLayout.NORTH);
+        readMeButton.setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
+        northEastBox.add(readMeButton);
+        
+        northEastBox.add(Box.createRigidArea(new Dimension(0,10)));
+        
+        JButton saveWorldButton = GreenfootUtil.createButton(saveWorldAction);
+        saveWorldButton.setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
+        northEastBox.add(saveWorldButton);
+        
+        
         
         // the class browser 
         
@@ -546,6 +562,7 @@ public class GreenfootFrame extends JFrame
     	saveProjectAction = new SaveProjectAction(this);
     	saveCopyAction = new SaveCopyAction(this);
     	showReadMeAction = new ShowReadMeAction(this);
+    	saveWorldAction = new SaveWorldAction(this, worldHandlerDelegate);
     	exportProjectAction = new ExportProjectAction(this);
     	closeProjectAction = new CloseProjectAction(this);
     	removeSelectedClassAction = new RemoveSelectedClassAction(this);
@@ -677,6 +694,7 @@ public class GreenfootFrame extends JFrame
         newClassAction.setEnabled(state);
         editImagesAction.setEnabled(state);
         showReadMeAction.setEnabled(state);
+        saveWorldAction.setEnabled(state);
         exportProjectAction.setEnabled(state);
         
         // Disable simulation buttons
