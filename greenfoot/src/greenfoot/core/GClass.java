@@ -201,6 +201,11 @@ public class GClass
     {
         rmiClass.edit();
     }
+    
+    public void insertMethod(String method) throws ProjectNotOpenException, PackageNotFoundException, RemoteException
+    {
+        rmiClass.insertMethod(method);
+    }
 
 
     public void remove() throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException

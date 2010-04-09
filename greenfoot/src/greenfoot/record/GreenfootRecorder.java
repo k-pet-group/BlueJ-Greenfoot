@@ -25,6 +25,7 @@ package greenfoot.record;
 import java.rmi.RemoteException;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import bluej.extensions.ClassNotFoundException;
 import bluej.extensions.PackageNotFoundException;
@@ -171,6 +172,11 @@ public class GreenfootRecorder
         objectNames.remove(obj);
         
         spitCode();
+    }
+
+    public List<String> getCode()
+    {
+        return code;
     }
 
 

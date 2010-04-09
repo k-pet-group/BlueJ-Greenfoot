@@ -442,8 +442,8 @@ public class WorldHandlerDelegateIDE
         MessageDialog msgDialog = new MessageDialog(frame, missingConstructorMsg, missingConstructorTitle, 50, new JButton[]{button});
         msgDialog.display();
     }
-
-    public Class<?> getLastWorldClass()
+    
+    public GClass getLastWorldGClass()
     {
         String lastWorldClass = project.getLastWorldClassName();
         if(lastWorldClass == null) {
@@ -451,7 +451,18 @@ public class WorldHandlerDelegateIDE
         }
         
         try {
-            GClass gclass = project.getDefaultPackage().getClass(lastWorldClass);
+            return project.getDefaultPackage().getClass(lastWorldClass);
+        }
+        catch (Exception e) {
+            Debug.reportError("Error trying to get world class", e);
+            return null;
+        }
+    }
+
+    public Class<?> getLastWorldClass()
+    {
+        try {
+            GClass gclass = getLastWorldGClass();
             if (gclass != null) {
                 Class<?> rclass = gclass.getJavaClass();
                 if (GreenfootUtil.canBeInstantiated(rclass)) {
@@ -507,5 +518,10 @@ public class WorldHandlerDelegateIDE
     public void removedActor(Actor obj)
     {
         greenfootRecorder.removeActor(obj);        
+    }
+
+    public List<String> getInitWorldCode()
+    {
+        return greenfootRecorder.getCode();
     }
 }

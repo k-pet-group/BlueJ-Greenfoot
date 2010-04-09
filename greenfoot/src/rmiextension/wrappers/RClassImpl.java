@@ -39,7 +39,7 @@ import bluej.extensions.editor.Editor;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 6729 2009-09-19 07:11:56Z davmac $
+ * @version $Id: RClassImpl.java 7317 2010-04-09 13:37:11Z nccb $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -110,6 +110,21 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         }
     }
 
+    public void insertMethod(String fullMethod) throws ProjectNotOpenException, PackageNotFoundException, RemoteException
+    {
+        Editor e = bClass.getEditor();
+        // Rather hacky.  Find the last closing brace, and just before it, insert the text:
+        for (int n = e.getTextLength() - 1; n > 0; n--) {
+            if ("}".equals(e.getText(e.getTextLocationFromOffset(n), e.getTextLocationFromOffset(n+1)))) {
+                e.setText(e.getTextLocationFromOffset(n), e.getTextLocationFromOffset(n), fullMethod);
+                e.setCaretLocation(e.getTextLocationFromOffset(n + fullMethod.length()));
+                break;
+            }
+        }
+        e.setVisible(true);
+    }
+
+    
     /**
      * @param signature
      * @return
