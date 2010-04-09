@@ -33,7 +33,7 @@ import bluej.parser.SourceLocation;
  * Except as marked, methods of this class must be called from a swing compatible thread.
  *
  * @author Damiano Bolla, University of Kent at Canterbury, 2004
- * @version    $Id: Editor.java 7015 2010-01-15 07:20:39Z davmac $
+ * @version    $Id: Editor.java 7316 2010-04-09 12:49:39Z nccb $
  */
 
 public class Editor
@@ -344,7 +344,7 @@ public class Editor
             return null;
         }
 
-        return new TextLocation(location.getLine(), location.getColumn());
+        return new TextLocation(location.getLine() - 1, location.getColumn() - 1);
     }
 
 }
