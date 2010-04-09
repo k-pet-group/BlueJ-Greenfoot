@@ -28,6 +28,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.text.Element;
 
 import bluej.parser.nodes.NodeStructureListener;
+import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 /**
@@ -40,8 +41,8 @@ public class MoeSyntaxEvent implements DocumentEvent, NodeStructureListener
 {
     private MoeSyntaxDocument document;
     private DocumentEvent srcEvent;
-    private List<NodeAndPosition> addedNodes = new LinkedList<NodeAndPosition>();
-    private List<NodeAndPosition> removedNodes = new LinkedList<NodeAndPosition>();
+    private List<NodeAndPosition<ParsedNode>> addedNodes = new LinkedList<NodeAndPosition<ParsedNode>>();
+    private List<NodeAndPosition<ParsedNode>> removedNodes = new LinkedList<NodeAndPosition<ParsedNode>>();
     
     public MoeSyntaxEvent(MoeSyntaxDocument document, DocumentEvent srcEvent)
     {
@@ -52,7 +53,7 @@ public class MoeSyntaxEvent implements DocumentEvent, NodeStructureListener
     /**
      * Get a list of nodes created due to this edit.
      */
-    public List<NodeAndPosition> getAddedNodes()
+    public List<NodeAndPosition<ParsedNode>> getAddedNodes()
     {
         return addedNodes;
     }
@@ -60,7 +61,7 @@ public class MoeSyntaxEvent implements DocumentEvent, NodeStructureListener
     /**
      * Get a list of nodes removed due to this edit.
      */
-    public List<NodeAndPosition> getRemovedNodes()
+    public List<NodeAndPosition<ParsedNode>> getRemovedNodes()
     {
         return removedNodes;
     }
@@ -94,12 +95,12 @@ public class MoeSyntaxEvent implements DocumentEvent, NodeStructureListener
     
     // -------------- NodeStructureListener interface ------------------
     
-    public void nodeAdded(NodeAndPosition node)
+    public void nodeAdded(NodeAndPosition<ParsedNode> node)
     {
         addedNodes.add(node);
     }
     
-    public void nodeRemoved(NodeAndPosition node)
+    public void nodeRemoved(NodeAndPosition<ParsedNode> node)
     {
         removedNodes.add(node);
     }
