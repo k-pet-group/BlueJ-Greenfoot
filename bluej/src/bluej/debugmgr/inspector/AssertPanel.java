@@ -33,38 +33,35 @@ import bluej.testmgr.record.InvokerRecord;
  * A panel that can record assertion statements.
  * 
  * @author  Andrew Patterson  
- * @version $Id: AssertPanel.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class AssertPanel extends JPanel
 {
-	private static final String equalToLabel =
-		Config.getString("debugger.assert.equalTo");
-	private static final String sameAsLabel =
-		Config.getString("debugger.assert.sameAs");
-	private static final String notSameAsLabel =
-		Config.getString("debugger.assert.notSameAs");
-	private static final String notNullLabel =
-		Config.getString("debugger.assert.notNull");
-	private static final String assertNullLabel =
-		Config.getString("debugger.assert.null");
+    private static final String equalToLabel =
+        Config.getString("debugger.assert.equalTo");
+    private static final String sameAsLabel =
+        Config.getString("debugger.assert.sameAs");
+    private static final String notSameAsLabel =
+        Config.getString("debugger.assert.notSameAs");
+    private static final String notNullLabel =
+        Config.getString("debugger.assert.notNull");
+    private static final String assertNullLabel =
+        Config.getString("debugger.assert.null");
     private static final String equalToFloatingPointLabel =
-            Config.getString("debugger.assert.equalToFloatingPoint");
-    
-    private static final String nullLabel =	Config.getString("debugger.null");
+        Config.getString("debugger.assert.equalToFloatingPoint");
 
-	/**
-	 * The panels and UI elements of this panel.
-	 */
+    private static final String nullLabel = Config.getString("debugger.null");
+
+    /**
+     * The panels and UI elements of this panel.
+     */
     private JPanel standardPanel;
-	private JPanel freeformPanel;
-
     private JLabel assertLabel;
     private JLabel deltaLabel;
     private JTextField assertData;
-	//	used for delta in float and double comparison
+    //	used for delta in float and double comparison
     private JTextField deltaData; 
-	private JComboBox assertCombo;
-	protected JCheckBox assertCheckbox;
+    private JComboBox assertCombo;
+    protected JCheckBox assertCheckbox;
     
     // a boolean indicating if the user has interacted in
     // any way with the assertion panel (ie changed the
@@ -73,80 +70,80 @@ public class AssertPanel extends JPanel
     // to modify the interface
     private boolean userInput = false;
 	
-	/**
-	 * The data that is displayed in the combo box to the user.
-	 * Must be in the same order as the labelsFieldNeeded and 
-	 * labelAssertStatement arrays.
-	 */
+    /**
+     * The data that is displayed in the combo box to the user.
+     * Must be in the same order as the labelsFieldNeeded and 
+     * labelAssertStatement arrays.
+     */
     private String[] labels = new String[]
-    	 { equalToLabel, sameAsLabel, notSameAsLabel, notNullLabel, assertNullLabel , equalToFloatingPointLabel };
-    	 
+                                         { equalToLabel, sameAsLabel, notSameAsLabel, notNullLabel, assertNullLabel , equalToFloatingPointLabel };
+
     private boolean[] firstLabelFieldNeeded = new boolean[] 
-    	{ true, true, true, false, false, true};
-    	
-	private boolean[] secondFieldNeeded = new boolean[] 
-		   { false, false, false, false, false, true };
+                                                          { true, true, true, false, false, true};
 
-	private String[] labelsAssertStatement = new String[]
-		 { "assertEquals", "assertSame", "assertNotSame", "assertNotNull", "assertNull", "assertEquals"};
+    private boolean[] secondFieldNeeded = new boolean[] 
+                                                      { false, false, false, false, false, true };
 
-	/**
-	 * A panel which presents an interface for making a single
-	 * assertion about a result. 
-	 */    	
+    private String[] labelsAssertStatement = new String[]
+                                                        { "assertEquals", "assertSame", "assertNotSame", "assertNotNull", "assertNull", "assertEquals"};
+
+    /**
+     * A panel which presents an interface for making a single
+     * assertion about a result. 
+     */    	
     public AssertPanel()
     {
-    	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-		// a checkbox which enables/disables all the assertion UI
-		
-		assertCheckbox = new JCheckBox(Config.getString("debugger.assert.assertThat"), true);
-		{
-			assertCheckbox.setAlignmentX(LEFT_ALIGNMENT);
-			assertCheckbox.addItemListener(new ItemListener() {
-				public void itemStateChanged(ItemEvent ie)
-				{
+        // a checkbox which enables/disables all the assertion UI
+
+        assertCheckbox = new JCheckBox(Config.getString("debugger.assert.assertThat"), true);
+        {
+            assertCheckbox.setAlignmentX(LEFT_ALIGNMENT);
+            assertCheckbox.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent ie)
+                {
                     signalUserInput();
-					boolean isSelected = ie.getStateChange() == ItemEvent.SELECTED;
-					assertCombo.setEnabled(isSelected);
-					assertData.setEnabled(isSelected);
-					assertLabel.setEnabled(isSelected);
+                    boolean isSelected = ie.getStateChange() == ItemEvent.SELECTED;
+                    assertCombo.setEnabled(isSelected);
+                    assertData.setEnabled(isSelected);
+                    assertLabel.setEnabled(isSelected);
                     deltaData.setEnabled(isSelected);
                     deltaLabel.setEnabled(isSelected);
-				}				
-			});
-		}
-    	
+                }				
+            });
+        }
+
         standardPanel = new JPanel();
         {
-        	standardPanel.setBorder(BlueJTheme.generalBorder);
-        	standardPanel.setLayout(new BoxLayout(standardPanel, BoxLayout.X_AXIS)); 
-			standardPanel.setAlignmentX(LEFT_ALIGNMENT);
+            standardPanel.setBorder(BlueJTheme.generalBorder);
+            standardPanel.setLayout(new BoxLayout(standardPanel, BoxLayout.X_AXIS)); 
+            standardPanel.setAlignmentX(LEFT_ALIGNMENT);
 
             standardPanel.add(assertLabel = new JLabel(Config.getString("debugger.assert.resultIs")));
-			standardPanel.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingSmall));
+            standardPanel.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingSmall));
 
             assertCombo = new JComboBox(labels);
             {
-				assertCombo.addItemListener(new ItemListener() {
-					public void itemStateChanged(ItemEvent ie)
-					{
+                assertCombo.addItemListener(new ItemListener() {
+                    public void itemStateChanged(ItemEvent ie)
+                    {
                         signalUserInput();
-                        
-						// if the selected assertion does not require an extra parameter,
-						// disable the text field.
-						if (ie.getStateChange() == ItemEvent.SELECTED) {
-							int index = findItemIndex((String)ie.getItem());
+
+                        // if the selected assertion does not require an extra parameter,
+                        // disable the text field.
+                        if (ie.getStateChange() == ItemEvent.SELECTED) {
+                            int index = findItemIndex((String)ie.getItem());
 
                             // we have to also take into account the assertion check box status.
                             // if it is not enabled, then we shouldn't enable the data controls either
-							if(index >= 0) {
+                            if(index >= 0) {
                                 boolean firstNeeded = firstLabelFieldNeeded[index] && assertCheckbox.isSelected();
                                 boolean secondNeeded = secondFieldNeeded[index] && assertCheckbox.isSelected();
-                                
-								assertData.setEnabled(firstNeeded);
-								//assertData.setBackground(firstNeeded ? Color.white : Color.lightGray);
-                                
+
+                                assertData.setEnabled(firstNeeded);
+                                //assertData.setBackground(firstNeeded ? Color.white : Color.lightGray);
+
                                 // if the second field is needed, we _always_ make it visible
                                 // (but perhaps not enabled)
                                 deltaLabel.setVisible(secondFieldNeeded[index]);
@@ -155,10 +152,10 @@ public class AssertPanel extends JPanel
                                 deltaLabel.setEnabled(secondNeeded);
                                 deltaData.setEnabled(secondNeeded);
                             }
-						}
-					}
-				});
-			}                       
+                        }
+                    }
+                });
+            }                       
 
             assertData = new JTextField(14);
             {
@@ -179,16 +176,16 @@ public class AssertPanel extends JPanel
                     }
                 });
             }
-            
+
             standardPanel.add(assertCombo);
-			standardPanel.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingSmall));
-            
+            standardPanel.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingSmall));
+
             deltaLabel = new JLabel(Config.getString("debugger.assert.delta"));
             standardPanel.add(assertData);
             standardPanel.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingSmall));
             standardPanel.add(deltaLabel);
             standardPanel.add(Box.createHorizontalStrut(BlueJTheme.componentSpacingSmall));
-			standardPanel.add(deltaData);
+            standardPanel.add(deltaData);
 
             deltaData.setVisible(false);
             deltaLabel.setVisible(false);
@@ -200,9 +197,9 @@ public class AssertPanel extends JPanel
             deltaLabel.setEnabled(true);
         }
 
-		add(assertCheckbox);
+        add(assertCheckbox);
         add(standardPanel);
-	}
+    }
 
     /**
      * This code should move to somewhere else once we sort out the whole
@@ -259,15 +256,15 @@ public class AssertPanel extends JPanel
         }
     }
     
-	private int findItemIndex(String item)
-	{
-		for(int i=0; i<labels.length; i++) {
-			if (labels[i].equals(item))
-				return i;
-		}
+    private int findItemIndex(String item)
+    {
+        for(int i=0; i<labels.length; i++) {
+            if (labels[i].equals(item))
+                return i;
+        }
 
-		return -1;
-	}
+        return -1;
+    }
 	
     /**
      * Record that the user has made a change to the
@@ -289,10 +286,10 @@ public class AssertPanel extends JPanel
      * @return a boolean indicating if the user wanted assertions for this
      *         result
      */
-	public boolean isAssertEnabled()
-	{
-		return assertCheckbox != null ? assertCheckbox.isSelected() : false;
-	}
+    public boolean isAssertEnabled()
+    {
+        return assertCheckbox != null ? assertCheckbox.isSelected() : false;
+    }
 	
     /**
      * Check whether the necessary fields have been filled in to make a compilable
