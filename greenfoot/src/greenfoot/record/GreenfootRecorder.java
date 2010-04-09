@@ -57,24 +57,10 @@ public class GreenfootRecorder
             objectNames.put(actor, name);
             
             code.add(theClass.getCanonicalName() + " " + name + " = new " + theClass.getCanonicalName() + "(" + withCommas(args) + ");");
-            
-            spitCode();
         }
-        catch (RemoteException e) {
-            e.printStackTrace();
+        catch (Exception e) {
+            Debug.reportError("Error recording code for creating actor", e);
         }
-        catch (ProjectNotOpenException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (PackageNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } //generateObjectName(theClass);
     }
 
     private static String withCommas(String[] args)
@@ -100,8 +86,6 @@ public class GreenfootRecorder
             return;
         }
         code.add("addObject(" + actorObjectName + ", " + x + ", " + y + ");");
-        
-        spitCode();
     }
 
     public void callActorMethod(Object obj, String actorName, String name, String[] args)
@@ -113,14 +97,6 @@ public class GreenfootRecorder
         } else {
             code.add(actorName + "." + name + "(" + withCommas(args) + ");");
         }
-        spitCode();
-    }
-    
-    //TEMP for debugging:
-    private void spitCode()
-    {
-        int i = code.size() - 1;
-        Debug.message("#" + i + code.peekLast());
     }
 
     public void callStaticMethod(String className, String name, String[] args)
@@ -154,8 +130,6 @@ public class GreenfootRecorder
             currentlyDraggedActor = actor;
         }
         code.add(actorObjectName + ".setLocation(" + xCell + ", " + yCell + ");");
-        
-        spitCode();
     }
 
     public void removeActor(Actor obj)
@@ -170,8 +144,6 @@ public class GreenfootRecorder
         }
         code.add("removeObject(" + actorObjectName + ");");
         objectNames.remove(obj);
-        
-        spitCode();
     }
 
     public List<String> getCode()
