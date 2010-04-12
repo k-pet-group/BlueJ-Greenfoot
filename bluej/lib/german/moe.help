@@ -25,6 +25,9 @@ comment-block=\n Ausgew\u00e4hlte Zeilen auskommentieren. Die Kommentierung\n ka
 uncomment-block=\n Kommentarzeichen vom Anfang der ausgew\u00e4hlten Zeilen\n entfernen (vgl. comment-block).
 indent-block=\n Alle ausgew\u00e4hlten Zeilen (bzw. die aktuelle Zeile, wenn\n es keine Auswahl gibt) mehr einr\u00fccken.
 deindent-block=\n Alle ausgew\u00e4hlten Zeilen (bzw. die aktuelle Zeile, wenn\n es keine Auswahl gibt) weniger einr\u00fccken.
+increase-font=\n Erh\u00f6ht die Schriftgr\u00f6\u00dfe um 1
+decrease-font=\n Verringert die Schriftgr\u00f6\u00dfe um 1
+code-completion=\n Zeigt Auswahl zu Code-Vervollst\u00e4ndigung
 
 select-word=\n Aktuelles Wort ausw\u00e4hlen (auch dem\n Doppelklick links zugeordnet).
 select-line=\n Aktuelle Zeile ausw\u00e4hlen (auch dem\n Dreifachklick links zugeordnet).

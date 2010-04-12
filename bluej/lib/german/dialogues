@@ -100,11 +100,6 @@ von BlueJ sein oder ein Dateizugriffsproblem.
 error-open-source
 Die Sourcedatei dieser Klasse kann nicht ge\u00f6ffnet werden.
 
-error-writing-readme
-Die README-Datei zu diesem Projekt konnte nicht mit den
-Informationen zur Hauptklasse aktualisiert werden. Beim
-\u00c4ndern der Datei gab es einen Fehler.
-
 error-exporting
 Beim Versuch, das Projekt zu exportieren, ist ein 
 Fehler aufgetreten. Einige oder alle Dateien wurden
@@ -203,6 +198,11 @@ duplicate-name
 Eine Klasse oder ein Paket mit diesem Namen existiert
 bereits in diesem Paket. Sie k\u00f6nnen keine zwei Klassen
 mit demselben Namen haben.
+
+windows-reserved-class-name
+Der gew\u00e4hlte Klassenname kann nicht verwendet werden,
+weil er mit einem reservierten Dateinamen bei einigen
+Betriebssystemen kollidiert.
 
 error-in-import
 Beim Versuch, die Datei zu importieren, ist ein 
@@ -401,14 +401,9 @@ error-create-vm
 BlueJ war nicht in der Lage, eine virtuelle Maschine (VM) zu erzeugen,
 um Projekte auszuf\u00fchren. Dies ist ein ernstes Problem - Sie werden
 nicht in der Lage sein, Objekte zu erzeugen oder Methoden aufzurufen,
-ohne das Problem zu l\u00f6sen.
-Normalerweise wird dieses Problem durch spezielle Netzwerkeinstellungen
-auf Ihrer Maschine verursacht. BlueJ nutzt TCP/IP und Sockets, um die
-Erzeugung einer VM zu erreichen. Die h\u00e4ufigste Ursache ist eine zu 
-restriktive Firewall, die keine Verbindungen von 'localhost' erlaubt.
-Andere Ursachen k\u00f6nnen ung\u00fcltige Netzwerkeinstellungen sein. \u00dcberpr\u00fcfen
-Sie, dass TCP/IP korrekt eingerichtet ist. \u00dcberpr\u00fcfen sie auch andere
-Netzwerkparameter.
+ohne das Problem zu l\u00f6sen. Dies wird oft von \u00fcberm\u00e4\u00dfig 
+einschr\u00e4nkenden Einstellungen der Firewall verursacht.
+Siehe <http://www.bluej.org/help/faq.html#socket-exc> f�r mehr Informationen.
 
 project-is-readonly
 Das Projekt ist schreibgesch\u00fctzt. Sie werden nicht in der Lage sein,
@@ -422,6 +417,16 @@ sorgen, dass es sich auf einem beschreibbaren Dateisystem
 f\u00fcr das Projektverzeichnis und alle darin enthaltenen Dateien haben.
 Das kann oft erreicht werden, indem "Speichern unter" im Projektmen\u00fc
 nach dem Schlie\u00dfen dieses Dialogs ausgew\u00e4hlt wird.
+
+project-is-virtualized
+Das Projekt, dass Sie \u00f6ffnen, wird von Windows virtualisiert.
+Das passiert normalerweise, wenn das Projekt im "Programme"-Ordner
+gespeichert ist. Wenn ein Projekt virtualisiert wird, wird das 
+erzeugen von Objekten und das Aufrufen von Methoden zu Fehlern 
+f\u00fchren. Um das Projekt vollst\u00e4ndig nutzen zu k\u00f6nnen, sollten
+Sie es an einen anderen Platz verschieben. Das k\u00f6nnen Sie erreichen,
+indem Sie "Speichern unter" aus dem Projekt-Men\u00fc ausw\u00e4hlen, nachdem
+Sie diesen Dialog geschlossen haben.
 
 could-not-write-shell-file
 Die Ausf\u00fchrung hat versagt, weil das Projektverzeichnis nicht
@@ -548,3 +553,15 @@ dieses Projekts. M\u00f6chten Sie sie \u00fcberschreiben?
 \u00dcberschreiben
 Abbrechen
 null
+
+stuck-at-breakpoint
+Ihr Programm l\u00e4uft bereits und hat an einem Haltepunkt angehalten.
+Sie k\u00f6nnen keine weitere Ausf\u00fchrung starten, w\u00e4hrend die aktuelle
+noch aktiv ist. Benutzen Sie die Steuerelemente des Debuggers, um die aktuelle 
+Ausf�hrung entweder fortzuf\u00fchren oder zu beenden.
+
+already-executing
+Ihr Programm l\u00e4uft bereits. Sie k\u00f6nnen keine weitere 
+Ausf\u00fchrung starten (oder eine Klasse inspizieren), w\u00e4hrend 
+die aktuelle noch aktiv ist. Benutzen Sie die Steuerelemente des 
+Debuggers, um die aktuelle Ausf�hrung entweder fortzuf\u00fchren oder zu beenden.
