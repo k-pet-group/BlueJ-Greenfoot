@@ -174,7 +174,10 @@ public class ParsedTypeNode extends IncrementalParsingNode
             // class body '}'
             // We only get into this state rarely
             last = parser.parseTypeBody(type, last);
-            return last.getType() == JavaTokenTypes.RCURLY ? PP_ENDS_STATE : PP_INCOMPLETE;
+            if (last.getType() == JavaTokenTypes.RCURLY) {
+                return PP_ENDS_STATE;
+            }
+            return PP_OK;
         }
         else if (state == 2) {
             last = parser.getTokenStream().LA(1);

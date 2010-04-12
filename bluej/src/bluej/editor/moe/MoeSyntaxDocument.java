@@ -100,6 +100,7 @@ public class MoeSyntaxDocument extends PlainDocument
         if (parentResolver != null || force) {
             parsedNode = new ParsedCUNode(this);
             parsedNode.setParentResolver(parentResolver);
+            reparseRecordTree = new NodeTree<ReparseRecord>();
             parsedNode.textInserted(this, 0, 0, getLength(), new NodeStructureListener() {
                 public void nodeAdded(NodeAndPosition<ParsedNode> node) { }
                 public void nodeRemoved(NodeAndPosition<ParsedNode> node) { }
@@ -109,7 +110,7 @@ public class MoeSyntaxDocument extends PlainDocument
     
     /**
      * Run an item from the re-parse queue, if there are any. Return true if
-     * a qeued re-parse was processed or false if the queue was empty.
+     * a queued re-parse was processed or false if the queue was empty.
      */
     public boolean pollReparseQueue()
     {
@@ -129,8 +130,6 @@ public class MoeSyntaxDocument extends PlainDocument
                 }
                 
                 MoeSyntaxEvent mse = new MoeSyntaxEvent(this);
-                // DAV
-                System.out.println("Running scheduled reparse at: " + pos);
                 pn.reparse(this, ppos, pos, mse);
                 fireChangedUpdate(mse);
                 return true;
@@ -147,8 +146,6 @@ public class MoeSyntaxDocument extends PlainDocument
      */
     public void scheduleReparse(int pos, int size)
     {
-        // DAV
-        System.out.println("MSD.scheduleReparse pos=" + pos + "size=" + size);
         NodeAndPosition<ReparseRecord> existing = reparseRecordTree.findNodeAtOrAfter(pos - 1);
         if (existing != null) {
             if (existing.getPosition() > pos && existing.getPosition() <= (pos + size)) {

@@ -33,10 +33,11 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  * @author Davin McCall
  */
 public class MethodBodyNode extends IncrementalParsingNode
-{
+{    
     public MethodBodyNode(ParsedNode parent)
     {
         super(parent);
+        complete = true;
         setInner(true);
     }
     
@@ -53,11 +54,13 @@ public class MethodBodyNode extends IncrementalParsingNode
         return PP_OK;
     }
     
+    @Override
     protected boolean lastPartialCompleted(EditorParser parser, LocatableToken token)
     {
-        return token != null;
+        return token != null && complete;
     }
     
+    @Override
     protected boolean isNodeEndMarker(int tokenType)
     {
         return tokenType == JavaTokenTypes.RCURLY;

@@ -244,11 +244,15 @@ public class ParentParsedNode extends ParsedNode
             int r = cnode.textInserted(document, child.getPosition(), insPos, length, listener);
             if (r == NODE_GREW || r == NODE_SHRUNK) {
                 newSize = child.getNode().getSize();
-                return reparseNode(document, nodePos, child.getPosition() + newSize, listener);
+                //return reparseNode(document, nodePos, child.getPosition() + newSize, listener);
+                ((MoeSyntaxDocument) document).scheduleReparse(child.getPosition() + newSize, 1);
+                return ALL_OK;
             }
             else if (r == REMOVE_NODE) {
                 removeChild(child, listener);
-                return reparseNode(document, nodePos, child.getPosition(), listener);
+                //return reparseNode(document, nodePos, child.getPosition(), listener);
+                ((MoeSyntaxDocument) document).scheduleReparse(child.getPosition(), child.getSize());
+                return ALL_OK;
             }
             return ALL_OK;
         }
@@ -258,7 +262,9 @@ public class ParentParsedNode extends ParsedNode
             if (child != null) {
                 child.getNode().getContainingNodeTree().slideNode(length);
             }
-            return reparseNode(document, nodePos, insPos, listener);
+            //return reparseNode(document, nodePos, insPos, listener);
+            ((MoeSyntaxDocument) document).scheduleReparse(insPos, length);
+            return ALL_OK;
         }
     }
     
@@ -350,21 +356,14 @@ public class ParentParsedNode extends ParsedNode
         NodeAndPosition<ParsedNode> nap = findNodeAt(offset, nodePos);
         if (nap != null) {
             nap.getNode().reparse(document, nap.getPosition(), offset, listener);
+            return;
         }
-        else {
-            int r = reparseNode(document, nodePos, offset, listener);
-            int size = getSize();
-            if (r == REMOVE_NODE) {
-                ParsedNode parent = getParentNode();
-                parent.removeChild(new NodeAndPosition<ParsedNode>(this,
-                        nodePos, getSize()), listener);
-                document.scheduleReparse(nodePos, size);
-            }
-            else if (r == NODE_GREW || r == NODE_SHRUNK) {
-                int nsize = getSize();
-                document.scheduleReparse(nodePos + nsize, Math.max(size - nsize, 1));
-            }
+        nap = findNodeAt(offset - 1, nodePos);
+        if (nap != null && !nap.getNode().complete) {
+            nap.getNode().reparse(document, nap.getPosition(), offset, listener);
+            return;
         }
+        super.reparse(document, nodePos, offset, listener);
     }
     
     @Override

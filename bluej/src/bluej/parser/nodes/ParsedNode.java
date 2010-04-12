@@ -68,6 +68,12 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
     /** The parent ParsedNode which contains us */
     private ParsedNode parentNode;
     
+    /**
+     * Specifies whether this node is complete, in that its end is properly marked with an
+     * appropriate token. 
+     */
+    protected boolean complete;
+    
     private Map<String,ParsedNode> classNodes = new HashMap<String,ParsedNode>();
     
     private GeneralCache<String,JavaEntity> valueEntityCache =
@@ -106,6 +112,14 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
     public int getNodeType()
     {
         return NODETYPE_NONE;
+    }
+    
+    /**
+     * Specify whether this node is complete - that is, it is ended by an appropriate token.
+     */
+    public void setComplete(boolean complete)
+    {
+        this.complete = complete;
     }
     
     /**
@@ -304,7 +318,18 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
      */
     public void reparse(MoeSyntaxDocument document, int nodePos, int offset, NodeStructureListener listener)
     {
-        reparseNode(document, nodePos, offset, listener);
+        int r = reparseNode(document, nodePos, offset, listener);
+        int size = getSize();
+        if (r == REMOVE_NODE) {
+            ParsedNode parent = getParentNode();
+            parent.removeChild(new NodeAndPosition<ParsedNode>(this,
+                    nodePos, getSize()), listener);
+            document.scheduleReparse(nodePos + size, 1);
+        }
+        else if (r == NODE_GREW || r == NODE_SHRUNK) {
+            int nsize = getSize();
+            document.scheduleReparse(nodePos + nsize, Math.max(size - nsize, 1));
+        }
     }
     
     /**

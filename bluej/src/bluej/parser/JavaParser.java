@@ -597,6 +597,10 @@ public class JavaParser
         gotTypeDefEnd(token, token.getType() == JavaTokenTypes.RCURLY);
     }
     
+    /**
+     * Parse a type body. Returns the last seen token, which might be the '}' closing the
+     * type body or might be something else (if there is a parse error).
+     */
     public final LocatableToken parseTypeBody(int tdType, LocatableToken token)
     {
         beginTypeBody(token);
@@ -620,7 +624,7 @@ public class JavaParser
         return token;
     }
     
-    // Possiblities:
+    // Possibilities:
     // 1 - parses ok, body should follow
     //       - class/interface TYPEDEF_CLAS / TYPEDEF_INTERFACE
     //       - enum            TYPEDEF_ENUM
@@ -1244,8 +1248,7 @@ public class JavaParser
             // A declaration of a variable?
             List<LocatableToken> tlist = new LinkedList<LocatableToken>();
             boolean isTypeSpec = parseTypeSpec(true, true, tlist);
-            token = tokenStream.nextToken();
-            tokenStream.pushBack(token);
+            token = tokenStream.LA(1);
             pushBackAll(tlist);
             if (isTypeSpec && token.getType() == JavaTokenTypes.IDENT) {
                 gotTypeSpec(tlist);

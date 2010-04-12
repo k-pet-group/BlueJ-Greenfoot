@@ -117,15 +117,17 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
     protected int reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
     {
         int parseEnd = Math.min(offset + MAX_PARSE_PIECE, nodePos + getSize());
+        int state = getCurrentState(offset - nodePos);
         
-        // Find the nearest container node prior to the reparse point.
+        // Find the nearest container node or state boundary prior to the reparse point.
+        int stateBoundary = (state != 0) ? stateMarkers[state - 1] + nodePos : nodePos;
         NodeAndPosition<ParsedNode> nap = null;
-        if (offset > nodePos) {
+        if (offset > stateBoundary) {
             nap = getNodeTree().findNodeAtOrBefore(offset - 1, nodePos);
         }
         
         while (nap != null && !isDelimitingNode(nap)) {
-            if (nap.getPosition() > nodePos) {
+            if (nap.getPosition() >= stateBoundary) {
                 nap = getNodeTree().findNodeAtOrBefore(nap.getPosition() - 1, nodePos);
             }
             else {
@@ -146,7 +148,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             }
         }
         else {
-            offset = nodePos; // reparse from this node's beginning
+            offset = stateBoundary; // reparse from previous state marker
         }
         
         // Pull out the current child nodes into a queue. We re-insert them if we get the opportunity;
@@ -174,18 +176,35 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         // Find the next child node, which we may bump into when we are parsing.
         NodeAndPosition<ParsedNode> nextChild = childQueue.poll();
         
-        int state = getCurrentState(offset - nodePos);
-        int nextStatePos = (state < stateMarkers.length) ? stateMarkers[state] + nodePos : -1;
+        int nextStatePos = (state < stateMarkers.length) ? stateMarkers[state] : -1;
+        nextStatePos += (nextStatePos == -1) ? 0 : nodePos;
         
         LocatableToken laToken = parser.getTokenStream().LA(1);
         int ttype = laToken.getType();
-        if (ttype == JavaTokenTypes.EOF) {
-            while (nextChild != null) {
-                childRemoved(nextChild, listener);
-                nextChild = childQueue.poll();
-            }
+        while (ttype == JavaTokenTypes.EOF) {
+            removeOverwrittenChildren(childQueue, nextChild, Integer.MAX_VALUE, listener);
             parser.completedNode(this, nodePos, getSize());
-            return checkEnd(document, nodePos, listener);
+            if (complete) {
+                return checkEnd(document, nodePos, listener);
+            }
+            ParsedNode parentNode = getParentNode();
+            if (parentNode != null && parentNode.growChild(document,
+                    new NodeAndPosition<ParsedNode>(this, nodePos, getSize()), listener)) {
+                if (parseEnd - offset >= MAX_PARSE_PIECE) {
+                    // We've already covered too much ground, schedule another attempt
+                    ((MoeSyntaxDocument) document).scheduleReparse(parseEnd - 1, getSize() + nodePos - parseEnd + 1);
+                    return ALL_OK;
+                }
+                parseEnd = Math.min(nodePos + getSize(), offset + MAX_PARSE_PIECE);
+                r = new DocumentReader(document, offset, parseEnd);
+                parser = new EditorParser(document, r, pline, pcol, buildScopeStack());
+                laToken = parser.getTokenStream().LA(1);
+                ttype = laToken.getType();
+            }
+            else {
+                // failed to grow
+                return parentNode != null ? REMOVE_NODE : ALL_OK;
+            }
         }
         
         while (! isNodeEndMarker(ttype)) {
@@ -255,6 +274,9 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 marksEnd[state] = true;
                 state++;
             }
+            else if (ppr == PP_INCOMPLETE) {
+                complete = false;
+            }
             
             LocatableToken nlaToken = parser.getTokenStream().LA(1);
             if (nlaToken == laToken) {
@@ -264,8 +286,6 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             }
                         
             if (nlaToken.getType() == JavaTokenTypes.EOF) {
-                // DAV
-                System.out.println("" + this + " got EOF, parseEnd = " + parseEnd);
                 int epos = lineColToPos(document, nlaToken.getLine(), nlaToken.getColumn());
                 nextChild = removeOverwrittenChildren(childQueue, nextChild, epos, listener);
                 if (parseEnd < nodePos + getSize()) {
@@ -297,6 +317,8 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             ttype = laToken.getType();
         }
 
+        complete = true;
+        
         removeOverwrittenChildren(childQueue, nextChild, Integer.MAX_VALUE, listener);
         int tokpos = lineColToPos(document, laToken.getLine(), laToken.getColumn());
         // Did we shrink?
@@ -329,17 +351,10 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
     private NodeAndPosition<ParsedNode> removeOverwrittenChildren(LinkedList<NodeAndPosition<ParsedNode>> childQueue,
             NodeAndPosition<ParsedNode> nextChild, int epos, NodeStructureListener listener)
     {
-        if (nextChild != null) {
-            // Perhaps we've now overwritten part or all of nextChild
-            
-            while (epos > nextChild.getPosition()) {
-                // Remove nextChild, we've eaten into it.
-                childRemoved(nextChild, listener);
-                nextChild = childQueue.poll();
-                if (nextChild == null) {
-                    break;
-                }
-            }
+        while (nextChild != null && epos > nextChild.getPosition()) {
+            // Remove nextChild, we've eaten into it.
+            childRemoved(nextChild, listener);
+            nextChild = childQueue.poll();
         }
         
         return nextChild;

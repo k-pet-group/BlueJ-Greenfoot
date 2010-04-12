@@ -937,6 +937,7 @@ public class EditorParser extends JavaParser
     @Override
     protected void endMethodBody(LocatableToken token, boolean included)
     {
+        scopeStack.peek().setComplete(included);
         endTopNode(token, false);
     }
     
