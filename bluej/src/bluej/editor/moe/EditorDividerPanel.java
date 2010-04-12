@@ -53,8 +53,8 @@ public class EditorDividerPanel extends JPanel implements MouseListener {
         super();
         //display consists of a label with an image
         nav=naviview;
-        openNavArrow=Config.getImageAsIcon("image.replace.open");
-        closeNavArrow=Config.getImageAsIcon("image.replace.close");
+        openNavArrow=Config.getImageAsIcon("image.editordivider.open");
+        closeNavArrow=Config.getImageAsIcon("image.editordivider.close");
         
         setPreferredSize(new Dimension(closeNavArrow.getIconWidth()+2, 0));
         setMaximumSize(new Dimension(closeNavArrow.getIconWidth()+2, Integer.MAX_VALUE));
