@@ -430,23 +430,11 @@ public class GreenfootFrame extends JFrame
         // EAST side: project info button and class browser
         
         JPanel eastPanel = new JPanel(new BorderLayout(12, 12));
-        
-        // Two buttons, scenario information and save the world:
-        JComponent northEastBox = new Box(BoxLayout.Y_AXIS);
-        eastPanel.add(northEastBox, BorderLayout.NORTH);
 
         JButton readMeButton = GreenfootUtil.createButton(showReadMeAction); 
         readMeButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource(readMeIconFile)));
         readMeButton.setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
-        northEastBox.add(readMeButton);
-        
-        northEastBox.add(Box.createRigidArea(new Dimension(0,10)));
-        
-        JButton saveWorldButton = GreenfootUtil.createButton(saveWorldAction);
-        saveWorldButton.setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
-        northEastBox.add(saveWorldButton);
-        
-        
+        eastPanel.add(readMeButton, BorderLayout.NORTH);       
         
         // the class browser 
         
@@ -616,6 +604,8 @@ public class GreenfootFrame extends JFrame
         addMenuItem(ResetWorldAction.getInstance(), ctrlMenu, KeyEvent.VK_T, false, KeyEvent.VK_T);
 //        addMenuItem(new NYIAction("Increase Speed", this), ctrlMenu, KeyEvent.VK_PLUS, false, KeyEvent.VK_PLUS);
 //        addMenuItem(new NYIAction("Decrease Speed", this), ctrlMenu, KeyEvent.VK_MINUS, false, KeyEvent.VK_MINUS);
+        ctrlMenu.addSeparator();
+        addMenuItem(saveWorldAction, ctrlMenu, -1, false, -1);
         ctrlMenu.addSeparator();
         addMenuItem(compileAllAction, ctrlMenu, KeyEvent.VK_K, false, -1);
         
