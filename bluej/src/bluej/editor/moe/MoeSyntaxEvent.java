@@ -43,11 +43,19 @@ public class MoeSyntaxEvent implements DocumentEvent, NodeStructureListener
     private DocumentEvent srcEvent;
     private List<NodeAndPosition<ParsedNode>> addedNodes = new LinkedList<NodeAndPosition<ParsedNode>>();
     private List<NodeAndPosition<ParsedNode>> removedNodes = new LinkedList<NodeAndPosition<ParsedNode>>();
+    private EventType eventType;
     
     public MoeSyntaxEvent(MoeSyntaxDocument document, DocumentEvent srcEvent)
     {
         this.document = document;
         this.srcEvent = srcEvent;
+        eventType = srcEvent.getType();
+    }
+    
+    public MoeSyntaxEvent(MoeSyntaxDocument document)
+    {
+        this.document = document;
+        eventType = EventType.CHANGE;
     }
     
     /**
@@ -70,7 +78,7 @@ public class MoeSyntaxEvent implements DocumentEvent, NodeStructureListener
     
     public ElementChange getChange(Element elem)
     {
-        return srcEvent.getChange(elem);
+        return srcEvent != null ? srcEvent.getChange(elem) : null;
     }
     
     public MoeSyntaxDocument getDocument()
@@ -90,7 +98,7 @@ public class MoeSyntaxEvent implements DocumentEvent, NodeStructureListener
     
     public EventType getType()
     {
-        return srcEvent.getType();
+        return eventType;
     }
     
     // -------------- NodeStructureListener interface ------------------

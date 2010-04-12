@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.swing.text.Document;
 
 import bluej.debugger.gentype.Reflective;
+import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.Token;
 import bluej.parser.DocumentReader;
 import bluej.parser.JavaParser;
@@ -333,14 +334,37 @@ public class ParentParsedNode extends ParsedNode
         return reparseNode(document, nodePos, delPos, listener);
     }
     
-    /**
-     * Re-parse the node. The default implementation passes the request down to the parent.
-     * The tree root must provide a different implementation.
+    /*
+     * Default implementation, just causes the parent to re-parse
      */
     @Override
     protected int reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
     {
         return REMOVE_NODE;
+    }
+    
+    @Override
+    public void reparse(MoeSyntaxDocument document, int nodePos, int offset,
+            NodeStructureListener listener)
+    {
+        NodeAndPosition<ParsedNode> nap = findNodeAt(offset, nodePos);
+        if (nap != null) {
+            nap.getNode().reparse(document, nap.getPosition(), offset, listener);
+        }
+        else {
+            int r = reparseNode(document, nodePos, offset, listener);
+            int size = getSize();
+            if (r == REMOVE_NODE) {
+                ParsedNode parent = getParentNode();
+                parent.removeChild(new NodeAndPosition<ParsedNode>(this,
+                        nodePos, getSize()), listener);
+                document.scheduleReparse(nodePos, size);
+            }
+            else if (r == NODE_GREW || r == NODE_SHRUNK) {
+                int nsize = getSize();
+                document.scheduleReparse(nodePos + nsize, Math.min(size - nsize, 1));
+            }
+        }
     }
     
     @Override

@@ -29,6 +29,7 @@ import javax.swing.text.Document;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
+import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.Token;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.entity.EntityResolver;
@@ -294,6 +295,19 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
     }
     
     /**
+     * Perform a reparse of the document at a given point
+     * 
+     * @param document  The document
+     * @param nodePos   The position of this node
+     * @param offset    The position within the document of the reparse
+     * @param listener  The structure listener to be notified of structural changes
+     */
+    public void reparse(MoeSyntaxDocument document, int nodePos, int offset, NodeStructureListener listener)
+    {
+        reparseNode(document, nodePos, offset, listener);
+    }
+    
+    /**
      * Get a sequence of "tokens" which indicate the colour and position/size of various tokens
      * in a line of source code text. 
      * @param pos       The position of the text to tokenize (document relative). Must be on a
@@ -382,7 +396,8 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
     /**
      * Remove a child node, and notify the NodeStructureListener that the child and
      * its descendants have been removed.  Won't disturb the position of subsequent
-     * children.
+     * children. The "child" NodeAndPosition parameter specifies the absolute location
+     * of the child node, not its position relative to "this" node.
      */
     protected final void removeChild(NodeAndPosition<ParsedNode> child, NodeStructureListener listener)
     {

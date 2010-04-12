@@ -116,6 +116,7 @@ public class MoeSyntaxDocument extends PlainDocument
         NodeAndPosition<ReparseRecord> nap = reparseRecordTree.findNodeAtOrAfter(0);
         if (nap != null) {
             int pos = nap.getPosition();
+            nap.getNode().remove();
             
             ParsedNode pn = getParser();
             int ppos = 0;
@@ -127,12 +128,40 @@ public class MoeSyntaxDocument extends PlainDocument
                     cn = pn.findNodeAt(nap.getPosition(), ppos);
                 }
                 
-                // DAV now reparse pn
-                
+                MoeSyntaxEvent mse = new MoeSyntaxEvent(this, null);
+                pn.reparse(this, ppos, pos, mse);
+                fireChangedUpdate(mse);
                 return true;
             }
         }
         return false;
+    }
+    
+    /**
+     * Schedule a reparse at a certain point within the document.
+     * @param pos    The position to reparse at
+     * @param size   The reparse size. This is a minimum, rather than a maximum; that is,
+     *               the reparse when it occurs must parse at least this much.
+     */
+    public void scheduleReparse(int pos, int size)
+    {
+        NodeAndPosition<ReparseRecord> existing = reparseRecordTree.findNodeAtOrAfter(pos - 1);
+        if (existing != null) {
+            if (existing.getPosition() > pos && existing.getPosition() <= (pos + size)) {
+                existing.getNode().slideStart(existing.getPosition() - pos);
+                return;
+            }
+            else if (existing.getPosition() <= pos) {
+                int nsize = (pos + size) - existing.getPosition();
+                if (nsize > existing.getSize()) {
+                    existing.getNode().setSize(nsize);
+                }
+                return;
+            }
+        }
+        
+        ReparseRecord rr = new ReparseRecord();
+        reparseRecordTree.insertNode(rr, pos, size);
     }
     
     /**
