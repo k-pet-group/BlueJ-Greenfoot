@@ -5,26 +5,26 @@ The next update column indicates whether it is likely that the translator will d
 language        last update     next update    comment         translator
 --------------------------------------------------------------------------------------------------------------
 afrikaans       2.0.0                x                         Petri Jooste        <RKWJPJ@puknet.puk.ac.za>
-chinese         2.0.4                                          Gu Zhifeng          <gu_zhifeng@263.net>
-catalan         2.0.0                x          only labels    Santiago Manrique   <smanriqu@pie.xtec.es>
-czech           2.5.0                x          tmpl in UTF8   Rudolf Pecinovsky   Rudolf: rudolf@pecinovsky.cz (or <petr.skoda@vslib.cz>)
+chinese         2.0.4                                          
+catalan         2.0.0                x          only labels    Santiago Manrique   
+czech           2.5.0                x          tmpl in UTF8   Rudolf Pecinovsky   Rudolf: <rudolf.pecinovsky@i.cz> (or rudolf@pecinovsky.cz )
 danish          2.2.0preview         x                         Kenneth Johnson     <kenneth@kennethjohnsen.dk>
-dutch           2.0.0                x                         Peter van Diepen    <pvdiepen@tiscali.nl>
+dutch           2.0.0                x                        
 english         2.0.5                x      
-french          2.2.0                x                         Patrice Moreaux     <patrice.moreaux@univ-reims.fr>
-german          2.2.0                x                         Thomas R?fer        <roefer@tzi.de>
+french          2.2.0                x                         
+german          3.0               x                         Thomas R?fer        <roefer@tzi.de>
 greek           2.1.1                x          labels=2.1.3   Ioannis G. Baltopoulos <ioannis.baltopoulos@cl.cam.ac.uk>
-italian         2.2.0                x          labels+dialog  Luzio Menna         <luzio@aruba.it> or <Luzio_Menna@iol.it> (or: Angelo Papadia: <angelo.papadia@libero.it>)
+italian         3.0                x          labels+dialog  Luzio Menna         <luzio@aruba.it> or <Luzio_Menna@iol.it> (or: Angelo Papadia: <angelo.papadia@libero.it>)
 japanese        1.3.5                           partially
 korean          1.2.x                                            
 montenegrin     first time, will need instructions             Omer Djokic         <omer@itdirect.net>
-portuguese      2.0.0                x                         Fred Guedes Pereira <fredguedespereira@yahoo.com.br> (or: Fernando Kronbauer <fernandoak@gmail.com>)
+portuguese      2.0.0                x                         Fred Guedes Pereira <fredguedespereira@yahoo.com.br> 
 persian                              x                         M. Shahdoost        <persianshadow2003@yahoo.com>
-russian         2.2.0preview         x          labels+dialog  Alexey Vasiltchenko <ddp@sevgtu.sebastopol.ua>
+russian         2.2.0preview         x          labels+dialog  
 russian         2.5.3                x          all -templates Sergey Zemlyannikov <serveren@mail.ru>
 serbian                                                        Omer Djokic         <omer@itdirect.net>
 spanish         1.2.x                                                
-swedish         1.3.5                x          later          Markus ?stman       <markus@gnistra.se>
+swedish?         1.3.5                x          later          
 trad. chinese                        ?                         Ma Wing Ho          <mawingho@netvigator.com>
 
 
@@ -33,3 +33,7 @@ In case we need another translator for chinese we should contact: Xiaoke Hu <go2
 IMPORTANT: 
 When adding a new translation, it should be added in the build script: package/build.xml
 It should also be added to bluej.defs so users can see the available languages.
+
+IMPORTANT: 
+Translations need to be done using Latin-1 encoding Unicode escape sequences (encoding that is 
+used by Java's .properties files, and also the output encoding from native2ascii)
