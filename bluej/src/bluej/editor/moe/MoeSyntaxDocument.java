@@ -128,7 +128,9 @@ public class MoeSyntaxDocument extends PlainDocument
                     cn = pn.findNodeAt(nap.getPosition(), ppos);
                 }
                 
-                MoeSyntaxEvent mse = new MoeSyntaxEvent(this, null);
+                MoeSyntaxEvent mse = new MoeSyntaxEvent(this);
+                // DAV
+                System.out.println("Running scheduled reparse at: " + pos);
                 pn.reparse(this, ppos, pos, mse);
                 fireChangedUpdate(mse);
                 return true;
@@ -145,6 +147,8 @@ public class MoeSyntaxDocument extends PlainDocument
      */
     public void scheduleReparse(int pos, int size)
     {
+        // DAV
+        System.out.println("MSD.scheduleReparse pos=" + pos + "size=" + size);
         NodeAndPosition<ReparseRecord> existing = reparseRecordTree.findNodeAtOrAfter(pos - 1);
         if (existing != null) {
             if (existing.getPosition() > pos && existing.getPosition() <= (pos + size)) {

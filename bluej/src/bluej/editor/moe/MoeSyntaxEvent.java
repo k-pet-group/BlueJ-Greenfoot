@@ -88,12 +88,12 @@ public class MoeSyntaxEvent implements DocumentEvent, NodeStructureListener
     
     public int getLength()
     {
-        return srcEvent.getLength();
+        return srcEvent != null ? srcEvent.getLength() : 0;
     }
 
     public int getOffset()
     {
-        return srcEvent.getOffset();
+        return srcEvent != null ? srcEvent.getOffset() : 0;
     }
     
     public EventType getType()

@@ -362,7 +362,7 @@ public class ParentParsedNode extends ParsedNode
             }
             else if (r == NODE_GREW || r == NODE_SHRUNK) {
                 int nsize = getSize();
-                document.scheduleReparse(nodePos + nsize, Math.min(size - nsize, 1));
+                document.scheduleReparse(nodePos + nsize, Math.max(size - nsize, 1));
             }
         }
     }

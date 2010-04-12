@@ -350,6 +350,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 
                 sourceDocument.enableParser(false);
                 loaded = true;
+                
+                scheduleReparseRunner();
             }
             catch (FileNotFoundException ex) {
                 clear();
@@ -2442,6 +2444,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             saveState.setState(StatusLabel.SAVED);
             setChanged(); // contents may have changed - notify watcher
             setSaved();  // notify watcher that we are saved
+            
+            scheduleReparseRunner();
         }
         catch (FileNotFoundException ex) {
             info.warning(Config.getString("editor.info.fileDisappeared"));

@@ -29,6 +29,7 @@ import java.util.Stack;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.DocumentReader;
 import bluej.parser.EditorParser;
 import bluej.parser.EscapedUnicodeReader;
@@ -73,6 +74,11 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
     /** The "last" token ends the state. The new state begins. */
     protected final static int PP_ENDS_STATE = 4;
     
+    
+    private final static int MAX_PARSE_PIECE = 8000;
+    private final static int MIN_PARSE_PIECE = 6000;
+    
+    
     public IncrementalParsingNode(ParsedNode parent)
     {
         super(parent);
@@ -110,6 +116,8 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
     @Override
     protected int reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
     {
+        int parseEnd = Math.min(offset + MAX_PARSE_PIECE, nodePos + getSize());
+        
         // Find the nearest container node prior to the reparse point.
         NodeAndPosition<ParsedNode> nap = null;
         if (offset > nodePos) {
@@ -160,7 +168,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         // Make a reader and parser
         int pline = document.getDefaultRootElement().getElementIndex(offset) + 1;
         int pcol = offset - document.getDefaultRootElement().getElement(pline - 1).getStartOffset() + 1;
-        Reader r = new DocumentReader(document, offset, nodePos + getSize());
+        Reader r = new DocumentReader(document, offset, parseEnd);
         EditorParser parser = new EditorParser(document, r, pline, pcol, buildScopeStack());
         
         // Find the next child node, which we may bump into when we are parsing.
@@ -256,8 +264,16 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             }
                         
             if (nlaToken.getType() == JavaTokenTypes.EOF) {
+                // DAV
+                System.out.println("" + this + " got EOF, parseEnd = " + parseEnd);
                 int epos = lineColToPos(document, nlaToken.getLine(), nlaToken.getColumn());
                 nextChild = removeOverwrittenChildren(childQueue, nextChild, epos, listener);
+                if (parseEnd < nodePos + getSize()) {
+                    // We had limited the parse amount deliberately. Schedule a continuation.
+                    ((MoeSyntaxDocument) document).scheduleReparse(parseEnd - 1, 1);
+                    parser.completedNode(this, nodePos, getSize());
+                    return ALL_OK;
+                }
                 if (! lastPartialCompleted(parser, last)) {
                     // The parsed piece wants more...
                     ParsedNode parentNode = getParentNode();
@@ -329,6 +345,9 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         return nextChild;
     }
     
+    /**
+     * Restore children in the child queue which were removed temporarily, but not actually overwritten during parsing.
+     */
     private void processChildQueue(int nodePos, LinkedList<NodeAndPosition<ParsedNode>> childQueue,
             NodeAndPosition<ParsedNode> nextChild)
     {
@@ -442,7 +461,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         NodeAndPosition<ParsedNode> nap = child.nextSibling();
         if (nap != null && nap.getPosition() > child.getEnd()) {
             int newsize = nap.getPosition() - child.getPosition();
-            child.getNode().resize(newsize);
+            child.getNode().setSize(newsize);
             return true;
         }
         
@@ -450,7 +469,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             // Next child is pushing up against the one which wants to grow - so we'll
             // have to remove it.
             removeChild(nap, listener);
-            child.getNode().resize(nap.getEnd() - child.getPosition());
+            child.getNode().setSize(nap.getEnd() - child.getPosition());
             return true;
         }
         
