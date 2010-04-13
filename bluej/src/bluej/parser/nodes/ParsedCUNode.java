@@ -26,7 +26,6 @@ import java.util.List;
 import javax.swing.text.Document;
 
 import bluej.debugger.gentype.Reflective;
-import bluej.parser.EditorParser;
 import bluej.parser.ImportsCollection;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
@@ -108,9 +107,9 @@ public class ParsedCUNode extends IncrementalParsingNode
     }
     
     @Override
-    protected int doPartialParse(EditorParser parser, int state)
+    protected int doPartialParse(ParseParams params, int state)
     {
-        parser.parseCUpart(state);
+        params.parser.parseCUpart(state);
         return PP_OK;
     };
     

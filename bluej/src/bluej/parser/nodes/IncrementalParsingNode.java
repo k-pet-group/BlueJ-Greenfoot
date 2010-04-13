@@ -76,6 +76,10 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
     /** The "last" token is the beginning of the next state */
     protected final static int PP_BEGINS_NEXT_STATE = 5;
     
+    protected final static int PP_REGRESS_STATE = 6;
+    /** Pull the next child up behind the "last" token and continue parsing inside it */
+    protected final static int PP_PULL_UP_CHILD = 7;
+    
     
     private final static int MAX_PARSE_PIECE = 8000;
     private final static int MIN_PARSE_PIECE = 6000;
@@ -103,7 +107,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
      * succeeds but requires that the node ends immediately, PP_EPIC_FAIL if the parse
      * fails and indicates that the node is not what it purports to be.
      */
-    protected abstract int doPartialParse(EditorParser parser, int state);
+    protected abstract int doPartialParse(ParseParams params, int state);
     
     protected boolean lastPartialCompleted(EditorParser parser, LocatableToken token)
     {
@@ -176,7 +180,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         EditorParser parser = new EditorParser(document, r, pline, pcol, buildScopeStack());
         
         // Find the next child node, which we may bump into when we are parsing.
-        NodeAndPosition<ParsedNode> nextChild = childQueue.poll();
+        NodeAndPosition<ParsedNode> nextChild = childQueue.peek();
         
         int nextStatePos = (state < stateMarkers.length) ? stateMarkers[state] : -1;
         nextStatePos += (nextStatePos == -1) ? 0 : nodePos;
@@ -208,6 +212,14 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 return parentNode != null ? REMOVE_NODE : ALL_OK;
             }
         }
+        
+        ParseParams pparams = new ParseParams();
+        pparams.listener = listener;
+        pparams.parser = parser;
+        pparams.tokenStream = parser.getTokenStream();
+        pparams.document = (MoeSyntaxDocument) document;
+        pparams.nodePos = nodePos;
+        pparams.childQueue = childQueue;
         
         while (! isNodeEndMarker(ttype)) {
             
@@ -248,7 +260,8 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             }
             
             // Do a partial parse and check the result
-            int ppr = doPartialParse(parser, state);
+            int ppr = doPartialParse(pparams, state);
+            nextChild = childQueue.peek();
             if (ppr == PP_ENDS_NODE) {
                 removeOverwrittenChildren(childQueue, nextChild, Integer.MAX_VALUE, listener);
                 int pos = lineColToPos(document, last.getLine(), last.getColumn());
@@ -285,6 +298,29 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             else if (ppr == PP_INCOMPLETE) {
                 complete = false;
             }
+            else if (ppr == PP_REGRESS_STATE) {
+                state--;
+                ((MoeSyntaxDocument) document).scheduleReparse(stateMarkers[state] + nodePos, 1);
+                stateMarkers[state] = -1;
+                return ALL_OK;
+            }
+            else if (ppr == PP_PULL_UP_CHILD) {
+                nextChild = childQueue.peek();
+                if (nextChild == null) {
+                    throw new NullPointerException(); // DAV
+                }
+                processChildQueue(nodePos, childQueue, nextChild);
+                int epos = lineColToPos(document, last.getEndLine(), last.getEndColumn());
+                if (nextChild.getPosition() != epos) {
+                    nextChild.getNode().getContainingNodeTree().slideStart(epos - nextChild.getPosition());
+                    ((MoeSyntaxDocument) document).scheduleReparse(stateMarkers[state] + nodePos, 1);
+                }
+                parser.completedNode(this, nodePos, epos - nodePos);
+                if (! nextChild.getNode().complete) {
+                    ((MoeSyntaxDocument) document).scheduleReparse(epos + nextChild.getNode().getSize(), 1);
+                }
+                return ALL_OK;
+            }
             
             LocatableToken nlaToken = parser.getTokenStream().LA(1);
             if (nlaToken == laToken) {
@@ -309,7 +345,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                             new NodeAndPosition<ParsedNode>(this, nodePos, getSize()), listener)) {
                         // Successfully grew... now do some more parsing
                         int rep = reparseNode(document, nodePos, tokpos, listener);
-                        return rep == ALL_OK ? NODE_GREW : rep;
+                        return (rep == REMOVE_NODE) ? REMOVE_NODE : NODE_GREW;
                     }
                     else if (nodePos + getSize() < document.getLength()) {
                         // No option but to reparse the parent node.
@@ -362,7 +398,8 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         while (nextChild != null && epos > nextChild.getPosition()) {
             // Remove nextChild, we've eaten into it.
             childRemoved(nextChild, listener);
-            nextChild = childQueue.poll();
+            childQueue.removeFirst();
+            nextChild = childQueue.peek();
         }
         
         return nextChild;
@@ -376,7 +413,8 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
     {
         while (nextChild != null) {
             insertNode(nextChild.getNode(), nextChild.getPosition() - nodePos, nextChild.getSize());
-            nextChild = childQueue.poll();
+            childQueue.removeFirst();
+            nextChild = childQueue.peek();
         }
     }
     

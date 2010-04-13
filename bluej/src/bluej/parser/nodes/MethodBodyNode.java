@@ -48,9 +48,9 @@ public class MethodBodyNode extends IncrementalParsingNode
     }
     
     @Override
-    protected int doPartialParse(EditorParser parser, int state)
+    protected int doPartialParse(ParseParams params, int state)
     {
-        last = parser.parseStatement(parser.getTokenStream().nextToken());
+        last = params.parser.parseStatement(params.tokenStream.nextToken());
         return PP_OK;
     }
     

@@ -145,45 +145,72 @@ public class ParsedTypeNode extends IncrementalParsingNode
     }
     
     @Override
-    protected int doPartialParse(EditorParser parser, int state)
+    protected void childRemoved(NodeAndPosition<ParsedNode> child,
+            NodeStructureListener listener)
+    {
+        if (child.getNode() == inner) {
+            inner = null;
+        }
+        super.childRemoved(child, listener);
+    }
+    
+    @Override
+    protected int doPartialParse(ParseParams params, int state)
     {
         if (state == 0) {
-            // [modifiers] {class|interface|enum|@interface} name [<type params>] [extends...] {
-            int r = parser.parseTypeDefBegin();
+            // [modifiers] {class|interface|enum|@interface} name [<type params>] [extends...]
+            int r = params.parser.parseTypeDefBegin();
             if (r == JavaParser.TYPEDEF_EPIC_FAIL) {
                 return PP_EPIC_FAIL;
             }
             
             type = r;
-            parser.initializeTypeExtras();
+            params.parser.initializeTypeExtras();
             
-            LocatableToken token = parser.getTokenStream().nextToken();
+            LocatableToken token = params.tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.IDENT) {
                 last = token;
                 return PP_ENDS_NODE;
             }
             setName(token.getText());
             
-            token = parser.parseTypeDefPart2();
+            token = params.parser.parseTypeDefPart2();
             if (token == null) {
-                last = parser.getTokenStream().LA(1);
+                last = params.tokenStream.LA(1);
                 return PP_ENDS_NODE;
             }
             last = token;
-            parser.getTokenStream().pushBack(token);
+            params.tokenStream.pushBack(token);
             return PP_BEGINS_NEXT_STATE;
         }
         else if (state == 1) {
-            // '{' class body '}'
-            // We only get into this state rarely
-            last = parser.parseTypeBody(type, parser.getTokenStream().nextToken());
-            if (last.getType() == JavaTokenTypes.RCURLY) {
-                return PP_ENDS_STATE;
+            // '{'
+            LocatableToken token = params.tokenStream.nextToken();
+            if (token.getType() != JavaTokenTypes.LCURLY) {
+                last = token;
+                return PP_REGRESS_STATE;
             }
-            return PP_INCOMPLETE;
+            
+            if (inner == null) {
+                last = params.parser.parseTypeBody(type, params.tokenStream.nextToken());
+                if (last.getType() == JavaTokenTypes.RCURLY) {
+                    return PP_ENDS_STATE;
+                }
+                return PP_INCOMPLETE;
+            }
+            
+            // If we already have an inner we pull it into position.
+            NodeAndPosition<ParsedNode> nextChild = params.childQueue.peek();
+            while (nextChild != null && nextChild.getNode() != inner) {
+                childRemoved(nextChild, params.listener);
+                params.childQueue.poll();
+                nextChild = params.childQueue.peek();
+            }
+            
+            return PP_PULL_UP_CHILD;
         }
         else if (state == 2) {
-            last = parser.getTokenStream().LA(1);
+            last = params.parser.getTokenStream().LA(1);
             complete = true;
             return PP_ENDS_NODE;
         }
@@ -195,8 +222,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     protected boolean lastPartialCompleted(EditorParser parser,
             LocatableToken token)
     {
-        // TODO Auto-generated method stub
-        return super.lastPartialCompleted(parser, token);
+        return complete;
     }
     
     @Override
@@ -223,25 +249,25 @@ public class ParsedTypeNode extends IncrementalParsingNode
         return false;
     }
     
-    @Override
-    protected int handleInsertion(Document document, int nodePos, int insPos,
-            int length, NodeStructureListener listener)
-    {
-        if (handleTextChange(document, nodePos, insPos, length, listener)) {
-            return ALL_OK;
-        }
-        return super.handleInsertion(document, nodePos, insPos, length, listener);
-    }
-
-    @Override
-    protected int handleDeletion(Document document, int nodePos, int dpos,
-            NodeStructureListener listener)
-    {
-        if (handleTextChange(document, nodePos, dpos, 1, listener)) {
-            return ALL_OK;
-        }
-        return super.handleDeletion(document, nodePos, dpos, listener);
-    }
+//    @Override
+//    protected int handleInsertion(Document document, int nodePos, int insPos,
+//            int length, NodeStructureListener listener)
+//    {
+//        if (handleTextChange(document, nodePos, insPos, length, listener)) {
+//            return ALL_OK;
+//        }
+//        return super.handleInsertion(document, nodePos, insPos, length, listener);
+//    }
+//
+//    @Override
+//    protected int handleDeletion(Document document, int nodePos, int dpos,
+//            NodeStructureListener listener)
+//    {
+//        if (handleTextChange(document, nodePos, dpos, 1, listener)) {
+//            return ALL_OK;
+//        }
+//        return super.handleDeletion(document, nodePos, dpos, listener);
+//    }
     
     @Override
     public CodeSuggestions getExpressionType(int pos, int nodePos, TypeEntity defaultType, Document document)

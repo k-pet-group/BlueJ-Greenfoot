@@ -83,16 +83,16 @@ public class TypeInnerNode extends IncrementalParsingNode
     }
     
     @Override
-    protected int doPartialParse(EditorParser parser, int state)
+    protected int doPartialParse(ParseParams params, int state)
     {
         last = null;
-        LocatableToken nextToken = parser.getTokenStream().nextToken();
+        LocatableToken nextToken = params.tokenStream.nextToken();
         if (nextToken.getType() == JavaTokenTypes.RCURLY) {
             complete = true;
             last = nextToken;
             return PP_ENDS_NODE;
         }
-        parser.parseClassElement(nextToken);
+        params.parser.parseClassElement(nextToken);
         return PP_OK;
     }
     
