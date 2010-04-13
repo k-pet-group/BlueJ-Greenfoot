@@ -302,7 +302,7 @@ editor.info.docAborted = Si \u00e8 verificato un grave problema durante la gener
 editor.info.docDisappeared = Non riesco a trovare il file HTML:
 editor.info.docNoFrames = La visualizzazione a frame \u00e8 disabilitata durante l'anteprima dell'Editor.
 editor.info.tabsExpanded = Tutti i TAB convertiti a spazi.\n(Stai lavorando con soft TABs,\nil file conteneva hard TABs.)
-editor.info.perfectIndent = Indentazzione era già corretta
+editor.info.perfectIndent = Indentazzione era gi\u00e0 corretta
 editor.printer.continued=continuato
 #End Editor labels
 
@@ -369,7 +369,7 @@ pkgmgr.test.recording=registro
 
 pkgmgr.test.popup.testAll=Esegui il test di tutto
 pkgmgr.test.popup.noTests=Nessun metodo di test
-pkgmgr.test.popup.abstract=La classe del test è "abstract"
+pkgmgr.test.popup.abstract=La classe del test \u00e8 "abstract"
 pkgmgr.test.popup.testPrefix=Test
 pkgmgr.test.popup.createTest=Crea il metodo di test...
 pkgmgr.test.popup.benchToFixture=da Object Bench a Test Fixture

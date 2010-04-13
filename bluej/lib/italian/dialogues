@@ -6,21 +6,21 @@ sta eseguendo. Questo potrebbe causare strani
 problemi!
 
 exception-thrown
-Un'eccezione è stata lanciata:
+Un'eccezione \u00e8 stata lanciata:
 
 break-no-source
 Breakpoint punta ad un codice sorgente non disponibile.  
 Nome del file:
 
 error-in-file
-Un errore incontrato in un file perché il
-sorgente non può essere trovato.
+Un errore incontrato in un file perch\u00e9 il
+sorgente non pu\u00f2 essere trovato.
 classe: numero di linea di fonte:
 
 system-exit
 Il metodo finisce attraverso un istruzione
-"exit". Nessun risultato è
-ritornato. Il codice di uscita è:
+"exit". Nessun risultato \u00e8
+ritornato. Il codice di uscita \u00e8:
 
 no-help
 Nessun aiuto disponibile per questa messaggio.
@@ -30,7 +30,7 @@ segnale questo errore al nostro database di aiuto. Grazie.
 
 editor-crashed
 Sembra che BlueJ ha crashed mentre scriveva sul disco questa classe.
-Il codice sorgente può essere perso o 
+Il codice sorgente pu\u00f2 essere perso o 
 incompleto. Ci dovrebbe essere un file di riserva di questa classe 
 nella cartella del progetto. Se questa classe sembra danneggiata,
    1 - chiudi BlueJ
@@ -51,7 +51,7 @@ stream-incomplete
 Errore di Compilazione. Flusso di errore incompleto.
 
 out-of-bounds
-Elemento specificato non è
+Elemento specificato non \u00e8
 all'interno dell'array bounds.
 
 cannot-access-element
@@ -66,7 +66,7 @@ Specifica un nome valido.
 
 error-save-file
 Errore nel salvare il file.
-Il file non è stato salvato.
+Il file non \u00e8 stato salvato.
 
 cannot-save-keys
 Errore mentre si stava salvando
@@ -76,12 +76,12 @@ salvate.
 error-no-templates
 La cartella specificata per i template (la cartella dove 
 BlueJ cerca i template) non esiste. E'
-definita con le proprietà "bluej.templatePath" in
+definita con le propriet\u00e0 "bluej.templatePath" in
 <bluej-home>/lib/bluej.defs. Cercala e aggiusta il percorso.
 
 skeleton-error
 Lo scheletro predefinito per la classe non poteva essere
-generato. Questo può essere a causa di una configurazione
+generato. Questo pu\u00f2 essere a causa di una configurazione
 d'errore nell'installazione di BlueJ, o a causa di
 problemi di accesso al file system.
 
@@ -90,12 +90,12 @@ Non posso aprire il sorgente
 di questa classe.
 
 error-writing-jar
-Il file jar non può essere scritto correttamente.
-(Controlla l'accesso al file system e allla disponibilità
+Il file jar non pu\u00f2 essere scritto correttamente.
+(Controlla l'accesso al file system e allla disponibilit\u00e0
 di spazio sul disco.)
 
 error-jar-exists
-Il file selezionato è già esistente.
+Il file selezionato \u00e8 gi\u00e0 esistente.
 Lo vuoi sovrascrivere?
 Sovrascrivi
 Cancella
@@ -108,12 +108,12 @@ invalid-package-name
 Nome del package invalido.
 
 must-be-identifier
-Il nome non è valido. E' 
+Il nome non \u00e8 valido. E' 
 un identificatore di Java.
 
 directory-exists
 Un file o una cartella con questo 
-nome già esiste.
+nome gi\u00e0 esiste.
 
 cannot-copy-package
 Non posso creare la cartella. Controlla che
@@ -123,7 +123,7 @@ esistae ha i permessi di scrittura.
 cannot-copy-package
 C'era un problema nella copia
 del package. Il package non era 
-scritto o può essere incompleto.
+scritto o pu\u00f2 essere incompleto.
 
 file-does-not-exist
 Il file specificato
@@ -135,16 +135,16 @@ essere un file con estensione Java (deve
 terminare in ".java").
 
 docdir-blocked-by-file
-La cartella per la documentazione non può essere
+La cartella per la documentazione non pu\u00f2 essere
 creata nella cartella del progetto
-perché esiste un file con quel nome.
+perch\u00e9 esiste un file con quel nome.
 
 docdir-not-created
-La cartella per la documentazione non può essere 
+La cartella per la documentazione non pu\u00f2 essere 
 creata nella cartella del progetto.
 
 no-permission-for-docdir
-La cartella per la documentazione non può essere
+La cartella per la documentazione non pu\u00f2 essere
 creata nella cartella del progetto
 a causa di insufficente spazio
 
@@ -157,29 +157,29 @@ Rigenera
 Cancella
 
 doctool-error
-Javadoc ha riscontarto un errore. Può esserci un
-errore di sintassi in uno dei file che è stato generato.
-Può essere anche che la URL per generare la documentazione
-è incoretta. Assicurati che tutti i tuoi file
-Java sono compilati e l'URL della documentazione è accessibile
+Javadoc ha riscontarto un errore. Pu\u00f2 esserci un
+errore di sintassi in uno dei file che \u00e8 stato generato.
+Pu\u00f2 essere anche che la URL per generare la documentazione
+\u00e8 incoretta. Assicurati che tutti i tuoi file
+Java sono compilati e l'URL della documentazione \u00e8 accessibile
 Riprova ancora. In caso ottieni lo stesso errore 
 controlla i file di log di Javadoc:
 
 severe-doc-trouble
-Un errore è stato lanciato durante la chiamata
+Un errore \u00e8 stato lanciato durante la chiamata
 al programma per generare documentazione (javadoc).
 
 no-java-sources-found
-Nessun sorgente Java è stato
+Nessun sorgente Java \u00e8 stato
 trovato in questa cartella.
 
 duplicate-name
-Una classe o un package con questo nome già esiste
+Una classe o un package con questo nome gi\u00e0 esiste
 in questo progetto. Non possono avere
 due classi con lo stesso nome.
 
 windows-reserved-class-name
-Il nome scelto per la classe non può essere usato , perché è
+Il nome scelto per la classe non pu\u00f2 essere usato , perch\u00e9 \u00e8
 in conflitto con le parole riservate sul sistema
 operativo.
 
@@ -225,18 +225,18 @@ Il package non esiste:
 
 no-bluej-package
 Errore aprendo il  package.
-Il file/cartella non è
+Il file/cartella non \u00e8
 un package BlueJ:
 
 applet-height-width
 Altezza e larghezza dell' Applet
-non è specificata.
+non \u00e8 specificata.
 
 cannot-read-help
 Non posso aprire il file dell'help:
 
 not-yet-implemented
-Non è implementato  - Spiacente!
+Non \u00e8 implementato  - Spiacente!
 
 quit-all
 Chiudi tutti i progetti aperti?
@@ -252,23 +252,23 @@ Cancella
 null
 
 changed-on-disk
-Il codice sorgente è cambiato sul disco. Vuoi
+Il codice sorgente \u00e8 cambiato sul disco. Vuoi
 ricaricarlo dal disco? I cambiamenti saranno mostrati nell'editor.
 Ricarica
 Cancella
 null
 
 really-print
-Il testo è più largo della carta.
-Le rige più luunghe saranno tagliate via.
-Si può evitare questo ridimensionanto i margine nell'editor.
+Il testo \u00e8 pi\u00f9 largo della carta.
+Le rige pi\u00f9 luunghe saranno tagliate via.
+Si pu\u00f2 evitare questo ridimensionanto i margine nell'editor.
 Stampare comunque?
 Stampa
 Cancella
 null
 
 open-non-bluej-already-bluej
-La cartella selezionata è già esistente
+La cartella selezionata \u00e8 gi\u00e0 esistente
 in BlueJ.
 
 open-non-bluej-no-java
@@ -277,13 +277,13 @@ nella cartella selezionata.
 
 open-non-bluej-invalid
 Impossibile aprire la cartella come un
-progetto BlueJ, un file è stato trovato con
+progetto BlueJ, un file \u00e8 stato trovato con
 un package incompatibile con la struttura della
 cartella. (Per esempio, se la classe Java
 Shape ha una descrizione di package di com.aa, il
 file Shape.java deve stare dentro la cartella
 aa che ha sua volta si trova sotto la cartella com. Questa cartella
-com è contenuta in un altra cartella che sarà 
+com \u00e8 contenuta in un altra cartella che sar\u00e0 
 la home del progetto BlueJ).
 
 import-into-current
@@ -299,22 +299,22 @@ Hai cambiato nome al package
 il package non esiste in questo progetto.
 Se vuoi spostare questa classe in un altro
 package prima crea la destinazione del
-package. Il package sarà
+package. Il package sar\u00e0
 riconvertito come da origine.
 
 package-name-clash
 Hai cambiato nome al package in quel 
-package c'è già una classe o un package con
+package c'\u00e8 gi\u00e0 una classe o un package con
 lo stesso nome. Se la classe viene spostata, la
-classe o il package esistente verrà sovrasvritto,
+classe o il package esistente verr\u00e0 sovrasvritto,
 altrimenti rinommina il package con il nome
 originale.
 
 package-name-changed
 Hai cambiato la sentenza del package che indica a
-Java la classe in che package è situata. Vuoi
+Java la classe in che package \u00e8 situata. Vuoi
 muovera questa classe al package indicato o vuoi
-lascirla dov'è? (Il package serà ripristinato
+lascirla dov'\u00e8? (Il package ser\u00e0 ripristinato
 nel suo stato originale)
 Muovi
 Riconverti
@@ -331,7 +331,7 @@ non avranno effetto fino al riavvio di BlueJ.
 
 unittest-new-test-method
 Specifica un nome per questo test.
-La registrazione inizierà dopo.
+La registrazione inizier\u00e0 dopo.
 Nuovo Metodo di Test
 null
 
@@ -342,18 +342,18 @@ Nuovo Nome Oggetto
 null
 
 unittest-fixture-present
-Questa classe di test unitari già esiste. 
+Questa classe di test unitari gi\u00e0 esiste. 
 Se procedi, la definizione della classe
-verrà sostituita.
+verr\u00e0 sostituita.
 Vuoi continuare?
 Sostituisci
 Cancella
 null
 
 unittest-method-present
-Questa classe di test unitario già è dichiarata come metodo di test
+Questa classe di test unitario gi\u00e0 \u00e8 dichiarata come metodo di test
 con lo stesso nome. Se procedi, la
-definizione del metodo sarà sostituito.
+definizione del metodo sar\u00e0 sostituito.
 Vuoi continuare?
 Sostituisci
 Cancella
@@ -373,48 +373,48 @@ null
 
 error-create-vm
 BlueJ non era capace di creare una macchina virtuale (VM) per eseguire i progetti.
-Questo è un problema serio - Non sarai capace di creare oggetti 
-o eseguire metodi senza risolverlo. Spesso questo è causato
+Questo \u00e8 un problema serio - Non sarai capace di creare oggetti 
+o eseguire metodi senza risolverlo. Spesso questo \u00e8 causato
 eccessivamente da impostazioni restrittive del firewall.
 Vedi <http://www.bluej.org/help/faq.html#socket-exc> per maggiori
 informazioni.
 
 project-is-readonly
-Il progetto è a sola lettura. Non puoi creare oggetti
+Il progetto \u00e8 a sola lettura. Non puoi creare oggetti
 o esegue metodi.
 I diritti di accesso della directory di progetto sono messi come
-'solo lettura', o l'intero file system non è scrivibile (è 
+'solo lettura', o l'intero file system non \u00e8 scrivibile (\u00e8 
 un CD?).
-deve assicurare di usare pienamente questo progetto, che è su file system
+deve assicurare di usare pienamente questo progetto, che \u00e8 su file system
 scrivibile (di solito il disco rigido), ed avere i permessi di scrittura 
 della cartella del progetto e ad ogni file.
 Puoi risolvere scegliendo "salva con nome..." dal menu
 Progetto dopo aver chiuso questo avviso.
 
 project-is-virtualized
-Il progetto che hai aperto è virtualizzato da Windows. Questo 
-di solito accade quando il progetto è conservato nella
+Il progetto che hai aperto \u00e8 virtualizzato da Windows. Questo 
+di solito accade quando il progetto \u00e8 conservato nella
 cartella "Programmi". 
-Quando un progetto è virtualizzato da Windows troverai errori 
+Quando un progetto \u00e8 virtualizzato da Windows troverai errori 
 quando tenterai di creare oggetti ed invocare metodi.
 Per usare a pieno questo progetto, sposta il progetto in una cartella
 differente. Puoi risolvere scegliendo "salva con nome..." dal menu
 Progetto dopo aver chiuso questo avviso.
 
 could-not-write-shell-file
-Esecuzione fallita perché la directory del progetto non è scrivibile.
+Esecuzione fallita perch\u00e9 la directory del progetto non \u00e8 scrivibile.
 Per creare oggetti o eseguire metodi, BlueJ deve poter scrivere
 nella directory del progetto. Assicurati che il progetto sia su un file system 
 scrivibile (non un CD!) e che possieid i permessi di scrittura
 per la cartella del progetto e dei suoi file.
 
 jar-output-dir-exists
-La directory per l'estrazione dell'archivio già
+La directory per l'estrazione dell'archivio gi\u00e0
 esiste. Cancellala prima di estrarre
 l'archivio.
 
 jar-output-no-write
-La directory non può essere creata. Assicurati prima di copiare 
+La directory non pu\u00f2 essere creata. Assicurati prima di copiare 
 l'archivio in una cartella scrivibile.
 
 jar-extraction-error
@@ -422,15 +422,15 @@ Incontrato un errore nell'estrazione dell'archivio. il log di
 debug contiene le informaizoni in merito.
 
 file-save-error-before-compile
-UNo o più file non sono salvati, la compilazione non può avvenire.
+UNo o pi\u00f9 file non sono salvati, la compilazione non pu\u00f2 avvenire.
 
 generic-file-save-error
 E' stato generato un errore mentre si salvava il file.
 
 empty-assertion-text
 Non hai digitato un valore di ritorno per la chiamata al metodo.
-Senza questo valore, il test è incompleto, e la classe di test
-non compilerà. Sei sicuro di voler continuare senza digitare
+Senza questo valore, il test \u00e8 incompleto, e la classe di test
+non compiler\u00e0. Sei sicuro di voler continuare senza digitare
 un valore di ritorno? 
 Indietro
 Continua
@@ -438,8 +438,8 @@ null
 
 team-update-first
 Ci sono stati cambiamenti sui file nel repository, ma i file
-in locale sono stati cancellati. Questo è un conflitto. Prima di fare
-il commit, bisogna fare un update, che ripristinerà la versione del
+in locale sono stati cancellati. Questo \u00e8 un conflitto. Prima di fare
+il commit, bisogna fare un update, che ripristiner\u00e0 la versione del
 repository. I seguenti files sono colpiti:
 
 team-resolve-conflicts-delete
@@ -458,30 +458,30 @@ Ci sono conflitti che non si possono risolvere con alucni file. Cancellali
 in locale per risolvere i conflitti:
 
 team-uptodate-failed
-La copia locale è obsoleta. Update dal repository
+La copia locale \u00e8 obsoleta. Update dal repository
 prima di eseguire un commit dalla copia locale.
 
 team-cant-connect
 Impossibile connettersi al server. Controlla se l'indirizzo 
-del server è corretto nelle impostazioni del Team.
+del server \u00e8 corretto nelle impostazioni del Team.
 
 team-project-exists
-Il progetta già esiste sul server. Controlla 
+Il progetta gi\u00e0 esiste sul server. Controlla 
 il progetto esistente oppure
 rinomina il tuo progetto e poi fai il commit.
 
 team-cant-find-path
-Il percorso non è stato trovato sul server. La causa può essere
+Il percorso non \u00e8 stato trovato sul server. La causa pu\u00f2 essere
 che il gruppo o il progetto non sono presenti sul server.
 Controlla se le informazioni sulle impostazioni del Team sono giuste, 
 e che esistano sul server.
 
 team-cant-find-module
-Progetto non nel repository. Un progetto è condiviso (inserito 
-nel repository) prima che può verificarlo.
+Progetto non nel repository. Un progetto \u00e8 condiviso (inserito 
+nel repository) prima che pu\u00f2 verificarlo.
 
 team-cant-find-repository
-Il repository non è stato trovato. Controlla il percorso del 
+Il repository non \u00e8 stato trovato. Controlla il percorso del 
 repository nelle impostazioni del team.
 
 team-empty-message
@@ -496,9 +496,9 @@ Il server non riesce a loggarti - controlla username/password e il
 repository nelle impostazioni del team.
 
 team-binary-conflict
-Un conflitto è sorto quando hai tentato di aggiornare il seguente file:
+Un conflitto \u00e8 sorto quando hai tentato di aggiornare il seguente file:
     $
-Il file è cambiato in locale, ma ci sono anche cambiamenti nel
+Il file \u00e8 cambiato in locale, ma ci sono anche cambiamenti nel
 repository.
 Mantieni versione locale
 Usa versione repository
@@ -509,20 +509,20 @@ Non tutte le classi del progetto sono compilate. Per fare il deploy della MIDlet
 del progetto compila prima tutte le classi.
 
 error-midleticon-exists
-Il file che hai selezionata come icona già è presente in questo progetto.
+Il file che hai selezionata come icona gi\u00e0 \u00e8 presente in questo progetto.
 Vuoi sovrascrivere?
 Sovrascrivi
 Cancella
 null
 
 stuck-at-breakpoint
-Il programma è già in esecuzione, e fermato al breakpoint.
-Non puoi far partire un altra esecuzione mentre quella corrente è
+Il programma \u00e8 gi\u00e0 in esecuzione, e fermato al breakpoint.
+Non puoi far partire un altra esecuzione mentre quella corrente \u00e8
 attiva. Usa i controlli del debugger per continuare o terminare
 l'esecuzione corrente.
 
 already-executing
-Il programma è gia in esecuzione. Non puoi far partire un altra
-esecuzione (o ispezioni la classe) finchè l'esecuzione non finisce. Se
-il programma è in un ciclo infinito, puoi usare il debugger per
+Il programma \u00e8 gia in esecuzione. Non puoi far partire un altra
+esecuzione (o ispezioni la classe) finch\u00e8 l'esecuzione non finisce. Se
+il programma \u00e8 in un ciclo infinito, puoi usare il debugger per
 terminarlo.
