@@ -462,8 +462,7 @@ public abstract class BlueJSyntaxView extends PlainView
             NodeAndPosition<ParsedNode> napParent = li.previous();
             li.next();
 
-            NodeAndPosition<ParsedNode> nextNap = napParent.getNode().findNodeAtOrAfter(napEnd,
-                    napParent.getPosition());
+            NodeAndPosition<ParsedNode> nextNap = nap.nextSibling();
             napPos = napParent.getPosition();
             napEnd = napPos + napParent.getSize();
 
@@ -957,7 +956,7 @@ public abstract class BlueJSyntaxView extends PlainView
     {
         list.add(new NodeAndPosition<ParsedNode>(root, 0, root.getSize()));
         int curpos = rootPos;
-        NodeAndPosition<ParsedNode> nap = root.findNodeAtOrAfter(position, curpos);
+        NodeAndPosition<ParsedNode> nap = root.findNodeAtOrAfter(position + 1, curpos);
         while (nap != null) {
             list.add(nap);
             curpos = nap.getPosition();

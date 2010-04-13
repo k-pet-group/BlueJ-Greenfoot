@@ -81,7 +81,7 @@ public class NodeTree<T extends RBTreeNode>
             }
         }
 
-        if (startpos + pnodeSize + pnodeOffset > pos) {
+        if (startpos + pnodeSize + pnodeOffset >= pos) {
             return new NodeAndPosition<T>(pnode, startpos + pnodeOffset, pnodeSize);
         }
 
@@ -112,7 +112,7 @@ public class NodeTree<T extends RBTreeNode>
             }
         }
 
-        if (startpos + pnodeSize + pnodeOffset > pos) {
+        if (startpos + pnodeSize + pnodeOffset >= pos) {
             return new NodeAndPosition<T>(pnode, startpos + pnodeOffset, pnodeSize);
         }
 
@@ -154,7 +154,7 @@ public class NodeTree<T extends RBTreeNode>
             }
         }
 
-        if (startpos + pnodeSize + pnodeOffset > pos) {
+        if (startpos + pnodeSize + pnodeOffset >= pos) {
             return new NodeAndPosition<T>(pnode, startpos + pnodeOffset, pnodeSize);
         }
 

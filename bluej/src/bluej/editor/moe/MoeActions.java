@@ -829,11 +829,9 @@ public final class MoeActions
             if (pos >= start.getPosition() && pos < start.getEnd()) {
 
                 // The slightly awkward way to loop through the children of "start":
-                for (NodeAndPosition<ParsedNode> nap = start.getNode().findNodeAtOrAfter(start.getPosition(), start.getPosition())
-                        ; nap != null
-                        ; nap = start.getNode().findNodeAtOrAfter(nap.getEnd(), start.getPosition())
-                ) {
-
+                for (Iterator<NodeAndPosition<ParsedNode>> i = start.getNode().getChildren(start.getPosition()); i.hasNext(); )
+                {
+                    NodeAndPosition<ParsedNode> nap = i.next();
                     String inner = calculateIndent(el, nap, startIC.getForChild(nap.getNode()));
                     if (inner != null)
                         return inner;

@@ -230,44 +230,6 @@ public class ParsedTypeNode extends IncrementalParsingNode
     {
         return false;
     }
-
-    private boolean handleTextChange(Document document, int nodePos, int changePos, int length,
-            NodeStructureListener listener)
-    {
-        // If a change occurs after the inner node, there is a risk that the '}' closing
-        // the inner node has moved or been removed.
-        if (inner != null) {
-            int innerPos = inner.getOffsetFromParent() + nodePos;
-            if (changePos > innerPos) {
-                inner.setComplete(false);
-                int newInnerSize = getSize() + nodePos - innerPos;
-                inner.setSize(newInnerSize);
-                ((MoeSyntaxDocument) document).scheduleReparse(changePos, length);
-                return true;
-            }
-        }
-        return false;
-    }
-    
-//    @Override
-//    protected int handleInsertion(Document document, int nodePos, int insPos,
-//            int length, NodeStructureListener listener)
-//    {
-//        if (handleTextChange(document, nodePos, insPos, length, listener)) {
-//            return ALL_OK;
-//        }
-//        return super.handleInsertion(document, nodePos, insPos, length, listener);
-//    }
-//
-//    @Override
-//    protected int handleDeletion(Document document, int nodePos, int dpos,
-//            NodeStructureListener listener)
-//    {
-//        if (handleTextChange(document, nodePos, dpos, 1, listener)) {
-//            return ALL_OK;
-//        }
-//        return super.handleDeletion(document, nodePos, dpos, listener);
-//    }
     
     @Override
     public CodeSuggestions getExpressionType(int pos, int nodePos, TypeEntity defaultType, Document document)

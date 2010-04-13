@@ -68,7 +68,7 @@ public class ParentParsedNode extends ParsedNode
         }
         Token dummyTok = tok;
         
-        NodeAndPosition<ParsedNode> np = getNodeTree().findNodeAtOrAfter(pos, nodePos);
+        NodeAndPosition<ParsedNode> np = getNodeTree().findNodeAtOrAfter(pos + 1, nodePos);
         
         int cp = pos;
         while (np != null && np.getPosition() < (pos + length)) {
@@ -236,7 +236,7 @@ public class ParentParsedNode extends ParsedNode
         int newSize = getSize() + length;
         resize(newSize);
         
-        NodeAndPosition<ParsedNode> child = getNodeTree().findNodeAtOrAfter(insPos - 1, nodePos);
+        NodeAndPosition<ParsedNode> child = getNodeTree().findNodeAtOrAfter(insPos, nodePos);
         if (child != null && (child.getPosition() < insPos
                 || child.getPosition() == insPos && child.getNode().growsForward())) {
             ParsedNode cnode = child.getNode();
@@ -287,7 +287,7 @@ public class ParentParsedNode extends ParsedNode
         
         int endPos = delPos + length;
         
-        NodeAndPosition<ParsedNode> child = getNodeTree().findNodeAtOrAfter(delPos, nodePos);
+        NodeAndPosition<ParsedNode> child = getNodeTree().findNodeAtOrAfter(delPos + 1, nodePos);
         
         if (child != null && child.getPosition() < delPos) {
             // Remove the end portion (or middle) of the child node

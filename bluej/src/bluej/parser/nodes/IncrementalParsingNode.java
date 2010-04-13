@@ -161,7 +161,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         // otherwise we'll have to dispose of them properly later.
         LinkedList<NodeAndPosition<ParsedNode>> childQueue = new LinkedList<NodeAndPosition<ParsedNode>>();
         if (nap == null) {
-            nap = findNodeAtOrAfter(offset, nodePos);
+            nap = findNodeAtOrAfter(offset + 1, nodePos);
         }
         else {
             nap = nextNap;

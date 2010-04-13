@@ -161,7 +161,7 @@ public class MoeSyntaxDocument extends PlainDocument
      */
     public void scheduleReparse(int pos, int size)
     {
-        NodeAndPosition<ReparseRecord> existing = reparseRecordTree.findNodeAtOrAfter(pos - 1);
+        NodeAndPosition<ReparseRecord> existing = reparseRecordTree.findNodeAtOrAfter(pos);
         if (existing != null) {
             if (existing.getPosition() > pos && existing.getPosition() <= (pos + size)) {
                 existing.getNode().slideStart(existing.getPosition() - pos);
