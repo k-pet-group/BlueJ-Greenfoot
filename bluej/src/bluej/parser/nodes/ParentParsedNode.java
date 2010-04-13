@@ -263,9 +263,18 @@ public class ParentParsedNode extends ParsedNode
                 child.getNode().getContainingNodeTree().slideNode(length);
             }
             //return reparseNode(document, nodePos, insPos, listener);
-            ((MoeSyntaxDocument) document).scheduleReparse(insPos, length);
-            return ALL_OK;
+            return handleInsertion(document, nodePos, insPos, length, listener);
         }
+    }
+    
+    /**
+     * Handle the case of text being inserted directly into this node (not a child).
+     */
+    protected int handleInsertion(Document document, int nodePos, int insPos, int length,
+            NodeStructureListener listener)
+    {
+        ((MoeSyntaxDocument) document).scheduleReparse(insPos, length);
+        return ALL_OK;
     }
     
     @Override
@@ -311,9 +320,9 @@ public class ParentParsedNode extends ParsedNode
 
             // Inform the child of the removed text 
             if (next != null) {
+                // Slide the portion which remains
                 next.getNode().getContainingNodeTree().slideNode(rlength - length);
             }
-            //child.getNode().resize(child.getSize() - rlength);
             int r = child.getNode().textRemoved(document, child.getPosition(), delPos, rlength, listener);
             int reparseOffset;
             if (r == REMOVE_NODE) {
@@ -324,7 +333,7 @@ public class ParentParsedNode extends ParsedNode
                 reparseOffset = child.getPosition() + child.getNode().getSize();
             }
 
-            return reparseNode(document, nodePos, reparseOffset, listener);
+            return handleDeletion(document, nodePos, reparseOffset, listener);
         }
         
         while (child != null && child.getPosition() < endPos) {
@@ -337,7 +346,17 @@ public class ParentParsedNode extends ParsedNode
             child.getNode().getContainingNodeTree().slideNode(-length);
         }
         
-        return reparseNode(document, nodePos, delPos, listener);
+        return handleDeletion(document, nodePos, delPos, listener);
+    }
+    
+    /**
+     * Handle the case of text being removed directly from this node (rather than a
+     * child node).
+     */
+    protected int handleDeletion(Document document, int nodePos, int dpos,
+            NodeStructureListener listener)
+    {
+        return reparseNode(document, nodePos, dpos, listener);
     }
     
     /*

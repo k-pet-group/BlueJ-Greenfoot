@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.swing.text.Document;
 
 import bluej.debugger.gentype.Reflective;
+import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.EditorParser;
 import bluej.parser.JavaParser;
@@ -165,22 +166,25 @@ public class ParsedTypeNode extends IncrementalParsingNode
             
             token = parser.parseTypeDefPart2();
             if (token == null) {
+                last = parser.getTokenStream().LA(1);
                 return PP_ENDS_NODE;
             }
             last = token;
-            return PP_ENDS_STATE;
+            parser.getTokenStream().pushBack(token);
+            return PP_BEGINS_NEXT_STATE;
         }
         else if (state == 1) {
-            // class body '}'
+            // '{' class body '}'
             // We only get into this state rarely
-            last = parser.parseTypeBody(type, last);
+            last = parser.parseTypeBody(type, parser.getTokenStream().nextToken());
             if (last.getType() == JavaTokenTypes.RCURLY) {
                 return PP_ENDS_STATE;
             }
-            return PP_OK;
+            return PP_INCOMPLETE;
         }
         else if (state == 2) {
             last = parser.getTokenStream().LA(1);
+            complete = true;
             return PP_ENDS_NODE;
         }
         
@@ -199,6 +203,44 @@ public class ParsedTypeNode extends IncrementalParsingNode
     protected boolean isDelimitingNode(NodeAndPosition<ParsedNode> nap)
     {
         return false;
+    }
+
+    private boolean handleTextChange(Document document, int nodePos, int changePos, int length,
+            NodeStructureListener listener)
+    {
+        // If a change occurs after the inner node, there is a risk that the '}' closing
+        // the inner node has moved or been removed.
+        if (inner != null) {
+            int innerPos = inner.getOffsetFromParent() + nodePos;
+            if (changePos > innerPos) {
+                inner.setComplete(false);
+                int newInnerSize = getSize() + nodePos - innerPos;
+                inner.setSize(newInnerSize);
+                ((MoeSyntaxDocument) document).scheduleReparse(changePos, length);
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    @Override
+    protected int handleInsertion(Document document, int nodePos, int insPos,
+            int length, NodeStructureListener listener)
+    {
+        if (handleTextChange(document, nodePos, insPos, length, listener)) {
+            return ALL_OK;
+        }
+        return super.handleInsertion(document, nodePos, insPos, length, listener);
+    }
+
+    @Override
+    protected int handleDeletion(Document document, int nodePos, int dpos,
+            NodeStructureListener listener)
+    {
+        if (handleTextChange(document, nodePos, dpos, 1, listener)) {
+            return ALL_OK;
+        }
+        return super.handleDeletion(document, nodePos, dpos, listener);
     }
     
     @Override

@@ -193,14 +193,14 @@ public class ParsedCUNode extends IncrementalParsingNode
         return null;
     }
     
-//    private static void printTree(ParsedNode node, int nodepos, int indent)
+//    public static void printTree(ParsedNode node, int nodepos, int indent)
 //    {
 //        for (int i = 0; i < indent; i++) {
 //            System.out.print("  ");
 //        }
 //        System.out.println("Node=" + node + " pos=" + nodepos + " size=" + node.getSize());
-//        for (Iterator<NodeAndPosition> i = node.getChildren(nodepos); i.hasNext(); ) {
-//            NodeAndPosition nap = i.next();
+//        for (Iterator<NodeAndPosition<ParsedNode>> i = node.getChildren(nodepos); i.hasNext(); ) {
+//            NodeAndPosition<ParsedNode> nap = i.next();
 //            printTree(nap.getNode(), nap.getPosition(), indent+1);
 //        }
 //    }

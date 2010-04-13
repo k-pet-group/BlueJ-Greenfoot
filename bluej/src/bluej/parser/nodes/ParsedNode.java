@@ -324,7 +324,7 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
             ParsedNode parent = getParentNode();
             parent.removeChild(new NodeAndPosition<ParsedNode>(this,
                     nodePos, getSize()), listener);
-            document.scheduleReparse(nodePos + size, 1);
+            document.scheduleReparse(nodePos + size - 1, 1);
         }
         else if (r == NODE_GREW || r == NODE_SHRUNK) {
             int nsize = getSize();

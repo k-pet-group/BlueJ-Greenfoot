@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import bluej.parser.EditorParser;
+import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
@@ -84,7 +85,14 @@ public class TypeInnerNode extends IncrementalParsingNode
     @Override
     protected int doPartialParse(EditorParser parser, int state)
     {
-        parser.parseClassElement(parser.getTokenStream().nextToken());
+        last = null;
+        LocatableToken nextToken = parser.getTokenStream().nextToken();
+        if (nextToken.getType() == JavaTokenTypes.RCURLY) {
+            complete = true;
+            last = nextToken;
+            return PP_ENDS_NODE;
+        }
+        parser.parseClassElement(nextToken);
         return PP_OK;
     }
     
@@ -96,7 +104,7 @@ public class TypeInnerNode extends IncrementalParsingNode
     
     protected boolean lastPartialCompleted(EditorParser parser, LocatableToken token)
     {
-        return false;
+        return complete;
     };
     
     @Override

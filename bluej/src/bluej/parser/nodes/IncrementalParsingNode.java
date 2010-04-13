@@ -73,6 +73,8 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
     protected final static int PP_EPIC_FAIL = 3;
     /** The "last" token ends the state. The new state begins. */
     protected final static int PP_ENDS_STATE = 4;
+    /** The "last" token is the beginning of the next state */
+    protected final static int PP_BEGINS_NEXT_STATE = 5;
     
     
     private final static int MAX_PARSE_PIECE = 8000;
@@ -261,8 +263,14 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 removeOverwrittenChildren(childQueue, nextChild, Integer.MAX_VALUE, listener);
                 return REMOVE_NODE;
             }
-            else if (ppr == PP_ENDS_STATE) {
-                int pos = lineColToPos(document, last.getEndLine(), last.getEndColumn());
+            else if (ppr == PP_ENDS_STATE || ppr == PP_BEGINS_NEXT_STATE) {
+                int pos;
+                if (ppr == PP_ENDS_STATE) {
+                    pos = lineColToPos(document, last.getEndLine(), last.getEndColumn());
+                }
+                else {
+                    pos = lineColToPos(document, last.getLine(), last.getColumn());
+                }
                 if (stateMarkers[state] == (pos - nodePos)) {
                     // We transitioned to the existing state border.
                     nextChild = removeOverwrittenChildren(childQueue, nextChild, pos, listener);
@@ -271,7 +279,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                     return ALL_OK;
                 }
                 stateMarkers[state] = pos - nodePos;
-                marksEnd[state] = true;
+                marksEnd[state] = (ppr == PP_ENDS_STATE);
                 state++;
             }
             else if (ppr == PP_INCOMPLETE) {
@@ -493,6 +501,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         if (myEnd > child.getEnd()) {
             int newsize = myEnd - child.getPosition();
             child.getNode().resize(newsize);
+            complete = false;
             return true;
         }
         
@@ -500,6 +509,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         ParsedNode parentNode = getParentNode();
         if (parentNode != null && parentNode.growChild(document,
                 new NodeAndPosition<ParsedNode>(this, mypos, getSize()), listener)) {
+            complete = false;
             int newsize = myEnd - child.getPosition();
             child.getNode().resize(newsize);
             return true;

@@ -153,7 +153,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
             MoeSyntaxDocument document, Color def, Element line) 
     {
         paintLineMarkers(lineIndex, g, x - LEFT_MARGIN, y, document, line);
-        if (document.getParser() != null && syntaxHighlighting) {
+        if (document.getParsedNode() != null && syntaxHighlighting) {
             paintSyntaxLine(lineText, lineIndex, x, y, g, document, def);
         }
         else {
@@ -185,7 +185,7 @@ public class MoeSyntaxView extends BlueJSyntaxView
         int epos = viewToModel(bounds.x, clip.y + clip.height - 1, allocation, new Position.Bias[1]);
         
         MoeSyntaxDocument document = (MoeSyntaxDocument)getDocument();
-        if (document.getParser() != null) {
+        if (document.getParsedNode() != null) {
             Element map = getElement();
             int firstLine = map.getElementIndex(spos);
             int lastLine = map.getElementIndex(epos);

@@ -282,7 +282,7 @@ public abstract class BlueJSyntaxView extends PlainView
             int firstLine, int lastLine, boolean onlyMethods, boolean small)
     {
         Element map = document.getDefaultRootElement();
-        ParsedNode rootNode = document.getParser();
+        ParsedNode rootNode = document.getParsedNode();
         Rectangle clipBounds = g.getClipBounds();
         if (clipBounds == null) {
             clipBounds = a.getBounds();
@@ -887,7 +887,7 @@ public abstract class BlueJSyntaxView extends PlainView
                 
                 if (nws != -1) {
                     List<NodeAndPosition<ParsedNode>> scopeStack = new LinkedList<NodeAndPosition<ParsedNode>>();
-                    getScopeStackAt(doc.getParser(), 0, lineEl.getStartOffset() + nws, scopeStack);
+                    getScopeStackAt(doc.getParsedNode(), 0, lineEl.getStartOffset() + nws, scopeStack);
                     ListIterator<NodeAndPosition<ParsedNode>> i = scopeStack.listIterator(scopeStack.size());
                     Rectangle cbounds = modelToView(lineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds();
                     int indent = cbounds.x;

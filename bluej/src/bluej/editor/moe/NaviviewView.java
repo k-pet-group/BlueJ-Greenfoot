@@ -82,7 +82,7 @@ public class NaviviewView extends BlueJSyntaxView
         imgG.setColor(g.getColor());
         
         if (SYNTAX_COLOURING) {
-            if (document.getParser() != null) {
+            if (document.getParsedNode() != null) {
                 super.paintTaggedLine(line, lineIndex, imgG, x - clipBounds.x,
                         metrics.getAscent(), document, def, lineElement);
             } else {
@@ -123,7 +123,7 @@ public class NaviviewView extends BlueJSyntaxView
         if (SCOPE_HIGHLIGHTING) {
             // Scope highlighting
             MoeSyntaxDocument document = (MoeSyntaxDocument)getDocument();
-            if (document.getParser() != null) {
+            if (document.getParsedNode() != null) {
                 int spos = viewToModel(bounds.x, clip.y, a, new Position.Bias[1]);
                 int epos = viewToModel(bounds.x, clip.y + clip.height - 1, a, new Position.Bias[1]);
 

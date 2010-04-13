@@ -87,6 +87,16 @@ public class MoeSyntaxDocument extends PlainDocument
      */
     public ParsedCUNode getParser()
     {
+        flushReparseQueue();
+        return parsedNode;
+    }
+    
+    /**
+     * Get the current parsed node structure of the document, without processing any
+     * pending re-parse operations first.
+     */
+    public ParsedCUNode getParsedNode()
+    {
         return parsedNode;
     }
     
@@ -119,7 +129,7 @@ public class MoeSyntaxDocument extends PlainDocument
             int pos = nap.getPosition();
             nap.getNode().remove();
             
-            ParsedNode pn = getParser();
+            ParsedNode pn = parsedNode;
             int ppos = 0;
             if (pn != null) {
                 NodeAndPosition<ParsedNode> cn = pn.findNodeAt(pos, ppos);
@@ -136,6 +146,11 @@ public class MoeSyntaxDocument extends PlainDocument
             }
         }
         return false;
+    }
+    
+    public void flushReparseQueue()
+    {
+        while (pollReparseQueue()) ;
     }
     
     /**
