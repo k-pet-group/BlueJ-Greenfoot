@@ -33,7 +33,7 @@ import bluej.parser.SourceLocation;
  * Except as marked, methods of this class must be called from a swing compatible thread.
  *
  * @author Damiano Bolla, University of Kent at Canterbury, 2004
- * @version    $Id: Editor.java 7316 2010-04-09 12:49:39Z nccb $
+ * @version    $Id: Editor.java 7337 2010-04-14 14:52:24Z nccb $
  */
 
 public class Editor
@@ -51,6 +51,11 @@ public class Editor
     Editor(bluej.editor.Editor bjEditor)
     {
         this.bjEditor = bjEditor;
+    }
+    
+    bluej.editor.Editor getEditor()
+    {
+        return bjEditor;
     }
 
 

@@ -31,7 +31,7 @@ import bluej.pkgmgr.target.*;
  *
  * This class should be excluded when the Javadoc API documentation is generated.
  *
- * @version $Id: EditorBridge.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: EditorBridge.java 7337 2010-04-14 14:52:24Z nccb $
  * @author Damiano Bolla, University of Kent at Canterbury, 2004
  */ 
 public class EditorBridge
@@ -48,5 +48,10 @@ public class EditorBridge
         if (bjEditor == null) 
             return null;
         return new Editor(bjEditor);
+    }
+    
+    public static bluej.editor.Editor getEditor(Editor editor)
+    {
+        return editor.getEditor();
     }
 }
