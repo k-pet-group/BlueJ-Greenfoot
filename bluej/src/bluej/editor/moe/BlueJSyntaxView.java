@@ -465,6 +465,7 @@ public abstract class BlueJSyntaxView extends PlainView
             NodeAndPosition<ParsedNode> nextNap = nap.nextSibling();
             napPos = napParent.getPosition();
             napEnd = napPos + napParent.getSize();
+            nap = napParent;
 
             while (nextNap != null) {
                 li.add(nextNap);
@@ -495,6 +496,7 @@ public abstract class BlueJSyntaxView extends PlainView
                     }
                 }
 
+                nap = nextNap;
                 nextNap = nextNap.getNode().findNodeAtOrAfter(napPos, napPos);
             }
         }
@@ -954,13 +956,15 @@ public abstract class BlueJSyntaxView extends PlainView
 
     private void getScopeStackAfter(ParsedNode root, int rootPos, int position, List<NodeAndPosition<ParsedNode>> list)
     {
+        // Note we add 1 to the given position to skip nodes which actually end at the position,
+        // or which are zero size.
         list.add(new NodeAndPosition<ParsedNode>(root, 0, root.getSize()));
         int curpos = rootPos;
         NodeAndPosition<ParsedNode> nap = root.findNodeAtOrAfter(position + 1, curpos);
         while (nap != null) {
             list.add(nap);
             curpos = nap.getPosition();
-            nap = nap.getNode().findNodeAtOrAfter(position, curpos);
+            nap = nap.getNode().findNodeAtOrAfter(position + 1, curpos);
         }
     }
 
