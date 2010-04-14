@@ -25,7 +25,12 @@ import java.awt.EventQueue;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
+import java.util.Iterator;
 
+import javax.swing.text.BadLocationException;
+
+import bluej.editor.moe.MoeEditor;
+import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.extensions.BClass;
 import bluej.extensions.BConstructor;
 import bluej.extensions.BField;
@@ -36,10 +41,12 @@ import bluej.extensions.CompilationNotStartedException;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.editor.Editor;
+import bluej.parser.nodes.ParsedNode;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 7317 2010-04-09 13:37:11Z nccb $
+ * @version $Id: RClassImpl.java 7338 2010-04-14 15:02:10Z nccb $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -110,21 +117,128 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         }
     }
 
-    public void insertMethod(String fullMethod) throws ProjectNotOpenException, PackageNotFoundException, RemoteException
+    public void insertAppendMethod(String comment, String methodName, String methodBody) throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
         Editor e = bClass.getEditor();
-        // Rather hacky.  Find the last closing brace, and just before it, insert the text:
-        for (int n = e.getTextLength() - 1; n > 0; n--) {
-            if ("}".equals(e.getText(e.getTextLocationFromOffset(n), e.getTextLocationFromOffset(n+1)))) {
-                e.setText(e.getTextLocationFromOffset(n), e.getTextLocationFromOffset(n), fullMethod);
-                e.setCaretLocation(e.getTextLocationFromOffset(n + fullMethod.length()));
-                break;
-            }
+        bluej.editor.Editor bje = bluej.extensions.editor.EditorBridge.getEditor(e);
+        MoeSyntaxDocument doc = (MoeSyntaxDocument)(((MoeEditor)bje).getSourceDocument());
+        
+        
+        NodeAndPosition<ParsedNode> classNode = findClassNode(doc);
+        NodeAndPosition<ParsedNode> existingMethodNode = findMethodNode(methodName, classNode);
+
+        if (existingMethodNode != null) {
+            //Append to existing method:
+            appendTextToNode(e, existingMethodNode, methodBody);
+        } else {
+            //Make a new method:
+            String fullMethod = comment + "    public void " + methodName + "()\n    {\n" + methodBody + "    }\n";
+            appendTextToNode(e, classNode, fullMethod);
         }
         e.setVisible(true);
     }
-
     
+    private NodeAndPosition<ParsedNode> findClassNode(MoeSyntaxDocument doc)
+    {
+        NodeAndPosition<ParsedNode> root = new NodeAndPosition<ParsedNode>(doc.getParser(), 0, doc.getParser().getSize());
+        for (NodeAndPosition<ParsedNode> nap : iterable(root)) {
+            if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_TYPEDEF)
+                return nap;
+        }
+        return null;
+    }
+
+    public void insertMethodCallInConstructor(String methodName)
+            throws ProjectNotOpenException, PackageNotFoundException,
+            RemoteException
+    {
+        Editor e = bClass.getEditor();
+        bluej.editor.Editor bje = bluej.extensions.editor.EditorBridge.getEditor(e);
+        MoeSyntaxDocument doc = (MoeSyntaxDocument)(((MoeEditor)bje).getSourceDocument());
+        
+        NodeAndPosition<ParsedNode> constructor = findMethodNode(bClass.getName(), findClassNode(doc));
+        if (constructor != null && false == hasMethodCall(doc, methodName, constructor, true)) {
+            //Add at the end of the constructor:
+            appendTextToNode(e, constructor, "\n        " + methodName + "();\n    ");
+        }
+        
+        e.setVisible(true);
+    }
+    
+    // Appends text to a node that ends in a curly bracket:
+    private void appendTextToNode(Editor e, NodeAndPosition<ParsedNode> node, String text)
+    {
+        e.setText(e.getTextLocationFromOffset(node.getEnd()-1), e.getTextLocationFromOffset(node.getEnd()-1), text);
+    }
+    
+    // This really returns an iterator, but wrapping it into an iterable means that
+    // we can use Java's nice for-each loops:
+    private Iterable<NodeAndPosition<ParsedNode>> iterable(final NodeAndPosition<ParsedNode> parent)
+    {
+        return new Iterable<NodeAndPosition<ParsedNode>>()
+        {
+            public Iterator<NodeAndPosition<ParsedNode>> iterator()
+            {
+                return new Iterator<NodeAndPosition<ParsedNode>>()
+                {
+                    private NodeAndPosition<ParsedNode> nextChild = parent.getNode().findNodeAtOrAfter(parent.getPosition(), parent.getPosition());
+                    public boolean hasNext()
+                    {
+                        return nextChild != null;
+                    }
+        
+                    @Override
+                    public NodeAndPosition<ParsedNode> next()
+                    {
+                        NodeAndPosition<ParsedNode> curChild = nextChild;
+                        nextChild = parent.getNode().findNodeAtOrAfter(nextChild.getEnd(), parent.getPosition());
+                        return curChild;
+                    }
+        
+                    public void remove()
+                    {
+                    }
+                };
+            };
+        };
+    }
+    
+    private boolean hasMethodCall(MoeSyntaxDocument doc, String methodName, NodeAndPosition<ParsedNode> methodNode, boolean root)
+    {
+        for (NodeAndPosition<ParsedNode> nap : iterable(methodNode)) {
+            // Method nodes have comments as children, and the body:
+            if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_NONE && root) {
+                return hasMethodCall(doc, methodName, nap, false);
+            }
+            
+            try {
+                if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_EXPRESSION && doc.getText(nap.getPosition(), nap.getSize()).startsWith(methodName)) {
+                    return true;
+                }
+            }
+            catch (BadLocationException e) {
+            }            
+        }
+        
+        return false;
+    }
+    
+    private NodeAndPosition<ParsedNode> findMethodNode(String methodName, NodeAndPosition<ParsedNode> start)
+    {
+        for (NodeAndPosition<ParsedNode> nap : iterable(start)) {
+            if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_NONE) {
+                NodeAndPosition<ParsedNode> r = findMethodNode(methodName, nap);
+                if (r != null)
+                    return r;
+            }
+            if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_METHODDEF && nap.getNode().getName().equals(methodName)) {
+                return nap;
+            }
+        }
+        
+        return null;
+    }
+
     /**
      * @param signature
      * @return

@@ -21,6 +21,7 @@
  */
 package greenfoot.actions;
 
+import greenfoot.core.GClass;
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 
@@ -46,28 +47,31 @@ public class SaveWorldAction extends AbstractAction
 
     public void actionPerformed(ActionEvent arg0)
     {
-        List<String> code = ide.getInitWorldCode();
+        final String methodName = "prepare";
         
+        List<String> code = ide.getInitWorldCode();
+                
         final String oneIndent = "    ";
         final String twoIndent = oneIndent + oneIndent;
+        
+        StringBuffer comment = new StringBuffer();
+        comment.append("\n").append(oneIndent).append("/**\n");
+        comment.append(oneIndent).append("* A method that performs your recorded actions.\n");
+        comment.append(oneIndent).append("* If you want to use this in future in your world, you need to call it from your constructor.\n");
+        comment.append(oneIndent).append("*/\n");
+        
         StringBuffer method = new StringBuffer();
-        
-        method.append("\n").append(oneIndent).append("/**\n");
-        method.append(oneIndent).append("* A method that performs your recorded actions.\n");
-        method.append(oneIndent).append("* If you want to use this in future in your world, you need to call it from your constructor.\n");
-        method.append(oneIndent).append("*/\n");
-        
-        method.append(oneIndent).append("public void greenfootRecordedSetup()\n").append(oneIndent).append("{\n");
         for (String line : code) {
             method.append(twoIndent).append(line).append("\n");
         }
-        method.append(oneIndent).append("}\n");
                
         try {
-            ide.getLastWorldGClass().insertMethod(method.toString());
+            GClass lastWorld = ide.getLastWorldGClass();
+            lastWorld.insertAppendMethod(comment.toString(), methodName, method.toString());
+            lastWorld.insertMethodCallInConstructor(methodName);
         }
         catch (Exception e) {
-            Debug.reportError("Error trying to get editor for world class", e);
+            Debug.reportError("Error trying to get editor for world class and insert method (with call)", e);
         }
     }
 

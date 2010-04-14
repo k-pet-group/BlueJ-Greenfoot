@@ -202,9 +202,21 @@ public class GClass
         rmiClass.edit();
     }
     
-    public void insertMethod(String method) throws ProjectNotOpenException, PackageNotFoundException, RemoteException
+    /**
+     * Used for adding code to a void method with no parameters -- creating it if necessary
+     * 
+     * Comment should include the delimiters and be fully formed (and end in a newline)
+     * Method name should have no parameters, it should just be "foo" or similar
+     * Method body should have no curly braces, it should just be "foo.bar();\n        if(true) return;\n" or similar, and should end in a newline
+     */
+    public void insertAppendMethod(String comment, String methodName, String methodBody) throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
-        rmiClass.insertMethod(method);
+        rmiClass.insertAppendMethod(comment, methodName, methodBody);
+    }
+    
+    public void insertMethodCallInConstructor(String methodName) throws ProjectNotOpenException, PackageNotFoundException, RemoteException
+    {
+        rmiClass.insertMethodCallInConstructor(methodName);
     }
 
 

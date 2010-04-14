@@ -34,7 +34,7 @@ import bluej.extensions.editor.Editor;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClass.java 7317 2010-04-09 13:37:11Z nccb $
+ * @version $Id: RClass.java 7338 2010-04-14 15:02:10Z nccb $
  */
 public interface RClass
     extends java.rmi.Remote
@@ -50,7 +50,10 @@ public interface RClass
     public abstract void edit()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 
-    public abstract void insertMethod(String method)
+    public abstract void insertAppendMethod(String comment, String methodName, String methodBody)
+        throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
+
+    public abstract void insertMethodCallInConstructor(String methodName)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
     
     /**
