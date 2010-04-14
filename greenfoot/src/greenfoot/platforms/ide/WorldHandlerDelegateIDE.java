@@ -202,13 +202,19 @@ public class WorldHandlerDelegateIDE
         ObjectTracker.clearRObjectCache();
     }
     
+    //It is important that we reset the recorder here in this method, which is called at the start of the world's constructor.
+    // Doing it in setWorld is too late, as we will miss the recording/naming needed
+    // that happens when the prepare method creates new actors -- prepare is invoked from the world's constructor.
+    public void initialisingWorld(World world)
+    {
+        greenfootRecorder.reset(world);        
+    }
+    
     public void setWorld(final World oldWorld, final World newWorld)
     {
         if (oldWorld != null) {
             discardWorld(oldWorld);
         }
-        
-        greenfootRecorder.reset(newWorld);
 
         EventQueue.invokeLater(new Runnable() {
             public void run()
@@ -524,4 +530,47 @@ public class WorldHandlerDelegateIDE
     {
         return greenfootRecorder.getCode();
     }
+
+    public void objectAddedToWorld(Actor object)
+    {
+        try {
+            // This code is nasty; we look at the stack trace to see if
+            // we have been called from the prepare() method of the world class.
+            //
+            // We do this so that when the prepare() method is called again from the
+            // code, we give the first names to those objects that are created in the prepare()
+            // method -- which should then be identical to the names the objects had when
+            // they were first recorded.  That way we can record additional code,
+            // and the names of the live objects will be the same as the names of the objects
+            // when the code was initially recorded.
+            //
+            // I don't know if getting the stack trace is slow, but it's probably
+            // still more efficient (in time and memory) than giving every actor a name.
+            // Also, this code only runs in the IDE, not in the stand-alone version:
+            StackTraceElement[] methods = Thread.currentThread().getStackTrace();
+            
+            boolean gonePastUs = false;
+            for (StackTraceElement item : methods) {
+
+                if (GreenfootRecorder.METHOD_NAME.equals(item.getMethodName()) && item.getClassName().endsWith(getLastWorldGClass().getName())) {
+                    // This call gives the object a name,
+                    // which will be necessary for appending operations with the object to the world's code:
+                    greenfootRecorder.nameActor(object);
+                    return;
+                }
+                
+                if (gonePastUs && item.getClassName().startsWith("java.")) {
+                    //We won't find any java.* classes between us and the prepare method, so if
+                    //we do hit one, we know we won't find anything; this should speed things up a bit:
+                    return;
+                }
+                
+                gonePastUs = gonePastUs || "objectAddedToWorld".equals(item.getMethodName());
+            }
+        } catch (Exception e) {
+            // Never mind then...
+        }
+    }
+    
+    
 }

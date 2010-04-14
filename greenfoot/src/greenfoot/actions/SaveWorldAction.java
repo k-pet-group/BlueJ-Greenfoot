@@ -24,6 +24,7 @@ package greenfoot.actions;
 import greenfoot.core.GClass;
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
+import greenfoot.record.GreenfootRecorder;
 
 import java.awt.event.ActionEvent;
 import java.util.List;
@@ -47,7 +48,7 @@ public class SaveWorldAction extends AbstractAction
 
     public void actionPerformed(ActionEvent arg0)
     {
-        final String methodName = "prepare";
+        final String methodName = GreenfootRecorder.METHOD_NAME;
         
         List<String> code = ide.getInitWorldCode();
                 

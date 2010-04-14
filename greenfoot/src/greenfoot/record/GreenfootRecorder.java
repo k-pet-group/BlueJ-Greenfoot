@@ -41,7 +41,9 @@ public class GreenfootRecorder
     private IdentityHashMap<Object, String> objectNames;
     private LinkedList<String> code;
     private World world;
-    private Actor currentlyDraggedActor;
+    private Actor recentlyMovedActor;
+    
+    public static final String METHOD_NAME = "prepare";
     
     public GreenfootRecorder()
     {
@@ -51,15 +53,23 @@ public class GreenfootRecorder
 
     public void createActor(Class<?> theClass, Object actor, String[] args)
     {
-        currentlyDraggedActor = null;
+        recentlyMovedActor = null;
+        String name = nameActor(actor);
+        code.add(theClass.getCanonicalName() + " " + name + " = new " + theClass.getCanonicalName() + "(" + withCommas(args) + ");");
+    }
+    
+    // Called when the prepare method is replayed to indicate that the actor's name should be recorded
+    // ready for its use in further manipulations:
+    public String nameActor(Object actor)
+    {
         try {
             String name = ObjectTracker.getRObject(actor).getInstanceName();
             objectNames.put(actor, name);
-            
-            code.add(theClass.getCanonicalName() + " " + name + " = new " + theClass.getCanonicalName() + "(" + withCommas(args) + ");");
+            return name;
         }
         catch (Exception e) {
-            Debug.reportError("Error recording code for creating actor", e);
+            Debug.reportError("Error naming actor", e);
+            return null;
         }
     }
 
@@ -78,7 +88,7 @@ public class GreenfootRecorder
     
     public void addActorToWorld(Actor actor, int x, int y)
     {
-        currentlyDraggedActor = null;
+        recentlyMovedActor = null;
         String actorObjectName = objectNames.get(actor);
         if (null == actorObjectName) {
             //oops!
@@ -90,7 +100,11 @@ public class GreenfootRecorder
 
     public void callActorMethod(Object obj, String actorName, String name, String[] args)
     {
-        currentlyDraggedActor = null;
+        recentlyMovedActor = null;
+        if (null == objectNames.get(obj)) {
+            Debug.reportError("GreenfootRecorder.callActorMethod called with unknown actor");
+            return;
+        }
         if (world != null && world == obj) {
             // Called on the world, so don't use the world's object name before the call:
             code.add(name + "(" + withCommas(args) + ");");
@@ -101,7 +115,7 @@ public class GreenfootRecorder
 
     public void callStaticMethod(String className, String name, String[] args)
     {
-        currentlyDraggedActor = null;
+        recentlyMovedActor = null;
         // No difference in syntax, so no need to replicate the code:
         callActorMethod(null, className, name, args);
     }
@@ -111,7 +125,7 @@ public class GreenfootRecorder
         world = newWorld;
         code.clear();
         objectNames.clear();
-        currentlyDraggedActor = null;
+        recentlyMovedActor = null;
     }
 
     public void moveActor(Actor actor, int xCell, int yCell)
@@ -120,21 +134,21 @@ public class GreenfootRecorder
         if (null == actorObjectName) {
             // This could happen with programmatically generated actors (e.g. in a World's method)
             // if the user drags them around afterwards.
-            Debug.reportError("WorldRecorder.moveActor called with unknown actor (created programmatically?)");
+            Debug.reportError("WorldRecorder.moveActor called with unknown actor: " + actor + " " + objectNames.size());
             return;
         }
-        if (actor == currentlyDraggedActor) {
+        if (actor == recentlyMovedActor) {
             // Remove the last line, which must be the previous setLocation caused by the drag: 
             code.removeLast();
         } else {
-            currentlyDraggedActor = actor;
+            recentlyMovedActor = actor;
         }
         code.add(actorObjectName + ".setLocation(" + xCell + ", " + yCell + ");");
     }
 
     public void removeActor(Actor obj)
     {
-        currentlyDraggedActor = null;
+        recentlyMovedActor = null;
         String actorObjectName = objectNames.get(obj);
         if (null == actorObjectName) {
             // This could happen with programmatically generated actors (e.g. in a World's method)
@@ -150,6 +164,4 @@ public class GreenfootRecorder
     {
         return code;
     }
-
-
 }

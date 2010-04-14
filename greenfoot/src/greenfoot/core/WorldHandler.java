@@ -187,6 +187,14 @@ public class WorldHandler
             public void removedActor(Actor obj)
             {
             }
+
+            public void objectAddedToWorld(Actor object)
+            {
+            }
+
+            public void initialisingWorld(World world)
+            {
+            }
         };
     }
         
@@ -429,6 +437,7 @@ public class WorldHandler
      */
     public void setInitialisingWorld(World world)
     {
+        handlerDelegate.initialisingWorld(world);
         this.initialisingWorld = world;
     }
 
@@ -854,5 +863,10 @@ public class WorldHandler
     public void notifyRemovedActor(Actor obj)
     {
         handlerDelegate.removedActor(obj);        
+    }
+
+    public void objectAddedToWorld(Actor object)
+    {
+        handlerDelegate.objectAddedToWorld(object);        
     }
 }

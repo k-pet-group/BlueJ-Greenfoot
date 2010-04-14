@@ -147,4 +147,14 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     {
         // Nothing to be done
     }
+
+    public void objectAddedToWorld(Actor object)
+    {
+        //Nothing to be done
+    }
+
+    public void initialisingWorld(World world)
+    {
+        // Nothing to be done        
+    }
 }

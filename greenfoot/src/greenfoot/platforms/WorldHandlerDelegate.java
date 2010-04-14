@@ -71,4 +71,8 @@ public interface WorldHandlerDelegate
     void movedActor(Actor actor, int xCell, int yCell);
 
     void removedActor(Actor obj);
+
+    void objectAddedToWorld(Actor object);
+
+    void initialisingWorld(World world);
 }

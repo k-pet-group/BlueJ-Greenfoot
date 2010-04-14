@@ -395,6 +395,8 @@ public abstract class World
         addInActOrder(object);
 
         object.addedToWorld(this);
+        
+        WorldHandler.getInstance().objectAddedToWorld(object);
     }
 
     private void addInActOrder(Actor object)
