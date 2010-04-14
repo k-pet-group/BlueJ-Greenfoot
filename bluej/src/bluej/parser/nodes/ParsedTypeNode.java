@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.swing.text.Document;
 
 import bluej.debugger.gentype.Reflective;
+import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.EditorParser;
 import bluej.parser.JavaParser;
@@ -66,10 +67,11 @@ public class ParsedTypeNode extends IncrementalParsingNode
     public ParsedTypeNode(ParsedNode parent, int type, String prefix)
     {
         super(parent);
-        stateMarkers = new int[2];
-        marksEnd = new boolean[2];
+        stateMarkers = new int[3];
+        marksEnd = new boolean[3];
         stateMarkers[0] = -1;
         stateMarkers[1] = -1;
+        stateMarkers[2] = -1;
         this.type = type;
         this.prefix = prefix;
     }
@@ -169,14 +171,14 @@ public class ParsedTypeNode extends IncrementalParsingNode
             LocatableToken token = params.tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.IDENT) {
                 last = token;
-                return PP_ENDS_NODE;
+                return PP_INCOMPLETE;
             }
             setName(token.getText());
             
             token = params.parser.parseTypeDefPart2();
             if (token == null) {
                 last = params.tokenStream.LA(1);
-                return PP_ENDS_NODE;
+                return PP_INCOMPLETE;
             }
             last = token;
             params.tokenStream.pushBack(token);
@@ -210,24 +212,30 @@ public class ParsedTypeNode extends IncrementalParsingNode
             return PP_PULL_UP_CHILD;
         }
         else if (state == 2) {
+            // '}'
             last = params.tokenStream.nextToken();
+            
+            // Extend the inner node up to the token we just pulled.
+            int lastPos = lineColToPos(params.document, last.getLine(), last.getColumn());
+            int innerPos = inner.getOffsetFromParent() + params.nodePos;
+            int innerSize = inner.getSize();
+            if ((innerPos + innerSize) != lastPos) {
+                inner.setSize(lastPos - innerPos);
+                inner.setComplete(true);
+                params.document.scheduleReparse(innerPos + innerSize, lastPos - innerPos - innerSize);
+            }
+            
             if (last.getType() != JavaTokenTypes.RCURLY) {
                 if (inner != null) {
                     inner.setComplete(false);
                 }
-            }
-            else {
-                // Make sure the inner node extends to the curly bracket
-                int rcurlyPos = lineColToPos(params.document, last.getLine(), last.getColumn());
-                int innerPos = inner.getOffsetFromParent() + params.nodePos;
-                int innerSize = inner.getSize();
-                if ((innerPos + innerSize) != rcurlyPos) {
-                    inner.setSize(rcurlyPos - innerPos);
-                    inner.setComplete(true);
-                    params.document.scheduleReparse(innerPos + innerSize, rcurlyPos - innerPos - innerSize);
-                }
+                return PP_INCOMPLETE;
             }
             complete = true;
+            return PP_ENDS_STATE;
+        }
+        else if (state == 3) {
+            last = params.tokenStream.LA(1);
             return PP_ENDS_NODE;
         }
         
@@ -236,15 +244,29 @@ public class ParsedTypeNode extends IncrementalParsingNode
     
     @Override
     protected boolean lastPartialCompleted(EditorParser parser,
-            LocatableToken token)
+            LocatableToken token, int state)
     {
-        return complete;
+        return state == 3;
     }
     
     @Override
     protected boolean isDelimitingNode(NodeAndPosition<ParsedNode> nap)
     {
         return false;
+    }
+    
+    @Override
+    protected boolean marksOwnEnd()
+    {
+        return true;
+    }
+    
+    @Override
+    protected void childResized(MoeSyntaxDocument document, NodeAndPosition<ParsedNode> child)
+    {
+        if (child.getNode() == inner) {
+            stateMarkers[1] = child.getEnd();
+        }
     }
     
     @Override

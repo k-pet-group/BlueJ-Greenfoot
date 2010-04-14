@@ -375,6 +375,14 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
     {
         return false;
     }
+    
+    /**
+     * Called after a child node changed size.
+     */
+    protected void childResized(MoeSyntaxDocument document, NodeAndPosition<ParsedNode> child)
+    {
+        
+    }
         
     /**
      * Get code completion suggestions at a particular point. May return null.

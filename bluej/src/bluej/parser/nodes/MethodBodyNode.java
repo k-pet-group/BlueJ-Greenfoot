@@ -55,7 +55,7 @@ public class MethodBodyNode extends IncrementalParsingNode
     }
     
     @Override
-    protected boolean lastPartialCompleted(EditorParser parser, LocatableToken token)
+    protected boolean lastPartialCompleted(EditorParser parser, LocatableToken token, int state)
     {
         return token != null && complete;
     }
@@ -64,6 +64,12 @@ public class MethodBodyNode extends IncrementalParsingNode
     protected boolean isNodeEndMarker(int tokenType)
     {
         return tokenType == JavaTokenTypes.RCURLY;
+    }
+    
+    @Override
+    protected boolean marksOwnEnd()
+    {
+        return false;
     }
     
     @Override

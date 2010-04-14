@@ -102,10 +102,17 @@ public class TypeInnerNode extends IncrementalParsingNode
         return nap.getNode().isContainer();
     }
     
-    protected boolean lastPartialCompleted(EditorParser parser, LocatableToken token)
+    protected boolean lastPartialCompleted(EditorParser parser, LocatableToken token, int state)
     {
         return complete;
     };
+    
+    @Override
+    protected boolean marksOwnEnd()
+    {
+        return false; // TODO this and growsForward() are basically opposites
+        // We probably do not need both methods.
+    }
     
     @Override
     public boolean growsForward()

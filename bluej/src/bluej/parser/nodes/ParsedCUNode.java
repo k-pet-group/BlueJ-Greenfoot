@@ -126,6 +126,12 @@ public class ParsedCUNode extends IncrementalParsingNode
     }
     
     @Override
+    protected boolean marksOwnEnd()
+    {
+        return true;
+    }
+    
+    @Override
     public PackageOrClass resolvePackageOrClass(String name, Reflective querySource)
     {
         PackageOrClass poc = super.resolvePackageOrClass(name, querySource);

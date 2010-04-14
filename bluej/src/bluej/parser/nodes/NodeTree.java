@@ -726,6 +726,25 @@ public class NodeTree<T extends RBTreeNode>
             }
             return null;
         }
+        
+        public void slide(int amount)
+        {
+            getNode().slide(amount);
+            position += amount;
+        }
+        
+        public void slideStart(int amount)
+        {
+            getNode().slideStart(amount);
+            position += amount;
+            size -= amount;
+        }
+        
+        public void resize(int newSize)
+        {
+            getNode().resize(newSize);
+            size = newSize;
+        }
     }
     
     /**

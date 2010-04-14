@@ -47,4 +47,29 @@ public class RBTreeNode
     {
         return containingNodeTree;
     }
+    
+    public void slide(int amount)
+    {
+        getContainingNodeTree().slideNode(amount);
+    }
+
+    public void slideStart(int offset)
+    {
+        getContainingNodeTree().slideStart(offset);
+    }
+    
+    public void setSize(int newSize)
+    {
+        getContainingNodeTree().setSize(newSize);
+    }
+    
+    public void resize(int newSize)
+    {
+        getContainingNodeTree().resize(newSize);
+    }
+    
+    public void remove()
+    {
+        getContainingNodeTree().remove();
+    }
 }

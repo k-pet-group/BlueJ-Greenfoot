@@ -30,18 +30,4 @@ import bluej.parser.nodes.RBTreeNode;
  */
 public class ReparseRecord extends RBTreeNode
 {
-    public void slideStart(int offset)
-    {
-        getContainingNodeTree().slideStart(offset);
-    }
-    
-    public void setSize(int newSize)
-    {
-        getContainingNodeTree().setSize(newSize);
-    }
-    
-    public void remove()
-    {
-        getContainingNodeTree().remove();
-    }
 }

@@ -339,6 +339,16 @@ public class MoeSyntaxDocument extends PlainDocument
      */
     protected void fireInsertUpdate(DocumentEvent e)
     {
+        NodeAndPosition<ReparseRecord> napRr = reparseRecordTree.findNodeAtOrAfter(e.getOffset());
+        if (napRr != null) {
+            if (napRr.getPosition() <= e.getOffset()) {
+                napRr.getNode().resize(napRr.getSize() + e.getLength());
+            }
+            else {
+                napRr.getNode().slide(e.getLength());
+            }
+        }
+        
         MoeSyntaxEvent mse = new MoeSyntaxEvent(this, e);
         if (parsedNode != null) {
             parsedNode.textInserted(this, 0, e.getOffset(), e.getLength(), mse);
@@ -351,6 +361,65 @@ public class MoeSyntaxDocument extends PlainDocument
      */
     protected void fireRemoveUpdate(DocumentEvent e)
     {
+        NodeAndPosition<ReparseRecord> napRr = reparseRecordTree.findNodeAtOrAfter(e.getOffset());
+        int rpos = e.getOffset();
+        int rlen = e.getLength();
+        if (napRr != null && napRr.getEnd() == rpos) {
+            // Boundary condition
+            napRr = napRr.nextSibling();
+        }
+        while (napRr != null && rlen > 0) {
+            if (napRr.getPosition() < rpos) {
+                if (napRr.getEnd() >= rpos + rlen) {
+                    // remove middle
+                    napRr.getNode().resize(napRr.getSize() - rlen);
+                    break;
+                }
+                else {
+                    // remove end and continue
+                    int reduction = napRr.getEnd() - rpos;
+                    napRr.getNode().resize(napRr.getSize() - reduction);
+                    rlen -= reduction;
+                    napRr = napRr.nextSibling();
+                    continue;
+                }
+            }
+            else if (napRr.getPosition() == rpos) {
+                if (napRr.getEnd() > rpos + rlen) {
+                    // remove beginning
+                    napRr.getNode().resize(napRr.getSize() - rlen);
+                    break;
+                }
+                else {
+                    // remove whole node
+                    napRr.getNode().remove();
+                    napRr = reparseRecordTree.findNodeAtOrAfter(e.getOffset());
+                    continue;
+                }
+            }
+            else {
+                // napRr position is greater than delete position
+                if (napRr.getPosition() >= (rpos + rlen)) {
+                    napRr.slide(-rlen);
+                    break;
+                }
+                else if (napRr.getEnd() <= (rpos + rlen)) {
+                    // whole node to be removed
+                    NodeAndPosition<ReparseRecord> nextRr = napRr.nextSibling();
+                    napRr.getNode().remove();
+                    napRr = nextRr;
+                    continue;
+                }
+                else {
+                    // only a portion to be removed
+                    int ramount = (rpos + rlen) - napRr.getPosition();
+                    napRr.slideStart(ramount);
+                    napRr.slide(-rlen);
+                    break;
+                }
+            }
+        }
+        
         MoeSyntaxEvent mse = new MoeSyntaxEvent(this, e);
         if (parsedNode != null) {
             parsedNode.textRemoved(this, 0, e.getOffset(), e.getLength(), mse);
