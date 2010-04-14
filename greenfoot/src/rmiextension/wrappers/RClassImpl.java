@@ -46,7 +46,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 7338 2010-04-14 15:02:10Z nccb $
+ * @version $Id: RClassImpl.java 7339 2010-04-14 16:24:56Z nccb $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -125,6 +125,8 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         
         
         NodeAndPosition<ParsedNode> classNode = findClassNode(doc);
+        if (classNode == null)
+            return;
         NodeAndPosition<ParsedNode> existingMethodNode = findMethodNode(methodName, classNode);
 
         if (existingMethodNode != null) {
@@ -156,7 +158,10 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         bluej.editor.Editor bje = bluej.extensions.editor.EditorBridge.getEditor(e);
         MoeSyntaxDocument doc = (MoeSyntaxDocument)(((MoeEditor)bje).getSourceDocument());
         
-        NodeAndPosition<ParsedNode> constructor = findMethodNode(bClass.getName(), findClassNode(doc));
+        NodeAndPosition<ParsedNode> classNode = findClassNode(doc);
+        if (classNode == null)
+            return;
+        NodeAndPosition<ParsedNode> constructor = findMethodNode(bClass.getName(), classNode);
         if (constructor != null && false == hasMethodCall(doc, methodName, constructor, true)) {
             //Add at the end of the constructor:
             appendTextToNode(e, constructor, "\n        " + methodName + "();\n    ");
@@ -179,26 +184,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         {
             public Iterator<NodeAndPosition<ParsedNode>> iterator()
             {
-                return new Iterator<NodeAndPosition<ParsedNode>>()
-                {
-                    private NodeAndPosition<ParsedNode> nextChild = parent.getNode().findNodeAtOrAfter(parent.getPosition(), parent.getPosition());
-                    public boolean hasNext()
-                    {
-                        return nextChild != null;
-                    }
-        
-                    @Override
-                    public NodeAndPosition<ParsedNode> next()
-                    {
-                        NodeAndPosition<ParsedNode> curChild = nextChild;
-                        nextChild = parent.getNode().findNodeAtOrAfter(nextChild.getEnd(), parent.getPosition());
-                        return curChild;
-                    }
-        
-                    public void remove()
-                    {
-                    }
-                };
+                return parent.getNode().getChildren(parent.getPosition());
             };
         };
     }
