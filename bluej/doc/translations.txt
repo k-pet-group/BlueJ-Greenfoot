@@ -5,7 +5,7 @@ The next update column indicates whether it is likely that the translator will d
 language        last update     next update    comment         translator
 --------------------------------------------------------------------------------------------------------------
 afrikaans       2.0.0                x                         Petri Jooste        <RKWJPJ@puknet.puk.ac.za>
-chinese         2.0.4                                          
+chinese         2.0.4                                          sent email to Xiaoke Hu <go2study@gmail.com> asking for a new contact
 catalan         2.0.0                x          only labels    Santiago Manrique   
 czech           2.5.0                x          tmpl in UTF8   Rudolf Pecinovsky   Rudolf: <rudolf.pecinovsky@i.cz> (or rudolf@pecinovsky.cz )
 danish          2.2.0preview         x                         Kenneth Johnson     <kenneth@kennethjohnsen.dk>
@@ -20,11 +20,11 @@ korean          1.2.x
 montenegrin     first time, will need instructions             Omer Djokic         <omer@itdirect.net>
 portuguese      2.0.0                x                         Fred Guedes Pereira <fredguedespereira@yahoo.com.br> 
 persian                              x                         M. Shahdoost        <persianshadow2003@yahoo.com>
-russian         2.2.0preview         x          labels+dialog  
-russian         2.5.3                x          all -templates Sergey Zemlyannikov <serveren@mail.ru>
+russian         2.2.0preview         x            
+russian         3.0                x          labels+dialog Sergey Zemlyannikov <serveren@mail.ru>
 serbian                                                        Omer Djokic         <omer@itdirect.net>
 spanish         1.2.x                                                
-swedish?         1.3.5                x          later          
+swedish         1.3.5                x          later          
 trad. chinese                        ?                         Ma Wing Ho          <mawingho@netvigator.com>
 
 
