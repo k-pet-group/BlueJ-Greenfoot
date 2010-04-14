@@ -421,7 +421,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
     /**
      * Convert a line and column number to an absolute position.
      */
-    private static int lineColToPos(Document document, int line, int col)
+    protected static int lineColToPos(Document document, int line, int col)
     {
         return document.getDefaultRootElement().getElement(line - 1).getStartOffset() + col - 1;
     }

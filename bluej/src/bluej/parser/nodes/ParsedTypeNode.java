@@ -27,7 +27,6 @@ import java.util.Map;
 import javax.swing.text.Document;
 
 import bluej.debugger.gentype.Reflective;
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.EditorParser;
 import bluej.parser.JavaParser;
@@ -184,7 +183,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
             return PP_BEGINS_NEXT_STATE;
         }
         else if (state == 1) {
-            // '{'
+            // '{' and class body
             LocatableToken token = params.tokenStream.nextToken();
             if (token.getType() != JavaTokenTypes.LCURLY) {
                 last = token;
@@ -194,7 +193,8 @@ public class ParsedTypeNode extends IncrementalParsingNode
             if (inner == null) {
                 last = params.parser.parseTypeBody(type, params.tokenStream.nextToken());
                 if (last.getType() == JavaTokenTypes.RCURLY) {
-                    return PP_ENDS_STATE;
+                    params.tokenStream.pushBack(last);
+                    return PP_BEGINS_NEXT_STATE;
                 }
                 return PP_INCOMPLETE;
             }
@@ -210,7 +210,23 @@ public class ParsedTypeNode extends IncrementalParsingNode
             return PP_PULL_UP_CHILD;
         }
         else if (state == 2) {
-            last = params.parser.getTokenStream().LA(1);
+            last = params.tokenStream.nextToken();
+            if (last.getType() != JavaTokenTypes.RCURLY) {
+                if (inner != null) {
+                    inner.setComplete(false);
+                }
+            }
+            else {
+                // Make sure the inner node extends to the curly bracket
+                int rcurlyPos = lineColToPos(params.document, last.getLine(), last.getColumn());
+                int innerPos = inner.getOffsetFromParent() + params.nodePos;
+                int innerSize = inner.getSize();
+                if ((innerPos + innerSize) != rcurlyPos) {
+                    inner.setSize(rcurlyPos - innerPos);
+                    inner.setComplete(true);
+                    params.document.scheduleReparse(innerPos + innerSize, rcurlyPos - innerPos - innerSize);
+                }
+            }
             complete = true;
             return PP_ENDS_NODE;
         }
