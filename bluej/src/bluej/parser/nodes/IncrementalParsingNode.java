@@ -202,9 +202,11 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         int tokpos = lineColToPos(document, laToken.getLine(), laToken.getColumn());
         int tokend = lineColToPos(document, laToken.getEndLine(), laToken.getEndColumn());
         nap = boundaryNap;
-        if (nap != null && ! nap.getNode().complete && nap.getEnd() == tokpos && tokend >= offset) {
+        if (nap != null && ! nap.getNode().complete
+                && (nap.getEnd() == tokpos || nap.getEnd() == originalOffset)) {
             // The first token we read "joins on" to the end of the incomplete previous node.
             // So, we'll attempt to add it in.
+            // DAV remove overlapping children!
             int oldSize = nap.getSize();
             nap.setSize(tokend - nap.getPosition());
             int pr = nap.getNode().reparseNode(document, nap.getPosition(), tokpos, listener);
@@ -259,8 +261,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             nextChild = childQueue.peek();
             if (ppr == PP_ENDS_NODE || ppr == PP_ENDS_NODE_AFTER || (ppr == PP_INCOMPLETE
                     && last.getType() != JavaTokenTypes.EOF)) {
-                complete &= (ppr != PP_INCOMPLETE);
-                endNodeCleanup(pparams, state);
+                complete = (ppr != PP_INCOMPLETE);
                 int pos;
                 if (ppr == PP_ENDS_NODE_AFTER) {
                     pos = lineColToPos(document, last.getEndLine(), last.getEndColumn());
@@ -271,8 +272,10 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 int newsize = pos - nodePos;
                 if (newsize != getSize()) {
                     setSize(newsize);
+                    endNodeCleanup(pparams, state, Integer.MAX_VALUE, nodePos + newsize);
                     return NODE_SHRUNK;
                 }
+                endNodeCleanup(pparams, state, Integer.MAX_VALUE, nodePos + newsize);
                 return ALL_OK;
             }
             else if (ppr == PP_INCOMPLETE) {
@@ -354,14 +357,14 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             }
                         
             if (nlaToken.getType() == JavaTokenTypes.EOF) {
-                endNodeCleanup(pparams, state);
+                endNodeCleanup(pparams, state, parseEnd, parseEnd);
                 if (parseEnd < nodePos + getSize()) {
                     // We had limited the parse amount deliberately. Schedule a continuation.
                     ((MoeSyntaxDocument) document).scheduleReparse(parseEnd, 1);
                     parser.completedNode(this, nodePos, getSize());
                     return ALL_OK;
                 }
-                if (! lastPartialCompleted(parser, last, state)) {
+                if (! complete) {
                     // The parsed piece wants more...
                     ParsedNode parentNode = getParentNode();
                     if (parentNode != null && parentNode.growChild(document,
@@ -424,14 +427,14 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         return false;
     }
     
-    private void endNodeCleanup(ParseParams params, int state)
+    private void endNodeCleanup(ParseParams params, int state, int rpos, int epos)
     {
         while (++state < stateMarkers.length) {
             stateMarkers[state] = -1;
         }
-        removeOverwrittenChildren(params.childQueue, Integer.MAX_VALUE,
+        removeOverwrittenChildren(params.childQueue, rpos,
                 params.listener);
-        params.parser.completedNode(this, params.nodePos, getSize());
+        params.parser.completedNode(this, params.nodePos, epos - params.nodePos);
     }
     
     private Stack<ParsedNode> buildScopeStack()

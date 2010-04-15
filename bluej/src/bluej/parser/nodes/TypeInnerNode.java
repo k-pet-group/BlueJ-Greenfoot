@@ -89,7 +89,6 @@ public class TypeInnerNode extends IncrementalParsingNode
         LocatableToken nextToken = params.tokenStream.nextToken();
                 
         if (nextToken.getType() == JavaTokenTypes.RCURLY) {
-            complete = true;
             last = nextToken;
             return PP_ENDS_NODE;
         }

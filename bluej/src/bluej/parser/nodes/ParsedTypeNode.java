@@ -227,15 +227,17 @@ public class ParsedTypeNode extends IncrementalParsingNode
             }
             
             // Extend the inner node up to the token we just pulled.
-            if (last.getType() == JavaTokenTypes.RCURLY ||last.getType() == JavaTokenTypes.EOF) {
-                int lastPos = lineColToPos(params.document, last.getLine(), last.getColumn());
-                int innerPos = inner.getOffsetFromParent() + params.nodePos;
-                int innerSize = inner.getSize();
-                if ((innerPos + innerSize) != lastPos) {
-                    inner.setSize(lastPos - innerPos);
-                    stateMarkers[1] = lastPos;
-                    params.document.scheduleReparse(innerPos + innerSize, lastPos - innerPos - innerSize);
-                }
+            int lastPos = lineColToPos(params.document, last.getLine(), last.getColumn());
+            int innerPos = inner.getOffsetFromParent() + params.nodePos;
+            int innerSize = inner.getSize();
+            if ((innerPos + innerSize) != lastPos || ! inner.complete) {
+                // Expand the inner node to cover the RCURLY, which hopefully actually closes it,
+                // and re-parse
+                inner.complete = false;
+                lastPos = lineColToPos(params.document, last.getEndLine(), last.getEndColumn());
+                inner.setSize(lastPos - innerPos);
+                stateMarkers[1] = lastPos;
+                params.document.scheduleReparse(innerPos + innerSize, lastPos - innerPos - innerSize);
             }
             
             complete = true;

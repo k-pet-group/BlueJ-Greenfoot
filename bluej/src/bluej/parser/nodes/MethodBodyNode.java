@@ -51,8 +51,16 @@ public class MethodBodyNode extends IncrementalParsingNode
     protected int doPartialParse(ParseParams params, int state)
     {
         last = params.tokenStream.nextToken();
+        if (last.getLine() > 367) {
+            // DAV!
+            if (true) {}
+        }
+        
         if (last.getType() == JavaTokenTypes.RCURLY) {
             return PP_ENDS_NODE;
+        }
+        if (last.getType() == JavaTokenTypes.EOF) {
+            return complete ? PP_ENDS_NODE : PP_INCOMPLETE;
         }
         
         if (checkBoundary(params, last)) {
@@ -72,7 +80,8 @@ public class MethodBodyNode extends IncrementalParsingNode
     @Override
     protected boolean isNodeEndMarker(int tokenType)
     {
-        return tokenType == JavaTokenTypes.RCURLY;
+        //return tokenType == JavaTokenTypes.RCURLY;
+        return false;
     }
     
     @Override

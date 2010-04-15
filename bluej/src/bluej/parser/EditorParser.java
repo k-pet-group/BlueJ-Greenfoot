@@ -918,6 +918,7 @@ public class EditorParser extends JavaParser
     protected void endMethodDecl(LocatableToken token, boolean included)
     {
         MethodNode mNode = (MethodNode) scopeStack.peek();
+        mNode.setComplete(included);
         endTopNode(token, included);
         TypeInnerNode topNode = (TypeInnerNode) scopeStack.peek();
         topNode.methodAdded(mNode);
