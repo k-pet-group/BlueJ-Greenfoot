@@ -81,6 +81,11 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
     protected final static int PP_REGRESS_STATE = 7;
     /** Pull the next child up behind the "last" token and continue parsing inside it */
     protected final static int PP_PULL_UP_CHILD = 8;
+    /**
+     * Abort the parse. This must be safe; either the parse has completed or an
+     * appropriate re-parse has been scheduled.
+     */
+    protected final static int PP_ABORT = 9;
     
     
     private final static int MAX_PARSE_PIECE = 8000;
@@ -185,8 +190,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         }
 
         // Find the next child node, which we may bump into when we are parsing.
-        NodeAndPosition<ParsedNode> nextChild =
-            removeOverwrittenChildren(childQueue, originalOffset, listener);
+        NodeAndPosition<ParsedNode> nextChild = childQueue.peek();
         
         // Make a reader and parser
         int pline = document.getDefaultRootElement().getElementIndex(offset) + 1;
@@ -242,32 +246,12 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         
         while (! isNodeEndMarker(ttype)) {
             
-            int overwritePos = tokpos;
-            LocatableToken hiddenBefore = laToken.getHiddenBefore();
-            if (hiddenBefore != null) {
-                overwritePos = lineColToPos(document, hiddenBefore.getLine(),
-                        hiddenBefore.getColumn());
-            }
-            
-            nextChild = removeOverwrittenChildren(childQueue, overwritePos, listener);
             if (nextChild != null && nextChild.getPosition() <= tokpos) {
                 if (isDelimitingNode(nextChild)) {
                     processChildQueue(nodePos, childQueue, nextChild);
-                    // parser.completedNode(this, nodePos, tokpos - nodePos);
                     parser.completedNode(this, nodePos, nextChild.getPosition() - nodePos);
                     return ALL_OK; // we're done!
                 }
-            }
-            if (tokpos == nextStatePos && tokpos == (nodePos + stateMarkers[state])
-                    || overwritePos == nextStatePos && overwritePos == (nodePos + stateMarkers[state])) {
-                // If we reached the next state state position, we're at a safe boundary
-                // Note that we cache "nextStatePos" because a partial parse might move the
-                // state marker to the next token; it is only safe to stop parsing if the
-                // state boundary hasn't moved.
-                removeOverwrittenChildren(childQueue, nextStatePos, listener);
-                processChildQueue(nodePos, childQueue, nextChild);
-                parser.completedNode(this, nodePos, nextStatePos - nodePos);
-                return ALL_OK;
             }
                         
             // Do a partial parse and check the result
@@ -346,12 +330,27 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 }
                 return ALL_OK;
             }
+            else if (ppr == PP_ABORT) {
+                nextChild = childQueue.peek();
+                processChildQueue(nodePos, childQueue, nextChild);
+                int csize = nextChild == null ? getSize() : nextChild.getPosition() - nodePos;
+                parser.completedNode(this, nodePos, csize);
+                return ALL_OK;
+            }
             
             LocatableToken nlaToken = parser.getTokenStream().LA(1);
             if (nlaToken == laToken) {
                 // We didn't manage to parse anything?
                 parser.getTokenStream().nextToken();
                 nlaToken = parser.getTokenStream().LA(1);
+            }
+            
+            // If we've overwritten state markers / old children, invalidate them.
+            int nlaPos = lineColToPos(document, nlaToken.getLine(), nlaToken.getColumn());
+            for (int i = state; i < stateMarkers.length; i++) {
+                if (stateMarkers[i] < nlaPos) {
+                    stateMarkers[i] = -1;
+                }
             }
                         
             if (nlaToken.getType() == JavaTokenTypes.EOF) {
@@ -381,7 +380,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             
             laToken = nlaToken;
             ttype = laToken.getType();
-            tokpos = lineColToPos(document, laToken.getLine(), laToken.getColumn());
+            tokpos = nlaPos;
         }
 
         complete = true;
@@ -397,6 +396,32 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         }
         
         return ALL_OK;
+    }
+    
+    /**
+     * Check whether the next token is the boundary (beginning) of a delimiting node, in which
+     * case we may be able to finish re-parsing. Returns true if a boundary has been reached.
+     * This is intended as a utility for use by subclasses.
+     */
+    protected boolean checkBoundary(ParseParams params, LocatableToken token)
+    {
+        int lpos = lineColToPos(params.document, token.getLine(), token.getColumn());
+        LocatableToken hidden = token.getHiddenBefore();
+        int hpos = hidden != null ? lineColToPos(params.document, hidden.getLine(), hidden.getColumn()) : lpos;
+        NodeAndPosition<ParsedNode> nextChild = params.childQueue.peek();
+        while (nextChild != null) {
+            if (isDelimitingNode(nextChild) && (nextChild.getPosition() == lpos
+                    || nextChild.getPosition() == hpos)) {
+                return true;
+            }
+            if (nextChild.getPosition() > lpos) {
+                break;
+            }
+            childRemoved(nextChild, params.listener);
+            params.childQueue.poll();
+            nextChild = params.childQueue.peek();
+        }
+        return false;
     }
     
     private void endNodeCleanup(ParseParams params, int state)

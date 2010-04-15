@@ -31,7 +31,6 @@ import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.TypeEntity;
-import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 
@@ -109,6 +108,12 @@ public class ParsedCUNode extends IncrementalParsingNode
     @Override
     protected int doPartialParse(ParseParams params, int state)
     {
+        last = params.tokenStream.LA(1);
+       
+        if (checkBoundary(params, last)) {
+            return PP_ABORT;
+        }
+        
         params.parser.parseCUpart(state);
         return PP_OK;
     };
@@ -122,7 +127,7 @@ public class ParsedCUNode extends IncrementalParsingNode
     @Override
     protected boolean isNodeEndMarker(int tokenType)
     {
-        return tokenType == JavaTokenTypes.EOF;
+        return false;
     }
     
     @Override

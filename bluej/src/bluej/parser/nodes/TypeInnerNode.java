@@ -87,6 +87,7 @@ public class TypeInnerNode extends IncrementalParsingNode
     {
         last = null;
         LocatableToken nextToken = params.tokenStream.nextToken();
+                
         if (nextToken.getType() == JavaTokenTypes.RCURLY) {
             complete = true;
             last = nextToken;
@@ -97,6 +98,11 @@ public class TypeInnerNode extends IncrementalParsingNode
             last = nextToken;
             return PP_INCOMPLETE;
         }
+        
+        if (checkBoundary(params, nextToken)) {
+            return PP_ABORT;
+        }
+        
         params.parser.parseClassElement(nextToken);
         return PP_OK;
     }
@@ -107,6 +113,7 @@ public class TypeInnerNode extends IncrementalParsingNode
         return nap.getNode().isContainer();
     }
     
+    @Override
     protected boolean lastPartialCompleted(EditorParser parser, LocatableToken token, int state)
     {
         return false;

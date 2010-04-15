@@ -1161,7 +1161,7 @@ public class JavaParser
     }
     
     /**
-     * Parse a statement. Return the last token that is part of the statement (i.e the ';' or '{'
+     * Parse a statement. Return the last token that is part of the statement (i.e the ';' or '}'
      * terminator), or null if an error was encountered.
      * @param token  The first token of the statement
      */

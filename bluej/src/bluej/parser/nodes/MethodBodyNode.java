@@ -50,18 +50,23 @@ public class MethodBodyNode extends IncrementalParsingNode
     @Override
     protected int doPartialParse(ParseParams params, int state)
     {
-        last = params.tokenStream.LA(1);
+        last = params.tokenStream.nextToken();
         if (last.getType() == JavaTokenTypes.RCURLY) {
             return PP_ENDS_NODE;
         }
-        last = params.parser.parseStatement(params.tokenStream.nextToken());
+        
+        if (checkBoundary(params, last)) {
+            return PP_ABORT;
+        }
+        
+        last = params.parser.parseStatement(last);
         return PP_OK;
     }
     
     @Override
     protected boolean lastPartialCompleted(EditorParser parser, LocatableToken token, int state)
     {
-        return token != null && complete;
+        return token != null;
     }
     
     @Override
