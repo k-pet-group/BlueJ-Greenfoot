@@ -58,7 +58,6 @@ public class SaveWorldAction extends AbstractAction
         StringBuffer comment = new StringBuffer();
         comment.append("\n").append(oneIndent).append("/**\n");
         comment.append(oneIndent).append("* A method that performs your recorded actions.\n");
-        comment.append(oneIndent).append("* If you want to use this in future in your world, you need to call it from your constructor.\n");
         comment.append(oneIndent).append("*/\n");
         
         StringBuffer method = new StringBuffer();
@@ -70,6 +69,13 @@ public class SaveWorldAction extends AbstractAction
             GClass lastWorld = ide.getLastWorldGClass();
             lastWorld.insertAppendMethod(comment.toString(), methodName, method.toString());
             lastWorld.insertMethodCallInConstructor(methodName);
+            // Now that we've inserted the code, we must reset the recorder,
+            // so that if the user saves the world again before re-compiling,
+            // it doesn't insert the same code twice.  If the user scrubs our method
+            // and saves the world before re-compiling this will then go wrong
+            // (by inserting code depending on objects no longer there) but that
+            // seems less likely:
+            ide.clearRecorderCode();
         }
         catch (Exception e) {
             Debug.reportError("Error trying to get editor for world class and insert method (with call)", e);

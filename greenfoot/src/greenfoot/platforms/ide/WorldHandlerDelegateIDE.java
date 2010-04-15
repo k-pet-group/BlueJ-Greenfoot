@@ -571,6 +571,11 @@ public class WorldHandlerDelegateIDE
             // Never mind then...
         }
     }
+
+    public void clearRecorderCode()
+    {
+        greenfootRecorder.clearCode();        
+    }
     
     
 }

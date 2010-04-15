@@ -119,13 +119,18 @@ public class GreenfootRecorder
         // No difference in syntax, so no need to replicate the code:
         callActorMethod(null, className, name, args);
     }
+    
+    public void clearCode()
+    {
+        code.clear();
+        recentlyMovedActor = null;
+    }
 
     public void reset(World newWorld)
     {
         world = newWorld;
-        code.clear();
         objectNames.clear();
-        recentlyMovedActor = null;
+        clearCode();
     }
 
     public void moveActor(Actor actor, int xCell, int yCell)
