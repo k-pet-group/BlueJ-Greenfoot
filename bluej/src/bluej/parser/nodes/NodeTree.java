@@ -755,6 +755,21 @@ public class NodeTree<T extends RBTreeNode>
             getNode().resize(newSize);
             size = newSize;
         }
+        
+        public void setSize(int newSize)
+        {
+            getNode().setSize(newSize);
+            size = newSize;
+        }
+        
+        /**
+         * Set the size as recorded in the NodeAndPosition object, without
+         * affecting the relative node.
+         */
+        public void setNapSize(int newSize)
+        {
+            size = newSize;
+        }
     }
     
     /**

@@ -58,14 +58,25 @@ public class RBTreeNode
         getContainingNodeTree().slideStart(offset);
     }
     
-    public void setSize(int newSize)
-    {
-        getContainingNodeTree().setSize(newSize);
-    }
-    
+    /**
+     * Set the size of this node. Following nodes shift position according to the change in
+     * size; this should normally be used when inserting or removing text from the node.
+     * @param newSize  The new node size
+     */
     public void resize(int newSize)
     {
         getContainingNodeTree().resize(newSize);
+    }
+    
+    /**
+     * Set the size of this node, without moving following nodes. It is the caller's
+     * responsibility to ensure that setting the new size does not cause this node
+     * to overlap following nodes.
+     * @param newSize  The new size of this node.
+     */
+    public void setSize(int newSize)
+    {
+        getContainingNodeTree().setSize(newSize);
     }
     
     public void remove()
