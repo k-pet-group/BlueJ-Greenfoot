@@ -67,11 +67,10 @@ public class ParsedTypeNode extends IncrementalParsingNode
     public ParsedTypeNode(ParsedNode parent, int type, String prefix)
     {
         super(parent);
-        stateMarkers = new int[3];
-        marksEnd = new boolean[3];
+        stateMarkers = new int[2];
+        marksEnd = new boolean[2];
         stateMarkers[0] = -1;
         stateMarkers[1] = -1;
-        stateMarkers[2] = -1;
         this.type = type;
         this.prefix = prefix;
     }
@@ -151,6 +150,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     {
         if (child.getNode() == inner) {
             inner = null;
+            stateMarkers[1] = -1;
         }
         super.childRemoved(child, listener);
     }
@@ -193,12 +193,12 @@ public class ParsedTypeNode extends IncrementalParsingNode
             }
             
             if (inner == null) {
-                last = params.parser.parseTypeBody(type, params.tokenStream.nextToken());
+                last = params.parser.parseTypeBody(type, token);
                 if (last.getType() == JavaTokenTypes.RCURLY) {
-                    params.tokenStream.pushBack(last);
-                    return PP_BEGINS_NEXT_STATE;
+                    inner.setComplete(true);
                 }
-                return PP_INCOMPLETE;
+                params.tokenStream.pushBack(last);
+                return PP_BEGINS_NEXT_STATE;
             }
             
             // If we already have an inner we pull it into position.
@@ -226,17 +226,12 @@ public class ParsedTypeNode extends IncrementalParsingNode
             }
             
             if (last.getType() != JavaTokenTypes.RCURLY) {
-                if (inner != null) {
-                    inner.setComplete(false);
-                }
+                inner.setComplete(false);
                 return PP_INCOMPLETE;
             }
+            inner.setComplete(true);
             complete = true;
-            return PP_ENDS_STATE;
-        }
-        else if (state == 3) {
-            last = params.tokenStream.LA(1);
-            return PP_ENDS_NODE;
+            return PP_ENDS_NODE_AFTER;
         }
         
         return PP_EPIC_FAIL;
@@ -256,16 +251,22 @@ public class ParsedTypeNode extends IncrementalParsingNode
     }
     
     @Override
+    protected boolean isNodeEndMarker(int tokenType)
+    {
+        return false;
+    }
+    
+    @Override
     protected boolean marksOwnEnd()
     {
         return true;
     }
     
     @Override
-    protected void childResized(MoeSyntaxDocument document, NodeAndPosition<ParsedNode> child)
+    protected void childResized(MoeSyntaxDocument document, int nodePos, NodeAndPosition<ParsedNode> child)
     {
         if (child.getNode() == inner) {
-            stateMarkers[1] = child.getEnd();
+            stateMarkers[1] = child.getEnd() - nodePos;
         }
     }
     

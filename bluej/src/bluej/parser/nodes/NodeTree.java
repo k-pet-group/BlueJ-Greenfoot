@@ -60,6 +60,11 @@ public class NodeTree<T extends RBTreeNode>
     /**
      * Find the ParsedNode leaf corresponding to a certain position within the parent.
      * Returns null if no leaf contains exactly the given position.
+     * 
+     * Note that the leaf range may intersect the position parameter at any point -
+     * start, end, or anywhere in between. The "leftmost" match will always be
+     * returned i.e. if the position falls exactly between two leaves, the leftmost
+     * will be found.
      */
     public NodeAndPosition<T> findNode(int pos)
     {
@@ -72,13 +77,18 @@ public class NodeTree<T extends RBTreeNode>
             return null; // empty node tree
         }
 
-        if (startpos + pnodeOffset > pos) {
+        if (startpos + pnodeOffset >= pos) {
+            NodeAndPosition<T> r = null;
             if (left != null) {
-                return left.findNode(pos, startpos);
+                r = left.findNode(pos, startpos);
             }
-            else {
-                return null;
+            if (r == null && startpos + pnodeOffset == pos) {
+                // Corner case: we match exactly the starting position.
+                // We favour the leftmost branch in this case, so as
+                // to always return the leftmost matching node.
+                r = new NodeAndPosition<T>(pnode, startpos + pnodeOffset, pnodeSize);
             }
+            return r;
         }
 
         if (startpos + pnodeSize + pnodeOffset >= pos) {

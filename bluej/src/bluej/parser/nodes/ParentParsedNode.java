@@ -244,6 +244,8 @@ public class ParentParsedNode extends ParsedNode
             int r = cnode.textInserted(document, child.getPosition(), insPos, length, listener);
             if (r == NODE_GREW || r == NODE_SHRUNK) {
                 newSize = child.getNode().getSize();
+                child = new NodeAndPosition<ParsedNode>(cnode, child.getPosition(), newSize);
+                childResized((MoeSyntaxDocument) document, nodePos, child);
                 //return reparseNode(document, nodePos, child.getPosition() + newSize, listener);
                 ((MoeSyntaxDocument) document).scheduleReparse(child.getPosition() + newSize, 1);
                 return ALL_OK;
@@ -301,7 +303,7 @@ public class ParentParsedNode extends ParsedNode
                     return reparseNode(document, nodePos, child.getPosition(), listener);
                 }
                 else if (r != ALL_OK) {
-                    newSize = child.getSize();
+                    newSize = child.getNode().getSize();
                     return reparseNode(document, nodePos, child.getPosition() + newSize, listener);
                 }
                 return ALL_OK;
@@ -366,23 +368,6 @@ public class ParentParsedNode extends ParsedNode
     protected int reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
     {
         return REMOVE_NODE;
-    }
-    
-    @Override
-    public void reparse(MoeSyntaxDocument document, int nodePos, int offset,
-            NodeStructureListener listener)
-    {
-        NodeAndPosition<ParsedNode> nap = findNodeAt(offset, nodePos);
-        if (nap != null) {
-            nap.getNode().reparse(document, nap.getPosition(), offset, listener);
-            return;
-        }
-        nap = findNodeAt(offset - 1, nodePos);
-        if (nap != null && !nap.getNode().complete) {
-            nap.getNode().reparse(document, nap.getPosition(), offset, listener);
-            return;
-        }
-        super.reparse(document, nodePos, offset, listener);
     }
     
     @Override

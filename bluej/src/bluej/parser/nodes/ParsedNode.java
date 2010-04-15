@@ -123,6 +123,14 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
     }
     
     /**
+     * Check whether this node is known to be complete.
+     */
+    public boolean isComplete()
+    {
+        return complete;
+    }
+    
+    /**
      * Get the name of the entity this node represents. For methods, returns the method name.
      * May return null.
      */
@@ -318,8 +326,8 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
      */
     public void reparse(MoeSyntaxDocument document, int nodePos, int offset, NodeStructureListener listener)
     {
-        int r = reparseNode(document, nodePos, offset, listener);
         int size = getSize();
+        int r = reparseNode(document, nodePos, offset, listener);
         if (r == REMOVE_NODE) {
             ParsedNode parent = getParentNode();
             parent.removeChild(new NodeAndPosition<ParsedNode>(this,
@@ -328,6 +336,12 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
         }
         else if (r == NODE_GREW || r == NODE_SHRUNK) {
             int nsize = getSize();
+            ParsedNode parent = getParentNode();
+            if (parent != null) {
+                int ppos = nodePos - getOffsetFromParent();
+                parent.childResized(document, ppos,
+                        new NodeAndPosition<ParsedNode>(this, nodePos, nsize));
+            }
             document.scheduleReparse(nodePos + nsize, Math.max(size - nsize, 1));
         }
     }
@@ -377,9 +391,15 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
     }
     
     /**
-     * Called after a child node changed size.
+     * Called after a child node changed size. This is just a notification
+     * and should not cause a reparse to be performed or scheduled, as that
+     * should be done elsewhere.
+     * 
+     * @param document   The document which parse structure is represented
+     * @param nodePos    The absolute position of this node
+     * @param child      The child node which has changed size
      */
-    protected void childResized(MoeSyntaxDocument document, NodeAndPosition<ParsedNode> child)
+    protected void childResized(MoeSyntaxDocument document, int nodePos, NodeAndPosition<ParsedNode> child)
     {
         
     }

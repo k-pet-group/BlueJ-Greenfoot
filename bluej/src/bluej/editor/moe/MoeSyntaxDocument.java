@@ -133,10 +133,16 @@ public class MoeSyntaxDocument extends PlainDocument
             int ppos = 0;
             if (pn != null) {
                 NodeAndPosition<ParsedNode> cn = pn.findNodeAt(pos, ppos);
+                while (cn != null && cn.getEnd() == pos && cn.getNode().isComplete()) {
+                    cn = cn.nextSibling();
+                }
                 while (cn != null) {
                     ppos = cn.getPosition();
                     pn = cn.getNode();
                     cn = pn.findNodeAt(nap.getPosition(), ppos);
+                    while (cn != null && cn.getEnd() == pos && cn.getNode().isComplete()) {
+                        cn = cn.nextSibling();
+                    }
                 }
                 
                 MoeSyntaxEvent mse = new MoeSyntaxEvent(this);
