@@ -216,20 +216,22 @@ public class ParsedTypeNode extends IncrementalParsingNode
             last = params.tokenStream.nextToken();
             
             // Extend the inner node up to the token we just pulled.
-            int lastPos = lineColToPos(params.document, last.getLine(), last.getColumn());
-            int innerPos = inner.getOffsetFromParent() + params.nodePos;
-            int innerSize = inner.getSize();
-            if ((innerPos + innerSize) != lastPos) {
-                inner.setSize(lastPos - innerPos);
-                inner.setComplete(true);
-                params.document.scheduleReparse(innerPos + innerSize, lastPos - innerPos - innerSize);
+            if (last.getType() == JavaTokenTypes.RCURLY ||last.getType() == JavaTokenTypes.EOF) {
+                int lastPos = lineColToPos(params.document, last.getLine(), last.getColumn());
+                int innerPos = inner.getOffsetFromParent() + params.nodePos;
+                int innerSize = inner.getSize();
+                if ((innerPos + innerSize) != lastPos) {
+                    inner.setSize(lastPos - innerPos);
+                    stateMarkers[1] = lastPos;
+                    params.document.scheduleReparse(innerPos + innerSize, lastPos - innerPos - innerSize);
+                }
             }
             
             if (last.getType() != JavaTokenTypes.RCURLY) {
                 inner.setComplete(false);
-                return PP_INCOMPLETE;
+                return PP_OK; // continue!
+                // DAV it would be better to abort...
             }
-            inner.setComplete(true);
             complete = true;
             return PP_ENDS_NODE_AFTER;
         }

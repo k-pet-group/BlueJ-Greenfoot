@@ -133,14 +133,14 @@ public class MoeSyntaxDocument extends PlainDocument
             int ppos = 0;
             if (pn != null) {
                 NodeAndPosition<ParsedNode> cn = pn.findNodeAt(pos, ppos);
-                while (cn != null && cn.getEnd() == pos && cn.getNode().isComplete()) {
+                while (cn != null && cn.getEnd() == pos) {
                     cn = cn.nextSibling();
                 }
                 while (cn != null) {
                     ppos = cn.getPosition();
                     pn = cn.getNode();
                     cn = pn.findNodeAt(nap.getPosition(), ppos);
-                    while (cn != null && cn.getEnd() == pos && cn.getNode().isComplete()) {
+                    while (cn != null && cn.getEnd() == pos) {
                         cn = cn.nextSibling();
                     }
                 }
@@ -170,7 +170,7 @@ public class MoeSyntaxDocument extends PlainDocument
         NodeAndPosition<ReparseRecord> existing = reparseRecordTree.findNodeAtOrAfter(pos);
         if (existing != null) {
             if (existing.getPosition() > pos && existing.getPosition() <= (pos + size)) {
-                existing.getNode().slideStart(existing.getPosition() - pos);
+                existing.getNode().slideStart(pos - existing.getPosition());
                 return;
             }
             else if (existing.getPosition() <= pos) {

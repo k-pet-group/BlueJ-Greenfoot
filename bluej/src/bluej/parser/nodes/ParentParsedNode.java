@@ -289,7 +289,8 @@ public class ParentParsedNode extends ParsedNode
         
         int endPos = delPos + length;
         
-        NodeAndPosition<ParsedNode> child = getNodeTree().findNodeAtOrAfter(delPos + 1, nodePos);
+        NodeAndPosition<ParsedNode> child = getNodeTree().findNodeAtOrAfter(delPos, nodePos);
+        while (child != null && child.getEnd() == delPos) child = child.nextSibling();
         
         if (child != null && child.getPosition() < delPos) {
             // Remove the end portion (or middle) of the child node

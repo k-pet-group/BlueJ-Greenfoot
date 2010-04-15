@@ -92,6 +92,11 @@ public class TypeInnerNode extends IncrementalParsingNode
             last = nextToken;
             return PP_ENDS_NODE;
         }
+        if (nextToken.getType() == JavaTokenTypes.EOF) {
+            // We don't really know if the last partial was successful or not.
+            last = nextToken;
+            return PP_INCOMPLETE;
+        }
         params.parser.parseClassElement(nextToken);
         return PP_OK;
     }
@@ -104,7 +109,7 @@ public class TypeInnerNode extends IncrementalParsingNode
     
     protected boolean lastPartialCompleted(EditorParser parser, LocatableToken token, int state)
     {
-        return complete;
+        return false;
     };
     
     @Override
