@@ -221,6 +221,8 @@ class SubClass4 extends BaseClass<Integer> implements BaseInterface<String>{}
 class SubClass5 extends BaseClass<List<Integer>> {}
 class SubClass6 implements BaseInterface<List<String>>{}
 interface BaseInterface2<T> extends BaseInterface<T>{}
+//test for Bug #221 - needs to be uncommented
+//interface Sort<T extends Comparable<T>> 
 
 
 // a class with three params (used in examples above)
