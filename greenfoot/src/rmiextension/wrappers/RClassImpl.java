@@ -43,10 +43,11 @@ import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.editor.Editor;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 7339 2010-04-14 16:24:56Z nccb $
+ * @version $Id: RClassImpl.java 7348 2010-04-15 09:32:56Z nccb $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -173,7 +174,15 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     // Appends text to a node that ends in a curly bracket:
     private void appendTextToNode(Editor e, NodeAndPosition<ParsedNode> node, String text)
     {
-        e.setText(e.getTextLocationFromOffset(node.getEnd()-1), e.getTextLocationFromOffset(node.getEnd()-1), text);
+        //The node may have whitespace at the end, so we look for the last closing brace and
+        //insert before that:
+        for (int pos = node.getEnd() - 1; pos >= 0; pos--) {
+            if ("}".equals(e.getText(e.getTextLocationFromOffset(pos), e.getTextLocationFromOffset(pos+1)))) {
+                e.setText(e.getTextLocationFromOffset(pos), e.getTextLocationFromOffset(pos), text);
+                return;
+            }
+        }
+        Debug.message("Could not find end of node to append to: \"" + e.getText(e.getTextLocationFromOffset(node.getPosition()), e.getTextLocationFromOffset(node.getEnd())) + "\"");
     }
     
     // This really returns an iterator, but wrapping it into an iterable means that
