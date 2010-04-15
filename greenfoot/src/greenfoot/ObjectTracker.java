@@ -83,11 +83,16 @@ public class ObjectTracker
             
 
             RClass rClass = getRemoteClass(obj, remoteObjectTracker);
+            if (rClass != null) {
+                RField rField = rClass.getField("transportField");
+                rObject = rField.getValue(null);
+                cachedObjects.put(obj, rObject);
+                return rObject;
+            } else {
+                // This can happen, for example, if it is an anonymous class:
+                return null;
+            }
             
-            RField rField = rClass.getField("transportField");
-            rObject = rField.getValue(null);
-            cachedObjects.put(obj, rObject);
-            return rObject;
         }
     }    
 

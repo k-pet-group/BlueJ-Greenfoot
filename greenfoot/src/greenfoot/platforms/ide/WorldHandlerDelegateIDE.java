@@ -152,7 +152,8 @@ public class WorldHandlerDelegateIDE
                 String instanceName = "";
                 try {
                     RObject rObject = ObjectTracker.getRObject(obj);
-                    instanceName = rObject.getInstanceName();
+                    if (rObject != null)
+                        instanceName = rObject.getInstanceName();
                 }
                 catch (ProjectNotOpenException e1) {
                     e1.printStackTrace();
@@ -319,7 +320,8 @@ public class WorldHandlerDelegateIDE
         GNamedValue value =null;
         try {
             RObject rObj = ObjectTracker.getRObject(actor);
-            value =  new GNamedValue(rObj.getInstanceName());
+            if (rObj != null)
+                value =  new GNamedValue(rObj.getInstanceName());
         }
         catch (RemoteException e) {
             // TODO Auto-generated catch block
@@ -336,16 +338,19 @@ public class WorldHandlerDelegateIDE
         catch (bluej.extensions.ClassNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } 
-        // guaranteed to return a non-null array
-        Object[] listeners = worldHandler.getListenerList().getListenerList();
-        // process the listeners last to first, notifying
-        // those that are interested in this event
-        for (int i = listeners.length-2; i>=0; i-=2) { 
-            if (listeners[i] == ObjectBenchListener.class) {
-                ((ObjectBenchListener)listeners[i+1]).objectEvent(
-                        new ObjectBenchEvent(this,
-                                ObjectBenchEvent.OBJECT_SELECTED, value));
+        }
+        
+        if (value != null) {
+            // guaranteed to return a non-null array
+            Object[] listeners = worldHandler.getListenerList().getListenerList();
+            // process the listeners last to first, notifying
+            // those that are interested in this event
+            for (int i = listeners.length-2; i>=0; i-=2) { 
+                if (listeners[i] == ObjectBenchListener.class) {
+                    ((ObjectBenchListener)listeners[i+1]).objectEvent(
+                            new ObjectBenchEvent(this,
+                                    ObjectBenchEvent.OBJECT_SELECTED, value));
+                }
             }
         }
     }
