@@ -24,18 +24,23 @@ package bluej.parser;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
 import junit.framework.TestCase;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.MethodReflective;
+import bluej.editor.moe.MethodCompletion;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageResolver;
 import bluej.parser.nodes.ParsedCUNode;
+import bluej.utility.JavaUtils;
 
 public class CompletionTest extends TestCase
 {
@@ -298,5 +303,84 @@ public class CompletionTest extends TestCase
     // - field definitions may not forward reference other fields in the same class
     //   (although the declarations are visible!)
     // - variables cannot be forward referenced (declarations are not visible).
-
+    
+    /**
+     * Completion from an expression involving inner classes accessing variables 
+     * within the inner class
+     */
+    public void testInnerClasses() throws Exception
+    {
+        String aClassSrc = "class A {\n" +                  //10   
+        "String test=\"fg\";\n" +                           //+18=28
+        "class B {\n" +                                     //+10=38
+        "Integer temp=new Integer(\"1\");\n" +              //+31=69
+        "void bluej() {\n" +                                //+15=84
+        "temp.hashCode();\n" +                              //+5=89  ---> temp.            
+        "}\n" +
+        "}\n" +
+        "}\n";
+        
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+        
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(89, doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.Integer", suggests.getSuggestionType().toString());
+        
+        //now need to get out all the methods and check if the access is correct
+        GenTypeClass exprType = suggests.getSuggestionType().asClass();
+        Map<String,Set<MethodReflective>> methods = exprType.getReflective().getDeclaredMethods();
+        for (String name : methods.keySet()) {
+            Set<MethodReflective> mset = methods.get(name);
+            for (MethodReflective method : mset) { 
+                boolean result=JavaUtils.checkMemberAccess(method.getDeclaringType(),
+                        suggests.getAccessType().getReflective(),
+                        method.getModifiers(), suggests.isStatic());
+                assertEquals(true, result);
+            }           
+        }
+    }
+    
+    /**
+     * Completion from an expression involving inner classes accessing variables 
+     * within the outer class
+     */
+    public void testInnerClasses2() throws Exception
+    {
+        String aClassSrc = "class A {\n" +                  //10   
+        "Integer test=new Integer(\"1\");\n" +              //+31=41
+        "class B {\n" +                                     //+10=51 
+        "String temp=\"fg\";\n" +                           //+18=69 
+        "void bluet() {\n" +                                //+15=84 
+        "test.hashCode();\n" +                              //+5=89  ---> test.            
+        "}\n" +
+        "}\n" +
+        "}\n";
+        
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+        
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(89, doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.Integer", suggests.getSuggestionType().toString());
+        
+        //now need to get out all the methods and check that the access is correct
+        GenTypeClass exprType = suggests.getSuggestionType().asClass();
+        Map<String,Set<MethodReflective>> methods = exprType.getReflective().getDeclaredMethods();
+        for (String name : methods.keySet()) {
+            Set<MethodReflective> mset = methods.get(name);
+            for (MethodReflective method : mset) { 
+                boolean result=JavaUtils.checkMemberAccess(method.getDeclaringType(),
+                        suggests.getAccessType().getReflective(),
+                        method.getModifiers(), suggests.isStatic());
+                assertEquals(true, result);
+            }           
+        }
+    }
 }
