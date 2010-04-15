@@ -93,4 +93,34 @@ public class IncrementalParseTest extends TestCase
         assertEquals(33, nap.getSize());
     }
 
+    public void test2() throws Exception
+    {
+        String aSrc = "class A {\n" +   // 0 - 10
+            "  void method() {\n" +     // 10 - 28 
+            "  }\n" +                   // 28 - 32 
+            "}\n";                      // 32 - 34
+        
+        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        ParsedCUNode aNode = aDoc.getParser();
+        NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
+        
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(33, nap.getSize());
+        
+        aDoc.insertString(8, "impl", null);
+        aDoc.flushReparseQueue();
+        aDoc.insertString(12, "ements ", null);
+        aDoc.flushReparseQueue();
+        aDoc.insertString(19, "Runnable ", null);
+        aDoc.flushReparseQueue();
+        
+        // Check that the structure is correct
+        nap = aNode.findNodeAt(0, 0);
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(53, nap.getSize());
+    }
+
+    
 }
