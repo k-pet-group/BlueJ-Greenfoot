@@ -30,6 +30,7 @@ import java.util.Iterator;
 import javax.swing.text.BadLocationException;
 
 import bluej.editor.moe.MoeEditor;
+import bluej.editor.moe.MoeIndent;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.extensions.BClass;
 import bluej.extensions.BConstructor;
@@ -47,7 +48,7 @@ import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 7348 2010-04-15 09:32:56Z nccb $
+ * @version $Id: RClassImpl.java 7351 2010-04-15 11:12:57Z nccb $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -118,27 +119,32 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         }
     }
 
-    public void insertAppendMethod(String comment, String methodName, String methodBody) throws ProjectNotOpenException, PackageNotFoundException, RemoteException
+    public void insertAppendMethod(final String comment, final String methodName, final String methodBody) throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
-        Editor e = bClass.getEditor();
-        bluej.editor.Editor bje = bluej.extensions.editor.EditorBridge.getEditor(e);
-        MoeSyntaxDocument doc = (MoeSyntaxDocument)(((MoeEditor)bje).getSourceDocument());
+        final Editor e = bClass.getEditor();
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                MoeEditor bje = (MoeEditor)bluej.extensions.editor.EditorBridge.getEditor(e);
+                MoeSyntaxDocument doc = bje.getSourceDocument();
+                
+                
+                NodeAndPosition<ParsedNode> classNode = findClassNode(doc);
+                if (classNode == null)
+                    return;
+                NodeAndPosition<ParsedNode> existingMethodNode = findMethodNode(methodName, classNode);
         
-        
-        NodeAndPosition<ParsedNode> classNode = findClassNode(doc);
-        if (classNode == null)
-            return;
-        NodeAndPosition<ParsedNode> existingMethodNode = findMethodNode(methodName, classNode);
-
-        if (existingMethodNode != null) {
-            //Append to existing method:
-            appendTextToNode(e, existingMethodNode, methodBody);
-        } else {
-            //Make a new method:
-            String fullMethod = comment + "    public void " + methodName + "()\n    {\n" + methodBody + "    }\n";
-            appendTextToNode(e, classNode, fullMethod);
-        }
-        e.setVisible(true);
+                if (existingMethodNode != null) {
+                    //Append to existing method:
+                    appendTextToNode(e, bje, existingMethodNode, methodBody);
+                } else {
+                    //Make a new method:
+                    String fullMethod = comment + "    public void " + methodName + "()\n    {\n" + methodBody + "    }\n";
+                    appendTextToNode(e, bje, classNode, fullMethod);
+                }
+                e.setVisible(true);
+            }
+        });
     }
     
     private NodeAndPosition<ParsedNode> findClassNode(MoeSyntaxDocument doc)
@@ -151,34 +157,45 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         return null;
     }
 
-    public void insertMethodCallInConstructor(String methodName)
+    public void insertMethodCallInConstructor(final String methodName)
             throws ProjectNotOpenException, PackageNotFoundException,
             RemoteException
     {
-        Editor e = bClass.getEditor();
-        bluej.editor.Editor bje = bluej.extensions.editor.EditorBridge.getEditor(e);
-        MoeSyntaxDocument doc = (MoeSyntaxDocument)(((MoeEditor)bje).getSourceDocument());
-        
-        NodeAndPosition<ParsedNode> classNode = findClassNode(doc);
-        if (classNode == null)
-            return;
-        NodeAndPosition<ParsedNode> constructor = findMethodNode(bClass.getName(), classNode);
-        if (constructor != null && false == hasMethodCall(doc, methodName, constructor, true)) {
-            //Add at the end of the constructor:
-            appendTextToNode(e, constructor, "\n        " + methodName + "();\n    ");
-        }
-        
-        e.setVisible(true);
+        final Editor e = bClass.getEditor();
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                MoeEditor bje = (MoeEditor)bluej.extensions.editor.EditorBridge.getEditor(e);
+                MoeSyntaxDocument doc = bje.getSourceDocument();
+                
+                NodeAndPosition<ParsedNode> classNode = findClassNode(doc);
+                if (classNode == null)
+                    return;
+                NodeAndPosition<ParsedNode> constructor = findMethodNode(bClass.getName(), classNode);
+                if (constructor != null && false == hasMethodCall(doc, methodName, constructor, true)) {
+                    //Add at the end of the constructor:
+                    appendTextToNode(e, bje, constructor, "\n        " + methodName + "();\n    ");
+                }
+                
+                e.setVisible(true);
+            }
+        });
     }
     
     // Appends text to a node that ends in a curly bracket:
-    private void appendTextToNode(Editor e, NodeAndPosition<ParsedNode> node, String text)
+    private void appendTextToNode(Editor e, MoeEditor bjEditor, NodeAndPosition<ParsedNode> node, String text)
     {
         //The node may have whitespace at the end, so we look for the last closing brace and
         //insert before that:
         for (int pos = node.getEnd() - 1; pos >= 0; pos--) {
             if ("}".equals(e.getText(e.getTextLocationFromOffset(pos), e.getTextLocationFromOffset(pos+1)))) {
+                bjEditor.undoManager.beginCompoundEdit();
+                int originalLength = node.getSize();
+                // First insert the text:
                 e.setText(e.getTextLocationFromOffset(pos), e.getTextLocationFromOffset(pos), text);
+                // Then auto-indent the method to make sure our indents were correct:
+                MoeIndent.calculateIndentsAndApply(bjEditor.getSourceDocument(), node.getPosition(), node.getPosition() + originalLength + text.length());
+                bjEditor.undoManager.endCompoundEdit();
                 return;
             }
         }
