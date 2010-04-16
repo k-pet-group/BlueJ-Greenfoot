@@ -200,13 +200,13 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 
         LocatableToken laToken = parser.getTokenStream().LA(1);
         int tokpos = lineColToPos(document, laToken.getLine(), laToken.getColumn());
-        int tokend = lineColToPos(document, laToken.getEndLine(), laToken.getEndColumn());
         nap = boundaryNap;
         if (nap != null && ! nap.getNode().complete
                 && (nap.getEnd() == tokpos || nap.getEnd() == originalOffset)) {
+            int tokend = lineColToPos(document, laToken.getEndLine(), laToken.getEndColumn());
             // The first token we read "joins on" to the end of the incomplete previous node.
             // So, we'll attempt to add it in.
-            // DAV remove overlapping children!
+            nextChild = removeOverwrittenChildren(childQueue, tokend, listener);
             int oldSize = nap.getSize();
             nap.setSize(tokend - nap.getPosition());
             int pr = nap.getNode().reparseNode(document, nap.getPosition(), tokpos, listener);
@@ -328,9 +328,6 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                     pparams.document.scheduleReparse(stateMarkers[state] + nodePos, slideAmount);
                 }
                 parser.completedNode(this, nodePos, epos - nodePos);
-                if (! nextChild.getNode().complete) {
-                    pparams.document.scheduleReparse(epos + nextChild.getNode().getSize(), 1);
-                }
                 return ALL_OK;
             }
             else if (ppr == PP_ABORT) {
@@ -351,7 +348,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             // If we've overwritten state markers / old children, invalidate them.
             int nlaPos = lineColToPos(document, nlaToken.getLine(), nlaToken.getColumn());
             for (int i = state; i < stateMarkers.length; i++) {
-                if (stateMarkers[i] < nlaPos) {
+                if (stateMarkers[i] + nodePos < nlaPos) {
                     stateMarkers[i] = -1;
                 }
             }
@@ -430,7 +427,9 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
     private void endNodeCleanup(ParseParams params, int state, int rpos, int epos)
     {
         while (++state < stateMarkers.length) {
-            stateMarkers[state] = -1;
+            if (stateMarkers[state] < rpos) {
+                stateMarkers[state] = -1;
+            }
         }
         removeOverwrittenChildren(params.childQueue, rpos,
                 params.listener);

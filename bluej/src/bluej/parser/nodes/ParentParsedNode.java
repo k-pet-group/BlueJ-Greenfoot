@@ -301,11 +301,19 @@ public class ParentParsedNode extends ParsedNode
                 int r = child.getNode().textRemoved(document, child.getPosition(), delPos, length, listener);
                 if (r == REMOVE_NODE) {
                     removeChild(child, listener);
-                    return reparseNode(document, nodePos, child.getPosition(), listener);
+                    ((MoeSyntaxDocument)document).scheduleReparse(child.getPosition(), child.getSize());
+                    // return reparseNode(document, nodePos, child.getPosition(), listener);
                 }
                 else if (r != ALL_OK) {
                     newSize = child.getNode().getSize();
-                    return reparseNode(document, nodePos, child.getPosition() + newSize, listener);
+                    if (newSize < child.getSize()) {
+                        ((MoeSyntaxDocument)document).scheduleReparse(child.getPosition() + newSize,
+                                child.getSize() - newSize);
+                    }
+                    else {
+                        ((MoeSyntaxDocument)document).scheduleReparse(child.getPosition() + newSize,
+                                1);
+                    }
                 }
                 return ALL_OK;
             }
@@ -346,7 +354,14 @@ public class ParentParsedNode extends ParsedNode
         }
 
         if (child != null) {
-            child.getNode().getContainingNodeTree().slideNode(-length);
+            child.slide(-length);
+            if (child.getPosition() == delPos && child.getNode().growsForward()) {
+                // The child had text immediately preceding it removed, and it
+                // grows forward, meaning that the parent probably determines where
+                // it starts. If we schedule a re-parse at delPos, the child will
+                // get re-parsed instead of the parent - so we just remove the child.
+                removeChild(child, listener);
+            }
         }
         
         return handleDeletion(document, nodePos, delPos, listener);
@@ -359,7 +374,8 @@ public class ParentParsedNode extends ParsedNode
     protected int handleDeletion(Document document, int nodePos, int dpos,
             NodeStructureListener listener)
     {
-        return reparseNode(document, nodePos, dpos, listener);
+        ((MoeSyntaxDocument)document).scheduleReparse(dpos, 1);
+        return ALL_OK;
     }
     
     /*

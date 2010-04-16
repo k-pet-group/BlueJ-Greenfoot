@@ -399,7 +399,7 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
      * @param nodePos    The absolute position of this node
      * @param child      The child node which has changed size
      */
-    protected void childResized(MoeSyntaxDocument document, int nodePos, NodeAndPosition<ParsedNode> child)
+    public void childResized(MoeSyntaxDocument document, int nodePos, NodeAndPosition<ParsedNode> child)
     {
         
     }

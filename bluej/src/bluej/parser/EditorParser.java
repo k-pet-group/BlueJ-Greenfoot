@@ -56,6 +56,7 @@ import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ParsedTypeNode;
 import bluej.parser.nodes.PkgStmtNode;
 import bluej.parser.nodes.TypeInnerNode;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.symtab.Selection;
 
 /**
@@ -174,6 +175,8 @@ public class EditorParser extends JavaParser
             endPos = lineColToPosition(token.getLine(), token.getColumn());
         }
         top.resize(endPos - topPos);
+        NodeAndPosition<ParsedNode> child = new NodeAndPosition<ParsedNode>(top, topPos, endPos - topPos);
+        scopeStack.peek().childResized(null, topPos - top.getOffsetFromParent(), child);
         
         completedNode(top, topPos, endPos - topPos);
     }

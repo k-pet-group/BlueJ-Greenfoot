@@ -194,11 +194,13 @@ public class ParsedTypeNode extends IncrementalParsingNode
             }
             
             if (inner == null) {
+                int oldStateMarker = stateMarkers[1];
                 last = params.parser.parseTypeBody(type, token);
                 if (last.getType() == JavaTokenTypes.RCURLY) {
                     inner.setComplete(true);
                 }
                 params.tokenStream.pushBack(last);
+                stateMarkers[1] = oldStateMarker; // let state transition magic work
                 return PP_BEGINS_NEXT_STATE;
             }
             
@@ -236,7 +238,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
                 inner.complete = false;
                 lastPos = lineColToPos(params.document, last.getEndLine(), last.getEndColumn());
                 inner.setSize(lastPos - innerPos);
-                stateMarkers[1] = lastPos;
+                stateMarkers[1] = lastPos - params.nodePos;
                 params.document.scheduleReparse(innerPos + innerSize, lastPos - innerPos - innerSize);
             }
             
@@ -273,7 +275,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     }
     
     @Override
-    protected void childResized(MoeSyntaxDocument document, int nodePos, NodeAndPosition<ParsedNode> child)
+    public void childResized(MoeSyntaxDocument document, int nodePos, NodeAndPosition<ParsedNode> child)
     {
         if (child.getNode() == inner) {
             stateMarkers[1] = child.getEnd() - nodePos;
