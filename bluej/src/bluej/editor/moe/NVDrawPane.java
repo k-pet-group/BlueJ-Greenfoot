@@ -27,6 +27,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JEditorPane;
+import javax.swing.plaf.ComponentUI;
 import javax.swing.text.Document;
 import javax.swing.text.View;
 
@@ -59,6 +60,18 @@ public class NVDrawPane extends JEditorPane
     {
         super.setDocument(doc);
         setBorder(null);
+        fakeRepaint();
+    }
+    
+    @Override
+    protected void setUI(ComponentUI newUI)
+    {
+        super.setUI(newUI);
+        fakeRepaint();
+    }
+    
+    private void fakeRepaint()
+    {
         // Hack: the BasicTextUI.UpdateHandler passes a null allocation to the view
         //      if it hasn't painted yet. The result is that same-line updates aren't
         //      handled. If we do a pretend paint here, the problem is solved.
