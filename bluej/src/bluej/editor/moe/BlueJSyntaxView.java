@@ -819,28 +819,19 @@ public abstract class BlueJSyntaxView extends PlainView
 
             Element map = doc.getDefaultRootElement();
             Stack<NodeAndPosition<ParsedNode>> scopeStack = new Stack<NodeAndPosition<ParsedNode>>();
-            getScopeStackAt(nap.getNode(), nap.getPosition(), 0, scopeStack);
+            scopeStack.add(nap);
 
             while (curpos < napEnd) {
                 // First skip over inner nodes
-                ListIterator<NodeAndPosition<ParsedNode>> i = scopeStack.listIterator();
-                i.next();
-                while (i.hasNext()) {
-                    NodeAndPosition<ParsedNode> inner = i.next();
-                    if (inner.getNode().isInner()) {
-                        int skip = inner.getPosition() + inner.getSize();
-                        i.remove();
-                        while (i.hasNext()) {
-                            i.next();
-                            i.remove();
-                        }
-                        curpos = skip;
-                        NodeAndPosition<ParsedNode> parent = i.previous();
-                        int pindex = i.nextIndex();
-                        getScopeStackAt(parent.getNode(), parent.getPosition(), curpos, scopeStack);
-                        // Urgh. Java invalidates all iterators when the list is modified. Must recreate.
-                        i = scopeStack.listIterator(pindex);
-                    }
+                NodeAndPosition<ParsedNode> top = scopeStack.get(scopeStack.size() - 1);
+                NodeAndPosition<ParsedNode> nextChild = top.getNode().findNodeAt(curpos, top.getPosition());
+                while (nextChild != null && ! nextChild.getNode().isInner()) {
+                    top = nextChild;
+                    nextChild = top.getNode().findNodeAt(curpos, top.getPosition());
+                }
+                
+                if (nextChild != null) {
+                    curpos = nextChild.getEnd();
                 }
 
                 // Ok, we've skipped inner nodes
@@ -947,10 +938,12 @@ public abstract class BlueJSyntaxView extends PlainView
         list.add(new NodeAndPosition<ParsedNode>(root, 0, root.getSize()));
         int curpos = rootPos;
         NodeAndPosition<ParsedNode> nap = root.findNodeAt(position, curpos);
+        while (nap != null && nap.getEnd() == position) nap = nap.nextSibling();
         while (nap != null) {
             list.add(nap);
             curpos = nap.getPosition();
             nap = nap.getNode().findNodeAt(position, curpos);
+            while (nap != null && nap.getEnd() == position) nap = nap.nextSibling();
         }
     }
 
