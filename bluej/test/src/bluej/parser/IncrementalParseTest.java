@@ -147,4 +147,57 @@ public class IncrementalParseTest extends TestCase
         assertEquals(11, nap.getSize());
     }
     
+    public void test4() throws Exception
+    {
+        String aSrc = "class A {\n" +         // 0 - 10
+            "  public void someFunc() {\n" +  // 10 - 37
+            "    if (true) {\n" +             // 37 - 53 
+            "    }\n" +                       // 53 - 59
+            "  \n" +                          // 59 - 62  
+            "  }\n" +                         // 62 - 66
+            "}\n";                            // 66 - 68
+
+        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        ParsedCUNode aNode = aDoc.getParser();
+        NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
+
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(67, nap.getSize());
+
+        // Insert "else" clause, length 13
+        aDoc.insertString(59, "    else { }\n", null);
+        aDoc.flushReparseQueue();
+
+        // Check that the structure is correct
+        nap = aNode.findNodeAt(0, 0);
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(80, nap.getSize());
+        
+        // Class inner
+        nap = nap.getNode().findNodeAt(9, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(9, nap.getPosition());
+        assertEquals(57+13, nap.getSize());
+
+        // Method
+        nap = nap.getNode().findNodeAt(12, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(12, nap.getPosition());
+        assertEquals(53+13, nap.getSize());
+        
+        // Method inner
+        nap = nap.getNode().findNodeAt(36, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(36, nap.getPosition());
+        assertEquals(28+13, nap.getSize());
+        
+        // If/else
+        nap = nap.getNode().findNodeAt(41, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(41, nap.getPosition());
+        assertEquals(17+13, nap.getSize());
+    }
+    
 }
