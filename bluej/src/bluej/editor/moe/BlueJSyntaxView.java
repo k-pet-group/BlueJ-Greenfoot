@@ -824,6 +824,10 @@ public abstract class BlueJSyntaxView extends PlainView
             while (curpos < napEnd) {
                 // First skip over inner nodes
                 NodeAndPosition<ParsedNode> top = scopeStack.get(scopeStack.size() - 1);
+                while (top.getEnd() > napEnd) {
+                    scopeStack.remove(scopeStack.size() - 1);
+                    top = scopeStack.get(scopeStack.size() - 1);
+                }
                 NodeAndPosition<ParsedNode> nextChild = top.getNode().findNodeAt(curpos, top.getPosition());
                 while (nextChild != null && ! nextChild.getNode().isInner()) {
                     top = nextChild;
@@ -862,7 +866,7 @@ public abstract class BlueJSyntaxView extends PlainView
         }
     }
     
-    private void reassesIndents(Shape a, int dmgStart, int dmgEnd)
+    private int[] reassesIndents(Shape a, int dmgStart, int dmgEnd, boolean remove)
     {
         MoeSyntaxDocument doc = (MoeSyntaxDocument) getDocument();
         Element map = getDocument().getDefaultRootElement();
@@ -871,82 +875,193 @@ public abstract class BlueJSyntaxView extends PlainView
         Segment segment = new Segment();
         
         try {
-            if (ls == le) {
-                // Single line
-                Element lineEl = map.getElement(ls);
-                doc.getText(lineEl.getStartOffset(), lineEl.getEndOffset() - lineEl.getStartOffset(), segment);
-                int nws = findNonWhitespace(segment, 0);
-                
-                if (nws != -1) {
-                    List<NodeAndPosition<ParsedNode>> scopeStack = new LinkedList<NodeAndPosition<ParsedNode>>();
-                    getScopeStackAt(doc.getParsedNode(), 0, lineEl.getStartOffset() + nws, scopeStack);
-                    ListIterator<NodeAndPosition<ParsedNode>> i = scopeStack.listIterator(scopeStack.size());
-                    Rectangle cbounds = modelToView(lineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds();
-                    int indent = cbounds.x;
+            int [] dmgRange = new int[2];
+            dmgRange[0] = dmgStart;
+            dmgRange[1] = dmgEnd;
 
-                    while (i.hasPrevious()) {
-                        NodeAndPosition<ParsedNode> nap = i.previous();
-                        Integer indentO = nodeIndents.get(nap.getNode());
-                        if (indentO != null) {
-                            int oldIndent = indentO;
-                            if (indent < oldIndent) {
-                                nodeIndents.put(nap.getNode(), indent);
-                            }
-                            else if (indent > oldIndent) {
-                                // Need to check if the indent as a whole has increased.
-                                // TODO: improve efficiency.
-                                // For now just throw away cached value
-                                nodeIndents.remove(nap.getNode());
-                            }
-                            else {
-                                // the indent hasn't changed
-                                // nodeIndents.remove(nap.getNode());
-                            }
-                        }
-                    }
-                }
-
-                return;
+            // It's a multiple line change
+            int i = ls;
+            List<NodeAndPosition<ParsedNode>> scopeStack = new LinkedList<NodeAndPosition<ParsedNode>>();
+            int lineEndPos = map.getElement(le).getEndOffset();
+            Element lineEl = map.getElement(ls);
+            NodeAndPosition<ParsedNode> top =
+                doc.getParser().findNodeAtOrAfter(lineEl.getStartOffset(), 0);
+            while (top != null && top.getEnd() == lineEl.getStartOffset()) {
+                top = top.nextSibling();
             }
             
-            // It's a multiple line change
-            for (int i = ls; i <= le; i++) {
-                Element lineEl = map.getElement(i);
-                doc.getText(lineEl.getStartOffset(), lineEl.getEndOffset(), segment);
-                int nws = findNonWhitespace(segment, 0);
-                if (nws != -1) {
-                    List<NodeAndPosition<ParsedNode>> scopeStack = new LinkedList<NodeAndPosition<ParsedNode>>();
-                    getScopeStackAt(doc.getParser(), 0, lineEl.getStartOffset() + nws, scopeStack);
-                    ListIterator<NodeAndPosition<ParsedNode>> j = scopeStack.listIterator(scopeStack.size());
-                    while (j.hasPrevious()) {
-                        NodeAndPosition<ParsedNode> nap = j.previous();
-                        nodeIndents.remove(nap.getNode());
-                        if (nap.getNode().isInner()) {
-                            break;
-                        }
-                    }
+            if (top == null) {
+                return dmgRange;
+            }
+            if (top.getPosition() >= lineEl.getEndOffset()) {
+                i = map.getElementIndex(top.getPosition());
+                if (i > le) {
+                    return dmgRange;
                 }
             }
+            
+            if (remove) {
+                doc.getText(lineEl.getStartOffset(),
+                        lineEl.getEndOffset() - lineEl.getStartOffset(), segment);
+                int nws = findNonWhitespace(segment, 0);
+                if (nws == -1) {
+                    // If removing text leaves a blank line, every node over that line
+                    // needs its cached indent invalidated.
+                    // DAV
+                }
+            }
+            
+            scopeStack.add(top);
+            NodeAndPosition<ParsedNode> nap = top.getNode().findNodeAtOrAfter(lineEl.getStartOffset(),
+                    top.getPosition());
+            while (nap != null && nap.getEnd() == lineEl.getStartOffset()) nap = nap.nextSibling(); 
+            while (nap != null) {
+                scopeStack.add(nap);
+                nap = nap.getNode().findNodeAtOrAfter(lineEl.getStartOffset(),
+                        nap.getPosition());                
+                while (nap != null && nap.getEnd() == lineEl.getStartOffset()) nap = nap.nextSibling(); 
+            }
+            
+            outer:
+            while (true) {
+                // Skip to the next line which has text on it
+                doc.getText(lineEl.getStartOffset(),
+                        lineEl.getEndOffset() - lineEl.getStartOffset(), segment);
+                int nws = findNonWhitespace(segment, 0);
+                while (nws == -1) {
+                    if (++i > le) {
+                        break outer;
+                    }
+                    lineEl = map.getElement(i);
+                    doc.getText(lineEl.getStartOffset(),
+                            lineEl.getEndOffset() - lineEl.getStartOffset(), segment);
+                    nws = findNonWhitespace(segment, 0);
+                }
 
+                // Remove from the stack nodes which we've gone past
+                int curpos = lineEl.getStartOffset() + nws;
+                ListIterator<NodeAndPosition<ParsedNode>> j = scopeStack.listIterator(scopeStack.size());
+                NodeAndPosition<ParsedNode> topNap = null;
+                do {
+                    nap = j.previous();
+                    if (nap.getEnd() > curpos) {
+                        break;
+                    }
+                    topNap = nap;
+                    j.remove();
+                } while (j.hasPrevious());
+
+                // Rebuild the scope stack
+                if (topNap != null) {
+                    do {
+                        topNap = topNap.nextSibling();
+                    } while (topNap != null && topNap.getEnd() <= curpos);
+                    while (topNap != null && topNap.getPosition() < lineEndPos) {
+                        scopeStack.add(topNap);
+                        topNap = topNap.getNode().findNodeAtOrAfter(curpos,
+                                topNap.getPosition());
+                        while (topNap != null && topNap.getEnd() == curpos) topNap = topNap.nextSibling();
+                    }
+                }
+                
+                if (scopeStack.isEmpty()) {
+                    break;
+                }
+
+                // Calculate/store indent
+                Rectangle cbounds = modelToView(lineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds();
+                int indent = cbounds.x;
+                for (j = scopeStack.listIterator(scopeStack.size()); j.hasPrevious(); ) {
+                    NodeAndPosition<ParsedNode> next = j.previous();
+                    if (next.getPosition() <= curpos) {
+                        updateNodeIndent(next, indent, nodeIndents.get(next.getNode()), dmgRange);
+                    }
+                    else if (next.getPosition() < lineEl.getEndOffset()) {
+                        nws = findNonWhitespace(segment, next.getPosition() - lineEl.getStartOffset());
+                        Integer oindent = nodeIndents.get(next.getNode());
+                        if (oindent != null && nws != -1) {
+                            cbounds = modelToView(lineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds();
+                            indent = cbounds.x;
+                            updateNodeIndent(next, indent, oindent, dmgRange);
+                        }
+                    }
+                    else {
+                        break;
+                    }
+                    
+                    // Inner nodes are skipped during indent calculation
+                    if (next.getNode().isInner()) {
+                        break;
+                    }
+                }
+
+                // Process subsequent nodes which are also on this line
+                j = scopeStack.listIterator(scopeStack.size());
+                while (j.hasPrevious()) {
+                    nap = j.previous();
+                    if (nap.getEnd() > lineEl.getEndOffset()) {
+                        break;
+                    }
+                    // Node ends this line and may have siblings
+                    nap = nap.nextSibling();
+                    j.remove();
+                    if (nap != null) {
+                        do {
+                            scopeStack.add(nap);
+                            nws = findNonWhitespace(segment, nap.getPosition() - lineEl.getStartOffset());
+                            Integer oindent = nodeIndents.get(nap.getNode());
+                            if (oindent != null && nws != -1) {
+                                cbounds = modelToView(lineEl.getStartOffset() + nws, a, Position.Bias.Forward).getBounds();
+                                indent = cbounds.x;
+                                updateNodeIndent(nap, indent, oindent, dmgRange);
+                            }
+                            nap = nap.getNode().findNodeAtOrAfter(nap.getPosition(), nap.getPosition());
+                            if (nap != null && nap.getPosition() > lineEndPos) {
+                                break;
+                            }
+                        }
+                        while (nap != null);
+                        j = scopeStack.listIterator(scopeStack.size());
+                    }
+                }
+
+                // Move on to the next line
+                if (++i > le) {
+                    break;
+                }
+                lineEl = map.getElement(i);
+            }
+            
+            return dmgRange;
         }
-        catch (BadLocationException ble) {}
+        catch (BadLocationException ble) {
+            ble.printStackTrace();
+        }
+        return null;
     }
     
-    private void getScopeStackAt(ParsedNode root, int rootPos, int position,
-            List<NodeAndPosition<ParsedNode>> list)
+    private void updateNodeIndent(NodeAndPosition<ParsedNode> nap, int indent, Integer oindent, int [] dmgRange)
     {
-        list.add(new NodeAndPosition<ParsedNode>(root, 0, root.getSize()));
-        int curpos = rootPos;
-        NodeAndPosition<ParsedNode> nap = root.findNodeAt(position, curpos);
-        while (nap != null && nap.getEnd() == position) nap = nap.nextSibling();
-        while (nap != null) {
-            list.add(nap);
-            curpos = nap.getPosition();
-            nap = nap.getNode().findNodeAt(position, curpos);
-            while (nap != null && nap.getEnd() == position) nap = nap.nextSibling();
+        int dmgStart = dmgRange[0];
+        int dmgEnd = dmgRange[1];
+        
+        if (oindent != null) {
+            int noindent = oindent;
+            if (indent < noindent) {
+                nodeIndents.put(nap.getNode(), indent);
+            }
+            else if (indent != noindent) {
+                nodeIndents.remove(nap.getNode());
+            }
+            if (indent != noindent) {
+                dmgStart = Math.min(dmgStart, nap.getPosition());
+                dmgEnd = Math.max(dmgEnd, nap.getEnd());
+                dmgRange[0] = dmgStart;
+                dmgRange[1] = dmgEnd;
+            }
         }
     }
-
+    
     private void getScopeStackAfter(ParsedNode root, int rootPos, int position, List<NodeAndPosition<ParsedNode>> list)
     {
         // Note we add 1 to the given position to skip nodes which actually end at the position,
@@ -1062,24 +1177,40 @@ public abstract class BlueJSyntaxView extends PlainView
         if (changes instanceof MoeSyntaxEvent) {
             MoeSyntaxEvent mse = (MoeSyntaxEvent) changes;
             for (NodeAndPosition<ParsedNode> node : mse.getRemovedNodes()) {
+                // DAV if an inner node is removed, we need to recalculate the indent
+                // of the containing node. (if it is already smaller than
+                // the inner node's indent then we don't need to do this.)
                 nodeRemoved(node.getNode());
                 damageStart = Math.min(damageStart, node.getPosition());
                 damageEnd = Math.max(damageEnd, node.getEnd());
             }
             for (NodeAndPosition<ParsedNode> node : mse.getAddedNodes()) {
+                // DAV if an inner node is inserted, we need to recalculate the
+                // indent of the containing node.
                 damageStart = Math.min(damageStart, node.getPosition());
                 damageEnd = Math.max(damageEnd, node.getEnd());
             }
         }
 
         Component host = getContainer();
+        if (host == null) {
+            return;
+        }
         Element map = getElement();
 
         if (changes.getType() == EventType.INSERT) {
-            reassesIndents(a, damageStart, damageEnd);
+            damageStart = Math.min(damageStart, changes.getOffset());
+            damageEnd = Math.max(damageEnd, changes.getOffset() + changes.getLength());
+            int [] r = reassesIndents(a, damageStart, damageEnd, false);
+            damageStart = r[0];
+            damageEnd = r[1];
         }
         else if (changes.getType() == EventType.REMOVE) {
-            reassesIndents(a, damageStart, damageStart);
+            damageStart = Math.min(damageStart, changes.getOffset());
+            damageEnd = Math.max(damageEnd, changes.getOffset());
+            int [] r = reassesIndents(a, damageStart, damageStart, true);
+            damageStart = r[0];
+            damageEnd = r[1];
         }
         
         if (damageStart < damageEnd) {
