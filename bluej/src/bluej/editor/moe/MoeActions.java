@@ -45,7 +45,6 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.InputMap;
@@ -68,11 +67,7 @@ import javax.swing.undo.CannotUndoException;
 
 import bluej.Config;
 import bluej.parser.nodes.CommentNode;
-import bluej.parser.nodes.ContainerNode;
-import bluej.parser.nodes.ExpressionNode;
-import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.ParsedNode;
-import bluej.parser.nodes.TypeInnerNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
@@ -750,7 +745,7 @@ public final class MoeActions
             MoeSyntaxDocument doc = editor.getSourceDocument();
 
             editor.undoManager.beginCompoundEdit();
-            boolean perfect = MoeIndent.calculateIndentsAndApply(editor.getSourceDocument());
+            boolean perfect = MoeIndent.calculateIndentsAndApply(doc);
             editor.undoManager.endCompoundEdit();
             
             if (perfect)
@@ -1752,7 +1747,7 @@ public final class MoeActions
         }
 
         textPane.setCaretPosition(text.getElement(firstLineIndex).getStartOffset());
-        textPane.moveCaretPosition(text.getElement(lastLineIndex).getEndOffset());
+        textPane.moveCaretPosition(text.getElement(lastLineIndex).getEndOffset() - 1);
     }
 
     // --------------------------------------------------------------------
