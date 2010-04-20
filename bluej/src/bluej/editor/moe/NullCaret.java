@@ -50,98 +50,81 @@ public class NullCaret implements Caret
         dotPos = dot;
     }
     
-    @Override
     public void addChangeListener(ChangeListener l)
     {
         changeListeners.add(l);
     }
 
-    @Override
     public void deinstall(JTextComponent c)
     {
     }
 
-    @Override
     public int getBlinkRate()
     {
         return 0;
     }
 
-    @Override
     public int getDot()
     {
         return dotPos;
     }
 
-    @Override
     public Point getMagicCaretPosition()
     {
         return null;
     }
 
-    @Override
     public int getMark()
     {
         return markPos;
     }
 
-    @Override
     public void install(JTextComponent c)
     {
     }
 
-    @Override
     public boolean isSelectionVisible()
     {
         return false;
     }
 
-    @Override
     public boolean isVisible()
     {
         return false;
     }
 
-    @Override
     public void moveDot(int dot)
     {
         dotPos = dot;
     }
 
-    @Override
     public void paint(Graphics g)
     {
     }
 
-    @Override
     public void removeChangeListener(ChangeListener l)
     {
         changeListeners.remove(l);
     }
 
-    @Override
     public void setBlinkRate(int rate)
     {
     }
 
-    @Override
     public void setDot(int dot)
     {
         markPos = dot;
         dotPos = dot;
     }
 
-    @Override
     public void setMagicCaretPosition(Point p)
     {
     }
 
-    @Override
     public void setSelectionVisible(boolean v)
     {
     }
 
-    @Override
     public void setVisible(boolean v)
     {
     }

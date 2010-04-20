@@ -106,7 +106,6 @@ public class NVDrawPane extends JEditorPane
                 repaintTop = y;
                 repaintEnd = y + height;
                 EventQueue.invokeLater(new Runnable() {
-                    @Override
                     public void run()
                     {
                         nview.repaintModel(repaintTop, repaintEnd);
