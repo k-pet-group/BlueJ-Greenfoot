@@ -175,12 +175,22 @@ public class NaviView extends JPanel implements AdjustmentListener
         if (prefHeight > myHeight) {
             int ptop = top * myHeight / prefHeight;
             int pbottom = (bottom * myHeight + prefHeight - 1) / prefHeight;
-            paintImgBuffer(ptop, pbottom);
-            repaint(0, ptop + insets.top + frw, getWidth(), pbottom - ptop);
+            if (isVisible()) {
+                paintImgBuffer(ptop, pbottom);
+                repaint(0, ptop + insets.top + frw, getWidth(), pbottom - ptop);
+            }
+            else {
+                enqueueRepaint(ptop, pbottom);
+            }
         }
         else {
-            paintImgBuffer(top, bottom);
-            repaint(0, top + insets.top + frw, getWidth(), bottom - top);
+            if (isVisible()) {
+                paintImgBuffer(top, bottom);
+                repaint(0, top + insets.top + frw, getWidth(), bottom - top);
+            }
+            else {
+                enqueueRepaint(top, bottom);
+            }
         }
     }
     

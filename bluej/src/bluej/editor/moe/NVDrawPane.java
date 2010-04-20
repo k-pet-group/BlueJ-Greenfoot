@@ -21,6 +21,7 @@
  */
 package bluej.editor.moe;
 
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Rectangle;
@@ -46,6 +47,10 @@ import javax.swing.text.View;
 public class NVDrawPane extends JEditorPane
 {
     private NaviView nview;
+    private boolean scheduledPaint = false;
+    
+    private int repaintTop;
+    private int repaintEnd;
     
     public NVDrawPane(NaviView nview)
     {
@@ -95,7 +100,24 @@ public class NVDrawPane extends JEditorPane
         if (nview != null) {
             // Note this condition appears impossible, however JEditorPane constructor
             // does call repaint().
-            nview.repaintModel(y, y + height);
+            
+            if (!scheduledPaint) {
+                scheduledPaint = true;
+                repaintTop = y;
+                repaintEnd = y + height;
+                EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run()
+                    {
+                        nview.repaintModel(repaintTop, repaintEnd);
+                        scheduledPaint = false;
+                    }
+                });
+            }
+            else {
+                repaintTop = Math.min(repaintTop, y);
+                repaintEnd = Math.max(repaintEnd, y + height);
+            }
         }
     }
     
