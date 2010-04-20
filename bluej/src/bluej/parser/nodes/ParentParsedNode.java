@@ -68,7 +68,8 @@ public class ParentParsedNode extends ParsedNode
         }
         Token dummyTok = tok;
         
-        NodeAndPosition<ParsedNode> np = getNodeTree().findNodeAtOrAfter(pos + 1, nodePos);
+        NodeAndPosition<ParsedNode> np = getNodeTree().findNodeAtOrAfter(pos, nodePos);
+        while (np != null && np.getEnd() == pos) np = np.nextSibling(); 
         
         int cp = pos;
         while (np != null && np.getPosition() < (pos + length)) {
@@ -80,18 +81,16 @@ public class ParentParsedNode extends ParsedNode
             }
             
             int remaining = pos + length - cp;
-            if (remaining > np.getSize() - cp + np.getPosition()) {
-                remaining = np.getSize() - cp + np.getPosition();
+            remaining = Math.min(remaining, np.getEnd() - cp);
+            
+            if (remaining != 0) {
+                tok.next = np.getNode().getMarkTokensFor(cp, remaining, np.getPosition(), document);
+                cp += remaining;
+                while (tok.next.id != Token.END) {
+                    tok = tok.next;
+                }
             }
-            if (remaining == 0) {
-                break;
-            }
-            tok.next = np.getNode().getMarkTokensFor(cp, remaining, np.getPosition(), document);
-            cp += remaining;
-            while (tok.next.id != Token.END) {
-                tok = tok.next;
-            }
-            np = getNodeTree().findNodeAtOrAfter(cp, nodePos);
+            np = np.nextSibling();
         }
         
         // There may be a section left
