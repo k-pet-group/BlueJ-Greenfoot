@@ -25,13 +25,12 @@ import java.io.Reader;
 
 import javax.swing.text.Document;
 
+import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.Token;
 import bluej.parser.DocumentReader;
-import bluej.parser.EditorParser;
 import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
-import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 /**
  * A node type for representing comments in the code.
@@ -68,7 +67,8 @@ public class CommentNode extends ParsedNode
         // grow ourself:
         int newSize = getSize() + length;
         resize(newSize);
-        return reparseNode(document, nodePos, insPos, listener);
+        ((MoeSyntaxDocument) document).scheduleReparse(insPos, length);
+        return ALL_OK;
     }
 
     @Override
@@ -77,7 +77,8 @@ public class CommentNode extends ParsedNode
         // shrink ourself:
         int newSize = getSize() - length;
         resize(newSize);
-        return reparseNode(document, nodePos, delPos, listener);
+        ((MoeSyntaxDocument) document).scheduleReparse(delPos, 0);
+        return ALL_OK;
     }
 
     @Override

@@ -46,6 +46,7 @@ import javax.swing.text.Segment;
 import javax.swing.text.Utilities;
 import javax.swing.text.ViewFactory;
 
+import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.prefmgr.PrefMgr;
@@ -866,13 +867,15 @@ public abstract class BlueJSyntaxView extends PlainView
         }
     }
     
-    private int[] reassesIndents(Shape a, int dmgStart, int dmgEnd, boolean remove)
+    private int[] reassessIndents(Shape a, int dmgStart, int dmgEnd, boolean remove)
     {
         MoeSyntaxDocument doc = (MoeSyntaxDocument) getDocument();
         Element map = getDocument().getDefaultRootElement();
         int ls = map.getElementIndex(dmgStart);
         int le = map.getElementIndex(dmgEnd);
         Segment segment = new Segment();
+        
+        ParsedCUNode pcuNode = doc.getParsedNode();
         
         try {
             int [] dmgRange = new int[2];
@@ -885,7 +888,7 @@ public abstract class BlueJSyntaxView extends PlainView
             int lineEndPos = map.getElement(le).getEndOffset();
             Element lineEl = map.getElement(ls);
             NodeAndPosition<ParsedNode> top =
-                doc.getParser().findNodeAtOrAfter(lineEl.getStartOffset(), 0);
+                pcuNode.findNodeAtOrAfter(lineEl.getStartOffset(), 0);
             while (top != null && top.getEnd() == lineEl.getStartOffset()) {
                 top = top.nextSibling();
             }
@@ -1201,14 +1204,14 @@ public abstract class BlueJSyntaxView extends PlainView
         if (changes.getType() == EventType.INSERT) {
             damageStart = Math.min(damageStart, changes.getOffset());
             damageEnd = Math.max(damageEnd, changes.getOffset() + changes.getLength());
-            int [] r = reassesIndents(a, damageStart, damageEnd, false);
+            int [] r = reassessIndents(a, damageStart, damageEnd, false);
             damageStart = r[0];
             damageEnd = r[1];
         }
         else if (changes.getType() == EventType.REMOVE) {
             damageStart = Math.min(damageStart, changes.getOffset());
             damageEnd = Math.max(damageEnd, changes.getOffset());
-            int [] r = reassesIndents(a, damageStart, damageStart, true);
+            int [] r = reassessIndents(a, damageStart, damageStart, true);
             damageStart = r[0];
             damageEnd = r[1];
         }
