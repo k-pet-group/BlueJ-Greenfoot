@@ -125,7 +125,7 @@ public class IncrementalParseTest extends TestCase
     public void test3() throws Exception
     {
         String aSrc = "class A {\n" +   // 0 - 10
-            "}\n";                      // 12 - 12
+            "}\n";                      // 10 - 12
         
         MoeSyntaxDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
@@ -199,5 +199,39 @@ public class IncrementalParseTest extends TestCase
         assertEquals(41, nap.getPosition());
         assertEquals(17+13, nap.getSize());
     }
-    
+
+    public void test5() throws Exception
+    {
+        // A class with an extra closing '}':
+        String aSrc = "class A {\n" +   // 0 - 10
+            "}\n";                      // 10 - 12
+        
+        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        ParsedCUNode aNode = aDoc.getParser();
+        NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
+        
+        // Class should extend from 0 - 11
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(11, nap.getSize());
+        
+        // Now insert a new '}' which should terminate the class:
+        aDoc.insertString(10, "}\n", null);
+        aDoc.flushReparseQueue();
+        
+        nap = aNode.findNodeAt(0, 0);
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(11, nap.getSize());
+        
+        // Now remove the first '}'
+        aDoc.remove(10, 1);
+        aDoc.flushReparseQueue();
+        
+        // Check that the structure is correct
+        nap = aNode.findNodeAt(0, 0);
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(12, nap.getSize());
+    }
 }

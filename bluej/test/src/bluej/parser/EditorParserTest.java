@@ -267,4 +267,28 @@ public class EditorParserTest extends TestCase
         tp.confirmCommand();     
     }
   
+    public void testSLComment()
+    {
+        String sourceCode = ""
+            + "class A\n"       // 0 - 8
+            + "{\n"             // 8 - 10
+            + "  A() {\n"       // 10 -  18 
+            + "    int a; // comment\n"  // comment starts at 11 + 18 = 29 
+            + "  }"
+            + "}\n";
+            
+        ParsedCUNode pcuNode = cuForSource(sourceCode, "");
+        assertNotNull(pcuNode);
+        
+        NodeAndPosition<ParsedNode> top = new NodeAndPosition<ParsedNode>(pcuNode, 0, pcuNode.getSize());
+        NodeAndPosition<ParsedNode> nap = top.getNode().findNodeAt(29, top.getPosition());
+        while (nap != null) {
+            top = nap;
+            nap = top.getNode().findNodeAt(29, top.getPosition());
+        }
+        
+        assertEquals(29, top.getPosition());
+        assertEquals(39, top.getEnd());
+    }
+
 }
