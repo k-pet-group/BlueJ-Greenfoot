@@ -201,8 +201,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         LocatableToken laToken = parser.getTokenStream().LA(1);
         int tokpos = lineColToPos(document, laToken.getLine(), laToken.getColumn());
         nap = boundaryNap;
-        if (nap != null && ! nap.getNode().complete
-                && (nap.getEnd() == tokpos || nap.getEnd() == originalOffset)) {
+        if (nap != null && ! nap.getNode().complete) {
             int tokend = lineColToPos(document, laToken.getEndLine(), laToken.getEndColumn());
             // The first token we read "joins on" to the end of the incomplete previous node.
             // So, we'll attempt to add it in.
