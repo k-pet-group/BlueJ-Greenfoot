@@ -195,6 +195,10 @@ public class WorldHandler
             public void initialisingWorld(World world)
             {
             }
+
+            public void simulationActive()
+            {
+            }
         };
     }
         
@@ -748,6 +752,7 @@ public class WorldHandler
         inputManager.simulationChanged(e); // TODO maybe add somewhere else?
         if (e.getType() == SimulationEvent.NEW_ACT) {
             mousePollingManager.newActStarted();
+            handlerDelegate.simulationActive();
         }
     }
 

@@ -550,7 +550,7 @@ public class GreenfootFrame extends JFrame
     	saveProjectAction = new SaveProjectAction(this);
     	saveCopyAction = new SaveCopyAction(this);
     	showReadMeAction = new ShowReadMeAction(this);
-    	saveWorldAction = new SaveWorldAction(this, worldHandlerDelegate);
+    	saveWorldAction = worldHandlerDelegate.getSaveWorldAction();
     	exportProjectAction = new ExportProjectAction(this);
     	closeProjectAction = new CloseProjectAction(this);
     	removeSelectedClassAction = new RemoveSelectedClassAction(this);

@@ -24,6 +24,7 @@ package greenfoot.platforms.ide;
 import greenfoot.Actor;
 import greenfoot.ObjectTracker;
 import greenfoot.World;
+import greenfoot.actions.SaveWorldAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GProject;
 import greenfoot.core.WorldHandler;
@@ -97,6 +98,7 @@ public class WorldHandlerDelegateIDE
     
     // Records actions manually performed on the world:
     private GreenfootRecorder greenfootRecorder;
+    private SaveWorldAction saveWorldAction;
 
     public WorldHandlerDelegateIDE(GreenfootFrame frame)
     {
@@ -104,7 +106,8 @@ public class WorldHandlerDelegateIDE
         worldTitle.setBorder(BorderFactory.createEmptyBorder(18, 0, 4, 0));
         worldTitle.setHorizontalAlignment(SwingConstants.CENTER);
         this.frame = frame;
-        greenfootRecorder = new GreenfootRecorder();
+        saveWorldAction = new SaveWorldAction(this);
+        greenfootRecorder = new GreenfootRecorder(saveWorldAction);
     }
 
     /**
@@ -579,8 +582,16 @@ public class WorldHandlerDelegateIDE
 
     public void clearRecorderCode()
     {
-        greenfootRecorder.clearCode();        
+        greenfootRecorder.clearCode(false);        
     }
     
-    
+    public void simulationActive()
+    {
+        greenfootRecorder.clearCode(true);
+    }
+
+    public SaveWorldAction getSaveWorldAction()
+    {
+        return saveWorldAction;
+    }
 }

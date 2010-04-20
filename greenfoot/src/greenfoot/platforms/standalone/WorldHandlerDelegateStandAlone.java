@@ -157,4 +157,9 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     {
         // Nothing to be done        
     }
+    
+    public void simulationActive()
+    {
+        // Nothing to be done        
+    }
 }

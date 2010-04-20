@@ -38,8 +38,9 @@ import bluej.utility.Debug;
 public class SaveWorldAction extends AbstractAction
 {
     private WorldHandlerDelegateIDE ide;
+    private boolean recordingValid;
 
-    public SaveWorldAction(GreenfootFrame greenfootFrame, WorldHandlerDelegateIDE ide)
+    public SaveWorldAction(WorldHandlerDelegateIDE ide)
     {
         super(Config.getString("save.world"));
         setEnabled(false);
@@ -82,4 +83,18 @@ public class SaveWorldAction extends AbstractAction
         }
     }
 
+    public boolean isEnabled()
+    {
+        return recordingValid && super.isEnabled();
+    }
+
+    public void setRecordingValid(boolean valid)
+    {
+        boolean oldValid = recordingValid;
+        recordingValid = valid;
+        if (oldValid != valid && enabled) {
+            //This action will actually change the status of the menu
+            firePropertyChange("enabled", Boolean.valueOf(oldValid && enabled), Boolean.valueOf(valid && enabled));
+        }        
+    } 
 }

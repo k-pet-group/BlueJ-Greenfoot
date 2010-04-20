@@ -35,6 +35,7 @@ import bluej.utility.Debug;
 import greenfoot.Actor;
 import greenfoot.ObjectTracker;
 import greenfoot.World;
+import greenfoot.actions.SaveWorldAction;
 
 public class GreenfootRecorder
 {
@@ -42,13 +43,17 @@ public class GreenfootRecorder
     private LinkedList<String> code;
     private World world;
     private Actor recentlyMovedActor;
+    private SaveWorldAction action;
     
     public static final String METHOD_NAME = "prepare";
     
-    public GreenfootRecorder()
+    public GreenfootRecorder(SaveWorldAction action)
     {
         objectNames = new IdentityHashMap<Object, String>();
         code = new LinkedList<String>();
+        this.action = action;
+        this.action.setRecordingValid(false);
+        Debug.message("Recording invalid to being with");
     }
 
     public void createActor(Class<?> theClass, Object actor, String[] args)
@@ -120,17 +125,24 @@ public class GreenfootRecorder
         callActorMethod(null, className, name, args);
     }
     
-    public void clearCode()
+    public void clearCode(boolean simulationStarted)
     {
         code.clear();
         recentlyMovedActor = null;
+        if (simulationStarted) {
+            objectNames.clear();
+            action.setRecordingValid(false);
+            Debug.message("Recording invalidated by running");
+        }
     }
 
     public void reset(World newWorld)
     {
         world = newWorld;
         objectNames.clear();
-        clearCode();
+        clearCode(false);
+        action.setRecordingValid(true);
+        Debug.message("Recording valid due to reset");
     }
 
     public void moveActor(Actor actor, int xCell, int yCell)

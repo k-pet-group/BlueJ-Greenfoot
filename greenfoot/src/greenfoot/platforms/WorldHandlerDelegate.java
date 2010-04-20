@@ -61,6 +61,8 @@ public interface WorldHandlerDelegate
     InputManager getInputManager();
 
     void discardWorld(World world);
+    
+    // Methods for recording:
 
     void createdActor(Class<?> theClass, Object actor, String[] args);
     
@@ -75,4 +77,6 @@ public interface WorldHandlerDelegate
     void objectAddedToWorld(Actor object);
 
     void initialisingWorld(World world);
+
+    void simulationActive();
 }
