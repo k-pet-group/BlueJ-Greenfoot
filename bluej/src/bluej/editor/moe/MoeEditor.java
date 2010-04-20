@@ -2491,6 +2491,33 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         return matchBrackets;
     }
+    
+    /**
+     * Set the caret inactive or active. When "inactive" the standard Moe caret is replaced
+     * with a dummy caret which does not paint or do anything which the default caret does.
+     * This makes it much, much faster to move around (any text insert or remove operation
+     * moves the caret, so these become faster as well).
+     * 
+     * <p>Calls to setCaretActive(false) should always be paired with calls to
+     * setCaretActive(true).
+     * 
+     * @param active  True, if the Moe caret should be active; false to replace it temporarily
+     *                with a fast dummy caret.
+     */
+    public void setCaretActive(boolean active)
+    {
+        if (! active) {
+            //moeCaret.deinstall(currentTextPane);
+            currentTextPane.setCaret(new NullCaret(moeCaret.getMark(), moeCaret.getDot()));
+        }
+        else {
+            //moeCaret.install(currentTextPane);
+            Caret caret = currentTextPane.getCaret();
+            currentTextPane.setCaret(moeCaret);
+            moeCaret.setDot(caret.getMark());
+            moeCaret.moveDot(caret.getDot());
+        }
+    }
 
     // --------------------------------------------------------------------
     /**

@@ -668,7 +668,7 @@ public final class MoeActions
         {
             MoeEditor editor = getEditor(e);
             editor.undoManager.beginCompoundEdit();
-            blockAction(getTextComponent(e), new CommentLineAction());
+            blockAction(editor, new CommentLineAction());
             editor.undoManager.endCompoundEdit();
         }
     }
@@ -687,7 +687,7 @@ public final class MoeActions
         {
             MoeEditor editor = getEditor(e);
             editor.undoManager.beginCompoundEdit();
-            blockAction(getTextComponent(e), new UncommentLineAction());
+            blockAction(editor, new UncommentLineAction());
             editor.undoManager.endCompoundEdit();
         }
     }
@@ -706,7 +706,7 @@ public final class MoeActions
         {
             MoeEditor editor = getEditor(e);
             editor.undoManager.beginCompoundEdit();
-            blockAction(getTextComponent(e), new IndentLineAction());
+            blockAction(editor, new IndentLineAction());
             editor.undoManager.endCompoundEdit();
         }
     }
@@ -725,7 +725,7 @@ public final class MoeActions
         {
             MoeEditor editor = getEditor(e);
             editor.undoManager.beginCompoundEdit();
-            blockAction(getTextComponent(e), new DeindentLineAction());
+            blockAction(editor, new DeindentLineAction());
             editor.undoManager.endCompoundEdit();
         }
     }
@@ -744,12 +744,15 @@ public final class MoeActions
             MoeEditor editor = getEditor(e);
             MoeSyntaxDocument doc = editor.getSourceDocument();
 
+            editor.setCaretActive(false);
             editor.undoManager.beginCompoundEdit();
             boolean perfect = MoeIndent.calculateIndentsAndApply(doc);
             editor.undoManager.endCompoundEdit();
+            editor.setCaretActive(true);
             
-            if (perfect)
+            if (perfect) {
                 editor.writeMessage(Config.getString("editor.info.perfectIndent"));
+            }
         }
     }
     
@@ -790,8 +793,12 @@ public final class MoeActions
 
             // if necessary, convert all TABs in the current editor to spaces
             int converted = 0;
-            if (ed.checkExpandTabs()) // do TABs need expanding?
+            if (ed.checkExpandTabs()) {
+                // do TABs need expanding?
+                ed.setCaretActive(false);
                 converted = convertTabsToSpaces(textPane);
+                ed.setCaretActive(true);
+            }
 
             if (PrefMgr.getFlag(PrefMgr.AUTO_INDENT))
                 doIndent(textPane, false);
@@ -820,7 +827,9 @@ public final class MoeActions
 
             // if necessary, convert all TABs in the current editor to spaces
             if (ed.checkExpandTabs()) { // do TABs need expanding?
+                ed.setCaretActive(false);
                 int converted = convertTabsToSpaces(textPane);
+                ed.setCaretActive(true);
 
                 if (converted > 0)
                     ed.writeMessage(Config.getString("editor.info.tabsExpanded"));
@@ -1721,11 +1730,13 @@ public final class MoeActions
     }
 
     /**
-     *  
+     * Perform an action on all selected lines.
      */
-    private void blockAction(JTextComponent textPane, LineAction lineAction)
+    private void blockAction(MoeEditor editor, LineAction lineAction)
     {
-        Caret caret = textPane.getCaret();
+        editor.setCaretActive(false);
+        
+        Caret caret = editor.currentTextPane.getCaret();
         int selectionStart = caret.getMark();
         int selectionEnd = caret.getDot();
         if (selectionStart > selectionEnd) {
@@ -1736,7 +1747,7 @@ public final class MoeActions
         if (selectionStart != selectionEnd)
             selectionEnd = selectionEnd - 1; // skip last position
 
-        MoeSyntaxDocument doc = (MoeSyntaxDocument) textPane.getDocument();
+        MoeSyntaxDocument doc = (MoeSyntaxDocument) editor.getSourceDocument();
         Element text = doc.getDefaultRootElement();
 
         int firstLineIndex = text.getElementIndex(selectionStart);
@@ -1746,8 +1757,11 @@ public final class MoeActions
             lineAction.apply(line, doc);
         }
 
-        textPane.setCaretPosition(text.getElement(firstLineIndex).getStartOffset());
-        textPane.moveCaretPosition(text.getElement(lastLineIndex).getEndOffset() - 1);
+        editor.setSelection(firstLineIndex + 1, 1,
+                text.getElement(lastLineIndex).getEndOffset()
+                - text.getElement(firstLineIndex).getStartOffset());
+        
+        editor.setCaretActive(true);
     }
 
     // --------------------------------------------------------------------
