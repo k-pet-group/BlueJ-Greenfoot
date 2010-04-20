@@ -373,7 +373,11 @@ public class ParentParsedNode extends ParsedNode
     protected int handleDeletion(Document document, int nodePos, int dpos,
             NodeStructureListener listener)
     {
-        ((MoeSyntaxDocument)document).scheduleReparse(dpos, 1);
+        if (nodePos + getSize() == dpos) {
+            complete = false;
+        }
+        
+        ((MoeSyntaxDocument)document).scheduleReparse(dpos, 0);
         return ALL_OK;
     }
     

@@ -201,7 +201,27 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         LocatableToken laToken = parser.getTokenStream().LA(1);
         int tokpos = lineColToPos(document, laToken.getLine(), laToken.getColumn());
         nap = boundaryNap;
-        if (nap != null && ! nap.getNode().complete) {
+        
+        boolean extendPrev = false;
+        if (nap != null) {
+            if (! nap.getNode().complete) {
+                // Two cases:
+                //
+                // 1. the node marks its own end. In this case the node might
+                // not have extended as far as possible - consider if{} without an else.
+                // The else clause must attach to the if{} block if it is inserted later.
+                // (Similarly for try/catch/catch/finally).
+                //
+                // 2. the node end is marked by something in the parent node (i.e this node).
+                // in that case the node should be extended only the node end matches the
+                // original reparse offset (originalOffset).
+                //
+                // At the moment we can't tell which of the two cases, so we always extend.
+                extendPrev = true;
+            }
+        }
+        
+        if (extendPrev) {
             int tokend = lineColToPos(document, laToken.getEndLine(), laToken.getEndColumn());
             // The first token we read "joins on" to the end of the incomplete previous node.
             // So, we'll attempt to add it in.
