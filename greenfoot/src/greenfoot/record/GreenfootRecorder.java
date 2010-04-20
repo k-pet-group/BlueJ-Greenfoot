@@ -22,14 +22,10 @@
 
 package greenfoot.record;
 
-import java.rmi.RemoteException;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import bluej.extensions.ClassNotFoundException;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.utility.Debug;
 
 import greenfoot.Actor;
@@ -53,7 +49,6 @@ public class GreenfootRecorder
         code = new LinkedList<String>();
         this.action = action;
         this.action.setRecordingValid(false);
-        Debug.message("Recording invalid to being with");
     }
 
     public void createActor(Class<?> theClass, Object actor, String[] args)
@@ -132,7 +127,6 @@ public class GreenfootRecorder
         if (simulationStarted) {
             objectNames.clear();
             action.setRecordingValid(false);
-            Debug.message("Recording invalidated by running");
         }
     }
 
@@ -142,7 +136,6 @@ public class GreenfootRecorder
         objectNames.clear();
         clearCode(false);
         action.setRecordingValid(true);
-        Debug.message("Recording valid due to reset");
     }
 
     public void moveActor(Actor actor, int xCell, int yCell)
