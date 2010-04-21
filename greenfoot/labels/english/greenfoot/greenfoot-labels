@@ -126,6 +126,9 @@ publish.event.status=Status:
 world.handlerDelegate.inspect=Inspect
 world.handlerDelegate.remove=Remove
 
+record.method.comment=A method that performs your recorded actions.
+record.saved.message=Saved world setup in prepare() method.  
+
 greenfoot.utilDelegate.newScenario=New Scenario
 
 #File choosers
