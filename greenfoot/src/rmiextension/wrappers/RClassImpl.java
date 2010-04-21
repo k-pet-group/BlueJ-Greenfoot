@@ -48,7 +48,7 @@ import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 7351 2010-04-15 11:12:57Z nccb $
+ * @version $Id: RClassImpl.java 7378 2010-04-21 10:14:38Z nccb $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -117,6 +117,18 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
             if (pnoe != null) throw pnoe;
             if (pnfe != null) throw pnfe;
         }
+    }
+    
+    public void showMessage(final String message) throws RemoteException,
+            ProjectNotOpenException, PackageNotFoundException
+    {
+        final Editor e = bClass.getEditor();
+        EventQueue.invokeLater(new Runnable() {
+            public void run()
+            {
+                e.showMessage(message);
+            }
+        });
     }
 
     public void insertAppendMethod(final String comment, final String methodName, final String methodBody) throws ProjectNotOpenException, PackageNotFoundException, RemoteException
@@ -196,6 +208,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
                 // Then auto-indent the method to make sure our indents were correct:
                 MoeIndent.calculateIndentsAndApply(bjEditor.getSourceDocument(), node.getPosition(), node.getPosition() + originalLength + text.length());
                 bjEditor.undoManager.endCompoundEdit();
+                e.setCaretLocation(e.getTextLocationFromOffset(pos));
                 return;
             }
         }

@@ -34,7 +34,7 @@ import bluej.extensions.editor.Editor;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClass.java 7338 2010-04-14 15:02:10Z nccb $
+ * @version $Id: RClass.java 7378 2010-04-21 10:14:38Z nccb $
  */
 public interface RClass
     extends java.rmi.Remote
@@ -166,4 +166,6 @@ public interface RClass
      * @see Editor#setReadOnly(boolean)
      */
     public abstract void setReadOnly(boolean b) throws RemoteException, ProjectNotOpenException, PackageNotFoundException ;
+
+    public abstract void showMessage(String message) throws RemoteException, ProjectNotOpenException, PackageNotFoundException;
 }

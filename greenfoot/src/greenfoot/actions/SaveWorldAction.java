@@ -68,8 +68,9 @@ public class SaveWorldAction extends AbstractAction
                
         try {
             GClass lastWorld = ide.getLastWorldGClass();
-            lastWorld.insertAppendMethod(comment.toString(), methodName, method.toString());
             lastWorld.insertMethodCallInConstructor(methodName);
+            lastWorld.insertAppendMethod(comment.toString(), methodName, method.toString());
+            lastWorld.showMessage("Saved world setup in prepare() method.");
             // Now that we've inserted the code, we must reset the recorder,
             // so that if the user saves the world again before re-compiling,
             // it doesn't insert the same code twice.  If the user scrubs our method

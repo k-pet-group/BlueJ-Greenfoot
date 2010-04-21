@@ -218,6 +218,11 @@ public class GClass
     {
         rmiClass.insertMethodCallInConstructor(methodName);
     }
+    
+    public void showMessage(String message) throws ProjectNotOpenException, PackageNotFoundException, RemoteException
+    {
+        rmiClass.showMessage(message);
+    }
 
 
     public void remove() throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException
