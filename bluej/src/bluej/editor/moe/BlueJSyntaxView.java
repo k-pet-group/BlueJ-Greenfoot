@@ -1174,6 +1174,12 @@ public abstract class BlueJSyntaxView extends PlainView
      */
     protected void updateDamage(DocumentEvent changes, Shape a, ViewFactory f)
     {
+        if (a == null) {
+            // We have no shape. One cause might be that the editor is not visible.
+            nodeIndents.clear();
+            return;
+        }
+        
         int damageStart = getDocument().getLength();
         int damageEnd = 0;
 
