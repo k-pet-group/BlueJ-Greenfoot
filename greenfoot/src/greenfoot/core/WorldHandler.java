@@ -98,9 +98,6 @@ public class WorldHandler
     private Actor dragActor;
     private Cursor defaultCursor;
     
-    // Most recently instantiated world class
-    String lastWorldClass;
-
     public static synchronized void initialise(WorldCanvas worldCanvas, WorldHandlerDelegate helper)
     {
         instance = new WorldHandler(worldCanvas, helper);
