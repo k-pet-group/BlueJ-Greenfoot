@@ -57,7 +57,7 @@ public class NVDrawPane extends JEditorPane
         this.nview = nview;
         Font smallFont = new Font("Monospaced", Font.BOLD, 1);
         setFont(smallFont);
-        setEditorKit(new NaviviewEditorKit());
+        setEditorKit(new NaviviewEditorKit(nview));
     }
 
     @Override
@@ -90,6 +90,9 @@ public class NVDrawPane extends JEditorPane
     public void repaint()
     {
         if (nview != null) {
+            //nview.repaint();
+            Rectangle r = getBounds();
+            repaint(0, r.x, r.y, r.width, r.height);
             nview.repaint();
         }
     }

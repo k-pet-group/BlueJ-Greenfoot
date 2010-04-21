@@ -34,9 +34,11 @@ import javax.swing.text.ViewFactory;
  */
 public class NaviviewEditorKit extends DefaultEditorKit implements ViewFactory
 {
-    public NaviviewEditorKit()
+    private NaviView naviView;
+    
+    public NaviviewEditorKit(NaviView naviView)
     {
-        // Nothing to do.
+        this.naviView = naviView;
     }
     
     @Override
@@ -47,6 +49,6 @@ public class NaviviewEditorKit extends DefaultEditorKit implements ViewFactory
 
     public View create(Element elem)
     {
-        return new NaviviewView(elem);
+        return new NaviviewView(elem, naviView);
     }
 }

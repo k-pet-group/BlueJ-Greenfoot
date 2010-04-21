@@ -31,6 +31,7 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Transparency;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
@@ -136,6 +137,21 @@ public class NaviView extends JPanel implements AdjustmentListener
         super.setVisible(flag);
     }
     
+    @Override
+    public void setBounds(int x, int y, int width, int height)
+    {
+        super.setBounds(x, y, width, height);
+        if (imgBuffer != null) {
+            Insets insets = getInsets();
+            View view = editorPane.getUI().getRootView(editorPane);
+            int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
+            int myHeight = Math.max(getHeight() - insets.top - insets.bottom - frw*2, 1);
+            createImgBuffer(imgBuffer.getGraphics(), prefHeight > myHeight);
+        }
+        enqueueRepaint(0, height);
+        repaint();
+    }
+    
     /**
      * Convert a y-coordinate in the NaviView co-ordinate space to a line number
      * in the document.
@@ -146,7 +162,7 @@ public class NaviView extends JPanel implements AdjustmentListener
         Insets insets = getInsets();
         vpos -= insets.top + frw;
         int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
-        int myHeight = getHeight() - insets.top - insets.bottom - frw*2;
+        int myHeight = Math.max(getHeight() - insets.top - insets.bottom - frw*2, 1);
         if (prefHeight > myHeight) {
             vpos = vpos * prefHeight / myHeight;
         }
@@ -170,14 +186,13 @@ public class NaviView extends JPanel implements AdjustmentListener
         View view = editorPane.getUI().getRootView(editorPane);
         Insets insets = getInsets();
         int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
-        int myHeight = getHeight() - insets.top - insets.bottom - frw*2;
+        int myHeight = Math.max(getHeight() - insets.top - insets.bottom - frw*2, 1);
         
         if (prefHeight > myHeight) {
             int ptop = top * myHeight / prefHeight;
             int pbottom = (bottom * myHeight + prefHeight - 1) / prefHeight;
             if (isVisible()) {
                 paintImgBuffer(ptop, pbottom);
-                repaint(0, ptop + insets.top + frw, getWidth(), pbottom - ptop);
             }
             else {
                 enqueueRepaint(ptop, pbottom);
@@ -186,7 +201,6 @@ public class NaviView extends JPanel implements AdjustmentListener
         else {
             if (isVisible()) {
                 paintImgBuffer(top, bottom);
-                repaint(0, top + insets.top + frw, getWidth(), bottom - top);
             }
             else {
                 enqueueRepaint(top, bottom);
@@ -313,11 +327,12 @@ public class NaviView extends JPanel implements AdjustmentListener
     /**
      * Paint to the backing image buffer.
      * 
-     * @param top  The top line (in model co-ordinates) to paint
-     * @param bottom  The bottom line (in model co-ordinates) to paint
+     * @param top  The top line (in view co-ordinates) to paint
+     * @param bottom  The bottom line (in view co-ordinates) to paint
      */
     private void paintImgBuffer(int top, int bottom)
     {
+        Insets insets = getInsets();
         int myHeight = imgBuffer.getHeight();
         View view = editorPane.getUI().getRootView(editorPane);
         int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
@@ -328,15 +343,14 @@ public class NaviView extends JPanel implements AdjustmentListener
 
         if (prefHeight > myHeight) {
             // scale!
-            int width = (imgBuffer.getWidth() - frw*2) * prefHeight / myHeight;
- 
+            int width = imgBuffer.getWidth() * prefHeight / myHeight;
             int ytop = top * prefHeight / myHeight;
             int ybtm = (bottom * prefHeight + myHeight - 1) / myHeight;
             int height = ybtm - ytop;
             
-            if (height > 800) {
-                height = 800;
-                ybtm = ytop + 800;
+            if (height > 400) {
+                height = 400;
+                ybtm = ytop + 400;
                 int newbottom = top + (height * myHeight / prefHeight);
                 if (newbottom <= top) {
                     newbottom = top + 1;
@@ -354,35 +368,36 @@ public class NaviView extends JPanel implements AdjustmentListener
             }
             
             // Create a buffered image to use
-            BufferedImage bimage = ((Graphics2D) g).getDeviceConfiguration().createCompatibleImage(width, height);
+            BufferedImage bimage = g.getDeviceConfiguration().createCompatibleImage(width, height,Transparency.TRANSLUCENT);
             Map<Object,Object> hints = new HashMap<Object,Object>();
             hints.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-            ((Graphics2D) g).addRenderingHints(hints);
+            g.addRenderingHints(hints);
+
+            g.setColor(background);
+            g.fillRect(0, top, imgBuffer.getWidth(), bottom - top);
             
             Graphics2D bg = bimage.createGraphics();
-            bg.setColor(background);
-            bg.fillRect(0, 0, width, height);
-            
-            Rectangle shape = new Rectangle(frw, 0, width, prefHeight);
+            Rectangle shape = new Rectangle(frw, frw, width, prefHeight);
             bg.setClip(0, 0, width, height);
-            bg.translate(-frw, -ytop);
+            bg.translate(-frw, -ytop - frw);
             view.paint(bg, shape);
             
-            g.drawImage(bimage, frw, top,
-                    imgBuffer.getWidth() - frw,
+            g.drawImage(bimage, 0, top,
+                    imgBuffer.getWidth(),
                     bottom, 0, 0, width, height, null);
             
             bg.dispose();
+            repaint(insets.left + frw, top + insets.top, imgBuffer.getWidth(), bottom - top);
         }
         else {
             // Scaling not necessary
-            int w = imgBuffer.getWidth() - frw*2;
+            int w = imgBuffer.getWidth();
             int h = myHeight;
             
             Rectangle rb = new Rectangle();
-            rb.x = frw;
-            rb.y = Math.max(frw, top);
-            rb.width = imgBuffer.getWidth() - frw*2;
+            rb.x = 0;
+            rb.y = Math.max(0, top);
+            rb.width = imgBuffer.getWidth();
             rb.height = bottom - top;
             
             g.setClip(rb);
@@ -390,8 +405,10 @@ public class NaviView extends JPanel implements AdjustmentListener
             g.fillRect(rb.x, rb.y, rb.width, rb.height);
             
             // Draw the code on the buffer image:
+            g.translate(-frw, -frw);
             Rectangle bufferBounds = new Rectangle (frw,frw,w,h);
             view.paint(g, bufferBounds);
+            repaint(insets.left + frw, top + insets.top, imgBuffer.getWidth(), bottom - top);
         }
         
         g.dispose();
@@ -408,7 +425,12 @@ public class NaviView extends JPanel implements AdjustmentListener
             int etop = i.next();
             int ebtm = j.next();
             if (top < etop) {
-                bottom = Math.min(bottom, etop);
+                if (bottom > ebtm) {
+                    i.remove(); j.remove();
+                }
+                else {
+                    bottom = Math.min(bottom, etop);
+                }
             }
             else if (bottom > ebtm) {
                 top = Math.max(top, ebtm);
@@ -432,7 +454,7 @@ public class NaviView extends JPanel implements AdjustmentListener
         
         View view = editorPane.getUI().getRootView(editorPane);
         int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
-        int myHeight = getHeight() - insets.top - insets.bottom - frw*2;
+        int myHeight = Math.max(getHeight() - insets.top - insets.bottom - frw*2, 1);
 
         Document document = getDocument();
         if (document == null) {
@@ -449,7 +471,7 @@ public class NaviView extends JPanel implements AdjustmentListener
         int bottomV = insets.top + frw + ((scrollBar.getValue() + scrollBar.getVisibleAmount()) * docHeight + (scrollBar.getMaximum() - 1)) / scrollBar.getMaximum();
         
         createImgBuffer(g, prefHeight > myHeight);
-        g.drawImage(imgBuffer, insets.left, insets.top, null);
+        g.drawImage(imgBuffer, insets.left + frw, insets.top + frw, null);
         
         Color background = MoeSyntaxDocument.getBackgroundColor();
         
@@ -516,15 +538,15 @@ public class NaviView extends JPanel implements AdjustmentListener
             int rtop = tops.remove(0);
             int rbottom = bottoms.remove(0);
             paintImgBuffer(rtop, rbottom);
-            repaint(0, rtop, getWidth(), rbottom - rtop);
+            //repaint(0, rtop + insets.top + frw, getWidth(), rbottom - rtop);
         }
     }
     
     public void createImgBuffer(Graphics g, boolean scaling)
     {
         Insets insets = getInsets();
-        int w = getWidth() - insets.left - insets.right;
-        int h = getHeight() - insets.top - insets.bottom;
+        int w = Math.max(getWidth() - insets.left - insets.right - 2*frw, 1);
+        int h = Math.max(getHeight() - insets.top - insets.bottom - 2*frw, 1);
                 
         if (imgBuffer != null) {
             if (imgBuffer.getHeight() == h && imgBuffer.getWidth() == w) {
@@ -559,5 +581,21 @@ public class NaviView extends JPanel implements AdjustmentListener
             paintImgBuffer(0, imgBuffer.getHeight());
         }
         g2d.dispose();
+    }
+    
+    public Graphics2D getScalingImgBufferGraphics(Graphics g)
+    {
+        View view = editorPane.getUI().getRootView(editorPane);
+        int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
+        Insets insets = getInsets();
+        int myHeight = Math.max(getHeight() - insets.top - insets.bottom - frw*2, 1);
+        createImgBuffer(g, prefHeight > myHeight);
+        Graphics2D r = imgBuffer.createGraphics();
+        if (prefHeight > myHeight) {
+            double scaleFactor = (double)myHeight / prefHeight; 
+            r.scale(scaleFactor, scaleFactor);
+        }
+        r.translate(-frw, -frw);
+        return r;
     }
 }

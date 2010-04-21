@@ -29,6 +29,7 @@ import java.awt.Shape;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 import javax.swing.text.Position;
 import javax.swing.text.Segment;
@@ -52,9 +53,12 @@ public class NaviviewView extends BlueJSyntaxView
     // Use 2^1 for everything else
     private static final int DARKEN_AMOUNT = Config.isMacOS() ? (Config.isMacOSSnowLeopard() ? 2 : 3) : 1;
     
-    public NaviviewView(Element elem)
+    private NaviView naviView;
+    
+    public NaviviewView(Element elem, NaviView naviView)
     {
         super(elem, 0);
+        this.naviView = naviView;
     }
     
     @Override
@@ -66,49 +70,62 @@ public class NaviviewView extends BlueJSyntaxView
         // To get around this problem, we paint into a temporary image, then darken
         // the text, and finally copy the temporary image to the output Graphics.
         
-        int lineHeight = metrics.getHeight();
-        Rectangle clipBounds = g.getClipBounds();
-        BufferedImage img;
-        if (g instanceof Graphics2D) {
-            img = ((Graphics2D)g).getDeviceConfiguration()
-                .createCompatibleImage(clipBounds.width, lineHeight, Transparency.TRANSLUCENT);
-        }
-        else {
-            img = new BufferedImage(clipBounds.width, lineHeight, BufferedImage.TYPE_INT_ARGB);
-        }
-        
-        Graphics2D imgG = img.createGraphics();
-        imgG.setFont(g.getFont());
-        imgG.setColor(g.getColor());
-        
-        if (SYNTAX_COLOURING) {
-            if (document.getParsedNode() != null) {
-                super.paintTaggedLine(line, lineIndex, imgG, x - clipBounds.x,
-                        metrics.getAscent(), document, def, lineElement);
+        try {
+            int lineHeight = metrics.getHeight();
+            int endPos = lineElement.getEndOffset() - 1;
+            Rectangle dummyShape = new Rectangle(0,0,0,0);
+            int endX = modelToView(endPos, dummyShape, Position.Bias.Forward).getBounds().x;
+            int beginX = modelToView(lineElement.getStartOffset(), dummyShape, Position.Bias.Forward).getBounds().x;
+            int width = endX - beginX;
+            if (width <= 0) {
+                return;
+            }
+
+            Rectangle clipBounds = g.getClipBounds();
+            width = Math.min(width, clipBounds.width);
+            BufferedImage img;
+            if (g instanceof Graphics2D) {
+                img = ((Graphics2D)g).getDeviceConfiguration()
+                .createCompatibleImage(width, lineHeight, Transparency.TRANSLUCENT);
+            }
+            else {
+                img = new BufferedImage(width, lineHeight, BufferedImage.TYPE_INT_ARGB);
+            }
+
+            Graphics2D imgG = img.createGraphics();
+            imgG.setFont(g.getFont());
+            imgG.setColor(g.getColor());
+
+            if (SYNTAX_COLOURING) {
+                if (document.getParsedNode() != null) {
+                    super.paintTaggedLine(line, lineIndex, imgG, x - clipBounds.x,
+                            metrics.getAscent(), document, def, lineElement);
+                } else {
+                    paintPlainLine(lineIndex, imgG, x - clipBounds.x, metrics.getAscent());
+                }
             } else {
                 paintPlainLine(lineIndex, imgG, x - clipBounds.x, metrics.getAscent());
             }
-        } else {
-            paintPlainLine(lineIndex, imgG, x - clipBounds.x, metrics.getAscent());
-        }
 
-        // Filter the image - adjust alpha channel to darken the image.
-        for (int iy = 0; iy < img.getHeight(); iy++) {
-            for (int ix = 0; ix < img.getWidth(); ix++) {
-                int rgb = img.getRGB(ix, iy);
-                Color c = new Color(rgb, true);
-                int red = c.getRed();
-                int green = c.getGreen();
-                int blue = c.getBlue();
-                int alpha = c.getAlpha();
+            // Filter the image - adjust alpha channel to darken the image.
+            for (int iy = 0; iy < img.getHeight(); iy++) {
+                for (int ix = 0; ix < img.getWidth(); ix++) {
+                    int rgb = img.getRGB(ix, iy);
+                    Color c = new Color(rgb, true);
+                    int red = c.getRed();
+                    int green = c.getGreen();
+                    int blue = c.getBlue();
+                    int alpha = c.getAlpha();
 
-                // Make it more opaque
-                alpha = darken(alpha);
-                img.setRGB(ix, iy, new Color(red, green, blue, alpha).getRGB());
+                    // Make it more opaque
+                    alpha = darken(alpha);
+                    img.setRGB(ix, iy, new Color(red, green, blue, alpha).getRGB());
+                }
             }
-        }
 
-        g.drawImage(img, clipBounds.x, y - metrics.getAscent(), null);
+            g.drawImage(img, clipBounds.x, y - metrics.getAscent(), null);
+        }
+        catch (BadLocationException ble) {}
     }
     
     @Override
@@ -130,7 +147,7 @@ public class NaviviewView extends BlueJSyntaxView
                 Element map = getElement();
                 int firstLine = map.getElementIndex(spos);
                 int lastLine = map.getElementIndex(epos);
-                paintScopeMarkers(g, document, a, firstLine, lastLine,
+                paintScopeMarkers(naviView.getScalingImgBufferGraphics(g), document, a, firstLine, lastLine,
                         HIGHLIGHT_METHODS_ONLY, true);
             }
         }
