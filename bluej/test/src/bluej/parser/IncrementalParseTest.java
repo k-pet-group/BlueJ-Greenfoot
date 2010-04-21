@@ -234,4 +234,46 @@ public class IncrementalParseTest extends TestCase
         assertEquals(0, nap.getPosition());
         assertEquals(12, nap.getSize());
     }
+    
+    public void test6() throws Exception
+    {
+        // A class with an extra closing '}':
+        String aSrc = "class A {\n" +   // 0 - 10
+            "\n" +                      // 10 - 11
+            "}\n";                      // 11 - 13
+        
+        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        ParsedCUNode aNode = aDoc.getParser();
+        NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
+
+        // Class should extend from 0 - 12
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(12, nap.getSize());
+
+        // inner
+        nap = nap.getNode().findNodeAt(9, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(9, nap.getPosition());
+        assertEquals(11, nap.getEnd());
+     
+        // Now insert a new '}' and then remove it again
+        aDoc.insertString(10, "}", null);
+        aDoc.flushReparseQueue();
+        aDoc.remove(10, 1);
+        
+        aNode = aDoc.getParser();
+        nap = aNode.findNodeAt(0, 0);
+
+        // Class should extend from 0 - 12
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(12, nap.getSize());
+
+        // inner
+        nap = nap.getNode().findNodeAt(9, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(9, nap.getPosition());
+        assertEquals(11, nap.getEnd());
+    }
 }
