@@ -246,7 +246,7 @@ public class ParentParsedNode extends ParsedNode
                 child = new NodeAndPosition<ParsedNode>(cnode, child.getPosition(), newSize);
                 childResized((MoeSyntaxDocument) document, nodePos, child);
                 //return reparseNode(document, nodePos, child.getPosition() + newSize, listener);
-                ((MoeSyntaxDocument) document).scheduleReparse(child.getPosition() + newSize, 1);
+                ((MoeSyntaxDocument) document).scheduleReparse(child.getPosition() + newSize, 0);
                 return ALL_OK;
             }
             else if (r == REMOVE_NODE) {
@@ -311,7 +311,7 @@ public class ParentParsedNode extends ParsedNode
                     }
                     else {
                         ((MoeSyntaxDocument)document).scheduleReparse(child.getPosition() + newSize,
-                                1);
+                                0);
                     }
                 }
                 return ALL_OK;

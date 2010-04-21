@@ -38,10 +38,17 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  */
 public class ParseParams
 {
+    // Parameters passed to the subclass partial parse method
+    
     public NodeStructureListener listener;
     public EditorParser parser;
     public JavaTokenFilter tokenStream;
     public MoeSyntaxDocument document;
     public int nodePos;
     public LinkedList<NodeAndPosition<ParsedNode>> childQueue;
+    
+    // Parameters returned from the partial parse method
+    
+    /** Where exactly parsing got to, when partial parse returns PP_ABORT */
+    public int abortPos;
 }

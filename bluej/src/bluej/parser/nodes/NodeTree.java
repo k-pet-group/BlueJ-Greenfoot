@@ -756,6 +756,12 @@ public class NodeTree<T extends RBTreeNode>
             size = newSize;
         }
         
+        /**
+         * Set the size of the contained node, without moving following nodes. It is the
+         * caller's responsibility to ensure that setting the new size does not cause the
+         * node to overlap following nodes.
+         * @param newSize  The new size of the node.
+         */
         public void setSize(int newSize)
         {
             getNode().setSize(newSize);

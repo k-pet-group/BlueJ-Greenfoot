@@ -309,7 +309,9 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
      * 
      * The result should be one of ALL_OK, NODE_GREW, NODE_SHRUNK, or REMOVE_NODE.
      * The latter indicates that the caller should remove the node. Except in the
-     * case of ALL_OK, the parent node must generally also be re-parsed.
+     * case of ALL_OK, the parent node must generally also be re-parsed.<p>
+     * 
+     * This method should always mark which range it parsed in the document.
      */
     protected int reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
     {
@@ -332,7 +334,7 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
             ParsedNode parent = getParentNode();
             parent.removeChild(new NodeAndPosition<ParsedNode>(this,
                     nodePos, getSize()), listener);
-            document.scheduleReparse(nodePos + size - 1, 1);
+            document.scheduleReparse(nodePos + size - 1, 0);
         }
         else if (r == NODE_GREW || r == NODE_SHRUNK) {
             int nsize = getSize();
@@ -342,7 +344,7 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
                 parent.childResized(document, ppos,
                         new NodeAndPosition<ParsedNode>(this, nodePos, nsize));
             }
-            document.scheduleReparse(nodePos + nsize, Math.max(size - nsize, 1));
+            document.scheduleReparse(nodePos + nsize, Math.max(size - nsize, 0));
         }
     }
     

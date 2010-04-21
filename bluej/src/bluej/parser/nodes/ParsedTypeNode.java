@@ -219,12 +219,16 @@ public class ParsedTypeNode extends IncrementalParsingNode
             last = params.tokenStream.nextToken();
 
             if (last.getType() != JavaTokenTypes.RCURLY) {
-                int innerPos = inner.getOffsetFromParent() + params.nodePos;
+                // Extend the inner.
+                int innerOffset = inner.getOffsetFromParent();
+                int innerPos = innerOffset + params.nodePos;
                 int innerSize = inner.getSize();
                 inner.setComplete(false);
-                inner.setSize(getSize() - inner.getOffsetFromParent());
+                inner.setSize(getSize() - innerOffset);
                 stateMarkers[1] = getSize();
-                params.document.scheduleReparse(innerPos + innerSize, getSize() - inner.getOffsetFromParent());
+                params.document.scheduleReparse(innerPos + innerSize, getSize() - innerOffset - innerSize);
+                params.abortPos = innerPos + innerSize;
+                complete = false;
                 return PP_ABORT;
             }
             

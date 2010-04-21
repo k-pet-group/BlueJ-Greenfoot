@@ -127,11 +127,11 @@ public class MoeSyntaxDocument extends PlainDocument
         NodeAndPosition<ReparseRecord> nap = reparseRecordTree.findNodeAtOrAfter(0);
         if (nap != null) {
             int pos = nap.getPosition();
-            nap.getNode().remove();
             
             ParsedNode pn = parsedNode;
             int ppos = 0;
             if (pn != null) {
+                // Find the ParsedNode to handle the reparse.
                 NodeAndPosition<ParsedNode> cn = pn.findNodeAt(pos, ppos);
                 while (cn != null && cn.getEnd() == pos) {
                     cn = cn.nextSibling();
@@ -154,6 +154,9 @@ public class MoeSyntaxDocument extends PlainDocument
         return false;
     }
     
+    /**
+     * Process all of the re-parse queue.
+     */
     public void flushReparseQueue()
     {
         while (pollReparseQueue()) ;
@@ -184,6 +187,54 @@ public class MoeSyntaxDocument extends PlainDocument
         
         ReparseRecord rr = new ReparseRecord();
         reparseRecordTree.insertNode(rr, pos, size);
+    }
+    
+    /**
+     * Mark a portion of the document as having been parsed. This removes any
+     * scheduled re-parses as appropriate and repaints the appropriate area.
+     */
+    public void markSectionParsed(int pos, int size)
+    {
+        repaintLines(pos, size);
+        
+        NodeAndPosition<ReparseRecord> existing = reparseRecordTree.findNodeAtOrAfter(pos);
+        while (existing != null && existing.getEnd() == pos) existing = existing.nextSibling();
+        while (existing != null && existing.getPosition() <= pos) {
+            NodeAndPosition<ReparseRecord> next = existing.nextSibling();
+            // Remove from end, or a middle portion, or the whole node
+            int rsize = existing.getEnd() - pos;
+            rsize = Math.min(rsize, size);
+            if (rsize == existing.getSize()) {
+                existing.getNode().remove();
+            }
+            else if (existing.getPosition() == pos) {
+                existing.slideStart(rsize);
+                existing = next; break;
+            }
+            else {
+                // the record begins before the point to be removed.
+                int existingEnd = existing.getEnd();
+                existing.setSize(pos - existing.getPosition());
+                // Now we may have to insert a new node, if the middle portion
+                // of the existing node was removed.
+                if (existingEnd > pos + size) {
+                    scheduleReparse(pos + size, existingEnd - (pos + size));
+                    return;
+                }
+            }
+            existing = next;
+        }
+        
+        while (existing != null && existing.getPosition() < pos + size) {
+            int rsize = pos + size - existing.getPosition();
+            if (rsize < existing.getSize()) {
+                existing.slideStart(rsize);
+                return;
+            }
+            NodeAndPosition<ReparseRecord> next = existing.nextSibling();
+            existing.getNode().remove();
+            existing = next;
+        }
     }
     
     /**
