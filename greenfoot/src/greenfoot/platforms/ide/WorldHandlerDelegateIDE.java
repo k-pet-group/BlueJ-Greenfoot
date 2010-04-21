@@ -36,6 +36,7 @@ import greenfoot.gui.input.InputManager;
 import greenfoot.localdebugger.LocalObject;
 import greenfoot.platforms.WorldHandlerDelegate;
 import greenfoot.record.GreenfootRecorder;
+import greenfoot.record.InteractionListener;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
@@ -80,7 +81,7 @@ import bluej.utility.Debug;
  *
  */
 public class WorldHandlerDelegateIDE
-    implements WorldHandlerDelegate, ObjectBenchInterface
+    implements WorldHandlerDelegate, ObjectBenchInterface, InteractionListener
 {
     protected final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
@@ -602,4 +603,10 @@ public class WorldHandlerDelegateIDE
     {
         return saveWorldAction;
     }
+    
+    public InteractionListener getInteractionListener()
+    {
+        return this;
+    }
+    
 }

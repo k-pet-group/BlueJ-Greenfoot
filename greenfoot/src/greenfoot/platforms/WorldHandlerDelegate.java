@@ -25,6 +25,7 @@ import greenfoot.Actor;
 import greenfoot.World;
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.input.InputManager;
+import greenfoot.record.InteractionListener;
 
 import java.awt.event.MouseEvent;
 
@@ -62,21 +63,9 @@ public interface WorldHandlerDelegate
 
     void discardWorld(World world);
     
-    // Methods for recording:
-
-    void createdActor(Class<?> theClass, Object actor, String[] args);
-    
-    void methodCall(Object obj, String actorName, String name, String[] args);
-
-    void staticMethodCall(String className, String name, String[] args);
-
-    void movedActor(Actor actor, int xCell, int yCell);
-
-    void removedActor(Actor obj);
-
-    void objectAddedToWorld(Actor object);
-
     void initialisingWorld(World world);
-
+    
     void simulationActive();
+
+    InteractionListener getInteractionListener();
 }

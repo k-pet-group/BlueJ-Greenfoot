@@ -27,6 +27,7 @@ import greenfoot.core.WorldHandler;
 import greenfoot.export.GreenfootScenarioViewer;
 import greenfoot.gui.input.InputManager;
 import greenfoot.platforms.WorldHandlerDelegate;
+import greenfoot.record.InteractionListener;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -123,36 +124,6 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         // Nothing to be done
     }
 
-    public void createdActor(Class<?> theClass, Object actor, String[] args)
-    {
-        // Nothing to be done      
-    }
-
-    public void methodCall(Object obj, String actorName, String name, String[] args)
-    {
-        // Nothing to be done        
-    }
-
-    public void staticMethodCall(String className, String name, String[] args)
-    {
-        // Nothing to be done
-    }
-
-    public void movedActor(Actor actor, int xCell, int yCell)
-    {
-        // Nothing to be done
-    }
-
-    public void removedActor(Actor obj)
-    {
-        // Nothing to be done
-    }
-
-    public void objectAddedToWorld(Actor object)
-    {
-        //Nothing to be done
-    }
-
     public void initialisingWorld(World world)
     {
         // Nothing to be done        
@@ -161,5 +132,10 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     public void simulationActive()
     {
         // Nothing to be done        
+    }
+    
+    public InteractionListener getInteractionListener()
+    {
+        return null;
     }
 }

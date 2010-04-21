@@ -41,6 +41,7 @@ import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.gui.input.mouse.MousePollingManager;
 import greenfoot.gui.input.mouse.WorldLocator;
 import greenfoot.platforms.WorldHandlerDelegate;
+import greenfoot.record.InteractionListener;
 import greenfoot.util.GraphicsUtilities;
 
 import java.awt.Component;
@@ -97,6 +98,7 @@ public class WorldHandler
     // The actor being dragged
     private Actor dragActor;
     private Cursor defaultCursor;
+    private InteractionListener interactionListener;
     
     public static synchronized void initialise(WorldCanvas worldCanvas, WorldHandlerDelegate helper)
     {
@@ -165,37 +167,18 @@ public class WorldHandler
             {
             }
 
-            public void createdActor(Class<?> theClass, Object actor, String[] args)
-            {
-            }
-
-            public void methodCall(Object obj, String actorName, String name, String[] args)
-            {
-            }
-
-            public void staticMethodCall(String className, String name, String[] args)
-            {
-            }
-
-            public void movedActor(Actor actor, int xCell, int yCell)
-            {
-            }
-
-            public void removedActor(Actor obj)
-            {
-            }
-
-            public void objectAddedToWorld(Actor object)
-            {
-            }
-
             public void initialisingWorld(World world)
             {
             }
-
+            
             public void simulationActive()
             {
             }
+
+            public InteractionListener getInteractionListener()
+            {
+                return null;
+            }           
         };
     }
         
@@ -210,6 +193,7 @@ public class WorldHandler
         instance = this;
         this.handlerDelegate = handlerDelegate;
         this.handlerDelegate.setWorldHandler(this);
+        interactionListener = handlerDelegate.getInteractionListener();
 
         this.worldCanvas = worldCanvas;
         
@@ -844,31 +828,37 @@ public class WorldHandler
     
     public void notifyCreatedActor(Class<?> theClass, Object actor, String[] args)
     {
-        handlerDelegate.createdActor(theClass, actor, args);
+        if (interactionListener != null)
+            interactionListener.createdActor(theClass, actor, args);
     }
 
     public void notifyMethodCall(Object obj, String instanceName, String name, String[] args)
     {
-        handlerDelegate.methodCall(obj, instanceName, name, args);
+        if (interactionListener != null)
+            interactionListener.methodCall(obj, instanceName, name, args);
     }
     
     public void notifyStaticMethodCall(String className, String name, String[] args)
     {
-        handlerDelegate.staticMethodCall(className, name, args);
+        if (interactionListener != null)
+            interactionListener.staticMethodCall(className, name, args);
     }
 
     private void notifyMovedActor(Actor actor, int xCell, int yCell)
     {
-        handlerDelegate.movedActor(actor, xCell, yCell);        
+        if (interactionListener != null)
+            interactionListener.movedActor(actor, xCell, yCell);        
     }
 
     public void notifyRemovedActor(Actor obj)
     {
-        handlerDelegate.removedActor(obj);        
+        if (interactionListener != null)
+            interactionListener.removedActor(obj);        
     }
 
     public void objectAddedToWorld(Actor object)
     {
-        handlerDelegate.objectAddedToWorld(object);        
+        if (interactionListener != null)
+            interactionListener.objectAddedToWorld(object);        
     }
 }
