@@ -44,8 +44,14 @@ public class ReparseRunner implements Runnable
     public void run()
     {
         MoeSyntaxDocument document = editor.getSourceDocument();
+        long begin = System.currentTimeMillis();
         if (document != null && document.pollReparseQueue()) {
             // Continue processing
+            while (System.currentTimeMillis() - begin < 5) {
+                if (! document.pollReparseQueue()) {
+                    break;
+                }
+            }
             EventQueue.invokeLater(this);
         }
         else {
