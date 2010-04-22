@@ -55,9 +55,9 @@ public class PrefMgr
     public static final String SHOW_TEXT_EVAL = "bluej.startWithTextEval";
     public static final String SHOW_UNCHECKED = "bluej.compiler.showunchecked";
     public static final String SCOPE_HIGHLIGHTING_STRENGTH = "bluej.editor.scopeHilightingStrength";
+    public static final String NAVIVIEW_EXPANDED="bluej.naviviewExpanded.default";
     
     public static final String USE_THEMES = "bluej.useTheme";
-
     // font property names
     private static final String editorFontPropertyName = "bluej.editor.font";
     private static final String editorMacFontPropertyName = "bluej.editor.MacOS.font";
@@ -87,6 +87,9 @@ public class PrefMgr
     
     /** transparency of the scope highlighting */
     private static int highlightStrength; 
+    
+    // last value of naviviewExpanded
+    private static boolean isNaviviewExpanded=true;
     
     // the current project directory
     private static String projectDirectory;
@@ -123,6 +126,7 @@ public class PrefMgr
         
         // preferences other than fonts:
         highlightStrength = Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 10);
+        isNaviviewExpanded=Boolean.parseBoolean(Config.getPropString(NAVIVIEW_EXPANDED, "true"));
         
         projectDirectory = Config.getPropString("bluej.projectPath");
         recentProjects = readRecentProjects();
@@ -227,8 +231,9 @@ public class PrefMgr
     public static boolean getFlag(String flag)
     {
         String value = (String)flags.get(flag);
-        if(value == null)
+        if(value == null){
             return false;
+        }
         else
             return value.equals("true");
     }
@@ -335,10 +340,33 @@ public class PrefMgr
         return highlightStrength;
     }
 
+    /**
+     * Sets the highlight strength in the configs
+     * @param strength representing light<->dark
+     */
     public static void setScopeHighlightStrength(int strength)
     {
         highlightStrength = strength;
         BlueJSyntaxView.setHighlightStrength(strength);
         Config.putPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, strength);
     }
+    
+    /**
+     * 
+     * @param expanded true if expanded; false if not
+     */
+    public static void setNaviviewExpanded(boolean expanded){
+        //setting the value of the naviview at last close to be the default
+        isNaviviewExpanded=expanded;
+        Config.putPropString(NAVIVIEW_EXPANDED, String.valueOf(expanded));
+    }
+    
+    /**
+     * 
+     * @return true if expanded; false if not
+     */
+    public static boolean getNaviviewExpanded(){   
+        return isNaviviewExpanded;            
+    }
+    
 }

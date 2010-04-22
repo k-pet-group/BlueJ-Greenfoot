@@ -1284,6 +1284,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         setVisible(false);
         if (watcher != null) {
+        	//setting the naviview visible property when an editor is closed
+        	watcher.setProperty(watcher.NAVIVIEW_EXPANDED_PROPERTY, String.valueOf(dividerPanel.isExpanded()));
             watcher.closeEvent(this);
         }
     }
@@ -2760,7 +2762,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         naviView.setMaximumSize(new Dimension(NAVIVIEW_WIDTH, Integer.MAX_VALUE));
         naviView.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         
-        dividerPanel=new EditorDividerPanel(naviView);
+        dividerPanel=new EditorDividerPanel(naviView, getNaviviewExpandedProperty());
       
         editorPane.add(scrollPane);
         editorPane.add(dividerPanel);
@@ -3745,5 +3747,45 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void setFindTextfield(String text){
         finder.populateFindTextfield(text);
+    }
+    
+    /**
+	* Sets the dividerpanel to expand/collapse the naviview
+	**/
+    public void setDividerPanelExpanded(boolean expanded)
+    {
+        dividerPanel.setExpanded(expanded);
+    }
+    
+    /**
+     * Checks in the props file if there is a value set for whether the naviview is expanded/collapsed
+     * If there is no value there, defaults it to the value in the prefmgr (which is the last the value saved)
+     * @return
+     */
+    protected boolean getNaviviewExpandedProperty()
+    {
+        if (watcher.getProperty(EditorWatcher.NAVIVIEW_EXPANDED_PROPERTY)!=null)
+        {
+            return Boolean.parseBoolean(watcher.getProperty(EditorWatcher.NAVIVIEW_EXPANDED_PROPERTY));
+        }
+        else {
+            return PrefMgr.getNaviviewExpanded();
+        }
+    }
+
+    /**
+     * Returns whether the naviview is expanded or not (from the divider panel)
+     */
+    public boolean isNaviviewExpanded() 
+    {
+        return dividerPanel.isExpanded();
+    }
+
+    /**
+     * Sets the naviview to expanded or not (from the divider panel)
+     */
+    public void setNaviviewVisibile(boolean visible) 
+    {
+        dividerPanel.setExpanded(visible);
     }
 }

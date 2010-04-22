@@ -32,6 +32,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import bluej.Config;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.DBox;
 import bluej.utility.DBoxLayout;
 
@@ -41,41 +42,60 @@ import bluej.utility.DBoxLayout;
  *
  */
 public class EditorDividerPanel extends JPanel implements MouseListener {
-    
+
     boolean expanded=true;
     protected JLabel expandCollapseButton;
     private final static String EXPAND_COLLAPSE_NAVIVIEW= "expandCollapseNaviview";
     private NaviView nav;
     private ImageIcon openNavArrow;
     private ImageIcon closeNavArrow;
-    
-    public EditorDividerPanel(NaviView naviview) {
+
+    public EditorDividerPanel(NaviView naviview, boolean expanded) {
         super();
         //display consists of a label with an image
         nav=naviview;
+        this.expanded=expanded;
         openNavArrow=Config.getImageAsIcon("image.editordivider.open");
         closeNavArrow=Config.getImageAsIcon("image.editordivider.close");
-        
+
         setPreferredSize(new Dimension(closeNavArrow.getIconWidth()+2, 0));
         setMaximumSize(new Dimension(closeNavArrow.getIconWidth()+2, Integer.MAX_VALUE));
-        
+
         setLayout(new DBoxLayout(DBox.X_AXIS, 0, 0));
         expandCollapseButton=new JLabel();
         expandCollapseButton.setName(EXPAND_COLLAPSE_NAVIVIEW);
-        expandCollapseButton.addMouseListener(this);
-        expandCollapseButton.setIcon(closeNavArrow);
+        expandCollapseButton.addMouseListener(this); 
         add(expandCollapseButton, BorderLayout.CENTER);
+        if (isExpanded())
+            expandCollapseButton.setIcon(closeNavArrow);
+        else{
+            nav.setVisible(false);
+            expandCollapseButton.setIcon(openNavArrow);
+        }
     }
 
-    protected boolean isExpanded() {
+    protected boolean isExpanded() 
+    {
         return expanded;
     }
 
-    protected void setExpanded(boolean expanded) {
+    /**
+     * Sets the value of expanded/collapsed to the current view and to the prefmgr 
+     * @param expanded
+     */
+    protected void setExpanded(boolean expanded) 
+    {
+        //saving the value of the naviview (expanded/collapsed) to the prefmgr
+        //so it is there when the next editor may be opened
+        PrefMgr.setNaviviewExpanded(expanded);
         this.expanded = expanded;
     }
 
-    public void mouseClicked(MouseEvent e) {
+    /**
+     * Causes either the naviview to expand/collapse
+     */
+    public void mouseClicked(MouseEvent e) 
+    {
         JComponent src = (JComponent) e.getSource();
         //if expanded/collapse set the necessary images and flags 
         if (src.getName()==EXPAND_COLLAPSE_NAVIVIEW){  
@@ -93,18 +113,18 @@ public class EditorDividerPanel extends JPanel implements MouseListener {
     }
 
     public void mouseEntered(MouseEvent e) {
-        
+
     }
 
     public void mouseExited(MouseEvent e) {
-        
+
     }
 
     public void mousePressed(MouseEvent e) {
-        
+
     }
 
     public void mouseReleased(MouseEvent e) {
-        
+
     }
 }

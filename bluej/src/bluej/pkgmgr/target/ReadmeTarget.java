@@ -27,7 +27,6 @@ import java.io.*;
 import java.util.Properties;
 
 import javax.swing.*;
-import javax.swing.JPopupMenu;
 
 import bluej.Config;
 import bluej.editor.*;
@@ -39,10 +38,10 @@ import bluej.prefmgr.PrefMgr;
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ReadmeTarget.java 7383 2010-04-22 01:58:12Z marionz $
  */
 public class ReadmeTarget extends EditableTarget
-    implements ActionListener
+    implements ActionListener 
 {
     static final int WIDTH = 40;
     static final int HEIGHT = 50;
@@ -249,6 +248,16 @@ public class ReadmeTarget extends EditableTarget
     public void generateDoc()
     {
         // meaningless
+    }
+
+    public String getProperty(String key) 
+    {
+        return null;
+    }
+
+    public void setProperty(String key, String value) 
+    {
+        
     }
 
 }

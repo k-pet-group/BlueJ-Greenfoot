@@ -30,8 +30,10 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.swing.AbstractAction;
@@ -95,7 +97,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 7201 2010-02-25 00:40:01Z davmac $
+ * @version $Id: ClassTarget.java 7383 2010-04-22 01:58:12Z marionz $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -119,7 +121,7 @@ public class ClassTarget extends DependentTarget
     // temporary file name extension to trick windows if changing case only in
     // class name
     private static String TEMP_FILE_EXTENSION = "-temp";
-
+    
     // the role object represents the changing roles that are class
     // target can have ie changing from applet to an interface etc
     // 'role' should never be null
@@ -141,6 +143,8 @@ public class ClassTarget extends DependentTarget
     // classtarget state is normal (ie. the class is compiled).
     private boolean isAbstract;
     
+    // a flag indicating whether an editor should have the naviview expanded/collapsed
+    private Boolean isNaviviewExpanded=null;
     /**
      * fields used in Tarjan's algorithm:
      */
@@ -163,7 +167,9 @@ public class ClassTarget extends DependentTarget
     private boolean modifiedSinceCompile = true;
 
     private String typeParameters = "";
-
+    
+    //properties map to store values used in the editor from the props (if necessary)
+    private Map properties = new HashMap<String, String>();
     /**
      * Create a new class target in package 'pkg'.
      * 
@@ -536,6 +542,11 @@ public class ClassTarget extends DependentTarget
         }
 
         getRole().load(props, prefix);
+        String value=props.getProperty(prefix + ".naviview.expanded");
+        if (value!=null){
+            setNaviviewExpanded(Boolean.parseBoolean(value));
+            setProperty(NAVIVIEW_EXPANDED_PROPERTY, String.valueOf(value));
+        }
     }
 
     /**
@@ -555,11 +566,21 @@ public class ClassTarget extends DependentTarget
         }
 
         if (editorOpen()) {
-            openWithInterface = getEditor().isShowingInterface();
+            openWithInterface = getEditor().isShowingInterface();          
         }
+        //saving the state of the naviview (open/close) to the props 
+        //setting the value of the expanded according to the value from the editor (if there is)
+        //else if there was a previous setting use that
+        if (editorOpen() && getProperty(NAVIVIEW_EXPANDED_PROPERTY)!=null){
+            props.put(prefix + ".naviview.expanded", String.valueOf(getProperty(NAVIVIEW_EXPANDED_PROPERTY)));
+        } else if (isNaviviewExpanded!=null)
+                props.put(prefix + ".naviview.expanded", String.valueOf(isNaviviewExpanded()));
+            
         props.put(prefix + ".showInterface", new Boolean(openWithInterface).toString());
 
         getRole().save(props, 0, prefix);
+     
+        
     }
 
     /**
@@ -816,7 +837,7 @@ public class ClassTarget extends DependentTarget
             // for example.
             if (editor != null) {
                 editor.showInterface(showInterface);
-            }
+            }           
         }
         return editor;
     }
@@ -1854,4 +1875,39 @@ public class ClassTarget extends DependentTarget
     {
         return PkgMgrFrame.createFrame(getPackage()).checkDebuggerState();
     }
+
+    /**
+     * Returns the naviview expanded value from the properties file
+     * @return 
+     */
+    public boolean isNaviviewExpanded() 
+    {
+        return isNaviviewExpanded;
+    }
+
+    /**
+     * Sets the naviview expanded value from the properties file to this local variable
+     * @param isNaviviewExpanded
+     */
+    public void setNaviviewExpanded(boolean isNaviviewExpanded) 
+    {
+        this.isNaviviewExpanded=isNaviviewExpanded;  
+    }
+
+    /**
+     * Retrieves a property from the editor
+     */
+    public String getProperty(String key) 
+    {
+        return (String)properties.get(key);
+    }
+
+    /**
+     * Sets a property for the editor
+     */
+    public void setProperty(String key, String value) 
+    {
+        properties.put(key, value);
+    }
+   
 }

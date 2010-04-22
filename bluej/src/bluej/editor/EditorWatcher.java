@@ -22,13 +22,15 @@
 package bluej.editor;
 
 /**
- * @version $Id: EditorWatcher.java 6619 2009-09-04 02:33:09Z davmac $
+ * @version $Id: EditorWatcher.java 7383 2010-04-22 01:58:12Z marionz $
  * @author Michael Kolling
  * Interface between the editor and the rest of BlueJ
  * The editor uses this class
  */
 public interface EditorWatcher
 {
+    //key for storing the value of the expand/collapse of the naviview
+    public final static String NAVIVIEW_EXPANDED_PROPERTY="naviviewExpandedPropery";
     /**
      * Called by Editor when a file is changed
      */
@@ -61,6 +63,16 @@ public interface EditorWatcher
     /**
      * Called by Editor when documentation is to be compiled
      */
-    void generateDoc();
+    void generateDoc();  
+    
+    /**
+     * Sets a property
+     */
+    void setProperty(String key, String value);
+    
+    /**
+     * Gets a property
+     */
+    String getProperty(String key);
 
 } // end class EditorWatcher
