@@ -255,7 +255,6 @@ public class ParsedTypeNode extends IncrementalParsingNode
                 return PP_ABORT;
             }
             
-            complete = true;
             return PP_ENDS_NODE_AFTER;
         }
         

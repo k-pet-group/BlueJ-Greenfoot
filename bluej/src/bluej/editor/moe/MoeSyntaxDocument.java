@@ -199,7 +199,6 @@ public class MoeSyntaxDocument extends PlainDocument
         repaintLines(pos, size);
         
         NodeAndPosition<ReparseRecord> existing = reparseRecordTree.findNodeAtOrAfter(pos);
-        while (existing != null && existing.getEnd() == pos) existing = existing.nextSibling();
         while (existing != null && existing.getPosition() <= pos) {
             NodeAndPosition<ReparseRecord> next = existing.nextSibling();
             // Remove from end, or a middle portion, or the whole node

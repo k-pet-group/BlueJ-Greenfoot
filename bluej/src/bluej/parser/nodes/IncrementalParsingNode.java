@@ -225,7 +225,14 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         if (extendPrev) {
             int tokend = lineColToPos(document, laToken.getEndLine(), laToken.getEndColumn());
             if (ttype == JavaTokenTypes.EOF) {
-                if (nodePos + getSize() < document.getLength()) {
+                boolean weCanGrow = nodePos + getSize() < document.getLength();
+                if (! weCanGrow && tokend == nap.getEnd()) {
+                    // No possibility for growth.
+                    ((MoeSyntaxDocument) document).markSectionParsed(offset, tokend - offset + 1);
+                    return ALL_OK;
+                }
+                
+                if (weCanGrow) {
                     boolean grew = getParentNode().growChild(document,
                             new NodeAndPosition<ParsedNode>(this, nodePos, getSize()),
                             listener);
@@ -235,8 +242,6 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                     return ALL_OK; // because we haven't marked anything as parsed, this
                     // will cause a re-parse
                 }
-                ((MoeSyntaxDocument) document).markSectionParsed(originalOffset, tokend - originalOffset + 1);
-                return ALL_OK;
             }
             // The first token we read "joins on" to the end of the incomplete previous node.
             // So, we'll attempt to add it in.
@@ -298,7 +303,6 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             nextChild = childQueue.peek();
             if (ppr == PP_ENDS_NODE || ppr == PP_ENDS_NODE_AFTER || (ppr == PP_INCOMPLETE
                     && last.getType() != JavaTokenTypes.EOF)) {
-                complete = (ppr != PP_INCOMPLETE);
                 int pos;
                 if (ppr == PP_ENDS_NODE_AFTER) {
                     pos = lineColToPos(document, last.getEndLine(), last.getEndColumn());
@@ -308,6 +312,10 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 }
                 pparams.document.markSectionParsed(offset, pos - offset);
                 int newsize = pos - nodePos;
+                if (! complete) {
+                    pparams.document.scheduleReparse(nodePos + newsize, 0);
+                }
+                complete = (ppr != PP_INCOMPLETE);
                 int oldSize = getSize();
                 if (newsize != oldSize) {
                     setSize(newsize);
@@ -383,9 +391,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 nextChild = removeOverwrittenChildren(childQueue, pparams.abortPos, listener);
                 processChildQueue(nodePos, childQueue, nextChild);
                 parser.completedNode(this, nodePos, pparams.abortPos - nodePos);
-                if (pparams.abortPos > offset) {
-                    pparams.document.markSectionParsed(offset, pparams.abortPos - offset);
-                }
+                pparams.document.markSectionParsed(offset, pparams.abortPos - offset);
                 return ALL_OK;
             }
             
@@ -437,14 +443,16 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             tokpos = nlaPos;
         }
 
-        complete = true;
-        
         removeOverwrittenChildren(childQueue, Integer.MAX_VALUE, listener);
         tokpos = lineColToPos(document, laToken.getLine(), laToken.getColumn());
         pparams.document.markSectionParsed(offset, tokpos - offset);
         // Did we shrink?
         int newsize = tokpos - nodePos;
         parser.completedNode(this, nodePos, newsize);
+        if (! complete) {
+            pparams.document.scheduleReparse(nodePos + newsize, 0);
+        }
+        complete = true;
         int oldSize = getSize();
         if (newsize < oldSize) {
             setSize(newsize);
