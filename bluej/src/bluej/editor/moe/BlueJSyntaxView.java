@@ -1226,8 +1226,6 @@ public abstract class BlueJSyntaxView extends PlainView
                         damageStart = Math.min(damageStart, cnap.getPosition());
                         damageEnd = Math.max(damageEnd, cnap.getEnd());
                         nodeIndents.remove(cnap.getNode());
-                        // DAV
-                        System.out.println("Removing cached indent for: " + cnap.getNode() + " " + cnap.getPosition() + "-" + cnap.getEnd());
                     }
                 }
             }
