@@ -243,6 +243,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             nextChild = removeOverwrittenChildren(childQueue, tokend, listener);
             int oldSize = nap.getSize(); // record original size
             nap.setSize(tokend - nap.getPosition()); // append the token
+            listener.nodeChangedLength(nap, nap.getPosition(), oldSize);
             int pr = nap.getNode().reparseNode(document, nap.getPosition(), tokpos, listener);
             if (pr == REMOVE_NODE) {
                 removeChild(nap, listener);
@@ -307,8 +308,11 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 }
                 pparams.document.markSectionParsed(offset, pos - offset);
                 int newsize = pos - nodePos;
-                if (newsize != getSize()) {
+                int oldSize = getSize();
+                if (newsize != oldSize) {
                     setSize(newsize);
+                    nap = new NodeAndPosition<ParsedNode>(this, nodePos, newsize);
+                    listener.nodeChangedLength(nap, nodePos, oldSize);
                     endNodeCleanup(pparams, state, Integer.MAX_VALUE, nodePos + newsize);
                     return NODE_SHRUNK;
                 }
@@ -367,10 +371,8 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 int epos = lineColToPos(document, last.getEndLine(), last.getEndColumn());
                 if (nextChild.getPosition() != epos) {
                     int slideAmount = nextChild.getPosition() - epos;
-                    if (slideAmount < 0) {
-                        throw new NullPointerException(); // DAV
-                    }
                     nextChild.getNode().getContainingNodeTree().slideStart(-slideAmount);
+                    // DAV message listener, node changed position
                     pparams.document.scheduleReparse(stateMarkers[state] + nodePos, slideAmount);
                 }
                 parser.completedNode(this, nodePos, epos - nodePos);
@@ -443,8 +445,11 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         // Did we shrink?
         int newsize = tokpos - nodePos;
         parser.completedNode(this, nodePos, newsize);
-        if (newsize < getSize()) {
+        int oldSize = getSize();
+        if (newsize < oldSize) {
             setSize(newsize);
+            nap = new NodeAndPosition<ParsedNode>(this, nodePos, oldSize);
+            listener.nodeChangedLength(nap, nodePos, oldSize);
             return NODE_SHRUNK;
         }
         
@@ -635,12 +640,14 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             NodeStructureListener listener)
     {
         int mypos = child.getPosition() - child.getNode().getOffsetFromParent();
+        int oldSize = child.getSize();
         
         NodeAndPosition<ParsedNode> nap = child.nextSibling();
         if (nap != null && nap.getPosition() > child.getEnd()) {
-            int newsize = nap.getPosition() - child.getPosition();
-            child.setSize(newsize);
+            int newSize = nap.getPosition() - child.getPosition();
+            child.setSize(newSize);
             childResized((MoeSyntaxDocument)document, mypos, child);
+            listener.nodeChangedLength(child, child.getPosition(), oldSize);
             return true;
         }
         
@@ -654,6 +661,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 complete = false;
             }
             childResized((MoeSyntaxDocument)document, mypos, child);
+            listener.nodeChangedLength(child, child.getPosition(), oldSize);
             return true;
         }
         
@@ -665,6 +673,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 complete = false;
             }
             childResized((MoeSyntaxDocument)document, mypos, child);
+            listener.nodeChangedLength(child, child.getPosition(), oldSize);
             return true;
         }
         
@@ -678,6 +687,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             int newsize = myEnd - child.getPosition();
             child.resize(newsize);
             childResized((MoeSyntaxDocument)document, mypos, child);
+            listener.nodeChangedLength(child, child.getPosition(), oldSize);
             return true;
         }
         

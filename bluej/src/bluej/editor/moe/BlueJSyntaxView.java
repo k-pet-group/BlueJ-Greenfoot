@@ -46,6 +46,7 @@ import javax.swing.text.Segment;
 import javax.swing.text.Utilities;
 import javax.swing.text.ViewFactory;
 
+import bluej.editor.moe.MoeSyntaxEvent.NodeChangeRecord;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -1180,7 +1181,9 @@ public abstract class BlueJSyntaxView extends PlainView
             return;
         }
         
-        int damageStart = getDocument().getLength();
+        MoeSyntaxDocument document = (MoeSyntaxDocument) getDocument();
+        
+        int damageStart = document.getLength();
         int damageEnd = 0;
 
         if (changes instanceof MoeSyntaxEvent) {
@@ -1193,11 +1196,40 @@ public abstract class BlueJSyntaxView extends PlainView
                 damageStart = Math.min(damageStart, node.getPosition());
                 damageEnd = Math.max(damageEnd, node.getEnd());
             }
-            for (NodeAndPosition<ParsedNode> node : mse.getAddedNodes()) {
-                // DAV if an inner node is inserted, we need to recalculate the
-                // indent of the containing node.
-                damageStart = Math.min(damageStart, node.getPosition());
-                damageEnd = Math.max(damageEnd, node.getEnd());
+            
+            for (NodeChangeRecord record : mse.getChangedNodes()) {
+                // DAV
+                System.out.println("Node changed: " + record.nap.getNode() + "[" + record.nap.getPosition() + "-" + record.nap.getEnd() + "] from [" + record.originalPos + "-" + (record.originalPos + record.originalSize) +"] inner=" + record.nap.getNode().isInner());
+                
+                NodeAndPosition<ParsedNode> nap = record.nap;
+                nodeIndents.remove(nap.getNode());
+                damageStart = Math.min(damageStart, nap.getPosition());
+                damageStart = Math.min(damageStart, record.originalPos);
+                damageEnd = Math.max(damageEnd, nap.getEnd());
+                damageEnd = Math.max(damageEnd,record.originalPos + record.originalSize);
+                
+                if (nap.getNode().isInner()) {
+
+                    List<NodeAndPosition<ParsedNode>> list = new LinkedList<NodeAndPosition<ParsedNode>>();
+                    NodeAndPosition<ParsedNode> top;
+                    top = new NodeAndPosition<ParsedNode>(document.getParsedNode(), 0, document.getLength());
+                    while (top.getNode() != record.nap.getNode()) {
+                        if (top.getNode().isInner()) {
+                            list.clear();
+                        }
+                        list.add(top);
+                        top = top.getNode().findNodeAt(nap.getEnd(), top.getPosition());
+                    }
+
+                    for (NodeAndPosition<ParsedNode> cnap : list)
+                    {
+                        damageStart = Math.min(damageStart, cnap.getPosition());
+                        damageEnd = Math.max(damageEnd, cnap.getEnd());
+                        nodeIndents.remove(cnap.getNode());
+                        // DAV
+                        System.out.println("Removing cached indent for: " + cnap.getNode() + " " + cnap.getPosition() + "-" + cnap.getEnd());
+                    }
+                }
             }
         }
 

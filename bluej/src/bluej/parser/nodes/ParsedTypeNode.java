@@ -218,13 +218,18 @@ public class ParsedTypeNode extends IncrementalParsingNode
             // '}'
             last = params.tokenStream.nextToken();
 
+            int innerOffset = inner.getOffsetFromParent();
+            int innerPos = innerOffset + params.nodePos;
+            int innerSize = inner.getSize();
+
             if (last.getType() != JavaTokenTypes.RCURLY) {
                 // Extend the inner.
-                int innerOffset = inner.getOffsetFromParent();
-                int innerPos = innerOffset + params.nodePos;
-                int innerSize = inner.getSize();
                 inner.setComplete(false);
                 inner.setSize(getSize() - innerOffset);
+                params.listener.nodeChangedLength(
+                        new NodeAndPosition<ParsedNode>(inner, innerPos, getSize() - innerOffset),
+                        innerPos,
+                        innerSize);
                 stateMarkers[1] = getSize();
                 params.document.scheduleReparse(innerPos + innerSize, getSize() - innerOffset - innerSize);
                 params.abortPos = innerPos + innerSize;
@@ -234,14 +239,16 @@ public class ParsedTypeNode extends IncrementalParsingNode
             
             // Extend the inner node up to the token we just pulled.
             int lastPos = lineColToPos(params.document, last.getLine(), last.getColumn());
-            int innerPos = inner.getOffsetFromParent() + params.nodePos;
-            int innerSize = inner.getSize();
             if ((innerPos + innerSize) != lastPos || ! inner.complete) {
                 // Expand the inner node to cover the RCURLY, which hopefully actually closes it,
                 // and re-parse
                 inner.complete = false;
                 lastPos = lineColToPos(params.document, last.getEndLine(), last.getEndColumn());
                 inner.setSize(lastPos - innerPos);
+                params.listener.nodeChangedLength(
+                        new NodeAndPosition<ParsedNode>(inner, innerPos, lastPos - innerPos),
+                        innerPos,
+                        innerSize);
                 stateMarkers[1] = lastPos - params.nodePos;
                 params.document.scheduleReparse(innerPos + innerSize, lastPos - innerPos - innerSize);
                 params.abortPos = innerPos + innerSize;

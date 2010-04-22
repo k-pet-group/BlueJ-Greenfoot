@@ -384,7 +384,10 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
      * growChild() is called by a child node when, during incremental parsing, it determines
      * that it needs to grow in size. The response must be to increase the size of the child
      * and return true, or (if increasing size is really not possible) to return false, or to
-     * return false and assume responsibility for re-parsing.
+     * return false and assume responsibility for re-parsing.<p>
+     * 
+     * It is the responsibility of this method to notify the listener of the child's change
+     * in size, if it occurs.
      */
     protected boolean growChild(Document document, NodeAndPosition<ParsedNode> child,
             NodeStructureListener listener)

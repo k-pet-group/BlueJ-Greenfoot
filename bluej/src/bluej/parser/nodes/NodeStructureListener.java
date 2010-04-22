@@ -32,8 +32,5 @@ public interface NodeStructureListener
 {
     public void nodeRemoved(NodeAndPosition<ParsedNode> node);
     
-    public void nodeAdded(NodeAndPosition<ParsedNode> node);
-    
-    //
-    // public void nodeChangedLength();
+    public void nodeChangedLength(NodeAndPosition<ParsedNode> node, int oldPos, int oldSize);
 }

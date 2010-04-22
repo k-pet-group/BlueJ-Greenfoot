@@ -112,8 +112,9 @@ public class MoeSyntaxDocument extends PlainDocument
             parsedNode.setParentResolver(parentResolver);
             reparseRecordTree = new NodeTree<ReparseRecord>();
             parsedNode.textInserted(this, 0, 0, getLength(), new NodeStructureListener() {
-                public void nodeAdded(NodeAndPosition<ParsedNode> node) { }
                 public void nodeRemoved(NodeAndPosition<ParsedNode> node) { }
+                public void nodeChangedLength(NodeAndPosition<ParsedNode> node,
+                        int oldPos, int oldSize) { }
             });
         }
     }
