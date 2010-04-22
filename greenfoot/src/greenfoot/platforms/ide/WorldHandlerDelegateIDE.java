@@ -41,6 +41,7 @@ import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -399,6 +400,20 @@ public class WorldHandlerDelegateIDE
             }
         }
     }
+    
+    public void mouseMoved(MouseEvent e)
+    {
+        // While dragging, other methods set the mouse cursor instead:
+        if (false == worldHandler.isDragging()) {
+            Actor actor = worldHandler.getObject(e.getX(), e.getY());
+            if (actor == null) {
+                worldHandler.getWorldCanvas().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            } else {
+                worldHandler.getWorldCanvas().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            }
+        }
+    }
+
 
     public void attachProject(Object project)
     {

@@ -46,6 +46,8 @@ public interface WorldHandlerDelegate
 
     void mouseClicked(MouseEvent e);
 
+    void mouseMoved(MouseEvent e);
+    
     void setWorld(World oldWorld, World newWorld);
 
     void dragFinished(Object o);

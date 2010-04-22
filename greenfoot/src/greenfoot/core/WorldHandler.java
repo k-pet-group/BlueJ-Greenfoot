@@ -154,6 +154,10 @@ public class WorldHandler
             public void mouseClicked(MouseEvent e)
             {
             }
+            
+            public void mouseMoved(MouseEvent e)
+            {
+            }
 
             public void setWorld(World oldWorld, World newWorld)
             {
@@ -288,6 +292,11 @@ public class WorldHandler
         SwingUtilities.getWindowAncestor(worldCanvas).toFront();
         worldCanvas.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         drag(actor, p);
+    }
+    
+    public boolean isDragging()
+    {
+        return dragActor != null;
     }
 
     /*
@@ -767,6 +776,7 @@ public class WorldHandler
     {
         objectDropped = false;
         drag(dragActor, e.getPoint());
+        handlerDelegate.mouseMoved(e);
     }
 
     /**

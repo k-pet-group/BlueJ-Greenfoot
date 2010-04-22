@@ -71,6 +71,11 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     {
         // Not used in standalone
     }
+    
+    public void mouseMoved(MouseEvent e)
+    {
+        // Not used in standalone
+    }
 
     public void processKeyEvent(KeyEvent e)
     {
