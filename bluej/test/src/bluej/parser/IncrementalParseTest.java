@@ -276,4 +276,60 @@ public class IncrementalParseTest extends TestCase
         assertEquals(9, nap.getPosition());
         assertEquals(11, nap.getEnd());
     }
+    
+    public void test7() throws Exception
+    {
+        String aSrc = "class A {\n" +         // 0 - 10
+            "  class B {\n" +                 // 10 - 22 
+            "  \n" +                          // 22 - 25 
+            "  }\n" +                         // 25 - 29
+            "}\n";                            // 29 - 31
+
+        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        ParsedCUNode aNode = aDoc.getParser();
+
+        // A Outer
+        NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(30, nap.getSize());
+        
+        // A Inner
+        nap = nap.getNode().findNodeAt(9, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(9, nap.getPosition());
+        assertEquals(29, nap.getEnd());
+        
+        // B Outer
+        nap = nap.getNode().findNodeAt(12, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(12, nap.getPosition());
+        assertEquals(28, nap.getEnd());
+        
+        // B Inner
+        nap = nap.getNode().findNodeAt(21, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(21, nap.getPosition());
+        assertEquals(27, nap.getEnd());
+        
+        // Delete the '} from B
+        aDoc.remove(27, 1);
+        
+        aNode = aDoc.getParser();
+
+        // Class B should now soak up A's '}'. As a result A outer and inner
+        // should extend to end-of-file.
+        
+        // A Outer
+        nap = aNode.findNodeAt(0, 0);
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(30, nap.getSize());
+
+        // A Inner
+        nap = nap.getNode().findNodeAt(9, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(9, nap.getPosition());
+        assertEquals(30, nap.getEnd());
+    }
 }
