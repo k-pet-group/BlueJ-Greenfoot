@@ -456,7 +456,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         int oldSize = getSize();
         if (newsize < oldSize) {
             setSize(newsize);
-            nap = new NodeAndPosition<ParsedNode>(this, nodePos, oldSize);
+            nap = new NodeAndPosition<ParsedNode>(this, nodePos, newsize);
             listener.nodeChangedLength(nap, nodePos, oldSize);
             return NODE_SHRUNK;
         }

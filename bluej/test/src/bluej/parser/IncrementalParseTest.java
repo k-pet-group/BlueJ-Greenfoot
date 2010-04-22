@@ -331,5 +331,32 @@ public class IncrementalParseTest extends TestCase
         assertNotNull(nap);
         assertEquals(9, nap.getPosition());
         assertEquals(30, nap.getEnd());
+        
+        // Re-insert '}'
+        aDoc.insertString(27, "}", null);
+        
+        aNode = aDoc.getParser();
+        nap = aNode.findNodeAt(0, 0);
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(30, nap.getSize());
+        
+        // A Inner
+        nap = nap.getNode().findNodeAt(9, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(9, nap.getPosition());
+        assertEquals(29, nap.getEnd());
+        
+        // B Outer
+        nap = nap.getNode().findNodeAt(12, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(12, nap.getPosition());
+        assertEquals(28, nap.getEnd());
+        
+        // B Inner
+        nap = nap.getNode().findNodeAt(21, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(21, nap.getPosition());
+        assertEquals(27, nap.getEnd());
     }
 }
