@@ -199,6 +199,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         EditorParser parser = new EditorParser(document, r, pline, pcol, buildScopeStack());
                 
         LocatableToken laToken = parser.getTokenStream().LA(1);
+        int ttype = laToken.getType();
         int tokpos = lineColToPos(document, laToken.getLine(), laToken.getColumn());
         nap = boundaryNap;
         
@@ -213,8 +214,8 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 // (Similarly for try/catch/catch/finally).
                 //
                 // 2. the node end is marked by something in the parent node (i.e this node).
-                // in that case the node should be extended only the node end matches the
-                // original reparse offset (originalOffset).
+                // in that case the node should be extended only if the token overlaps the
+                // original reparse offset.
                 //
                 // At the moment we can't tell which of the two cases, so we always extend.
                 extendPrev = true;
@@ -223,6 +224,20 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         
         if (extendPrev) {
             int tokend = lineColToPos(document, laToken.getEndLine(), laToken.getEndColumn());
+            if (ttype == JavaTokenTypes.EOF) {
+                if (nodePos + getSize() < document.getLength()) {
+                    boolean grew = getParentNode().growChild(document,
+                            new NodeAndPosition<ParsedNode>(this, nodePos, getSize()),
+                            listener);
+                    if (!grew) {
+                        return REMOVE_NODE;
+                    }
+                    return ALL_OK; // because we haven't marked anything as parsed, this
+                    // will cause a re-parse
+                }
+                ((MoeSyntaxDocument) document).markSectionParsed(originalOffset, tokend - originalOffset + 1);
+                return ALL_OK;
+            }
             // The first token we read "joins on" to the end of the incomplete previous node.
             // So, we'll attempt to add it in.
             nextChild = removeOverwrittenChildren(childQueue, tokend, listener);
@@ -244,7 +259,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                         //((MoeSyntaxDocument)document).scheduleReparse(originalOffset, 0);
                         return ALL_OK;
                     }
-                    offset = nap.getEnd();
+                    offset = nap.getPosition() + nap.getNode().getSize();
                     pline = document.getDefaultRootElement().getElementIndex(offset) + 1;
                     pcol = offset - document.getDefaultRootElement().getElement(pline - 1).getStartOffset() + 1;
                     r = new DocumentReader(document, offset, parseEnd);
@@ -254,9 +269,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 }
             }
         }
-                
-        int ttype = laToken.getType();
-        
+                        
         int nextStatePos = (state < stateMarkers.length) ? stateMarkers[state] : -1;
         nextStatePos += (nextStatePos == -1) ? 0 : nodePos;
         
@@ -368,7 +381,9 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 nextChild = removeOverwrittenChildren(childQueue, pparams.abortPos, listener);
                 processChildQueue(nodePos, childQueue, nextChild);
                 parser.completedNode(this, nodePos, pparams.abortPos - nodePos);
-                pparams.document.markSectionParsed(offset, pparams.abortPos - offset);
+                if (pparams.abortPos > offset) {
+                    pparams.document.markSectionParsed(offset, pparams.abortPos - offset);
+                }
                 return ALL_OK;
             }
             

@@ -244,6 +244,8 @@ public class ParsedTypeNode extends IncrementalParsingNode
                 inner.setSize(lastPos - innerPos);
                 stateMarkers[1] = lastPos - params.nodePos;
                 params.document.scheduleReparse(innerPos + innerSize, lastPos - innerPos - innerSize);
+                params.abortPos = innerPos + innerSize;
+                return PP_ABORT;
             }
             
             complete = true;
