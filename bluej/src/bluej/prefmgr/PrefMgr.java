@@ -352,20 +352,22 @@ public class PrefMgr
     }
     
     /**
-     * 
+     * Sets the value of the naviview to expanded/collapsed 
+     * to the local variable and to the configs
      * @param expanded true if expanded; false if not
      */
-    public static void setNaviviewExpanded(boolean expanded){
-        //setting the value of the naviview at last close to be the default
+    public static void setNaviviewExpanded(boolean expanded)
+    {
         isNaviviewExpanded=expanded;
         Config.putPropString(NAVIVIEW_EXPANDED, String.valueOf(expanded));
     }
     
     /**
-     * 
+     * Returns the value of whether the naviview is expanded/collapsed
      * @return true if expanded; false if not
      */
-    public static boolean getNaviviewExpanded(){   
+    public static boolean getNaviviewExpanded()
+    {   
         return isNaviviewExpanded;            
     }
     
