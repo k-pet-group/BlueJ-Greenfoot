@@ -1198,9 +1198,6 @@ public abstract class BlueJSyntaxView extends PlainView
             }
             
             for (NodeChangeRecord record : mse.getChangedNodes()) {
-                // DAV
-                System.out.println("Node changed: " + record.nap.getNode() + "[" + record.nap.getPosition() + "-" + record.nap.getEnd() + "] from [" + record.originalPos + "-" + (record.originalPos + record.originalSize) +"] inner=" + record.nap.getNode().isInner());
-                
                 NodeAndPosition<ParsedNode> nap = record.nap;
                 nodeIndents.remove(nap.getNode());
                 damageStart = Math.min(damageStart, nap.getPosition());
