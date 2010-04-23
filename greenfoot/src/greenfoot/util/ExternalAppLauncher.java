@@ -29,6 +29,7 @@ import java.io.OutputStream;
 import java.awt.Desktop;
 
 import bluej.Config;
+import bluej.utility.Debug;
 
 /**
  * A class containing static methods for the purposes of launching external
@@ -90,12 +91,18 @@ public class ExternalAppLauncher
      * 
      * @param file the file to open for editing.
      */
-    public static void editFile(File file)
+    private static void editFile(File file)
     {
         try {
             if (Desktop.isDesktopSupported()) {
                 Desktop desktop = Desktop.getDesktop();
-                desktop.edit(file);
+                if (desktop.isSupported(Desktop.Action.EDIT)) {
+                    desktop.edit(file);
+                } else {
+                    // They're probably on Linux; let's take our best guess
+                    // and use GIMP:
+                    Runtime.getRuntime().exec(new String []{"gimp", file.getAbsolutePath()}, null, null);
+                }
             }
             else {
                 throw new RuntimeException(
@@ -103,7 +110,7 @@ public class ExternalAppLauncher
             }
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+            Debug.reportError("Error editing image", ex);
         }
     }
 
