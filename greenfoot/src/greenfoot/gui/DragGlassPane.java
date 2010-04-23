@@ -79,7 +79,7 @@ import javax.swing.SwingUtilities;
  * dragFinished() is sent to the drag listener
  * 
  * @author Poul Henriksen
- * @version $Id: DragGlassPane.java 6733 2009-09-19 07:56:57Z davmac $
+ * @version $Id: DragGlassPane.java 7399 2010-04-23 14:49:22Z nccb $
  * 
  */
 public class DragGlassPane extends JComponent
@@ -467,7 +467,7 @@ public class DragGlassPane extends JComponent
         if (isQuickAddActive) {
             WorldHandler worldHandler = WorldHandler.getInstance();
             ClassView cls = (ClassView) classSelectionManager.getSelected();
-            if (canBeInstantiated(cls) ) {
+            if (canBeInstantiatedWithoutParams(cls) ) {
                 ActorClassRole role = (ActorClassRole) cls.getRole();
                 Actor actor = role.createObjectDragProxy();
                 DragGlassPane.getInstance().startDrag(actor, this, worldHandler.getWorldCanvas(), false);
@@ -479,7 +479,7 @@ public class DragGlassPane extends JComponent
      * Returns true if the given class is in a state where it can be instantiated.
      * 
      */
-    private boolean canBeInstantiated(ClassView cls)
+    private boolean canBeInstantiatedWithoutParams(ClassView cls)
     {
         if(cls == null) 
             return false;
@@ -491,6 +491,11 @@ public class DragGlassPane extends JComponent
         }
         Class<?> realClass = gCls.getJavaClass();
         if(realClass != null && java.lang.reflect.Modifier.isAbstract(realClass.getModifiers())) {
+            return false;
+        }
+        try {
+            realClass.getConstructor();
+        } catch (NoSuchMethodException e) {
             return false;
         }
         return true;
