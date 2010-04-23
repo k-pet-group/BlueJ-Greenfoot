@@ -141,7 +141,7 @@ public class NaviView extends JPanel implements AdjustmentListener
     public void setBounds(int x, int y, int width, int height)
     {
         super.setBounds(x, y, width, height);
-        if (imgBuffer != null) {
+        if (imgBuffer != null && isVisible() && width > 0) {
             Insets insets = getInsets();
             View view = editorPane.getUI().getRootView(editorPane);
             int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
