@@ -39,6 +39,7 @@ import java.util.Stack;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentEvent.EventType;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.PlainView;
 import javax.swing.text.Position;
@@ -150,7 +151,20 @@ public abstract class BlueJSyntaxView extends PlainView
     @Override
     public int viewToModel(float fx, float fy, Shape a, Position.Bias[] bias)
     {
-        return super.viewToModel(fx - leftMargin, fy, a, bias);
+        try {
+            return super.viewToModel(fx - leftMargin, fy, a, bias);
+        }
+        catch (ArrayIndexOutOfBoundsException aiobe) {
+            Rectangle alloc = a.getBounds();
+            Document document = getDocument();
+            int y = (int) fy;
+            
+            // Guard against Java bug:
+            // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6899297
+            Element map = document.getDefaultRootElement();
+            int lineIndex = Math.max((y - alloc.y) / metrics.getHeight(), 0);
+            return map.getElement(lineIndex).getEndOffset() - 1;
+        }
     }
 
     /*
