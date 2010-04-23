@@ -59,6 +59,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
 import bluej.Config;
+import bluej.utility.Debug;
 import bluej.utility.MiksGridLayout;
 import bluej.utility.SwingWorker;
 
@@ -67,7 +68,7 @@ import bluej.utility.SwingWorker;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ExportPublishPane.java 6775 2009-10-08 02:11:59Z davmac $
+ * @version $Id: ExportPublishPane.java 7398 2010-04-23 14:03:25Z nccb $
  */
 public class ExportPublishPane extends ExportPane
 {
@@ -670,10 +671,10 @@ public class ExportPublishPane extends ExportPane
                         }
                     }
                     catch (UnknownHostException e) {
-                        e.printStackTrace();
+                        Debug.reportError("Error while publishing scenario", e);
                     }
                     catch (IOException e) {
-                        e.printStackTrace();
+                        Debug.reportError("Error while publishing scenario", e);
                     }
                     return tags;
                 }
