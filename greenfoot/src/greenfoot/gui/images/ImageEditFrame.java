@@ -94,6 +94,7 @@ public class ImageEditFrame extends EscapeDialog implements ListSelectionListene
     {
         super(owner, Config.getString("imagelib.scenario.frame.title"), true);
         setLocation(50,50);
+        this.proj = proj;
         projImagesDir = proj.getImageDir();
         
         buildUI();
