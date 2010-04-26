@@ -2387,7 +2387,7 @@ public final class Package extends Graph
     
     private static class MisspeltMethodChecker implements MessageCalculator
     {
-        private String message;
+        private final String message;
         private int lineNumber;
 
         public MisspeltMethodChecker(String message, int lineNumber)
@@ -2482,21 +2482,28 @@ public final class Package extends Graph
                 // and use its first occurrence:
                 int pos = getLineStart(e) + lineText.indexOf(missing);
                 
+                LinkedList<String> maybeTheyMeant = new LinkedList<String>();
                 CodeSuggestions suggests = e.getParsedNode().getExpressionType(pos, ((MoeEditor)e).getSourceDocument());
                 if (suggests != null) {
-                    String augmentedMessage = message;
-                    
                     AssistContent[] values = ((MoeEditor)e).getPossibleCompletions(suggests, "");
                     for (AssistContent a : values) {
                         String name = chopAtOpeningBracket(a.getDisplayName());
                         
                         if (editDistance(name.toLowerCase(), missing.toLowerCase()) <= 3) {
-                            augmentedMessage += "; maybe you meant: " + a.getDisplayName();
+                            maybeTheyMeant.addLast(a.getDisplayName());
                         }
                     }
-                    return augmentedMessage;
-                } else {
+                }
+                
+                if (maybeTheyMeant.isEmpty()) {
                     return message;
+                } else {
+                    String augmentedMessage = message + " - maybe you meant: " + maybeTheyMeant.getFirst();
+                    maybeTheyMeant.removeFirst();
+                    for (String sugg : maybeTheyMeant) {
+                        augmentedMessage += " or " + sugg;
+                    }
+                    return augmentedMessage;
                 }
             } else {
                 return message;
