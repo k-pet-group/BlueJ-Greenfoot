@@ -2498,7 +2498,7 @@ public final class Package extends Graph
                 if (maybeTheyMeant.isEmpty()) {
                     return message;
                 } else {
-                    String augmentedMessage = message + " - maybe you meant: " + maybeTheyMeant.getFirst();
+                    String augmentedMessage = message + "; maybe you meant: " + maybeTheyMeant.getFirst();
                     maybeTheyMeant.removeFirst();
                     for (String sugg : maybeTheyMeant) {
                         augmentedMessage += " or " + sugg;
