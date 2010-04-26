@@ -3417,7 +3417,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /**
      * Get the possible code completions.
      */
-    private AssistContent[] getPossibleCompletions(CodeSuggestions suggests, String prefix)
+    public AssistContent[] getPossibleCompletions(CodeSuggestions suggests, String prefix)
     {
         if (suggests != null) {
             //Map<String,JavaType> fields = exprType.getClassType().getReflective().getDeclaredFields();

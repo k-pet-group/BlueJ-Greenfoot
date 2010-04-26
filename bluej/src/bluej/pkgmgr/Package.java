@@ -47,12 +47,15 @@ import bluej.debugger.SourceLocation;
 import bluej.debugmgr.CallHistory;
 import bluej.debugmgr.Invoker;
 import bluej.editor.Editor;
+import bluej.editor.moe.AssistContent;
+import bluej.editor.moe.MoeEditor;
 import bluej.extensions.BPackage;
 import bluej.extensions.ExtensionBridge;
 import bluej.extensions.event.CompileEvent;
 import bluej.extmgr.ExtensionsManager;
 import bluej.graph.Edge;
 import bluej.graph.Graph;
+import bluej.parser.CodeSuggestions;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.dependency.Dependency;
@@ -2122,13 +2125,27 @@ public final class Package extends Graph
 
         return bringToFront;
     }
+    
+    public static interface MessageCalculator
+    {
+        // This should produce something half-way helpful if null is passed:
+        public String calculateMessage(Editor e);
+    }
+    
+    private boolean showEditorMessage(String filename, int lineNo, final String message, boolean beep,
+            boolean bringToFront, boolean setStepMark, String help)
+    {
+        return showEditorMessage(filename, lineNo, new MessageCalculator() {
+            public String calculateMessage(Editor e) { return message; }
+          }, beep, bringToFront, setStepMark, help);
+    }
 
     /**
      * Display an error message associated with a specific line in a class. This
      * is done by opening the class's source, highlighting the line and showing
      * the message in the editor's information area.
      */
-    private boolean showEditorMessage(String filename, int lineNo, String message, boolean beep,
+    private boolean showEditorMessage(String filename, int lineNo, MessageCalculator messageCalc, boolean beep,
             boolean bringToFront, boolean setStepMark, String help)
     {
         String fullName = getProject().convertPathToPackageName(filename);
@@ -2163,10 +2180,10 @@ public final class Package extends Graph
             if (bringToFront || !editor.isShowing()) {
                 t.open();
             }
-            editor.displayMessage(message, lineNo, 0, beep, setStepMark, help);
+            editor.displayMessage(messageCalc.calculateMessage(editor), lineNo, 0, beep, setStepMark, help);
         }
         else {
-            Debug.message(t.getDisplayName() + ", line" + lineNo + ": " + message);
+            Debug.message(t.getDisplayName() + ", line" + lineNo + ": " + messageCalc.calculateMessage(null));
         }
         return true;
     }
@@ -2367,6 +2384,70 @@ public final class Package extends Graph
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);        
         }
     }
+    
+    private static class MisspeltMethodChecker implements MessageCalculator
+    {
+        private String message;
+        private int lineNumber;
+
+        public MisspeltMethodChecker(String message, int lineNumber)
+        {
+            this.message = message;
+            this.lineNumber = lineNumber;
+        }
+        
+        private static String chopAtOpeningBracket(String name)
+        {
+            int openingBracket = name.indexOf('(');
+            if (openingBracket >= 0)
+                return name.substring(0,openingBracket);
+            else
+                return name;
+        }
+
+        private String getLine(Editor e)
+        {
+            return e.getText(new bluej.parser.SourceLocation(lineNumber, 1), new bluej.parser.SourceLocation(lineNumber, e.getLineLength(lineNumber-1)));
+        }
+        
+        private int getLineStart(Editor e)
+        {
+            return e.getOffsetFromLineColumn(new bluej.parser.SourceLocation(lineNumber, 1));
+        }       
+        
+        public String calculateMessage(Editor e)
+        {
+            if (e != null && e instanceof MoeEditor) {
+                String missing = chopAtOpeningBracket(message.substring(message.lastIndexOf(' ') + 1));
+                
+                String lineText = getLine(e);
+                // We're only given the line number, not the column number
+                // Let's guess that the method name only occurs once on the line,
+                // and use its first occurrence:
+                int pos = getLineStart(e) + lineText.indexOf(missing);
+                
+                CodeSuggestions suggests = e.getParsedNode().getExpressionType(pos, ((MoeEditor)e).getSourceDocument());
+                if (suggests != null) {
+                    String augmentedMessage = message;
+                    
+                    AssistContent[] values = ((MoeEditor)e).getPossibleCompletions(suggests, "");
+                    for (AssistContent a : values) {
+                        String name = chopAtOpeningBracket(a.getDisplayName());
+                        
+                        // Detect case issues:
+                        if (name.toLowerCase().equals(missing.toLowerCase())) {
+                            augmentedMessage += "; maybe you meant: " + a.getDisplayName();
+                        }
+                    }
+                    return augmentedMessage;
+                } else {
+                    return message;
+                }
+            } else {
+                return message;
+            }
+        }
+    }
 
     /**
      * The same, but also display error/warning messages for the user
@@ -2382,8 +2463,16 @@ public final class Package extends Graph
         {
             super.errorMessage(filename, lineNo, message);
             
+            boolean messageShown;
+            
+            // See if we can help the user a bit more if they've mis-spelt a method:
+            if (message.contains("cannot find symbol")) {
+                messageShown = showEditorMessage(filename, lineNo, new MisspeltMethodChecker(message, lineNo), true, true, false, Config.compilertype);
+            } else {
+                messageShown = showEditorMessage(filename, lineNo, message, true, true, false, Config.compilertype);
+            }
             // Display the error message in the source editor
-            if (!showEditorMessage(filename, lineNo, message, true, true, false, Config.compilertype))
+            if (false == messageShown)
                 showMessageWithText("error-in-file", filename + ":" + lineNo + "\n" + message);
         }
 
