@@ -21,6 +21,7 @@
  */
 package bluej.parser;
 
+import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -290,5 +291,20 @@ public class EditorParserTest extends TestCase
         assertEquals(29, top.getPosition());
         assertEquals(39, top.getEnd());
     }
+    
+    public void testRecursiveTypedef()
+    {
+        String sourceCode = "interface Sort<T extends Comparable<T>> { }\n";
 
+        ParsedCUNode pcuNode = cuForSource(sourceCode, "");
+        assertNotNull(pcuNode);
+        
+        // ParsedNode sortNode = pcuNode.getTypeNode("Sort");
+        PackageOrClass poc = pcuNode.resolvePackageOrClass("Sort", null);
+        assertNotNull(poc);
+        TypeEntity tent = poc.resolveAsType();
+        assertNotNull(tent);
+        
+        InfoParser.parse(new StringReader(sourceCode), resolver, "");
+    }
 }
