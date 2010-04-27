@@ -33,14 +33,24 @@ import java.util.Set;
  * as a type parameter anywhere else, except that it can be bounded.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeDeclTpar.java 7011 2010-01-14 23:25:52Z davmac $
  */
-public class GenTypeDeclTpar extends GenTypeTpar {
-
+public class GenTypeDeclTpar extends GenTypeTpar
+{
     protected GenTypeSolid [] upperBounds;
     protected GenTypeSolid lBound = null;
     
-    public GenTypeDeclTpar(String parname, GenTypeSolid bound) {
+    /**
+     * Construct a GenTypeDeclTpar without specifying bounds. The bounds should then be
+     * set using setBounds(). Until that occurs any intermediate method call has undefined
+     * results.
+     */
+    public GenTypeDeclTpar(String parname)
+    {
+        super(parname);
+    }
+    
+    public GenTypeDeclTpar(String parname, GenTypeSolid bound)
+    {
         super(parname);
         upperBounds = new GenTypeSolid [] { bound };
     }
@@ -67,6 +77,15 @@ public class GenTypeDeclTpar extends GenTypeTpar {
         super(parname);
         upperBounds = ubounds;
         lBound = lbound;
+    }
+    
+    /**
+     * Set the bounds. This should only be done when first creating the instance; otherwise,
+     * GenTypeDeclTpar instances should be immutable (as with other JavaTypes).
+     */
+    public void setBounds(GenTypeSolid [] ubounds)
+    {
+        upperBounds = ubounds;
     }
     
     /**
@@ -160,7 +179,7 @@ public class GenTypeDeclTpar extends GenTypeTpar {
         return upperBounds[0].getErasedType();
     }
 
-    public void erasedSuperTypes(Set s)
+    public void erasedSuperTypes(Set<Reflective> s)
     {
         for (int i = 0; i < upperBounds.length; i++) {
             upperBounds[i].erasedSuperTypes(s);
@@ -169,7 +188,7 @@ public class GenTypeDeclTpar extends GenTypeTpar {
     
     public GenTypeClass [] getReferenceSupertypes()
     {
-        ArrayList al = new ArrayList();
+        ArrayList<GenTypeClass> al = new ArrayList<GenTypeClass>();
         for (int i = 0; i < upperBounds.length; i++) {
             GenTypeClass [] brs = upperBounds[i].getReferenceSupertypes();
             for (int j = 0; j < brs.length; j++) {

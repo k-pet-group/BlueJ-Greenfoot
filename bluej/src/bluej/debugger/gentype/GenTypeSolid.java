@@ -123,7 +123,7 @@ public abstract class GenTypeSolid extends JavaType
      */
     public static GenTypeSolid lub(GenTypeSolid [] ubounds)
     {
-        Stack btstack = new Stack();
+        Stack<GenTypeClass[]> btstack = new Stack<GenTypeClass[]>();
         return lub(ubounds, btstack);
     }
     
@@ -134,17 +134,17 @@ public abstract class GenTypeSolid extends JavaType
     /**
      * lub workhorse method, uses a stack backtrace to avoid infinite recursion.
      */
-    private static GenTypeSolid lub(GenTypeSolid [] ubounds, Stack lubBt)
+    private static GenTypeSolid lub(GenTypeSolid [] ubounds, Stack<GenTypeClass[]> lubBt)
     {
         // "lowest(/least) upper bound"?
         
-        List l = new ArrayList();
+        List<GenTypeSolid> l = new ArrayList<GenTypeSolid>();
         Reflective [] mec = minimalErasedCandidateSet(ubounds);
         for (int i = 0; i < mec.length; i++) {
             l.add(Candidate(mec[i], ubounds, lubBt));
         }
         
-        GenTypeSolid [] intersecting = (GenTypeSolid []) l.toArray(new GenTypeSolid[l.size()]);
+        GenTypeSolid [] intersecting = l.toArray(new GenTypeSolid[l.size()]);
         return IntersectionType.getIntersection(intersecting);
     }
     
@@ -157,7 +157,7 @@ public abstract class GenTypeSolid extends JavaType
      * @param lubBt    A backtrace used to avoid infinite recursion
      * @return  The candidate type
      */
-    private static GenTypeClass Candidate(Reflective t, GenTypeSolid [] ubounds, Stack lubBt)
+    private static GenTypeClass Candidate(Reflective t, GenTypeSolid [] ubounds, Stack<GenTypeClass[]> lubBt)
     {
         GenTypeClass [] ri = relevantInvocations(t, ubounds);
         return leastContainingInvocation(ri, lubBt);
@@ -175,17 +175,18 @@ public abstract class GenTypeSolid extends JavaType
      * @param lubBt   A backtrace used to avoid infinite recursion
      * @return   The least containing type
      */
-    private static GenTypeClass leastContainingInvocation(GenTypeClass [] types, Stack lubBt)
+    private static GenTypeClass leastContainingInvocation(GenTypeClass [] types, Stack<GenTypeClass[]> lubBt)
     {
         // first check for infinite recursion:
         boolean breakRecursion = false;
-        Iterator si = lubBt.iterator();
+        Iterator<GenTypeClass[]> si = lubBt.iterator();
         while (si.hasNext()) {
-            GenTypeSolid [] sbounds = (GenTypeSolid []) si.next();
+            GenTypeSolid [] sbounds = si.next();
             int i;
             for (i = 0; i < sbounds.length; i++) {
-                if (! sbounds[i].equals(types[i]))
+                if (! sbounds[i].equals(types[i])) {
                     break;
+                }
             }
             breakRecursion = (i == sbounds.length);
             // TODO this is really supposed to result in a recursively-
@@ -204,7 +205,7 @@ public abstract class GenTypeSolid extends JavaType
     /**
      * Find the least containing invocation from two invocations.
      */
-    private static GenTypeClass leastContainingInvocation(GenTypeClass a, GenTypeClass b, Stack lubBt, boolean breakRecursion)
+    private static GenTypeClass leastContainingInvocation(GenTypeClass a, GenTypeClass b, Stack<GenTypeClass[]> lubBt, boolean breakRecursion)
     {
         if (! a.getReflective().getName().equals(b.getReflective().getName()))
             throw new IllegalArgumentException("Class types must be the same.");
@@ -225,9 +226,9 @@ public abstract class GenTypeSolid extends JavaType
             arrCount++;
         }
         
-        List lc = new ArrayList();
-        Iterator i = a.getTypeParamList().iterator();
-        Iterator j = b.getTypeParamList().iterator();
+        List<GenTypeParameter> lc = new ArrayList<GenTypeParameter>();
+        Iterator<GenTypeParameter> i = a.getTypeParamList().iterator();
+        Iterator<GenTypeParameter> j = b.getTypeParamList().iterator();
         
         GenTypeClass oa = a.getOuterType();
         GenTypeClass ob = b.getOuterType();
@@ -265,7 +266,7 @@ public abstract class GenTypeSolid extends JavaType
      * @param lubBt  The backtrace for avoiding infinite recursion
      * @return   The least containing type
      */
-    private static GenTypeParameter leastContainingTypeArgument(GenTypeParameter a, GenTypeParameter b, Stack lubBt)
+    private static GenTypeParameter leastContainingTypeArgument(GenTypeParameter a, GenTypeParameter b, Stack<GenTypeClass[]> lubBt)
     {
         GenTypeSolid ac = a.getCapture().asSolid();
         GenTypeSolid bc = b.getCapture().asSolid();
@@ -330,15 +331,15 @@ public abstract class GenTypeSolid extends JavaType
     {
         // have to find *intersection* of all sets and remove redundant types
         
-        Set rset = new HashSet();
+        Set<Reflective> rset = new HashSet<Reflective>();
         types[0].erasedSuperTypes(rset);
         
         for (int i = 1; i < types.length; i++) {
-            Set rset2 = new HashSet();
+            Set<Reflective> rset2 = new HashSet<Reflective>();
             types[i].erasedSuperTypes(rset2);
             
             // find the intersection incrementally
-            Iterator j = rset2.iterator();
+            Iterator<Reflective> j = rset2.iterator();
             while (j.hasNext()) {
                 if( ! rset.contains(j.next()))
                     j.remove();
@@ -347,9 +348,9 @@ public abstract class GenTypeSolid extends JavaType
         }
         
         // Now remove redundant types
-        Iterator i = rset.iterator();
+        Iterator<Reflective> i = rset.iterator();
         while (i.hasNext()) {
-            Iterator j = rset.iterator();
+            Iterator<Reflective> j = rset.iterator();
             Reflective ri = (Reflective) i.next();
             
             while (j.hasNext()) {
@@ -383,14 +384,14 @@ public abstract class GenTypeSolid extends JavaType
      */
     private static GenTypeClass [] relevantInvocations(Reflective r, GenTypeSolid [] ubounds)
     {
-        ArrayList rlist = new ArrayList();
+        ArrayList<GenTypeClass> rlist = new ArrayList<GenTypeClass>();
         for (int i = 0; i < ubounds.length; i++) {
             GenTypeClass [] blist = ubounds[i].getReferenceSupertypes();
             for (int j = 0; j < blist.length; j++) {
                 rlist.add(blist[j].mapToSuper(r.getName()));
             }
         }
-        return (GenTypeClass []) rlist.toArray(new GenTypeClass[rlist.size()]);
+        return rlist.toArray(new GenTypeClass[rlist.size()]);
     }
     
     @Override

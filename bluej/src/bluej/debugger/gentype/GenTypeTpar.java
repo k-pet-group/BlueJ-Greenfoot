@@ -145,7 +145,7 @@ public class GenTypeTpar extends GenTypeSolid
         throw new UnsupportedOperationException();
     }
     
-    public void erasedSuperTypes(Set s)
+    public void erasedSuperTypes(Set<Reflective> s)
     {
         throw new UnsupportedOperationException();
     }

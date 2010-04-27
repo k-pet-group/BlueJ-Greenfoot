@@ -40,6 +40,7 @@ import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.IntersectionTypeEntity;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.ParsedReflective;
+import bluej.parser.entity.TparEntity;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.UnresolvedArray;
 import bluej.parser.lexer.JavaTokenTypes;
@@ -481,7 +482,8 @@ public class EditorParser extends JavaParser
     {
         if (lastTypeParamName != null) {
             typeParams.put(lastTypeParamName,
-                    IntersectionTypeEntity.getIntersectionEntity(lastTypeParBounds, pcuNode));
+                    new TparEntity(lastTypeParamName,
+                            IntersectionTypeEntity.getIntersectionEntity(lastTypeParBounds, pcuNode)));
         }
         lastTypeParamName = idToken.getText();
         lastTypeParBounds = new ArrayList<JavaEntity>();
@@ -499,7 +501,8 @@ public class EditorParser extends JavaParser
     {
         if (lastTypeParamName != null) {
             typeParams.put(lastTypeParamName,
-                    IntersectionTypeEntity.getIntersectionEntity(lastTypeParBounds, pcuNode));
+                    new TparEntity(lastTypeParamName,
+                            IntersectionTypeEntity.getIntersectionEntity(lastTypeParBounds, pcuNode)));
         }
         
         ParsedTypeNode top = (ParsedTypeNode) scopeStack.peek();
