@@ -289,16 +289,7 @@ public class CompletionTest extends TestCase
         assertNotNull(suggests);
         assertEquals("abc.A", suggests.getSuggestionType().toString());
     }
-    
-    // Test that multiple fields defined in a single statement are handled correctly,
-    // particularly if one in the middle is assigned a complex expression involving an
-    // anonymous inner class
-    
-    // Test that forward references behave the same way as in Java
-    // - field definitions may not forward reference other fields in the same class
-    //   (although the declarations are visible!)
-    // - variables cannot be forward referenced (declarations are not visible).
-    
+        
     /**
      * Completion from an expression involving inner classes accessing variables 
      * within the inner class
@@ -384,4 +375,17 @@ public class CompletionTest extends TestCase
         assertNotNull(suggests.getSuggestionToken());
         assertEquals("c", suggests.getSuggestionToken().getText());
     }
+
+    
+    // Yet to do:
+    
+    // Test that multiple fields defined in a single statement are handled correctly,
+    // particularly if one in the middle is assigned a complex expression involving an
+    // anonymous inner class
+    
+    // Test that forward references behave the same way as in Java
+    // - field definitions may not forward reference other fields in the same class
+    //   (although the declarations are visible!)
+    // - variables cannot be forward referenced (declarations are not visible).
+
 }
