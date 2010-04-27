@@ -62,6 +62,12 @@ public class CommentNode extends ParsedNode
     }
 
     @Override
+    protected boolean marksOwnEnd()
+    {
+        return true;
+    }
+    
+    @Override
     public int textInserted(Document document, int nodePos, int insPos, int length, NodeStructureListener listener)
     {
         // grow ourself:

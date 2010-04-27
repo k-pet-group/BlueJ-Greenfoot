@@ -75,6 +75,12 @@ public class FieldNode extends ParentParsedNode
         return name;
     }
 
+    @Override
+    protected boolean marksOwnEnd()
+    {
+        return true;
+    }
+    
     /**
      * Get the type of this field (as a JavaEntity, which needs to be resolved as a type).
      */

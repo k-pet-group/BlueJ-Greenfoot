@@ -125,14 +125,6 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         return tokenType == JavaTokenTypes.RCURLY;
     }
     
-    
-    /**
-     * Returns true if this node marks its own end, that is, the token signifying
-     * the end of this node is contained within this node itself, rather than in
-     * the parent node.
-     */
-    protected abstract boolean marksOwnEnd();
-
     @Override
     protected int reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
     {
@@ -373,15 +365,16 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 processChildQueue(nodePos, childQueue, nextChild);
                 return ALL_OK;
             }
-            else if (ppr == PP_PULL_UP_CHILD) {
+            else if (ppr == PP_PULL_UP_CHILD /* || ppr == PP_PULL_CHILD_OVER */) {
                 nextChild = childQueue.peek();
                 processChildQueue(nodePos, childQueue, nextChild);
+                parser.completedNode(this, nodePos, pparams.abortPos - nodePos);
                 int epos = lineColToPos(document, last.getEndLine(), last.getEndColumn());
-                if (nextChild.getPosition() != epos) {
-                    int slideAmount = nextChild.getPosition() - epos;
-                    nextChild.getNode().getContainingNodeTree().slideStart(-slideAmount);
+                if (nextChild.getPosition() != pparams.abortPos) {
+                    int slideAmount = nextChild.getPosition() - pparams.abortPos;
+                    nextChild.slideStart(-slideAmount);
                     // DAV message listener, node changed position
-                    pparams.document.scheduleReparse(stateMarkers[state] + nodePos, slideAmount);
+                    pparams.document.scheduleReparse(nextChild.getPosition(), slideAmount);
                 }
                 parser.completedNode(this, nodePos, epos - nodePos);
                 pparams.document.markSectionParsed(offset, epos - offset);
@@ -641,6 +634,36 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
             // We might actually get this, but it's fine to return.
         }
         return ALL_OK;
+    }
+    
+    @Override
+    protected int handleDeletion(Document document, int nodePos, int dpos,
+            NodeStructureListener listener)
+    {
+        // Need to check that we haven't collapsed two nodes together
+        NodeAndPosition<ParsedNode> next = null;
+        NodeAndPosition<ParsedNode> nnext = findNodeAt(dpos, nodePos);;
+        while (nnext != null && nnext.getEnd() == dpos) {
+            next = nnext;
+            nnext = nnext.nextSibling();
+        }
+        
+        if (next != null && nnext != null && nnext.getPosition() == dpos) {
+            if (next.getEnd() == dpos) {
+                if (! isDelimitingNode(next)) {
+                    removeChild(next, listener);
+                    ((MoeSyntaxDocument) document).scheduleReparse(next.getPosition(),
+                            next.getSize());
+                }
+                else if (! isDelimitingNode(nnext)) {
+                    removeChild(nnext, listener);
+                    ((MoeSyntaxDocument) document).scheduleReparse(nnext.getPosition(),
+                            nnext.getSize());
+                }
+            }
+        }
+        
+        return super.handleDeletion(document, nodePos, dpos, listener);
     }
     
     @Override

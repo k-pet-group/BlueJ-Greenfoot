@@ -48,6 +48,7 @@ import bluej.parser.nodes.CommentNode;
 import bluej.parser.nodes.ContainerNode;
 import bluej.parser.nodes.ExpressionNode;
 import bluej.parser.nodes.FieldNode;
+import bluej.parser.nodes.InnerNode;
 import bluej.parser.nodes.MethodBodyNode;
 import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.ParentParsedNode;
@@ -534,7 +535,7 @@ public class EditorParser extends JavaParser
         // If the token is an LCURLY, it will be seen as a compound statement and scope
         // handling is done by beginStmtBlockBody
         if (token.getType() != JavaTokenTypes.LCURLY) {
-            ParentParsedNode loopNode = new ParentParsedNode(scopeStack.peek());
+            ParentParsedNode loopNode = new InnerNode(scopeStack.peek());
             loopNode.setInner(true);
             int curOffset = getTopNodeOffset();
             int insPos = lineColToPosition(token.getLine(), token.getColumn());
@@ -569,7 +570,7 @@ public class EditorParser extends JavaParser
         // If the token is an LCURLY, it will be seen as a compound statement and scope
         // handling is done by beginStmtBlockBody
         if (token.getType() != JavaTokenTypes.LCURLY) {
-            ParentParsedNode loopNode = new ParentParsedNode(scopeStack.peek());
+            ParentParsedNode loopNode = new InnerNode(scopeStack.peek());
             loopNode.setInner(true);
             int curOffset = getTopNodeOffset();
             int insPos = lineColToPosition(token.getLine(), token.getColumn());
@@ -604,7 +605,7 @@ public class EditorParser extends JavaParser
         // If the token is an LCURLY, it will be seen as a compound statement and scope
         // handling is done by beginStmtBlockBody
         if (token.getType() != JavaTokenTypes.LCURLY) {
-            ParentParsedNode loopNode = new ParentParsedNode(scopeStack.peek());
+            ParentParsedNode loopNode = new InnerNode(scopeStack.peek());
             loopNode.setInner(true);
             int curOffset = getTopNodeOffset();
             int insPos = lineColToPosition(token.getLine(), token.getColumn());
@@ -639,7 +640,7 @@ public class EditorParser extends JavaParser
         // If the token is an LCURLY, it will be seen as a compound statement and scope
         // handling is done by beginStmtBlockBody
         if (token.getType() != JavaTokenTypes.LCURLY) {
-            ParentParsedNode loopNode = new ParentParsedNode(scopeStack.peek());
+            ParentParsedNode loopNode = new InnerNode(scopeStack.peek());
             loopNode.setInner(true);
             int curOffset = getTopNodeOffset();
             int insPos = lineColToPosition(token.getLine(), token.getColumn());
@@ -672,7 +673,7 @@ public class EditorParser extends JavaParser
     @Override
     protected void beginSwitchBlock(LocatableToken token)
     {
-        ParentParsedNode loopNode = new ParentParsedNode(scopeStack.peek());
+        ParentParsedNode loopNode = new InnerNode(scopeStack.peek());
         loopNode.setInner(true);
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
@@ -707,7 +708,7 @@ public class EditorParser extends JavaParser
     @Override
     protected void beginTryBlock(LocatableToken token)
     {
-        ParentParsedNode tryBlockNode = new ParentParsedNode(scopeStack.peek());
+        ParentParsedNode tryBlockNode = new InnerNode(scopeStack.peek());
         tryBlockNode.setInner(true);
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
@@ -743,7 +744,7 @@ public class EditorParser extends JavaParser
             scopeStack.push(blockNode);
             curOffset = insPos;
         }
-        ParentParsedNode blockInner = new ParentParsedNode(scopeStack.peek());
+        ParentParsedNode blockInner = new InnerNode(scopeStack.peek());
         blockInner.setInner(true);
         int insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
         beginNode(insPos);
@@ -772,7 +773,7 @@ public class EditorParser extends JavaParser
         scopeStack.push(blockNode);
         curOffset = insPos;
 
-        ParentParsedNode blockInner = new ParentParsedNode(scopeStack.peek());
+        ParentParsedNode blockInner = new InnerNode(scopeStack.peek());
         blockInner.setInner(true);
         insPos = lineColToPosition(lcurly.getEndLine(), lcurly.getEndColumn());
         beginNode(insPos);
@@ -824,6 +825,7 @@ public class EditorParser extends JavaParser
     /*
      * We have the end of a package statement.
      */
+    @Override
     protected void gotPackageSemi(LocatableToken token)
     {
         Selection s = new Selection(pcuStmtBegin.getLine(), pcuStmtBegin.getColumn());
@@ -838,6 +840,7 @@ public class EditorParser extends JavaParser
         completedNode(psn, startpos, endpos - startpos);
     }
     
+    @Override
     protected void gotImportStmtSemi(LocatableToken token)
     {
         Selection s = new Selection(pcuStmtBegin.getLine(), pcuStmtBegin.getColumn());
@@ -846,12 +849,13 @@ public class EditorParser extends JavaParser
         int startpos = lineColToPosition(s.getLine(), s.getColumn());
         int endpos = lineColToPosition(s.getEndLine(), s.getEndColumn());
         
-        ParentParsedNode cn = new ParentParsedNode(pcuNode);
+        ParentParsedNode cn = new InnerNode(pcuNode);
         beginNode(startpos);
         pcuNode.insertNode(cn, startpos, endpos - startpos);
         completedNode(cn, startpos, endpos - startpos);
     }
     
+    @Override
     public void gotComment(LocatableToken token)
     {
         commentQueue.add(token);

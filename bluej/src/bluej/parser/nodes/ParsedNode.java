@@ -155,6 +155,13 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
         return false;
     }
     
+    /**
+     * Returns true if this node marks its own end, that is, the token signifying
+     * the end of this node is contained within this node itself, rather than in
+     * the parent node.
+     */
+    protected abstract boolean marksOwnEnd();
+    
     public void insertNode(ParsedNode child, int position, int size)
     {
         getNodeTree().insertNode(child, position, size);

@@ -44,7 +44,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  * 
  * @author Davin McCall
  */
-public class ParentParsedNode extends ParsedNode
+public abstract class ParentParsedNode extends ParsedNode
 {
     protected Map<String,FieldNode> variables = new HashMap<String,FieldNode>();
     
@@ -289,19 +289,22 @@ public class ParentParsedNode extends ParsedNode
         int endPos = delPos + length;
         
         NodeAndPosition<ParsedNode> child = getNodeTree().findNodeAtOrAfter(delPos, nodePos);
-        while (child != null && child.getEnd() == delPos) child = child.nextSibling();
+        while (child != null && child.getEnd() == delPos) {
+            if (! child.getNode().marksOwnEnd()) {
+                child.getNode().setComplete(false);
+            }
+            child = child.nextSibling();
+        }
         
         if (child != null && child.getPosition() < delPos) {
             // Remove the end portion (or middle) of the child node
-            int childEndPos = child.getPosition() + child.getSize();
+            int childEndPos = child.getEnd();
             if (childEndPos >= endPos) {
                 // Remove the middle of the child node
-                //child.getNode().resize(child.getSize() - length);
                 int r = child.getNode().textRemoved(document, child.getPosition(), delPos, length, listener);
                 if (r == REMOVE_NODE) {
                     removeChild(child, listener);
                     ((MoeSyntaxDocument)document).scheduleReparse(child.getPosition(), child.getSize());
-                    // return reparseNode(document, nodePos, child.getPosition(), listener);
                 }
                 else if (r != ALL_OK) {
                     newSize = child.getNode().getSize();
@@ -331,7 +334,7 @@ public class ParentParsedNode extends ParsedNode
             // Inform the child of the removed text 
             if (next != null) {
                 // Slide the portion which remains
-                next.getNode().getContainingNodeTree().slideNode(rlength - length);
+                next.getNode().slide(rlength - length);
             }
             int r = child.getNode().textRemoved(document, child.getPosition(), delPos, rlength, listener);
             int reparseOffset;
@@ -346,6 +349,7 @@ public class ParentParsedNode extends ParsedNode
             return handleDeletion(document, nodePos, reparseOffset, listener);
         }
         
+        // Any child node that has its beginning removed is just removed.
         while (child != null && child.getPosition() < endPos) {
             NodeAndPosition<ParsedNode> nextChild = child.nextSibling();
             removeChild(child, listener);
@@ -373,7 +377,7 @@ public class ParentParsedNode extends ParsedNode
     protected int handleDeletion(Document document, int nodePos, int dpos,
             NodeStructureListener listener)
     {
-        if (nodePos + getSize() == dpos) {
+        if (nodePos + getSize() == dpos && marksOwnEnd()) {
             complete = false;
         }
         

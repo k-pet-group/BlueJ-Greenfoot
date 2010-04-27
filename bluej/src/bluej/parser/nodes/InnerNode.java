@@ -22,14 +22,13 @@
 package bluej.parser.nodes;
 
 /**
- * A node for representing package statements at the beginning of a
- * compilation unit.
+ * A generic "inner" representation (for eg. loop bodies)
  * 
  * @author Davin McCall
  */
-public class PkgStmtNode extends ParentParsedNode
+public class InnerNode extends ParentParsedNode
 {
-    public PkgStmtNode(ParsedNode parent)
+    public InnerNode(ParsedNode parent)
     {
         super(parent);
     }
@@ -37,6 +36,6 @@ public class PkgStmtNode extends ParentParsedNode
     @Override
     protected boolean marksOwnEnd()
     {
-        return true;
+        return false;
     }
 }

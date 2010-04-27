@@ -171,6 +171,12 @@ public class MethodNode extends ParentParsedNode
     }
     
     @Override
+    protected boolean marksOwnEnd()
+    {
+        return true;
+    }
+    
+    @Override
     public JavaEntity getValueEntity(String name, Reflective querySource)
     {
         Iterator<String> i = paramNames.iterator();

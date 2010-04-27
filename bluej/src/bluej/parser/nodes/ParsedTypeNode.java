@@ -212,6 +212,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
                 nextChild = params.childQueue.peek();
             }
             
+            params.abortPos = lineColToPos(params.document, last.getEndLine(), last.getEndColumn());
             return PP_PULL_UP_CHILD;
         }
         else if (state == 2) {

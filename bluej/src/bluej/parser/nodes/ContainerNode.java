@@ -48,4 +48,10 @@ public class ContainerNode extends ParentParsedNode
     {
         return true;
     }
+    
+    @Override
+    protected boolean marksOwnEnd()
+    {
+        return true;
+    }
 }

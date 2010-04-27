@@ -155,7 +155,7 @@ public class NodeTree<T extends RBTreeNode>
             return null; // empty node tree
         }
 
-        if (startpos + pnodeOffset > pos) {
+        if (startpos + pnodeOffset >= pos) {
             if (left != null) {
                 NodeAndPosition<T> rval = left.findNodeAtOrAfter(pos, startpos);
                 if (rval != null) {
@@ -822,7 +822,7 @@ public class NodeTree<T extends RBTreeNode>
                             top.pnodeOffset + offset,
                             top.pnodeSize);
                     if (top.right == null) {
-                        downStack();
+                        downStackRight();
                     }
                     return rval;
                 }
@@ -838,7 +838,7 @@ public class NodeTree<T extends RBTreeNode>
             }
         }
         
-        private void downStack()
+        private void downStackRight()
         {
             NodeTree<T> top = current;
             current = current.parent;

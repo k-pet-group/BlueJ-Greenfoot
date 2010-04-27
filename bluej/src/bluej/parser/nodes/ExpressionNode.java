@@ -52,6 +52,12 @@ public class ExpressionNode extends ParentParsedNode
     }
     
     @Override
+    protected boolean marksOwnEnd()
+    {
+        return false;
+    }
+    
+    @Override
     protected CodeSuggestions getExpressionType(int pos, int nodePos, TypeEntity defaultType, Document document)
     {
         Reader r = new DocumentReader(document, nodePos, pos);
