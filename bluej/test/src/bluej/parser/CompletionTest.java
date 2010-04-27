@@ -24,23 +24,18 @@ package bluej.parser;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
 import junit.framework.TestCase;
-import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.JavaType;
-import bluej.debugger.gentype.MethodReflective;
-import bluej.editor.moe.MethodCompletion;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageResolver;
 import bluej.parser.nodes.ParsedCUNode;
-import bluej.utility.JavaUtils;
 
 public class CompletionTest extends TestCase
 {
@@ -330,18 +325,10 @@ public class CompletionTest extends TestCase
         assertNotNull(suggests);
         assertEquals("java.lang.Integer", suggests.getSuggestionType().toString());
         
-        //now need to get out all the methods and check if the access is correct
-        GenTypeClass exprType = suggests.getSuggestionType().asClass();
-        Map<String,Set<MethodReflective>> methods = exprType.getReflective().getDeclaredMethods();
-        for (String name : methods.keySet()) {
-            Set<MethodReflective> mset = methods.get(name);
-            for (MethodReflective method : mset) { 
-                boolean result=JavaUtils.checkMemberAccess(method.getDeclaringType(),
-                        suggests.getAccessType().getReflective(),
-                        method.getModifiers(), suggests.isStatic());
-                assertEquals(true, result);
-            }           
-        }
+        assertNotNull(suggests.getAccessType());
+        assertNotNull(suggests.getAccessType().getReflective());
+        assertNotNull(suggests.getAccessType().getOuterType());
+        assertNotNull(suggests.getAccessType().getOuterType().getReflective());
     }
     
     /**
@@ -369,18 +356,10 @@ public class CompletionTest extends TestCase
         CodeSuggestions suggests = aNode.getExpressionType(89, doc);
         assertNotNull(suggests);
         assertEquals("java.lang.Integer", suggests.getSuggestionType().toString());
-        
-        //now need to get out all the methods and check that the access is correct
-        GenTypeClass exprType = suggests.getSuggestionType().asClass();
-        Map<String,Set<MethodReflective>> methods = exprType.getReflective().getDeclaredMethods();
-        for (String name : methods.keySet()) {
-            Set<MethodReflective> mset = methods.get(name);
-            for (MethodReflective method : mset) { 
-                boolean result=JavaUtils.checkMemberAccess(method.getDeclaringType(),
-                        suggests.getAccessType().getReflective(),
-                        method.getModifiers(), suggests.isStatic());
-                assertEquals(true, result);
-            }           
-        }
+
+        assertNotNull(suggests.getAccessType());
+        assertNotNull(suggests.getAccessType().getReflective());
+        assertNotNull(suggests.getAccessType().getOuterType());
+        assertNotNull(suggests.getAccessType().getOuterType().getReflective());
     }
 }
