@@ -362,4 +362,26 @@ public class CompletionTest extends TestCase
         assertNotNull(suggests.getAccessType().getOuterType());
         assertNotNull(suggests.getAccessType().getOuterType().getReflective());
     }
+    
+    public void testPartial() throws Exception
+    {
+        String aClassSrc = "class A {\n" +   // 0 - 10
+            "String s = \"\";\n" +           // 10 - 25 
+            "public void m() {\n" +          // 25 - 43 
+            "  s.c\n" +                      // 43 - 48  s.c_
+            "abcd()\n" +
+            "}}";
+        
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+        
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(48, doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.String", suggests.getSuggestionType().toString());
+        assertNotNull(suggests.getSuggestionToken());
+        assertEquals("c", suggests.getSuggestionToken().getText());
+    }
 }

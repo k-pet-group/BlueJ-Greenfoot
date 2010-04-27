@@ -993,7 +993,7 @@ public class EditorParser extends JavaParser
         lastField = new FieldNode(scopeStack.peek(), idToken.getText(), fieldType, arrayDecls);
         arrayDecls = 0;
         int curOffset = getTopNodeOffset();
-        int insPos = lineColToPosition(first.getLine(), first.getEndColumn());
+        int insPos = lineColToPosition(first.getLine(), first.getColumn());
         beginNode(insPos);
         
         if (fieldType != null) {

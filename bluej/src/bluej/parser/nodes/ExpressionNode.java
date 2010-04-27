@@ -31,6 +31,7 @@ import bluej.debugger.gentype.GenTypeSolid;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.CompletionParser;
 import bluej.parser.DocumentReader;
+import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.TypeEntity;
 
 /**
@@ -60,12 +61,34 @@ public class ExpressionNode extends ParentParsedNode
     @Override
     protected CodeSuggestions getExpressionType(int pos, int nodePos, TypeEntity defaultType, Document document)
     {
+//        Reader r = new DocumentReader(document, nodePos, pos);
+//        Element map = document.getDefaultRootElement();
+//        int line = map.getElementIndex(nodePos) + 1;
+//        int col = nodePos - map.getElement(line - 1).getStartOffset() + 1;
+//        
+//        CompletionParser parser = new CompletionParser(this, r, defaultType, line, col);
+//        parser.parseExpression();
+//        
+//        GenTypeSolid stype = parser.getSuggestionType();
+//        GenTypeClass atype = (defaultType != null) ? defaultType.getType().asClass() : null;
+//        if (stype != null) {
+//            return new CodeSuggestions(stype, atype, parser.getSuggestionToken(), parser.isSuggestionStatic());
+//        }
+//        else {
+//            return null;
+//        }
+        return suggestAsExpression(pos, nodePos, this, defaultType, document);
+    }
+    
+    public static CodeSuggestions suggestAsExpression(int pos, int nodePos, EntityResolver resolver,
+            TypeEntity defaultType, Document document)
+    {
         Reader r = new DocumentReader(document, nodePos, pos);
         Element map = document.getDefaultRootElement();
         int line = map.getElementIndex(nodePos) + 1;
         int col = nodePos - map.getElement(line - 1).getStartOffset() + 1;
         
-        CompletionParser parser = new CompletionParser(this, r, defaultType, line, col);
+        CompletionParser parser = new CompletionParser(resolver, r, defaultType, line, col);
         parser.parseExpression();
         
         GenTypeSolid stype = parser.getSuggestionType();

@@ -21,8 +21,13 @@
  */
 package bluej.parser.nodes;
 
+import javax.swing.text.Document;
+
+import bluej.parser.CodeSuggestions;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.UnresolvedArray;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 /**
  * A node representing a parsed field or variable declaration.
@@ -91,6 +96,25 @@ public class FieldNode extends ParentParsedNode
             ftype = new UnresolvedArray(ftype);
         }
         return ftype;
+    }
+    
+    @Override
+    protected CodeSuggestions getExpressionType(int pos, int nodePos, TypeEntity defaultType, Document document)
+    {
+        NodeAndPosition<ParsedNode> child = getNodeTree().findNode(Math.max(pos - 1, 0), nodePos);
+        if (child != null) {
+            return child.getNode().getExpressionType(pos, child.getPosition(), defaultType, document);
+        }
+        
+        // A field node can actually be an expression with a missing semicolon, followed
+        // by an identifier (which is actually meant to be part of the next statement).
+        //
+        //   eg:
+        //      some.expr
+        //      someMethodCall();
+        //
+        // So, we'll pretend we're an expression.
+        return ExpressionNode.suggestAsExpression(pos, nodePos, this, defaultType, document);
     }
     
 }
