@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import bluej.debugger.gentype.BadInheritanceChainException;
 import bluej.debugger.gentype.GenTypeArray;
@@ -1100,8 +1101,10 @@ public class TextAnalyzer
         
         // Get type parameters of the method
         List<GenTypeDeclTpar> tparams = Collections.emptyList();
-        if ((! rawTarget) || m.isStatic())
+        if ((! rawTarget) || m.isStatic()) {
             tparams = m.getTparTypes();
+            tparams = (tparams != null) ? tparams : Collections.<GenTypeDeclTpar>emptyList(); 
+        }
         
         // Number of type parameters supplied must match number declared, unless either
         // is zero. Section 15.12.2 of the JLS, "a non generic method may be applicable
@@ -1669,11 +1672,44 @@ public class TextAnalyzer
      * @throws RecognitionException
      */
     public static ArrayList<MethodCallDesc> getSuitableMethods(String methodName,
-            GenTypeClass [] targetTypes, JavaType [] argumentTypes, List<GenTypeClass> typeArgs)
+            GenTypeSolid targetType, JavaType [] argumentTypes, List<GenTypeClass> typeArgs)
     {
         ArrayList<MethodCallDesc> suitableMethods = new ArrayList<MethodCallDesc>();
-        for (int k = 0; k < targetTypes.length; k++) {
-            GenTypeClass targetClass = targetTypes[k];
+        
+        Stack<GenTypeSolid> targetTypes = new Stack<GenTypeSolid>();
+        targetTypes.push(targetType);
+        Set<GenTypeSolid> doneTypes = new HashSet<GenTypeSolid>();
+        
+        // JLS 4.5.2 specifies members of parameterized types
+        // JLS 4.4, the members of a type variable are the members of the intersection type of the
+        //          bounds
+        // Mostly straightforward.
+        
+        while (! targetTypes.isEmpty()) {
+            GenTypeSolid topType = targetTypes.pop();
+            GenTypeClass targetClass = topType.asClass();
+            if (targetClass == null) {
+                GenTypeSolid [] bounds = topType.getUpperBounds();
+                for (int i = 0; i < bounds.length; i++) {
+                    if (doneTypes.add(bounds[i])) {
+                        targetTypes.push(bounds[i]);
+                    }
+                }
+                continue;
+            }
+            
+            // Check members of supertypes
+            Reflective ref = targetClass.getReflective();
+            List<GenTypeClass> supers = ref.getSuperTypes();
+            Map<String,GenTypeParameter> tparMap = targetClass.getMap();
+
+            for (GenTypeClass superType : supers) {
+                GenTypeClass mapped = superType.mapTparsToTypes(tparMap);
+                if (doneTypes.add(mapped)) {
+                    targetTypes.push(mapped);
+                }
+            }
+            
             Map<String,Set<MethodReflective>> methodMap = targetClass.getReflective()
                     .getDeclaredMethods();
             Set<MethodReflective> methods = methodMap.get(methodName);

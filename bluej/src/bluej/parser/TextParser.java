@@ -253,9 +253,11 @@ public class TextParser extends JavaParser
     {
         // See JLS 15.12
         // step 1 - determine type to search
+        //  Seeing as this is a member call, that's already mostly done.
         JavaEntity target = popValueStack();
         JavaEntity vtarget = target.resolveAsValue();
-        GenTypeClass [] bounds;
+        GenTypeSolid targetType;
+        
         if (vtarget != null) {
             GenTypeSolid stype = vtarget.getType().asSolid();
             if (stype == null) {
@@ -263,7 +265,7 @@ public class TextParser extends JavaParser
                 valueStack.push(new ErrorEntity());
                 return;
             }
-            bounds = stype.getRealTypes();
+            targetType = stype;
         }
         else {
             // entity may be a type rather than a value
@@ -278,9 +280,10 @@ public class TextParser extends JavaParser
                 valueStack.push(new ErrorEntity());
                 return;
             }
-            bounds = stype.getRealTypes();
+            targetType = stype;
         }
-            
+
+        // Gather the argument types.
         List<JavaEntity> argList = argumentStack.pop();
         JavaType [] argTypes = new JavaType[argList.size()];
         for (int i = 0; i < argTypes.length; i++) {
@@ -294,7 +297,8 @@ public class TextParser extends JavaParser
 
         List<GenTypeClass> typeArgs = Collections.emptyList(); // TODO!
 
-        ArrayList<MethodCallDesc> suitable = TextAnalyzer.getSuitableMethods(op.getToken().getText(), bounds, argTypes, typeArgs);
+        ArrayList<MethodCallDesc> suitable = TextAnalyzer.getSuitableMethods(op.getToken().getText(),
+                targetType, argTypes, typeArgs);
         // DAV fix
         // assume for now all candidates have override-equivalent signatures
         if (suitable.size() == 0) {

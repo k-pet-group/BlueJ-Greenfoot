@@ -728,6 +728,7 @@ public class GenTypeClass extends GenTypeSolid
     
     public GenTypeClass [] getReferenceSupertypes()
     {
+        // DAV probably should abolish this method in favour of getUpperBounds().
         return new GenTypeClass[] {this};
     }
     
