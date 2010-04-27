@@ -549,7 +549,7 @@ public abstract class JavaUtils
                         p++;
                     }
                     int k = p;
-                    while (!Character.isWhitespace(lines[j].charAt(k))) {
+                    while (k < lines[j].length() && !Character.isWhitespace(lines[j].charAt(k))) {
                         k++;
                     }
                     String paramName = lines[j].substring(p, k);
@@ -606,7 +606,10 @@ public abstract class JavaUtils
     private static String convertBlockTag(String line)
     {
         int i = 0;
-        while (line.charAt(i) != '@') i++;
+        while (i < line.length() && line.charAt(i) != '@') i++;
+        if (i == line.length()) {
+            return "";
+        }
         
         int k = i;
         while (k < line.length() && !Character.isWhitespace(line.charAt(k))) k++;
