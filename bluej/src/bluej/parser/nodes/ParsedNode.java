@@ -68,6 +68,8 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
     /** The parent ParsedNode which contains us */
     private ParsedNode parentNode;
     
+    private boolean hasAttachedComment;
+    
     /**
      * Specifies whether this node is complete, in that its end is properly marked with an
      * appropriate token. 
@@ -548,5 +550,21 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
         
         valueEntityCache.put(accessp, rval);
         return rval;
+    }
+    
+    /**
+     * Check whether a documentary comment is attached to this node.
+     */
+    public boolean isCommentAttached()
+    {
+        return hasAttachedComment;
+    }
+    
+    /**
+     * Specify whether or not this node has a documentary comment attached to it.
+     */
+    public void setCommentAttached(boolean commentAttached)
+    {
+        hasAttachedComment = commentAttached;
     }
 }

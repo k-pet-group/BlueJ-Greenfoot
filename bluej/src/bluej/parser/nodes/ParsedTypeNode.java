@@ -213,6 +213,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
             }
             
             params.abortPos = lineColToPos(params.document, last.getEndLine(), last.getEndColumn());
+            last = token;
             return PP_PULL_UP_CHILD;
         }
         else if (state == 2) {

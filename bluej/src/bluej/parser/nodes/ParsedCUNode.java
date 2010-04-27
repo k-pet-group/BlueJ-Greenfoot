@@ -111,7 +111,7 @@ public class ParsedCUNode extends IncrementalParsingNode
         last = params.tokenStream.LA(1);
        
         if (checkBoundary(params, last)) {
-            return PP_ABORT;
+            return PP_PULL_UP_CHILD;
         }
         
         params.parser.parseCUpart(state);

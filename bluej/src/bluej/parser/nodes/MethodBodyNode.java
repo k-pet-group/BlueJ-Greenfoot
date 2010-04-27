@@ -60,7 +60,7 @@ public class MethodBodyNode extends IncrementalParsingNode
         }
         
         if (checkBoundary(params, last)) {
-            return PP_ABORT;
+            return PP_PULL_UP_CHILD;
         }
         
         last = params.parser.parseStatement(last);

@@ -359,4 +359,37 @@ public class IncrementalParseTest extends TestCase
         assertEquals(21, nap.getPosition());
         assertEquals(27, nap.getEnd());
     }
+    
+    public void test8() throws Exception
+    {
+        String aSrc = "class A {\n" +         // 0 - 10
+            "  public void someFunc() {\n" +  // 10 - 37
+            "    if (true) {\n" +             // 37 - 53 
+            "    }\n" +                       // 53 - 59
+            "  \n" +                          // 59 - 62  
+            "  }\n" +                         // 62 - 66
+            "}\n";                            // 66 - 68
+
+        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        ParsedCUNode aNode = aDoc.getParser();
+        NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
+
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(67, nap.getSize());
+
+        // First remove "if (true) {"
+        aDoc.remove(41, 11);
+        aDoc.flushReparseQueue();
+        
+        // Now remove the "}" from the old if statement
+        aDoc.remove(57 - 11, 1);
+        aDoc.flushReparseQueue();
+        
+        aNode = aDoc.getParser();
+        nap = aNode.findNodeAt(0, 0);
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(67 - 12, nap.getSize());
+    }
 }

@@ -99,7 +99,8 @@ public class TypeInnerNode extends IncrementalParsingNode
         }
         
         if (checkBoundary(params, nextToken)) {
-            return PP_ABORT;
+            last = nextToken;
+            return PP_PULL_UP_CHILD;
         }
         
         params.parser.parseClassElement(nextToken);

@@ -231,6 +231,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                     if (!grew) {
                         return REMOVE_NODE;
                     }
+                    complete = false;
                     return ALL_OK; // because we haven't marked anything as parsed, this
                     // will cause a re-parse
                 }
@@ -281,15 +282,6 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         
         while (! isNodeEndMarker(ttype)) {
             
-            if (nextChild != null && nextChild.getPosition() <= tokpos) {
-                if (isDelimitingNode(nextChild)) {
-                    processChildQueue(nodePos, childQueue, nextChild);
-                    parser.completedNode(this, nodePos, nextChild.getPosition() - nodePos);
-                    pparams.document.markSectionParsed(offset, nextChild.getPosition() - offset);
-                    return ALL_OK; // we're done!
-                }
-            }
-                        
             // Do a partial parse and check the result
             int ppr = doPartialParse(pparams, state);
             nextChild = childQueue.peek();
@@ -365,19 +357,34 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
                 processChildQueue(nodePos, childQueue, nextChild);
                 return ALL_OK;
             }
-            else if (ppr == PP_PULL_UP_CHILD /* || ppr == PP_PULL_CHILD_OVER */) {
+            else if (ppr == PP_PULL_UP_CHILD) {
                 nextChild = childQueue.peek();
                 processChildQueue(nodePos, childQueue, nextChild);
                 parser.completedNode(this, nodePos, pparams.abortPos - nodePos);
                 int epos = lineColToPos(document, last.getEndLine(), last.getEndColumn());
-                if (nextChild.getPosition() != pparams.abortPos) {
+                tokpos = lineColToPos(document, last.getLine(), last.getColumn());
+                int ncpos = nextChild.getPosition();
+                if (ncpos != pparams.abortPos) {
                     int slideAmount = nextChild.getPosition() - pparams.abortPos;
                     nextChild.slideStart(-slideAmount);
-                    // DAV message listener, node changed position
+                    
+                    nextChild.slide(-slideAmount);
+                    // There is some parsing to do in the child:
+                    int rr = nextChild.getNode().textInserted(document, nextChild.getPosition(),
+                            nextChild.getPosition(), slideAmount, listener);
+                    if (rr == ParsedNode.REMOVE_NODE) {
+                        removeChild(nextChild, listener);
+                    }
+                    else {
+                        nextChild.setNapSize(nextChild.getNode().getSize());
+                        childResized(pparams.document, nodePos, nextChild);
+                    }
+                    
+                    listener.nodeChangedLength(nextChild, ncpos, nextChild.getSize() - slideAmount);
+                    parser.completedNode(nextChild.getNode(), nextChild.getPosition(), epos - pparams.abortPos);
                     pparams.document.scheduleReparse(nextChild.getPosition(), slideAmount);
                 }
-                parser.completedNode(this, nodePos, epos - nodePos);
-                pparams.document.markSectionParsed(offset, epos - offset);
+                pparams.document.markSectionParsed(offset, pparams.abortPos - offset);
                 return ALL_OK;
             }
             else if (ppr == PP_ABORT) {
@@ -466,15 +473,31 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
     protected boolean checkBoundary(ParseParams params, LocatableToken token)
     {
         int lpos = lineColToPos(params.document, token.getLine(), token.getColumn());
+        int hpos = lpos;
+
         LocatableToken hidden = token.getHiddenBefore();
-        int hpos = hidden != null ? lineColToPos(params.document, hidden.getLine(), hidden.getColumn()) : lpos;
+        if (hidden != null) {
+            hpos = lineColToPos(params.document, hidden.getLine(), hidden.getColumn());
+        }
+        
         NodeAndPosition<ParsedNode> nextChild = params.childQueue.peek();
         while (nextChild != null) {
-            if (isDelimitingNode(nextChild) && (nextChild.getPosition() == lpos
-                    || nextChild.getPosition() == hpos)) {
-                params.abortPos = nextChild.getPosition();
-                return true;
+            if (isDelimitingNode(nextChild)) {
+                boolean hasComment = nextChild.getNode().isCommentAttached();
+                if (hasComment && nextChild.getPosition() == hpos) {
+                    params.abortPos = hpos;
+                    return true;
+                }
+
+                if (!hasComment && nextChild.getPosition() == lpos) {
+                    int nextType = nextChild.getNode().getNodeType();
+                    boolean wantsComment = nextType == ParsedNode.NODETYPE_TYPEDEF
+                        || nextType == ParsedNode.NODETYPE_METHODDEF;
+                    params.abortPos = wantsComment ? hpos : lpos;
+                    return true;
+                }
             }
+            
             if (nextChild.getPosition() > lpos) {
                 break;
             }
