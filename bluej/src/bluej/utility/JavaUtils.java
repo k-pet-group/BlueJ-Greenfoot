@@ -362,7 +362,7 @@ public abstract class JavaUtils
      */
     public static boolean checkMemberAccess(Reflective container, Reflective accessor, int modifiers, boolean isStatic)
     {
-        //if it is a class then only static methods are available
+        // Access from a static context can only access static members
         if (isStatic && !Modifier.isStatic(modifiers))
             return false;
         
@@ -370,24 +370,26 @@ public abstract class JavaUtils
             return true;
         }
         
+        String accessorName = accessor.getName();
         if (! Modifier.isPrivate(modifiers)) {
             String cpackage = JavaNames.getPrefix(container.getName());
-            if (accessor.getName().startsWith(cpackage)
-                    && accessor.getName().indexOf('.', cpackage.length() + 1) == -1) {
+            if (accessorName.startsWith(cpackage)
+                    && accessorName.indexOf('.', cpackage.length() + 1) == -1) {
                 // Classes are in the same package, and the member is not private: access allowed
                 return true;
             }
         }
         
         // access class == container class, then access is always allowed
-        if (accessor.getName().equals(container.getName())) {
+        if (accessorName.equals(container.getName())) {
             return true;
         }
         
-        int dollarIndex = accessor.getName().lastIndexOf('$');
+        int dollarIndex = accessorName.lastIndexOf('$');
         if (dollarIndex != -1) {
             // Inner classes can access outer class members with outer class privileges
             Reflective outer = container.getRelativeClass(accessor.getName().substring(0, dollarIndex));
+            isStatic |= accessor.isStatic();
             if (checkMemberAccess(container, outer, modifiers, isStatic)) {
                 return true;
             }
