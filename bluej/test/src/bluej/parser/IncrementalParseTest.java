@@ -392,4 +392,51 @@ public class IncrementalParseTest extends TestCase
         assertEquals(0, nap.getPosition());
         assertEquals(67 - 12, nap.getSize());
     }
+    
+    public void test9() throws Exception
+    {
+        String aSrc = "class A {\n" +         // 0 - 10
+            "  public void someFunc() {\n" +  // 10 - 37
+            "  \n" +                          // 37 - 40  
+            "  }\n" +                         // 40 - 44
+            "}\n";                            // 44 - 46
+
+        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        ParsedCUNode aNode = aDoc.getParser();
+        NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
+
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(45, nap.getSize());
+        
+        // Insert "if() {"
+        aDoc.insertString(39, "if(true) {", null);
+        
+        aNode = aDoc.getParser();
+        
+        // Typedef node
+        nap = aNode.findNodeAt(39, 0);
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(56, nap.getSize());
+        
+        // Typedef inner
+        nap = nap.getNode().findNodeAt(39, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(9, nap.getPosition());
+        assertEquals(47, nap.getSize());
+        
+        // Method outer
+        nap = nap.getNode().findNodeAt(39, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(12, nap.getPosition());
+        assertEquals(55, nap.getEnd());
+
+        // Method inner
+        nap = nap.getNode().findNodeAt(39, nap.getPosition());
+        assertNotNull(nap);
+        assertEquals(36, nap.getPosition());
+        assertEquals(54, nap.getEnd());
+    }
+    
 }

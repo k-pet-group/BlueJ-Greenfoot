@@ -56,7 +56,8 @@ public class MethodBodyNode extends IncrementalParsingNode
             return PP_ENDS_NODE;
         }
         if (last.getType() == JavaTokenTypes.EOF) {
-            return complete ? PP_ENDS_NODE : PP_INCOMPLETE;
+            params.abortPos = lineColToPos(params.document, last.getLine(), last.getColumn());
+            return complete ? PP_ABORT : PP_INCOMPLETE;
         }
         
         if (checkBoundary(params, last)) {
@@ -64,6 +65,12 @@ public class MethodBodyNode extends IncrementalParsingNode
         }
         
         last = params.parser.parseStatement(last);
+        if (last == null) {
+            last = params.tokenStream.LA(1);
+            if (last.getType() == JavaTokenTypes.EOF) {
+                return PP_INCOMPLETE;
+            }
+        }
         return PP_OK;
     }
     
