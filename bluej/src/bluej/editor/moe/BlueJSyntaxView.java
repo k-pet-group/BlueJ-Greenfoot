@@ -923,9 +923,16 @@ public abstract class BlueJSyntaxView extends PlainView
                         lineEl.getEndOffset() - lineEl.getStartOffset(), segment);
                 int nws = findNonWhitespace(segment, 0);
                 if (nws == -1) {
-                    // If removing text leaves a blank line, every node over that line
-                    // needs its cached indent invalidated.
-                    // DAV
+                    List<NodeAndPosition<ParsedNode>> rscopeStack = new LinkedList<NodeAndPosition<ParsedNode>>();
+                    getScopeStackAfter(doc.getParsedNode(), 0, lineEl.getStartOffset(), rscopeStack);
+                    rscopeStack.remove(0); // remove the root node
+                    while (! rscopeStack.isEmpty()) {
+                        NodeAndPosition<ParsedNode> rtop = rscopeStack.remove(rscopeStack.size() - 1);
+                        while (rtop != null && rtop.getPosition() < lineEl.getEndOffset()) {
+                            nodeIndents.remove(rtop.getNode());
+                            rtop = rtop.nextSibling();
+                        }
+                    }
                 }
             }
             
@@ -1203,12 +1210,14 @@ public abstract class BlueJSyntaxView extends PlainView
         if (changes instanceof MoeSyntaxEvent) {
             MoeSyntaxEvent mse = (MoeSyntaxEvent) changes;
             for (NodeAndPosition<ParsedNode> node : mse.getRemovedNodes()) {
-                // DAV if an inner node is removed, we need to recalculate the indent
-                // of the containing node. (if it is already smaller than
-                // the inner node's indent then we don't need to do this.)
                 nodeRemoved(node.getNode());
                 damageStart = Math.min(damageStart, node.getPosition());
                 damageEnd = Math.max(damageEnd, node.getEnd());
+                NodeAndPosition<ParsedNode> nap = node;
+                
+                int [] r = clearNap(nap, document, damageStart, damageEnd);
+                damageStart = r[0];
+                damageEnd = r[1];
             }
             
             for (NodeChangeRecord record : mse.getChangedNodes()) {
@@ -1219,26 +1228,9 @@ public abstract class BlueJSyntaxView extends PlainView
                 damageEnd = Math.max(damageEnd, nap.getEnd());
                 damageEnd = Math.max(damageEnd,record.originalPos + record.originalSize);
                 
-                if (nap.getNode().isInner()) {
-
-                    List<NodeAndPosition<ParsedNode>> list = new LinkedList<NodeAndPosition<ParsedNode>>();
-                    NodeAndPosition<ParsedNode> top;
-                    top = new NodeAndPosition<ParsedNode>(document.getParsedNode(), 0, document.getLength());
-                    while (top.getNode() != record.nap.getNode()) {
-                        if (top.getNode().isInner()) {
-                            list.clear();
-                        }
-                        list.add(top);
-                        top = top.getNode().findNodeAt(nap.getEnd(), top.getPosition());
-                    }
-
-                    for (NodeAndPosition<ParsedNode> cnap : list)
-                    {
-                        damageStart = Math.min(damageStart, cnap.getPosition());
-                        damageEnd = Math.max(damageEnd, cnap.getEnd());
-                        nodeIndents.remove(cnap.getNode());
-                    }
-                }
+                int [] r = clearNap(nap, document, damageStart, damageEnd);
+                damageStart = r[0];
+                damageEnd = r[1];
             }
         }
 
@@ -1288,6 +1280,37 @@ public abstract class BlueJSyntaxView extends PlainView
         }
     }
 
+    /**
+     * Clear a node's cached indent information. If the node is an inner node this
+     * also clears parent nodes as appropriate.
+     */
+    private int[] clearNap(NodeAndPosition<ParsedNode> nap, MoeSyntaxDocument document,
+            int damageStart, int damageEnd)
+    {
+        if (nap.getNode().isInner()) {
+
+            List<NodeAndPosition<ParsedNode>> list = new LinkedList<NodeAndPosition<ParsedNode>>();
+            NodeAndPosition<ParsedNode> top;
+            top = new NodeAndPosition<ParsedNode>(document.getParsedNode(), 0, document.getLength());
+            while (top != null && top.getNode() != nap.getNode()) {
+                if (top.getNode().isInner()) {
+                    list.clear();
+                }
+                list.add(top);
+                top = top.getNode().findNodeAt(nap.getEnd(), top.getPosition());
+            }
+
+            for (NodeAndPosition<ParsedNode> cnap : list)
+            {
+                damageStart = Math.min(damageStart, cnap.getPosition());
+                damageEnd = Math.max(damageEnd, cnap.getEnd());
+                nodeIndents.remove(cnap.getNode());
+            }
+        }
+        
+        return new int[] {damageStart, damageEnd};
+    }
+    
     private void nodeRemoved(ParsedNode node)
     {
         nodeIndents.remove(node);
