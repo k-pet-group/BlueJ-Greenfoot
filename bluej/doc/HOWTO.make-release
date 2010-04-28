@@ -2,8 +2,13 @@ How to make a BlueJ release
 ---------------------------
 
  1. Set the right BlueJ version number in bluej/build.xml and run: ant update-version-number
+ 
+    This updates the version number in the Boot class. (The Windows
+    README.TXT has its version updated as part of the "windows-dist"
+    target).
 
- 2. Make sure to build the submitter extension (using 'buildall' from the
+ 2. No longer necessary:
+    Make sure to build the submitter extension (using 'buildall' from the
     extension ant build file). This places submitter.jar into bluej/lib/extensions.
     
     NOTE: submitter.jar is now under version control. If changes are made to the submitter
