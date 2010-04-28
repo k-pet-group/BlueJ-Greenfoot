@@ -31,7 +31,7 @@ import java.awt.Window;
  * All other operations are delegated to the original policy.
  * 
  * @author Davin McCall
- * @version $Id: TeamPanelFocusPolicy.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: TeamPanelFocusPolicy.java 7421 2010-04-28 04:20:46Z davmac $
  */
 public class TeamPanelFocusPolicy extends FocusTraversalPolicy
 {
@@ -52,22 +52,34 @@ public class TeamPanelFocusPolicy extends FocusTraversalPolicy
     
     public Component getComponentAfter(Container aContainer, Component aComponent)
     {
-        return delegate.getComponentAfter(aContainer, aComponent);
+        aContainer.setFocusTraversalPolicy(delegate);
+        Component r = delegate.getComponentAfter(aContainer, aComponent);
+        aContainer.setFocusTraversalPolicy(this);
+        return r;
     }
     
     public Component getComponentBefore(Container aContainer, Component aComponent)
     {
-        return delegate.getComponentBefore(aContainer, aComponent);
+        aContainer.setFocusTraversalPolicy(delegate);
+        Component r = delegate.getComponentBefore(aContainer, aComponent);
+        aContainer.setFocusTraversalPolicy(this);
+        return r;
     }
         
     public Component getFirstComponent(Container aContainer)
     {
-        return delegate.getFirstComponent(aContainer);
+        aContainer.setFocusTraversalPolicy(delegate);
+        Component r = delegate.getFirstComponent(aContainer);
+        aContainer.setFocusTraversalPolicy(this);
+        return r;
     }
     
     public Component getLastComponent(Container aContainer)
     {
-        return delegate.getLastComponent(aContainer);
+        aContainer.setFocusTraversalPolicy(delegate);
+        Component r = delegate.getLastComponent(aContainer);
+        aContainer.setFocusTraversalPolicy(this);
+        return r;
     }
     
     public Component getInitialComponent(Window window)

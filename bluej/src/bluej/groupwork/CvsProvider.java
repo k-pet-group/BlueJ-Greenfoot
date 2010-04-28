@@ -51,14 +51,13 @@ public class CvsProvider
     
     public TeamworkCommandResult checkConnection(TeamSettings settings)
     {
-		try {
-			String cvsRoot = makeCvsRoot(settings);
-			return CvsRepository.validateConnection(cvsRoot);
-		}
-		catch (UnsupportedSettingException e) {
-			return new TeamworkCommandUnsupportedSetting(e.getLocalizedMessage());
-		}
-        
+        try {
+            String cvsRoot = makeCvsRoot(settings);
+            return CvsRepository.validateConnection(cvsRoot);
+        }
+        catch (UnsupportedSettingException e) {
+            return new TeamworkCommandUnsupportedSetting(e.getLocalizedMessage());
+        }
     }
     
     public static String makeCvsRoot(TeamSettings settings)

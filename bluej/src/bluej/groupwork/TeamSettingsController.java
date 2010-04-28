@@ -37,7 +37,7 @@ import bluej.utility.Debug;
  * the top-level folder of a team project, and the bluej.properties
  *
  * @author fisker
- * @version $Id: TeamSettingsController.java 6696 2009-09-17 03:31:58Z davmac $
+ * @version $Id: TeamSettingsController.java 7421 2010-04-28 04:20:46Z davmac $
  */
 public class TeamSettingsController
 {
@@ -153,15 +153,20 @@ public class TeamSettingsController
     }
     
     /**
-     * Initialize the repository. This doesn't require the password to be entered
-     * or the team settings dialog to be displayed.
+     * Initialize the repository.
      */
-    private void initRepository()
+    public boolean initRepository()
     {
         if (repository == null) {
             TeamworkProvider provider = settings.getProvider();
+            if (password == null) {
+                if (getTeamSettingsDialog().doTeamSettings() == TeamSettingsDialog.CANCEL) {
+                    return false;
+                }
+            }
             repository = provider.getRepository(projectDir, settings);
         }
+        return true;
     }
     
     /**
@@ -241,11 +246,7 @@ public class TeamSettingsController
         if(group == null) {
             group = "";
         }
-//        String useAsDefault = teamSettingsController.getPropString("bluej.teamsettings.useAsDefault");
-//        if (useAsDefault != null) {
-//            setUseAsDefault(Boolean.getBoolean(useAsDefault));
-//        }
-        
+
         TeamworkProvider provider = null;
         String providerName = getPropString("bluej.teamsettings.vcs");
         if (providerName != null) {
