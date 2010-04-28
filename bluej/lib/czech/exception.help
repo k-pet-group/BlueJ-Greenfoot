@@ -13,8 +13,8 @@ Index, kter\u00FD jste pou\u017Eili pro p\u0159\u00EDstup ke znaku
 nebo k \u010D\u00E1sti \u0159et\u011Bzce, je mimo povolen\u00E9 meze.
 Prvn\u00ED znak \u0159et\u011Bzce m\u00E1 index 0, posledn\u00ED znak
 m\u00E1 index (d\u00E9lka-1).
-Vol\u00E1te-li metodu "substring", pamatujte, \u017Ee
-prvn\u00ED parametr je za\u010D\u00E1tek
+Vol\u00E1te-li metodu "substring", pamatujte, 
+\u017Ee prvn\u00ED parametr je za\u010D\u00E1tek
 a druh\u00FD je d\u00E9lka \u010D\u00E1sti \u0159et\u011Bzce.
 
 ClassCastException*

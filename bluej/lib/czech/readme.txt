@@ -1,13 +1,17 @@
+Ceska lokalizace pro BlueJ 3.0
+===============================
 
- Ceska lokalizace pro BlueJ 2.1.2
-=================================
+Lokalizace pouziva kodovani ASCII
 
-Verze 1.00 ze dne 11.1.2006.
+Verze 3.0 ze dne 27.3.2010.
 
 Lokalizaci vytvorili Petr Skoda a Rudolf Pecinovsky.
 
 
-Aktualizace a dalsi informace ziskate na adresach:
+Aktualizace a dalsi informace ziskate na adrese:
 
-  * http://vyuka.pecinovsky.cz
-  * http://www.rdv.vslib.cz/skodak
+  http://vyuka.pecinovsky.cz
+
+pripadne na mailu
+
+  rudolf@pecinovsky.cz
