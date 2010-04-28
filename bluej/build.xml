@@ -16,9 +16,13 @@
     <property name="bluej.version.major" value="3" />
     <property name="bluej.version.minor" value="0" />
     <property name="bluej.version.release" value="0" />
-    <property name="bluej.version.suffix" value=" preview" />
-    <property name="bluej.version" value="${bluej.version.major}.${bluej.version.minor}.${bluej.version.release}${bluej.version.suffix}" />
+    <property name="bluej.version.suffix" value=" preview 2" />
+	<!-- suffix with no spaces, eg "pre2" -->
+	<property name="bluej.version.nonspace.suffix" value="pre2" />
+    
+	<property name="bluej.version" value="${bluej.version.major}.${bluej.version.minor}.${bluej.version.release}${bluej.version.suffix}" />
     <property name="bluej.version.nodots" value="${bluej.version.major}${bluej.version.minor}${bluej.version.release}${bluej.version.suffix}" />
+	<property name="bluej.version.debian" value="${bluej.version.major}.${bluej.version.minor}${bluej.version.release}.${bluej.version.nonspace.suffix}" />
 
     <!-- user specific properties that are edited to match local build environment-->
     <property file="build.properties"/>
@@ -281,8 +285,12 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <exclude name="*/CVS" />
             </jarfileset>
         </jarbundler>
-
     </target>
+	
+	<!-- build *.deb package -->
+	<target name="debian-dist" description="build Debian package">
+        <ant dir="package" target="debian-dist"/>
+	</target>
 
     <target name="test" depends="compile-core, compile-test">
         <junit printsummary="yes" haltonfailure="yes">
