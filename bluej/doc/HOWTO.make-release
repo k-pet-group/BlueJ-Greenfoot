@@ -1,6 +1,9 @@
 How to make a BlueJ release
 ---------------------------
 
+PART I - BUILDING BLUEJ
+-----------------------
+
  1. Set the right BlueJ version number in bluej/build.xml and run: ant update-version-number
  
     This updates the version number in the Boot class. (The Windows
@@ -27,25 +30,33 @@ How to make a BlueJ release
         bluej/package/BlueJ-source-VERSION.zip    -- the source bundle
     NOTE: for some mysterious reason, distributions are larger when
     built on Windows. Preferably build on Solaris or Mac.
+    
+ 4. Run "ant debian-dist" to build the Debian/Ubuntu ".deb" package. You can only do this
+    on a system which has the "dpkg-deb" utility installed, and you should do it as the
+    root user. 
 
- 4. Rename (usually by adding a release candidate string like "BlueJ*rc1.???").
-  
  5. Use bluej-dist.jar to build Windows version. (See HOWTO.make-win-version)
 
- 6. Test. When okay, rename to final distribution name.
+ 6. Rename (usually by adding a release candidate string like "BlueJ*rc1.???").
 
- 7. Move the distribution files and the source to the public 
+ 7. Test. When okay, rename to final distribution name.
+ 
+
+PART II - RELEASING BLUEJ
+-------------------------
+
+ 8. Move the distribution files and the source to the public 
     server (currently www.bluej.org/download/files/).
 
- 8. Update the BlueJ web site to announce the new version. At least:
+ 9. Update the BlueJ web site to announce the new version. At least:
      - put a notice on the front page
      - update the "change history" section
      - update the "download" section (bluej system, install instructions and editor source)
 
- 9. Update the file www.bluej.org/version.info
+10. Update the file www.bluej.org/version.info
     The real location currently is: dodo:~bluej/www/version.info
 
-10. Update the description and BlueJ distribution files for the Extension Manager
+11. Update the description and BlueJ distribution files for the Extension Manager
     (Updater) extension:
      - Copy the Mac distribution bluej-XXX.zip to extensions/extupdater/bluej_update_mac.zip
      - Copy the Windows distribution bluejsetup-XXX.exe to extensions/extupdater/bluej_update_win.exe
@@ -56,7 +67,7 @@ How to make a BlueJ release
         - Change the jarUrl entry for the "pure Java" release to refer to 
           the "all other systems" distribution Jar.
 
-11. In the bugs database (http://bugs.bluej.org/trac/bluej),
+12. In the bugs database (http://bugs.bluej.org/trac/bluej),
 
    1. Add a future release milestone ("Roadmap", "New Milestone").
    
@@ -72,13 +83,13 @@ How to make a BlueJ release
       
    4. Mark the new release milestone as completed.  
    
-12. Also in the bugs database, add the new version so that bugs can be reported against
+13. Also in the bugs database, add the new version so that bugs can be reported against
     it.
     
-13. Update the support form at http://www.bluej.org/help/supportform.html - the drop-down
+14. Update the support form at http://www.bluej.org/help/supportform.html - the drop-down
     version field should have the new version added as an option.
 
-14. Send a mail message to bluej-announce@bluej.org, announcing the release.
+15. Send a mail message to bluej-announce@bluej.org, announcing the release.
 
-15. More public announcements. See HOWTO.announce-release.
+16. More public announcements. See HOWTO.announce-release.
 
