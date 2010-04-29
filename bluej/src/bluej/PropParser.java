@@ -297,12 +297,6 @@ public class PropParser
         public void backup()
         {
             curpos--;
-        }
-        
-        /** Remaining part of the string, including last retrieved character */
-        public String remaining()
-        {
-            return string.substring(curpos - 1);
-        }
+        }        
     }
 }
