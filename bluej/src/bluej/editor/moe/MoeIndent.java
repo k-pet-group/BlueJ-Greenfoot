@@ -39,12 +39,34 @@ import bluej.utility.Debug;
 
 public class MoeIndent
 {
-    public static boolean calculateIndentsAndApply(MoeSyntaxDocument doc)
+    public static class AutoIndentInformation
     {
-        return calculateIndentsAndApply(doc, 0, doc.getLength());
+        private boolean perfect;
+        private int newCaretPos;
+        
+        public AutoIndentInformation(boolean perfect, int newCaretPos)
+        {
+            this.perfect = perfect;
+            this.newCaretPos = newCaretPos;
+        }
+        
+        public boolean isPerfect()
+        {
+            return perfect;
+        }
+        
+        public int getNewCaretPosition()
+        {
+            return newCaretPos;
+        }
     }
     
-    public static boolean calculateIndentsAndApply(MoeSyntaxDocument doc, int startPos, int endPos)
+    public static AutoIndentInformation calculateIndentsAndApply(MoeSyntaxDocument doc, int caretPos)
+    {
+        return calculateIndentsAndApply(doc, 0, doc.getLength(), caretPos);
+    }
+    
+    public static AutoIndentInformation calculateIndentsAndApply(MoeSyntaxDocument doc, int startPos, int endPos, int prevCaretPos)
     {
         Element rootElement = doc.getDefaultRootElement();
         List<DocumentAction> updates = new ArrayList<DocumentAction>(rootElement.getElementCount());
@@ -83,7 +105,8 @@ public class MoeIndent
                             0, doc.getParser().getSize());
                     String indent = calculateIndent(el, root, ii, doc);
                     update = new DocumentIndentAction(el, indent);
-                    perfect = perfect && getElementContents(doc, el).startsWith(indent);
+                    perfect = perfect && getElementContents(doc, el).startsWith(indent)
+                                      && !isWhiteSpaceOnly(getElementContents(doc, el).substring(indent.length(),indent.length() + 1));
                 }
     
                 if (update != null)
@@ -92,12 +115,13 @@ public class MoeIndent
             }
         }
 
+        int caretPos = prevCaretPos;
         // Now apply them all:
         for (DocumentAction update : updates) {
-            update.apply(doc);
+            caretPos = update.apply(doc, caretPos);
         }
 
-        return perfect;
+        return new AutoIndentInformation(perfect, caretPos);
     }
 
     /**
@@ -240,7 +264,7 @@ public class MoeIndent
 
     private interface DocumentAction
     {
-        public void apply(MoeSyntaxDocument doc);
+        public int apply(MoeSyntaxDocument doc, int prevCaretPos);
 
     }
 
@@ -253,15 +277,25 @@ public class MoeIndent
             this.lineToRemove = lineToRemove;
         }
 
-        public void apply(MoeSyntaxDocument doc)
+        public int apply(MoeSyntaxDocument doc, int caretPos)
         {
             try {
-                doc.remove(lineToRemove.getStartOffset(), lineToRemove.getEndOffset() - lineToRemove.getStartOffset());
+                int lineLength = lineToRemove.getEndOffset() - lineToRemove.getStartOffset();
+                doc.remove(lineToRemove.getStartOffset(), lineLength);
+                
+                if (caretPos < lineToRemove.getStartOffset()) {
+                    return caretPos; // before us, not moved
+                } else if (caretPos >= lineToRemove.getEndOffset()) {
+                    return caretPos - lineLength; // after us, move by the line length
+                } else {
+                    return lineToRemove.getStartOffset(); // in us, move to start of line
+                }
             }
             catch (BadLocationException e) {
                 Debug.reportError("Problem while trying to remove line from document: "
                         + lineToRemove.getStartOffset() + "->" + lineToRemove.getEndOffset()
                         + " in document of size " + doc.getLength(), e);
+                return caretPos;
             }
         }
     }
@@ -284,7 +318,7 @@ public class MoeIndent
         // Because we keep element references, we don't have to worry about the offsets
         // altering, because they will alter before we process the line, and thus
         // everything works nicely.
-        public void apply(MoeSyntaxDocument doc)
+        public int apply(MoeSyntaxDocument doc, int caretPos)
         {
             String line = getElementContents(doc, el);
             int lengthPrevWhitespace = findFirstNonIndentChar(line, true);
@@ -300,10 +334,23 @@ public class MoeIndent
                 try {
                     doc.replace(el.getStartOffset(), lengthPrevWhitespace,
                             indent, null);
+                    
+                    if (caretPos < el.getStartOffset()) {
+                        return caretPos; // before us, not moved
+                    } else if (caretPos >= el.getStartOffset() + lengthPrevWhitespace) {
+                        int changeLength = indent.length() - lengthPrevWhitespace;
+                        return caretPos + changeLength; // after us, move by the change length
+                    } else {
+                        return el.getStartOffset(); // in us, move to start of line
+                    }
                 }
                 catch (BadLocationException e) {
                     Debug.reportError("Error doing indent in DocumentUpdate", e);
+                    return caretPos;
                 }
+            }
+            else {
+                return caretPos;
             }
         }
     }

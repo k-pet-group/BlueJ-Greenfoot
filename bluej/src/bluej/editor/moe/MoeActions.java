@@ -66,6 +66,7 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import bluej.Config;
+import bluej.editor.moe.MoeIndent.AutoIndentInformation;
 import bluej.parser.nodes.CommentNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -744,13 +745,15 @@ public final class MoeActions
             MoeEditor editor = getEditor(e);
             MoeSyntaxDocument doc = editor.getSourceDocument();
 
+            int prevCaretPos = editor.getCaretPosition();
             editor.setCaretActive(false);
             editor.undoManager.beginCompoundEdit();
-            boolean perfect = MoeIndent.calculateIndentsAndApply(doc);
+            AutoIndentInformation info = MoeIndent.calculateIndentsAndApply(doc, prevCaretPos);
             editor.undoManager.endCompoundEdit();
+            editor.setCaretPositionForward(info.getNewCaretPosition() - prevCaretPos);
             editor.setCaretActive(true);
             
-            if (perfect) {
+            if (info.isPerfect()) {
                 editor.writeMessage(Config.getString("editor.info.perfectIndent"));
             }
         }
