@@ -2387,6 +2387,7 @@ public final class Package extends Graph
     
     private static class MisspeltMethodChecker implements MessageCalculator
     {
+        private static final int MAX_EDIT_DISTANCE = 2;
         private final String message;
         private int lineNumber;
 
@@ -2489,7 +2490,7 @@ public final class Package extends Graph
                     for (AssistContent a : values) {
                         String name = chopAtOpeningBracket(a.getDisplayName());
                         
-                        if (editDistance(name.toLowerCase(), missing.toLowerCase()) <= 3) {
+                        if (editDistance(name.toLowerCase(), missing.toLowerCase()) <= MAX_EDIT_DISTANCE) {
                             maybeTheyMeant.addLast(a.getDisplayName());
                         }
                     }
@@ -2528,7 +2529,7 @@ public final class Package extends Graph
             boolean messageShown;
             
             // See if we can help the user a bit more if they've mis-spelt a method:
-            if (message.contains("cannot find symbol")) {
+            if (message.contains("cannot find symbol - method")) {
                 messageShown = showEditorMessage(filename, lineNo, new MisspeltMethodChecker(message, lineNo), true, true, false, Config.compilertype);
             } else {
                 messageShown = showEditorMessage(filename, lineNo, message, true, true, false, Config.compilertype);
