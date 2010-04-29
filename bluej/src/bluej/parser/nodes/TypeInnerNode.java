@@ -104,6 +104,7 @@ public class TypeInnerNode extends IncrementalParsingNode
         }
         
         params.parser.parseClassElement(nextToken);
+        complete = false;
         return PP_OK;
     }
     
