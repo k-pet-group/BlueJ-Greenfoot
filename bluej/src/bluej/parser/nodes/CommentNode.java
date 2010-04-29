@@ -53,6 +53,9 @@ public class CommentNode extends ParsedNode
         return NODETYPE_COMMENT;
     }
     
+    /* (non-Javadoc)
+     * @see bluej.parser.nodes.ParsedNode#getMarkTokensFor(int, int, int, javax.swing.text.Document)
+     */
     public Token getMarkTokensFor(int pos, int length, int nodePos,
             Document document)
     {

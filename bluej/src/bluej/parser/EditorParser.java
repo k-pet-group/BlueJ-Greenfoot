@@ -1001,7 +1001,7 @@ public class EditorParser extends JavaParser
         beginNode(insPos);
         
         if (fieldType != null) {
-            ParentParsedNode top = (ParentParsedNode) scopeStack.peek();
+            JavaParentNode top = scopeStack.peek();
             top.insertField(lastField, insPos - curOffset, 0);
         }
         else {
@@ -1022,7 +1022,7 @@ public class EditorParser extends JavaParser
         beginNode(insPos);
         
         if (lastField.getFieldType() != null) {
-            ParentParsedNode top = (ParentParsedNode) scopeStack.peek();
+            JavaParentNode top = scopeStack.peek();
             top.insertField(field, insPos - curOffset, 0);
         }
         else {

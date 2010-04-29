@@ -28,12 +28,18 @@ import javax.swing.text.Document;
 
 import bluej.debugger.gentype.Reflective;
 import bluej.editor.moe.Token;
+import bluej.parser.DocumentReader;
+import bluej.parser.JavaParser;
+import bluej.parser.TokenStream;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.ParsedReflective;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.ValueEntity;
+import bluej.parser.lexer.JavaTokenFilter;
+import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.utility.GeneralCache;
 
@@ -55,6 +61,7 @@ public abstract class JavaParentNode extends ParentParsedNode
     private JavaParentNode parentNode;
     
     private Map<String,ParsedNode> classNodes = new HashMap<String,ParsedNode>();
+    protected Map<String,FieldNode> variables = new HashMap<String,FieldNode>();
 
     public JavaParentNode(JavaParentNode parent)
     {
@@ -71,9 +78,30 @@ public abstract class JavaParentNode extends ParentParsedNode
     public void insertNode(ParsedNode child, int position, int size)
     {
         getNodeTree().insertNode(child, position, size);
-        if (child.getNodeType() == NODETYPE_TYPEDEF && child.getName() != null) {
-            classNodes.put(child.getName(), child);
+        int childType = child.getNodeType();
+        String childName = child.getName();
+        if (childName != null) {
+            if (childType == NODETYPE_TYPEDEF) {
+                classNodes.put(childName, child);
+            }
         }
+    }
+    
+    /**
+     * Insert a FieldNode representing a variable/field declaration into this node.
+     */
+    public void insertVariable(FieldNode varNode, int pos, int size)
+    {
+        super.insertNode(varNode, pos, size);
+        variables.put(varNode.getName(), varNode);
+    }
+    
+    /**
+     * Insert a field child (alias for insertVariable).
+     */
+    public void insertField(FieldNode child, int position, int size)
+    {
+        insertVariable(child, position, size);
     }
     
     public void childChangedName(ParsedNode child, String oldName)
@@ -204,6 +232,99 @@ public abstract class JavaParentNode extends ParentParsedNode
         }
 
         tok.next = new Token(0, Token.END);
+        return dummyTok.next;
+    }
+    
+    protected static Token tokenizeText(Document document, int pos, int length)
+    {
+        DocumentReader dr = new DocumentReader(document, pos, pos+length);
+        TokenStream lexer = JavaParser.getLexer(dr,1,1);
+        TokenStream tokenStream = new JavaTokenFilter(lexer, null);
+
+        Token dummyTok = new Token(0, Token.END);
+        Token token = dummyTok;
+        
+        int curcol = 1;
+        while (length > 0) {
+            LocatableToken lt = (LocatableToken) tokenStream.nextToken();
+
+            if (lt.getLine() > 1 || lt.getColumn() - curcol >= length) {
+                token.next = new Token(length, Token.NULL);
+                token = token.next;
+                break;
+            }
+            if (lt.getColumn() > curcol) {
+                // some space before the token
+                token.next = new Token(lt.getColumn() - curcol, Token.NULL);
+                token = token.next;
+                length -= token.length;
+                curcol += token.length;
+            }
+
+            byte tokType = Token.NULL;
+            if (JavaParser.isPrimitiveType(lt)) {
+                tokType = Token.PRIMITIVE;
+            }
+            else if (JavaParser.isModifier(lt)) {
+                tokType = Token.KEYWORD1;
+            }
+            else if (lt.getType() == JavaTokenTypes.STRING_LITERAL) {
+                tokType = Token.LITERAL1;
+            }
+            else if (lt.getType() == JavaTokenTypes.CHAR_LITERAL) {
+                tokType = Token.LITERAL2;
+            }
+            else {
+                switch (lt.getType()) {
+                case JavaTokenTypes.LITERAL_assert:
+                case JavaTokenTypes.LITERAL_for:
+                case JavaTokenTypes.LITERAL_switch:
+                case JavaTokenTypes.LITERAL_while:
+                case JavaTokenTypes.LITERAL_do:
+                case JavaTokenTypes.LITERAL_try:
+                case JavaTokenTypes.LITERAL_catch:
+                case JavaTokenTypes.LITERAL_throw:
+                case JavaTokenTypes.LITERAL_finally:
+                case JavaTokenTypes.LITERAL_return:
+                case JavaTokenTypes.LITERAL_case:
+                case JavaTokenTypes.LITERAL_break:
+                case JavaTokenTypes.LITERAL_if:
+                case JavaTokenTypes.LITERAL_else:
+                case JavaTokenTypes.LITERAL_new:
+                    tokType = Token.KEYWORD1;
+                    break;
+
+                case JavaTokenTypes.LITERAL_class:
+                case JavaTokenTypes.LITERAL_package:
+                case JavaTokenTypes.LITERAL_import:
+                case JavaTokenTypes.LITERAL_extends:
+                case JavaTokenTypes.LITERAL_interface:
+                case JavaTokenTypes.LITERAL_enum:
+                    tokType = Token.KEYWORD2;
+                    break;
+
+                case JavaTokenTypes.LITERAL_this:
+                case JavaTokenTypes.LITERAL_null:
+                case JavaTokenTypes.LITERAL_super:
+                case JavaTokenTypes.LITERAL_true:
+                case JavaTokenTypes.LITERAL_false:
+                    tokType = Token.KEYWORD3;
+                    break;
+
+                default:
+                }
+            }
+            int toklen = lt.getLength();
+            if (lt.getEndLine() > 1) {
+                toklen = length;
+            }
+            token.next = new Token(toklen, tokType);
+            token = token.next;
+            length -= toklen;
+            curcol += toklen;
+        }
+        
+        token.next = new Token(0, Token.END);
         return dummyTok.next;
     }
 }
