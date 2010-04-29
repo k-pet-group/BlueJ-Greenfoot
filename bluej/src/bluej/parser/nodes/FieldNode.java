@@ -34,7 +34,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  * 
  * @author Davin McCall
  */
-public class FieldNode extends ParentParsedNode
+public class FieldNode extends JavaParentNode
 {
     private String name;
     private JavaEntity fieldType;
@@ -46,7 +46,7 @@ public class FieldNode extends ParentParsedNode
      * Construct a field node representing the first declared field in a field
      * declaration. The fieldType may be null if it appears invalid.
      */
-    public FieldNode(ParsedNode parent, String name, JavaEntity fieldType, int arrayDecls)
+    public FieldNode(JavaParentNode parent, String name, JavaEntity fieldType, int arrayDecls)
     {
         super(parent);
         this.name = name;
@@ -60,7 +60,7 @@ public class FieldNode extends ParentParsedNode
      * @param parent     The parent parsed node (should be a TypeInnerNode)
      * @param firstNode  The node representing the first declared field
      */
-    public FieldNode(ParsedNode parent, String name, FieldNode firstNode, int arrayDecls)
+    public FieldNode(JavaParentNode parent, String name, FieldNode firstNode, int arrayDecls)
     {
         super(parent);
         this.name = name;

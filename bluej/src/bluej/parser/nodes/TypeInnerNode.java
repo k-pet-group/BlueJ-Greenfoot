@@ -41,7 +41,7 @@ public class TypeInnerNode extends IncrementalParsingNode
 {
     private Map<String,Set<MethodNode>> methods = new HashMap<String,Set<MethodNode>>();
 
-    public TypeInnerNode(ParsedNode parent)
+    public TypeInnerNode(JavaParentNode parent)
     {
         super(parent);
     }
@@ -123,8 +123,7 @@ public class TypeInnerNode extends IncrementalParsingNode
     @Override
     protected boolean marksOwnEnd()
     {
-        return false; // TODO this and growsForward() are basically opposites
-        // We probably do not need both methods.
+        return false;
     }
     
     @Override

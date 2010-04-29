@@ -27,9 +27,9 @@ package bluej.parser.nodes;
  * 
  * @author Davin McCall
  */
-public class PkgStmtNode extends ParentParsedNode
+public class PkgStmtNode extends JavaParentNode
 {
-    public PkgStmtNode(ParsedNode parent)
+    public PkgStmtNode(JavaParentNode parent)
     {
         super(parent);
     }

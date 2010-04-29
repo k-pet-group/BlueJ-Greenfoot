@@ -34,7 +34,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  */
 public class MethodBodyNode extends IncrementalParsingNode
 {    
-    public MethodBodyNode(ParsedNode parent)
+    public MethodBodyNode(JavaParentNode parent)
     {
         super(parent);
         complete = true;

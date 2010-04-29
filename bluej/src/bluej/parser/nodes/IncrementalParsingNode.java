@@ -55,7 +55,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  * 
  * @author Davin McCall
  */
-public abstract class IncrementalParsingNode extends ParentParsedNode
+public abstract class IncrementalParsingNode extends JavaParentNode
 {
     protected int [] stateMarkers = new int[0];
     protected boolean [] marksEnd = new boolean[0];
@@ -91,7 +91,7 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
     private final static int MAX_PARSE_PIECE = 8000;
     
     
-    public IncrementalParsingNode(ParsedNode parent)
+    public IncrementalParsingNode(JavaParentNode parent)
     {
         super(parent);
     }
@@ -520,10 +520,10 @@ public abstract class IncrementalParsingNode extends ParentParsedNode
         params.parser.completedNode(this, params.nodePos, epos - params.nodePos);
     }
     
-    private Stack<ParsedNode> buildScopeStack()
+    private Stack<JavaParentNode> buildScopeStack()
     {
-        Stack<ParsedNode> r = new Stack<ParsedNode>();
-        ParsedNode pn = this;
+        Stack<JavaParentNode> r = new Stack<JavaParentNode>();
+        JavaParentNode pn = this;
         do {
             r.add(0, pn);
             pn = pn.getParentNode();

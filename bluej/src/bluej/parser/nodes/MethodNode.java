@@ -36,7 +36,7 @@ import bluej.parser.entity.ValueEntity;
  * 
  * @author Davin McCall
  */
-public class MethodNode extends ParentParsedNode
+public class MethodNode extends JavaParentNode
 {
     private String name;
     private String javadoc;
@@ -52,7 +52,7 @@ public class MethodNode extends ParentParsedNode
      * @param name    The constructor/method name
      * @param javadoc The javadoc comment text (or null)
      */
-    public MethodNode(ParsedNode parent, String name, String javadoc)
+    public MethodNode(JavaParentNode parent, String name, String javadoc)
     {
         super(parent);
         this.name = name;
@@ -66,7 +66,7 @@ public class MethodNode extends ParentParsedNode
      * @param returnType   The method return type
      * @param javadoc  The javadoc comment text (or null)
      */
-    public MethodNode(ParsedNode parent, String name, JavaEntity returnType, String javadoc)
+    public MethodNode(JavaParentNode parent, String name, JavaEntity returnType, String javadoc)
     {
         super(parent);
         this.name = name;

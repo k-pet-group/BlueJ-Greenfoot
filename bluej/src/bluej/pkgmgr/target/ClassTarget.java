@@ -97,7 +97,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 7383 2010-04-22 01:58:12Z marionz $
+ * @version $Id: ClassTarget.java 7436 2010-04-29 03:32:13Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -169,7 +169,7 @@ public class ClassTarget extends DependentTarget
     private String typeParameters = "";
     
     //properties map to store values used in the editor from the props (if necessary)
-    private Map properties = new HashMap<String, String>();
+    private Map<String,String> properties = new HashMap<String,String>();
     /**
      * Create a new class target in package 'pkg'.
      * 

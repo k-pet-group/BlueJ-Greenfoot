@@ -64,7 +64,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
      * @param prefix  The prefix of the name, including the final ".", to make this a full
      *                type name
      */
-    public ParsedTypeNode(ParsedNode parent, int type, String prefix)
+    public ParsedTypeNode(JavaParentNode parent, int type, String prefix)
     {
         super(parent);
         stateMarkers = new int[2];
@@ -299,7 +299,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     @Override
     public CodeSuggestions getExpressionType(int pos, int nodePos, TypeEntity defaultType, Document document)
     {
-        // The default type if the expression is not know should be this type
+        // The default type if the expression is not known should be this type
         TypeEntity myType = new TypeEntity(new ParsedReflective(this));
         NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, nodePos);
         if (child != null) {

@@ -21,24 +21,16 @@
  */
 package bluej.parser.nodes;
 
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 import javax.swing.text.Document;
 
 import bluej.debugger.gentype.GenTypeClass;
-import bluej.debugger.gentype.Reflective;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.Token;
 import bluej.parser.CodeSuggestions;
-import bluej.parser.entity.EntityResolver;
-import bluej.parser.entity.JavaEntity;
-import bluej.parser.entity.PackageOrClass;
-import bluej.parser.entity.ParsedReflective;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
-import bluej.utility.GeneralCache;
 
 /**
  * A "parsed node" represents a node in a limited parse tree. The tree is limited because
@@ -50,7 +42,7 @@ import bluej.utility.GeneralCache;
  * 
  * @author Davin McCall
  */
-public abstract class ParsedNode extends RBTreeNode implements EntityResolver
+public abstract class ParsedNode extends RBTreeNode
 {
     public static final int NODETYPE_NONE = 0;
     public static final int NODETYPE_TYPEDEF = 1;
@@ -75,13 +67,6 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
      * appropriate token. 
      */
     protected boolean complete;
-    
-    private Map<String,ParsedNode> classNodes = new HashMap<String,ParsedNode>();
-    
-    private GeneralCache<String,JavaEntity> valueEntityCache =
-        new GeneralCache<String,JavaEntity>(10);
-    private GeneralCache<String,PackageOrClass> pocEntityCache =
-        new GeneralCache<String,PackageOrClass>(10);
     
     private boolean isInner = false;
 	
@@ -167,19 +152,11 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
     public void insertNode(ParsedNode child, int position, int size)
     {
         getNodeTree().insertNode(child, position, size);
-        if (child.getNodeType() == NODETYPE_TYPEDEF && child.getName() != null) {
-            classNodes.put(child.getName(), child);
-        }
     }
     
     public void childChangedName(ParsedNode child, String oldName)
     {
-        if (child.getNodeType() == NODETYPE_TYPEDEF) {
-            if (classNodes.get(oldName) == child) {
-                classNodes.remove(oldName);
-            }
-            classNodes.put(child.getName(), child);
-        }
+        // Do nothing.
     }
     
     /**
@@ -425,15 +402,7 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
     {
         return getExpressionType(pos, 0, null, document);
     }
-    
-    /**
-     * Find a type node for a type definition with the given name.
-     */
-    public ParsedNode getTypeNode(String name)
-    {
-        return classNodes.get(name);
-    }
-    
+        
     /**
      * Get code completion suggestions at a particular point. May return null.
      *
@@ -453,11 +422,6 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
             return null;
         }
         return new CodeSuggestions(atype, atype, null);
-    }
-    
-    protected Map<String,ParsedNode> getClassNodes()
-    {
-        return classNodes;
     }
     
     /**
@@ -491,65 +455,6 @@ public abstract class ParsedNode extends RBTreeNode implements EntityResolver
             listener.nodeRemoved(nap);
             removeChildren(nap, listener);
         }
-    }
-    
-    // =================== EntityResolver interface ====================
-    
-    /*
-     * @see bluej.parser.entity.EntityResolver#resolveQualifiedClass(java.lang.String)
-     */
-    public TypeEntity resolveQualifiedClass(String name)
-    {
-        if (parentNode != null) {
-            return parentNode.resolveQualifiedClass(name);
-        }
-        return null;
-    }
-    
-    /*
-     * @see bluej.parser.entity.EntityResolver#resolvePackageOrClass(java.lang.String, java.lang.String)
-     */
-    public PackageOrClass resolvePackageOrClass(String name, Reflective querySource)
-    {
-        ParsedNode cnode = classNodes.get(name);
-        if (cnode != null) {
-            return new TypeEntity(new ParsedReflective((ParsedTypeNode) cnode));
-        }
-        
-        String accessp = name + ":" + (querySource != null ? querySource.getName() : ""); 
-        PackageOrClass rval = pocEntityCache.get(accessp);
-        if (rval != null || pocEntityCache.containsKey(accessp)) {
-            return rval;
-        }
-        
-        if (parentNode != null) {
-            rval = parentNode.resolvePackageOrClass(name, querySource);
-            pocEntityCache.put(accessp, rval);
-        }
-        return rval;
-    }
-    
-    /*
-     * @see bluej.parser.entity.EntityResolver#getValueEntity(java.lang.String, java.lang.String)
-     */
-    public JavaEntity getValueEntity(String name, Reflective querySource)
-    {        
-        String accessp = name + ":" + (querySource != null ? querySource.getName() : ""); 
-        JavaEntity rval = valueEntityCache.get(accessp);
-        if (rval != null || valueEntityCache.containsKey(accessp)) {
-            return rval;
-        }
-        
-        if (parentNode != null) {
-            rval = parentNode.getValueEntity(name, querySource);
-        }
-        
-        if (rval == null) {
-            rval = resolvePackageOrClass(name, querySource);
-        }
-        
-        valueEntityCache.put(accessp, rval);
-        return rval;
     }
     
     /**

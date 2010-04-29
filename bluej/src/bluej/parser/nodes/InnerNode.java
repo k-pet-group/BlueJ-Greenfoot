@@ -26,9 +26,9 @@ package bluej.parser.nodes;
  * 
  * @author Davin McCall
  */
-public class InnerNode extends ParentParsedNode
+public class InnerNode extends JavaParentNode
 {
-    public InnerNode(ParsedNode parent)
+    public InnerNode(JavaParentNode parent)
     {
         super(parent);
     }

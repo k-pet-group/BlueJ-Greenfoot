@@ -39,9 +39,9 @@ import bluej.parser.entity.TypeEntity;
  * 
  * @author Davin McCall
  */
-public class ExpressionNode extends ParentParsedNode
+public class ExpressionNode extends JavaParentNode
 {
-    public ExpressionNode(ParsedNode parent)
+    public ExpressionNode(JavaParentNode parent)
     {
         super(parent);
     }
@@ -61,22 +61,6 @@ public class ExpressionNode extends ParentParsedNode
     @Override
     protected CodeSuggestions getExpressionType(int pos, int nodePos, TypeEntity defaultType, Document document)
     {
-//        Reader r = new DocumentReader(document, nodePos, pos);
-//        Element map = document.getDefaultRootElement();
-//        int line = map.getElementIndex(nodePos) + 1;
-//        int col = nodePos - map.getElement(line - 1).getStartOffset() + 1;
-//        
-//        CompletionParser parser = new CompletionParser(this, r, defaultType, line, col);
-//        parser.parseExpression();
-//        
-//        GenTypeSolid stype = parser.getSuggestionType();
-//        GenTypeClass atype = (defaultType != null) ? defaultType.getType().asClass() : null;
-//        if (stype != null) {
-//            return new CodeSuggestions(stype, atype, parser.getSuggestionToken(), parser.isSuggestionStatic());
-//        }
-//        else {
-//            return null;
-//        }
         return suggestAsExpression(pos, nodePos, this, defaultType, document);
     }
     

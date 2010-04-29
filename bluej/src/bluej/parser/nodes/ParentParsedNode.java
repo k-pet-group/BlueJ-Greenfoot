@@ -26,14 +26,11 @@ import java.util.Map;
 
 import javax.swing.text.Document;
 
-import bluej.debugger.gentype.Reflective;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.Token;
 import bluej.parser.DocumentReader;
 import bluej.parser.JavaParser;
 import bluej.parser.TokenStream;
-import bluej.parser.entity.JavaEntity;
-import bluej.parser.entity.ValueEntity;
 import bluej.parser.lexer.JavaTokenFilter;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
@@ -58,52 +55,6 @@ public abstract class ParentParsedNode extends ParsedNode
         super(myParent);
     }
     
-    @Override
-    public Token getMarkTokensFor(int pos, int length, int nodePos,
-            Document document)
-    {
-        Token tok = new Token(0, Token.END); // dummy
-        if (length == 0) {
-            return tok;
-        }
-        Token dummyTok = tok;
-        
-        NodeAndPosition<ParsedNode> np = getNodeTree().findNodeAtOrAfter(pos, nodePos);
-        while (np != null && np.getEnd() == pos) np = np.nextSibling(); 
-        
-        int cp = pos;
-        while (np != null && np.getPosition() < (pos + length)) {
-            if (cp < np.getPosition()) {
-                int nextTokLen = np.getPosition() - cp;
-                tok.next = tokenizeText(document, cp, nextTokLen);
-                while (tok.next.id != Token.END) tok = tok.next;
-                cp = np.getPosition();
-            }
-            
-            int remaining = pos + length - cp;
-            remaining = Math.min(remaining, np.getEnd() - cp);
-            
-            if (remaining != 0) {
-                tok.next = np.getNode().getMarkTokensFor(cp, remaining, np.getPosition(), document);
-                cp += remaining;
-                while (tok.next.id != Token.END) {
-                    tok = tok.next;
-                }
-            }
-            np = np.nextSibling();
-        }
-        
-        // There may be a section left
-        if (cp < pos + length) {
-            int nextTokLen = pos + length - cp;
-            tok.next = tokenizeText(document, cp, nextTokLen);
-            while (tok.next.id != Token.END) tok = tok.next;
-        }
-
-        tok.next = new Token(0, Token.END);
-        return dummyTok.next;
-    }
-    
     /**
      * Insert a FieldNode representing a variable/field declaration into this node.
      */
@@ -120,20 +71,7 @@ public abstract class ParentParsedNode extends ParsedNode
     {
         insertVariable(child, position, size);
     }
-    
-    @Override
-    public JavaEntity getValueEntity(String name, Reflective querySource)
-    {
-        FieldNode var = variables.get(name);
-        if (var != null) {
-            JavaEntity fieldType = var.getFieldType().resolveAsType();
-            if (fieldType != null) {
-                return new ValueEntity(fieldType.getType());
-            }
-        }
-        return super.getValueEntity(name, querySource);
-    }
-    
+        
     protected static Token tokenizeText(Document document, int pos, int length)
     {
         DocumentReader dr = new DocumentReader(document, pos, pos+length);

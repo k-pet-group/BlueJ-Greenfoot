@@ -27,11 +27,11 @@ package bluej.parser.nodes;
  * 
  * @author Davin McCall
  */
-public class ContainerNode extends ParentParsedNode
+public class ContainerNode extends JavaParentNode
 {
     private int nodeType;
     
-    public ContainerNode(ParsedNode parent, int nodeType)
+    public ContainerNode(JavaParentNode parent, int nodeType)
     {
         super(parent);
         this.nodeType = nodeType;
