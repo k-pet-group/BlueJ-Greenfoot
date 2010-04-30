@@ -34,6 +34,7 @@ import javax.swing.JTextField;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.editor.EditorManager;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefPanelListener;
 import bluej.utility.DBox;
@@ -150,6 +151,7 @@ public class EditorPrefPanel extends JPanel implements PrefPanelListener
         PrefMgr.setFlag(PrefMgr.MAKE_BACKUP, makeBackupBox.isSelected());
         PrefMgr.setFlag(PrefMgr.MATCH_BRACKETS, matchBracketsBox.isSelected());
         PrefMgr.setScopeHighlightStrength(scopeHighlightingPrefDisplay.getStrengthValue());
+        EditorManager.getEditorManager().refreshAll();
     }
 
 }
