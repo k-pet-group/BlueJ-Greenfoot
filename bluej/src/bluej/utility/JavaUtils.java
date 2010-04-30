@@ -32,6 +32,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -534,87 +535,76 @@ public abstract class JavaUtils
         
         // Process the block tags
         if (i < javadocString.length()) {
-            String rval = javadocString.substring(0, i);
-            String block = javadocString.substring(i);
-            String [] lines = Utility.splitLines(block);
-            boolean paramsMode = lines.length > 0 && lines[0].substring(0, 7).equals("@param ");
-            int j = 0;
-            if (paramsMode) {
-                rval += "<h3>Parameters</h3>";
-                rval += "<table border=0>";
-                int p = 7;
-                do {
+            String header = javadocString.substring(0, i);
+            String blocksText = javadocString.substring(i);
+            String[] lines = Utility.splitLines(blocksText);
+            
+            List<String> blocks = getBlockTags(lines);
+            
+            StringBuilder rest = new StringBuilder();
+            StringBuilder params = new StringBuilder();
+            params.append("<h3>Parameters</h3>").append("<table border=0>");
+            
+            for (String block : blocks) {
+                if (block.startsWith("param ")) {
+                    int p = "param".length();
                     // Find the parameter name
-                    while (Character.isWhitespace(lines[j].charAt(p))) {
+                    while (Character.isWhitespace(block.charAt(p))) {
                         p++;
                     }
                     int k = p;
-                    while (k < lines[j].length() && !Character.isWhitespace(lines[j].charAt(k))) {
+                    while (k < block.length() && !Character.isWhitespace(block.charAt(k))) {
                         k++;
                     }
-                    String paramName = lines[j].substring(p, k);
-                    String paramDesc = lines[j].substring(k);
-                    paramsMode = false;
+                    String paramName = block.substring(p, k);
+                    String paramDesc = block.substring(k);
                     
-                    descLoop:
-                    while (++j < lines.length) {
-                        for (k = 0; k < lines[j].length(); k++) {
-                            if (lines[j].charAt(k) == '@') {
-                                p = k + 7;
-                                paramsMode = lines[j].substring(k, p).equals("@param ");
-                                break descLoop;
-                            }
-                            else if (! Character.isWhitespace(lines[j].charAt(k))) { 
-                                paramDesc += lines[j];
-                                break;
-                            }
-                        }
-                    }
-                    
-                    rval += "<tr><td valign=\"top\">&nbsp;&nbsp;&nbsp;" + paramName + "</td><td> - " + paramDesc + "</td></tr>";
-                } while (paramsMode);
-                rval += "</table>";
-            }
-            else {
-                rval += "<p>";
-            }
-            
-            // Handle non-"@param" block tags
-            while (j < lines.length) {
-                rval += convertBlockTag(lines[j]);
-                for (j = j+1; j < lines.length; j++) {
-                    for (int k = 0; k < lines[j].length(); k++) {
-                        if (lines[j].charAt(k) == '@') {
-                            rval += "<br>";
-                            lines[j] = convertBlockTag(lines[j]);
-                            break;
-                        }
-                        if (! Character.isWhitespace(lines[j].charAt(k))) {
-                            break;
-                        }
-                    }
-                    rval += lines[j];
+                    params.append("<tr><td valign=\"top\">&nbsp;&nbsp;&nbsp;");
+                    params.append(paramName);
+                    params.append("</td><td> - ");
+                    params.append(paramDesc);
+                    params.append("</td></tr>");
+                } else {
+                    rest.append(convertBlockTag(block)).append("<br>");
                 }
-                rval += "<br>";
-            }
-            javadocString = rval;
+            }           
+            
+            params.append("</table><p>");
+            
+            String result =  header + params.toString() + rest.toString();
+            return result;
         }
         
         return javadocString;
     }
-    
-    private static String convertBlockTag(String line)
+
+    private static List<String> getBlockTags(String[] lines)
     {
-        int i = 0;
-        while (i < line.length() && line.charAt(i) != '@') i++;
-        if (i == line.length()) {
-            return "";
+        LinkedList<String> blocks = new LinkedList<String>();
+        String cur = "";
+        for (String line : lines) {
+            line = line.trim();
+            if (line.startsWith("@")) {
+                if (false == cur.isEmpty()) {
+                    blocks.addLast(cur);
+                }
+                cur = line.substring(1);
+            } else {
+                //If it doesn't start with an at, it's part of the previous tag
+                cur += line + " ";
+            }
         }
+        blocks.addLast(cur);
+        return blocks;
+    }
+    
+    private static String convertBlockTag(String block)
+    {        
+        int k = 0;
+        while (k < block.length() && !Character.isWhitespace(block.charAt(k)))
+            k++;
         
-        int k = i;
-        while (k < line.length() && !Character.isWhitespace(line.charAt(k))) k++;
-        
-        String r = "<b>" + line.substring(i+1, k) + "</b> - " + line.substring(k);
+        String r = "<b>" + block.substring(0, k) + "</b> - " + block.substring(k);
         
         return r;
     }
