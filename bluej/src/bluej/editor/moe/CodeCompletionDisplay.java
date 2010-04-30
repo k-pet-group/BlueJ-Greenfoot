@@ -163,7 +163,10 @@ public class CodeCompletionDisplay extends JFrame
         };
         inputMap.setParent(methodDescription.getInputMap(JComponent.WHEN_FOCUSED));
         methodDescription.setInputMap(JComponent.WHEN_FOCUSED, inputMap);
-        methodDescription.setBackground(new Color(255,255,205)); // yellowish
+        // To make the gradient fill show up on the Nimbus look and feel,
+        // we set the background with an alpha component of zero to get transparency
+        // (see http://forums.java.net/jive/thread.jspa?messageID=267839)
+        methodDescription.setBackground(new Color(0,0,0,0));
         
         methodList = new JList();
         methodList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -454,7 +457,7 @@ public class CodeCompletionDisplay extends JFrame
         {
             super.paintComponent(g);
          
-            if (isOpaque() && g instanceof Graphics2D) {
+            if (g instanceof Graphics2D) {
                 Graphics2D g2d = (Graphics2D)g;
                 
                 int w = getWidth();
