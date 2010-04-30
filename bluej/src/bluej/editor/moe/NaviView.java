@@ -343,7 +343,7 @@ public class NaviView extends JPanel implements AdjustmentListener
 
         if (prefHeight > myHeight) {
             // scale!
-            int width = imgBuffer.getWidth() * prefHeight / myHeight;
+            int width = Math.max(imgBuffer.getWidth() * prefHeight / myHeight, 1);
             int ytop = top * prefHeight / myHeight;
             int ybtm = (bottom * prefHeight + myHeight - 1) / myHeight;
             int height = ybtm - ytop;
