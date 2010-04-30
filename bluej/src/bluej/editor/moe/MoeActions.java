@@ -190,9 +190,10 @@ public final class MoeActions
         DOUBLE_SHORTCUT_MASK = SHORTCUT_MASK + ALT_SHORTCUT_MASK;
 
         // install our own keymap, with the existing one as parent
-        keymap = JTextComponent.addKeymap("BlueJ map", textComponent.getKeymap());
+        Keymap origKeymap = textComponent.getKeymap();
+        keymap = JTextComponent.addKeymap("BlueJ map", origKeymap);
 
-        createActionTable(textComponent);
+        createActionTable(textComponent, origKeymap);
         keyCatcher = new KeyCatcher();
         if (!load())
             setDefaultKeyBindings();
@@ -517,6 +518,29 @@ public final class MoeActions
                 ed.clearMessage();
             return ed;
         }
+    }
+    
+    abstract class MoeActionOverride extends MoeAbstractAction
+    {
+        private Action defaultAction;
+
+        public MoeActionOverride(String name, Action[] defaultActions)
+        {
+            super(name);
+            for (Action action : defaultActions) {
+                if (name.equals(action.getValue(Action.NAME))) {
+                    this.defaultAction = action;
+                }
+            }
+        }
+
+        public void performDefaultAction(ActionEvent e)
+        {
+            if (defaultAction != null) {
+                defaultAction.actionPerformed(e);
+            }
+        }
+        
     }
 
     // === File: ===
@@ -1047,6 +1071,93 @@ public final class MoeActions
             else
                 getActionByName("cut-to-clipboard").actionPerformed(e);
             lastActionWasCut = true;
+        }
+    }
+    
+    // --------------------------------------------------------------------
+    
+    class NextWordAction extends MoeActionOverride
+    {
+        private boolean withSelection;
+
+        public NextWordAction(boolean withSelection, Action[] actions)
+        {
+            super(withSelection ? DefaultEditorKit.selectionNextWordAction : DefaultEditorKit.nextWordAction, actions);
+            this.withSelection = withSelection;
+        }
+        
+        public void actionPerformed(ActionEvent e)
+        {
+            // The implementation of next word usually is quite complex,
+            // so rather than re-implement it, we wrap it and watch out for
+            // characters we don't want to skip over:
+            JTextComponent c = getTextComponent(e);
+            int origPos = c.getCaret().getDot();
+            performDefaultAction(e);
+            int newPos = c.getCaret().getDot();
+            try {
+                String skippedText = c.getText(origPos, newPos - origPos);
+                int firstDot = skippedText.indexOf('.');
+                if (firstDot == 0) { // first char -- just skip that:
+                    moveCaret(c, origPos + 1);
+                } else if (firstDot != -1) { // if it's there and not the first char
+                    moveCaret(c, origPos + firstDot);
+                }
+            }
+            catch (BadLocationException e1) {
+            }
+        }
+        
+        private void moveCaret(JTextComponent c, int pos)
+        {
+            if (withSelection) {
+                c.getCaret().moveDot(pos);
+            } else {
+                c.setCaretPosition(pos);
+            }
+        }
+    }
+    
+    class PrevWordAction extends MoeActionOverride
+    {
+        private boolean withSelection;
+        
+        public PrevWordAction(boolean withSelection, Action[] actions)
+        {
+            super(withSelection ? DefaultEditorKit.selectionPreviousWordAction : DefaultEditorKit.previousWordAction, actions);
+            this.withSelection = withSelection;
+        }
+        
+        public void actionPerformed(ActionEvent e)
+        {
+            // The implementation of next word usually is quite complex,
+            // so rather than re-implement it, we wrap it and watch out for
+            // characters we don't want to skip over:
+            JTextComponent c = getTextComponent(e);
+            int origPos = c.getCaret().getDot();
+            performDefaultAction(e);
+            int newPos = c.getCaret().getDot();
+            try {
+                String skippedText = c.getText(newPos, origPos - newPos);
+                int lastDot = skippedText.indexOf('.');
+                if (lastDot == skippedText.length() - 1) { // first char -- just skip that:
+                    moveCaret(c, origPos - 1);
+                } else if (lastDot != -1) { // if it's there and not the first char
+                    moveCaret(c, newPos + lastDot + 1);
+                }
+            }
+            catch (BadLocationException e1) {
+            }
+            
+        }
+        
+        private void moveCaret(JTextComponent c, int pos)
+        {
+            if (withSelection) {
+                c.getCaret().moveDot(pos);
+            } else {
+                c.setCaretPosition(pos);
+            }
         }
     }
 
@@ -1773,7 +1884,7 @@ public final class MoeActions
     /**
      * Create the table of action supported by this editor
      */
-    private void createActionTable(JTextComponent textComponent)
+    private void createActionTable(JTextComponent textComponent, Keymap origKeymap)
     {
         undoAction = new UndoAction();
         redoAction = new RedoAction();
@@ -1781,6 +1892,15 @@ public final class MoeActions
 
         // get all actions into arrays
         Action[] textActions = textComponent.getActions();
+        
+        Action[] overrideActions = {
+                //With and without selection for each:
+                new NextWordAction(false, textActions),
+                new NextWordAction(true, textActions),
+                new PrevWordAction(false, textActions),                
+                new PrevWordAction(true, textActions)
+        };
+        
         Action[] myActions = {
                 new SaveAction(), 
                 new ReloadAction(), 
@@ -1833,14 +1953,29 @@ public final class MoeActions
 
         actions = new Hashtable<Object, Action>();
 
-        Action action;
-        for (int i = 0; i < textActions.length; i++) {
-            action = textActions[i];
-            //Debug.message("a: " + action.getValue(Action.NAME));
+        for (Action action : textActions) {
             actions.put(action.getValue(Action.NAME), action);
         }
-        for (int i = 0; i < myActions.length; i++) {
-            action = myActions[i];
+        
+        // For these actions, we want to over-ride the default behaviour.
+        // But the key bindings are in the input map, not the keymap, so
+        // unless the user has explicitly bound them, the behaviour won't be
+        // changed.  Therefore we look through all the inputmap bindings for bindings
+        // to the over-ridden action, and re-bind those actions in the text component's keymap
+        // (not the BlueJ keymap).
+        KeyStroke[] keyStrokes = textComponent.getInputMap().allKeys();
+        for (Action action : overrideActions) {
+            // Rebind actions we've overridden:
+            for (KeyStroke keyStroke : keyStrokes) {
+                Object name = action.getValue(Action.NAME);
+                if (name != null && name.equals(textComponent.getInputMap().get(keyStroke))) {
+                    origKeymap.addActionForKeyStroke(keyStroke, action);
+                }
+            }
+            actions.put(action.getValue(Action.NAME), action);
+        }
+        
+        for (Action action : myActions) {
             actions.put(action.getValue(Action.NAME), action);
         }
 
