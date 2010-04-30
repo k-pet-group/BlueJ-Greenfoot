@@ -31,6 +31,7 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -53,13 +54,13 @@ import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.html.HTMLEditorKit;
 
 import bluej.parser.SourceLocation;
 import bluej.parser.lexer.LocatableToken;
-import bluej.utility.Debug;
 import bluej.utility.JavaUtils;
 
 
@@ -71,6 +72,36 @@ import bluej.utility.JavaUtils;
 public class CodeCompletionDisplay extends JFrame 
     implements ListSelectionListener, MouseListener
 {
+    private static class BorderCustomMargin implements Border
+    {
+        private Border wrappedBorder;
+        public BorderCustomMargin(Border border)
+        {
+            wrappedBorder = border;
+        }
+
+        public Insets getBorderInsets(Component c)
+        {
+            Insets insets = wrappedBorder.getBorderInsets(c);
+            insets.left += 10;
+            insets.right += 5;
+            insets.bottom += 10;
+            return insets;
+        }
+
+        public boolean isBorderOpaque()
+        {
+            return wrappedBorder.isBorderOpaque();
+        }
+
+        public void paintBorder(Component c, Graphics g, int x,
+                int y, int width, int height)
+        {
+            wrappedBorder.paintBorder(c, g, x, y, width, height);
+        }
+
+    }
+
     private static class GradientFillScrollPane extends JScrollPane
     {
         private Color topColor;
@@ -175,7 +206,7 @@ public class CodeCompletionDisplay extends JFrame
 
         // create function description area     
         methodDescription = new JEditorPane();
-        methodDescription.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        methodDescription.setBorder(new BorderCustomMargin(BorderFactory.createLineBorder(Color.BLACK)));
         methodDescription.setEditable(false);
         methodDescription.setOpaque(false);
         
