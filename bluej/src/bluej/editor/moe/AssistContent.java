@@ -45,6 +45,9 @@ public abstract class AssistContent
 
     /** Get the declaring class of this completion (as a string) */
     public abstract String getDeclaringClass();
+
+    /** Return true if this completion has parameters */
+    public abstract boolean hasParameters();
     
     /**
      * Get the javadoc comment for this completion. The comment has been stripped of the

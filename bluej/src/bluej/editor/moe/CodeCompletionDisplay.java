@@ -59,6 +59,7 @@ import javax.swing.text.html.HTMLEditorKit;
 
 import bluej.parser.SourceLocation;
 import bluej.parser.lexer.LocatableToken;
+import bluej.utility.Debug;
 import bluej.utility.JavaUtils;
 
 
@@ -353,14 +354,17 @@ public class CodeCompletionDisplay extends JFrame
             String completion = selected.getCompletionText();
             String completionSel = selected.getCompletionTextSel();
             String completionPost = selected.getCompletionTextPost();
+            boolean hasParameters = selected.hasParameters();
 
             editor.setSelection(prefixBegin, prefixEnd);
 
             editor.insertText(completion, false);
             SourceLocation selLoc = editor.getCaretLocation();
             editor.insertText(completionSel, false);
-            editor.insertText(completionPost, true);
-            editor.setSelection(selLoc.getLine(), selLoc.getColumn(), completionSel.length());
+            editor.insertText(completionPost, hasParameters);
+            if (hasParameters) {
+                editor.setSelection(selLoc.getLine(), selLoc.getColumn(), completionSel.length());
+            }
         }
         
         setVisible(false);

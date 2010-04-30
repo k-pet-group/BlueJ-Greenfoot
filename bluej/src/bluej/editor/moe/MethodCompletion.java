@@ -144,6 +144,12 @@ public class MethodCompletion extends AssistContent
         }
         return jd;
     }
+
+    @Override
+    public boolean hasParameters()
+    {
+        return !method.getParamTypes().isEmpty();
+    }
     
     private JavaType convertToSolid(JavaType type)
     {
