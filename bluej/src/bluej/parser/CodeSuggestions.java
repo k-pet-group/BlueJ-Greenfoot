@@ -43,20 +43,6 @@ public class CodeSuggestions
      * @param accessType      The type which is doing the access (for access control purposes)
      * @param suggestionToken The token representing the suggestion prefix, i.e. the portion of the
      *                        member name already typed by the user
-     */
-    public CodeSuggestions(JavaType suggestionType, GenTypeClass accessType, LocatableToken suggestionToken)
-    {
-        this.suggestionToken = suggestionToken;
-        this.suggestionType = suggestionType;
-        this.accessType = accessType;
-    }
-    
-    /**
-     * Construct a new set of CodeSuggestions.
-     * @param suggestionType  The type to suggest members from
-     * @param accessType      The type which is doing the access (for access control purposes)
-     * @param suggestionToken The token representing the suggestion prefix, i.e. the portion of the
-     *                        member name already typed by the user
      * @param restrictions    Flag indicating non-static methods should not be included                 
      */
     public CodeSuggestions(JavaType suggestionType, GenTypeClass accessType, LocatableToken suggestionToken, boolean restricted)
@@ -64,7 +50,7 @@ public class CodeSuggestions
         this.suggestionToken = suggestionToken;
         this.suggestionType = suggestionType;
         this.accessType = accessType;
-        this.staticRestricted=restricted;
+        this.staticRestricted = restricted;
     }
     
     public LocatableToken getSuggestionToken()
@@ -82,11 +68,13 @@ public class CodeSuggestions
         return accessType;
     }
 
-    public void setStatic(boolean restricted) {
+    public void setStatic(boolean restricted)
+    {
         this.staticRestricted = restricted;
     }
 
-    public boolean isStatic() {
+    public boolean isStatic()
+    {
         return staticRestricted;
     }
 }

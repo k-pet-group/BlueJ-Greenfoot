@@ -26,6 +26,7 @@ import java.util.Map;
 
 import javax.swing.text.Document;
 
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.CodeSuggestions;
@@ -35,6 +36,7 @@ import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.ParsedReflective;
 import bluej.parser.entity.TypeEntity;
+import bluej.parser.entity.ValueEntity;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -297,10 +299,10 @@ public class ParsedTypeNode extends IncrementalParsingNode
     }
     
     @Override
-    public CodeSuggestions getExpressionType(int pos, int nodePos, TypeEntity defaultType, Document document)
+    public CodeSuggestions getExpressionType(int pos, int nodePos, JavaEntity defaultType, Document document)
     {
         // The default type if the expression is not known should be this type
-        TypeEntity myType = new TypeEntity(new ParsedReflective(this));
+        ValueEntity myType = new ValueEntity(new GenTypeClass(new ParsedReflective(this)));
         NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, nodePos);
         if (child != null) {
             return child.getNode().getExpressionType(pos, child.getPosition(), myType, document);

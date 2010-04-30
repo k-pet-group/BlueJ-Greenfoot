@@ -29,7 +29,7 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.Token;
 import bluej.parser.CodeSuggestions;
-import bluej.parser.entity.TypeEntity;
+import bluej.parser.entity.JavaEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 /**
@@ -411,7 +411,7 @@ public abstract class ParsedNode extends RBTreeNode
      * @param defaultType  The type to return if there is no explicit type at the given location 
      * @param document  The source document
      */
-    protected CodeSuggestions getExpressionType(int pos, int nodePos, TypeEntity defaultType, Document document)
+    protected CodeSuggestions getExpressionType(int pos, int nodePos, JavaEntity defaultType, Document document)
     {
         NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, nodePos);
         if (child != null) {
@@ -421,7 +421,8 @@ public abstract class ParsedNode extends RBTreeNode
         if (atype == null) {
             return null;
         }
-        return new CodeSuggestions(atype, atype, null);
+        boolean isStaticCtxt = (defaultType.resolveAsType() != null);
+        return new CodeSuggestions(atype, atype, null, isStaticCtxt);
     }
     
     /**

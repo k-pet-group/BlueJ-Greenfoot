@@ -21,11 +21,16 @@
  */
 package bluej.parser.nodes;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.text.Document;
+
+import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
+import bluej.parser.CodeSuggestions;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.ValueEntity;
@@ -192,5 +197,18 @@ public class MethodNode extends JavaParentNode
             j.next();
         }
         return super.getValueEntity(name, querySource);
+    }
+    
+    @Override
+    protected CodeSuggestions getExpressionType(int pos, int nodePos,
+            JavaEntity defaultType, Document document)
+    {
+        if (Modifier.isStatic(modifiers)) {
+            JavaType dtype = defaultType.getType();
+            if (dtype != null) {
+                defaultType = new TypeEntity(dtype);
+            }
+        }
+        return super.getExpressionType(pos, nodePos, defaultType, document);
     }
 }
