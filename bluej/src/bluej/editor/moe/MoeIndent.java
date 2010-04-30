@@ -280,15 +280,17 @@ public class MoeIndent
         public int apply(MoeSyntaxDocument doc, int caretPos)
         {
             try {
+                int start = lineToRemove.getStartOffset();
+                int end = lineToRemove.getEndOffset();
                 int lineLength = lineToRemove.getEndOffset() - lineToRemove.getStartOffset();
                 doc.remove(lineToRemove.getStartOffset(), lineLength);
                 
-                if (caretPos < lineToRemove.getStartOffset()) {
+                if (caretPos < start) {
                     return caretPos; // before us, not moved
-                } else if (caretPos >= lineToRemove.getEndOffset()) {
+                } else if (caretPos >= end) {
                     return caretPos - lineLength; // after us, move by the line length
                 } else {
-                    return lineToRemove.getStartOffset(); // in us, move to start of line
+                    return start; // in us, move to start of line
                 }
             }
             catch (BadLocationException e) {
@@ -332,16 +334,17 @@ public class MoeIndent
             // hence why we need the check:
             if (indent != null && (anyTabs || (indent.length() != lengthPrevWhitespace))) {
                 try {
+                    int origStartOffset = el.getStartOffset(); 
                     doc.replace(el.getStartOffset(), lengthPrevWhitespace,
                             indent, null);
                     
-                    if (caretPos < el.getStartOffset()) {
+                    if (caretPos < origStartOffset) {
                         return caretPos; // before us, not moved
-                    } else if (caretPos >= el.getStartOffset() + lengthPrevWhitespace) {
+                    } else if (caretPos >= origStartOffset + lengthPrevWhitespace) {
                         int changeLength = indent.length() - lengthPrevWhitespace;
                         return caretPos + changeLength; // after us, move by the change length
                     } else {
-                        return el.getStartOffset(); // in us, move to start of line
+                        return origStartOffset + indent.length(); // in us, move to end of indent
                     }
                 }
                 catch (BadLocationException e) {
