@@ -23,6 +23,7 @@ package bluej.editor.moe;
 
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -69,6 +70,40 @@ import bluej.utility.JavaUtils;
 public class CodeCompletionDisplay extends JFrame 
     implements ListSelectionListener, MouseListener
 {
+    private static class GradientFillScrollPane extends JScrollPane
+    {
+        private Color topColor;
+        private Color bottomColor;
+        
+        private GradientFillScrollPane(Component view, Color topColor, Color bottomColor)
+        {
+            super(view);
+            getViewport().setOpaque(false);
+            this.topColor = topColor;
+            this.bottomColor = bottomColor;
+        }
+
+        protected void paintComponent(Graphics g)
+        {
+            super.paintComponent(g);
+         
+            if (isOpaque() && g instanceof Graphics2D) {
+                Graphics2D g2d = (Graphics2D)g;
+                
+                int w = getWidth();
+                int h = getHeight();
+                 
+                // Paint a gradient from top to bottom:
+                GradientPaint gp = new GradientPaint(
+                    0, 0, topColor,
+                    0, h, bottomColor);
+   
+                g2d.setPaint(gp);
+                g2d.fillRect(0, 0, w, h);
+            }
+        }
+    }
+
     private MoeEditor editor;
     private AssistContent[] values;
     private String prefix;
@@ -138,36 +173,10 @@ public class CodeCompletionDisplay extends JFrame
         JPanel methodPanel = new JPanel();
 
         // create function description area     
-        methodDescription = new JEditorPane()  {
-            protected void paintComponent(Graphics g)
-            {
-                if ( !isOpaque( ) || !(g instanceof Graphics2D))
-                {
-                    super.paintComponent( g );
-                    return;
-                }
-             
-                Graphics2D g2d = (Graphics2D)g;
-                
-                int w = getWidth();
-                int h = getHeight();
-                 
-                // Paint a gradient from top to bottom:
-                GradientPaint gp = new GradientPaint(
-                    0, 0, new Color(250,246,229),
-                    0, h, new Color(233,210,132));
-
-                g2d.setPaint(gp);
-                g2d.fillRect(0, 0, w, h);
-             
-                // Call parent, but make it draw transparently (i.e. no background):
-                setOpaque(false);
-                super.paintComponent(g);
-                setOpaque(true);
-            }
-        };
+        methodDescription = new JEditorPane();
         methodDescription.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         methodDescription.setEditable(false);
+        methodDescription.setOpaque(false);
         
         methodDescription.setEditorKit(new HTMLEditorKit());
         methodDescription.setEditable(false);
@@ -188,40 +197,13 @@ public class CodeCompletionDisplay extends JFrame
         methodDescription.setInputMap(JComponent.WHEN_FOCUSED, inputMap);
         methodDescription.setBackground(new Color(255,255,205)); // yellowish
         
-        methodList = new JList() {
-            protected void paintComponent(Graphics g)
-            {
-                if ( !isOpaque( ) || !(g instanceof Graphics2D))
-                {
-                    super.paintComponent( g );
-                    return;
-                }
-             
-                Graphics2D g2d = (Graphics2D)g;
-                
-                int w = getWidth();
-                int h = getHeight();
-                 
-                // Paint a gradient from top to bottom:
-                GradientPaint gp = new GradientPaint(
-                    0, 0, new Color(250,246,229),
-                    0, h, new Color(246,234,198) );
-
-                g2d.setPaint(gp);
-                g2d.fillRect(0, 0, w, h);
-             
-                // Call parent, but make it draw transparently (i.e. no background):
-                setOpaque(false);
-                super.paintComponent(g);
-                setOpaque(true);
-            }
-        };
+        methodList = new JList();
         methodList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         methodList.addListSelectionListener(this);
         methodList.addMouseListener(this);
         methodList.requestFocusInWindow();
         methodList.setCellRenderer(new CodeCompleteCellRenderer(suggestionType));
-        methodList.setBackground(new Color(255,255,235));  // pale yellow
+        methodList.setOpaque(false);
         
         // To allow continued typing of method name prefix, we map keys to equivalent actions
         // within the editor. I.e. typing a key inserts that key character.
@@ -287,12 +269,13 @@ public class CodeCompletionDisplay extends JFrame
         Dimension size = new Dimension(metrics.charWidth('m') * 30, metrics.getHeight() * 15);
 
         JScrollPane scrollPane;
-        scrollPane = new JScrollPane(methodList);
+        scrollPane = new GradientFillScrollPane(methodList, new Color(250,246,229),new Color(233,210,132));
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setPreferredSize(size);
         methodPanel.add(scrollPane);
+
         
-        scrollPane = new JScrollPane(methodDescription);
+        scrollPane = new GradientFillScrollPane(methodDescription, new Color(250,246,229), new Color(233,210,132));
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setPreferredSize(size);
 
