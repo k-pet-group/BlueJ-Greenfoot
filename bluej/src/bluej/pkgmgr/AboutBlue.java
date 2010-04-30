@@ -27,6 +27,8 @@ import bluej.utility.EscapeDialog;
 import bluej.utility.MultiLineLabel;
 import bluej.utility.DialogManager;
 
+import bluej.utility.Utility;
+import java.net.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -35,10 +37,12 @@ import javax.swing.*;
  * The BlueJ about box.
  *
  * @author  Michael Kolling
- * @version $Id: AboutBlue.java 7067 2010-02-01 00:06:35Z marionz $
+ * @version $Id: AboutBlue.java 7464 2010-04-30 14:52:54Z mik $
  */
 class AboutBlue extends EscapeDialog
 {
+    private static final String BLUEJ_URL = "http://www.bluej.org";
+
     public AboutBlue(JFrame parent, String version)
     {
         super(parent, Config.getString("menu.help.about"), true);
@@ -58,13 +62,21 @@ class AboutBlue extends EscapeDialog
         MultiLineLabel text = new MultiLineLabel(LEFT_ALIGNMENT, 6);
         text.setBackground(Color.white);
         text.addText(Config.getString("about.theTeam") + "\n ", false, true);
-        text.addText("      Neil Brown, Poul Henriksen,\n");
-        text.addText("      Michael K\u00F6lling"+ ", Davin McCall, \n"); 
-        text.addText("      Bruce Quig, Philip Stevens,\n");
-        text.addText("      John Rosenberg, Ian Utting,\n");
-        text.addText("      Marion Zalk\n");
+        text.addText("  Neil Brown\n");
+        text.addText("  Poul Henriksen\n");
+        text.addText("  Michael K\u00F6lling\n");
+        text.addText("  Davin McCall\n");
+        text.addText("  Bruce Quig\n");
+        text.addText("  Philip Stevens\n");
+        text.addText("  John Rosenberg\n");
+        text.addText("  Ian Utting\n");
+        text.addText("  Marion Zalk");
 
         aboutPanel.add(text, BorderLayout.CENTER);
+
+        JPanel bottom = new JPanel();
+        bottom.setLayout(new BoxLayout(bottom, BoxLayout.PAGE_AXIS));
+        bottom.setBackground(Color.white);
 
         // footer text
         MultiLineLabel bottomtext = new MultiLineLabel(LEFT_ALIGNMENT);
@@ -83,11 +95,36 @@ class AboutBlue extends EscapeDialog
                 " (" + System.getProperty("os.arch") + ")");
         bottomtext.addText(Config.getString("about.javahome") + " " + System.getProperty("java.home"));
         bottomtext.addText(" ");
-        bottomtext.addText(Config.getString("about.moreInfo"));
-        bottomtext.addText(" ");
         bottomtext.addText(Config.getString("about.logfile") + " " + Config.getUserConfigFile(Config.debugLogName));
+        bottomtext.addText(" ");
         
-        aboutPanel.add(bottomtext, BorderLayout.SOUTH);
+        bottom.add(bottomtext);
+
+        try {
+            final URL bluejURL = new URL(BLUEJ_URL);
+            JLabel urlField = new JLabel(BLUEJ_URL);
+            urlField.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            urlField.setForeground(Color.blue);
+            urlField.addMouseListener(new MouseAdapter()  {
+                public void mouseClicked(MouseEvent e) {
+                    Utility.openWebBrowser(bluejURL.toExternalForm());
+                }
+            });
+
+            JPanel urlPanel = new JPanel();
+            urlPanel.setBackground(Color.white);
+            urlPanel.setAlignmentX(0.0F);
+            urlPanel.add(new JLabel(Config.getString("about.moreInformation")));
+            urlPanel.add(urlField);
+
+            bottom.add(urlPanel);
+        }
+        catch (MalformedURLException exc) {
+            // should not happen - URL is constant
+        }
+
+        aboutPanel.add(bottom, BorderLayout.SOUTH);
+
 
         // Create Button Panel
         JPanel buttonPanel = new JPanel();
