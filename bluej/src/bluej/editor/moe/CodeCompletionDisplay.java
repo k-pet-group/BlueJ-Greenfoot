@@ -72,70 +72,6 @@ import bluej.utility.JavaUtils;
 public class CodeCompletionDisplay extends JFrame 
     implements ListSelectionListener, MouseListener
 {
-    private static class BorderCustomMargin implements Border
-    {
-        private Border wrappedBorder;
-        public BorderCustomMargin(Border border)
-        {
-            wrappedBorder = border;
-        }
-
-        public Insets getBorderInsets(Component c)
-        {
-            Insets insets = wrappedBorder.getBorderInsets(c);
-            insets.left += 10;
-            insets.right += 5;
-            insets.bottom += 10;
-            return insets;
-        }
-
-        public boolean isBorderOpaque()
-        {
-            return wrappedBorder.isBorderOpaque();
-        }
-
-        public void paintBorder(Component c, Graphics g, int x,
-                int y, int width, int height)
-        {
-            wrappedBorder.paintBorder(c, g, x, y, width, height);
-        }
-
-    }
-
-    private static class GradientFillScrollPane extends JScrollPane
-    {
-        private Color topColor;
-        private Color bottomColor;
-        
-        private GradientFillScrollPane(Component view, Color topColor, Color bottomColor)
-        {
-            super(view);
-            getViewport().setOpaque(false);
-            this.topColor = topColor;
-            this.bottomColor = bottomColor;
-        }
-
-        protected void paintComponent(Graphics g)
-        {
-            super.paintComponent(g);
-         
-            if (isOpaque() && g instanceof Graphics2D) {
-                Graphics2D g2d = (Graphics2D)g;
-                
-                int w = getWidth();
-                int h = getHeight();
-                 
-                // Paint a gradient from top to bottom:
-                GradientPaint gp = new GradientPaint(
-                    0, 0, topColor,
-                    0, h, bottomColor);
-   
-                g2d.setPaint(gp);
-                g2d.fillRect(0, 0, w, h);
-            }
-        }
-    }
-
     private MoeEditor editor;
     private AssistContent[] values;
     private String prefix;
@@ -460,6 +396,79 @@ public class CodeCompletionDisplay extends JFrame
         return sig.replace("<", "&lt;").replace(">", "&gt;");
     }
     
-    
+    /**
+     * A wrapper class for a border that adjusts the insets (margin) of the border
+     * 
+     * We get the border from a Swing helper as a Border, so hence we must wrap rather
+     * than inherit+override.
+     */
+    private static class BorderCustomMargin implements Border
+    {
+        private Border wrappedBorder;
+        public BorderCustomMargin(Border border)
+        {
+            wrappedBorder = border;
+        }
+
+        public Insets getBorderInsets(Component c)
+        {
+            Insets insets = wrappedBorder.getBorderInsets(c);
+            insets.left += 10;
+            insets.right += 5;
+            insets.bottom += 10;
+            return insets;
+        }
+
+        public boolean isBorderOpaque()
+        {
+            return wrappedBorder.isBorderOpaque();
+        }
+
+        public void paintBorder(Component c, Graphics g, int x,
+                int y, int width, int height)
+        {
+            wrappedBorder.paintBorder(c, g, x, y, width, height);
+        }
+
+    }
+
+    /**
+     * A JScrollPane variant that paints a gradient fill as the background.
+     * 
+     * Don't forget to setOpaque(false) on whatever is inside this pane.
+     */
+    private static class GradientFillScrollPane extends JScrollPane
+    {
+        private Color topColor;
+        private Color bottomColor;
+        
+        private GradientFillScrollPane(Component view, Color topColor, Color bottomColor)
+        {
+            super(view);
+            getViewport().setOpaque(false);
+            this.topColor = topColor;
+            this.bottomColor = bottomColor;
+        }
+
+        protected void paintComponent(Graphics g)
+        {
+            super.paintComponent(g);
+         
+            if (isOpaque() && g instanceof Graphics2D) {
+                Graphics2D g2d = (Graphics2D)g;
+                
+                int w = getWidth();
+                int h = getHeight();
+                 
+                // Paint a gradient from top to bottom:
+                GradientPaint gp = new GradientPaint(
+                    0, 0, topColor,
+                    0, h, bottomColor);
+   
+                g2d.setPaint(gp);
+                g2d.fillRect(0, 0, w, h);
+            }
+        }
+    }    
     
 }
