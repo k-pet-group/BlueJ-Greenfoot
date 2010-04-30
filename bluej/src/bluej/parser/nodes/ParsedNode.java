@@ -413,7 +413,7 @@ public abstract class ParsedNode extends RBTreeNode
      */
     protected CodeSuggestions getExpressionType(int pos, int nodePos, TypeEntity defaultType, Document document)
     {
-        NodeAndPosition<ParsedNode> child = getNodeTree().findNode(Math.max(pos - 1, 0), nodePos);
+        NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, nodePos);
         if (child != null) {
             return child.getNode().getExpressionType(pos, child.getPosition(), defaultType, document);
         }

@@ -375,6 +375,29 @@ public class CompletionTest extends TestCase
         assertNotNull(suggests.getSuggestionToken());
         assertEquals("c", suggests.getSuggestionToken().getText());
     }
+    
+    /**
+     * This is a regression test. Attempting code completion just after a semicolon
+     * could cause an exception.
+     */
+    public void testAfterStatement() throws Exception
+    {
+        String aClassSrc = "class A {\n" +   // 0 - 10
+            "public void m() {\n" +          // 10 - 28  
+            "  this(one,two,three);\n" +     // 28 - 51 
+            "}\n" +                          // 51 - 53
+            "}\n";                           // 53 - 55
+    
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(49, doc);
+        assertNotNull(suggests);
+        assertEquals("A", suggests.getSuggestionType().toString());
+    }
 
     
     // Yet to do:
