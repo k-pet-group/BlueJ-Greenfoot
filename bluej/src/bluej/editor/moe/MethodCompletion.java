@@ -64,11 +64,17 @@ public class MethodCompletion extends AssistContent
         dname = dname.replace('$', '.');
         return dname;
     }
+    
+    @Override
+    public String getDisplayMethodName()
+    {
+        return method.getName();
+    }
 
     @Override
-    public String getDisplayName()
+    public String getDisplayMethodParams()
     {
-        String displayName = method.getName() + "(";
+        String displayName = "(";
         List<JavaType> paramTypes = method.getParamTypes();
         for (Iterator<JavaType> i = paramTypes.iterator(); i.hasNext(); ) {
             JavaType paramType = convertToSolid(i.next());

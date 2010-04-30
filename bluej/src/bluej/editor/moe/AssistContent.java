@@ -28,8 +28,16 @@ package bluej.editor.moe;
  */
 public abstract class AssistContent
 {
+    /** Get just the name of the method, to display in the box */
+    public abstract String getDisplayMethodName();
+    /** Get the parameters of the method (including brackets), to display in the box */
+    public abstract String getDisplayMethodParams();
+    
     /** Get the text to display in the code completion box for this completion */
-    public abstract String getDisplayName();
+    public String getDisplayName()
+    {
+        return getDisplayMethodName() + getDisplayMethodParams();
+    }
     
     /** Get the completion text (to appear in front of the cursor/selection) */
     public abstract String getCompletionText();

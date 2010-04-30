@@ -408,13 +408,12 @@ public class CodeCompletionDisplay extends JFrame
                 jdHtml = "";
             }
             
-            String sig = selected.getReturnType() + " " + selected.getDisplayName();
-            sig = sig.replace("<", "&lt;");
-            sig = sig.replace(">", "&gt;");
-            sig = "<b>" + sig + "</b>";
+            String sig = escapeAngleBrackets(selected.getReturnType())
+                       + " <b>" + escapeAngleBrackets(selected.getDisplayMethodName()) + "</b>"
+                       + escapeAngleBrackets(selected.getDisplayMethodParams());
             
             jdHtml = "<h3>" + selected.getDeclaringClass() + "</h3>" + 
-                "<blockquote>" + sig + "</blockquote>" +
+                "<blockquote><tt>" + sig + "</tt></blockquote><br>" +
                 jdHtml;
 
             methodDescription.setText(jdHtml);
@@ -424,5 +423,12 @@ public class CodeCompletionDisplay extends JFrame
             methodDescription.setText("");
         }
     }
+
+    private static String escapeAngleBrackets(String sig)
+    {
+        return sig.replace("<", "&lt;").replace(">", "&gt;");
+    }
+    
+    
     
 }
