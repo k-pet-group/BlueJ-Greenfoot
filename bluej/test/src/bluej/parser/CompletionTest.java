@@ -399,6 +399,27 @@ public class CompletionTest extends TestCase
         assertEquals("A", suggests.getSuggestionType().toString());
     }
 
+    public void testThisDot() throws Exception
+    {
+        String aClassSrc = "class A {\n" +   // 0 - 10
+            "public void m() {\n" +          // 10 - 28  
+            "  this.\n" +                    // 28 - 36  this. <-- 35  
+            "}\n" +
+            "}\n";
+    
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(35, doc);
+        assertNotNull(suggests);
+        assertEquals("A", suggests.getSuggestionType().toString());
+        assertFalse(suggests.isStatic());
+    }
+
+    
     
     // Yet to do:
     

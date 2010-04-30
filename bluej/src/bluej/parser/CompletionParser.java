@@ -62,14 +62,16 @@ public class CompletionParser extends TextParser
      */
     public CompletionParser(EntityResolver resolver, Reader reader, JavaEntity enclosingType)
     {
-        super(resolver, reader);
+        // DAV access context may be static
+        super(resolver, reader, enclosingType, false);
         suggestionEntity = enclosingType;
     }
 
     public CompletionParser(EntityResolver resolver, Reader reader,
             JavaEntity enclosingType, int line, int col)
     {
-        super(resolver, reader, line, col);
+        // DAV access context may be static
+        super(resolver, reader, enclosingType, false, line, col);
         suggestionEntity = enclosingType;
     }
     
@@ -163,17 +165,6 @@ public class CompletionParser extends TextParser
                 fieldSuggestions = r.getDeclaredFields();
                 methodSuggestions = r.getDeclaredMethods();
             }
-        }
-    }
-    
-    @Override
-    protected void gotLiteral(LocatableToken token)
-    {
-        if (token.getType() == JavaTokenTypes.LITERAL_this) {
-            valueStack.push(suggestionEntity);
-        }
-        else {
-            super.gotLiteral(token);
         }
     }
     

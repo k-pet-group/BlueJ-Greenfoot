@@ -343,8 +343,14 @@ public class JavaParser
     
     protected void gotMemberAccess(LocatableToken token) { }
     
-    /** Saw a member method call (beginning), token is the method name; arguments to follow */
+    /** Saw a member method call (expr.methodName()), token is the method name; arguments to follow */
     protected void gotMemberCall(LocatableToken token) { }
+    
+    /** Saw a "naked" method call - "methodName(...)" */
+    protected void gotMethodCall(LocatableToken token) { }
+    
+    /** Saw a call to the constructor as this(...) or super(...) */
+    protected void gotConstructorCall(LocatableToken token) { }
     
     /** Saw a dot operator followed by end-of-file */
     protected void gotDotEOF(LocatableToken token)
@@ -2517,7 +2523,7 @@ public class JavaParser
             case 3: // IDENT
                 if (tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
                     // Method call
-                    gotMemberCall(token);
+                    gotMethodCall(token);
                     parseArgumentList(tokenStream.nextToken());
                 }
                 else if (tokenStream.LA(1).getType() == JavaTokenTypes.DOT &&

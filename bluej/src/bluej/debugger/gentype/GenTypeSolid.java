@@ -227,8 +227,8 @@ public abstract class GenTypeSolid extends JavaType
         }
         
         List<GenTypeParameter> lc = new ArrayList<GenTypeParameter>();
-        Iterator<GenTypeParameter> i = a.getTypeParamList().iterator();
-        Iterator<GenTypeParameter> j = b.getTypeParamList().iterator();
+        Iterator<? extends GenTypeParameter> i = a.getTypeParamList().iterator();
+        Iterator<? extends GenTypeParameter> j = b.getTypeParamList().iterator();
         
         GenTypeClass oa = a.getOuterType();
         GenTypeClass ob = b.getOuterType();

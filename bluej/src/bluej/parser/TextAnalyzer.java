@@ -129,7 +129,8 @@ public class TextAnalyzer
         
         EntityResolver resolver = getResolver(); 
         
-        TextParser parser = new TextParser(resolver, command);
+        TypeEntity accessType = new TypeEntity(Object.class);
+        TextParser parser = new TextParser(resolver, command, accessType, true);
         
         // check if it's an import statement
         try {
@@ -174,7 +175,7 @@ public class TextAnalyzer
         catch (Exception e) {}
         
         // Check if it's an expression
-        parser = new TextParser(resolver, command);
+        parser = new TextParser(resolver, command, accessType, true);
         try {
             parser.parseExpression();
             if (parser.atEnd()) {
@@ -519,10 +520,10 @@ public class TextAnalyzer
             newOuter = captureConversion(oldOuter, tparMap);
         
         // capture the arguments
-        List oldArgs = c.getTypeParamList();
-        List newArgs = new ArrayList(oldArgs.size());
-        Iterator i = oldArgs.iterator();
-        Iterator boundsIterator = c.getReflective().getTypeParams().iterator();
+        List<? extends GenTypeParameter> oldArgs = c.getTypeParamList();
+        List<GenTypeSolid> newArgs = new ArrayList<GenTypeSolid>(oldArgs.size());
+        Iterator<? extends GenTypeParameter> i = oldArgs.iterator();
+        Iterator<GenTypeDeclTpar> boundsIterator = c.getReflective().getTypeParams().iterator();
         while (i.hasNext()) {
             GenTypeParameter targ = (GenTypeParameter) i.next();
             GenTypeDeclTpar tpar = (GenTypeDeclTpar) boundsIterator.next();

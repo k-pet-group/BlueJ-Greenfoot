@@ -270,7 +270,7 @@ public class InfoParser extends EditorParser
         GenTypeClass ctype = type.asClass();
         if (ctype != null) {
             addTypeReference(ctype.getErasedType().toString());
-            List<GenTypeParameter> plist = ctype.getTypeParamList();
+            List<? extends GenTypeParameter> plist = ctype.getTypeParamList();
             for (GenTypeParameter param : plist) {
                 GenTypeSolid [] ubounds = param.getUpperBounds();
                 for (GenTypeSolid ubound : ubounds) {

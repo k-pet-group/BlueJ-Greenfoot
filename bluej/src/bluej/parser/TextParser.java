@@ -60,6 +60,8 @@ import bluej.utility.JavaReflective;
 public class TextParser extends JavaParser
 {
     private EntityResolver resolver;
+    private JavaEntity accessType;
+    private boolean staticAccess;
     
     protected Stack<JavaEntity> valueStack = new Stack<JavaEntity>();
     private int arrayCount = 0;
@@ -80,6 +82,8 @@ public class TextParser extends JavaParser
     private static final int BAD_CAST_OPERATOR = CAST_OPERATOR + 1;
     private static final int PAREN_OPERATOR = BAD_CAST_OPERATOR + 1;
     private static final int MEMBER_CALL_OP = PAREN_OPERATOR + 1;
+    private static final int METHOD_CALL_OP = MEMBER_CALL_OP + 1;
+    private static final int CONSTRUCTOR_CALL_OP = METHOD_CALL_OP + 1;
     
     private static final int STATE_NONE = 0;
     private static final int STATE_NEW = 1;  // just saw "new"
@@ -90,21 +94,26 @@ public class TextParser extends JavaParser
     // Arguments for a method or constructor call are added to the list at the top of this stack
     private Stack<List<JavaEntity>> argumentStack = new Stack<List<JavaEntity>>();
     
-    public TextParser(EntityResolver resolver, Reader r)
+    public TextParser(EntityResolver resolver, Reader r, JavaEntity accessType, boolean staticAccess)
     {
         super(r);
         this.resolver = resolver;
+        this.accessType = accessType;
+        this.staticAccess = staticAccess;
     }
     
-    public TextParser(EntityResolver resolver, Reader r, int line, int col)
+    public TextParser(EntityResolver resolver, Reader r, JavaEntity accessType, boolean staticAccess,
+            int line, int col)
     {
         super(r, line, col);
         this.resolver = resolver;
+        this.accessType = accessType;
+        this.staticAccess = staticAccess;
     }
     
-    public TextParser(EntityResolver resolver, String s)
+    public TextParser(EntityResolver resolver, String s, JavaEntity accessType, boolean staticAccess)
     {
-        this(resolver, new StringReader(s));
+        this(resolver, new StringReader(s), accessType, staticAccess);
     }
     
     public boolean atEnd()
@@ -164,6 +173,8 @@ public class TextParser extends JavaParser
         case BAD_CAST_OPERATOR:
             return 50;
         case MEMBER_CALL_OP:
+        case METHOD_CALL_OP:
+        case CONSTRUCTOR_CALL_OP:
             return 100;
         default:
         }
@@ -283,6 +294,36 @@ public class TextParser extends JavaParser
             targetType = stype;
         }
 
+        // Gather the argument types.
+        List<JavaEntity> argList = argumentStack.pop();
+        JavaType [] argTypes = new JavaType[argList.size()];
+        for (int i = 0; i < argTypes.length; i++) {
+            JavaEntity cent = argList.get(i).resolveAsValue();
+            if (cent == null) {
+                valueStack.push(new ErrorEntity());
+                return;
+            }
+            argTypes[i] = cent.getType().getCapture();
+        }
+
+        List<GenTypeClass> typeArgs = Collections.emptyList(); // TODO!
+
+        ArrayList<MethodCallDesc> suitable = TextAnalyzer.getSuitableMethods(op.getToken().getText(),
+                targetType, argTypes, typeArgs);
+        // DAV fix
+        // assume for now all candidates have override-equivalent signatures
+        if (suitable.size() == 0) {
+            valueStack.push(new ErrorEntity());
+            return;
+        }
+        
+        valueStack.push(new ValueEntity(suitable.get(0).retType));
+    }
+    
+    private void processMethodCall(Operator op)
+    {
+        GenTypeSolid targetType = null; // DAV
+        
         // Gather the argument types.
         List<JavaEntity> argList = argumentStack.pop();
         JavaType [] argTypes = new JavaType[argList.size()];
@@ -439,8 +480,22 @@ public class TextParser extends JavaParser
             ValueEntity ent = new ValueEntity(new GenTypeClass(new JavaReflective(String.class)));
             valueStack.push(ent);
         }
+        else if (token.getType() == JavaTokenTypes.LITERAL_this) {
+            if (staticAccess) {
+                valueStack.push(new ErrorEntity());
+            }
+            else {
+                JavaType type = accessType.getType();
+                if (type != null) {
+                    valueStack.push(new ValueEntity(type));
+                }
+                else {
+                    valueStack.push(new ErrorEntity());
+                }
+            }
+        }
         else {
-            // LITERAL_this or LITERAL_super
+            // DAV LITERAL_super
             valueStack.push(new ErrorEntity());
         }
     }
@@ -470,8 +525,19 @@ public class TextParser extends JavaParser
     @Override
     protected void gotMemberCall(LocatableToken token)
     {
-        //valueStack.push(UnresolvedEntity.getEntity(resolver, token.getText(), ""));
         operatorStack.push(new Operator(MEMBER_CALL_OP, token));
+    }
+    
+    @Override
+    protected void gotMethodCall(LocatableToken token)
+    {
+        operatorStack.push(new Operator(METHOD_CALL_OP, token));
+    }
+    
+    @Override
+    protected void gotConstructorCall(LocatableToken token)
+    {
+        operatorStack.push(new Operator(METHOD_CALL_OP, token));
     }
     
     @Override
@@ -827,6 +893,9 @@ public class TextParser extends JavaParser
             }
             else if (top.getType() == MEMBER_CALL_OP) {
                 processMemberCall(top);
+            }
+            else if (top.getType() == METHOD_CALL_OP) {
+                processMethodCall(top);
             }
             else {
                 // ??!!

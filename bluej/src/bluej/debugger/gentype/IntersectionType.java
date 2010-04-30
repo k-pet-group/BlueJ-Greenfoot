@@ -129,8 +129,8 @@ public class IntersectionType extends GenTypeSolid
         List<GenTypeParameter> newParams = null;
         if (a.params != null) {
             newParams = new ArrayList<GenTypeParameter>();
-            Iterator<GenTypeParameter> ia = a.params.iterator();
-            Iterator<GenTypeParameter> ib = b.params.iterator();
+            Iterator<? extends GenTypeParameter> ia = a.params.iterator();
+            Iterator<? extends GenTypeParameter> ib = b.params.iterator();
             while (ia.hasNext()) {
                 GenTypeParameter tpa = ia.next();
                 GenTypeParameter tpb = ib.next();
@@ -215,7 +215,7 @@ public class IntersectionType extends GenTypeSolid
         return false;
     }
 
-    public void getParamsFromTemplate(Map map, GenTypeParameter template)
+    public void getParamsFromTemplate(Map<String,GenTypeParameter> map, GenTypeParameter template)
     {
         // This won't be needed
         return;

@@ -35,7 +35,7 @@ public class GenTypeClass extends GenTypeSolid
 {
     // ---------- Instance fields -----------
     
-    protected List<GenTypeParameter> params = null; // List of GenTypeParameterizable's: type parameters
+    protected List<? extends GenTypeParameter> params = null; // List of GenTypeParameterizable's: type parameters
     protected Reflective reflective = null;
     protected GenTypeClass outer = null; // outer class of this class
     
@@ -76,7 +76,7 @@ public class GenTypeClass extends GenTypeSolid
      * @param params  A list of GenTypeParameter giving the type
      *                  parameters in declaration order
      */
-    public GenTypeClass(Reflective r, List<GenTypeParameter> params, GenTypeClass outer)
+    public GenTypeClass(Reflective r, List<? extends GenTypeParameter> params, GenTypeClass outer)
     {
         reflective = r;
         if( params != null && ! params.isEmpty() )
@@ -103,7 +103,9 @@ public class GenTypeClass extends GenTypeSolid
         if (mparams == null)
             return;
         
-        params = new ArrayList<GenTypeParameter>();
+        List<GenTypeParameter> params = new ArrayList<GenTypeParameter>();
+        this.params = params;
+        
         Iterator<GenTypeDeclTpar> declParmsI = r.getTypeParams().iterator();
         while( declParmsI.hasNext() ) {
             GenTypeDeclTpar next = declParmsI.next();
@@ -178,7 +180,7 @@ public class GenTypeClass extends GenTypeSolid
      * Return an unmodifiable list of the type parameters applied to the
      * innermost class in this generic type. 
      */
-    public List<GenTypeParameter> getTypeParamList()
+    public List<? extends GenTypeParameter> getTypeParamList()
     {
         if (params == null)
             return Collections.emptyList();
@@ -266,7 +268,7 @@ public class GenTypeClass extends GenTypeSolid
         if(params == null)
             return baseClass;
         String r = baseClass + '<';
-        for(Iterator<GenTypeParameter> i = params.iterator(); i.hasNext(); ) {
+        for(Iterator<? extends GenTypeParameter> i = params.iterator(); i.hasNext(); ) {
             r += i.next().toTypeArgString(nt);
             if( i.hasNext() )
                 r += ',';
@@ -318,8 +320,8 @@ public class GenTypeClass extends GenTypeSolid
         if (params != null && oClass.params == null)
             return false;
         
-        Iterator<GenTypeParameter> i = params.iterator();
-        Iterator<GenTypeParameter> j = oClass.params.iterator();
+        Iterator<? extends GenTypeParameter> i = params.iterator();
+        Iterator<? extends GenTypeParameter> j = oClass.params.iterator();
         
         // All the parameter types must match...
         while( i.hasNext() ) {
@@ -381,11 +383,11 @@ public class GenTypeClass extends GenTypeSolid
                 return false;
             while (cclass != null) {
                 if (cclass.params != null) {
-                    Iterator i = cclass.params.iterator();
-                    Iterator j = tclass.params.iterator();
+                    Iterator<? extends GenTypeParameter> i = cclass.params.iterator();
+                    Iterator<? extends GenTypeParameter> j = tclass.params.iterator();
                     while (i.hasNext()) {
-                        GenTypeParameter cpar = (GenTypeParameter) i.next();
-                        GenTypeParameter tpar = (GenTypeParameter) j.next();
+                        GenTypeParameter cpar = i.next();
+                        GenTypeParameter tpar = j.next();
                         if (! cpar.contains(tpar))
                             return false;
                     }
