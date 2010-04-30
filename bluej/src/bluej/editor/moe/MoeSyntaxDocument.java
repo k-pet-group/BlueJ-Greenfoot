@@ -137,7 +137,7 @@ public class MoeSyntaxDocument extends PlainDocument
                 while (cn != null && cn.getEnd() == pos) {
                     cn = cn.nextSibling();
                 }
-                while (cn != null) {
+                while (cn != null && cn.getPosition() <= pos) {
                     ppos = cn.getPosition();
                     pn = cn.getNode();
                     cn = pn.findNodeAt(nap.getPosition(), ppos);
