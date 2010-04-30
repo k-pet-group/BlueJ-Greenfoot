@@ -544,6 +544,7 @@ public abstract class JavaUtils
             StringBuilder rest = new StringBuilder();
             StringBuilder params = new StringBuilder();
             params.append("<h3>Parameters</h3>").append("<table border=0>");
+            boolean hasParamDoc = false;
             
             for (String block : blocks) {
                 if (block.startsWith("param ")) {
@@ -564,6 +565,7 @@ public abstract class JavaUtils
                     params.append("</td><td>");
                     params.append(makeGreen(" - " + paramDesc));
                     params.append("</td></tr>");
+                    hasParamDoc = true;
                 } else {
                     rest.append(convertBlockTag(block)).append("<br>");
                 }
@@ -571,7 +573,7 @@ public abstract class JavaUtils
             
             params.append("</table><p>");
             
-            String result = makeGreen(header) + params.toString() + rest.toString();
+            String result = makeGreen(header) + (hasParamDoc ? params.toString() : "<p>") + rest.toString();
             return result;
         }
         
