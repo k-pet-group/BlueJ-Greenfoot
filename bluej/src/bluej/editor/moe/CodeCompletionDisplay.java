@@ -26,6 +26,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -158,7 +161,34 @@ public class CodeCompletionDisplay extends JFrame
         methodDescription.setInputMap(JComponent.WHEN_FOCUSED, inputMap);
         methodDescription.setBackground(new Color(255,255,205)); // yellowish
         
-        methodList = new JList();
+        methodList = new JList() {
+            protected void paintComponent(Graphics g)
+            {
+                if ( !isOpaque( ) || !(g instanceof Graphics2D))
+                {
+                    super.paintComponent( g );
+                    return;
+                }
+             
+                Graphics2D g2d = (Graphics2D)g;
+                
+                int w = getWidth();
+                int h = getHeight();
+                 
+                // Paint a gradient from top to bottom:
+                GradientPaint gp = new GradientPaint(
+                    0, 0, new Color(250,246,229),
+                    0, h, new Color(246,234,198) );
+
+                g2d.setPaint(gp);
+                g2d.fillRect(0, 0, w, h);
+             
+                // Call parent, but make it draw transparently (i.e. no background):
+                setOpaque(false);
+                super.paintComponent(g);
+                setOpaque(true);
+            }
+        };
         methodList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         methodList.addListSelectionListener(this);
         methodList.addMouseListener(this);
