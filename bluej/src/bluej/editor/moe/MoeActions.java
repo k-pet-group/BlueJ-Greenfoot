@@ -774,7 +774,7 @@ public final class MoeActions
         {
             MoeEditor editor = getEditor(e);
             editor.undoManager.beginCompoundEdit();
-            insertTemplate(getTextComponent(e), "method");
+            insertTemplate(getTextComponent(e), editor, "method");
             editor.undoManager.endCompoundEdit();
         }
     }
@@ -1699,32 +1699,33 @@ public final class MoeActions
      * 
      * @param textPane
      *            The editor pane to enter the text into
+     * @param editor 
      * @param templateName
      *            The name of the template (without path or suffix)
      */
-    private void insertTemplate(JTextComponent textPane, String templateName)
+    private void insertTemplate(JTextComponent textPane, MoeEditor editor, String templateName)
     {
         try {
             File template = Config.getTemplateFile(templateName);
             BufferedReader in = new BufferedReader(new FileReader(template));
-            int column = getCurrentColumn(textPane);
-            if (column > 40)
-                column = 40;
+            int addedTextLength = 0;
             String line = in.readLine();
             while (line != null) {
                 while ((line.length() > 0) && (line.charAt(0) == '\t')) {
-                    insertSpacedTab(textPane);
                     line = line.substring(1);
                 }
+                addedTextLength += line.length() + 1;
                 textPane.replaceSelection(line);
                 textPane.replaceSelection("\n");
-                textPane.replaceSelection(spaces.substring(0, column)); // indent
                 line = in.readLine();
             }
             // The position of the caret should be in the right place now.
             // Previously it was set to the position it was at before adding the
             // template, but that resulted in errors when selecting the entire
             // contents of the class before inserting the template.
+            int caretPos = editor.getCaretPosition();
+            AutoIndentInformation info = MoeIndent.calculateIndentsAndApply(editor.getSourceDocument(),caretPos - addedTextLength,caretPos+2,caretPos);
+            editor.setCaretPositionForward(info.getNewCaretPosition() - editor.getCaretPosition());
         }
         catch (IOException exc) {
             Debug.reportError("Could not read method template.");
