@@ -560,9 +560,9 @@ public abstract class JavaUtils
                     String paramDesc = block.substring(k);
                     
                     params.append("<tr><td valign=\"top\">&nbsp;&nbsp;&nbsp;");
-                    params.append(paramName);
-                    params.append("</td><td> - ");
-                    params.append(paramDesc);
+                    params.append(makeGreen(paramName));
+                    params.append("</td><td>");
+                    params.append(makeGreen(" - " + paramDesc));
                     params.append("</td></tr>");
                 } else {
                     rest.append(convertBlockTag(block)).append("<br>");
@@ -571,11 +571,16 @@ public abstract class JavaUtils
             
             params.append("</table><p>");
             
-            String result =  header + params.toString() + rest.toString();
+            String result = makeGreen(header) + params.toString() + rest.toString();
             return result;
         }
         
-        return javadocString;
+        return makeGreen(javadocString);
+    }
+    
+    private static String makeGreen(String text)
+    {
+        return "<font color='green'>" + text + "</font>";
     }
 
     private static List<String> getBlockTags(String[] lines)
@@ -604,7 +609,7 @@ public abstract class JavaUtils
         while (k < block.length() && !Character.isWhitespace(block.charAt(k)))
             k++;
         
-        String r = "<b>" + block.substring(0, k) + "</b> - " + block.substring(k);
+        String r = "<b>" + block.substring(0, k) + "</b> - " + makeGreen(block.substring(k));
         
         return r;
     }
