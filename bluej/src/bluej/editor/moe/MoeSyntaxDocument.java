@@ -180,6 +180,13 @@ public class MoeSyntaxDocument extends PlainDocument
             else if (existing.getPosition() <= pos) {
                 int nsize = (pos + size) - existing.getPosition();
                 if (nsize > existing.getSize()) {
+                    NodeAndPosition<ReparseRecord> next = existing.nextSibling();
+                    while (next != null && next.getPosition() <= pos + size) {
+                        nsize = Math.max(nsize, next.getEnd() - pos);
+                        NodeAndPosition<ReparseRecord> nnext = next.nextSibling();
+                        next.getNode().remove();
+                        next = nnext;
+                    }
                     existing.getNode().setSize(nsize);
                 }
                 return;
