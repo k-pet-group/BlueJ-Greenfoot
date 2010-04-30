@@ -104,16 +104,40 @@ public abstract class JavaParentNode extends ParentParsedNode
         insertVariable(child, position, size);
     }
     
+    @Override
     public void childChangedName(ParsedNode child, String oldName)
     {
+        super.childChangedName(child, oldName);
         if (child.getNodeType() == NODETYPE_TYPEDEF) {
             if (classNodes.get(oldName) == child) {
                 classNodes.remove(oldName);
             }
             classNodes.put(child.getName(), child);
         }
+        if (child.getNodeType() == NODETYPE_FIELD) {
+            if (variables.get(oldName) == child) {
+                variables.remove(oldName);
+            }
+            variables.put(child.getName(), (FieldNode) child);
+        }
     }
 
+    @Override
+    protected void childRemoved(NodeAndPosition<ParsedNode> child,
+            NodeStructureListener listener)
+    {
+        super.childRemoved(child, listener);
+        String childName = child.getNode().getName();
+        if (childName != null) {
+            if (classNodes.get(childName) == child.getNode()) {
+                classNodes.remove(childName);
+            }
+            if (variables.get(childName) == child.getNode()) {
+                variables.remove(childName);
+            }
+        }
+    }
+    
     /**
      * Find a type node for a type definition with the given name.
      */

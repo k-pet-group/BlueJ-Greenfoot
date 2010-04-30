@@ -66,6 +66,29 @@ public class TypeInnerNode extends IncrementalParsingNode
         methodSet.add(method);
     }
     
+    @Override
+    public void childChangedName(ParsedNode child, String oldName)
+    {
+        super.childChangedName(child, oldName);
+        if (child.getNodeType() == NODETYPE_METHODDEF) {
+            Set<MethodNode> methodSet = methods.get(oldName);
+            methodSet.remove(child);
+            
+            methodAdded((MethodNode) child);
+        }
+    }
+    
+    @Override
+    protected void childRemoved(NodeAndPosition<ParsedNode> child,
+            NodeStructureListener listener)
+    {
+        super.childRemoved(child, listener);
+        if (child.getNode().getNodeType() == NODETYPE_METHODDEF) {
+            Set<MethodNode> methodSet = methods.get(child.getNode().getName());
+            methodSet.remove(child.getNode());
+        }
+    }
+    
     /**
      * Get the fields defined in this type.
      */
