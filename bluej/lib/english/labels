@@ -760,7 +760,7 @@ about.vm=Virtual machine:
 about.runningOn=Running on:
 about.javahome=Java Home:
 about.logfile=Debug log file:
-about.moreInfo=More information is at www.bluej.org.
+about.moreInformation=For more information, see
 about.theTeam=The BlueJ team:
 
 # Work Indicator
