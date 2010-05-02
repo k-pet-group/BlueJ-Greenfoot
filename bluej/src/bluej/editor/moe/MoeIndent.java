@@ -29,11 +29,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 
 import bluej.parser.nodes.CommentNode;
-import bluej.parser.nodes.ContainerNode;
-import bluej.parser.nodes.ExpressionNode;
-import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.ParsedNode;
-import bluej.parser.nodes.TypeInnerNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.utility.Debug;
 
@@ -227,26 +223,12 @@ public class MoeIndent
         {
             String newIndent = existingIndent;
 
-            // I realise that using instanceof is sinful, but because I need
-            // to know the type of both the parent and the child node, there is no
-            // easy way to fold this method into either the parent or child node type
-            // (either would still use instanceof on the other), so I'm keeping
-            // it here for now:         
-
-            if (child instanceof TypeInnerNode)
+            if (child.isInner()) {
                 newIndent += STANDARD_INDENT;
-            else if (parent instanceof MethodNode
-                    && !(child instanceof CommentNode))
-                // comments that are children of methods are actually the comment
-                // before the method, and thus shouldn't be indented any differently
-                newIndent += STANDARD_INDENT;
-            else if (parent instanceof ContainerNode)
-                newIndent += STANDARD_INDENT;
-            else if (parent instanceof ExpressionNode
-                    && child instanceof ExpressionNode)
-                // Expressions that are children of expressions are function arguments,
-                // and thus use the continuation indent:
+            }
+            else if (! child.isContainer() && ! parent.isContainer() && ! parent.isInner()) {
                 newIndent += CONTINUATION_INDENT;
+            }
 
             return new NodeIndentCalculator(newIndent, child);
         }
