@@ -2503,6 +2503,11 @@ public class JavaParser
             switch (index) {
             case 1: // LITERAL_new
                 // new XYZ(...)
+                if (tokenStream.LA(1).getType() == JavaTokenTypes.EOF) {
+                    gotIdentifier(token);
+                    endExpression(tokenStream.LA(1));
+                    return;
+                }
                 parseNewExpression(token);
                 break;
             case 2: // LCURLY
@@ -2763,23 +2768,36 @@ public class JavaParser
                     // Handle dot operator specially, as there are some special cases
                     LocatableToken opToken = token;
                     token = tokenStream.nextToken();
-                    if (token.getType() == JavaTokenTypes.LITERAL_class) {
-                        // Class literal: continue and look for another operator
-                        continue;
-                    }
-                    else if (token.getType() == JavaTokenTypes.EOF) {
+                    if (token.getType() == JavaTokenTypes.EOF) {
                         // Not valid, but may be useful for subclasses
                         gotDotEOF(opToken);
                         break opLoop;
+                    }
+                    LocatableToken la1 = tokenStream.LA(1);
+                    if (la1.getType() == JavaTokenTypes.EOF
+                            && la1.getColumn() == token.getEndColumn()
+                            && la1.getLine() == token.getEndLine()) {
+                        // Something that might look like a keyword, but might in fact
+                        // be partially complete identifier.
+                        String tokText = token.getText();
+                        if (tokText != null && tokText.length() > 0) {
+                            if (Character.isJavaIdentifierStart(tokText.charAt(0))) {
+                                gotMemberAccessEOF(token);
+                                // break opLoop;
+                                continue;
+                            }
+                        }
+                    }
+                    
+                    if (token.getType() == JavaTokenTypes.LITERAL_class) {
+                        // Class literal: continue and look for another operator
+                        continue;
                     }
                     else if (token.getType() == JavaTokenTypes.IDENT) {
                         if (tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
                             // Method call
                             gotMemberCall(token);
                             parseArgumentList(tokenStream.nextToken());
-                        }
-                        else if (tokenStream.LA(1).getType() == JavaTokenTypes.EOF) {
-                            gotMemberAccessEOF(token);
                         }
                         else {
                             gotMemberAccess(token);

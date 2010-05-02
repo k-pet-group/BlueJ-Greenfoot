@@ -434,7 +434,7 @@ public class CompletionTest extends TestCase
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
         
-        CodeSuggestions suggests = aNode.getExpressionType(35, doc);
+        CodeSuggestions suggests = aNode.getExpressionType(38, doc);
         assertNotNull(suggests);
         assertEquals("A", suggests.getSuggestionType().toString());
         assertFalse(suggests.isStatic());
@@ -463,7 +463,7 @@ public class CompletionTest extends TestCase
         assertFalse(suggests.isStatic());
         LocatableToken stoken = suggests.getSuggestionToken();
         assertNotNull(stoken);
-        assertEquals("for", stoken.getText());
+        assertEquals("new", stoken.getText());
     }
     
     public void testCompletionOnKeyword3() throws Exception
@@ -486,7 +486,7 @@ public class CompletionTest extends TestCase
         assertFalse(suggests.isStatic());
         LocatableToken stoken = suggests.getSuggestionToken();
         assertNotNull(stoken);
-        assertEquals("for", stoken.getText());
+        assertEquals("new", stoken.getText());
     }
 
     
