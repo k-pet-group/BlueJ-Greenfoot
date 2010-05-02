@@ -35,6 +35,7 @@ import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageResolver;
+import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.ParsedCUNode;
 
 public class CompletionTest extends TestCase
@@ -419,7 +420,75 @@ public class CompletionTest extends TestCase
         assertFalse(suggests.isStatic());
     }
 
+    public void testCompletionOnKeyword1() throws Exception
+    {
+        String aClassSrc = "class A {\n" +   // 0 - 10
+            "public void m() {\n" +          // 10 - 28  
+            "  this.for\n" +                 // 28 - 39  this.for <-- 38  
+            "}\n" +
+            "}\n";
     
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(35, doc);
+        assertNotNull(suggests);
+        assertEquals("A", suggests.getSuggestionType().toString());
+        assertFalse(suggests.isStatic());
+        LocatableToken stoken = suggests.getSuggestionToken();
+        assertNotNull(stoken);
+        assertEquals("for", stoken.getText());
+    }
+    
+    public void testCompletionOnKeyword2() throws Exception
+    {
+        String aClassSrc = "class A {\n" +   // 0 - 10
+            "public void m() {\n" +          // 10 - 28  
+            "  this.new\n" +                 // 28 - 39  this.for <-- 38  
+            "}\n" +
+            "}\n";
+    
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(38, doc);
+        assertNotNull(suggests);
+        assertEquals("A", suggests.getSuggestionType().toString());
+        assertFalse(suggests.isStatic());
+        LocatableToken stoken = suggests.getSuggestionToken();
+        assertNotNull(stoken);
+        assertEquals("for", stoken.getText());
+    }
+    
+    public void testCompletionOnKeyword3() throws Exception
+    {
+        String aClassSrc = "class A {\n" +   // 0 - 10
+            "public void m() {\n" +          // 10 - 28  
+            "  new\n" +                 // 28 - 34  this.for <-- 33  
+            "}\n" +
+            "}\n";
+    
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(33, doc);
+        assertNotNull(suggests);
+        assertEquals("A", suggests.getSuggestionType().toString());
+        assertFalse(suggests.isStatic());
+        LocatableToken stoken = suggests.getSuggestionToken();
+        assertNotNull(stoken);
+        assertEquals("for", stoken.getText());
+    }
+
     
     // Yet to do:
     
