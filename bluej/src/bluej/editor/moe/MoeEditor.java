@@ -1373,7 +1373,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         String replaceText = smartFormat(searchString, replaceString);
         insertText(replaceText, true);
         //move the caret back to where it was before the replace
-        moveCaretPosition(caretPos);
+        setCaretPosition(caretPos);
         finder.find(true);
         //editor.writeMessage("Replaced " + count + " instances of " + searchString);
         writeMessage("Replaced an instance of " + 
@@ -3252,10 +3252,11 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void setCaretPositionForward (int caretPos)
     {
-        if (currentTextPane.getCaretPosition()+caretPos<=getDocumentLength()){
-            currentTextPane.setCaretPosition(currentTextPane.getCaretPosition()+caretPos);
-        }else 
+        if (currentTextPane.getCaretPosition() + caretPos <= getDocumentLength()) {
+            currentTextPane.setCaretPosition(currentTextPane.getCaretPosition() + caretPos);
+        } else { 
             currentTextPane.setCaretPosition(getDocumentLength());
+        }
     }
 
     public int getCaretPosition ()
@@ -3263,7 +3264,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         return sourcePane.getCaretPosition();
     }
 
-    private void setCaretPosition (int pos)
+    public void setCaretPosition(int pos)
     {
         sourcePane.setCaretPosition(pos);
     }
@@ -3271,15 +3272,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     public int getDocumentLength()
     {
         return document.getLength();
-    }
-
-    /**
-     * pos - the position to move the caret to
-     */
-    public void moveCaretPosition(int pos)
-    {
-        if (pos<=getDocumentLength() && pos>=0)
-            setCaretPosition(pos);
     }
 
     /**
@@ -3378,6 +3370,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         return true;
     }
 
+    /**
+     * Create and pop up the content assist (code completion) dialog.
+     */
     protected void createContentAssist()
     {
         //need to recreate the dialog each time it is pressed as the values may be different 
@@ -3409,7 +3404,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * Close the content assist popup window.
+     * Close the content assist (code completion) popup window.
      */
     private void closeContentAssist()
     {
@@ -3575,8 +3570,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         //remove selection and remove highlighting 
         int caretPos=getCaretPosition();
-        if (getSelectionBegin()!=null)
-            moveCaretPosition(getSelectionBegin().getColumn());
+        if (getSelectionBegin()!=null) {
+            setCaretPosition(getSelectionBegin().getColumn());
+        }
         removeSearchHighlights();
         String searchString = finder.getSearchString();
         boolean isMatchCase=finder.getMatchCase();
@@ -3592,18 +3588,17 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         }
 
         removeSearchHighlights();
-        moveCaretPosition(caretPos);
+        setCaretPosition(caretPos);
 
-        if(count > 0)
-            //editor.writeMessage("Replaced " + count + " instances of " + searchString);
+        if(count > 0) {
             writeMessage(Config.getString("editor.replaceAll.replaced") +
                     count + Config.getString("editor.replaceAll.intancesOf") + 
                     searchString);
-        else
-            //editor.writeMessage("String " + searchString + " not found. Nothing replaced.");
+        }
+        else {
             writeMessage(Config.getString("editor.replaceAll.string") + 
                     searchString + Config.getString("editor.replaceAll.notFoundNothingReplaced"));
-
+        }
     }
 
     /**
@@ -3630,7 +3625,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     /**
      * isReplacePanelVisible returns whether the replace panel is visible
-     * @return boolean
      */
     protected boolean isReplacePanelVisible()
     {
@@ -3639,7 +3633,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     /**
      * isReplacePopulated returns whether the replace textfield is (validly) populated
-     * @return boolean
      */
     protected boolean isReplacePopulated()
     {
@@ -3649,7 +3642,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /**
      * enableReplaceButtons calls the function in the replace panel to either 
      * enable or disable the once and all buttons
-     * @param enable
      */
     protected void enableReplaceButtons(boolean enable)
     {
@@ -3666,78 +3658,32 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * Completes the word in the editor with the word requested
-     * @param text word requested as the completion for the text
-     */
-    public void codeComplete(String text)
-    {
-        int caretPos=getCaretPosition();
-        int caretBack=caretPos-text.length();
-        String insertText=text;
-        if (caretBack<0)
-            caretBack=0;
-        try {
-            //the max size of the string already there
-            String docText=currentTextPane.getText(caretBack, text.length()).toLowerCase();
-            /* dot specific does not seem necessary at this time
-            if (docText.indexOf('.')==(text.length()-1))
-            {
-            }
-             */
-            //check if the text is already partially completed
-            //do a pattern match and decide from there
-            char ch=text.charAt(0);
-            int charIndex=docText.indexOf(ch);
-            while (charIndex>-1) {
-                //get the length of the resultant string for comparison
-                String docTextSubstring=docText.substring(charIndex);
-                int sLength= docTextSubstring.length();
-                if (docTextSubstring.equalsIgnoreCase(text.substring(0, sLength))){
-                    //removing the text in case there was a case difference
-                    currentTextPane.getDocument().remove(getCaretPosition()-sLength, sLength);
-                    charIndex=-1;
-                }               
-                //it has not been found so try further along the string
-                else charIndex=docText.indexOf(text.charAt(0), charIndex+1);                
-            }
-            currentTextPane.getDocument().insertString(getCaretPosition(), insertText, null);
-        } catch (BadLocationException e) {
-            Debug.reportError("Error in editor", e);
-        }
-    }
-    
-    /**
      * When the mouse is clicked away from the selected text, 
      * the replace buttons need to be disabled
      */
-    public void mouseClicked(MouseEvent e) {
+    public void mouseClicked(MouseEvent e)
+    {
         if (getSelectedText()==null){
             enableReplaceButtons(false);
         }  
     }
 
-    public void mouseEntered(MouseEvent e) {
-        
-    }
+    public void mouseEntered(MouseEvent e) { }
 
+    public void mouseExited(MouseEvent e) { }
 
-    public void mouseExited(MouseEvent e) {
-        
-    }
-
-
-    public void mousePressed(MouseEvent e) {
+    public void mousePressed(MouseEvent e)
+    {
         showPopup(e);
     }
 
-
-    public void mouseReleased(MouseEvent e) {
+    public void mouseReleased(MouseEvent e)
+    {
         showPopup(e);
     }
     
     /**
-     * showPopup displays the popup menu if triggered
-     * @param e MouseEvent
+     * Displays the popup menu, if triggered by the given mouse event
      */
     private void showPopup(MouseEvent e) {
         if (e.isPopupTrigger()) {
@@ -3748,24 +3694,22 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
  
     /**
      * Populates the find field and requests focus
-     * @param text
      */
-    public void setFindTextfield(String text){
+    public void setFindTextfield(String text)
+    {
         finder.populateFindTextfield(text);
     }
     
     /**
-	* Sets the dividerpanel to expand/collapse the naviview
-	**/
+     * Sets the dividerpanel to expand/collapse the naviview
+     */
     public void setDividerPanelExpanded(boolean expanded)
     {
         dividerPanel.setExpanded(expanded);
     }
     
     /**
-     * Checks in the props file if there is a value set for whether the naviview is expanded/collapsed
-     * If there is no value there, defaults it to the value in the prefmgr (which is the last the value saved)
-     * @return
+     * Determines whether the Naviview should initially be expanded or not.
      */
     protected boolean getNaviviewExpandedProperty()
     {
@@ -3776,21 +3720,5 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         else {
             return PrefMgr.getNaviviewExpanded();
         }
-    }
-
-    /**
-     * Returns whether the naviview is expanded or not (from the divider panel)
-     */
-    public boolean isNaviviewExpanded() 
-    {
-        return dividerPanel.isExpanded();
-    }
-
-    /**
-     * Sets the naviview to expanded or not (from the divider panel)
-     */
-    public void setNaviviewVisibile(boolean visible) 
-    {
-        dividerPanel.setExpanded(visible);
     }
 }

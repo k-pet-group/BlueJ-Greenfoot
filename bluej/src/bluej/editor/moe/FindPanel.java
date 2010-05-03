@@ -349,7 +349,11 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         SourceLocation selBegin = editor.getSelectionBegin();
         if (selBegin != null) {
             // Avoid finding the same instance we found last time
-            editor.moveCaretPosition(editor.getOffsetFromLineColumn(selBegin) + 1);
+            int offset = editor.getOffsetFromLineColumn(selBegin) + 1;
+            if (offset > editor.getDocumentLength()) {
+                offset = 0;
+            }
+            editor.setCaretPosition(offset);
         }
         if (find(true)) {
             searchStart = editor.getSelectionBegin();
@@ -527,7 +531,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         if (!next){
             found = editor.doFindBackward(searchString, ignoreCase, wholeWord, wrap);
             // position the caret so that following doFindSelect finds the correct occurrence
-            editor.moveCaretPosition(editor.getCaretPosition()-searchString.length());
+            editor.setCaretPosition(editor.getCaretPosition() - searchString.length());
         }
 
         found=editor.doFindSelect(searchString, ignoreCase, wholeWord, wrap, select);
