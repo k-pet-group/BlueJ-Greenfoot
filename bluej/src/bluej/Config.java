@@ -40,7 +40,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.StringTokenizer;
 
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
@@ -84,7 +83,7 @@ public final class Config
 {
     public static final String nl = System.getProperty("line.separator");
 
-    // bluej configuration properties heirarchy
+    // bluej configuration properties hierarchy
     // (command overrides user which overrides system)
     
     private static Properties systemProps;      // bluej.defs
@@ -1464,33 +1463,63 @@ public final class Config
     
      /**
      * Splits VM args String into separate args including handling quotes
-     * used for file paths with spaces. 
+     * used for file paths with spaces.<p>
+     * 
+     * Backslash can be used to quote any character including whitespace or
+     * quote, or itself. (In the bluej.defs file, a backslash must be
+     * doubled as properties processing also treats it as an escape).
+     * 
      * @param str - the string to be split
      * @returns an array of Strings
      */
     private static List<String> splitVMArgs(String str)
     {
-        boolean inQuote = false;
         List<String> strings = new ArrayList<String>();
-        StringTokenizer t = new StringTokenizer(str, " ", true);
-        while(t.hasMoreTokens()) {
-            String arg = t.nextToken();
-            // if we have a "
-            if(arg.indexOf("\"")!= -1) {
-                inQuote = true;
-                while(t.hasMoreTokens() && inQuote == true) {
-                    String next = t.nextToken();
-                    arg = arg + next;
-                    if(next.indexOf("\"") != -1) {
-                        inQuote = false;
+        
+        int i = 0;
+        while (i < str.length()) {
+            // Skip white space
+            while (i < str.length() && Character.isWhitespace(str.charAt(i))) {
+                i++;
+            }
+            
+            StringBuffer arg = new StringBuffer();
+            char c = str.charAt(i++);
+            
+            do {
+                if (c == '\\') {
+                    if (i < str.length()) {
+                        arg.append(str.charAt(i++));
                     }
                 }
-                strings.add(arg); 
-            }
-            else if(!arg.equals(" ")) {
-                strings.add(arg);
-            }
+                else if (c == '\"') {
+                    // Process quoted string
+                    while (i < str.length()) {
+                        c = str.charAt(i++);
+                        if (c == '\"') {
+                            break;
+                        }
+                        if (c == '\\') {
+                            if (i < str.length()) {
+                                arg.append(str.charAt(i++));
+                            }
+                        }
+                        else {
+                            arg.append(c);
+                        }
+                    }
+                }
+                else if (Character.isWhitespace(c)) {
+                    break;
+                }
+                else {
+                    arg.append(c);
+                }
+                c = str.charAt(i++);
+            } while (i < str.length());
+            strings.add(arg.toString());
         }
+        
         return strings;
     }
     
