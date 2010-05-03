@@ -259,6 +259,86 @@
         <delete dir="mac_tmp" />
     </target>
 
+	<target name="debian-dist">
+		<mkdir dir="bluejdeb" />
+		<copy todir="bluejdeb">
+			<fileset dir="debianfiles" includes="DEBIAN/**" />
+		</copy>
+		
+		<mkdir dir="bluejdeb/usr" />
+		<mkdir dir="bluejdeb/usr/bin" />
+		<copy todir="bluejdeb/usr/bin" file="debianfiles/bluej" />
+		<chmod perm="ugo+x" file="bluejdeb/usr/bin/bluej" verbose="true" />
+		
+		<!-- lib files -->
+		<mkdir dir="bluejdeb/usr/bin/bluejlib" />
+		<mkdir dir="bluejdeb-lib-tmp" />
+        <copy todir="bluejdeb-lib-tmp">
+            <fileset dir="${bluej_home}">
+            	<patternset refid="bluej.libdirs" />
+            	<patternset refid="bluej.libfiles" />
+            </fileset>
+        </copy>
+		<move todir="bluejdeb/usr/bin/bluejlib">
+			<fileset dir="bluejdeb-lib-tmp/lib">
+				<patternset includes="**" />
+			</fileset>
+		</move>
+		<delete dir="bluejdeb-lib-tmp" />
+		
+		<!-- examples and documentation -->
+		<mkdir dir="bluej-examples-tmp" />
+        <copy todir="bluej-examples-tmp">
+            <fileset dir="${bluej_home}">
+                <patternset refid="bluej.examples" />
+            </fileset>
+        </copy>
+		<mkdir dir="bluejdeb/usr/share/doc/BlueJ" />
+        <move todir="bluejdeb/usr/share/doc/BlueJ">
+            <fileset dir="bluej-examples-tmp/examples">
+                <patternset includes="**" />
+            </fileset>
+        </move>
+		<delete dir="bluej-examples-tmp" />
+		<copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/LICENSE.txt" />
+		<copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/THIRDPARTYLICENSE.txt" />
+
+		<!-- desktop app extras -->
+		<copy todir="bluejdeb/usr/share">
+			<fileset dir="debianfiles">
+				<patternset includes="applications/**,icons/**,pixmaps/**" />
+			</fileset>
+		</copy>
+
+	    <!-- update version number -->
+	    <replaceregexp byline="true">
+	        <regexp pattern="VERSION" />
+	        <substitution expression="${bluej.version.debian}" />
+	        <fileset dir="bluejdeb/DEBIAN" includes="control" />
+	    </replaceregexp>
+		
+		<!-- you must do this as root, sigh -->
+		<chown owner="root">
+			<fileset dir="bluejdeb">
+				<patternset includes="**" />
+			</fileset>
+		</chown>
+		<chgrp group="root">
+			<fileset dir="bluejdeb">
+				<patternset includes="**" />
+			</fileset>
+		</chgrp>
+		
+		<chmod perm="+x" file="bluejdeb/DEBIAN/postinst" />
+		<chmod perm="+x" file="bluejdeb/DEBIAN/postrm" />
+		<exec executable="dpkg-deb" searchpath="true">
+			<arg value="-b" />
+			<arg file="bluejdeb" />
+			<arg value="bluej-${bluej.version}.deb" />
+		</exec>
+		
+		<delete dir="bluejdeb" />
+	</target>
     
      <!-- windows-launcher builds the Delphi launcher for BlueJ. 
           It is not yet functional-->
