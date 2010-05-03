@@ -121,6 +121,7 @@ public abstract class BlueJSyntaxView extends PlainView
     private Map<ParsedNode,Integer> nodeIndents = new HashMap<ParsedNode,Integer>();
 
     private int leftMargin = 0;
+    private int leftBound = 0;
 
     /**
      * Creates a new BlueJSyntaxView.
@@ -137,6 +138,10 @@ public abstract class BlueJSyntaxView extends PlainView
     @Override
     public void paint(Graphics g, Shape a)
     {
+        if (a != null) {
+            leftBound = a.getBounds().x;
+        }
+        
         if (desktopHints != null && g instanceof Graphics2D) {
             Graphics2D g2d = (Graphics2D) g;
             g2d.addRenderingHints(desktopHints); 
@@ -152,7 +157,10 @@ public abstract class BlueJSyntaxView extends PlainView
     public int viewToModel(float fx, float fy, Shape a, Position.Bias[] bias)
     {
         try {
-            return super.viewToModel(fx - leftMargin, fy, a, bias);
+            Rectangle sbounds = a.getBounds();
+            leftBound = sbounds.x;
+            sbounds.x += leftMargin;
+            return super.viewToModel(fx, fy, sbounds, bias);
         }
         catch (ArrayIndexOutOfBoundsException aiobe) {
             Rectangle alloc = a.getBounds();
@@ -1186,8 +1194,8 @@ public abstract class BlueJSyntaxView extends PlainView
         if (tabSize == 0) {
             return x;
         }
-        int tabStopNumber = (int)((x - leftMargin) / tabSize) + 1;
-        return (tabStopNumber * tabSize) + leftMargin + 2;
+        int tabStopNumber = (int)((x - leftMargin - leftBound) / tabSize) + 1;
+        return (tabStopNumber * tabSize) + leftMargin + leftBound;
     }
 
     /**
