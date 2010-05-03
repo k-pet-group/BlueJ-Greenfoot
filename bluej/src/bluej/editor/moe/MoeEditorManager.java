@@ -180,7 +180,8 @@ public final class MoeEditorManager
      * @param windowTitle	title of window (usually class name)
      * @param watcher	an object interested in editing events
      * @param compiled	true, if the class has been compiled
-     * @param bounds	bounds for the editor window
+     * @param bounds	bounds for the editor window. If the width and/or height are
+     *                  zero, then only the position (x,y) are to be used.
      * @param projectResolver   a resolver for external symbols
      * @returns		the new editor, or null if there was a problem
      */

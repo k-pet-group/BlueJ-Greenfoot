@@ -24,6 +24,7 @@ package bluej.pkgmgr.target;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -97,7 +98,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 7436 2010-04-29 03:32:13Z davmac $
+ * @version $Id: ClassTarget.java 7474 2010-05-03 05:13:17Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -829,6 +830,16 @@ public class ClassTarget extends DependentTarget
             Project project = getPackage().getProject();
             EntityResolver resolver = new PackageResolver(project.getEntityResolver(),
                     getPackage().getQualifiedName());
+            
+            if (editorBounds == null) {
+                PkgMgrFrame frame = PkgMgrFrame.findFrame(getPackage());
+                if (frame != null) {
+                    editorBounds = new Rectangle();
+                    editorBounds.x = frame.getX() + 40;
+                    editorBounds.y = frame.getY() + 20;
+                }
+            }
+            
             editor = EditorManager.getEditorManager().openClass(filename, docFilename,
                     getBaseName(), this, isCompiled(), editorBounds, resolver,
                     project.getJavadocResolver());

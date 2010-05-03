@@ -315,7 +315,12 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         this.docFilename = docFilename;
 
         if (bounds != null) {
-            setBounds(bounds);
+            if (bounds.width > 0 && bounds.height > 0) {
+                setBounds(bounds);
+            }
+            else {
+                setLocation(bounds.x, bounds.y);
+            }
         }
 
         boolean loaded = false;
