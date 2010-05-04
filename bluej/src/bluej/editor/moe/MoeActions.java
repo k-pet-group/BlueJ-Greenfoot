@@ -156,6 +156,8 @@ public final class MoeActions
 
     private static MoeActions moeActions;
 
+    private Action[] overrideActions;
+
     /**
      * Get the actions object (a singleton) and, at the same time, install the
      * action keymap as the main keymap for the given textComponent..
@@ -165,12 +167,22 @@ public final class MoeActions
         if (moeActions == null)
             moeActions = new MoeActions(textComponent);
 
-        if (textComponent != null)
+        if (textComponent != null) {
             textComponent.setKeymap(moeActions.keymap);
+            moeActions.overrideActions(textComponent);
+        }
+       
         return moeActions;
     }
 
     // ========================== INSTANCE METHODS ==========================
+
+    private void overrideActions(JTextComponent textComponent)
+    {       
+        for (Action action : overrideActions) {
+            textComponent.getActionMap().put(action.getValue(Action.NAME), action);
+        }
+    }
 
     /**
      * Constructor. Singleton, thus private.
@@ -193,7 +205,7 @@ public final class MoeActions
         Keymap origKeymap = textComponent.getKeymap();
         keymap = JTextComponent.addKeymap("BlueJ map", origKeymap);
 
-        createActionTable(textComponent, origKeymap);
+        createActionTable(textComponent);
         keyCatcher = new KeyCatcher();
         if (!load())
             setDefaultKeyBindings();
@@ -1103,6 +1115,7 @@ public final class MoeActions
                 } else if (firstDot != -1) { // if it's there and not the first char
                     moveCaret(c, origPos + firstDot);
                 }
+                //TODO handle leading and trailing underscores on words (and in prev word)
             }
             catch (BadLocationException e1) {
             }
@@ -1117,6 +1130,8 @@ public final class MoeActions
             }
         }
     }
+
+    // --------------------------------------------------------------------    
     
     class PrevWordAction extends MoeActionOverride
     {
@@ -1884,7 +1899,7 @@ public final class MoeActions
     /**
      * Create the table of action supported by this editor
      */
-    private void createActionTable(JTextComponent textComponent, Keymap origKeymap)
+    private void createActionTable(JTextComponent textComponent)
     {
         undoAction = new UndoAction();
         redoAction = new RedoAction();
@@ -1893,7 +1908,7 @@ public final class MoeActions
         // get all actions into arrays
         Action[] textActions = textComponent.getActions();
         
-        Action[] overrideActions = {
+        overrideActions = new Action[] {
                 //With and without selection for each:
                 new NextWordAction(false, textActions),
                 new NextWordAction(true, textActions),
@@ -1956,25 +1971,11 @@ public final class MoeActions
         for (Action action : textActions) {
             actions.put(action.getValue(Action.NAME), action);
         }
-        
-        // For these actions, we want to over-ride the default behaviour.
-        // But the key bindings are in the input map, not the keymap, so
-        // unless the user has explicitly bound them, the behaviour won't be
-        // changed.  Therefore we look through all the inputmap bindings for bindings
-        // to the over-ridden action, and re-bind those actions in the text component's keymap
-        // (not the BlueJ keymap).
-        KeyStroke[] keyStrokes = textComponent.getInputMap().allKeys();
+
         for (Action action : overrideActions) {
-            // Rebind actions we've overridden:
-            for (KeyStroke keyStroke : keyStrokes) {
-                Object name = action.getValue(Action.NAME);
-                if (name != null && name.equals(textComponent.getInputMap().get(keyStroke))) {
-                    origKeymap.addActionForKeyStroke(keyStroke, action);
-                }
-            }
             actions.put(action.getValue(Action.NAME), action);
         }
-        
+       
         for (Action action : myActions) {
             actions.put(action.getValue(Action.NAME), action);
         }
