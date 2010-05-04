@@ -1175,6 +1175,56 @@ public final class MoeActions
             }
         }
     }
+    
+    // --------------------------------------------------------------------    
+    
+    class SelectWordAction extends MoeActionOverride
+    {
+        public SelectWordAction(Action[] actions)
+        {
+            super(DefaultEditorKit.selectWordAction, actions);
+        }
+        
+        public void actionPerformed(ActionEvent e)
+        {
+            // Double-click select finds the word around the caret.
+            // Therefore we take note of the position of the caret before the action is performed,
+            // then look at the selection afterwards.  If there are any dots between the original
+            // caret position and the boundary of the new selection (on either side), the selection
+            // should be trimmed accordingly.
+            JTextComponent c = getTextComponent(e);
+            int origPos = c.getCaret().getDot();
+            performDefaultAction(e);
+            int newStart = c.getCaret().getMark();
+            int newEnd = c.getCaret().getDot();
+         
+            //TODO also deal with leading and trailing underscores
+            try {
+                String selStart = c.getText(newStart, origPos - newStart);
+                String selEnd = c.getText(origPos, newEnd - origPos);
+                
+                // If you double click on a dot, that's all you select:
+                if (selEnd.startsWith(".")) {
+                    c.getCaret().setDot(origPos);
+                    c.getCaret().moveDot(origPos+1);
+                } else {
+                    // Look back from cursor:
+                    int lastDot = selStart.lastIndexOf('.');
+                    if (lastDot != -1) {
+                        c.getCaret().setDot(newStart + lastDot + 1);
+                        c.getCaret().moveDot(newEnd);
+                    }
+
+                    // Look forward from cursor:
+                    int firstDot = selEnd.indexOf('.');
+                    if (firstDot != -1) {
+                        c.getCaret().moveDot(origPos + firstDot);
+                    }
+                }
+            } catch (BadLocationException ex) {
+            }
+        }
+    }
 
     // === Tools: ===
     // --------------------------------------------------------------------
@@ -1913,7 +1963,9 @@ public final class MoeActions
                 new NextWordAction(false, textActions),
                 new NextWordAction(true, textActions),
                 new PrevWordAction(false, textActions),                
-                new PrevWordAction(true, textActions)
+                new PrevWordAction(true, textActions),
+                
+                new SelectWordAction(textActions)
         };
         
         Action[] myActions = {
