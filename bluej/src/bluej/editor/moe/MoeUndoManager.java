@@ -38,7 +38,7 @@ import javax.swing.undo.UndoableEdit;
  */
 public class MoeUndoManager implements UndoableEditListener
 {
-    LinkedList editStack;
+    LinkedList<CompoundEdit> editStack;
     UndoManager undoManager;
     CompoundEdit currentEdit;
     MoeEditor editor;
@@ -48,7 +48,7 @@ public class MoeUndoManager implements UndoableEditListener
         this.editor = editor;
         undoManager = new UndoManager();
         currentEdit = undoManager;
-        editStack = new LinkedList();
+        editStack = new LinkedList<CompoundEdit>();
     }
     
     public void undoableEditHappened(UndoableEditEvent e)

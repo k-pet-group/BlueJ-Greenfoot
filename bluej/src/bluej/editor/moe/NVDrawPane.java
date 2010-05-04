@@ -21,7 +21,6 @@
  */
 package bluej.editor.moe;
 
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Rectangle;
@@ -47,7 +46,6 @@ import javax.swing.text.View;
 public class NVDrawPane extends JEditorPane
 {
     private NaviView nview;
-    private boolean scheduledPaint = false;
     
     private int repaintTop;
     private int repaintEnd;
@@ -93,7 +91,7 @@ public class NVDrawPane extends JEditorPane
             //nview.repaint();
             Rectangle r = getBounds();
             repaint(0, r.x, r.y, r.width, r.height);
-            nview.repaint();
+            //nview.repaint();
         }
     }
     
@@ -103,23 +101,9 @@ public class NVDrawPane extends JEditorPane
         if (nview != null) {
             // Note this condition appears impossible, however JEditorPane constructor
             // does call repaint().
-            
-            if (!scheduledPaint) {
-                scheduledPaint = true;
-                repaintTop = y;
-                repaintEnd = y + height;
-                EventQueue.invokeLater(new Runnable() {
-                    public void run()
-                    {
-                        nview.repaintModel(repaintTop, repaintEnd);
-                        scheduledPaint = false;
-                    }
-                });
-            }
-            else {
-                repaintTop = Math.min(repaintTop, y);
-                repaintEnd = Math.max(repaintEnd, y + height);
-            }
+            repaintTop = y;
+            repaintEnd = y + height;
+            nview.repaintModel(repaintTop, repaintEnd);
         }
     }
     
@@ -127,7 +111,8 @@ public class NVDrawPane extends JEditorPane
     public Rectangle getBounds()
     {
         View view = getUI().getRootView(this);
-        return new Rectangle((int) view.getPreferredSpan(View.X_AXIS),
+        Rectangle r = new Rectangle(1,
                 (int) view.getPreferredSpan(View.Y_AXIS));
+        return r;
     }
 }

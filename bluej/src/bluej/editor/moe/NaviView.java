@@ -80,6 +80,7 @@ public class NaviView extends JPanel implements AdjustmentListener
     private boolean haveToolTip = false;
     
     private BufferedImage imgBuffer;
+    private int prefViewHeight;
     
     public NaviView(Document document, JScrollBar scrollBar)
     {
@@ -105,6 +106,7 @@ public class NaviView extends JPanel implements AdjustmentListener
         if (document != null) {
             scrollBar.addAdjustmentListener(this);
         }
+        documentChangedLength();
     }
     
     /**
@@ -113,6 +115,30 @@ public class NaviView extends JPanel implements AdjustmentListener
     private Document getDocument()
     {
         return document;
+    }
+    
+    /**
+     * Notify the NaviView that the document has changed (vertical) length. Normally
+     * this is called by NaviviewView.
+     */
+    public void documentChangedLength()
+    {
+        View view = editorPane.getUI().getRootView(editorPane);
+        int newPrefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
+        Insets insets = getInsets();
+        int yoffs = insets.top + frw;
+        if (! scrollBar.isVisible()) {
+            // If the scrollbar is invisible, and the document height changes,
+            // we need to repaint the view border
+            int rpHeight = Math.max(newPrefHeight,prefViewHeight) + yoffs + frw;
+            repaint(0, 0, getWidth(), rpHeight);
+        }
+        else {
+            repaint(0, Math.min(newPrefHeight, prefViewHeight) + yoffs,
+                    getWidth(),
+                    Math.abs(newPrefHeight - prefViewHeight) + frw);
+        }
+        prefViewHeight = newPrefHeight;
     }
     
     @Override
@@ -143,10 +169,8 @@ public class NaviView extends JPanel implements AdjustmentListener
         super.setBounds(x, y, width, height);
         if (imgBuffer != null && isVisible() && width > 0) {
             Insets insets = getInsets();
-            View view = editorPane.getUI().getRootView(editorPane);
-            int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
             int myHeight = Math.max(getHeight() - insets.top - insets.bottom - frw*2, 1);
-            createImgBuffer(imgBuffer.getGraphics(), prefHeight > myHeight);
+            createImgBuffer(imgBuffer.getGraphics(), prefViewHeight > myHeight);
         }
         enqueueRepaint(0, height);
         repaint();
@@ -156,15 +180,14 @@ public class NaviView extends JPanel implements AdjustmentListener
      * Convert a y-coordinate in the NaviView co-ordinate space to a line number
      * in the document.
      */
-    private int yViewToModel(int vpos)
+    private int yViewToDocument(int vpos)
     {
         View view = editorPane.getUI().getRootView(editorPane);
         Insets insets = getInsets();
         vpos -= insets.top + frw;
-        int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
         int myHeight = Math.max(getHeight() - insets.top - insets.bottom - frw*2, 1);
-        if (prefHeight > myHeight) {
-            vpos = vpos * prefHeight / myHeight;
+        if (prefViewHeight > myHeight) {
+            vpos = vpos * prefViewHeight / myHeight;
         }
         Bias [] breturn = new Bias[1];
         int pos = view.viewToModel(0, vpos, new Rectangle(5,Integer.MAX_VALUE), breturn);
@@ -173,7 +196,7 @@ public class NaviView extends JPanel implements AdjustmentListener
     }
     
     /**
-     * Repaint model co-ordinates. The given lines must be translated to
+     * Repaint model co-ordinates. The given lines will be translated to
      * the NaviView component's co-ordinate space.
      * @param top  The topmost line to repaint
      * @param bottom  The lowest (numerically higher) line to repaint
@@ -183,28 +206,17 @@ public class NaviView extends JPanel implements AdjustmentListener
         if (editorPane == null || imgBuffer == null) {
             return;
         }
-        View view = editorPane.getUI().getRootView(editorPane);
+        
         Insets insets = getInsets();
-        int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
         int myHeight = Math.max(getHeight() - insets.top - insets.bottom - frw*2, 1);
         
-        if (prefHeight > myHeight) {
-            int ptop = top * myHeight / prefHeight;
-            int pbottom = (bottom * myHeight + prefHeight - 1) / prefHeight;
-            if (isVisible()) {
-                paintImgBuffer(ptop, pbottom);
-            }
-            else {
-                enqueueRepaint(ptop, pbottom);
-            }
+        if (prefViewHeight > myHeight) {
+            int ptop = top * myHeight / prefViewHeight;
+            int pbottom = (bottom * myHeight + prefViewHeight - 1) / prefViewHeight;
+            enqueueRepaint(ptop, pbottom);
         }
         else {
-            if (isVisible()) {
-                paintImgBuffer(top, bottom);
-            }
-            else {
-                enqueueRepaint(top, bottom);
-            }
+            enqueueRepaint(top, bottom);
         }
     }
     
@@ -213,10 +225,8 @@ public class NaviView extends JPanel implements AdjustmentListener
      */
     public void adjustmentValueChanged(AdjustmentEvent e)
     {
-        View view = editorPane.getUI().getRootView(editorPane);
-        int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
         Insets insets = getInsets();
-        int height = Math.min(prefHeight, getHeight() - insets.top - insets.bottom - 2*frw); 
+        int height = Math.min(prefViewHeight, getHeight() - insets.top - insets.bottom - 2*frw); 
         
         int topV = e.getValue() * height / (scrollBar.getMaximum()) + insets.top + frw;
         int bottomV = (e.getValue() + scrollBar.getVisibleAmount()) * height
@@ -247,7 +257,7 @@ public class NaviView extends JPanel implements AdjustmentListener
     public String getToolTipText(MouseEvent event)
     {
         // int pos = viewToModel(event.getPoint());
-        int pos = yViewToModel(event.getPoint().y);
+        int pos = yViewToDocument(event.getPoint().y);
         MoeSyntaxDocument document = (MoeSyntaxDocument) getDocument();
         ParsedNode pn = document.getParser();
         int startpos = 0;
@@ -313,7 +323,7 @@ public class NaviView extends JPanel implements AdjustmentListener
      */
     private void moveView(int ypos)
     {
-        int modelPos = yViewToModel(ypos - dragOffset);
+        int modelPos = yViewToDocument(ypos - dragOffset);
         int lineNum = getDocument().getDefaultRootElement().getElementIndex(modelPos);
         lineNum = Math.max(0, lineNum);
         
@@ -323,38 +333,37 @@ public class NaviView extends JPanel implements AdjustmentListener
         int pos = lineNum * totalAmt / totalLines + scrollBar.getMinimum();
         scrollBar.setValue(pos);
     }
-    
+        
     /**
-     * Paint to the backing image buffer.
+     * Paint to the backing image buffer, and then issue an appropriate
+     * repaint() so that the backing buffer is displayed.
      * 
      * @param top  The top line (in view co-ordinates) to paint
      * @param bottom  The bottom line (in view co-ordinates) to paint
      */
     private void paintImgBuffer(int top, int bottom)
     {
-        Insets insets = getInsets();
         int myHeight = imgBuffer.getHeight();
         View view = editorPane.getUI().getRootView(editorPane);
-        int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
 
         Color background = MoeSyntaxDocument.getBackgroundColor();
         
         Graphics2D g = imgBuffer.createGraphics();
 
-        if (prefHeight > myHeight) {
+        if (prefViewHeight > myHeight) {
             // scale!
-            int width = Math.max(imgBuffer.getWidth() * prefHeight / myHeight, 1);
-            int ytop = top * prefHeight / myHeight;
-            int ybtm = (bottom * prefHeight + myHeight - 1) / myHeight;
+            int width = Math.max(imgBuffer.getWidth() * prefViewHeight / myHeight, 1);
+            int ytop = top * prefViewHeight / myHeight;
+            int ybtm = (bottom * prefViewHeight + myHeight - 1) / myHeight;
             int height = ybtm - ytop;
             
             if (height > 400) {
                 height = 400;
                 ybtm = ytop + 400;
-                int newbottom = top + (height * myHeight / prefHeight);
+                int newbottom = top + (height * myHeight / prefViewHeight);
                 if (newbottom <= top) {
                     newbottom = top + 1;
-                    ybtm = (newbottom* prefHeight + myHeight - 1) / myHeight;
+                    ybtm = (newbottom* prefViewHeight + myHeight - 1) / myHeight;
                     height = ybtm - ytop; 
                 }
                 enqueueRepaint(newbottom, bottom);
@@ -364,7 +373,7 @@ public class NaviView extends JPanel implements AdjustmentListener
             if (height < 1) {
                 height = 1;
                 ybtm = ytop + 1;
-                bottom = top + (height * myHeight / prefHeight);
+                bottom = top + (height * myHeight / prefViewHeight);
             }
             
             // Create a buffered image to use
@@ -377,7 +386,7 @@ public class NaviView extends JPanel implements AdjustmentListener
             g.fillRect(0, top, imgBuffer.getWidth(), bottom - top);
             
             Graphics2D bg = bimage.createGraphics();
-            Rectangle shape = new Rectangle(frw, frw, width, prefHeight);
+            Rectangle shape = new Rectangle(frw, frw, width, prefViewHeight);
             bg.setClip(0, 0, width, height);
             bg.translate(-frw, -ytop - frw);
             view.paint(bg, shape);
@@ -387,7 +396,6 @@ public class NaviView extends JPanel implements AdjustmentListener
                     bottom, 0, 0, width, height, null);
             
             bg.dispose();
-            repaint(insets.left + frw, top + insets.top, imgBuffer.getWidth(), bottom - top);
         }
         else {
             // Scaling not necessary
@@ -408,7 +416,6 @@ public class NaviView extends JPanel implements AdjustmentListener
             g.translate(-frw, -frw);
             Rectangle bufferBounds = new Rectangle (frw,frw,w,h);
             view.paint(g, bufferBounds);
-            repaint(insets.left + frw, top + insets.top, imgBuffer.getWidth(), bottom - top);
         }
         
         g.dispose();
@@ -417,10 +424,22 @@ public class NaviView extends JPanel implements AdjustmentListener
     private List<Integer> tops = new ArrayList<Integer>();
     private List<Integer> bottoms = new ArrayList<Integer>();
     
+    /**
+     * Enqueue a repaint of the backing buffer. The given co-ordinates
+     * (top, bottom) are view co-ordinates.
+     */
     private void enqueueRepaint(int top, int bottom)
     {
         ListIterator<Integer> i = tops.listIterator();
         ListIterator<Integer> j = bottoms.listIterator();
+        
+        if (! i.hasNext()) {
+            Insets insets = getInsets();
+            repaint(insets.left + frw, insets.top + frw + top,
+                    getWidth() - insets.left - insets.right - frw * 2,
+                    bottom - top);
+        }
+        
         while (i.hasNext()) {
             int etop = i.next();
             int ebtm = j.next();
@@ -452,8 +471,6 @@ public class NaviView extends JPanel implements AdjustmentListener
         Insets insets = getInsets();
         g.getClipBounds(clipBounds);
         
-        View view = editorPane.getUI().getRootView(editorPane);
-        int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
         int myHeight = Math.max(getHeight() - insets.top - insets.bottom - frw*2, 1);
 
         Document document = getDocument();
@@ -462,15 +479,22 @@ public class NaviView extends JPanel implements AdjustmentListener
             return;
         }
 
-        int docHeight = Math.min(myHeight, prefHeight);
+        int docHeight = Math.min(myHeight, prefViewHeight);
 
         // Calculate the visible portion
         // topV = the topmost visible line (in local coordinate space)
         // bottomV = the bottommost visible line (in local coordinate space)
         int topV = insets.top + frw + scrollBar.getValue() * docHeight / scrollBar.getMaximum();
         int bottomV = insets.top + frw + ((scrollBar.getValue() + scrollBar.getVisibleAmount()) * docHeight + (scrollBar.getMaximum() - 1)) / scrollBar.getMaximum();
+
+        createImgBuffer(g, prefViewHeight > myHeight);
         
-        createImgBuffer(g, prefHeight > myHeight);
+        if (! tops.isEmpty()) {
+            int rtop = tops.remove(0);
+            int rbottom = bottoms.remove(0);
+            paintImgBuffer(rtop, rbottom);
+        }
+        
         g.drawImage(imgBuffer, insets.left + frw, insets.top + frw, null);
         
         Color background = MoeSyntaxDocument.getBackgroundColor();
@@ -535,10 +559,9 @@ public class NaviView extends JPanel implements AdjustmentListener
         g.drawImage(frame, fx2-5, fy2, fx2, fy2+5, fw-5, fh-5, fw, fh, null);
         
         if (! tops.isEmpty()) {
-            int rtop = tops.remove(0);
-            int rbottom = bottoms.remove(0);
-            paintImgBuffer(rtop, rbottom);
-            //repaint(0, rtop + insets.top + frw, getWidth(), rbottom - rtop);
+            int rtop = tops.get(0);
+            int rbottom = bottoms.get(0);
+            repaint(0, rtop, getWidth(), rbottom - rtop);
         }
     }
     
@@ -585,14 +608,12 @@ public class NaviView extends JPanel implements AdjustmentListener
     
     public Graphics2D getScalingImgBufferGraphics(Graphics g)
     {
-        View view = editorPane.getUI().getRootView(editorPane);
-        int prefHeight = (int) view.getPreferredSpan(View.Y_AXIS);
         Insets insets = getInsets();
         int myHeight = Math.max(getHeight() - insets.top - insets.bottom - frw*2, 1);
-        createImgBuffer(g, prefHeight > myHeight);
+        createImgBuffer(g, prefViewHeight > myHeight);
         Graphics2D r = imgBuffer.createGraphics();
-        if (prefHeight > myHeight) {
-            double scaleFactor = (double)myHeight / prefHeight; 
+        if (prefViewHeight > myHeight) {
+            double scaleFactor = (double)myHeight / prefViewHeight; 
             r.scale(scaleFactor, scaleFactor);
         }
         r.translate(-frw, -frw);

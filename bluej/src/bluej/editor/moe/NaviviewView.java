@@ -29,10 +29,13 @@ import java.awt.Shape;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentEvent.ElementChange;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 import javax.swing.text.Position;
 import javax.swing.text.Segment;
+import javax.swing.text.ViewFactory;
 
 import bluej.Config;
 
@@ -162,4 +165,18 @@ public class NaviviewView extends BlueJSyntaxView
         return c;
     }
 
+    @Override
+    protected void updateDamage(DocumentEvent changes, Shape a, ViewFactory f)
+    {
+        ElementChange ec = changes.getChange(getDocument().getDefaultRootElement());
+        if (ec != null) {
+            Element [] addedChildren = ec.getChildrenAdded();
+            Element [] removedChildren = ec.getChildrenRemoved();
+            if (addedChildren.length != removedChildren.length) {
+                naviView.documentChangedLength();
+            }
+        }
+        super.updateDamage(changes, a, f);
+    }
+    
 }
