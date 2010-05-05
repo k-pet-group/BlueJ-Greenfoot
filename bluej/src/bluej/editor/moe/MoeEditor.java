@@ -696,7 +696,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             mayHaveBreakpoints = false;
             for (int i = 1; i <= numberOfLines(); i++) {
                 if (lineHasBreakpoint(i)) {
-                    watcher.breakpointToggleEvent(this, i, true);
+                    if (watcher != null)
+                        watcher.breakpointToggleEvent(this, i, true);
                     mayHaveBreakpoints = true;
                 }
             }
@@ -2172,7 +2173,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             // interface needs to be re-generated
             info.message(Config.getString("editor.info.generatingDoc"));
             BlueJEvent.addListener(this);
-            watcher.generateDoc();
+            if (watcher != null)
+                watcher.generateDoc();
         }
 
         document = htmlDocument;
@@ -3713,7 +3715,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     protected boolean getNaviviewExpandedProperty()
     {
-        if (watcher.getProperty(EditorWatcher.NAVIVIEW_EXPANDED_PROPERTY)!=null)
+        if (watcher != null && watcher.getProperty(EditorWatcher.NAVIVIEW_EXPANDED_PROPERTY)!=null)
         {
             return Boolean.parseBoolean(watcher.getProperty(EditorWatcher.NAVIVIEW_EXPANDED_PROPERTY));
         }
