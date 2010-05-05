@@ -1088,13 +1088,13 @@ public final class MoeActions
     
     // --------------------------------------------------------------------
     
-    class NextWordAction extends MoeActionOverride
+    class NextWordAction extends MoeAbstractAction
     {
         private boolean withSelection;
 
         public NextWordAction(boolean withSelection, Action[] actions)
         {
-            super(withSelection ? DefaultEditorKit.selectionNextWordAction : DefaultEditorKit.nextWordAction, actions);
+            super(withSelection ? DefaultEditorKit.selectionNextWordAction : DefaultEditorKit.nextWordAction);
             this.withSelection = withSelection;
         }
         
@@ -1105,19 +1105,19 @@ public final class MoeActions
             // characters we don't want to skip over:
             JTextComponent c = getTextComponent(e);
             int origPos = c.getCaret().getDot();
-            performDefaultAction(e);
-            int newPos = c.getCaret().getDot();
+            int end = findWordLimit(c, origPos, true);
             try {
-                String skippedText = c.getText(origPos, newPos - origPos);
-                int firstDot = skippedText.indexOf('.');
-                if (firstDot == 0) { // first char -- just skip that:
-                    moveCaret(c, origPos + 1);
-                } else if (firstDot != -1) { // if it's there and not the first char
-                    moveCaret(c, origPos + firstDot);
+                if (Character.isWhitespace(c.getText(end, 1).charAt(0))) {
+                    // Whitespace region follows, find the end of it:
+                    int endOfWS = findWordLimit(c, end, true);
+                    moveCaret(c, endOfWS);
+                } else {
+                    // A different "word" follows immediately, stay where we are:
+                    moveCaret(c, end);
                 }
-                //TODO handle leading and trailing underscores on words (and in prev word)
-            }
-            catch (BadLocationException e1) {
+            } catch (BadLocationException ex) {
+                // End of file already, just set the caret there:
+                moveCaret(c, end);
             }
         }
         
