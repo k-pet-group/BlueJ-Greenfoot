@@ -63,8 +63,8 @@ public interface Repository
      *               and deletedFiles, as well as any other files to be committed)
      * @param commitComment  The comment for this commit
      */
-    public TeamworkCommand commitAll(Set newFiles, Set binaryNewFiles,
-            Set deletedFiles, Set files, String commitComment);
+    public TeamworkCommand commitAll(Set<File> newFiles, Set<File> binaryNewFiles,
+            Set<File> deletedFiles, Set<File> files, String commitComment);
     
     /**
      * Put the project in the repository. This should create an empty project in
@@ -90,7 +90,7 @@ public interface Repository
      * Get a list of modules in the repository. The module names (String) are added
      * to the supplied list before the command terminates.
      */
-    public TeamworkCommand getModules(List modules);
+    public TeamworkCommand getModules(List<String> modules);
     
     /**
      * Get the history of the repository - all commits, including file, date,
@@ -127,5 +127,5 @@ public interface Repository
      * <p>Calling this method Does not result in communication with the repository
      * server.
      */
-    public void getAllLocallyDeletedFiles(Set files);
+    public void getAllLocallyDeletedFiles(Set<File> files);
 }

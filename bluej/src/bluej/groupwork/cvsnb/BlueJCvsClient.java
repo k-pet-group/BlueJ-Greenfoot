@@ -21,6 +21,7 @@
  */
 package bluej.groupwork.cvsnb;
 
+import java.io.File;
 import java.util.Map;
 
 import org.netbeans.lib.cvsclient.Client;
@@ -48,7 +49,7 @@ public class BlueJCvsClient extends Client
      * Get the map of conflicting files. The return maps (File to File) the
      * original file name (repository version) to its backup (local version).
      */
-    public Map getConflictFiles()
+    public Map<File,File> getConflictFiles()
     {
         return fileHandler.getConflicts();
     }

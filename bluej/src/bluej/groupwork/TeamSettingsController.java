@@ -37,7 +37,7 @@ import bluej.utility.Debug;
  * the top-level folder of a team project, and the bluej.properties
  *
  * @author fisker
- * @version $Id: TeamSettingsController.java 7421 2010-04-28 04:20:46Z davmac $
+ * @version $Id: TeamSettingsController.java 7492 2010-05-05 05:25:30Z davmac $
  */
 public class TeamSettingsController
 {
@@ -140,6 +140,10 @@ public class TeamSettingsController
             else {
                 repository.setPassword(settings);
             }
+        }
+        else if (!authRequired && password == null) {
+            // We'll return a "temporary" repository.
+            return settings.getProvider().getRepository(projectDir, settings);
         }
         else {
             // We might have the password, but not yet have created

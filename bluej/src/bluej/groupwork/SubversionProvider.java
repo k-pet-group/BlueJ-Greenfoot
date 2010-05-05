@@ -58,7 +58,7 @@ public class SubversionProvider implements TeamworkProvider
         SVNClientInterface client = null;
         
         try {
-            Class clientImplClass = Class.forName("org.tmatesoft.svn.core.javahl.SVNClientImpl");
+            Class<?> clientImplClass = Class.forName("org.tmatesoft.svn.core.javahl.SVNClientImpl");
             
             Method newInstanceMethod = clientImplClass.getMethod("newInstance", new Class[0]);
             Object svnClient = newInstanceMethod.invoke(null, new Object[0]);
@@ -93,6 +93,7 @@ public class SubversionProvider implements TeamworkProvider
         return "Subversion";
     }
     
+    @SuppressWarnings("deprecation")
     public TeamworkCommandResult checkConnection(TeamSettings settings)
     {
         client.username(settings.getUserName());

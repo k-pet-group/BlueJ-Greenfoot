@@ -57,7 +57,6 @@ import bluej.utility.filefilter.DirectoryFilter;
  * This class handles communication with the repository.
  *
  * @author fisker
- * @version $Id: CvsRepository.java 7056 2010-01-27 15:12:34Z nccb $
  */
 public class CvsRepository implements Repository
 {
@@ -333,7 +332,7 @@ public class CvsRepository implements Repository
      * @throws AuthenticationException
      * @throws InvalidCvsRootException
      */
-    BasicServerResponse commitToRepository(Client client, Collection files, String comment)
+    BasicServerResponse commitToRepository(Client client, Collection<File> files, String comment)
         throws CommandException, CommandAbortedException, 
             AuthenticationException
     {
@@ -424,7 +423,7 @@ public class CvsRepository implements Repository
      * @throws AuthenticationException
      * @throws InvalidCvsRootException
      */
-    BasicServerResponse removeFromRepository(Client client, Collection files)
+    BasicServerResponse removeFromRepository(Client client, Collection<File> files)
         throws CommandException, CommandAbortedException, 
             AuthenticationException
     {
@@ -534,8 +533,8 @@ public class CvsRepository implements Repository
     /* (non-Javadoc)
      * @see bluej.groupwork.Repository#commitAll(java.util.Set, java.util.Set, java.util.Set, java.util.Set, java.lang.String)
      */
-    public TeamworkCommand commitAll(Set newFiles, Set binaryNewFiles, Set deletedFiles,
-            Set files, String commitComment)
+    public TeamworkCommand commitAll(Set<File> newFiles, Set<File> binaryNewFiles, Set<File> deletedFiles,
+            Set<File> files, String commitComment)
     {
         return new CvsCommitAllCommand(this, newFiles, binaryNewFiles, deletedFiles, files,
                 commitComment);
@@ -550,7 +549,8 @@ public class CvsRepository implements Repository
      *                   the repository)
      * @return
      */
-    public TeamworkCommand updateFiles(UpdateListener listener, Set theFiles, Set forceFiles)
+    public TeamworkCommand updateFiles(UpdateListener listener, Set<File> theFiles,
+            Set<File> forceFiles)
     {
         return new CvsUpdateCommand(this, listener, theFiles, forceFiles);
     }
@@ -572,7 +572,7 @@ public class CvsRepository implements Repository
     * @throws InvalidCvsRootException
     */
     synchronized UpdateServerResponse doUpdateFiles(BlueJCvsClient client,
-            UpdateListener listener, Set theFiles, boolean force)
+            UpdateListener listener, Set<File> theFiles, boolean force)
         throws CommandAbortedException, CommandException, 
             AuthenticationException
     {
@@ -694,10 +694,10 @@ public class CvsRepository implements Repository
      * @throws AuthenticationException
      * @throws CommandException
      */
-    public synchronized List getRemoteFiles(Client client, Set remoteDirs) throws
+    public synchronized List<File> getRemoteFiles(Client client, Set<File> remoteDirs) throws
         AuthenticationException, CommandException
     {
-        List files = new LinkedList();
+        List<File> files = new LinkedList<File>();
         adminHandler.setMildManneredMode(true);
         try {
             getRemoteFiles(client, files, projectPath, remoteDirs, false);
@@ -712,11 +712,11 @@ public class CvsRepository implements Repository
      * Find the remote directories which also exist locally, but are not
      * locally under version control.
      */
-    public synchronized Set getRemoteDirs(Client client)
+    public synchronized Set<File> getRemoteDirs(Client client)
         throws AuthenticationException, CommandException
     {
         adminHandler.setMildManneredMode(true);
-        Set remoteDirs = new HashSet();
+        Set<File> remoteDirs = new HashSet<File>();
         try {
             getRemoteFiles(client, null, projectPath, remoteDirs, true);
         }
@@ -744,15 +744,16 @@ public class CvsRepository implements Repository
      * @throws AuthenticationException
      * @throws CommandException
      */
-    private void getRemoteFiles(Client client, List files, File path, Set remoteDirs, boolean localDirs)
+    private void getRemoteFiles(Client client, List<File> files, File path, Set<File> remoteDirs,
+            boolean localDirs)
         throws AuthenticationException, CommandAbortedException, CommandException
     {        
         UpdateServerResponse updateResponse = getUpdateServerResponse(client,
                 path.getAbsolutePath());
-        List updated = updateResponse.getUpdated();
-        Iterator i = updated.iterator();
+        List<CvsUpdateResult> updated = updateResponse.getUpdated();
+        Iterator<CvsUpdateResult> i = updated.iterator();
         while (i.hasNext()) {
-            CvsUpdateResult ur = (CvsUpdateResult) i.next();
+            CvsUpdateResult ur = i.next();
             File f = new File(path, ur.getFilename());
             remoteDirs.add(f.getParentFile());
             if (files != null && ! f.exists()) {
@@ -761,10 +762,8 @@ public class CvsRepository implements Repository
         }
         
         // Now recurse into any new directories which were discovered.
-        List newDirs = updateResponse.getNewDirectoryNames();
-        i = newDirs.iterator();
-        while (i.hasNext()) {
-            String newDirName = i.next().toString();
+        List<String> newDirs = updateResponse.getNewDirectoryNames();
+        for (String newDirName : newDirs) {
             File localPath = new File(path, newDirName);
             if (! localDirs || localPath.isDirectory()) {
                 remoteDirs.add(localPath);
@@ -780,7 +779,7 @@ public class CvsRepository implements Repository
      * @param includeRemote
      * @return
      */
-    public TeamworkCommand getStatus(StatusListener listener, Set files, boolean includeRemote)
+    public TeamworkCommand getStatus(StatusListener listener, Set<File> files, boolean includeRemote)
     {
         return new CvsStatusCommand(this, listener, files, includeRemote);
     }
@@ -790,7 +789,7 @@ public class CvsRepository implements Repository
      */
     public TeamworkCommand getStatus(StatusListener listener, FileFilter filter, boolean includeRemote)
     {
-        Set files = new HashSet();
+        Set<File> files = new HashSet<File>();
         traverseDirsForFiles(files, projectPath, filter);
         return getStatus(listener, files, includeRemote);
     }
@@ -799,7 +798,7 @@ public class CvsRepository implements Repository
      * Traverse the directory tree starting in dir and add all the encountered 
      * files to the Set allFiles. 
      */
-    private void traverseDirsForFiles(Set allFiles, File dir, FileFilter filter)
+    private void traverseDirsForFiles(Set<File> allFiles, File dir, FileFilter filter)
     {
         if (! filter.accept(dir)) {
             return;
@@ -845,7 +844,7 @@ public class CvsRepository implements Repository
      * @throws AuthenticationException
      * @throws InvalidCvsRootException
      */
-    public synchronized StatusServerResponse getStatus(Client client, Set files, Set remoteDirs)
+    public synchronized StatusServerResponse getStatus(Client client, Set<File> files, Set<File> remoteDirs)
         throws CommandAbortedException, CommandException, AuthenticationException
     {
         // setupConnection();
@@ -881,7 +880,7 @@ public class CvsRepository implements Repository
     /* (non-Javadoc)
      * @see bluej.groupwork.Repository#getModules(java.util.List)
      */
-    public TeamworkCommand getModules(List modules)
+    public TeamworkCommand getModules(List<String> modules)
     {
         return new CvsModulesCommand(this, modules);
     }
@@ -894,7 +893,7 @@ public class CvsRepository implements Repository
      * @throws CommandAbortedException
      * @throws CommandException
      */
-    public synchronized UpdateServerResponse doGetModules(Client client, List modules) throws
+    public synchronized UpdateServerResponse doGetModules(Client client, List<String> modules) throws
             AuthenticationException, CommandAbortedException, CommandException
     {
         // Client client = getClient();
@@ -922,9 +921,9 @@ public class CvsRepository implements Repository
             globalOptions.setDoNoChanges(false);
         }
         
-        List projects = updateServerResponse.getNewDirectoryNames();
-        for (Iterator i = projects.iterator(); i.hasNext(); ) {
-            String projectName = i.next().toString();
+        List<String> projects = updateServerResponse.getNewDirectoryNames();
+        for (Iterator<String> i = projects.iterator(); i.hasNext(); ) {
+            String projectName = i.next();
             if (! projectName.equals("CVSROOT")) {
                 modules.add(projectName);
             }
@@ -941,11 +940,11 @@ public class CvsRepository implements Repository
      * @param dir  The directory to look for deleted files in (non-recursively)
      * @throws IOException
      */
-    public void getLocallyDeletedFiles(Set set, File dir) throws IOException
+    public void getLocallyDeletedFiles(Set<File> set, File dir) throws IOException
     {
-        Iterator i = adminHandler.getEntries(dir);
+        Iterator<Entry> i = adminHandler.getEntries(dir);
         while (i.hasNext()) {
-            Entry entry = (Entry) i.next();
+            Entry entry = i.next();
             File file = new File(dir, entry.getName());
             if (! file.exists() && ! entry.isDirectory()) {
                 set.add(new File(dir, entry.getName()));
@@ -1041,11 +1040,11 @@ public class CvsRepository implements Repository
      * (non-Javadoc)
      * @see bluej.groupwork.Repository#getAllLocallyDeletedFiles()
      */
-    public void getAllLocallyDeletedFiles(Set files)
+    public void getAllLocallyDeletedFiles(Set<File> files)
     {
-        LinkedList stack = new LinkedList();
+        LinkedList<File> stack = new LinkedList<File>();
         stack.add(projectPath);
-        Set tempSet = new HashSet();
+        Set<File> tempSet = new HashSet<File>();
         FileFilter reposFilter = getMetadataFilter();
 
         while (! stack.isEmpty()) {
@@ -1078,7 +1077,7 @@ public class CvsRepository implements Repository
             }
             try {
                 getLocallyDeletedFiles(tempSet, dir);
-                for (Iterator i = tempSet.iterator(); i.hasNext(); ) {
+                for (Iterator<File> i = tempSet.iterator(); i.hasNext(); ) {
                     File file = (File) i.next();
                     // map the file back to the real directory
                     String fileStr = file.getPath();

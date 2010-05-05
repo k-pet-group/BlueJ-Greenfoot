@@ -39,7 +39,7 @@ import org.netbeans.lib.cvsclient.file.DefaultFileHandler;
 public class BlueJFileHandler extends DefaultFileHandler 
 {
     /** Map a file name to it's backed-up local version */
-    private Map conflicts = new HashMap();
+    private Map<File,File> conflicts = new HashMap<File,File>();
     
     private boolean ignoreNextConflict = false;
     
@@ -57,7 +57,7 @@ public class BlueJFileHandler extends DefaultFileHandler
      * original file name to the backup file name for each file for which
      * a backup was created.
      */
-    public Map getConflicts()
+    public Map<File,File> getConflicts()
     {
         return conflicts;
     }

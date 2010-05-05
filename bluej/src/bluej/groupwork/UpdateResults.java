@@ -21,6 +21,7 @@
  */
 package bluej.groupwork;
 
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 
@@ -35,7 +36,7 @@ public interface UpdateResults
     /**
      * Get a list of File objects that represents conflicts. 
      */
-    public List getConflicts();
+    public List<File> getConflicts();
     
     /**
      * Get the set of files which had binary conflicts. These are files which
@@ -43,7 +44,7 @@ public interface UpdateResults
      * be made about which version (local or repository) is to be retained; use
      * the overrideFiles() method to finalise this decision.
      */
-    public Set getBinaryConflicts();
+    public Set<File> getBinaryConflicts();
     
     /**
      * Once the initial update has finished and the binary conflicts are known,
@@ -54,6 +55,6 @@ public interface UpdateResults
      *               local version. (For any file not in the set, the local version
      *               is retained). 
      */
-    public void overrideFiles(Set files);
+    public void overrideFiles(Set<File> files);
 
 }

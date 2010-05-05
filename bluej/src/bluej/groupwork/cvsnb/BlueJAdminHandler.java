@@ -234,7 +234,8 @@ public class BlueJAdminHandler extends StandardAdminHandler
         return super.getEntriesAsArray(directory);
     }
 
-    public Iterator getEntries(File directory) throws IOException
+    @SuppressWarnings("unchecked")
+    public Iterator<Entry> getEntries(File directory) throws IOException
     {
         directory = new File(getMetaDataPath(directory.getAbsolutePath()));
         try {
@@ -297,19 +298,20 @@ public class BlueJAdminHandler extends StandardAdminHandler
         }
     }
     
-    public Set getAllFiles(File directory) throws IOException
+    @SuppressWarnings("unchecked")
+    public Set<File> getAllFiles(File directory) throws IOException
     {
         directory = new File(getMetaDataPath(directory.getAbsolutePath()));
         
         if (mode && ! directory.exists()) {
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         }
 
-        Set s = super.getAllFiles(directory);
-        Set newSet = new TreeSet();
+        Set<File> s = super.getAllFiles(directory);
+        Set<File> newSet = new TreeSet<File>();
         
         // Now we need to convert the path back to the correct path.
-        Iterator i = s.iterator();
+        Iterator<File> i = s.iterator();
         while (i.hasNext()) {
             File f = (File) i.next();
             f = new File(directory, f.getName());

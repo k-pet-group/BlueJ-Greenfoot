@@ -70,7 +70,9 @@ public class CvsProvider
         String prefix = settings.getPrefix();
         String group = settings.getGroup();
         
-        if (password.contains("@")) {
+        // Password can be null if we are doing a task that doesn't require
+        // connection to the server.
+        if (password != null && password.contains("@")) {
         	throw new UnsupportedSettingException(Config.getString("team.error.password.at"));
         }
         if (userName.contains(":")) {

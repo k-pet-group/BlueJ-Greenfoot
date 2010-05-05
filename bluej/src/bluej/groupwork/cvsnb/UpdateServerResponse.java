@@ -59,12 +59,12 @@ public class UpdateServerResponse extends BasicServerResponse implements UpdateR
     /**
      * Stores the UpdateResults
      */
-    private List updateResults = new LinkedList();
+    private List<CvsUpdateResult> updateResults = new LinkedList<CvsUpdateResult>();
     
     /**
      * Stores the names of new directories which were discovered during update
      */
-    private List newDirectoryNames = new LinkedList();
+    private List<String> newDirectoryNames = new LinkedList<String>();
     
     /** Listener to receive notifications of file changes */
     private UpdateListener listener;
@@ -74,7 +74,7 @@ public class UpdateServerResponse extends BasicServerResponse implements UpdateR
      * Keep the local version, or the repository version. Map File to File
      * (original name, backup name)
      */
-    private Map conflictsMap;
+    private Map<File,File> conflictsMap;
     
     private BlueJCvsClient client;
     
@@ -210,12 +210,12 @@ public class UpdateServerResponse extends BasicServerResponse implements UpdateR
         }
     }
     
-    private List getUpdateResultsOfType(char type)
+    private List<CvsUpdateResult> getUpdateResultsOfType(char type)
     {
-        List results = new LinkedList();
-        for (Iterator i = updateResults.iterator(); i.hasNext();) {
-            CvsUpdateResult updateResult = (CvsUpdateResult) i.next();
-            if (updateResult.getStatusCode()== type) {
+        List<CvsUpdateResult> results = new LinkedList<CvsUpdateResult>();
+        for (Iterator<CvsUpdateResult> i = updateResults.iterator(); i.hasNext();) {
+            CvsUpdateResult updateResult = i.next();
+            if (updateResult.getStatusCode() == type) {
                 results.add(updateResult);
             }
         }
@@ -225,13 +225,13 @@ public class UpdateServerResponse extends BasicServerResponse implements UpdateR
     /* (non-Javadoc)
      * @see bluej.groupwork.UpdateResults#getConflicts()
      */
-    public List getConflicts()
+    public List<File> getConflicts()
     {
         waitForExecutionToFinish();
-        List curList = getUpdateResultsOfType(CvsUpdateResult.CONFLICT);
-        List fileList = new ArrayList(curList.size());
-        for (Iterator i = curList.iterator(); i.hasNext(); ) {
-            CvsUpdateResult result = (CvsUpdateResult) i.next();
+        List<CvsUpdateResult> curList = getUpdateResultsOfType(CvsUpdateResult.CONFLICT);
+        List<File> fileList = new ArrayList<File>(curList.size());
+        for (Iterator<CvsUpdateResult> i = curList.iterator(); i.hasNext(); ) {
+            CvsUpdateResult result = i.next();
             fileList.add(new File(client.getLocalPath(), result.getFilename()));
         }
         return fileList;
@@ -243,7 +243,7 @@ public class UpdateServerResponse extends BasicServerResponse implements UpdateR
      * terminated.
      * @return List of UpdateResults which represents updates
      */
-    public List getUpdated()
+    public List<CvsUpdateResult> getUpdated()
     {
         waitForExecutionToFinish();
         return getUpdateResultsOfType(CvsUpdateResult.UPDATED);
@@ -254,7 +254,7 @@ public class UpdateServerResponse extends BasicServerResponse implements UpdateR
      * 
      * @return  the directory names (List of String)
      */
-    public List getNewDirectoryNames()
+    public List<String> getNewDirectoryNames()
     {
         return newDirectoryNames;
     }
@@ -267,7 +267,7 @@ public class UpdateServerResponse extends BasicServerResponse implements UpdateR
      *          (the repository version of the file) and the value is the
      *          backup name (the local version of the file).
      */
-    public void setConflictMap(Map m)
+    public void setConflictMap(Map<File,File> m)
     {
         conflictsMap = m;
     }
@@ -278,7 +278,7 @@ public class UpdateServerResponse extends BasicServerResponse implements UpdateR
      * be made about which version (local or repository) is to be retained; use
      * the overrideFiles() method to finalise this decision.
      */
-    public Set getBinaryConflicts()
+    public Set<File> getBinaryConflicts()
     {
         return conflictsMap.keySet();
     }
@@ -292,10 +292,10 @@ public class UpdateServerResponse extends BasicServerResponse implements UpdateR
      *               local version. (For any file not in the set, the local version
      *               is retained). 
      */
-    public void overrideFiles(Set files)
+    public void overrideFiles(Set<File> files)
     {
         // First delete backups of files which are to be overridden
-        for (Iterator i = files.iterator(); i.hasNext(); ) {
+        for (Iterator<File> i = files.iterator(); i.hasNext(); ) {
             File f = (File) i.next();
             File backupFile = (File) conflictsMap.remove(f);
             if (backupFile != null) {
@@ -305,10 +305,10 @@ public class UpdateServerResponse extends BasicServerResponse implements UpdateR
         
         // Then, for the other files, rename the backup over the original
         // file
-        for (Iterator i = conflictsMap.entrySet().iterator(); i.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) i.next();
-            File f = (File) entry.getKey();
-            File backupFile = (File) entry.getValue();
+        for (Iterator<Map.Entry<File,File>> i = conflictsMap.entrySet().iterator(); i.hasNext(); ) {
+            Map.Entry<File,File> entry = i.next();
+            File f = entry.getKey();
+            File backupFile = entry.getValue();
             f.delete();
             backupFile.renameTo(f);
         }
