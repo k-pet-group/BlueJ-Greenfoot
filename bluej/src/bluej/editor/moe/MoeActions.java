@@ -1130,6 +1130,37 @@ public final class MoeActions
             }
         }
     }
+    
+    private static int findWordLimit(JTextComponent c, int pos, boolean forwards)
+    {
+        try {
+            char curChar = c.getText(pos, 1).charAt(0);
+            if (Character.isWhitespace(curChar)) { 
+                while (Character.isWhitespace(curChar)) {
+                    if (forwards) pos++; else pos--;
+                    curChar = c.getText(pos, 1).charAt(0);
+                }
+                // If we are going back, we'll have gone one character too far
+                // so adjust for that; but if going forwards, the limit is exclusive
+                return forwards ? pos : pos + 1;
+            } else if (Character.isJavaIdentifierPart(curChar)) {
+                while (Character.isJavaIdentifierPart(curChar)) {
+                    if (forwards) pos++; else pos--;
+                    curChar = c.getText(pos, 1).charAt(0);
+                }
+                // If we are going back, we'll have gone one character too far
+                // so adjust for that; but if going forwards, the limit is exclusive
+                return forwards ? pos : pos + 1;
+            } else {
+                // Can't form an identifier, isn't a space, therefore
+                // this char is a word by itself.  If we're looking for the start,
+                // this is it, and the end is one character on 
+                return forwards ? pos + 1 : pos;
+            }
+        } catch (BadLocationException e) {
+            return forwards ? c.getText().length() : 0;
+        }
+    }
 
     // --------------------------------------------------------------------    
     
@@ -1178,51 +1209,21 @@ public final class MoeActions
     
     // --------------------------------------------------------------------    
     
-    class SelectWordAction extends MoeActionOverride
+    class SelectWordAction extends MoeAbstractAction
     {
-        public SelectWordAction(Action[] actions)
+        public SelectWordAction()
         {
-            super(DefaultEditorKit.selectWordAction, actions);
+            super(DefaultEditorKit.selectWordAction);
         }
         
         public void actionPerformed(ActionEvent e)
         {
-            // Double-click select finds the word around the caret.
-            // Therefore we take note of the position of the caret before the action is performed,
-            // then look at the selection afterwards.  If there are any dots between the original
-            // caret position and the boundary of the new selection (on either side), the selection
-            // should be trimmed accordingly.
             JTextComponent c = getTextComponent(e);
             int origPos = c.getCaret().getDot();
-            performDefaultAction(e);
-            int newStart = c.getCaret().getMark();
-            int newEnd = c.getCaret().getDot();
-         
-            //TODO also deal with leading and trailing underscores
-            try {
-                String selStart = c.getText(newStart, origPos - newStart);
-                String selEnd = c.getText(origPos, newEnd - origPos);
-                
-                // If you double click on a dot, that's all you select:
-                if (selEnd.startsWith(".")) {
-                    c.getCaret().setDot(origPos);
-                    c.getCaret().moveDot(origPos+1);
-                } else {
-                    // Look back from cursor:
-                    int lastDot = selStart.lastIndexOf('.');
-                    if (lastDot != -1) {
-                        c.getCaret().setDot(newStart + lastDot + 1);
-                        c.getCaret().moveDot(newEnd);
-                    }
-
-                    // Look forward from cursor:
-                    int firstDot = selEnd.indexOf('.');
-                    if (firstDot != -1) {
-                        c.getCaret().moveDot(origPos + firstDot);
-                    }
-                }
-            } catch (BadLocationException ex) {
-            }
+            int newStart = findWordLimit(c, origPos, false);
+            int newEnd = findWordLimit(c, origPos, true);
+            c.getCaret().setDot(newStart);
+            c.getCaret().moveDot(newEnd);
         }
     }
 
@@ -1965,7 +1966,7 @@ public final class MoeActions
                 new PrevWordAction(false, textActions),                
                 new PrevWordAction(true, textActions),
                 
-                new SelectWordAction(textActions)
+                new SelectWordAction()
         };
         
         Action[] myActions = {
