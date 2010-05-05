@@ -1140,7 +1140,7 @@ public final class MoeActions
     
     class PrevWordAction extends MoeAbstractAction
     {
-        //TODO also do all the other actions involving words
+        // TODO do begin-word and end-word
         private boolean withSelection;
         
         public PrevWordAction(boolean withSelection)
@@ -1178,6 +1178,29 @@ public final class MoeActions
                 c.setCaretPosition(pos);
             }
         }
+    }
+    
+    // --------------------------------------------------------------------
+    class DeleteWordAction extends MoeAbstractAction
+    {
+        public DeleteWordAction()
+        {
+            super("delete-previous-word");
+        }
+
+        public void actionPerformed(ActionEvent e)
+        {
+            JTextComponent c = getTextComponent(e);
+            Action prevWordAct = actions.get(DefaultEditorKit.previousWordAction);
+            int end = c.getCaret().getDot();
+            prevWordAct.actionPerformed(e);
+            int begin = c.getCaret().getDot();
+            try {
+                c.getDocument().remove(begin, end - begin);
+            } catch (BadLocationException ex) {
+            }
+        }
+        
     }
     
     // --------------------------------------------------------------------    
@@ -1939,6 +1962,8 @@ public final class MoeActions
                 new PrevWordAction(false),                
                 new PrevWordAction(true),
                 
+                new DeleteWordAction(),
+                
                 new SelectWordAction()
         };
         
@@ -2013,7 +2038,7 @@ public final class MoeActions
                 // edit functions
                 (Action) (actions.get(DefaultEditorKit.deletePrevCharAction)), // 0
                 (Action) (actions.get(DefaultEditorKit.deleteNextCharAction)),
-                (Action) (actions.get(DefaultEditorKit.deletePrevWordAction)),
+                (Action) (actions.get("delete-previous-word")),
                 (Action) (actions.get(DefaultEditorKit.copyAction)),
                 (Action) (actions.get(DefaultEditorKit.cutAction)), 
                 (Action) (actions.get("copy-line")),
