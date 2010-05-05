@@ -1140,8 +1140,7 @@ public final class MoeActions
     
     class PrevWordAction extends MoeAbstractAction
     {
-       // #error TODO change this to use findWorldLimit
-       // #error TODO also do all the other actions involving words
+        //TODO also do all the other actions involving words
         private boolean withSelection;
         
         public PrevWordAction(boolean withSelection)
@@ -2014,6 +2013,7 @@ public final class MoeActions
                 // edit functions
                 (Action) (actions.get(DefaultEditorKit.deletePrevCharAction)), // 0
                 (Action) (actions.get(DefaultEditorKit.deleteNextCharAction)),
+                (Action) (actions.get(DefaultEditorKit.deletePrevWordAction)),
                 (Action) (actions.get(DefaultEditorKit.copyAction)),
                 (Action) (actions.get(DefaultEditorKit.cutAction)), 
                 (Action) (actions.get("copy-line")),
@@ -2034,7 +2034,7 @@ public final class MoeActions
                 (Action) (actions.get("indent-block")), 
                 (Action) (actions.get("deindent-block")),
 
-                (Action) (actions.get(DefaultEditorKit.selectWordAction)), // 21
+                (Action) (actions.get(DefaultEditorKit.selectWordAction)), // 22
                 (Action) (actions.get(DefaultEditorKit.selectLineAction)),
                 (Action) (actions.get(DefaultEditorKit.selectParagraphAction)),
                 (Action) (actions.get(DefaultEditorKit.selectAllAction)),
@@ -2044,7 +2044,7 @@ public final class MoeActions
                 (Action) (actions.get(DefaultEditorKit.selectionDownAction)),
                 (Action) (actions.get(DefaultEditorKit.selectionBeginWordAction)),
                 (Action) (actions.get(DefaultEditorKit.selectionEndWordAction)),
-                (Action) (actions.get(DefaultEditorKit.selectionPreviousWordAction)), // 31
+                (Action) (actions.get(DefaultEditorKit.selectionPreviousWordAction)), // 32
                 (Action) (actions.get(DefaultEditorKit.selectionNextWordAction)),
                 (Action) (actions.get(DefaultEditorKit.selectionBeginLineAction)),
                 (Action) (actions.get(DefaultEditorKit.selectionEndLineAction)),
@@ -2057,7 +2057,7 @@ public final class MoeActions
                 (Action) (actions.get("unselect")),
 
                 // move and scroll functions
-                (Action) (actions.get(DefaultEditorKit.backwardAction)), // 42
+                (Action) (actions.get(DefaultEditorKit.backwardAction)), // 43
                 (Action) (actions.get(DefaultEditorKit.forwardAction)),
                 (Action) (actions.get(DefaultEditorKit.upAction)), 
                 (Action) (actions.get(DefaultEditorKit.downAction)),
@@ -2066,7 +2066,7 @@ public final class MoeActions
                 (Action) (actions.get(DefaultEditorKit.previousWordAction)),
                 (Action) (actions.get(DefaultEditorKit.nextWordAction)),
                 (Action) (actions.get(DefaultEditorKit.beginLineAction)),
-                (Action) (actions.get(DefaultEditorKit.endLineAction)),    // 51
+                (Action) (actions.get(DefaultEditorKit.endLineAction)),    // 52
                 (Action) (actions.get(DefaultEditorKit.beginParagraphAction)),
                 (Action) (actions.get(DefaultEditorKit.endParagraphAction)),
                 (Action) (actions.get(DefaultEditorKit.pageUpAction)),
@@ -2075,24 +2075,24 @@ public final class MoeActions
                 (Action) (actions.get(DefaultEditorKit.endAction)),
 
                 // class functions
-                (Action) (actions.get("save")), // 58
+                (Action) (actions.get("save")), // 59
                 (Action) (actions.get("reload")), 
                 (Action) (actions.get("close")), 
                 (Action) (actions.get("print")),
                 (Action) (actions.get("page-setup")),
 
                 // customisation functions
-                (Action) (actions.get("key-bindings")), // 63
+                (Action) (actions.get("key-bindings")), // 64
                 (Action) (actions.get("preferences")),
 
                 // help functions
-                (Action) (actions.get("describe-key")), // 65
+                (Action) (actions.get("describe-key")), // 66
                 (Action) (actions.get("help-mouse")), 
                 (Action) (actions.get("show-manual")),
                 (Action) (actions.get("about-editor")),
 
                 // misc functions
-                undoAction, // 69
+                undoAction, // 70
                 redoAction, 
                 (Action) (actions.get("find")), 
                 (Action) (actions.get("find-next")),
@@ -2106,7 +2106,7 @@ public final class MoeActions
                 (Action) (actions.get("decrease-font")),
                 (Action) (actions.get("code-completion")),
 
-        }; // 82
+        }; // 83
 
         categories = new String[] { 
                 Config.getString("editor.functions.editFunctions"),
@@ -2117,7 +2117,7 @@ public final class MoeActions
                 Config.getString("editor.functions.misc")
         };
 
-        categoryIndex = new int[] { 0, 42, 58, 63, 65, 69, 82 };
+        categoryIndex = new int[] { 0, 43, 59, 64, 66, 70, 83 };
     }
 
     /**
