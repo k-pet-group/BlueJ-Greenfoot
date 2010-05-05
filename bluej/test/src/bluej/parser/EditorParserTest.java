@@ -307,4 +307,37 @@ public class EditorParserTest extends TestCase
         
         InfoParser.parse(new StringReader(sourceCode), resolver, "");
     }
+    
+    public void testClassModifiers()
+    {
+        String sourceCode = ""
+            + "interface A\n"
+            + "{\n"
+            + "}\n";
+            
+        ParsedCUNode pcuNode = cuForSource(sourceCode, "");
+        resolver.addCompilationUnit("", pcuNode);
+        
+        TypeEntity aTent = resolver.resolveQualifiedClass("A");
+        GenTypeClass aClass = aTent.getClassType();
+        
+        assertFalse(aClass.getReflective().isPublic());
+        assertFalse(aClass.getReflective().isStatic());
+        assertTrue(aClass.isInterface());
+        
+        sourceCode = ""
+            + "public static class B\n"
+            + "{\n"
+            + "}\n";
+        
+        pcuNode = cuForSource(sourceCode, "");
+        this.resolver.addCompilationUnit("", pcuNode);
+
+        TypeEntity bTent = resolver.resolveQualifiedClass("B");
+        GenTypeClass bClass = bTent.getClassType();
+        
+        assertTrue(bClass.getReflective().isPublic());
+        assertTrue(bClass.getReflective().isStatic());
+        assertFalse(bClass.isInterface());
+    }
 }
