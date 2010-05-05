@@ -165,7 +165,7 @@ If this message appears again you should check the log file
 with the error messages from Javadoc:
 
 severe-doc-trouble
-An exception occured during the call
+An exception occurred during the call
 to the external documentation tool.
 
 no-java-sources-found
@@ -179,7 +179,8 @@ classes or packages with the same name.
 
 class-already-in-library
 A class with this name already exists in a library.
-Please choose another name
+If you create this class, you will be able to edit
+and compile it, but not call its methods.
 Cancel
 Continue Anyway
 null
