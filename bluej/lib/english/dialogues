@@ -177,6 +177,14 @@ A class or package with this name already exists
 in this project. You cannot have two
 classes or packages with the same name.
 
+class-already-in-library
+A class with this name already exists in a library.
+Please choose another name in order to avoid 
+possible confusion with the correct class to use.
+Cancel
+Continue Anyway
+null
+
 windows-reserved-class-name
 The chosen class name cannot be used, because it
 conflicts with a reserved filename on some operating

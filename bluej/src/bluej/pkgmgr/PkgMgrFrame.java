@@ -49,6 +49,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -1202,10 +1204,20 @@ public class PkgMgrFrame extends JFrame
             DialogManager.showError(this, "duplicate-name");
             return false;
         }
-
+        
+        //check if there already exists a class in a library with that name 
+        if (pkg.loadClass(pkg.getQualifiedName(name))!=null){  
+            String fullName= (pkg.loadClass(pkg.getQualifiedName(name))).getResource(name+".class").toString();
+            // The class is in a jar file
+            if (fullName.startsWith("jar:")) {
+                if (DialogManager.askQuestion(this, "class-already-in-library")==0)
+                    return false;
+            }
+        }
+        
         ClassTarget target = null;
         target = new ClassTarget(pkg, name, template);
-
+        
         if ( template != null ) { 
             boolean success = target.generateSkeleton(template);
             if (! success)
