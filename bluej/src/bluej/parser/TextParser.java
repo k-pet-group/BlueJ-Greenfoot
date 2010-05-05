@@ -338,16 +338,23 @@ public class TextParser extends JavaParser
 
         List<GenTypeClass> typeArgs = Collections.emptyList(); // TODO!
 
-        ArrayList<MethodCallDesc> suitable = TextAnalyzer.getSuitableMethods(op.getToken().getText(),
-                targetType, argTypes, typeArgs);
-        // DAV fix
-        // assume for now all candidates have override-equivalent signatures
-        if (suitable.size() == 0) {
-            valueStack.push(new ErrorEntity());
-            return;
+        if (op.getToken().getType() == JavaTokenTypes.IDENT) {
+            ArrayList<MethodCallDesc> suitable = TextAnalyzer.getSuitableMethods(op.getToken().getText(),
+                    targetType, argTypes, typeArgs);
+            // DAV fix
+            // assume for now all candidates have override-equivalent signatures
+            if (suitable.size() == 0) {
+                valueStack.push(new ErrorEntity());
+                return;
+            }
+
+            valueStack.push(new ValueEntity(suitable.get(0).retType));
         }
-        
-        valueStack.push(new ValueEntity(suitable.get(0).retType));
+        else {
+            // TODO op.getToken() should be either 'super' or 'this' token type.
+            // I.e. a call to the constructor.
+            valueStack.push(new ErrorEntity());
+        }
     }
     
     private void checkArgs(JavaEntity arg1, JavaEntity arg2, Operator op)

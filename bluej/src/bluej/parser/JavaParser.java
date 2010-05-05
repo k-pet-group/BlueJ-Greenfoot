@@ -2558,9 +2558,11 @@ public class JavaParser
                         }
                         else if (ntoken.getType() == JavaTokenTypes.LITERAL_this) {
                             completeCompoundClass(token);
+                            // TODO gotThisAccessor
                         }
                         else if (ntoken.getType() == JavaTokenTypes.LITERAL_super) {
                             completeCompoundClass(token);
+                            // TODO gotSuperAccessor
                         }
                         else {
                             completeCompoundValue(token);
@@ -2626,6 +2628,7 @@ public class JavaParser
             case 5: // LITERAL_super
                 if (tokenStream.LA(1).getType() == JavaTokenTypes.LPAREN) {
                     // call to constructor or superclass constructor
+                    gotConstructorCall(token);
                     parseArgumentList(tokenStream.nextToken());
                 }
                 else {
