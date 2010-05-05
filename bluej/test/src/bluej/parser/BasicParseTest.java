@@ -672,4 +672,23 @@ public class BasicParseTest extends junit.framework.TestCase
         assertTrue(used.contains("I"));
         assertTrue(used.contains("J"));
     }
+    
+    public void testClassModifiers()
+    {
+        InitConfig.init();
+        TestEntityResolver ter = new TestEntityResolver(
+                new ClassLoaderResolver(this.getClass().getClassLoader())
+                );
+        PackageResolver pkgr = new PackageResolver(ter, "");
+
+        StringReader sr = new StringReader(
+                "abstract class A {\n" +
+                "}\n"
+        );
+        ClassInfo info = ClassParser.parse(sr, pkgr, "");
+        assertTrue(info.isAbstract());
+        assertFalse(info.isInterface());
+        assertFalse(info.isApplet());
+        assertFalse(info.isEnum());
+    }
 }

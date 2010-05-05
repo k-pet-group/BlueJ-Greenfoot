@@ -66,12 +66,14 @@ public class InfoParser extends EditorParser
     private ClassInfo info;
     private int classLevel = 0; // number of nested classes
     private boolean isPublic;
+    private boolean isAbstract;
     private int lastTdType; // last typedef type (TYPEDEF_CLASS, _INTERFACE etc)
     private boolean storeCurrentClassInfo;
     private int arrayCount = 0;
 
     private List<LocatableToken> lastTypespecToks;
-    private boolean modPublic;
+    private boolean modPublic = false;
+    private boolean modAbstract = false;
     private List<MethodDesc> methodDescs = new LinkedList<MethodDesc>();
     private MethodDesc currentMethod;
     
@@ -506,6 +508,7 @@ public class InfoParser extends EditorParser
     protected void gotTypeDef(int tdType)
     {
         isPublic = modPublic;
+        isAbstract = modAbstract;
         super.gotTypeDef(tdType);
         lastTdType = tdType;
     }
@@ -521,6 +524,7 @@ public class InfoParser extends EditorParser
                 info.setName(nameToken.getText(), isPublic);
                 info.setEnum(lastTdType == TYPEDEF_ENUM);
                 info.setInterface(lastTdType == TYPEDEF_INTERFACE);
+                info.setAbstract(isAbstract);
                 Selection insertSelection = new Selection(nameToken.getLine(), nameToken.getEndColumn());
                 info.setExtendsInsertSelection(insertSelection);
                 info.setImplementsInsertSelection(insertSelection);
@@ -587,13 +591,19 @@ public class InfoParser extends EditorParser
     protected void gotModifier(LocatableToken token)
     {
         super.gotModifier(token);
-        modPublic = true;
+        if (token.getType() == JavaTokenTypes.LITERAL_public) {
+            modPublic = true;
+        }
+        else if (token.getType() == JavaTokenTypes.ABSTRACT) {
+            modAbstract = true;
+        }
     }
     
     @Override
     protected void modifiersConsumed()
     {
         modPublic = false;
+        modAbstract = false;
     }
 
     private Selection getSelection(LocatableToken token)

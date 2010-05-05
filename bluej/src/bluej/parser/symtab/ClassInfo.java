@@ -47,11 +47,11 @@ import bluej.utility.SortedProperties;
  */
 public final class ClassInfo
 {
-    private static final String[] appletClasses = { "Applet", "JApplet" };
-    private static final String[] unitTestClasses = { "TestCase", "junit.framework.TestCase" };
-    private static final String[] midletClasses = { "MIDlet", "javax.microedition.midlet.MIDlet" }; 
+    private static final String[] appletClasses = { "java.applet.Applet", "javax.swing.JApplet" };
+    private static final String[] unitTestClasses = { "junit.framework.TestCase" };
+    private static final String[] midletClasses = { "javax.microedition.midlet.MIDlet" }; 
 
-    private boolean foundClass = false, foundPublicClass = false;
+    private boolean foundPublicClass = false;
 
     private String name;
     private String superclass;
@@ -63,6 +63,17 @@ public final class ClassInfo
     
     private List<String> typeParameterTexts;
     private Selection typeParametersSelection;
+    private Selection extendsReplaceSelection;
+
+    // how we would replace the superclass name in a class
+    private Selection superReplaceSelection;
+
+    private boolean isInterface = false;
+    private boolean isAbstract = false;
+    private boolean isApplet = false;
+    private boolean isUnitTest = false;
+    private boolean isEnum = false;
+    private boolean isMIDlet = false;
 
     private class SavedComment
     {
@@ -96,18 +107,6 @@ public final class ClassInfo
         }
     }
 
-    private boolean isInterface = false;
-    private boolean isAbstract = false;
-    private boolean isApplet = false;
-    private boolean isUnitTest = false;
-    private boolean isEnum = false;
-    private boolean isMIDlet = false;
-
-    public boolean foundClass()
-    {
-        return foundClass;
-    }
-
     public boolean foundPublicClass()
     {
         return foundPublicClass;
@@ -120,10 +119,9 @@ public final class ClassInfo
     {
         this.name = name;
 
-        foundClass = true;
-
-        if(pub)
+        if(pub) {
             foundPublicClass = true;
+        }
     }
 
     public void setSuperclass(String name)
@@ -151,7 +149,8 @@ public final class ClassInfo
         }
     }
     
-    public void setEnum(boolean isEnum) {
+    public void setEnum(boolean isEnum)
+    {
         this.isEnum = isEnum;
     }
 
@@ -311,12 +310,6 @@ public final class ClassInfo
         return extendsReplaceSelection;
     }
 
-    private Selection extendsReplaceSelection;
-
-
-    // how we would replace the superclass name in a class
-    private Selection superReplaceSelection;
-
     public void setSuperReplaceSelection(Selection s)
     {
         superReplaceSelection = s;
@@ -346,26 +339,15 @@ public final class ClassInfo
         interfaceSelections = selections;
     }
     
-    public void setTypeParameterTexts(List<String> newTexts)
-    {
-        typeParameterTexts = newTexts;
-    }
-    
     public List<String> getTypeParameterTexts()
     {
         return typeParameterTexts;
     }
 
-
     public List<Selection> getInterfaceSelections()
     {
         return interfaceSelections;
     }
-
-//    public List getInterfaceTexts()
-//    {
-//        return interfaceTexts;
-//    }
 
     public boolean hasInterfaceSelections()
     {
@@ -467,11 +449,6 @@ public final class ClassInfo
     public boolean hasTypeParameter()
     {
         return (typeParametersSelection != null);
-    }
-    
-    public Selection getTypeParametersSelection()
-    {
-        return typeParametersSelection;
     }
     
     /**
