@@ -179,8 +179,7 @@ classes or packages with the same name.
 
 class-already-in-library
 A class with this name already exists in a library.
-Please choose another name in order to avoid 
-possible confusion with the correct class to use.
+Please choose another name
 Cancel
 Continue Anyway
 null

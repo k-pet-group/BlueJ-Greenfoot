@@ -1206,8 +1206,9 @@ public class PkgMgrFrame extends JFrame
         }
         
         //check if there already exists a class in a library with that name 
-        if (pkg.loadClass(pkg.getQualifiedName(name))!=null){  
-            String fullName= (pkg.loadClass(pkg.getQualifiedName(name))).getResource(name+".class").toString();
+        Class c=pkg.loadClass(pkg.getQualifiedName(name));
+        if (c!=null){  
+            String fullName= c.getResource(name+".class").toString();
             // The class is in a jar file
             if (fullName.startsWith("jar:")) {
                 if (DialogManager.askQuestion(this, "class-already-in-library")==0)
