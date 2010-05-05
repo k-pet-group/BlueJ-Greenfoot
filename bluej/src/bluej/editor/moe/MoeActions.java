@@ -531,29 +531,6 @@ public final class MoeActions
             return ed;
         }
     }
-    
-    abstract class MoeActionOverride extends MoeAbstractAction
-    {
-        private Action defaultAction;
-
-        public MoeActionOverride(String name, Action[] defaultActions)
-        {
-            super(name);
-            for (Action action : defaultActions) {
-                if (name.equals(action.getValue(Action.NAME))) {
-                    this.defaultAction = action;
-                }
-            }
-        }
-
-        public void performDefaultAction(ActionEvent e)
-        {
-            if (defaultAction != null) {
-                defaultAction.actionPerformed(e);
-            }
-        }
-        
-    }
 
     // === File: ===
     // --------------------------------------------------------------------
@@ -1092,7 +1069,7 @@ public final class MoeActions
     {
         private boolean withSelection;
 
-        public NextWordAction(boolean withSelection, Action[] actions)
+        public NextWordAction(boolean withSelection)
         {
             super(withSelection ? DefaultEditorKit.selectionNextWordAction : DefaultEditorKit.nextWordAction);
             this.withSelection = withSelection;
@@ -1100,9 +1077,6 @@ public final class MoeActions
         
         public void actionPerformed(ActionEvent e)
         {
-            // The implementation of next word usually is quite complex,
-            // so rather than re-implement it, we wrap it and watch out for
-            // characters we don't want to skip over:
             JTextComponent c = getTextComponent(e);
             int origPos = c.getCaret().getDot();
             int end = findWordLimit(c, origPos, true);
@@ -1164,37 +1138,37 @@ public final class MoeActions
 
     // --------------------------------------------------------------------    
     
-    class PrevWordAction extends MoeActionOverride
+    class PrevWordAction extends MoeAbstractAction
     {
+       // #error TODO change this to use findWorldLimit
+       // #error TODO also do all the other actions involving words
         private boolean withSelection;
         
-        public PrevWordAction(boolean withSelection, Action[] actions)
+        public PrevWordAction(boolean withSelection)
         {
-            super(withSelection ? DefaultEditorKit.selectionPreviousWordAction : DefaultEditorKit.previousWordAction, actions);
+            super(withSelection ? DefaultEditorKit.selectionPreviousWordAction : DefaultEditorKit.previousWordAction);
             this.withSelection = withSelection;
         }
         
         public void actionPerformed(ActionEvent e)
         {
-            // The implementation of next word usually is quite complex,
-            // so rather than re-implement it, we wrap it and watch out for
-            // characters we don't want to skip over:
             JTextComponent c = getTextComponent(e);
             int origPos = c.getCaret().getDot();
-            performDefaultAction(e);
-            int newPos = c.getCaret().getDot();
             try {
-                String skippedText = c.getText(newPos, origPos - newPos);
-                int lastDot = skippedText.indexOf('.');
-                if (lastDot == skippedText.length() - 1) { // first char -- just skip that:
-                    moveCaret(c, origPos - 1);
-                } else if (lastDot != -1) { // if it's there and not the first char
-                    moveCaret(c, newPos + lastDot + 1);
+                if (Character.isWhitespace(c.getText(origPos - 1, 1).charAt(0))) {
+                    // Whitespace region precedes, find the beginning of it:
+                    int startOfWS = findWordLimit(c, origPos - 1, false);
+                    int startOfPrevWord = findWordLimit(c, startOfWS - 1, false);
+                    moveCaret(c, startOfPrevWord);
+                } else {
+                    // We're in the middle of a word already, find the start:
+                    int startOfWord = findWordLimit(c, origPos - 1, false);
+                    moveCaret(c, startOfWord);
                 }
-            }
-            catch (BadLocationException e1) {
-            }
-            
+            } catch (BadLocationException ex) {
+                // Start of file already, just set the caret there:
+                moveCaret(c, 0);
+            }            
         }
         
         private void moveCaret(JTextComponent c, int pos)
@@ -1961,10 +1935,10 @@ public final class MoeActions
         
         overrideActions = new Action[] {
                 //With and without selection for each:
-                new NextWordAction(false, textActions),
-                new NextWordAction(true, textActions),
-                new PrevWordAction(false, textActions),                
-                new PrevWordAction(true, textActions),
+                new NextWordAction(false),
+                new NextWordAction(true),
+                new PrevWordAction(false),                
+                new PrevWordAction(true),
                 
                 new SelectWordAction()
         };
