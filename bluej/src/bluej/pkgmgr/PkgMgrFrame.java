@@ -1204,21 +1204,29 @@ public class PkgMgrFrame extends JFrame
             DialogManager.showError(this, "duplicate-name");
             return false;
         }
-        
+
         //check if there already exists a class in a library with that name 
-        Class c=pkg.loadClass(pkg.getQualifiedName(name));
+        Class<?> c=pkg.loadClass(pkg.getQualifiedName(name));
         if (c!=null){  
             String fullName= c.getResource(name+".class").toString();
-            // The class is in a jar file
-            if (fullName.startsWith("jar:")) {
-                if (DialogManager.askQuestion(this, "class-already-in-library")==0)
-                    return false;
+            //need to trim if it is referencing a jar file
+            if (fullName.startsWith("jar:"))
+                fullName = fullName.substring(4);
+            try{
+                File finalFile = new File(new URI(fullName));
+                // The class is in a jar file or the paths to the new file and this file do not match
+                if  (!(finalFile.getParentFile()).equals(pkg.getPath())) {
+                    if (DialogManager.askQuestion(this, "class-already-in-library")==0)
+                        return false;
+                }
+            }catch(URISyntaxException e){
+                return false;
             }
         }
-        
+
         ClassTarget target = null;
         target = new ClassTarget(pkg, name, template);
-        
+
         if ( template != null ) { 
             boolean success = target.generateSkeleton(template);
             if (! success)
