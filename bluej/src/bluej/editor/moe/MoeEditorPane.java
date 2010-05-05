@@ -23,8 +23,6 @@ package bluej.editor.moe;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.io.IOException;
-import java.io.Reader;
 
 import javax.swing.JEditorPane;
 import javax.swing.border.EmptyBorder;
@@ -35,7 +33,6 @@ import javax.swing.border.EmptyBorder;
  *
  * @author Michael Kolling
  */
-
 public final class MoeEditorPane extends JEditorPane
 {
     /**
@@ -65,15 +62,5 @@ public final class MoeEditorPane extends JEditorPane
     {
         super.scrollRectToVisible(new Rectangle(rect.x - (MoeSyntaxView.TAG_WIDTH + 4), rect.y,
                                                 rect.width + MoeSyntaxView.TAG_WIDTH + 4, rect.height));
-    }
-    
-    /*
-     * Retain the parser 
-     */
-    @Override
-    public void read(Reader in, Object desc) throws IOException
-    {
-        // TODO Auto-generated method stub
-        super.read(in, desc);
     }
 }
