@@ -171,9 +171,7 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener
         optionsBody.add(replaceAllButton);
         rBody.add(replaceBody);
         rBody.add(optionsBody);
-        rBody.add(tempBody);
         rBody.setMaximumSize(rBody.getPreferredSize());
-        rBody.add(Box.createHorizontalGlue());
 
         add(rBody, BorderLayout.WEST);
     }
