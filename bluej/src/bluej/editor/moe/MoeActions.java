@@ -1065,14 +1065,33 @@ public final class MoeActions
     
     // --------------------------------------------------------------------
     
-    class NextWordAction extends MoeAbstractAction
+    private abstract class MoeActionWithOrWithoutSelection extends MoeAbstractAction
     {
         private boolean withSelection;
+        
+        protected MoeActionWithOrWithoutSelection(String actionName, boolean withSelection)
+        {
+            super(actionName);
+            this.withSelection = withSelection;
+        }
 
+        protected void moveCaret(JTextComponent c, int pos)
+        {
+            if (withSelection) {
+                c.getCaret().moveDot(pos);
+            } else {
+                c.setCaretPosition(pos);
+            }
+        }       
+    }
+    
+    // --------------------------------------------------------------------
+    
+    class NextWordAction extends MoeActionWithOrWithoutSelection
+    {
         public NextWordAction(boolean withSelection)
         {
-            super(withSelection ? DefaultEditorKit.selectionNextWordAction : DefaultEditorKit.nextWordAction);
-            this.withSelection = withSelection;
+            super(withSelection ? DefaultEditorKit.selectionNextWordAction : DefaultEditorKit.nextWordAction, withSelection);
         }
         
         public void actionPerformed(ActionEvent e)
@@ -1095,14 +1114,7 @@ public final class MoeActions
             }
         }
         
-        private void moveCaret(JTextComponent c, int pos)
-        {
-            if (withSelection) {
-                c.getCaret().moveDot(pos);
-            } else {
-                c.setCaretPosition(pos);
-            }
-        }
+
     }
     
     private static int findWordLimit(JTextComponent c, int pos, boolean forwards)
@@ -1138,14 +1150,11 @@ public final class MoeActions
 
     // --------------------------------------------------------------------    
     
-    class PrevWordAction extends MoeAbstractAction
-    {
-        private boolean withSelection;
-        
+    class PrevWordAction extends MoeActionWithOrWithoutSelection
+    {       
         public PrevWordAction(boolean withSelection)
         {
-            super(withSelection ? DefaultEditorKit.selectionPreviousWordAction : DefaultEditorKit.previousWordAction);
-            this.withSelection = withSelection;
+            super(withSelection ? DefaultEditorKit.selectionPreviousWordAction : DefaultEditorKit.previousWordAction, withSelection);
         }
         
         public void actionPerformed(ActionEvent e)
@@ -1168,27 +1177,15 @@ public final class MoeActions
                 moveCaret(c, 0);
             }            
         }
-        
-        private void moveCaret(JTextComponent c, int pos)
-        {
-            if (withSelection) {
-                c.getCaret().moveDot(pos);
-            } else {
-                c.setCaretPosition(pos);
-            }
-        }
     }
     
     // --------------------------------------------------------------------
     
-    class EndWordAction extends MoeAbstractAction
+    class EndWordAction extends MoeActionWithOrWithoutSelection
     {
-        private boolean withSelection;
-
         public EndWordAction(boolean withSelection)
         {
-            super(withSelection ? DefaultEditorKit.selectionEndWordAction : DefaultEditorKit.endWordAction);
-            this.withSelection = withSelection;
+            super(withSelection ? DefaultEditorKit.selectionEndWordAction : DefaultEditorKit.endWordAction, withSelection);
         }
         
         public void actionPerformed(ActionEvent e)
@@ -1198,27 +1195,15 @@ public final class MoeActions
             int end = findWordLimit(c, origPos, true);
             moveCaret(c, end);
         }
-        
-        private void moveCaret(JTextComponent c, int pos)
-        {
-            if (withSelection) {
-                c.getCaret().moveDot(pos);
-            } else {
-                c.setCaretPosition(pos);
-            }
-        }
     }
 
     // --------------------------------------------------------------------    
     
-    class BeginWordAction extends MoeAbstractAction
+    class BeginWordAction extends MoeActionWithOrWithoutSelection
     {
-        private boolean withSelection;
-        
         public BeginWordAction(boolean withSelection)
         {
-            super(withSelection ? DefaultEditorKit.selectionBeginWordAction : DefaultEditorKit.beginWordAction);
-            this.withSelection = withSelection;
+            super(withSelection ? DefaultEditorKit.selectionBeginWordAction : DefaultEditorKit.beginWordAction, withSelection);
         }
         
         public void actionPerformed(ActionEvent e)
@@ -1227,15 +1212,6 @@ public final class MoeActions
             int origPos = c.getCaret().getDot();
             int start = findWordLimit(c, origPos, false);
             moveCaret(c, start);
-        }
-        
-        private void moveCaret(JTextComponent c, int pos)
-        {
-            if (withSelection) {
-                c.getCaret().moveDot(pos);
-            } else {
-                c.setCaretPosition(pos);
-            }
         }
     }
     
