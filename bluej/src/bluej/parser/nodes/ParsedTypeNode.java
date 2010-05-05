@@ -163,6 +163,8 @@ public class ParsedTypeNode extends IncrementalParsingNode
     {
         if (state == 0) {
             // [modifiers] {class|interface|enum|@interface} name [<type params>] [extends...]
+            LocatableToken la = params.tokenStream.LA(1);
+            setCommentAttached(la.getHiddenBefore() != null);
             int r = params.parser.parseTypeDefBegin();
             if (r == JavaParser.TYPEDEF_EPIC_FAIL) {
                 return PP_EPIC_FAIL;

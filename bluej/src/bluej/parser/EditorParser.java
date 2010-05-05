@@ -451,7 +451,8 @@ public class EditorParser extends JavaParser
         int curOffset = getTopNodeOffset();
         LocatableToken hidden = pcuStmtBegin.getHiddenBefore();
         if (hidden != null && hidden.getType() == JavaTokenTypes.ML_COMMENT) {
-            pcuStmtBegin = hidden; 
+            pcuStmtBegin = hidden;
+            pnode.setCommentAttached(true);
             // TODO: make certain hidden token not already consumed by prior sibling node
         }
         int insPos = lineColToPosition(pcuStmtBegin.getLine(), pcuStmtBegin.getColumn());
@@ -854,6 +855,7 @@ public class EditorParser extends JavaParser
         int endpos = lineColToPosition(s.getEndLine(), s.getEndColumn());
         
         ParentParsedNode cn = new InnerNode(pcuNode);
+        cn.setComplete(true);
         beginNode(startpos);
         pcuNode.insertNode(cn, startpos, endpos - startpos);
         completedNode(cn, startpos, endpos - startpos);

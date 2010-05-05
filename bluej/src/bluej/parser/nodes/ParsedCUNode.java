@@ -121,7 +121,9 @@ public class ParsedCUNode extends IncrementalParsingNode
     @Override
     protected boolean isDelimitingNode(NodeAndPosition<ParsedNode> nap)
     {
-        return nap.getNode().isContainer();
+        // All node types: package statement, import (Inner), type definition,
+        // are all delimiting nodes.
+        return true;
     }
     
     @Override

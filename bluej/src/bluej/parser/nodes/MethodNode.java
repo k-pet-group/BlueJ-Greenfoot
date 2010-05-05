@@ -62,6 +62,7 @@ public class MethodNode extends JavaParentNode
         super(parent);
         this.name = name;
         this.javadoc = javadoc;
+        setCommentAttached(javadoc != null);
     }
 
     /**
