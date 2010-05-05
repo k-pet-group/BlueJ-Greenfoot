@@ -1140,7 +1140,6 @@ public final class MoeActions
     
     class PrevWordAction extends MoeAbstractAction
     {
-        // TODO do begin-word and end-word
         private boolean withSelection;
         
         public PrevWordAction(boolean withSelection)
@@ -1168,6 +1167,66 @@ public final class MoeActions
                 // Start of file already, just set the caret there:
                 moveCaret(c, 0);
             }            
+        }
+        
+        private void moveCaret(JTextComponent c, int pos)
+        {
+            if (withSelection) {
+                c.getCaret().moveDot(pos);
+            } else {
+                c.setCaretPosition(pos);
+            }
+        }
+    }
+    
+    // --------------------------------------------------------------------
+    
+    class EndWordAction extends MoeAbstractAction
+    {
+        private boolean withSelection;
+
+        public EndWordAction(boolean withSelection)
+        {
+            super(withSelection ? DefaultEditorKit.selectionEndWordAction : DefaultEditorKit.endWordAction);
+            this.withSelection = withSelection;
+        }
+        
+        public void actionPerformed(ActionEvent e)
+        {
+            JTextComponent c = getTextComponent(e);
+            int origPos = c.getCaret().getDot();
+            int end = findWordLimit(c, origPos, true);
+            moveCaret(c, end);
+        }
+        
+        private void moveCaret(JTextComponent c, int pos)
+        {
+            if (withSelection) {
+                c.getCaret().moveDot(pos);
+            } else {
+                c.setCaretPosition(pos);
+            }
+        }
+    }
+
+    // --------------------------------------------------------------------    
+    
+    class BeginWordAction extends MoeAbstractAction
+    {
+        private boolean withSelection;
+        
+        public BeginWordAction(boolean withSelection)
+        {
+            super(withSelection ? DefaultEditorKit.selectionBeginWordAction : DefaultEditorKit.beginWordAction);
+            this.withSelection = withSelection;
+        }
+        
+        public void actionPerformed(ActionEvent e)
+        {
+            JTextComponent c = getTextComponent(e);
+            int origPos = c.getCaret().getDot();
+            int start = findWordLimit(c, origPos, false);
+            moveCaret(c, start);
         }
         
         private void moveCaret(JTextComponent c, int pos)
@@ -1961,6 +2020,12 @@ public final class MoeActions
                 new NextWordAction(true),
                 new PrevWordAction(false),                
                 new PrevWordAction(true),
+                
+              //With and without selection for each:
+                new EndWordAction(false),
+                new EndWordAction(true),
+                new BeginWordAction(false),                
+                new BeginWordAction(true),
                 
                 new DeleteWordAction(),
                 
