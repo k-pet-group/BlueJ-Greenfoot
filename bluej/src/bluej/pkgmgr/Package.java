@@ -1756,8 +1756,8 @@ public final class Package extends Graph
         Iterator<Selection> i = selections.iterator();
         while (i.hasNext()) {
             Selection sel = i.next();
-            String text = ed.getText(new bluej.parser.SourceLocation(sel.getLine() - 1, sel.getColumn() -1),
-                    new bluej.parser.SourceLocation(sel.getEndLine() - 1, sel.getEndColumn() - 1));
+            String text = ed.getText(new bluej.parser.SourceLocation(sel.getLine(), sel.getColumn()),
+                    new bluej.parser.SourceLocation(sel.getEndLine(), sel.getEndColumn()));
             
             // check for type arguments: don't include them in the text
             int taIndex = text.indexOf('<');
@@ -2334,7 +2334,6 @@ public final class Package extends Graph
          */
         public void endCompile(File[] sources, boolean successful)
         {
-            File finalFile;
             for (int i = 0; i < sources.length; i++) {
                 String filename = sources[i].getPath();
 
