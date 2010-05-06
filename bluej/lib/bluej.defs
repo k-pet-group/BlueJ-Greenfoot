@@ -699,7 +699,7 @@ image.findpanel.close=cross.png
 
 #editor-divider panel
 image.editordivider.open=bluej_arrow_naviview_open.gif
-image.editordivider.close=bluej_arrow_close.gif
+image.editordivider.close=bluej_arrow_naviview_close.gif
 
 # extensions manager help page
 image.extmgr.info=extmgr-info.gif
