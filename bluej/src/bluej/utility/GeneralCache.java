@@ -90,4 +90,13 @@ public class GeneralCache<K,V>
         cacheMap.put(key, value);
         cachedKeys.add(key);
     }
+    
+    /**
+     * Remove all cache entries.
+     */
+    public void clear()
+    {
+        cacheMap.clear();
+        cachedKeys.clear();
+    }
 }

@@ -218,6 +218,11 @@ public abstract class JavaParentNode extends ParentParsedNode
     @Override
     protected CodeSuggestions getExpressionType(int pos, int nodePos, JavaEntity defaultType, Document document)
     {
+        // Clear the caches now to remove any entries which have become invalid due
+        // to editing.
+        valueEntityCache.clear();
+        pocEntityCache.clear();
+        
         NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, nodePos);
         if (child != null) {
             return child.getNode().getExpressionType(pos, child.getPosition(), defaultType, document);
