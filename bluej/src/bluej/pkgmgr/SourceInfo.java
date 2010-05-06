@@ -22,6 +22,7 @@
 package bluej.pkgmgr;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import bluej.parser.InfoParser;
 import bluej.parser.symtab.ClassInfo;
@@ -32,7 +33,7 @@ import bluej.parser.symtab.ClassInfo;
  * automatic editing of the source.
  *
  * @author  Michael Kolling
- * @version $Id: SourceInfo.java 6991 2010-01-12 06:37:26Z davmac $
+ * @version $Id: SourceInfo.java 7512 2010-05-06 04:49:57Z davmac $
  */
 public final class SourceInfo
 {
@@ -61,18 +62,11 @@ public final class SourceInfo
         {
             try {
                 info = InfoParser.parse(sourceFile, pkg);
-                valid = true;
+                valid = info != null;
             }
-            catch(Exception e) {
-                // uncomment the following line to track parsing problems
-                // however it must be disabled in production version or
-                // else syntax errors in users programs will cause lots
-                // of debug messages
-                //e.printStackTrace();
-
-                // exception during parsing
-                valid = false;
+            catch (FileNotFoundException fnfe) {
                 info = null;
+                valid = false;
             }
         }
 

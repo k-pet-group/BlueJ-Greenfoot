@@ -153,7 +153,7 @@ public class InfoParser extends EditorParser
             return infoParser.info;
         }
         else {
-            throw new RuntimeException("Couldn't get class info");
+            return null;
         }
     }
     

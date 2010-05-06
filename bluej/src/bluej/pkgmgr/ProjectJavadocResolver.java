@@ -149,7 +149,6 @@ public class ProjectJavadocResolver implements JavadocResolver
                     }
                 }
                 catch (IOException ioe) {}
-                catch (Exception e) {}  // probably a parse exception
             }
         }
         
