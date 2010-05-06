@@ -357,12 +357,16 @@ public class TextParser extends JavaParser
         }
     }
     
+    /**
+     * For a binary operator, check that both arguments are values before processing
+     * the operator.
+     */
     private void checkArgs(JavaEntity arg1, JavaEntity arg2, Operator op)
     {
         JavaEntity rarg1 = arg1.resolveAsValue();
         JavaEntity rarg2 = arg2.resolveAsValue();
         if (rarg1 == null || rarg2 == null) {
-            valueStack.push(rarg1 == null ? arg1 : arg2);
+            valueStack.push(new ErrorEntity());
             return;
         }
         
@@ -370,7 +374,8 @@ public class TextParser extends JavaParser
     }
     
     /**
-     * Process a binary operator. Arguments have been resolved as values. Result is left of stack.
+     * Process a binary operator. Arguments have been resolved as values.
+     * The result is pushed back onto the value stack.
      */
     private void doBinaryOp(JavaEntity arg1, JavaEntity arg2, Operator op)
     {
@@ -440,7 +445,21 @@ public class TextParser extends JavaParser
                     valueStack.push(new ValueEntity("", JavaPrimitiveType.getBoolean()));
                 }
             }
-            //TODO other cases (check same type hierarchy, or null-ness)
+            else if (a1type.isNull() && a2type.isNull()
+                    || a1type.isNull() && a2type.asSolid() != null
+                    || a1type.asSolid() != null && a2type.isNull()) {
+                // Null compared to itself, or to a reference type
+                valueStack.push(new ValueEntity(JavaPrimitiveType.getBoolean()));
+            }
+            else if (a1type.asSolid() != null && a2type.asSolid() != null) {
+                // Reference comparison
+                // TODO identify comparisons which are invalid due to divergent
+                // inheritance hierarchies
+                valueStack.push(new ValueEntity(JavaPrimitiveType.getBoolean()));
+            }
+            else {
+                valueStack.push(new ErrorEntity());
+            }
             break;
         case JavaTokenTypes.DOT:
             // This is handled elsewhere
