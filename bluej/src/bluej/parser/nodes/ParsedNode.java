@@ -417,6 +417,7 @@ public abstract class ParsedNode extends RBTreeNode
         if (child != null) {
             return child.getNode().getExpressionType(pos, child.getPosition(), defaultType, document);
         }
+
         GenTypeClass atype = (defaultType != null) ? defaultType.getType().asClass() : null;
         if (atype == null) {
             return null;

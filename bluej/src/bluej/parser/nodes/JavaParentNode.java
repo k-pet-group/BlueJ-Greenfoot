@@ -26,8 +26,10 @@ import java.util.Map;
 
 import javax.swing.text.Document;
 
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
 import bluej.editor.moe.Token;
+import bluej.parser.CodeSuggestions;
 import bluej.parser.DocumentReader;
 import bluej.parser.JavaParser;
 import bluej.parser.TokenStream;
@@ -211,6 +213,44 @@ public abstract class JavaParentNode extends ParentParsedNode
         
         valueEntityCache.put(accessp, rval);
         return rval;
+    }
+    
+    @Override
+    protected CodeSuggestions getExpressionType(int pos, int nodePos, JavaEntity defaultType, Document document)
+    {
+        NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, nodePos);
+        if (child != null) {
+            return child.getNode().getExpressionType(pos, child.getPosition(), defaultType, document);
+        }
+        
+        child = getNodeTree().findNodeAtOrBefore(pos, nodePos);
+        if (child != null && child.getNode().getNodeType() == ParsedNode.NODETYPE_EXPRESSION) {
+            // There's no child at the suggestion point, but, there is an expression immediately
+            // prior. It's possible that it ends with a dot.
+            CodeSuggestions suggests = ExpressionNode.suggestAsExpression(pos, child.getPosition(), this, defaultType, document);
+            if (suggests != null && suggests.getSuggestionToken() != null) {
+                return suggests;
+            }
+        }
+        else if (child == null && parentNode != null) {
+            // Likewise, if we have no prior sibling, perhaps the parent node does.
+            int offset = getOffsetFromParent();
+            int ppos = nodePos - offset;
+            child = parentNode.getNodeTree().findNodeAtOrBefore(nodePos - 1, ppos);
+            if (child != null && child.getNode().getNodeType() == ParsedNode.NODETYPE_EXPRESSION) {
+                CodeSuggestions suggests = ExpressionNode.suggestAsExpression(pos, child.getPosition(), this, defaultType, document);
+                if (suggests != null && suggests.getSuggestionToken() != null) {
+                    return suggests;
+                }
+            }
+        }
+        
+        GenTypeClass atype = (defaultType != null) ? defaultType.getType().asClass() : null;
+        if (atype == null) {
+            return null;
+        }
+        boolean isStaticCtxt = (defaultType.resolveAsType() != null);
+        return new CodeSuggestions(atype, atype, null, isStaticCtxt);
     }
 
     @Override

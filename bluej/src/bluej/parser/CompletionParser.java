@@ -60,19 +60,35 @@ public class CompletionParser extends TextParser
      *                    at the point where suggestions are to be made.
      * @param enclosingType  An entity representing the enclosing type of the cursor location
      */
-    public CompletionParser(EntityResolver resolver, Reader reader, JavaEntity enclosingType)
+    public CompletionParser(EntityResolver resolver, Reader reader, JavaEntity defaultEnt)
     {
-        // DAV access context may be static
-        super(resolver, reader, enclosingType, false);
-        suggestionEntity = enclosingType;
+        super(resolver, reader, defaultEnt, false);
+        suggestionEntity = defaultEnt;
     }
 
+    /**
+     * Construct an expression parser, used for suggesting code completions,
+     * specifying the position within the document at which the expression
+     * begins.
+     * 
+     * <p>Generally, after construction, call "parseExpression" and then
+     * "getFieldSuggestions".
+     * 
+     * @param resolver   The resolver used to resolve identifiers
+     * @param reader     The reader for the java source. This must return end-of-file
+     *                    at the point where suggestions are to be made. The first
+     *                    character read should be the character at the specified line
+     *                    and column of the document.
+     * @param defaultEnt  An entity representing the enclosing type or value of the
+     *                    cursor location.
+     * @param  line    The source line where the expression begins
+     * @param  col     The source column where the expression begins
+     */
     public CompletionParser(EntityResolver resolver, Reader reader,
-            JavaEntity enclosingType, int line, int col)
+            JavaEntity defaultEnt, int line, int col)
     {
-        // DAV access context may be static
-        super(resolver, reader, enclosingType, false, line, col);
-        suggestionEntity = enclosingType;
+        super(resolver, reader, defaultEnt, false, line, col);
+        suggestionEntity = defaultEnt;
     }
     
     @Override
@@ -168,11 +184,13 @@ public class CompletionParser extends TextParser
         }
     }
     
-    public boolean isSuggestionStatic() {
+    public boolean isSuggestionStatic()
+    {
         return staticRestricted;
     }
 
-    protected void setStatic(boolean restricted) {
+    protected void setStatic(boolean restricted)
+    {
         this.staticRestricted = restricted;
     }
 }
