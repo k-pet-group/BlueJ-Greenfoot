@@ -188,7 +188,8 @@ null
 compile-class-already-in-library
 A class with this name already exists in a
 library. You are able to edit and compile  
-your class, but not call its methods.
+your class, but calling methods will execute
+code from the library class.
 
 windows-reserved-class-name
 The chosen class name cannot be used, because it
