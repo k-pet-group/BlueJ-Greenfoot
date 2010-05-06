@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Modifier;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -72,6 +74,7 @@ import bluej.pkgmgr.target.Target;
 import bluej.pkgmgr.target.TargetCollection;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
+import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
 import bluej.utility.MultiIterator;
@@ -1188,7 +1191,7 @@ public final class Package extends Graph
         else {
             ct = null;
         }
-        
+
         if (assocTarget != null) {
             assocTarget.setInvalidState();
         }
@@ -2333,6 +2336,7 @@ public final class Package extends Graph
          */
         public void endCompile(File[] sources, boolean successful)
         {
+            File finalFile;
             for (int i = 0; i < sources.length; i++) {
                 String filename = sources[i].getPath();
 
@@ -2347,6 +2351,21 @@ public final class Package extends Graph
                 
                 if (successful) {
                     t.endCompile();
+                    
+                  //check if the class already exists in a library and if so tell the user
+                    Class<?> c=loadClass(getQualifiedName(t.getIdentifierName()));
+                    if (c!=null){  
+                        String srcName= c.getResource(t.getIdentifierName()+".class").toString();
+                        if (srcName.startsWith("jar:"))
+                            srcName = srcName.substring(4);
+                        try{
+                            finalFile = new File(new URI(srcName));
+                            if  (!(finalFile.getParentFile()).equals(getPath())) 
+                                DialogManager.showMessageWithPrefixText(null, "compile-class-already-in-library", fullName+":");
+                        }catch(URISyntaxException e){
+
+                        }
+                    }
 
                     /*
                      * compute ctxt files (files with comments and parameters
