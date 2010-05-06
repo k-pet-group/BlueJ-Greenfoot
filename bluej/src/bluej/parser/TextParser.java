@@ -611,6 +611,23 @@ public class TextParser extends JavaParser
     }
     
     @Override
+    protected void gotNewArrayDeclarator(boolean withDimension)
+    {
+        if (withDimension) {
+            valueStack.pop(); // pull the dimension off the value stack
+        }
+        
+        JavaEntity top = valueStack.pop();
+        JavaEntity ttop = top.resolveAsValue();
+        if (ttop != null) {
+            valueStack.push(new ValueEntity(ttop.getType().getArray()));
+        }
+        else {
+            valueStack.push(new ErrorEntity());
+        }
+    }
+    
+    @Override
     protected void gotPrimitiveTypeLiteral(LocatableToken token)
     {
         List<LocatableToken> ltokens = new ArrayList<LocatableToken>(1);
@@ -935,6 +952,16 @@ public class TextParser extends JavaParser
     {
         state = STATE_NEW;
         operatorStack.push(new Operator(token.getType(), token));
+    }
+    
+    @Override
+    protected void endExprNew(LocatableToken token, boolean included)
+    {
+        if (state == STATE_NEW_ARGS) {
+            // Push dummy arguments
+            argumentStack.push(Collections.<JavaEntity>emptyList());
+        }
+        state = STATE_NONE;
     }
 
 }

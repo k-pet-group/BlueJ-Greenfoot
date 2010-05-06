@@ -393,6 +393,11 @@ public class JavaParser
      */
     protected void gotArrayDeclarator() { }
 
+    /**
+     * Called for the array components when we get "new xyz[]".
+     */
+    protected void gotNewArrayDeclarator(boolean withDimension) { }
+    
     protected void gotAllMethodParameters() { }
     
     protected void gotTypeParam(LocatableToken idToken) { }
@@ -2901,7 +2906,9 @@ public class JavaParser
         if (token.getType() == JavaTokenTypes.LBRACK) {
             while (true) {
                 // array dimensions
+                boolean withDimension = false;
                 if (tokenStream.LA(1).getType() != JavaTokenTypes.RBRACK) {
+                    withDimension = true;
                     parseExpression();
                 }
                 token = tokenStream.nextToken();
@@ -2910,6 +2917,7 @@ public class JavaParser
                     tokenStream.pushBack(token);
                     endExprNew(token, false);
                 }
+                gotNewArrayDeclarator(withDimension);
                 if (tokenStream.LA(1).getType() != JavaTokenTypes.LBRACK) {
                     break;
                 }
