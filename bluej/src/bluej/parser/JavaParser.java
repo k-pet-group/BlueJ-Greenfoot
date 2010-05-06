@@ -2504,7 +2504,7 @@ public class JavaParser
             case 1: // LITERAL_new
                 // new XYZ(...)
                 if (tokenStream.LA(1).getType() == JavaTokenTypes.EOF) {
-                    gotIdentifier(token);
+                    gotIdentifierEOF(token);
                     endExpression(tokenStream.LA(1));
                     return;
                 }
