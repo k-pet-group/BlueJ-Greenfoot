@@ -49,8 +49,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -1208,19 +1206,14 @@ public class PkgMgrFrame extends JFrame
         //check if there already exists a class in a library with that name 
         Class<?> c=pkg.loadClass(pkg.getQualifiedName(name));
         if (c!=null){  
-            String fullName= c.getResource(name+".class").toString();
-            //need to trim if it is referencing a jar file
-            if (fullName.startsWith("jar:"))
-                fullName = fullName.substring(4);
-            try{
-                File finalFile = new File(new URI(fullName));
-                // The class is in a jar file or the paths to the new file and this file do not match
-                if  (!(finalFile.getParentFile()).equals(pkg.getPath())) {
+            if (c.getResource(name+".class")!=null){
+                String fullName= c.getResource(name+".class").toString();
+                //need to trim if it is referencing a jar file
+                String thisClass=getPackage().getPath().toURI()+name+".class";
+                if  (!(fullName).equals(thisClass)) {
                     if (DialogManager.askQuestion(this, "class-already-in-library")==0)
                         return false;
                 }
-            }catch(URISyntaxException e){
-                return false;
             }
         }
 

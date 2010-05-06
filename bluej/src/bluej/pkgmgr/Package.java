@@ -26,8 +26,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Modifier;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -2348,22 +2346,20 @@ public final class Package extends Graph
                     continue;
 
                 boolean newCompiledState = successful;
-                
+
                 if (successful) {
                     t.endCompile();
-                    
-                  //check if the class already exists in a library and if so tell the user
+
+                    //check if there already exists a class in a library with that name 
                     Class<?> c=loadClass(getQualifiedName(t.getIdentifierName()));
                     if (c!=null){  
-                        String srcName= c.getResource(t.getIdentifierName()+".class").toString();
-                        if (srcName.startsWith("jar:"))
-                            srcName = srcName.substring(4);
-                        try{
-                            finalFile = new File(new URI(srcName));
-                            if  (!(finalFile.getParentFile()).equals(getPath())) 
-                                DialogManager.showMessageWithPrefixText(null, "compile-class-already-in-library", fullName+":");
-                        }catch(URISyntaxException e){
-
+                        if (c.getResource(t.getIdentifierName()+".class")!=null){
+                            String srcName= c.getResource(t.getIdentifierName()+".class").toString();
+                            //need to trim if it is referencing a jar file
+                            String thisClass=getPath().toURI()+t.getIdentifierName()+".class";
+                            if  (!(srcName).equals(thisClass)) {
+                                DialogManager.showMessageWithPrefixText(null, "compile-class-already-in-library", t.getIdentifierName()+":");
+                            }
                         }
                     }
 
@@ -2383,7 +2379,7 @@ public final class Package extends Graph
                     catch (Exception ex) {
                         ex.printStackTrace();
                     }
-                    
+
                     // Empty class files should not be marked compiled,
                     // even though compilation is "successful".
                     newCompiledState &= t.upToDate();

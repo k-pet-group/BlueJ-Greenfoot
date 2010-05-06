@@ -40,7 +40,6 @@ import bluej.Config;
  * internationalised, using BlueJ's langauage library system.
  *
  * @author Michael Kolling
- * @version $Id: DialogManager.java 7505 2010-05-06 02:37:50Z marionz $
  */
 public class DialogManager
 {
