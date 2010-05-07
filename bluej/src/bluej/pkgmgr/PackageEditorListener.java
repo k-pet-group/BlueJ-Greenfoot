@@ -21,15 +21,18 @@
  */
 package bluej.pkgmgr;
 
-import java.util.*;
+import java.util.EventListener;
+
+import bluej.testmgr.record.InvokerRecord;
 
 /**
  * The listener for PackageEditor events.
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditorListener.java 6215 2009-03-30 13:28:25Z polle $
  */
 public interface PackageEditorListener extends EventListener
 {
     void targetEvent(PackageEditorEvent e);
+    
+    void recordInteraction(InvokerRecord ir);
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,34 +22,33 @@
 package bluej.testmgr.record;
 
 /**
- * Records a "Get" from the inspector window. Not from a result inspector
- * though, since that is handled by the MethodInvocationRecord. 
+ * An invoker record for "get" operations on array elements.
  * 
- * @author Poul Henriksen
+ * @author Davin McCall
  */
-public class GetInvokerRecord extends InvokerRecord
+public class ArrayElementGetRecord extends InvokerRecord
 {
     /** The invoker record for the inspector where the Get button was pressed, that resulted in the creation of this GetInvokerRecord. */
     private InvokerRecord parentIr;
     
-    /** Name of the field to Get */
-    private String fieldName;
+    /** Index of the element to get */
+    private int elementIndex;
     
-    /** Type of the field */
-    private String fieldType;
+    /** Type of the element */
+    private String elementType;
     
     /** Name of the object as it appears on the object bench */
     private String objName;
     
-    /** Type of the object */
+    /** Type of the object (on the bench) */
     private String objType;
 
 
-    public GetInvokerRecord(String fieldType, String fieldName, InvokerRecord parentIr)
+    public ArrayElementGetRecord(String elementType, int elementIndex, InvokerRecord parentIr)
     {
         this.parentIr = parentIr;
-        this.fieldName = fieldName;
-        this.fieldType = fieldType;
+        this.elementType = elementType;
+        this.elementIndex = elementIndex;
         parentIr.incUsageCount();
     }
 
@@ -106,11 +105,12 @@ public class GetInvokerRecord extends InvokerRecord
     @Override
     public String toExpression()
     {
-        if(! objType.equals(fieldType)) {
-            return "((" + objType + ") " + parentIr.toExpression() + "." + fieldName + ")";
+        if(! objType.equals(elementType)) {
+            return "((" + objType + ") " + parentIr.toExpression() + "[" + elementIndex + "])";
         }
         else {
-            return parentIr.toExpression() + "." + fieldName;
+            return parentIr.toExpression() + "[" + elementIndex + "]";
         }
     }
+
 }

@@ -29,7 +29,7 @@ import java.util.*;
  * and setup code.
  * 
  * @author  Andrew Patterson
- * @version $Id: ExistingFixtureInvokerRecord.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ExistingFixtureInvokerRecord.java 7517 2010-05-07 08:23:32Z davmac $
  */
 public class ExistingFixtureInvokerRecord extends InvokerRecord
 {
@@ -111,12 +111,6 @@ public class ExistingFixtureInvokerRecord extends InvokerRecord
 	
     @Override
     public String toExpression()
-    {
-        throw new RuntimeException("Method not implemented for this type.");
-    }
-
-    @Override
-    public String getExpressionGlue()
     {
         throw new RuntimeException("Method not implemented for this type.");
     }

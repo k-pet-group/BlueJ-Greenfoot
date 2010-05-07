@@ -122,13 +122,6 @@ public final class Package extends Graph
     public static final int CREATE_ERROR = 5;
 
     /*
-     * private static final int STARTROWPOS = 20; private static final int
-     * STARTCOLUMNPOS = 20; private static final int DEFAULTTARGETHEIGHT = 50;
-     * private static final int TARGETGAP = 20; private static final int
-     * RIGHT_LAYOUT_BOUND = 500;
-     */
-
-    /*
      * In the top left corner of each package we have a fixed target - either a
      * ParentPackageTarget or a ReadmeTarget. These are there locations
      */

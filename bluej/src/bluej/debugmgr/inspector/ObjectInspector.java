@@ -21,20 +21,39 @@
  */
 package bluej.debugmgr.inspector;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.EventQueue;
+import java.awt.Graphics;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.border.EmptyBorder;
 
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PackageEditor;
+import bluej.testmgr.record.ArrayElementGetRecord;
+import bluej.testmgr.record.ArrayElementInspectorRecord;
+import bluej.testmgr.record.GetInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
+import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.DialogManager;
 
 /**
@@ -43,7 +62,6 @@ import bluej.utility.DialogManager;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: ObjectInspector.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class ObjectInspector extends Inspector
 {
@@ -63,6 +81,7 @@ public class ObjectInspector extends Inspector
     protected String objName;
 
     protected boolean queryArrayElementSelected = false;
+    private int selectedIndex;
 
     /**
      * array of Integers representing the array indexes from a large array that
@@ -116,7 +135,6 @@ public class ObjectInspector extends Inspector
 
     /**
      * Build the GUI
-     *  
      */
     protected void makeFrame()
     {
@@ -220,6 +238,9 @@ public class ObjectInspector extends Inspector
         // add index to slot method for truncated arrays
         if (obj.isArray()) {
             slot = indexToSlot(slot);
+            if (slot >= 0) {
+                selectedIndex = slot;
+            }
             // if selection is the first field containing array length
             // we treat as special case and do nothing more
             if (slot == ARRAY_LENGTH_SLOT_VALUE) {
@@ -276,8 +297,48 @@ public class ObjectInspector extends Inspector
         if (queryArrayElementSelected) {
             selectArrayElement();
         }
-    } 
+    }
+    
+    @Override
+    protected void doInspect()
+    {
+        prepareInspection();
 
+        if (selectedField != null) {
+            boolean isPublic = getButton.isEnabled();
+            
+            if (! obj.isArray()) {
+                InvokerRecord newIr = new ObjectInspectInvokerRecord(selectedFieldName, selectedField.isArray(), ir);
+                inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? newIr : null, this);
+            }
+            else if (queryArrayElementSelected) {
+                // DAV fix me up!
+            }
+            else {
+                InvokerRecord newIr = new ArrayElementInspectorRecord(ir, selectedIndex);
+                inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? newIr : null, this);
+            }
+        }
+    }
+    
+    @Override
+    protected void doGet()
+    {
+        if (selectedField != null) {
+            InvokerRecord getIr;
+            if (! obj.isArray()) {
+                getIr = new GetInvokerRecord(selectedFieldType, selectedFieldName, ir);
+            }
+            else {
+                getIr = new ArrayElementGetRecord(selectedFieldType, selectedIndex, ir);
+            }
+                
+            PackageEditor pkgEd = pkg.getEditor();
+            pkgEd.recordInteraction(getIr);
+            pkgEd.raisePutOnBenchEvent(this, selectedField, selectedField.getGenType(), getIr);
+        }
+    }
+    
     /**
      * Remove this inspector.
      */

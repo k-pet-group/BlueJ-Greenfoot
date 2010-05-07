@@ -26,7 +26,15 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridLayout;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -40,6 +48,7 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PackageEditor;
 import bluej.testmgr.record.GetInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
@@ -54,7 +63,6 @@ import bluej.utility.DialogManager;
  * @author Michael Kolling
  * @author Poul Henriksen
  * @author Bruce Quig
- * @version $Id: Inspector.java 6215 2009-03-30 13:28:25Z polle $
  */
 public abstract class Inspector extends JFrame
     implements ListSelectionListener
@@ -368,7 +376,6 @@ public abstract class Inspector extends JFrame
         if (selectedField != null) {
             boolean isPublic = getButton.isEnabled();
             
-            //POLLE what about classInspector record?
             InvokerRecord newIr = new ObjectInspectInvokerRecord(selectedFieldName, selectedField.isArray(), ir);
             inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? newIr : null, this);
         }
@@ -382,7 +389,9 @@ public abstract class Inspector extends JFrame
     {
         if (selectedField != null) {
             GetInvokerRecord getIr = new GetInvokerRecord(selectedFieldType, selectedFieldName, ir);
-            pkg.getEditor().raisePutOnBenchEvent(this, selectedField, selectedField.getGenType(), getIr);
+            PackageEditor pkgEd = pkg.getEditor();
+            pkgEd.recordInteraction(getIr);
+            pkgEd.raisePutOnBenchEvent(this, selectedField, selectedField.getGenType(), getIr);
         }
     }
 

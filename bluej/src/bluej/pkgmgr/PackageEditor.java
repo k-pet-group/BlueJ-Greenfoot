@@ -41,7 +41,7 @@ import bluej.views.CallableView;
  * Canvas to allow editing of packages
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditor.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: PackageEditor.java 7517 2010-05-07 08:23:32Z davmac $
  */
 public final class PackageEditor extends GraphEditor
 {
@@ -117,6 +117,14 @@ public final class PackageEditor extends GraphEditor
     {
         fireTargetEvent(
             new PackageEditorEvent(src, PackageEditorEvent.OBJECT_PUTONBENCH, obj, iType, ir));
+    }
+    
+    /**
+     * Notify of some interaction.
+     */
+    public void recordInteraction(InvokerRecord ir)
+    {
+        listener.recordInteraction(ir);
     }
     
     public void popupMenu(int x, int y)

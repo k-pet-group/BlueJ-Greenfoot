@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,41 +21,38 @@
  */
 package bluej.testmgr.record;
 
-/**
- * Records a call to a programs static void main()
- * entry point. Because this does not return a result
- * and tests should not depend on side effects from
- * static statements, we create a record for this
- * but the record does not result in any unit test
- * code being created.
- *
- * @author  Andrew Patterson
- * @version $Id: StaticVoidMainMethodInvokerRecord.java 7517 2010-05-07 08:23:32Z davmac $
- */
-public class StaticVoidMainMethodInvokerRecord extends InvokerRecord
+public class ArrayElementInspectorRecord extends InvokerRecord
 {
-    public StaticVoidMainMethodInvokerRecord()
+    private InvokerRecord parentIr;
+    private int element;
+    
+    public ArrayElementInspectorRecord(InvokerRecord parentIr, int element)
     {
+        this.parentIr = parentIr;
+        this.element = element;
+    }
+    
+    @Override
+    public String toExpression()
+    {
+        return parentIr.toExpression() + "[" + element + "]";
     }
 
+    @Override
     public String toFixtureDeclaration()
     {
         return null;
     }
-    
+
+    @Override
     public String toFixtureSetup()
     {
         return null;
     }
 
-	public String toTestMethod()
-	{
-        return null;
-	}
-
     @Override
-    public String toExpression()
+    public String toTestMethod()
     {
-        throw new RuntimeException("Method not implemented for this type.");
+        return null;
     }
 }

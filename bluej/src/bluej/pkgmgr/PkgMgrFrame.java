@@ -153,9 +153,7 @@ import bluej.pkgmgr.target.role.UnitTestClassRole;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.testmgr.TestDisplayFrame;
-import bluej.testmgr.record.GetInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
-import bluej.testmgr.record.MethodInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
@@ -175,15 +173,10 @@ import com.apple.eawt.ApplicationEvent;
 public class PkgMgrFrame extends JFrame
     implements BlueJEventListener, MouseListener, PackageEditorListener, FocusListener
 {
-    public Font PkgMgrFont = PrefMgr.getStandardFont();
-
-//    public static final KeyStroke restartKey = KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.SHIFT_MASK
-//            | InputEvent.CTRL_MASK);
+    private static Font pkgMgrFont = PrefMgr.getStandardFont();
 
     static final int DEFAULT_WIDTH = 560;
     static final int DEFAULT_HEIGHT = 400;
-
-//    private static final int SHORTCUT_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
     private static boolean testToolsShown = wantToSeeTestingTools();
     private static boolean teamToolsShown = wantToSeeTeamTools();
@@ -1109,6 +1102,14 @@ public class PkgMgrFrame extends JFrame
                 break;
         }
     }
+    
+    /* (non-Javadoc)
+     * @see bluej.pkgmgr.PackageEditorListener#recordInteraction(bluej.testmgr.record.InvokerRecord)
+     */
+    public void recordInteraction(InvokerRecord ir)
+    {
+        getObjectBench().addInteraction(ir);
+    }
 
 
     // --- below are implementations of particular user actions ---
@@ -1124,7 +1125,6 @@ public class PkgMgrFrame extends JFrame
      * @param isJavaMEproject   Whether this is a Java Micro Edition project
      * @return     true if successful, false otherwise
      */
-    
     public boolean newProject(String dirName, boolean isJavaMEproject )
     {
         if (Project.createNewProject(dirName, isJavaMEproject)) {
@@ -1193,7 +1193,6 @@ public class PkgMgrFrame extends JFrame
      *            true if a "duplicate name" dialog should be shown if
      *            the named class already exists
      * @return  true if successful, false is the named class already exists
-
      */
     public boolean createNewClass(String name, String template, boolean showErr)
     {
@@ -2102,19 +2101,12 @@ public class PkgMgrFrame extends JFrame
         if (!object.isNullObject()) {
             ObjectWrapper wrapper = ObjectWrapper.getWrapper(this, getObjectBench(), object, iType, newInstanceName);
             getObjectBench().addObject(wrapper); // might change name
+            newInstanceName = wrapper.getName();
 
             // load the object into runtime scope
-            getPackage().getDebugger().addObject(pkg.getId(), wrapper.getName(), object);
+            getPackage().getDebugger().addObject(pkg.getId(), newInstanceName, object);
 
-            if (ir instanceof MethodInvokerRecord) {
-                MethodInvokerRecord mir = (MethodInvokerRecord) ir;
-                mir.setBenchName(newInstanceName, wrapper.getObject().getGenClassName());
-            }
-            if(ir instanceof GetInvokerRecord) {
-                GetInvokerRecord gir = (GetInvokerRecord) ir;
-                gir.setBenchName(newInstanceName, wrapper.getObject().getGenClassName());
-                getObjectBench().addInteraction(gir);
-            }
+            ir.setBenchName(newInstanceName, wrapper.getObject().getGenClassName());
         }
     }
 
@@ -2744,7 +2736,7 @@ public class PkgMgrFrame extends JFrame
 
     private void makeFrame()
     {
-        setFont(PkgMgrFont);
+        setFont(pkgMgrFont);
         setIconImage(BlueJTheme.getIconImage());
         testItems = new ArrayList<JComponent>();
         teamItems = new ArrayList<JComponent>();
@@ -2805,7 +2797,7 @@ public class PkgMgrFrame extends JFrame
 
                 recordingLabel = new JLabel(Config.getString("pkgmgr.test.record"), Config
                         .getImageAsIcon("image.test.recording"), SwingConstants.LEADING);
-                recordingLabel.setFont(PkgMgrFont);
+                recordingLabel.setFont(pkgMgrFont);
                 recordingLabel.setEnabled(false);
                 recordingLabel.setAlignmentX(0.15f);
                 testPanel.add(recordingLabel);
@@ -2922,11 +2914,11 @@ public class PkgMgrFrame extends JFrame
             statusArea.setBorder(BorderFactory.createEmptyBorder(2, 0, 4, 6));
 
             statusbar = new JLabel(" ");
-            statusbar.setFont(PkgMgrFont);
+            statusbar.setFont(pkgMgrFont);
             statusArea.add(statusbar, BorderLayout.CENTER);
 
             testStatusMessage = new JLabel(" ");
-            testStatusMessage.setFont(PkgMgrFont);
+            testStatusMessage.setFont(pkgMgrFont);
             statusArea.add(testStatusMessage, BorderLayout.WEST);
             
             progressbar = new ActivityIndicator();
@@ -2981,7 +2973,7 @@ public class PkgMgrFrame extends JFrame
         classScroller.setPreferredSize(classScroller.getSize()); // memorize
                                                                  // current size
         if (textEvaluator == null) {
-            textEvaluator = new TextEvalArea(this, PkgMgrFont);
+            textEvaluator = new TextEvalArea(this, pkgMgrFont);
             objectBenchSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, objbench, textEvaluator);
             objectBenchSplitPane.setBorder(null);
             objectBenchSplitPane.setResizeWeight(1.0);
@@ -3032,7 +3024,7 @@ public class PkgMgrFrame extends JFrame
         else {
             button = new JButton(action);
         }
-        button.setFont(PkgMgrFont);
+        button.setFont(pkgMgrFont);
         Utility.changeToMacButton(button);
         button.setFocusable(false); // buttons shouldn't get focus
 

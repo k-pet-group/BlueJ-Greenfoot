@@ -29,7 +29,7 @@ package bluej.testmgr.record;
  * (not currently working).
  *
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassInspectInvokerRecord.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ClassInspectInvokerRecord.java 7517 2010-05-07 08:23:32Z davmac $
  *
  */
 public class ClassInspectInvokerRecord extends InvokerRecord
@@ -66,12 +66,4 @@ public class ClassInspectInvokerRecord extends InvokerRecord
     {
         return className;       
     }
-    
-
-    @Override
-    public String getExpressionGlue()
-    {
-        return ".";
-    }
-
 }

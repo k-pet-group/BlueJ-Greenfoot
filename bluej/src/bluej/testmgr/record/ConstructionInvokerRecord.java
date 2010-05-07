@@ -26,7 +26,6 @@ package bluej.testmgr.record;
  * mechanisms of BlueJ.
  *
  * @author  Andrew Patterson
- * @version $Id: ConstructionInvokerRecord.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class ConstructionInvokerRecord extends InvokerRecord
 {
@@ -48,50 +47,44 @@ public class ConstructionInvokerRecord extends InvokerRecord
         return argumentValues;
     }
 
-	/**
-	 * Construct a declaration for any objects constructed
-	 * by this invoker record.
-	 * 
-	 * @return a String representing the object declaration
-	 *         src or null if there is none.
-	 */    
+    /**
+     * Construct a declaration for any objects constructed
+     * by this invoker record.
+     * 
+     * @return a String representing the object declaration
+     *         src or null if there is none.
+     */    
     public String toFixtureDeclaration()
     {
         return fieldDeclarationStart + type + " " + name + statementEnd;       
     }
-    
-	/**
-	 * Construct a portion of an initialisation method for
-	 * this invoker record.
-	 *  
-	 * @return a String reprenting the object initialisation
-	 *         src or null if there is none. 
-	 */    
+
+    /**
+     * Construct a portion of an initialisation method for
+     * this invoker record.
+     *  
+     * @return a String reprenting the object initialisation
+     *         src or null if there is none. 
+     */    
     public String toFixtureSetup()
     {
         return secondIndent + name + " = " + command + statementEnd;          
     }
 
-	/**
-	 * Construct a portion of a test method for this
-	 * invoker record.
-	 * 
-	 * @return a String representing the test method src
-	 */
-	public String toTestMethod()
-	{
-		return secondIndent + type + " " + name + " = " + command + statementEnd;
-	}
-	
-	@Override
-    public String toExpression()
+    /**
+     * Construct a portion of a test method for this
+     * invoker record.
+     * 
+     * @return a String representing the test method src
+     */
+    public String toTestMethod()
     {
-        return name;
+        return secondIndent + type + " " + name + " = " + command + statementEnd;
     }
 
     @Override
-    public String getExpressionGlue()
+    public String toExpression()
     {
-        return ".";
+        return name;
     }
 }

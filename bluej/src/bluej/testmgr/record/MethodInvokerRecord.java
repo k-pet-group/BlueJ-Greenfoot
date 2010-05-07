@@ -22,7 +22,6 @@
 package bluej.testmgr.record;
 
 import bluej.debugger.DebuggerObject;
-import bluej.debugger.gentype.GenTypeArray;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectWrapper;
@@ -36,7 +35,7 @@ import bluej.utility.JavaNames;
  * This record is for method calls that return a result.
  *
  * @author  Andrew Patterson
- * @version $Id: MethodInvokerRecord.java 6672 2009-09-14 05:33:26Z davmac $
+ * @version $Id: MethodInvokerRecord.java 7517 2010-05-07 08:23:32Z davmac $
  */
 public class MethodInvokerRecord extends VoidMethodInvokerRecord
 {
@@ -215,16 +214,6 @@ public class MethodInvokerRecord extends VoidMethodInvokerRecord
             return command;
         }
         return benchName;
-    }
-
-    @Override
-    public String getExpressionGlue()
-    {
-        if(returnType instanceof GenTypeArray) {
-            return "";
-        } else {
-            return ".";
-        }
     }
 
     /**

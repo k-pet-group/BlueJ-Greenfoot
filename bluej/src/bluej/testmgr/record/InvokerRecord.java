@@ -33,7 +33,6 @@ import bluej.debugger.DebuggerObject;
  * construction and maintenance of assertion data.
  *
  * @author  Andrew Patterson
- * @version $Id: InvokerRecord.java 6670 2009-09-14 04:30:25Z davmac $
  */
 public abstract class InvokerRecord
 {
@@ -102,11 +101,14 @@ public abstract class InvokerRecord
     public abstract String toExpression();
     
     /**
-     * What should come after this expression if more thing are added.
-     * Examples: method calls (.), field access (.), array access ()
-     * @return
+     * Set the name of this result as saved on the object bench.
+     * @param benchName  The name of the object (on the Object Bench).
+     * @param benchType  The type of the object as known to the bench.
      */
-    public abstract String getExpressionGlue();
+    public void setBenchName(String benchName, String benchType)
+    {
+        // By default do nothing.
+    }
     
     /**
      * Add the skeleton of an assertion statement to our list of
