@@ -205,7 +205,7 @@ public abstract class ParentParsedNode extends ParsedNode
      * Default implementation, just causes the parent to re-parse
      */
     @Override
-    protected int reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
+    protected int reparseNode(Document document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         return REMOVE_NODE;
     }

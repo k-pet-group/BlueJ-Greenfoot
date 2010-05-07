@@ -88,9 +88,6 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     protected final static int PP_ABORT = 9;
     
     
-    private final static int MAX_PARSE_PIECE = 8000;
-    
-    
     public IncrementalParsingNode(JavaParentNode parent)
     {
         super(parent);
@@ -126,9 +123,9 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     }
     
     @Override
-    protected int reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
+    protected int reparseNode(Document document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
-        int parseEnd = Math.min(offset + MAX_PARSE_PIECE, nodePos + getSize());
+        int parseEnd = Math.min(offset + maxParse, nodePos + getSize());
         int state = getCurrentState(offset - nodePos);
         int originalOffset = offset;
         
@@ -242,7 +239,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
             int oldSize = nap.getSize(); // record original size
             nap.setSize(tokend - nap.getPosition()); // append the token
             listener.nodeChangedLength(nap, nap.getPosition(), oldSize);
-            int pr = nap.getNode().reparseNode(document, nap.getPosition(), tokpos, listener);
+            int pr = nap.getNode().reparseNode(document, nap.getPosition(), tokpos, parseEnd - tokpos, listener);
             if (pr == REMOVE_NODE) {
                 removeChild(nap, listener);
                 // Schedule from the original offset, as we may get stuck in a loop otherwise
@@ -645,7 +642,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                     if (parentNode != null && parentNode.growChild(document,
                             new NodeAndPosition<ParsedNode>(this, nodePos, getSize()), listener)) {
                         // Successfully grew... now do some more parsing
-                        int pr = reparseNode(document, nodePos, offset, listener);
+                        int pr = reparseNode(document, nodePos, offset, getSize(), listener);
                         return pr == ALL_OK ? NODE_GREW : pr;
                     }
                     return REMOVE_NODE;

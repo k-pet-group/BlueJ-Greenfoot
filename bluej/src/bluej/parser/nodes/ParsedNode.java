@@ -299,23 +299,25 @@ public abstract class ParsedNode extends RBTreeNode
      * 
      * This method should always mark which range it parsed in the document.
      */
-    protected int reparseNode(Document document, int nodePos, int offset, NodeStructureListener listener)
+    protected int reparseNode(Document document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         return ALL_OK;
     }
     
     /**
-     * Perform a reparse of the document at a given point
+     * Perform a re-parse of the document at a given point. The parse may be partial; a certain amount of
+     * parsing will be performed and further re-parses will be queued as necessary against the document.
      * 
      * @param document  The document
      * @param nodePos   The position of this node
-     * @param offset    The position within the document of the reparse
+     * @param offset    The position within the document of the re-parse
+     * @param maxParse  The (advisory) maximum amount of document to re-parse in one hit
      * @param listener  The structure listener to be notified of structural changes
      */
-    public void reparse(MoeSyntaxDocument document, int nodePos, int offset, NodeStructureListener listener)
+    public void reparse(MoeSyntaxDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         int size = getSize();
-        int r = reparseNode(document, nodePos, offset, listener);
+        int r = reparseNode(document, nodePos, offset, maxParse, listener);
         if (r == REMOVE_NODE) {
             ParsedNode parent = getParentNode();
             parent.removeChild(new NodeAndPosition<ParsedNode>(this,

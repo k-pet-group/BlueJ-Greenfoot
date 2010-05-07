@@ -91,7 +91,7 @@ public class CommentNode extends ParsedNode
     }
 
     @Override
-    protected int reparseNode(Document document, int nodePos, int offset,
+    protected int reparseNode(Document document, int nodePos, int offset, int maxParse,
             NodeStructureListener listener)
     {
         // Make a reader and parser

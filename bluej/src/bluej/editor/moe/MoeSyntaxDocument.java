@@ -52,6 +52,9 @@ public class MoeSyntaxDocument extends PlainDocument
 	
     private static Color defaultColour = null;
     private static Color backgroundColour = null;
+    
+    /** Maximum amount of document to reparse in one hit (advisory) */
+    private final static int MAX_PARSE_PIECE = 8000;
 	
     private ParsedCUNode parsedNode;
     private EntityResolver parentResolver;
@@ -118,12 +121,22 @@ public class MoeSyntaxDocument extends PlainDocument
             });
         }
     }
-    
+
     /**
      * Run an item from the re-parse queue, if there are any. Return true if
      * a queued re-parse was processed or false if the queue was empty.
      */
     public boolean pollReparseQueue()
+    {
+        return pollReparseQueue(MAX_PARSE_PIECE);
+    }
+    
+    /**
+     * Run an item from the re-parse queue, if there are any, and attempt to
+     * parse the specified amount of document (approximately). Return true if
+     * a queued re-parse was processed or false if the queue was empty.
+     */
+    public boolean pollReparseQueue(int maxParse)
     {
         NodeAndPosition<ReparseRecord> nap = reparseRecordTree.findNodeAtOrAfter(0);
         if (nap != null) {
@@ -147,7 +160,7 @@ public class MoeSyntaxDocument extends PlainDocument
                 }
                 
                 MoeSyntaxEvent mse = new MoeSyntaxEvent(this);
-                pn.reparse(this, ppos, pos, mse);
+                pn.reparse(this, ppos, pos, maxParse, mse);
                 fireChangedUpdate(mse);
                 return true;
             }
@@ -160,7 +173,7 @@ public class MoeSyntaxDocument extends PlainDocument
      */
     public void flushReparseQueue()
     {
-        while (pollReparseQueue()) ;
+        while (pollReparseQueue(getLength())) ;
     }
     
     /**
