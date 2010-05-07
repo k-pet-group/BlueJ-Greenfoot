@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,7 +32,6 @@ import bluej.views.CallableView;
  * The event which occurs while editing a package
  *
  * @author  Andrew Patterson
- * @version $Id: PackageEditorEvent.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class PackageEditorEvent extends EventObject
 {
@@ -49,7 +48,7 @@ public class PackageEditorEvent extends EventObject
     protected int id;
     protected CallableView cv;
     protected DebuggerObject obj;
-	protected InvokerRecord ir;
+    protected InvokerRecord ir;
     protected GenTypeClass iType;
     protected String name;
 
@@ -100,7 +99,7 @@ public class PackageEditorEvent extends EventObject
         this.id = id;
         this.obj = obj;
         this.iType = iType;
-		this.ir = ir;
+	this.ir = ir;
     }
 
     public int getID()

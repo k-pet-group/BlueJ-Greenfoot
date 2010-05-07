@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,13 +30,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.border.EmptyBorder;
 
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.ExpressionInformation;
@@ -54,7 +64,7 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 6874 2009-11-30 05:46:18Z davmac $
+ * @version $Id: ResultInspector.java 7516 2010-05-07 06:10:44Z davmac $
  */
 public class ResultInspector extends Inspector
 {
@@ -129,11 +139,11 @@ public class ResultInspector extends Inspector
             
             // The return type may contain type parameters. First, get the
             // type parameters of the object:
-            Map tparmap;
+            Map<String,GenTypeParameter> tparmap;
             if (instanceType != null)
                 tparmap = instanceType.mapToSuper(m.getDeclaringClass().getName()).getMap();
             else
-                tparmap = new HashMap();
+                tparmap = new HashMap<String,GenTypeParameter>();
             
             // It's possible the mapping result is a raw type.
             if (tparmap == null) {
@@ -144,7 +154,7 @@ public class ResultInspector extends Inspector
             // Then put in the type parameters from the method itself,
             // if there are any (ie. if the method is a generic method).
             // Tpars from the method override those from the instance.
-            List tpars = JavaUtils.getJavaUtils().getTypeParams(m);
+            List<GenTypeDeclTpar> tpars = JavaUtils.getJavaUtils().getTypeParams(m);
             if (tparmap != null)
                 tparmap.putAll(JavaUtils.TParamsToMap(tpars));
             
@@ -273,16 +283,7 @@ public class ResultInspector extends Inspector
      */
     protected void listElementSelected(int slot)
     {
-
         if (obj.instanceFieldIsObject(slot)) {
-            String newInspectedName;
-
-            if (objName != null) {
-                newInspectedName = objName + "." + obj.getInstanceFieldName(slot);
-            }
-            else {
-                newInspectedName = obj.getInstanceFieldName(slot);
-            }
 
             // Don't use the name, since it is meaningless anyway (it is always "result")
             setCurrentObj(obj.getInstanceFieldObject(slot, resultType), null, resultType.toString(false));
