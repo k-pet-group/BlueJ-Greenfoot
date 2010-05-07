@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -229,11 +229,6 @@ public abstract class Inspector extends JFrame
     abstract protected void showClass();
 
     /**
-     * We are about to inspect an object - prepare.
-     */
-    abstract protected void prepareInspection();
-
-    /**
      * Remove this inspector.
      */
     abstract protected void remove();
@@ -371,12 +366,10 @@ public abstract class Inspector extends JFrame
      */
     protected void doInspect()
     {
-        prepareInspection();
-
         if (selectedField != null) {
             boolean isPublic = getButton.isEnabled();
             
-            InvokerRecord newIr = new ObjectInspectInvokerRecord(selectedFieldName, selectedField.isArray(), ir);
+            InvokerRecord newIr = new ObjectInspectInvokerRecord(selectedFieldName, ir);
             inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? newIr : null, this);
         }
     }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,7 +34,6 @@ public class ObjectInspectInvokerRecord extends InvokerRecord
 {
     private String name;
     private InvokerRecord parentIr;
-    private boolean isArray;
 
     /**
      * Object inspection from an initial result.
@@ -42,11 +41,9 @@ public class ObjectInspectInvokerRecord extends InvokerRecord
      * @param type
      * @param name
      */    
-    public ObjectInspectInvokerRecord(String name, boolean isArray)
+    public ObjectInspectInvokerRecord(String name)
     {
         this.name = name;
-        //TODO create an ArrayInspectInvokerRecord instead?
-        this.isArray = isArray;
     }
 
     /**
@@ -56,10 +53,9 @@ public class ObjectInspectInvokerRecord extends InvokerRecord
      * @param name
      * @param ir
      */
-    public ObjectInspectInvokerRecord(String name,  boolean isArray, InvokerRecord ir)
+    public ObjectInspectInvokerRecord(String name, InvokerRecord ir)
     {
         this.name = name;
-        this.isArray = isArray;
         this.parentIr = ir;
     }
 

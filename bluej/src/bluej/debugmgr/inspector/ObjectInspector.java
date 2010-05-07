@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -288,31 +288,18 @@ public class ObjectInspector extends Inspector
         inspectorManager.getClassInspectorInstance(obj.getClassRef(), pkg, this);
     }
 
-    /**
-     * We are about to inspect an object - prepare.
-     */
-    protected void prepareInspection()
-    {
-        // if need to query array element
-        if (queryArrayElementSelected) {
-            selectArrayElement();
-        }
-    }
-    
     @Override
     protected void doInspect()
     {
-        prepareInspection();
-
-        if (selectedField != null) {
+        if (queryArrayElementSelected) {
+            selectArrayElement();
+        }
+        else if (selectedField != null) {
             boolean isPublic = getButton.isEnabled();
             
             if (! obj.isArray()) {
-                InvokerRecord newIr = new ObjectInspectInvokerRecord(selectedFieldName, selectedField.isArray(), ir);
+                InvokerRecord newIr = new ObjectInspectInvokerRecord(selectedFieldName, ir);
                 inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? newIr : null, this);
-            }
-            else if (queryArrayElementSelected) {
-                // DAV fix me up!
             }
             else {
                 InvokerRecord newIr = new ArrayElementInspectorRecord(ir, selectedIndex);
@@ -364,8 +351,10 @@ public class ObjectInspector extends Inspector
                 if (slot >= 0 && slot < obj.getInstanceFieldCount()) {
                     // if its an object set as current object
                     if (obj.instanceFieldIsObject(slot)) {
+                        boolean isPublic = getButton.isEnabled();
+                        InvokerRecord newIr = new ArrayElementInspectorRecord(ir, slot);
                         setCurrentObj(obj.getInstanceFieldObject(slot), obj.getInstanceFieldName(slot), obj.getInstanceFieldType(slot));
-                        setButtonsEnabled(true, false);
+                        inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? newIr : null, this);
                     }
                     else {
                         // it is not an object - a primitive, so lets

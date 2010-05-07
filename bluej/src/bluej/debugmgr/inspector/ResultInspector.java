@@ -64,7 +64,6 @@ import bluej.views.MethodView;
  * A window that displays a method return value.
  * 
  * @author Poul Henriksen
- * @version $Id: ResultInspector.java 7517 2010-05-07 08:23:32Z davmac $
  */
 public class ResultInspector extends Inspector
 {
@@ -309,17 +308,9 @@ public class ResultInspector extends Inspector
         inspectorManager.getClassInspectorInstance(obj.getClassRef(), pkg, this);
     }
 
-    /**
-     * We are about to inspect an object - prepare.
-     */
-    protected void prepareInspection()
-    {}
-
     @Override
     protected void doInspect()
     {
-        prepareInspection();
-
         if (selectedField != null) {
             boolean isPublic = getButton.isEnabled();
             inspectorManager.getInspectorInstance(selectedField, selectedFieldName, pkg, isPublic ? ir : null, this);

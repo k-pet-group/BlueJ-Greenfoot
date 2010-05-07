@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -73,7 +73,6 @@ import bluej.views.ViewFilter;
  * object bench.
  *
  * @author  Michael Kolling
- * @version $Id: ObjectWrapper.java 7228 2010-03-02 03:53:23Z davmac $
  */
 public class ObjectWrapper extends JComponent implements InvokeListener, NamedValue
 {
@@ -753,7 +752,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
      */
     protected void inspectObject()
     {
-        InvokerRecord ir = new ObjectInspectInvokerRecord(getName(), obj.isArray());
+        InvokerRecord ir = new ObjectInspectInvokerRecord(getName());
       	pkg.getProject().getInspectorInstance(obj, getName(), pkg, ir, pmf);  // shows the inspector
     }
 
