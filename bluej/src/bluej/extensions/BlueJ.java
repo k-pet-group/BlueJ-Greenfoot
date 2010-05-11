@@ -67,7 +67,7 @@ import javax.swing.*;
  * after its <code>terminate()</code> method has been called will result
  * in an (unchecked) <code>ExtensionUnloadedException</code> being thrown.
  *
- * @version    $Id: BlueJ.java 6215 2009-03-30 13:28:25Z polle $
+ * @version    $Id: BlueJ.java 7526 2010-05-11 04:18:57Z davmac $
  */
 
 /*
@@ -86,18 +86,18 @@ public final class BlueJ
     private MenuGenerator currentMenuGen = null;
     private Properties localLabels;
 
-    private ArrayList eventListeners;
+    private ArrayList<ExtensionEventListener> eventListeners;
     // This is the queue for the whole of them
-    private ArrayList applicationListeners;
-    private ArrayList packageListeners;
-    private ArrayList compileListeners;
-    private ArrayList invocationListeners;
-    private ArrayList classListeners;
+    private ArrayList<ApplicationListener> applicationListeners;
+    private ArrayList<PackageListener> packageListeners;
+    private ArrayList<CompileListener> compileListeners;
+    private ArrayList<InvocationListener> invocationListeners;
+    private ArrayList<ClassListener> classListeners;
 
 
     /**
      * Constructor for a BlueJ proxy object.
-     * See the ExtensionBridge class
+     * See the ExtensionBridge class.
      *
      * @param  aWrapper      Description of the Parameter
      * @param  aPrefManager  Description of the Parameter
@@ -107,28 +107,23 @@ public final class BlueJ
         myWrapper = aWrapper;
         prefManager = aPrefManager;
 
-        eventListeners = new ArrayList();
-        applicationListeners = new ArrayList();
-        packageListeners = new ArrayList();
-        compileListeners = new ArrayList();
-        invocationListeners = new ArrayList();
-        classListeners = new ArrayList();
+        eventListeners = new ArrayList<ExtensionEventListener>();
+        applicationListeners = new ArrayList<ApplicationListener>();
+        packageListeners = new ArrayList<PackageListener>();
+        compileListeners = new ArrayList<CompileListener>();
+        invocationListeners = new ArrayList<InvocationListener>();
+        classListeners = new ArrayList<ClassListener>();
 
-        /* I do NOT want lazy initialization otherwise I may try to load it
-         * may times just because I cannof find anything.
-         * Or having state variables to know I I did load it but had nothing found
-         */
+        // Don't use lazy initialisation here, to avoid multiple reloads
         localLabels = myWrapper.getLabelProperties();
     }
-
-
 
     /**
      * Opens a project.
      *
-     *
      * @param  directory  Where the project is stored.
-     * @return            the BProject that describes the newly opened project or null if it cannot be opened.
+     * @return            the BProject that describes the newly opened project,
+     *                    or null if it cannot be opened.
      */
     public final BProject openProject(File directory)
     {
@@ -209,12 +204,12 @@ public final class BlueJ
         if (!myWrapper.isValid())
             throw new ExtensionUnloadedException();
 
-        Collection projects = Project.getProjects();
+        Collection<Project> projects = Project.getProjects();
         BProject[] result = new BProject[projects.size()];
 
-        Iterator iter; int index;
+        Iterator<Project> iter; int index;
         for (iter = projects.iterator(), index = 0; iter.hasNext(); index++) {
-            Project prj = (Project) iter.next();
+            Project prj = iter.next();
             result[index] = prj.getBProject();
         }
 
@@ -773,6 +768,7 @@ public final class BlueJ
      * @param  attachedObject  Description of the Parameter
      * @return                 The menuItem value
      */
+    @SuppressWarnings("deprecation")
     JMenuItem getMenuItem(Object attachedObject)
     {
         if (currentMenuGen == null)
@@ -843,8 +839,5 @@ public final class BlueJ
             currentMenuGen.notifyPostObjectMenu(new BObject(aWrapper),onThisItem);
         }
     }
-
-
-
 
 }
