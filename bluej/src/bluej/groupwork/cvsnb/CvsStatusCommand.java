@@ -63,15 +63,15 @@ public class CvsStatusCommand extends CvsCommand
     protected BasicServerResponse doCommand()
         throws CommandAbortedException, CommandException, AuthenticationException
     {
-        LinkedList returnInfo = new LinkedList();
+        LinkedList<TeamStatusInfo> returnInfo = new LinkedList<TeamStatusInfo>();
         File projectPath = repository.getProjectPath();
-        Set remoteDirs;
+        Set<File> remoteDirs;
         
         Client client = getClient();
         
         // First we need to figure out remote directories
         if (includeRemote) {
-            remoteDirs = new HashSet();
+            remoteDirs = new HashSet<File>();
             List<File> remoteFiles = repository.getRemoteFiles(client, remoteDirs);
             files.addAll(remoteFiles);
         }
@@ -84,7 +84,7 @@ public class CvsStatusCommand extends CvsCommand
         // directories not in the repository. Otherwise the
         // CVS status command barfs when it hits such a file.
         for (Iterator<File> i = files.iterator(); i.hasNext(); ) {
-            File file = (File) i.next();
+            File file = i.next();
             File parent = file.getParentFile();
             if (! remoteDirs.contains(parent) && ! repository.isDirectoryUnderCVS(parent)) {
                 i.remove();
@@ -100,9 +100,9 @@ public class CvsStatusCommand extends CvsCommand
         StatusServerResponse statusServerResponse =
             repository.getStatus(getClient(), files, remoteDirs);
         
-        List statusInfo = statusServerResponse.getStatusInformation();
-        for (Iterator i = statusInfo.iterator(); i.hasNext(); ) {
-            StatusInformation sinfo = (StatusInformation) i.next();
+        List<StatusInformation> statusInfo = statusServerResponse.getStatusInformation();
+        for (Iterator<StatusInformation> i = statusInfo.iterator(); i.hasNext(); ) {
+            StatusInformation sinfo = i.next();
             int status;
             boolean deletedInRepos = false;
             
@@ -231,8 +231,8 @@ public class CvsStatusCommand extends CvsCommand
         
         // Now we may have some local files left which cvs hasn't given any
         // status for...
-        for (Iterator i = files.iterator(); i.hasNext(); ) {
-            File file = (File) i.next();
+        for (Iterator<File> i = files.iterator(); i.hasNext(); ) {
+            File file = i.next();
             TeamStatusInfo teamInfo = new TeamStatusInfo(file,
                     "",
                     null,
@@ -255,7 +255,7 @@ public class CvsStatusCommand extends CvsCommand
     /* (non-Javadoc)
      * @see bluej.groupwork.cvsnb.CvsCommand#getUpdateTo(bluej.groupwork.UpdateListener, java.util.Set, java.util.Set)
      */
-    public TeamworkCommand getUpdateTo(UpdateListener listener, Set files, Set forceFiles)
+    public TeamworkCommand getUpdateTo(UpdateListener listener, Set<File> files, Set<File> forceFiles)
     {
         return new CvsUpdateCommand(repository, listener, files, forceFiles);
     }
