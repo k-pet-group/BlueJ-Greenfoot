@@ -1924,7 +1924,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         currentTextPane = sourcePane;
         viewingHTML = false;
         scrollPane.setViewportView(currentTextPane);
-        naviView.setVisible(true);
+        dividerPanel.endTemporaryHide();
         currentTextPane.requestFocus();
     }
 
@@ -1939,7 +1939,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             return;
         }
         resetMenuToolbar(false);
-        naviView.setVisible(false);
+        dividerPanel.beginTemporaryHide();
         try {
             save();
             displayInterface();

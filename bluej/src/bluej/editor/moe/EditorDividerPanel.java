@@ -49,6 +49,7 @@ public class EditorDividerPanel extends JPanel implements MouseListener {
     private NaviView nav;
     private ImageIcon openNavArrow;
     private ImageIcon closeNavArrow;
+    private boolean currentlyHidden = false;
 
     public EditorDividerPanel(NaviView naviview, boolean expanded) {
         super();
@@ -96,6 +97,11 @@ public class EditorDividerPanel extends JPanel implements MouseListener {
      */
     public void mouseClicked(MouseEvent e) 
     {
+        // If they're viewing the documentation,
+        // don't allow the toggle to act:
+        if (currentlyHidden)
+            return;
+        
         JComponent src = (JComponent) e.getSource();
         //if expanded/collapse set the necessary images and flags 
         if (src.getName()==EXPAND_COLLAPSE_NAVIVIEW){  
@@ -126,5 +132,30 @@ public class EditorDividerPanel extends JPanel implements MouseListener {
 
     public void mouseReleased(MouseEvent e) {
 
+    }
+
+    /**
+     * Temporarily hides the naviview (when switching to documentation view)
+     */
+    public void beginTemporaryHide()
+    {
+        currentlyHidden = true;
+        nav.setVisible(false);
+        expandCollapseButton.setIcon(openNavArrow);
+    }
+    
+    /**
+     * Stops the effects of a temporary hide (switch back to editor view)
+     * 
+     * Can be called without a previous call to beginTemporaryHide, e.g.
+     * in the case where the editor is opened in documentation view
+     */
+    public void endTemporaryHide()
+    {
+        currentlyHidden = false;
+        if (isExpanded()) {
+            nav.setVisible(true);
+            expandCollapseButton.setIcon(closeNavArrow);
+        }
     }
 }
