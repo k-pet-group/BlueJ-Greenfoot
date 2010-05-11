@@ -321,9 +321,7 @@ public class TextParser extends JavaParser
     }
     
     private void processMethodCall(Operator op)
-    {
-        GenTypeSolid targetType = null; // DAV
-        
+    {        
         // Gather the argument types.
         List<JavaEntity> argList = argumentStack.pop();
         JavaType [] argTypes = new JavaType[argList.size()];
@@ -336,6 +334,12 @@ public class TextParser extends JavaParser
             argTypes[i] = cent.getType().getCapture();
         }
 
+        GenTypeSolid targetType = accessType.getType().asSolid();
+        if (targetType == null) {
+            valueStack.push(new ErrorEntity());
+            return;
+        }
+        
         List<GenTypeClass> typeArgs = Collections.emptyList(); // TODO!
 
         if (op.getToken().getType() == JavaTokenTypes.IDENT) {
