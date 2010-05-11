@@ -37,11 +37,12 @@ import javax.swing.*;
  * The BlueJ about box.
  *
  * @author  Michael Kolling
- * @version $Id: AboutBlue.java 7464 2010-04-30 14:52:54Z mik $
+ * @version $Id: AboutBlue.java 7534 2010-05-11 09:38:45Z mik $
  */
 class AboutBlue extends EscapeDialog
 {
     private static final String BLUEJ_URL = "http://www.bluej.org";
+    private static final Color linkColor = new Color(0, 76, 134);
 
     public AboutBlue(JFrame parent, String version)
     {
@@ -104,7 +105,7 @@ class AboutBlue extends EscapeDialog
             final URL bluejURL = new URL(BLUEJ_URL);
             JLabel urlField = new JLabel(BLUEJ_URL);
             urlField.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            urlField.setForeground(Color.blue);
+            urlField.setForeground(linkColor);
             urlField.addMouseListener(new MouseAdapter()  {
                 public void mouseClicked(MouseEvent e) {
                     Utility.openWebBrowser(bluejURL.toExternalForm());
