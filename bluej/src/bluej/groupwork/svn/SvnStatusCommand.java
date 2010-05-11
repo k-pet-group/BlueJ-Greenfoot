@@ -103,7 +103,13 @@ public class SvnStatusCommand extends SvnCommand
                 
                 if (textStat == StatusKind.missing
                         || textStat == StatusKind.deleted) {
-                    rinfo = new TeamStatusInfo(file, "" + status[i].getLastChangedRevisionNumber(), "", TeamStatusInfo.STATUS_DELETED);
+                    String rev = "" + status[i].getLastChangedRevisionNumber();
+                    if (reposStat == StatusKind.modified) {
+                        rinfo = new TeamStatusInfo(file, rev, "" + reposRev, TeamStatusInfo.STATUS_CONFLICT_LDRM);
+                    }
+                    else {
+                        rinfo = new TeamStatusInfo(file, rev, "", TeamStatusInfo.STATUS_DELETED);
+                    }
                 }
                 else if (textStat == StatusKind.unversioned) {
                     if (filter.accept(file)) {

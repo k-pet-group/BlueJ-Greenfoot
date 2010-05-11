@@ -120,7 +120,8 @@ public class SvnUpdateToCommand extends SvnCommand implements UpdateResults
                         int action = ninfo.getAction();
                         if (ninfo.getPath() != null) {
                             File file = new File(ninfo.getPath());
-                            if (action == NotifyAction.update_add) {
+                            if (action == NotifyAction.update_add
+                                    || action == NotifyAction.restore) {
                                 addedList.add(file);
                             }
                             else if (action == NotifyAction.update_update) {
@@ -248,6 +249,13 @@ public class SvnUpdateToCommand extends SvnCommand implements UpdateResults
                             client.remove(paths, "", true, keepLocal, Collections.emptyMap());
 
                             return;
+                        }
+                        else if (action == ConflictDescriptor.Action.edit
+                                && reason == ConflictDescriptor.Reason.deleted) {
+                            // Locally deleted, but modifications in the repository.
+                            // Shouldn't see this normally, seeing as BlueJ does a
+                            // "forced update" of such files.
+                            client.resolve(file.getAbsolutePath(), 0, ConflictResult.chooseTheirsFull);
                         }
                     }
 
