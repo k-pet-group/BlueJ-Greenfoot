@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,19 +32,13 @@ import java.util.*;
 import java.util.List;
 
 
-
 /**
  * A wrapper for a single package of a BlueJ project.
  * This represents an open package, and functions relating to that package.
  *
- * @version $Id: BPackage.java 6215 2009-03-30 13:28:25Z polle $
+ * @author Clive Miller, University of Kent at Canterbury, 2002
+ * @author Damiano Bolla, University of Kent at Canterbury, 2003
  */
-
-/*
- * Author Clive Miller, University of Kent at Canterbury, 2002
- * Author Damiano Bolla, University of Kent at Canterbury, 2003
- */
- 
 public class BPackage
 {
     private Identifier packageId;
@@ -84,8 +78,6 @@ public class BPackage
         return bluejProject.getBProject();
     }
 
-
-
     /**
      * Returns the name of the package. 
      * Returns an empty string if no package name has been set.
@@ -93,12 +85,12 @@ public class BPackage
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
     public String getName() 
-        throws ProjectNotOpenException, PackageNotFoundException
-        {
+    throws ProjectNotOpenException, PackageNotFoundException
+    {
         Package bluejPkg = packageId.getBluejPackage();
 
         return bluejPkg.getQualifiedName();
-        }
+    }
 
 
     /**
@@ -108,12 +100,12 @@ public class BPackage
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
     public void reload() 
-        throws ProjectNotOpenException, PackageNotFoundException
-        {
+    throws ProjectNotOpenException, PackageNotFoundException
+    {
         Package bluejPkg = packageId.getBluejPackage();
 
         bluejPkg.reload();
-        }
+    }
 
     /**
      * Creates a new Class with the given name.
@@ -123,19 +115,18 @@ public class BPackage
      * @throws MissingJavaFileException if the .java file for the new class does not exist.
      */
     public BClass newClass ( String className )
-        throws ProjectNotOpenException, PackageNotFoundException, MissingJavaFileException
-        {
+    throws ProjectNotOpenException, PackageNotFoundException, MissingJavaFileException
+    {
         Package bluejPkg = packageId.getBluejPackage();
         PkgMgrFrame bluejFrame = packageId.getPackageFrame();
 
         File classJavaFile = new File (bluejPkg.getPath(),className+".java");
         if ( ! classJavaFile.canWrite() ) 
             throw new MissingJavaFileException (classJavaFile.toString());
-        
+
         bluejFrame.createNewClass(className,null,true);
         return getBClass ( className );
-        }
-
+    }
     
     /**
      * Returns the package frame.
@@ -144,10 +135,10 @@ public class BPackage
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
     public Frame getFrame() 
-        throws ProjectNotOpenException, PackageNotFoundException
-        {
+    throws ProjectNotOpenException, PackageNotFoundException
+    {
         return packageId.getPackageFrame();
-        }
+    }
 
     
     /**
@@ -161,23 +152,23 @@ public class BPackage
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
     public BClass getBClass (String name)   
-        throws ProjectNotOpenException, PackageNotFoundException
-        {
-        Project bluejPrj = packageId.getBluejProject();
+    throws ProjectNotOpenException, PackageNotFoundException
+    {
+        packageId.getBluejProject();
         Package bluejPkg = packageId.getBluejPackage();
 
         Target aTarget = bluejPkg.getTarget (name);
 
         // We may consider reporting this as a not found
         if ( aTarget == null ) return null;
-        
+
         // And this in a different way
         if ( !(aTarget instanceof ClassTarget)) return null;
 
         ClassTarget classTarget = (ClassTarget)aTarget;
-        
+
         return classTarget.getBClass();
-        }
+    }
     
     /**
      * Returns an array containing all the classes in this package.
@@ -186,21 +177,21 @@ public class BPackage
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
     public BClass[] getClasses() 
-        throws ProjectNotOpenException, PackageNotFoundException
-        {
-        Project bluejPrj = packageId.getBluejProject();
+    throws ProjectNotOpenException, PackageNotFoundException
+    {
+        packageId.getBluejProject();
         Package bluejPkg = packageId.getBluejPackage();
 
-        ArrayList classTargets = bluejPkg.getClassTargets();
-        
+        ArrayList<ClassTarget> classTargets = bluejPkg.getClassTargets();
+
         BClass[] classes = new BClass [classTargets.size()];
         for (int index=0; index<classTargets.size(); index++) {
-            ClassTarget target = (ClassTarget)classTargets.get(index);
+            ClassTarget target = classTargets.get(index);
             classes [index] = target.getBClass();
-            }
-            
-        return classes;
         }
+
+        return classes;
+    }
     
     /**
      * Returns a wrapper for the object with the given name on BlueJ's object bench.
@@ -213,17 +204,19 @@ public class BPackage
         throws ProjectNotOpenException, PackageNotFoundException
     {
         // The usual check to avoid silly stack trace
-        if(instanceName == null) 
+        if(instanceName == null) {
             return null;
+        }
 
-        Package bluejPkg = packageId.getBluejPackage();
+        packageId.getBluejPackage();
         PkgMgrFrame pmf = packageId.getPackageFrame();
         
-        List objects = pmf.getObjectBench().getObjects();
-        for(Iterator i=objects.iterator(); i.hasNext(); ) {
-            ObjectWrapper wrapper = (ObjectWrapper)i.next();
-            if (instanceName.equals(wrapper.getName())) 
+        List<ObjectWrapper> objects = pmf.getObjectBench().getObjects();
+        for(Iterator<ObjectWrapper> i=objects.iterator(); i.hasNext(); ) {
+            ObjectWrapper wrapper = i.next();
+            if (instanceName.equals(wrapper.getName())) {
                 return wrapper.getBObject();
+            }
         }
         return null;
     }    
@@ -237,14 +230,14 @@ public class BPackage
     public BObject[] getObjects() 
         throws ProjectNotOpenException, PackageNotFoundException
     {
-        Package bluejPkg = packageId.getBluejPackage();
+        packageId.getBluejPackage();
         PkgMgrFrame pmf = packageId.getPackageFrame();
    
-        List objectWrappers = pmf.getObjectBench().getObjects();
+        List<ObjectWrapper> objectWrappers = pmf.getObjectBench().getObjects();
         BObject[] objects = new BObject [objectWrappers.size()];
         int index = 0;
-        for(Iterator i=objectWrappers.iterator(); i.hasNext(); ) {
-            ObjectWrapper wrapper = (ObjectWrapper)i.next();
+        for(Iterator<ObjectWrapper> i=objectWrappers.iterator(); i.hasNext(); ) {
+            ObjectWrapper wrapper = i.next();
             objects[index] = wrapper.getBObject();
             index++;
         }
@@ -261,19 +254,19 @@ public class BPackage
      * @throws CompilationNotStartedException if BlueJ is currently executing Java code.
      */
     public void compile ( boolean waitCompileEnd ) 
-        throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
-        {
+    throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
+    {
         Package bluejPkg = packageId.getBluejPackage();
 
         if ( ! bluejPkg.isDebuggerIdle() )
-          throw new CompilationNotStartedException ("BlueJ is currently executing Java code");
+            throw new CompilationNotStartedException ("BlueJ is currently executing Java code");
 
         // Start compilation
         bluejPkg.compile();
 
         // if requested wait for the compilation to finish.
         if ( waitCompileEnd ) JobQueue.getJobQueue().waitForEmptyQueue();
-        }
+    }
     
 
     /**
@@ -285,19 +278,19 @@ public class BPackage
      * @throws CompilationNotStartedException if BlueJ is currently executing Java code.
      */
     public void compileAll ( boolean waitCompileEnd ) 
-        throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
-        {
+    throws ProjectNotOpenException, PackageNotFoundException, CompilationNotStartedException
+    {
         Package bluejPkg = packageId.getBluejPackage();
 
         if ( ! bluejPkg.isDebuggerIdle() )
-          throw new CompilationNotStartedException ("BlueJ is currently executing Java code");
+            throw new CompilationNotStartedException ("BlueJ is currently executing Java code");
 
         // Request for ALL files to be compiled
         bluejPkg.rebuild(); 
 
         // if requested wait for the compilation to finish.
         if ( waitCompileEnd ) JobQueue.getJobQueue().waitForEmptyQueue();
-        }
+    }
 
     /** 
      * Returns the currently selected classes in this Package.
@@ -305,22 +298,22 @@ public class BPackage
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
-    public BClass []getCurrentClasses ()
+    public BClass [] getCurrentClasses ()
         throws ProjectNotOpenException, PackageNotFoundException
     {
         Package bluejPkg = packageId.getBluejPackage();    
-        Target []targets = bluejPkg.getSelectedTargets();
-        ArrayList aList  = new ArrayList();
+        Target [] targets = bluejPkg.getSelectedTargets();
+        ArrayList<BClass> aList  = new ArrayList<BClass>();
         
         for(int index=0; index<targets.length; index++) 
-            {
+        {
             if ( !(targets[index] instanceof ClassTarget )) continue; 
-          
+
             ClassTarget target = (ClassTarget)targets[index];
             aList.add(target.getBClass());
-            }
+        }
 
-        return (BClass[]) aList.toArray(new BClass[aList.size()]);
+        return aList.toArray(new BClass[aList.size()]);
     }
 
     /** 
@@ -336,15 +329,15 @@ public class BPackage
         ObjectBench aBench = bluejFrame.getObjectBench();
         if ( aBench == null ) return new BObject[0];
 
-        ArrayList aList  = new ArrayList();
-        // In the futire we will really return more than one element
+        ArrayList<BObject> aList  = new ArrayList<BObject>();
+        // In the future we will really return more than one element
         ObjectWrapper aWrapper = aBench.getSelectedObject();
-        if ( aWrapper != null ) aList.add(aWrapper.getBObject());
+        if (aWrapper != null) {
+            aList.add(aWrapper.getBObject());
+        }
 
-        return (BObject[]) aList.toArray(new BObject[aList.size()]);
+        return aList.toArray(new BObject[aList.size()]);
     }
-
-
 
     /**
      * Returns the directory where this package is stored.
@@ -363,16 +356,15 @@ public class BPackage
      * Returns a string representation of the package object
      */
     public String toString () 
-      {
-      try 
+    {
+        try 
         {
-        Package bluejPkg = packageId.getBluejPackage();
-        return "BPackage: "+bluejPkg.getQualifiedName();
+            Package bluejPkg = packageId.getBluejPackage();
+            return "BPackage: "+bluejPkg.getQualifiedName();
         }
-      catch ( ExtensionException exc )
+        catch ( ExtensionException exc )
         {
-        return "BPackage: INVALID";  
+            return "BPackage: INVALID";  
         }
-      }
-
+    }
 }
