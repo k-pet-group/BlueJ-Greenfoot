@@ -21,11 +21,7 @@
  */
 package greenfoot;
 
-import java.io.IOException;
 import java.util.Random;
-
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
@@ -128,7 +124,8 @@ public class Greenfoot
     /**
      * Return a random number between 0 (inclusive) and limit (exclusive).
      */
-    public static int getRandomNumber(int limit) {
+    public static int getRandomNumber(int limit)
+    {
         return randomGenerator.nextInt(limit);
     }
 
@@ -147,11 +144,11 @@ public class Greenfoot
      */
     public static void playSound(final String soundFile)
     {
-    	Sound sound = SoundFactory.getInstance().getCachedSound(soundFile);
+        Sound sound = SoundFactory.getInstance().getCachedSound(soundFile);
 
-		if( sound != null) {
-			sound.play();
-		}		
+        if( sound != null) {
+            sound.play();
+        }		
     }
     
     

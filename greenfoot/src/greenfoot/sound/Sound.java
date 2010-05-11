@@ -32,12 +32,12 @@ package greenfoot.sound;
  */
 public interface Sound
 {
-	/**
-	 * Closes this sound. Will immediately release any resources for the sound.
-	 */
-	public abstract void close();
-   
-	/**
+    /**
+     * Closes this sound. Will immediately release any resources for the sound.
+     */
+    public abstract void close();
+
+    /**
      * Stop this sound. 
      *
      * After this method has been called: isStopped=true, isPlaying=false, isPaused=false.
@@ -56,7 +56,7 @@ public interface Sound
      * 
      * After this method has been called: isStopped=false, isPlaying=true, isPaused=false.
      */
-	public abstract void resume();
+    public abstract void resume();
 	
     /**
      * Play this sound. 
@@ -86,13 +86,13 @@ public interface Sound
      * True if the sound is currently paused.
      * 
      */
-	public abstract boolean isPaused();
+    public abstract boolean isPaused();
 
     /**
      * True if the sound is currently paused.
      * 
      */
-	public abstract boolean isStopped();
+    public abstract boolean isStopped();
 
 
 }

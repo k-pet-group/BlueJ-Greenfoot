@@ -35,29 +35,28 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public class SoundFactory 
 {
-
     /** singleton */
     private static SoundFactory instance;    
 
     /**
-	 * Collection of all sounds, which can be used to affect the state of all
-	 * sounds, for instance it can pause/resume all sounds.
-	 */
+     * Collection of all sounds, which can be used to affect the state of all
+     * sounds, for instance it can pause/resume all sounds.
+     */
     private SoundCollection soundCollection;
     
     private SoundCache soundCache = new SoundCache();
 
-	/**
-	 * Only use clips when the size of the clip is below this value (size of the
-	 * file in bytes). 
-	 * TODO: make this user configurable for platforms where
-	 * clips don't work so well. What about applets?
-	 */
-	private static final int maxClipSize = 500 * 1000;
+    /**
+     * Only use clips when the size of the clip is below this value (size of the
+     * file in bytes). 
+     * TODO: make this user configurable for platforms where
+     * clips don't work so well. What about applets?
+     */
+    private static final int maxClipSize = 500 * 1000;
 
     private SoundFactory()
     {
-       soundCollection = new SoundCollection();
+        soundCollection = new SoundCollection();
     }
 
     public synchronized static SoundFactory getInstance()
@@ -68,7 +67,8 @@ public class SoundFactory
         return instance;
     }
     
-    public SoundCollection getSoundCollection() {
+    public SoundCollection getSoundCollection()
+    {
         return soundCollection;
     }
    
@@ -79,64 +79,66 @@ public class SoundFactory
      */
     public Sound createSound(final String file)
     {      
-    	try {
-			URL url = GreenfootUtil.getURL(file, "sounds");
-			int size = url.openConnection().getContentLength();
-			if (isMidi(url)) {
-				return new MidiFileSound(url, soundCollection);
-			}
-			else if(!GreenfootUtil.isMp3LibAvailable() && isMp3(url)) {
-			    // This is an mp3 file but we don't have the mp3 library available.
-			    SoundExceptionHandler.handleMp3LibNotAvailable();
+        try {
+            URL url = GreenfootUtil.getURL(file, "sounds");
+            int size = url.openConnection().getContentLength();
+            if (isMidi(url)) {
+                return new MidiFileSound(url, soundCollection);
+            }
+            else if(!GreenfootUtil.isMp3LibAvailable() && isMp3(url)) {
+                // This is an mp3 file but we don't have the mp3 library available.
+                SoundExceptionHandler.handleMp3LibNotAvailable();
             }   
-			else if(isMp3(url)) {
-				return new SoundStream(new Mp3AudioInputStream(url), soundCollection);
-			}			
-			else if (isJavaAudioStream(size)) {
-				return new SoundStream(new JavaAudioInputStream(url), soundCollection);
-			} 
-			else {
-				// The sound is small enough to be loaded into memory as a clip.
-				return new SoundClip(file, url, soundCollection);
-			}
-		} catch (IOException e) {
-			SoundExceptionHandler.handleIOException(e, file);
-		} catch (UnsupportedAudioFileException e) {
-			SoundExceptionHandler.handleUnsupportedAudioFileException(e, file);
-		}  
-		return null;
+            else if(isMp3(url)) {
+                return new SoundStream(new Mp3AudioInputStream(url), soundCollection);
+            }			
+            else if (isJavaAudioStream(size)) {
+                return new SoundStream(new JavaAudioInputStream(url), soundCollection);
+            } 
+            else {
+                // The sound is small enough to be loaded into memory as a clip.
+                return new SoundClip(file, url, soundCollection);
+            }
+        } catch (IOException e) {
+            SoundExceptionHandler.handleIOException(e, file);
+        } catch (UnsupportedAudioFileException e) {
+            SoundExceptionHandler.handleUnsupportedAudioFileException(e, file);
+        }  
+        return null;
     }
-	/**
+    
+    /**
      * Gets a cached sound file if possible. If not possible, it will return a new sound.
      * 
      */
     public Sound getCachedSound(final String file)  
     {      
-    	Sound sound = soundCache.get(file);
+        Sound sound = soundCache.get(file);
         if(sound == null) {
-        	sound = createSound(file);
-        	if(sound instanceof SoundClip) {
-        		soundCache.put((SoundClip) sound);
-        	}
+            sound = createSound(file);
+            if(sound instanceof SoundClip) {
+                soundCache.put((SoundClip) sound);
+            }
         } 
         return sound;
     }     
 
-	private boolean isJavaAudioStream(int size) {
-		// If we can not get the size, or if it is a big file we stream
-		// it in a thread.
-		return size == -1 || size > maxClipSize;
-	}	
+    private boolean isJavaAudioStream(int size)
+    {
+        // If we can not get the size, or if it is a big file we stream
+        // it in a thread.
+        return size == -1 || size > maxClipSize;
+    }	
 
     private boolean isMidi(URL url)
-	{
-    	String lowerCaseName = url.toString().toLowerCase();
-		return lowerCaseName.endsWith("mid") || lowerCaseName.endsWith("midi");
-	}    
+    {
+        String lowerCaseName = url.toString().toLowerCase();
+        return lowerCaseName.endsWith("mid") || lowerCaseName.endsWith("midi");
+    }    
 
-	private boolean isMp3(URL url)
-	{
-    	String lowerCaseName = url.toString().toLowerCase();
-		return lowerCaseName.endsWith("mp3");
-	}
+    private boolean isMp3(URL url)
+    {
+        String lowerCaseName = url.toString().toLowerCase();
+        return lowerCaseName.endsWith("mp3");
+    }
 }

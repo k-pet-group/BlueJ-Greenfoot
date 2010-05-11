@@ -35,13 +35,6 @@ import greenfoot.sound.SoundFactory;
  */
 public class GreenfootSound
 {
-    /*
-     * TODO: Make class public when we want to include GreenfootSound support
-     * Also modify: SoundFactory, build.xml and
-     * BlueJ/package/greenfoot-build.xml. Just search for "GreenfoundSound" in
-     * those files to find out what needs to be done
-     */
-
     private Sound sound;
     
     /**
@@ -62,26 +55,26 @@ public class GreenfootSound
     }
     
     /**
-	 * Start playing this sound. If it is playing already, it will do
-	 * nothing. If the sound is currently looping, it will finish the current
-	 * loop and stop. If the sound is currently paused, it will resume playback
-	 * from the point where it was paused. The sound will be played once.
-	 */
-	public void play()
-	{
-		sound.play();
-	}
+     * Start playing this sound. If it is playing already, it will do
+     * nothing. If the sound is currently looping, it will finish the current
+     * loop and stop. If the sound is currently paused, it will resume playback
+     * from the point where it was paused. The sound will be played once.
+     */
+    public void play()
+    {
+        sound.play();
+    }
 	
-	/**
-	 * Play this sound repeatedly in a loop. If called on an already looping
-	 * sound, it will do nothing. If the sound is already playing once, it will
-	 * start looping instead. If the sound is currently paused, it will resume
-	 * playing from the point where it was paused.
-	 */
-	public void playLoop()
-	{
-		sound.loop();
-	}
+    /**
+     * Play this sound repeatedly in a loop. If called on an already looping
+     * sound, it will do nothing. If the sound is already playing once, it will
+     * start looping instead. If the sound is currently paused, it will resume
+     * playing from the point where it was paused.
+     */
+    public void playLoop()
+    {
+        sound.loop();
+    }
 	
     /**
      * Stop playing this sound if it is currently playing. If the sound is
@@ -93,16 +86,16 @@ public class GreenfootSound
         sound.stop();
     }
 
-	/**
-	 * Pauses the current sound if it is currently playing. If the sound is
-	 * played again later, it will resume from the point where it was paused.
-	 * <p>
-	 * Make sure that this is really the method you want. If possible, you
-	 * should always use {@link #stop()}, because the resources can be released
-	 * after calling {@link #stop()}. The resources for the sound will not be
-	 * released while it is paused.
-	 * @see #stop()
-	 */
+    /**
+     * Pauses the current sound if it is currently playing. If the sound is
+     * played again later, it will resume from the point where it was paused.
+     * <p>
+     * Make sure that this is really the method you want. If possible, you
+     * should always use {@link #stop()}, because the resources can be released
+     * after calling {@link #stop()}. The resources for the sound will not be
+     * released while it is paused.
+     * @see #stop()
+     */
     public void pause()
     {
         sound.pause();
@@ -118,17 +111,17 @@ public class GreenfootSound
     }
  
     /**
-	 * Returns a string representation of this sound containing the name of the
-	 * file and whether it is currently playing or not.
-	 */
-	public String toString()
-	{
-    	String s = super.toString() + " file: " + filename + " ";
-    	if(sound != null) {
-    		s += ". Is playing: " + isPlaying();
-    	} else {
-    		s += ". Not found.";
-    	}
-    	return s;
+     * Returns a string representation of this sound containing the name of the
+     * file and whether it is currently playing or not.
+     */
+    public String toString()
+    {
+        String s = super.toString() + " file: " + filename + " ";
+        if(sound != null) {
+            s += ". Is playing: " + isPlaying();
+        } else {
+            s += ". Not found.";
+        }
+        return s;
     }
 }
