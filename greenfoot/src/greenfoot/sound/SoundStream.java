@@ -94,8 +94,8 @@ public class SoundStream implements Sound, Runnable
     
     /** The line that we play the sound through */
     private volatile AudioLine line;
-	private AudioFormat format;
-	private Info info;
+    private AudioFormat format;
+    private Info info;
     
     /** Thread that handles the actual playback of the sound. */
     private Thread playThread ;

@@ -102,24 +102,24 @@ public class AudioLine
     private static void printDebug(String s)
     {
         // Comment this line out if you don't want debug info.
-       // System.out.println(s);
+        // System.out.println(s);
     }
     
-	/**
-	 * Extra delay in ms added to the sleep time before stopping the sound. This
-	 * is just an extra buffer of time to make sure we don't close it too soon.
-	 * This helps avoid stopping the sound too soon which seems to happen on
-	 * some Linux systems.
-	 */
-	private final static int EXTRA_SLEEP_DELAY = 50;
+    /**
+     * Extra delay in ms added to the sleep time before stopping the sound. This
+     * is just an extra buffer of time to make sure we don't close it too soon.
+     * This helps avoid stopping the sound too soon which seems to happen on
+     * some Linux systems.
+     */
+    private final static int EXTRA_SLEEP_DELAY = 50;
 
-	/**
-	 * The actual line that we wrap. I assume this object is thread-safe,
-	 * because it has methods that only makes sense in a multi-threaded
-	 * environment (drain()).
-	 */
-	private volatile SourceDataLine line;
-	private AudioFormat format;
+    /**
+     * The actual line that we wrap. I assume this object is thread-safe,
+     * because it has methods that only makes sense in a multi-threaded
+     * environment (drain()).
+     */
+    private volatile SourceDataLine line;
+    private AudioFormat format;
 
     /** Total bytes written since playback started. */
     private long totalWritten;
@@ -137,10 +137,10 @@ public class AudioLine
     private boolean writing;
     
     /**
-	 * Whether the line is reset. As soon as data has been written, the line is
-	 * no longer reset.
-	 */
-	private boolean reset;
+     * Whether the line is reset. As soon as data has been written, the line is
+     * no longer reset.
+     */
+    private boolean reset;
 
     /** Keeps track of how much time have been spend on active playback. */
     private TimeTracker timeTracker;
@@ -227,14 +227,14 @@ public class AudioLine
         printDebug("reset() start");
 
         if (open) {
-        	if(started) {
-        		line.stop();
-        	}
-        	if(!reset) {
-        		line.flush();
-        	}      	
-        	totalWritten = 0;
-        	// TODO: totalWritten might be updated after this in write method.
+            if(started) {
+                line.stop();
+            }
+            if(!reset) {
+                line.flush();
+            }      	
+            totalWritten = 0;
+            // TODO: totalWritten might be updated after this in write method.
             started = false;
             timeTracker.reset();
             notifyAll();
@@ -243,14 +243,14 @@ public class AudioLine
         printDebug("reset() end");
     }
 
-	/**
-	 * Will attempt to write the given bytes to the line. This method might
-	 * block if it can't write it all at once. If the line is not open then this
-	 * method will return 0 immediately.
-	 * 
-	 * @return The number of bytes written (different from len if the line was
-	 *         stopped while writing).
-	 */
+    /**
+     * Will attempt to write the given bytes to the line. This method might
+     * block if it can't write it all at once. If the line is not open then this
+     * method will return 0 immediately.
+     * 
+     * @return The number of bytes written (different from len if the line was
+     *         stopped while writing).
+     */
     public int write(byte[] b, int off, int len)
     {
         synchronized (this) {
@@ -269,12 +269,12 @@ public class AudioLine
             // drain() might be waiting, so we should wake it up.
             notifyAll();
             writing = false;
-			if (!reset) {
-				totalWritten += written;
-			} else if (reset && open) {
-				// Flush what we just wrote to keep it reset.
-				line.flush();
-			}
+            if (!reset) {
+                totalWritten += written;
+            } else if (reset && open) {
+                // Flush what we just wrote to keep it reset.
+                line.flush();
+            }
             return written;
         }
     }
@@ -322,8 +322,9 @@ public class AudioLine
         }
     }
     
-    public synchronized boolean isOpen() {
-    	return open;
+    public synchronized boolean isOpen()
+    {
+        return open;
     }
 
     private synchronized long getTimeLeft()
