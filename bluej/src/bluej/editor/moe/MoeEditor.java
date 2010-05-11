@@ -1607,7 +1607,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         boolean finished = false;
 
         int start = startPosition;
-        Element line = getLineAt(start);
+        Element line = document.getParagraphElement(start);
         int lineEnd = line.getEndOffset();   
         int foundPos =0; 
         try {
@@ -1875,7 +1875,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             return true;
         }
         return false;
-
     }
 
     /**
@@ -1885,7 +1884,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     private ArrayList<String> getFlaggedActions()
     {
-        if (flaggedActions==null){
+        if (flaggedActions==null) {
             flaggedActions=new ArrayList<String>();
             flaggedActions.add("save");
             flaggedActions.add("reload");
@@ -1898,9 +1897,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             flaggedActions.add("comment-block");
             flaggedActions.add("uncomment-block");
             flaggedActions.add("insert-method");
-            flaggedActions.add("find");
-            flaggedActions.add("find-next");
-            flaggedActions.add("find-next-backward");
             flaggedActions.add("replace");
             flaggedActions.add("go-to-line");
             flaggedActions.add("paste-from-clipboard");
@@ -1908,7 +1904,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         }
 
         return flaggedActions;
-
     }
     // --------------------------------------------------------------------
     /**
@@ -2025,9 +2020,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * This method changes the display of the menubar based on the interface that is selected
+     * This method changes the display of the menubar based on the
+     * view (source/documentation) that is selected.
      * 
-     * @param sourceView true if called from sourceView setup; false from documentation View setup
+     * @param sourceView true if viewing source; false if viewing documentation
      */
     private void displayMenubar(boolean sourceView)
     {
@@ -2050,25 +2046,28 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * This method changes the display of the toolbar based on the interface that is selected
+     * This method changes the display of the toolbar based on the view
+     * (source/documentation) that is selected
      * 
-     * @param sourceView true if called from sourceView setup; false from documentation View setup
+     * @param sourceView true if viewing source; false if viewing documentation
      */
     private void displayToolbar(boolean sourceView)
     {
-
         JPanel toolbar=null;
         Component contentPaneItem;
         JButton actionButton;
         Component[] c = getContentPane().getComponents();
         for (int i=0;i<c.length; i++ ){
             contentPaneItem=c[i];
-            if(contentPaneItem.getName()!=null && contentPaneItem.getName().equals("toolbar")) 
+            if(contentPaneItem.getName()!=null && contentPaneItem.getName().equals("toolbar")) {
                 toolbar=(JPanel)contentPaneItem;
+            }
         }
 
-        if (toolbar==null)
+        if (toolbar==null) {
             return;
+        }
+        
         Component[] toolbarComponent = toolbar.getComponents();
         for (int i=0;i<toolbarComponent.length; i++ ) {
             if (toolbarComponent[i] instanceof JButton) {                   
@@ -2173,8 +2172,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             // interface needs to be re-generated
             info.message(Config.getString("editor.info.generatingDoc"));
             BlueJEvent.addListener(this);
-            if (watcher != null)
+            if (watcher != null) {
                 watcher.generateDoc();
+            }
         }
 
         document = htmlDocument;
@@ -2182,8 +2182,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         viewingHTML = true;
         scrollPane.setViewportView(htmlPane);
         currentTextPane.requestFocus();
-        //currentTextPane.getSelectionColor(), Color.YELLOW, 
-        editorHighlighter= new MoeHighlighter(currentTextPane);
+        editorHighlighter = new MoeHighlighter(currentTextPane);
     }
 
     // --------------------------------------------------------------------
@@ -2376,16 +2375,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         return sourceIsCode && (!viewingHTML);
     }
-
-
-    // --------------------------------------------------------------------
-    /**
-     * Return the current line.
-     */
-    //    private Element getCurrentLine()
-    //    {
-    //        return document.getParagraphElement(currentTextPane.getCaretPosition());
-    //    }
 
     // --------------------------------------------------------------------
     /**
