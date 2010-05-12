@@ -48,7 +48,7 @@ import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RClassImpl.java 7485 2010-05-05 03:31:40Z davmac $
+ * @version $Id: RClassImpl.java 7543 2010-05-12 14:32:08Z nccb $
  */
 public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     implements RClass
@@ -206,7 +206,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
                 // First insert the text:
                 e.setText(e.getTextLocationFromOffset(pos), e.getTextLocationFromOffset(pos), text);
                 // Then auto-indent the method to make sure our indents were correct:
-                int oldPos = bjEditor.getCaretPosition();
+                int oldPos = bjEditor.getSourcePane().getCaretPosition();
                 MoeIndent.calculateIndentsAndApply(bjEditor.getSourceDocument(), node.getPosition(), node.getPosition() + originalLength + text.length(), oldPos);
                 bjEditor.undoManager.endCompoundEdit();
                 e.setCaretLocation(e.getTextLocationFromOffset(pos));
