@@ -344,10 +344,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         if (selBegin != null) {
             // Avoid finding the same instance we found last time
             int offset = editor.getOffsetFromLineColumn(selBegin) + 1;
-            if (offset > editor.getDocumentLength()) {
+            if (offset > editor.getSourceDocument().getLength()) {
                 offset = 0;
             }
-            editor.setCaretPosition(offset);
+            editor.getSourcePane().setCaretPosition(offset);
         }
         if (find(true)) {
             searchStart = editor.getSelectionBegin();
@@ -492,7 +492,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         }
 
         if(counter > 0){
-            if (editor.getSelectedText()!=null){
+            if (editor.getSourcePane().getSelectedText()!=null){
                 //move the caret to the beginning of the selected item
                 //editor.moveCaretPosition(editor.getCaretPosition()-getSearchString().length());
             }
@@ -524,7 +524,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         if (!next){
             found = editor.doFindBackward(searchString, ignoreCase, wholeWord, wrap);
             // position the caret so that following doFindSelect finds the correct occurrence
-            editor.setCaretPosition(editor.getCaretPosition() - searchString.length());
+            editor.getSourcePane().setCaretPosition(editor.getSourcePane().getCaretPosition() - searchString.length());
         }
 
         found=editor.doFindSelect(searchString, ignoreCase, wholeWord, wrap, select);

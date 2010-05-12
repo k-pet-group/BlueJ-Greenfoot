@@ -758,7 +758,7 @@ public final class MoeActions
             MoeEditor editor = getEditor(e);
             MoeSyntaxDocument doc = editor.getSourceDocument();
 
-            int prevCaretPos = editor.getCaretPosition();
+            int prevCaretPos = editor.getSourcePane().getCaretPosition();
             editor.setCaretActive(false);
             editor.undoManager.beginCompoundEdit();
             AutoIndentInformation info = MoeIndent.calculateIndentsAndApply(doc, prevCaretPos);
@@ -1327,8 +1327,8 @@ public final class MoeActions
                 editor.setFindPanelVisible(true);
                 editor.setReplacePanelVisible(true);
                 editor.setReplaceIcon(true);
-                if (editor.getSelectedText()!=null){
-                    editor.setFindTextfield(editor.getSelectedText());
+                if (editor.getSourcePane().getSelectedText()!=null){
+                    editor.setFindTextfield(editor.getSourcePane().getSelectedText());
                 }
             }
         }
@@ -1931,9 +1931,9 @@ public final class MoeActions
             // Previously it was set to the position it was at before adding the
             // template, but that resulted in errors when selecting the entire
             // contents of the class before inserting the template.
-            int caretPos = editor.getCaretPosition();
+            int caretPos = editor.getSourcePane().getCaretPosition();
             AutoIndentInformation info = MoeIndent.calculateIndentsAndApply(editor.getSourceDocument(),caretPos - addedTextLength,caretPos+2,caretPos);
-            editor.setCaretPositionForward(info.getNewCaretPosition() - editor.getCaretPosition());
+            editor.setCaretPositionForward(info.getNewCaretPosition() - editor.getSourcePane().getCaretPosition());
         }
         catch (IOException exc) {
             Debug.reportError("Could not read method template.");

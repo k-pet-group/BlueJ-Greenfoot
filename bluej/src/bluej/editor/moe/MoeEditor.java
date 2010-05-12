@@ -93,6 +93,7 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
+import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
 import javax.swing.text.Element;
 import javax.swing.text.Highlighter;
@@ -242,7 +243,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * list of actions that are dis/enabled depending on the selected view
      * (source/documentation)
      */
-    private ArrayList<String> flaggedActions;
+    private static ArrayList<String> editActions;
 
     private MoeHighlighter editorHighlighter;
 
@@ -284,26 +285,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
-
-    /**
-     * Update the state of controls bound to "undo".
-     */
-    public void updateUndoControls()
-    {
-        boolean canUndo = undoManager.canUndo();
-        displayMenuItem("undo", canUndo);
-        displayToolbarItem("undo", canUndo);
-    }
-
-    /**
-     * Update the state of controls bound to "redo".
-     */
-    public void updateRedoControls()
-    {
-        boolean canRedo = undoManager.canRedo();
-        displayMenuItem("redo", canRedo);
-        displayToolbarItem("redo", canRedo);
-    }
 
     /**
      * Load the file "filename" and show the editor window.
@@ -463,11 +444,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         currentTextPane.repaint();
     }
 
-
     /**
-     * Save the buffer to disk under current filename. This is often called from
-     * the outside - just in case. Save only if really necessary, otherwise we
-     * save much too often. PRE: filename != null
+     * Save the buffer to disk under current filename, if there any changes.
+     * This method may be called often.
      */
     public void save()       // inherited from Editor, redefined
     throws IOException
@@ -762,30 +741,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * Check whether the source file has changed on disk. If it has, reload.
-     */
-    private void checkForChangeOnDisk()
-    {
-        if (filename == null) {
-            return;
-        }
-        File file = new File(filename);
-        long modified = file.lastModified();
-        if(modified != lastModified) {
-            if (saveState.isChanged()) {
-                int answer = DialogManager.askQuestion(this, "changed-on-disk");
-                if (answer == 0)
-                    doReload();
-                else
-                    lastModified = modified; // don't ask again for this change
-            }
-            else {
-                doReload();
-            }
-        }
-    }
-
-    /**
      * Returns the current caret location within the edited text.
      * 
      * @return An object describing the current caret location.
@@ -797,33 +752,35 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * Returns the SourceLocation object from the given offset in the text.
+     * Returns the SourceLocation object corresponding to the given offset in the
+     * source text.
      * 
-     * @param offset  The number of characters from the beginning of text (startng
+     * @param offset  The number of characters from the beginning of text (starting
      *                from zero)
      * @return the SourceLocation object or null if the offset points outside the
      *         text.
      */
     public SourceLocation getLineColumnFromOffset(int offset)
     {
-        int lineNumber = sourceDocument.getDefaultRootElement().getElementIndex(offset);
-
-        if (lineNumber < 0) {
+        if (offset < 0) {
             return null;
         }
+        
+        Element map = sourceDocument.getDefaultRootElement();
+        int lineNumber = map.getElementIndex(offset);
 
-        Element lineElement = sourceDocument.getDefaultRootElement().getElement(lineNumber);
+        Element lineElement = map.getElement(lineNumber);
+        if (offset >= lineElement.getEndOffset()) {
+            return null;
+        }
+        
         int column = offset - lineElement.getStartOffset();
-
-        if (column < 0) {
-            return null;
-        }
 
         return new SourceLocation(lineNumber+1, column+1);
     }
 
     /**
-     * Sets the current Caret location within the edited text.
+     * Sets the current Caret location within the edited text (source pane).
      * 
      * @param location  The location in the text to set the Caret to.
      * @throws IllegalArgumentException
@@ -836,7 +793,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * Returns the location where the current selection begins.
+     * Returns the location where the current selection (in the source pane)
+     * begins.
      * 
      * @return the current beginning of the selection or null if no text is
      *         selected.
@@ -856,7 +814,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * Returns the location where the current selection ends.
+     * Returns the location where the current selection (in the
+     * source pane) ends.
      * 
      * @return the current end of the selection or null if no text is selected.
      */
@@ -875,7 +834,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * Returns the text which lies between the two LineColumn.
+     * Returns the source text between two locations as a string.
      * 
      * @param begin  The beginning of the text to get
      * @param end    The end of the text to get
@@ -930,7 +889,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * Request to the editor to mark the text between begin and end as selected.
+     * Request to the editor to mark the source text between two positions as selected.
      * 
      * @param begin  The start position of the selection
      * @param end  The end position of the selection
@@ -951,7 +910,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * Translates a SourceLocation into an offset into the text held by the editor.
+     * Translates a SourceLocation into an offset into the source text
+     * held by the editor.
      * 
      * @param location  position to be translated
      * @return the offset into the content of this editor
@@ -961,25 +921,24 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public int getOffsetFromLineColumn(SourceLocation location)
     {
-        if (location.getLine() < 1) {
-            throw new IllegalArgumentException("line < 1");
+        int col = location.getColumn() - 1;
+        int line = location.getLine() - 1;
+        
+        if (line < 0 || col < 0) {
+            throw new IllegalArgumentException("line or column < 1");
         }
-
-        Element lineElement = sourceDocument.getDefaultRootElement()
-                .getElement(location.getLine() - 1);
-        if (lineElement == null) {
+        
+        Element map = sourceDocument.getDefaultRootElement();
+        if (line >= map.getElementCount()) {
             throw new IllegalArgumentException("line=" + location.getLine()
                     + " is out of bound");
         }
 
+        Element lineElement = sourceDocument.getDefaultRootElement()
+                .getElement(line);
+
         int lineOffset = lineElement.getStartOffset();
-
-        if (location.getColumn() < 1) {
-            throw new IllegalArgumentException("column < 1 ");
-        }
-
         int lineLen = lineElement.getEndOffset() - lineOffset;
-        int col = location.getColumn() - 1;
 
         if (col >= lineLen) {
             throw new IllegalArgumentException("column=" + location.getColumn() + " greater than line len=" + lineLen);
@@ -1039,15 +998,13 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         return lineElement.getEndOffset() - startOffset;
     }
 
-
     /**
-     * Returns the length of the data.  This is the number of
-     * characters of content that represents the users data.
+     * Returns the length of the source document.
      *
      * It is possible to obtain the line and column of the last character of text by using
-     * the getLineColumnFromOffset() method.
+     * this method together with the getLineColumnFromOffset() method.
      *
-     * @return the length >= 0
+     * @return the source length (>= 0)
      */
     public int getTextLength ()
     {
@@ -1055,7 +1012,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * Return the number of lines in the document.
+     * Return the number of lines in the source document.
      */
     public int numberOfLines()
     {
@@ -1069,7 +1026,55 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         return sourceDocument.getParser();
     }
+    
+    // --------------------------------------------------------------------
+    // ------------ end of interface inherited from Editor ----------------
+    // --------------------------------------------------------------------
 
+    /**
+     * Update the state of controls bound to "undo".
+     */
+    public void updateUndoControls()
+    {
+        boolean canUndo = undoManager.canUndo();
+        displayMenuItem("undo", canUndo);
+        displayToolbarItem("undo", canUndo);
+    }
+
+    /**
+     * Update the state of controls bound to "redo".
+     */
+    public void updateRedoControls()
+    {
+        boolean canRedo = undoManager.canRedo();
+        displayMenuItem("redo", canRedo);
+        displayToolbarItem("redo", canRedo);
+    }
+    
+    /**
+     * Check whether the source file has changed on disk. If it has, reload.
+     */
+    private void checkForChangeOnDisk()
+    {
+        if (filename == null) {
+            return;
+        }
+        File file = new File(filename);
+        long modified = file.lastModified();
+        if(modified != lastModified) {
+            if (saveState.isChanged()) {
+                int answer = DialogManager.askQuestion(this, "changed-on-disk");
+                if (answer == 0)
+                    doReload();
+                else
+                    lastModified = modified; // don't ask again for this change
+            }
+            else {
+                doReload();
+            }
+        }
+    }
+    
     /**
      * Schedule the ReparseRunner on the AWT event queue, if it is not already scheduled.
      */
@@ -1082,7 +1087,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
     
     /**
-     * Informs the editor that the reparse runner has de-schedule itself due to lack
+     * Informs the editor that the re-parse runner has de-scheduled itself due to lack
      * of work.
      */
     public void reparseRunnerFinished()
@@ -1090,10 +1095,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         reparseRunner = null;
     }
     
-    // --------------------------------------------------------------------
-    // ------------ end of interface inherited from Editor ----------------
-    // --------------------------------------------------------------------
-
     // ---- BlueJEventListener interface ----
 
     /**
@@ -1184,7 +1185,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     // ==================== USER ACTION IMPLEMENTATIONS ===================
 
     // --------------------------------------------------------------------
+    
     /**
+     * User requests "save"
      */
     public void userSave()
     {
@@ -1201,7 +1204,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
+    
     /**
+     * User requests "reload"
      */
     public void reload()
     {
@@ -1267,7 +1272,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         }
     }
 
-    // --------------------------------------------------------------------
     /**
      * Implementation of the "page setup" user function. This provides a dialog
      * for print page setup. PageSetup is global to BlueJ. Calling this from the 
@@ -1282,6 +1286,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
+    
     /**
      * The editor has been closed. Hide the editor window now.
      */
@@ -1296,6 +1301,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
+    
     /**
      * Check whether TABs need expanding in this editor. If they do, return
      * true. At the same time, set this flag to true.
@@ -1359,9 +1365,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void replace(String replaceString)
     {
-        int caretPos=getCaretPosition();
+        int caretPos = sourcePane.getCaretPosition();
         String searchString=finder.getSearchString();
-        if (getSelectedText()==null|| getSelectedText().length()<=0){
+        if (getSourcePane().getSelectedText()==null|| getSourcePane().getSelectedText().length()<=0){
             //in case the selection has been lost due to moving it in the editor
             if (finder.getSearchString()!=null && finder.getSearchString().length()>0)
                 searchString=finder.getSearchTextfield();
@@ -1373,7 +1379,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         String replaceText = smartFormat(searchString, replaceString);
         insertText(replaceText, true);
         //move the caret back to where it was before the replace
-        setCaretPosition(caretPos);
+        sourcePane.setCaretPosition(caretPos);
         finder.find(true);
         //editor.writeMessage("Replaced " + count + " instances of " + searchString);
         writeMessage("Replaced an instance of " + 
@@ -1381,6 +1387,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
+    
     /**
      * Implementation of "find-next" user function.
      */
@@ -1426,6 +1433,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
+    
     /**
      * Do a find with info in the info area.
      */
@@ -1787,6 +1795,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         }
     }
     // --------------------------------------------------------------------
+    
     /**
      * Implementation of "compile" user function.
      */
@@ -1805,6 +1814,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
+    
     /**
      * Toggle the interface popup menu. This is used when using keys to toggle
      * the interface view. Toggling the menu will result in invoking the action.
@@ -1821,6 +1831,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
+    
     /**
      * Implementation of "toggle-interface-view" user function. The menu has
      * already been changed - now see what it is and do it.
@@ -1869,7 +1880,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     private boolean isFlaggedAction(String text)
     {
-        ArrayList<String> flaggedActions = getFlaggedActions();
+        ArrayList<String> flaggedActions = getEditActions();
         if (flaggedActions!=null && flaggedActions.contains(text)) {
             return true;
         }
@@ -1877,34 +1888,38 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * Returns a list of flagged items 
+     * Returns a list of names for the actions which are only valid in an editing
+     * context, that is, when the display shows the source and not the documentation.
      *  
-     * @return ArrayList list of flagged items
+     * @return list of editing action names
      */
-    private ArrayList<String> getFlaggedActions()
+    private ArrayList<String> getEditActions()
     {
-        if (flaggedActions==null) {
-            flaggedActions=new ArrayList<String>();
-            flaggedActions.add("save");
-            flaggedActions.add("reload");
-            flaggedActions.add("print");
-            flaggedActions.add("page-setup");
-            flaggedActions.add("compile");
-            flaggedActions.add("cut-to-clipboard");
-            flaggedActions.add("indent-block");
-            flaggedActions.add("deindent-block");
-            flaggedActions.add("comment-block");
-            flaggedActions.add("uncomment-block");
-            flaggedActions.add("insert-method");
-            flaggedActions.add("replace");
-            flaggedActions.add("go-to-line");
-            flaggedActions.add("paste-from-clipboard");
-            flaggedActions.add("toggle-breakpoint");
+        if (editActions == null) {
+            editActions=new ArrayList<String>();
+            editActions.add("save");
+            editActions.add("reload");
+            editActions.add("print");
+            editActions.add("page-setup");
+            editActions.add("compile");
+            editActions.add("cut-to-clipboard");
+            editActions.add("indent-block");
+            editActions.add("deindent-block");
+            editActions.add("comment-block");
+            editActions.add("uncomment-block");
+            editActions.add("insert-method");
+            editActions.add("replace");
+            editActions.add("go-to-line");
+            editActions.add("paste-from-clipboard");
+            editActions.add("toggle-breakpoint");
+            editActions.add("autoindent");
         }
 
-        return flaggedActions;
+        return editActions;
     }
+    
     // --------------------------------------------------------------------
+    
     /**
      * Switch on the source view (it it isn't showing already).
      */
@@ -1927,6 +1942,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
+    
     /**
      * Switch on the javadoc interface view (it it isn't showing already). If
      * necessary, generate it first.
@@ -1954,6 +1970,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
+    
     /**
      * Refresh the HTML display.
      */
@@ -1974,6 +1991,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
+    
     /**
      * Check whether javadoc file is up to date.
      * 
@@ -2000,6 +2018,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
+    
     /**
      * This method resets the value of the menu and toolbar according to the view
      * 
@@ -2085,7 +2104,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             }
         }
     }
-
 
     /**
      * This method changes the display of the menubar based on the interface that is selected
@@ -2193,6 +2211,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
+
     /**
      */
     public void createHTMLPane()
@@ -2217,6 +2236,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
+
     /**
      * A hyperlink was activated in the document. Do something appropriate.
      */
@@ -2243,6 +2263,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
+    
     /**
      * Implementation of "toggle-breakpoint" user function.
      */
@@ -2255,8 +2276,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         toggleBreakpoint(sourcePane.getCaretPosition());
     }
 
-    // --------------------------------------------------------------------
-
     /**
      * Toggle a breakpoint at a given position.
      */
@@ -2268,7 +2287,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             setUnsetBreakpoint(pos, true);         // set
     }
 
-    // --------------------------------------------------------------------
     /**
      * Clear all known breakpoints.
      */
@@ -2285,7 +2303,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         }
     }
 
-    // --------------------------------------------------------------------
     /**
      * Check weather a position has a breakpoint set
      */
@@ -2294,8 +2311,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         Element line = getLineAt(pos);
         return Boolean.TRUE.equals(line.getAttributes().getAttribute(MoeSyntaxView.BREAKPOINT));
     }
-
-    // --------------------------------------------------------------------
+    
     /**
      * Check weather a line has a breakpoint set
      */
@@ -2305,7 +2321,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         return (Boolean.TRUE.equals(line.getAttributes().getAttribute(MoeSyntaxView.BREAKPOINT)));
     }
 
-    // --------------------------------------------------------------------
     /**
      * Try to set or remove a breakpoint (depending on the parameter) at the
      * given position. Informs the watcher.
@@ -2342,7 +2357,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     }
 
-    // --------------------------------------------------------------------
     /**
      * Remove a breakpoint without question.
      */
@@ -2355,6 +2369,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     // --------------------------------------------------------------------
+
     /**
      * Try to set or remove a step mark (depending on the parameter) at the
      * given position.
@@ -3241,7 +3256,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void initFindPanel(MoeEditor editor)
     {
-        finder.displayFindPanel(getSelectedText(), true);
+        finder.displayFindPanel(getSourcePane().getSelectedText(), true);
         //functionality for the replace button to be enabled/disabled according to view
         if (editor.isShowingInterface()){
             finder.setReplaceEnabled(false);
@@ -3259,38 +3274,31 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void setCaretPositionForward (int caretPos)
     {
-        if (currentTextPane.getCaretPosition() + caretPos <= getDocumentLength()) {
+        int docLength = document.getLength();
+        if (currentTextPane.getCaretPosition() + caretPos <= docLength) {
             currentTextPane.setCaretPosition(currentTextPane.getCaretPosition() + caretPos);
         } else { 
-            currentTextPane.setCaretPosition(getDocumentLength());
+            currentTextPane.setCaretPosition(docLength);
         }
     }
 
-    public int getCaretPosition ()
-    {
-        return sourcePane.getCaretPosition();
-    }
-
-    public void setCaretPosition(int pos)
-    {
-        sourcePane.setCaretPosition(pos);
-    }
-
-    public int getDocumentLength()
-    {
-        return document.getLength();
-    }
-
     /**
-     * Get the text currently selected.
-     * 
-     * @return The selected text.
+     * Get the source pane.
      */
-    public String getSelectedText()
+    public JEditorPane getSourcePane()
     {
-        return sourcePane.getSelectedText();
+        return sourcePane;
     }
-
+    
+    /**
+     * Get the currently displaye document - either the source document,
+     * or the documentation document (HTML).
+     */
+    public Document getDisplayedDocument()
+    {
+        return document;
+    }
+    
     /**
      * Get the source document that this editor is editing.
      */
@@ -3298,38 +3306,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         return sourceDocument;
     }
-
-    /**
-     * Removes only our selected highlights finds the next one 
-     * and selects that
-     */
-    public void removeReselectSelection(int startPos, int length)
-    {
-        Highlighter hilite = currentTextPane.getHighlighter();
-        Highlighter.Highlight[] hilites = hilite.getHighlights();
-
-        for (int i=0; i<hilites.length; i++) {
-            //should only happen once
-            if (hilites[i].getPainter() instanceof /*MyHighlightPainter*/ MoeHighlighterPainter) {
-                hilite.removeHighlight(hilites[i]);
-                try{
-                    hilite.addHighlight(hilites[i].getStartOffset(), hilites[i].getEndOffset(), editorHighlighter.highlightPainter);
-                }catch(BadLocationException e){
-
-                }
-                //the highlight to modify to selected
-            }
-            if (hilites[i].getStartOffset()==startPos){
-                hilite.removeHighlight(hilites[i]);
-                try{
-                    currentTextPane.getHighlighter().addHighlight(startPos, startPos+length, editorHighlighter.selectPainter);
-                }catch(BadLocationException e){
-
-                }
-                currentTextPane.select(startPos, startPos+length);
-            }
-        }
-    }
+    
     /**
      * Removes only the  selected highlights i.e. the other highlights
      * such as the brackets etc remain
@@ -3339,14 +3316,12 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         Highlighter hilite = currentTextPane.getHighlighter();
         Highlighter.Highlight[] hilites = hilite.getHighlights();
 
-        for (int i=0; i<hilites.length; i++) {
-            //should only happen once
-            if (hilites[i].getPainter() instanceof /*MyHighlightPainter*/ MoeHighlighterPainter) {
+        for (int i = 0; i < hilites.length; i++) {
+            if (hilites[i].getPainter() instanceof MoeHighlighterPainter) {
                 hilite.removeHighlight(hilites[i]);
             }
         }
     }
-
 
     /**
      * Returns the number of highlights in the given textPane
@@ -3384,7 +3359,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         //need to recreate the dialog each time it is pressed as the values may be different 
         closeContentAssist();
-        CodeSuggestions suggests = sourceDocument.getParser().getExpressionType(getCaretPosition(),
+        CodeSuggestions suggests = sourceDocument.getParser().getExpressionType(sourcePane.getCaretPosition(),
                 sourceDocument);
         if (suggests != null) {
             LocatableToken suggestToken = suggests.getSuggestionToken();
@@ -3427,11 +3402,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     public AssistContent[] getPossibleCompletions(CodeSuggestions suggests, String prefix)
     {
         if (suggests != null) {
-            //Map<String,JavaType> fields = exprType.getClassType().getReflective().getDeclaredFields();
-            //for (Iterator<String> i = fields.keySet().iterator(); i.hasNext(); ) {
-            //    System.out.println(" field: " + i.next());
-            //}
-            
             GenTypeClass exprType = suggests.getSuggestionType().asClass();
             if (exprType == null) {
                 return null;
@@ -3576,9 +3546,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     public void replaceAll(String replaceString)
     {
         //remove selection and remove highlighting 
-        int caretPos=getCaretPosition();
+        int caretPos = sourcePane.getCaretPosition();
         if (getSelectionBegin()!=null) {
-            setCaretPosition(getSelectionBegin().getColumn());
+            sourcePane.setCaretPosition(getSelectionBegin().getColumn());
         }
         removeSearchHighlights();
         String searchString = finder.getSearchString();
@@ -3595,7 +3565,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         }
 
         removeSearchHighlights();
-        setCaretPosition(caretPos);
+        sourcePane.setCaretPosition(caretPos);
 
         if(count > 0) {
             writeMessage(Config.getString("editor.replaceAll.replaced") +
@@ -3631,14 +3601,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * isReplacePanelVisible returns whether the replace panel is visible
-     */
-    protected boolean isReplacePanelVisible()
-    {
-        return replacer.isVisible();
-    }
-
-    /**
      * isReplacePopulated returns whether the replace textfield is (validly) populated
      */
     protected boolean isReplacePopulated()
@@ -3670,7 +3632,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void mouseClicked(MouseEvent e)
     {
-        if (getSelectedText()==null){
+        if (getSourcePane().getSelectedText()==null){
             enableReplaceButtons(false);
         }  
     }
@@ -3692,7 +3654,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /**
      * Displays the popup menu, if triggered by the given mouse event
      */
-    private void showPopup(MouseEvent e) {
+    private void showPopup(MouseEvent e)
+    {
         if (e.isPopupTrigger()) {
             popup.show(e.getComponent(),
                        e.getX(), e.getY());

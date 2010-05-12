@@ -106,7 +106,7 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener
             //only enable the once and all buttons if both find and replace are populated
             //and if there is selected text (else will insert replace where the caret is
             if (editor.getFindSearchString()!=null && editor.getFindSearchString().length()!=0
-                    && editor.getSelectedText()!=null){
+                    && editor.getSourcePane().getSelectedText()!=null){
                 enableButtons(true);
             }
             else {
@@ -125,7 +125,6 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener
         JComponent rBody = new DBox(DBox.X_AXIS, 0, BlueJTheme.componentSpacingLarge, 0.5f);
         DBox replaceBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
         DBox optionsBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
-        DBox tempBody = new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.0f);
         
         JLabel replaceLabel=new JLabel(Config.getString("editor.replacePanel.replaceLabel"));
         replaceLabel.setFont(font);
