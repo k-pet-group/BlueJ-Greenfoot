@@ -136,16 +136,19 @@ public class EditorDividerPanel extends JPanel implements MouseListener {
 
     /**
      * Temporarily hides the naviview (when switching to documentation view)
+     * Also temporarily hides this panel
      */
     public void beginTemporaryHide()
     {
         currentlyHidden = true;
         nav.setVisible(false);
         expandCollapseButton.setIcon(openNavArrow);
+        setVisible(false);
     }
     
     /**
      * Stops the effects of a temporary hide (switch back to editor view)
+     * and redisplays itself
      * 
      * Can be called without a previous call to beginTemporaryHide, e.g.
      * in the case where the editor is opened in documentation view
@@ -157,5 +160,6 @@ public class EditorDividerPanel extends JPanel implements MouseListener {
             nav.setVisible(true);
             expandCollapseButton.setIcon(closeNavArrow);
         }
+        setVisible(true);
     }
 }

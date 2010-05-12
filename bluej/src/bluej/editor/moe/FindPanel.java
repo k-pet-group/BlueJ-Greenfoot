@@ -83,8 +83,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private final static String PREVIOUS_BUTTON_NAME ="prevBtn";
     private final static String NEXT__BUTTON_NAME ="nextBtn";
     private final static String MATCHCASE_CHECKBOX="matchCaseCheckBox";   
-    private final static String REPLACE_OPEN_BUTTON_NAME ="replaceOpen";
-    private final static String REPLACE_CLOSE_BUTTON_NAME ="replaceClose";
+    private final static String REPLACE_BUTTON_NAME ="replaceOpenCloseButton";
 
     private String searchString=""; 
     private static Font findFont;
@@ -264,10 +263,14 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void setReplaceDisplay()
     { 
-        replaceIconLabel=new JLabel(Config.getString("editor.findpanel.replacePanel"));
-        replaceIconLabel.setFont(findFont);
-        replaceIconLabel.setIcon(closedIcon);
-        replaceIconLabel.addMouseListener(this);
+
+            replaceIconLabel=new JLabel(Config.getString("editor.findpanel.replacePanel"));
+            replaceIconLabel.setFont(findFont);
+            replaceIconLabel.setIcon(closedIcon);
+            replaceIconLabel.addMouseListener(this);
+            replaceIconLabel.setName(REPLACE_BUTTON_NAME);
+            if (editor.isShowingInterface())
+                replaceIconLabel.setEnabled(false);                              
     }
 
     /**
@@ -326,12 +329,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         }
         if (src.getName()==PREVIOUS_BUTTON_NAME){
             getPrev();   
-        }
-        if (src.getName()==REPLACE_CLOSE_BUTTON_NAME){
-            editor.toggleReplacePanelVisible();
-        }
-        if (src.getName()==REPLACE_OPEN_BUTTON_NAME){
-            editor.toggleReplacePanelVisible();
         }
         if (src.getName()==MATCHCASE_CHECKBOX){
             if (searchStart != null) {
@@ -471,7 +468,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         if (caretLoc == null) {
             caretLoc = editor.getCaretLocation();
         }
-
         editor.setCaretLocation(caretLoc);
         search(ignoreCase, wholeWord, true, select, forwards) ;
         int counter=editor.getNumHighlights();
@@ -597,12 +593,16 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             close();
             return;
         }
-        editor.toggleReplacePanelVisible();
-        if (replaceIconLabel.getIcon()==openIcon){
-            replaceIconLabel.setIcon(closedIcon);
-        }
-        else if (replaceIconLabel.getIcon()==closedIcon){
-            replaceIconLabel.setIcon(openIcon);
+        if (src.getName()==REPLACE_BUTTON_NAME){
+            if (editor.isShowingInterface())
+                return;
+            editor.toggleReplacePanelVisible();
+            if (replaceIconLabel.getIcon()==openIcon){
+                replaceIconLabel.setIcon(closedIcon);
+            }
+            else if (replaceIconLabel.getIcon()==closedIcon){
+                replaceIconLabel.setIcon(openIcon);
+            }
         }
     }
 
@@ -667,6 +667,19 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         setfindTextField(selection); 
         findTField.selectAll();
         findTField.requestFocus();
+    }
+    
+    /**
+     * Allows the replace button to be en/disabled
+     * @param isEnable true for enable; false if not
+     */
+    protected void setReplaceEnabled(boolean isEnabled)
+    {
+        replaceIconLabel.setEnabled(isEnabled);
+        //if it is in documentation view the icon should be open (even though it is disabled)
+        if (!isEnabled)
+            setFindReplaceIcon(isEnabled);
+            
     }
 
 }

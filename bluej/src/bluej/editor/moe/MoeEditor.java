@@ -389,7 +389,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         setWindowTitle();
         sourcePane.setFont(PrefMgr.getStandardEditorFont());
-        sourcePane.setSelectionColor(selectionColour);
 
         setCompileStatus(compiled);
 
@@ -1921,6 +1920,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         scrollPane.setViewportView(currentTextPane);
         dividerPanel.endTemporaryHide();
         currentTextPane.requestFocus();
+        //triggering off a search in the changed display
+        if (finder.isVisible()){
+            initFindPanel(this);
+        }       
     }
 
     // --------------------------------------------------------------------
@@ -1943,6 +1946,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             // Could display a dialog here. However, the error message
             // (from save() call) will already be displayed in the editor
             // status bar.
+        }
+        //triggering off a search in the changed display
+        if (finder.isVisible()){
+            initFindPanel(this);
         }
     }
 
@@ -2742,7 +2749,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         moeCaret = new MoeCaret(this);
         sourcePane.setCaret(moeCaret);
         sourcePane.setBackground(MoeSyntaxDocument.getBackgroundColor());
-        //        sourcePane.setSelectionColor(selectionColour);
+        sourcePane.setSelectionColor(selectionColour);
         sourcePane.setCaretColor(cursorColor);
 
         // default showing:
@@ -3235,6 +3242,15 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     public void initFindPanel(MoeEditor editor)
     {
         finder.displayFindPanel(getSelectedText(), true);
+        //functionality for the replace button to be enabled/disabled according to view
+        if (editor.isShowingInterface()){
+            finder.setReplaceEnabled(false);
+            replacer.setVisible(false);
+        }
+        else
+        {
+            finder.setReplaceEnabled(true);
+        }
     }
 
     /**
