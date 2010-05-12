@@ -420,11 +420,13 @@
 	            <exclude name="package/${bluej.source.zip}"/>
 	            <exclude name="package/BlueJ*.jar"/>
 	            <exclude name="package/BlueJ*.zip"/>
+            	<exclude name="package/bluej*.deb"/>
 	            <exclude name="package/bluej-dist.jar"/>
 	            <exclude name="package/install_tmp/"/>
-	            <include name="test/**/*" />    
-	            <include name="build.properties" />   
-	            <include name="build.xml" />  
+	            <include name="test/**/*"/>
+            	<exclude name="test/classes/**"/>
+	            <include name="build.properties"/>   
+	            <include name="build.xml"/>  
 	            <exclude name="**/.DS_Store"/>
 	        </zipfileset>
         </zip>
