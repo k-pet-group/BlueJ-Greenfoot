@@ -36,7 +36,7 @@ public class SourceLocation
     public SourceLocation(int line, int column)
     {
         if (line < 1 || column < 1)
-            throw new IllegalArgumentException("line/column numbers must be >= 0");
+            throw new IllegalArgumentException("line/column numbers must be > 0");
 
         this.line = line;
         this.column = column;
