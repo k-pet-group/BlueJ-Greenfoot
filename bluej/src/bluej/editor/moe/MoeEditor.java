@@ -406,9 +406,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void insertText(String text, boolean caretBack)       // inherited from Editor, redefined
     {
-        sourcePane.replaceSelection(text);
+        currentTextPane.replaceSelection(text);
         if (caretBack) {
-        	sourcePane.setCaretPosition(sourcePane.getCaretPosition() - text.length());
+        	currentTextPane.setCaretPosition(sourcePane.getCaretPosition() - text.length());
         }
     }
 
