@@ -280,7 +280,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         undoManager = new MoeUndoManager(this);
 
         initWindow(parameters.getProjectResolver());
-        editorHighlighter= new MoeHighlighter(sourcePane);
+        editorHighlighter= new MoeHighlighter(currentTextPane);
 
     }
 
@@ -408,7 +408,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         sourcePane.replaceSelection(text);
         if (caretBack) {
-            sourcePane.setCaretPosition(sourcePane.getCaretPosition() - text.length());
+        	sourcePane.setCaretPosition(sourcePane.getCaretPosition() - text.length());
         }
     }
 
@@ -548,8 +548,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         // highlight the line
 
-        sourcePane.setCaretPosition(pos);
-        sourcePane.moveCaretPosition(line.getEndOffset() - 1);
+        currentTextPane.setCaretPosition(pos);
+        currentTextPane.moveCaretPosition(line.getEndOffset() - 1);
         moeCaret.setPersistentHighlight();
         // w/o line break
 
@@ -576,7 +576,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         Element line = getLine(lineNumber);
 
-        sourcePane.select(line.getStartOffset() + columnNumber - 1, 
+        currentTextPane.select(line.getStartOffset() + columnNumber - 1, 
                 line.getStartOffset() + columnNumber + len - 1);
     }
 
@@ -597,7 +597,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         Element line1 = getLine(lineNumber1);
         Element line2 = getLine(lineNumber2);
 
-        sourcePane.select(line1.getStartOffset() + columnNumber1 - 1, line2.getStartOffset() + columnNumber2 - 1);
+        currentTextPane.select(line1.getStartOffset() + columnNumber1 - 1, line2.getStartOffset() + columnNumber2 - 1);
     }
 
     /**
@@ -704,7 +704,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             updateUndoControls();
             updateRedoControls();
         }
-        sourcePane.setEditable(!readOnly);
+        currentTextPane.setEditable(!readOnly);
     }
 
     /**
@@ -715,7 +715,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public boolean isReadOnly()
     {
-        return !sourcePane.isEditable();
+        return !currentTextPane.isEditable();
     }
 
     /**
@@ -747,7 +747,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public SourceLocation getCaretLocation()
     {
-        int caretOffset = sourcePane.getCaretPosition();
+        int caretOffset = currentTextPane.getCaretPosition();
         return getLineColumnFromOffset(caretOffset);
     }
 
@@ -789,7 +789,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void setCaretLocation(SourceLocation location)
     {
-        sourcePane.setCaretPosition(getOffsetFromLineColumn(location));
+        currentTextPane.setCaretPosition(getOffsetFromLineColumn(location));
     }
 
     /**
@@ -801,7 +801,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public SourceLocation getSelectionBegin()
     {
-        Caret aCaret = sourcePane.getCaret();
+        Caret aCaret = currentTextPane.getCaret();
 
         // If the dot is == as the mark then there is no selection.
         if (aCaret.getDot() == aCaret.getMark()) {
@@ -821,7 +821,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public SourceLocation getSelectionEnd()
     {
-        Caret aCaret = sourcePane.getCaret();
+        Caret aCaret = currentTextPane.getCaret();
 
         // If the dot is == as the mark then there is no selection.
         if (aCaret.getDot() == aCaret.getMark()) {
@@ -905,8 +905,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         int selectionStart = Math.min(start, finish);
         int selectionEnd = Math.max(start, finish);
 
-        sourcePane.setCaretPosition(selectionStart);
-        sourcePane.moveCaretPosition(selectionEnd);
+        currentTextPane.setCaretPosition(selectionStart);
+        currentTextPane.moveCaretPosition(selectionEnd);
     }
 
     /**
@@ -1367,7 +1367,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         int caretPos = sourcePane.getCaretPosition();
         String searchString=finder.getSearchString();
-        if (getSourcePane().getSelectedText()==null|| getSourcePane().getSelectedText().length()<=0){
+        if (getSourcePane().getSelectedText()==null|| getCurrentTextPane().getSelectedText().length()<=0){
             //in case the selection has been lost due to moving it in the editor
             if (finder.getSearchString()!=null && finder.getSearchString().length()>0)
                 searchString=finder.getSearchTextfield();
@@ -1379,7 +1379,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         String replaceText = smartFormat(searchString, replaceString);
         insertText(replaceText, true);
         //move the caret back to where it was before the replace
-        sourcePane.setCaretPosition(caretPos);
+        currentTextPane.setCaretPosition(caretPos);
         finder.find(true);
         //editor.writeMessage("Replaced " + count + " instances of " + searchString);
         writeMessage("Replaced an instance of " + 
@@ -1626,7 +1626,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                         if (select){
                             //purposely using both select and the highlight because the select sets the                         
                             //caret correctly and the highlighter ensures the colouring is done correctly 
-                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.borderPainter);
+                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.selectPainter);
                             currentTextPane.select(start + foundPos, start + foundPos + s.length());
                             setSelectionVisible();
                             currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);                            
@@ -1637,7 +1637,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                             select=false;
                         }else {
                             temp=temp+1;
-                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.borderPainter);
                             currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);                           
                         }
                         foundPos=foundPos+s.length();
@@ -3256,9 +3255,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void initFindPanel(MoeEditor editor)
     {
-        finder.displayFindPanel(getSourcePane().getSelectedText(), true);
+        finder.displayFindPanel(getCurrentTextPane().getSelectedText(), true);
         //functionality for the replace button to be enabled/disabled according to view
-        if (editor.isShowingInterface()){
+        if (editor.isShowingInterface())
+        {
             finder.setReplaceEnabled(false);
             replacer.setVisible(false);
         }
@@ -3291,6 +3291,14 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
     
     /**
+     * Get the current pane.
+     */
+    public JEditorPane getCurrentTextPane()
+    {
+        return currentTextPane;
+    }    
+    
+    /**
      * Get the currently displaye document - either the source document,
      * or the documentation document (HTML).
      */
@@ -3317,7 +3325,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         Highlighter.Highlight[] hilites = hilite.getHighlights();
 
         for (int i = 0; i < hilites.length; i++) {
-            if (hilites[i].getPainter() instanceof MoeHighlighterPainter) {
+            if (hilites[i].getPainter() instanceof MoeBorderHighlighterPainter) {
                 hilite.removeHighlight(hilites[i]);
             }
         }
