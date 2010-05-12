@@ -596,6 +596,12 @@ public class GreenfootFrame extends JFrame
         addMenuItem(removeSelectedClassAction, editMenu, KeyEvent.VK_D, false, KeyEvent.VK_R);
         addMenuItem(editImagesAction, editMenu, KeyEvent.VK_I, false, KeyEvent.VK_I);
         
+        if (!Config.usingMacScreenMenubar()) { // no "Preferences" here for
+            // Mac
+            editMenu.addSeparator();
+            addMenuItem(PreferencesAction.getInstance(), editMenu, KeyEvent.VK_COMMA, false, KeyEvent.VK_COMMA);
+        }
+        
         JMenu ctrlMenu = addMenu(Config.getString("menu.controls"), menuBar, 'c');
         
         addMenuItem(RunOnceSimulationAction.getInstance(), ctrlMenu, KeyEvent.VK_A, false, KeyEvent.VK_A);

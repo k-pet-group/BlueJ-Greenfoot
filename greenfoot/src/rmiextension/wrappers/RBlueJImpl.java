@@ -37,10 +37,11 @@ import bluej.extensions.BlueJ;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.ClassListener;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.prefmgr.PrefMgrDialog;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJImpl.java 6722 2009-09-19 04:13:32Z davmac $
+ * @version $Id: RBlueJImpl.java 7545 2010-05-12 15:20:21Z nccb $
  */
 public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     implements RBlueJ
@@ -250,4 +251,12 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     {
         return Config.getInitialCommandLineProperties();
     }
+
+    @Override
+    public void showPreferences() throws RemoteException
+    {
+        PrefMgrDialog.showDialog();        
+    }
+    
+    
 }

@@ -23,6 +23,8 @@ package greenfoot.actions;
 
 import bluej.Config;
 import bluej.prefmgr.PrefMgrDialog;
+import greenfoot.core.GreenfootMain;
+
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
@@ -30,7 +32,7 @@ import javax.swing.JFrame;
 
 /**
  * @author Michael Kolling
- * @version $Id: PreferencesAction.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: PreferencesAction.java 7545 2010-05-12 15:20:21Z nccb $
  */
 public class PreferencesAction extends AbstractAction
 {
@@ -54,9 +56,6 @@ public class PreferencesAction extends AbstractAction
 
     public void actionPerformed(ActionEvent e)
     {
-        //PrefMgrDialog.showDialog();
-        // this does currently not work. The preferences manager runs usually on the BlueJ VM,
-        // and we are here on the Greenfoot VM...
-        // TODO: class PrefMgr properly
+        GreenfootMain.getInstance().showPreferences();
     }
 }

@@ -65,7 +65,7 @@ import bluej.views.View;
  * but each will be in its own JVM so it is effectively a singleton.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: GreenfootMain.java 6786 2009-10-13 03:24:49Z davmac $
+ * @version $Id: GreenfootMain.java 7545 2010-05-12 15:20:21Z nccb $
  */
 public class GreenfootMain extends Thread implements CompileListener, RProjectListener
 {
@@ -758,5 +758,15 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     public void compileError(RCompileEvent event) {}
 
     public void compileWarning(RCompileEvent event){}
+
+    public void showPreferences()
+    {
+        try {
+            rBlueJ.showPreferences();
+        }
+        catch (RemoteException e) {
+            Debug.reportError("Problem showing preferences dialog", e);
+        }
+    }
 
 }

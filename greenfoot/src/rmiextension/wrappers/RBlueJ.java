@@ -151,4 +151,6 @@ public interface RBlueJ
     public Properties getInitialCommandLineProperties()
         throws RemoteException;
 
+    public void showPreferences()
+        throws RemoteException;
 }
