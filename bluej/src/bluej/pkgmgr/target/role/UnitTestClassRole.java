@@ -44,7 +44,6 @@ import javax.swing.JPopupMenu;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.editor.Editor;
-import bluej.editor.moe.MoeEditor;
 import bluej.parser.SourceLocation;
 import bluej.parser.SourceSpan;
 import bluej.parser.UnitTestAnalyzer;
@@ -63,7 +62,6 @@ import bluej.utility.JavaNames;
  * A role object for Junit unit tests.
  *
  * @author  Andrew Patterson based on AppletClassRole
- * @version $Id: UnitTestClassRole.java 6823 2009-11-12 00:30:24Z davmac $
  */
 public class UnitTestClassRole extends ClassRole
 {
@@ -388,17 +386,17 @@ public class UnitTestClassRole extends ClassRole
         new Thread() {
             public void run() {
                 
-                final Map dobs = pmf.getProject().getDebugger().runTestSetUp(ct.getQualifiedName());
+                final Map<String,DebuggerObject> dobs = pmf.getProject().getDebugger().runTestSetUp(ct.getQualifiedName());
                 
                 EventQueue.invokeLater(new Runnable() {
                     public void run() {
-                        Iterator it = dobs.entrySet().iterator();
+                        Iterator<Map.Entry<String,DebuggerObject>> it = dobs.entrySet().iterator();
                         
                         while(it.hasNext()) {
-                            Map.Entry mapent = (Map.Entry) it.next();
-                            DebuggerObject objVal = (DebuggerObject) mapent.getValue();
+                            Map.Entry<String,DebuggerObject> mapent = it.next();
+                            DebuggerObject objVal = mapent.getValue();
                             
-                            pmf.putObjectOnBench((String) mapent.getKey(), objVal, objVal.getGenType(), null);
+                            pmf.putObjectOnBench(mapent.getKey(), objVal, objVal.getGenType(), null);
                         }
                     }
                 });
@@ -457,7 +455,7 @@ public class UnitTestClassRole extends ClassRole
      */
     public void doFixtureToBench(PkgMgrFrame pmf, ClassTarget ct)
     {
-        MoeEditor ed = (MoeEditor) ct.getEditor();
+        Editor ed = ct.getEditor();
 
         // our first step is to save all the existing code that creates the
         // fixture into a special invoker record
@@ -473,20 +471,16 @@ public class UnitTestClassRole extends ClassRole
             ListIterator<SourceSpan> it = fixtureSpans.listIterator();
                 
             while(it.hasNext()) {
-                SourceSpan variableSpan = (SourceSpan) it.next();
-                    
-                ed.setSelection(variableSpan.getStartLine(), variableSpan.getStartColumn(),
-                                 variableSpan.getEndLine(), variableSpan.getEndColumn());
-                existing.addFieldDeclaration(ed.getSelectedText());
+                SourceSpan variableSpan = it.next();
+                String fieldDecl = ed.getText(variableSpan.getStartLocation(), variableSpan.getEndLocation()); 
+                existing.addFieldDeclaration(fieldDecl);
             }
 
             // find the source code of the "setUp" method
             SourceSpan setUpSpan = uta.getMethodBlockSpan("setUp");
 
             if (setUpSpan != null) {
-                ed.setSelection(setUpSpan.getStartLine(), setUpSpan.getStartColumn(),
-                                setUpSpan.getEndLine(), setUpSpan.getEndColumn());
-                String setUpWithBrackets = ed.getSelectedText();
+                String setUpWithBrackets = ed.getText(setUpSpan.getStartLocation(), setUpSpan.getEndLocation());
                 // copy everything between the opening { and the final }
                 String setUpWithoutBrackets = 
                         setUpWithBrackets.substring(setUpWithBrackets.indexOf('{') + 1,
