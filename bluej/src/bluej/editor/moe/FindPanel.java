@@ -263,14 +263,11 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void setReplaceDisplay()
     { 
-
-            replaceIconLabel=new JLabel(Config.getString("editor.findpanel.replacePanel"));
-            replaceIconLabel.setFont(findFont);
-            replaceIconLabel.setIcon(closedIcon);
-            replaceIconLabel.addMouseListener(this);
-            replaceIconLabel.setName(REPLACE_BUTTON_NAME);
-            if (editor.isShowingInterface())
-                replaceIconLabel.setEnabled(false);                              
+        replaceIconLabel=new JLabel(Config.getString("editor.findpanel.replacePanel"));
+        replaceIconLabel.setFont(findFont);
+        replaceIconLabel.setIcon(closedIcon);
+        replaceIconLabel.addMouseListener(this);
+        replaceIconLabel.setName(REPLACE_BUTTON_NAME);                            
     }
 
     /**
@@ -663,7 +660,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     /**
      * Populates the field and puts the focus in the text field
      */
-    protected void populateFindTextfield(String selection){
+    protected void populateFindTextfield(String selection)
+    {
         setfindTextField(selection); 
         findTField.selectAll();
         findTField.requestFocus();
@@ -677,9 +675,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         replaceIconLabel.setEnabled(isEnabled);
         //if it is in documentation view the icon should be open (even though it is disabled)
-        if (!isEnabled)
+        if (!isEnabled){
             setFindReplaceIcon(isEnabled);
-            
+        }           
     }
 
 }
