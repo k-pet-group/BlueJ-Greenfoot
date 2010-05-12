@@ -40,7 +40,7 @@ project.close=Close
 
 # Actions
 greenfoot.about=About Greenfoot...
-compile.all=Compile all
+compile.all=Compile
 compile.class=Compile
 edit.class=Open editor
 edit.images=Scenario Images...
