@@ -30,19 +30,22 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Position;
 import javax.swing.text.View;
+import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 
 /**
- * Highligher for the border around the search items
+ * Highligher for the border and fill of the select and search items
  * 
  * @author Marion Zalk
  *
  */
-public class MoeBorderHighlighterPainter extends MoeHighlighterPainter {
+public class MoeBorderHighlighterPainter extends DefaultHighlightPainter {
 
     Color borderColor=Color.BLACK;
-    public MoeBorderHighlighterPainter(Color arg0) {
-        super(arg0);
-        borderColor=arg0;
+    Color innerColor;
+    public MoeBorderHighlighterPainter(Color bColor, Color fillColor) {
+        super(fillColor);
+        borderColor=bColor;
+        innerColor=fillColor;
     }
     
     /**
@@ -50,21 +53,8 @@ public class MoeBorderHighlighterPainter extends MoeHighlighterPainter {
      */
     public Shape paintLayer(Graphics g, int offs0, int offs1, Shape bounds,
             JTextComponent c, View view) {
-        g.setColor(borderColor);
-        if (offs0 == view.getStartOffset() &&
-                offs1 == view.getEndOffset()) {
-            // Contained in view, can just use bounds.
-            Rectangle alloc;
-            if (bounds instanceof Rectangle) {
-                alloc = (Rectangle)bounds;
-            }
-            else {
-                alloc = bounds.getBounds();
-            }
-            g.fillRect(alloc.x, alloc.y, alloc.width, alloc.height);
-            return alloc;
-        }
-        else {
+        if (offs0 != view.getStartOffset() &&
+                offs1 != view.getEndOffset()) {
             // Should only render part of View.
             try {
                 // --- determine locations ---
@@ -72,7 +62,11 @@ public class MoeBorderHighlighterPainter extends MoeHighlighterPainter {
                         offs1,Position.Bias.Backward,
                         bounds);
                 Rectangle r = (shape instanceof Rectangle) ?
-                        (Rectangle)shape : shape.getBounds();                                             
+                        (Rectangle)shape : shape.getBounds(); 
+                        //fill in the rectangle and then draw the border
+                        g.setColor(innerColor);
+                        g.fillRect(r.x,r.y, r.width, r.height);
+                        g.setColor(borderColor);
                         g.drawRect(r.x,r.y, r.width-1, r.height-1);
                         return r;
             } catch (BadLocationException e) {
