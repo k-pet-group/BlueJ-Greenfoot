@@ -34,6 +34,7 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.Reflective;
 import bluej.parser.TextAnalyzer.MethodCallDesc;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.ErrorEntity;
@@ -534,8 +535,23 @@ public class TextParser extends JavaParser
     protected void gotIdentifier(LocatableToken token)
     {
         String ident = token.getText();
-        valueStack.push(UnresolvedEntity.getEntity(resolver, ident, null)); // DAV access source
+        Reflective accessSource = getAccessSource();
+        valueStack.push(UnresolvedEntity.getEntity(resolver, ident, accessSource));
         arrayCount = 0;
+    }
+    
+    /**
+     * Get the access type as a reflective.
+     */
+    private Reflective getAccessSource()
+    {
+        if (accessType != null) {
+            GenTypeClass accessClass = accessType.getType().asClass();
+            if (accessClass != null) {
+                return accessClass.getReflective();
+            }
+        }
+        return null;
     }
     
     @Override
@@ -543,7 +559,7 @@ public class TextParser extends JavaParser
     {
         String ident = token.getText();
         JavaEntity top = valueStack.pop();
-        JavaEntity newTop = top.getSubentity(ident, null); // DAV access source
+        JavaEntity newTop = top.getSubentity(ident, getAccessSource());
         if (newTop != null) {
             valueStack.push(newTop);
         }
@@ -777,8 +793,7 @@ public class TextParser extends JavaParser
         }
 
         String text = token.getText();
-        // DAV use correct request source:
-        PackageOrClass poc = resolver.resolvePackageOrClass(text, null);
+        PackageOrClass poc = resolver.resolvePackageOrClass(text, getAccessSource());
         while (poc != null && i.hasNext()) {
             token = i.next();
             if (token.getType() == JavaTokenTypes.LT) {
