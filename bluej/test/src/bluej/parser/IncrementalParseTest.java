@@ -469,5 +469,38 @@ public class IncrementalParseTest extends TestCase
         assertEquals(36, nap.getPosition());
         assertEquals(54, nap.getEnd());
     }
-    
+
+    public void test10() throws Exception
+    {
+        String aSrc = 
+            "/** A comment */\n" +  // 0 - 17
+            "class A {\n" +         // 17 - 27
+            "}\n";                  // 27 - 29
+
+        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        ParsedCUNode aNode = aDoc.getParser();
+        NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
+
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(28, nap.getSize());
+        
+        // Change the multi-line comment to a single line
+        aDoc.insertString(0, "/", null);
+        
+        aNode = aDoc.getParser();
+        nap = aNode.findNodeAt(18, 0);
+        assertNotNull(nap);
+        assertEquals(18, nap.getPosition());
+        assertEquals(11, nap.getSize());
+        
+        // Now back to a single line
+        aDoc.remove(0, 1);
+
+        aNode = aDoc.getParser();
+        nap = aNode.findNodeAt(18, 0);
+        assertNotNull(nap);
+        assertEquals(0, nap.getPosition());
+        assertEquals(28, nap.getSize());
+    }
 }
