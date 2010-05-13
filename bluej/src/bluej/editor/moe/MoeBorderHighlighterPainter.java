@@ -38,11 +38,13 @@ import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
  * @author Marion Zalk
  *
  */
-public class MoeBorderHighlighterPainter extends DefaultHighlightPainter {
-
+public class MoeBorderHighlighterPainter extends DefaultHighlightPainter
+{
     Color borderColor=Color.BLACK;
     Color innerColor;
-    public MoeBorderHighlighterPainter(Color bColor, Color fillColor) {
+    
+    public MoeBorderHighlighterPainter(Color bColor, Color fillColor)
+    {
         super(fillColor);
         borderColor=bColor;
         innerColor=fillColor;
@@ -52,7 +54,8 @@ public class MoeBorderHighlighterPainter extends DefaultHighlightPainter {
      * Overrides the default method in order to draw the border 
      */
     public Shape paintLayer(Graphics g, int offs0, int offs1, Shape bounds,
-            JTextComponent c, View view) {
+            JTextComponent c, View view)
+    {
         if (offs0 != view.getStartOffset() &&
                 offs1 != view.getEndOffset()) {
             // Should only render part of View.
@@ -61,14 +64,13 @@ public class MoeBorderHighlighterPainter extends DefaultHighlightPainter {
                 Shape shape = view.modelToView(offs0, Position.Bias.Forward,
                         offs1,Position.Bias.Backward,
                         bounds);
-                Rectangle r = (shape instanceof Rectangle) ?
-                        (Rectangle)shape : shape.getBounds(); 
-                        //fill in the rectangle and then draw the border
-                        g.setColor(innerColor);
-                        g.fillRect(r.x,r.y, r.width, r.height);
-                        g.setColor(borderColor);
-                        g.drawRect(r.x,r.y, r.width-1, r.height-1);
-                        return r;
+                Rectangle r = shape.getBounds(); 
+                //fill in the rectangle and then draw the border
+                g.setColor(innerColor);
+                g.fillRect(r.x,r.y, r.width, r.height);
+                g.setColor(borderColor);
+                g.drawRect(r.x,r.y, r.width-1, r.height-1);
+                return r;
             } catch (BadLocationException e) {
                 // can't render
             }
