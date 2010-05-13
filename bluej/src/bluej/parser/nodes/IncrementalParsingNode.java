@@ -358,14 +358,12 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                 nextChild = childQueue.peek();
                 processChildQueue(nodePos, childQueue, nextChild);
                 parser.completedNode(this, nodePos, pparams.abortPos - nodePos);
-                int epos = lineColToPos(document, last.getEndLine(), last.getEndColumn());
                 tokpos = lineColToPos(document, last.getLine(), last.getColumn());
                 int ncpos = nextChild.getPosition();
                 if (ncpos != pparams.abortPos) {
                     int slideAmount = nextChild.getPosition() - pparams.abortPos;
-                    nextChild.slideStart(-slideAmount);
                     
-                    nextChild.slide(-slideAmount);
+                    nextChild.slide(-slideAmount); // move, and insert text next
                     // There is some parsing to do in the child:
                     int rr = nextChild.getNode().textInserted(document, nextChild.getPosition(),
                             nextChild.getPosition(), slideAmount, listener);
@@ -378,7 +376,9 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                     }
                     
                     listener.nodeChangedLength(nextChild, ncpos, nextChild.getSize() - slideAmount);
-                    parser.completedNode(nextChild.getNode(), nextChild.getPosition(), epos - pparams.abortPos);
+                    // Note we do not process any more comments into the child node: these will be
+                    // picked up by the child automatically, in textInserted() or as a result of it.
+                    //parser.completedNode(nextChild.getNode(), nextChild.getPosition(), epos - pparams.abortPos);
                     pparams.document.scheduleReparse(nextChild.getPosition(), slideAmount);
                 }
                 pparams.document.markSectionParsed(offset, pparams.abortPos - offset);

@@ -40,6 +40,10 @@ public class DocumentReader extends Reader
         fillBuffer();
     }
     
+    /**
+     * Construct a new DocumentReader to read text between the two
+     * given document positions.
+     */
     public DocumentReader(Document document, int position, int endpos)
     {
         buffer = new Segment();

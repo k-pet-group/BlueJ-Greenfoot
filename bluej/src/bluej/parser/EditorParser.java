@@ -35,7 +35,6 @@ import java.util.Stack;
 import javax.swing.text.Document;
 
 import bluej.debugger.gentype.Reflective;
-import bluej.editor.moe.Token;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.IntersectionTypeEntity;
 import bluej.parser.entity.JavaEntity;
@@ -203,39 +202,12 @@ public class EditorParser extends JavaParser
                 s.extendEnd(token.getEndLine(), token.getEndColumn());
                 int endpos = lineColToPosition(s.getEndLine(), s.getEndColumn());
 
-                CommentNode cn = new CommentNode(node, getCommentColour(token));
+                CommentNode cn = new CommentNode(node, token);
                 node.insertNode(cn, startpos - position, endpos - startpos);
                 
                 i.remove();
             }
         }
-    }
-
-    /**
-     * Determine the appropriate colour for a comment.
-     */
-    private byte getCommentColour(LocatableToken token)
-    {
-        String text = token.getText();
-        if (token.getType() == JavaTokenTypes.ML_COMMENT) {
-            if (text.startsWith("/*#")) {
-                return Token.COMMENT3;
-            }
-            if (text.startsWith("/**#")) {
-                return Token.COMMENT3;
-            }
-            if (text.startsWith("/**")) {
-                return Token.COMMENT2;
-            }
-            return Token.COMMENT1;
-        }
-        
-        // Single line
-        if (text.startsWith("//#")) {
-            return Token.COMMENT3;
-        }
-        
-        return Token.COMMENT1;
     }
     
     /**
@@ -255,7 +227,7 @@ public class EditorParser extends JavaParser
             }
             i.remove();
             int topOffset = getTopNodeOffset();
-            CommentNode cn = new CommentNode(scopeStack.peek(), getCommentColour(token));
+            CommentNode cn = new CommentNode(scopeStack.peek(), token);
             scopeStack.peek().insertNode(cn, startpos - topOffset, endpos - startpos);
         }
     }

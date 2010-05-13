@@ -24,6 +24,7 @@ package bluej.parser.nodes;
 import java.io.Reader;
 
 import javax.swing.text.Document;
+import javax.swing.text.Element;
 
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.Token;
@@ -39,13 +40,54 @@ import bluej.parser.lexer.LocatableToken;
  */
 public class CommentNode extends ParsedNode
 {
-    byte colour;
+    byte type;
+    private static byte SL_NORMAL = 0;
+    private static byte SL_SPECIAL = 1;
+    private static byte ML_NORMAL = 2;
+    private static byte ML_JAVADOC = 3;
+    private static byte ML_SPECIAL = 4;
     
-    public CommentNode(ParsedNode parentNode, byte colour)
+    private static byte [] colours = {
+        Token.COMMENT1,
+        Token.COMMENT3,
+        Token.COMMENT1,
+        Token.COMMENT2,
+        Token.COMMENT3
+    };
+    
+    public CommentNode(ParsedNode parentNode, LocatableToken token)
     {
         super(parentNode);
-        this.colour = colour;
+        type = getCommentType(token);
     }
+    
+    /**
+     * Determine the comment type from the token.
+     */
+    private static byte getCommentType(LocatableToken token)
+    {
+        String text = token.getText();
+        if (token.getType() == JavaTokenTypes.ML_COMMENT) {
+            if (text.startsWith("/*#")) {
+                return ML_SPECIAL;
+            }
+            if (text.startsWith("/**#")) {
+                return ML_SPECIAL;
+            }
+            if (text.startsWith("/**")) {
+                return ML_JAVADOC;
+            }
+            return ML_NORMAL;
+        }
+        
+        // Single line
+        if (text.startsWith("//#")) {
+            return SL_SPECIAL;
+        }
+        
+        return SL_NORMAL;
+    }
+    
     
     @Override
     public int getNodeType()
@@ -59,7 +101,7 @@ public class CommentNode extends ParsedNode
     public Token getMarkTokensFor(int pos, int length, int nodePos,
             Document document)
     {
-        Token tok = new Token(length, colour);
+        Token tok = new Token(length, colours[type]);
         tok.next = new Token(0, Token.END);
         return tok;
     }
@@ -95,9 +137,9 @@ public class CommentNode extends ParsedNode
             NodeStructureListener listener)
     {
         // Make a reader and parser
-        int pline = document.getDefaultRootElement().getElementIndex(offset) + 1;
-        int pcol = offset - document.getDefaultRootElement().getElement(pline - 1).getStartOffset() + 1;
-        Reader r = new DocumentReader(document, offset, nodePos + getSize());
+        int pline = document.getDefaultRootElement().getElementIndex(nodePos) + 1;
+        int pcol = nodePos - document.getDefaultRootElement().getElement(pline - 1).getStartOffset() + 1;
+        Reader r = new DocumentReader(document, nodePos, nodePos + getSize());
         JavaLexer lexer = new JavaLexer(r, pline, pcol);
 
         LocatableToken commentToken = lexer.nextToken();
@@ -106,16 +148,36 @@ public class CommentNode extends ParsedNode
             return REMOVE_NODE;
         }
         
-        // DAV TODO
-        // If the node start has changed, slide this node - and any containing nodes which
-        // this node begins - to the correct place.
+        byte newType = getCommentType(commentToken);
+        if (type <= SL_SPECIAL && newType > SL_SPECIAL) {
+            // changed from single to multi-line
+            return REMOVE_NODE;
+        }
+        else if (type > SL_SPECIAL && newType <= SL_SPECIAL) {
+            // changed from multi-line to single line
+            if (getOffsetFromParent() == 0 && getParentNode().isCommentAttached()) {
+                return REMOVE_NODE;
+            }
+        }
         
-        // This node must end at the token end.
+        type = newType;
         
-        // If we changed type (from multi- to single-line) we should
-        // re-parse parent, probably
+        int newEnd = lineColToPos(document, commentToken.getEndLine(),
+                commentToken.getEndColumn());
+        int newSize = newEnd - nodePos;
+        if (getSize() != newSize) {
+            setSize(newSize);
+            return NODE_SHRUNK;
+        }
         
-        return REMOVE_NODE;
+        return ALL_OK;
     }
     
+    
+    private static int lineColToPos(Document document, int line, int col)
+    {
+        Element map = document.getDefaultRootElement();
+        Element lineEl = map.getElement(line - 1);
+        return lineEl.getStartOffset() + col - 1;
+    }
 }
