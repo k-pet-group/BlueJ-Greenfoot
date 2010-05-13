@@ -56,24 +56,21 @@ public class MoeBorderHighlighterPainter extends DefaultHighlightPainter
     public Shape paintLayer(Graphics g, int offs0, int offs1, Shape bounds,
             JTextComponent c, View view)
     {
-        if (offs0 != view.getStartOffset() &&
-                offs1 != view.getEndOffset()) {
-            // Should only render part of View.
-            try {
-                // --- determine locations ---
-                Shape shape = view.modelToView(offs0, Position.Bias.Forward,
-                        offs1,Position.Bias.Backward,
-                        bounds);
-                Rectangle r = shape.getBounds(); 
-                //fill in the rectangle and then draw the border
-                g.setColor(innerColor);
-                g.fillRect(r.x,r.y, r.width, r.height);
-                g.setColor(borderColor);
-                g.drawRect(r.x,r.y, r.width-1, r.height-1);
-                return r;
-            } catch (BadLocationException e) {
-                // can't render
-            }
+        // Should only render part of View.
+        try {
+            // --- determine locations ---
+            Shape shape = view.modelToView(offs0, Position.Bias.Forward,
+                    offs1,Position.Bias.Backward,
+                    bounds);
+            Rectangle r = shape.getBounds(); 
+            //fill in the rectangle and then draw the border
+            g.setColor(innerColor);
+            g.fillRect(r.x,r.y, r.width, r.height);
+            g.setColor(borderColor);
+            g.drawRect(r.x,r.y, r.width-1, r.height-1);
+            return r;
+        } catch (BadLocationException e) {
+            // can't render
         }
         return null;
     }
