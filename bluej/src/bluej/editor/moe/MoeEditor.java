@@ -406,9 +406,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void insertText(String text, boolean caretBack)       // inherited from Editor, redefined
     {
-        currentTextPane.replaceSelection(text);
+        sourcePane.replaceSelection(text);
         if (caretBack) {
-        	currentTextPane.setCaretPosition(sourcePane.getCaretPosition() - text.length());
+            sourcePane.setCaretPosition(sourcePane.getCaretPosition() - text.length());
         }
     }
 
@@ -578,6 +578,15 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         currentTextPane.select(line.getStartOffset() + columnNumber - 1, 
                 line.getStartOffset() + columnNumber + len - 1);
+    }
+    
+    /**
+     * Resets the selection on the current editor specified
+     */
+    protected void resetSelection()
+    {
+        currentTextPane.setSelectionStart(1);
+        currentTextPane.setSelectionEnd(1);
     }
 
     /**
@@ -766,7 +775,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             return null;
         }
         
-        Element map = sourceDocument.getDefaultRootElement();
+        Element map = document.getDefaultRootElement();
         int lineNumber = map.getElementIndex(offset);
 
         Element lineElement = map.getElement(lineNumber);
@@ -928,13 +937,13 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             throw new IllegalArgumentException("line or column < 1");
         }
         
-        Element map = sourceDocument.getDefaultRootElement();
+        Element map = document.getDefaultRootElement();
         if (line >= map.getElementCount()) {
             throw new IllegalArgumentException("line=" + location.getLine()
                     + " is out of bound");
         }
 
-        Element lineElement = sourceDocument.getDefaultRootElement()
+        Element lineElement = document.getDefaultRootElement()
                 .getElement(line);
 
         int lineOffset = lineElement.getStartOffset();
@@ -1936,8 +1945,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         currentTextPane.requestFocus();
         //triggering off a search in the changed display
         if (finder.isVisible()){
+            //current caret position may be invalid in the source view
+            finder.setSearchStart(new SourceLocation(1,1));
             initFindPanel(this);
-        }       
+        }
     }
 
     // --------------------------------------------------------------------
@@ -1964,6 +1975,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         }
         //triggering off a search in the changed display
         if (finder.isVisible()){
+            //current caret position may be invalid in the interface view
+            finder.setSearchStart(new SourceLocation(1,1));
             initFindPanel(this);
         }
     }
@@ -2403,7 +2416,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     private Element getLine(int lineNo)
     {
-        return sourceDocument.getDefaultRootElement().getElement(lineNo - 1);
+        return document.getDefaultRootElement().getElement(lineNo - 1);
     }
 
     // --------------------------------------------------------------------
@@ -2412,7 +2425,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     private Element getLineAt(int pos)
     {
-        return sourceDocument.getParagraphElement(pos);
+        return document.getParagraphElement(pos);
     }
 
     // --------------------------------------------------------------------

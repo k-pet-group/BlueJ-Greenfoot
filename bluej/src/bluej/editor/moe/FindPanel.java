@@ -524,7 +524,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         if (!next){
             found = editor.doFindBackward(searchString, ignoreCase, wholeWord, wrap);
             // position the caret so that following doFindSelect finds the correct occurrence
-            editor.getCurrentTextPane().setCaretPosition(editor.getSourcePane().getCaretPosition() - searchString.length());
+            editor.getCurrentTextPane().setCaretPosition(editor.getCurrentTextPane().getCaretPosition() - searchString.length());
         }
 
         found=editor.doFindSelect(searchString, ignoreCase, wholeWord, wrap, select);
@@ -635,6 +635,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     public void close()
     {
         editor.removeSearchHighlights();
+        editor.resetSelection();
         this.setVisible(false);
         editor.setReplacePanelVisible(false);
         replaceIconLabel.setIcon(closedIcon);
@@ -674,10 +675,28 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     protected void setReplaceEnabled(boolean isEnabled)
     {
         replaceIconLabel.setEnabled(isEnabled);
-        //if it is in documentation view the icon should be open (even though it is disabled)
+        //if it is in documentation view (i.e disabled) the icon should be closed (even though it is disabled)
         if (!isEnabled){
-            setFindReplaceIcon(isEnabled);
+            setFindReplaceIcon(false);
         }           
+    }
+
+    /**
+     * Returns current search location
+     * @return current search location
+     */
+    protected SourceLocation getSearchStart() 
+    {
+        return searchStart;
+    }
+
+    /**
+     * Sets the search location to the specified value
+     * @param searchStart SourceLocation specifying the beginning of the search
+     */
+    protected void setSearchStart(SourceLocation searchStart) 
+    {
+        this.searchStart = searchStart;
     }
 
 }
