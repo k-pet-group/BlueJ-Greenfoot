@@ -69,10 +69,8 @@ Run "make".
 
 This should be done from within the bash shell in the MSYS environment.
 
-The generated launcher is always called "bjlaunch.exe" (even for Greenfoot).
-
-IMPORTANT: Before you build the installer in the next step, if you are building
-Greenfoot, you should change the launcher name to "gflaunch.exe".
+The generated launcher is called "bjlaunch.exe" (for BlueJ) or
+"gflaunch.exe" (for Greenfoot).
 
 
 Step 4.
@@ -89,3 +87,6 @@ will need to be edited first (specify the BlueJ build location and JDK location,
 Then run the "windows-dist" ant task in the same build file.
 
 The installer will be generated in the package/winsetup subdirectory.
+
+For Greenfoot:
+See the build instructions included with Greenfoot.
