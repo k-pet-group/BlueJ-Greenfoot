@@ -38,7 +38,7 @@ import bluej.parser.nodes.ParsedCUNode;
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 7560 2010-05-14 05:08:05Z davmac $
+ * @version $Id: TextParserTest.java 7562 2010-05-14 05:48:14Z davmac $
  */
 public class TextParserTest extends TestCase
 {
@@ -508,6 +508,44 @@ public class TextParserTest extends TestCase
         assertEquals("int", r);
     }
     
+    public void testMethodResolution3()
+    {
+        // widening primitive conversion
+        String lalaSrc = ""
+            + "public class Lala\n"
+            + "{\n"
+            + "  public float method(int b) { return 0f; }\n"
+            + "}\n";
+        
+        ParsedCUNode lalaNode = cuForSource(lalaSrc, "");
+        resolver.addCompilationUnit("", lalaNode);
+
+        EntityResolver res = new PackageResolver(this.resolver, "");
+        TextAnalyzer tp = new TextAnalyzer(res, "", objectBench);
+        
+        String r = tp.parseCommand("new Lala().method((byte)3)");
+        assertEquals("float", r);
+    }
+
+    public void testMethodResolution4()
+    {
+        // boxing conversion followed by widening reference conversion
+        String lalaSrc = ""
+            + "public class Lala\n"
+            + "{\n"
+            + "  public String method(Integer i) { return null; }\n"
+            + "  public float method(Object o) { return 0f; }\n"
+            + "}\n";
+        
+        ParsedCUNode lalaNode = cuForSource(lalaSrc, "");
+        resolver.addCompilationUnit("", lalaNode);
+
+        EntityResolver res = new PackageResolver(this.resolver, "");
+        TextAnalyzer tp = new TextAnalyzer(res, "", objectBench);
+        
+        String r = tp.parseCommand("new Lala().method((byte)3)");
+        assertEquals("float", r);
+    }
     
     //TODO test instanceof
 
