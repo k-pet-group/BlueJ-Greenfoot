@@ -28,7 +28,7 @@
  * and open the template in the editor.
 
  * @author Michael Kolling
- * @version $Id: ExportAppPane.java 6277 2009-04-23 21:11:43Z mjrb4 $
+ * @version $Id: ExportAppPane.java 7564 2010-05-14 14:53:38Z mik $
  */
 
 package greenfoot.gui.export;
@@ -49,6 +49,7 @@ import javax.swing.JTextField;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import java.awt.Color;
 import javax.swing.JOptionPane;
 
 public class ExportAppPane extends ExportPane
@@ -83,6 +84,8 @@ public class ExportAppPane extends ExportPane
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BlueJTheme.dialogBorder);
+        setBackground(backgroundColor);
+
 
         targetDirField = new JTextField(targetFile.toString(), 26);
         targetDirField.setEditable(false);
@@ -96,11 +99,13 @@ public class ExportAppPane extends ExportPane
         {
             inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
             inputPanel.setAlignmentX(LEFT_ALIGNMENT);
+            inputPanel.setBackground(backgroundColor);
 
             inputPanel.add(Box.createVerticalStrut(5));
 
             JPanel exportLocationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
             {
+                exportLocationPanel.setBackground(backgroundColor);
                 JLabel exportLocationLabel = new JLabel(exportLocationLabelText);
                 exportLocationPanel.add(exportLocationLabel);
 

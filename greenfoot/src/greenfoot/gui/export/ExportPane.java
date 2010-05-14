@@ -24,7 +24,7 @@
  * in the Export dialogue.
  *
  * @author Michael Kolling
- * @version $Id: ExportPane.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: ExportPane.java 7564 2010-05-14 14:53:38Z mik $
  */
 
 package greenfoot.gui.export;
@@ -34,11 +34,13 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import bluej.Config;
+import java.awt.Color;
 
 public abstract class ExportPane extends JPanel
 {
     private static final String lockText = Config.getString("export.lock.label");
     private static final String lockDescription = Config.getString("export.lock.description");
+    protected static final Color backgroundColor = new Color(220, 220, 220);
 
     protected JCheckBox lockScenario;
 

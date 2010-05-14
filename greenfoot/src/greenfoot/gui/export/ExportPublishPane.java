@@ -68,7 +68,7 @@ import bluej.utility.SwingWorker;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ExportPublishPane.java 7398 2010-04-23 14:03:25Z nccb $
+ * @version $Id: ExportPublishPane.java 7564 2010-05-14 14:53:38Z mik $
  */
 public class ExportPublishPane extends ExportPane
 {
@@ -266,6 +266,7 @@ public class ExportPublishPane extends ExportPane
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         setBorder(BorderFactory.createEmptyBorder(12, 12, 0, 12));
+        setBackground(backgroundColor);
 
         Box helpBox = new Box(BoxLayout.X_AXIS);
         {

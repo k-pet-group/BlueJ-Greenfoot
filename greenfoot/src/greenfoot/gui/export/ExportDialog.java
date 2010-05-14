@@ -27,6 +27,7 @@ import greenfoot.export.Exporter;
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.MessageDialog;
 
+import java.awt.Color;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -59,6 +60,8 @@ public class ExportDialog extends EscapeDialog
     private static final String noWorldDialogTitle = Config.getString("export.noworld.dialog.title");
     private static final String noWorldDialogMsg = Config.getString("export.noworld.dialog.msg");
     
+    private static final Color backgroundColor = new Color(220, 220, 220);
+
     private Frame parent;
     private GProject project;
     private JPanel contentPane;
@@ -314,6 +317,7 @@ public class ExportDialog extends EscapeDialog
         
         contentPane.setLayout(new BorderLayout());
         contentPane.setBorder(null);
+        contentPane.setBackground(new Color(220, 220, 220));
         
         TabbedIconPane tabbedPane = new TabbedIconPane(preferredPane);
         tabbedPane.setListener(this);
@@ -322,7 +326,8 @@ public class ExportDialog extends EscapeDialog
         JPanel bottomPanel = new JPanel(new BorderLayout(12, 12));
         {
             bottomPanel.setBorder(BlueJTheme.dialogBorder);
-            
+            //bottomPanel.setBackground(backgroundColor);
+
             progressBar.setIndeterminate(true);
             progressBar.setVisible(false);
             Dimension size = progressBar.getPreferredSize();
@@ -335,6 +340,7 @@ public class ExportDialog extends EscapeDialog
             
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             {
+                //buttonPanel.setBackground(backgroundColor);
                 buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 
                 continueButton = new JButton(Config.getString("export.dialog.continue"));
