@@ -173,7 +173,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
     <target name="compile" depends="init" description="Compile the source and run rmic" >
         <!-- Compile the java code from ${src} into ${build} -->
         <javac  
-                executable="${build_java_home}/bin/javac" 
+                executable="${build_java_home}/${java_command_dir_name}/javac"
                 fork="yes"
                 srcdir="${src}" 
                 destdir="${build}" 
@@ -413,7 +413,7 @@ target="1.5">
 
     <target name="run-greenfoot"  depends="ready-to-run">
         <!-- run the java code built into the jar files -->
-        <java classname="bluej.Boot" fork="yes" jvm="${build_java_home}/bin/java">
+        <java classname="bluej.Boot" fork="yes" jvm="${build_java_home}/${java_command_dir_name}/java">
             <classpath>
                 <pathelement location="${bluej.projectdir}/boot/classes" />
                 <!-- <path refid="bluej.class.path"/> -->
@@ -439,7 +439,7 @@ target="1.5">
 
     <target name="run-greenfoot-with-local-gallery"  depends="ready-to-run">
         <!-- run the java code built into the jar files -->
-        <java classname="bluej.Boot" fork="yes" jvm="${build_java_home}/bin/java">
+        <java classname="bluej.Boot" fork="yes" jvm="${build_java_home}/${java_command_dir_name}/java">
             <classpath>
                 <pathelement location="${bluej.projectdir}/boot/classes" />
                 <!-- <path refid="bluej.class.path"/> -->
@@ -467,7 +467,7 @@ target="1.5">
 
     <target name="run-scenario-viewer"  depends="ready-to-run,compile-scenarios">
         <!-- run the java code built into the jar files -->
-        <java classname="greenfoot.export.GreenfootScenarioViewer" fork="yes" jvm="${build_java_home}/bin/java">
+        <java classname="greenfoot.export.GreenfootScenarioViewer" fork="yes" jvm="${build_java_home}/${java_command_dir_name}/java">
             <arg value="${greenfoot.standalone.scenario}"/>
             <arg value="${greenfoot.standalone.main}"/>
             <arg value="${greenfoot.standalone.labels}"/>
@@ -496,7 +496,7 @@ target="1.5">
         </nbprofiledirect>
 
         <!-- run the java code built into the jar files -->
-        <java classname="greenfoot.export.GreenfootScenarioViewer" fork="yes" jvm="${build_java_home}/bin/java">
+        <java classname="greenfoot.export.GreenfootScenarioViewer" fork="yes" jvm="${build_java_home}/${java_command_dir_name}/java">
             <arg value="${greenfoot.standalone.scenario}"/>
             <arg value="${greenfoot.standalone.main}"/>
             <arg value="${greenfoot.standalone.labels}"/>
@@ -515,7 +515,7 @@ target="1.5">
 
         <!-- Compile the java code from ${src} into ${build} -->
         <javac  
-            executable="${build_java_home}/bin/javac" 
+            executable="${build_java_home}/${java_command_dir_name}/javac"
             fork="yes"
             destdir="${standalone.build}" 
             
