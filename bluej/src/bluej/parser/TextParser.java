@@ -294,6 +294,32 @@ public class TextParser extends JavaParser
             }
             targetType = stype;
         }
+        
+        if (op.getToken().getType() == JavaTokenTypes.IDENT) {
+            processMethodCall(targetType, op.getToken().getText());
+        }
+        else {
+            valueStack.push(new ErrorEntity());
+        }
+    }
+    
+    private void processMethodCall(Operator op)
+    {
+        if (op.getToken().getType() == JavaTokenTypes.IDENT) {
+            processMethodCall(accessType.getType().asClass(), op.getToken().getText());
+        }
+        else {
+            valueStack.push(new ErrorEntity());
+        }
+    }
+    
+    private void processMethodCall(GenTypeSolid targetType, String methodName)
+    {
+        GenTypeClass accessClass = accessType.getType().asClass();
+        if (accessClass == null) {
+            valueStack.push(new ErrorEntity());
+            return;
+        }
 
         // Gather the argument types.
         List<JavaEntity> argList = argumentStack.pop();
@@ -306,60 +332,18 @@ public class TextParser extends JavaParser
             }
             argTypes[i] = cent.getType().getCapture();
         }
-
+        
         List<GenTypeClass> typeArgs = Collections.emptyList(); // TODO!
 
-        ArrayList<MethodCallDesc> suitable = TextAnalyzer.getSuitableMethods(op.getToken().getText(),
-                targetType, argTypes, typeArgs);
-        // DAV fix
-        // assume for now all candidates have override-equivalent signatures
+        ArrayList<MethodCallDesc> suitable = TextAnalyzer.getSuitableMethods(methodName,
+                targetType, argTypes, typeArgs, accessClass.getReflective());
+        // DAV now we should choose a method according to JLS 15.12.2.5
         if (suitable.size() == 0) {
             valueStack.push(new ErrorEntity());
             return;
         }
-        
+
         valueStack.push(new ValueEntity(suitable.get(0).retType));
-    }
-    
-    private void processMethodCall(Operator op)
-    {        
-        // Gather the argument types.
-        List<JavaEntity> argList = argumentStack.pop();
-        JavaType [] argTypes = new JavaType[argList.size()];
-        for (int i = 0; i < argTypes.length; i++) {
-            JavaEntity cent = argList.get(i).resolveAsValue();
-            if (cent == null) {
-                valueStack.push(new ErrorEntity());
-                return;
-            }
-            argTypes[i] = cent.getType().getCapture();
-        }
-
-        GenTypeSolid targetType = accessType.getType().asSolid();
-        if (targetType == null) {
-            valueStack.push(new ErrorEntity());
-            return;
-        }
-        
-        List<GenTypeClass> typeArgs = Collections.emptyList(); // TODO!
-
-        if (op.getToken().getType() == JavaTokenTypes.IDENT) {
-            ArrayList<MethodCallDesc> suitable = TextAnalyzer.getSuitableMethods(op.getToken().getText(),
-                    targetType, argTypes, typeArgs);
-            // DAV fix
-            // assume for now all candidates have override-equivalent signatures
-            if (suitable.size() == 0) {
-                valueStack.push(new ErrorEntity());
-                return;
-            }
-
-            valueStack.push(new ValueEntity(suitable.get(0).retType));
-        }
-        else {
-            // TODO op.getToken() should be either 'super' or 'this' token type.
-            // I.e. a call to the constructor.
-            valueStack.push(new ErrorEntity());
-        }
     }
     
     /**

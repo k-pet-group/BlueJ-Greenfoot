@@ -1132,7 +1132,7 @@ public class TextAnalyzer
             }
             
             Map<String,Set<GenTypeSolid>> tlbConstraints = new HashMap<String,Set<GenTypeSolid>>();
-            Map teqConstraints = new HashMap();
+            Map<String,GenTypeSolid> teqConstraints = new HashMap<String,GenTypeSolid>();
             
             // Time for some type inference
             for (int i = 0; i < mparams.size(); i++) {
@@ -1236,22 +1236,25 @@ public class TextAnalyzer
      * @param tlbConstraints   lower bound constraints (a Map to Set of GenTypeSolid)
      * @param teqConstraints   equality constraints (a Map to GenTypeSolid)
      */
-    private static void processAtoFConstraint(JavaType a, GenTypeSolid f, Map tlbConstraints, Map teqConstraints)
+    private static void processAtoFConstraint(JavaType a, GenTypeSolid f,
+            Map<String,Set<GenTypeSolid>> tlbConstraints,
+            Map<String,GenTypeSolid> teqConstraints)
     {
         a = boxType(a);
-        if (a.isPrimitive())
+        if (a.asSolid() == null) {
             return; // no constraint
+        }
         
         if (f instanceof GenTypeTpar) {
             // The constraint T :> A is implied
             GenTypeTpar t = (GenTypeTpar) f;
-            Set constraintsSet = (Set) tlbConstraints.get(t.getTparName());
+            Set<GenTypeSolid> constraintsSet = tlbConstraints.get(t.getTparName());
             if (constraintsSet == null) {
-                constraintsSet = new HashSet();
+                constraintsSet = new HashSet<GenTypeSolid>();
                 tlbConstraints.put(t.getTparName(), constraintsSet);
             }
             
-            constraintsSet.add(a);
+            constraintsSet.add(a.asSolid());
         }
         
         // If F is an array of the form U[], and a is an array of the form V[]...
@@ -1267,23 +1270,23 @@ public class TextAnalyzer
         
         // If F is of the form G<...> and A is convertible to the same form...
         else {
-            GenTypeClass cf = (GenTypeClass) f;
-            Map fMap = cf.getMap();
-            if (fMap != null && a instanceof GenTypeSolid) {
-                GenTypeClass [] asts = ((GenTypeSolid) a).getReferenceSupertypes();
+            GenTypeClass cf = f.asClass();
+            Map<String,GenTypeParameter> fMap = cf.getMap();
+            if (fMap != null && a.asSolid() != null) {
+                GenTypeClass [] asts = a.asSolid().getReferenceSupertypes();
                 for (int i = 0; i < asts.length; i++) {
                     try {
                         GenTypeClass aMapped = asts[i].mapToSuper(cf.classloaderName());
                         // Superclass relationship is by capture conversion
                         if (! asts[i].classloaderName().equals(cf.classloaderName()))
                             aMapped = (GenTypeClass) captureConversion(aMapped);
-                        Map aMap = aMapped.getMap();
+                        Map<String,GenTypeParameter> aMap = aMapped.getMap();
                         if (aMap != null) {
-                            Iterator j = fMap.keySet().iterator();
+                            Iterator<String> j = fMap.keySet().iterator();
                             while (j.hasNext()) {
-                                String tpName = (String) j.next();
-                                GenTypeParameter fPar = (GenTypeParameter) fMap.get(tpName);
-                                GenTypeParameter aPar = (GenTypeParameter) aMap.get(tpName);
+                                String tpName = j.next();
+                                GenTypeParameter fPar = fMap.get(tpName);
+                                GenTypeParameter aPar = aMap.get(tpName);
                                 processAtoFtpar(aPar, fPar, tlbConstraints, teqConstraints);
                             }
                         }
@@ -1663,7 +1666,8 @@ public class TextAnalyzer
     
     /**
      * Get the candidate list of methods with the given name and argument types. The returned
-     * list will be the maximally specific methods (as defined by the JLS 15.12.2.5).
+     * list will be the maximally specific methods (as defined by the JLS 15.12.2.5). The
+     * methods returned in the list might not be <i>appropriate</i> as according to JLS 15.12.3.
      * 
      * @param methodName    The name of the method
      * @param targetTypes   The types to search for declarations of this method
@@ -1673,7 +1677,8 @@ public class TextAnalyzer
      * @throws RecognitionException
      */
     public static ArrayList<MethodCallDesc> getSuitableMethods(String methodName,
-            GenTypeSolid targetType, JavaType [] argumentTypes, List<GenTypeClass> typeArgs)
+            GenTypeSolid targetType, JavaType [] argumentTypes, List<GenTypeClass> typeArgs,
+            Reflective accessType)
     {
         ArrayList<MethodCallDesc> suitableMethods = new ArrayList<MethodCallDesc>();
         
@@ -1723,6 +1728,12 @@ public class TextAnalyzer
             // accessible. See JLS 15.12.2.1.
             for (MethodReflective method : methods) {
 
+                // Check accessibility
+                if (!JavaUtils.checkMemberAccess(method.getDeclaringType(), accessType,
+                        method.getModifiers(), false)) {
+                    continue;
+                }
+                
                 // check that the method is applicable (and under
                 // what constraints)
                 MethodCallDesc mcd = isMethodApplicable(targetClass, typeArgs, method, argumentTypes);
@@ -2061,8 +2072,9 @@ public class TextAnalyzer
          *         0 if neither method is more specific than the other.
          * 
          * See JLS 15.12.2.5 (by "more specific", we mean what the JLS calls
-         * "strictly more specific", more or less. We also take arity and
-         * abstractness into account)
+         * "strictly more specific", more or less. We also take arity into account.
+         * This method effectively combines and performs phases 1-3 as specified by
+         * JLS 15.12.2.2 - 15.12.2.4
          */
         public int compareSpecificity(MethodCallDesc other)
         {
@@ -2091,21 +2103,14 @@ public class TextAnalyzer
                     downCount++;
             }
             
-            if (upCount > 0 && downCount == 0)
+            if (upCount > 0 && downCount == 0) {
                 return -1; // other is more specific
-            else if (downCount > 0 && upCount == 0)
+            }
+            else if (downCount > 0 && upCount == 0) {
                 return 1;  // other is less specific
+            }
             
-            // finally, if one method is abstract and the other is not,
-            // then the non-abstract method is more specific.
-            boolean isAbstract = method.isAbstract();
-            boolean otherAbstract = other.method.isAbstract();
-            if (isAbstract && ! otherAbstract)
-                return -1;
-            else if (! isAbstract && otherAbstract)
-                return 1;
-            else
-                return 0;
+            return 0;
         }
     }
     
