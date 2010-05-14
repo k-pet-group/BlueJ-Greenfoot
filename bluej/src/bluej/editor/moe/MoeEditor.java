@@ -548,20 +548,23 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         // highlight the line
 
-        currentTextPane.setCaretPosition(pos);
-        currentTextPane.moveCaretPosition(line.getEndOffset() - 1);
+        sourcePane.setCaretPosition(pos);
+        sourcePane.moveCaretPosition(line.getEndOffset() - 1);
         moeCaret.setPersistentHighlight();
         // w/o line break
 
         // display the message
 
-        if (beep)
+        if (beep) {
             info.warning(message);
-        else
+        }
+        else {
             info.message(message);
+        }
 
-        if (help != null)
+        if (help != null) {
             info.setHelp(help);
+        }
     }
 
     /**
@@ -576,7 +579,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         Element line = getLine(lineNumber);
 
-        currentTextPane.select(line.getStartOffset() + columnNumber - 1, 
+        sourcePane.select(line.getStartOffset() + columnNumber - 1, 
                 line.getStartOffset() + columnNumber + len - 1);
     }
     
@@ -606,7 +609,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         Element line1 = getLine(lineNumber1);
         Element line2 = getLine(lineNumber2);
 
-        currentTextPane.select(line1.getStartOffset() + columnNumber1 - 1, line2.getStartOffset() + columnNumber2 - 1);
+        sourcePane.select(line1.getStartOffset() + columnNumber1 - 1, line2.getStartOffset() + columnNumber2 - 1);
     }
 
     /**
@@ -713,7 +716,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             updateUndoControls();
             updateRedoControls();
         }
-        currentTextPane.setEditable(!readOnly);
+        sourcePane.setEditable(!readOnly);
     }
 
     /**
@@ -724,7 +727,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public boolean isReadOnly()
     {
-        return !currentTextPane.isEditable();
+        return !sourcePane.isEditable();
     }
 
     /**
@@ -756,7 +759,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public SourceLocation getCaretLocation()
     {
-        int caretOffset = currentTextPane.getCaretPosition();
+        int caretOffset = sourcePane.getCaretPosition();
         return getLineColumnFromOffset(caretOffset);
     }
 
@@ -775,7 +778,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             return null;
         }
         
-        Element map = document.getDefaultRootElement();
+        Element map = sourceDocument.getDefaultRootElement();
         int lineNumber = map.getElementIndex(offset);
 
         Element lineElement = map.getElement(lineNumber);
@@ -798,7 +801,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void setCaretLocation(SourceLocation location)
     {
-        currentTextPane.setCaretPosition(getOffsetFromLineColumn(location));
+        sourcePane.setCaretPosition(getOffsetFromLineColumn(location));
     }
 
     /**
@@ -810,7 +813,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public SourceLocation getSelectionBegin()
     {
-        Caret aCaret = currentTextPane.getCaret();
+        Caret aCaret = sourcePane.getCaret();
 
         // If the dot is == as the mark then there is no selection.
         if (aCaret.getDot() == aCaret.getMark()) {
@@ -830,7 +833,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public SourceLocation getSelectionEnd()
     {
-        Caret aCaret = currentTextPane.getCaret();
+        Caret aCaret = sourcePane.getCaret();
 
         // If the dot is == as the mark then there is no selection.
         if (aCaret.getDot() == aCaret.getMark()) {
@@ -914,8 +917,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         int selectionStart = Math.min(start, finish);
         int selectionEnd = Math.max(start, finish);
 
-        currentTextPane.setCaretPosition(selectionStart);
-        currentTextPane.moveCaretPosition(selectionEnd);
+        sourcePane.setCaretPosition(selectionStart);
+        sourcePane.moveCaretPosition(selectionEnd);
     }
 
     /**
@@ -937,13 +940,13 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             throw new IllegalArgumentException("line or column < 1");
         }
         
-        Element map = document.getDefaultRootElement();
+        Element map = sourceDocument.getDefaultRootElement();
         if (line >= map.getElementCount()) {
             throw new IllegalArgumentException("line=" + location.getLine()
                     + " is out of bound");
         }
 
-        Element lineElement = document.getDefaultRootElement()
+        Element lineElement = sourceDocument.getDefaultRootElement()
                 .getElement(line);
 
         int lineOffset = lineElement.getStartOffset();
@@ -1388,7 +1391,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         String replaceText = smartFormat(searchString, replaceString);
         insertText(replaceText, true);
         //move the caret back to where it was before the replace
-        currentTextPane.setCaretPosition(caretPos);
+        sourcePane.setCaretPosition(caretPos);
         finder.find(true);
         //editor.writeMessage("Replaced " + count + " instances of " + searchString);
         writeMessage("Replaced an instance of " + 
@@ -2637,10 +2640,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     private void doBracketMatch()
     {
-        Caret caret = sourcePane.getCaret();
-        if (caret instanceof MoeCaret) {
-            ((MoeCaret) caret).paintMatchingBracket();
-        }
+        moeCaret.paintMatchingBracket();
     }
 
     /**
