@@ -23,28 +23,52 @@ package bluej.parser;
 
 import java.util.List;
 
+import javax.swing.text.BadLocationException;
+
 import junit.framework.TestCase;
 import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.texteval.DeclaredVar;
+import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
+import bluej.parser.entity.PackageResolver;
+import bluej.parser.nodes.ParsedCUNode;
 
 /**
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 7136 2010-02-17 03:15:57Z davmac $
+ * @version $Id: TextParserTest.java 7559 2010-05-14 05:03:45Z davmac $
  */
 public class TextParserTest extends TestCase
 {
-    private EntityResolver resolver;
+    {
+        InitConfig.init();
+    }
+
+    private TestEntityResolver resolver;
     private ObjectBench objectBench;
     
     @Override
     protected void setUp() throws Exception
     {
         objectBench = new ObjectBench();
-        resolver = new ClassLoaderResolver(getClass().getClassLoader());
+        resolver = new TestEntityResolver(new ClassLoaderResolver(this.getClass().getClassLoader()));
+    }
+    
+    /**
+     * Generate a compilation unit node based on some source code.
+     */
+    private ParsedCUNode cuForSource(String sourceCode, String pkg)
+    {
+        EntityResolver resolver = new PackageResolver(this.resolver, pkg);
+        MoeSyntaxDocument document = new MoeSyntaxDocument(resolver);
+        document.enableParser(true);
+        try {
+            document.insertString(0, sourceCode, null);
+        }
+        catch (BadLocationException ble) {}
+        return document.getParser();
     }
     
     public void testVoidResult()
@@ -368,9 +392,7 @@ public class TextParserTest extends TestCase
         r = tp.parseCommand("3.0f < (Integer)null");
         assertEquals("boolean", r);
     }
-    
-    //TODO test instanceof
-    
+        
     public void testEqualityReferenceOperators()
     {
         TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
@@ -392,4 +414,79 @@ public class TextParserTest extends TestCase
         r = tp.parseCommand("new Integer(5) == new Object()");
         assertEquals("boolean", r);
     }
+    
+    //test behaviour of parsing of statements and expressions
+    //please refer to #Bug 213
+    public void testObjectBench()
+    {
+        String lalaSrc = "package xyz; public class Lala { " +
+                "public String toString() { return \"haha\"; }" +
+                "public String foo() { return \"mama\"; } }";
+        
+        String nanaSrc="package xyz;\n"
+            + "public class Nana extends Lala\n"
+            + "{\n"
+            + "  public int bar() {\n"
+            + "    return 99;\n"
+            + "  }\n"
+            + "}\n";
+
+        ParsedCUNode lalaNode = cuForSource(lalaSrc, "xyz");
+        resolver.addCompilationUnit("xyz", lalaNode);
+       
+        ParsedCUNode nanaNode = cuForSource(nanaSrc, "xyz");
+        resolver.addCompilationUnit("xyz", nanaNode);
+
+        EntityResolver res = new PackageResolver(this.resolver, "xyz");
+                
+        TextAnalyzer tp = new TextAnalyzer(res, "xyz", objectBench);
+        
+        String r = tp.parseCommand("46");        
+        assertEquals("int", r);
+        tp.confirmCommand();
+        
+        r = tp.parseCommand("new Lala()");        
+        assertEquals("xyz.Lala", r);
+        tp.confirmCommand();
+            
+        r = tp.parseCommand("(new Lala()).toString()");
+        assertEquals("java.lang.String", r);
+        tp.confirmCommand();
+       
+        r = tp.parseCommand("(new Lala()).foo()");
+        assertEquals("java.lang.String", r);
+        tp.confirmCommand();
+        
+        r = tp.parseCommand("(new Nana()).foo()");
+        assertEquals("java.lang.String", r);
+        tp.confirmCommand();
+
+        r = tp.parseCommand("(new Nana()).bar()");
+        assertEquals("int", r);
+        tp.confirmCommand();     
+    }
+    
+    public void testMethodResolution()
+    {
+        String lalaSrc = ""
+            + "public class Lala\n"
+            + "{\n"
+            + "  public int method(Runnable r) { return 0; }\n"
+            + "  public float method(Thread r) { return 0f; }\n"
+            + "}\n";
+        
+        ParsedCUNode lalaNode = cuForSource(lalaSrc, "");
+        resolver.addCompilationUnit("", lalaNode);
+
+        EntityResolver res = new PackageResolver(this.resolver, "");
+        TextAnalyzer tp = new TextAnalyzer(res, "", objectBench);
+        
+        String r = tp.parseCommand("new Lala().method((Runnable) null)");
+        assertEquals("int", r);
+        r = tp.parseCommand("new Lala().method(new Thread())");        
+        assertEquals("float", r);
+    }
+    
+    //TODO test instanceof
+
 }
