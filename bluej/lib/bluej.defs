@@ -455,10 +455,13 @@ colour.wrapper.shadow=152,152,152
 colour.menu.environOp=152,32,32
 
 #colour for selections (in text and otherwise)
-colour.selection=255,220,110
+colour.selection=255,250,0
+colour.selection2=233,225,0
 
 #colour for highlights (in text editor)
-colour.highlight=255,255,138
+#colour.highlight=255,255,196
+colour.highlight=180,220,255
+colour.highlight2=110,190,255
 
 #colour for the value field in the inspectors
 colour.inspector.value.bg=255,255,255
