@@ -23,6 +23,8 @@ package bluej.editor.moe;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GradientPaint;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
@@ -41,13 +43,15 @@ import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 public class MoeBorderHighlighterPainter extends DefaultHighlightPainter
 {
     Color borderColor=Color.BLACK;
-    Color innerColor;
+    Color innerColor1;
+    Color innerColor2;
     
-    public MoeBorderHighlighterPainter(Color bColor, Color fillColor)
+    public MoeBorderHighlighterPainter(Color bColor, Color fillColor1, Color fillColor2)
     {
-        super(fillColor);
+        super(fillColor1);
         borderColor=bColor;
-        innerColor=fillColor;
+        innerColor1=fillColor1;
+        innerColor2=fillColor2;
     }
     
     /**
@@ -64,10 +68,24 @@ public class MoeBorderHighlighterPainter extends DefaultHighlightPainter
                     bounds);
             Rectangle r = shape.getBounds(); 
             //fill in the rectangle and then draw the border
-            g.setColor(innerColor);
-            g.fillRect(r.x,r.y, r.width, r.height);
+            //g.setColor(innerColor);
+            //g.fillRect(r.x,r.y, r.width, r.height);
+
+            if (g instanceof Graphics2D) {
+                Graphics2D g2d = (Graphics2D)g;
+
+                // Paint a gradient from top to bottom:
+                GradientPaint gp = new GradientPaint(
+                    r.x,r.y, innerColor1,
+                    r.x+(r.width/2), r.y+r.height, innerColor2);
+
+                g2d.setPaint(gp);
+                g2d.fillRect(r.x-1, r.y, r.width+1, r.height);
+            }
+
+                //g.drawRect(r.x,r.y, r.width-1, r.height-1);
             g.setColor(borderColor);
-            g.drawRect(r.x,r.y, r.width-1, r.height-1);
+            g.drawRoundRect(r.x-2,r.y, r.width+2, r.height-1, 6, 6);
             return r;
         } catch (BadLocationException e) {
             // can't render

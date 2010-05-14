@@ -35,14 +35,16 @@ import bluej.Config;
  */
 public class MoeHighlighter extends DefaultHighlighter {
 
+    private static final Color borderColor = new Color(212, 172,45);
+
     protected HighlightPainter highlightPainter;
     protected HighlightPainter selectPainter;
     
     public MoeHighlighter(JTextComponent comp) 
     {
         super();
-        highlightPainter=new MoeBorderHighlighterPainter(Color.BLACK, Config.getHighlightColour()); 
-        selectPainter=new MoeBorderHighlighterPainter(Color.BLACK, Config.getSelectionColour());
+        highlightPainter=new MoeBorderHighlighterPainter(borderColor, Config.getHighlightColour(), Config.getHighlightColour2());
+        selectPainter=new MoeBorderHighlighterPainter(borderColor, Config.getSelectionColour(), Config.getSelectionColour2());
         install(comp);
     }
 

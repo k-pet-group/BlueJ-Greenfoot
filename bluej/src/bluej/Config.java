@@ -151,7 +151,9 @@ public final class Config
                     new Color(195, 195, 195)));
    
     private static Color selectionColour;
+    private static Color selectionColour2;
     private static Color highlightColour;
+    private static Color highlightColour2;
     private static List<String> debugVMArgs = new ArrayList<String>();
     
     /** whether this is the debug vm or not. */
@@ -1221,7 +1223,18 @@ public final class Config
         }
         return selectionColour;
     }
-    
+
+    /**
+     * Return the second (gradient) color value for selections.
+     */
+    public static Color getSelectionColour2()
+    {
+        if(selectionColour2 == null) {
+            selectionColour2 = Config.getItemColour("colour.selection2");
+        }
+        return selectionColour2;
+    }
+
     /**
      * Return a color value for selections.
      */
@@ -1232,7 +1245,18 @@ public final class Config
         }
         return highlightColour;
     }
-    
+
+    /**
+     * Return the second (gradient) color value for selections.
+     */
+    public static Color getHighlightColour2()
+    {
+        if(highlightColour2 == null) {
+            highlightColour2 = Config.getItemColour("colour.highlight2");
+        }
+        return highlightColour2;
+    }
+
     /**
      * Get a font from a specified property, using the given default font name and
      * the given size. Font name can end with "-bold" to indicate bold style.
