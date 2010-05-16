@@ -409,7 +409,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void displayFindPanel(String selection, boolean visible)
     {    
-        if (selection==null)
+    	//the view may have changed and therefore the selection does not match 
+    	//the last search string - in this case use the getSearchString
+        if (selection==null || selection!=getSearchString())
             selection=getSearchString();       
         setSearchString(selection);
         this.setVisible(true);
@@ -467,7 +469,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         }
         editor.setCaretLocation(caretLoc);
         search(ignoreCase, wholeWord, true, select, forwards) ;
-        int counter=editor.getNumHighlights();
+        int counter=editor.getHighlightCount();
         //if there was nothing found, need to move the caret back to its original position
         //need also disable buttons accordingly
         if (counter<1) {
@@ -526,7 +528,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             // position the caret so that following doFindSelect finds the correct occurrence
             editor.getCurrentTextPane().setCaretPosition(editor.getCurrentTextPane().getCaretPosition() - searchString.length());
         }
-
         found=editor.doFindSelect(searchString, ignoreCase, wholeWord, wrap, select);
         return found;
     }
@@ -538,6 +539,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     protected boolean find(boolean forward)
     {
         setFindValues(); 
+        editor.setHighlightCount(0);
         editor.removeSearchHighlights();
         return highlightAll(!matchCaseCheckBox.isSelected(), false, forward, true);
     }
@@ -565,6 +567,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         if (findTField.getText().length()==0) {
             //need to reset the search to the beginning of the last selected
             editor.removeSearchHighlights();
+            editor.removeSelection(editor.getCurrentTextPane());
             setSearchString(null);
             if (searchStart != null) {
                 editor.setCaretLocation(searchStart);
@@ -635,7 +638,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     public void close()
     {
         editor.removeSearchHighlights();
-        editor.resetSelection();
+        editor.removeSelection(editor.getCurrentTextPane());
         this.setVisible(false);
         editor.setReplacePanelVisible(false);
         replaceIconLabel.setIcon(closedIcon);

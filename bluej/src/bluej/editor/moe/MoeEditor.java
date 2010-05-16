@@ -214,6 +214,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     // new find functionality
     private FindPanel finder;
     private ReplacePanel replacer;
+    private int highlightCount=0;
 
     private JScrollPane scrollPane;
     private NaviView naviView;              // Navigation view (mini-source view)
@@ -581,15 +582,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         sourcePane.select(line.getStartOffset() + columnNumber - 1, 
                 line.getStartOffset() + columnNumber + len - 1);
-    }
-    
-    /**
-     * Resets the selection on the current editor specified
-     */
-    protected void resetSelection()
-    {
-        currentTextPane.setSelectionStart(1);
-        currentTextPane.setSelectionEnd(1);
     }
 
     /**
@@ -1616,10 +1608,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     boolean doFindSelect(String s, boolean ignoreCase, boolean wholeWord, boolean wrap, boolean select)
     {
-        int temp=0;
         int docLength = document.getLength();
         int startPosition = currentTextPane.getCaretPosition();
-
         int endPos = docLength;
 
         boolean found = false;
@@ -1640,16 +1630,15 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                             //caret correctly and the highlighter ensures the colouring is done correctly 
                             currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.selectPainter);
                             currentTextPane.select(start + foundPos, start + foundPos + s.length());
-                            setSelectionVisible();
-                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);                            
+                            setSelectionVisible();                                                       
                             //reset the start position to the first caret of the selected item
                             //in order to ensure that none are missed
                             startPosition=start+foundPos;
                             found=true;
                             select=false;
                         }else {
-                            temp=temp+1;
                             currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);                           
+                            highlightCount++;
                         }
                         foundPos=foundPos+s.length();
                     }else 
@@ -1684,6 +1673,22 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }  
 
     /**
+     * Returns the number of highlights
+     */
+    public int getHighlightCount() 
+    {
+		return highlightCount;
+	}
+
+    /**
+     * Sets the number of highlights
+     */
+	public void setHighlightCount(int highlightCount) 
+	{
+		this.highlightCount = highlightCount;
+	}
+
+	/**
      * Transfers caret to user specified line number location.
      */
     public void goToLine()
@@ -1929,6 +1934,19 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         return editActions;
     }
     
+    /**
+     * Sets the search start to the beginning of the document and 
+     * initiates a search (if the find panel is visible)
+     */
+    private void initSearch()
+    {
+        if (finder.isVisible()){
+            //current caret position may be invalid in the source view
+            finder.setSearchStart(new SourceLocation(1,1));
+            initFindPanel(this);
+        }
+    }
+    
     // --------------------------------------------------------------------
     
     /**
@@ -1946,12 +1964,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         scrollPane.setViewportView(currentTextPane);
         dividerPanel.endTemporaryHide();
         currentTextPane.requestFocus();
-        //triggering off a search in the changed display
-        if (finder.isVisible()){
-            //current caret position may be invalid in the source view
-            finder.setSearchStart(new SourceLocation(1,1));
-            initFindPanel(this);
-        }
+        initSearch();
     }
 
     // --------------------------------------------------------------------
@@ -1976,12 +1989,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             // (from save() call) will already be displayed in the editor
             // status bar.
         }
-        //triggering off a search in the changed display
-        if (finder.isVisible()){
-            //current caret position may be invalid in the interface view
-            finder.setSearchStart(new SourceLocation(1,1));
-            initFindPanel(this);
-        }
+        initSearch();
     }
 
     // --------------------------------------------------------------------
@@ -2223,6 +2231,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         scrollPane.setViewportView(htmlPane);
         currentTextPane.requestFocus();
         editorHighlighter = new MoeHighlighter(currentTextPane);
+        initSearch();
     }
 
     // --------------------------------------------------------------------
@@ -3329,48 +3338,43 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
     
     /**
-     * Removes only the  selected highlights i.e. the other highlights
-     * such as the brackets etc remain
+     * Removes the selected highlights (in both the source/doc pane) 
+     * Note: the other highlights such as the brackets etc remain
      */
     public void removeSearchHighlights()
     {
-        Highlighter hilite = currentTextPane.getHighlighter();
-        Highlighter.Highlight[] hilites = hilite.getHighlights();
-
+    	Highlighter hilite;
+    	if (sourcePane!=null){
+    		hilite = sourcePane.getHighlighter();
+    		removeSearchHighlights(hilite);
+    	}
+        if (htmlPane!=null){
+        	hilite=htmlPane.getHighlighter();
+        	removeSearchHighlights(hilite);
+        }  
+    }
+    
+    /**
+     * Removes the highlights on a specific pane (specified by the highlighter passed through)
+     * @param hilite the highlighter of the textpane
+     */
+    private void removeSearchHighlights(Highlighter hilite)
+    {
+    	Highlighter.Highlight[] hilites = hilite.getHighlights();
         for (int i = 0; i < hilites.length; i++) {
             if (hilites[i].getPainter() instanceof MoeBorderHighlighterPainter) {
                 hilite.removeHighlight(hilites[i]);
             }
         }
     }
-
+    
     /**
-     * Returns the number of highlights in the given textPane
+     * Removes the selection in the textpane specified
+     * @param textPane specified textpane (source/html)
      */
-    public int getNumHighlights()
+    public void removeSelection(JEditorPane textPane)
     {
-        int count=0;      
-        Highlighter.Highlight[] hilites = currentTextPane.getHighlighter().getHighlights();
-        int[] startPoss=new int[hilites.length];
-        for (int i=0; i<hilites.length; i++) {
-            if (isHighlight(startPoss, hilites[i].getStartOffset())){
-                count++;
-                startPoss[i]=hilites[i].getStartOffset();
-            }
-        }
-        return count;
-    }
-
-    /** 
-     * Returns true if it is a unique highlight and false if it has already been counted
-     */
-    private boolean isHighlight(int[] startPoss, int startPos)
-    {
-        for (int i=0; i<startPoss.length; i++){
-            if (startPoss[i]==startPos)
-                return false;
-        }
-        return true;
+       currentTextPane.setSelectionEnd(currentTextPane.getSelectionStart());
     }
 
     /**
