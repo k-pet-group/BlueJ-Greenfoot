@@ -255,6 +255,7 @@ public class PkgMgrFrame extends JFrame
     private Action compileAction = new CompileAction();
     private Action compileSelectedAction = new CompileSelectedAction();
     private Action rebuildAction = new RebuildAction();
+    private Action restartVMAction = RestartVMAction.getInstance();
     private Action useLibraryAction = new UseLibraryAction();
     private Action generateDocsAction = new GenerateDocsAction();
     private PkgMgrAction showUsesAction = new ShowUsesAction();
@@ -3101,6 +3102,7 @@ public class PkgMgrFrame extends JFrame
             createMenuItem(compileAction, menu);
             createMenuItem(compileSelectedAction, menu);
             createMenuItem(rebuildAction, menu);
+            createMenuItem(restartVMAction, menu);
             menu.addSeparator();
 
             createMenuItem(useLibraryAction, menu);
@@ -3274,6 +3276,7 @@ public class PkgMgrFrame extends JFrame
         actionsToDisable.add(compileAction);
         actionsToDisable.add(compileSelectedAction);
         actionsToDisable.add(rebuildAction);
+        actionsToDisable.add(restartVMAction);
         actionsToDisable.add(useLibraryAction);
         actionsToDisable.add(generateDocsAction);
         actionsToDisable.add(showUsesAction);
