@@ -32,7 +32,7 @@ import rmiextension.wrappers.RConstructor;
 import rmiextension.wrappers.RField;
 import bluej.extensions.*;
 import bluej.extensions.ClassNotFoundException;
-import bluej.parser.ClassParser;
+import bluej.parser.InfoParser;
 import bluej.parser.symtab.ClassInfo;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
@@ -487,7 +487,7 @@ public class GClass
         //Second, try to parse the file
         String parsedSuperclass = null;
         try {
-            ClassInfo info = ClassParser.parse(rmiClass.getJavaFile());//, classes);
+            ClassInfo info = InfoParser.parse(rmiClass.getJavaFile());//, classes);
             parsedSuperclass = info.getSuperclass();
            
             // TODO hack! If the superclass is Actor or World,
