@@ -122,7 +122,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
 
     private boolean isSelected = false;
     
-    private Color[] colours = {
+    private Color[] shadowColours = {
             new Color(0,0,0,11), //furthest out
             new Color(0,0,0,22),     
             new Color(0,0,0,33),
@@ -616,13 +616,13 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
 	 */
 	private void drawShadow(Graphics2D g, int x, int y, int w, int h, int shad, int corner) 
     {
-		g.setColor(colours[0]);
+		g.setColor(shadowColours[0]);
 		g.fillRoundRect(x+shad,y+shad,w-shad,h-shad,corner,corner);
-		g.setColor(colours[1]);
+		g.setColor(shadowColours[1]);
 		g.fillRoundRect(x+shad,y+shad,w-shad-1,h-shad-1,corner,corner);
-		g.setColor(colours[2]);
+		g.setColor(shadowColours[2]);
 		g.fillRoundRect(x+shad,y+shad,w-shad-2,h-shad-2,corner,corner);
-		g.setColor(colours[3]);
+		g.setColor(shadowColours[3]);
 		g.fillRoundRect(x+shad,y+shad,w-shad-3,h-shad-3,corner,corner);
 	}
 
