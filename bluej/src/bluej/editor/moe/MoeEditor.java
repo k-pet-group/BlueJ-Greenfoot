@@ -1949,10 +1949,13 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         if (finder.isVisible()){
             //current caret position may be invalid in the new view
-            //so reset it to the current pos in that pane
-            if (!isShowingInterface())
-                finder.setSearchStart(getCaretLocation());
-            else finder.setSearchStart(null);
+            //so reset it to the current pos in that pane/0 in the documentation
+            if (isShowingInterface()){
+            	finder.setSearchStart(0);
+            }    
+            else{
+            	finder.setSearchStart(getCaretPosition());
+            }
             //reset the search string to null
             finder.setSearchString(null);
             //as the search is cleared between switches in the view
@@ -3733,5 +3736,23 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         else {
             return PrefMgr.getNaviviewExpanded();
         }
+    }
+    
+    /**
+     * Returns the caret position in the currentTextPane
+     * @return the caret position in the currentTextPane
+     */
+    public int getCaretPosition()
+    {
+    	return currentTextPane.getCaretPosition();
+    }
+    
+    /**
+     * Sets the caret position in the currentTextPane
+     * @param position the position to set the caret to in the currentTextPane
+     */
+    public void setCaretPosition(int position)
+    {
+    	currentTextPane.setCaretPosition(position);
     }
 }

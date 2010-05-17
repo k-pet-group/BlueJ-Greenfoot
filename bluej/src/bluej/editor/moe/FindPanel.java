@@ -90,7 +90,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private ImageIcon openIcon;
     private ImageIcon closedIcon;
 
-    private SourceLocation searchStart;
+    private int searchStart;
 
     /**
      * Constructor that creates and displays the different elements of the Find Panel
@@ -117,14 +117,14 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         findTField.addFocusListener(new FocusListener() {
             public void focusGained(FocusEvent e)
             {
-                if (searchStart == null) {
-                    searchStart = editor.getCaretLocation();
+                if (searchStart == 0) {
+                    searchStart = editor.getCaretPosition();
                 }
             }
 
             public void focusLost(FocusEvent e)
             {
-                searchStart = null;
+                searchStart = 0;
             }
         });
 
@@ -136,9 +136,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         if (aFlag && ! isVisible()) {
             // Remember the current caret location so we can revert to it if
             // the search term cannot be found.
-            searchStart = editor.getSelectionBegin();
-            if (searchStart == null) {
-                searchStart = editor.getCaretLocation();
+            searchStart = editor.getCurrentTextPane().getSelectionStart();
+            if (searchStart == 0) {
+                searchStart = editor.getCaretPosition();
             }
         }
         super.setVisible(aFlag);
@@ -328,9 +328,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             getPrev();   
         }
         if (src.getName()==MATCHCASE_CHECKBOX){
-            if (searchStart != null) {
-                editor.setCaretLocation(searchStart);
-            }
+//            if (searchStart != null) {
+//                editor.setCaretLocation(searchStart);
+//            }
             find(true);
         }
     }
@@ -340,18 +340,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void getNext()
     {
-        SourceLocation selBegin = editor.getSelectionBegin();
-        if (selBegin != null) {
-            // Avoid finding the same instance we found last time
-            int offset = editor.getOffsetFromLineColumn(selBegin) + 1;
-            if (offset > editor.getSourceDocument().getLength()) {
-                offset = 0;
-            }
-            editor.getCurrentTextPane().setCaretPosition(offset);
-        }
-        if (find(true)) {
-            searchStart = editor.getSelectionBegin();
-        }
+    	editor.setCaretPosition(editor.getCurrentTextPane().getSelectionStart()+1);
+        find(true);
     }
 
     /**
@@ -359,14 +349,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void getPrev()
     {
-        SourceLocation selEnd = editor.getSelectionEnd();
-        if (selEnd != null) {
-            int offset = Math.max(editor.getOffsetFromLineColumn(selEnd) - 1, 0);
-            editor.setCaretLocation(editor.getLineColumnFromOffset(offset));
-        }
-        if (find(false)) {
-            searchStart = editor.getSelectionEnd();
-        }
+        find(false);
     }
 
     /**
@@ -375,9 +358,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     private void findEvent()
     {
-        SourceLocation selBegin = editor.getSelectionBegin();
-        if (selBegin == null) {
-            selBegin = editor.getCaretLocation();
+        int selBegin = editor.getCurrentTextPane().getSelectionStart();
+        if (selBegin == 0) {
+            selBegin = editor.getCaretPosition();
         }
 
         //check there has been a legitimate change in the search criteria            
@@ -388,18 +371,18 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
                 //need to reset the search to the beginning of the last selected
                 editor.removeSearchHighlights();
                 setSearchString(null);
-                editor.setCaretLocation(selBegin);
+                editor.setCaretPosition(selBegin);
                 writeMessage(false, 0);
                 return;
             }
         }
 
-        editor.setCaretLocation(selBegin);
+        editor.setCaretPosition(selBegin);
         boolean found = find(true);
-        if (!found && searchStart != null) {
+        if (!found && searchStart != 0) {
             // If nothing found, caret should be moved back to position it was in before
             // the search started.
-            editor.setCaretLocation(searchStart);
+            editor.setCaretPosition(searchStart);
         }
         updateDisplay(found);
     }
@@ -409,9 +392,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public void displayFindPanel(String selection, boolean visible)
     {    
-    	//the view may have changed and therefore the selection does not match 
-    	//the last search string - in this case use the getSearchString
-        if (selection==null || selection!=getSearchString())
+        if (selection==null)
             selection=getSearchString();       
         setSearchString(selection);
         this.setVisible(true);
@@ -463,17 +444,12 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public boolean highlightAll(boolean ignoreCase, boolean wholeWord, boolean forwards, boolean select)
     {
-        SourceLocation caretLoc = forwards ? editor.getSelectionBegin() : editor.getSelectionEnd();
-        if (caretLoc == null) {
-            caretLoc = editor.getCaretLocation();
-        }
-        editor.setCaretLocation(caretLoc);
         search(ignoreCase, wholeWord, true, select, forwards) ;
         int counter=editor.getHighlightCount();
         //if there was nothing found, need to move the caret back to its original position
         //also need to disable buttons accordingly
         if (counter<1) {
-            editor.setCaretLocation(caretLoc);
+            editor.setCaretPosition(searchStart);
             previousButton.setEnabled(false);
             nextButton.setEnabled(false);
             editor.enableReplaceButtons(false); 
@@ -575,8 +551,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             editor.removeSearchHighlights();
             editor.removeSelection(editor.getCurrentTextPane());
             setSearchString(null);
-            if (searchStart != null) {
-                editor.setCaretLocation(searchStart);
+            if (searchStart != 0) {
+                editor.setCaretPosition(searchStart);
             }
             writeMessage(false, 0);
             updateDisplay(false);
@@ -694,7 +670,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      * Returns current search location
      * @return current search location
      */
-    protected SourceLocation getSearchStart() 
+    protected int getSearchStart() 
     {
         return searchStart;
     }
@@ -703,7 +679,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      * Sets the search location to the specified value
      * @param searchStart SourceLocation specifying the beginning of the search
      */
-    protected void setSearchStart(SourceLocation searchStart) 
+    protected void setSearchStart(int searchStart) 
     {
         this.searchStart = searchStart;
     }
