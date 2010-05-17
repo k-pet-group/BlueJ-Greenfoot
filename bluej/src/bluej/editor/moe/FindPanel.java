@@ -471,7 +471,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         search(ignoreCase, wholeWord, true, select, forwards) ;
         int counter=editor.getHighlightCount();
         //if there was nothing found, need to move the caret back to its original position
-        //need also disable buttons accordingly
+        //also need to disable buttons accordingly
         if (counter<1) {
             editor.setCaretLocation(caretLoc);
             previousButton.setEnabled(false);
@@ -524,16 +524,22 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
 
         boolean found =false;
         if (!next){
-            found = editor.doFindBackward(searchString, ignoreCase, wholeWord, wrap);
-            // position the caret so that following doFindSelect finds the correct occurrence
-            editor.getCurrentTextPane().setCaretPosition(editor.getCurrentTextPane().getCaretPosition() - searchString.length());
+            editor.doFindBackward(searchString, ignoreCase, wholeWord, wrap);
+        } else {
+            editor.doFind(searchString, ignoreCase, wholeWord, wrap);
         }
+        
+        // position the caret so that following doFindSelect finds the correct occurrence
+        int caretPos=editor.getCurrentTextPane().getCaretPosition();
+        if (caretPos>getSearchString().length())
+            caretPos=editor.getCurrentTextPane().getCaretPosition() - searchString.length();
+        editor.getCurrentTextPane().setCaretPosition(caretPos);
         found=editor.doFindSelect(searchString, ignoreCase, wholeWord, wrap, select);
         return found;
     }
 
     /**
-     * Find the current search string in either the forwards or backwards direection, 
+     * Find the current search string in either the forwards or backwards direction, 
      * highlighting all occurrences, and selecting the first found occurrence.
      */
     protected boolean find(boolean forward)

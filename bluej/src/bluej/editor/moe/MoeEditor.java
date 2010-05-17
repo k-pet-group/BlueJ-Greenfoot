@@ -1117,6 +1117,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         case BlueJEvent.DOCU_GENERATED :
             BlueJEvent.removeListener(this);
             refreshHtmlDisplay();
+            document=htmlDocument;
+            htmlPane.setDocument(htmlDocument);
+            currentTextPane=htmlPane;
             break;
         case BlueJEvent.DOCU_ABORTED :
             BlueJEvent.removeListener(this);
@@ -1417,6 +1420,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 finder.getNext();
         }else {
             removeSearchHighlights();
+            removeSelection(currentTextPane);
             findString(selection, backwards, !finder.getMatchCase(), false, true);
         }
     }
@@ -1947,8 +1951,11 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     private void initSearch()
     {
         if (finder.isVisible()){
-            //current caret position may be invalid in the source view
-            finder.setSearchStart(new SourceLocation(1,1));
+            //current caret position may be invalid in the new view
+            //so reset it to the current pos in that pane
+            finder.setSearchStart(getLineColumnFromOffset(currentTextPane.getCaretPosition()));
+            //reset the search string to null
+            finder.setSearchString(null);
             initFindPanel(this);
         }
     }
