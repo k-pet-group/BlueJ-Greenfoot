@@ -98,6 +98,7 @@ import javax.swing.text.EditorKit;
 import javax.swing.text.Element;
 import javax.swing.text.Highlighter;
 import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.Highlighter.HighlightPainter;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
@@ -186,6 +187,15 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     // -------- CLASS VARIABLES --------
 
     private static boolean matchBrackets = false;
+    
+    private static final Color highlightBorderColor = new Color(212, 172,45);
+    
+    protected static HighlightPainter highlightPainter =
+        new MoeBorderHighlighterPainter(highlightBorderColor, Config.getHighlightColour(),
+                Config.getHighlightColour2());;
+    protected static HighlightPainter selectPainter =
+        new MoeBorderHighlighterPainter(highlightBorderColor, Config.getSelectionColour(),
+                Config.getSelectionColour2());;
 
     // -------- INSTANCE VARIABLES --------
 
@@ -246,8 +256,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     private static ArrayList<String> editActions;
 
-    private MoeHighlighter editorHighlighter;
-
     private CodeCompletionDisplay codeCompletionDlg;
     
     /** Used to obtain javadoc for arbitrary methods */
@@ -281,8 +289,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         undoManager = new MoeUndoManager(this);
 
         initWindow(parameters.getProjectResolver());
-        editorHighlighter= new MoeHighlighter(currentTextPane);
-
     }
 
     // --------------------------------------------------------------------
@@ -1628,7 +1634,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                         if (select){
                             //purposely using both select and the highlight because the select sets the                         
                             //caret correctly and the highlighter ensures the colouring is done correctly 
-                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.selectPainter);
+                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), selectPainter);
                             currentTextPane.select(start + foundPos, start + foundPos + s.length());
                             setSelectionVisible();                                                       
                             //reset the start position to the first caret of the selected item
@@ -1637,7 +1643,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                             found=true;
                             select=false;
                         }else {
-                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), editorHighlighter.highlightPainter);                           
+                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), highlightPainter);                           
                             highlightCount++;
                         }
                         foundPos=foundPos+s.length();
@@ -2230,7 +2236,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         viewingHTML = true;
         scrollPane.setViewportView(htmlPane);
         currentTextPane.requestFocus();
-        editorHighlighter = new MoeHighlighter(currentTextPane);
         initSearch();
     }
 
