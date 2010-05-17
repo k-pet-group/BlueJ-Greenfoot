@@ -22,9 +22,9 @@
 package bluej.editor.moe;
 
 import java.awt.Color;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GradientPaint;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
@@ -83,9 +83,11 @@ public class MoeBorderHighlighterPainter extends DefaultHighlightPainter
                 g2d.fillRect(r.x-1, r.y, r.width+1, r.height);
             }
 
-                //g.drawRect(r.x,r.y, r.width-1, r.height-1);
+            //g.drawRect(r.x,r.y, r.width-1, r.height-1);
             g.setColor(borderColor);
             g.drawRoundRect(r.x-2,r.y, r.width+2, r.height-1, 6, 6);
+            r.x -= 2;
+            r.width += 3;
             return r;
         } catch (BadLocationException e) {
             // can't render
