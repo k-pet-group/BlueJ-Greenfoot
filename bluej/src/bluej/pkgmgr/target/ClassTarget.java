@@ -98,7 +98,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 7474 2010-05-03 05:13:17Z davmac $
+ * @version $Id: ClassTarget.java 7569 2010-05-17 01:55:39Z davmac $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -1305,7 +1305,10 @@ public class ClassTarget extends DependentTarget
     {
         String pkgPrefix = getPackage().getQualifiedName();
         if (interfaceName.startsWith(pkgPrefix)) {
-            interfaceName = interfaceName.substring(pkgPrefix.length());
+            int dotlen = pkgPrefix.length();
+            // If not the default package, we must account for the extra '.'
+            dotlen = (dotlen == 0) ? 0 : (dotlen + 1);
+            interfaceName = interfaceName.substring(dotlen);
             DependentTarget interfce = getPackage().getDependentTarget(interfaceName);
 
             if (interfce != null) {
