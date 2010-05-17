@@ -107,26 +107,25 @@ public class BasicParseTest extends junit.framework.TestCase
     {
         // this file came from some guys web page.. it just includes lots of
         // Java constructs
-        ClassParser.parse(getFile("java_basic.dat"));
+        assertNotNull(InfoParser.parse(getFile("java_basic.dat")));
 
         // these files came from the test suite accompanying antlr
-        ClassParser.parse(getFile("A.dat"));
-        ClassParser.parse(getFile("B.dat"));
-        ClassParser.parse(getFile("C.dat"));
-        ClassParser.parse(getFile("D.dat"));
-        ClassParser.parse(getFile("E.dat"));
+        assertNotNull(InfoParser.parse(getFile("A.dat")));
+        assertNotNull(InfoParser.parse(getFile("B.dat")));
+        assertNotNull(InfoParser.parse(getFile("C.dat")));
+        assertNotNull(InfoParser.parse(getFile("D.dat")));
+        assertNotNull(InfoParser.parse(getFile("E.dat")));
         
         // these files were added later
-        ClassParser.parse(getFile("F.dat"));
-        ClassParser.parse(getFile("G.dat"));
-        
+        assertNotNull(InfoParser.parse(getFile("F.dat")));
+        assertNotNull(InfoParser.parse(getFile("G.dat")));
     }
     
     public void testNoParseExceptionsOnGenerics()
     	throws Exception
     {
     	// Parse generics
-    	ClassParser.parse(getFile("15_generic.dat"));
+    	assertNotNull(InfoParser.parse(getFile("15_generic.dat")));
     }
     
     public void testCode()
@@ -141,7 +140,7 @@ public class BasicParseTest extends junit.framework.TestCase
                 "  Class<int[]> cc = int[].class;" +
                 "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, ter, "testpkg");
+        ClassInfo info = InfoParser.parse(sr, ter, "testpkg");
         assertNotNull(info);
     }
     
@@ -160,7 +159,7 @@ public class BasicParseTest extends junit.framework.TestCase
         references.add("Dummy2");
         
         File file = getFile("AffinedTransformer.dat");
-        ClassInfo info = ClassParser.parse(file, new ClassLoaderResolver(this.getClass().getClassLoader()));
+        ClassInfo info = InfoParser.parse(file, new ClassLoaderResolver(this.getClass().getClassLoader()));
 
         assertEquals("AffinedTransformer",info.getName());
         assertEquals("javax.swing.JFrame",info.getSuperclass());
@@ -225,7 +224,7 @@ public class BasicParseTest extends junit.framework.TestCase
          */
         
         file = getFile("multi_interface.dat");
-        info = ClassParser.parse(file);
+        info = InfoParser.parse(file);
         
         extendsInsert = info.getExtendsInsertSelection();
         assertEquals(10, extendsInsert.getEndColumn());
@@ -298,7 +297,7 @@ public class BasicParseTest extends junit.framework.TestCase
     			"  }\n" +
     			"}\n"
     	);
-    	ClassInfo info = ClassParser.parse(sr,
+    	ClassInfo info = InfoParser.parse(sr,
     	        new ClassLoaderResolver(this.getClass().getClassLoader()), null);
     	List<String> implemented = info.getImplements();
     	assertNotNull(implemented);
@@ -315,7 +314,7 @@ public class BasicParseTest extends junit.framework.TestCase
     	StringReader sr = new StringReader(
     			"interface A {}"
     	);
-    	ClassInfo info = ClassParser.parse(sr, null, null);
+    	ClassInfo info = InfoParser.parse(sr, null, null);
     	assertTrue(info.isInterface());
     }
 
@@ -327,14 +326,14 @@ public class BasicParseTest extends junit.framework.TestCase
     	StringReader sr = new StringReader(
     			"enum A { monday, tuesday, wednesday }"
     	);
-    	ClassInfo info = ClassParser.parse(sr, null, null);
+    	ClassInfo info = InfoParser.parse(sr, null, null);
     	assertTrue(info.isEnum());
     }
     
     public void testMultiDimensionalArrayParam() throws Exception
     {
         File file = getFile("I.dat");
-        ClassInfo info = ClassParser.parse(file);
+        ClassInfo info = InfoParser.parse(file);
         
         // Check that comment is created with parameter names
         Properties comments = info.getComments();
@@ -353,7 +352,7 @@ public class BasicParseTest extends junit.framework.TestCase
             + "  void method2(int a[]) { }\n"
             + "}\n";
         
-        ClassInfo info = ClassParser.parse(new StringReader(aSrc), null, null);
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), null, null);
         Properties comments = info.getComments();
         assertTrue(findTarget(comments, "void method1(int[])") != -1);
         assertTrue(findTarget(comments, "void method2(int[])") != -1);
@@ -363,7 +362,7 @@ public class BasicParseTest extends junit.framework.TestCase
     {
         String aSrc = "interface A extends B, C { }";
         
-        ClassInfo info = ClassParser.parse(new StringReader(aSrc), null, null);
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), null, null);
         assertNotNull(info);
     }
     
@@ -393,7 +392,7 @@ public class BasicParseTest extends junit.framework.TestCase
         ter.addCompilationUnit("", cuForSource("class M {}", pkgr));
         
         FileInputStream fis = new FileInputStream(getFile("H.dat"));
-        ClassInfo info = ClassParser.parse(new InputStreamReader(fis), pkgr, "");
+        ClassInfo info = InfoParser.parse(new InputStreamReader(fis), pkgr, "");
         
         List<String> used = info.getUsed();
         assertTrue(used.contains("I")); 
@@ -423,7 +422,7 @@ public class BasicParseTest extends junit.framework.TestCase
     			"  class I { }\n" +
     			"}\n"
     	);
-    	ClassInfo info = ClassParser.parse(sr, null, null);
+    	ClassInfo info = InfoParser.parse(sr, null, null);
     	List<String> used = info.getUsed();
     	
     	assertFalse(used.contains("I"));
@@ -449,7 +448,7 @@ public class BasicParseTest extends junit.framework.TestCase
                         "  }\n" +
                         "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, pkgr, "");
+        ClassInfo info = InfoParser.parse(sr, pkgr, "");
         List<String> used = info.getUsed();
         
         assertTrue(used.contains("I"));
@@ -475,7 +474,7 @@ public class BasicParseTest extends junit.framework.TestCase
                         "  }\n" +
                         "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, pkgr, "");
+        ClassInfo info = InfoParser.parse(sr, pkgr, "");
         List<String> used = info.getUsed();
         
         assertTrue(used.contains("JJ"));
@@ -497,7 +496,7 @@ public class BasicParseTest extends junit.framework.TestCase
                         "  public T someVar;" +
                         "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, ter, "");
+        ClassInfo info = InfoParser.parse(sr, ter, "");
         List<String> used = info.getUsed();
         
         assertFalse(used.contains("T"));
@@ -521,7 +520,7 @@ public class BasicParseTest extends junit.framework.TestCase
                         "  public N someVar;" +
                         "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, pkgr, "testpkg");
+        ClassInfo info = InfoParser.parse(sr, pkgr, "testpkg");
         List<String> used = info.getUsed();
         
         assertTrue(used.contains("N"));
@@ -548,7 +547,7 @@ public class BasicParseTest extends junit.framework.TestCase
                         "  public otherpkg.M otherVar;" +
                         "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, pkgr, "testpkg");
+        ClassInfo info = InfoParser.parse(sr, pkgr, "testpkg");
         List<String> used = info.getUsed();
         
         assertTrue(used.contains("N"));
@@ -574,7 +573,7 @@ public class BasicParseTest extends junit.framework.TestCase
                         "  public N someVar;" +
                         "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, ter, "testpkg");
+        ClassInfo info = InfoParser.parse(sr, ter, "testpkg");
         List<String> used = info.getUsed();
         
         assertFalse(used.contains("N"));
@@ -597,7 +596,7 @@ public class BasicParseTest extends junit.framework.TestCase
                         "  int n = I.xyz;" +
                         "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, pkgr, "");
+        ClassInfo info = InfoParser.parse(sr, pkgr, "");
         List<String> used = info.getUsed();
         
         assertTrue(used.contains("I"));
@@ -621,7 +620,7 @@ public class BasicParseTest extends junit.framework.TestCase
                 "  List<I> list;" +
                 "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, pkgr, "");
+        ClassInfo info = InfoParser.parse(sr, pkgr, "");
         List<String> used = info.getUsed();
 
         assertTrue(used.contains("I"));
@@ -643,7 +642,7 @@ public class BasicParseTest extends junit.framework.TestCase
                 "class A<T extends I> {\n" +
                 "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, pkgr, "");
+        ClassInfo info = InfoParser.parse(sr, pkgr, "");
         List<String> used = info.getUsed();
 
         assertTrue(used.contains("I"));
@@ -666,7 +665,7 @@ public class BasicParseTest extends junit.framework.TestCase
                 "  Class<?> cc2 = testpkg.J.class;" +
                 "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, pkgr, "testpkg");
+        ClassInfo info = InfoParser.parse(sr, pkgr, "testpkg");
         List<String> used = info.getUsed();
 
         assertTrue(used.contains("I"));
@@ -685,7 +684,7 @@ public class BasicParseTest extends junit.framework.TestCase
                 "abstract class A {\n" +
                 "}\n"
         );
-        ClassInfo info = ClassParser.parse(sr, pkgr, "");
+        ClassInfo info = InfoParser.parse(sr, pkgr, "");
         assertTrue(info.isAbstract());
         assertFalse(info.isInterface());
         assertFalse(info.isApplet());

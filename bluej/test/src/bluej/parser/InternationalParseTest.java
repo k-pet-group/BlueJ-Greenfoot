@@ -79,9 +79,9 @@ public class InternationalParseTest extends junit.framework.TestCase
     public void testInternationalization()
         throws FileNotFoundException
     {
-        ClassParser.parse(getFile("escaped_unicode_string.dat"));
+        assertNotNull(InfoParser.parse(getFile("escaped_unicode_string.dat")));
         
-        ClassInfo info = ClassParser.parse(getFile("escaped_unicode_method.dat"),
+        ClassInfo info = InfoParser.parse(getFile("escaped_unicode_method.dat"),
                 new ClassLoaderResolver(this.getClass().getClassLoader()));
         
         // Superclass name is Error (encoded)

@@ -85,13 +85,13 @@ public class Parse15Test extends junit.framework.TestCase
     public void testNoParseExceptions()
         throws Exception
     {
-        ClassParser.parse(getFile("15_generic.dat"));
+        InfoParser.parse(getFile("15_generic.dat"));
     }
     
     public void testSelections()
         throws Exception
     {
-        ClassInfo info = ClassParser.parse(getFile("generic_selections.dat"));
+        ClassInfo info = InfoParser.parse(getFile("generic_selections.dat"));
         
 //        Selection testSel = info.getTypeParametersSelection();
 //        assertEquals(3, testSel.getLine());
@@ -129,10 +129,10 @@ public class Parse15Test extends junit.framework.TestCase
     {
         boolean success = true;
         try {
-            ClassParser.parse(new StringReader(
+            InfoParser.parse(new StringReader(
                     "import static java.awt.Color.BLACK;\n" +
-                    "class A { }"
-            ), null, null);
+                    "class A { }"),
+                    null, null);
         }
         catch (Exception e) {
             success = false;
