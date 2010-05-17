@@ -1117,9 +1117,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         case BlueJEvent.DOCU_GENERATED :
             BlueJEvent.removeListener(this);
             refreshHtmlDisplay();
-            document=htmlDocument;
-            htmlPane.setDocument(htmlDocument);
-            currentTextPane=htmlPane;
             break;
         case BlueJEvent.DOCU_ABORTED :
             BlueJEvent.removeListener(this);
@@ -1953,9 +1950,15 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         if (finder.isVisible()){
             //current caret position may be invalid in the new view
             //so reset it to the current pos in that pane
-            finder.setSearchStart(getLineColumnFromOffset(currentTextPane.getCaretPosition()));
+            if (!isShowingInterface())
+                finder.setSearchStart(getCaretLocation());
+            else finder.setSearchStart(null);
             //reset the search string to null
             finder.setSearchString(null);
+            //as the search is cleared between switches in the view
+            //there should be no selections/highlights from the previous search
+            removeSearchHighlights(currentTextPane.getHighlighter());
+            removeSelection(currentTextPane);
             initFindPanel(this);
         }
     }
@@ -2019,6 +2022,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             htmlDocument = (HTMLDocument) htmlPane.getDocument();
             htmlDocument.setBase(myURL);
             info.message(Config.getString("editor.info.docLoaded"));
+            if (isShowingInterface()){
+                document=htmlDocument;
+            }
         }
         catch (Exception exc) {
             info.warning(Config.getString("editor.info.docDisappeared"), getDocPath());
