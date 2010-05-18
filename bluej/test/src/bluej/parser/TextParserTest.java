@@ -38,7 +38,7 @@ import bluej.parser.nodes.ParsedCUNode;
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 7562 2010-05-14 05:48:14Z davmac $
+ * @version $Id: TextParserTest.java 7591 2010-05-18 14:25:22Z nccb $
  */
 public class TextParserTest extends TestCase
 {
@@ -52,7 +52,7 @@ public class TextParserTest extends TestCase
     @Override
     protected void setUp() throws Exception
     {
-        objectBench = new ObjectBench();
+        objectBench = new ObjectBench(null);
         resolver = new TestEntityResolver(new ClassLoaderResolver(this.getClass().getClassLoader()));
     }
     

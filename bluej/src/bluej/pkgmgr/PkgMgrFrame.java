@@ -677,7 +677,7 @@ public class PkgMgrFrame extends JFrame
     {
         this.pkg = null;
         this.editor = null;
-        objbench = new ObjectBench();
+        objbench = new ObjectBench(this);
         if(!Config.isGreenfoot()) {
             teamActions = new TeamActionGroup(false);
             teamActions.setAllDisabled();

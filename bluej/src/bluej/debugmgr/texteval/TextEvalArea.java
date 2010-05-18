@@ -34,7 +34,7 @@ import bluej.prefmgr.PrefMgr;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 7584 2010-05-18 11:26:27Z nccb $
+ * @version $Id: TextEvalArea.java 7591 2010-05-18 14:25:22Z nccb $
  */
 public final class TextEvalArea extends JScrollPane
     implements KeyListener, FocusListener
@@ -188,8 +188,8 @@ public final class TextEvalArea extends JScrollPane
             int h = getHeight();
            
             GradientPaint gp = new GradientPaint(
-                w/4, 0, new Color(209, 203, 179),
-                w, h, new Color(235, 230, 200));
+                w/4, 0, new Color(235, 230, 200),
+                w, h, new Color(209, 203, 179));
 
             g2d.setPaint(gp);
             g2d.fillRect(0, 0, w, h);

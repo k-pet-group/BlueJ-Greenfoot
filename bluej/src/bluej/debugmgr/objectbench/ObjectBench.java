@@ -35,6 +35,7 @@ import javax.swing.JScrollPane;
 import bluej.Config;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
 
 /**
@@ -42,7 +43,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 7584 2010-05-18 11:26:27Z nccb $
+ * @version $Id: ObjectBench.java 7591 2010-05-18 14:25:22Z nccb $
  */
 public class ObjectBench extends JPanel implements ValueCollection,
     FocusListener, KeyListener, MouseListener, ObjectBenchInterface
@@ -53,6 +54,7 @@ public class ObjectBench extends JPanel implements ValueCollection,
     private ObjectBenchPanel obp;
     private List<ObjectWrapper> objects;
     private ObjectWrapper selectedObject;
+    private PkgMgrFrame pkgMgrFrame;
 	
     // All invocations done since our last reset.
     private List<InvokerRecord> invokerRecords;
@@ -62,11 +64,12 @@ public class ObjectBench extends JPanel implements ValueCollection,
      * Construct an object bench which is used to hold
      * a bunch of object reference Components.
      */
-    public ObjectBench()
+    public ObjectBench(PkgMgrFrame pkgMgrFrame)
     {
         super();
         objects = new ArrayList<ObjectWrapper>();
         createComponent();
+        this.pkgMgrFrame = pkgMgrFrame;
     }
 
     /**
@@ -630,11 +633,20 @@ public class ObjectBench extends JPanel implements ValueCollection,
                 
                 int w = getWidth();
                 int h = getHeight();
+                
+                boolean codePadVisible = pkgMgrFrame.isTextEvalVisible();
                  
                 // Paint a gradient from top to bottom:
-                GradientPaint gp = new GradientPaint(
-                    w/4, 0, new Color(243, 240, 226),
-                    w*3/4, h, new Color(209, 203, 179));
+                GradientPaint gp;
+                if (codePadVisible) {
+                    gp = new GradientPaint(
+                            w/4, 0, new Color(209, 203, 179),
+                            w*3/4, h, new Color(235, 230, 200));
+                } else {
+                    gp = new GradientPaint(
+                        w/4, 0, new Color(235, 230, 200),
+                        w*3/4, h, new Color(209, 203, 179));
+                }
    
                 g2d.setPaint(BACKGROUND_COLOR != null ? BACKGROUND_COLOR : gp);
                 g2d.fillRect(0, 0, w+1, h+1);
