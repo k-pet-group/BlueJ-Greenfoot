@@ -35,7 +35,7 @@ import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: GraphEditor.java 7582 2010-05-18 09:18:35Z nccb $
+ * @version $Id: GraphEditor.java 7590 2010-05-18 14:24:41Z nccb $
  */
 public class GraphEditor extends JComponent
     implements MouseMotionListener, GraphListener
@@ -113,7 +113,7 @@ public class GraphEditor extends JComponent
             Dimension d = getSize();
             GradientPaint gp = new GradientPaint(
                     d.width/4, 0, new Color(253,253,250),
-                    d.width*3/4, d.height, new Color(241,231,196));
+                    d.width*3/4, d.height, new Color(241,226,170));
 
             g2D.setPaint(background != null ? background : gp);
             g2D.fillRect(0, 0, d.width, d.height);
