@@ -416,13 +416,15 @@ public class MoeSyntaxDocument extends PlainDocument
      */
     protected void fireInsertUpdate(DocumentEvent e)
     {
-        NodeAndPosition<ReparseRecord> napRr = reparseRecordTree.findNodeAtOrAfter(e.getOffset());
-        if (napRr != null) {
-            if (napRr.getPosition() <= e.getOffset()) {
-                napRr.getNode().resize(napRr.getSize() + e.getLength());
-            }
-            else {
-                napRr.getNode().slide(e.getLength());
+        if (reparseRecordTree != null) {
+            NodeAndPosition<ReparseRecord> napRr = reparseRecordTree.findNodeAtOrAfter(e.getOffset());
+            if (napRr != null) {
+                if (napRr.getPosition() <= e.getOffset()) {
+                    napRr.getNode().resize(napRr.getSize() + e.getLength());
+                }
+                else {
+                    napRr.getNode().slide(e.getLength());
+                }
             }
         }
         
