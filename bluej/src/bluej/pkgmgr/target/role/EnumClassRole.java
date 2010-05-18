@@ -33,12 +33,12 @@ import bluej.prefmgr.PrefMgr;
  * A role object to represent the behaviour of enums.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: EnumClassRole.java 7592 2010-05-18 14:27:15Z nccb $
+ * @version $Id: EnumClassRole.java 7594 2010-05-18 14:39:08Z nccb $
  */
 public class EnumClassRole extends ClassRole
 {
     public final static String ENUM_ROLE_NAME = "EnumTarget";
-    private static final Color enumbg = Config.getItemColour("colour.class.bg.enum");
+    private static final Color enumbg = Config.getOptionalItemColour("colour.class.bg.enum");
     
     /**
      * Create the enum class role.
@@ -62,7 +62,11 @@ public class EnumClassRole extends ClassRole
      */
     public Paint getBackgroundPaint(int width, int height)
     {
-        return enumbg;
+        if (enumbg != null) {
+            return enumbg;
+        } else {
+            return super.getBackgroundPaint(width, height);
+        }
     }
 
     /**
@@ -98,4 +102,6 @@ public class EnumClassRole extends ClassRole
         }
         return true;
     }
+    
+    
 }

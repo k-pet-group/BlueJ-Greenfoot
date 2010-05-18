@@ -31,12 +31,12 @@ import bluej.pkgmgr.target.*;
  * A role object to represent the behaviour of abstract classes.
  *
  * @author  Andrew Patterson 
- * @version $Id: AbstractClassRole.java 7592 2010-05-18 14:27:15Z nccb $
+ * @version $Id: AbstractClassRole.java 7594 2010-05-18 14:39:08Z nccb $
  */
 public class AbstractClassRole extends ClassRole
 {
     public final static String ABSTRACT_ROLE_NAME = "AbstractTarget";
-    private static final Color abstractbg = Config.getItemColour("colour.class.bg.abstract");
+    private static final Color abstractbg = Config.getOptionalItemColour("colour.class.bg.abstract");
     
     /**
      * Create the abstract class role.
@@ -60,7 +60,11 @@ public class AbstractClassRole extends ClassRole
      */
     public Paint getBackgroundPaint(int width, int height)
     {
-        return abstractbg;
+        if (abstractbg != null) {
+            return abstractbg;
+        } else {
+            return super.getBackgroundPaint(width, height);
+        }
     }
 
     /**

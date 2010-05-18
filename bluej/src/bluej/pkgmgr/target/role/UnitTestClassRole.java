@@ -23,6 +23,7 @@ package bluej.pkgmgr.target.role;
 
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.GradientPaint;
 import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.io.FileNotFoundException;
@@ -68,7 +69,7 @@ public class UnitTestClassRole extends ClassRole
 {
     public static final String UNITTEST_ROLE_NAME = "UnitTestTarget";
 
-    private final Color unittestbg = Config.getItemColour("colour.class.bg.unittest");
+    private final Color unittestbg = Config.getOptionalItemColour("colour.class.bg.unittest");
 
     private static final String popupPrefix = Config.getString("pkgmgr.test.popup.testPrefix");
 	private static final String testAll = Config.getString("pkgmgr.test.popup.testAll");
@@ -98,7 +99,13 @@ public class UnitTestClassRole extends ClassRole
      */
     public Paint getBackgroundPaint(int width, int height)
     {
-        return unittestbg;
+        if (unittestbg != null) {
+            return unittestbg;
+        } else {
+            return new GradientPaint(
+                    0, 0, new Color(197,211,165),
+                    0, height, new Color(170,190,140)); 
+        }
     }
 
     private boolean isJUnitTestMethod(Method m)

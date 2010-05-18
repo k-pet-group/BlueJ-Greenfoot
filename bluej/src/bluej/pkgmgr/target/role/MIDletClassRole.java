@@ -37,7 +37,7 @@ public class MIDletClassRole extends ClassRole
 {
     public static final String MIDLET_ROLE_NAME = "MIDletTarget";
     
-    private static final Color bckgrndColor = Config.getItemColour("colour.class.bg.midlet");
+    private static final Color bckgrndColor = Config.getOptionalItemColour("colour.class.bg.midlet");
 
     
     public MIDletClassRole()  { }
@@ -54,6 +54,10 @@ public class MIDletClassRole extends ClassRole
     
     public Paint getBackgroundPaint(int width, int height)
     {
-        return bckgrndColor;
+        if (bckgrndColor != null) {
+            return bckgrndColor;
+        } else {
+            return super.getBackgroundPaint(width, height);
+        }
     }
  }

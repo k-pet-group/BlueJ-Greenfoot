@@ -61,7 +61,7 @@ public class AppletClassRole extends StdClassRole
     
     private RunAppletDialog dialog;
 
-    private static final Color appletbg = Config.getItemColour("colour.class.bg.applet");
+    private static final Color appletbg = Config.getOptionalItemColour("colour.class.bg.applet");
     static final String runAppletStr = Config.getString("pkgmgr.classmenu.runApplet");
     static final String htmlComment = Config.getString("pkgmgr.runApplet.htmlComment");
 
@@ -100,7 +100,11 @@ public class AppletClassRole extends StdClassRole
      */
     public Paint getBackgroundPaint(int width, int height)
     {
-        return appletbg;
+        if (appletbg != null) {
+            return appletbg;
+        } else {
+            return super.getBackgroundPaint(width, height);
+        }
     }
 
     /**
