@@ -22,7 +22,6 @@
 package bluej.pkgmgr;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -30,9 +29,6 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Frame;
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
 import java.awt.Point;
@@ -161,6 +157,7 @@ import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
+import bluej.utility.GradientFillPanel;
 import bluej.utility.JavaNames;
 import bluej.utility.SortedProperties;
 import bluej.utility.Utility;
@@ -2750,26 +2747,7 @@ public class PkgMgrFrame extends JFrame
         // paintComponent method to use a gradient fill (no other way to do it)
         // Hence this code, that sets the content pane to be a standard JPanel with
         // the same layout as before, but with paintComponent performing a gradient fill:
-        setContentPane(new JPanel(getContentPane().getLayout()) {
-            public void paintComponent(Graphics g)
-            {
-                super.paintComponent(g);
-                
-                if (g instanceof Graphics2D) {
-                    Graphics2D g2d = (Graphics2D)g;
-                    
-                    int w = getWidth();
-                    int h = getHeight();
-                    
-                    GradientPaint gp = new GradientPaint(
-                        w/4, 0, new Color(236, 236, 236),
-                        w*3/4, h, new Color(187, 182, 173));
-
-                    g2d.setPaint(gp);
-                    g2d.fillRect(0, 0, w, h);
-                }
-            }
-        });
+        setContentPane(new GradientFillPanel(getContentPane().getLayout()));
         // To let that gradient fill show through, all the other panes that sit
         // on top of the frame must have setOpaque(false) called, hence all the calls
         // of that type throughout the code below
