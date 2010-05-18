@@ -42,12 +42,12 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 7517 2010-05-07 08:23:32Z davmac $
+ * @version $Id: ObjectBench.java 7584 2010-05-18 11:26:27Z nccb $
  */
 public class ObjectBench extends JPanel implements ValueCollection,
     FocusListener, KeyListener, MouseListener, ObjectBenchInterface
 {
-    private static final Color BACKGROUND_COLOR = Config.getItemColour("colour.objectbench.background");
+    private static final Color BACKGROUND_COLOR = Config.getOptionalItemColour("colour.objectbench.background");
 
     private JScrollPane scroll;
     private ObjectBenchPanel obp;
@@ -620,5 +620,27 @@ public class ObjectBench extends JPanel implements ValueCollection,
         {
             return getWidth() / ObjectWrapper.WIDTH;
         }
+
+        protected void paintComponent(Graphics g)
+        {
+            super.paintComponent(g);
+            
+            if (g instanceof Graphics2D) {
+                Graphics2D g2d = (Graphics2D)g;
+                
+                int w = getWidth();
+                int h = getHeight();
+                 
+                // Paint a gradient from top to bottom:
+                GradientPaint gp = new GradientPaint(
+                    w/4, 0, new Color(243, 240, 226),
+                    w*3/4, h, new Color(209, 203, 179));
+   
+                g2d.setPaint(BACKGROUND_COLOR != null ? BACKGROUND_COLOR : gp);
+                g2d.fillRect(0, 0, w+1, h+1);
+            }
+        }
+        
+        
     }
 }

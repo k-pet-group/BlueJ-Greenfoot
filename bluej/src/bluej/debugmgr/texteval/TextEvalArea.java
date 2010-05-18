@@ -34,7 +34,7 @@ import bluej.prefmgr.PrefMgr;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: TextEvalArea.java 7584 2010-05-18 11:26:27Z nccb $
  */
 public final class TextEvalArea extends JScrollPane
     implements KeyListener, FocusListener
@@ -168,10 +168,31 @@ public final class TextEvalArea extends JScrollPane
         }
         text.setFont(font);
         text.setSelectionColor(selectionColour);
+        text.setOpaque(false);
 
-        setViewportView(text);
+        setViewportView(text);       
+        getViewport().setOpaque(false);
 
         setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
         setPreferredSize(new Dimension(300,100));
+    }
+    
+    protected void paintComponent(Graphics g)
+    {
+        super.paintComponent(g);
+        
+        if (g instanceof Graphics2D) {
+            Graphics2D g2d = (Graphics2D)g;
+            
+            int w = getWidth();
+            int h = getHeight();
+           
+            GradientPaint gp = new GradientPaint(
+                w/4, 0, new Color(209, 203, 179),
+                w, h, new Color(235, 230, 200));
+
+            g2d.setPaint(gp);
+            g2d.fillRect(0, 0, w, h);
+        }
     }
 }
