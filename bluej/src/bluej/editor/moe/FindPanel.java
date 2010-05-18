@@ -48,7 +48,6 @@ import javax.swing.event.DocumentListener;
 
 import bluej.BlueJTheme;
 import bluej.Config;
-import bluej.parser.SourceLocation;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.DBox;
 import bluej.utility.DBoxLayout;
@@ -618,7 +617,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     public void close()
     {
         editor.removeSearchHighlights();
-        editor.removeSelections();
         this.setVisible(false);
         editor.setReplacePanelVisible(false);
         replaceIconLabel.setIcon(closedIcon);
