@@ -177,19 +177,20 @@ A class or package with this name already exists
 in this project. You cannot have two
 classes or packages with the same name.
 
-class-already-in-library
-A class with this name already exists in a library.
-If you create this class, you will be able to edit
-and compile it, but not call its methods.
+class-library-conflict
+A class with this name already exists in the library
+"$".
+If you create this class, you will be able to
+edit and compile it, but not call its methods.
 Cancel
 Continue Anyway
 null
 
-compile-class-already-in-library
-A class with this name already exists in a
-library. You are able to edit and compile  
-your class, but calling methods will execute
-code from the library class.
+compile-class-library-conflict
+A class with this name already exists in the library
+"$".
+You are able to edit and compile your class, but 
+calling methods will execute code from the library class.
 
 windows-reserved-class-name
 The chosen class name cannot be used, because it

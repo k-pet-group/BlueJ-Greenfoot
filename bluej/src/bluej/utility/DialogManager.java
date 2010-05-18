@@ -90,6 +90,23 @@ public class DialogManager
         if(message != null)
             JOptionPane.showMessageDialog(parent, text+ "\n"+message);
     }
+    
+    /**
+     * Show an information dialog with message and "OK" button. The
+     * message itself is identified by a message ID (a short string)
+     * which is looked up in the language specific dialogue text file
+     * (eg. "dialogues.english"). A text (given in a parameter) is appended
+     * as a prefix to the message. Some text (given as a parameter -
+     * innerText) is inserted within the message itself. 
+     */
+    public static void showMessageWithPrefixText(Component parent, String msgID,
+                                           String text, String innerText)
+    {
+        String message = getMessage(msgID);
+        String messageDialog=Utility.mergeStrings(message, innerText);
+        if(message != null)
+            JOptionPane.showMessageDialog(parent, text+ "\n"+messageDialog);
+    }
 
 
     /**

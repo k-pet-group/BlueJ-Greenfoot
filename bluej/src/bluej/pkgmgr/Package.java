@@ -2253,6 +2253,23 @@ public final class Package extends Graph
     }
     
     /**
+     * Use the resource name in order to return the classpath of the jar file.
+     * If it is not a jar file it returns the original resource
+     * @param fullName resource (full path of the resource)
+     * @return A string indicating the classpath of the jar file (if applicable
+     * and if not, it returns the original String)
+     */
+    protected static String getResourcePath(String resourceName)
+    {        
+        String jarName=resourceName;
+        int classIndex = resourceName.indexOf("!");
+        if (classIndex!=-1){
+            jarName = resourceName.substring(9, classIndex);
+        }
+        return jarName;
+    }
+    
+    /**
      * Check whether a loaded class was actually loaded from the specified class file
      * @param c  The loaded class
      * @param f  The class file to check against (should be a compiled .class file)
@@ -2377,7 +2394,8 @@ public final class Package extends Graph
                     Class<?> c = loadClass(getQualifiedName(t.getIdentifierName()));
                     if (c!=null){
                         if (! checkClassMatchesFile(c, t.getClassFile())) {
-                            DialogManager.showMessageWithPrefixText(null, "compile-class-already-in-library", t.getIdentifierName()+":");
+                            String conflict=Package.getResourcePath(c.getResource(t.getIdentifierName()+".class").toString());
+                            DialogManager.showMessageWithPrefixText(null, "compile-class-library-conflict", t.getIdentifierName()+":", conflict);
                         }
                     }
 

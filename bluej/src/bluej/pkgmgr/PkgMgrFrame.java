@@ -1204,10 +1204,12 @@ public class PkgMgrFrame extends JFrame
         }
 
         //check if there already exists a class in a library with that name 
+        String[] conflict=new String[1];
         Class<?> c = pkg.loadClass(pkg.getQualifiedName(name));
         if (c != null){
             if (! Package.checkClassMatchesFile(c, new File(getPackage().getPath(), name + ".class"))) {
-                if (DialogManager.askQuestion(this, "class-already-in-library") == 0) {
+                conflict[0]=Package.getResourcePath(c.getResource(name+".class").toString());
+                if (DialogManager.askQuestion(this, "class-library-conflict", conflict) == 0) {
                     return false;
                 }
             }
