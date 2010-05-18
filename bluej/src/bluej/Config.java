@@ -1214,6 +1214,38 @@ public final class Config
     }
     
     /**
+     * Return a color value from the bluej properties.
+     * 
+     * If the value is not present, return null
+     */
+    public static Color getOptionalItemColour(String itemname)
+    {
+        try {
+            String rgbStr = getPropString(itemname, null);
+            if (rgbStr == null) {
+                return null;
+            } else {
+                String rgbVal[] = Utility.split(rgbStr, ",");
+
+                if (rgbVal.length < 3)
+                    Debug.reportError("Error reading colour ["+itemname+"]");
+                else {
+                    int r = Integer.parseInt(rgbVal[0].trim());
+                    int g = Integer.parseInt(rgbVal[1].trim());
+                    int b = Integer.parseInt(rgbVal[2].trim());
+
+                    return new Color(r, g, b);
+                }
+            }
+        }
+        catch(Exception e) {
+            Debug.reportError("Could not get colour for " + itemname);
+        }
+
+        return null;
+    }
+    
+    /**
      * Return a color value for selections.
      */
     public static Color getSelectionColour()

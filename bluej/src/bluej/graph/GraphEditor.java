@@ -35,12 +35,12 @@ import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: GraphEditor.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: GraphEditor.java 7582 2010-05-18 09:18:35Z nccb $
  */
 public class GraphEditor extends JComponent
     implements MouseMotionListener, GraphListener
 {
-    protected static final Color background = Config.getItemColour("colour.graph.background");
+    protected static final Color background = Config.getOptionalItemColour("colour.graph.background");
     protected final Color envOpColour = Config.getItemColour("colour.menu.environOp");
     
     private final static Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
@@ -111,7 +111,11 @@ public class GraphEditor extends JComponent
         //draw background
         if (!(g2D instanceof PrintGraphics)) {
             Dimension d = getSize();
-            g2D.setColor(background);
+            GradientPaint gp = new GradientPaint(
+                    d.width/4, 0, new Color(253,253,250),
+                    d.width*3/4, d.height, new Color(241,231,196));
+
+            g2D.setPaint(background != null ? background : gp);
             g2D.fillRect(0, 0, d.width, d.height);
         }
 
