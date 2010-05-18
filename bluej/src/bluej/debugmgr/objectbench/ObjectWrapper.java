@@ -89,18 +89,22 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
     static final Color envOpColour = Config.getItemColour("colour.menu.environOp");
     static final Color textColour = Color.white;
     
+    // Images
+    private static final Image objectImage = Config.getImageAsIcon("image.bench.object").getImage();
+    private static final Image selectedObjectImage = Config.getImageAsIcon("image.bench.object-selected").getImage();
+    
     // Strokes
     static final Stroke selectedStroke = new BasicStroke(2.0f);
     static final Stroke normalStroke = new BasicStroke(1.0f);
-    
-    protected static final int HGAP = 5;    // horiz. gap between objects (left of each object)
-    protected static final int VGAP = 6;    // vert. gap between objects (above and below of each object)
-    public static final int WIDTH = 95;    // width including gap
-    public static final int HEIGHT = 66;   // height including gap
 
     // vertical offset between instance and class name
     public static final int WORD_GAP = 20;
     public static final int SHADOW_SIZE = 5;
+    
+    protected static final int HGAP = 5;    // horiz. gap between objects (left of each object)
+    protected static final int VGAP = 6;    // vert. gap between objects (above and below of each object)
+    public static final int WIDTH = objectImage.getWidth(null);    // width including gap
+    public static final int HEIGHT = objectImage.getHeight(null);   // height including gap
 
     private static int itemHeight = 19;   // wild guess until we find out
     private static boolean itemHeightKnown = false;
@@ -598,33 +602,8 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
     protected void drawUMLObjectShape(Graphics2D g, int x, int y, int w, int h, int shad, int corner)
     {
         boolean isSelected = isSelected() && ob.hasFocus();
-        drawShadow(g, x, y, w, h, shad, corner);
-        // draw red round rectangle
-        g.setColor(bg);
-        g.fillRoundRect(x, y, w-shad, h-shad, corner, corner);
-        //draw outline
-        g.setColor(Color.BLACK);
-        if(isSelected)
-            g.setStroke(selectedStroke);
-        g.drawRoundRect(x, y, w-shad, h-shad, corner, corner);
-        if(isSelected)
-            g.setStroke(normalStroke);
+        g.drawImage(isSelected ? selectedObjectImage : objectImage, x, y, null);
     }
-
-    /**
-	 * Draw the shadow of an object wrapper.
-	 */
-	private void drawShadow(Graphics2D g, int x, int y, int w, int h, int shad, int corner) 
-    {
-		g.setColor(shadowColours[0]);
-		g.fillRoundRect(x+shad,y+shad,w-shad,h-shad,corner,corner);
-		g.setColor(shadowColours[1]);
-		g.fillRoundRect(x+shad,y+shad,w-shad-1,h-shad-1,corner,corner);
-		g.setColor(shadowColours[2]);
-		g.fillRoundRect(x+shad,y+shad,w-shad-2,h-shad-2,corner,corner);
-		g.setColor(shadowColours[3]);
-		g.fillRoundRect(x+shad,y+shad,w-shad-3,h-shad-3,corner,corner);
-	}
 
     /**
      * Draw the text onto an object wrapper (objectname: classname).
@@ -632,7 +611,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
 	protected void drawUMLObjectText(Graphics2D g, int x, int y, int w, int shad, 
                                      String objName, String className)
     {
-    	
+	    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setColor(textColour);
         g.setFont(PrefMgr.getStandardFont());
 

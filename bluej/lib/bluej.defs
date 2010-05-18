@@ -678,6 +678,10 @@ image.debug.step_into=step_into.gif
 image.debug.stop=stop.gif
 image.debug.terminate=terminate.gif
 
+# object bench
+image.bench.object=object.png
+image.bench.object-selected=object-selected.png
+
 #text eval area
 image.eval.prompt=prompt.gif
 image.eval.continue=prompt-continue.gif
