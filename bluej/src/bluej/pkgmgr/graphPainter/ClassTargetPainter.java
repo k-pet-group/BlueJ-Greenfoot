@@ -37,7 +37,7 @@ import bluej.utility.Utility;
  * Paints a ClassTarget
  * 
  * @author fisker
- * @version $Id: ClassTargetPainter.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ClassTargetPainter.java 7589 2010-05-18 13:51:04Z nccb $
  */
 
 public class ClassTargetPainter
@@ -54,7 +54,6 @@ public class ClassTargetPainter
 
     private static final int TEXT_HEIGHT = GraphPainterStdImpl.TEXT_HEIGHT;
     private static final int TEXT_BORDER = GraphPainterStdImpl.TEXT_BORDER;
-    private static final Color[] shadowColours = GraphPainterStdImpl.shadowColours;
     private static final AlphaComposite alphaComposite = GraphPainterStdImpl.alphaComposite;
     private static Composite oldComposite;
 
@@ -73,8 +72,8 @@ public class ClassTargetPainter
         int height = classTarget.getHeight();
         
         // draw the stationary class
-        drawSkeleton(g, classTarget, width, height);
         drawShadow(g, width, height);
+        drawSkeleton(g, classTarget, width, height);
         drawUMLStyle(g, classTarget, hasFocus, width, height);
         // drawRole(g);  // currently, roles don't draw
         g.translate(-classTarget.getX(), -classTarget.getY());
@@ -195,33 +194,9 @@ public class ClassTargetPainter
      */
     private void drawShadow(Graphics2D g, int width, int height)
     {
-        // colorchange is expensive on mac, so draworder is by color, not position
-        g.setColor(shadowColours[3]);
-        g.drawLine(3, height + 1, width, height + 1);//bottom
-
-        g.setColor(shadowColours[2]);
-        g.drawLine(4, height + 2, width, height + 2);//bottom
-        g.drawLine(width + 1, height + 2, width + 1, 3);//left
-
-        g.setColor(shadowColours[1]);
-        g.drawLine(5, height + 3, width + 1, height + 3);//bottom
-        g.drawLine(width + 2, height + 3, width + 2, 4);//left
-
-        g.setColor(shadowColours[0]);
-        g.drawLine(6, height + 4, width + 2, height + 4); //bottom
-        g.drawLine(width + 3, height + 3, width + 3, 5); // left
-    }
-
-    /**
-     * Return the background colour for this target.
-     */
-    private Color getBackgroundColour(ClassTarget classTarget)
-    {
-        if (classTarget.getState() == ClassTarget.S_COMPILING) {
-            return compileColor;
-        }
-        else {
-            return classTarget.getRole().getBackgroundColour();
+        for (int i = 0;i < 5;i++) {
+            g.setColor(new Color(0, 0, 0, 10));
+            g.fillRoundRect(2 - i, 4 - i, width + (2*i) - 1, height + (2*i) - 1, 8, 8);
         }
     }
 }
