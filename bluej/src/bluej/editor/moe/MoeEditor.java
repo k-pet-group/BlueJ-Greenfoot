@@ -1616,10 +1616,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                     if (foundPos != -1) {
                         if (select){
                             //purposely using both select and the highlight because the select sets the                         
-                            //caret correctly and the highlighter ensures the colouring is done correctly 
-                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), selectPainter);
+                            //caret correctly and the highlighter ensures the colouring is done correctly             
                             currentTextPane.select(start + foundPos, start + foundPos + s.length());
-                            setSelectionVisible();                                                       
+                            setSelectionVisible();  
+                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), highlightPainter);
                             //reset the start position to the first caret of the selected item
                             //in order to ensure that none are missed
                             startPosition=start+foundPos;
