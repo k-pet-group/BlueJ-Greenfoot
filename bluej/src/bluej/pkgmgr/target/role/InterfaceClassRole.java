@@ -29,7 +29,7 @@ import bluej.Config;
  * A role object to represent the behaviour of interfaces.
  *
  * @author  Andrew Patterson 
- * @version $Id: InterfaceClassRole.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: InterfaceClassRole.java 7592 2010-05-18 14:27:15Z nccb $
  */
 public class InterfaceClassRole extends ClassRole
 {
@@ -56,7 +56,7 @@ public class InterfaceClassRole extends ClassRole
     /**
      * Return the intended background colour for this type of target.
      */
-    public Color getBackgroundColour()
+    public Paint getBackgroundPaint(int width, int height)
     {
         return interfacebg;
     }

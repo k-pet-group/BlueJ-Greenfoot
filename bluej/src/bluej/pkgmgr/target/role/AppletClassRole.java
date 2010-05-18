@@ -22,6 +22,7 @@
 package bluej.pkgmgr.target.role;
 
 import java.awt.Color;
+import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -97,7 +98,7 @@ public class AppletClassRole extends StdClassRole
     /**
      * Return the intended background colour for this type of target.
      */
-    public Color getBackgroundColour()
+    public Paint getBackgroundPaint(int width, int height)
     {
         return appletbg;
     }

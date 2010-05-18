@@ -23,6 +23,7 @@ package bluej.pkgmgr.target.role;
 
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -95,7 +96,7 @@ public class UnitTestClassRole extends ClassRole
     /**
      * Return the intended background colour for this type of target.
      */
-    public Color getBackgroundColour()
+    public Paint getBackgroundPaint(int width, int height)
     {
         return unittestbg;
     }

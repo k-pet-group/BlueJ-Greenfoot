@@ -37,7 +37,7 @@ import bluej.utility.Utility;
  * Paints a ClassTarget
  * 
  * @author fisker
- * @version $Id: ClassTargetPainter.java 7589 2010-05-18 13:51:04Z nccb $
+ * @version $Id: ClassTargetPainter.java 7592 2010-05-18 14:27:15Z nccb $
  */
 
 public class ClassTargetPainter
@@ -101,7 +101,7 @@ public class ClassTargetPainter
      */
     private void drawSkeleton(Graphics2D g, ClassTarget classTarget, int width, int height)
     {
-        g.setColor(getBackgroundColour(classTarget));
+        g.setPaint(classTarget.getBackgroundPaint(width, height));
         g.fillRect(0, 0, width, height);
     }
 

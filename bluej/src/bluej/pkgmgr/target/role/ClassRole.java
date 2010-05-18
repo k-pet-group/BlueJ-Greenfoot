@@ -22,6 +22,8 @@
 package bluej.pkgmgr.target.role;
 
 import java.awt.Color;
+import java.awt.GradientPaint;
+import java.awt.Paint;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -55,13 +57,13 @@ import bluej.views.ViewFilter;
  * class types
  * 
  * @author Bruce Quig
- * @version $Id: ClassRole.java 6823 2009-11-12 00:30:24Z davmac $
+ * @version $Id: ClassRole.java 7592 2010-05-18 14:27:15Z nccb $
  */
 public abstract class ClassRole
 {
     public final static String CLASS_ROLE_NAME = null;
 
-    private final Color defaultbg = Config.getItemColour("colour.class.bg.default");
+    private final Color defaultbg = Config.getOptionalItemColour("colour.class.bg.default");
     protected final Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
     public String getRoleName()
@@ -101,10 +103,18 @@ public abstract class ClassRole
     /**
      * Return the default background colour for targets that don't want to
      * define their own colour.
+     * @param width Width of total area to paint
+     * @param height Height of total area to paint
      */
-    public Color getBackgroundColour()
+    public Paint getBackgroundPaint(int width, int height)
     {
-        return defaultbg;
+        if (defaultbg != null) {
+            return defaultbg;
+        } else {
+            return new GradientPaint(
+                0, 0, new Color(246,221,192),
+                0, height, new Color(245,204,155)); 
+        }
     }
 
     public String getStereotypeLabel()

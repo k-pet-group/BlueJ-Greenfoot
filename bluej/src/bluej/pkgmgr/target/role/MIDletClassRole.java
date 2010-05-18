@@ -22,6 +22,7 @@
 package bluej.pkgmgr.target.role;
 
 import java.awt.Color;
+import java.awt.Paint;
 import java.util.Properties;
 import bluej.Config;
 
@@ -51,7 +52,7 @@ public class MIDletClassRole extends ClassRole
         return "MIDlet";
     }
     
-    public Color getBackgroundColour()
+    public Paint getBackgroundPaint(int width, int height)
     {
         return bckgrndColor;
     }

@@ -24,6 +24,7 @@ package bluej.pkgmgr.target;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
@@ -98,7 +99,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 7569 2010-05-17 01:55:39Z davmac $
+ * @version $Id: ClassTarget.java 7592 2010-05-18 14:27:15Z nccb $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -682,13 +683,13 @@ public class ClassTarget extends DependentTarget
      * 
      * @return The backgroundColour value
      */
-    Color getBackgroundColour()
+    public Paint getBackgroundPaint(int width, int height)
     {
         if (state == S_COMPILING) {
             return compbg;
         }
         else {
-            return getRole().getBackgroundColour();
+            return getRole().getBackgroundPaint(width, height);
         }
     }
 
