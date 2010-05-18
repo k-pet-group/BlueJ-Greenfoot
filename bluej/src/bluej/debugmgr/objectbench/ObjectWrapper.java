@@ -613,7 +613,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
     {
 	    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setColor(textColour);
-        g.setFont(PrefMgr.getStandardFont());
+        g.setFont(PrefMgr.getTargetFont());
 
         FontMetrics fm = g.getFontMetrics();
         int fontHeight = fm.getAscent() + 5;
@@ -621,27 +621,23 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
         int maxWidth = w - shad - 4;    // our uml object will be (w-shad) pixels wide
                                         // we leave 2 pixels of space either side of shape
 
+        // 54 is a hard hack; the height of the red part of the object image:
+        int totalGap = 54 - (fontHeight + fm.getAscent()); 
+        int start = totalGap / 2;
+        
         // draw top string (normally instance name)
         int aWidth = fm.stringWidth(objName);
         if(aWidth > maxWidth)
             aWidth = maxWidth;
 
-        Utility.drawCentredText(g, objName, x+2, y+5, maxWidth, fontHeight);
-
-        int lineX = x + 2 + ((maxWidth - aWidth)/2);
-        int lineY = y + 5 + fontHeight;
-
-        g.drawLine(lineX, lineY, lineX + aWidth, lineY);
+        Utility.drawCentredText(g, objName, x+2, y+start, maxWidth, fontHeight);
 
         // draw bottom string (normally class name)
         int bWidth = fm.stringWidth(className);
         if(bWidth > maxWidth)
             bWidth = maxWidth;
 
-        Utility.drawCentredText(g, className, x+2, y+25, maxWidth, fontHeight);
-        lineX = x + 2 + ((maxWidth - bWidth)/2);
-        lineY = y + 25 + fontHeight;
-        g.drawLine(lineX, lineY, lineX + bWidth, lineY);
+        Utility.drawCentredText(g, className, x+2, y+start+fontHeight, maxWidth, fontHeight);
     }
 
     /**
