@@ -1422,29 +1422,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         }
     }
 
-    // --------------------------------------------------------------------
-
-    /**
-     * Finds the first cvs-style conflict and selects it
-     */
-    public void findFirstConflict()
-    {
-        setCaretLocation(new SourceLocation(0,0));
-        findNextConflict();
-    }
-
-    private void findNextConflict()
-    {
-        findString("=======", false, false, true, false);
-        findString("<<<<<<<", true, false, false, false);
-        SourceLocation startPos = getCaretLocation();
-        findString(">>>>>>>", false, false, false, false);
-        SourceLocation endPos = getCaretLocation();
-        setSelection(startPos, endPos);
-    }
-
-    // --------------------------------------------------------------------
-    
+    // --------------------------------------------------------------------    
     /**
      * Do a find with info in the info area.
      */
@@ -1458,10 +1436,13 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         }
 
         boolean found;
-        if (backward)
+        if (backward){
             found = doFindBackward(s, ignoreCase, wholeWord, wrap);
-        else
+        }
+        else {
+            setCaretPositionForward(1);
             found = doFind(s, ignoreCase, wholeWord, wrap);
+        }
 
         StringBuffer msg = new StringBuffer(Config.getString("editor.find.find.label") + " ");
         msg.append(backward ? Config.getString("editor.find.backward") : Config.getString("editor.find.forward"));
@@ -1942,26 +1923,29 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
     
     /**
-     * Sets the search start to the beginning of the document and 
-     * initiates a search (if the find panel is visible)
+     * Sets the search start to the beginning of the document/current pos in the
+     * sourcepane; removes all the selections and highlights; resets search string 
+     * and initiates a search (if the find panel is visible)
      */
     private void initSearch()
     {
+        //current caret position may be invalid in the new view
+        //so reset it to the current pos in that pane/0 in the documentation
+        if (isShowingInterface()){
+            finder.setSearchStart(0);
+        }    
+        else{
+            finder.setSearchStart(getCaretPosition());
+        }
+        //reset the search string to null
+        finder.setSearchString(null);
+        //as the search is cleared between switches in the view
+        //there should be no selections/highlights from the previous search
+        removeSearchHighlights();
+        removeSelections();
+        //reset the search string
+        finder.setSearchString(null);
         if (finder.isVisible()){
-            //current caret position may be invalid in the new view
-            //so reset it to the current pos in that pane/0 in the documentation
-            if (isShowingInterface()){
-            	finder.setSearchStart(0);
-            }    
-            else{
-            	finder.setSearchStart(getCaretPosition());
-            }
-            //reset the search string to null
-            finder.setSearchString(null);
-            //as the search is cleared between switches in the view
-            //there should be no selections/highlights from the previous search
-            removeSearchHighlights(currentTextPane.getHighlighter());
-            removeSelection(currentTextPane);
             initFindPanel(this);
         }
     }
@@ -3393,9 +3377,20 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * Removes the selection in the textpane specified
      * @param textPane specified textpane (source/html)
      */
-    public void removeSelection(JEditorPane textPane)
+    private void removeSelection(JEditorPane textPane)
     {
-       currentTextPane.setSelectionEnd(currentTextPane.getSelectionStart());
+        if (textPane!=null){
+            textPane.setSelectionEnd(textPane.getSelectionStart());
+        }
+    }
+    
+    /**
+     * Removes the selections 
+     */
+    public void removeSelections()
+    {
+        removeSelection(sourcePane);
+        removeSelection(htmlPane);
     }
 
     /**

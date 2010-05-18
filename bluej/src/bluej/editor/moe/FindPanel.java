@@ -90,7 +90,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private ImageIcon openIcon;
     private ImageIcon closedIcon;
 
-    private int searchStart;
+    private int searchStart=-1;
 
     /**
      * Constructor that creates and displays the different elements of the Find Panel
@@ -117,14 +117,14 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         findTField.addFocusListener(new FocusListener() {
             public void focusGained(FocusEvent e)
             {
-                if (searchStart == 0) {
+                if (searchStart == -1) {
                     searchStart = editor.getCaretPosition();
                 }
             }
 
             public void focusLost(FocusEvent e)
             {
-                searchStart = 0;
+                searchStart = -1;
             }
         });
 
@@ -137,7 +137,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             // Remember the current caret location so we can revert to it if
             // the search term cannot be found.
             searchStart = editor.getCurrentTextPane().getSelectionStart();
-            if (searchStart == 0) {
+            if (searchStart == -1) {
                 searchStart = editor.getCaretPosition();
             }
         }
@@ -328,9 +328,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             getPrev();   
         }
         if (src.getName()==MATCHCASE_CHECKBOX){
-//            if (searchStart != null) {
-//                editor.setCaretLocation(searchStart);
-//            }
+            editor.setCaretPosition(editor.getCurrentTextPane().getSelectionStart());
             find(true);
         }
     }
@@ -379,7 +377,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
 
         editor.setCaretPosition(selBegin);
         boolean found = find(true);
-        if (!found && searchStart != 0) {
+        if (!found && searchStart != -1) {
             // If nothing found, caret should be moved back to position it was in before
             // the search started.
             editor.setCaretPosition(searchStart);
@@ -549,9 +547,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         if (findTField.getText().length()==0) {
             //need to reset the search to the beginning of the last selected
             editor.removeSearchHighlights();
-            editor.removeSelection(editor.getCurrentTextPane());
+            editor.removeSelections();
             setSearchString(null);
-            if (searchStart != 0) {
+            if (searchStart != -1) {
                 editor.setCaretPosition(searchStart);
             }
             writeMessage(false, 0);
@@ -615,12 +613,12 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
 
     /**
      * Removes the highlights and sets the find and replace panel to invisible
-     * Also resets the replace Icon to closed
+     * Also resets the replace icon to closed
      */
     public void close()
     {
         editor.removeSearchHighlights();
-        editor.removeSelection(editor.getCurrentTextPane());
+        editor.removeSelections();
         this.setVisible(false);
         editor.setReplacePanelVisible(false);
         replaceIconLabel.setIcon(closedIcon);
