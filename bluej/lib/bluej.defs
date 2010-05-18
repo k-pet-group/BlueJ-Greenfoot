@@ -434,7 +434,6 @@ colour.target.stripes=152,152,152
 
 # colours for different types of classes (by default we make most
 # of them the same - except for unit tests).
-colour.class.bg.default=245,204,155
 colour.class.bg.abstract=245,204,155
 colour.class.bg.interface=245,204,155
 colour.class.bg.applet=245,204,155
