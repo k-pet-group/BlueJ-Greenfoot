@@ -37,7 +37,7 @@ import bluej.utility.Utility;
  * Paints a ClassTarget
  * 
  * @author fisker
- * @version $Id: ClassTargetPainter.java 7592 2010-05-18 14:27:15Z nccb $
+ * @version $Id: ClassTargetPainter.java 7597 2010-05-18 15:18:32Z nccb $
  */
 
 public class ClassTargetPainter
@@ -194,8 +194,11 @@ public class ClassTargetPainter
      */
     private void drawShadow(Graphics2D g, int width, int height)
     {
+        // A uniform tail-off would have equal values for each,
+        // as they all get drawn on top of each other:
+        final int shadowAlphas[] = {20, 15, 10, 5, 5};
         for (int i = 0;i < 5;i++) {
-            g.setColor(new Color(0, 0, 0, 10));
+            g.setColor(new Color(0, 0, 0, shadowAlphas[i]));
             g.fillRoundRect(2 - i, 4 - i, width + (2*i) - 1, height + (2*i) - 1, 8, 8);
         }
     }
