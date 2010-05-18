@@ -22,6 +22,7 @@
 package bluej.pkgmgr;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -29,6 +30,9 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Frame;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
 import java.awt.Point;
@@ -2741,6 +2745,34 @@ public class PkgMgrFrame extends JFrame
         teamItems = new ArrayList<JComponent>();
 
         setupMenus();
+        
+        // To get a gradient fill for the frame, we need to override the content pane's
+        // paintComponent method to use a gradient fill (no other way to do it)
+        // Hence this code, that sets the content pane to be a standard JPanel with
+        // the same layout as before, but with paintComponent performing a gradient fill:
+        setContentPane(new JPanel(getContentPane().getLayout()) {
+            public void paintComponent(Graphics g)
+            {
+                super.paintComponent(g);
+                
+                if (g instanceof Graphics2D) {
+                    Graphics2D g2d = (Graphics2D)g;
+                    
+                    int w = getWidth();
+                    int h = getHeight();
+                    
+                    GradientPaint gp = new GradientPaint(
+                        w/4, 0, new Color(236, 236, 236),
+                        w*3/4, h, new Color(187, 182, 173));
+
+                    g2d.setPaint(gp);
+                    g2d.fillRect(0, 0, w, h);
+                }
+            }
+        });
+        // To let that gradient fill show through, all the other panes that sit
+        // on top of the frame must have setOpaque(false) called, hence all the calls
+        // of that type throughout the code below
 
         Container contentPane = getContentPane();
         ((JPanel) contentPane).setBorder(BlueJTheme.generalBorderWithStatusBar);
@@ -2748,6 +2780,7 @@ public class PkgMgrFrame extends JFrame
         // create the main panel holding the diagram and toolbar on the left
 
         JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
+        mainPanel.setOpaque(false);
 
         // Install keystroke to restart the VM
         Action action = RestartVMAction.getInstance();
@@ -2757,8 +2790,10 @@ public class PkgMgrFrame extends JFrame
 
         // create the left hand side toolbar
         JPanel toolPanel = new JPanel();
+        toolPanel.setOpaque(false);
         {
             buttonPanel = new JPanel();
+            buttonPanel.setOpaque(false);
             {
                 buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
                 buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
@@ -2783,6 +2818,7 @@ public class PkgMgrFrame extends JFrame
             }
 
             testPanel = new JPanel();
+            testPanel.setOpaque(false);
             {
                 testPanel.setLayout(new BoxLayout(testPanel, BoxLayout.Y_AXIS));
 
@@ -2826,6 +2862,7 @@ public class PkgMgrFrame extends JFrame
             testItems.add(testPanel);
             
             teamPanel = new JPanel();
+            teamPanel.setOpaque(false);
             {
                 teamPanel.setLayout(new BoxLayout(teamPanel, BoxLayout.Y_AXIS));
 
@@ -2851,6 +2888,7 @@ public class PkgMgrFrame extends JFrame
             teamItems.add(teamPanel);
 
             javaMEPanel = new JPanel();
+            javaMEPanel.setOpaque(false);
             {
                 javaMEPanel.setLayout(new BoxLayout(javaMEPanel, BoxLayout.Y_AXIS));
 
@@ -2904,11 +2942,13 @@ public class PkgMgrFrame extends JFrame
         splitPane.setBorder(null);
         splitPane.setResizeWeight(1.0);
         splitPane.setDividerSize(5);
+        splitPane.setOpaque(false);
         contentPane.add(splitPane, BorderLayout.CENTER);
 
         // create the bottom status area
 
         JPanel statusArea = new JPanel(new BorderLayout());
+        statusArea.setOpaque(false);
         {
             statusArea.setBorder(BorderFactory.createEmptyBorder(2, 0, 4, 6));
 
