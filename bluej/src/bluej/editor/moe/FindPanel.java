@@ -164,8 +164,14 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         //prev, next
         optionsBody=new DBox(DBoxLayout.X_AXIS, 0, BlueJTheme.commandButtonSpacing, 0.5f);
         mcBody=new DBox(DBoxLayout.X_AXIS, 0, 0, 0.5f);;
+        
+        findBody.setOpaque(false);
+        findTextBody.setOpaque(false);
+        optionsBody.setOpaque(false);
+        mcBody.setOpaque(false);
 
-        closeBody=new JPanel(new BorderLayout());       
+        closeBody=new JPanel(new BorderLayout());
+        closeBody.setOpaque(false);
     }
 
     /**
@@ -187,6 +193,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         findLabelBox.setPreferredSize(lblSize);
         findLabelBox.add(Box.createHorizontalGlue());
         findLabelBox.add(findLabel);
+        findLabelBox.setOpaque(false);
 
         findTField=new JTextField(11);
         findTField.setMaximumSize(findTField.getPreferredSize());
@@ -235,6 +242,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         matchCaseCheckBox.setFont(findFont);
         matchCaseCheckBox.setName(MATCHCASE_CHECKBOX);
         matchCaseCheckBox.addActionListener(this);
+        matchCaseCheckBox.setOpaque(false);
     }
 
     /**

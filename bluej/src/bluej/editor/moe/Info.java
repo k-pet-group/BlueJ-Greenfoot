@@ -68,6 +68,7 @@ public final class Info extends JPanel
         line2 = new JLabel();
         body.add(line1);
         body.add(line2);
+        body.setOpaque(false);
         add(body, BorderLayout.CENTER);
 
         helpButton = new JButton(helpImage);
