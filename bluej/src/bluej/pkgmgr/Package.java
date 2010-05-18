@@ -25,7 +25,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Modifier;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -2249,7 +2251,36 @@ public final class Package extends Graph
             showMessageWithText("error-in-file", loc.getClassName() + ":" + loc.getLineNumber() + "\n" + message);
         }
     }
+    
+    /**
+     * Check whether a loaded class was actually loaded from the specified class file
+     * @param c  The loaded class
+     * @param f  The class file to check against (should be a compiled .class file)
+     * @return  True if the class was loaded from the specified file; false otherwise
+     */
+    public static boolean checkClassMatchesFile(Class<?> c, File f)
+    {
+        try {
+            String srcUrl = c.getResource(c.getSimpleName()+".class").toString();
 
+            // Due to JDK craziness, the filename part of the resource will
+            // have non-ascii characters encoded as %XY escapes, but not the
+            // path part. ??!!
+            int slashIndex = srcUrl.lastIndexOf('/');
+            if (slashIndex != -1) {
+                String decodedName = URLDecoder.decode(srcUrl.substring(slashIndex + 1), "UTF-8");
+                srcUrl = srcUrl.substring(0, slashIndex + 1) + decodedName;
+            }
+
+            String thisClass = f.toURI().toString();
+            if  (! srcUrl.equals(thisClass)) {
+                return false;
+            }
+        }
+        catch (UnsupportedEncodingException use) {}
+        return true;
+    }
+    
     // ---- bluej.compiler.CompileObserver interfaces ----
 
     /**
@@ -2343,15 +2374,10 @@ public final class Package extends Graph
                     t.endCompile();
 
                     //check if there already exists a class in a library with that name 
-                    Class<?> c=loadClass(getQualifiedName(t.getIdentifierName()));
-                    if (c!=null){  
-                        if (c.getResource(t.getIdentifierName()+".class")!=null){
-                            String srcName= c.getResource(t.getIdentifierName()+".class").toString();
-                            //need to trim if it is referencing a jar file
-                            String thisClass=getPath().toURI()+t.getIdentifierName()+".class";
-                            if  (!(srcName).equals(thisClass)) {
-                                DialogManager.showMessageWithPrefixText(null, "compile-class-already-in-library", t.getIdentifierName()+":");
-                            }
+                    Class<?> c = loadClass(getQualifiedName(t.getIdentifierName()));
+                    if (c!=null){
+                        if (! checkClassMatchesFile(c, t.getClassFile())) {
+                            DialogManager.showMessageWithPrefixText(null, "compile-class-already-in-library", t.getIdentifierName()+":");
                         }
                     }
 
