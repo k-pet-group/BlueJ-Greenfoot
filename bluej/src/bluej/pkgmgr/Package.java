@@ -25,9 +25,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Modifier;
-import java.net.URLDecoder;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -2278,23 +2278,21 @@ public final class Package extends Graph
     public static boolean checkClassMatchesFile(Class<?> c, File f)
     {
         try {
-            String srcUrl = c.getResource(c.getSimpleName()+".class").toString();
-
-            // Due to JDK craziness, the filename part of the resource will
-            // have non-ascii characters encoded as %XY escapes, but not the
-            // path part. ??!!
-            int slashIndex = srcUrl.lastIndexOf('/');
-            if (slashIndex != -1) {
-                String decodedName = URLDecoder.decode(srcUrl.substring(slashIndex + 1), "UTF-8");
-                srcUrl = srcUrl.substring(0, slashIndex + 1) + decodedName;
+            URL srcUrl = c.getResource(c.getSimpleName()+".class");
+            if (srcUrl.getProtocol().equals("file")) {
+                File srcFile = new File(srcUrl.toURI());
+                if (! f.equals(srcFile)) {
+                    return false;
+                }
             }
-
-            String thisClass = f.toURI().toString();
-            if  (! srcUrl.equals(thisClass)) {
+            else {
                 return false;
             }
         }
-        catch (UnsupportedEncodingException use) {}
+        catch (URISyntaxException uriSE) {
+            // theoretically we can't get URISyntaxException; the URL should
+            // be valid.
+        }
         return true;
     }
     
