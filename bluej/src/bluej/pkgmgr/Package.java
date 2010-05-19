@@ -26,6 +26,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Modifier;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -2261,8 +2262,8 @@ public final class Package extends Graph
      */
     protected static String getResourcePath(Class<?> c)
     { 
+        URL srcUrl = c.getResource(c.getSimpleName()+".class");
         try {
-            URL srcUrl = c.getResource(c.getSimpleName()+".class");
             if (srcUrl!=null){
                 if (srcUrl.getProtocol().equals("file")) {
                     File srcFile = new File(srcUrl.toURI());
@@ -2270,10 +2271,15 @@ public final class Package extends Graph
                 }  
                 if (srcUrl.getProtocol().equals("jar")){
                     //it should be of this format
-                    //jar:/file:/path!/class 
+                    //jar:file:/path!/class 
                     int classIndex = srcUrl.toString().indexOf("!");
+                    String subUrl = srcUrl.toString().substring(4, classIndex);
+                    if (subUrl.startsWith("file:")) {
+                        return new File(new URI(subUrl)).toString();
+                    }
+                    
                     if (classIndex!=-1){
-                        return srcUrl.toString().substring(9, classIndex);
+                        return srcUrl.toString().substring(4, classIndex);
                     }
                 }
             }
@@ -2282,7 +2288,7 @@ public final class Package extends Graph
             // theoretically we can't get URISyntaxException; the URL should
             // be valid.
         }
-        return c.getSimpleName()+".class";
+        return srcUrl.toString();
     }
     
     /**
