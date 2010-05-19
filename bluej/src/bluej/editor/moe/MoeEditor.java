@@ -1942,8 +1942,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         //there should be no selections/highlights from the previous search
         removeSearchHighlights();
         removeSelections();
-        //reset the search string
+        //reset the search and replace strings
         finder.setSearchString(null);
+        replacer.setReplaceString(null);
+        replacer.populateReplaceField(null);
         if (finder.isVisible()){
             initFindPanel(this);
         }

@@ -214,7 +214,12 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener
         replaceText.requestFocus();
     }
     
+    /**
+     * Sets the replace textfield to the replaceString passed to the method
+     * @param replaceString the new replace string
+     */
     protected void populateReplaceField(String replaceString){
         replaceText.setText(replaceString);
     }
+
 }
