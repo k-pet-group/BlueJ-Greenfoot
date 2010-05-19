@@ -2912,6 +2912,7 @@ public class PkgMgrFrame extends JFrame
         classScroller.setFocusable(false);
         classScroller.getVerticalScrollBar().setUnitIncrement(10);
         classScroller.getHorizontalScrollBar().setUnitIncrement(20);
+        classScroller.setOpaque(false);
         mainPanel.add(classScroller, BorderLayout.CENTER);
 
         itemsToDisable.add(objbench);

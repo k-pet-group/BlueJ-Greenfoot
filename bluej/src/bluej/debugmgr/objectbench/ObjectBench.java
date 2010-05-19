@@ -43,7 +43,7 @@ import bluej.testmgr.record.InvokerRecord;
  * at the bottom of the package manager.
  * @author  Michael Cahill
  * @author  Andrew Patterson
- * @version $Id: ObjectBench.java 7591 2010-05-18 14:25:22Z nccb $
+ * @version $Id: ObjectBench.java 7619 2010-05-19 14:25:03Z nccb $
  */
 public class ObjectBench extends JPanel implements ValueCollection,
     FocusListener, KeyListener, MouseListener, ObjectBenchInterface
@@ -545,9 +545,12 @@ public class ObjectBench extends JPanel implements ValueCollection,
         // a panel holding the actual object components
         obp = new ObjectBenchPanel();
         obp.setBackground(BACKGROUND_COLOR);
+        obp.setOpaque(false);
+        setOpaque(false);
         
         scroll = new JScrollPane(obp);
         scroll.setBorder(Config.normalBorder);
+        scroll.setOpaque(false);
         Dimension sz = obp.getMinimumSize();
         Insets in = scroll.getInsets();
         sz.setSize(sz.getWidth()+in.left+in.right, sz.getHeight()+in.top+in.bottom);
