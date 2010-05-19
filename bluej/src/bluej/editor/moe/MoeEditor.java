@@ -254,6 +254,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * (source/documentation)
      */
     private static ArrayList<String> editActions;
+    /**
+     * list of actions that are disabled in the readme text file
+     */
+    private static ArrayList<String> readOnlyActions;
 
     private CodeCompletionDisplay codeCompletionDlg;
     
@@ -314,7 +318,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         boolean readError = false;
 
         if (filename != null) {
-
             try {
                 // check for crash file
                 String crashFilename = filename + CRASHFILE_SUFFIX;
@@ -353,7 +356,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             }
         }
         else {
-            if (docFilename != null) {
+            if (docFilename != null) {  
                 if (new File(docFilename).exists()) {
                     showInterface(true);
                     loaded = true;
@@ -1882,14 +1885,43 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * @param buttonText  String with button text name
      */
     private boolean isFlaggedAction(String text)
-    {
+    {       
         ArrayList<String> flaggedActions = getEditActions();
         if (flaggedActions!=null && flaggedActions.contains(text)) {
             return true;
         }
         return false;
     }
+    
+    /**
+     * 
+     * @param text
+     * @return
+     */
+    private boolean isReadmeAction(String text)
+    {
+        
+        ArrayList<String> flaggedActions = getReadOnlyActions();
+        if (flaggedActions!=null && flaggedActions.contains(text)) {
+            return true;
+        }
+        return false;
+    }
 
+    /**
+     * 
+     * @return a list of actions not applicable in the readme.txt file
+     */
+    private ArrayList<String> getReadOnlyActions ()
+    {
+        if (readOnlyActions==null) {
+            readOnlyActions=new ArrayList<String>();
+            readOnlyActions.add("compile");
+            readOnlyActions.add("autoindent");
+            readOnlyActions.add("insert-method");
+        }
+        return readOnlyActions;
+    }
     /**
      * Returns a list of names for the actions which are only valid in an editing
      * context, that is, when the display shows the source and not the documentation.
@@ -1993,7 +2025,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             // (from save() call) will already be displayed in the editor
             // status bar.
         }
-        initSearch();
     }
 
     // --------------------------------------------------------------------
@@ -2972,8 +3003,12 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                     if (keys != null) {
                         item.setAccelerator(chooseKey(keys));
                     }
-                    item.setName(itemKeys[i]);
+                    item.setName(itemKeys[i]);                   
+                    if (isReadmeAction(itemKeys[i])){
+                        item.setEnabled(false);
+                    }
                 }
+                
             }
         }
         return menu;
@@ -3072,6 +3107,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         if (action == null) {
             button.setEnabled(false);
             Debug.message("Moe: action not found for button " + label);
+        }
+        
+        if (isReadmeAction(actionName)){
+            button.setEnabled(false);
         }
 
         button.setRequestFocusEnabled(false);
