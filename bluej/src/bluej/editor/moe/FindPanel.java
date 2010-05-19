@@ -453,8 +453,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         int counter=editor.getHighlightCount();
         //if there was nothing found, need to move the caret back to its original position
         //also need to disable buttons accordingly
-        if (counter<1) {
-            editor.setCaretPosition(searchStart);
+        if (counter < 1) {
+            if (searchStart != -1) {
+                editor.setCaretPosition(searchStart);
+            }
             previousButton.setEnabled(false);
             nextButton.setEnabled(false);
             editor.enableReplaceButtons(false); 
