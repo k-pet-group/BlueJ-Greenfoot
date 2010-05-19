@@ -444,7 +444,9 @@ public class MoeSyntaxDocument extends PlainDocument
      */
     protected void fireRemoveUpdate(DocumentEvent e)
     {
-        NodeAndPosition<ReparseRecord> napRr = reparseRecordTree.findNodeAtOrAfter(e.getOffset());
+        NodeAndPosition<ReparseRecord> napRr = (reparseRecordTree != null) ?
+                reparseRecordTree.findNodeAtOrAfter(e.getOffset()) :
+                    null;
         int rpos = e.getOffset();
         int rlen = e.getLength();
         if (napRr != null && napRr.getEnd() == rpos) {

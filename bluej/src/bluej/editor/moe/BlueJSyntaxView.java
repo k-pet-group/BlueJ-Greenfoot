@@ -893,12 +893,16 @@ public abstract class BlueJSyntaxView extends PlainView
     private int[] reassessIndents(Shape a, int dmgStart, int dmgEnd, boolean remove)
     {
         MoeSyntaxDocument doc = (MoeSyntaxDocument) getDocument();
-        Element map = getDocument().getDefaultRootElement();
+        ParsedCUNode pcuNode = doc.getParsedNode();
+        if (pcuNode == null) {
+            return new int[] {dmgStart, dmgEnd};
+        }
+        
+        Element map = doc.getDefaultRootElement();
         int ls = map.getElementIndex(dmgStart);
         int le = map.getElementIndex(dmgEnd);
         Segment segment = new Segment();
         
-        ParsedCUNode pcuNode = doc.getParsedNode();
         
         try {
             int [] dmgRange = new int[2];
