@@ -1897,14 +1897,17 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * Returns true if it is flagged as an action that is disabled in the readme.txt file
      * @param actionName String representing the action name
      * @return true if it is flagged as an action that is disabled in the readme.txt file;
-     *         false if it is a valid action
+     *         false if it is a valid action (either in the readme file or because the souce 
+     *         file is not a readme file)
      */
     private boolean isReadmeAction(String actionName)
     {
-        
-        ArrayList<String> flaggedActions = getReadOnlyActions();
-        if (flaggedActions!=null && flaggedActions.contains(actionName)) {
-            return true;
+        if (!sourceIsCode){
+        	ArrayList<String> flaggedActions = getReadOnlyActions();
+        	if (flaggedActions!=null && flaggedActions.contains(actionName)) {
+        		return true;
+        	}
+        	return false;
         }
         return false;
     }
@@ -3003,7 +3006,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                         item.setAccelerator(chooseKey(keys));
                     }
                     item.setName(itemKeys[i]);                   
-                    if (isReadmeAction(itemKeys[i])){
+                    if (isReadmeAction(itemKeys[i]) && !sourceIsCode){
                         item.setEnabled(false);
                     }
                 }               
@@ -3107,7 +3110,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             Debug.message("Moe: action not found for button " + label);
         }
         
-        if (isReadmeAction(actionName)){
+        if (isReadmeAction(actionName) && !sourceIsCode){
             button.setEnabled(false);
         }
 
