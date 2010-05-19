@@ -193,8 +193,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     
     protected static HighlightPainter highlightPainter =
         new MoeBorderHighlighterPainter(highlightBorderColor, Config.getHighlightColour(),
-                Config.getHighlightColour2(), Config.getSelectionColour(),
-                Config.getSelectionColour2());;
+                Config.getHighlightColour2(), Config.getSelectionColour2(),
+                Config.getSelectionColour());;
 
     // -------- INSTANCE VARIABLES --------
 
