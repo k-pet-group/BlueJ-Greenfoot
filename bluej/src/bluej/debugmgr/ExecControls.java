@@ -38,6 +38,7 @@ import bluej.debugger.DebuggerThreadTreeModel.SyncMechanism;
 import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
+import bluej.utility.GradientFillPanel;
 
 /**
  * Window for controlling the debugger
@@ -441,8 +442,8 @@ public class ExecControls extends JFrame
     	
 		setJMenuBar(makeMenuBar());
 
-        JPanel contentPane = (JPanel)getContentPane();  // has BorderLayout by default
-        contentPane.setLayout(new BorderLayout(6,6));
+        JPanel contentPane = new GradientFillPanel(new BorderLayout(6,6));
+        setContentPane(contentPane);
         contentPane.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
 
         // Create the control button panel
@@ -529,11 +530,13 @@ public class ExecControls extends JFrame
                                                  staticScrollPane, instanceScrollPane);
         innerVarPane.setDividerSize(6);
         innerVarPane.setBorder(null);
+        innerVarPane.setOpaque(false);
 
         JSplitPane varPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
                                             innerVarPane, localScrollPane);
         varPane.setDividerSize(6);
         varPane.setBorder(null);
+        varPane.setOpaque(false);
 
         // Create stack listing panel
 
@@ -550,6 +553,7 @@ public class ExecControls extends JFrame
                                               stackScrollPane, varPane);
         splitPane.setDividerSize(6);
         splitPane.setBorder(null);
+        splitPane.setOpaque(false);
 
         // Create thread panel
         JPanel threadPanel = new JPanel(new BorderLayout());
