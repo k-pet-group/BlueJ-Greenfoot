@@ -359,7 +359,7 @@ public class TextParser extends JavaParser
             return;
         }
         
-        doBinaryOp(arg1, arg2, op);
+        doBinaryOp(rarg1, rarg2, op);
     }
     
     /**
