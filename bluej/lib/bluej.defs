@@ -18,7 +18,6 @@
 ##
 #####################################################################
 
-
 #####################################################################
 ## The interface language. A directory must exist for the language in
 ## <BLUEJ_HOME>/lib. Language directories can be created by copying
@@ -100,6 +99,14 @@ bluej.url.reference=http://www.bluej.org/reference/manual.pdf
 # is ignored). You can adjust the user preferences via the preferences
 # dialog (found under the "tools" menu) in BlueJ.
 bluej.url.javaStdLib=http://java.sun.com/javase/6/docs/api/index.html
+
+# Location of the Java standard library sources. This does not need to
+# be specified if the "src.jar" file is in the standard location (in
+# the Java home directory - only when it is elsewhere. This is used
+# to show comments for standard methods in code completion.
+
+#bluej.jdk.source=/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home/src.jar
+
 
 # do not change the following:
 bluej.url.versionCheck=http://www.bluej.org/version.info
@@ -440,11 +447,10 @@ colour.wrapper.shadow=152,152,152
 colour.menu.environOp=152,32,32
 
 #colour for selections (in text and otherwise)
-colour.selection=255,250,0
-colour.selection2=233,225,0
+colour.selection=233,225,0
+colour.selection2=255,250,0
 
 #colour for highlights (in text editor)
-#colour.highlight=255,255,196
 colour.highlight=180,220,255
 colour.highlight2=110,190,255
 
