@@ -22,11 +22,9 @@
 package bluej.pkgmgr.graphPainter;
 
 import java.awt.*;
-import java.awt.Graphics2D;
 
 import bluej.Config;
 import bluej.pkgmgr.target.*;
-import bluej.pkgmgr.target.PackageTarget;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Utility;
 
@@ -34,14 +32,14 @@ import bluej.utility.Utility;
  * Paints a packageTarget
  * 
  * @author fisker
- * @version $Id: PackageTargetPainter.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: PackageTargetPainter.java 7623 2010-05-19 15:30:31Z nccb $
  */
 public class PackageTargetPainter
 {
     private static final int TAB_HEIGHT = 12;
     private static final int HANDLE_SIZE = 20;
 
-    private static final Color defaultbg = Config.getItemColour("colour.package.bg.default");
+    private static final Color defaultbg = Config.getOptionalItemColour("colour.package.bg.default");
     private static final Color bordercolour = Config.getItemColour("colour.target.border");
 
     private static final int TEXT_HEIGHT = GraphPainterStdImpl.TEXT_HEIGHT;
@@ -88,68 +86,72 @@ public class PackageTargetPainter
     private void drawUMLStyle(Graphics2D g, PackageTarget packageTarget, boolean hasFocus, int width, int height)
     {
         tabWidth = packageTarget.getWidth() / 3;
-
-        g.setColor(defaultbg);
-        g.fillRect(0, 0, tabWidth, TAB_HEIGHT);
-        g.fillRect(0, TAB_HEIGHT, width, height - TAB_HEIGHT);
-
-        drawShadow(g, packageTarget, width, height);
-
-        g.setColor(bordercolour);
-        g.setFont(getFont(packageTarget));
-        Utility.drawCentredText(g, packageTarget.getDisplayName(), TEXT_BORDER, TEXT_BORDER + TAB_HEIGHT, 
-                width - 2 * TEXT_BORDER, TEXT_HEIGHT);
-        drawUMLBorders(g, packageTarget, hasFocus, width, height);
-    }
-
-    /**
-     * Draw the borders of the package icon.
-     */
-    private void drawUMLBorders(Graphics2D g, PackageTarget packageTarget, boolean hasFocus, int width, int height)
-    {
+        
         int thickness = 1;  // default
         boolean isSelected = packageTarget.isSelected() && hasFocus;
-        if(isSelected)
+        if (isSelected)
             thickness = 2;
+
+        Paint fill;
+        if (defaultbg == null) {            
+            fill = new GradientPaint(
+                width/4, 0, new Color(213, 162, 99),
+                width*3/4, height, new Color(179, 126, 60));
+        } else {
+            fill = defaultbg;
+        }
         
-        Utility.drawThickRect(g, 0, 0, tabWidth, TAB_HEIGHT, thickness);
-        Utility.drawThickRect(g, 0, TAB_HEIGHT, width, height - TAB_HEIGHT, thickness);
+        drawShadow(g, packageTarget, tabWidth, width, height);
 
-        if (!isSelected)
-            return;
+        g.setPaint(fill);
+        g.fillRoundRect(0, 0, tabWidth, TAB_HEIGHT+5, 5, 5);
+        g.setColor(bordercolour);
+        Utility.drawThickRoundRect(g, 0, 0, tabWidth, TAB_HEIGHT+5, 5, thickness);
+        // The main rectangles draw on the top of the previous small tab rectangles:
+        g.setPaint(fill);
+        g.fillRect(0, TAB_HEIGHT, width, height - TAB_HEIGHT);
+        g.setColor(bordercolour);
+        for (int i = 0; i < thickness; i++) {
+            // Draws the rect: (i, TAB_HEIGHT+i, width - 2 * i, height - TAB_HEIGHT - 2 * i)
+            // But misses out the top portion on the left for tabWidth
+            g.drawLine(tabWidth - (isSelected ? 1 : 0), TAB_HEIGHT + i, width - i, TAB_HEIGHT + i); //top
+            g.drawLine(i, height - i, width - i, height - i); //bottom
+            g.drawLine(i, TAB_HEIGHT, i, height - i); //left
+            g.drawLine(width - i, TAB_HEIGHT + i, width - i, height - i); //right
+        }
 
-        // Draw lines showing resize tag
-        g.drawLine(width - HANDLE_SIZE - 2, height, width, height - HANDLE_SIZE - 2);
-        g.drawLine(width - HANDLE_SIZE + 2, height, width, height - HANDLE_SIZE + 2);
+        g.setFont(getFont(packageTarget));
+        Utility.drawCentredText(g, packageTarget.getDisplayName(), TEXT_BORDER, TEXT_BORDER + TAB_HEIGHT, 
+                width - 2 * TEXT_BORDER, TEXT_HEIGHT);       
+
+        if (isSelected) {
+            // Draw lines showing resize tag
+            g.drawLine(width - HANDLE_SIZE - 2, height, width, height - HANDLE_SIZE - 2);
+            g.drawLine(width - HANDLE_SIZE + 2, height, width, height - HANDLE_SIZE + 2);
+        }
     }
 
     /**
      * Draw the shadow.
      */
-    private void drawShadow(Graphics2D g, PackageTarget packageTarget, int width, int height)
+    private void drawShadow(Graphics2D g, PackageTarget packageTarget, int tabWidth, int width, int height)
     {
-        g.setColor(shadowColours[3]);
-        g.drawLine(3, height + 1, width, height + 1);                   //bottom
-
-        g.setColor(shadowColours[2]);
-        g.drawLine(4, height + 2, width, height + 2);                   //bottom
-        g.drawLine(width + 1, height + 2, width + 1, 3 + TAB_HEIGHT);   //right
-        g.drawLine(tabWidth + 1, 3, tabWidth + 1, TAB_HEIGHT);          //tab
-
-        g.setColor(shadowColours[1]);
-        g.drawLine(5, height + 3, width + 1, height + 3);               // bottom
-        g.drawLine(width + 2, height + 3, width + 2, 4 + TAB_HEIGHT);   // right
-        g.drawLine(tabWidth + 2, 4, tabWidth + 2, TAB_HEIGHT);//tab
-
-        g.setColor(shadowColours[0]);
-        g.drawLine(6, height + 4, width + 2, height + 4);               // bottom
-        g.drawLine(width + 3, height + 3, width + 3, 5 + TAB_HEIGHT);   // right
-        g.drawLine(tabWidth + 3, 5, tabWidth + 3, TAB_HEIGHT);          // tab
+     // A uniform tail-off would have equal values for each,
+        // as they all get drawn on top of each other:
+        final int shadowAlphas[] = {20, 15, 10, 5, 5};
+        for (int i = 0;i < 5;i++) {
+            g.setColor(new Color(0, 0, 0, shadowAlphas[i]));
+            
+            // Tab:
+            g.fillRoundRect(2 - i, 4 - i, tabWidth + (2*i) - 1, (TAB_HEIGHT + 5) + (2*i) - 1, 8, 8);
+            // Main:
+            g.fillRoundRect(2 - i, TAB_HEIGHT + 4 - i, width + (2*i) - 1, height - TAB_HEIGHT + (2*i) - 1, 8, 8);
+        }
     }
 
     private Font getFont(PackageTarget packageTarget)
     {
-        return PrefMgr.getStandardFont();
+        return PrefMgr.getTargetFont();
     }
 
 }

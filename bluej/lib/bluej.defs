@@ -432,9 +432,6 @@ colour.target.border=0,0,0
 colour.target.bg.compiling=200,150,100
 colour.target.stripes=158,139,116
 
-colour.package.bg.default=180,130,44
-
-
 # object bench
 colour.wrapper.bg=205,38,38
 colour.wrapper.shadow=152,152,152
