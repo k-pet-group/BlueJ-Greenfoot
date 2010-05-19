@@ -32,7 +32,7 @@ import bluej.utility.Utility;
  * Paints a packageTarget
  * 
  * @author fisker
- * @version $Id: PackageTargetPainter.java 7623 2010-05-19 15:30:31Z nccb $
+ * @version $Id: PackageTargetPainter.java 7627 2010-05-19 16:07:42Z nccb $
  */
 public class PackageTargetPainter
 {
@@ -95,8 +95,8 @@ public class PackageTargetPainter
         Paint fill;
         if (defaultbg == null) {            
             fill = new GradientPaint(
-                width/4, 0, new Color(213, 162, 99),
-                width*3/4, height, new Color(179, 126, 60));
+                width/4, 0, new Color(221, 218, 145),
+                width*3/4, height, new Color(198, 194, 92));
         } else {
             fill = defaultbg;
         }
