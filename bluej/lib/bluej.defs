@@ -102,7 +102,7 @@ bluej.url.javaStdLib=http://java.sun.com/javase/6/docs/api/index.html
 
 # Location of the Java standard library sources. This does not need to
 # be specified if the "src.jar" file is in the standard location (in
-# the Java home directory - only when it is elsewhere. This is used
+# the Java home directory) - only when it is elsewhere. This is used
 # to show comments for standard methods in code completion.
 
 #bluej.jdk.source=/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home/src.jar
