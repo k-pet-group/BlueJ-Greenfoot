@@ -1209,7 +1209,7 @@ public class PkgMgrFrame extends JFrame
         Class<?> c = pkg.loadClass(pkg.getQualifiedName(name));
         if (c != null){
             if (! Package.checkClassMatchesFile(c, new File(getPackage().getPath(), name + ".class"))) {
-                conflict[0]=Package.getResourcePath(c.getResource(name+".class").toString());
+                conflict[0]=Package.getResourcePath(c);
                 if (DialogManager.askQuestion(this, "class-library-conflict", conflict) == 0) {
                     return false;
                 }

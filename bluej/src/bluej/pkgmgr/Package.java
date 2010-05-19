@@ -2259,14 +2259,30 @@ public final class Package extends Graph
      * @return A string indicating the classpath of the jar file (if applicable
      * and if not, it returns the original String)
      */
-    protected static String getResourcePath(String resourceName)
-    {        
-        String jarName=resourceName;
-        int classIndex = resourceName.indexOf("!");
-        if (classIndex!=-1){
-            jarName = resourceName.substring(9, classIndex);
+    protected static String getResourcePath(Class<?> c)
+    { 
+        try {
+            URL srcUrl = c.getResource(c.getSimpleName()+".class");
+            if (srcUrl!=null){
+                if (srcUrl.getProtocol().equals("file")) {
+                    File srcFile = new File(srcUrl.toURI());
+                    return srcFile.toString();
+                }  
+                if (srcUrl.getProtocol().equals("jar")){
+                    //it should be of this format
+                    //jar:/file:/path!/class 
+                    int classIndex = srcUrl.toString().indexOf("!");
+                    if (classIndex!=-1){
+                        return srcUrl.toString().substring(9, classIndex);
+                    }
+                }
+            }
         }
-        return jarName;
+        catch (URISyntaxException uriSE) {
+            // theoretically we can't get URISyntaxException; the URL should
+            // be valid.
+        }
+        return c.getSimpleName()+".class";
     }
     
     /**
@@ -2392,7 +2408,7 @@ public final class Package extends Graph
                     Class<?> c = loadClass(getQualifiedName(t.getIdentifierName()));
                     if (c!=null){
                         if (! checkClassMatchesFile(c, t.getClassFile())) {
-                            String conflict=Package.getResourcePath(c.getResource(t.getIdentifierName()+".class").toString());
+                            String conflict=Package.getResourcePath(c);
                             DialogManager.showMessageWithPrefixText(null, "compile-class-library-conflict", t.getIdentifierName()+":", conflict);
                         }
                     }
