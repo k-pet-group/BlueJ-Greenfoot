@@ -138,6 +138,10 @@ public class MoeSyntaxDocument extends PlainDocument
      */
     public boolean pollReparseQueue(int maxParse)
     {
+        if (reparseRecordTree == null) {
+            return false;
+        }
+        
         NodeAndPosition<ReparseRecord> nap = reparseRecordTree.findNodeAtOrAfter(0);
         if (nap != null) {
             int pos = nap.getPosition();
