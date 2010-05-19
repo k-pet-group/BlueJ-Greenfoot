@@ -2995,6 +2995,7 @@ public class PkgMgrFrame extends JFrame
             objectBenchSplitPane.setBorder(null);
             objectBenchSplitPane.setResizeWeight(1.0);
             objectBenchSplitPane.setDividerSize(5);
+            objectBenchSplitPane.setOpaque(false);
             itemsToDisable.add(textEvaluator);
         }
         else {
