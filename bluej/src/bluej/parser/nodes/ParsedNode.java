@@ -318,6 +318,7 @@ public abstract class ParsedNode extends RBTreeNode
     {
         int size = getSize();
         int r = reparseNode(document, nodePos, offset, maxParse, listener);
+        document.markSectionParsed(nodePos, size);
         if (r == REMOVE_NODE) {
             ParsedNode parent = getParentNode();
             parent.removeChild(new NodeAndPosition<ParsedNode>(this,
