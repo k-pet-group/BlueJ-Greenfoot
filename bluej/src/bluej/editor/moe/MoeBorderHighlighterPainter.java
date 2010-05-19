@@ -35,23 +35,52 @@ import javax.swing.text.View;
 import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 
 /**
- * Highligher for the border and fill of the select and search items
+ * Highlighter for the border and fill of the found search instances.<p>
+ * 
+ * This highlighter also paints in a different colour where it coincides with the
+ * selection.
  * 
  * @author Marion Zalk
- *
  */
 public class MoeBorderHighlighterPainter extends DefaultHighlightPainter
 {
     Color borderColor=Color.BLACK;
     Color innerColor1;
     Color innerColor2;
+    Color selectionColor1;
+    Color selectionColor2;
     
-    public MoeBorderHighlighterPainter(Color bColor, Color fillColor1, Color fillColor2)
+    public MoeBorderHighlighterPainter(Color bColor, Color fillColor1, Color fillColor2,
+            Color selectionColor1, Color selectionColor2)
     {
         super(fillColor1);
         borderColor=bColor;
         innerColor1=fillColor1;
         innerColor2=fillColor2;
+        this.selectionColor1 = selectionColor1;
+        this.selectionColor2 = selectionColor2;
+    }
+    
+    /**
+     * Paint a gradient fill
+     * @param g  The graphics object on which to draw
+     * @param r  The region to be occupied by the fill
+     * @param color1   The first color in the gradient
+     * @param color2   The second color in the gradient
+     */
+    private void paintGradient(Graphics g, Rectangle r, Color color1, Color color2)
+    {
+        if (g instanceof Graphics2D) {
+            Graphics2D g2d = (Graphics2D)g;
+
+            // Paint a gradient from top to bottom:
+            GradientPaint gp = new GradientPaint(
+                r.x,r.y, color1,
+                r.x+(r.width/2), r.y+r.height, color2);
+
+            g2d.setPaint(gp);
+            g2d.fillRect(r.x-1, r.y, r.width+1, r.height);
+        }
     }
     
     /**
@@ -59,7 +88,7 @@ public class MoeBorderHighlighterPainter extends DefaultHighlightPainter
      */
     public Shape paintLayer(Graphics g, int offs0, int offs1, Shape bounds,
             JTextComponent c, View view)
-    {
+    {        
         // Should only render part of View.
         try {
             // --- determine locations ---
@@ -67,25 +96,40 @@ public class MoeBorderHighlighterPainter extends DefaultHighlightPainter
                     offs1,Position.Bias.Backward,
                     bounds);
             Rectangle r = shape.getBounds(); 
-            //fill in the rectangle and then draw the border
-            //g.setColor(innerColor);
-            //g.fillRect(r.x,r.y, r.width, r.height);
 
-            if (g instanceof Graphics2D) {
-                Graphics2D g2d = (Graphics2D)g;
+            paintGradient(g, r, innerColor1, innerColor2);
 
-                // Paint a gradient from top to bottom:
-                GradientPaint gp = new GradientPaint(
-                    r.x,r.y, innerColor1,
-                    r.x+(r.width/2), r.y+r.height, innerColor2);
-
-                g2d.setPaint(gp);
-                g2d.fillRect(r.x-1, r.y, r.width+1, r.height);
-            }
-
-            //g.drawRect(r.x,r.y, r.width-1, r.height-1);
             g.setColor(borderColor);
             g.drawRoundRect(r.x-2,r.y, r.width+2, r.height-1, 6, 6);
+            
+            int selStart = c.getSelectionStart();
+            int selEnd = c.getSelectionEnd();
+            boolean overLaps = selStart != selEnd;
+            overLaps &= (selStart < offs1 && selEnd >= offs0);
+                   
+            if (overLaps) {
+                Shape origClip = g.getClip();
+                Rectangle clip = (origClip != null) ? origClip.getBounds() : bounds.getBounds();
+                if (selEnd < offs1) {
+                    int clipR = view.modelToView(selEnd, bounds,
+                            Position.Bias.Backward).getBounds().x;
+                    clip.width = Math.min(clip.width, clipR - clip.x);
+                }
+                if (selStart > offs0) {
+                    int clipL = view.modelToView(selStart, bounds,
+                            Position.Bias.Forward).getBounds().x;
+                    int diff = clipL - clip.x;
+                    if (diff > 0) {
+                        clip.x = clipL;
+                        clip.width -= diff;
+                    }
+                }
+
+                g.setClip(clip);
+                paintGradient(g, r, selectionColor1, selectionColor2);
+                g.setClip(origClip);
+            }
+            
             r.x -= 2;
             r.width += 3;
             return r;

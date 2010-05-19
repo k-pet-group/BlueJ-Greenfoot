@@ -193,9 +193,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     
     protected static HighlightPainter highlightPainter =
         new MoeBorderHighlighterPainter(highlightBorderColor, Config.getHighlightColour(),
-                Config.getHighlightColour2());;
-    protected static HighlightPainter selectPainter =
-        new MoeBorderHighlighterPainter(highlightBorderColor, Config.getSelectionColour(),
+                Config.getHighlightColour2(), Config.getSelectionColour(),
                 Config.getSelectionColour2());;
 
     // -------- INSTANCE VARIABLES --------
@@ -1617,9 +1615,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                         if (select){
                             //purposely using both select and the highlight because the select sets the                         
                             //caret correctly and the highlighter ensures the colouring is done correctly             
+                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), highlightPainter);
                             currentTextPane.select(start + foundPos, start + foundPos + s.length());
                             setSelectionVisible();  
-                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), highlightPainter);
                             //reset the start position to the first caret of the selected item
                             //in order to ensure that none are missed
                             startPosition=start+foundPos;
