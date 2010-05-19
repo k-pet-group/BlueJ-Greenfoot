@@ -257,7 +257,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /**
      * list of actions that are disabled in the readme text file
      */
-    private static ArrayList<String> readOnlyActions;
+    private static ArrayList<String> readMeActions;
 
     private CodeCompletionDisplay codeCompletionDlg;
     
@@ -356,7 +356,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             }
         }
         else {
-            if (docFilename != null) {  
+            if (docFilename != null) {
                 if (new File(docFilename).exists()) {
                     showInterface(true);
                     loaded = true;
@@ -1894,15 +1894,16 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
     
     /**
-     * 
-     * @param text
-     * @return
+     * Returns true if it is flagged as an action that is disabled in the readme.txt file
+     * @param actionName String representing the action name
+     * @return true if it is flagged as an action that is disabled in the readme.txt file;
+     *         false if it is a valid action
      */
-    private boolean isReadmeAction(String text)
+    private boolean isReadmeAction(String actionName)
     {
         
         ArrayList<String> flaggedActions = getReadOnlyActions();
-        if (flaggedActions!=null && flaggedActions.contains(text)) {
+        if (flaggedActions!=null && flaggedActions.contains(actionName)) {
             return true;
         }
         return false;
@@ -1914,13 +1915,13 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     private ArrayList<String> getReadOnlyActions ()
     {
-        if (readOnlyActions==null) {
-            readOnlyActions=new ArrayList<String>();
-            readOnlyActions.add("compile");
-            readOnlyActions.add("autoindent");
-            readOnlyActions.add("insert-method");
+        if (readMeActions==null) {
+            readMeActions=new ArrayList<String>();
+            readMeActions.add("compile");
+            readMeActions.add("autoindent");
+            readMeActions.add("insert-method");
         }
-        return readOnlyActions;
+        return readMeActions;
     }
     /**
      * Returns a list of names for the actions which are only valid in an editing
@@ -3007,8 +3008,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                     if (isReadmeAction(itemKeys[i])){
                         item.setEnabled(false);
                     }
-                }
-                
+                }               
             }
         }
         return menu;
