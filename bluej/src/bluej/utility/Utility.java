@@ -52,7 +52,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 7065 2010-01-29 11:43:40Z nccb $
+ * @version $Id: Utility.java 7622 2010-05-19 15:17:36Z nccb $
  */
 public class Utility
 {
@@ -68,6 +68,15 @@ public class Utility
     {
         for (int i = 0; i < thickness; i++)
             g.drawRect(x + i, y + i, width - 2 * i, height - 2 * i);
+    }
+    
+    /**
+     * Draw a thick rounded rectangle - another of the things missing from the AWT
+     */
+    public static void drawThickRoundRect(Graphics g, int x, int y, int width, int height, int arc, int thickness)
+    {
+        for (int i = 0; i < thickness; i++)
+            g.drawRoundRect(x + i, y + i, width - 2 * i, height - 2 * i, arc, arc);
     }
 
     /**
@@ -117,7 +126,9 @@ public class Utility
         if (xOffset < 0) {
             xOffset = 0;
         }
-        int yOffset = (height + fm.getAscent()) / 2;
+        // This is the space left around the text, divided by 2 (equal gap above and below)
+        // to get the top of the text, plus the ascent to get the baseline 
+        int yOffset = fm.getAscent() + ((height - fm.getAscent() - fm.getDescent()) / 2);
         g.drawString(str, x + xOffset, y + yOffset);
         g.setClip(oldClip);
     }
