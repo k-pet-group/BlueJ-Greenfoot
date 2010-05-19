@@ -227,76 +227,118 @@ public final class JavaLexer implements TokenStream
         return complete;
     }
 
+    private boolean isHexDigit(char ch)
+    {
+        if (Character.isDigit(ch)) {
+            return true;
+        }
+        
+        if (ch >= 'a' && ch <= 'f') {
+            return true;
+        }
+        
+        if (ch >= 'A' && ch <= 'F') {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    
     private int getDigitType(char ch, boolean dot)
     {
-        int type=JavaTokenTypes.NUM_INT;
-        int rval=0;     
-        boolean complete=false;
-        boolean isDecimal=dot;
-        boolean hexDecimalNumber=false;
+        int rval=ch;     
         textBuffer.append(ch);
+        int type = JavaTokenTypes.NUM_INT;
 
-        while (!complete){ 
-            rval=readNextChar();
-            //eof
-            if (rval==-1){
-                return type;
-            }
-            ch=(char)rval;
-            if (!Character.isDigit(ch)){
-                if (ch=='.'){
-                    if (isDecimal){
-                        return JavaTokenTypes.NUM_DOUBLE;
-                    }
-                    else {
-                        isDecimal=true;
-                        textBuffer.append(ch);
-                    }
+        if (ch == '0') {
+            rval = readNextChar();
+            if (rval == 'x' || rval == 'X') {
+                // hexadecimal
+                textBuffer.append((char) rval);
+                rval = readNextChar();
+                if (!isHexDigit((char)rval)) {
+                    return JavaTokenTypes.INVALID;
                 }
-                else if (Character.isLetter(ch)){
-                    if (ch=='f'|| ch=='F'){
-                        textBuffer.append(ch);
-                        type= JavaTokenTypes.NUM_FLOAT;
-                        isDecimal=false;
-                    } else if (ch=='d'|| ch=='D'){
-                        textBuffer.append(ch);
-                        type= JavaTokenTypes.NUM_DOUBLE;
-                    } else if (ch=='l'|| ch=='L'){
-                        textBuffer.append(ch);
-                        type= JavaTokenTypes.NUM_LONG;
-                        isDecimal=false;
-                    }
-                    else if (ch=='e'|| ch=='E'){
-                        textBuffer.append(ch);
-                        type= JavaTokenTypes.NUM_DOUBLE;
-                    }
-                    else if (ch=='x'){
-                        hexDecimalNumber=true;
-                        textBuffer.append(ch);
-                    }
-                    else if (hexDecimalNumber && (ch=='a'|| ch=='A' || ch=='b' ||ch=='B'||ch=='c'||ch=='C'||ch=='e'||ch=='E')){
-                        textBuffer.append(ch);
-                        type= JavaTokenTypes.NUM_INT;
-                    }
-                    else {
-                        complete=true;
-                    }                   
-                }
-                else if (Character.isWhitespace(ch)|| (!Character.isLetterOrDigit(ch))){
-                    complete=true;
-                } else {
-                    complete=true;
-                }              
-
-            } else {
-                textBuffer.append(ch);
-                type=JavaTokenTypes.NUM_INT;
+                
+                do {
+                    textBuffer.append((char) rval);
+                    rval = readNextChar();
+                } while (isHexDigit((char) rval));
             }
-
-        }           
-
-        if (isDecimal)
+            else if (Character.isDigit((char) rval)) {
+                do {
+                    // octal?
+                    textBuffer.append((char) rval);
+                    rval = readNextChar();
+                } while (Character.isDigit((char) rval));
+            }
+            ch = (char) rval;
+        }
+        else {
+            while (Character.isDigit((char) rval)) {
+                textBuffer.append((char) rval);
+                rval = readNextChar();
+            }
+        }
+        
+        if (rval == '.') {
+            // A decimal. (This might not really be valid).
+            textBuffer.append((char) rval);
+            rval = readNextChar();
+            while (Character.isDigit((char) rval)) {
+                textBuffer.append((char) rval);
+                rval = readNextChar();
+            }
+            if (rval == 'e' || rval == 'E') {
+                // exponent
+                textBuffer.append((char) rval);
+                rval = readNextChar();
+                while (Character.isDigit((char) rval)) {
+                    textBuffer.append((char) rval);
+                    rval = readNextChar();
+                }
+            }
+            
+            // Check for type suffixes
+            if (rval == 'f' || rval == 'F') {
+                textBuffer.append((char) rval);
+                rval = readNextChar();
+                return JavaTokenTypes.NUM_FLOAT;
+            }
+            if (rval == 'd' || rval == 'D') {
+                textBuffer.append((char) rval);
+                rval = readNextChar();
+            }
             return JavaTokenTypes.NUM_DOUBLE;
+        }
+        
+        if (rval == 'e' || rval == 'E') {
+            // exponent
+            textBuffer.append((char) rval);
+            rval = readNextChar();
+            while (Character.isDigit((char) rval)) {
+                textBuffer.append((char) rval);
+                rval = readNextChar();
+            }
+        }
+        
+        if (rval == 'l' || rval == 'L') {
+            textBuffer.append((char) rval);
+            rval = readNextChar();
+            return JavaTokenTypes.NUM_LONG;
+        }
+        if (rval == 'f' || rval == 'F') {
+            textBuffer.append((char) rval);
+            rval = readNextChar();
+            return JavaTokenTypes.NUM_FLOAT;
+        }
+        if (rval == 'd' || rval == 'D') {
+            textBuffer.append((char) rval);
+            rval = readNextChar();
+            return JavaTokenTypes.NUM_DOUBLE;
+        }
+        
         return type;
     }
 
