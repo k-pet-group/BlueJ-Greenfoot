@@ -38,7 +38,7 @@ import bluej.parser.nodes.ParsedCUNode;
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 7591 2010-05-18 14:25:22Z nccb $
+ * @version $Id: TextParserTest.java 7608 2010-05-19 04:30:13Z davmac $
  */
 public class TextParserTest extends TestCase
 {
@@ -413,6 +413,22 @@ public class TextParserTest extends TestCase
         assertEquals("boolean", r);
         r = tp.parseCommand("new Integer(5) == new Object()");
         assertEquals("boolean", r);
+    }
+    
+    public void testLiterals()
+    {
+        TextAnalyzer tp = new TextAnalyzer(resolver, "", objectBench);
+        String r = tp.parseCommand("0xFFFF");
+        assertEquals("int", r);
+        
+        r = tp.parseCommand("0xFFFFFFFFFl");
+        assertEquals("long", r);
+        
+        r = tp.parseCommand("1234");
+        assertEquals("int", r);
+        
+        r = tp.parseCommand("12345L");
+        assertEquals("long", r);
     }
     
     //test behaviour of parsing of statements and expressions
