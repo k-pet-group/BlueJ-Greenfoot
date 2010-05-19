@@ -165,6 +165,7 @@ public class CommentNode extends ParsedNode
         int newEnd = lineColToPos(document, commentToken.getEndLine(),
                 commentToken.getEndColumn());
         int newSize = newEnd - nodePos;
+        ((MoeSyntaxDocument)document).markSectionParsed(nodePos, newSize);
         if (getSize() != newSize) {
             setSize(newSize);
             return NODE_SHRUNK;
