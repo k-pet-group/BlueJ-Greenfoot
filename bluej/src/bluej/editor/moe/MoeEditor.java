@@ -2783,14 +2783,12 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         // one column, many rows
         statusArea.setBackground(infoColor);
         statusArea.setBorder(BorderFactory.createLineBorder(Color.black));
-        statusArea.setOpaque(false);
 
         saveState = new StatusLabel(StatusLabel.SAVED);
         statusArea.add(saveState);
         //bottomArea.add(statusArea, BorderLayout.EAST);
 
         info = new Info();
-        info.setOpaque(false);
         JPanel commentsPanel=new JPanel(new BorderLayout(6,1));
         commentsPanel.setOpaque(false);
         commentsPanel.add(info, BorderLayout.CENTER);
