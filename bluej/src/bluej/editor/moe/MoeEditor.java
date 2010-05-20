@@ -1870,10 +1870,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * @return boolean reflects if it is enabled ie false=disabled
      * @param buttonText  String with button text name
      */
-    private boolean isFlaggedAction(String text)
+    private boolean isEditAction(String text)
     {       
-        ArrayList<String> flaggedActions = getEditActions();
-        if (flaggedActions!=null && flaggedActions.contains(text)) {
+        ArrayList<String> editActions = getEditActions();
+        if (editActions!=null && editActions.contains(text)) {
             return true;
         }
         return false;
@@ -1899,7 +1899,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /**
      * Get a list of actions not applicable in the readme.txt file
      */
-    private ArrayList<String> getNonReadmeActions ()
+    private static ArrayList<String> getNonReadmeActions ()
     {
         if (readMeActions==null) {
             readMeActions=new ArrayList<String>();
@@ -1916,7 +1916,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      *  
      * @return list of editing action names
      */
-    private ArrayList<String> getEditActions()
+    private static ArrayList<String> getEditActions()
     {
         if (editActions == null) {
             editActions=new ArrayList<String>();
@@ -2110,11 +2110,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 menu=(JMenu)menubarComponent[i]; 
                 for (int j=0; j<menu.getMenuComponentCount(); j++){
                     if (menu.getMenuComponent(j) instanceof JMenuItem){
-                        if (isFlaggedAction(((JMenuItem)menu.getMenuComponent(j)).getName())){                  
+                        if (isEditAction(((JMenuItem)menu.getMenuComponent(j)).getName())){                  
                             ((JMenuItem)menu.getMenuComponent(j)).setEnabled(sourceView);
                         }
                     }
-
                 }
             }
         }
@@ -2147,7 +2146,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         for (int i=0;i<toolbarComponent.length; i++ ) {
             if (toolbarComponent[i] instanceof JButton) {                   
                 actionButton=(JButton)toolbarComponent[i];
-                if (isFlaggedAction(actionButton.getName())) {
+                if (isEditAction(actionButton.getName())) {
                     actionButton.setEnabled(sourceView);
                 }
             }
