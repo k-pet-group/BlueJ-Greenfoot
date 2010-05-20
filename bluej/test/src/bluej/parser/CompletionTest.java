@@ -29,7 +29,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
 import junit.framework.TestCase;
-import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaType;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
@@ -121,24 +120,24 @@ public class CompletionTest extends TestCase
         assertEquals("int[]", ftype.toString());
     }
     
-    public void testCompletionAfterArrayElement()
+    public void testCompletionAfterArrayElement() throws Exception
     {
-        String aClassSrc = "class A {" +
-        "  public static String s[] = null;" +
-        "}";
+        String aClassSrc = "class A {\n" +         // 0 - 10
+        "  public static String s[] = null;\n" +   // 10 - 45 
+        "  void m() {\n" +                         // 45 - 58 
+        "    s[0].length();\n" +                   // 58 -   s[0]. <- 67 
+        "  }\n" +
+        "}\n";
 
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+        
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
         
-        EntityResolver resolver = new PackageResolver(this.resolver, "");
-        JavaEntity aClassEnt = resolver.resolvePackageOrClass("A", null);
-        Reader r = new StringReader("s[0].");
-        CompletionParser cp = new CompletionParser(resolver, r, aClassEnt);
-        cp.parseExpression();
-        
-        GenTypeSolid suggestionType = cp.getSuggestionType();
-        assertNotNull(suggestionType);
-        assertEquals("java.lang.String", suggestionType.toString());
+        CodeSuggestions suggests = aNode.getExpressionType(67, doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.String", suggests.getSuggestionType().toString());
     }
     
     /**

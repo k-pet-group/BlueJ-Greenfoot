@@ -363,6 +363,8 @@ public class JavaParser
     /** Saw a binary operator as part of an expression */
     protected void gotBinaryOperator(LocatableToken token) { }
     
+    protected void gotArrayElementAccess() { }
+    
     protected void gotImport(List<LocatableToken> tokens, boolean isStatic) { }
     
     protected void gotWildcardImport(List<LocatableToken> tokens, boolean isStatic) { }
@@ -2755,7 +2757,7 @@ public class JavaParser
                     endExpression(token);
                     return;
                 case 8: // LBRACK
-                    // Arrary subscript?
+                    // Array subscript?
                     if (tokenStream.LA(1).getType() == JavaTokenTypes.RBRACK) {
                         // No subscript means that this is a type - must be followed by
                         // ".class" normally. Eg Object[].class
@@ -2768,6 +2770,7 @@ public class JavaParser
                         error("Expected ']' after array subscript expression");
                         tokenStream.pushBack(token);
                     }
+                    gotArrayElementAccess();
                     break;
                 case 9: // LITERAL_instanceof
                     parseTypeSpec(true);

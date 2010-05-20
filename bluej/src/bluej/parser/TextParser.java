@@ -183,7 +183,9 @@ public class TextParser extends JavaParser
         return -1;
     }
     
-    // Process all on-stack operators with a equal-or-higher precedence than that given
+    /** 
+     * Process all on-stack operators with a equal-or-higher precedence than that given
+     */
     private void processHigherPrecedence(int precedence)
     {
         while (! operatorStack.isEmpty()) {
@@ -243,6 +245,28 @@ public class TextParser extends JavaParser
             valueStack.push(new ErrorEntity());
         }
         // TODO
+    }
+    
+    @Override
+    protected void gotArrayElementAccess()
+    {
+        JavaEntity index = popValueStack();
+        processHigherPrecedence(25); // Process DOT precedence and higher
+        JavaEntity array = popValueStack();
+        
+        index = index.resolveAsValue();
+        array = array.resolveAsValue();
+        if (index == null || array == null) {
+            valueStack.push(new ErrorEntity());
+            return;
+        }
+        
+        JavaType componentType = array.getType().getArrayComponent();
+        if (componentType == null) {
+            valueStack.push(new ErrorEntity());
+        }
+        
+        valueStack.push(new ValueEntity(componentType));
     }
     
     private void processNewOperator(Operator token)
@@ -466,6 +490,7 @@ public class TextParser extends JavaParser
     @Override
     protected void endExpression(LocatableToken token)
     {
+        // This should leave the expression value on top of the value stack:
         processHigherPrecedence(getPrecedence(PAREN_OPERATOR) + 1);
         operatorStack.pop();
     }
