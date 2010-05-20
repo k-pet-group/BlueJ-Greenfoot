@@ -22,9 +22,6 @@
 package bluej.debugger.gentype;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -124,17 +121,7 @@ public class GenTypeDeclTpar extends GenTypeTpar
         else
             return new GenTypeSolid [] {lBound};
     }
-    
-    @Override
-    public GenTypeClass[] getRealTypes()
-    {
-        List<GenTypeClass> clist = new LinkedList<GenTypeClass>();
-        for (int i = 0; i < upperBounds.length; i++) {
-            Collections.addAll(clist, upperBounds[i].getRealTypes());
-        }
-        return clist.toArray(new GenTypeClass[clist.size()]);
-    }
-    
+        
     /* (non-Javadoc)
      * @see bluej.debugger.gentype.GenTypeTpar#mapTparsToTypes(java.util.Map)
      */
