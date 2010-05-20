@@ -100,7 +100,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 7645 2010-05-20 10:54:49Z nccb $
+ * @version $Id: ClassTarget.java 7651 2010-05-20 14:02:51Z nccb $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -1929,9 +1929,9 @@ public class ClassTarget extends DependentTarget
     public String getTooltipText()
     {
         if (!getSourceInfo().isValid()) {
-            return Utility.multilineTooltip(Config.getString("graph.tooltip.classBroken"), Config.getString("graph.tooltip.dblclick"), Config.getString("graph.tooltip.rightclick"));
+            return Config.getString("graph.tooltip.classBroken");
         } else {
-            return Utility.multilineTooltip(Config.getString("graph.tooltip.dblclick"), Config.getString("graph.tooltip.rightclick"));
+            return null;
         }
     }
    

@@ -32,7 +32,7 @@ import java.util.Properties;
  * An "extends" dependency between two (class) targets in a package
  *
  * @author Michael Kolling
- * @version $Id: ExtendsDependency.java 7645 2010-05-20 10:54:49Z nccb $
+ * @version $Id: ExtendsDependency.java 7651 2010-05-20 14:02:51Z nccb $
  */
 public class ExtendsDependency extends Dependency
 {
@@ -65,10 +65,5 @@ public class ExtendsDependency extends Dependency
     public boolean isResizable()
     {
         return false;
-    }
-    
-    public String getTooltipText()
-    {
-        return Utility.multilineTooltip(Config.getString("graph.tooltip.extends"), Config.getString("graph.tooltip.rightclick"));
     }
 }

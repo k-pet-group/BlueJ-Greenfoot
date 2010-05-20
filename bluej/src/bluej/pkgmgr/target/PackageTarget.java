@@ -47,7 +47,7 @@ import bluej.utility.Utility;
  * A sub package (or parent package)
  * 
  * @author Michael Cahill
- * @version $Id: PackageTarget.java 7645 2010-05-20 10:54:49Z nccb $
+ * @version $Id: PackageTarget.java 7651 2010-05-20 14:02:51Z nccb $
  */
 public class PackageTarget extends Target
     implements Moveable
@@ -371,9 +371,4 @@ public class PackageTarget extends Target
         this.isMoveable = isMoveable;
 
     }
-
-    public String getTooltipText()
-    {
-        return Utility.multilineTooltip(Config.getString("graph.tooltip.package"), Config.getString("graph.tooltip.dblclick"));
-    } 
 }

@@ -33,7 +33,7 @@ import bluej.utility.Utility;
  * An "implements" dependency between two (class) targets in a package
  *
  * @author  Michael Kolling
- * @version $Id: ImplementsDependency.java 7645 2010-05-20 10:54:49Z nccb $
+ * @version $Id: ImplementsDependency.java 7651 2010-05-20 14:02:51Z nccb $
  */
 public class ImplementsDependency extends Dependency
 {
@@ -66,10 +66,5 @@ public class ImplementsDependency extends Dependency
     public boolean isResizable()
     {
         return false;
-    }
-    
-    public String getTooltipText()
-    {
-        return Utility.multilineTooltip(Config.getString("graph.tooltip.implements"), Config.getString("graph.tooltip.rightclick"));
     }
 }

@@ -33,7 +33,7 @@ import java.awt.*;
  * A dependency between two targets in a package
  *
  * @author  Michael Kolling
- * @version $Id: UsesDependency.java 7645 2010-05-20 10:54:49Z nccb $
+ * @version $Id: UsesDependency.java 7651 2010-05-20 14:02:51Z nccb $
  */
 public class UsesDependency extends Dependency
 {
@@ -215,10 +215,5 @@ public class UsesDependency extends Dependency
     public boolean isResizable()
     {
         return false;
-    }
-    
-    public String getTooltipText()
-    {
-        return Utility.multilineTooltip(Config.getString("graph.tooltip.uses"), Config.getString("graph.tooltip.rightclick"));
     }
 }

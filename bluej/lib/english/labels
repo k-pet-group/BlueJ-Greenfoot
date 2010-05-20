@@ -744,14 +744,8 @@ tooltip.update=Update local files that have been modified in the repository
 tooltip.status=Show the status of all teamwork files in the project
 tooltip.deployMIDlet=Deploy MIDlet suite contained in the project
 
-graph.tooltip.readme=README file for this project
-graph.tooltip.package=A package containing more classes
 graph.tooltip.classBroken=This class cannot currently be parsed
-graph.tooltip.dblclick=Double-click to open
-graph.tooltip.rightclick=Right-click for more options
-graph.tooltip.extends=Indicates one class extends another
-graph.tooltip.implements=Indicates one class implements an interface
-graph.tooltip.uses=Indicates one class uses another
+
 
 #Copyright
 

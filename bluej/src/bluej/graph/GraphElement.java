@@ -57,5 +57,8 @@ public abstract class GraphElement {
      * Get the text to display as a tool tip when the user hovers over this element
      * @return null for no tool-tip, otherwise return the text
      */
-    abstract public String getTooltipText();
+    public String getTooltipText()
+    {
+        return null;
+    }
 }
