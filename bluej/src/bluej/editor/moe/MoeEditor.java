@@ -223,7 +223,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     // new find functionality
     private FindPanel finder;
     private ReplacePanel replacer;
-    private int highlightCount=0;
 
     private JScrollPane scrollPane;
     private NaviView naviView;              // Navigation view (mini-source view)
@@ -1245,12 +1244,13 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public void print(PrinterJob printerJob)
     {
-    	if (printDialog == null)
+    	if (printDialog == null) {
             printDialog = new PrintDialog(this);
+    	}
 
         if (printDialog.display()) {
-        	PrintHandler pt = new PrintHandler(printerJob, getPageFormat(printerJob), printDialog.printLineNumbers(), printDialog.printHighlighting());
-        	pt.print();
+            PrintHandler pt = new PrintHandler(printerJob, getPageFormat(printerJob), printDialog.printLineNumbers(), printDialog.printHighlighting());
+            pt.print();
         }
     }
 
@@ -1596,13 +1596,13 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * 
      * @return Returns false if not found.
      */
-    boolean doFindSelect(String s, boolean ignoreCase, boolean wholeWord, boolean wrap, boolean select)
+    int doFindSelect(String s, boolean ignoreCase, boolean wholeWord, boolean wrap, boolean select)
     {
         int docLength = document.getLength();
         int startPosition = currentTextPane.getCaretPosition();
         int endPos = docLength;
+        int highlightCount = 0;
 
-        boolean found = false;
         boolean finished = false;
 
         int start = startPosition;
@@ -1615,29 +1615,30 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 while (lineText != null && lineText.length() > 0) {
                     foundPos = findSubstring(lineText, s, ignoreCase, wholeWord, false, foundPos);
                     if (foundPos != -1) {
-                        if (select){
+                        if (select) {
                             //purposely using both select and the highlight because the select sets the                         
                             //caret correctly and the highlighter ensures the colouring is done correctly             
-                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), highlightPainter);
                             currentTextPane.select(start + foundPos, start + foundPos + s.length());
+                            currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), highlightPainter);
                             setSelectionVisible();  
                             //reset the start position to the first caret of the selected item
                             //in order to ensure that none are missed
+                            highlightCount++;
                             startPosition=start+foundPos;
-                            found=true;
                             select=false;
-                        }else {
+                        } else {
                             currentTextPane.getHighlighter().addHighlight(start + foundPos, start + foundPos + s.length(), highlightPainter);                           
                             highlightCount++;
                         }
                         foundPos=foundPos+s.length();
-                    }else 
+                    } else {
                         lineText=null;
+                    }
                 }
                 if (lineEnd >= endPos) {
                     if (wrap) {
                         // do the wrapping
-                        endPos = Math.min(startPosition + s.length(), document.getLength());
+                        endPos = Math.min(startPosition + s.length() - 1, document.getLength());
                         line = document.getParagraphElement(0);
                         start = line.getStartOffset();
                         lineEnd = Math.min(line.getEndOffset(), endPos);
@@ -1659,26 +1660,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         catch (BadLocationException ex) {
             Debug.reportError("Error in editor find operation", ex);
         }
-        return found;
+        return highlightCount;
     }  
 
     /**
-     * Returns the number of highlights
-     */
-    public int getHighlightCount() 
-    {
-		return highlightCount;
-	}
-
-    /**
-     * Sets the number of highlights
-     */
-	public void setHighlightCount(int highlightCount) 
-	{
-		this.highlightCount = highlightCount;
-	}
-
-	/**
      * Transfers caret to user specified line number location.
      */
     public void goToLine()
@@ -3595,8 +3580,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     public boolean isLowerCase(String s)
     {
         for(int i=0; i<s.length(); i++) {
-            if(! Character.isLowerCase(s.charAt(i)))
+            if(! Character.isLowerCase(s.charAt(i))) {
                 return false;
+            }
         }
         return true;
     }
@@ -3618,8 +3604,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     public boolean isTitleCase(String s)
     {
-        if(s.length() < 2)
+        if(s.length() < 2) {
             return false;
+        }
         return Character.isUpperCase(s.charAt(0)) &&
         Character.isLowerCase(s.charAt(1));
     }

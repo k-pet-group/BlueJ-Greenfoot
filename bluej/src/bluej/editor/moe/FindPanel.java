@@ -449,8 +449,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      */
     public boolean highlightAll(boolean ignoreCase, boolean wholeWord, boolean forwards, boolean select)
     {
-        search(ignoreCase, wholeWord, true, select, forwards) ;
-        int counter=editor.getHighlightCount();
+        int counter = search(ignoreCase, wholeWord, true, select, forwards) ;
         //if there was nothing found, need to move the caret back to its original position
         //also need to disable buttons accordingly
         if (counter < 1) {
@@ -499,13 +498,14 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      * Search either forwards or backwards for the search string, highlighting all occurrences.
      * If no occurrences are found, the caret position is lost.
      */
-    private boolean search(boolean ignoreCase, boolean wholeWord, boolean wrap, boolean select, boolean next)
+    private int search(boolean ignoreCase, boolean wholeWord, boolean wrap, boolean select, boolean next)
     {
         String searchString = getSearchString();  
-        if (searchString.length()==0)
-            return true;
+        if (searchString.length()==0) {
+            return 0;
+        }
 
-        boolean found =false;
+        int found;
         if (!next){
             editor.doFindBackward(searchString, ignoreCase, wholeWord, wrap);
         } else {
@@ -514,8 +514,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         
         // position the caret so that following doFindSelect finds the correct occurrence
         int caretPos=editor.getCurrentTextPane().getCaretPosition();
-        if (caretPos>getSearchString().length())
+        if (caretPos>getSearchString().length()) {
             caretPos=editor.getCurrentTextPane().getCaretPosition() - searchString.length();
+        }
         editor.getCurrentTextPane().setCaretPosition(caretPos);
         found=editor.doFindSelect(searchString, ignoreCase, wholeWord, wrap, select);
         return found;
@@ -528,7 +529,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     protected boolean find(boolean forward)
     {
         setFindValues(); 
-        editor.setHighlightCount(0);
         editor.removeSearchHighlights();
         return highlightAll(!matchCaseCheckBox.isSelected(), false, forward, true);
     }
