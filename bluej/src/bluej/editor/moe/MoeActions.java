@@ -790,6 +790,10 @@ public final class MoeActions
         public void actionPerformed(ActionEvent e)
         {
             MoeEditor editor = getEditor(e);
+            //this method should not be actioned if the editor is not displaying source code
+            if (!editor.containsSourceCode()){
+                return;
+            }
             editor.undoManager.beginCompoundEdit();
             insertTemplate(getTextComponent(e), editor, "method");
             editor.undoManager.endCompoundEdit();

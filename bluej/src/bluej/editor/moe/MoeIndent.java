@@ -97,10 +97,6 @@ public class MoeIndent
                     }
                 }
                 else {
-                    if (doc.getParser() == null) {
-                        // The Readme, or some other file which isn't parsed
-                        return new AutoIndentInformation(perfect, 0);
-                    }
                     NodeAndPosition<ParsedNode> root = new NodeAndPosition<ParsedNode>(doc.getParser(),
                             0, doc.getParser().getSize());
                     String indent = calculateIndent(el, root, ii, doc);

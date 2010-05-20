@@ -3803,4 +3803,13 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
     	currentTextPane.setCaretPosition(position);
     }
+
+    /**
+     * Returns whether the source is code or not
+     * @return true if source code; 
+     *         false if not
+     */
+    protected boolean containsSourceCode() {
+        return sourceIsCode;
+    }
 }
