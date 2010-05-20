@@ -388,9 +388,10 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     }
 
     /**
-     * Display or remove the visibility of the find panel 
+     * Display the find panel and initiate a search. If the selection is null the search
+     * the previous search String is used (if there is a previous search) 
      */
-    public void displayFindPanel(String selection, boolean visible)
+    public void displayFindPanel(String selection)
     {    
         if (selection==null)
             selection=getSearchString();       
