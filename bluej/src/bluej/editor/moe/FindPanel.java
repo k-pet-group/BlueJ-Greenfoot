@@ -287,6 +287,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
 
         if (Config.isMacOS()) {
             DBox buttonBox = new DBox(DBoxLayout.X_AXIS, 0.5f);
+            buttonBox.setOpaque(false);
             buttonBox.add(previousButton);
             buttonBox.add(nextButton);
             optionsBody.add(buttonBox);
