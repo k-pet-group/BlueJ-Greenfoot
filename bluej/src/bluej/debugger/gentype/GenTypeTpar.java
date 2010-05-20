@@ -48,15 +48,7 @@ public class GenTypeTpar extends GenTypeSolid
     {
         return name;
     }
-    
-    @Override
-    public GenTypeClass[] getRealTypes()
-    {
-        // This call is somewhat meaningless if we don't how the type parameter was
-        // declared.
-        return new GenTypeClass[0];
-    }
-    
+        
     public String toTypeArgString(NameTransform nt)
     {
         return name;
@@ -73,7 +65,7 @@ public class GenTypeTpar extends GenTypeSolid
         return false;
     }
     
-    public boolean equals(GenTypeParameter other)
+    public boolean equals(JavaType other)
     {
         // For tpars to be equal, they must be the *same* tpar.
         return other == this;
@@ -153,11 +145,6 @@ public class GenTypeTpar extends GenTypeSolid
     public GenTypeClass [] getReferenceSupertypes()
     {
         throw new UnsupportedOperationException();
-    }
-    
-    public boolean contains(GenTypeParameter other)
-    {
-        return other == this;
     }
     
     @Override

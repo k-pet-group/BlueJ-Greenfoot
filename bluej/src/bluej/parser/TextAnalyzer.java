@@ -1085,7 +1085,7 @@ public class TextAnalyzer
             if (mparams.size() > args.length + 1)
                 return null;
 
-            GenTypeArray lastArgType = mparams.get(mparams.size() - 1).getArray();
+            GenTypeSolid lastArgType = mparams.get(mparams.size() - 1).getArray();
             JavaType vaType = lastArgType.getArrayComponent();
             List<JavaType> expandedParams = new ArrayList<JavaType>(args.length);
             expandedParams.addAll(mparams);

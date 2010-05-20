@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import bluej.parser.entity.ParsedArrayReflective;
+
 /**
  * A version of Reflective which can be easily customised to suit the needs
  * of a test.
@@ -97,7 +99,7 @@ public class TestReflective extends Reflective
     
     public Reflective getArrayOf()
     {
-        return null;
+        return new ParsedArrayReflective(this, "L" + getName() + ";");
     }
     
     public boolean isAssignableFrom(Reflective r)

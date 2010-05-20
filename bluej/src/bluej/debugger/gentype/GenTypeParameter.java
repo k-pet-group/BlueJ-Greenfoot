@@ -31,7 +31,6 @@ import bluej.utility.JavaNames;
  * parameters themselves.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeParameter.java 6938 2009-12-15 03:26:24Z davmac $
  */
 public abstract class GenTypeParameter
 {
@@ -58,8 +57,6 @@ public abstract class GenTypeParameter
      */
     abstract public GenTypeParameter mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams);
 
-    abstract public boolean equals(GenTypeParameter other);
-    
     public boolean equals(Object other)
     {
         if (other instanceof GenTypeParameter)
@@ -152,7 +149,16 @@ public abstract class GenTypeParameter
      * @param other  The other type to test against
      * @return True if this type contains the other type
      */
-    abstract public boolean contains(GenTypeParameter other);
+    public final boolean contains(GenTypeParameter other)
+    {
+        GenTypeSolid myLower = getLowerBound();
+        GenTypeSolid myUpper = getUpperBound();
+        
+        GenTypeSolid otherLower = other.getLowerBound();
+        GenTypeSolid otherUpper = other.getUpperBound();
+        
+        return myUpper.isAssignableFrom(otherUpper) && otherLower.isAssignableFrom(myLower);
+    }
     
     /*
      * Provide a default version of 
@@ -220,4 +226,8 @@ public abstract class GenTypeParameter
         return false;
     }
 
+    public GenTypeParameter getArrayComponent()
+    {
+        return null;
+    }
 }

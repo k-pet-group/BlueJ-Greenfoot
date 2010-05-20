@@ -211,15 +211,16 @@ public class JavaPrimitiveType
         return this;
     }
     
-    public boolean equals(Object other)
-    {
-        if (other instanceof JavaType) {
-            JavaType gto = (JavaType) other;
-            return (gto.typeIs(myIndex));
-        }
-        else
-            return false;
-    }
+//    public boolean equals(Object other)
+//    {
+//        if (other instanceof JavaType) {
+//            JavaType gto = (JavaType) other;
+//            return (gto.typeIs(myIndex));
+//        }
+//        else {
+//            return false;
+//        }
+//    }
     
     final protected int getMyIndex()
     {
@@ -270,19 +271,11 @@ public class JavaPrimitiveType
     }
     
     @Override
-    public boolean contains(GenTypeParameter other)
+    public boolean equals(JavaType other)
     {
-        // Not really defined
-        return false;
-    }
-    
-    @Override
-    public boolean equals(GenTypeParameter other)
-    {
-        if (other instanceof JavaPrimitiveType) {
-            JavaPrimitiveType otherP = (JavaPrimitiveType) other;
-            return otherP.typeIs(myIndex);
+        if (other == null) {
+            return false;
         }
-        return false;
+        return other.typeIs(myIndex);
     }
 }

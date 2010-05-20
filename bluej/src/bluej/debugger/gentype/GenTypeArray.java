@@ -22,17 +22,17 @@
 package bluej.debugger.gentype;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
+
+import bluej.utility.JavaReflective;
 
 /**
  * A specialization of GenTypeClass for arrays.
  * 
  * @author Davin McCall
  */
-public class GenTypeArray extends GenTypeClass
+public class GenTypeArray extends GenTypeSolid
 {
     JavaType baseType;
     
@@ -54,78 +54,145 @@ public class GenTypeArray extends GenTypeClass
     {
         return baseType.toString(nt) + "[]";
     }
-    
+
+    @Override
+    public String toTypeArgString(NameTransform nt)
+    {
+        return toString(nt);
+    }
+
     public String arrayComponentName()
     {
         return "[" + baseType.arrayComponentName();
     }
-    
-    @Override
-    public String classloaderName()
-    {
-        return arrayComponentName();
-    }
-    
+        
     public JavaType getArrayComponent()
     {
         return baseType;
     }
     
-    public GenTypeClass mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
-    {
-        JavaType newBase = baseType.mapTparsToTypes(tparams);
-        if( newBase == baseType )
-            return this;
-        else
-            return new GenTypeArray(newBase);
-    }
-
     public GenTypeSolid getLowerBound()
     {
-        if (baseType.isPrimitive())
-            return this;
+        return this;
+    }
+
+    @Override
+    public boolean equals(JavaType other)
+    {
+        return baseType.equals(other.getArrayComponent());
+    }
+    
+    @Override
+    public void erasedSuperTypes(Set<Reflective> s)
+    {
+        GenTypeSolid baseSolid = baseType.getUpperBound();
+        if (baseSolid != null) {
+            Set<Reflective> bSupers = new HashSet<Reflective>();
+            baseSolid.erasedSuperTypes(bSupers);
+            for (Reflective r : bSupers) {
+                s.add(r.getArrayOf());
+            }
+        }
         else {
-            GenTypeSolid Lbounds = ((GenTypeParameter) baseType).getLowerBound();
-            return new GenTypeArray(Lbounds);
+            // Must be primitive
+            Class<?> aClass = null;
+            if (baseType.typeIs(JT_VOID)) {
+                aClass = void.class;
+            }
+            else if (baseType.typeIs(JT_BOOLEAN)) {
+                aClass = boolean.class;
+            }
+            else if (baseType.typeIs(JT_BYTE)) {
+                aClass = byte.class;
+            }
+            else if (baseType.typeIs(JT_CHAR)) {
+                aClass = char.class;
+            }
+            else if (baseType.typeIs(JT_DOUBLE)) {
+                aClass = double.class;
+            }
+            else if (baseType.typeIs(JT_FLOAT)) {
+                aClass = float.class;
+            }
+            else if (baseType.typeIs(JT_INT)) {
+                aClass = int.class;
+            }
+            else if (baseType.typeIs(JT_LONG)) {
+                aClass = long.class;
+            }
+            s.add(new JavaReflective(aClass).getArrayOf());
         }
     }
     
-    public GenTypeClass getErasedType()
+    @Override
+    public GenTypeArray getArray()
     {
-        if (baseType instanceof GenTypeParameter) {
-            GenTypeParameter pbtype = (GenTypeParameter) baseType;
-            JavaType pbErased = pbtype.getErasedType();
-            return new GenTypeArray(pbErased);
-        }
-        else
+        return new GenTypeArray(this);
+    }
+    
+    @Override
+    public JavaType getErasedType()
+    {
+        JavaType baseErased = baseType.getErasedType();
+        if (baseErased == baseType) {
             return this;
+        }
+        else {
+            return new GenTypeArray(baseErased);
+        }
     }
-
-    public void erasedSuperTypes(Set<Reflective> s)
+    
+    @Override
+    public void getParamsFromTemplate(Map<String, GenTypeParameter> map,
+            GenTypeParameter template)
     {
-        Stack<Reflective> refs = new Stack<Reflective>();
-        if (baseType instanceof GenTypeSolid) {
-            GenTypeSolid sbaseType = (GenTypeSolid) baseType;
-            Set<Reflective> baseEST = new HashSet<Reflective>();
-            sbaseType.erasedSuperTypes(baseEST);
-            Iterator<Reflective> i = baseEST.iterator();
-            while (i.hasNext()) {
-                refs.push(((Reflective) i.next()).getArrayOf());
-            }
-        }
-        else
-            // DAV how can this work if reflective == null?!
-            refs.push(reflective);
-        
-        while(! refs.empty()) {
-            Reflective r = (Reflective) refs.pop();
-            if (! s.contains(r)) {
-                // The reflective is not already in the set, so
-                // add it and queue its supertypes
-                s.add(r);
-                refs.addAll(r.getSuperTypesR());
-            }
+        GenTypeParameter ntemplate = template.getArrayComponent();
+        if (ntemplate != null) {
+            baseType.getParamsFromTemplate(map, ntemplate);
         }
     }
-
+        
+    @Override
+    public GenTypeClass[] getReferenceSupertypes()
+    {
+        throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public GenTypeSolid mapTparsToTypes(
+            Map<String, ? extends GenTypeParameter> tparams)
+    {
+        JavaType mappedBase = baseType.mapTparsToTypes(tparams);
+        if (mappedBase != baseType) {
+            return new GenTypeArray(mappedBase);
+        }
+        return this;
+    }
+    
+    @Override
+    public boolean isAssignableFrom(JavaType t)
+    {
+        JavaType componentType = t.getArrayComponent();
+        if (componentType != null) {
+            return baseType.isAssignableFrom(componentType);
+        }
+        return false;
+    }
+    
+    @Override
+    public boolean isAssignableFromRaw(JavaType t)
+    {
+        JavaType componentType = t.getArrayComponent();
+        if (componentType != null) {
+            return baseType.isAssignableFromRaw(componentType);
+        }
+        return false;
+    }
+    
+    @Override
+    public boolean isInterface()
+    {
+        return false;
+    }
+    
 }

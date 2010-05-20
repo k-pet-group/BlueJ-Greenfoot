@@ -91,7 +91,7 @@ public abstract class GenTypeSolid extends JavaType
      * Get the "real" types (class types) backing this solid. For a T-par this is the bounds.
      * For an intersection this is the real types of all the types in the intersection.
      */
-    abstract public GenTypeClass [] getRealTypes();
+    //abstract public GenTypeClass [] getRealTypes();
     
     /*
      *  Implement methods from GenTypeParameterizable
@@ -252,7 +252,7 @@ public abstract class GenTypeSolid extends JavaType
         // re-instate array dimensions
         GenTypeClass rval = new GenTypeClass(a.getReflective(), lc, oc);
         while (arrCount-- > 0) {
-            rval = new GenTypeArray(rval);
+            rval = rval.getArray();
         }
         return rval;
     }

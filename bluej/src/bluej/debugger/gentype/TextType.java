@@ -31,7 +31,6 @@ import java.util.Map;
  * Most operations on this type fail with an UnsupportedOperationException.
  * 
  * @author Davin McCall
- * @version $Id: TextType.java 6938 2009-12-15 03:26:24Z davmac $
  */
 public class TextType extends JavaType
 {
@@ -122,22 +121,17 @@ public class TextType extends JavaType
     
     // methods from GenTypeParameterizable
     
-    public void getParamsFromTemplate(Map map, GenTypeParameter template)
+    public void getParamsFromTemplate(Map<String,GenTypeParameter> map, GenTypeParameter template)
     {
         throw new UnsupportedOperationException();
     }
 
-    public boolean contains(GenTypeParameter other)
-    {
-        throw new UnsupportedOperationException();
-    }
-    
     public GenTypeSolid getLowerBound()
     {
         throw new UnsupportedOperationException();
     }
     
-    public boolean equals(GenTypeParameter other)
+    public boolean equals(JavaType other)
     {
         if (other == null) {
             return false;

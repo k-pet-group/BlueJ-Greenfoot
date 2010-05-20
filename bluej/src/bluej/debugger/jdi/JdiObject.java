@@ -21,24 +21,30 @@
  */
 package bluej.debugger.jdi;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
-import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeSolid;
+import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 
-import com.sun.jdi.*;
+import com.sun.jdi.ArrayReference;
+import com.sun.jdi.Field;
+import com.sun.jdi.ObjectReference;
+import com.sun.jdi.ReferenceType;
+import com.sun.jdi.Value;
 
 /**
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: JdiObject.java 7631 2010-05-20 05:00:59Z davmac $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -224,8 +230,9 @@ public class JdiObject extends DebuggerObject
     
     public GenTypeClass getGenType()
     {
-        if(genType != null)
+        if(genType != null) {
             return genType;
+        }
         else {
             Reflective r = new JdiReflective(obj.referenceType());
             return new GenTypeClass(r);

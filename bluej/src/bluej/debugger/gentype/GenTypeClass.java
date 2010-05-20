@@ -48,6 +48,8 @@ public class GenTypeClass extends GenTypeSolid
      */
     public GenTypeClass(Reflective r)
     {
+        // DAV
+        if (r == null) throw new NullPointerException();
         reflective = r;
     }
     
@@ -78,6 +80,8 @@ public class GenTypeClass extends GenTypeSolid
      */
     public GenTypeClass(Reflective r, List<? extends GenTypeParameter> params, GenTypeClass outer)
     {
+        // DAV
+        if (r == null) throw new NullPointerException();
         reflective = r;
         if( params != null && ! params.isEmpty() )
             this.params = params;
@@ -97,6 +101,8 @@ public class GenTypeClass extends GenTypeSolid
      */
     public GenTypeClass(Reflective r, Map<String,GenTypeParameter> mparams)
     {
+        // DAV
+        if (r == null) throw new NullPointerException();
         reflective = r;
         
         // if mparams == null, this is a raw type. Nothing more to do.
@@ -135,13 +141,6 @@ public class GenTypeClass extends GenTypeSolid
         }
     }
     
-    /**
-     * Protected constructor for use by GenTypeArray.
-     */
-    protected GenTypeClass()
-    {
-    }
-    
     // ---------- instance methods -------------
 
     public GenTypeClass asClass()
@@ -153,13 +152,7 @@ public class GenTypeClass extends GenTypeSolid
     {
         return new GenTypeClass(reflective);
     }
-    
-    @Override
-    public GenTypeClass[] getRealTypes()
-    {
-        return new GenTypeClass[] {this};
-    }
-    
+        
     /**
      * Get the name of the type as known to the classloader. The name returned is
      * encoded so that it can be passed to a ClassLoader's "loadClass" method (dots
@@ -235,8 +228,9 @@ public class GenTypeClass extends GenTypeSolid
         // and it is not possible for the inner class to be raw if the outer
         // is not also raw (or, if it is, the outer should be treated as
         // raw anyway).
-        if (outer != null)
+        if (outer != null) {
             return false;
+        }
         List<?> formalParams = reflective.getTypeParams();
         return params == null && ! formalParams.isEmpty();
     }
@@ -282,16 +276,17 @@ public class GenTypeClass extends GenTypeSolid
         return toString(nt);
     }
     
-    public boolean equals(GenTypeParameter other)
+    public boolean equals(JavaType other)
     {
         if (other == this)
             return true;
         if (other == null)
             return false;
-        if (other.getClass() != GenTypeClass.class)
-            return false;
         
-        GenTypeClass oClass = (GenTypeClass)other;
+        GenTypeClass oClass = other.asClass();
+        if (oClass == null) {
+            return false;
+        }
         
         JavaType arrayComponent = getArrayComponent();
         JavaType oarrayComponent = oClass.getArrayComponent();
@@ -409,11 +404,6 @@ public class GenTypeClass extends GenTypeSolid
         return false;
     }
     
-    public boolean contains(GenTypeParameter other)
-    {
-        return this.equals(other);
-    }
-    
     public boolean isAssignableFrom(GenTypeClass c)
     {
         Reflective r = c.reflective;
@@ -431,11 +421,11 @@ public class GenTypeClass extends GenTypeSolid
             }
             
             if (params != null) {
-                Iterator i = params.iterator();
-                Iterator j = other.params.iterator();
+                Iterator<? extends GenTypeParameter> i = params.iterator();
+                Iterator<? extends GenTypeParameter> j = other.params.iterator();
                 while (i.hasNext()) {
-                    GenTypeParameter myParam = (GenTypeParameter) i.next();
-                    GenTypeParameter oParam = (GenTypeParameter) j.next();
+                    GenTypeParameter myParam = i.next();
+                    GenTypeParameter oParam = j.next();
                     if (! myParam.contains(oParam))
                         return false;
                 }
@@ -692,8 +682,8 @@ public class GenTypeClass extends GenTypeSolid
             if (classTemplate.classloaderName().equals(classloaderName())) {
                 if (params == null || classTemplate.params == null)
                     return;
-                Iterator i = params.iterator();
-                Iterator j = classTemplate.params.iterator();
+                Iterator<? extends GenTypeParameter> i = params.iterator();
+                Iterator<? extends GenTypeParameter> j = classTemplate.params.iterator();
 
                 // Handle case that this is an inner class
                 if (outer != null)
@@ -702,7 +692,7 @@ public class GenTypeClass extends GenTypeSolid
                 // loop through each parameter
                 while (i.hasNext() && j.hasNext()) {
                     GenTypeSolid ip = (GenTypeSolid) i.next();
-                    GenTypeParameter jp = (GenTypeParameter) j.next();
+                    GenTypeParameter jp = j.next();
 
                     ip.getParamsFromTemplate(r, jp);
                 }
@@ -735,8 +725,8 @@ public class GenTypeClass extends GenTypeSolid
     }
     
     @Override
-    public GenTypeArray getArray()
+    public GenTypeClass getArray()
     {
-        return new GenTypeArray(this);
+        return new GenTypeArrayClass(reflective.getArrayOf(), this);
     }
 }

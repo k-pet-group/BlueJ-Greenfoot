@@ -36,7 +36,7 @@ import bluej.utility.Debug;
  * This is an Immutable type.
  * 
  * @author Davin McCall
- * @version $Id: GenTypeWildcard.java 7129 2010-02-15 03:11:04Z davmac $
+ * @version $Id: GenTypeWildcard.java 7631 2010-05-20 05:00:59Z davmac $
  */
 public class GenTypeWildcard extends GenTypeParameter
 {
@@ -216,25 +216,7 @@ public class GenTypeWildcard extends GenTypeParameter
     {
         return lowerBound;
     }
-    
-    public boolean contains(GenTypeParameter other)
-    {
-        GenTypeSolid otherUpper = other.getUpperBound();
-        GenTypeSolid otherLower = other.getLowerBound();
         
-        if (upperBound != null) {
-            if (otherUpper == null || ! upperBound.isAssignableFrom(otherUpper))
-                return false;
-        }
-        
-        if (lowerBound != null) {
-            if (otherLower == null || ! otherLower.isAssignableFrom(lowerBound))
-                return false;
-        }
-        
-        return true;
-    }
-    
     @Override
     public JavaType getCapture()
     {

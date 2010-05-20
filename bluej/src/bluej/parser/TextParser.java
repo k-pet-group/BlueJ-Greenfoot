@@ -654,8 +654,7 @@ public class TextParser extends JavaParser
                 }
                 tent = new TypeEntity(ttype);
             }
-            GenTypeClass ctype = ttype.asClass();
-            if (ctype != null) {
+            if (! ttype.isPrimitive()) {
                 TypeEntity jlcEnt = resolver.resolveQualifiedClass("java.lang.Class");
                 if (jlcEnt != null) {
                     List<TypeArgumentEntity> targs = new ArrayList<TypeArgumentEntity>(1);

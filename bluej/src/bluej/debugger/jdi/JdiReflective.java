@@ -158,10 +158,12 @@ public class JdiReflective extends Reflective
 
     public Reflective getArrayOf()
     {
-        if (rclass != null)
+        if (rclass != null) {
             return new JdiArrayReflective(new GenTypeClass(this), rclass);
-        else
+        }
+        else {
             return new JdiArrayReflective(new GenTypeClass(this), sourceLoader, sourceVM);
+        }
     }
     
     public List<GenTypeDeclTpar> getTypeParams()
@@ -261,7 +263,7 @@ public class JdiReflective extends Reflective
     public List<GenTypeClass> getSuperTypes()
     {
         checkLoaded();
-        List rlist = new ArrayList();
+        List<GenTypeClass> rlist = new ArrayList<GenTypeClass>();
 
         if (JdiUtils.getJdiUtils().genericSignature(rclass) == null) {
             if (rclass instanceof ClassType) {
@@ -272,9 +274,9 @@ public class JdiReflective extends Reflective
                 rlist.add(new GenTypeClass(r));
 
                 // interfaces
-                List interfaces = ctClass.interfaces();
-                for (Iterator i = interfaces.iterator(); i.hasNext();) {
-                    r = new JdiReflective((InterfaceType) i.next());
+                List<InterfaceType> interfaces = ctClass.interfaces();
+                for (Iterator<InterfaceType> i = interfaces.iterator(); i.hasNext();) {
+                    r = new JdiReflective(i.next());
                     rlist.add(new GenTypeClass(r));
                 }
                 return rlist;
@@ -283,9 +285,9 @@ public class JdiReflective extends Reflective
                 // rclass must be an InterfaceType
                 InterfaceType itClass = (InterfaceType) rclass;
 
-                List interfaces = itClass.superinterfaces();
-                for (Iterator i = interfaces.iterator(); i.hasNext();) {
-                    Reflective r = new JdiReflective((InterfaceType) i.next());
+                List<InterfaceType> interfaces = itClass.superinterfaces();
+                for (Iterator<InterfaceType> i = interfaces.iterator(); i.hasNext();) {
+                    Reflective r = new JdiReflective(i.next());
                     rlist.add(new GenTypeClass(r));
                 }
                 
@@ -303,9 +305,9 @@ public class JdiReflective extends Reflective
         // First, skip over the type params in the supertype:
 
         StringIterator s = new StringIterator(JdiUtils.getJdiUtils().genericSignature(rclass));
-        List l = getTypeParams(s);
-        Map declTpars = new HashMap();
-        for (Iterator i = l.iterator(); i.hasNext(); ) {
+        List<GenTypeDeclTpar> l = getTypeParams(s);
+        Map<String,GenTypeDeclTpar> declTpars = new HashMap<String,GenTypeDeclTpar>();
+        for (Iterator<GenTypeDeclTpar> i = l.iterator(); i.hasNext(); ) {
             GenTypeDeclTpar declTpar = (GenTypeDeclTpar) i.next();
             declTpars.put(declTpar.getTparName(), declTpar); 
         }

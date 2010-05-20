@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import bluej.debugger.gentype.GenTypeArray;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.JavaType;
@@ -106,9 +105,7 @@ public class JavaReflective extends Reflective {
         
         try {
             ClassLoader cloader = c.getClassLoader();
-            if (cloader == null)
-                cloader = ClassLoader.getSystemClassLoader();
-            Class<?> arrClass = cloader.loadClass(rname);
+            Class<?> arrClass = Class.forName(rname, false, cloader);
             return new JavaReflective(arrClass);
         }
         catch (ClassNotFoundException cnfe) {}
@@ -174,7 +171,7 @@ public class JavaReflective extends Reflective {
             Iterator<GenTypeClass> i = componentSuperTypes.iterator();
             while (i.hasNext()) {
                 GenTypeClass componentSuperType = i.next();
-                l.add(new GenTypeArray(componentSuperType));
+                l.add(componentSuperType.getArray());
             }
         }
 

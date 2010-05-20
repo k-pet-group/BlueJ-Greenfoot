@@ -182,17 +182,7 @@ public class IntersectionType extends GenTypeSolid
     {
         return new GenTypeSolid[] {this};
     }
-    
-    @Override
-    public GenTypeClass[] getRealTypes()
-    {
-        List<GenTypeClass> clist = new LinkedList<GenTypeClass>();
-        for (int i = 0; i < intersectTypes.length; i++) {
-            Collections.addAll(clist, intersectTypes[i].getRealTypes());
-        }
-        return clist.toArray(new GenTypeClass[clist.size()]);
-    }
-    
+        
     public GenTypeSolid mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
         GenTypeSolid [] newIsect = new GenTypeSolid[intersectTypes.length];
@@ -202,7 +192,7 @@ public class IntersectionType extends GenTypeSolid
         return new IntersectionType(newIsect);
     }
 
-    public boolean equals(GenTypeParameter other)
+    public boolean equals(JavaType other)
     {
         if (other == null)
             return false;
@@ -272,11 +262,6 @@ public class IntersectionType extends GenTypeSolid
             }
         }
         return (GenTypeClass[]) rsupTypes.toArray(new GenTypeClass[rsupTypes.size()]);
-    }
-    
-    public boolean contains(GenTypeParameter other)
-    {
-        return this.equals(other);
     }
     
     @Override

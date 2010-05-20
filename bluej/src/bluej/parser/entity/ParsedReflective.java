@@ -64,8 +64,7 @@ public class ParsedReflective extends Reflective
     @Override
     public Reflective getArrayOf()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return new ParsedArrayReflective(this, "L" + getName() + ";");
     }
 
     @Override

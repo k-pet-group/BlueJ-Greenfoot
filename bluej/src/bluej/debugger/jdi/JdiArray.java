@@ -25,7 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import bluej.debugger.DebuggerObject;
-import bluej.debugger.gentype.*;
+import bluej.debugger.gentype.GenTypeArray;
+import bluej.debugger.gentype.GenTypeArrayClass;
+import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.Reflective;
 import bluej.utility.JavaNames;
 
 import com.sun.jdi.ArrayReference;
@@ -37,7 +41,7 @@ import com.sun.jdi.Value;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 6874 2009-11-30 05:46:18Z davmac $
+ * @version    $Id: JdiArray.java 7631 2010-05-20 05:00:59Z davmac $
  */
 public class JdiArray extends JdiObject
 {    
@@ -118,15 +122,17 @@ public class JdiArray extends JdiObject
     
     public String getGenClassName()
     {
-        if(componentType == null)
+        if(componentType == null) {
             return getClassName();
+        }
         return componentType.toString() + "[]";
     }
     
     public String getStrippedGenClassName()
     {
-        if(componentType == null)
+        if(componentType == null) {
             return JavaNames.stripPrefix(getClassName());
+        }
         return componentType.toString(true) + "[]";
     }
 
@@ -139,10 +145,11 @@ public class JdiArray extends JdiObject
     {
         if(componentType != null) {
             Reflective r = new JdiArrayReflective(componentType, obj.referenceType());
-            return new GenTypeArray(componentType);
+            return new GenTypeArrayClass(r, componentType);
         }
-        else
+        else {
             return super.getGenType();
+        }
     }
     
     /**
@@ -288,74 +295,6 @@ public class JdiArray extends JdiObject
         }
         return fields;
     }
-
-    /**
-     * Is an object of this class assignable to the given fully qualified type?
-     *
-     * @param   type    Description of Parameter
-     * @return          The AssignableTo value
-     */
-/*    public boolean isAssignableTo(String type)
-    {
-        if (obj == null)
-        {
-            return false;
-        }
-        if (obj.referenceType() == null)
-        {
-            return false;
-        }
-        if (obj.referenceType().name() != null
-                 && type.equals(obj.referenceType().name()))
-        {
-            return true;
-        }
-        Type ct = obj.referenceType();
-        String t = type;
-        if (t.equals("java.lang.Object"))
-        {
-            return true;
-        }
-        while ((ct instanceof ArrayType) && t.endsWith("[]"))
-        {
-            try
-            {
-                ct = ((ArrayType) ct).componentType();
-            }
-            catch (com.sun.jdi.ClassNotLoadedException cnle)
-            {
-                return false;
-            }
-            t = t.substring(0, t.length() - 2);
-        }
-        if (t.equals(ct.name()))
-        {
-            return true;
-        }
-        if (ct instanceof ClassType)
-        {
-            ClassType clst = ((ClassType) ct);
-            InterfaceType[] intt = ((InterfaceType[]) clst.allInterfaces().toArray(new InterfaceType[0]));
-            for (int i = 0; i < intt.length; i++)
-            {
-                if (t.equals(intt[i].name()))
-                {
-                    return true;
-                }
-            }
-            clst = clst.superclass();
-            while (clst != null)
-            {
-                if (t.equals(clst.name()))
-                {
-                    return true;
-                }
-                clst = clst.superclass();
-            }
-        }
-        return false;
-    } */
-
 
     /**
      *  Return true if the static field 'slot' is public.
