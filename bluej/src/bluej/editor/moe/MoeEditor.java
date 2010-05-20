@@ -1964,7 +1964,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         replacer.setReplaceString(null);
         replacer.populateReplaceField(null);
         if (finder.isVisible()){
-            initFindPanel(this);
+            initFindPanel();
         }
     }
     
@@ -3312,11 +3312,11 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * Sets the find panel to be visible and if there is a selection
      * it starts a automatic find of what was in selected in the text
      */
-    public void initFindPanel(MoeEditor editor)
+    public void initFindPanel()
     {
         finder.displayFindPanel(getCurrentTextPane().getSelectedText(), true);
         //functionality for the replace button to be enabled/disabled according to view
-        if (editor.isShowingInterface())
+        if (isShowingInterface())
         {
             finder.setReplaceEnabled(false);
             replacer.setVisible(false);

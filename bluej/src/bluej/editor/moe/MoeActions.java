@@ -1282,7 +1282,7 @@ public final class MoeActions
             //getEditor(e).find();
             MoeEditor editor=getEditor(e);
             if (editor!=null)
-                editor.initFindPanel(editor);
+                editor.initFindPanel();
         }
     }
 
