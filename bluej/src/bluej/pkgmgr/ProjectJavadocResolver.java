@@ -127,15 +127,21 @@ public class ProjectJavadocResolver implements JavadocResolver
      */
     private Properties getCommentsFromSource(String target)
     {
-        List<File> sourcePath = project.getSourcePath();
+        List<DocPathEntry> sourcePath = project.getSourcePath();
         String pkg = JavaNames.getPrefix(target);
         String entName = target.replace('.', '/') + ".java";
         
-        for (File pathEntry : sourcePath) {
-            if (pathEntry.isFile()) {
+        for (DocPathEntry pathEntry : sourcePath) {
+            File jarFile = pathEntry.getJarFile();
+            if (jarFile.isFile()) {
+                String fullEntryName = pathEntry.getPathPrefix();
+                if (fullEntryName.length() != 0 && !fullEntryName.endsWith("/")) {
+                    fullEntryName += "/";
+                }
+                fullEntryName += entName;
                 try {
-                    ZipFile zipFile = new ZipFile(pathEntry);
-                    ZipEntry zipEnt = zipFile.getEntry(entName);
+                    ZipFile zipFile = new ZipFile(jarFile);
+                    ZipEntry zipEnt = zipFile.getEntry(fullEntryName);
                     if (zipEnt != null) {
                         InputStream zeis = zipFile.getInputStream(zipEnt);
                         Reader r = new InputStreamReader(zeis);

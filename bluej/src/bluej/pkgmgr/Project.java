@@ -178,7 +178,7 @@ public class Project implements DebuggerListener, InspectorManager
     private JavadocResolver javadocResolver;
     
     /** Where to find JDK and other library sources (for extracting javadoc) */
-    private List<File> sourcePath;
+    private List<DocPathEntry> sourcePath;
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -197,23 +197,30 @@ public class Project implements DebuggerListener, InspectorManager
         
         // Make JDK's javadoc available, if we can find the source
         javadocResolver = new ProjectJavadocResolver(this);
-        sourcePath = new ArrayList<File>();
+        sourcePath = new ArrayList<DocPathEntry>();
         File javaHome = Boot.getInstance().getJavaHome();
         File jdkSourceZip = new File(javaHome, "src.zip");
         if (jdkSourceZip.isFile()) {
-            sourcePath.add(jdkSourceZip);
+            sourcePath.add(new DocPathEntry(jdkSourceZip, ""));
         }
         else {
             File javaHomeParent = javaHome.getParentFile();
             jdkSourceZip = new File(javaHomeParent, "src.zip");
             if (jdkSourceZip.exists()) {
-                sourcePath.add(jdkSourceZip);
+                sourcePath.add(new DocPathEntry(jdkSourceZip, ""));
+            }
+            else {
+                // Mac OS X uses "src.jar" with a "src" prefix
+                jdkSourceZip = new File(javaHome, "src.jar");
+                if (jdkSourceZip.exists()) {
+                    sourcePath.add(new DocPathEntry(jdkSourceZip, "src"));
+                }
             }
         }
         
         String jdkSourcePath = Config.getPropString(JDK_SOURCE_PATH_PROPERTY, null);
         if (jdkSourcePath != null) {
-            sourcePath.add(new File(jdkSourcePath));
+            sourcePath.add(new DocPathEntry(new File(jdkSourcePath), ""));
         }
         
         this.projectDir = projectDir;
@@ -750,7 +757,7 @@ public class Project implements DebuggerListener, InspectorManager
      * if available, and the source for any other libraries which have been explicitly
      * added.
      */
-    public List<File> getSourcePath()
+    public List<DocPathEntry> getSourcePath()
     {
         return sourcePath;
     }
