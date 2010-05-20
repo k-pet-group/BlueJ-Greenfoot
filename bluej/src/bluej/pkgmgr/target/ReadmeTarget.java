@@ -34,12 +34,13 @@ import bluej.graph.GraphEditor;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.graphPainter.ReadmeTargetPainter;
 import bluej.prefmgr.PrefMgr;
+import bluej.utility.Utility;
 
 /**
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 7642 2010-05-20 09:36:36Z nccb $
+ * @version $Id: ReadmeTarget.java 7645 2010-05-20 10:54:49Z nccb $
  */
 public class ReadmeTarget extends EditableTarget
     implements ActionListener 
@@ -260,5 +261,10 @@ public class ReadmeTarget extends EditableTarget
     {
         
     }
+
+    public String getTooltipText()
+    {
+        return Utility.multilineTooltip(Config.getString("graph.tooltip.readme"), Config.getString("graph.tooltip.dblclick"));
+    } 
 
 }

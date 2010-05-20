@@ -52,7 +52,7 @@ import bluej.Config;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: Utility.java 7622 2010-05-19 15:17:36Z nccb $
+ * @version $Id: Utility.java 7645 2010-05-20 10:54:49Z nccb $
  */
 public class Utility
 {
@@ -799,5 +799,23 @@ public class Utility
                 return true;                
         }
         return false;
+    }
+    
+    /**
+     * Takes a list of lines and forms them into a multiline tool-tip.
+     * 
+     * The way to do this is to use HTML; see http://www.jguru.com/faq/view.jsp?EID=10653
+     */
+    public static String multilineTooltip(String... lines)
+    {
+        StringBuilder str = new StringBuilder("<html>");
+        for (int i = 0; i < lines.length; i++) {
+            str.append(lines[i]);
+            if (i != lines.length - 1) {
+                str.append("<br>");
+            }
+        }
+        str.append("</html>");
+        return str.toString();
     }
 }

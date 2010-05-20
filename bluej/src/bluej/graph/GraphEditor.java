@@ -35,7 +35,7 @@ import bluej.pkgmgr.graphPainter.GraphPainterStdImpl;
  * 
  * @author Michael Cahill
  * @author Michael Kolling
- * @version $Id: GraphEditor.java 7596 2010-05-18 15:02:48Z nccb $
+ * @version $Id: GraphEditor.java 7645 2010-05-20 10:54:49Z nccb $
  */
 public class GraphEditor extends JComponent
     implements MouseMotionListener, GraphListener
@@ -69,6 +69,7 @@ public class GraphEditor extends JComponent
         graphPainter = GraphPainterStdImpl.getInstance();
         selectionController = new SelectionController(this);
         graph.addListener(this);
+        setToolTipText(""); // Turn on tool-tips for this component
     }
 
     /**
@@ -232,6 +233,19 @@ public class GraphEditor extends JComponent
     public void setHasFocus(boolean hasFocus){
         this.hasFocus = hasFocus;
     }
+    
+    public String getToolTipText(MouseEvent event)
+    {
+        int x = event.getX();
+        int y = event.getY();
+        SelectableGraphElement element = graph.findGraphElement(x, y);
+        
+        if (element == null) {
+            return null;
+        } else {
+            return element.getTooltipText();
+        }
+    }    
     
     // ---- GraphListener interface ----
     

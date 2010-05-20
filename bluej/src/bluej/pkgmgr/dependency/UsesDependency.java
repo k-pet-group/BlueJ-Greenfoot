@@ -21,8 +21,10 @@
  */
 package bluej.pkgmgr.dependency;
 
+import bluej.Config;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.*;
+import bluej.utility.Utility;
 
 import java.util.Properties;
 import java.awt.*;
@@ -31,7 +33,7 @@ import java.awt.*;
  * A dependency between two targets in a package
  *
  * @author  Michael Kolling
- * @version $Id: UsesDependency.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: UsesDependency.java 7645 2010-05-20 10:54:49Z nccb $
  */
 public class UsesDependency extends Dependency
 {
@@ -213,5 +215,10 @@ public class UsesDependency extends Dependency
     public boolean isResizable()
     {
         return false;
+    }
+    
+    public String getTooltipText()
+    {
+        return Utility.multilineTooltip(Config.getString("graph.tooltip.uses"), Config.getString("graph.tooltip.rightclick"));
     }
 }

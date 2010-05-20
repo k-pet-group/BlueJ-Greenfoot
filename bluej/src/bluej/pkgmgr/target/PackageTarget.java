@@ -41,12 +41,13 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
+import bluej.utility.Utility;
 
 /**
  * A sub package (or parent package)
  * 
  * @author Michael Cahill
- * @version $Id: PackageTarget.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: PackageTarget.java 7645 2010-05-20 10:54:49Z nccb $
  */
 public class PackageTarget extends Target
     implements Moveable
@@ -370,4 +371,9 @@ public class PackageTarget extends Target
         this.isMoveable = isMoveable;
 
     }
+
+    public String getTooltipText()
+    {
+        return Utility.multilineTooltip(Config.getString("graph.tooltip.package"), Config.getString("graph.tooltip.dblclick"));
+    } 
 }

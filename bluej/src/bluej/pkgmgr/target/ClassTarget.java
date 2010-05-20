@@ -86,6 +86,7 @@ import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
 import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
+import bluej.utility.Utility;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 
@@ -99,7 +100,7 @@ import bluej.views.MethodView;
  * @author Bruce Quig
  * @author Damiano Bolla
  * 
- * @version $Id: ClassTarget.java 7592 2010-05-18 14:27:15Z nccb $
+ * @version $Id: ClassTarget.java 7645 2010-05-20 10:54:49Z nccb $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener
@@ -1923,6 +1924,15 @@ public class ClassTarget extends DependentTarget
     public void setProperty(String key, String value) 
     {
         properties.put(key, value);
+    }
+    
+    public String getTooltipText()
+    {
+        if (!getSourceInfo().isValid()) {
+            return Utility.multilineTooltip(Config.getString("graph.tooltip.classBroken"), Config.getString("graph.tooltip.dblclick"), Config.getString("graph.tooltip.rightclick"));
+        } else {
+            return Utility.multilineTooltip(Config.getString("graph.tooltip.dblclick"), Config.getString("graph.tooltip.rightclick"));
+        }
     }
    
 }
