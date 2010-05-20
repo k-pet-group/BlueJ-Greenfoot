@@ -72,8 +72,11 @@ public class MoeCaret extends DefaultCaret
         int pos = getComponent().getUI().viewToModel(getComponent(), pt, biasRet);
 
         if (e.getX() > MoeSyntaxView.TAG_WIDTH) {
-            if(biasRet[0] == null)
-                biasRet[0] = Position.Bias.Forward;
+            // This would be the correct thing to do, but PlainView hasn't implemented
+            // correct bias calculation and *always* returns Position.Bias.Forward.
+            //if (biasRet[0] == Position.Bias.Forward) {
+            //    pos++;
+            //}
             if (pos >= 0) {
                 setDot(pos); 
             }
