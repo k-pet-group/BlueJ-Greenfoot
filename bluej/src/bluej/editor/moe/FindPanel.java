@@ -136,9 +136,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             // Remember the current caret location so we can revert to it if
             // the search term cannot be found.
             searchStart = editor.getCurrentTextPane().getSelectionStart();
-            if (searchStart == -1) {
-                searchStart = editor.getCaretPosition();
-            }
         }
         super.setVisible(aFlag);
         if (aFlag) {
@@ -365,9 +362,6 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     private void findEvent()
     {
         int selBegin = editor.getCurrentTextPane().getSelectionStart();
-        if (selBegin == 0) {
-            selBegin = editor.getCaretPosition();
-        }
 
         //check there has been a legitimate change in the search criteria            
         if (getSearchString()!=null){
