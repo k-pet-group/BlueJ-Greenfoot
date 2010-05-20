@@ -431,7 +431,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     {
         if (vis) {
             sourcePane.setFont(PrefMgr.getStandardEditorFont());
-            checkBracketStatus();  
+            checkBracketStatus();
         }
 
         super.setVisible(vis);              // show the window
@@ -1923,6 +1923,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             readMeActions.add("compile");
             readMeActions.add("autoindent");
             readMeActions.add("insert-method");
+            readMeActions.add("toggle-interface-view");
         }
         return readMeActions;
     }
@@ -3005,9 +3006,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                     if (keys != null) {
                         item.setAccelerator(chooseKey(keys));
                     }
-                    item.setName(itemKeys[i]);                   
-                    if (isReadmeAction(itemKeys[i]) && !sourceIsCode){
-                        item.setEnabled(false);
+                    item.setName(itemKeys[i]); 
+                    if (isReadmeAction(itemKeys[i])){
+                        item.setEnabled(sourceIsCode);
                     }
                 }               
             }
