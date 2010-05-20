@@ -29,7 +29,7 @@ import bluej.pkgmgr.target.*;
 /**
  * Paints a ReadmeTarget
  * @author fisker
- * @version $Id: ReadmeTargetPainter.java 7588 2010-05-18 13:41:13Z nccb $
+ * @version $Id: ReadmeTargetPainter.java 7642 2010-05-20 09:36:36Z nccb $
  */
 public class ReadmeTargetPainter
 {
@@ -53,5 +53,15 @@ public class ReadmeTargetPainter
     {
         boolean isSelected = target.isSelected() && hasFocus;
         g.drawImage(isSelected ? selectedReadmeImage : readmeImage, target.getX(), target.getY(), null);
+    }
+    
+    public static int getMaxImageWidth()
+    {
+        return Math.max(readmeImage.getWidth(null), selectedReadmeImage.getWidth(null));
+    }
+    
+    public static int getMaxImageHeight()
+    {
+        return Math.max(readmeImage.getHeight(null), selectedReadmeImage.getHeight(null));
     }
 }

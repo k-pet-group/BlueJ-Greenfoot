@@ -32,19 +32,20 @@ import bluej.Config;
 import bluej.editor.*;
 import bluej.graph.GraphEditor;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.graphPainter.ReadmeTargetPainter;
 import bluej.prefmgr.PrefMgr;
 
 /**
  * A parent package
  *
  * @author  Andrew Patterson
- * @version $Id: ReadmeTarget.java 7383 2010-04-22 01:58:12Z marionz $
+ * @version $Id: ReadmeTarget.java 7642 2010-05-20 09:36:36Z nccb $
  */
 public class ReadmeTarget extends EditableTarget
     implements ActionListener 
 {
-    static final int WIDTH = 40;
-    static final int HEIGHT = 50;
+    static final int WIDTH = ReadmeTargetPainter.getMaxImageWidth();
+    static final int HEIGHT = ReadmeTargetPainter.getMaxImageHeight();
     static final Color defaultbg = Config.getItemColour("colour.class.bg.default");
     static final Color colBorder = Config.getItemColour("colour.target.border");
     static final Color textfg = Config.getItemColour("colour.text.fg");
