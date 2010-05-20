@@ -1880,20 +1880,18 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
     
     /**
-     * Returns true if it is flagged as an action that is disabled in the readme.txt file
+     * Check whether an action is not valid for the project "readme" (i.e. if it is only
+     * valid for source files).
+     * 
      * @param actionName String representing the action name
-     * @return true if it is flagged as an action that is disabled in the readme.txt file;
-     *         false if it is a valid action (either in the readme file or because the souce 
-     *         file is not a readme file)
+     * @return true if it is an action that should be disabled while editing the readme file,
+     *         or false otherwise
      */
-    private boolean isReadmeAction(String actionName)
+    private boolean isNonReadmeAction(String actionName)
     {
-        if (!sourceIsCode){
-        	ArrayList<String> flaggedActions = getReadOnlyActions();
-        	if (flaggedActions!=null && flaggedActions.contains(actionName)) {
-        		return true;
-        	}
-        	return false;
+        ArrayList<String> flaggedActions = getReadOnlyActions();
+        if (flaggedActions!=null && flaggedActions.contains(actionName)) {
+            return true;
         }
         return false;
     }
@@ -2993,7 +2991,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                         item.setAccelerator(chooseKey(keys));
                     }
                     item.setName(itemKeys[i]); 
-                    if (isReadmeAction(itemKeys[i])){
+                    if (isNonReadmeAction(itemKeys[i])){
                         item.setEnabled(sourceIsCode);
                     }
                 }               
@@ -3097,7 +3095,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             Debug.message("Moe: action not found for button " + label);
         }
         
-        if (isReadmeAction(actionName) && !sourceIsCode){
+        if (isNonReadmeAction(actionName) && !sourceIsCode){
             button.setEnabled(false);
         }
 
