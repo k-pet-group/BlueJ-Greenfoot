@@ -37,13 +37,14 @@ import bluej.debugger.DebuggerTestResult;
 import bluej.debugger.SourceLocation;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
+import bluej.utility.GradientFillPanel;
 import bluej.utility.JavaNames;
 
 /**
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: TestDisplayFrame.java 7646 2010-05-20 11:09:01Z nccb $
  */
 public class TestDisplayFrame
 {
@@ -122,6 +123,7 @@ public class TestDisplayFrame
     protected void createUI()
     {
 		frame = new JFrame(Config.getString("testdisplay.title"));
+		frame.setContentPane(new GradientFillPanel(frame.getContentPane().getLayout()));
 
 		frame.setIconImage(BlueJTheme.getIconImage());
 		frame.setLocation(Config.getLocation("bluej.testdisplay"));
@@ -137,6 +139,7 @@ public class TestDisplayFrame
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         splitPane.setBorder(BlueJTheme.generalBorder);
         splitPane.setResizeWeight(0.5);
+        splitPane.setOpaque(false);
         
         JScrollPane resultScrollPane = new JScrollPane();
         {
@@ -151,6 +154,7 @@ public class TestDisplayFrame
         splitPane.setTopComponent(resultScrollPane);
         
         bottomPanel = new JPanel();
+        bottomPanel.setOpaque(false);
 		{
             bottomPanel.setLayout(new GridBagLayout());
             GridBagConstraints constraints = new GridBagConstraints();
@@ -166,6 +170,7 @@ public class TestDisplayFrame
             bottomPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth), constraints);
             
             counterPanel = new CounterPanel();
+            counterPanel.setOpaque(false);
 	        bottomPanel.add(counterPanel, constraints);
             bottomPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth), constraints);
         
@@ -198,6 +203,7 @@ public class TestDisplayFrame
             
 	        // Panel for "show source" and "close" buttons
             JPanel buttonPanel = new JPanel();
+            buttonPanel.setOpaque(false);
             buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
             buttonPanel.add(showSourceButton);
             buttonPanel.add(Box.createHorizontalGlue());
