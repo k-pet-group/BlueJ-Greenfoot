@@ -757,6 +757,10 @@ public final class MoeActions
         {
             MoeEditor editor = getEditor(e);
             MoeSyntaxDocument doc = editor.getSourceDocument();
+            if (doc.getParsedNode() == null) {
+                // The Readme, or some other file which isn't parsed
+                return;
+            }
 
             int prevCaretPos = editor.getSourcePane().getCaretPosition();
             editor.setCaretActive(false);
