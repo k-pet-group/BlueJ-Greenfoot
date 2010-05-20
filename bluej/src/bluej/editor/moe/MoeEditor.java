@@ -1889,7 +1889,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     private boolean isNonReadmeAction(String actionName)
     {
-        ArrayList<String> flaggedActions = getReadOnlyActions();
+        ArrayList<String> flaggedActions = getNonReadmeActions();
         if (flaggedActions!=null && flaggedActions.contains(actionName)) {
             return true;
         }
@@ -1897,10 +1897,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * 
-     * @return a list of actions not applicable in the readme.txt file
+     * Get a list of actions not applicable in the readme.txt file
      */
-    private ArrayList<String> getReadOnlyActions ()
+    private ArrayList<String> getNonReadmeActions ()
     {
         if (readMeActions==null) {
             readMeActions=new ArrayList<String>();
