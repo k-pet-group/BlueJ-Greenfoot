@@ -447,9 +447,9 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      * -search forward or backward depending on choice
      * -print out number of highlights 
      */
-    public boolean highlightAll(boolean ignoreCase, boolean wholeWord, boolean forwards, boolean select)
+    public boolean highlightAll(boolean ignoreCase, boolean wholeWord, boolean forwards)
     {
-        int counter = search(ignoreCase, wholeWord, true, select, forwards) ;
+        int counter = search(ignoreCase, wholeWord, true, forwards) ;
         //if there was nothing found, need to move the caret back to its original position
         //also need to disable buttons accordingly
         if (counter < 1) {
@@ -498,7 +498,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
      * Search either forwards or backwards for the search string, highlighting all occurrences.
      * If no occurrences are found, the caret position is lost.
      */
-    private int search(boolean ignoreCase, boolean wholeWord, boolean wrap, boolean select, boolean next)
+    private int search(boolean ignoreCase, boolean wholeWord, boolean wrap, boolean next)
     {
         String searchString = getSearchString();  
         if (searchString.length()==0) {
@@ -518,7 +518,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
             caretPos=editor.getCurrentTextPane().getCaretPosition() - searchString.length();
         }
         editor.getCurrentTextPane().setCaretPosition(caretPos);
-        found=editor.doFindSelect(searchString, ignoreCase, wholeWord, wrap, select);
+        found=editor.doFindSelect(searchString, ignoreCase, wholeWord, wrap);
         return found;
     }
 
@@ -530,7 +530,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         setFindValues(); 
         editor.removeSearchHighlights();
-        return highlightAll(!matchCaseCheckBox.isSelected(), false, forward, true);
+        return highlightAll(!matchCaseCheckBox.isSelected(), false, forward);
     }
 
     public String getSearchTextfield()

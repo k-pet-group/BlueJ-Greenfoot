@@ -1596,8 +1596,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * 
      * @return Returns false if not found.
      */
-    int doFindSelect(String s, boolean ignoreCase, boolean wholeWord, boolean wrap, boolean select)
+    int doFindSelect(String s, boolean ignoreCase, boolean wholeWord, boolean wrap)
     {
+        boolean select=true; //first item found should be selected so initialised to true
         int docLength = document.getLength();
         int startPosition = currentTextPane.getCaretPosition();
         int endPos = docLength;
@@ -3613,7 +3614,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
     public void setFindPanelVisible(boolean isVisible)
     {
-        finder.setVisible(true);
+        finder.setVisible(isVisible);
     }
 
     /**
@@ -3796,7 +3797,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * @return true if source code; 
      *         false if not
      */
-    protected boolean containsSourceCode() {
+    protected boolean containsSourceCode() 
+    {
         return sourceIsCode;
     }
 }
