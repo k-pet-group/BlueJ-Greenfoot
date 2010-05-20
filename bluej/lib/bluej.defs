@@ -663,7 +663,7 @@ image.filechooser.packageIcon=packageIcon.gif
 image.filechooser.classIcon=classIcon.gif
 
 # class
-image.class.broken=broken-arrow.gif
+image.class.broken=broken-symbol.png
 
 # editor help icon
 image.editor.help=help.png
