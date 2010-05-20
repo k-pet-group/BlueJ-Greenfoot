@@ -29,6 +29,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
 import junit.framework.TestCase;
+import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaType;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
@@ -118,6 +119,26 @@ public class CompletionTest extends TestCase
         JavaType ftype = fields.get("f");
         assertNotNull(ftype);
         assertEquals("int[]", ftype.toString());
+    }
+    
+    public void testCompletionAfterArrayElement()
+    {
+        String aClassSrc = "class A {" +
+        "  public static String s[] = null;" +
+        "}";
+
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        EntityResolver resolver = new PackageResolver(this.resolver, "");
+        JavaEntity aClassEnt = resolver.resolvePackageOrClass("A", null);
+        Reader r = new StringReader("s[0].");
+        CompletionParser cp = new CompletionParser(resolver, r, aClassEnt);
+        cp.parseExpression();
+        
+        GenTypeSolid suggestionType = cp.getSuggestionType();
+        assertNotNull(suggestionType);
+        assertEquals("java.lang.String", suggestionType.toString());
     }
     
     /**
