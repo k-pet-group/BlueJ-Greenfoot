@@ -1317,8 +1317,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /**
      * Check whether TABs need expanding in this editor. If they do, return
      * true. At the same time, set this flag to true.
-     * 
-     * @return Description of the Return Value
      */
     public boolean checkExpandTabs()
     {
@@ -1350,17 +1348,16 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * setReplacePanelVisible opens/closes the replace panel
-     * sets the focus to the find field
-     * @param visible 
+     * Opens or close the replace panel (and if opening it, set the focus into
+     * the find field).
      */
     protected void setReplacePanelVisible(boolean visible)
     {
-        if (visible){
-            if (!finder.isVisible())
+        if (visible) {
+            if (!finder.isVisible()) {
                 finder.setVisible(visible);
+            }
             replacer.setVisible(visible);
-            //put the focus in the find (not replace)
             finder.requestFindfieldFocus();
         }
         else {
@@ -3676,14 +3673,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     protected String getFindSearchString()
     {
         return finder.getSearchString();
-    }
-
-    /**
-     * isReplacePopulated returns whether the replace textfield is (validly) populated
-     */
-    protected boolean isReplacePopulated()
-    {
-        return (replacer.getReplaceString()!=null && replacer.getReplaceString().length()!=0);
     }
 
     /**
