@@ -41,7 +41,7 @@ import bluej.utility.JavaNames;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: ClassInspector.java 7665 2010-05-21 14:33:34Z nccb $
  */
 public class ClassInspector extends Inspector
 {
@@ -107,9 +107,6 @@ public class ClassInspector extends Inspector
             headerString = CLASS_NAME_LABEL + " " + className;
         }
         
-        setBorder(BorderFactory.createCompoundBorder(BlueJTheme.getShadowBorder(), BorderFactory.createEmptyBorder(10, 10,
-                10, 10)));
-
         // Create the header
         JComponent header = new JPanel();
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));        

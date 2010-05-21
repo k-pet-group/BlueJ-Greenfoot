@@ -192,7 +192,6 @@ public class ResultInspector extends Inspector
     protected void makeFrame()
     {
         setTitle(resultTitle);
-        setBorder(BlueJTheme.dialogBorder);
 
         // Create the header
 

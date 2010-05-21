@@ -21,13 +21,22 @@
  */
 package bluej.debugmgr.inspector;
 
+import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.EventQueue;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
 import java.awt.Insets;
+import java.awt.RenderingHints;
+import java.awt.Transparency;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Ellipse2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -129,6 +138,8 @@ public class ObjectInspector extends Inspector
                 else {
                     DialogManager.centreWindow(thisInspector, parent);
                 }
+                thisInspector.installListenersForMoveDrag();
+                thisInspector.setWindowOpaque(false);
             }
         });
     }
@@ -139,12 +150,15 @@ public class ObjectInspector extends Inspector
     protected void makeFrame()
     {
         setTitle(inspectTitle);
-        setBorder(BlueJTheme.getRoundedShadowBorder());
+        setUndecorated(true);
+        setLayout(new BorderLayout());
 
         // Create the header
 
         JComponent header = new JPanel();
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
+        header.setOpaque(false);
+        header.setDoubleBuffered(false);
         String className = obj.getStrippedGenClassName();
 
         String fullTitle = null;
@@ -162,17 +176,23 @@ public class ObjectInspector extends Inspector
                 g.drawLine(0, ascent, this.getWidth(), ascent);
             }
         };
+        headerLabel.setOpaque(false);
         headerLabel.setAlignmentX(0.5f);
         header.add(headerLabel);
         header.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-        header.add(new JSeparator());
+        JSeparator sep = new JSeparator();
+        sep.setForeground(new Color(113, 23, 23));
+        sep.setBackground(new Color(0, 0, 0, 0));
+        header.add(sep);
 
         // Create the main panel (field list, Get/Inspect buttons)
 
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setOpaque(false);
+        mainPanel.setDoubleBuffered(false);
 
         JScrollPane scrollPane = createFieldListScrollPane();
+        scrollPane.setDoubleBuffered(false);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
         JPanel inspectAndGetButtons = createInspectAndGetButtons();
@@ -201,12 +221,60 @@ public class ObjectInspector extends Inspector
             }
         });
         buttonPanel.add(classButton, BorderLayout.WEST);
+        buttonPanel.setDoubleBuffered(false);
 
         bottomPanel.add(buttonPanel);
+        bottomPanel.setDoubleBuffered(false);
 
         // add the components
 
-        Container contentPane = getContentPane();
+        JPanel contentPane = new JPanel() {
+
+            protected void paintComponent(Graphics g)
+            {               
+                Graphics2D g2d = (Graphics2D)g.create();
+                {
+                    GraphicsConfiguration gc = g2d.getDeviceConfiguration();
+                    BufferedImage img = gc.createCompatibleImage(getWidth(),
+                                    getHeight(),
+                                    Transparency.TRANSLUCENT);
+                    Graphics2D imgG = img.createGraphics();
+    
+                    imgG.setComposite(AlphaComposite.Clear);
+                    imgG.fillRect(0, 0, getWidth(), getHeight());
+    
+                    imgG.setComposite(AlphaComposite.Src);
+                    imgG.setRenderingHint(
+                            RenderingHints.KEY_ANTIALIASING,
+                            RenderingHints.VALUE_ANTIALIAS_ON);
+                    imgG.setColor(Color.WHITE);
+                    imgG.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
+    
+                    imgG.setComposite(AlphaComposite.SrcAtop);
+                    imgG.setPaint(new GradientPaint(getWidth() / 2, getHeight() / 2, new Color(227, 71, 71)
+                                                   ,getWidth() / 2, getHeight(), new Color(205, 39, 39)));
+                    imgG.fillRect(0, 0, getWidth(), getHeight());
+                    
+                    imgG.setPaint(new GradientPaint(getWidth() / 2, 0, new Color(248, 120, 120)
+                                                   ,getWidth() / 2, getHeight() / 2, new Color(231, 96, 96)));
+                    imgG.fill(new Ellipse2D.Float(-2*getWidth(),-5*getHeight()/2,5*getWidth(),3*getHeight()));
+
+                    imgG.setColor(Color.BLACK);
+                    imgG.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 30, 30);                    
+                    
+                    imgG.dispose();
+                    
+                    
+    
+                    g2d.drawImage(img, 0, 0, this);
+                }
+                g2d.dispose();
+            }
+            
+        };add(contentPane);
+        contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        contentPane.setOpaque(false);
+        contentPane.setDoubleBuffered(false);
         contentPane.setLayout(new BorderLayout());
         contentPane.add(header, BorderLayout.NORTH);
         contentPane.add(mainPanel, BorderLayout.CENTER);

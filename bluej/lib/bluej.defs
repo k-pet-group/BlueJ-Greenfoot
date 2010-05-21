@@ -454,9 +454,6 @@ colour.selection2=255,250,0
 colour.highlight=180,220,255
 colour.highlight2=110,190,255
 
-#colour for the value field in the inspectors
-colour.inspector.value.bg=255,255,255
-
 #####################################################################
 ## Compiling. Commands used to execute a compiler. The first property
 ## sets the type of the compiler. Currently it can be one of
