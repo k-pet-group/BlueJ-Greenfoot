@@ -33,6 +33,7 @@ import javax.swing.ListCellRenderer;
 
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.DBoxLayout;
+import java.awt.Color;
 
 
 public class CodeCompleteCellRenderer extends JPanel implements ListCellRenderer
@@ -46,17 +47,20 @@ public class CodeCompleteCellRenderer extends JPanel implements ListCellRenderer
     {
         setBorder(null);
         setLayout(new DBoxLayout(DBoxLayout.X_AXIS));
-        typeLabel.setFont(PrefMgr.getStandardEditorFont());
+        int fontSize = PrefMgr.getStandardEditorFont().getSize();
+        typeLabel.setFont(new Font("Courier", Font.PLAIN, fontSize));
         typeLabel.setText("String123456"); // for assigning width
         rtypeSize = typeLabel.getPreferredSize();
         typeLabel.setMaximumSize(rtypeSize);
+        typeLabel.setMinimumSize(rtypeSize);
         typeLabel.setPreferredSize(rtypeSize);
+        typeLabel.setForeground(new Color(90, 80, 45));
         add(typeLabel);
         
-        descriptionLabel.setFont(PrefMgr.getStandardEditorFont());
         add(descriptionLabel);
         add(Box.createHorizontalGlue());
-        
+        setBorder(new javax.swing.border.EmptyBorder(2, 2, 2, 2));
+
         this.immediateType = immediateType;
     }
     
@@ -68,12 +72,15 @@ public class CodeCompleteCellRenderer extends JPanel implements ListCellRenderer
             typeLabel.setText(content.getReturnType().toString());
             descriptionLabel.setText(content.getDisplayName());
             
-            Font font = PrefMgr.getStandardEditorFont();
+            int fontSize = PrefMgr.getStandardEditorFont().getSize();
+            Font font;
 
             if (content.getDeclaringClass().equals(immediateType)) {
-                font = font.deriveFont(Font.BOLD);
+                font = new Font("Courier", Font.BOLD, fontSize);
             }
-            
+            else {
+                font = new Font("Courier", Font.PLAIN, fontSize);
+            }
             descriptionLabel.setFont(font);
         }
         
