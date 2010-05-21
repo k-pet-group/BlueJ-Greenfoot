@@ -1417,7 +1417,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         }else {
             removeSearchHighlights();
             removeSelection(currentTextPane);
-            findString(selection, backwards, !finder.getMatchCase(), false, true);
+            findString(selection, backwards, !finder.getMatchCase(), true);
         }
     }
 
@@ -1425,8 +1425,8 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     /**
      * Do a find with info in the info area.
      */
-    boolean findString(String s, boolean backward, boolean ignoreCase, 
-            boolean wholeWord, boolean wrap)
+    boolean findString(String s, boolean backward,
+            boolean ignoreCase, boolean wrap)
     {
         if (s.length() == 0) {
             //info.warning(Config.getString("editor.info.emptySearchString"));
@@ -1436,24 +1436,22 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         boolean found;
         if (backward){
-            found = doFindBackward(s, ignoreCase, wholeWord, wrap);
+            found = doFindBackward(s, ignoreCase, wrap);
         }
         else {
             setCaretPositionForward(1);
-            found = doFind(s, ignoreCase, wholeWord, wrap);
+            found = doFind(s, ignoreCase, wrap);
         }
 
         StringBuffer msg = new StringBuffer(Config.getString("editor.find.find.label") + " ");
         msg.append(backward ? Config.getString("editor.find.backward") : Config.getString("editor.find.forward"));
-        if (ignoreCase || wholeWord || wrap)
+        if (ignoreCase || wrap)
             msg.append(" (");
         if (ignoreCase)
             msg.append(Config.getString("editor.find.ignoreCase").toLowerCase() + ", ");
-        if (wholeWord)
-            msg.append(Config.getString("editor.find.wholeWord").toLowerCase() + ", ");
         if (wrap) 
             msg.append(Config.getString("editor.find.wrapAround").toLowerCase() + ", ");
-        if (ignoreCase || wholeWord || wrap) 
+        if (ignoreCase || wrap) 
             msg.replace(msg.length() - 2, msg.length(), "): ");
         else 
             msg.append(": ");
@@ -1473,7 +1471,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * doFind - search for and select the given search string forwards from
      * the current caret position. Returns false if not found.
      */
-    boolean doFind(String s, boolean ignoreCase, boolean wholeWord, boolean wrap)
+    boolean doFind(String s, boolean ignoreCase, boolean wrap)
     {
         int docLength = document.getLength();
         int startPosition = currentTextPane.getCaretPosition();
@@ -1493,7 +1491,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                 String lineText = document.getText(start, lineEnd - start);
 
                 if (lineText != null && lineText.length() > 0) {
-                    int foundPos = findSubstring(lineText, s, ignoreCase, wholeWord, false);
+                    int foundPos = findSubstring(lineText, s, ignoreCase, false);
                     if (foundPos != -1) {
                         currentTextPane.select(start + foundPos, start + foundPos + s.length());
                         currentTextPane.getCaret().setSelectionVisible(true);
@@ -1532,7 +1530,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * doFindBackward - do a find backwards without visible feedback. Returns
      * false if not found.
      */
-    boolean doFindBackward(String s, boolean ignoreCase, boolean wholeWord, boolean wrap)
+    boolean doFindBackward(String s, boolean ignoreCase, boolean wrap)
     {
         int docLength = document.getLength();
         int startPosition = currentTextPane.getCaretPosition() - 1;
@@ -1552,7 +1550,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             while (!found && !finished) {
                 String lineText = document.getText(lineStart, start - lineStart);
                 if (lineText != null && lineText.length() > 0) {
-                    int foundPos = findSubstring(lineText, s, ignoreCase, wholeWord, true);
+                    int foundPos = findSubstring(lineText, s, ignoreCase, true);
                     if (foundPos != -1) {
                         currentTextPane.select(lineStart + foundPos, lineStart + foundPos + s.length());
                         currentTextPane.getCaret().setSelectionVisible(true);
@@ -1593,7 +1591,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * 
      * @return Returns false if not found.
      */
-    int doFindSelect(String s, boolean ignoreCase, boolean wholeWord, boolean wrap)
+    int doFindSelect(String s, boolean ignoreCase, boolean wrap)
     {
         boolean select=true; //first item found should be selected so initialised to true
         int docLength = document.getLength();
@@ -1611,7 +1609,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             while (!finished) {
                 String lineText = document.getText(start, lineEnd - start);
                 while (lineText != null && lineText.length() > 0) {
-                    foundPos = findSubstring(lineText, s, ignoreCase, wholeWord, false, foundPos);
+                    foundPos = findSubstring(lineText, s, ignoreCase, false, foundPos);
                     if (foundPos != -1) {
                         if (select) {
                             //purposely using both select and the highlight because the select sets the                         
@@ -1679,33 +1677,25 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     }
 
     /**
-     * Find the position of a substring in a given string, ignoring case or searching for
-     * whole words if desired. Return the position of the substring or -1.
+     * Find the position of a substring in a given string, 
+     * can specify direction and whether the search should ignore case
+     * Return the position of the substring or -1.
      *
      * @param  text        the full string to be searched
      * @param  sub         the substring that we're looking for
      * @param  ignoreCase  if true, case is ignored
-     * @param  wholeWord   if true, and the search string resembles something like a word,
-     *                    find only whole-word ocurrences
      * @param  backwards   Description of the Parameter
      * @return             Description of the Return Value
      * @returns            the index of the substring, or -1 if not found
      */
-    private int findSubstring(String text, String sub, boolean ignoreCase, 
-            boolean wholeWord, boolean backwards)
+    private int findSubstring(String text, String sub, 
+            boolean ignoreCase, boolean backwards)
     {
         int strlen = text.length();
         int sublen = sub.length();
 
         if (sublen == 0) {
             return -1;
-        }
-
-        // 'wholeWord' search does not make much sense when the search string is
-        // not a word
-        // (ar at least the first and last character is a letter). Check that.
-        if (!Character.isJavaIdentifierPart(sub.charAt(0)) || !Character.isJavaIdentifierPart(sub.charAt(sublen - 1))) {
-            wholeWord = false;
         }
 
         boolean found = false;
@@ -1714,39 +1704,32 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
 
         while (!found && !itsOver) {
             found = text.regionMatches(ignoreCase, pos, sub, 0, sublen);
-            if (found && wholeWord) {
-                found = ((pos == 0) || !Character.isJavaIdentifierPart(text.charAt(pos - 1)))
-                && ((pos + sublen >= strlen) || !Character.isJavaIdentifierPart(text.charAt(pos + sublen)));
+            if (found) {
+                return pos;
             }
             if (!found) {
                 pos = (backwards ? pos - 1 : pos + 1);
                 itsOver = (backwards ? (pos < 0) : (pos + sublen > strlen));
             }
-        }
-        if (found) {
-            return pos;
-        }
-        else {
-            return -1;
-        }
+        }       
+        return -1;
     }
 
     /**
-     * Find the position of a substring in a given string, ignoring case or searching for
-     * whole words if desired. Return the position of the substring or -1.
+     * Find the position of a substring in a given string, 
+     * can specify direction and whether the search should ignoring case
+     * Return the position of the substring or -1.
      *
      * @param  text        the full string to be searched
      * @param  sub         the substring that we're looking for
      * @param  ignoreCase  if true, case is ignored
-     * @param  wholeWord   if true, and the search string resembles something like a word,
-     *                    find only whole-word ocurrences
      * @param  backwards   Description of the Parameter
      * @param  foundPos   Offset for the string search
      * @return             Description of the Return Value
      * @returns            the index of the substring, or -1 if not found
      */
     private int findSubstring(String text, String sub, boolean ignoreCase, 
-            boolean wholeWord, boolean backwards, int foundPos)
+            boolean backwards, int foundPos)
     {
         int strlen = text.length();
         int sublen = sub.length();
@@ -1755,33 +1738,20 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
             return -1;
         }
 
-        // 'wholeWord' search does not make much sense when the search string is
-        // not a word
-        // (ar at least the first and last character is a letter). Check that.
-        if (!Character.isJavaIdentifierPart(sub.charAt(0)) || !Character.isJavaIdentifierPart(sub.charAt(sublen - 1))) {
-            wholeWord = false;
-        }
-
         boolean found = false;
         int pos = foundPos;
         boolean itsOver = (backwards ? (pos < 0) : (pos + sublen > strlen));
         while (!found && !itsOver) {
             found = text.regionMatches(ignoreCase, pos, sub, 0, sublen);                
-            if (found && wholeWord) {
-                found = ((pos == 0) || !Character.isJavaIdentifierPart(text.charAt(pos - 1)))
-                && ((pos + sublen >= strlen) || !Character.isJavaIdentifierPart(text.charAt(pos + sublen)));
+            if (found) {
+                return pos;
             }
             if (!found) {
                 pos = (backwards ? pos - 1 : pos + 1);
                 itsOver = (backwards ? (pos < 0) : (pos + sublen > strlen));
             }
-        }
-        if (found) {
-            return pos;
-        }
-        else {
-            return -1;
-        }
+        }      
+        return -1;
     }
     // --------------------------------------------------------------------
     
@@ -3605,9 +3575,12 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         Character.isLowerCase(s.charAt(1));
     }
 
-    public void setFindPanelVisible(boolean isVisible)
+    /**
+     * Sets the find panel to be visible
+     */
+    public void setFindPanelVisible()
     {
-        finder.setVisible(isVisible);
+        finder.setVisible(true);
     }
 
     /**
@@ -3629,11 +3602,11 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
         String searchString = finder.getSearchString();
         boolean isMatchCase=finder.getMatchCase();
         int count = 0;
-        while(doFindBackward(searchString, !isMatchCase, false, false)) {
+        while(doFindBackward(searchString, !isMatchCase, false)) {
             insertText(smartFormat(searchString, replaceString), true);
             count++;
         }        
-        while(doFind(searchString, !isMatchCase,false, false)) 
+        while(doFind(searchString, !isMatchCase,false)) 
         {
             insertText(smartFormat(searchString, replaceString), false);
             count++;

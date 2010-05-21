@@ -1332,7 +1332,7 @@ public final class MoeActions
         {
             MoeEditor editor=getEditor(e);
             if (editor != null) {
-                editor.setFindPanelVisible(true);
+                editor.setFindPanelVisible();
                 editor.setReplacePanelVisible(true);
                 editor.setReplaceIcon(true);
                 if (editor.getSourcePane().getSelectedText()!=null){
