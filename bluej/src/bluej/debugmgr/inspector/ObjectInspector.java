@@ -66,6 +66,7 @@ import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.DialogManager;
 import java.awt.Dimension;
+import java.awt.Font;
 
 /**
  * A window that displays the fields in an object or a method return value.
@@ -170,20 +171,16 @@ public class ObjectInspector extends Inspector
         else {
             fullTitle = " : " + className;
         }
-        JLabel headerLabel = new JLabel(fullTitle, JLabel.CENTER) {
-            public void paintComponent(Graphics g)
-            {
-                super.paintComponent(g);
-                int ascent = g.getFontMetrics().getAscent() + 1;
-                g.drawLine(0, ascent, this.getWidth(), ascent);
-            }
-        };
+        JLabel headerLabel = new JLabel(fullTitle, JLabel.CENTER);
+        Font font = headerLabel.getFont();
+        headerLabel.setFont(font.deriveFont(Font.BOLD));
         headerLabel.setOpaque(false);
         headerLabel.setAlignmentX(0.5f);
+        headerLabel.setForeground(Color.white);
         header.add(headerLabel);
         header.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
         JSeparator sep = new JSeparator();
-        sep.setForeground(new Color(113, 23, 23));
+        sep.setForeground(new Color(214, 92, 92));
         sep.setBackground(new Color(0, 0, 0, 0));
         header.add(sep);
 
