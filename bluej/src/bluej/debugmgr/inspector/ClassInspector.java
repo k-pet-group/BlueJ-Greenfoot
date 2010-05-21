@@ -36,6 +36,7 @@ import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.role.StdClassRole;
+import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
@@ -45,7 +46,7 @@ import bluej.utility.JavaNames;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 7667 2010-05-21 15:35:36Z nccb $
+ * @version $Id: ClassInspector.java 7669 2010-05-21 15:52:37Z nccb $
  */
 public class ClassInspector extends Inspector
 {
@@ -133,8 +134,14 @@ public class ClassInspector extends Inspector
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setOpaque(false);
 
-        JScrollPane scrollPane = createFieldListScrollPane();
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        if (getListData().length != 0) {
+            JScrollPane scrollPane = createFieldListScrollPane();
+            mainPanel.add(scrollPane, BorderLayout.CENTER);
+        } else {
+            JLabel lab = new JLabel("No fields");
+            lab.setFont(PrefMgr.getStandardFont().deriveFont(20.0f));
+            mainPanel.add(lab);
+        }
 
         JPanel inspectAndGetButtons = createInspectAndGetButtons();
         mainPanel.add(inspectAndGetButtons, BorderLayout.EAST);

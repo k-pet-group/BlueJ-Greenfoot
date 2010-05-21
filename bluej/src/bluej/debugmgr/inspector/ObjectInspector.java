@@ -58,6 +58,7 @@ import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
+import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.ArrayElementGetRecord;
 import bluej.testmgr.record.ArrayElementInspectorRecord;
 import bluej.testmgr.record.GetInvokerRecord;
@@ -191,9 +192,14 @@ public class ObjectInspector extends Inspector
         mainPanel.setOpaque(false);
         mainPanel.setDoubleBuffered(false);
 
-        JScrollPane scrollPane = createFieldListScrollPane();
-        scrollPane.setDoubleBuffered(false);
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        if (getListData().length != 0) {
+            JScrollPane scrollPane = createFieldListScrollPane();
+            mainPanel.add(scrollPane, BorderLayout.CENTER);
+        } else {
+            JLabel lab = new JLabel("No fields");
+            lab.setFont(PrefMgr.getStandardFont().deriveFont(20.0f));
+            mainPanel.add(lab);
+        }
 
         JPanel inspectAndGetButtons = createInspectAndGetButtons();
         mainPanel.add(inspectAndGetButtons, BorderLayout.EAST);
