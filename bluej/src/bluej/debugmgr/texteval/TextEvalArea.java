@@ -34,7 +34,7 @@ import bluej.prefmgr.PrefMgr;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 7620 2010-05-19 14:28:51Z nccb $
+ * @version $Id: TextEvalArea.java 7664 2010-05-21 13:21:28Z nccb $
  */
 public final class TextEvalArea extends JScrollPane
     implements KeyListener, FocusListener
@@ -169,6 +169,8 @@ public final class TextEvalArea extends JScrollPane
         text.setFont(font);
         text.setSelectionColor(selectionColour);
         text.setOpaque(false);
+        //To get fill working properly under Nimbus L&F, set background to transparent, too:
+        text.setBackground(new Color(0,0,0,0));
 
         setViewportView(text);       
         getViewport().setOpaque(false);
