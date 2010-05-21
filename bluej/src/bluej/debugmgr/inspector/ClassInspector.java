@@ -22,7 +22,10 @@
 package bluej.debugmgr.inspector;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
 
 import javax.swing.*;
@@ -32,6 +35,7 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.target.role.StdClassRole;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
@@ -41,7 +45,7 @@ import bluej.utility.JavaNames;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 7665 2010-05-21 14:33:34Z nccb $
+ * @version $Id: ClassInspector.java 7666 2010-05-21 14:46:54Z nccb $
  */
 public class ClassInspector extends Inspector
 {
@@ -85,6 +89,7 @@ public class ClassInspector extends Inspector
                 else {
                     DialogManager.centreWindow(insp, parent);
                 }
+                installListenersForMoveDrag();
             }
         });
     }
@@ -94,6 +99,8 @@ public class ClassInspector extends Inspector
      */
     protected void makeFrame()
     {
+        setUndecorated(true);
+        
         String className = JavaNames.stripPrefix(myClass.getName());
         String headerString = null;
         if(myClass.isEnum()) {
@@ -109,13 +116,17 @@ public class ClassInspector extends Inspector
         
         // Create the header
         JComponent header = new JPanel();
+        header.setOpaque(false);
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));        
         JLabel headerLabel = new JLabel(headerString);
 
         headerLabel.setAlignmentX(0.5f);
         header.add(headerLabel);
         header.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-        header.add(new JSeparator());
+        JSeparator sep = new JSeparator();
+        sep.setForeground(new Color(217, 175, 150));
+        sep.setBackground(new Color(0, 0, 0, 0));
+        header.add(sep);
 
         // Create the main panel (field list, Get/Inspect buttons)
 
@@ -147,7 +158,19 @@ public class ClassInspector extends Inspector
         bottomPanel.add(buttonPanel);
 
         // add the components
-        JPanel contentPane = (JPanel) getContentPane();
+        JPanel contentPane = new JPanel() {
+            protected void paintComponent(Graphics g)
+            {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D)g;
+                g2d.setPaint(new StdClassRole().getBackgroundPaint(getWidth(), getHeight()));
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+                g2d.setColor(Color.BLACK);
+                g2d.drawRect(0, 0, getWidth()-1, getHeight()-1);
+            }
+        };
+        setContentPane(contentPane);
+        contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         contentPane.setLayout(new BorderLayout());
         contentPane.add(header, BorderLayout.NORTH);
         contentPane.add(mainPanel, BorderLayout.CENTER);
