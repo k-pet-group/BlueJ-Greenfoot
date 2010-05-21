@@ -254,7 +254,7 @@ editor.findpanel.matchCase=Match Case
 # ReplacePanel
 editor.replacePanel.replaceLabel=Replace:
 editor.replacePanel.replaceOnce=Once
-editor.replacePanel.replaceAll= All
+editor.replacePanel.replaceAll=All
 
 #Messages shown as a result of a search with replace all
 editor.replaceAll.replaced=Replaced 
