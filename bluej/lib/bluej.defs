@@ -630,9 +630,9 @@ bluej.debug=false
 ## Images.
 #######################################################################
 
-image.icon=bluej-icon.gif
-image.icon.terminal=bluej-icon-terminal.gif
-image.icon.editor=bluej-icon-edit.gif
+image.icon=bluej-window-icon.png
+image.icon.terminal=bluej-terminal-icon.png
+image.icon.editor=bluej-doc-icon.png
 image.logo=about-logo.jpg
 image.empty=empty.gif
 
