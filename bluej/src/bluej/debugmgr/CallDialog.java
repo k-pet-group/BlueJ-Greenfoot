@@ -51,7 +51,7 @@ import bluej.utility.MultiLineLabel;
  *
  * @author  Michael Kolling
  *
- * @version $Id: CallDialog.java 7055 2010-01-27 13:58:55Z plcs $
+ * @version $Id: CallDialog.java 7671 2010-05-21 16:15:02Z nccb $
  */
 public abstract class CallDialog extends EscapeDialog
 	implements ObjectBenchListener
@@ -194,6 +194,7 @@ public abstract class CallDialog extends EscapeDialog
 
         // create the ok/cancel button panel
         JPanel buttonPanel = new JPanel();
+        buttonPanel.setOpaque(false);
         {
             buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 

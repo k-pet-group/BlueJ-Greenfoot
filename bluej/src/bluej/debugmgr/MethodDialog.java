@@ -56,7 +56,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 7003 2010-01-13 04:44:57Z marionz $
+ * @version $Id: MethodDialog.java 7671 2010-05-21 16:15:02Z nccb $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -134,7 +134,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 7003 2010-01-13 04:44:57Z marionz $
+     * @version $Id: MethodDialog.java 7671 2010-05-21 16:15:02Z nccb $
      */
     public static class ParameterList
     {
@@ -382,6 +382,7 @@ public class MethodDialog extends CallDialog implements FocusListener
         label.setAlignmentX(LEFT_ALIGNMENT);
         descPanel.removeAll();
         descPanel.add(label);
+        label.setOpaque(false);
         invalidate();
         validate();
     }
@@ -738,15 +739,34 @@ public class MethodDialog extends CallDialog implements FocusListener
     private void makeDialog(String className, String instanceName, CallableView method)
     {
         this.method = method;
+        
+        super.setContentPane(new JPanel() {
+            protected void paintComponent(Graphics g)
+            {
+                super.paintComponent(g);
+                
+                Graphics2D g2d = (Graphics2D)g;
+                int width = getWidth();
+                int height = getHeight();
+                
+                g2d.setPaint(new GradientPaint(width/4, 0, new Color(230,229,228),
+                                               width*3/4, height, new Color(191,186,178)));
+                g2d.fillRect(0, 0, width, height);
+            }
+        });
+        
         JPanel dialogPanel = new JPanel();
+        dialogPanel.setOpaque(false);
         {
             descPanel = new JPanel();
+            descPanel.setOpaque(false);
             {
                 descPanel.setLayout(new BoxLayout(descPanel, BoxLayout.Y_AXIS));
                 descPanel.setAlignmentX(LEFT_ALIGNMENT);
             }
 
             JPanel centerPanel = new JPanel();
+            centerPanel.setOpaque(false);
             {
                 centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
                 centerPanel.setAlignmentX(LEFT_ALIGNMENT);
@@ -772,7 +792,10 @@ public class MethodDialog extends CallDialog implements FocusListener
             dialogPanel.setBorder(BlueJTheme.generalBorder);
             dialogPanel.add(descPanel);
             dialogPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-            dialogPanel.add(new JSeparator());
+            JSeparator sep = new JSeparator();
+            sep.setForeground(new Color(191,190,187));
+            sep.setBackground(new Color(0,0,0,0));
+            dialogPanel.add(sep);
             dialogPanel.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
             dialogPanel.add(centerPanel);
             dialogPanel.add(getErrorLabel());
@@ -791,6 +814,7 @@ public class MethodDialog extends CallDialog implements FocusListener
         setTitle(wCallRoutineTitle);
         MethodView methView = (MethodView) method;
         tmpPanel = new JPanel();
+        tmpPanel.setOpaque(false);
         GridBagLayout gridBag = new GridBagLayout();
         tmpPanel.setLayout(gridBag);
         GridBagConstraints constraints = new GridBagConstraints();
@@ -809,6 +833,7 @@ public class MethodDialog extends CallDialog implements FocusListener
         gridBag.setConstraints(callLabel, constraints);
         tmpPanel.add(callLabel);
         JPanel parameterPanel = createParameterPanel();
+        parameterPanel.setOpaque(false);
         constraints.gridy++;
         tmpPanel.add(parameterPanel, constraints);
         tmpPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -846,6 +871,7 @@ public class MethodDialog extends CallDialog implements FocusListener
         });
 
         JPanel tmpPanel = new JPanel();
+        tmpPanel.setOpaque(false);
 
         GridBagLayout gridBag = new GridBagLayout();
         tmpPanel.setLayout(gridBag);
@@ -884,6 +910,7 @@ public class MethodDialog extends CallDialog implements FocusListener
             tmpPanel.add(name);
 
             JPanel typeParameterPanel = createTypeParameterPanel();
+            typeParameterPanel.setOpaque(false);
             constraints.gridwidth = 1;
             constraints.gridx = 1;
             constraints.anchor = GridBagConstraints.WEST;
