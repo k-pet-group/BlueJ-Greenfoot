@@ -121,7 +121,7 @@ public class ObjectInspector extends Inspector
      */
     public ObjectInspector(DebuggerObject obj, InspectorManager inspectorManager, String name, Package pkg, InvokerRecord ir, final JFrame parent)
     {
-        super(inspectorManager, pkg, ir);
+        super(inspectorManager, pkg, ir, new Color(244, 158, 158));
 
         this.obj = obj;
         this.objName = name;

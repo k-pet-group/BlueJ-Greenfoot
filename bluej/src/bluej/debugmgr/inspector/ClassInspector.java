@@ -45,7 +45,7 @@ import bluej.utility.JavaNames;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 7666 2010-05-21 14:46:54Z nccb $
+ * @version $Id: ClassInspector.java 7667 2010-05-21 15:35:36Z nccb $
  */
 public class ClassInspector extends Inspector
 {
@@ -73,7 +73,7 @@ public class ClassInspector extends Inspector
      */
     public ClassInspector(DebuggerClass clss, InspectorManager inspectorManager, Package pkg, InvokerRecord ir, final JFrame parent)
     {
-        super(inspectorManager, pkg, ir);
+        super(inspectorManager, pkg, ir, new Color(249,230,207));
 
         myClass = clss;
 

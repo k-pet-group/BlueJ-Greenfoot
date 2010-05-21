@@ -83,8 +83,7 @@ public abstract class Inspector extends JFrame
     protected final static String inspectLabel = Config.getString("debugger.inspector.inspect");
     protected final static String getLabel = Config.getString("debugger.inspector.get");
     protected final static String close = Config.getString("close");
-
-    private final static Color valueFieldColor = new Color(255,255,255, 90); 
+ 
     // === instance variables ===
 
     protected FieldList fieldList = null;
@@ -120,7 +119,7 @@ public abstract class Inspector extends JFrame
      * @param ir
      *            the InvokerRecord for this inspector (or null)
      */
-    protected Inspector(InspectorManager inspectorManager, Package pkg, InvokerRecord ir)
+    protected Inspector(InspectorManager inspectorManager, Package pkg, InvokerRecord ir, Color valueFieldColor)
     {
         super(AWTUtilitiesWrapper.getBestGC());
         
@@ -146,18 +145,19 @@ public abstract class Inspector extends JFrame
             }
         });
 
-        initFieldList();
+        initFieldList(valueFieldColor);
     }
 
     /**
      * Initializes the list of fields. This creates the component that shows the
      * fields.
+     * @param valueFieldColor 
      */
-    private void initFieldList()
+    private void initFieldList(Color valueFieldColor)
     {
         fieldList = new FieldList(MAX_LIST_WIDTH, valueFieldColor);
         fieldList.setBackground(this.getBackground());
-        fieldList.setOpaque(false);
+        fieldList.setOpaque(true);
         fieldList.setSelectionBackground(Config.getSelectionColour());
         fieldList.getSelectionModel().addListSelectionListener(this);
         // add mouse listener to monitor for double clicks to inspect list

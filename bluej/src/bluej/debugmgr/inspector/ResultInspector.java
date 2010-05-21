@@ -104,7 +104,7 @@ public class ResultInspector extends Inspector
     public ResultInspector(DebuggerObject obj, InspectorManager inspectorManager, String name, Package pkg, InvokerRecord ir, ExpressionInformation info,
             final JFrame parent)
     {
-        super(inspectorManager, pkg, ir);
+        super(inspectorManager, pkg, ir, new Color(226, 224, 220));
 
         expressionInformation = info;
         this.obj = obj;

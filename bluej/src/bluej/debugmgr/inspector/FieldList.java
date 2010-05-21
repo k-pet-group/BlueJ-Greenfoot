@@ -223,12 +223,12 @@ public class FieldList extends JTable
     {
         final static private ImageIcon objectrefIcon = Config.getImageAsIcon("image.inspector.objectref");
         final private static Border valueBorder = BorderFactory.createLineBorder(Color.gray);
-        private Color valueColor;
+        private Color bkColor;
 
 
-        public ListTableCellRenderer(Color valueColor)
+        public ListTableCellRenderer(Color bkColor)
         {
-            this.valueColor = valueColor;
+            this.bkColor = bkColor;
             this.setOpaque(true);
         }
 
@@ -262,21 +262,17 @@ public class FieldList extends JTable
                 this.setText(displayString.toString());
             }
 
-            if (isSelected) {
-                this.setBackground(table.getSelectionBackground());
-            }
-            else {
-                this.setBackground(table.getBackground());
-            }
-
-            Border b = BorderFactory.createLineBorder(this.getBackground(), 3);
+            Color rowBackground = isSelected ? table.getSelectionBackground() : bkColor;
+            this.setBackground(rowBackground);
+            
+            Border b = BorderFactory.createLineBorder(rowBackground, 3);
 
             super.setBorder(b);
 
             // depending in which column we are in, we have to do some different
             // things
             if (column == 1) {
-                this.setBackground(valueColor);
+                this.setBackground(new Color(255,255,255));
                 this.setHorizontalAlignment(JLabel.CENTER);
                 Border compoundBorder = BorderFactory.createCompoundBorder(getBorder(), valueBorder);
                 super.setBorder(compoundBorder);
