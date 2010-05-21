@@ -45,6 +45,7 @@ import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -87,6 +88,7 @@ public abstract class Inspector extends JFrame
     // === instance variables ===
 
     protected FieldList fieldList = null;
+    private Color fieldListBackgroundColor;
 
     protected JButton inspectButton;
     protected JButton getButton;
@@ -145,7 +147,8 @@ public abstract class Inspector extends JFrame
             }
         });
 
-        initFieldList(valueFieldColor);
+        fieldListBackgroundColor = valueFieldColor;
+        initFieldList();
     }
 
     /**
@@ -153,9 +156,9 @@ public abstract class Inspector extends JFrame
      * fields.
      * @param valueFieldColor 
      */
-    private void initFieldList(Color valueFieldColor)
+    private void initFieldList()
     {
-        fieldList = new FieldList(MAX_LIST_WIDTH, valueFieldColor);
+        fieldList = new FieldList(MAX_LIST_WIDTH, fieldListBackgroundColor);
         fieldList.setBackground(this.getBackground());
         fieldList.setOpaque(true);
         fieldList.setSelectionBackground(Config.getSelectionColour());
@@ -497,7 +500,7 @@ public abstract class Inspector extends JFrame
     protected JScrollPane createFieldListScrollPane()
     {
         JScrollPane scrollPane = new JScrollPane(fieldList);
-        scrollPane.setBorder(BlueJTheme.generalBorder);
+        scrollPane.setBorder(BorderFactory.createLineBorder(fieldListBackgroundColor, 10));
         scrollPane.setOpaque(false);
         scrollPane.getViewport().setOpaque(false);
         
