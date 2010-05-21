@@ -32,7 +32,7 @@ import bluej.utility.Utility;
  * Paints a packageTarget
  * 
  * @author fisker
- * @version $Id: PackageTargetPainter.java 7627 2010-05-19 16:07:42Z nccb $
+ * @version $Id: PackageTargetPainter.java 7658 2010-05-21 08:14:36Z mik $
  */
 public class PackageTargetPainter
 {
@@ -95,8 +95,8 @@ public class PackageTargetPainter
         Paint fill;
         if (defaultbg == null) {            
             fill = new GradientPaint(
-                width/4, 0, new Color(221, 218, 145),
-                width*3/4, height, new Color(198, 194, 92));
+                width/4, 0, new Color(229, 183, 173),
+                width*3/4, height, new Color(207, 130, 117));
         } else {
             fill = defaultbg;
         }
@@ -121,7 +121,7 @@ public class PackageTargetPainter
         }
 
         g.setFont(getFont(packageTarget));
-        Utility.drawCentredText(g, packageTarget.getDisplayName(), TEXT_BORDER, TEXT_BORDER + TAB_HEIGHT, 
+        Utility.drawCentredText(g, packageTarget.getDisplayName(), TEXT_BORDER, TEXT_BORDER + TAB_HEIGHT + 10,
                 width - 2 * TEXT_BORDER, TEXT_HEIGHT);       
 
         if (isSelected) {
