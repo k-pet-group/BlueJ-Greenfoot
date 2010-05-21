@@ -582,7 +582,7 @@ public abstract class JavaUtils
     
     private static String makeCommentColour(String text)
     {
-        return "<font color='#AA4400'>" + text + "</font>";
+        return "<font color='#994400'>" + text + "</font>";
     }
 
     private static List<String> getBlockTags(String[] lines)
