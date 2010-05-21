@@ -24,6 +24,9 @@ package bluej.debugmgr.inspector;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -196,6 +199,7 @@ public class ResultInspector extends Inspector
         // Create the header
 
         JComponent header = new JPanel();
+        header.setOpaque(false);
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
 
         Comment comment = expressionInformation.getComment();
@@ -209,7 +213,10 @@ public class ResultInspector extends Inspector
 
         header.add(sig);
         header.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
-        header.add(new JSeparator());
+        JSeparator sep = new JSeparator();
+        sep.setForeground(new Color(191,190,187));
+        sep.setBackground(new Color(0,0,0,0));
+        header.add(sep);
 
         //Create the main part that shows the expression and the result
 
@@ -217,6 +224,7 @@ public class ResultInspector extends Inspector
         mainPanel.setOpaque(false);
 
         Box result = Box.createVerticalBox();
+        result.setOpaque(false);
 
         JLabel expression = new JLabel(expressionInformation.getExpression(), JLabel.LEFT);
         expression.setAlignmentX(JComponent.LEFT_ALIGNMENT);
@@ -235,7 +243,23 @@ public class ResultInspector extends Inspector
         result.add(scrollPane);
         result.add(Box.createVerticalStrut(5));
 
-        mainPanel.add(result, BorderLayout.CENTER);
+        JPanel resultPanel = new JPanel () {
+            protected void paintComponent(Graphics g)
+            {
+                super.paintComponent(g);
+                
+                Graphics2D g2d = (Graphics2D)g;
+                int width = getWidth();
+                int height = getHeight();
+                
+                g2d.setPaint(new GradientPaint(width/4, 0, new Color(236,235,234),
+                                               width*3/4, height, new Color(220,218,214)));
+                g2d.fillRect(0, 0, width, height);
+            }
+        };
+        resultPanel.add(result);
+        resultPanel.setBorder(BorderFactory.createLineBorder(new Color(101, 101, 101), 1));
+        mainPanel.add(resultPanel, BorderLayout.CENTER);
 
         JPanel inspectAndGetButtons = createInspectAndGetButtons();
         mainPanel.add(inspectAndGetButtons, BorderLayout.EAST);
@@ -267,7 +291,22 @@ public class ResultInspector extends Inspector
         bottomPanel.add(buttonPanel);
         
         // add the components
-        Container contentPane = getContentPane();
+        JPanel contentPane = new JPanel() {
+            protected void paintComponent(Graphics g)
+            {
+                super.paintComponent(g);
+                
+                Graphics2D g2d = (Graphics2D)g;
+                int width = getWidth();
+                int height = getHeight();
+                
+                g2d.setPaint(new GradientPaint(width/4, 0, new Color(230,229,228),
+                                               width*3/4, height, new Color(191,186,178)));
+                g2d.fillRect(0, 0, width, height);
+            }
+        };
+        setContentPane(contentPane);
+        contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         contentPane.setLayout(new BorderLayout());
         contentPane.add(header, BorderLayout.NORTH);
         contentPane.add(mainPanel, BorderLayout.CENTER);
