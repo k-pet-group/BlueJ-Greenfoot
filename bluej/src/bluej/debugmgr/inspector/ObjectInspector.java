@@ -65,6 +65,7 @@ import bluej.testmgr.record.GetInvokerRecord;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.DialogManager;
+import java.awt.Dimension;
 
 /**
  * A window that displays the fields in an object or a method return value.
@@ -196,8 +197,10 @@ public class ObjectInspector extends Inspector
             JScrollPane scrollPane = createFieldListScrollPane();
             mainPanel.add(scrollPane, BorderLayout.CENTER);
         } else {
-            JLabel lab = new JLabel("No fields");
+            JLabel lab = new JLabel("  No fields");
+            lab.setPreferredSize(new Dimension(200, 30));
             lab.setFont(PrefMgr.getStandardFont().deriveFont(20.0f));
+            lab.setForeground(new Color(250, 160, 160));
             mainPanel.add(lab);
         }
 
