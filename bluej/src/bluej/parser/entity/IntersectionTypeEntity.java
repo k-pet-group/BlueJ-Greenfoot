@@ -85,8 +85,8 @@ public class IntersectionTypeEntity extends JavaEntity
             if (tent == null) {
                 return null;
             }
-            components[index++] = tent.getType().asSolid();
-            if (components[index] == null) {
+            components[index] = tent.getType().asSolid();
+            if (components[index++] == null) {
                 // Not a "solid" type.
                 return null;
             }

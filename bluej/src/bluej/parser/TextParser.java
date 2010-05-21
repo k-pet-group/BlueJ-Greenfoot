@@ -400,8 +400,9 @@ public class TextParser extends JavaParser
         // TODO and remember unboxing conversion
         case JavaTokenTypes.PLUS:
             if (! a1type.isNumeric() && !(TextAnalyzer.unBox(a1type).isNumeric())) {
-                if (a1type.asClass().getReflective().getName().equals("java.lang.String")) {
-                    valueStack.push(new ValueEntity(a1type));
+                GenTypeClass [] rstypes = a1type.asSolid().getReferenceSupertypes();
+                if (rstypes != null && rstypes[0].getReflective().getName().equals("java.lang.String")) {
+                    valueStack.push(new ValueEntity(rstypes[0]));
                     return;
                 }
                 valueStack.push(new ErrorEntity());

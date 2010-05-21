@@ -63,6 +63,12 @@ public class TparEntity extends JavaEntity
                 if (boundType != null) {
                     tpar.setBounds(boundType.getUpperBounds());
                 }
+                else {
+                    tpar = null;
+                }
+            }
+            else {
+                tpar = null;
             }
         }
         return tpar;
@@ -72,7 +78,12 @@ public class TparEntity extends JavaEntity
     public TypeEntity resolveAsType()
     {
         JavaType myType = getType();
-        return new TypeEntity(myType);
+        if (myType != null) {
+            return new TypeEntity(myType);
+        }
+        else {
+            return null;
+        }
     }
     
     @Override
