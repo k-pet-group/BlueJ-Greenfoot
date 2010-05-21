@@ -40,13 +40,14 @@ import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
+import java.awt.Dimension;
 
 /**
  * A window that displays the static fields in an class.
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 7669 2010-05-21 15:52:37Z nccb $
+ * @version $Id: ClassInspector.java 7676 2010-05-21 20:22:36Z mik $
  */
 public class ClassInspector extends Inspector
 {
@@ -138,8 +139,10 @@ public class ClassInspector extends Inspector
             JScrollPane scrollPane = createFieldListScrollPane();
             mainPanel.add(scrollPane, BorderLayout.CENTER);
         } else {
-            JLabel lab = new JLabel("No fields");
+            JLabel lab = new JLabel("  No fields");
+            lab.setPreferredSize(new Dimension(200, 30));
             lab.setFont(PrefMgr.getStandardFont().deriveFont(20.0f));
+            lab.setForeground(new Color(160, 120, 77));
             mainPanel.add(lab);
         }
 
