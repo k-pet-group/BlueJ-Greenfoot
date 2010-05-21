@@ -203,12 +203,14 @@ public class ImportsCollection
                 continue;
             }
             GenTypeClass clType = importEntity.getClassType();
-            List<GenTypeClass> inners = clType.getReflective().getInners();
-            for (GenTypeClass inner : inners) {
-                String innerName = inner.getReflective().getName();
-                innerName = innerName.substring(innerName.lastIndexOf('$'));
-                if (name.equals(innerName)) {
-                    return new TypeEntity(inner);
+            if (clType != null) {
+                List<GenTypeClass> inners = clType.getReflective().getInners();
+                for (GenTypeClass inner : inners) {
+                    String innerName = inner.getReflective().getName();
+                    innerName = innerName.substring(innerName.lastIndexOf('$'));
+                    if (name.equals(innerName)) {
+                        return new TypeEntity(inner);
+                    }
                 }
             }
         }

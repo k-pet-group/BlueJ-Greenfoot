@@ -21,6 +21,7 @@
  */
 package bluej.parser.entity;
 
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeSuper;
 
@@ -43,7 +44,10 @@ public class WildcardSuperEntity extends TypeArgumentEntity
     {
         TypeEntity ebType = superBound.resolveAsType();
         if (ebType != null) {
-            return new GenTypeSuper(ebType.getClassType());
+            GenTypeClass cbType = ebType.getClassType();
+            if (cbType != null) {
+                return new GenTypeSuper(cbType);
+            }
         }
         return null;
     }
