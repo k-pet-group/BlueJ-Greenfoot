@@ -767,4 +767,4 @@ about.moreInformation=For more information, see
 about.theTeam=The BlueJ team:
 
 # Work Indicator
-workIndicator.resetMachine=Reset Machine@^R
+workIndicator.resetMachine=Reset Java Virtual Machine@^R
