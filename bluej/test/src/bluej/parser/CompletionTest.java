@@ -440,6 +440,26 @@ public class CompletionTest extends TestCase
         assertFalse(suggests.isStatic());
     }
 
+    public void testTparCompletion() throws Exception
+    {
+        String aClassSrc = "class A<T extends String & Runnable> {\n" +   // 0 - 39
+        "public void m(T t) {\n" +              // 39 - 60   
+        "  (t+4).\n" +                          // 60 -   (t+4). <- 68   
+        "}\n" +
+        "}\n";
+
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+
+        CodeSuggestions suggests = aNode.getExpressionType(68, doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.String", suggests.getSuggestionType().toString());
+        assertFalse(suggests.isStatic());
+    }
+    
     public void testCompletionOnKeyword1() throws Exception
     {
         String aClassSrc = "class A {\n" +   // 0 - 10
