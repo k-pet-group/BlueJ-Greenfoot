@@ -449,6 +449,7 @@ public class ExecControls extends JFrame
         // Create the control button panel
 
         JPanel buttonBox = new JPanel();
+        buttonBox.setOpaque(false);
         {
             buttonBox.setLayout(new GridLayout(1,0));
 
@@ -557,6 +558,7 @@ public class ExecControls extends JFrame
 
         // Create thread panel
         JPanel threadPanel = new JPanel(new BorderLayout());
+        threadPanel.setOpaque(false);
 
 
         MouseListener treeMouseListener = new MouseAdapter() {
@@ -607,6 +609,7 @@ public class ExecControls extends JFrame
         //threadPanel.setMinimumSize(new Dimension(100,100));
 
         flipPanel = new JPanel();
+        flipPanel.setOpaque(false);
         {
             flipPanel.setLayout(cardLayout = new CardLayout());
 
@@ -622,6 +625,7 @@ public class ExecControls extends JFrame
                                               threadPanel, flipPanel);
 
         mainPanel.setDividerSize(6);
+        mainPanel.setOpaque(false);
 
         contentPane.add(mainPanel, BorderLayout.CENTER);
 
