@@ -501,9 +501,7 @@ public abstract class Inspector extends JFrame
     {
         JScrollPane scrollPane = new JScrollPane(fieldList);
         scrollPane.setBorder(BorderFactory.createLineBorder(fieldListBackgroundColor, 10));
-        scrollPane.setOpaque(false);
-        scrollPane.getViewport().setOpaque(false);
-        
+        scrollPane.getViewport().setBackground(fieldListBackgroundColor);
         return scrollPane;
     }
     
