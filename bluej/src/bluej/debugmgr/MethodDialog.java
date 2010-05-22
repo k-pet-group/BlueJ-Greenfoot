@@ -56,7 +56,7 @@ import bluej.views.*;
  * @author  Bruce Quig
  * @author  Poul Henriksen <polle@mip.sdu.dk>
  *
- * @version $Id: MethodDialog.java 7671 2010-05-21 16:15:02Z nccb $
+ * @version $Id: MethodDialog.java 7681 2010-05-22 07:44:08Z nccb $
  */
 public class MethodDialog extends CallDialog implements FocusListener
 {
@@ -134,7 +134,7 @@ public class MethodDialog extends CallDialog implements FocusListener
      * Class that holds the components for  a list of parameters. 
      * That is: the actual parameter component and the formal type of the parameter.
      * @author Poul Henriksen <polle@mip.sdu.dk>
-     * @version $Id: MethodDialog.java 7671 2010-05-21 16:15:02Z nccb $
+     * @version $Id: MethodDialog.java 7681 2010-05-22 07:44:08Z nccb $
      */
     public static class ParameterList
     {
@@ -933,12 +933,14 @@ public class MethodDialog extends CallDialog implements FocusListener
             constraints.gridx = 1;
             constraints.fill = GridBagConstraints.HORIZONTAL;
             JPanel parameterPanel = createParameterPanel();
+            parameterPanel.setOpaque(false);
             tmpPanel.add(parameterPanel, constraints);
 
             constraints.gridx = 3;
             constraints.gridy = 0;
             constraints.weightx = 1.0;
             JPanel filler = new JPanel();
+            filler.setOpaque(false);
             gridBag.setConstraints(filler, constraints);
             tmpPanel.add(filler);
         }
