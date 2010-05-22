@@ -42,7 +42,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import javax.swing.BorderFactory;
@@ -293,8 +292,10 @@ public abstract class Inspector extends JFrame
         final Object[] listData = getListData();
         double height = fieldList.getPreferredSize().getHeight();
         int rows = listData.length;
+        int scrollBarWidth = 0;
         if (rows > getPreferredRows()) {
             height = fieldList.getRowHeight() * getPreferredRows();
+            scrollBarWidth = 32; // add some space for a scrollbar
         }
         
         int width = (int) fieldList.getPreferredSize().getWidth();
@@ -306,7 +307,7 @@ public abstract class Inspector extends JFrame
         }
         
         
-        fieldList.setPreferredScrollableViewportSize(new Dimension(width, (int) height));
+        fieldList.setPreferredScrollableViewportSize(new Dimension(width+scrollBarWidth, (int) height));
         pack();
         repaint();
     }

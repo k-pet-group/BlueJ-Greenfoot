@@ -24,7 +24,6 @@ package bluej.debugmgr.inspector;
 import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.EventQueue;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
@@ -278,7 +277,9 @@ public class ObjectInspector extends Inspector
                 g2d.dispose();
             }
             
-        };add(contentPane);
+        };
+        add(contentPane);
+
         contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         contentPane.setOpaque(false);
         contentPane.setDoubleBuffered(false);
