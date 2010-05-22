@@ -130,7 +130,7 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener
         replaceBody.setOpaque(false);
         optionsBody.setOpaque(false);
         
-        JLabel replaceLabel=new JLabel(Config.getString("editor.replacePanel.replaceLabel"));
+        JLabel replaceLabel=new JLabel(Config.getString("editor.replacePanel.replaceLabel")+" ");
         replaceLabel.setFont(font);
         DBox replaceLabelBox = new DBox(DBox.X_AXIS, 0.5f);
         replaceLabelBox.setOpaque(false);
@@ -157,7 +157,7 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener
 
         replaceAllButton=new JButton();
         replaceAllButton.setName(REPLACE_ALL_BUTTON_NAME);
-        replaceAllButton.setText(Config.getString("editor.replacePanel.replaceAll")+"   ");
+        replaceAllButton.setText(" "+Config.getString("editor.replacePanel.replaceAll")+"  ");
         replaceAllButton.setFont(font);
         replaceAllButton.addActionListener(this);
         replaceAllButton.setEnabled(true);
