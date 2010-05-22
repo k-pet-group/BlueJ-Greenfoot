@@ -32,7 +32,7 @@ import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.pkgmgr.PkgMgrFrame;
 
 /**
- * This class manages the dragging of object icons, and thit drop onto 
+ * This class manages the dragging of object icons, and the drop onto
  * drop targets.
  * 
  * @author Michael Kolling
@@ -239,6 +239,7 @@ public class DragAndDropHelper
     {
         private Point objectLocation;
 
+        @Override
         protected void paintComponent(Graphics g) 
         {
             if (objectLocation != null) {

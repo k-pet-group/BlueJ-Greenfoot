@@ -22,6 +22,7 @@
 package bluej.editor.moe;
 
 
+import bluej.Config;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -72,6 +73,8 @@ import bluej.utility.JavaUtils;
 public class CodeCompletionDisplay extends JFrame 
     implements ListSelectionListener, MouseListener
 {
+    private static final Color msgTextColor = new Color(200,170,100);
+
     private MoeEditor editor;
     private AssistContent[] values;
     private String prefix;
@@ -149,6 +152,7 @@ public class CodeCompletionDisplay extends JFrame
         methodDescription.setEditorKit(new HTMLEditorKit());
         methodDescription.setEditable(false);
         InputMap inputMap = new InputMap() {
+            @Override
             public Object get(KeyStroke keyStroke)
             {
                 // Define no action for up/down, which allows the parent scroll
@@ -240,13 +244,13 @@ public class CodeCompletionDisplay extends JFrame
         Dimension size = new Dimension(metrics.charWidth('m') * 30, metrics.getHeight() * 15);
 
         JScrollPane scrollPane;
-        scrollPane = new GradientFillScrollPane(methodList, new Color(250,246,229),new Color(233,210,132));
+        scrollPane = new GradientFillScrollPane(methodList, new Color(250,246,229), new Color(233,210,132));
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setPreferredSize(size);
         methodPanel.add(scrollPane);
 
         
-        scrollPane = new GradientFillScrollPane(methodDescription, new Color(250,246,229), new Color(233,210,132));
+        scrollPane = new GradientFillScrollPane(methodDescription, new Color(250,246,229), new Color(240,220,140));
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setPreferredSize(size);
 
@@ -291,19 +295,22 @@ public class CodeCompletionDisplay extends JFrame
 
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setUndecorated(true);
+        setGlassPane(getCodeCompleteGlassPane());
         pack();
     }
 
     private void updatePrefix()
     {
         Vector<AssistContent> listData = new Vector<AssistContent>();
-        for (int i=0;i <values.length; i++ ){
+        for (int i=0; i<values.length; i++ ) {
             if (values[i].getDisplayName().startsWith(prefix)) {
                 listData.add(values[i]);
             }
         }
         methodList.setListData(listData);
         methodList.setSelectedIndex(0);
+
+        getGlassPane().setVisible(listData.size() == 0);
     }
     
     /**
@@ -453,6 +460,7 @@ public class CodeCompletionDisplay extends JFrame
             this.bottomColor = bottomColor;
         }
 
+        @Override
         protected void paintComponent(Graphics g)
         {
             super.paintComponent(g);
@@ -473,5 +481,30 @@ public class CodeCompletionDisplay extends JFrame
             }
         }
     }    
-    
+
+    // ===== the glass pane for messages on this component =====
+
+    private CodeCompleteGlassPane myGlassPane;
+
+    private CodeCompleteGlassPane getCodeCompleteGlassPane()
+    {
+        if(myGlassPane == null) {
+            myGlassPane = new CodeCompleteGlassPane();
+        }
+        return myGlassPane;
+    }
+
+    /**
+     * We have to provide our own glass pane so that it can paint the dragged object.
+     */
+    class CodeCompleteGlassPane extends JComponent
+    {
+        @Override
+        protected void paintComponent(Graphics g)
+        {
+            g.setColor(msgTextColor);
+            g.setFont(g.getFont().deriveFont(20f));
+            g.drawString(Config.getString("editor.completion.noMatch"), 30, 60);
+        }
+    }
 }
