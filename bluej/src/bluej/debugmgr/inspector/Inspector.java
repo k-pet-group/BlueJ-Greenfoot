@@ -62,6 +62,7 @@ import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
+import java.awt.Component;
 
 /**
  * 
@@ -140,6 +141,7 @@ public abstract class Inspector extends JFrame
         // We want to be able to veto a close
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent E)
             {
                 doClose(true);
@@ -166,6 +168,7 @@ public abstract class Inspector extends JFrame
         // objects. assumption is made that valueChanged will have selected
         // object on first click
         MouseListener mouseListener = new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e)
             {
                 // monitor for double clicks
@@ -201,6 +204,7 @@ public abstract class Inspector extends JFrame
         return ir != null;
     }
 
+    @Override
     public void setVisible(boolean visible)
     {
         super.setVisible(visible);
@@ -512,12 +516,14 @@ public abstract class Inspector extends JFrame
     {
         addMouseListener( new MouseAdapter()
         {
+            @Override
             public void mousePressed( MouseEvent e )
             {
                 initialClick = e.getPoint();
-                getComponentAt( initialClick );
+                //Component target = getComponentAt( initialClick );
             }
 
+            @Override
             public void mouseReleased(MouseEvent e)
             {
                 initialClick = null;
@@ -527,19 +533,18 @@ public abstract class Inspector extends JFrame
         // Move window when mouse is dragged
         addMouseMotionListener( new MouseMotionAdapter()
         {
+            @Override
             public void mouseDragged( MouseEvent e )
             {
                 if (initialClick == null) {
                     initialClick = e.getPoint();
                     return;
                 }
-                
+
                 // get location of Window
                 int thisX = getLocation().x;
                 int thisY = getLocation().y;
                 
-                
-     
                 // Determine how much the mouse moved since the initial click
                 int xMoved = ( thisX + e.getX() ) - ( thisX + initialClick.x );
                 int yMoved = ( thisY + e.getY() ) - ( thisY + initialClick.y );

@@ -141,8 +141,8 @@ public class ObjectInspector extends Inspector
                 else {
                     DialogManager.centreWindow(thisInspector, parent);
                 }
-                thisInspector.installListenersForMoveDrag();
-                thisInspector.setWindowOpaque(false);
+                thisInspector.setWindowOpaque(false); // makes rounded corners transparent
+                                                      // and window draggable in content area
             }
         });
     }
@@ -236,6 +236,7 @@ public class ObjectInspector extends Inspector
 
         JPanel contentPane = new JPanel() {
 
+            @Override
             protected void paintComponent(Graphics g)
             {               
                 Graphics2D g2d = (Graphics2D)g.create();
