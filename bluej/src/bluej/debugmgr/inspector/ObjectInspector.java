@@ -423,7 +423,6 @@ public class ObjectInspector extends Inspector
         if (response != null) {
             try {
                 int slot = Integer.parseInt(response);
-
                 // check if within bounds of array
                 if (slot >= 0 && slot < obj.getInstanceFieldCount()) {
                     // if its an object set as current object
@@ -438,6 +437,8 @@ public class ObjectInspector extends Inspector
                         // just display it in the array list display
                         setButtonsEnabled(false, false);
                         //arraySet.add(new Integer(slot));
+                        // TODO: this is currently broken. Primitive array elements re just
+                        //       not displayed right now. Would need to be added to display list.
                         update();
                     }
                 }
