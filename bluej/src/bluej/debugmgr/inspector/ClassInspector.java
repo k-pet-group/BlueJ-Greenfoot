@@ -47,7 +47,7 @@ import java.awt.Dimension;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ClassInspector.java 7676 2010-05-21 20:22:36Z mik $
+ * @version $Id: ClassInspector.java 7686 2010-05-22 12:01:21Z mik $
  */
 public class ClassInspector extends Inspector
 {
@@ -62,6 +62,7 @@ public class ClassInspector extends Inspector
     protected final static String INTERFACE_INSPECT_TITLE = Config.getString("debugger.inspector.interface.title");
     protected final static String INTERFACE_NAME_LABEL = Config.getString("debugger.inspector.interface.nameLabel");
 
+    protected final static String noFieldsMsg = Config.getString("debugger.inspector.class.noFields");
     
     // === instance variables ===
 
@@ -139,7 +140,7 @@ public class ClassInspector extends Inspector
             JScrollPane scrollPane = createFieldListScrollPane();
             mainPanel.add(scrollPane, BorderLayout.CENTER);
         } else {
-            JLabel lab = new JLabel("  No fields");
+            JLabel lab = new JLabel("  " + noFieldsMsg);
             lab.setPreferredSize(new Dimension(200, 30));
             lab.setFont(PrefMgr.getStandardFont().deriveFont(20.0f));
             lab.setForeground(new Color(160, 120, 77));

@@ -80,6 +80,7 @@ public class ObjectInspector extends Inspector
     // === static variables ===
 
     protected final static String inspectTitle = Config.getString("debugger.inspector.object.title");
+    protected final static String noFieldsMsg = Config.getString("debugger.inspector.object.noFields");
 
     // === instance variables ===
     
@@ -194,7 +195,7 @@ public class ObjectInspector extends Inspector
             JScrollPane scrollPane = createFieldListScrollPane();
             mainPanel.add(scrollPane, BorderLayout.CENTER);
         } else {
-            JLabel lab = new JLabel("  No fields");
+            JLabel lab = new JLabel("  " + noFieldsMsg);
             lab.setPreferredSize(new Dimension(200, 30));
             lab.setFont(PrefMgr.getStandardFont().deriveFont(20.0f));
             lab.setForeground(new Color(250, 160, 160));
