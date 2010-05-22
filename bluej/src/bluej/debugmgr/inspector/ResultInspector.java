@@ -206,11 +206,10 @@ public class ResultInspector extends Inspector
         LabelPrintWriter commentLabelPrintWriter = new LabelPrintWriter();
         comment.print(commentLabelPrintWriter);
         MultiLineLabel commentLabel = commentLabelPrintWriter.getLabel();
-        commentLabel.setForeground(Color.GRAY);
         commentLabel.setOpaque(false);
         header.add(commentLabel);
         JLabel sig = new JLabel(expressionInformation.getSignature());
-        sig.setForeground(Color.GRAY);
+        sig.setForeground(Color.BLACK);
 
         header.add(sig);
         header.add(Box.createVerticalStrut(BlueJTheme.generalSpacingWidth));
