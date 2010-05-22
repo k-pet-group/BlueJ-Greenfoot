@@ -207,6 +207,7 @@ public class ResultInspector extends Inspector
         comment.print(commentLabelPrintWriter);
         MultiLineLabel commentLabel = commentLabelPrintWriter.getLabel();
         commentLabel.setForeground(Color.GRAY);
+        commentLabel.setOpaque(false);
         header.add(commentLabel);
         JLabel sig = new JLabel(expressionInformation.getSignature());
         sig.setForeground(Color.GRAY);
