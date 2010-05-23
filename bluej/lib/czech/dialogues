@@ -1,3 +1,7 @@
+kotrola-kodovani
+P\u0159\u00EDli\u0161 \u017Elu\u0165ou\u010Dk\u00FD k\u016F\u0148 \u00FAp\u011Bl \u010F\u00E1belsk\u00E9 \u00F3dy.
+P\u0158\u00CDLI\u0160 \u017DLU\u0164OU\u010CK\u00DD K\u016E\u0147 \u00DAP\u011AL \u010E\u00C1BELSK\u00C9 \u00D3DY.
+
 compile-while-executing
 Nem\u016F\u017Eete p\u0159ekl\u00E1dat,
 dokud b\u011B\u017E\u00ED virtu\u00E1ln\u00ED stroj Javy.
@@ -82,20 +86,6 @@ nebo je soubor nedostupn\u00FD.
 
 error-open-source
 Zdrojov\u00FD k\u00F3d t\u00E9to t\u0159\u00EDdy nelze otev\u0159\u00EDt.
-
-error-open-readme
-Nepoda\u0159ilo se otev\u0159\u00EDt textov\u00E9 pozn\u00E1mky k tomuto projektu.
-Byl vytvo\u0159en nov\u00FD soubor pro textov\u00E9 pozn\u00E1mky.
-
-error-writing-readme
-Do souboru README se nepoda\u0159ilo p\u0159idat
-informace o t\u0159\u00EDd\u011B s metodou main.
-P\u0159i zm\u011Bn\u011B souboru nastala chyba.
-
-error-exporting
-Nastala chyba p\u0159i exportov\u00E1n\u00ED aplikace.
-N\u011Bkter\u00E9 soubory (mo\u017En\u00E1 v\u0161echny)
-nebyly spr\u00E1vn\u011B zkop\u00EDrov\u00E1ny.
 
 error-writing-jar
 Do souboru jar se nepoda\u0159ilo \u00FAsp\u011B\u0161n\u011B zapsat.
@@ -186,6 +176,27 @@ T\u0159\u00EDda nebo bal\u00ED\u010Dek se stejn\u00FDm jm\u00E9nem
 ji\u017E v tomto bal\u00ED\u010Dku existuje.
 V tomto bal\u00ED\u010Dku nem\u016F\u017Eete m\u00EDt druhou
 t\u0159\u00EDdu \u010Di bal\u00ED\u010Dek se stejn\u00FDm jm\u00E9nem.
+
+class-library-conflict
+V knihovn\u011B je ji\u017E t\u0159\u00EDda se stejn\u00FDm n\u00E1zvem
+"$".
+Vytvo\u0159\u00EDte-li proto t\u0159\u00EDdu se zadan\u00FDm n\u00E1zvem,
+budete ji sice moci upravovat a p\u0159ekl\u00E1dat,
+ale nebudete moci volat jej\u00ED metody.
+Storno
+P\u0159esto pokra\u010Duj
+null
+
+compile-class-library-conflict
+V knihovn\u011B je ji\u017E t\u0159\u00EDda se stejn\u00FDm n\u00E1zvem
+"$".
+M\u016F\u017Eete proto svoji t\u0159\u00EDdu upravovat a p\u0159ekl\u00E1dat,
+ale p\u0159i vol\u00E1n\u00ED metod se budou spou\u0161t\u011Bt
+metody knihovn\u00ED t\u0159\u00EDdy.
+
+windows-reserved-class-name
+Zadan\u00FD n\u00E1zev t\u0159\u00EDdy nelze pou\u017E\u00EDt, proto\u017Ee tetno n\u00E1zev
+je v n\u011Bkter\u00FDch opera\u010Dn\u00EDch syst\u00E9mech rezervov\u00E1n
 
 error-in-import
 P\u0159i importov\u00E1n\u00ED nastala chyba. Zkontrolujte
@@ -329,11 +340,6 @@ classmgr-changes-no-effect
 Zm\u011Bny, kter\u00E9 jste provedli v nastaven\u00ED knihoven,
 se projev\u00ED a\u017E po p\u0159\u00ED\u0161t\u00EDm spu\u0161t\u011Bn\u00ED BlueJ.
 
-pref-optimise-no-effect
-Zm\u011Bny v nastaven\u00ED virtu\u00E1ln\u00EDho stroje se projev\u00ED
-pouze v projektech, kter\u00E9 otev\u0159ete po zad\u00E1n\u00ED t\u00E9to zm\u011Bny
-(nebo po restartov\u00E1n\u00ED virtu\u00E1ln\u00EDho stroje).
-
 unittest-new-test-method
 Zadejte jm\u00E9no testu.
 Pot\u00E9 bude zah\u00E1jeno zaznamen\u00E1v\u00E1n\u00ED testu.
@@ -377,18 +383,8 @@ error-create-vm
 BlueJ nen\u00ED schopen vytvo\u0159it virtu\u00E1ln\u00ED stroj (VM), na n\u011Bm\u017E by mohl
 b\u00FDt projekt spu\u0161t\u011Bn. To je v\u00E1\u017En\u00FD probl\u00E9m - dokud nebude vy\u0159e\u0161en,
 nebudete moci vytv\u00E1\u0159et objekty ani spou\u0161t\u011Bt metody.
-Tento probl\u00E9m je oby\u010Dejn\u011B zp\u016Fsobem nestandardn\u00EDm nastaven\u00EDm
-s\u00ED\u0165ov\u00E9ho p\u0159ipojen\u00ED. BlueJ pou\u017E\u00EDv\u00E1 p\u0159i vytv\u00E1\u0159en\u00ED virtu\u00E1ln\u00EDho stroje
-TCP/IP a sokety. Nej\u010Dast\u011Bj\u0161\u00ED p\u0159\u00ED\u010Dinou b\u00FDv\u00E1 p\u0159\u00EDli\u0161 omezuj\u00EDc\u00ED
-firewall, kter\u00FD nepovol\u00ED p\u0159ipojen\u00ED hostitele. Vypn\u011Bte firewall a
-toto podez\u0159en\u00ED otestujte. Pokud se probl\u00E9m vypnut\u00EDm firewall
-vy\u0159e\u0161\u00ED, najd\u011Bte takov\u00E9 nastaven\u00ED firewallu, kter\u00E9 p\u0159ipojen\u00ED hostitele
-umo\u017En\u00ED.
-Druhou mo\u017Enou p\u0159\u00ED\u010Dinou je nespr\u00E1vn\u00E9 nastaven\u00ED s\u00ED\u0165ov\u00E9ho
-p\u0159ipojen\u00ED. Zkontrolujte, \u017Ee m\u00E1te spr\u00E1vn\u011B nastaven\u00E9 parametry
-protokolu TCP/IP a dal\u0161\u00ED parametry p\u0159ipojen\u00ED.
-Budou li probl\u00E9my p\u0159etrv\u00E1vat, po\u017E\u00E1dejte o pomoc - viz
-http://www.bluej.org/help/ask-help.html
+Tento probl\u00E9m je v\u011Bt\u0161inou zp\u016Fsobem p\u0159\u00EDli\u0161 p\u0159\u00EDsn\u00FDm nastaven\u00EDm firewalu,
+V\u00EDce informac\u00ED najdete na <http://www.bluej.org/help/faq.html#socket-exc>.
 
 project-is-readonly
 Projekt je ur\u010Den pouze ke \u010Dten\u00ED. Nem\u016F\u017Eete proto vytv\u00E1\u0159et objekty
@@ -400,6 +396,16 @@ Chcete li s projektem norm\u00E1ln\u011B pracovat, mus\u00EDte zabezpe\u010Dit,
 \u017De je um\u00EDst\u011Bn na za\u0159\u00EDzen\u00ED umo\u017E\u0148uj\u00EDc\u00EDm z\u00E1pis (nejl\u00E9pe na pevn\u00E9m
 disku) a \u017Ee m\u00E1te pr\u00E1vo zapisovat do dan\u00E9ho adres\u00E1\u0159e a do
 kter\u00E9hokoliv ze soubor\u016F projektu.
+
+project-is-virtualized
+Projekt, kter\u00FD jste otev\u0159eli, je virtualizov\u00E1n syst\u00E9mem Windows.
+K tomu nap\u0159. doch\u00E1z\u00ED, je-li projekt ulo\u017Een n\u011Bkde ve slo\u017Ece
+"Program files" \u010Di jej\u00EDch podlo\u017Ek\u00E1ch.
+P\u0159i virtualizaci projektu bude program p\u0159i pokusu o vytvo\u0159en\u00ED
+objektu nebo vol\u00E1n\u00ED metody hl\u00E1sit chybu.
+Abyste mohli tento projekt pln\u011B vyu\u017E\u00EDt, mus\u00EDte jej p\u0159esunout
+do jin\u00E9 slo\u017Eky. K tomu m\u016F\u017Eete vyu\u017E\u00EDt nap\u0159. p\u0159\u00EDkaz "Ulo\u017Eit jako"
+kter\u00FD po zav\u0159en\u00ED tohoto okna najdete v nab\u00EDdce "Projekt".
 
 could-not-write-shell-file
 Spu\u0161t\u011Bn\u00ED se nezda\u0159ilo, proto\u017Ee slo\u017Eka projektu neumo\u017E\u0148uje z\u00E1pis.
@@ -416,7 +422,7 @@ mus\u00EDte slo\u017Eku nejprve odstranit.
 
 jar-output-no-write
 Nepoda\u0159ilo se vytvo\u0159it v\u00FDstupn\u00ED slo\u017Eku.
-Ov\u011B\u0159te si, \u017Ee chete archiv rozbalit do slo\u017Eky,
+Ov\u011B\u0159te, \u017Ee chete archiv rozbalit do slo\u017Eky,
 do kter\u00E9 m\u00E1te povolen z\u00E1pis.
 
 jar-extraction-error
@@ -524,9 +530,9 @@ Pou\u017Eij vezi z \u00FAlo\u017Ei\u0161t\u011B
 null
 
 not-all-compiled
-V\u0161echny t\u0159\u00EDdy z dan\u00E9ho projektu nebyly p\u0159elo\u017Eeny.
+V dan\u00E9m projektu nebyly n\u011Bkter\u00E9 t\u0159\u00EDdy p\u0159elo\u017Eeny.
 Chcete-li ulo\u017Eit skupinu MIDlet\u016F (MIDlet suite)
-tohoto projektu, mus\u00EDte v\u0161echny t\u0159\u00EDdy p\u0159elo\u017Eit.
+tohoto projektu, mus\u00EDte p\u0159elo\u017Eit v\u0161echny t\u0159\u00EDdy.
 
 error-midleticon-exists
 Soubor, kter\u00FD jste vybrali,
@@ -535,3 +541,15 @@ Chcete je p\u0159epsat?
 P\u0159epsat
 Storno
 null
+
+stuck-at-breakpoint
+V\u00E1\u0161 program je ji\u017E vykon\u00E1v\u00E1n a zastavil se na zar\u00E1\u017Ece (breakpoint).
+Dokud bude program aktivn\u00ED, nebudete jej moci spustit znovu.
+Pomoc\u00ED tla\u010D\u00EDtek lad\u00EDc\u00EDho programu (debuggeru) bu\u010Fto
+nechte program pokra\u010Dovat v pr\u00E1ci, anebo jej ukon\u010Dete.
+
+already-executing
+V\u00E1\u0161 program ji\u017E b\u011B\u017E\u00ED. Dokud neskon\u010D\u00ED, nem\u016F\u017Eete jej spustit znovu
+a nam\u016F\u017Eete ani prohl\u00ED\u017Eet atributy jeho t\u0159\u00EDd.
+Pokud program uv\u00EDzl v nekone\u010Dn\u00E9 smy\u010Dce, m\u016F\u017Eete jej ukon\u010Dit
+pomoc\u00ED lad\u00EDc\u00EDho programu (debuggeru).

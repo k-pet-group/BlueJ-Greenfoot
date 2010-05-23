@@ -1,3 +1,7 @@
+KontrolaKodovani*
+P\u0159\u00EDli\u0161 \u017Elu\u0165ou\u010Dk\u00FD k\u016F\u0148 \u00FAp\u011Bl \u010F\u00E1belsk\u00E9 \u00F3dy.
+P\u0158\u00CDLI\u0160 \u017DLU\u0164OU\u010CK\u00DD K\u016E\u0147 \u00DAP\u011AL \u010E\u00C1BELSK\u00C9 \u00D3DY.
+
 NullPointerException*
 Pokusili jste se p\u0159istoupit k prom\u011Bnn\u00E9 nebo
 metod\u011B objektu pomoc\u00ED odkazu s hodotou "null".
@@ -13,18 +17,18 @@ Index, kter\u00FD jste pou\u017Eili pro p\u0159\u00EDstup ke znaku
 nebo k \u010D\u00E1sti \u0159et\u011Bzce, je mimo povolen\u00E9 meze.
 Prvn\u00ED znak \u0159et\u011Bzce m\u00E1 index 0, posledn\u00ED znak
 m\u00E1 index (d\u00E9lka-1).
-Vol\u00E1te-li metodu "substring", pamatujte, 
+Vol\u00E1te-li metodu "substring", pamatujte,
 \u017Ee prvn\u00ED parametr je za\u010D\u00E1tek
 a druh\u00FD je d\u00E9lka \u010D\u00E1sti \u0159et\u011Bzce.
 
 ClassCastException*
 Chyba p\u0159i p\u0159etypov\u00E1n\u00ED. P\u0159\u00EDklad:
-       Object nejakyOdkaz;
+       Object n\u011Bjak\u00FDOdkaz;
        .....
-       (MojeTrida)nejakOdkaz
-Odkaz v prom\u011Bnn\u00E9 "nejakyOdkaz" je p\u0159etypov\u00E1n na typ MojeTrida.
+       MojeT\u0159\u00EDda mojeT\u0159\u00EDda = (MojeT\u0159\u00EDda)n\u011Bjak\u00FDOdkaz;
+Odkaz v prom\u011Bnn\u00E9 "nejakyOdkaz" je p\u0159etypov\u00E1n na typ MojeT\u0159\u00EDda.
 To je v\u0161ak dovoleno pouze tehdy, odkazuje-li na instanci t\u0159\u00EDdy
-MojeTride nebo n\u011Bkter\u00E9ho z jej\u00EDch potomk\u016F.
+MojeT\u0159\u00EDda nebo n\u011Bkter\u00E9ho z jej\u00EDch potomk\u016F.
 
 IndexOutOfBoundsException*
 Index je mimo povolen\u00E9 meze. Prvn\u00ED prvek pole m\u00E1
@@ -88,7 +92,9 @@ EmptyStackException*
 N\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 IllegalArgumentException*
-N\u00E1pov\u011Bda nen\u00ED k dispozici.
+Tuto v\u00FDjimku vyhazuj\u00ED metody, kter\u00FDm jste p\u0159edali parametry
+s nepovolen\u00FDmi hodnotami. Zkontrolujte, \u017Ee hodnoty
+p\u0159ed\u00E1van\u00FDch parametr\u016F odpov\u00EDdaj\u00ED kontraktu volan\u00E9 metody.
 
 IllegalMonitorStateException*
 N\u00E1pov\u011Bda nen\u00ED k dispozici.
@@ -97,7 +103,10 @@ IllegalPathStateException*
 N\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 IllegalStateException*
-N\u00E1pov\u011Bda nen\u00ED k dispozici.
+Tuto v\u00FDjimku vyhazuj\u00ED metody, kter\u00E9 byly vol\u00E1ny ve \u0161patnou chv\u00EDli
+(objekt t\u0159eba je\u0161t\u011B nen\u00ED p\u0159ipraven na to, aby provedl danou metodu),
+anebo se objekt p\u0159i jejich zpracov\u00E1v\u00E1n\u00ED dostal do nepovolen\u00E9ho stavu.
+Zkontrolujte kontrakt metody a zamyslete se, kde jej nedod\u017Eujete.
 
 ImagingOpException*
 N\u00E1pov\u011Bda nen\u00ED k dispozici.
@@ -106,7 +115,8 @@ MissingResourceException*
 N\u00E1pov\u011Bda nen\u00ED k dispozici.
 
 NegativeArraySizeException*
-N\u00E1pov\u011Bda nen\u00ED k dispozici.
+V\u00FDjimka je vyhozena v okam\u017Eiku, kdy se pokou\u0161\u00EDte vytvo\u0159it
+pole se z\u00E1pornou velikost\u00ED.
 
 NoSuchElementException*
 Pokou\u0161\u00EDte se pracovat s neexistuj\u00EDc\u00EDm prvkem kolekce.
@@ -141,3 +151,11 @@ Exception
 Obecn\u00E1 v\u00FDjimka informuj\u00EDc\u00ED o tom,
 \u017Ee se n\u011Bco nepovedlo.
 Co se nepovedlo v\u0161ak tento typ ne\u0159\u00EDk\u00E1.
+
+IOException
+V\u00FDjimka je vyhozena p\u0159i odhalen\u00ED chyby
+p\u0159i \u010Dten\u00ED ze vstupu \u010Di z\u00E1pisu na v\u00FDstup.
+Nej\u010Dast\u011Bj\u0161\u00ED p\u0159\u00ED\u010Dinou b\u00FDvaj\u00ED pokusy
+otev\u0159\u00EDt neexistuj\u00EDc\u00ED soubor
+anebo zapisovat do souboru,
+kter\u00FD je ur\u010Den pouze pro \u010Dten\u00ED.

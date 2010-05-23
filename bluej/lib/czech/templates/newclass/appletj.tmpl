@@ -1,3 +1,6 @@
+/* Soubor je ulozen v kodovani UTF-8.
+ * Kontrola kódování: Příliš žluťoučký kůň úpěl ďábelské ódy. */
+
 $PKGLINE
 
 import java.awt.Graphics;
@@ -5,19 +8,22 @@ import javax.swing.JApplet;
 import javax.swing.JRootPane;
 
 
+
 /*******************************************************************************
- * Třída {@code $CLASSNAME} slouží k ...
+ * Instance třídy {@code $CLASSNAME} představují ...
  *
  * @author    jméno autora
  * @version   0.00.000
  */
+@SuppressWarnings("serial")
 public class $CLASSNAME extends JApplet
 {
 //== KONSTANTNÍ ATRIBUTY TŘÍDY =================================================
 //== PROMĚNNÉ ATRIBUTY TŘÍDY ===================================================
+//== STATICKÝ INICIALIZAČNÍ BLOK - STATICKÝ KONSTRUKTOR ========================
 //== KONSTANTNÍ ATRIBUTY INSTANCÍ ==============================================
 //== PROMĚNNÉ ATRIBUTY INSTANCÍ ================================================
-//== PŘÍSTUPOVÉ METODY ATRIBUTŮ TŘÍDY ==========================================
+//== PŘÍSTUPOVÉ METODY VLASTNOSTÍ TŘÍDY ========================================
 //== OSTATNÍ NESOUKROMÉ METODY TŘÍDY ===========================================
 
 //##############################################################################
@@ -28,20 +34,23 @@ public class $CLASSNAME extends JApplet
      * <p>
      * Poznámka: Většina metod by měla být volána až poté, co bude daný objekt
      *           zkonstruován. V konstruktoru bychom proto neměli volat metody
-     *           z {@link java.applet.Applet}.                    
+     *           z {@link java.applet.Applet}.
      */
     public $CLASSNAME()
     {
+        //TODO Konstruktor
+        throw new UnsupportedOperationException("Prozatím neimplementováno");
     }
 
 
+
 //== ABSTRAKTNÍ METODY =========================================================
-//== PŘÍSTUPOVÉ METODY INSTANCÍ ================================================
+//== PŘÍSTUPOVÉ METODY VLASTNOSTÍ INSTANCÍ =====================================
 //== PŘEKRYTÉ METODY RODIČOVSKÉ TŘÍDY DEFINOVANÉ ŠABLONOU ======================
 
     /***************************************************************************
      * Tato metoda je volána prohlížecem nebo appletviewerem, který takto
-     * informuje aplet o tom, ze byl nahrán do systému.
+     * informuje aplet o tom, že byl nahrán do systému.
      * Je volaná ještě před prvním zavolánim metody {@link &start()}.
      */
     @Override
@@ -49,13 +58,14 @@ public class $CLASSNAME extends JApplet
     {
         /* Toto je pouze dočasné řešeni bezpečnostního konfliktu současných
          * prohlížečů včetně Netscape & Internet Exploreru, které nepovolují
-         * přistup k AWT systémové frontě události o který se
-         * JApplet při svém startu pokouší. 
+         * přistup k AWT systémové frontě události
+         * o nějž se JApplet při svém startu pokouší.
          * Není vyloučeno, že váš prohlížeč už jeho použití nevyžaduje. */
-        JRootPane rootPane = this.getRootPane();
-        rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
+        JRootPane jRootPane = this.getRootPane();
+        jRootPane.putClientProperty("defeatSystemEventQueueCheck",Boolean.TRUE);
 
-        /*# Zde doplňte další potřebnou inicializaci vašeho apletu. */
+        //TODO Inicializace appletu
+        throw new UnsupportedOperationException("Prozatím neimplementováno");
     }
 
 
@@ -67,7 +77,8 @@ public class $CLASSNAME extends JApplet
     @Override
     public void start()
     {
-        /*# Kód potřebný pro spuštení apletu při každé návštěvě stránky. */
+        //TODO start() - Kód pro spuštení apletu při každé návštěvě stránky
+        throw new UnsupportedOperationException("Prozatím neimplementováno");
     }
 
 
@@ -83,12 +94,14 @@ public class $CLASSNAME extends JApplet
     {
         //Aplet zobrazí jednoduchý text
         kreslítko.drawString("Ukázkový aplet", 20, 20);
+        //TODO paint(Graphics kreslítko) - kód pro vykreslení appletu
+        throw new UnsupportedOperationException("Prozatím neimplementováno");
     }
 
 
     /***************************************************************************
      * Tato metoda je volána prohlížečem nebo appletviewerem, který takto
-     * oznamuje apletu, že se má svoji činnost ukončit.
+     * oznamuje apletu, že má svoji činnost ukončit.
      * Je volaná při nahrazení stránky s apletem jinou stránkou
      * a před tím než je appletem volána metoda <code>destroy</code>.
      * V teto metodě jsou ukončována spuštěná vlákna.
@@ -96,7 +109,8 @@ public class $CLASSNAME extends JApplet
     @Override
     public void stop()
     {
-        /*# Vložte kód potřebný pro zastaveni činnosti apletu. */
+        //TODO stop() - kód pro ukončení činnost apletu
+        throw new UnsupportedOperationException("Prozatím neimplementováno");
     }
 
 
@@ -108,7 +122,8 @@ public class $CLASSNAME extends JApplet
     @Override
     public void destroy()
     {
-        /*# Vložte kód potřebný pro uvolněni alokovaných zdrojů. */
+        //TODO destroy()
+        throw new UnsupportedOperationException("Prozatím neimplementováno");
     }
 
 
@@ -122,10 +137,11 @@ public class $CLASSNAME extends JApplet
     @Override
     public String getAppletInfo()
     {
-        /*# Zde vložte informace o appletu. */
-        return "Název:   \n" +
-               "Autor:   \n" +
-               "Jednoduchý ukázkový applet. ";
+        //TODO Informace o parametrech appletu
+        throw new UnsupportedOperationException("Prozatím neimplementováno");
+//        return "Název:   \n" +
+//               "Autor:   \n" +
+//               "Jednoduchý ukázkový applet. ";
     }
 
 
@@ -141,20 +157,22 @@ public class $CLASSNAME extends JApplet
     @Override
     public String[][] getParameterInfo()
     {
-        /*# Zde vložte informace o appletu. */
-        String paramInfo[][] = {
-            { "prvniParametr", "1-10",     "popis prvního parametru" },
-            { "stav",          "boolean",  "popis druhého parametru" },
-            { "obrázky",       "url",      "popis třetího parametru" }
-        };
-        return paramInfo;
+        //TODO Informace o parametrech appletu
+        throw new UnsupportedOperationException("Prozatím neimplementováno");
+//        String paramInfo[][] = {
+//            { "prvniParametr", "1-10",     "popis prvního parametru" },
+//            { "stav",          "boolean",  "popis druhého parametru" },
+//            { "obrázky",       "url",      "popis třetího parametru" }
+//        };
+//        return paramInfo;
     }
 
 
-//== OSTATNÍ NESOUKROMÉ  METODY INSTANCÍ =======================================
+
+//== OSTATNÍ NESOUKROMÉ METODY INSTANCÍ ========================================
 //== SOUKROMÉ A POMOCNÉ METODY TŘÍDY ===========================================
 //== SOUKROMÉ A POMOCNÉ METODY INSTANCÍ ========================================
-//== VNOŘENÉ A VNITŘNÍ TŘÍDY ===================================================
+//== INTERNÍ DATOVÉ TYPY =======================================================
 //== TESTOVACÍ METODY A TŘÍDY ==================================================
 //
 //     /***************************************************************************
@@ -164,4 +182,6 @@ public class $CLASSNAME extends JApplet
 //     {
 //          $CLASSNAME instance = new $CLASSNAME();
 //     }
+//     /** @param args Parametry příkazového řádku - nepoužívané. */
+//     public static void main( String[] args )  {  test();  }
 }

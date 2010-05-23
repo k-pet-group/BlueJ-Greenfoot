@@ -25,6 +25,9 @@ comment-block=\n Ozna\u010Dit vybran\u00E9 \u0159\u00E1dky jako koment\u00E1\u01
 uncomment-block=\n Odkomentovat vybran\u00E9 \u0159\u00E1dky. Viz comment-block (Zakomentovat).
 indent-block=\n Zv\u011Bt\u0161it odsazen\u00ED vybran\u00FDch \u0159\u00E1dk\u016F o jednu \u00FArove\u0148.
 deindent-block=\n Zmen\u0161it odsazen\u00ED vybran\u00FDch \u0159\u00E1dk\u016F o jednu \u00FArove\u0148.
+increase-font=\Zv\u011Bt\u0161\u00ED velikost fontu o 1
+decrease-font=\Zmen\u0161\u00ED velikost fontu o 1
+code-completion=\Pomoc p\u0159i kompletaci k\u00F3du
 
 select-word=\n Ozna\u010Dit aktu\u00E1ln\u00ED slovo (p\u0159i\u0159azeno tak\u00E9 \n k left-mouse-button: double-click).
 select-line=\n Ozna\u010Dit aktu\u00E1ln\u00ED \u0159\u00E1dek (p\u0159i\u0159azeno tak\u00E9 \n k left-mouse-button: triple-click).

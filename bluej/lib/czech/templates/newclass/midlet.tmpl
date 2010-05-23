@@ -1,6 +1,11 @@
+/* Soubor je ulozen v kodovani UTF-8.
+ * Kontrola kódování: Příliš žluťoučký kůň úpěl ďábelské ódy. */
+
 $PKGLINE
 
 import javax.microedition.midlet.MIDlet;
+
+
 
 /*******************************************************************************
  * Instance třídy {@code $CLASSNAME} představují ...
@@ -12,16 +17,16 @@ public class $CLASSNAME extends MIDlet
 {
 //== KONSTANTNÍ ATRIBUTY TŘÍDY =================================================
 //== PROMĚNNÉ ATRIBUTY TŘÍDY ===================================================
+//== STATICKÝ INICIALIZAČNÍ BLOK - STATICKÝ KONSTRUKTOR ========================
 //== KONSTANTNÍ ATRIBUTY INSTANCÍ ==============================================
 //== PROMĚNNÉ ATRIBUTY INSTANCÍ ================================================
-//== PŘÍSTUPOVÉ METODY ATRIBUTŮ TŘÍDY ==========================================
+//== PŘÍSTUPOVÉ METODY VLASTNOSTÍ TŘÍDY ========================================
 //== OSTATNÍ NESOUKROMÉ METODY TŘÍDY ===========================================
 
 //##############################################################################
 //== KONSTRUKTORY A TOVÁRNÍ METODY =============================================
 
     /***************************************************************************
-     * Bezparametrický konstruktor ...
      */
     public $CLASSNAME()
     {
@@ -29,7 +34,6 @@ public class $CLASSNAME extends MIDlet
 
 
 //== ABSTRAKTNÍ METODY =========================================================
-//== PŘÍSTUPOVÉ METODY INSTANCÍ ================================================
 //== PŘEKRYTÉ METODY RODIČOVSKÉ TŘÍDY DEFINOVANÉ ŠABLONOU ======================
 
     /***************************************************************************
@@ -41,10 +45,12 @@ public class $CLASSNAME extends MIDlet
      * MIDlet převeden do stavu <b>Aktivní</b> zavoláním metody
      * {@link #startApp()}
      */
-     public $CLASSNAME()
-     {
-         //Inicializace MIDletu.
-     }
+    public $CLASSNAME()
+    {
+        //TODO Inicializace MIDletu.
+        throw new UnsupportedOperationException("Prozatím neimplementováno");
+    }
+
 
     /***************************************************************************
      * Zavoláním této metoda oznamuje AMS MIDletu, že jej převádí do stavu
@@ -55,10 +61,12 @@ public class $CLASSNAME extends MIDlet
      * ukončení aplikace, před nímž ale bude nejprve zavolána metoda
      * {@link #destroyApp(boolean)}, aby MIDlet mohl po sobě uklidit.
      */
-     public void startApp()
-     {
-         //Alokuje prostředky požadované pro běh MIDletu
-     }
+    public void startApp()
+    {
+        //TODO Alokace prostředků požadovaných pro běh MIDletu
+        throw new UnsupportedOperationException("Prozatím neimplementováno");
+    }
+
 
     /***************************************************************************
      * Zavoláním této metoda oznamuje AMS MIDletu, že jej převádí do stavu
@@ -72,10 +80,12 @@ public class $CLASSNAME extends MIDlet
      * ukončení aplikace, před nímž ale bude nejprve zavolána metoda
      * {@link #destroyApp(boolean)}, aby MIDlet mohl po sobě uklidit.
      */
-     public void pauseApp()
-     {
-         //Uvolní alokované zdroje
-     }
+    public void pauseApp()
+    {
+        //TODO Uvolnění alokovaných zdrojů
+        throw new UnsupportedOperationException("Prozatím neimplementováno");
+    }
+
 
     /***************************************************************************
      * Zavoláním této metoda oznamuje AMS MIDletu, že ukončuje jeho běh.
@@ -93,8 +103,28 @@ public class $CLASSNAME extends MIDlet
      *                vyhození výjimky smysl, musí mít parametr {@code opravdu}
      *                hodnotu {@code false};
      */
-     public void destroyApp(boolean unconditional)
-     {
-         //Uvolní všechny zdroje a případně uloží preference pro příští start
-     }
+    public void destroyApp(boolean unconditional)
+    {
+        //TODO Uvolnění všech zdrojů a ukončení MIDletu
+        throw new UnsupportedOperationException("Prozatím neimplementováno");
+    }
+
+
+
+//== PŘÍSTUPOVÉ METODY VLASTNOSTÍ INSTANCÍ =====================================
+//== OSTATNÍ NESOUKROMÉ METODY INSTANCÍ ========================================
+//== SOUKROMÉ A POMOCNÉ METODY TŘÍDY ===========================================
+//== SOUKROMÉ A POMOCNÉ METODY INSTANCÍ ========================================
+//== INTERNÍ DATOVÉ TYPY =======================================================
+//== TESTY A METODA MAIN =======================================================
+//
+//    /***************************************************************************
+//     * Testovací metoda.
+//     */
+//    public static void test()
+//    {
+//        $CLASSNAME inst = new $CLASSNAME();
+//    }
+//    /** @param args Parametry příkazového řádku - nepoužívané. */
+//    public static void main( String[] args )  {  test();  }
 }
