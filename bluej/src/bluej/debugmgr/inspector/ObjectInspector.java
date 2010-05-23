@@ -141,8 +141,8 @@ public class ObjectInspector extends Inspector
                 else {
                     DialogManager.centreWindow(thisInspector, parent);
                 }
-                thisInspector.setWindowOpaque(false); // makes rounded corners transparent
-                                                      // and window draggable in content area
+                thisInspector.setWindowOpaque(false);
+                thisInspector.installListenersForMoveDrag();
             }
         });
     }
