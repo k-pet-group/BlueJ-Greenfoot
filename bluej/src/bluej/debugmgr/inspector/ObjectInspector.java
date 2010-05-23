@@ -270,14 +270,10 @@ public class ObjectInspector extends Inspector
                     imgG.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 30, 30);                    
                     
                     imgG.dispose();
-                    
-                    
-    
                     g2d.drawImage(img, 0, 0, this);
                 }
                 g2d.dispose();
             }
-            
         };
         add(contentPane);
 
