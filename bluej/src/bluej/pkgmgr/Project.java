@@ -377,7 +377,7 @@ public class Project implements DebuggerListener, InspectorManager
             proj.initialPackageName = startingPackageName;
         }
 
-        if(Config.isWinOSVista()) {
+        if(Config.isModernWinOS()) {
             WriteCapabilities capabilities = FileUtility.getVistaWriteCapabilities(projectDir);
             switch (capabilities) {
             case VIRTUALIZED_WRITE:

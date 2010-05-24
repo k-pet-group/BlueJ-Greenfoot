@@ -124,8 +124,12 @@ public class BlueJTheme extends DefaultMetalTheme
             return null;        // don't set window icon on Mac - Mac OS generates dynamic icons
 
         if (iconImage == null) {
-            if (Config.isWinOS()) {
-//                iconImage = Config.getFixedImageAsIcon("bluej.ico").getImage();
+            if (Config.isModernWinOS()) {
+                iconImage = Config.getFixedImageAsIcon("bluej.ico").getImage();
+                //iconImage = Config.getFixedImageAsIcon("bluej-icon-265.png").getImage();
+            }
+            else if (Config.isWinOS()) {
+                // for Win XP
                 iconImage = Config.getFixedImageAsIcon("bluej-icon-16.png").getImage();
             }
             else {

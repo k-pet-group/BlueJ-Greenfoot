@@ -661,7 +661,7 @@ public class FileUtility
         boolean isVirtualized = false;
 
         // Virtualization only happens on Windows Vista (or later)
-        if (Config.isWinOSVista()) {
+        if (Config.isModernWinOS()) {
             try {
                 String canonicalPath = file.getCanonicalPath();
                 int colonIndex = canonicalPath.indexOf(":");

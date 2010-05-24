@@ -427,9 +427,9 @@ public final class Config
     }
     
     /**
-     * Tell us whether we are running on MS Windows Vista or a later Windows version
+     * True if OS is Windows Vista or newer.
      */
-    public static boolean isWinOSVista()
+    public static boolean isModernWinOS()
     {
         return isWinOS()
                 && System.getProperty("os.version").compareTo("6.0") >= 0;
