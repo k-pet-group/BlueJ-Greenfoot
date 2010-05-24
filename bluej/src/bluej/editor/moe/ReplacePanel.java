@@ -26,8 +26,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -35,6 +33,8 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import bluej.BlueJTheme;
 import bluej.Config;
@@ -47,7 +47,7 @@ import bluej.utility.DBoxLayout;
  * 
  * @author Marion Zalk
  */
-public class ReplacePanel extends JPanel implements ActionListener, KeyListener
+public class ReplacePanel extends JPanel implements ActionListener, DocumentListener
 {
     private MoeEditor editor;
     private FindPanel finder;
@@ -95,27 +95,33 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener
         }
 
     }
-
-    public void keyPressed(KeyEvent e) { }
-
-    public void keyReleased(KeyEvent e)
+    
+    /**
+     * Populates the replacetext string and enables the buttons if there 
+     * is selected text or the find text field is populated
+     */
+    public void replaceEvent()
     {
-        JComponent src = (JComponent) e.getSource();
-        if (src.getName()== REPLACE_TEXTFIELD){
-            setReplaceString(replaceText.getText());
-            //only enable the once and all buttons if both find and replace are populated
-            //and if there is selected text (else will insert replace where the caret is
-            if (editor.getFindSearchString()!=null && editor.getFindSearchString().length()!=0
-                    && editor.getSourcePane().getSelectedText()!=null){
-                enableButtons(true);
-            }
-            else {
-                enableButtons(false);
-            }
+        setReplaceString(replaceText.getText());
+        enableButtons();
+    }
+    
+    /**
+     * Determines whether the buttons should be enabled or not and 
+     * then calls enableButtons(boolean) to process the request
+     */
+    public void enableButtons()
+    {
+        //only enable the once and all buttons if both find and replace are populated
+        //and if there is selected text
+        if (editor.getFindSearchString()!=null && editor.getFindSearchString().length()!=0
+                && editor.getSourcePane().getSelectedText()!=null){
+            enableButtons(true);
+        }
+        else {
+            enableButtons(false);
         }
     }
-
-    public void keyTyped(KeyEvent e) {  }
 
     /**
      * Display the replace panel
@@ -145,7 +151,7 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener
         replaceText.setMaximumSize(replaceText.getPreferredSize());
         replaceText.setFont(font);
         replaceText.setText(getReplaceString());
-        replaceText.addKeyListener(this);
+        replaceText.getDocument().addDocumentListener(this);
         replaceText.setName(REPLACE_TEXTFIELD);
 
         replaceButton=new JButton();
@@ -153,14 +159,14 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener
         replaceButton.setText(Config.getString("editor.replacePanel.replaceOnce"));
         replaceButton.setFont(font);
         replaceButton.addActionListener(this);
-        replaceButton.setEnabled(true);
+        replaceButton.setEnabled(false);
 
         replaceAllButton=new JButton();
         replaceAllButton.setName(REPLACE_ALL_BUTTON_NAME);
         replaceAllButton.setText(" "+Config.getString("editor.replacePanel.replaceAll")+"  ");
         replaceAllButton.setFont(font);
         replaceAllButton.addActionListener(this);
-        replaceAllButton.setEnabled(true);
+        replaceAllButton.setEnabled(false);
         
         if (Config.isMacOS()) {
             replaceButton.putClientProperty("JButton.buttonType", "segmentedCapsule");
@@ -220,6 +226,24 @@ public class ReplacePanel extends JPanel implements ActionListener, KeyListener
      */
     protected void populateReplaceField(String replaceString){
         replaceText.setText(replaceString);
+    }
+
+    public void changedUpdate(DocumentEvent e) { }
+
+    /**
+     * A document change triggers a replace
+     */
+    public void insertUpdate(DocumentEvent e)
+    {
+        replaceEvent();        
+    }
+
+    /**
+     * A document change triggers a replace
+     */
+    public void removeUpdate(DocumentEvent e)
+    {
+       replaceEvent();
     }
 
 }

@@ -345,6 +345,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
     	editor.setCaretPosition(editor.getCurrentTextPane().getSelectionStart()+1);
         find(true);
+        editor.enableReplaceButtons();
     }
 
     /**
@@ -353,6 +354,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     public void getPrev()
     {
         find(false);
+        editor.enableReplaceButtons();
     }
 
     /**

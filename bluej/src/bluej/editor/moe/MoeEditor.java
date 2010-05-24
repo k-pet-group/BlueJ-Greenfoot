@@ -2606,10 +2606,9 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     void caretMoved()
     {
-        //need to unselect replace buttons if there is no selected text
-        if (getSourcePane().getSelectedText()==null){
-            enableReplaceButtons(false);
-        }  
+        //the caret has moved and therefore need to determine
+        //whether it is logical to have the buttons enabled/disabled
+        enableReplaceButtons();
         clearMessage();
         if (matchBrackets) {
             doBracketMatch();
@@ -3659,6 +3658,15 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     protected void enableReplaceButtons(boolean enable)
     {
         replacer.enableButtons(enable);
+    }
+    
+    /**
+     * Sends the request to enable buttons the replace panel and there it is
+     * determined whether it is logical to enable or disable then buttons
+     */
+    protected void enableReplaceButtons()
+    {
+        replacer.enableButtons();
     }
 
     /**
