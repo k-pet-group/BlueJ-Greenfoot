@@ -526,3 +526,18 @@ Il programma \u00e8 gia in esecuzione. Non puoi far partire un altra
 esecuzione (o ispezioni la classe) finch\u00e8 l'esecuzione non finisce. Se
 il programma \u00e8 in un ciclo infinito, puoi usare il debugger per
 terminarlo.
+
+class-library-conflict
+Una classe con questo nome gi\u00e0 esiste nella libreria
+"$".
+Se crei questa classe, sarai capace di
+modificare e compilare la classe, ma non chiamerai i metodi.
+Cancella
+Continua
+null
+
+compile-class-library-conflict
+Una classe con questo nome gi\u00e0 esiste nella libreria
+"$".
+Puoi modificare e compilare la classe, ma 
+chiamando i metodi eseguirai il codice della classe della libreria.

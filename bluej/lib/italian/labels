@@ -749,6 +749,7 @@ tooltip.commit=Pubblica i cambiamenti locali nel registro
 tooltip.update=Aggiorna i file locali che sono stati modificati nel registro
 tooltip.status=Mostra lo stato deifile del progetto di tutto il team di lavoro
 tooltip.deployMIDlet=Deploy MIDlet contenuta nel progetto
+graph.tooltip.classBroken=Questa classe non pu\u00f2 essere analizzata attualmente
 
 #Copyright
 
@@ -768,6 +769,8 @@ about.javahome=Java Home:
 about.logfile=File di log del debug:
 about.moreInfo=Maggiori informazioni al sito www.bluej.org.
 about.theTeam=Il team BlueJ:
+about.moreInformation=Per maggiori informazioni, vedi
+
 
 # Work Indicator
 workIndicator.resetMachine=Reset della macchina@^R
