@@ -141,7 +141,12 @@ public class ObjectInspector extends Inspector
                 else {
                     DialogManager.centreWindow(thisInspector, parent);
                 }
-                thisInspector.setWindowOpaque(false);
+                if (Config.isMacOS() || Config.isWinOS()) {
+                    // Window translucency doesn't seem to work on linux.
+                    // We'll assume that it might not work on any OS other
+                    // than those on which it's known to work: MacOS and Windows.
+                    thisInspector.setWindowOpaque(false);
+                }
                 thisInspector.installListenersForMoveDrag();
             }
         });
