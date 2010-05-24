@@ -141,13 +141,18 @@ public class ObjectInspector extends Inspector
                 else {
                     DialogManager.centreWindow(thisInspector, parent);
                 }
+
                 if (Config.isMacOS() || Config.isWinOS()) {
                     // Window translucency doesn't seem to work on linux.
                     // We'll assume that it might not work on any OS other
                     // than those on which it's known to work: MacOS and Windows.
                     thisInspector.setWindowOpaque(false);
                 }
-                thisInspector.installListenersForMoveDrag();
+                if (!Config.isMacOS()) {
+                    // MacOS automatically makes tranparent windows draggable by their
+                    // content - no need to do it ourselves.
+                    thisInspector.installListenersForMoveDrag();
+                }
             }
         });
     }
@@ -160,6 +165,7 @@ public class ObjectInspector extends Inspector
         setTitle(inspectTitle);
         setUndecorated(true);
         setLayout(new BorderLayout());
+        setBackground(new Color(232,230,218));
 
         // Create the header
 
@@ -251,7 +257,7 @@ public class ObjectInspector extends Inspector
                                     getHeight(),
                                     Transparency.TRANSLUCENT);
                     Graphics2D imgG = img.createGraphics();
-    
+
                     imgG.setComposite(AlphaComposite.Clear);
                     imgG.fillRect(0, 0, getWidth(), getHeight());
     
