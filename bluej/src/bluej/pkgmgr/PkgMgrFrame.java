@@ -757,6 +757,8 @@ public class PkgMgrFrame extends JFrame
             enableFunctions(true); // changes menu items
             updateWindowTitle();
             setVisible(true);
+            
+            updateTextEvalBackground(isEmptyFrame());
                     
             this.menuManager.setAttachedObject(pkg);
             this.menuManager.addExtensionMenu(pkg.getProject());
@@ -844,6 +846,7 @@ public class PkgMgrFrame extends JFrame
             
             getObjectBench().removeAllObjects(getProject().getUniqueId());
             clearTextEval();
+            updateTextEvalBackground(true);
             showJavaMEcontrols(false);
             showTestingTools(wantToSeeTestingTools());
         }
@@ -2632,6 +2635,17 @@ public class PkgMgrFrame extends JFrame
     {
         if (textEvaluator != null) {
             textEvaluator.clear();
+        }
+    }
+    
+    /**
+     * Updates the background of the text evaluation component (if it exists),
+     * when a project is opened/closed
+     */
+    public void updateTextEvalBackground(boolean emptyFrame)
+    {
+        if (textEvaluator != null) {
+            textEvaluator.updateBackground(emptyFrame);
         }
     }
 

@@ -34,7 +34,7 @@ import bluej.prefmgr.PrefMgr;
  * A customised text area for use in the BlueJ Java text evaluation.
  *
  * @author  Michael Kolling
- * @version $Id: TextEvalArea.java 7706 2010-05-24 13:36:33Z nccb $
+ * @version $Id: TextEvalArea.java 7725 2010-05-24 17:05:43Z nccb $
  */
 public final class TextEvalArea extends JScrollPane
     implements KeyListener, FocusListener
@@ -43,7 +43,7 @@ public final class TextEvalArea extends JScrollPane
 
     private TextEvalPane text;
     
-    private PkgMgrFrame pkgMgrFrame;
+    private boolean frameEmpty;
     
     /**
      * Create a new text area with given size.
@@ -51,7 +51,7 @@ public final class TextEvalArea extends JScrollPane
     public TextEvalArea(PkgMgrFrame frame, Font font)
     {
         createComponent(frame, font);
-        this.pkgMgrFrame = frame;
+        frameEmpty = frame.isEmptyFrame();
     }
 
     /**
@@ -175,9 +175,8 @@ public final class TextEvalArea extends JScrollPane
         //To get fill working properly under Nimbus L&F, set background to transparent, too:
         text.setBackground(new Color(0,0,0,0));
 
-        setViewportView(text);       
-        getViewport().setOpaque(false);
-        setOpaque(false);
+        setViewportView(text);
+        updateBackground(frame.isEmptyFrame());
 
         setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
         setPreferredSize(new Dimension(300,100));
@@ -187,7 +186,7 @@ public final class TextEvalArea extends JScrollPane
     {
         super.paintComponent(g);
         
-        if (g instanceof Graphics2D && false == pkgMgrFrame.isEmptyFrame()) {
+        if (g instanceof Graphics2D && false == frameEmpty) {
             Graphics2D g2d = (Graphics2D)g;
             
             int w = getWidth();
@@ -203,5 +202,14 @@ public final class TextEvalArea extends JScrollPane
             // rather than our gradient (beige) outside the grey bevel border
             g2d.fillRect(1, 1, w-2, h-2);
         }
+    }
+
+    public void updateBackground(boolean frameEmpty)
+    {
+        this.frameEmpty = frameEmpty;
+        
+        getViewport().setOpaque(frameEmpty);
+        setOpaque(frameEmpty);
+        
     }
 }
