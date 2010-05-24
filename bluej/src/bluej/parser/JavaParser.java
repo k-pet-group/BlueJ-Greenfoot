@@ -406,6 +406,8 @@ public class JavaParser
     
     protected void gotTypeParamBound(List<LocatableToken> tokens) { }
 
+    protected void gotMethodTypeParamsBegin() { }
+
     /**
      * Called by the lexer when it sees a comment.
      */
@@ -942,6 +944,7 @@ public class JavaParser
                 LocatableToken first = firstMod != null ? firstMod : token;
                 if (token.getType() == JavaTokenTypes.LT) {
                     // generic method
+                    gotMethodTypeParamsBegin();
                     parseTypeParams();
                 }
                 else {

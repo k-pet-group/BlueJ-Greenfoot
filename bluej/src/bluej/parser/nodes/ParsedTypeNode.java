@@ -22,7 +22,6 @@
 package bluej.parser.nodes;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.text.Document;
 
@@ -35,6 +34,7 @@ import bluej.parser.JavaParser;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.ParsedReflective;
+import bluej.parser.entity.TparEntity;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.ValueEntity;
 import bluej.parser.lexer.JavaTokenTypes;
@@ -53,7 +53,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     private String name;
     private String prefix;
     private TypeInnerNode inner;
-    private Map<String,JavaEntity> typeParams;
+    private List<TparEntity> typeParams;
     private List<JavaEntity> extendedTypes;
     private List<JavaEntity> implementedTypes;
     
@@ -77,9 +77,23 @@ public class ParsedTypeNode extends IncrementalParsingNode
         this.prefix = prefix;
     }
     
-    public void setTypeParams(Map<String, JavaEntity> typeParams)
+    /**
+     * Gets the kind of type which this node represents. Returns one of:
+     * JavaParser.TYPEDEF_CLASS, _INTERFACE, _ENUM or _ANNOTATION
+     */
+    public int getTypeKind()
+    {
+        return type;
+    }
+    
+    public void setTypeParams(List<TparEntity> typeParams)
     {
         this.typeParams = typeParams;
+    }
+    
+    public List<TparEntity> getTypeParams()
+    {
+        return typeParams;
     }
     
     public void setImplementedTypes(List<JavaEntity> implementedTypes)
@@ -320,7 +334,13 @@ public class ParsedTypeNode extends IncrementalParsingNode
     public PackageOrClass resolvePackageOrClass(String name, Reflective querySource)
     {
         if (typeParams != null) {
-            JavaEntity ent = typeParams.get(name);
+            JavaEntity ent = null;
+            for (TparEntity tent : typeParams) {
+                if (tent.getName().equals(name)) {
+                    ent = tent;
+                    break;
+                }
+            }
             if (ent != null) {
                 TypeEntity tent = ent.resolveAsType();
                 if (tent != null) {

@@ -42,16 +42,18 @@ public class TparEntity extends JavaEntity
 {
     private JavaEntity bounds;
     private GenTypeDeclTpar tpar;
+    private String name;
     
     public TparEntity(String name, JavaEntity bounds)
     {
         super();
+        this.name = name;
         this.tpar = new GenTypeDeclTpar(name);
         this.bounds = bounds;
     }
 
     @Override
-    public JavaType getType()
+    public GenTypeDeclTpar getType()
     {
         if (bounds != null) {
             JavaEntity boundsCopy = bounds;
@@ -101,6 +103,6 @@ public class TparEntity extends JavaEntity
     @Override
     public String getName()
     {
-        return tpar.getTparName();
+        return name;
     }
 }

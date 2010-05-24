@@ -94,13 +94,7 @@ public class GenTypeDeclTpar extends GenTypeTpar
     }
     
     /**
-     * Get the bounds of this type parameter, as an array of GenTypeSolid
-     * (If the upper bound is an intersection type, this returns the component
-     * types).<p>
-     * 
-     * Note, this is different from getUpperBounds! That is for getting upper
-     * bounds of a parameterizable ( = {this}), this method is specific to
-     * GenTypeDeclTpar and returns the bounds of the tpar itself.
+     * Get the bounds of this type parameter, as an array of GenTypeSolid.
      */
     public GenTypeSolid [] upperBounds()
     {
@@ -109,17 +103,14 @@ public class GenTypeDeclTpar extends GenTypeTpar
         return r;
     }
     
-    public GenTypeSolid lowerBound()
-    {
-        return lBound;
-    }
-    
     public GenTypeSolid [] lowerBounds()
     {
-        if (lBound == null)
+        if (lBound == null) {
             return new GenTypeSolid[0];
-        else
+        }
+        else {
             return new GenTypeSolid [] {lBound};
+        }
     }
         
     /* (non-Javadoc)
@@ -187,11 +178,13 @@ public class GenTypeDeclTpar extends GenTypeTpar
 
     public boolean isAssignableFrom(JavaType t)
     {
-        if (super.isAssignableFrom(t))
+        if (super.isAssignableFrom(t)) {
             return true;
+        }
         
-        if (lBound != null)
+        if (lBound != null) {
             return lBound.isAssignableFrom(t);
+        }
         
         return false;
     }

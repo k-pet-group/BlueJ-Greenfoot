@@ -361,7 +361,7 @@ public class TextParser extends JavaParser
 
         ArrayList<MethodCallDesc> suitable = TextAnalyzer.getSuitableMethods(methodName,
                 targetType, argTypes, typeArgs, accessClass.getReflective());
-        // DAV now we should choose a method according to JLS 15.12.2.5
+        // TODO now we should choose a method according to JLS 15.12.2.5
         if (suitable.size() == 0) {
             valueStack.push(new ErrorEntity());
             return;
@@ -536,7 +536,7 @@ public class TextParser extends JavaParser
             }
         }
         else {
-            // DAV LITERAL_super
+            // TODO handle LITERAL_super
             valueStack.push(new ErrorEntity());
         }
     }

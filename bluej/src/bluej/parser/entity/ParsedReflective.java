@@ -36,6 +36,7 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
+import bluej.parser.JavaParser;
 import bluej.parser.nodes.FieldNode;
 import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.ParsedTypeNode;
@@ -70,7 +71,13 @@ public class ParsedReflective extends Reflective
     @Override
     public Reflective getRelativeClass(String name)
     {
-        // TODO Auto-generated method stub
+        TypeEntity tent = pnode.resolveQualifiedClass(name);
+        if (tent != null) {
+            GenTypeClass ctype = tent.getType().asClass();
+            if (ctype != null) {
+                return ctype.getReflective();
+            }
+        }
         return null;
     }
 
@@ -115,15 +122,64 @@ public class ParsedReflective extends Reflective
     @Override
     public List<Reflective> getSuperTypesR()
     {
-        // TODO Auto-generated method stub
-        return Collections.emptyList();
+        List<Reflective> rlist = new ArrayList<Reflective>();
+        List<JavaEntity> extendedTypes = pnode.getExtendedTypes();
+        if (extendedTypes != null && ! extendedTypes.isEmpty()) {
+            for (JavaEntity etype : extendedTypes) {
+                TypeEntity etypeTEnt = etype.resolveAsType();
+                if (etypeTEnt != null) {
+                    GenTypeClass superGTC = etypeTEnt.getType().asClass();
+                    if (superGTC != null) {
+                        rlist.add(superGTC.getReflective());
+                    }
+                }
+            }
+        }
+        
+        if (rlist.isEmpty()) {
+            // Object is always a supertype
+            TypeEntity objEntity = pnode.resolveQualifiedClass("java.lang.Object");
+            if (objEntity != null) {
+                GenTypeClass superGTC = objEntity.getType().asClass();
+                if (superGTC != null) {
+                    rlist.add(superGTC.getReflective());
+                }
+            }
+        }
+        
+        extendedTypes = pnode.getImplementedTypes();
+        if (extendedTypes != null && ! extendedTypes.isEmpty()) {
+            for (JavaEntity etype : extendedTypes) {
+                TypeEntity etypeTEnt = etype.resolveAsType();
+                if (etypeTEnt != null) {
+                    GenTypeClass superGTC = etypeTEnt.getType().asClass();
+                    if (superGTC != null) {
+                        rlist.add(superGTC.getReflective());
+                    }
+                }
+            }
+        }
+        
+        return rlist;
     }
 
     @Override
     public List<GenTypeDeclTpar> getTypeParams()
     {
-        // TODO complete
-        return Collections.emptyList();
+        List<TparEntity> tparEntList = pnode.getTypeParams();
+        if (tparEntList == null) {
+            return null;
+        }
+        
+        List<GenTypeDeclTpar> tparList = new ArrayList<GenTypeDeclTpar>(tparEntList.size());
+        for (TparEntity tpar : tparEntList) {
+            GenTypeDeclTpar tparType = tpar.getType();
+            if (tparType != null) {
+                tparList.add(tparType);
+            }
+        }
+        
+        return tparList;
     }
 
     @Override
@@ -136,8 +192,7 @@ public class ParsedReflective extends Reflective
     @Override
     public boolean isInterface()
     {
-        // TODO Auto-generated method stub
-        return false;
+        return pnode.getTypeKind() == JavaParser.TYPEDEF_INTERFACE;
     }
 
     @Override
@@ -194,8 +249,8 @@ public class ParsedReflective extends Reflective
                     if (mtent == null) continue methodLoop;
                     paramTypes.add(mtent.getType());
                 }
-                // DAV need to set the type parameters properly
-                MethodReflective mref = new MethodReflective(name, rtype, null,
+                List<GenTypeDeclTpar> tparTypes = method.getTypeParams();
+                MethodReflective mref = new MethodReflective(name, rtype, tparTypes,
                         paramTypes, this, method.isVarArgs(), method.getModifiers());
                 mref.setJavaDoc(JavaUtils.javadocToString(method.getJavadoc()));
                 mref.setParamNames(method.getParamNames());
@@ -211,7 +266,7 @@ public class ParsedReflective extends Reflective
     @Override
     public List<GenTypeClass> getInners()
     {
-        // DAV fix
+        // TODO fix
         return Collections.emptyList();
     }
 }

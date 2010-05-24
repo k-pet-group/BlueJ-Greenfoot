@@ -24,12 +24,10 @@ package bluej.parser;
 import java.io.Reader;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.Stack;
 
 import javax.swing.text.Document;
@@ -78,7 +76,7 @@ public class EditorParser extends JavaParser
     private int arrayDecls;
     private String declaredPkg = "";
     
-    private Map<String,JavaEntity> typeParams;
+    private List<TparEntity> typeParams;
     private String lastTypeParamName;
     private List<JavaEntity> lastTypeParBounds;
     
@@ -439,9 +437,15 @@ public class EditorParser extends JavaParser
      */
     public final void initializeTypeExtras()
     {
-        typeParams = new HashMap<String,JavaEntity>();
+        typeParams = new LinkedList<TparEntity>();
         extendedTypes = new LinkedList<JavaEntity>();
         implementedTypes = new LinkedList<JavaEntity>();
+    }
+    
+    @Override
+    protected void gotMethodTypeParamsBegin()
+    {
+        typeParams = new LinkedList<TparEntity>();
     }
     
     @Override
@@ -455,9 +459,8 @@ public class EditorParser extends JavaParser
     protected void gotTypeParam(LocatableToken idToken)
     {
         if (lastTypeParamName != null) {
-            typeParams.put(lastTypeParamName,
-                    new TparEntity(lastTypeParamName,
-                            IntersectionTypeEntity.getIntersectionEntity(lastTypeParBounds, pcuNode)));
+            typeParams.add(new TparEntity(lastTypeParamName,
+                    IntersectionTypeEntity.getIntersectionEntity(lastTypeParBounds, pcuNode)));
         }
         lastTypeParamName = idToken.getText();
         lastTypeParBounds = new ArrayList<JavaEntity>();
@@ -474,9 +477,8 @@ public class EditorParser extends JavaParser
     protected void beginTypeBody(LocatableToken token)
     {
         if (lastTypeParamName != null) {
-            typeParams.put(lastTypeParamName,
-                    new TparEntity(lastTypeParamName,
-                            IntersectionTypeEntity.getIntersectionEntity(lastTypeParBounds, pcuNode)));
+            typeParams.add(new TparEntity(lastTypeParamName,
+                    IntersectionTypeEntity.getIntersectionEntity(lastTypeParBounds, pcuNode)));
         }
         
         ParsedTypeNode top = (ParsedTypeNode) scopeStack.peek();
@@ -871,11 +873,19 @@ public class EditorParser extends JavaParser
             // TODO: make certain hidden token not already consumed by prior sibling node
             jdcomment = hiddenToken.getText();
         }
-        
+
+        if (lastTypeParamName != null) {
+            typeParams.add(new TparEntity(lastTypeParamName,
+                    IntersectionTypeEntity.getIntersectionEntity(lastTypeParBounds, pcuNode)));
+            lastTypeParamName = null;
+        }
+
         JavaEntity rtype = ParseUtils.getTypeEntity(scopeStack.peek(),
                 currentQuerySource(), lastTypeSpec);
         MethodNode pnode = new MethodNode(scopeStack.peek(), token.getText(), rtype, jdcomment);
         pnode.setModifiers(currentModifiers);
+        pnode.setTypeParams(typeParams);
+        typeParams = null;
         
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(start.getLine(), start.getColumn());

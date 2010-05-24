@@ -48,8 +48,6 @@ public class GenTypeClass extends GenTypeSolid
      */
     public GenTypeClass(Reflective r)
     {
-        // DAV
-        if (r == null) throw new NullPointerException();
         reflective = r;
     }
     
@@ -80,8 +78,6 @@ public class GenTypeClass extends GenTypeSolid
      */
     public GenTypeClass(Reflective r, List<? extends GenTypeParameter> params, GenTypeClass outer)
     {
-        // DAV
-        if (r == null) throw new NullPointerException();
         reflective = r;
         if( params != null && ! params.isEmpty() )
             this.params = params;
@@ -101,13 +97,12 @@ public class GenTypeClass extends GenTypeSolid
      */
     public GenTypeClass(Reflective r, Map<String,GenTypeParameter> mparams)
     {
-        // DAV
-        if (r == null) throw new NullPointerException();
         reflective = r;
         
         // if mparams == null, this is a raw type. Nothing more to do.
-        if (mparams == null)
+        if (mparams == null) {
             return;
+        }
         
         List<GenTypeParameter> params = new ArrayList<GenTypeParameter>();
         this.params = params;
@@ -641,20 +636,21 @@ public class GenTypeClass extends GenTypeSolid
      * A and C is "A,B,C". Likewise, if D implements E which extends F, the
      * chain between D and F is "D,E,F".
      * 
-     * returns a Stack of ReflectiveType.
+     * returns a Stack of Reflective.
      */
-    private static Stack getInheritanceChain(Reflective top, String bottom)
+    private static Stack<Reflective> getInheritanceChain(Reflective top, String bottom)
     {
-        Stack r = new Stack();
+        Stack<Reflective> r = new Stack<Reflective>();
         r.push(top);
-        if( top.getName().equals(bottom ))
+        if( top.getName().equals(bottom )) {
             return r;
+        }
         
         // Go through each base/interface and try to discover the hieararchy
-        List l = top.getSuperTypesR();
-        for(Iterator i = l.iterator(); i.hasNext(); ) {
-            Reflective next = (Reflective)i.next();
-            Stack r2 = getInheritanceChain(next, bottom);
+        List<Reflective> l = top.getSuperTypesR();
+        for(Iterator<Reflective> i = l.iterator(); i.hasNext(); ) {
+            Reflective next = i.next();
+            Stack<Reflective> r2 = getInheritanceChain(next, bottom);
             if( r2 != null ) {
                 r.addAll(r2);
                 return r;
@@ -720,7 +716,6 @@ public class GenTypeClass extends GenTypeSolid
     
     public GenTypeClass [] getReferenceSupertypes()
     {
-        // DAV probably should abolish this method in favour of getUpperBounds().
         return new GenTypeClass[] {this};
     }
     

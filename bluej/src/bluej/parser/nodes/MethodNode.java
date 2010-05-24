@@ -28,10 +28,12 @@ import java.util.List;
 
 import javax.swing.text.Document;
 
+import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.TparEntity;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.ValueEntity;
 
@@ -48,6 +50,7 @@ public class MethodNode extends JavaParentNode
     private JavaEntity returnType;
     private List<String> paramNames = new ArrayList<String>();
     private List<JavaEntity> paramTypes = new ArrayList<JavaEntity>();
+    private List<TparEntity> typeParams = null;
     private boolean isVarArgs = false;
     private int modifiers = 0;
     
@@ -89,6 +92,14 @@ public class MethodNode extends JavaParentNode
     {
         paramNames.add(name);
         paramTypes.add(type);
+    }
+    
+    /**
+     * Set the type parameters for this method.
+     */
+    public void setTypeParams(List<TparEntity> typeParams)
+    {
+        this.typeParams = typeParams;
     }
     
     /**
@@ -174,6 +185,25 @@ public class MethodNode extends JavaParentNode
     public JavaEntity getReturnType()
     {
         return returnType;
+    }
+    
+    /**
+     * Get the type parameters for this method.
+     */
+    public List<GenTypeDeclTpar> getTypeParams()
+    {
+        if (typeParams == null) {
+            return null;
+        }
+        
+        List<GenTypeDeclTpar> tparList = new ArrayList<GenTypeDeclTpar>(typeParams.size());
+        for (TparEntity tparEnt : typeParams) {
+            GenTypeDeclTpar tparType = tparEnt.getType();
+            if (tparType != null) {
+                tparList.add(tparType);
+            }
+        }
+        return tparList;
     }
     
     @Override
