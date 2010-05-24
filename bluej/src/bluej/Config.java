@@ -1003,7 +1003,6 @@ public final class Config
     {
         try {
             java.net.URL u = getImageFile(propname).toURI().toURL();
-
             return new ImageIcon(u);
         }
         catch (java.net.MalformedURLException mue) { }
@@ -1011,6 +1010,21 @@ public final class Config
         return null;
     }
     
+    /**
+     * Return an icon for an image file name, without going through bluej.defs.
+     * The parameter specifies the final image name, not a property.
+     */
+    public static ImageIcon getFixedImageAsIcon(String filename)
+    {
+        File image = new File(bluejLibDir, "images" + File.separator + filename);
+        try {
+            return new ImageIcon(image.toURI().toURL());
+        }
+        catch (java.net.MalformedURLException mue) { }
+        catch (NullPointerException npe) { }
+        return null;
+    }
+
     /**
      * Find and return the icon for an image, without using the properties
      * (the name provided is the actual file name in ../lib/images).

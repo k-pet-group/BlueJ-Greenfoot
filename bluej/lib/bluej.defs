@@ -662,16 +662,6 @@ image.filechooser.classIcon=classIcon.gif
 # class
 image.class.broken=broken-symbol.png
 
-# editor help icon
-image.editor.help=help.png
-
-# debugger
-image.debug.continue=continue.gif
-image.debug.step=step.gif
-image.debug.step_into=step_into.gif
-image.debug.stop=stop.gif
-image.debug.terminate=terminate.gif
-
 # object bench
 image.bench.object=object.png
 image.bench.object-selected=object-selected.png

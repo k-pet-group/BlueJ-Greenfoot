@@ -697,7 +697,7 @@ public class ExecControls extends JFrame
     {
         public StopAction()
         {
-            super(haltButtonText, Config.getImageAsIcon("image.debug.stop"));
+            super(haltButtonText, Config.getFixedImageAsIcon("stop.gif"));
         }
         
         public void actionPerformed(ActionEvent e)
@@ -718,7 +718,7 @@ public class ExecControls extends JFrame
     {
         public StepAction()
         {
-            super(stepButtonText, Config.getImageAsIcon("image.debug.step"));
+            super(stepButtonText, Config.getFixedImageAsIcon("step.gif"));
         }
         
         public void actionPerformed(ActionEvent e)
@@ -741,7 +741,7 @@ public class ExecControls extends JFrame
     {
         public StepIntoAction()
         {
-            super(stepIntoButtonText, Config.getImageAsIcon("image.debug.step_into"));
+            super(stepIntoButtonText, Config.getFixedImageAsIcon("step_into.gif"));
         }
         
         public void actionPerformed(ActionEvent e)
@@ -763,7 +763,7 @@ public class ExecControls extends JFrame
     {
         public ContinueAction()
         {
-            super(continueButtonText, Config.getImageAsIcon("image.debug.continue"));
+            super(continueButtonText, Config.getFixedImageAsIcon("continue.gif"));
         }
         
         public void actionPerformed(ActionEvent e)
@@ -785,7 +785,7 @@ public class ExecControls extends JFrame
     {
         public TerminateAction()
         {
-            super(terminateButtonText, Config.getImageAsIcon("image.debug.terminate"));           
+            super(terminateButtonText, Config.getFixedImageAsIcon("terminate.gif"));
         }
         
         public void actionPerformed(ActionEvent e)

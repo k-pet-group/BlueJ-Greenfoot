@@ -39,7 +39,7 @@ import javax.swing.border.EmptyBorder;
 public final class Info extends JPanel
     implements ActionListener
 {
-    static final ImageIcon helpImage = Config.getImageAsIcon("image.editor.help");
+    static final ImageIcon helpImage = Config.getFixedImageAsIcon("help.png");
 
     public static Font infoFont = new Font("SansSerif", Font.BOLD, 10);
 
