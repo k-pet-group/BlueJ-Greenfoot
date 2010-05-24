@@ -630,8 +630,6 @@ bluej.debug=false
 image.icon=bluej-window-icon.png
 image.icon.terminal=bluej-terminal-icon.png
 image.icon.editor=bluej-doc-icon.png
-image.logo=about-logo.jpg
-image.empty=empty.gif
 
 # README in main frame:
 image.readme=readme.png

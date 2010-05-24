@@ -37,7 +37,7 @@ import javax.swing.*;
  * The BlueJ about box.
  *
  * @author  Michael Kolling
- * @version $Id: AboutBlue.java 7534 2010-05-11 09:38:45Z mik $
+ * @version $Id: AboutBlue.java 7711 2010-05-24 13:55:36Z mik $
  */
 class AboutBlue extends EscapeDialog
 {
@@ -55,7 +55,7 @@ class AboutBlue extends EscapeDialog
         aboutPanel.setBackground(Color.white);
 
         // insert logo
-        Icon icon = Config.getImageAsIcon("image.logo");
+        Icon icon = Config.getFixedImageAsIcon("about-logo.jpg");
         JLabel logoLabel = new JLabel(icon);
         aboutPanel.add(logoLabel, BorderLayout.WEST);
 
