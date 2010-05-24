@@ -199,6 +199,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
         setfindTextField("");
         findTField.setName(INPUT_QUERY_NAME);
         findTField.getDocument().addDocumentListener(this);
+        findTField.addActionListener(this);
     }
 
     /**
@@ -326,13 +327,13 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         JComponent src = (JComponent) e.getSource();
 
-        if (src.getName()==NEXT__BUTTON_NAME){  
+        if (NEXT__BUTTON_NAME.equals(src.getName()) || INPUT_QUERY_NAME.equals(src.getName())){  
             getNext();
         }
-        if (src.getName()==PREVIOUS_BUTTON_NAME){
+        if (PREVIOUS_BUTTON_NAME.equals(src.getName())){
             getPrev();   
         }
-        if (src.getName()==MATCHCASE_CHECKBOX){
+        if (MATCHCASE_CHECKBOX.equals(src.getName())){
             editor.setCaretPosition(editor.getCurrentTextPane().getSelectionStart());
             find(true);
         }
