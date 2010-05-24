@@ -160,9 +160,6 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
     final static Color titleCol = Config.getItemColour("colour.text.fg");
     final static Color envOpColour = Config.getItemColour("colour.menu.environOp");
 
-    // Icons
-    final static Image iconImage = Config.getImageAsIcon("image.icon.editor").getImage();
-
     // Fonts
     public static int printFontSize = Config.getPropInteger("bluej.fontsize.printText", 10);
     public static Font printFont = new Font("Monospaced", Font.PLAIN, printFontSize);
@@ -2694,7 +2691,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     private void initWindow(EntityResolver projectResolver)
     {
-        setIconImage(iconImage);
+        Image icon = BlueJTheme.getIconImage();
+        if (icon != null) {
+            setIconImage(icon);
+        }
 
         // prepare the content pane
 

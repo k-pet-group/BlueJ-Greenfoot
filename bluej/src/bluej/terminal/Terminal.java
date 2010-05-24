@@ -59,6 +59,7 @@ import javax.swing.text.BadLocationException;
 
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
+import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerTerminal;
@@ -68,6 +69,7 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.Utility;
+import java.awt.Image;
 
 /**
  * The Frame part of the Terminal window used for I/O when running programs
@@ -527,7 +529,10 @@ public final class Terminal extends JFrame
      */
     private void makeWindow(int columns, int rows)
     {
-        setIconImage(Config.getImage("image.icon.terminal"));        
+        Image icon = BlueJTheme.getIconImage();
+        if (icon != null) {
+            setIconImage(icon);
+        }
         text = new TermTextArea(rows, columns, buffer, this);
         scrollPane = new JScrollPane(text);
         text.setFont(getTerminalFont());
@@ -544,6 +549,7 @@ public final class Terminal extends JFrame
 
         // Close Action when close button is pressed
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent event)
             {
                 Window win = (Window)event.getSource();
@@ -561,6 +567,7 @@ public final class Terminal extends JFrame
 
         // save position when window is moved
         addComponentListener(new ComponentAdapter() {
+            @Override
                 public void componentMoved(ComponentEvent event)
                 {
                     Config.putLocation("bluej.terminal", getLocation());
@@ -803,6 +810,7 @@ public final class Terminal extends JFrame
             return charsRead;
         }
 
+        @Override
         public boolean ready()
         {
             return ! buffer.isEmpty();
