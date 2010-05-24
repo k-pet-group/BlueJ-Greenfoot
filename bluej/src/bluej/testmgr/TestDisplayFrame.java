@@ -44,7 +44,7 @@ import bluej.utility.JavaNames;
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 7646 2010-05-20 11:09:01Z nccb $
+ * @version $Id: TestDisplayFrame.java 7710 2010-05-24 13:52:48Z mik $
  */
 public class TestDisplayFrame
 {
@@ -424,9 +424,9 @@ public class TestDisplayFrame
 
 class MyCellRenderer extends JLabel implements ListCellRenderer
 {
-	final static Icon errorIcon = Config.getImageAsIcon("image.testmgr.error");
-	final static Icon failureIcon = Config.getImageAsIcon("image.testmgr.failure");
-	final static Icon okIcon = Config.getImageAsIcon("image.testmgr.ok");
+	final static Icon errorIcon = Config.getFixedImageAsIcon("error.gif");
+	final static Icon failureIcon = Config.getFixedImageAsIcon("failure.gif");
+	final static Icon okIcon = Config.getFixedImageAsIcon("ok.gif");
 
 	// This is the only method defined by ListCellRenderer.
 	// We just reconfigure the JLabel each time we're called.

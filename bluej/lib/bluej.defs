@@ -659,9 +659,6 @@ image.editor.naviview.frame=naviview-frame.png
 image.filechooser.packageIcon=packageIcon.gif
 image.filechooser.classIcon=classIcon.gif
 
-# class
-image.class.broken=broken-symbol.png
-
 # object bench
 image.bench.object=object.png
 image.bench.object-selected=object-selected.png
@@ -672,14 +669,6 @@ image.eval.continue=prompt-continue.gif
 image.eval.object=small-object.gif
 image.eval.dragobject-plus=drag-object-plus.gif
 image.eval.dragobject-noplus=drag-object-noplus.gif
-
-# unit testing
-image.test.recording=record.gif
-
-# test manager
-image.testmgr.ok=ok.gif
-image.testmgr.error=error.gif
-image.testmgr.failure=failure.gif
 
 #find-replace panel
 image.replace.open=bluej_arrow_open.gif

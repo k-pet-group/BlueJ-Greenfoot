@@ -2809,7 +2809,7 @@ public class PkgMgrFrame extends JFrame
                 testPanel.add(Box.createVerticalStrut(8));
 
                 recordingLabel = new JLabel(Config.getString("pkgmgr.test.record"), Config
-                        .getImageAsIcon("image.test.recording"), SwingConstants.LEADING);
+                        .getFixedImageAsIcon("record.gif"), SwingConstants.LEADING);
                 recordingLabel.setFont(pkgMgrFont);
                 recordingLabel.setEnabled(false);
                 recordingLabel.setAlignmentX(0.15f);

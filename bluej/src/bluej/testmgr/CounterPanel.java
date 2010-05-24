@@ -31,15 +31,15 @@ import bluej.Config;
  * A panel with test run counters.
  *
  * @author  Andrew Patterson (derived from JUnit src)
- * @version $Id: CounterPanel.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: CounterPanel.java 7710 2010-05-24 13:52:48Z mik $
  */
 public class CounterPanel extends JPanel
 {
 	private JLabel fNumberOfErrors;
 	private JLabel fNumberOfFailures;
 	private JLabel fNumberOfRuns;
-	final static Icon fFailureIcon = Config.getImageAsIcon("image.testmgr.failure");
-	final static Icon fErrorIcon = Config.getImageAsIcon("image.testmgr.error");
+	final static Icon fFailureIcon = Config.getFixedImageAsIcon("failure.gif");
+	final static Icon fErrorIcon = Config.getFixedImageAsIcon("error.gif");
 
 	private int fTotal;
 

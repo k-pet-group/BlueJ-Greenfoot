@@ -37,7 +37,7 @@ import bluej.utility.Utility;
  * Paints a ClassTarget
  * 
  * @author fisker
- * @version $Id: ClassTargetPainter.java 7597 2010-05-18 15:18:32Z nccb $
+ * @version $Id: ClassTargetPainter.java 7710 2010-05-24 13:52:48Z mik $
  */
 
 public class ClassTargetPainter
@@ -49,7 +49,7 @@ public class ClassTargetPainter
     private static final Color borderColor = Config.getItemColour("colour.target.border");
     private static final Color compileColor = Config.getItemColour("colour.target.bg.compiling");
     private static final Color stripeColor = Config.getItemColour("colour.target.stripes");
-    private static final Image brokenImage = Config.getImageAsIcon("image.class.broken").getImage();
+    private static final Image brokenImage = Config.getFixedImageAsIcon("broken-symbol.png").getImage();
     private static final Font targetFont = PrefMgr.getTargetFont();
 
     private static final int TEXT_HEIGHT = GraphPainterStdImpl.TEXT_HEIGHT;
