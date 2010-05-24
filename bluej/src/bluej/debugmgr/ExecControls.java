@@ -438,9 +438,12 @@ public class ExecControls extends JFrame
      */
     private void createWindow()
     {
-        setIconImage(BlueJTheme.getIconImage());
+        Image icon = BlueJTheme.getIconImage();
+        if (icon != null) {
+            setIconImage(icon);
+        }
     	
-		setJMenuBar(makeMenuBar());
+        setJMenuBar(makeMenuBar());
 
         JPanel contentPane = new GradientFillPanel(new BorderLayout(6,6));
         setContentPane(contentPane);

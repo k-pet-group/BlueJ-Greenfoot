@@ -123,8 +123,17 @@ public class BlueJTheme extends DefaultMetalTheme
      */
     public static Image getIconImage()
     {
-        if (iconImage == null)
-            iconImage = Config.getImageAsIcon("image.icon").getImage();
+        if (Config.isMacOS())
+            return null;        // don't set window icon on Mac - Mac OS generates dynamic icons
+
+        if (iconImage == null) {
+            if (Config.isWinOS()) {
+                iconImage = Config.getFixedImageAsIcon("bluej.ico").getImage();
+            }
+            else {
+                iconImage = Config.getFixedImageAsIcon("bluej-icon-48.png").getImage();
+            }
+        }
 
         return iconImage;
     }

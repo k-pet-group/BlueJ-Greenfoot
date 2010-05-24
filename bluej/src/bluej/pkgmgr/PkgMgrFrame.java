@@ -167,6 +167,7 @@ import bluej.views.MethodView;
 
 import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationEvent;
+import java.awt.Image;
 
 /**
  * The main user interface frame which allows editing of packages
@@ -2737,7 +2738,10 @@ public class PkgMgrFrame extends JFrame
     private void makeFrame()
     {
         setFont(pkgMgrFont);
-        setIconImage(BlueJTheme.getIconImage());
+        Image icon = BlueJTheme.getIconImage();
+        if (icon != null) {
+            setIconImage(icon);
+        }
         testItems = new ArrayList<JComponent>();
         teamItems = new ArrayList<JComponent>();
 

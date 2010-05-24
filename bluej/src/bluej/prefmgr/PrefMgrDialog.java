@@ -47,6 +47,7 @@ import bluej.editor.moe.MoeActions;
 import bluej.extmgr.ExtensionPrefManager;
 import bluej.extmgr.ExtensionsManager;
 import bluej.utility.DialogManager;
+import java.awt.Image;
 
 /**
  * A JDialog subclass to allow the user to interactively edit
@@ -56,7 +57,7 @@ import bluej.utility.DialogManager;
  *
  * @author  Andrew Patterson
  * @author  Michael Kolling
- * @version $Id: PrefMgrDialog.java 7055 2010-01-27 13:58:55Z plcs $
+ * @version $Id: PrefMgrDialog.java 7712 2010-05-24 14:09:58Z mik $
  */
 public class PrefMgrDialog extends JFrame
 {
@@ -197,7 +198,10 @@ public class PrefMgrDialog extends JFrame
 
     private void makeDialog()
     {
-        setIconImage(BlueJTheme.getIconImage());
+        Image icon = BlueJTheme.getIconImage();
+        if (icon != null) {
+            setIconImage(icon);
+        }
         setTitle(Config.getApplicationName() + ": " + Config.getString("prefmgr.title"));
 
         tabbedPane = new JTabbedPane();

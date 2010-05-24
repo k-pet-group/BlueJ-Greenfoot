@@ -62,6 +62,7 @@ import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
+import java.awt.Image;
 
 /**
  * 
@@ -127,7 +128,10 @@ public abstract class Inspector extends JFrame
         if(inspectorManager == null) {
             throw new NullPointerException("An inspector must have an InspectorManager.");
         }
-        setIconImage(BlueJTheme.getIconImage());
+        Image icon = BlueJTheme.getIconImage();
+        if (icon != null) {
+            setIconImage(icon);
+        }
 
         if (pkg == null && ir != null) {
             // Get button cannot be enabled when pkg==null

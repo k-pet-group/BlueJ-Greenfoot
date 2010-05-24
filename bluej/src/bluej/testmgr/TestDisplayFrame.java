@@ -39,12 +39,13 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.utility.GradientFillPanel;
 import bluej.utility.JavaNames;
+import java.awt.Image;
 
 /**
  * A Swing based user interface to run tests.
  *
  * @author  Andrew Patterson
- * @version $Id: TestDisplayFrame.java 7710 2010-05-24 13:52:48Z mik $
+ * @version $Id: TestDisplayFrame.java 7712 2010-05-24 14:09:58Z mik $
  */
 public class TestDisplayFrame
 {
@@ -122,20 +123,23 @@ public class TestDisplayFrame
      */
     protected void createUI()
     {
-		frame = new JFrame(Config.getString("testdisplay.title"));
-		frame.setContentPane(new GradientFillPanel(frame.getContentPane().getLayout()));
+        frame = new JFrame(Config.getString("testdisplay.title"));
+        frame.setContentPane(new GradientFillPanel(frame.getContentPane().getLayout()));
 
-		frame.setIconImage(BlueJTheme.getIconImage());
-		frame.setLocation(Config.getLocation("bluej.testdisplay"));
+        Image icon = BlueJTheme.getIconImage();
+        if (icon != null) {
+            frame.setIconImage(icon);
+        }
+        frame.setLocation(Config.getLocation("bluej.testdisplay"));
 
-		// save position when window is moved
-		frame.addComponentListener(new ComponentAdapter() {
-				public void componentMoved(ComponentEvent event)
-				{
-					Config.putLocation("bluej.testdisplay", frame.getLocation());
-				}
-			});
-		
+        // save position when window is moved
+        frame.addComponentListener(new ComponentAdapter() {
+            public void componentMoved(ComponentEvent event)
+            {
+                Config.putLocation("bluej.testdisplay", frame.getLocation());
+            }
+        });
+
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         splitPane.setBorder(BlueJTheme.generalBorder);
         splitPane.setResizeWeight(0.5);
