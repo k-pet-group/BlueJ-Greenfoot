@@ -128,10 +128,10 @@ public class BlueJTheme extends DefaultMetalTheme
                 iconImage = Config.getFixedImageAsIcon("bluej.ico").getImage();
                 //iconImage = Config.getFixedImageAsIcon("bluej-icon-265.png").getImage();
             }
-            else if (Config.isWinOS()) {
-                // for Win XP
-                iconImage = Config.getFixedImageAsIcon("bluej-icon-16.png").getImage();
-            }
+//            else if (Config.isWinOS()) {
+//                // for Win XP
+//                iconImage = Config.getFixedImageAsIcon("bluej-icon-16.png").getImage();
+//            }
             else {
                 iconImage = Config.getFixedImageAsIcon("bluej-icon-48.png").getImage();
             }
