@@ -126,7 +126,7 @@ public class BlueJTheme extends DefaultMetalTheme
         if (iconImage == null) {
             if (Config.isWinOS()) {
 //                iconImage = Config.getFixedImageAsIcon("bluej.ico").getImage();
-                iconImage = Config.getFixedImageAsIcon("bluej-icon-48.png").getImage();
+                iconImage = Config.getFixedImageAsIcon("bluej-icon-16.png").getImage();
             }
             else {
                 iconImage = Config.getFixedImageAsIcon("bluej-icon-48.png").getImage();
