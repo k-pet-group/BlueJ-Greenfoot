@@ -136,16 +136,12 @@ public class BlueJTheme extends DefaultMetalTheme
                 iconImage = Config.getFixedImageAsIcon("bluej-icon-32.png").getImage();
             }
             else {
+                // Linux, etc.
                 iconImage = Config.getFixedImageAsIcon("bluej-icon-48.png").getImage();
             }
         }
 
         return iconImage;
-    }
-
-    public static void setIconImage(Image newIconImage)
-    {
-        iconImage = newIconImage;
     }
 
     public static String getOkLabel()
