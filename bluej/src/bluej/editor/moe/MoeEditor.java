@@ -2606,6 +2606,10 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      */
     void caretMoved()
     {
+        //need to unselect replace buttons if there is no selected text
+        if (getSourcePane().getSelectedText()==null){
+            enableReplaceButtons(false);
+        }  
         clearMessage();
         if (matchBrackets) {
             doBracketMatch();
@@ -3670,12 +3674,7 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
      * When the mouse is clicked away from the selected text, 
      * the replace buttons need to be disabled
      */
-    public void mouseClicked(MouseEvent e)
-    {
-        if (getSourcePane().getSelectedText()==null){
-            enableReplaceButtons(false);
-        }  
-    }
+    public void mouseClicked(MouseEvent e) { }
 
     public void mouseEntered(MouseEvent e) { }
 
