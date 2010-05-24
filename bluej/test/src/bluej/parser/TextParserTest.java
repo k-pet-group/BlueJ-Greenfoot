@@ -38,7 +38,7 @@ import bluej.parser.nodes.ParsedCUNode;
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 7608 2010-05-19 04:30:13Z davmac $
+ * @version $Id: TextParserTest.java 7699 2010-05-24 05:38:07Z davmac $
  */
 public class TextParserTest extends TestCase
 {
@@ -561,6 +561,26 @@ public class TextParserTest extends TestCase
         
         String r = tp.parseCommand("new Lala().method((byte)3)");
         assertEquals("float", r);
+    }
+    
+    public void testMethodResolution5()
+    {
+        // boxing conversion followed by widening reference conversion
+        String lalaSrc = ""
+            + "public class Lala\n"
+            + "{\n"
+            + "  public <T> T method(T i) { return null; }\n"
+            // + "  public float method(Object o) { return 0f; }\n"
+            + "}\n";
+        
+        ParsedCUNode lalaNode = cuForSource(lalaSrc, "");
+        resolver.addCompilationUnit("", lalaNode);
+
+        EntityResolver res = new PackageResolver(this.resolver, "");
+        TextAnalyzer tp = new TextAnalyzer(res, "", objectBench);
+        
+        String r = tp.parseCommand("new Lala().method(\"a string\")");
+        assertEquals("java.lang.String", r);
     }
     
     //TODO test instanceof
