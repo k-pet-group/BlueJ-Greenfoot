@@ -34,11 +34,11 @@ import java.io.File;
  *
  * @author Michael Kolling
  * @see FileUtility
- * @version $Id: PackageFileView.java 6347 2009-05-20 15:22:43Z polle $
+ * @version $Id: PackageFileView.java 7724 2010-05-24 16:40:25Z mik $
  */
 public class PackageFileView extends FileView
 {
-    static final Icon packageIcon = Config.getImageAsIcon("image.filechooser.packageIcon");
+    static final Icon packageIcon = Config.getFixedImageAsIcon("bluej-project.png");
 
     /**
      * The name of the file.  Do nothing special here. Let the system file
