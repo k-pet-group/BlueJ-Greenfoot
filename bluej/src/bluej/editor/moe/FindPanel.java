@@ -98,8 +98,8 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         super(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(2, 0, 5, 0));
-        openIcon=Config.getImageAsIcon("image.replace.open");
-        closedIcon=Config.getImageAsIcon("image.replace.close");
+        openIcon=Config.getFixedImageAsIcon("bluej_arrow_open.gif");
+        closedIcon=Config.getFixedImageAsIcon("bluej_arrow_close.gif");
         findFont=PrefMgr.getStandardFont();
 
         editor=ed;
@@ -258,7 +258,7 @@ public class FindPanel extends JPanel implements ActionListener, DocumentListene
     {
         closeIconLabel=new JLabel();
         closeIconLabel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 10));
-        closeIconLabel.setIcon(Config.getImageAsIcon("image.findpanel.close")); 
+        closeIconLabel.setIcon(Config.getFixedImageAsIcon("cross.png"));
         closeIconLabel.addMouseListener(this);
         closeIconLabel.setName(CLOSE_BUTTON_NAME); 
     }

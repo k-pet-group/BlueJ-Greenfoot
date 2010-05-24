@@ -635,19 +635,10 @@ image.readme-selected=readme-selected.png
 image.build.depends=arrow_black_uml.gif
 image.build.extends=darrow_black_uml.gif
 
-# the machine indicator
-image.working=working.gif
-image.working.idle=working-idle.gif
-image.working.disab=working-disab.gif
-image.working.stopped=working-stopped.gif
-
 # editor breakpoint and step mark
 image.editor.breakmark=break.gif
 image.editor.stepmark=stepmark.gif
 image.editor.breakstepmark=stepbreak.gif
-
-# frame for the editor NaviView
-image.editor.naviview.frame=naviview-frame.png
 
 # file chooser
 image.filechooser.packageIcon=packageIcon.gif
@@ -663,11 +654,6 @@ image.eval.continue=prompt-continue.gif
 image.eval.object=small-object.gif
 image.eval.dragobject-plus=drag-object-plus.gif
 image.eval.dragobject-noplus=drag-object-noplus.gif
-
-#find-replace panel
-image.replace.open=bluej_arrow_open.gif
-image.replace.close=bluej_arrow_close.gif
-image.findpanel.close=cross.png
 
 #editor-divider panel
 image.editordivider.open=bluej_arrow_naviview_open.gif

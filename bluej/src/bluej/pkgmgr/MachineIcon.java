@@ -31,10 +31,10 @@ import bluej.pkgmgr.actions.RestartVMAction;
 
 public class MachineIcon extends JLabel
 {
-    private static final Icon workingIcon = Config.getImageAsIcon("image.working");
-    private static final Icon notWorkingIcon = Config.getImageAsIcon("image.working.idle");
-    private static final Icon workingIconDisabled = Config.getImageAsIcon("image.working.disab");
-    private static final Icon stoppedIcon = Config.getImageAsIcon("image.working.stopped");
+    private static final Icon workingIcon = Config.getFixedImageAsIcon("working.gif");
+    private static final Icon notWorkingIcon = Config.getFixedImageAsIcon("working-idle.gif");
+    private static final Icon workingIconDisabled = Config.getFixedImageAsIcon("working-disab.gif");
+    private static final Icon stoppedIcon = Config.getFixedImageAsIcon("working-stopped.gif");
 
     private JPopupMenu popupMenu;
 

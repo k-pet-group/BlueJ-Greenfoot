@@ -63,7 +63,7 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  */
 public class NaviView extends JPanel implements AdjustmentListener
 {
-    private static final Image frame = Config.getImageAsIcon("image.editor.naviview.frame").getImage();
+    private static final Image frame = Config.getFixedImageAsIcon("naviview-frame.png").getImage();
     private static final int frw = 5;  // frame width
     
     private Document document;
