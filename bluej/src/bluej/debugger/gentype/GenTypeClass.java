@@ -608,21 +608,21 @@ public class GenTypeClass extends GenTypeSolid
      * 
      * The returned does not indicate if this type is a raw type.
      */
-    public void mergeMap(Map m)
+    public void mergeMap(Map<String, GenTypeParameter> m)
     {
         if (outer != null)
             outer.mergeMap(m);
 
-        List formalParams = reflective.getTypeParams();
+        List<GenTypeDeclTpar> formalParams = reflective.getTypeParams();
         if( params == null )
             return;
-        Iterator paramIterator = params.iterator();
-        Iterator formalIterator = formalParams.iterator();
+        Iterator<? extends GenTypeParameter> paramIterator = params.iterator();
+        Iterator<GenTypeDeclTpar> formalIterator = formalParams.iterator();
         
         // go through each type parameter, assign it the type from our
         // params list.
         while( paramIterator.hasNext() ) {
-            JavaType paramType = (JavaType)paramIterator.next();
+            GenTypeParameter paramType = paramIterator.next();
             GenTypeDeclTpar formalType = (GenTypeDeclTpar)formalIterator.next();
             
             String paramName = formalType.getTparName();
