@@ -32,6 +32,7 @@ import greenfoot.event.ValidityEvent;
 import greenfoot.event.ValidityListener;
 import greenfoot.gui.ClassNameVerifier;
 import greenfoot.gui.classbrowser.ClassView;
+import greenfoot.gui.images.ImageLibList.ImageListEntry;
 import greenfoot.util.ExternalAppLauncher;
 import greenfoot.util.GraphicsUtilities;
 import greenfoot.util.GreenfootUtil;
@@ -44,6 +45,8 @@ import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
@@ -65,6 +68,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
@@ -74,17 +78,19 @@ import javax.swing.event.ListSelectionListener;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
+import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
+import bluej.utility.FileUtility;
 
 /**
  * A dialog for selecting a class image. The image can be selected from either the
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 7730 2010-05-25 09:55:05Z nccb $
+ * @version $Id: ImageLibFrame.java 7734 2010-05-25 11:19:35Z nccb $
  */
-public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
+public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener, MouseListener
 {
     /** Label displaying the currently selected image. */
     private JLabel imageLabel;
@@ -206,6 +212,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                     File projDir = project.getDir();
                     projImagesDir = new File(projDir, "images");
                     projImageList = new ImageLibList(projImagesDir, false);
+                    projImageList.addMouseListener(this);
                     imageScrollPane.getViewport().setView(projImageList);
                 }
                 catch (ProjectNotOpenException pnoe) {}
@@ -708,4 +715,138 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     {
     }
 
+    public void mouseClicked(MouseEvent e)
+    {       
+    }
+
+    public void mouseEntered(MouseEvent e)
+    {
+    }
+
+    public void mouseExited(MouseEvent e)
+    {
+    }
+
+    public void mousePressed(MouseEvent e)
+    {
+        maybeShowPopup(e);
+    }
+
+    public void mouseReleased(MouseEvent e)
+    {
+        maybeShowPopup(e);
+    }
+
+    private void maybeShowPopup(MouseEvent e)
+    {
+        if (e.isPopupTrigger() && e.getComponent() == projImageList) {
+            final int row = projImageList.rowAtPoint(e.getPoint());
+            
+            if (false == projImageList.isRowSelected(row)) {
+                projImageList.setSelectedRow(row);
+                greenfootImageList.clearSelection();
+            }
+            
+            JPopupMenu menu = new JPopupMenu();
+            menu.setInvoker(this);
+            menu.setLocation(e.getXOnScreen(), e.getYOnScreen());
+            
+            menu.add(Config.getString("imagelib.edit")).addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e)
+                {
+                    ImageListEntry[] editedEntries = projImageList.getSelectedValues();
+                    for (ImageListEntry entry : editedEntries) {
+                        ExternalAppLauncher.editImage(entry.imageFile);
+                    }
+                }
+            });
+            
+            menu.add(Config.getString("imagelib.duplicate")).addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e)
+                {
+                    duplicateSelected();
+                }
+            });
+            
+            menu.add(Config.getString("imagelib.delete")).addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e)
+                {
+                    confirmDelete(projImageList.getSelectedValues());
+                }
+            });
+            
+            menu.setVisible(true);
+        }
+    }
+    
+    protected void duplicateSelected()
+    {
+        ImageListEntry[] srcEntries = projImageList.getSelectedValues();
+        for (ImageListEntry srcEntry : srcEntries) {
+            File srcFile = srcEntry.imageFile;
+            File dstFile = null;
+            if(srcFile != null) {
+                File dir = srcFile.getParentFile();
+                String fileName = srcFile.getName();
+                int index = fileName.indexOf('.');
+                
+                String baseName = null;
+                String ext = null;
+                if(index != -1) {
+                    baseName = fileName.substring(0, index);
+                    ext = fileName.substring(index + 1);
+                } else {
+                    baseName = fileName;
+                    ext = "";
+                }
+                baseName += COPY_SUFFIX;
+                
+                try {
+                    dstFile = GreenfootUtil.createNumberedFile(dir, baseName, ext);
+                    FileUtility.copyFile(srcFile, dstFile);
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(dstFile != null) {
+                projImageList.select(dstFile);
+            }
+        }
+       
+    }
+    
+    /** Suffix used when creating a copy of an existing image (duplicate) */
+    private static final String COPY_SUFFIX = "Copy"; //TODO move to labels
+    
+    /**
+     * Confirms whether to delete a file or not.
+     * @param imageListEntries the file to delete
+     */
+    private void confirmDelete(ImageListEntry[] imageListEntries)
+    {
+        String text = Config.getString("imagelib.delete.confirm.text") + " ";
+        
+        int count = 0;
+        for (ImageListEntry imageListEntry : imageListEntries) {
+            count++;
+            if(count < imageListEntries.length) {
+                text += imageListEntry.imageFile.getName() + ", ";
+            }
+            else {
+                text += imageListEntry.imageFile.getName();
+            }
+        }
+        text += "?";
+            
+        int result = JOptionPane.showConfirmDialog(this,text,
+                Config.getString("imagelib.delete.confirm.title"), JOptionPane.YES_NO_OPTION);
+        
+        if(result==JOptionPane.YES_OPTION) {
+            for (ImageListEntry imageListEntry : imageListEntries) {
+                imageListEntry.imageFile.delete();
+            }
+            projImageList.refresh();
+        }
+    }
 }
