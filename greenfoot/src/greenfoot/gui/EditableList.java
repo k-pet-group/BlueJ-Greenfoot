@@ -166,11 +166,19 @@ public class EditableList<T> extends JTable
         int rowCount = tableModel.getRowCount();
         for (int row = 0; row < rowCount; row++) {
             if (value.equals(getValueAt(row, 0))) {
-                getSelectionModel().setSelectionInterval(row, row);
+                setSelectedRow(row);
                 return row;
             }
         }
         return -1;
+    }
+    
+    /**
+     * Sets the selected row
+     */
+    public void setSelectedRow(int row)
+    {
+        getSelectionModel().setSelectionInterval(row, row);
     }
 
     /**
