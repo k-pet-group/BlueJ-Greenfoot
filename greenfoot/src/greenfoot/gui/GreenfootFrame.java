@@ -26,7 +26,6 @@ import greenfoot.World;
 import greenfoot.actions.AboutGreenfootAction;
 import greenfoot.actions.CloseProjectAction;
 import greenfoot.actions.CompileAllAction;
-import greenfoot.actions.EditImagesAction;
 import greenfoot.actions.ExportProjectAction;
 import greenfoot.actions.NewClassAction;
 import greenfoot.actions.NewProjectAction;
@@ -161,7 +160,6 @@ public class GreenfootFrame extends JFrame
     private CloseProjectAction closeProjectAction;
     private RemoveSelectedClassAction removeSelectedClassAction;
     private CompileAllAction compileAllAction;
-    private EditImagesAction editImagesAction;
     private SaveWorldAction saveWorldAction;
     
     private JMenu recentProjectsMenu;
@@ -556,7 +554,6 @@ public class GreenfootFrame extends JFrame
     	removeSelectedClassAction = new RemoveSelectedClassAction(this);
     	removeSelectedClassAction.setEnabled(false);
     	compileAllAction = new CompileAllAction(project);
-        editImagesAction = new EditImagesAction(project, this);
     }
     
     /**
@@ -594,7 +591,6 @@ public class GreenfootFrame extends JFrame
         
         addMenuItem(newClassAction, editMenu, KeyEvent.VK_N, false, KeyEvent.VK_N);
         addMenuItem(removeSelectedClassAction, editMenu, KeyEvent.VK_D, false, KeyEvent.VK_R);
-        addMenuItem(editImagesAction, editMenu, KeyEvent.VK_I, false, KeyEvent.VK_I);
         
         if (!Config.usingMacScreenMenubar()) { // no "Preferences" here for
             // Mac
@@ -688,7 +684,6 @@ public class GreenfootFrame extends JFrame
         saveProjectAction.setEnabled(state);
         saveCopyAction.setEnabled(state);
         newClassAction.setEnabled(state);
-        editImagesAction.setEnabled(state);
         showReadMeAction.setEnabled(state);
         saveWorldAction.setEnabled(state);
         exportProjectAction.setEnabled(state);
@@ -700,7 +695,6 @@ public class GreenfootFrame extends JFrame
         }
         
         compileAllAction.setProject(project);
-        editImagesAction.setProject(project);
     }
 
     /**
