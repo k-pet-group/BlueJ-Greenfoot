@@ -129,7 +129,7 @@ public class BlueJTheme extends DefaultMetalTheme
                 //  does Win7 need an icon set internally at all, or does it pick it up from file?
                 //  does Java process .ico files?
                // iconImage = Config.getFixedImageAsIcon("bluej.ico").getImage();
-                //iconImage = Config.getFixedImageAsIcon("bluej-icon-265.png").getImage();
+                iconImage = Config.getFixedImageAsIcon("bluej-icon-256.png").getImage();
             }
             else if (Config.isWinOS()) {
                 // for Win XP
