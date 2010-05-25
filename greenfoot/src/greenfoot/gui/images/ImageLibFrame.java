@@ -21,10 +21,7 @@
  */
 package greenfoot.gui.images;
 
-import greenfoot.Actor;
-import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
-import greenfoot.ImageVisitor;
 import greenfoot.World;
 import greenfoot.actions.BrowseImagesAction;
 import greenfoot.core.GClass;
@@ -35,24 +32,22 @@ import greenfoot.event.ValidityEvent;
 import greenfoot.event.ValidityListener;
 import greenfoot.gui.ClassNameVerifier;
 import greenfoot.gui.classbrowser.ClassView;
+import greenfoot.util.ExternalAppLauncher;
 import greenfoot.util.GraphicsUtilities;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.rmi.RemoteException;
 
@@ -81,15 +76,13 @@ import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
-import greenfoot.util.ExternalAppLauncher;
-import java.awt.FlowLayout;
 
 /**
  * A dialog for selecting a class image. The image can be selected from either the
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 7729 2010-05-25 09:52:13Z nccb $
+ * @version $Id: ImageLibFrame.java 7730 2010-05-25 09:55:05Z nccb $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener
 {
@@ -115,7 +108,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     public static final int CANCEL = 1;
     private int result = CANCEL;
 
-    private int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
     private JTextField classNameField;
     private GreenfootImage originalImage;
     private File newlyCreatedImage;
@@ -660,83 +652,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
     public void refresh()
     {
         projImageList.refresh();
-    }
-
-    /**
-     * Try to get an image for the class by instantiating it, and grabbing the image from
-     * the resulting object. Returns null if unsuccessful (or if the "generated" image is
-     * really the same as the current class image).
-     */
-    private Image renderImage()
-    {
-        Object object = null;
-        Class<?> cls = gclass.getJavaClass();
-
-        if (cls == null) {
-            return null;
-        }
-        try {
-            object = cls.newInstance();
-        }
-        catch (LinkageError le) { }
-        catch (InstantiationException e) {
-            // No default constructor, or abstract class, or
-            // other instantiation failure
-        }
-        catch (Throwable t) {
-            // *Whatever* is thrown by user code, we want to catch it.
-            t.printStackTrace();
-        }
-
-        if (object == null) {
-            return null;
-        }
-        else if (object instanceof Actor) {
-            Actor so = (Actor) object;
-            GreenfootImage image = ActorVisitor.getDisplayImage(so);
-
-            if (image != null) {
-                //Image awtImage = image.getAwtImage();
-                //rotate it.
-                int rotation = so.getRotation();
-                if (image != null && rotation != 0) {
-                    BufferedImage bImg = GraphicsUtilities.createCompatibleTranslucentImage(image.getWidth(), image.getHeight());
-                    Graphics2D g2 = (Graphics2D) bImg.getGraphics();
-
-                    double rotateX = image.getWidth() / 2.;
-                    double rotateY = image.getHeight() / 2.;
-                    g2.rotate(Math.toRadians(so.getRotation()), rotateX, rotateY);
-
-                    ImageVisitor.drawImage(image, g2, 0, 0, this, true);
-
-                    return bImg;
-                }
-
-                // If the actor got clever and added itself to a world,
-                // remove it again.
-                World world = so.getWorld();
-                if(world != null) {
-                    world.removeObject(so);
-                }
-
-                try {
-                    GProject project = gclass.getPackage().getProject();
-                    GreenfootImage classImage = project.getProjectProperties().getImage(gclass.getQualifiedName());
-                    if (ImageVisitor.equal(classImage, image)) {
-                        // "generated" image is actually just the class image
-                        return null;
-                    }
-                    else {
-                        return image.getAwtImage();
-                    }
-                }
-                catch (RemoteException re) {
-                    re.printStackTrace();
-                }
-                catch (ProjectNotOpenException pnoe) {}
-            }
-        }
-        return null;
     }
 
     /**
