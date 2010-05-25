@@ -143,6 +143,14 @@ public class BlueJTheme extends DefaultMetalTheme
 
         return iconImage;
     }
+    
+    /**
+     * Needed for Greenfoot
+     */
+    public static void setIconImage(Image newIconImage)
+    {
+        iconImage = newIconImage;
+    }
 
     public static String getOkLabel()
     {
