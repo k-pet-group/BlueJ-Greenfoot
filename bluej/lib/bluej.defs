@@ -640,10 +640,6 @@ image.editor.breakmark=break.gif
 image.editor.stepmark=stepmark.gif
 image.editor.breakstepmark=stepbreak.gif
 
-# file chooser
-image.filechooser.packageIcon=bluej-project.png
-image.filechooser.classIcon=class-icon.png
-
 # object bench
 image.bench.object=object.png
 image.bench.object-selected=object-selected.png
