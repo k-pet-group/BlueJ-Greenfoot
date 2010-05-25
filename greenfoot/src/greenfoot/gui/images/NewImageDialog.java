@@ -23,6 +23,7 @@ package greenfoot.gui.images;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.EscapeDialog;
 import greenfoot.util.ExternalAppLauncher;
@@ -64,9 +65,9 @@ import javax.swing.SpinnerNumberModel;
  */
 public class NewImageDialog extends EscapeDialog
 {
-    private static final int DEFAULT_HEIGHT = 100;
-    private static final int DEFAULT_WIDTH = 100;
-    private static final String DEFAULT_IMAGE_TYPE = "png";
+    private static final int DEFAULT_HEIGHT = Config.getPropInteger("greenfoot.image.create.height", 100);
+    private static final int DEFAULT_WIDTH = Config.getPropInteger("greenfoot.image.create.width", 100);
+    private static final String DEFAULT_IMAGE_TYPE = Config.getPropString("greenfoot.image.create.type", "png");
     
     private JTextField name;
     private JSpinner width;
@@ -89,7 +90,7 @@ public class NewImageDialog extends EscapeDialog
      * @param parent the parent frame associated with this dialog
      * @param projImagesDir the directory in which the images for the project are placed.
      */
-    public NewImageDialog(JDialog parent, File projImagesDir)
+    public NewImageDialog(JDialog parent, File projImagesDir, String rootName)
     {
         super(parent, Config.getString("imagelib.new.image.title"));
         this.parent = parent;
@@ -98,13 +99,13 @@ public class NewImageDialog extends EscapeDialog
         imageWidth = Config.getPropInteger("greenfoot.image.create.width", DEFAULT_WIDTH);
         imageHeight = Config.getPropInteger("greenfoot.image.create.height", DEFAULT_HEIGHT);
         imageType = Config.getPropString("greenfoot.image.create.type", DEFAULT_IMAGE_TYPE);
-        buildUI();
+        buildUI(rootName);
     }
 
     /**
      * Build the user interface for the dialog.
      */
-    private void buildUI()
+    private void buildUI(String rootName)
     {
         JPanel mainPanel = new JPanel();
         setContentPane(mainPanel);
@@ -115,6 +116,7 @@ public class NewImageDialog extends EscapeDialog
         namePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         namePanel.add(new JLabel(Config.getString("imagelib.new.image.name") + " "));
         name = new JTextField(10);
+        name.setText(rootName);
         name.addKeyListener(new KeyListener() {
             @Override public void keyPressed(KeyEvent e) {
                 checkName();
@@ -176,6 +178,7 @@ public class NewImageDialog extends EscapeDialog
         setLocation(parent.getX()+parent.getWidth()/2, parent.getY()+parent.getHeight()/2);
         getRootPane().setDefaultButton(okButton);
         pack();
+        checkName();
     }
 
     /**
@@ -253,15 +256,28 @@ public class NewImageDialog extends EscapeDialog
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, null, null);
 
             if (r == JOptionPane.OK_OPTION) {
-                try {
-                    ImageIO.write(im, type.getSelectedItem().toString(), file);
-                    ExternalAppLauncher.editImage(file);
-                }
-                catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+                writeAndEdit(im);
+            } else {
+                setVisible(false);
+            }
+        } else {
+            writeAndEdit(im);
+        }
+    }
+    
+    private void writeAndEdit(BufferedImage im)
+    {
+        try {
+            if (ImageIO.write(im, type.getSelectedItem().toString(), file)) {
+                ExternalAppLauncher.editImage(file);
+                setVisible(false);
+            } else {
+                JOptionPane.showMessageDialog(this, type.getSelectedItem().toString() +
+                        " " + Config.getString("imagelib.image.unsupportedformat.text"), Config.getString("imagelib.image.unsupportedformat.title"), JOptionPane.ERROR_MESSAGE);
             }
         }
-        setVisible(false);
+        catch (IOException ex) {
+            Debug.reportError("Error editing new image", ex);
+        }
     }
 }

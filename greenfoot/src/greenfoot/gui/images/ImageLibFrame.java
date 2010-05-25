@@ -72,6 +72,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -88,7 +89,7 @@ import bluej.utility.FileUtility;
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
- * @version $Id: ImageLibFrame.java 7734 2010-05-25 11:19:35Z nccb $
+ * @version $Id: ImageLibFrame.java 7736 2010-05-25 14:10:26Z nccb $
  */
 public class ImageLibFrame extends EscapeDialog implements ListSelectionListener, WindowListener, MouseListener
 {
@@ -261,10 +262,6 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
             newButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e)
                 {
-                    // Create a new image with default dimensions and filetype.
-                    int width = Config.getPropInteger("greenfoot.image.create.width", 100);
-                    int height = Config.getPropInteger("greenfoot.image.create.height", 100);
-                    String type = Config.getPropString("greenfoot.image.create.type", "png");
                     String name = null;
                     if(includeClassNameField) {
                         name = getClassName();
@@ -272,18 +269,18 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                     else {
                         name = gclass.getName();
                     }
-                    BufferedImage im = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-                   
-                    try {
-                        File f = GreenfootUtil.createNumberedFile(projImagesDir, name, type);                    
-                        ImageIO.write(im, type, f);
-                        refresh();
-                        newlyCreatedImage = f;
-                        ExternalAppLauncher.editImage(f);               
-                    }
-                    catch (IOException e1) {
-                        e1.printStackTrace();
-                    }                                     
+                    
+                    NewImageDialog newImage = new NewImageDialog(ImageLibFrame.this, projImagesDir, name);
+                    final File file = newImage.displayModal();
+                    if(file != null) {
+                        projImageList.refresh();
+                        SwingUtilities.invokeLater(new Runnable(){
+                            @Override
+                            public void run()
+                            {
+                                newlyCreatedImage = file;
+                            }});
+                    }                                           
                 }                
             });
 
@@ -533,7 +530,7 @@ public class ImageLibFrame extends EscapeDialog implements ListSelectionListener
                 }
             }
         }
-        else {
+        else if (imageFile != null) {
             JOptionPane.showMessageDialog(this, imageFile.getName() +
                     " " + Config.getString("imagelib.image.invalid.text"), Config.getString("imagelib.image.invalid.title"), JOptionPane.ERROR_MESSAGE);
         }
