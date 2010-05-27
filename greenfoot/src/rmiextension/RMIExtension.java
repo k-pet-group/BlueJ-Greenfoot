@@ -43,7 +43,7 @@ import bluej.utility.Debug;
  * This is the starting point of greenfoot as a BlueJ Extension.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RMIExtension.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: RMIExtension.java 7738 2010-05-27 13:14:36Z nccb $
  */
 public class RMIExtension extends Extension implements ApplicationListener
 {
@@ -128,7 +128,7 @@ public class RMIExtension extends Extension implements ApplicationListener
      */
     public boolean isCompatible()
     {
-        return true;
+        return Config.isGreenfoot();
     }
 
     /**
