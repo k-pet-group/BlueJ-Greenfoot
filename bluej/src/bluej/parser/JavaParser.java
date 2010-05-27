@@ -950,7 +950,9 @@ public class JavaParser
                 else {
                     tokenStream.pushBack(token);
                 }
-                parseTypeSpec(true);
+                if (!parseTypeSpec(true)) {
+                    return;
+                }
                 LocatableToken idToken = tokenStream.nextToken(); // identifier
                 if (idToken.getType() != JavaTokenTypes.IDENT) {
                     modifiersConsumed();
