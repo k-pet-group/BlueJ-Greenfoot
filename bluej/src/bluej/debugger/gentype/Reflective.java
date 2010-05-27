@@ -117,9 +117,21 @@ public abstract class Reflective
      * class's classloader.
      * 
      * @param name  The name of the class to locate
-     * @return
      */
     abstract public Reflective getRelativeClass(String name);
+    
+    /**
+     * Get the outer class of this one, if there is one.
+     */
+    public Reflective getOuterClass()
+    {
+        int dollarIndex = getName().indexOf('$');
+        if (dollarIndex != -1) {
+            String outerName = getName().substring(0, dollarIndex);
+            return getRelativeClass(outerName);
+        }
+        return null;
+    }
     
     /**
      * Determine whether this class is a static inner class.

@@ -386,10 +386,9 @@ public abstract class JavaUtils
             return true;
         }
         
-        int dollarIndex = accessorName.lastIndexOf('$');
-        if (dollarIndex != -1) {
+        Reflective outer = accessor.getOuterClass();
+        if (outer != null) {
             // Inner classes can access outer class members with outer class privileges
-            Reflective outer = container.getRelativeClass(accessor.getName().substring(0, dollarIndex));
             isStatic |= accessor.isStatic();
             if (checkMemberAccess(container, outer, modifiers, isStatic)) {
                 return true;

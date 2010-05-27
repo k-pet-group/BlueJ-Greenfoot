@@ -3502,6 +3502,11 @@ implements bluej.editor.Editor, BlueJEventListener, HyperlinkListener, DocumentL
                         typeQueue.add(stype.getErasedType());
                     }
                 }
+                
+                Reflective outer = exprType.getReflective().getOuterClass();
+                if (outer != null) {
+                    typeQueue.add(new GenTypeClass(outer));
+                }
             }
 
             // Sort the completions by name
