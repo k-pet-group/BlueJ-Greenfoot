@@ -30,7 +30,7 @@ import java.util.List;
  * @author  Michael Cahill
  * @author  Michael Kolling
  * @author  Andrew Patterson
- * @version $Id: DebuggerThread.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: DebuggerThread.java 7742 2010-06-01 09:42:49Z nccb $
  */
 
 public abstract class DebuggerThread
@@ -47,8 +47,8 @@ public abstract class DebuggerThread
     public abstract int getLineNumber(int frameNo);
     public abstract boolean isKnownSystemThread();
 
-    public abstract List getStack();
-    public abstract List getLocalVariables(int frameNo);
+    public abstract List<SourceLocation> getStack();
+    public abstract List<String> getLocalVariables(int frameNo);
     public abstract boolean varIsObject(int frameNo, int index);
     public abstract DebuggerObject getStackObject(int frameNo, int index);
     public abstract DebuggerObject getCurrentObject(int frameNo);

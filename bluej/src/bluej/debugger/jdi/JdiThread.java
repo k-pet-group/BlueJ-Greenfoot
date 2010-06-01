@@ -37,7 +37,7 @@ import com.sun.jdi.request.StepRequest;
  * This class represents a thread running on the remote virtual machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiThread.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: JdiThread.java 7742 2010-06-01 09:42:49Z nccb $
  */
 class JdiThread extends DebuggerThread
 {
@@ -283,12 +283,12 @@ class JdiThread extends DebuggerThread
      *
      * @return  A List of SourceLocations
      */
-    public static List getStack(ThreadReference thr)
+    public static List<SourceLocation> getStack(ThreadReference thr)
     {
         try {
             if(thr.isSuspended()) {
-                List stack = new ArrayList();
-                List frames = thr.frames();
+                List<SourceLocation> stack = new ArrayList<SourceLocation>();
+                List<StackFrame> frames = thr.frames();
 
                 for(int i = 0; i < frames.size(); i++) {
                     StackFrame f = (StackFrame)frames.get(i);
@@ -329,7 +329,7 @@ class JdiThread extends DebuggerThread
         catch(InvalidStackFrameException isfe) {
         	// same here
         }
-        return new ArrayList();
+        return new ArrayList<SourceLocation>();
     }
 
 
@@ -339,17 +339,17 @@ class JdiThread extends DebuggerThread
      * The thread must be suspended to do this. Otherwise an empty List
      * is returned.
      */
-    public List getLocalVariables(int frameNo)
+    public List<String> getLocalVariables(int frameNo)
     {
         //Debug.message("[JdiThread] getLocalVariables");
         try {
             if(rt.isSuspended()) {
                 StackFrame frame = rt.frame(frameNo);
-                List vars = frame.visibleVariables();
-                List localVars = new ArrayList();
+                List<LocalVariable> vars = frame.visibleVariables();
+                List<String> localVars = new ArrayList<String>();
 
                 for(int i = 0; i < vars.size(); i++) {
-                    LocalVariable var = (LocalVariable)vars.get(i);
+                    LocalVariable var = vars.get(i);
 
                     // Add "type name = value" to the list
                     JavaType vartype = JdiReflective.fromLocalVar(frame, var);
@@ -363,7 +363,7 @@ class JdiThread extends DebuggerThread
         catch(Exception e) {
             // nothing can be done...
         }
-        return new ArrayList();
+        return new ArrayList<String>();
     }
 
     /**
