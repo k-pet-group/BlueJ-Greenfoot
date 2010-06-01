@@ -22,6 +22,7 @@
 package rmiextension;
 
 import greenfoot.core.GreenfootLauncherBlueJVM;
+import greenfoot.core.GreenfootMain;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,9 +30,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import bluej.Config;
+import bluej.debugger.Debugger;
+import bluej.debugger.DebuggerEvent;
+import bluej.debugger.DebuggerListener;
+import bluej.debugger.jdi.JdiDebugger;
 import bluej.extensions.BProject;
 import bluej.extensions.BlueJ;
 import bluej.extensions.Extension;
+import bluej.extensions.ExtensionBridge;
+import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.ApplicationEvent;
 import bluej.extensions.event.ApplicationListener;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -43,9 +50,9 @@ import bluej.utility.Debug;
  * This is the starting point of greenfoot as a BlueJ Extension.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RMIExtension.java 7738 2010-05-27 13:14:36Z nccb $
+ * @version $Id: RMIExtension.java 7745 2010-06-01 13:31:35Z nccb $
  */
-public class RMIExtension extends Extension implements ApplicationListener
+public class RMIExtension extends Extension implements ApplicationListener, DebuggerListener
 {
     private BlueJ theBlueJ;
 
@@ -103,6 +110,8 @@ public class RMIExtension extends Extension implements ApplicationListener
         BProject project = theBlueJ.openProject(projectPath);
         if (project == null) {
             Debug.reportError("Could not open scenario: " + projectPath);
+        } else {
+            addDebuggerListener(project);
         }
     }
 
@@ -117,9 +126,20 @@ public class RMIExtension extends Extension implements ApplicationListener
         BProject project = theBlueJ.newProject(projectPath);
         if (project == null) {
             Debug.reportError("Could not open scenario: " + projectPath);
+        } else {
+            addDebuggerListener(project);
         }
         ProjectManager.instance().removeNewProject(projectPath);
 
+    }
+
+    private void addDebuggerListener(BProject project)
+    {
+        try {
+            ExtensionBridge.addDebuggerListener(project, this);
+        } catch (ProjectNotOpenException ex) {
+            Debug.reportError("Project not open when adding debugger listener in Greenfoot", ex);
+        }
     }
 
     /**
@@ -171,6 +191,35 @@ public class RMIExtension extends Extension implements ApplicationListener
     public void blueJReady(ApplicationEvent event)
     {
         GreenfootLauncherBlueJVM.getInstance().launch(this);
+        for (BProject project : theBlueJ.getOpenProjects()) {
+            addDebuggerListener(project);
+        }
+    }
+
+    // ------------- DebuggerListener interface ------------
+    
+    public void debuggerEvent(DebuggerEvent e)
+    {
+        if (e.getNewState() == Debugger.NOTREADY && e.getOldState() == Debugger.IDLE) {
+            final JdiDebugger debugger = (JdiDebugger)e.getSource();
+            
+            //It is important to have this code run at a later time.
+            //If it runs from this thread, it tries to notify us and we get some
+            //sort of RMI deadlock between the two VMs (I think).
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run()
+                {
+                    try { 
+                        ProjectManager.instance().openGreenfoot(
+                                new Project(bluej.pkgmgr.Project.getProject(debugger.getStartingDirectory()).getBProject().getPackages()[0])
+                                , GreenfootMain.VERSION_OK);
+                    } catch (Exception ex) {
+                        Debug.reportError("Exception while trying to relaunch Greenfoot", ex);
+                    }
+                }
+            });
+            
+        }
     }
 
 }

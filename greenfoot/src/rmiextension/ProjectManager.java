@@ -31,6 +31,8 @@ import java.util.List;
 
 import bluej.extensions.BPackage;
 import bluej.extensions.BlueJ;
+import bluej.extensions.InvocationArgumentException;
+import bluej.extensions.InvocationErrorException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.PackageEvent;
 import bluej.extensions.event.PackageListener;
@@ -43,7 +45,7 @@ import bluej.utility.Debug;
  * 
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ProjectManager.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: ProjectManager.java 7745 2010-06-01 13:31:35Z nccb $
  */
 public class ProjectManager
     implements PackageListener
@@ -104,10 +106,8 @@ public class ProjectManager
                     if (versionOK == GreenfootMain.VERSION_UPDATED) {
                         project.getPackage().getProject().getPackage("").reload();
                     }
-                    ObjectBench.createObject(project, launchClass, launcherName, new String[]{project.getDir(),
-                            project.getName(), BlueJRMIServer.getBlueJService()});
-                }
-                catch (Exception e) {
+                    openGreenfoot(project, versionOK);
+                } catch (Exception e) {
                     Debug.reportError("Could not create greenfoot launcher.", e);
                     e.printStackTrace();
                     // This is bad, lets exit.
@@ -125,6 +125,12 @@ public class ProjectManager
                 }
             }
         }
+    }
+
+    public void openGreenfoot(final Project project, int versionOK) throws InvocationArgumentException, InvocationErrorException
+    {
+        ObjectBench.createObject(project, launchClass, launcherName, new String[]{project.getDir(),
+                project.getName(), BlueJRMIServer.getBlueJService()});
     }
 
     /**
