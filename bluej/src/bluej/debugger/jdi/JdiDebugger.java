@@ -54,7 +54,7 @@ import com.sun.jdi.*;
  * 
  * @author Michael Kolling
  * @author Andrew Patterson
- * @version $Id: JdiDebugger.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: JdiDebugger.java 7744 2010-06-01 12:59:29Z nccb $
  */
 public class JdiDebugger extends Debugger
 {
@@ -1012,5 +1012,10 @@ public class JdiDebugger extends Debugger
             else
                 return vmRef;
         }
+    }
+
+    public File getStartingDirectory()
+    {
+        return startingDirectory;
     }
 }

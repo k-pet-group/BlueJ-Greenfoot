@@ -26,6 +26,7 @@ import java.net.URLClassLoader;
 import java.util.List;
 import java.util.ListIterator;
 
+import bluej.debugger.DebuggerListener;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
@@ -33,7 +34,7 @@ import bluej.pkgmgr.Project;
 /**
  * A wrapper for a BlueJ project.
  *
- * @version $Id: BProject.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: BProject.java 7744 2010-06-01 12:59:29Z nccb $
  */
 
 /*
@@ -219,5 +220,11 @@ public class BProject
         catch(ExtensionException exc) {
             return "BProject: INVALID";  
         }
+    }
+    
+    void addDebuggerListener(DebuggerListener listener) throws ProjectNotOpenException
+    {
+        Project thisProject = projectId.getBluejProject();
+        thisProject.getDebugger().addDebuggerListener(listener);
     }
 }

@@ -21,6 +21,7 @@
  */
 package bluej.extensions;
 
+import bluej.debugger.DebuggerListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 
 import bluej.extensions.event.ExtensionEvent;
@@ -92,5 +93,10 @@ public final class ExtensionBridge {
     public static void postMenuItem(BlueJ aBluej, Object attachedObject,
         JMenuItem onThisItem) {
         aBluej.postMenuItem(attachedObject, onThisItem);
+    }
+    
+    public static void addDebuggerListener(BProject proj, DebuggerListener listener)
+      throws ProjectNotOpenException {
+        proj.addDebuggerListener(listener);
     }
 }
