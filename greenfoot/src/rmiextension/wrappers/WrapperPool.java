@@ -39,7 +39,7 @@ import bluej.extensions.BProject;
  * TODO remember to "release" objects when they are no longer needed
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: WrapperPool.java 6722 2009-09-19 04:13:32Z davmac $
+ * @version $Id: WrapperPool.java 7746 2010-06-01 14:10:21Z nccb $
  */
 public class WrapperPool
 {
@@ -152,6 +152,14 @@ public class WrapperPool
             pool.put(wrapped, wrapper);
         }
         return wrapper;
+    }
+
+    /**
+     * Removes a wrapper for a particular object (key) from the pool
+     */
+    public void remove(Object wrapped)
+    {
+        pool.remove(wrapped);        
     }
 
 }

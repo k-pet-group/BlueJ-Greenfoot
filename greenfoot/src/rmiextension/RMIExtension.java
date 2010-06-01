@@ -29,11 +29,14 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import rmiextension.wrappers.WrapperPool;
+
 import bluej.Config;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerEvent;
 import bluej.debugger.DebuggerListener;
 import bluej.debugger.jdi.JdiDebugger;
+import bluej.extensions.BPackage;
 import bluej.extensions.BProject;
 import bluej.extensions.BlueJ;
 import bluej.extensions.Extension;
@@ -50,7 +53,7 @@ import bluej.utility.Debug;
  * This is the starting point of greenfoot as a BlueJ Extension.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RMIExtension.java 7745 2010-06-01 13:31:35Z nccb $
+ * @version $Id: RMIExtension.java 7746 2010-06-01 14:10:21Z nccb $
  */
 public class RMIExtension extends Extension implements ApplicationListener, DebuggerListener
 {
@@ -210,9 +213,11 @@ public class RMIExtension extends Extension implements ApplicationListener, Debu
                 public void run()
                 {
                     try { 
-                        ProjectManager.instance().openGreenfoot(
-                                new Project(bluej.pkgmgr.Project.getProject(debugger.getStartingDirectory()).getBProject().getPackages()[0])
-                                , GreenfootMain.VERSION_OK);
+                        BProject bProject = bluej.pkgmgr.Project.getProject(debugger.getStartingDirectory()).getBProject();
+                        WrapperPool.instance().remove(bProject);
+                        BPackage bPackage = bProject.getPackages()[0];
+                        WrapperPool.instance().remove(bPackage);
+                        ProjectManager.instance().openGreenfoot(new Project(bPackage), GreenfootMain.VERSION_OK);
                     } catch (Exception ex) {
                         Debug.reportError("Exception while trying to relaunch Greenfoot", ex);
                     }
