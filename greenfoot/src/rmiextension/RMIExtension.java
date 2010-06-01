@@ -53,9 +53,9 @@ import bluej.utility.Debug;
  * This is the starting point of greenfoot as a BlueJ Extension.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RMIExtension.java 7746 2010-06-01 14:10:21Z nccb $
+ * @version $Id: RMIExtension.java 7747 2010-06-01 15:29:01Z nccb $
  */
-public class RMIExtension extends Extension implements ApplicationListener, DebuggerListener
+public class RMIExtension extends Extension implements ApplicationListener
 {
     private BlueJ theBlueJ;
 
@@ -114,7 +114,7 @@ public class RMIExtension extends Extension implements ApplicationListener, Debu
         if (project == null) {
             Debug.reportError("Could not open scenario: " + projectPath);
         } else {
-            addDebuggerListener(project);
+            GreenfootRelauncher.addDebuggerListener(project);
         }
     }
 
@@ -130,19 +130,10 @@ public class RMIExtension extends Extension implements ApplicationListener, Debu
         if (project == null) {
             Debug.reportError("Could not open scenario: " + projectPath);
         } else {
-            addDebuggerListener(project);
+            GreenfootRelauncher.addDebuggerListener(project);
         }
         ProjectManager.instance().removeNewProject(projectPath);
 
-    }
-
-    private void addDebuggerListener(BProject project)
-    {
-        try {
-            ExtensionBridge.addDebuggerListener(project, this);
-        } catch (ProjectNotOpenException ex) {
-            Debug.reportError("Project not open when adding debugger listener in Greenfoot", ex);
-        }
     }
 
     /**
@@ -195,35 +186,7 @@ public class RMIExtension extends Extension implements ApplicationListener, Debu
     {
         GreenfootLauncherBlueJVM.getInstance().launch(this);
         for (BProject project : theBlueJ.getOpenProjects()) {
-            addDebuggerListener(project);
-        }
-    }
-
-    // ------------- DebuggerListener interface ------------
-    
-    public void debuggerEvent(DebuggerEvent e)
-    {
-        if (e.getNewState() == Debugger.NOTREADY && e.getOldState() == Debugger.IDLE) {
-            final JdiDebugger debugger = (JdiDebugger)e.getSource();
-            
-            //It is important to have this code run at a later time.
-            //If it runs from this thread, it tries to notify us and we get some
-            //sort of RMI deadlock between the two VMs (I think).
-            java.awt.EventQueue.invokeLater(new Runnable() {
-                public void run()
-                {
-                    try { 
-                        BProject bProject = bluej.pkgmgr.Project.getProject(debugger.getStartingDirectory()).getBProject();
-                        WrapperPool.instance().remove(bProject);
-                        BPackage bPackage = bProject.getPackages()[0];
-                        WrapperPool.instance().remove(bPackage);
-                        ProjectManager.instance().openGreenfoot(new Project(bPackage), GreenfootMain.VERSION_OK);
-                    } catch (Exception ex) {
-                        Debug.reportError("Exception while trying to relaunch Greenfoot", ex);
-                    }
-                }
-            });
-            
+            GreenfootRelauncher.addDebuggerListener(project);
         }
     }
 
