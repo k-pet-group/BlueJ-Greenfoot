@@ -42,7 +42,7 @@ import bluej.prefmgr.PrefMgrDialog;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RBlueJImpl.java 7747 2010-06-01 15:29:01Z nccb $
+ * @version $Id: RBlueJImpl.java 7748 2010-06-01 15:33:13Z nccb $
  */
 public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     implements RBlueJ
@@ -161,6 +161,7 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     {
         ProjectManager.instance().addNewProject(directory);
         BProject wrapped = blueJ.newProject(directory);
+        GreenfootRelauncher.addDebuggerListener(wrapped);
         RProject wrapper = WrapperPool.instance().getWrapper(wrapped);
         ProjectManager.instance().removeNewProject(directory);
         return wrapper;
