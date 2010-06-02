@@ -354,11 +354,7 @@ public class MoeIndent
         {
             String line = getElementContents(doc, el);
             int lengthPrevWhitespace = findFirstNonIndentChar(line, true);
-            boolean anyTabs = false;
-            for (char c : line.substring(0, lengthPrevWhitespace).toCharArray()) {
-                if (c == '\t')
-                    anyTabs = true;
-            }
+            boolean anyTabs = line.substring(0, lengthPrevWhitespace).indexOf("\t") != -1;
             // If we want to put in 4 spaces, and there are already exactly 4 tabs,
             // without the anyTabs check, we would leave the whitespace alone;
             // hence why we need the check:
