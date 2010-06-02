@@ -32,9 +32,17 @@ import bluej.parser.nodes.CommentNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.utility.Debug;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MoeIndent
 {
+    // from beginning string match any number of whitespaces or tabs.
+    private static final Pattern WHITESPACE_TABS = Pattern.compile("^[ \\t]*");
+    // from beginning of string match any number of whitespaces, tabs
+    // and stars, followed by an optional forward slash and star.
+    private static final Pattern WHITESPACE_TABS_STAR = Pattern.compile("^[ \\t*]*(/\\*)?");
+
     public static class AutoIndentInformation
     {
         private boolean perfect;
@@ -64,13 +72,23 @@ public class MoeIndent
     
     public static AutoIndentInformation calculateIndentsAndApply(MoeSyntaxDocument doc, int startPos, int endPos, int prevCaretPos)
     {
+        int caretPos = prevCaretPos;
         Element rootElement = doc.getDefaultRootElement();
+        List<DocumentAction> methodUpdates = new ArrayList<DocumentAction>(rootElement.getElementCount());
         List<DocumentAction> updates = new ArrayList<DocumentAction>(rootElement.getElementCount());
-
+        
         IndentCalculator ii = new RootIndentCalculator();
 
         boolean lastLineWasBlank = false;
         boolean perfect = true;
+        NodeAndPosition<ParsedNode> root = new NodeAndPosition<ParsedNode>(doc.getParser(), 0, doc.getParser().getSize());
+
+        // examine if there are missing spaces between methods and add them.
+        // NB. proper identation of these changes later in this method.
+        checkMethodSpacing(root, rootElement, methodUpdates);
+        for (DocumentAction methodUpdate : methodUpdates) {
+            caretPos = methodUpdate.apply(doc, caretPos);
+        }
 
         for (int i = 0; i < rootElement.getElementCount(); i++) {
             Element el = rootElement.getElement(i);
@@ -84,34 +102,29 @@ public class MoeIndent
                 if (thisLineBlank) {
                     if (lastLineWasBlank) {
                         // Consecutive blank lines; remove this one:
-                        if (el.getEndOffset() <= doc.getLength())
-                        {
+                        if (el.getEndOffset() <= doc.getLength()) {
                             update = new DocumentRemoveLineAction(el);
                             perfect = false;
                         }
-                    }
-                    else {
+                    } else {
                         // Single blank line (thus far), remove all spaces from
                         // it (and don't interrupt perfect status):
                         update = new DocumentIndentAction(el, "");
                     }
-                }
-                else {
-                    NodeAndPosition<ParsedNode> root = new NodeAndPosition<ParsedNode>(doc.getParser(),
-                            0, doc.getParser().getSize());
+                } else {
                     String indent = calculateIndent(el, root, ii, doc);
                     update = new DocumentIndentAction(el, indent);
                     perfect = perfect && getElementContents(doc, el).startsWith(indent)
                                       && !isWhiteSpaceOnly(getElementContents(doc, el).substring(indent.length(),indent.length() + 1));
                 }
     
-                if (update != null)
+                if (update != null) {
                     updates.add(update);
+                }
                 lastLineWasBlank = thisLineBlank;
             }
         }
 
-        int caretPos = prevCaretPos;
         // Now apply them all:
         for (DocumentAction update : updates) {
             caretPos = update.apply(doc, caretPos);
@@ -137,14 +150,13 @@ public class MoeIndent
     {
         int pos = el.getStartOffset() + findFirstNonIndentChar(getElementContents(doc, el), true);
         if (pos >= start.getPosition() && pos < start.getEnd()) {
-
             // The slightly awkward way to loop through the children of "start":
-            for (Iterator<NodeAndPosition<ParsedNode>> i = start.getNode().getChildren(start.getPosition()); i.hasNext(); )
-            {
+            for (Iterator<NodeAndPosition<ParsedNode>> i = start.getNode().getChildren(start.getPosition()); i.hasNext();) {
                 NodeAndPosition<ParsedNode> nap = i.next();
                 String inner = calculateIndent(el, nap, startIC.getForChild(nap.getNode()), doc);
-                if (inner != null)
+                if (inner != null) {
                     return inner;
+                }
             }
             try {
                 return startIC.getCurIndent(doc.getText(pos, 1).charAt(0));
@@ -156,6 +168,42 @@ public class MoeIndent
         else {
             return null;
         }
+    }
+
+    /**
+     * Loops through the children of <link>root</link> to look for methods
+     * that have no space between them, then recursively looks at the children
+     * to see if they have any inner methods.
+     *
+     * When it does identify two methods with no gap inbetween them it adds
+     * a new <link>DocumentAddLineAction</link> object with the current position
+     * to the <link>updates</link> list.
+     * @param root      Node to look inside of.
+     * @param map       Map of the document used to get the lines of the method.
+     * @param updates   List to update with new actions where needed.
+     */
+    private static void checkMethodSpacing(NodeAndPosition<ParsedNode> root, Element map, List<DocumentAction> updates)
+    {
+        NodeAndPosition<ParsedNode> current = null;
+        NodeAndPosition<ParsedNode> next = null;
+        for (Iterator<NodeAndPosition<ParsedNode>> i = root.getNode().getChildren(root.getPosition()); i.hasNext();) {
+            next = i.next();
+            if (current != null && 
+                    current.getNode().getNodeType() == ParsedNode.NODETYPE_METHODDEF &&
+                    current.getNode().getNodeType() == next.getNode().getNodeType()) {
+                int currentLine = map.getElementIndex(current.getEnd());
+                int nextLine = map.getElementIndex(next.getPosition());
+                if ((currentLine + 1) == nextLine) {
+                    updates.add(new DocumentAddLineAction(next.getPosition()));
+                } else if ((currentLine == nextLine)) {
+                    updates.add(new DocumentAddLineAction(next.getPosition(), true));
+                }
+                    
+            }
+            current = next;
+            checkMethodSpacing(current, map, updates);
+        }
+        
     }
     
     // ---------------------------------------
@@ -333,8 +381,7 @@ public class MoeIndent
                     Debug.reportError("Error doing indent in DocumentUpdate", e);
                     return caretPos;
                 }
-            }
-            else {
+            } else {
                 return caretPos;
             }
         }
@@ -344,8 +391,7 @@ public class MoeIndent
     {
         try {
             return doc.getText(el.getStartOffset(), el.getEndOffset() - el.getStartOffset());
-        }
-        catch (BadLocationException e) {
+        } catch (BadLocationException e) {
             Debug.reportError("Error getting element contents in document", e);
             return "";
         }
@@ -363,28 +409,56 @@ public class MoeIndent
      * Find the position of the first non-indentation character in a string.
      * Indentation characters are <whitespace>, //, *, /*, /**.
      */
-    public static int findFirstNonIndentChar(String s, boolean whitespaceOnly)
+    public static int findFirstNonIndentChar(String line, boolean whitespaceOnly)
     {
-        int cnt = 0;
-        char ch = s.charAt(0);
-    
         // if this line ends a comment, indent whitepace only;
         // otherwise indent across whitespace, asterisks and comment starts
-    
-        if (whitespaceOnly) {
-            while (ch == ' ' || ch == '\t') { // SPACE or TAB
-                cnt++;
-                ch = s.charAt(cnt);
+        Matcher m = whitespaceOnly ? WHITESPACE_TABS.matcher(line) : WHITESPACE_TABS_STAR.matcher(line);
+        return m.find() ? m.end() : 0;
+    }
+
+    private static class DocumentAddLineAction implements DocumentAction
+    {
+        private int position;
+        private boolean twoSeparators;
+        
+        public DocumentAddLineAction(int position)
+        {
+            this(position, false);
+        }
+
+        public DocumentAddLineAction(int position, boolean twoSeparators)
+        {
+            this.position = position;
+            this.twoSeparators = twoSeparators;
+        }
+
+        /**
+         * Tries to insert a new line into the document at the stated position.
+         * @param doc   Document to add the new line to.
+         * @param prevCaretPos  Location to move the the cursor to after the operation
+         * @return  The caret position.
+         */
+        public int apply(MoeSyntaxDocument doc, int prevCaretPos)
+        {
+            String lineSeparator = System.getProperty("line.separator");
+            try {
+                if (twoSeparators) {
+                    doc.insertString(position, lineSeparator + lineSeparator, null);
+                } else {
+                    doc.insertString(position, lineSeparator, null);
+                }
+            } catch (BadLocationException ex) {
+                Debug.reportError("Error in adding new line to document", ex);
+            }
+            if (position > prevCaretPos) {
+                return prevCaretPos;
+            } else if (twoSeparators)  {
+                return prevCaretPos + (lineSeparator.length() * 2);
+            } else {
+                return prevCaretPos + lineSeparator.length();
             }
         }
-        else {
-            while (ch == ' ' || ch == '\t' || ch == '*') { // SPACE, TAB or *
-                cnt++;
-                ch = s.charAt(cnt);
-            }
-            if ((s.charAt(cnt) == '/') && (s.charAt(cnt + 1) == '*'))
-                cnt += 2;
-        }
-        return cnt;
+        
     }
 }
