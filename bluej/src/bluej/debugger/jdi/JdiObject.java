@@ -23,6 +23,7 @@ package bluej.debugger.jdi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
@@ -44,7 +45,7 @@ import com.sun.jdi.Value;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 7631 2010-05-20 05:00:59Z davmac $
+ * @version $Id: JdiObject.java 7751 2010-06-03 10:55:25Z nccb $
  */
 public class JdiObject extends DebuggerObject
 {
@@ -455,19 +456,6 @@ public class JdiObject extends DebuggerObject
         return obj;
     }
 
-
-    /**
-     *  Return an array of strings with the description of each static field
-     *  in the format "<modifier> <type> <name> = <value>".
-     *
-     *@param  includeModifiers  Description of Parameter
-     *@return                   The StaticFields value
-     */
-    public List<String> getStaticFields(boolean includeModifiers)
-    {
-        return getFields(false, true, includeModifiers);
-    }
-
     /**
      *  Return a list of strings with the description of each instance field
      *  in the format "<modifier> <type> <name> = <value>".
@@ -475,22 +463,68 @@ public class JdiObject extends DebuggerObject
      *@param  includeModifiers  Description of Parameter
      *@return                   The InstanceFields value
      */
-    public List<String> getInstanceFields(boolean includeModifiers)
+    public List<String> getInstanceFields(boolean includeModifiers, Map<String, List<String>> restrictedClasses)
     {
-        return getFields(false, false, includeModifiers);
-    }
-
-
-    /**
-     *  Return a list of strings with the description of each field
-     *  in the format "<modifier> <type> <name> = <value>".
-     *
-     *@param  includeModifiers  Description of Parameter
-     *@return                   The AllFields value
-     */
-    public List<String> getAllFields(boolean includeModifiers)
-    {
-        return getFields(true, true, includeModifiers);
+        List<String> fieldStrings = new ArrayList<String>(fields.size());
+        
+        if (obj == null)
+            return fieldStrings;
+            
+        ReferenceType cls = obj.referenceType();
+        List<Field> visible = cls.visibleFields();
+        
+        for (int i = 0; i < fields.size(); i++) {
+            Field field = (Field) fields.get(i);
+        
+            if (checkIgnoreField(field))
+                continue;
+            
+            Debug.message("Checking; restricted: " + (restrictedClasses == null ? "null" : restrictedClasses.toString()) + " field: " + field.name() + " decl type: " + field.declaringType().name());
+            
+            if (restrictedClasses != null) {
+                List<String> fieldWhitelist = restrictedClasses.get(field.declaringType().name());
+                if (fieldWhitelist != null && !fieldWhitelist.contains(field.name())) 
+                    continue; // ignore this one
+            }            
+        
+            if (field.isStatic() == false) {
+                Value val = obj.getValue(field);
+        
+                String valString = JdiUtils.getJdiUtils().getValueString(val);
+                String fieldString = "";
+        
+                if (includeModifiers) {
+                    if (field.isPrivate()) {
+                        fieldString = "private ";
+                    }
+                    if (field.isProtected()) {
+                        fieldString = "protected ";
+                    }
+                    if (field.isPublic()) {
+                        fieldString = "public ";
+                    }
+                }
+        
+                if (jvmSupportsGenerics)
+                    fieldString += JdiReflective.fromField(field, this).toString(true);
+                else
+                    fieldString += JavaNames.stripPrefix(field.typeName());
+        
+                if (!visible.contains(field)) {
+                    fieldString += " (hidden)";
+                }
+                
+                fieldString += " " + field.name() + " = " +valString;
+                
+                // the following code adds the word "inherited" to inherited
+                // fields - currently unused
+                //else if (!field.declaringType().equals(cls)) {
+                //    fieldString += " (inherited)";
+                //}
+                fieldStrings.add(fieldString);
+            }
+        }
+        return fieldStrings;
     }
 
 
@@ -572,75 +606,6 @@ public class JdiObject extends DebuggerObject
         return count;
     }
 
-
-    /**
-     *  Return a list of strings with the description of each field
-     *  in the format "<modifier> <type> <name> = <value>".
-     *  If 'getAll' is true, both static and instance fields are returned
-     *  ('getStatic' is ignored). If 'getAll' is false, then 'getStatic'
-     *  determines whether static fields or instance fields are returned.
-     *
-     *@param  getAll            If true, get static and instance fields
-     *@param  getStatic         If 'getAll' is false, determine which fields to get
-     *@param  includeModifiers  If true, include the modifier name (public, private)
-     *@return                   The Fields value
-     */
-    private List<String> getFields(boolean getAll, boolean getStatic,
-            boolean includeModifiers)
-    {
-        List<String> fieldStrings = new ArrayList<String>(fields.size());
-
-        if (obj == null)
-            return fieldStrings;
-            
-        ReferenceType cls = obj.referenceType();
-        List<Field> visible = cls.visibleFields();
-
-        for (int i = 0; i < fields.size(); i++) {
-            Field field = (Field) fields.get(i);
-
-            if (checkIgnoreField(field))
-                continue;
-
-            if (getAll || (field.isStatic() == getStatic)) {
-                Value val = obj.getValue(field);
-
-                String valString = JdiUtils.getJdiUtils().getValueString(val);
-                String fieldString = "";
-
-                if (includeModifiers) {
-                    if (field.isPrivate()) {
-                        fieldString = "private ";
-                    }
-                    if (field.isProtected()) {
-                        fieldString = "protected ";
-                    }
-                    if (field.isPublic()) {
-                        fieldString = "public ";
-                    }
-                }
-
-                if (jvmSupportsGenerics)
-                    fieldString += JdiReflective.fromField(field, this).toString(true);
-                else
-                    fieldString += JavaNames.stripPrefix(field.typeName());
-
-                if (!visible.contains(field)) {
-                    fieldString += " (hidden)";
-                }
-                
-                fieldString += " " + field.name() + " = " +valString;
-                
-                // the following code adds the word "inherited" to inherited
-                // fields - currently unused
-                //else if (!field.declaringType().equals(cls)) {
-                //    fieldString += " (inherited)";
-                //}
-                fieldStrings.add(fieldString);
-            }
-        }
-        return fieldStrings;
-    }
 
     private Field getField(boolean getStatic, int slot)
     {

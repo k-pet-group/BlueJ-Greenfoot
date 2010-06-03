@@ -41,7 +41,7 @@ import com.sun.jdi.Value;
  *
  * @author     Michael Kolling
  * @created    December 26, 2000
- * @version    $Id: JdiArray.java 7631 2010-05-20 05:00:59Z davmac $
+ * @version    $Id: JdiArray.java 7751 2010-06-03 10:55:25Z nccb $
  */
 public class JdiArray extends JdiObject
 {    
@@ -277,7 +277,7 @@ public class JdiArray extends JdiObject
      *@param  includeModifiers  Description of Parameter
      *@return                   The InstanceFields value
      */
-    public List<String> getInstanceFields(boolean includeModifiers)
+    public List<String> getInstanceFields(boolean includeModifiers, List<String> ignoreFieldsFrom)
     {
         List<Value> values;
 

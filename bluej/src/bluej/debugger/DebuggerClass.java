@@ -22,12 +22,13 @@
 package bluej.debugger;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  *  A class representing an object in the debugged VM.
  *
  *@author     Michael Kolling
- *@version    $Id: DebuggerClass.java 6215 2009-03-30 13:28:25Z polle $
+ *@version    $Id: DebuggerClass.java 7751 2010-06-03 10:55:25Z nccb $
  */
 public abstract class DebuggerClass
 {
@@ -76,7 +77,12 @@ public abstract class DebuggerClass
      *@param  includeModifiers  Whether to include modifiers (private,etc.)
      *@return                   The StaticFields value
      */
-    public abstract List<String> getStaticFields(boolean includeModifiers);
+    public abstract List<String> getStaticFields(boolean includeModifiers, Map<String, List<String>> restrictedClasses);
+    
+    public final List<String> getStaticFields(boolean includeModifiers)
+    {
+        return getStaticFields(includeModifiers, null);
+    }
 
     /**
      *  Return true if the static field 'slot' is public.

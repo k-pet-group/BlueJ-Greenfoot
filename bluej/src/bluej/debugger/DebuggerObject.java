@@ -22,6 +22,7 @@
 package bluej.debugger;
 
 import java.util.List;
+import java.util.Map;
 
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.GenTypeClass;
@@ -30,7 +31,7 @@ import bluej.debugger.gentype.GenTypeClass;
  *  A class representing an object in the debugged VM.
  *
  *@author     Michael Kolling
- *@version    $Id: DebuggerObject.java 6215 2009-03-30 13:28:25Z polle $
+ *@version    $Id: DebuggerObject.java 7751 2010-06-03 10:55:25Z nccb $
  */
 public abstract class DebuggerObject
 {
@@ -199,15 +200,6 @@ public abstract class DebuggerObject
     public abstract com.sun.jdi.ObjectReference getObjectReference();
 
     /**
-     *  Return a list of strings with the description of each static field
-     *  in the format "<modifier> <type> <name> = <value>".
-     *
-     *@param  includeModifiers  Description of Parameter
-     *@return                   The StaticFields value
-     */
-    public abstract List<String> getStaticFields(boolean includeModifiers);
-
-    /**
      * Return a list of strings with the description of each instance field
      * in the format "&lt;modifier&gt; &lt;type&gt; &lt;name&gt; [(hidden)] =
      * &lt;value&gt;" or "&lt;type&gt; &lt;name&gt; = &lt;value&gt;", depending
@@ -226,19 +218,12 @@ public abstract class DebuggerObject
      *@param  includeModifiers  Whether to include the access modifier
      *@return                   The InstanceFields value
      */
-    public abstract List<String> getInstanceFields(boolean includeModifiers);
-
-    /**
-     *  Return a list of strings with the description of each field
-     *  (including static and instance) in the
-     *  format "<modifier> <type> <name> = <value>" or
-     *  "<type> <name> = <value>", depending on the parameter.
-     *
-     *@param  includeModifiers  Description of Parameter
-     *@return                   The AllFields value
-     */
-    public abstract List<String> getAllFields(boolean includeModifiers);
-
+    public abstract List<String> getInstanceFields(boolean includeModifiers, Map<String, List<String>> restrictedClasses);
+    
+    public final List<String> getInstanceFields(boolean includeModifiers)
+    {
+        return getInstanceFields(includeModifiers, null);
+    }
 
     /**
      *  Return true if the static field 'slot' is public.
