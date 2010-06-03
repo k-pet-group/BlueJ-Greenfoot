@@ -23,6 +23,7 @@ package greenfoot.localdebugger;
 
 import greenfoot.Actor;
 import greenfoot.World;
+import greenfoot.util.DebugUtil;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -46,12 +47,13 @@ import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
 
 import com.sun.jdi.ObjectReference;
+import com.sun.jdi.ReferenceType;
 
 /**
  * A class to represent a local object as a DebuggerObject
  *  
  * @author Davin McCall
- * @version $Id: LocalObject.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: LocalObject.java 7753 2010-06-03 11:03:22Z nccb $
  */
 public class LocalObject extends DebuggerObject
 {
@@ -60,11 +62,7 @@ public class LocalObject extends DebuggerObject
     
     // instance fields
     protected Object object;
-    private Map genericParams = null; // Map of parameter names to types
-   
-    private static String[] actorIncludeFields = new String[]{"x", "y", "rotation", "image", "world"};
-    private static String[] worldIncludeFields = new String[]{"width", "height", "cellSize", "backgroundImage"};
-   
+    private Map genericParams = null; // Map of parameter names to types 
     
     public static LocalObject getLocalObject(Object o)
     {
@@ -571,7 +569,7 @@ public class LocalObject extends DebuggerObject
     /* (non-Javadoc)
      * @see bluej.debugger.DebuggerObject#getInstanceFields(boolean)
      */
-    public List getInstanceFields(boolean includeModifiers)
+    public List getInstanceFields(boolean includeModifiers, Map<String, List<String>> restrictedClasses)
     {
         List r = new ArrayList();
         Set fieldNames = new HashSet();
@@ -584,6 +582,11 @@ public class LocalObject extends DebuggerObject
                 continue;
             }
             
+            if (restrictedClasses != null) {
+                List<String> fieldWhitelist = restrictedClasses.get(fields[i].getDeclaringClass().getName());
+                if (fieldWhitelist != null && !fieldWhitelist.contains(fields[i].getName())) 
+                    continue; // ignore this one
+            } 
             
             String desc = "";
             if (includeModifiers) {
@@ -710,27 +713,15 @@ public class LocalObject extends DebuggerObject
      * Whether a given field should be used.
      * @return True if the field should be used, false if it should be ignored
      */
-    private boolean keepField(Class cls, Field field) 
+    private boolean keepField(Class<?> cls, Field field) 
     {
-        if(cls.equals(World.class)) {
-            for (int i = 0; i < worldIncludeFields.length; i++) {
-                String includeName = worldIncludeFields[i];
-                if(includeName.equals(field.getName())) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        else if(cls.equals(Actor.class)) {
-            for (int i = 0; i < actorIncludeFields.length; i++) {
-                String includeName = actorIncludeFields[i];
-                if(includeName.equals(field.getName())) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        return true;            
+        List<String> fieldWhitelist = DebugUtil.restrictedClasses().get(cls);
+        
+        if (fieldWhitelist != null) {
+            return fieldWhitelist.contains(field.getName());
+        } else {
+            return true;
+        }            
     }
 
     /**

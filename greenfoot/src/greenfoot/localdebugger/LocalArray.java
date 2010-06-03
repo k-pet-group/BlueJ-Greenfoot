@@ -91,7 +91,7 @@ public class LocalArray extends LocalObject
         return JavaNames.getArrayElementType(arrayType);
     }
 
-    public List getInstanceFields(boolean includeModifiers)
+    public List getInstanceFields(boolean includeModifiers, List<String> ignoreFieldsFrom)
     {
         List fields = new ArrayList(length);
 

@@ -30,6 +30,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import bluej.Config;
 import bluej.debugger.DebuggerClass;
@@ -42,7 +43,7 @@ import bluej.utility.JavaUtils;
  * Represent a local class as a DebuggerClass.
  * 
  * @author Davin McCall
- * @version $Id: LocalClass.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: LocalClass.java 7753 2010-06-03 11:03:22Z nccb $
  */
 public class LocalClass extends DebuggerClass
 {
@@ -112,9 +113,9 @@ public class LocalClass extends DebuggerClass
     /* (non-Javadoc)
      * @see bluej.debugger.DebuggerClass#getStaticFields(boolean)
      */
-    public List getStaticFields(boolean includeModifiers)
+    public List<String> getStaticFields(boolean includeModifiers, Map<String, List<String>> restrictedClasses)
     {
-        List r = new ArrayList();
+        List<String> r = new ArrayList<String>();
         
         Field [] fields = getFields();
         for (int i = 0; i < fields.length; i++) {
