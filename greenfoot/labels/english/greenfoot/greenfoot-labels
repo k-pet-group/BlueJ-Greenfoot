@@ -222,6 +222,8 @@ menu.edit=Edit
 
 menu.controls=Controls
 
+menu.debugger=Show Debugger
+
 menu.help=Help
 menu.help.about=About Greenfoot...
 menu.help.classDoc=Greenfoot Class Documentation

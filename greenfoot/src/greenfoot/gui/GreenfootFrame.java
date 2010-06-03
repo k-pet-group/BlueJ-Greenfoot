@@ -77,6 +77,7 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -85,6 +86,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -606,6 +608,12 @@ public class GreenfootFrame extends JFrame
         addMenuItem(ResetWorldAction.getInstance(), ctrlMenu, KeyEvent.VK_T, false, KeyEvent.VK_T);
 //        addMenuItem(new NYIAction("Increase Speed", this), ctrlMenu, KeyEvent.VK_PLUS, false, KeyEvent.VK_PLUS);
 //        addMenuItem(new NYIAction("Decrease Speed", this), ctrlMenu, KeyEvent.VK_MINUS, false, KeyEvent.VK_MINUS);
+        
+        addMenuItem(new AbstractAction(Config.getString("menu.debugger")) {
+            public void actionPerformed(ActionEvent e)
+            {
+                project.showExecControls();
+            }}, ctrlMenu, KeyEvent.VK_D, false, KeyEvent.VK_D);
         ctrlMenu.addSeparator();
         addMenuItem(saveWorldAction, ctrlMenu, -1, false, -1);
         ctrlMenu.addSeparator();
