@@ -444,4 +444,13 @@ public class GProject extends RProjectListenerImpl
         }
         return null;
     }
+
+    public void showExecControls()
+    {
+        try {
+            rProject.showExecControls();
+        } catch (Exception ex) {
+            Debug.reportError("Error showing debugger", ex);
+        }
+    }
 }
