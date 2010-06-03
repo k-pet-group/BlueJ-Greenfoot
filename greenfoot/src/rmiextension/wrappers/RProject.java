@@ -31,7 +31,7 @@ import bluej.extensions.ProjectNotOpenException;
 /**
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RProject.java 6722 2009-09-19 04:13:32Z davmac $
+ * @version $Id: RProject.java 7754 2010-06-03 11:04:41Z nccb $
  */
 public interface RProject
     extends java.rmi.Remote
@@ -105,4 +105,13 @@ public interface RProject
      */
     public abstract void removeListener(RProjectListener listener)
         throws RemoteException;
+
+    /**
+     * Shows the BlueJ debugger
+     * 
+     * @throws ProjectNotOpenException
+     * @throws RemoteException
+     */
+    public abstract void showExecControls()
+        throws ProjectNotOpenException, RemoteException;
 }

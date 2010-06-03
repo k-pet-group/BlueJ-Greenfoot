@@ -21,6 +21,8 @@
  */
 package rmiextension.wrappers;
 
+import greenfoot.util.DebugUtil;
+
 import java.io.File;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -28,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import rmiextension.wrappers.event.RProjectListener;
+import bluej.debugmgr.ExecControls;
 import bluej.extensions.BPackage;
 import bluej.extensions.BProject;
 import bluej.extensions.PackageAlreadyExistsException;
@@ -38,7 +41,7 @@ import bluej.utility.Debug;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: RProjectImpl.java 6722 2009-09-19 04:13:32Z davmac $
+ * @version $Id: RProjectImpl.java 7754 2010-06-03 11:04:41Z nccb $
  */
 public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     implements RProject
@@ -60,6 +63,13 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     {
         super();
         this.bProject = bProject;
+        
+        try {
+            Project thisProject = Project.getProject(bProject.getDir());
+            thisProject.getExecControls().setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
+        } catch (ProjectNotOpenException e) {
+            Debug.message("Project not open while setting up debugger");
+        }
     }
 
     /* (non-Javadoc)
@@ -198,5 +208,14 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         throws RemoteException
     {
         listeners.remove(listener);
+    }
+    
+    public void showExecControls()
+        throws ProjectNotOpenException
+    {
+        Project thisProject = Project.getProject(bProject.getDir());
+        ExecControls execControls = thisProject.getExecControls();
+        execControls.showHide(true);
+        execControls.setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
     }
 }
