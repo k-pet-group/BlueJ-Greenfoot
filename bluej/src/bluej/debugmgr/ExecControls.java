@@ -24,6 +24,7 @@ package bluej.debugmgr;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -115,6 +116,10 @@ public class ExecControls extends JFrame
     // explicitly via the gui or as a result of a debugger event
     private boolean autoSelectionEvent = false; 
     
+    //Fields from these classes (key from map) are only shown if they are in the corresponding whitelist
+    //of fields (corresponding value from map)
+    private Map<String, List<String>> restrictedClasses; 
+    
 
     /**
      * Create a window to view and interact with a debug VM.
@@ -141,6 +146,11 @@ public class ExecControls extends JFrame
     public void showHide(boolean show)
     {
         setVisible(show);
+    }
+    
+    public void setRestrictedClasses(Map<String, List<String>> restrictedClasses)
+    {
+        this.restrictedClasses = restrictedClasses;
     }
 
 
@@ -384,12 +394,12 @@ public class ExecControls extends JFrame
         if(currentClass != null) {
             staticList.setFixedCellWidth(-1);
             staticList.setListData(
-               currentClass.getStaticFields(false).toArray(new Object[0]));
+               currentClass.getStaticFields(false, restrictedClasses).toArray(new Object[0]));
         }
         if(currentObject != null) {
             instanceList.setFixedCellWidth(-1);
             instanceList.setListData(
-               currentObject.getInstanceFields(false).toArray(new Object[0]));
+               currentObject.getInstanceFields(false, restrictedClasses).toArray(new Object[0]));
         }
         if(selectedThread != null) {
             localList.setFixedCellWidth(-1);
