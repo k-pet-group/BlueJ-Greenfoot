@@ -38,7 +38,6 @@ public class GreenfootRecorder
     private IdentityHashMap<Object, String> objectNames;
     private LinkedList<String> code;
     private World world;
-    private Actor recentlyMovedActor;
     private SaveWorldAction action;
     
     public static final String METHOD_NAME = "prepare";
@@ -53,7 +52,6 @@ public class GreenfootRecorder
 
     public void createActor(Class<?> theClass, Object actor, String[] args)
     {
-        recentlyMovedActor = null;
         String name = nameActor(actor);
         code.add(theClass.getCanonicalName() + " " + name + " = new " + theClass.getCanonicalName() + "(" + withCommas(args) + ");");
     }
@@ -88,7 +86,6 @@ public class GreenfootRecorder
     
     public void addActorToWorld(Actor actor, int x, int y)
     {
-        recentlyMovedActor = null;
         String actorObjectName = objectNames.get(actor);
         if (null == actorObjectName) {
             //oops!
@@ -100,7 +97,6 @@ public class GreenfootRecorder
 
     public void callActorMethod(Object obj, String actorName, String name, String[] args)
     {
-        recentlyMovedActor = null;
         if (null == objectNames.get(obj)) {
             Debug.reportError("GreenfootRecorder.callActorMethod called with unknown actor");
             return;
@@ -115,7 +111,6 @@ public class GreenfootRecorder
 
     public void callStaticMethod(String className, String name, String[] args)
     {
-        recentlyMovedActor = null;
         // No difference in syntax, so no need to replicate the code:
         callActorMethod(null, className, name, args);
     }
@@ -123,7 +118,6 @@ public class GreenfootRecorder
     public void clearCode(boolean simulationStarted)
     {
         code.clear();
-        recentlyMovedActor = null;
         if (simulationStarted) {
             objectNames.clear();
             action.setRecordingValid(false);
@@ -147,18 +141,11 @@ public class GreenfootRecorder
             Debug.reportError("WorldRecorder.moveActor called with unknown actor: " + actor + " " + objectNames.size());
             return;
         }
-        if (actor == recentlyMovedActor) {
-            // Remove the last line, which must be the previous setLocation caused by the drag: 
-            code.removeLast();
-        } else {
-            recentlyMovedActor = actor;
-        }
         code.add(actorObjectName + ".setLocation(" + xCell + ", " + yCell + ");");
     }
 
     public void removeActor(Actor obj)
     {
-        recentlyMovedActor = null;
         String actorObjectName = objectNames.get(obj);
         if (null == actorObjectName) {
             // This could happen with programmatically generated actors (e.g. in a World's method)
