@@ -993,4 +993,9 @@ public class GreenfootFrame extends JFrame
         }
         classInspectors.clear();
     }
+
+    public WorldHandlerDelegateIDE getWorldHandlerDelegate()
+    {
+        return worldHandlerDelegate;
+    }
 }

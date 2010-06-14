@@ -27,6 +27,7 @@ import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.classbrowser.ClassForest.TreeEntry;
 import greenfoot.gui.classbrowser.role.ActorClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
+import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -51,7 +52,7 @@ import javax.swing.border.TitledBorder;
  * laying out the classes.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassBrowser.java 6322 2009-05-09 17:50:58Z polle $
+ * @version $Id: ClassBrowser.java 7761 2010-06-14 13:11:58Z nccb $
  */
 public class ClassBrowser extends JPanel
 {
@@ -366,5 +367,10 @@ public class ClassBrowser extends JPanel
     public GreenfootFrame getFrame()
     {
         return frame;
+    }
+
+    public WorldHandlerDelegateIDE getIDE()
+    {
+        return frame.getWorldHandlerDelegate();
     }
 }

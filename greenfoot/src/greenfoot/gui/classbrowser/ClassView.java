@@ -60,7 +60,7 @@ import bluej.utility.Utility;
 
 /**
  * @author Poul Henriksen <polle@mip.sdu.dk>
- * @version $Id: ClassView.java 7306 2010-04-08 16:22:11Z nccb $
+ * @version $Id: ClassView.java 7761 2010-06-14 13:11:58Z nccb $
  */
 public class ClassView extends JToggleButton
     implements Selectable, MouseListener
@@ -147,13 +147,13 @@ public class ClassView extends JToggleButton
             classRole = new ActorClassRole(project);
         }
         else if (gClass.isWorldClass()) {
-            classRole = new WorldClassRole(project);
+            classRole = new WorldClassRole(project, classBrowser.getIDE());
         }
         else if (gClass.isActorSubclass()) {
             classRole = new ActorClassRole(project);
         }
         else if (gClass.isWorldSubclass()) {
-            classRole = new WorldClassRole(project);
+            classRole = new WorldClassRole(project, classBrowser.getIDE());
         }
         else {
             // everything else

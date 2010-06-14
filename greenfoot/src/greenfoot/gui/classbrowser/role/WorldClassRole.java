@@ -21,9 +21,12 @@
  */
 package greenfoot.gui.classbrowser.role;
 
+import greenfoot.actions.SaveWorldAction;
 import greenfoot.actions.SelectImageAction;
 import greenfoot.actions.ShowApiDocAction;
+import greenfoot.core.GClass;
 import greenfoot.core.GProject;
+import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 
 import javax.swing.JPopupMenu;
 
@@ -31,15 +34,17 @@ import bluej.Config;
 
 /**
  * @author Poul Henriksen
- * @version $Id: WorldClassRole.java 6216 2009-03-30 13:41:07Z polle $
+ * @version $Id: WorldClassRole.java 7761 2010-06-14 13:11:58Z nccb $
  */
 public class WorldClassRole extends ImageClassRole
 {
     private String template = "worldclass.tmpl";
+    private WorldHandlerDelegateIDE ide;
 
-    public WorldClassRole(GProject project)
+    public WorldClassRole(GProject project, WorldHandlerDelegateIDE ide)
     {
     	super(project);
+    	this.ide = ide;
     }
     
     @Override
@@ -55,6 +60,10 @@ public class WorldClassRole extends ImageClassRole
     {
         if (! coreClass) {
             menu.add(createMenuItem(new SelectImageAction(classView, this)));
+            GClass lastWorld = ide.getLastWorldGClass();
+            if (lastWorld.equals(gClass)) {
+                menu.add(createMenuItem(ide.getSaveWorldAction()));
+            }
         }
         else {
             menu.add(createMenuItem(new ShowApiDocAction(Config.getString("show.apidoc"), "greenfoot/World.html")));
