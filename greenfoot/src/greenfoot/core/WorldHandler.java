@@ -97,6 +97,7 @@ public class WorldHandler
     private int dragOffsetY;
     // The actor being dragged
     private Actor dragActor;
+    private boolean dragActorMoved;
     private Cursor defaultCursor;
     private InteractionListener interactionListener;
     
@@ -308,6 +309,11 @@ public class WorldHandler
     {
         handlerDelegate.maybeShowPopup(e);
         if (SwingUtilities.isLeftMouseButton(e)) {
+            if (dragActor != null && dragActorMoved)
+                // This makes sure that a single (final) setLocation
+                // call is received by the actor when dragging ends.
+                // This matters if the actor has overridden setLocation
+                dragActor.setLocation(dragActor.getX(), dragActor.getY());
             dragActor = null;
             worldCanvas.setCursor(defaultCursor);
         };
@@ -372,6 +378,7 @@ public class WorldHandler
     public void mouseExited(MouseEvent e)
     {
         if (dragActor != null) {
+            dragActorMoved = false;
             ActorVisitor.setLocationInPixels(dragActor, dragBeginX, dragBeginY);
             repaint();
         }
@@ -533,6 +540,7 @@ public class WorldHandler
             }
             try {
                 ActorVisitor.setLocationInPixels(actor, x, y);
+                dragActorMoved = true;
                 objectDropped = true;
             }
             catch (IndexOutOfBoundsException e) {
@@ -564,12 +572,14 @@ public class WorldHandler
                     if (x < world.getWidth() && y < world.getHeight() && x >= 0 && y >= 0) {
                         ActorVisitor.setLocationInPixels(actor, (int) p.getX() + dragOffsetX, (int) p.getY()
                                 + dragOffsetY);
+                        dragActorMoved = true;
                         notifyMovedActor(actor, x, y);
 
                         repaint();
                     }
                     else {
                         ActorVisitor.setLocationInPixels(actor, dragBeginX, dragBeginY);
+                        dragActorMoved = false; // Pinged back to where it was
                         
                         x = WorldVisitor.toCellFloor(getWorld(), dragBeginX);
                         y = WorldVisitor.toCellFloor(getWorld(), dragBeginY);
@@ -733,6 +743,7 @@ public class WorldHandler
         if (!isObjectDropped() && o instanceof Actor) {
             Actor actor = (Actor) o;
             setObjectDropped(true);
+            dragActorMoved = false;
             ActorVisitor.setLocationInPixels(actor, dragBeginX, dragBeginY);
         }
     }

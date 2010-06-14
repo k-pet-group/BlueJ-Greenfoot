@@ -219,6 +219,22 @@ public abstract class Actor
      */
     public void setLocation(int x, int y)
     {
+        setLocationDrag(x, y);
+    }
+    
+    /**
+     * The implementation of setLocation.  The main reason for the existence of this method
+     * (rather than inlining it into setLocation) is that setLocation can
+     * be overridden.  We make sure that setLocationInPixels (used during dragging)
+     * always calls this method (setLocationDrag) so that it never calls the 
+     * potentially-overridden setLocation method.
+     * 
+     * setLocation is then called once after the drag, by WorldHandler, so that actors
+     * that do override setLocation only see the method called once at the end of the drag
+     * (even though the stored location is changing during the drag). 
+     */
+    private void setLocationDrag(int x, int y)
+    {
         failIfNotInWorld();
         int oldX = this.x;
         int oldY = this.y;
@@ -349,7 +365,7 @@ public abstract class Actor
             return;
         }
 
-        setLocation(xCell, yCell);
+        setLocationDrag(xCell, yCell);
     }
 
     /**
