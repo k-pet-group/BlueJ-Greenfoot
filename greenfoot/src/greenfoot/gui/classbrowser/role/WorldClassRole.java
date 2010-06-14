@@ -34,7 +34,7 @@ import bluej.Config;
 
 /**
  * @author Poul Henriksen
- * @version $Id: WorldClassRole.java 7761 2010-06-14 13:11:58Z nccb $
+ * @version $Id: WorldClassRole.java 7762 2010-06-14 13:22:44Z nccb $
  */
 public class WorldClassRole extends ImageClassRole
 {
@@ -61,7 +61,7 @@ public class WorldClassRole extends ImageClassRole
         if (! coreClass) {
             menu.add(createMenuItem(new SelectImageAction(classView, this)));
             GClass lastWorld = ide.getLastWorldGClass();
-            if (lastWorld.equals(gClass)) {
+            if (lastWorld != null && (lastWorld.equals(gClass) || isParent(gClass, lastWorld))) {
                 menu.add(createMenuItem(ide.getSaveWorldAction()));
             }
         }
@@ -69,5 +69,14 @@ public class WorldClassRole extends ImageClassRole
             menu.add(createMenuItem(new ShowApiDocAction(Config.getString("show.apidoc"), "greenfoot/World.html")));
         }
     }
-
+    
+    private static boolean isParent(GClass child, GClass possibleParent)
+    {
+        if (child == null) {
+            return false;
+        } else {
+            GClass parent = child.getSuperclass();
+            return possibleParent.equals(parent) || isParent(parent, possibleParent);
+        }
+    }
 }
