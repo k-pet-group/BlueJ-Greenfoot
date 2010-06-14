@@ -28,6 +28,7 @@ import java.util.List;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 
+import bluej.Config;
 import bluej.parser.nodes.CommentNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -250,9 +251,13 @@ public class MoeIndent
     {
         private final String existingIndent;
         private final ParsedNode parent;
+        
+        private static final int tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
+        private static final String spaces =
+            "                                                                                   ";
 
-        private final static String STANDARD_INDENT = "    ";
-        private final static String CONTINUATION_INDENT = "    ";
+        private final static String STANDARD_INDENT = spaces.substring(0, tabSize);
+        private final static String CONTINUATION_INDENT = STANDARD_INDENT;
         // To make it line up like this:
         // /**
         //  *
