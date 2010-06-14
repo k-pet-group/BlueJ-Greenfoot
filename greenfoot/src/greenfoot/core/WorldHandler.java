@@ -285,6 +285,7 @@ public class WorldHandler
     private void startDrag(Actor actor, Point p)
     {
         dragActor = actor;
+        dragActorMoved = false;
         dragBeginX = actor.getX() * world.getCellSize() + world.getCellSize() / 2;
         dragBeginY = actor.getY() * world.getCellSize() + world.getCellSize() / 2;
         dragOffsetX = dragBeginX - p.x;
@@ -309,11 +310,13 @@ public class WorldHandler
     {
         handlerDelegate.maybeShowPopup(e);
         if (SwingUtilities.isLeftMouseButton(e)) {
-            if (dragActor != null && dragActorMoved)
+            if (dragActor != null && dragActorMoved) {
                 // This makes sure that a single (final) setLocation
                 // call is received by the actor when dragging ends.
                 // This matters if the actor has overridden setLocation
                 dragActor.setLocation(dragActor.getX(), dragActor.getY());
+                notifyMovedActor(dragActor, dragActor.getX(), dragActor.getY());
+            }
             dragActor = null;
             worldCanvas.setCursor(defaultCursor);
         };
@@ -573,7 +576,6 @@ public class WorldHandler
                         ActorVisitor.setLocationInPixels(actor, (int) p.getX() + dragOffsetX, (int) p.getY()
                                 + dragOffsetY);
                         dragActorMoved = true;
-                        notifyMovedActor(actor, x, y);
 
                         repaint();
                     }
