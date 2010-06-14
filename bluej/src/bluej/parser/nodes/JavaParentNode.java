@@ -353,10 +353,13 @@ public abstract class JavaParentNode extends ParentParsedNode
                 case JavaTokenTypes.LITERAL_try:
                 case JavaTokenTypes.LITERAL_catch:
                 case JavaTokenTypes.LITERAL_throw:
+                case JavaTokenTypes.LITERAL_throws:
                 case JavaTokenTypes.LITERAL_finally:
                 case JavaTokenTypes.LITERAL_return:
                 case JavaTokenTypes.LITERAL_case:
+                case JavaTokenTypes.LITERAL_default:
                 case JavaTokenTypes.LITERAL_break:
+                case JavaTokenTypes.LITERAL_continue:
                 case JavaTokenTypes.LITERAL_if:
                 case JavaTokenTypes.LITERAL_else:
                 case JavaTokenTypes.LITERAL_new:
@@ -379,6 +382,10 @@ public abstract class JavaParentNode extends ParentParsedNode
                 case JavaTokenTypes.LITERAL_true:
                 case JavaTokenTypes.LITERAL_false:
                     tokType = Token.KEYWORD3;
+                    break;
+                
+                case JavaTokenTypes.LITERAL_instanceof:
+                    tokType = Token.OPERATOR;
                     break;
 
                 default:
