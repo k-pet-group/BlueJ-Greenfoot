@@ -23,9 +23,6 @@ package bluej.parser;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * This is a Reader processes the stream from another reader, replacing unicode escape
@@ -42,10 +39,8 @@ public final class EscapedUnicodeReader extends Reader
 {
     Reader sourceReader;
 
-    // A buffer of characters read (while looking for a unicode escape sequence)
-    // that should be used before reading from the source reader
-    // List may seem a bit overkill, but it should be used very rarely
-    private LinkedList<Character> buffer = new LinkedList<Character>();
+    private boolean charIsBuffered;
+    private int bufferedChar;
     
     private int position; // position within source stream
     private int line = 1;
@@ -106,9 +101,11 @@ public final class EscapedUnicodeReader extends Reader
     private int getChar() throws IOException
     {
         int rchar;
-        if (!buffer.isEmpty()) {
-            char bufferedChar = buffer.pollFirst();
-            processChar(bufferedChar);
+        if (charIsBuffered) {
+            charIsBuffered = false;
+            if (bufferedChar != -1) {
+                processChar((char) bufferedChar);
+            }
             return bufferedChar;
         }
         else {
@@ -118,10 +115,25 @@ public final class EscapedUnicodeReader extends Reader
         if (rchar == '\\') {
             // This could be the beginning of an escaped unicode sequence,
             // \\uXXXX (with only a single backslash)
-            return readEscapedUnicodeSequence();
+            int nchar = sourceReader.read();
+
+            if (nchar == 'u') {
+                column++; position++;
+                return readEscapedUnicodeSequence();
+            }
+            else {
+                putBuffer(nchar);             
+                return '\\';
+            }
         }
 
         return rchar;
+    }
+
+    private void putBuffer(int nchar)
+    {
+        bufferedChar = nchar;
+        charIsBuffered = true;
     }
 
     private int readEscapedUnicodeSequence() throws IOException
@@ -129,44 +141,31 @@ public final class EscapedUnicodeReader extends Reader
         // The Java Language Spec specifies that any number of 'u' characters may appear in sequence
         // as part of a unicode escape.
         int uc = sourceReader.read();
-        if (uc != 'u') {
-            if (uc != -1) buffer.addLast((char)uc);
-            return '\\';
-        }
-        
-        // Used to keep a record of all the characters we've consumed,
-        // in case it's not a valid escape and we have to go through them all again:
-        List<Character> seenSoFar = new ArrayList<Character>();
-        seenSoFar.add((char)uc);
-        
         while (uc == 'u') {
+            processChar((char)uc);
             uc = sourceReader.read();
-            if (uc != -1) seenSoFar.add((char)uc);
         }
-                      
+        
         int val = Character.digit((char) uc, 16);
         if (val == -1) {
-            buffer.addAll(seenSoFar);
-            return '\\';
+            putBuffer(uc);
+            return 0xFFFF;
         }
+        processChar((char)uc);
         
-        for (int i = 0; i < 3; i++) {
+        int i = 0;
+        do {
             val *= 0x10;
             uc = sourceReader.read();
-            if (uc != -1) seenSoFar.add((char)uc);
             int digitVal = Character.digit((char) uc, 16);
             if (digitVal == -1) {
-                buffer.addAll(seenSoFar);
-                return '\\';
+                putBuffer(uc);
+                return 0xFFFF;
             }
+            processChar((char)uc);
             val += digitVal;
-        }
-        
-        // Only update position based on the chars once we know
-        // we've found a valid escape:
-        for (char c : seenSoFar) {
-            processChar(c);
-        }
+            i++;
+        } while (i < 3);
         
         return val;
     }
