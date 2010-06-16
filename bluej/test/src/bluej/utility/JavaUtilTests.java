@@ -55,9 +55,15 @@ public class JavaUtilTests extends TestCase
     }
     
     // This is just a method for testing signature creation
+    //   see testSignatures()
     public void sampleMethod(int arg1, int arg2)
     {
-        
+    }
+    
+    // This is just a method for testing signature creation
+    //   see testSignatures()
+    public void sampleMethod2(String [] args)
+    {
     }
     
     /**
@@ -97,7 +103,16 @@ public class JavaUtilTests extends TestCase
             sig = jutils.getSignature(sampleMeth);
             assertEquals("java.lang.reflect.Constructor getConstructor(java.lang.Class[])", sig);
         }
-        
+
+        try {
+            sampleMeth = thisClass.getMethod("sampleMethod2", new Class [] {String[].class});
+        }
+        catch (NoSuchMethodException nsme) {
+            fail();
+        }
+
+        sig = jutils.getSignature(sampleMeth);
+        assertEquals("void sampleMethod2(java.lang.String[])", sig);
     }
     
 }

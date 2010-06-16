@@ -350,12 +350,14 @@ public class BasicParseTest extends junit.framework.TestCase
         String aSrc = "class A {\n"
             + "  void method1(int [] a) { }\n"
             + "  void method2(int a[]) { }\n"
+            + "  void method3(String [] a) { }\n"
             + "}\n";
         
-        ClassInfo info = InfoParser.parse(new StringReader(aSrc), null, null);
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
         Properties comments = info.getComments();
         assertTrue(findTarget(comments, "void method1(int[])") != -1);
         assertTrue(findTarget(comments, "void method2(int[])") != -1);
+        assertTrue(findTarget(comments, "void method3(java.lang.String[])") != -1);
     }
     
     public void testMultipleInterfaceExtends() throws Exception
