@@ -25,11 +25,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import bluej.Config;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeClass;
-import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.utility.Debug;
@@ -45,14 +43,9 @@ import com.sun.jdi.Value;
  * Represents an object running on the user (remote) machine.
  *
  * @author  Michael Kolling
- * @version $Id: JdiObject.java 7751 2010-06-03 10:55:25Z nccb $
  */
 public class JdiObject extends DebuggerObject
 {
-    
-    // boolean - true if our JVM supports generics
-    static boolean jvmSupportsGenerics = Config.isJava15();
-    
     /**
      *  Factory method that returns instances of JdiObjects.
      *
@@ -89,11 +82,6 @@ public class JdiObject extends DebuggerObject
      */
     public static JdiObject getDebuggerObject(ObjectReference obj, Field field, JdiObject parent)
     {
-        // Optimize the java 1.4 case - no generics.
-        if (! jvmSupportsGenerics)
-            return getDebuggerObject(obj);
-        
-        // Handle all cases.
         JavaType expectedType = JdiReflective.fromField(field, parent);
         if (obj instanceof ArrayReference)
             return new JdiArray((ArrayReference) obj, expectedType);
@@ -197,24 +185,6 @@ public class JdiObject extends DebuggerObject
         else
             return JavaNames.stripPrefix(getClassName());
     }
-    
-    /**
-     * Determine whether this is a raw object. That is, an object of a class
-     * which has formal type parameters, but for which no actual types have
-     * been given.
-     * @return  true if the object is raw, otherwise false.
-     */
- /*   private boolean isRaw()
-    {
-        if(JdiUtils.getJdiUtils().hasGenericSig(obj)) {
-            if (genType == null)
-                return true;
-            else
-                return genType.isRaw();
-        }
-        else
-            return false;
-    }*/
 
     /**
      *  Get the class of this object.
@@ -239,52 +209,6 @@ public class JdiObject extends DebuggerObject
             return new GenTypeClass(r);
         }
     }
-
-    /**
-     *  Is an object of this class assignable to the given fully qualified type?
-     *
-     *@param  type  Description of Parameter
-     *@return       The AssignableTo value
-     */
-/*    public boolean isAssignableTo(String type)
-    {
-        if (obj == null) {
-            return false;
-        }
-        if (obj.referenceType() == null) {
-            return false;
-        }
-        if (obj.referenceType().name() != null
-                 && type.equals(obj.referenceType().name())) {
-            return true;
-        }
-        if ((obj.referenceType() instanceof ClassType))
-        {
-            ClassType clst = ((ClassType) obj.referenceType());
-            InterfaceType[] intt = ((InterfaceType[]) clst.allInterfaces().toArray(new InterfaceType[0]));
-            for (int i = 0; i < intt.length; i++)
-            {
-                if (type.equals(intt[i].name()))
-                {
-                    return true;
-                }
-            }
-            clst = clst.superclass();
-            while (clst != null)
-            {
-                if (clst.name().equals(type))
-                {
-                    return true;
-                }
-                clst = clst.superclass();
-            }
-        }
-        else if ((obj.referenceType() instanceof ArrayType))
-        {
-        }
-        return false;
-    }
-*/
     
     /**
      *  Return true if this object is an array. This is always false, since
@@ -321,7 +245,6 @@ public class JdiObject extends DebuggerObject
     {
         return getFieldCount(false);
     }
-
 
     /**
      *  Return the name of the static field at 'slot'.
@@ -479,8 +402,6 @@ public class JdiObject extends DebuggerObject
             if (checkIgnoreField(field))
                 continue;
             
-            Debug.message("Checking; restricted: " + (restrictedClasses == null ? "null" : restrictedClasses.toString()) + " field: " + field.name() + " decl type: " + field.declaringType().name());
-            
             if (restrictedClasses != null) {
                 List<String> fieldWhitelist = restrictedClasses.get(field.declaringType().name());
                 if (fieldWhitelist != null && !fieldWhitelist.contains(field.name())) 
@@ -505,10 +426,7 @@ public class JdiObject extends DebuggerObject
                     }
                 }
         
-                if (jvmSupportsGenerics)
-                    fieldString += JdiReflective.fromField(field, this).toString(true);
-                else
-                    fieldString += JavaNames.stripPrefix(field.typeName());
+                fieldString += JdiReflective.fromField(field, this).toString(true);
         
                 if (!visible.contains(field)) {
                     fieldString += " (hidden)";
@@ -675,14 +593,14 @@ public class JdiObject extends DebuggerObject
         // object must be JdiObject at this point
         JdiObject test = (JdiObject)o;
         return this.obj.equals(test.obj);
-	}
+    }
 		
     /**
      * Base our hashcode on the hashcode of the object that we are
      * referring to in the remote VM.
      */
-	public int hashCode()
-	{
+    public int hashCode()
+    {
         return obj.hashCode();
-	}
+    }
 }
