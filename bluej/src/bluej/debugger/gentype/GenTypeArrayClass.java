@@ -47,4 +47,16 @@ public class GenTypeArrayClass extends GenTypeClass
     {
         return componentType.toString(nt) + "[]";
     }
+    
+    @Override
+    public GenTypeClass getErasedType()
+    {
+        JavaType newComponentType = componentType.getErasedType();
+        if (newComponentType != componentType) {
+            return new GenTypeArrayClass(reflective, newComponentType);
+        }
+        else {
+            return this;
+        }
+    }
 }
