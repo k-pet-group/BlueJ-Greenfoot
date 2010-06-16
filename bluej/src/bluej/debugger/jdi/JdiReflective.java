@@ -270,13 +270,16 @@ public class JdiReflective extends Reflective
                 ClassType ctClass = (ClassType) rclass;
 
                 // superclass
-                Reflective r = new JdiReflective(ctClass.superclass());
-                rlist.add(new GenTypeClass(r));
+                ClassType superclass = ctClass.superclass();
+                if (superclass != null) {
+                    Reflective r = new JdiReflective(ctClass.superclass());
+                    rlist.add(new GenTypeClass(r));
+                }
 
                 // interfaces
                 List<InterfaceType> interfaces = ctClass.interfaces();
                 for (Iterator<InterfaceType> i = interfaces.iterator(); i.hasNext();) {
-                    r = new JdiReflective(i.next());
+                    Reflective r = new JdiReflective(i.next());
                     rlist.add(new GenTypeClass(r));
                 }
                 return rlist;
