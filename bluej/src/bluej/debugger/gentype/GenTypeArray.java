@@ -34,12 +34,12 @@ import bluej.utility.JavaReflective;
  */
 public class GenTypeArray extends GenTypeSolid
 {
-    JavaType baseType;
+    GenTypeParameter baseType;
     
     /**
-     * Construct a new GenTypeArray, with the given component type and reflective.
+     * Construct a new GenTypeArray, with the given component type.
      */
-    public GenTypeArray(JavaType baseType)
+    public GenTypeArray(GenTypeParameter baseType)
     {
         super();
         this.baseType = baseType;
@@ -63,12 +63,12 @@ public class GenTypeArray extends GenTypeSolid
 
     public String arrayComponentName()
     {
-        return "[" + baseType.arrayComponentName();
+        return "[" + baseType.getUpperBound().arrayComponentName();
     }
         
     public JavaType getArrayComponent()
     {
-        return baseType;
+        return baseType.getUpperBound();
     }
     
     public GenTypeSolid getLowerBound()
@@ -96,6 +96,7 @@ public class GenTypeArray extends GenTypeSolid
         else {
             // Must be primitive
             Class<?> aClass = null;
+            JavaType baseType = this.baseType.getUpperBound();
             if (baseType.typeIs(JT_VOID)) {
                 aClass = void.class;
             }
@@ -162,7 +163,7 @@ public class GenTypeArray extends GenTypeSolid
     public GenTypeSolid mapTparsToTypes(
             Map<String, ? extends GenTypeParameter> tparams)
     {
-        JavaType mappedBase = baseType.mapTparsToTypes(tparams);
+        JavaType mappedBase = baseType.getCapture().mapTparsToTypes(tparams);
         if (mappedBase != baseType) {
             return new GenTypeArray(mappedBase);
         }
@@ -174,7 +175,7 @@ public class GenTypeArray extends GenTypeSolid
     {
         JavaType componentType = t.getArrayComponent();
         if (componentType != null) {
-            return baseType.isAssignableFrom(componentType);
+            return baseType.getCapture().isAssignableFrom(componentType);
         }
         return false;
     }
@@ -184,7 +185,7 @@ public class GenTypeArray extends GenTypeSolid
     {
         JavaType componentType = t.getArrayComponent();
         if (componentType != null) {
-            return baseType.isAssignableFromRaw(componentType);
+            return baseType.getCapture().isAssignableFromRaw(componentType);
         }
         return false;
     }
