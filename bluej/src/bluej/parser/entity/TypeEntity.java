@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -97,7 +97,7 @@ public class TypeEntity extends PackageOrClass
         return getPackageOrClassMember(name);
     }
     
-    public PackageOrClass getPackageOrClassMember(String name)
+    public TypeEntity getPackageOrClassMember(String name)
     {
         GenTypeClass thisClass = thisType.getCapture().asClass();
         if (thisClass == null) {

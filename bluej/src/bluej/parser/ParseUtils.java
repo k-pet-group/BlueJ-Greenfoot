@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.parser;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -29,6 +30,7 @@ import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.entity.EntityResolver;
+import bluej.parser.entity.ImportedEntity;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.SolidTargEntity;
 import bluej.parser.entity.TypeArgumentEntity;
@@ -51,6 +53,44 @@ public class ParseUtils
     private static class DepthRef
     {
         int depth = 0;
+    }
+    
+    /**
+     * Get an entity for an imported type specifier. This is different from a non-imported type
+     * because in that it must be qualified.
+     * 
+     * @param resolver  Entity resolver which will (eventually) resolve the entity
+     * @param tokens  The tokens making up the specification
+     */
+    public static JavaEntity getImportEntity(EntityResolver resolver,
+            Reflective querySource, List<LocatableToken> tokens)
+    {
+        if (tokens.isEmpty()) {
+            return null;
+        }
+        
+        Iterator<LocatableToken> i = tokens.iterator();
+        LocatableToken tok = i.next();
+        if (tok.getType() != JavaTokenTypes.IDENT) {
+            return null;
+        }
+        
+        List<String> names = new LinkedList<String>();
+        names.add(tok.getText());
+        
+        while (i.hasNext()) {
+            tok = i.next();
+            if (tok.getType() != JavaTokenTypes.DOT || ! i.hasNext()) {
+                return null;
+            }
+            tok = i.next();
+            if (tok.getType() != JavaTokenTypes.IDENT) {
+                return null;
+            }
+            names.add(tok.getText());
+        }
+        
+        return new ImportedEntity(resolver, names, querySource);
     }
     
     /**

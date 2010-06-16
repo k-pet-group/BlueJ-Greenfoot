@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,6 +32,7 @@ import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import bluej.utility.JavaNames;
 
 
 /**
@@ -144,6 +145,11 @@ public class ParsedCUNode extends IncrementalParsingNode
         PackageOrClass poc = super.resolvePackageOrClass(name, querySource);
         if (poc == null) {
             poc = imports.getTypeImport(name);
+        }
+        if (poc == null && parentResolver != null && querySource != null) {
+            String prefix = JavaNames.getPrefix(querySource.getName());
+            String fqName = JavaNames.combineNames(prefix, name);
+            poc = parentResolver.resolveQualifiedClass(fqName);
         }
         if (poc == null) {
             poc = imports.getTypeImportWC(name);

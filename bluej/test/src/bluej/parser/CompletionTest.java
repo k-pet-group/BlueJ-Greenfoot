@@ -577,8 +577,7 @@ public class CompletionTest extends TestCase
         assertEquals("Canvas", suggests.getSuggestionType().toString());
         assertFalse(suggests.isStatic());
         LocatableToken stoken = suggests.getSuggestionToken();
-        assertNotNull(stoken);
-        assertEquals("canvas", stoken.getText());
+        assertNull(stoken);
     }
     
     // Yet to do:

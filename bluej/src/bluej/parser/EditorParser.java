@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -349,7 +349,7 @@ public class EditorParser extends JavaParser
             // So, a static import imports a field and/or method and/or class.
             // That's right - the same import statement pulls in all three.
             
-            // We want to pull the name out
+            // We want to pull the name out (and remove the intermediate dot)
             int newSize = tokens.size() - 2;
             String memberName = tokens.get(newSize + 1).getText();
             
@@ -359,7 +359,7 @@ public class EditorParser extends JavaParser
                 newList.add(i.next());
                 newSize--;
             }
-            JavaEntity entity = ParseUtils.getTypeEntity(parentResolver,
+            JavaEntity entity = ParseUtils.getImportEntity(parentResolver,
                     currentQuerySource(), newList);
             TypeEntity tentity = (entity != null) ? entity.resolveAsType() : null;
             if (tentity != null) {
@@ -368,15 +368,11 @@ public class EditorParser extends JavaParser
         }
         else {
             String memberName = tokens.get(tokens.size() - 1).getText();
-            JavaEntity entity = ParseUtils.getTypeEntity(parentResolver,
+            JavaEntity entity = ParseUtils.getImportEntity(parentResolver,
                     currentQuerySource(), tokens);
             if (entity != null) {
                 pcuNode.getImports().addNormalImport(memberName, entity);
             }
-            // TODO we should look up the name fully qualified, that is, the first
-            // component *must* be a package and not a class in the current package.
-            // Be careful of inner types though (i.e. the imported type might be
-            // an inner class).
         }
     }
     
@@ -389,7 +385,7 @@ public class EditorParser extends JavaParser
             return;
         }
 
-        JavaEntity importEntity = ParseUtils.getTypeEntity(parentResolver,
+        JavaEntity importEntity = ParseUtils.getImportEntity(parentResolver,
                 currentQuerySource(), tokens);
         if (importEntity == null) {
             return;
