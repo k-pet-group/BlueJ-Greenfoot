@@ -43,7 +43,7 @@ import bluej.Config;
  * 
  * 
  * @author Michael Kolling
- * @version $Id: BlueJFileReader.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: BlueJFileReader.java 7779 2010-06-16 14:44:28Z davmac $
  */
 public class BlueJFileReader
 {
@@ -58,7 +58,8 @@ public class BlueJFileReader
      * "english/moe.help"). Help texts inside the file are identified by
      * a help ID (a string).
      *
-     * The files are expected to be in ISO 8859-1 character encoding.
+     * The files are expected to be in ISO 8859-1 character encoding, with "slash-u-XXXX" unicode
+     * escape sequences.
      *
      * @param baseFileName  Base name of the help file
      * @param textID        ID string for the help message
@@ -71,7 +72,6 @@ public class BlueJFileReader
                                       boolean exactMatch)
     {
         BufferedReader in = null;
-        boolean found = false;
 
         try {
             in = new BufferedReader(new InputStreamReader(new FileInputStream(file), "8859_1"));
@@ -158,12 +158,13 @@ public class BlueJFileReader
      * @param templateCharset Charset that should be used to read the template file.
      */
     public static void translateFile(File template, File dest,
-                                     Dictionary translations, Charset templateCharset)
+                                     Dictionary<String,String> translations,
+                                     Charset templateCharset, Charset outputCharset)
         throws IOException
     {
-        translateFile(template, dest, translations, true, templateCharset);
+        translateFile(template, dest, translations, true, templateCharset, outputCharset);
     }
-    
+
     /**
      * Copy a file while replacing special keywords
      * within the file by definitions.
@@ -174,13 +175,15 @@ public class BlueJFileReader
      * This is used to create shell files from the shell file template.
      * 
      * @param templateCharset Charset that should be used to read the template file.
+     * @param outputCharset  Charset that should be used to write the output file.
      */
     private static void translateFile(File template, File dest,
-                                     Dictionary translations, boolean replaceTabs, Charset templateCharset)
+            Dictionary<String,String> translations, boolean replaceTabs,
+            Charset templateCharset, Charset outputCharset)
         throws IOException
     {
         InputStreamReader in = null;
-        FileWriter out = null;
+        OutputStreamWriter out = null;
         String newline = System.getProperty("line.separator");
       
         try {

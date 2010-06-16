@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,7 +31,6 @@ import bluej.prefmgr.PrefMgr;
  * StdClassRole is used to represent standard Java classes.
  *
  * @author Bruce Quig
- * @version $Id: StdClassRole.java 6215 2009-03-30 13:28:25Z polle $
  */
 public class StdClassRole extends ClassRole
 {
@@ -55,11 +54,10 @@ public class StdClassRole extends ClassRole
      * @param   state   whether the target is COMPILED etc.
      * @return  true if we added any menu tiems, false otherwise
      */
-    public boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, Class cl, int state)
+    public boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl, int state)
     {
         return false;
     }
-
 
     /**
      * Adds role specific items at the bottom of the popup menu for this class target.

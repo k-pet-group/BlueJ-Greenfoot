@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -167,7 +167,7 @@ public class AppletClassRole extends StdClassRole
      * @param   state   whether the target is COMPILED etc.
      * @return  true if we added any menu tiems, false otherwise
      */
-    public boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, Class cl, int state)
+    public boolean createRoleMenu(JPopupMenu menu, ClassTarget ct, Class<?> cl, int state)
     {
         // add run applet option
         addMenuItem(menu, new AppletAction(ct.getPackage().getEditor(),ct),
@@ -394,7 +394,8 @@ public class AppletClassRole extends StdClassRole
         File tmplFile = Config.getTemplateFile("html");
 
         try {
-            BlueJFileReader.translateFile(tmplFile, outputFile, translations, Charset.forName("UTF-8"));
+            Charset utf8 = Charset.forName("UTF-8");
+            BlueJFileReader.translateFile(tmplFile, outputFile, translations, utf8, utf8);
         } catch(IOException e) {
             Debug.reportError("Exception during file translation from " +
                               tmplFile + " to " + outputFile);

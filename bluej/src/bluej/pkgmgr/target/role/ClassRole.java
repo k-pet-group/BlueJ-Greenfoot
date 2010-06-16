@@ -57,7 +57,7 @@ import bluej.views.ViewFilter;
  * class types
  * 
  * @author Bruce Quig
- * @version $Id: ClassRole.java 7592 2010-05-18 14:27:15Z nccb $
+ * @version $Id: ClassRole.java 7779 2010-06-16 14:44:28Z davmac $
  */
 public abstract class ClassRole
 {
@@ -153,7 +153,9 @@ public abstract class ClassRole
                 pkg.showError("duplicate-name");
                 return false;
             }
-            BlueJFileReader.translateFile(Config.getClassTemplateFile(template), new File(sourceFile), translations, Charset.forName("UTF-8"));
+            BlueJFileReader.translateFile(Config.getClassTemplateFile(template),
+                    new File(sourceFile), translations,
+                    Charset.forName("UTF-8"), Charset.defaultCharset());
             return true;
         }
         catch (IOException e) {
