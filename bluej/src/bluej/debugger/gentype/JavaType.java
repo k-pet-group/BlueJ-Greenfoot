@@ -184,7 +184,8 @@ public abstract class JavaType extends GenTypeParameter
      * mapped to their bound (as a wildcard, ? extends X).
      * 
      * @param tparams A map (String->JavaType) mapping the name of the type
-     *                parameter to the corresponding type
+     *                parameter to the corresponding type. May be null, to map
+     *                to the raw type.
      * @return A type with parameters mapped
      */
     abstract public JavaType mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams);

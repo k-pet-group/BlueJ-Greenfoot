@@ -509,7 +509,7 @@ public class GenTypeClass extends GenTypeSolid
      * Return the corresponding type if all type parameters are replaced with
      * corresponding actual types, as defined by a Map (String -> GenType).
      * 
-     * @param tparams  A map definining the translation from type parameter
+     * @param tparams  A map defining the translation from type parameter
      *                 name (String) to its actual type (GenType). The map
      *                 can be null to return the raw type.
      * @return the corresponding type structure, with parameters mapped.
@@ -519,6 +519,10 @@ public class GenTypeClass extends GenTypeSolid
         // If there are no generic parameters, there's nothing to map...
         if( params == null && outer == null )
             return this;
+        
+        if (tparams == null) {
+            return new GenTypeClass(reflective);
+        }
         
         // Otherwise map each parameter, return the result.
         List retlist = new ArrayList();

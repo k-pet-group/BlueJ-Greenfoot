@@ -557,6 +557,9 @@ public class JdiReflective extends Reflective
             // double
             return JavaPrimitiveType.getDouble();
         }
+        if (c == 'V') {
+            return JavaPrimitiveType.getVoid();
+        }
 
         if (c != 'L')
             Debug.message("Generic signature begins without 'L'?? (got " + c + ")");
@@ -852,13 +855,71 @@ public class JdiReflective extends Reflective
     @Override
     public Map<String,JavaType> getDeclaredFields()
     {
-        return Collections.emptyMap(); // not implemented
+        checkLoaded();
+        List<Field> fields = rclass.fields();
+        Map<String,JavaType> rfields = new HashMap<String,JavaType>();
+        
+        for (Field field : fields) {
+            String genSig = field.genericSignature();
+            if (genSig == null) {
+                genSig = field.signature();
+            }
+            
+            StringIterator i = new StringIterator(genSig);
+            JavaType ftype = (JavaType) fromSignature(i, null, rclass);
+            rfields.put(field.name(), ftype);
+        }
+        
+        return rfields;
     }
     
     @Override
     public Map<String,Set<MethodReflective>> getDeclaredMethods()
     {
-        return Collections.emptyMap(); // not implemented
+        checkLoaded();
+        List<Method> methods = rclass.methods();
+        Map<String,Set<MethodReflective>> methodMap = new HashMap<String,Set<MethodReflective>>();
+        
+        for (Method method : methods) {
+            // Process the string signature to determine return and param types
+            String genSig = method.genericSignature();
+            if (genSig == null) {
+                genSig = method.signature();
+            }
+            
+            StringIterator i = new StringIterator(genSig);
+            List<GenTypeDeclTpar> tparTypes = getTypeParams(i);
+
+            char c = i.next();
+            if (c != '(') {
+                continue;
+            }
+            
+            List<JavaType> paramTypes = new ArrayList<JavaType>();
+            while (i.peek() != ')') {
+                GenTypeParameter gtp = fromSignature(i, null, rclass);
+                paramTypes.add((JavaType) gtp);
+            }
+            
+            i.next(); // skip ')'
+            JavaType returnType = (JavaType) fromSignature(i, null, rclass);
+            
+            boolean isVarArgs = method.isVarArgs();
+            int modifiers = method.modifiers();
+            
+            MethodReflective mr = new MethodReflective(method.name(), returnType, tparTypes,
+                    paramTypes, this, isVarArgs, modifiers);
+            
+            Set<MethodReflective> mset = methodMap.get(mr.getName());
+            if (mset == null) {
+                mset = new HashSet<MethodReflective>();
+                methodMap.put(mr.getName(), mset);
+            }
+            
+            mset.add(mr);
+        }
+        
+        return methodMap;
     }
     
     @Override

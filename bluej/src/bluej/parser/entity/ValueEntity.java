@@ -22,8 +22,10 @@
 package bluej.parser.entity;
 
 import java.util.List;
+import java.util.Map;
 
 import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 
@@ -54,8 +56,16 @@ public class ValueEntity extends JavaEntity
     {
         GenTypeClass ctype = type.asClass();
         if (ctype != null) {
-            // ctype.getReflective().
-            // TODO
+            Map<String,JavaType> fields = ctype.getReflective().getDeclaredFields();
+            JavaType fieldType = fields.get(name);
+            
+            Map<String,GenTypeParameter> tparMap = ctype.getMap();
+            fieldType = fieldType.mapTparsToTypes(tparMap);
+            
+            if (fieldType != null) {
+                // TODO check access restriction!
+                return new ValueEntity(this.name + "." + name, fieldType);
+            }
         }
         return null;
     }
