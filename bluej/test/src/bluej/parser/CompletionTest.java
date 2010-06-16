@@ -551,6 +551,35 @@ public class CompletionTest extends TestCase
         assertNotNull(stoken);
         assertEquals("for", stoken.getText());
     }
+
+    public void testCompletionResolution() throws Exception
+    {
+        String canvasSrc = "class Canvas { }\n";
+        String aClassSrc =
+            "import java.awt.*;\n" +    // 0 - 19     
+            "class A {\n" +             // 19 - 29 
+            "  Canvas canvas;\n" +      // 29 - 46 
+            "  public void m() {\n" +   // 46 - 66
+            "    canvas.\n" +           //  canvas.  <--  77 
+            "  }\n" +
+            "}\n";
+    
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+
+        ParsedCUNode canvasNode = cuForSource(canvasSrc, "");
+        resolver.addCompilationUnit("", canvasNode);
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(77, doc);
+        assertNotNull(suggests);
+        assertEquals("Canvas", suggests.getSuggestionType().toString());
+        assertFalse(suggests.isStatic());
+        LocatableToken stoken = suggests.getSuggestionToken();
+        assertNotNull(stoken);
+        assertEquals("canvas", stoken.getText());
+    }
     
     // Yet to do:
     

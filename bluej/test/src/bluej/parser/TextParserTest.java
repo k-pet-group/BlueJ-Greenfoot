@@ -38,7 +38,7 @@ import bluej.parser.nodes.ParsedCUNode;
  * Test that void results are handled correctly by the textpad parser.
  * 
  * @author Davin McCall
- * @version $Id: TextParserTest.java 7699 2010-05-24 05:38:07Z davmac $
+ * @version $Id: TextParserTest.java 7768 2010-06-16 04:55:19Z davmac $
  */
 public class TextParserTest extends TestCase
 {
@@ -565,7 +565,7 @@ public class TextParserTest extends TestCase
     
     public void testMethodResolution5()
     {
-        // boxing conversion followed by widening reference conversion
+        // method with type parameters, return type is dependent on parameter type
         String lalaSrc = ""
             + "public class Lala\n"
             + "{\n"
