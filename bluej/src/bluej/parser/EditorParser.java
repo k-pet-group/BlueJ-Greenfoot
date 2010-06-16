@@ -196,13 +196,9 @@ public class EditorParser extends JavaParser
             LocatableToken token = i.next();
             int startpos = lineColToPosition(token.getLine(), token.getColumn());
             if (startpos >= position && startpos < (position + size)) {
-                Selection s = new Selection(token.getLine(), token.getColumn());
-                s.extendEnd(token.getEndLine(), token.getEndColumn());
-                int endpos = lineColToPosition(s.getEndLine(), s.getEndColumn());
-
+                int endpos = lineColToPosition(token.getEndLine(), token.getEndColumn());
                 CommentNode cn = new CommentNode(node, token);
                 node.insertNode(cn, startpos - position, endpos - startpos);
-                
                 i.remove();
             }
         }
