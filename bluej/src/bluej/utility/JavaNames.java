@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,7 +29,7 @@ import java.util.*;
  * java names.
  *
  * @author  Andrew Patterson
- * @version $Id: JavaNames.java 6215 2009-03-30 13:28:25Z polle $
+ * @version $Id: JavaNames.java 7773 2010-06-16 09:33:01Z davmac $
  */
 public class JavaNames
 {
@@ -119,11 +119,13 @@ public class JavaNames
 
     /**
      * Return the prefix (all but the base name) from a
-     * fully qualified Java name.
+     * fully qualified Java name. Examples:
      *
-     * java.util.ArrayList --> java.util
-     * ""                  --> ""
-     * ArrayList           --> ""
+     * <pre>
+     * java.util.ArrayList   returns   java.util
+     * ""                    returns   ""
+     * ArrayList             returns   ""
+     * </pre>
      */
     public static String getPrefix(String qualifiedName)
     {
@@ -197,12 +199,12 @@ public class JavaNames
      * Convert a qualifed name to a file. This is mostly only useful for
      * packages, as other files have a filename extension with a dot in it.
      */
-    public static File convertQualifiedNameToFile(String name)
+    public static File convertQualifiedNameToFile(String name, File root)
     {
         int n = 0;
         int i;
         
-        File f = null;
+        File f = root;
         
         i = name.indexOf('.', n);
         while (i != -1) {
