@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,7 +27,6 @@ import java.lang.reflect.Modifier;
  * A representation of a Java class member in BlueJ.
  *
  * @author  Michael Cahill
- * @version $Id: MemberView.java 6215 2009-03-30 13:28:25Z polle $
  */
 public abstract class MemberView
 {
@@ -59,30 +58,30 @@ public abstract class MemberView
     }
 
     /**
-     ** Returns the Java language modifiers for the member or
-     ** constructor represented by this Member, as an integer.  The
-     ** Modifier class should be used to decode the modifiers in
-     ** the integer.
-     ** @see Modifier
-     **/
+     * Returns the Java language modifiers for the member or
+     * constructor represented by this Member, as an integer.  The
+     * Modifier class should be used to decode the modifiers in
+     * the integer.
+     * @see Modifier
+     */
     public abstract int getModifiers();
 
     /**
-     ** Returns a string describing this member in a human-readable format
-     **/
+     * Returns a string describing this member in a human-readable format
+     */
     public abstract String getSignature();
 
     /**
-     ** Sets the (javadoc) comment for this Member
-     **/
+     * Sets the (javadoc) comment for this Member
+     */
     void setComment(Comment comment)
     {
         this.comment = comment;
     }
 
     /**
-     ** Returns the (javadoc) comment for this Member
-     **/
+     * Returns the (javadoc) comment for this Member
+     */
     public Comment getComment()
     {
         if (view != null)
@@ -92,13 +91,13 @@ public abstract class MemberView
     }
 
     /**
-     ** Get a short String describing this member
-     **/
+     * Get a short String describing this member
+     */
     public abstract String getShortDesc();
 
     /**
-     ** Get a longer String describing this member
-     **/
+     * Get a longer String describing this member
+     */
     public abstract String getLongDesc();
 
     /**

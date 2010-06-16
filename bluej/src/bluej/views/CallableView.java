@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,7 +36,8 @@ public abstract class CallableView extends MemberView
     /**
      * Constructor.
      */
-    public CallableView(View view) {
+    public CallableView(View view)
+    {
         super(view);
     }
 
@@ -64,7 +65,8 @@ public abstract class CallableView extends MemberView
      * Count of parameters
      * @returns the number of parameters
      */
-    public int getParameterCount() {
+    public int getParameterCount()
+    {
         return getParameters().length;
     }
 
@@ -72,7 +74,7 @@ public abstract class CallableView extends MemberView
      * Get an array of Class objects representing parameter classes
      * @return  array of Class objects
      */
-    public abstract Class[] getParameters();
+    public abstract Class<?>[] getParameters();
     
     /**
      * Get an array of GenType objects representing the parameter types of the

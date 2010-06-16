@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,11 +26,10 @@ import bluej.utility.Utility;
 import java.util.*;
 
 /**
-** @version $Id: Comment.java 6215 2009-03-30 13:28:25Z polle $
-** @author Michael Cahill
-**
-** Comment class - the source information associated with a class or field
-**/
+ * Comment class - the source information associated with a class or field
+ * 
+ * @author Michael Cahill
+ */
 public final class Comment
 {
     private String target;		// identifies what this comment is for
@@ -89,17 +88,6 @@ public final class Comment
         
         return (String[]) paramnames.clone();
     }
-
-    /*	public void addReference(String classname, String fieldname)
-        {
-        // refs.add(new Reference(classname, fieldname));
-        }
-
-        public Iterator getReferences()
-        {
-        return refs.iterator();
-        }
-        */
 
     public void print(FormattedPrintWriter out)
     {

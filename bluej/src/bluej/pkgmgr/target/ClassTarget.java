@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -86,7 +86,6 @@ import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
 import bluej.utility.JavaReflective;
 import bluej.utility.JavaUtils;
-import bluej.utility.Utility;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 
@@ -94,13 +93,10 @@ import bluej.views.MethodView;
  * A class target in a package, i.e. a target that is a class file built from
  * Java source code
  * 
- * 
  * @author Michael Cahill
  * @author Michael Kolling
  * @author Bruce Quig
  * @author Damiano Bolla
- * 
- * @version $Id: ClassTarget.java 7651 2010-05-20 14:02:51Z nccb $
  */
 public class ClassTarget extends DependentTarget
     implements Moveable, InvokeListener

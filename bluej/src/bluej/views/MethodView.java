@@ -95,7 +95,8 @@ public class MethodView extends CallableView implements Comparable<MethodView>
      * class, without having to worry about covariant returns and generic
      * methods etc.
      */
-    public String getCallSignature() {
+    public String getCallSignature()
+    {
         StringBuffer name = new StringBuffer();
         name.append(method.getName());
         name.append('(');
@@ -113,7 +114,8 @@ public class MethodView extends CallableView implements Comparable<MethodView>
      * Get a short String describing this member. A description is similar
      * to the signature, but it has parameter names in it instead of types.
      */
-    public String getShortDesc() {
+    public String getShortDesc()
+    {
         return JavaUtils.getJavaUtils().getShortDesc(method, getParamNames());
     }
 
@@ -136,7 +138,8 @@ public class MethodView extends CallableView implements Comparable<MethodView>
      * similar to the short description, but it has type names and parameters
      * included.
      */
-    public String getLongDesc() {
+    public String getLongDesc()
+    {
         return JavaUtils.getJavaUtils().getLongDesc(method, getParamNames());
     }
     
