@@ -29,7 +29,9 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
 import junit.framework.TestCase;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.JavaType;
+import bluej.debugger.gentype.Reflective;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
@@ -337,10 +339,9 @@ public class CompletionTest extends TestCase
         assertNotNull(suggests);
         assertEquals("java.lang.Integer", suggests.getSuggestionType().toString());
         
-        assertNotNull(suggests.getAccessType());
-        assertNotNull(suggests.getAccessType().getReflective());
-        assertNotNull(suggests.getAccessType().getOuterType());
-        assertNotNull(suggests.getAccessType().getOuterType().getReflective());
+        GenTypeClass accessType = suggests.getAccessType();
+        assertNotNull(accessType);
+        assertEquals("A$B", accessType.getReflective().getName());
     }
     
     /**
@@ -369,10 +370,38 @@ public class CompletionTest extends TestCase
         assertNotNull(suggests);
         assertEquals("java.lang.Integer", suggests.getSuggestionType().toString());
 
-        assertNotNull(suggests.getAccessType());
-        assertNotNull(suggests.getAccessType().getReflective());
-        assertNotNull(suggests.getAccessType().getOuterType());
-        assertNotNull(suggests.getAccessType().getOuterType().getReflective());
+        GenTypeClass accessType = suggests.getAccessType();
+        assertNotNull(accessType);
+        assertEquals("A$B", accessType.getReflective().getName());
+    }
+    
+    public void testInnerClasses3() throws Exception
+    {
+        String aClassSrc =
+            "class A {\n" +                         // 0-10
+            "  Runnable r = new Runnable() {\n" +   // 10-42
+            "    String x = \"\";\n" +              // 42-61
+            "    public void run() {\n" +           // 61-85
+            "      x.length();\n" +                 //  x. <-- 93
+            "    }\n" +
+            "  };\n" +
+            "}\n";
+        
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc, null);
+        
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        CodeSuggestions suggests = aNode.getExpressionType(93, doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.String", suggests.getSuggestionType().toString());
+
+        GenTypeClass accessType = suggests.getAccessType();
+        assertNotNull(accessType);
+        Reflective outer = accessType.getReflective().getOuterClass();
+        assertNotNull(outer);
+        assertEquals("A", outer.getName());
     }
     
     public void testPartial() throws Exception
