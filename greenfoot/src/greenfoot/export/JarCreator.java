@@ -696,7 +696,8 @@ public class JarCreator
         File template = Config.getLanguageFile(baseName);
         
         try {
-            BlueJFileReader.translateFile(template, outputFile, translations, Charset.forName("UTF-8"));
+            Charset utf8 = Charset.forName("UTF-8");
+            BlueJFileReader.translateFile(template, outputFile, translations, utf8, utf8);
         }
         catch (IOException e) {
             Debug.reportError("Exception during file translation from " + template + " to " + outputFile);
