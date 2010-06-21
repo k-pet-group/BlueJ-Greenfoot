@@ -38,6 +38,7 @@ public class FieldNode extends JavaParentNode
     private String name;
     private JavaEntity fieldType;
     private FieldNode firstNode;
+    private int modifiers;
     /** Number of extra array declarators */
     private int arrayDecls;
     
@@ -45,12 +46,14 @@ public class FieldNode extends JavaParentNode
      * Construct a field node representing the first declared field in a field
      * declaration. The fieldType may be null if it appears invalid.
      */
-    public FieldNode(JavaParentNode parent, String name, JavaEntity fieldType, int arrayDecls)
+    public FieldNode(JavaParentNode parent, String name, JavaEntity fieldType, int arrayDecls,
+            int modifiers)
     {
         super(parent);
         this.name = name;
         this.fieldType = fieldType;
         this.arrayDecls = arrayDecls;
+        this.modifiers = modifiers;
     }
     
     /**
@@ -95,6 +98,18 @@ public class FieldNode extends JavaParentNode
             ftype = new UnresolvedArray(ftype);
         }
         return ftype;
+    }
+    
+    /**
+     * Get the modifiers of this field 
+     * @return
+     */
+    public int getModifiers()
+    {
+        if (firstNode != null) {
+            return firstNode.getModifiers();
+        }
+        return modifiers;
     }
     
     @Override

@@ -970,7 +970,8 @@ public class EditorParser extends JavaParser
         JavaEntity fieldType = ParseUtils.getTypeEntity(scopeStack.peek(),
                 currentQuerySource(), lastTypeSpec);
         
-        lastField = new FieldNode(scopeStack.peek(), idToken.getText(), fieldType, arrayDecls);
+        lastField = new FieldNode(scopeStack.peek(), idToken.getText(), fieldType,
+                arrayDecls, currentModifiers);
         arrayDecls = 0;
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(first.getLine(), first.getColumn());

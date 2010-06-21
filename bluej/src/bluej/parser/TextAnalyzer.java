@@ -37,7 +37,6 @@ import java.util.Set;
 import java.util.Stack;
 
 import bluej.debugger.gentype.BadInheritanceChainException;
-import bluej.debugger.gentype.GenTypeArray;
 import bluej.debugger.gentype.GenTypeCapture;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeDeclTpar;
