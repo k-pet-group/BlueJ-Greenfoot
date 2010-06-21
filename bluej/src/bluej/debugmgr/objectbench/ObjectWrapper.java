@@ -326,7 +326,7 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
         menu = new JPopupMenu(getName() + " operations");
 
         // add the menu items to call the methods
-        createMethodMenuItems(menu, cl, iType, this, obj, pkg.getQualifiedName());
+        createMethodMenuItems(menu, cl, iType, this, obj, pkg.getQualifiedName(), true);
 
         // add inspect and remove options
         JMenuItem item;
@@ -364,12 +364,13 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
      * @param currentPackageName Name of the package that this object will be
      *            shown from (used to determine wheter to show package protected
      *            methods)
+     * @param showObjectMethods Whether to show the submenu with methods from java.lang.Object
      */
     public static void createMethodMenuItems(JPopupMenu menu, Class<?> cl, InvokeListener il, DebuggerObject obj,
-            String currentPackageName)
+            String currentPackageName, boolean showObjectMethods)
     {
         GenTypeClass gt = new GenTypeClass(new JavaReflective(cl));
-        createMethodMenuItems(menu, cl, gt, il, obj, currentPackageName);
+        createMethodMenuItems(menu, cl, gt, il, obj, currentPackageName, showObjectMethods);
     }
     
     /**
@@ -383,9 +384,10 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
      * @param currentPackageName Name of the package that this object will be
      *            shown from (used to determine wheter to show package protected
      *            methods)
+     * @param showObjectMethods Whether to show the submenu for methods inherited from java.lang.Object
      */
     public static void createMethodMenuItems(JPopupMenu menu, Class<?> cl, GenTypeClass gtype, InvokeListener il, DebuggerObject obj,
-            String currentPackageName)
+            String currentPackageName, boolean showObjectMethods)
     {
         if (cl != null) {
             View view = View.getView(cl);
@@ -438,12 +440,14 @@ public class ObjectWrapper extends JComponent implements InvokeListener, NamedVa
                 // map generic type paramaters to the current superclass
                 curType = curType.mapToSuper(currentClass.getName());
                 
-                declaredMethods = view.getDeclaredMethods();
-                JMenu subMenu = new JMenu(inheritedFrom + " "
-                               + JavaNames.stripPrefix(currentClass.getName()));
-                subMenu.setFont(PrefMgr.getStandoutMenuFont());
-                createMenuItems(subMenu, declaredMethods, il, filter, (itemsOnScreen / 2), curType.getMap(), actions, methodsUsed);
-                menu.insert(subMenu, 0);
+                if (!"java.lang.Object".equals(currentClass.getName()) || showObjectMethods) { 
+                    declaredMethods = view.getDeclaredMethods();
+                    JMenu subMenu = new JMenu(inheritedFrom + " "
+                                   + JavaNames.stripPrefix(currentClass.getName()));
+                    subMenu.setFont(PrefMgr.getStandoutMenuFont());
+                    createMenuItems(subMenu, declaredMethods, il, filter, (itemsOnScreen / 2), curType.getMap(), actions, methodsUsed);
+                    menu.insert(subMenu, 0);
+                }
             }
 
             menu.addSeparator();
