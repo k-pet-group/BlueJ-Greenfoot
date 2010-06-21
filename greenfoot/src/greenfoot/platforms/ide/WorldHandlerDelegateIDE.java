@@ -123,7 +123,7 @@ public class WorldHandlerDelegateIDE
         JPopupMenu menu = new JPopupMenu();
 
         ObjectWrapper.createMethodMenuItems(menu, obj.getClass(), new WorldInvokeListener(obj, this, frame, project),
-                LocalObject.getLocalObject(obj), null);
+                LocalObject.getLocalObject(obj), null, false);
 
         // "inspect" menu item
         JMenuItem m = getInspectMenuItem(obj);
@@ -253,7 +253,7 @@ public class WorldHandlerDelegateIDE
 
                             ObjectWrapper.createMethodMenuItems(menu, newWorld.getClass(), new WorldInvokeListener(
                                     newWorld, WorldHandlerDelegateIDE.this, frame, project), LocalObject
-                                    .getLocalObject(newWorld), null);
+                                    .getLocalObject(newWorld), null, false);
                             // "inspect" menu item
                             JMenuItem m = getInspectMenuItem(newWorld);
                             menu.add(m);
