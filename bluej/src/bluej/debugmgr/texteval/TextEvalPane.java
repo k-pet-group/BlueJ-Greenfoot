@@ -60,7 +60,6 @@ import bluej.debugmgr.ValueCollection;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.MoeSyntaxEditorKit;
 import bluej.parser.TextAnalyzer;
-import bluej.parser.entity.ClassLoaderResolver;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
@@ -73,7 +72,7 @@ import bluej.utility.Utility;
  * account in size computations.
  * 
  * @author Michael Kolling
- * @version $Id: TextEvalPane.java 7256 2010-03-19 03:53:49Z davmac $
+ * @version $Id: TextEvalPane.java 7785 2010-06-21 05:14:06Z davmac $
  */
 public class TextEvalPane extends JEditorPane 
     implements ValueCollection, ResultWatcher, MouseMotionListener
@@ -803,7 +802,7 @@ public class TextEvalPane extends JEditorPane
                 setEditable(false);    // don't allow input while we're thinking
                 busy = true;
                 if (textParser == null) {
-                    textParser = new TextAnalyzer(new ClassLoaderResolver(frame.getProject().getClassLoader()),
+                    textParser = new TextAnalyzer(frame.getProject().getEntityResolver(),
                             frame.getPackage().getQualifiedName(), TextEvalPane.this);
                 }
                 String retType = textParser.parseCommand(currentCommand);
