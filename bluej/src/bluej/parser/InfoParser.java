@@ -36,6 +36,7 @@ import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
+import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageResolver;
@@ -124,7 +125,8 @@ public class InfoParser extends EditorParser
     public static ClassInfo parse(File f) throws FileNotFoundException
     {
         FileInputStream fis = new FileInputStream(f);
-        return parse(new InputStreamReader(fis), null, null);
+        return parse(new InputStreamReader(fis),
+                new ClassLoaderResolver(InfoParser.class.getClassLoader()), null);
     }
     
     public static ClassInfo parse(File f, EntityResolver resolver) throws FileNotFoundException

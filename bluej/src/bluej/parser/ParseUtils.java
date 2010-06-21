@@ -110,6 +110,7 @@ public class ParseUtils
     
     /**
      * Get an entity for a type specification. The returned entity may be unresolved.
+     * Returns null if the type specification appears to be invalid.
      */
     private static JavaEntity getTypeEntity(EntityResolver resolver, Reflective querySource,
             ListIterator<LocatableToken> i, DepthRef depthRef)

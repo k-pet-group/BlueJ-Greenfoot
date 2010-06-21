@@ -33,6 +33,7 @@ import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.CodeSuggestions;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.TparEntity;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.ValueEntity;
@@ -228,6 +229,20 @@ public class MethodNode extends JavaParentNode
             j.next();
         }
         return super.getValueEntity(name, querySource);
+    }
+    
+    @Override
+    public PackageOrClass resolvePackageOrClass(String name,
+            Reflective querySource)
+    {
+        if (typeParams != null) {
+            for (TparEntity tpar : typeParams) {
+                if (tpar.getName().equals(name)) {
+                    return tpar.resolveAsType();
+                }
+            }
+        }
+        return super.resolvePackageOrClass(name, querySource);
     }
     
     @Override

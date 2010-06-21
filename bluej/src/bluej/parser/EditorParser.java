@@ -461,8 +461,11 @@ public class EditorParser extends JavaParser
     @Override
     protected void gotTypeParamBound(List<LocatableToken> tokens)
     {
-        lastTypeParBounds.add(ParseUtils.getTypeEntity(scopeStack.peek(),
-                currentQuerySource(), tokens));
+        JavaEntity boundEntity = ParseUtils.getTypeEntity(scopeStack.peek(),
+                currentQuerySource(), tokens);
+        if (boundEntity != null) {
+            lastTypeParBounds.add(boundEntity);
+        }
     }
     
     @Override
