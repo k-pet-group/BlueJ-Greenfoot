@@ -59,7 +59,7 @@ import bluej.views.MethodView;
  * resulting class file and executes a method in a new thread.
  * 
  * @author Michael Kolling
- * @version $Id: Invoker.java 7006 2010-01-13 05:08:52Z marionz $
+ * @version $Id: Invoker.java 7782 2010-06-21 04:50:41Z davmac $
  */
 
 public class Invoker
@@ -998,7 +998,8 @@ public class Invoker
     private void compileInvocationFile(File shellFile)
     {
         File[] files = {shellFile};
-        JobQueue.getJobQueue().addJob(files, new EventqueueCompileObserver(this), pkg.getProject().getClassLoader(), pkg.getProject().getProjectDir(),true);
+        JobQueue.getJobQueue().addJob(files, new EventqueueCompileObserver(this),
+                pkg.getProject().getClassLoader(), pkg.getProject().getProjectDir(),true);
     }
 
     // -- CompileObserver interface --

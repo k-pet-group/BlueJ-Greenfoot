@@ -32,7 +32,6 @@ import bluej.Config;
  * by running the job's "compile" method.
  *
  * @author  Michael Cahill
- * @version $Id: Job.java 6215 2009-03-30 13:28:25Z polle $
  */
 class Job
 {

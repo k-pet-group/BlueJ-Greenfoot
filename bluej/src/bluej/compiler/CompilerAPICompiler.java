@@ -36,13 +36,13 @@ import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
 /**
- * Compiler class implemented using the JavaCompiler
+ * A compiler implementation using the Compiler API introduced in Java 6.
  * 
  * @author Marion Zalk
  */
-public class Java6Compiler extends Compiler
+public class CompilerAPICompiler extends Compiler
 {
-    public Java6Compiler()
+    public CompilerAPICompiler()
     {
         setDebug(true);
     }
@@ -71,26 +71,32 @@ public class Java6Compiler extends Compiler
         {  
             //setup the filemanager
             StandardJavaFileManager sjfm = jc.getStandardFileManager(diagnostics, null, null);
-            List <File>pathList = new ArrayList<File>();
-            List<File> outputList= new ArrayList<File>();
+            List<File> pathList = new ArrayList<File>();
+            List<File> outputList = new ArrayList<File>();
             outputList.add(getDestDir());
             pathList.addAll(Arrays.asList(getProjectClassLoader().getClassPathAsFiles()));
-            sjfm.setLocation(StandardLocation.SOURCE_PATH, pathList);
+            
+            // In BlueJ, the destination directory and the source path are
+            // always the same
+            sjfm.setLocation(StandardLocation.SOURCE_PATH, outputList);
             sjfm.setLocation(StandardLocation.CLASS_PATH, pathList);
             sjfm.setLocation(StandardLocation.CLASS_OUTPUT, outputList);
+            
             //get the source files for compilation  
             Iterable<? extends JavaFileObject> compilationUnits1 =
                 sjfm.getJavaFileObjectsFromFiles(Arrays.asList(sources));
             //add any options
-            if(isDebug())
+            if(isDebug()) {
                 optionsList.add("-g");
-            if(isDeprecation())
-                optionsList.add("-deprecation"); 
+            }
+            if(isDeprecation()) {
+                optionsList.add("-deprecation");
+            }
             addUserSpecifiedOptions(optionsList, COMPILER_OPTIONS);
+
             //compile
             jc.getTask(null, sjfm, diagnostics, optionsList, null, compilationUnits1).call();
             sjfm.close();            
-
         }
         catch(IOException e)
         {
