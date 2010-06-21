@@ -359,7 +359,20 @@ public class BasicParseTest extends junit.framework.TestCase
         assertTrue(findTarget(comments, "void method2(int[])") != -1);
         assertTrue(findTarget(comments, "void method3(java.lang.String[])") != -1);
     }
-    
+
+    public void testCommentExtraction2() throws Exception
+    {
+        String aSrc = "class A<T> {\n"
+            + "  void method1(T [] a) { }\n"
+            + "  <U> void method2(U a[]) { }\n"
+            + "}\n";
+        
+        ClassInfo info = InfoParser.parse(new StringReader(aSrc), new ClassLoaderResolver(getClass().getClassLoader()), null);
+        Properties comments = info.getComments();
+        assertTrue(findTarget(comments, "void method1(java.lang.Object[])") != -1);
+        assertTrue(findTarget(comments, "void method2(java.lang.Object[])") != -1);
+    }
+
     public void testMultipleInterfaceExtends() throws Exception
     {
         String aSrc = "interface A extends B, C { }";
