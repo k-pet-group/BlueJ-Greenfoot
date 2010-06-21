@@ -29,6 +29,9 @@ import java.awt.*;
  */
 public class MiksGridLayout extends GridLayout
 {
+    // Specifies which row receives additional vertical space
+    private int verticalExpandingRow = -1;
+    
     /**
      * Creates a grid layout with the specified number of rows and 
      * columns.
@@ -45,6 +48,13 @@ public class MiksGridLayout extends GridLayout
     public MiksGridLayout(int rows, int cols, int hgap, int vgap)
     {
         super(rows, cols, hgap, vgap);
+    }
+    
+    // Sets which row receives additional vertical space
+    // (by default it is the last one)
+    public void setVerticallyExpandingRow(int row)
+    {
+        verticalExpandingRow = row;
     }
 
     /** 
@@ -208,10 +218,14 @@ public class MiksGridLayout extends GridLayout
                 }
                 rowHeight[row] = h;
             }
+            
+            //The row that soaks up the extra space:
+            int soakRow = verticalExpandingRow == -1 ? nrows-1 : verticalExpandingRow;
 
-            rowSum = 0;     // all columns except last one
-            for(int row = 0; row < nrows-1; row++) {
-                rowSum += rowHeight[row];
+            rowSum = 0;     // all rows except soakRow
+            for(int row = 0; row < nrows; row++) {
+                if (row != soakRow)
+                    rowSum += rowHeight[row];
             }
 
             int parentWidth = parent.getWidth() - (insets.left + insets.right);
@@ -222,10 +236,10 @@ public class MiksGridLayout extends GridLayout
             if(colWidth[ncols-1] < 0)
                 colWidth[ncols-1] = 0;
                 
-            // set height of last row to take all the remaining space
-            rowHeight[nrows-1] = (parentHeight - (nrows - 1) * vgap) - rowSum;
-            if(rowHeight[nrows-1] < 0)
-                rowHeight[nrows-1] = 0;
+            // set height of soakRow to take all the remaining space
+            rowHeight[soakRow] = (parentHeight - (nrows - 1) * vgap) - rowSum;
+            if(rowHeight[soakRow] < 0)
+                rowHeight[soakRow] = 0;
             
             for (int r = 0, y = insets.top ; r < nrows ; y += rowHeight[r] + vgap, r++) {
                 int x = insets.left;
