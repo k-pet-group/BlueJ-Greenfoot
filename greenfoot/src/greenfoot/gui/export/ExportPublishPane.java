@@ -68,7 +68,7 @@ import bluej.utility.SwingWorker;
  * 
  * @author Michael Kolling
  * @author Poul Henriksen
- * @version $Id: ExportPublishPane.java 7564 2010-05-14 14:53:38Z mik $
+ * @version $Id: ExportPublishPane.java 7789 2010-06-21 15:30:27Z nccb $
  */
 public class ExportPublishPane extends ExportPane
 {
@@ -298,7 +298,9 @@ public class ExportPublishPane extends ExportPane
             infoPanel.add(text, BorderLayout.NORTH);
 
             JComponent leftPanel = new Box(BoxLayout.Y_AXIS);
-            JPanel titleAndDescPanel = new JPanel(new MiksGridLayout(6, 2, 8, 8));
+            MiksGridLayout titleAndDescLayout = new MiksGridLayout(6, 2, 8, 8);
+            titleAndDescLayout.setVerticallyExpandingRow(3);
+            JPanel titleAndDescPanel = new JPanel(titleAndDescLayout);
             {
                 titleAndDescPanel.setBackground(background);
 
@@ -354,6 +356,8 @@ public class ExportPublishPane extends ExportPane
 
                 descriptionArea = new JTextArea();
                 descriptionArea.setRows(6);
+                descriptionArea.setLineWrap(true);
+                descriptionArea.setWrapStyleWord(true);
                 JScrollPane description = new JScrollPane(descriptionArea);
                 titleAndDescPanel.add(description);
 
@@ -380,6 +384,7 @@ public class ExportPublishPane extends ExportPane
                 sourceAndLockPanel.add(includeSource);
                 lockScenario.setFont(smallFont);
                 sourceAndLockPanel.add(lockScenario);
+                sourceAndLockPanel.setMaximumSize(sourceAndLockPanel.getPreferredSize());
             }
             leftPanel.add(sourceAndLockPanel, BorderLayout.SOUTH);
 
