@@ -36,12 +36,12 @@ import bluej.Config;
 import bluej.prefmgr.PrefMgr;
 
 /**
- * ScopeHighlightingPrefSlider is the slider that controls the 
- * strength of the scope highlighting colors
+ * A manager for the components used to manipulate the scope highlighting strength
+ * preference.
  * 
  * @author Marion Zalk
  */
-public class ScopeHighlightingPrefDisplay extends JPanel implements ChangeListener
+public class ScopeHighlightingPrefDisplay implements ChangeListener
 {
     public static final int MIN=0;
     public static final int MAX=20;
@@ -105,23 +105,23 @@ public class ScopeHighlightingPrefDisplay extends JPanel implements ChangeListen
         }
     }
 
-    /*
+    /**
      * Returns the highlighter slider
      */
-    protected JSlider getHighlightStrengthSlider(){  
+    protected JSlider getHighlightStrengthSlider()
+    {  
         return slider;
-
     }
 
-    /*
+    /**
      * Returns the color palette
      */
-    protected JPanel getColourPalette(){
+    protected JPanel getColourPalette()
+    {
         return colorPanel;
-
     }
 
-    /*
+    /**
      * The value of the slider
      */
     protected int getStrengthValue()
@@ -129,7 +129,7 @@ public class ScopeHighlightingPrefDisplay extends JPanel implements ChangeListen
         return slider.getValue();   
     }
 
-    /*
+    /**
      * Setting the colour relative to the background colour of the document
      * and using the value of the slider to calculate strength
      */
@@ -139,7 +139,7 @@ public class ScopeHighlightingPrefDisplay extends JPanel implements ChangeListen
                 c.getBlue(), getStrengthValue());
     }
 
-    /*
+    /**
      * Sets the green palette
      */
     protected void setGreenPalette()
@@ -150,7 +150,7 @@ public class ScopeHighlightingPrefDisplay extends JPanel implements ChangeListen
         greenPanelArea.setBorder(BorderFactory.createLineBorder(greenSettingBorder));
     }
 
-    /*
+    /**
      * Sets the yellow palette
      */
     protected void setYellowPalette()
@@ -161,7 +161,7 @@ public class ScopeHighlightingPrefDisplay extends JPanel implements ChangeListen
         yellowPanelArea.setBorder(BorderFactory.createLineBorder(yellowSettingBorder));
     }
 
-    /*
+    /**
      * Sets the pink palette
      */
     protected void setPinkPalette()
@@ -172,7 +172,7 @@ public class ScopeHighlightingPrefDisplay extends JPanel implements ChangeListen
         pinkPanelArea.setBorder(BorderFactory.createLineBorder(pinkSettingBorder));
     }
 
-    /*
+    /**
      * Sets the blue palette
      */
     protected void setBluePalette()
@@ -183,14 +183,15 @@ public class ScopeHighlightingPrefDisplay extends JPanel implements ChangeListen
         bluePanelArea.setBorder(BorderFactory.createLineBorder(blueSettingBorder));
     }
 
-    /*
-     * When the slider is moved, the color palette updates immediately 
+    /**
+     * When the slider is moved, the color palette updates immediately
      */
-    public void stateChanged(ChangeEvent e) {
+    public void stateChanged(ChangeEvent e)
+    {
         setPaletteValues();
     }
 
-    /*
+    /**
      * Updates the palette with the color of the wash and border
      */
     private void setPaletteValues()
