@@ -305,6 +305,10 @@ public abstract class BlueJSyntaxView extends PlainView
     protected void paintScopeMarkers(Graphics g, MoeSyntaxDocument document, Shape a,
             int firstLine, int lastLine, boolean onlyMethods, boolean small)
     {
+        if (strength == 0) {
+            return;
+        }
+        
         Element map = document.getDefaultRootElement();
         ParsedNode rootNode = document.getParsedNode();
         Rectangle clipBounds = g.getClipBounds();
@@ -1381,7 +1385,7 @@ public abstract class BlueJSyntaxView extends PlainView
     public static Color getReducedColor(int r, int g, int b, int strength)
     {
         Color bg = MoeSyntaxDocument.getBackgroundColor();
-        double factor = strength / 20.0;
+        double factor = strength / (float) ScopeHighlightingPrefDisplay.MAX;
         double other = 1 - factor;
         int nr = Math.min((int)(r * factor + bg.getRed() * other), 255);
         int ng = Math.min((int)(g * factor + bg.getGreen() * other), 255);
